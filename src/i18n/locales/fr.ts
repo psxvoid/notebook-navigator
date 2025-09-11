@@ -61,7 +61,7 @@ export const STRINGS_FR = {
         customSort: 'Personnalisé', // Label for custom sorting mode (English: Custom)
         showFolders: 'Afficher la navigation', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Masquer la navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        toggleSubfolders: 'Afficher les notes des sous-dossiers', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        toggleDescendantNotes: 'Afficher les notes des descendants (dossiers et étiquettes)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: 'Développer automatiquement les dossiers et les étiquettes', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Afficher les éléments masqués', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Masquer les éléments masqués', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -322,14 +322,17 @@ export const STRINGS_FR = {
             failedToAddTag: 'Échec de l\'ajout de l\'étiquette "{tag}"',
             failedToClearTags: 'Échec de la suppression des étiquettes',
             failedToMoveFolder: 'Échec du déplacement du dossier "{name}"',
-            foldersCannotHaveTags: 'Les dossiers ne peuvent pas avoir de tags'
+            foldersCannotHaveTags: 'Les dossiers ne peuvent pas avoir de tags',
+            failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {
             filesAlreadyExist: '{count} fichiers existent déjà dans la destination',
             addedTag: 'Étiquette "{tag}" ajoutée à {count} fichiers',
             filesAlreadyHaveTag: '{count} fichiers ont déjà cette étiquette ou une plus spécifique',
             clearedTags: 'Toutes les étiquettes supprimées de {count} fichiers',
-            noTagsToClear: 'Aucune étiquette à supprimer'
+            noTagsToClear: 'Aucune étiquette à supprimer',
+            fileImported: 'Imported 1 file',
+            filesImported: 'Imported {count} files'
         }
     },
 
@@ -363,7 +366,7 @@ export const STRINGS_FR = {
         moveFiles: 'Déplacer les fichiers', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Naviguer vers le dossier', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: 'Basculer notes des sous-dossiers', // Command palette: Toggles showing notes from subfolders (English: Toggle notes from subfolders)
+        toggleDescendantNotes: 'Basculer notes des descendants', // Command palette: Toggles showing notes from descendants (English: Toggle notes from descendants)
         toggleHidden: 'Basculer les éléments masqués', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapse: 'Replier / déplier tous les éléments', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Ajouter une étiquette aux fichiers sélectionnés', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
@@ -422,10 +425,6 @@ export const STRINGS_FR = {
             optimizeNoteHeight: {
                 name: 'Optimiser la hauteur des notes',
                 desc: "Réduire la hauteur pour les notes épinglées et les notes sans texte d'aperçu."
-            },
-            showNotesFromSubfolders: {
-                name: 'Afficher les notes des sous-dossiers',
-                desc: 'Afficher toutes les notes des sous-dossiers dans la vue du dossier actuel.'
             },
             showParentFolderNames: {
                 name: 'Afficher les noms des dossiers parents',

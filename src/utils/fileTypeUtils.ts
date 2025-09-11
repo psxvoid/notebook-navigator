@@ -119,3 +119,21 @@ export function isImageFile(file: TFile): boolean {
     }
     return IMAGE_EXTENSIONS.has(file.extension.toLowerCase());
 }
+
+/**
+ * Determines whether an inline extension suffix should be shown for a file name.
+ * Excludes markdown, canvas, and base files.
+ */
+export function shouldShowExtensionSuffix(file: TFile): boolean {
+    if (!file || !file.extension) return false;
+    const ext = file.extension;
+    return !(ext === 'md' || ext === 'canvas' || ext === 'base');
+}
+
+/**
+ * Returns the extension suffix for inline display, including the leading dot.
+ * Returns an empty string when suffix should not be shown.
+ */
+export function getExtensionSuffix(file: TFile): string {
+    return shouldShowExtensionSuffix(file) ? `.${file.extension}` : '';
+}

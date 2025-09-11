@@ -60,7 +60,7 @@ import { strings } from '../i18n';
 import { SortOption } from '../settings';
 import { ItemType } from '../types';
 import { DateUtils } from '../utils/dateUtils';
-import { isImageFile } from '../utils/fileTypeUtils';
+import { getExtensionSuffix, isImageFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
 import { ObsidianIcon } from './ObsidianIcon';
 
@@ -245,6 +245,10 @@ export const FileItem = React.memo(function FileItem({
     // Highlight matches in display name when search is active
     const highlightedName = useMemo(() => renderHighlightedText(displayName, searchQuery), [displayName, searchQuery]);
 
+    // Decide whether to render an inline extension suffix after the name
+    const extensionSuffix = useMemo(() => getExtensionSuffix(file), [file]);
+    const showExtensionSuffix = useMemo(() => shouldShowExtensionSuffix(file), [file]);
+
     // === Callbacks ===
 
     // Handle tag click
@@ -293,7 +297,7 @@ export const FileItem = React.memo(function FileItem({
         return [...favoriteTags, ...coloredTags, ...regularTags];
     }, [tags, findTagInFavoriteTree, getTagColor]);
 
-    // Render tags - extracted to avoid duplication
+    // Render tags
     const renderTags = useCallback(() => {
         if (!settings.showTags || !settings.showFileTags || categorizedTags.length === 0) {
             return null;
@@ -377,8 +381,9 @@ export const FileItem = React.memo(function FileItem({
     // Determine if we should show the feature image area (either with an image or extension badge)
     const shouldShowFeatureImageArea =
         appearanceSettings.showImage &&
-        (featureImageUrl || // Has an actual image
-            (file.extension !== 'md' && !isImageFile(file))); // Non-markdown, non-image files show extension badge
+        (featureImageUrl || // Has an actual image (markdown with feature image, or image files)
+            file.extension === 'canvas' ||
+            file.extension === 'base');
 
     // Memoize className to avoid string concatenation on every render
     const className = useMemo(() => {
@@ -466,8 +471,9 @@ export const FileItem = React.memo(function FileItem({
             ? `${strings.tooltips.createdAt} ${createdDate}\n${strings.tooltips.lastModifiedAt} ${modifiedDate}`
             : `${strings.tooltips.lastModifiedAt} ${modifiedDate}\n${strings.tooltips.createdAt} ${createdDate}`;
 
-        // Always include filename at the top
-        const tooltip = `${displayName}\n\n${datesTooltip}`;
+        // Always include a name at the top. When showing suffix, prefer the true filename (with extension)
+        const topLine = shouldShowExtensionSuffix(file) ? file.name : displayName;
+        const tooltip = `${topLine}\n\n${datesTooltip}`;
 
         // Check if RTL mode is active
         const isRTL = document.body.classList.contains('mod-rtl');
@@ -486,7 +492,8 @@ export const FileItem = React.memo(function FileItem({
         getFileCreatedTime,
         getFileModifiedTime,
         sortOption,
-        metadataVersion
+        metadataVersion,
+        file.name
     ]);
 
     // Quick action handlers - these don't need memoization because:
@@ -615,18 +622,22 @@ export const FileItem = React.memo(function FileItem({
                 )}
                 <div className="nn-file-inner-content">
                     {isSlimMode ? (
-                        // Slim mode: Show file name and tags with minimal styling
+                        // ========== SLIM MODE ==========
+                        // Minimal layout: only file name + tags
+                        // Used when date, preview, and image are all disabled
                         <div className="nn-slim-file-text-content">
                             <div
                                 className="nn-file-name"
                                 style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
                             >
                                 {highlightedName}
+                                {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
                             </div>
                             {renderTags()}
                         </div>
                     ) : (
-                        // Normal mode: Show all enabled elements
+                        // ========== NORMAL MODE ==========
+                        // Full layout with all enabled elements
                         <>
                             <div className="nn-file-text-content">
                                 <div
@@ -634,9 +645,12 @@ export const FileItem = React.memo(function FileItem({
                                     style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
                                 >
                                     {highlightedName}
+                                    {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
                                 </div>
 
-                                {/* Single row mode (preview rows = 1) - show all elements */}
+                                {/* ========== SINGLE LINE MODE ========== */}
+                                {/* Conditions: pinnedItemShouldUseCompactLayout OR previewRows < 2 */}
+                                {/* Layout: Date+Preview share one line, tags below, parent folder last */}
                                 {shouldUseSingleLineForDateAndPreview && (
                                     <>
                                         {/* Date + Preview on same line */}
@@ -652,13 +666,13 @@ export const FileItem = React.memo(function FileItem({
                                         {/* Tags */}
                                         {renderTags()}
 
-                                        {/* Parent folder - not shown for pinned items when optimization is enabled */}
-                                        {!pinnedItemShouldUseCompactLayout &&
-                                            settings.showNotesFromSubfolders &&
-                                            settings.showParentFolderNames &&
-                                            parentFolder &&
+                                        {/* Parent folder - gets its own line */}
+                                        {/* Hidden when: pinnedItemShouldUseCompactLayout (pinned + optimization enabled) */}
+                                        {settings.showParentFolderNames &&
                                             file.parent &&
-                                            file.parent.path !== parentFolder && (
+                                            !pinnedItemShouldUseCompactLayout &&
+                                            (selectionType === ItemType.TAG ||
+                                                (settings.includeDescendantNotes && parentFolder && file.parent.path !== parentFolder)) && (
                                                 <div className="nn-file-folder">
                                                     <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
                                                     <span>{file.parent.name}</span>
@@ -667,22 +681,28 @@ export const FileItem = React.memo(function FileItem({
                                     </>
                                 )}
 
-                                {/* Multi-row mode (preview rows >= 2) - different layouts based on preview content */}
+                                {/* ========== MULTI-LINE MODE ========== */}
+                                {/* Conditions: !pinnedItemShouldUseCompactLayout AND previewRows >= 2 */}
+                                {/* Two sub-cases based on preview content and optimization settings */}
                                 {shouldUseMultiLinePreviewLayout && (
                                     <>
-                                        {/* Case 1: Empty preview text - show tags, then date + parent folder */}
+                                        {/* CASE 1: COLLAPSED EMPTY PREVIEW */}
+                                        {/* Conditions: heightOptimizationEnabled AND !hasPreviewText */}
+                                        {/* Layout: Tags first, then Date+Parent on same line (compact) */}
                                         {shouldCollapseEmptyPreviewSpace && (
                                             <>
                                                 {/* Tags (show even when no preview text) */}
                                                 {renderTags()}
-                                                {/* Date + Parent folder on same line */}
+                                                {/* Date + Parent folder share the second line (compact layout) */}
                                                 <div className="nn-file-second-line">
                                                     {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
-                                                    {settings.showNotesFromSubfolders &&
-                                                        settings.showParentFolderNames &&
-                                                        parentFolder &&
+                                                    {settings.showParentFolderNames &&
                                                         file.parent &&
-                                                        file.parent.path !== parentFolder && (
+                                                        !pinnedItemShouldUseCompactLayout &&
+                                                        (selectionType === ItemType.TAG ||
+                                                            (settings.includeDescendantNotes &&
+                                                                parentFolder &&
+                                                                file.parent.path !== parentFolder)) && (
                                                             <div className="nn-file-folder">
                                                                 <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
                                                                 <span>{file.parent.name}</span>
@@ -692,7 +712,9 @@ export const FileItem = React.memo(function FileItem({
                                             </>
                                         )}
 
-                                        {/* Case 2: Has preview text - show preview, tags, then date + parent folder */}
+                                        {/* CASE 2: ALWAYS RESERVE PREVIEW SPACE */}
+                                        {/* Conditions: heightOptimizationDisabled OR hasPreviewText */}
+                                        {/* Layout: Full preview rows, tags, then Date+Parent on same line */}
                                         {shouldAlwaysReservePreviewSpace && (
                                             <>
                                                 {/* Multi-row preview - show preview text spanning multiple rows */}
@@ -705,17 +727,19 @@ export const FileItem = React.memo(function FileItem({
                                                     </div>
                                                 )}
 
-                                                {/* Tags (only when preview text exists) */}
+                                                {/* Tags row */}
                                                 {renderTags()}
 
-                                                {/* Date + Parent folder on same line */}
+                                                {/* Date + Parent folder share the metadata line */}
                                                 <div className="nn-file-second-line">
                                                     {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
-                                                    {settings.showNotesFromSubfolders &&
-                                                        settings.showParentFolderNames &&
-                                                        parentFolder &&
+                                                    {settings.showParentFolderNames &&
                                                         file.parent &&
-                                                        file.parent.path !== parentFolder && (
+                                                        !pinnedItemShouldUseCompactLayout &&
+                                                        (selectionType === ItemType.TAG ||
+                                                            (settings.includeDescendantNotes &&
+                                                                parentFolder &&
+                                                                file.parent.path !== parentFolder)) && (
                                                             <div className="nn-file-folder">
                                                                 <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
                                                                 <span>{file.parent.name}</span>
@@ -727,6 +751,8 @@ export const FileItem = React.memo(function FileItem({
                                     </>
                                 )}
                             </div>
+                            {/* ========== FEATURE IMAGE AREA ========== */}
+                            {/* Shows either actual image or extension badge for non-markdown files */}
                             {shouldShowFeatureImageArea && (
                                 <div className="nn-feature-image">
                                     {featureImageUrl ? (

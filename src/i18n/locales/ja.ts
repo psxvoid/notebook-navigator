@@ -61,7 +61,7 @@ export const STRINGS_JA = {
         customSort: 'カスタム', // Label for custom sorting mode (English: Custom)
         showFolders: 'ナビゲーションを表示', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'ナビゲーションを非表示', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        toggleSubfolders: 'サブフォルダのノートを表示', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        toggleDescendantNotes: '子孫のノートを表示（フォルダとタグ）', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '非表示項目を表示', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: '非表示項目を隠す', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -322,14 +322,17 @@ export const STRINGS_JA = {
             failedToAddTag: 'タグ "{tag}" の追加に失敗しました',
             failedToClearTags: 'タグのクリアに失敗しました',
             failedToMoveFolder: 'フォルダ「{name}」の移動に失敗しました',
-            foldersCannotHaveTags: 'フォルダにタグを付けることはできません'
+            foldersCannotHaveTags: 'フォルダにタグを付けることはできません',
+            failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {
             filesAlreadyExist: '{count}個のファイルが移動先に既に存在します',
             addedTag: '{count}個のファイルにタグ "{tag}" を追加しました',
             filesAlreadyHaveTag: '{count}個のファイルには既にこのタグまたはより具体的なタグがあります',
             clearedTags: '{count}個のファイルからすべてのタグをクリアしました',
-            noTagsToClear: 'クリアするタグがありません'
+            noTagsToClear: 'クリアするタグがありません',
+            fileImported: 'Imported 1 file',
+            filesImported: 'Imported {count} files'
         }
     },
 
@@ -363,7 +366,7 @@ export const STRINGS_JA = {
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: 'サブフォルダのノート切り替え', // Command palette: Toggles showing notes from subfolders (English: Toggle notes from subfolders)
+        toggleDescendantNotes: '子孫のノート切り替え', // Command palette: Toggles showing notes from descendants (English: Toggle notes from descendants)
         toggleHidden: '非表示項目を切り替え', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapse: 'すべての項目を折りたたむ/展開', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '選択したファイルにタグを追加', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
@@ -422,10 +425,6 @@ export const STRINGS_JA = {
             optimizeNoteHeight: {
                 name: 'ノートの高さを最適化',
                 desc: 'ピン留めされたノートとプレビューテキストのないノートの高さを削減。'
-            },
-            showNotesFromSubfolders: {
-                name: 'サブフォルダのノートを表示',
-                desc: '現在のフォルダビューにすべてのサブフォルダのノートを表示します。'
             },
             showParentFolderNames: {
                 name: '親フォルダ名を表示',

@@ -17,16 +17,31 @@
  */
 
 /**
- * useListPaneScroll - Manages scrolling behavior for the ListPane component
+ * useListPaneScroll - Orchestrates scrolling for the ListPane component
  *
- * This hook handles:
- * - Virtual list initialization and management
- * - Scroll position tracking and restoration
- * - Dynamic item height calculation based on content
+ * ## Problem this solves:
+ * The list pane rebuilds when navigating folders, changing settings, or applying
+ * filters. Without proper synchronization, scrolls would execute before the list
+ * updates, causing incorrect positioning or failed scrolls.
+ *
+ * ## Solution:
+ * Priority-based scroll queue with version gating. Scrolls are prioritized by
+ * importance and wait for list rebuilds before executing.
+ *
+ * ## Key concepts:
+ * - **Priority system**: Higher priority scrolls override lower ones (reveal > navigation > visibility > config)
+ * - **Index versioning**: Tracks list rebuilds for proper timing
+ * - **Scroll reasons**: Different intents with specific alignment behaviors
+ * - **Stabilization**: Handles rapid consecutive rebuilds gracefully
+ *
+ * ## Handles:
+ * - Virtual list initialization with dynamic heights
+ * - Folder/tag navigation with file preservation
+ * - Configuration changes (subfolders, appearance)
+ * - Mobile drawer visibility
+ * - Reveal operations (show active file)
+ * - Search filter changes
  * - Sticky header tracking for date groups
- * - Deferred scrolling for async list updates
- * - Mobile-specific scroll behaviors
- * - Scroll-to-file with header visibility
  */
 
 import { useRef, useCallback, useEffect, useState } from 'react';
@@ -35,6 +50,7 @@ import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useServices } from '../context/ServicesContext';
 import { useFileCache } from '../context/StorageContext';
 import { ListPaneItemType, LISTPANE_MEASUREMENTS, OVERSCAN } from '../types';
+import { Align, ListScrollIntent, getListAlign, rankListPending } from '../types/scroll';
 import type { ListPaneItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { SelectionState } from '../context/SelectionContext';
@@ -118,10 +134,25 @@ export function useListPaneScroll({
     const prevConfigKeyRef = useRef<string>(''); // Track config changes for scroll preservation
     const prevSearchQueryRef = useRef<string | undefined>(undefined); // Track search query changes
 
-    // Scroll reason types to determine alignment behavior
-    type ScrollReason = 'folder-navigation' | 'visibility-change' | 'reveal' | 'list-config-change';
-    const pendingScrollRef = useRef<{ type: 'file' | 'top'; filePath?: string; reason?: ScrollReason } | null>(null); // Deferred scroll operations for async list updates
-    const [pendingScrollVersion, setPendingScrollVersion] = useState(0); // Version counter to trigger scroll effect execution
+    // ========== Scroll Orchestration ==========
+    // Scroll reasons determine priority and alignment behavior
+    type ScrollReason = ListScrollIntent;
+
+    // Pending scroll stores requests until list is ready
+    type PendingScroll = {
+        type: 'file' | 'top'; // Scroll to specific file or top of list
+        filePath?: string; // Target file path (for type='file')
+        reason?: ScrollReason; // Why this scroll was requested
+        minIndexVersion?: number; // Don't execute until indexVersion >= this
+    };
+    const pendingScrollRef = useRef<PendingScroll | null>(null);
+    const [pendingScrollVersion, setPendingScrollVersion] = useState(0); // Triggers effect re-run
+
+    // ========== Index Version Tracking ==========
+    // Increments when list rebuilds to ensure scrolls execute with correct indices
+    const indexVersionRef = useRef<number>(0);
+    const prevIndexMapSizeRef = useRef<number>(filePathToIndex.size);
+    const prevIndexMapObjRef = useRef<Map<string, number> | null>(null);
 
     // Track list items order to detect when items are reordered (for virtualizer reset)
     const listItemsKeyRef = useRef('');
@@ -209,11 +240,13 @@ export function useListPaneScroll({
                         textContentHeight += heights.singleTextLineHeight;
                     }
 
-                    // Parent folder gets its own line (not shown for pinned items when optimization is enabled)
-                    if (!pinnedItemShouldUseCompactLayout && settings.showParentFolderNames && settings.showNotesFromSubfolders) {
+                    // Parent folder gets its own line (not when pinned is in compact layout)
+                    if (!pinnedItemShouldUseCompactLayout && settings.showParentFolderNames) {
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
-                        if (isInSubfolder) {
+                        const showParentFolderLine =
+                            selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder);
+                        if (showParentFolderLine) {
                             textContentHeight += heights.singleTextLineHeight;
                         }
                     }
@@ -223,7 +256,10 @@ export function useListPaneScroll({
                         // Optimization enabled and empty preview: compact layout
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
-                        const showParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
+                        const showParentFolder =
+                            settings.showParentFolderNames &&
+                            !pinnedItemShouldUseCompactLayout &&
+                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder));
 
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
@@ -245,7 +281,10 @@ export function useListPaneScroll({
                         // Only add metadata line if date is shown OR parent folder is shown
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
-                        const showParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
+                        const showParentFolder =
+                            settings.showParentFolderNames &&
+                            !pinnedItemShouldUseCompactLayout &&
+                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder));
 
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
@@ -339,15 +378,59 @@ export function useListPaneScroll({
         if (listItemsKeyRef.current && listItemsKeyRef.current !== currentListItemsKey) {
             // List items have been reordered, reset virtualizer measurements
             rowVirtualizer.measure();
+            // Increment version so pending scrolls execute after reorder
+            indexVersionRef.current = indexVersionRef.current + 1;
         }
         listItemsKeyRef.current = currentListItemsKey;
     }, [currentListItemsKey, rowVirtualizer]);
 
     /**
-     * Process pending scroll operations.
-     * Handles deferred scrolling for single-pane mode and ensures proper timing
-     * after list updates or visibility changes.
-     * SCROLL_EXECUTE: Executes pending scrolls with reason-based alignment
+     * Increment indexVersion when list structure changes.
+     * Critical for ensuring scrolls execute after list rebuilds.
+     */
+    useEffect(() => {
+        const sizeChanged = prevIndexMapSizeRef.current !== filePathToIndex.size;
+        const identityChanged = prevIndexMapObjRef.current !== filePathToIndex;
+        if (sizeChanged || identityChanged) {
+            prevIndexMapSizeRef.current = filePathToIndex.size;
+            prevIndexMapObjRef.current = filePathToIndex;
+            indexVersionRef.current = indexVersionRef.current + 1;
+        }
+    }, [filePathToIndex, filePathToIndex.size]);
+
+    /**
+     * Priority-based scroll queue management.
+     * Higher priority scrolls override lower priority ones.
+     *
+     * Priority order (lowest to highest):
+     * 0. top - Scroll to top of list
+     * 1. list-config-change - Settings changed
+     * 2. visibility-change - Mobile drawer opened
+     * 3. folder-navigation - User changed folders
+     * 4. reveal - Show active file command
+     */
+    const setPending = useCallback((next: PendingScroll) => {
+        const current = pendingScrollRef.current;
+        if (!current || rankListPending(next) >= rankListPending(current)) {
+            pendingScrollRef.current = next;
+            setPendingScrollVersion(v => v + 1);
+        }
+    }, []);
+
+    /**
+     * Process pending scrolls when conditions are met.
+     * Central execution point for all scroll operations.
+     *
+     * Execution requirements:
+     * 1. List must be visible
+     * 2. Virtualizer must be ready
+     * 3. indexVersion must meet minimum requirement
+     *
+     * Alignment policy:
+     * - folder-navigation: center on mobile, auto on desktop
+     * - visibility-change: auto (minimal movement)
+     * - reveal: auto (show if not visible)
+     * - list-config-change: auto (maintain position)
      */
     useEffect(() => {
         if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) {
@@ -357,25 +440,43 @@ export function useListPaneScroll({
         const pending = pendingScrollRef.current;
         let shouldClearPending = false;
 
+        // Version gate: Wait for list rebuild if required
+        const effectiveMin = pending.minIndexVersion ?? indexVersionRef.current;
+        if (indexVersionRef.current < effectiveMin) {
+            return;
+        }
+
         if (pending.type === 'file' && pending.filePath) {
             const index = getSelectionIndex(pending.filePath);
             if (index >= 0) {
-                // Use 'center' alignment on mobile for folder navigation, 'auto' otherwise
-                const alignment = isMobile && pending.reason === 'folder-navigation' ? 'center' : 'auto';
+                const alignment: Align = getListAlign(pending.reason);
                 rowVirtualizer.scrollToIndex(index, {
                     align: alignment,
                     behavior: 'auto'
                 });
 
-                // Ensure scroll completes before clearing pending
-                requestAnimationFrame(() => {
-                    // Scroll completed
-                });
+                // Stabilization mechanism: Handle rapid consecutive rebuilds
+                // Config changes can trigger multiple rebuilds. We check if
+                // the index changed after execution and queue a follow-up if needed.
+                if (pending.reason === 'list-config-change') {
+                    const usedIndex = index;
+                    const usedPath = pending.filePath;
+                    requestAnimationFrame(() => {
+                        const newIndex = usedPath ? getSelectionIndex(usedPath) : -1;
+                        if (usedPath && newIndex >= 0 && newIndex !== usedIndex) {
+                            setPending({
+                                type: 'file',
+                                filePath: usedPath,
+                                reason: 'list-config-change',
+                                minIndexVersion: indexVersionRef.current + 1
+                            });
+                        }
+                    });
+                }
 
                 shouldClearPending = true;
             } else {
-                // File not found in index yet - keep the pending scroll
-                // This can happen when toggling showNotesFromSubfolders and the list hasn't updated yet
+                // Keep pending until file appears in index
                 shouldClearPending = false;
             }
         } else if (pending.type === 'top') {
@@ -383,11 +484,10 @@ export function useListPaneScroll({
             shouldClearPending = true;
         }
 
-        // Only clear the pending scroll if we successfully executed it or if it's a top scroll
         if (shouldClearPending) {
             pendingScrollRef.current = null;
         }
-    }, [rowVirtualizer, filePathToIndex, isVisible, pendingScrollVersion, getSelectionIndex, isMobile]);
+    }, [rowVirtualizer, filePathToIndex, isVisible, pendingScrollVersion, getSelectionIndex, isMobile, setPending]);
 
     /**
      * Subscribe to database content changes and re-measure virtualizer when needed.
@@ -440,14 +540,18 @@ export function useListPaneScroll({
             // If we have a selected file, set a pending scroll
             // This works regardless of whether auto-reveal has run yet
             if (selectedFile && rowVirtualizer) {
-                pendingScrollRef.current = { type: 'file', filePath: selectedFile.path, reason: 'visibility-change' };
-                setPendingScrollVersion(v => v + 1);
+                setPending({
+                    type: 'file',
+                    filePath: selectedFile.path,
+                    reason: 'visibility-change',
+                    minIndexVersion: indexVersionRef.current
+                });
             }
         };
 
         window.addEventListener('notebook-navigator-visible', handleVisible);
         return () => window.removeEventListener('notebook-navigator-visible', handleVisible);
-    }, [isMobile, selectedFile, rowVirtualizer, filePathToIndex]);
+    }, [isMobile, selectedFile, rowVirtualizer, filePathToIndex, setPending]);
 
     /**
      * Re-measure all items when height-affecting settings change.
@@ -491,7 +595,7 @@ export function useListPaneScroll({
         }
 
         // Build a key from just the config values that should trigger scroll preservation
-        const configKey = `${settings.showNotesFromSubfolders}-${settings.optimizeNoteHeight}-${JSON.stringify(folderSettings)}-${currentListItemsKey}`;
+        const configKey = `${settings.includeDescendantNotes}-${settings.optimizeNoteHeight}-${JSON.stringify(folderSettings)}-${currentListItemsKey}`;
 
         // Check if config actually changed
         if (prevConfigKeyRef.current === configKey) {
@@ -500,28 +604,36 @@ export function useListPaneScroll({
 
         // Detect subfolder toggle for special handling
         const wasShowingSubfolders = prevConfigKeyRef.current && prevConfigKeyRef.current.startsWith('true');
-        const nowShowingSubfolders = settings.showNotesFromSubfolders;
+        const nowShowingSubfolders = settings.includeDescendantNotes;
 
         // Update the ref
         prevConfigKeyRef.current = configKey;
 
         // Set a pending scroll to maintain position on selected file when config changes
         if (selectedFile) {
-            pendingScrollRef.current = { type: 'file', filePath: selectedFile.path, reason: 'list-config-change' };
-            setPendingScrollVersion(v => v + 1);
+            setPending({
+                type: 'file',
+                filePath: selectedFile.path,
+                reason: 'list-config-change',
+                minIndexVersion: indexVersionRef.current + 1
+            });
         } else if (wasShowingSubfolders && !nowShowingSubfolders) {
             // Special case: When disabling subfolders and no file selected, scroll to top
-            pendingScrollRef.current = { type: 'top', reason: 'list-config-change' };
-            setPendingScrollVersion(v => v + 1);
+            setPending({
+                type: 'top',
+                reason: 'list-config-change',
+                minIndexVersion: indexVersionRef.current + 1
+            });
         }
     }, [
         isVisible,
         rowVirtualizer,
         selectedFile,
-        settings.showNotesFromSubfolders,
+        settings.includeDescendantNotes,
         settings.optimizeNoteHeight,
         folderSettings,
-        currentListItemsKey
+        currentListItemsKey,
+        setPending
     ]);
 
     /**
@@ -570,10 +682,16 @@ export function useListPaneScroll({
                 selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
             }
 
-            pendingScrollRef.current = selectedFile
-                ? { type: 'file', filePath: selectedFile.path, reason: 'folder-navigation' }
-                : { type: 'top', reason: 'folder-navigation' };
-            setPendingScrollVersion(v => v + 1);
+            setPending(
+                selectedFile
+                    ? {
+                          type: 'file',
+                          filePath: selectedFile.path,
+                          reason: 'folder-navigation',
+                          minIndexVersion: indexVersionRef.current
+                      }
+                    : { type: 'top', reason: 'folder-navigation', minIndexVersion: indexVersionRef.current }
+            );
             return;
         }
 
@@ -588,10 +706,16 @@ export function useListPaneScroll({
             // Clear the folder navigation flag
             selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
 
-            pendingScrollRef.current = selectedFile
-                ? { type: 'file', filePath: selectedFile.path, reason: 'folder-navigation' }
-                : { type: 'top', reason: 'folder-navigation' };
-            setPendingScrollVersion(v => v + 1);
+            setPending(
+                selectedFile
+                    ? {
+                          type: 'file',
+                          filePath: selectedFile.path,
+                          reason: 'folder-navigation',
+                          minIndexVersion: indexVersionRef.current
+                      }
+                    : { type: 'top', reason: 'folder-navigation', minIndexVersion: indexVersionRef.current }
+            );
         } else {
             // For other cases (initial load), use pending scroll for consistency
             // RAF was getting canceled due to rapid re-renders
@@ -601,10 +725,16 @@ export function useListPaneScroll({
                 prevListKeyRef.current = currentListKey;
             }
 
-            pendingScrollRef.current = selectedFile
-                ? { type: 'file', filePath: selectedFile.path, reason: 'folder-navigation' }
-                : { type: 'top', reason: 'folder-navigation' };
-            setPendingScrollVersion(v => v + 1);
+            setPending(
+                selectedFile
+                    ? {
+                          type: 'file',
+                          filePath: selectedFile.path,
+                          reason: 'folder-navigation',
+                          minIndexVersion: indexVersionRef.current
+                      }
+                    : { type: 'top', reason: 'folder-navigation', minIndexVersion: indexVersionRef.current }
+            );
         }
     }, [
         isVisible,
@@ -614,7 +744,8 @@ export function useListPaneScroll({
         selectedFile,
         selectionState.isFolderNavigation,
         selectionDispatch,
-        listItems.length
+        listItems.length,
+        setPending
     ]);
 
     /**
@@ -626,10 +757,14 @@ export function useListPaneScroll({
         if (selectionState.isRevealOperation && selectedFile && isVisible) {
             // Always use pending scroll for reveal operations
             // This ensures proper timing and measurement before scrolling
-            pendingScrollRef.current = { type: 'file', filePath: selectedFile.path, reason: 'reveal' };
-            setPendingScrollVersion(v => v + 1);
+            setPending({
+                type: 'file',
+                filePath: selectedFile.path,
+                reason: 'reveal',
+                minIndexVersion: indexVersionRef.current
+            });
         }
-    }, [selectionState.isRevealOperation, selectedFile, isVisible, selectionDispatch, filePathToIndex]);
+    }, [selectionState.isRevealOperation, selectedFile, isVisible, selectionDispatch, filePathToIndex, setPending]);
 
     /**
      * Handle search query changes.
@@ -656,11 +791,10 @@ export function useListPaneScroll({
 
         // If no selected file or selected file is filtered out, scroll to top
         if (!selectedFileInList && listItems.length > 0) {
-            pendingScrollRef.current = { type: 'top', reason: 'list-config-change' };
-            setPendingScrollVersion(v => v + 1);
+            setPending({ type: 'top', reason: 'list-config-change', minIndexVersion: indexVersionRef.current });
         }
         // If selected file is in list, the folder navigation effect will handle scrolling to it
-    }, [searchQuery, selectedFile, filePathToIndex, isVisible, rowVirtualizer, listItems.length]);
+    }, [searchQuery, selectedFile, filePathToIndex, isVisible, rowVirtualizer, listItems.length, setPending]);
 
     return {
         rowVirtualizer,

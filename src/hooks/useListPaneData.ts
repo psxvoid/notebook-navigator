@@ -360,7 +360,7 @@ export function useListPaneData({
                 const fileFolder = file.parent;
                 if (!fileFolder || fileFolder.path !== selectedFolder.path) {
                     // If not showing subfolders, ignore files not in this folder
-                    if (!settings.showNotesFromSubfolders) {
+                    if (!settings.includeDescendantNotes) {
                         return;
                     }
                     // If showing subfolders, check if it's a descendant
@@ -407,7 +407,7 @@ export function useListPaneData({
             // Cancel any pending scheduled refresh to avoid stray updates
             scheduleRefresh.cancel();
         };
-    }, [app, selectionType, selectedTag, selectedFolder, settings.showNotesFromSubfolders, getDB, commandQueue]);
+    }, [app, selectionType, selectedTag, selectedFolder, settings.includeDescendantNotes, getDB, commandQueue]);
 
     return {
         listItems,

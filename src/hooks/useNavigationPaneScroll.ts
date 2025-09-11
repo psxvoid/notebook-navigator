@@ -17,15 +17,32 @@
  */
 
 /**
- * useNavigationPaneScroll - Manages scrolling behavior for the NavigationPane component
+ * useNavigationPaneScroll - Orchestrates scrolling for the NavigationPane component
  *
- * This hook handles:
+ * ## Problem this solves:
+ * When the tree structure changes (e.g., toggling "show hidden items"), the indices
+ * of items shift. Without proper synchronization, scrolling to a "remembered" index
+ * would land on the wrong item because the tree has changed underneath.
+ *
+ * ## Solution:
+ * Version-based synchronization with intent-driven scrolling. Each tree rebuild
+ * increments an indexVersion, and scrolls are gated to only execute when the
+ * version meets requirements.
+ *
+ * ## Key concepts:
+ * - **Index versioning**: Increments when pathToIndex changes (tree rebuild)
+ * - **Pending scrolls**: Path-based requests that execute when conditions are met
+ * - **Intent types**: Different scroll reasons (selection, visibilityToggle, etc.)
+ * - **Version gating**: Scrolls wait for minIndexVersion before executing
+ * - **Late resolution**: Index is resolved from path at execution time, not storage time
+ *
+ * ## Handles:
  * - Virtual list initialization with TanStack Virtual
- * - Scroll to selected item (folder/tag)
- * - Pending scroll operations for deferred scrolling
- * - Mobile-specific scroll behaviors
- * - Focus and visibility-based scrolling
- * - Requested scrolls from external components
+ * - Selection changes (folder/tag selection)
+ * - Visibility toggles (show/hide hidden items)
+ * - Mobile drawer visibility
+ * - External scroll requests (reveal operations)
+ * - Settings changes (line height, indentation)
  */
 
 import { useRef, useCallback, useEffect, useState } from 'react';
@@ -35,6 +52,7 @@ import { useSelectionState } from '../context/SelectionContext';
 import { useUIState } from '../context/UIStateContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { NavigationPaneItemType, ItemType, NAVPANE_MEASUREMENTS, OVERSCAN } from '../types';
+import { Align, NavScrollIntent, getNavAlign } from '../types/scroll';
 import type { CombinedNavigationItem } from '../types/virtualization';
 
 /**
@@ -81,10 +99,25 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     // Reference to the scroll container DOM element
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    // Pending scroll state for handling reveal operations
-    type PendingScroll = { path: string; align?: 'auto' | 'center' | 'start' | 'end'; behavior?: 'auto' | 'smooth' };
+    // ========== Scroll Orchestration ==========
+    // Intent types determine scroll priority and behavior
+    type ScrollIntent = NavScrollIntent;
+
+    // Pending scroll stores the request until conditions are met
+    type PendingScroll = {
+        path: string; // Target path to scroll to (resolved to index at execution)
+        align?: Align;
+        behavior?: 'auto' | 'smooth';
+        intent?: ScrollIntent; // Why this scroll was requested
+        minIndexVersion?: number; // Don't execute until indexVersion >= this value
+    };
     const pendingScrollRef = useRef<PendingScroll | null>(null);
-    const [pendingScrollVersion, setPendingScrollVersion] = useState(0);
+    const [pendingScrollVersion, setPendingScrollVersion] = useState(0); // Triggers effect re-run
+
+    // ========== Index Version Tracking ==========
+    // Increments each time the tree rebuilds to ensure scrolls execute with correct indices
+    const indexVersionRef = useRef<number>(0);
+    const prevPathToIndexObjRef = useRef<Map<string, number> | null>(null);
 
     // Track previous values to detect actual changes
     const prevSelectedPathRef = useRef<string | null>(null);
@@ -92,6 +125,25 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     const prevFocusedPaneRef = useRef<string | null>(null);
     const prevSelectedTagRef = useRef<string | null>(null);
     const prevNavSettingsKeyRef = useRef<string>('');
+    const prevShowHiddenItemsRef = useRef<boolean>(settings.showHiddenItems);
+    const prevPathToIndexSizeRef = useRef<number>(pathToIndex.size);
+
+    /**
+     * Increment indexVersion when tree structure changes.
+     * This is critical for version gating - ensures pending scrolls wait for
+     * the new tree structure before executing.
+     */
+    useEffect(() => {
+        const sizeChanged = prevPathToIndexSizeRef.current !== pathToIndex.size;
+        const identityChanged = prevPathToIndexObjRef.current !== pathToIndex;
+
+        if (sizeChanged || identityChanged) {
+            const prevVersion = indexVersionRef.current;
+            indexVersionRef.current = prevVersion + 1;
+            prevPathToIndexSizeRef.current = pathToIndex.size;
+            prevPathToIndexObjRef.current = pathToIndex;
+        }
+    }, [pathToIndex, pathToIndex.size]);
 
     /**
      * Initialize TanStack Virtual virtualizer with dynamic heights for navigation items
@@ -140,7 +192,13 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
      */
     const requestScroll = useCallback(
         (path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end'; behavior?: 'auto' | 'smooth' }) => {
-            pendingScrollRef.current = { path, align: options?.align, behavior: options?.behavior };
+            pendingScrollRef.current = {
+                path,
+                align: options?.align,
+                behavior: options?.behavior,
+                intent: 'external',
+                minIndexVersion: indexVersionRef.current
+            };
             setPendingScrollVersion(v => v + 1);
         },
         []
@@ -184,6 +242,21 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         // Only scroll on actual selection changes or visibility/focus changes
         if (!isSelectionChange && !justBecameVisible && !justGainedFocus) return;
 
+        // CRITICAL: Guard against race condition during visibility toggle
+        // When showHiddenItems changes, the tree will rebuild with different indices.
+        // We must defer this scroll until AFTER the rebuild completes.
+        if (prevShowHiddenItemsRef.current !== settings.showHiddenItems) {
+            pendingScrollRef.current = {
+                path: selectedPath,
+                align: 'auto',
+                behavior: 'auto',
+                intent: 'visibilityToggle',
+                minIndexVersion: indexVersionRef.current + 1 // Wait for next version
+            };
+            setPendingScrollVersion(v => v + 1);
+            return;
+        }
+
         const index = pathToIndex.get(selectedPath);
 
         if (index !== undefined && index >= 0) {
@@ -192,7 +265,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
                 behavior: 'auto'
             });
         }
-    }, [selectedPath, rowVirtualizer, isVisible, pathToIndex, uiState.focusedPane]);
+    }, [selectedPath, rowVirtualizer, isVisible, pathToIndex, uiState.focusedPane, settings.showHiddenItems]);
 
     /**
      * Special handling for startup tag scrolling
@@ -210,6 +283,21 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
             // Only scroll on actual tag selection changes
             if (!isTagSelectionChange) return;
 
+            // During a hidden-items toggle, defer immediate tag scroll and queue a toggle-intent pending
+            if (prevShowHiddenItemsRef.current !== settings.showHiddenItems) {
+                if (selectedPath) {
+                    pendingScrollRef.current = {
+                        path: selectedPath,
+                        align: 'auto',
+                        behavior: 'auto',
+                        intent: 'visibilityToggle',
+                        minIndexVersion: indexVersionRef.current + 1
+                    };
+                    setPendingScrollVersion(v => v + 1);
+                }
+                return;
+            }
+
             const tagIndex = pathToIndex.get(selectionState.selectedTag);
 
             if (tagIndex !== undefined && tagIndex >= 0) {
@@ -219,26 +307,73 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
                 });
             }
         }
-    }, [pathToIndex, selectionState.selectionType, selectionState.selectedTag, rowVirtualizer, isVisible]);
+    }, [
+        pathToIndex,
+        selectionState.selectionType,
+        selectionState.selectedTag,
+        rowVirtualizer,
+        isVisible,
+        settings.showHiddenItems,
+        selectedPath
+    ]);
 
     /**
-     * Process pending scrolls when pathToIndex is ready
-     * NAV_SCROLL_PENDING: Centers requested items from external components
+     * Process pending scrolls when conditions are met.
+     * This is the heart of the scroll orchestration system.
+     *
+     * Execution requirements:
+     * 1. Pane must be visible
+     * 2. Virtualizer must be ready
+     * 3. indexVersion must meet minimum requirement
+     * 4. During visibility toggles, only visibilityToggle intents execute
      */
     useEffect(() => {
-        if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) {
+        if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) return;
+
+        const { path, align, behavior, intent, minIndexVersion } = pendingScrollRef.current;
+
+        // Priority check: During visibility toggle, only process toggle-intent scrolls
+        // This prevents stale selection scrolls from executing with wrong indices
+        if (prevShowHiddenItemsRef.current !== settings.showHiddenItems && intent !== 'visibilityToggle') {
             return;
         }
 
-        const { path, align, behavior } = pendingScrollRef.current;
+        // Version gate: Wait for tree rebuild if required
+        // This is what prevents scrolling to wrong indices after tree changes
+        const effectiveMin = minIndexVersion ?? indexVersionRef.current;
+        if (indexVersionRef.current < effectiveMin) return;
+
         const index = pathToIndex.get(path);
 
         if (index !== undefined && index !== -1) {
-            rowVirtualizer.scrollToIndex(index, { align: align ?? 'center', behavior: behavior ?? 'auto' });
+            const finalAlign: Align = align ?? getNavAlign(intent);
+            rowVirtualizer.scrollToIndex(index, { align: finalAlign, behavior: behavior ?? 'auto' });
             pendingScrollRef.current = null;
+
+            // Stabilization mechanism: Handle rare double rebuilds
+            // Some operations trigger multiple rapid tree rebuilds. After executing
+            // a visibilityToggle scroll, we check if the index changed again and
+            // queue a follow-up scroll if needed.
+            if (intent === 'visibilityToggle') {
+                const usedIndex = index;
+                const usedPath = path;
+                requestAnimationFrame(() => {
+                    const newIndex = pathToIndex.get(usedPath);
+                    if (newIndex !== undefined && newIndex !== usedIndex) {
+                        pendingScrollRef.current = {
+                            path: usedPath,
+                            align: 'auto',
+                            behavior: 'auto',
+                            intent: 'visibilityToggle',
+                            minIndexVersion: indexVersionRef.current + 1
+                        };
+                        setPendingScrollVersion(v => v + 1);
+                    }
+                });
+            }
         }
         // If index not found, keep the pending scroll for next rebuild
-    }, [rowVirtualizer, pathToIndex, isVisible, pendingScrollVersion]);
+    }, [rowVirtualizer, pathToIndex, isVisible, pendingScrollVersion, settings.showHiddenItems]);
 
     /**
      * Listen for mobile drawer visibility events
@@ -283,21 +418,55 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         const settingsKey = `${settings.navItemHeight}-${settings.navIndent}`;
         const settingsChanged = prevNavSettingsKeyRef.current && prevNavSettingsKeyRef.current !== settingsKey;
 
-        if (settingsChanged && selectedPath && isVisible && rowVirtualizer) {
-            const index = pathToIndex.get(selectedPath);
-            if (index !== undefined && index >= 0) {
-                // Use requestAnimationFrame to ensure measurements are complete
-                requestAnimationFrame(() => {
-                    rowVirtualizer.scrollToIndex(index, {
-                        align: 'auto',
-                        behavior: 'auto'
+        if (settingsChanged) {
+            if (selectedPath && isVisible && rowVirtualizer) {
+                const index = pathToIndex.get(selectedPath);
+                if (index !== undefined && index >= 0) {
+                    // Use requestAnimationFrame to ensure measurements are complete
+                    requestAnimationFrame(() => {
+                        rowVirtualizer.scrollToIndex(index, {
+                            align: 'auto',
+                            behavior: 'auto'
+                        });
                     });
-                });
+                }
             }
         }
 
         prevNavSettingsKeyRef.current = settingsKey;
     }, [settings.navItemHeight, settings.navIndent, selectedPath, pathToIndex, isVisible, rowVirtualizer]);
+
+    /**
+     * Track showHiddenItems setting changes specifically
+     * This is what triggers the tag tree rebuild issue
+     */
+    useEffect(() => {
+        if (prevShowHiddenItemsRef.current !== settings.showHiddenItems) {
+            // When showHiddenItems changes and we have a selected tag, defer scrolling until the tree rebuilds
+            if (selectedPath && selectionState.selectionType === ItemType.TAG && isVisible && rowVirtualizer) {
+                // Set a pending scroll to be processed after the next index rebuild
+                pendingScrollRef.current = {
+                    path: selectedPath,
+                    align: 'auto',
+                    behavior: 'auto',
+                    intent: 'visibilityToggle',
+                    minIndexVersion: indexVersionRef.current + 1
+                };
+                setPendingScrollVersion(v => v + 1);
+            }
+
+            prevShowHiddenItemsRef.current = settings.showHiddenItems;
+        }
+    }, [
+        settings.showHiddenItems,
+        selectedPath,
+        pathToIndex,
+        isVisible,
+        rowVirtualizer,
+        selectionState.selectionType,
+        selectionState.selectedTag,
+        setPendingScrollVersion
+    ]);
 
     return {
         rowVirtualizer,

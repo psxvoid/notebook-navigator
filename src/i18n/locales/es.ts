@@ -61,7 +61,7 @@ export const STRINGS_ES = {
         customSort: 'Personalizado', // Label for custom sorting mode (English: Custom)
         showFolders: 'Mostrar navegación', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Ocultar navegación', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        toggleSubfolders: 'Mostrar notas de subcarpetas', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        toggleDescendantNotes: 'Mostrar notas de descendientes (carpetas y etiquetas)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: 'Expandir carpetas y etiquetas automáticamente', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Mostrar elementos ocultos', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Ocultar elementos ocultos', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -322,14 +322,17 @@ export const STRINGS_ES = {
             failedToAddTag: 'Error al agregar la etiqueta "{tag}"',
             failedToClearTags: 'Error al eliminar las etiquetas',
             failedToMoveFolder: 'Error al mover la carpeta "{name}"',
-            foldersCannotHaveTags: 'Las carpetas no pueden tener etiquetas'
+            foldersCannotHaveTags: 'Las carpetas no pueden tener etiquetas',
+            failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {
             filesAlreadyExist: '{count} archivos ya existen en el destino',
             addedTag: 'Etiqueta "{tag}" agregada a {count} archivos',
             filesAlreadyHaveTag: '{count} archivos ya tienen esta etiqueta o una más específica',
             clearedTags: 'Se eliminaron todas las etiquetas de {count} archivos',
-            noTagsToClear: 'No hay etiquetas para eliminar'
+            noTagsToClear: 'No hay etiquetas para eliminar',
+            fileImported: 'Imported 1 file',
+            filesImported: 'Imported {count} files'
         }
     },
 
@@ -363,7 +366,7 @@ export const STRINGS_ES = {
         moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navegar a etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: 'Alternar notas de subcarpetas', // Command palette: Toggles showing notes from subfolders (English: Toggle notes from subfolders)
+        toggleDescendantNotes: 'Alternar notas de descendientes', // Command palette: Toggles showing notes from descendants (English: Toggle notes from descendants)
         toggleHidden: 'Alternar elementos ocultos', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapse: 'Contraer / expandir todos los elementos', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Añadir etiqueta a archivos seleccionados', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
@@ -422,10 +425,6 @@ export const STRINGS_ES = {
             optimizeNoteHeight: {
                 name: 'Optimizar altura de notas',
                 desc: 'Reducir altura para notas ancladas y notas sin texto de vista previa.'
-            },
-            showNotesFromSubfolders: {
-                name: 'Mostrar notas de subcarpetas',
-                desc: 'Muestra todas las notas de las subcarpetas en la vista de carpeta actual.'
             },
             showParentFolderNames: {
                 name: 'Mostrar nombres de carpetas principales',

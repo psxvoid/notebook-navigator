@@ -28,47 +28,15 @@ import { ItemType, UNTAGGED_TAG_ID } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { getPathFromDataAttribute } from '../utils/domUtils';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { generateUniqueFilename } from '../utils/fileCreationUtils';
 
 /**
- * Custom hook that enables drag and drop functionality for files and folders.
- * Handles visual feedback, validation, and file system operations.
+ * Enables drag and drop for files and folders using event delegation.
+ * Adds visual feedback, validates drops, and performs file operations.
  *
- * ## Design Decision: Event Delegation with Data Attributes
- * This hook uses event delegation and data attributes rather than individual React event handlers.
- * While this differs from typical React patterns, it's the optimal choice here because:
- *
- * 1. **Performance**: One set of listeners on the container vs hundreds on individual items
- * 2. **Memory Efficiency**: Scales well with large vaults containing many files/folders
- * 3. **Dynamic Content**: Works seamlessly as items are added/removed from the DOM
- * 4. **Obsidian Consistency**: Follows patterns used throughout Obsidian's codebase
- * 5. **Simplicity**: Avoids prop drilling drag handlers through multiple component levels
- *
- * The alternative React approach would require:
- * - Passing drag handlers as props through FolderTree → FolderItem → each nested level
- * - Managing drag state in React state (causing unnecessary re-renders)
- * - Complex coordination between deeply nested components
- *
- * Data attributes provide a clean, performant way to associate drag data with DOM elements
- * without coupling the drag logic to the component hierarchy.
- *
- * @param containerRef - React ref to the container element that will handle drag events
- *
- * @example
- * ```tsx
- * const containerRef = useRef<HTMLDivElement>(null);
- * useDragAndDrop(containerRef);
- *
- * return (
- *   <div ref={containerRef}>
- *     <div data-draggable="true" data-drag-path="/path/to/file" data-drag-type="file">
- *       Draggable item
- *     </div>
- *     <div data-drop-zone="folder" data-drop-path="/path/to/folder">
- *       Drop zone
- *     </div>
- *   </div>
- * );
- * ```
+ * Usage: call with a container element that contains items with
+ * data attributes: `data-draggable`, `data-drag-type`, `data-drag-path`,
+ * and drop zones with `data-drop-zone`, `data-drop-path`.
  */
 export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>) {
     const { app, isMobile, tagTreeService } = useServices();
@@ -77,7 +45,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const selectionState = useSelectionState();
     const dispatch = useSelectionDispatch();
     const settings = useSettingsState();
-    const db = getDBInstance();
+    // Uses IndexedDB lazily in drag ghost; falls back to icon
     const dragOverElement = useRef<HTMLElement | null>(null);
     const dragGhostElement = useRef<HTMLElement | null>(null);
 
@@ -115,7 +83,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      */
     const cleanupDragGhost = useCallback(() => {
         if (dragGhostElement.current) {
-            document.removeEventListener('mousemove', updateDragGhostPosition, { passive: true } as EventListenerOptions);
+            document.removeEventListener('mousemove', updateDragGhostPosition);
             document.removeEventListener('dragover', updateDragGhostPosition);
             dragGhostElement.current.remove();
             dragGhostElement.current = null;
@@ -157,8 +125,13 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 dragIcon.className = 'nn-drag-ghost-icon';
 
                 if (type === ItemType.FILE) {
-                    // Try to use featured image for files
-                    const featureImagePath = db.getCachedFeatureImageUrl(path);
+                    // Try to use featured image for files (safe if DB not ready)
+                    let featureImagePath = '';
+                    try {
+                        featureImagePath = getDBInstance().getCachedFeatureImageUrl(path);
+                    } catch {
+                        // Skip image if cache unavailable
+                    }
                     let imageLoaded = false;
 
                     if (featureImagePath) {
@@ -193,8 +166,13 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             // Start tracking mouse position
             document.addEventListener('mousemove', updateDragGhostPosition, { passive: true });
             document.addEventListener('dragover', updateDragGhostPosition);
+
+            // Ensure ghost is cleaned even if drag ends outside container
+            const onGlobalEnd = () => cleanupDragGhost();
+            window.addEventListener('dragend', onGlobalEnd, { once: true });
+            window.addEventListener('drop', onGlobalEnd, { once: true });
         },
-        [app, db, updateDragGhostPosition]
+        [app, updateDragGhostPosition, cleanupDragGhost]
     );
 
     /**
@@ -263,7 +241,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 selectedPaths.forEach(selectedPath => {
                     const file = app.vault.getFileByPath(selectedPath);
                     if (file) {
-                        const link = app.fileManager.generateMarkdownLink(file, '');
+                        const src = app.workspace.getActiveFile()?.path ?? '';
+                        const link = app.fileManager.generateMarkdownLink(file, src);
                         markdownLinks.push(link);
                     }
                 });
@@ -283,13 +262,15 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             } else {
                 // Single item drag
                 e.dataTransfer.setData('obsidian/file', path);
+                // No custom types needed
                 e.dataTransfer.effectAllowed = 'copyMove';
 
                 // Generate markdown link for single file
                 if (type === ItemType.FILE) {
                     const file = app.vault.getFileByPath(path);
                     if (file) {
-                        const link = app.fileManager.generateMarkdownLink(file, '');
+                        const src = app.workspace.getActiveFile()?.path ?? '';
+                        const link = app.fileManager.generateMarkdownLink(file, src);
                         e.dataTransfer.setData('text/plain', link);
                     }
                 }
@@ -319,19 +300,23 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         }
 
         if (dropZone) {
-            dropZone.classList.add('nn-drag-over');
-            dragOverElement.current = dropZone;
             if (e.dataTransfer) {
                 const dropType = dropZone.getAttribute('data-drop-zone');
                 const targetPath = dropZone.getAttribute('data-drop-path');
 
-                // Use 'move' for folders and untagged, 'copy' for regular tags
-                if (dropType === 'folder' || targetPath === UNTAGGED_TAG_ID) {
-                    e.dataTransfer.dropEffect = 'move';
-                } else {
-                    e.dataTransfer.dropEffect = 'copy';
+                const typesList = e.dataTransfer.types;
+                const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
+                const isExternal = !!typesList?.includes('Files') && !hasObsidianData;
+
+                // Folder: move (internal) / copy (external); Tag: untagged = move, tag = copy
+                if (dropType === 'folder') {
+                    e.dataTransfer.dropEffect = isExternal ? 'copy' : 'move';
+                } else if (dropType === 'tag') {
+                    e.dataTransfer.dropEffect = targetPath === UNTAGGED_TAG_ID ? 'move' : 'copy';
                 }
             }
+            dropZone.classList.add('nn-drag-over');
+            dragOverElement.current = dropZone;
         }
     }, []);
 
@@ -418,9 +403,86 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     );
 
     /**
+     * Handles importing external files dropped from OS file manager
+     * @param files - FileList from drag event
+     * @param targetFolder - Target folder to import files into
+     */
+    const handleExternalFileDrop = useCallback(
+        async (files: FileList, targetFolder: TFolder) => {
+            const importedCount = { success: 0, failed: 0 };
+            const errors: string[] = [];
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                try {
+                    // Extract base name and extension
+                    const lastDotIndex = file.name.lastIndexOf('.');
+                    let baseName: string;
+                    let extension: string;
+
+                    if (lastDotIndex === -1 || lastDotIndex === 0) {
+                        // No extension or hidden file starting with dot
+                        baseName = file.name;
+                        extension = '';
+                    } else {
+                        baseName = file.name.substring(0, lastDotIndex);
+                        extension = file.name.substring(lastDotIndex + 1);
+                    }
+
+                    // Generate unique filename if needed
+                    const uniqueBaseName = generateUniqueFilename(targetFolder.path, baseName, extension, app);
+                    const base = targetFolder.path && targetFolder.path !== '/' ? `${targetFolder.path}/` : '';
+                    const finalPath = extension
+                        ? normalizePath(`${base}${uniqueBaseName}.${extension}`)
+                        : normalizePath(`${base}${uniqueBaseName}`);
+
+                    // Decide text vs binary import
+                    const lowerName = file.name.toLowerCase();
+                    const mime = file.type || '';
+                    const isLikelyText =
+                        extension.toLowerCase() === 'md' ||
+                        mime.startsWith('text/') ||
+                        mime === 'application/json' ||
+                        mime === 'application/xml' ||
+                        /\.(canvas|json|csv|txt|xml|html|css|js|ts)$/i.test(lowerName);
+
+                    if (isLikelyText) {
+                        const content = await file.text();
+                        await app.vault.create(finalPath, content);
+                    } else {
+                        const arrayBuffer = await file.arrayBuffer();
+                        await app.vault.createBinary(finalPath, arrayBuffer);
+                    }
+
+                    importedCount.success++;
+                } catch (error) {
+                    console.error(`Failed to import file ${file.name}:`, error);
+                    errors.push(file.name);
+                    importedCount.failed++;
+                }
+            }
+
+            // Show notification
+            if (importedCount.success > 0) {
+                const message =
+                    importedCount.success === 1
+                        ? strings.dragDrop.notifications.fileImported
+                        : strings.dragDrop.notifications.filesImported.replace('{count}', importedCount.success.toString());
+                new Notice(message);
+            }
+
+            if (importedCount.failed > 0) {
+                const errorMessage = strings.dragDrop.errors.failedToImportFiles.replace('{names}', errors.join(', '));
+                new Notice(errorMessage, TIMEOUTS.NOTICE_ERROR);
+            }
+        },
+        [app]
+    );
+
+    /**
      * Handles the drop event.
      * Validates the drop and performs the appropriate operation based on drop zone type.
-     * - For folders: moves files/folders
+     * - For folders: moves files/folders or imports external files
      * - For tags: adds tag to files
      * - For untagged: clears all tags from files
      *
@@ -433,7 +495,11 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 dragOverElement.current.classList.remove('nn-drag-over');
             }
 
-            const dropZone = dragOverElement.current;
+            let dropZone = dragOverElement.current;
+            if (!dropZone && isHTMLElement(e.target)) {
+                const candidate = e.target.closest('[data-drop-zone]');
+                dropZone = candidate instanceof HTMLElement ? candidate : null;
+            }
             if (!dropZone) return;
 
             const dropType = dropZone.getAttribute('data-drop-zone');
@@ -443,6 +509,15 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             // Handle tag drops
             if (dropType === 'tag') {
+                // If external drag, show notice and ignore
+                const typesList = e.dataTransfer?.types;
+                const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
+                const isExternal = !!typesList?.includes('Files') && !hasObsidianData;
+                if (isExternal) {
+                    new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable, TIMEOUTS.NOTICE_ERROR);
+                    return;
+                }
+
                 await handleTagDrop(e, targetPath);
                 return;
             }
@@ -450,6 +525,17 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             // Handle folder drops
             const targetFolder = app.vault.getFolderByPath(targetPath);
             if (!targetFolder) return;
+
+            // Check for external files from OS
+            if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+                // Detect internal vs external via types
+                const typesList = e.dataTransfer.types;
+                const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
+                if (!hasObsidianData) {
+                    await handleExternalFileDrop(e.dataTransfer.files, targetFolder);
+                    return;
+                }
+            }
 
             // Check if dragging multiple files (never folders - folders are always single)
             const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
@@ -501,7 +587,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 }
             }
         },
-        [app, handleTagDrop, moveFilesWithContext, getFilesFromPaths]
+        [app, handleTagDrop, handleExternalFileDrop, moveFilesWithContext, getFilesFromPaths]
     );
 
     /**
@@ -533,9 +619,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      */
     const handleDragEnd = useCallback(
         (e: DragEvent) => {
-            const target = e.target as HTMLElement;
+            const target = e.target;
+            if (!isHTMLElement(target)) return;
             const draggable = target.closest('[data-draggable="true"]');
-            const path = getPathFromDataAttribute(draggable as HTMLElement, 'data-drag-path');
+            const path = getPathFromDataAttribute(draggable instanceof HTMLElement ? draggable : null, 'data-drag-path');
 
             // Remove dragging class from all selected files if dragging multiple
             if (path && selectionState.selectedFiles.has(path)) {

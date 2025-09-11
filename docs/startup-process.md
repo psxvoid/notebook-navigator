@@ -342,12 +342,10 @@ Using the validators, the cleanup removes orphaned metadata:
    - Check each folder's pinned notes list
    - Remove references to files not in vaultFiles set
 
-3. Validate tag metadata (DISABLED as of v1.4.11):
-   - Previously compared stored tag settings against tagTree validator
-   - Previously removed settings for tags not in tagTree
-   - Now skipped entirely to preserve metadata for tags used occasionally
-   - Tags may be used for special items (1-2 files) and removed temporarily
-   - Race condition risk: metadata could be cleaned before tag tree is fully updated
+3. Validate tag metadata:
+   - Compare stored tag settings against tagTree validator
+   - Remove settings for tags not present in the combined tag tree
+   - Uses the complete tag tree after extraction to avoid premature cleanup
 
 4. Save cleaned settings:
    - Write updated settings back to data.json if any changes were made

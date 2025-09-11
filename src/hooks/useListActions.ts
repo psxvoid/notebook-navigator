@@ -163,10 +163,10 @@ export function useListActions() {
      * When enabling subfolders, automatically selects the active file if it's within the current folder hierarchy.
      */
     const handleToggleSubfolders = useCallback(async () => {
-        const wasShowingSubfolders = settings.showNotesFromSubfolders;
+        const wasShowingSubfolders = settings.includeDescendantNotes;
 
         await updateSettings(s => {
-            s.showNotesFromSubfolders = !s.showNotesFromSubfolders;
+            s.includeDescendantNotes = !s.includeDescendantNotes;
         });
 
         // Special case: When enabling subfolders, auto-select the active file if it's in the folder
@@ -174,7 +174,7 @@ export function useListActions() {
             const activeFile = app.workspace.getActiveFile();
             if (activeFile) {
                 // Check if the active file would be visible with subfolders enabled
-                const filesInFolder = getFilesForFolder(selectionState.selectedFolder, { ...settings, showNotesFromSubfolders: true }, app);
+                const filesInFolder = getFilesForFolder(selectionState.selectedFolder, { ...settings, includeDescendantNotes: true }, app);
 
                 if (filesInFolder.some(f => f.path === activeFile.path)) {
                     selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });

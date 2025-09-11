@@ -19,7 +19,6 @@
 import { useSelectionState } from '../context/SelectionContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { strings } from '../i18n';
-import { ItemType } from '../types';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useListActions } from '../hooks/useListActions';
 
@@ -48,10 +47,10 @@ export function ListToolbar({ isSearchActive, onSearchToggle }: ListToolbarProps
                 <ObsidianIcon name="lucide-search" />
             </button>
             <button
-                className={`nn-mobile-toolbar-button ${settings.showNotesFromSubfolders ? 'nn-mobile-toolbar-button-active' : ''}`}
-                aria-label={strings.paneHeader.toggleSubfolders}
+                className={`nn-mobile-toolbar-button ${settings.includeDescendantNotes ? 'nn-mobile-toolbar-button-active' : ''}`}
+                aria-label={strings.paneHeader.toggleDescendantNotes}
                 onClick={handleToggleSubfolders}
-                disabled={selectionState.selectionType !== ItemType.FOLDER || !selectionState.selectedFolder}
+                disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                 tabIndex={-1}
             >
                 <ObsidianIcon name="lucide-layers" />

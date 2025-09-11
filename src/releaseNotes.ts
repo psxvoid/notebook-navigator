@@ -55,6 +55,23 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.13',
+        date: '2025-09-12',
+        showOnUpdate: true,
+        new: ['You can now **drag and drop files** from your operating system directly onto folders to import them into your vault.'],
+        changed: [
+            'The toolbar button "Show notes from subfolders" was renamed to **Show notes from descendants** and now applies to both folders and tags.',
+            'The command **Toggle notes from subfolders** was renamed to "Toggle notes from descendants" (ID: toggle-descendant-notes). Please update your hotkeys.'
+        ],
+        fixed: [
+            'Toggling **Show hidden items** now properly focuses the selected item in the navigation pane. Also greatly improved the scrolling logic.'
+        ],
+        improved: [
+            'Tag view now shows parent folder for each note when "Show parent folder names" is enabled.',
+            'All File names except markdown, canvas and base **now show extension suffixes** in the file list.'
+        ]
+    },
+    {
         version: '1.4.12',
         date: '2025-09-10',
         showOnUpdate: false,
