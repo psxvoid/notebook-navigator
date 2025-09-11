@@ -261,7 +261,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
 
         if (index !== undefined && index >= 0) {
             rowVirtualizer.scrollToIndex(index, {
-                align: 'center',
+                align: 'auto',
                 behavior: 'auto'
             });
         }

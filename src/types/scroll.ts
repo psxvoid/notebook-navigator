@@ -18,7 +18,7 @@ export type ListScrollIntent = 'folder-navigation' | 'visibility-change' | 'reve
 
 // Determine alignment for navigation pane based on intent and explicit override
 export function getNavAlign(intent?: NavScrollIntent): Align {
-    if (intent === 'visibilityToggle' || intent === 'mobile-visibility') return 'auto';
+    if (intent === 'visibilityToggle' || intent === 'mobile-visibility' || intent === 'selection') return 'auto';
     return 'center';
 }
 
