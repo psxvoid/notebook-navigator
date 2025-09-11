@@ -177,21 +177,18 @@ export class MetadataService {
     // ========== Cleanup Operations ==========
 
     /**
-     * Cleanup metadata for files and folders only
-     * Called on plugin startup to remove references to deleted files and folders
-     * Note: Tag cleanup is intentionally excluded and handled separately after tag tree building
+     * Cleanup metadata for folders, tags, and files
+     * Called on plugin startup to remove references to deleted items
      * @returns True if any changes were made
      */
     async cleanupAllMetadata(): Promise<boolean> {
-        // Run cleanup for folders and files only
-        // Tag cleanup is handled separately in StorageProvider after tag tree is built
-        // This ensures parent tags are properly identified before cleanup
-        const [folderChanges, fileChanges] = await Promise.all([
+        const [folderChanges, tagChanges, fileChanges] = await Promise.all([
             this.folderService.cleanupFolderMetadata(),
+            this.tagService.cleanupTagMetadata(),
             this.fileService.cleanupPinnedNotes()
         ]);
 
-        return folderChanges || fileChanges;
+        return folderChanges || tagChanges || fileChanges;
     }
 
     /**
@@ -208,23 +205,17 @@ export class MetadataService {
      * Run unified cleanup using pre-loaded data from StorageContext
      * This avoids multiple file iterations during startup
      *
-     * Note: Tag metadata is intentionally NOT cleaned up here. Tags are transient labels that:
-     * - May be temporarily unused (e.g., "high-prio" tag with no current items)
-     * - Can be pre-configured before files are tagged
-     * - In multi-device setups, settings sync before files (causing false positives)
-     * Users expect tag colors/icons to persist even when tags are not in use.
-     *
      * @param validators - Object containing database files, tag tree, and vault files
      * @returns true if any changes were made
      */
     async runUnifiedCleanup(validators: CleanupValidators): Promise<boolean> {
-        // Run cleanup for folders and files only
-        const [folderChanges, fileChanges] = await Promise.all([
+        const [folderChanges, tagChanges, fileChanges] = await Promise.all([
             this.folderService.cleanupWithValidators(validators),
+            this.tagService.cleanupWithValidators(validators),
             this.fileService.cleanupWithValidators(validators)
         ]);
 
-        return folderChanges || fileChanges;
+        return folderChanges || tagChanges || fileChanges;
     }
 
     /**
