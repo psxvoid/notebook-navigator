@@ -103,53 +103,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     // These keys are used to save and restore the plugin's state between sessions
     keys: LocalStorageKeys = STORAGE_KEYS;
 
-    // ==== Settings loading ====
-    /**
-     * Loads plugin settings from disk and applies defaults.
-     * Flow:
-     * - Load persisted data (data.json)
-     * - Detect first launch (no saved data)
-     * - Clear per‑vault localStorage on first launch
-     * - Merge defaults with saved values
-     * - Ensure date/time formats
-     * - Ensure root folder expanded (first launch only)
-     * - Normalize tag-related settings
-     */
-    async loadSettings() {
-        // Load persisted data
-        const data = await this.loadData();
-        const isFirstLaunch = !data;
-
-        // Clear localStorage on fresh install/reinstall
-        if (isFirstLaunch) {
-            this.clearAllLocalStorage();
-        }
-
-        // Merge defaults with any saved data
-        this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
-
-        // Ensure language-specific date/time formats
-        if (isFirstLaunch || !data?.dateFormat) {
-            this.settings.dateFormat = getDefaultDateFormat();
-        }
-        if (isFirstLaunch || !data?.timeFormat) {
-            this.settings.timeFormat = getDefaultTimeFormat();
-        }
-
-        // Ensure root folder expansion on first launch when enabled by default
-        if (isFirstLaunch && this.settings.showRootFolder) {
-            const oldExpanded = localStorage.get<string[]>(STORAGE_KEYS.expandedFoldersKey);
-            const expandedFolders = oldExpanded || [];
-            if (!expandedFolders.includes('/')) {
-                expandedFolders.push('/');
-                localStorage.set(STORAGE_KEYS.expandedFoldersKey, expandedFolders);
-            }
-        }
-
-        // Normalize tag-related settings (lowercase keys, dedupe arrays)
-        this.normalizeTagSettings();
-    }
-
     /**
      * Called when external changes to settings are detected (e.g., from sync)
      * This method is called automatically by Obsidian when the data.json file
@@ -172,14 +125,52 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
+     * Loads plugin settings from Obsidian's data storage
+     * Merges saved settings with default settings to ensure all required fields exist
+     * Returns true if this is the first launch (no saved data)
+     */
+    async loadSettings(): Promise<boolean> {
+        const data = await this.loadData();
+        const isFirstLaunch = !data; // No saved data means first launch
+
+        // Start with default settings
+        this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
+
+        // On first launch, set language-specific date/time formats
+        if (isFirstLaunch || !data?.dateFormat) {
+            this.settings.dateFormat = getDefaultDateFormat();
+        }
+        if (isFirstLaunch || !data?.timeFormat) {
+            this.settings.timeFormat = getDefaultTimeFormat();
+        }
+
+        // Normalize tag settings to use lowercase keys
+        this.normalizeTagSettings();
+
+        return isFirstLaunch;
+    }
+
+    /**
      * Plugin initialization - called when plugin is enabled
      */
     async onload() {
-        // ==== Storage ====
+        // ==== Load settings and check first launch ====
+        const isFirstLaunch = await this.loadSettings();
+
+        // ==== Initialize localStorage ====
         localStorage.init(this.app);
 
-        // ==== Load settings ====
-        await this.loadSettings();
+        // ==== Handle first launch ====
+        if (isFirstLaunch) {
+            // Clear all localStorage data for a clean start
+            this.clearAllLocalStorage();
+
+            // Ensure root folder is expanded if showRootFolder is enabled
+            if (this.settings.showRootFolder) {
+                const expandedFolders = ['/'];
+                localStorage.set(STORAGE_KEYS.expandedFoldersKey, expandedFolders);
+            }
+        }
 
         // Set localStorage version if not present
         if (!localStorage.get(STORAGE_KEYS.localStorageVersionKey)) {
@@ -187,6 +178,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         // ==== Initialize services ====
+
         // Initialize metadata service for managing folder/tag colors, icons, and sort overrides
         this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
 
@@ -589,7 +581,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         );
 
         // ==== Post-layout (heavy work) ====
-        // Use onLayoutReady for reliable initialization
         this.app.workspace.onLayoutReady(async () => {
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
@@ -744,46 +735,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         if (this.settings.hiddenTags) {
             this.settings.hiddenTags = normalizeArray(this.settings.hiddenTags);
         }
-    }
-
-    /**
-     * Loads plugin settings from Obsidian's data storage
-     * Merges saved settings with default settings to ensure all required fields exist
-     * Called during plugin initialization and when external changes are detected
-     */
-    async loadSettings() {
-        const data = await this.loadData();
-        const isFirstLaunch = !data; // No saved data means first launch
-
-        // Clear localStorage on fresh install/reinstall
-        if (isFirstLaunch) {
-            this.clearAllLocalStorage();
-        }
-
-        // Start with default settings
-        this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
-
-        // On first launch, set language-specific date/time formats
-        if (isFirstLaunch || !data?.dateFormat) {
-            this.settings.dateFormat = getDefaultDateFormat();
-        }
-        if (isFirstLaunch || !data?.timeFormat) {
-            this.settings.timeFormat = getDefaultTimeFormat();
-        }
-
-        // On first launch, if showRootFolder is enabled by default,
-        // ensure the root folder is in the expanded folders list
-        if (isFirstLaunch && this.settings.showRootFolder) {
-            const oldExpanded = localStorage.get<string[]>(STORAGE_KEYS.expandedFoldersKey);
-            const expandedFolders = oldExpanded || [];
-
-            if (!expandedFolders.includes('/')) {
-                expandedFolders.push('/');
-                localStorage.set(STORAGE_KEYS.expandedFoldersKey, expandedFolders);
-            }
-        }
-
-        this.normalizeTagSettings();
     }
 
     /**
