@@ -29,8 +29,6 @@ import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
-import { ItemType, PinnedNotes } from './types';
-import { FileVisibility } from './utils/fileTypeUtils';
 
 /**
  * Polyfill for requestIdleCallback
@@ -53,8 +51,6 @@ import { FileVisibility } from './utils/fileTypeUtils';
  * - Other non-critical startup operations
  */
 if (typeof window !== 'undefined' && !window.requestIdleCallback) {
-    console.log('requestIdleCallback not supported, using polyfill');
-
     window.requestIdleCallback = function (callback: IdleRequestCallback, options?: { timeout?: number }) {
         const timeout = options?.timeout || 0;
 
@@ -98,10 +94,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private fileRenameListeners = new Map<string, (oldPath: string, newPath: string) => void>();
     // Track if we're in the process of unloading
     private isUnloading = false;
-    // Timer for delayed sync check
-    private syncCheckTimer: number | null = null;
-    // Pending version update to apply after sync check
-    private pendingVersionUpdate: string | null = null;
 
     // LocalStorage keys for state persistence
     // These keys are used to save and restore the plugin's state between sessions
@@ -114,36 +106,57 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     async onExternalSettingsChange() {
         if (!this.isUnloading) {
-            // Cancel pending sync check timer since sync has already updated
-            if (this.syncCheckTimer !== null) {
-                window.clearTimeout(this.syncCheckTimer);
-                this.syncCheckTimer = null;
-            }
-
             await this.loadSettings();
             this.onSettingsUpdate();
-
-            // Apply any pending version update now that sync is complete
-            await this.applyPendingVersionUpdate();
         }
     }
 
     /**
+     * Loads plugin settings from Obsidian's data storage
+     * Merges saved settings with default settings to ensure all required fields exist
+     * Returns true if this is the first launch (no saved data)
+     */
+    async loadSettings(): Promise<boolean> {
+        const data = await this.loadData();
+        const isFirstLaunch = !data; // No saved data means first launch
+
+        // Start with default settings
+        this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
+
+        // On first launch, set language-specific date/time formats
+        if (isFirstLaunch || !data?.dateFormat) {
+            this.settings.dateFormat = getDefaultDateFormat();
+        }
+        if (isFirstLaunch || !data?.timeFormat) {
+            this.settings.timeFormat = getDefaultTimeFormat();
+        }
+
+        // Normalize tag settings to use lowercase keys
+        this.normalizeTagSettings();
+
+        return isFirstLaunch;
+    }
+
+    /**
      * Plugin initialization - called when plugin is enabled
-     * Sets up views, commands, event handlers, and UI elements
-     * Ensures proper initialization order for all plugin components
      */
     async onload() {
-        // Initialize localStorage with app instance for vault-specific storage
-        // Must be done before loadSettings() which may call clearAllLocalStorage()
+        // ==== Load settings and check first launch ====
+        const isFirstLaunch = await this.loadSettings();
+
+        // ==== Initialize localStorage ====
         localStorage.init(this.app);
 
-        await this.loadSettings();
+        // ==== Handle first launch ====
+        if (isFirstLaunch) {
+            // Clear all localStorage data for a clean start
+            this.clearAllLocalStorage();
 
-        // Clear old recentIcons format if it's still an array
-        if (Array.isArray(this.settings.recentIcons)) {
-            this.settings.recentIcons = {};
-            await this.saveSettingsAndUpdate();
+            // Ensure root folder is expanded if showRootFolder is enabled
+            if (this.settings.showRootFolder) {
+                const expandedFolders = ['/'];
+                localStorage.set(STORAGE_KEYS.expandedFoldersKey, expandedFolders);
+            }
         }
 
         // Set localStorage version if not present
@@ -151,9 +164,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             localStorage.set(STORAGE_KEYS.localStorageVersionKey, LOCALSTORAGE_VERSION);
         }
 
-        // Initialize icon service
-        const { initializeIconService } = await import('./services/icons');
-        initializeIconService();
+        // ==== Initialize services ====
 
         // Initialize metadata service for managing folder/tag colors, icons, and sort overrides
         this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
@@ -174,14 +185,15 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             () => this.commandQueue
         );
 
-        // Initialize public API
+        // Public API construction
         this.api = new NotebookNavigatorAPI(this, this.app);
 
+        // ==== Register view ====
         this.registerView(NOTEBOOK_NAVIGATOR_VIEW, leaf => {
             return new NotebookNavigatorView(leaf, this);
         });
 
-        // View & Navigation commands
+        // ==== Register commands ====
         this.addCommand({
             id: 'open',
             name: strings.commands.open,
@@ -453,6 +465,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
         });
 
+        // ==== Settings tab ====
         this.addSettingTab(new NotebookNavigatorSettingTab(this.app, this));
 
         // Register editor context menu
@@ -476,11 +489,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             })
         );
 
-        // Ribbon Icon For Opening
+        // ==== Ribbon ====
         this.ribbonIconEl = this.addRibbonIcon('lucide-notebook', strings.plugin.ribbonTooltip, async () => {
             await this.activateView();
         });
 
+        // ==== Vault events ====
         // Register rename event handler to update folder metadata and notify file renames
         //
         // ARCHITECTURAL NOTE: Why folders and files are handled differently
@@ -553,7 +567,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             })
         );
 
-        // Use onLayoutReady for reliable initialization
+        // ==== Post-layout (heavy work) ====
         this.app.workspace.onLayoutReady(async () => {
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
@@ -561,19 +575,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
             }
 
-            // Check for version updates but defer saving to avoid conflict with sync
-            await this.checkForVersionUpdate(true);
+            // Check for version updates
+            await this.checkForVersionUpdate();
 
             // Trigger Style Settings plugin to parse our settings
             this.app.workspace.trigger('parse-style-settings');
-
-            // Currently Obsidian does not fire onExternalSettingsChange during startup
-            // when data.json has been modified on other devices.
-            // To handle this we do a delayed check after a few seconds.
-            this.syncCheckTimer = window.setTimeout(async () => {
-                this.syncCheckTimer = null;
-                await this.checkSyncAndUpdate();
-            }, 3000); // 3 second delay to allow Obsidian Sync to complete
         });
     }
 
@@ -617,12 +623,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     onunload() {
         // Set unloading flag to prevent any new operations
         this.isUnloading = true;
-
-        // Cancel pending sync check timer if it exists
-        if (this.syncCheckTimer !== null) {
-            window.clearTimeout(this.syncCheckTimer);
-            this.syncCheckTimer = null;
-        }
 
         // Clear all listeners first to prevent any callbacks during cleanup
         this.settingsUpdateListeners.clear();
@@ -707,85 +707,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         if (this.settings.hiddenTags) {
             this.settings.hiddenTags = normalizeArray(this.settings.hiddenTags);
-        }
-    }
-
-    /**
-     * Loads plugin settings from Obsidian's data storage
-     * Merges saved settings with default settings to ensure all required fields exist
-     * Called during plugin initialization and when external changes are detected
-     */
-    async loadSettings() {
-        const data = await this.loadData();
-        const isFirstLaunch = !data; // No saved data means first launch
-
-        // Clear localStorage on fresh install/reinstall
-        if (isFirstLaunch) {
-            this.clearAllLocalStorage();
-        }
-
-        // Start with default settings
-        this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
-
-        // On first launch, set language-specific date/time formats
-        if (isFirstLaunch || !data?.dateFormat) {
-            this.settings.dateFormat = getDefaultDateFormat();
-        }
-        if (isFirstLaunch || !data?.timeFormat) {
-            this.settings.timeFormat = getDefaultTimeFormat();
-        }
-
-        // On first launch, if showRootFolder is enabled by default,
-        // ensure the root folder is in the expanded folders list
-        if (isFirstLaunch && this.settings.showRootFolder) {
-            const oldExpanded = localStorage.get<string[]>(STORAGE_KEYS.expandedFoldersKey);
-            const expandedFolders = oldExpanded || [];
-
-            if (!expandedFolders.includes('/')) {
-                expandedFolders.push('/');
-                localStorage.set(STORAGE_KEYS.expandedFoldersKey, expandedFolders);
-            }
-        }
-
-        this.normalizeTagSettings();
-
-        // Migrate fileVisibility from 'markdown' to 'documents'
-        if ((this.settings.fileVisibility as string) === 'markdown') {
-            this.settings.fileVisibility = 'documents' as FileVisibility;
-        }
-
-        // Migrate pinnedNotes to new object format if needed
-        this.migratePinnedNotesToObject();
-    }
-
-    /**
-     * Migrates pinnedNotes from array format to object format
-     */
-    private migratePinnedNotesToObject() {
-        // Check if pinnedNotes is in array format
-        if (Array.isArray(this.settings.pinnedNotes)) {
-            console.log('Migrating pinnedNotes from array to object format');
-
-            const arrayFormat = this.settings.pinnedNotes as { path: string; context: Record<string, boolean> }[];
-            const objectFormat: PinnedNotes = {};
-
-            for (const note of arrayFormat) {
-                if (note.path && note.context) {
-                    objectFormat[note.path] = {
-                        folder: note.context[ItemType.FOLDER] || note.context['folder'] || false,
-                        tag: note.context[ItemType.TAG] || note.context['tag'] || false
-                    };
-                }
-            }
-
-            this.settings.pinnedNotes = objectFormat;
-            console.log(`Migrated ${Object.keys(objectFormat).length} pinned notes to object format`);
-
-            // Save immediately
-            this.saveData(this.settings);
-        } else if (!this.settings.pinnedNotes) {
-            // Initialize as empty object
-            this.settings.pinnedNotes = {};
         }
     }
 
@@ -880,46 +801,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
-     * Checks for settings changes from sync and updates UI if needed
-     * Called after a delay to catch sync updates that occur during startup
-     */
-    private async checkSyncAndUpdate(): Promise<void> {
-        if (this.isUnloading) return;
-
-        // Store current settings for comparison (deep copy for nested objects)
-        const oldSettings = JSON.stringify(this.settings);
-
-        // Reload settings from disk (may have been updated by sync)
-        await this.loadSettings();
-
-        // Check if settings changed during the delay
-        const newSettings = JSON.stringify(this.settings);
-        if (newSettings !== oldSettings) {
-            // Notify all UI components that settings have changed
-            this.onSettingsUpdate();
-        }
-
-        // Apply any pending version update now that sync check is complete
-        await this.applyPendingVersionUpdate();
-    }
-
-    /**
-     * Applies pending version update that was deferred during startup
-     * This avoids early saves that could overwrite incoming sync data
-     */
-    private async applyPendingVersionUpdate(): Promise<void> {
-        if (this.pendingVersionUpdate !== null) {
-            this.settings.lastShownVersion = this.pendingVersionUpdate;
-            this.pendingVersionUpdate = null;
-            await this.saveSettingsAndUpdate();
-        }
-    }
-
-    /**
      * Check if the plugin has been updated and show release notes if needed
-     * @param deferSave - If true, saves the version update after sync check completes
      */
-    private async checkForVersionUpdate(deferSave = false): Promise<void> {
+    private async checkForVersionUpdate(): Promise<void> {
         // Get current version from manifest
         const currentVersion = this.manifest.version;
 
@@ -928,13 +812,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Don't show on first install (when lastShownVersion is empty)
         if (!lastShownVersion) {
-            if (deferSave) {
-                // Store for later saving after sync check
-                this.pendingVersionUpdate = currentVersion;
-            } else {
-                this.settings.lastShownVersion = currentVersion;
-                await this.saveSettingsAndUpdate();
-            }
             return;
         }
 
@@ -942,32 +819,26 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         if (lastShownVersion !== currentVersion) {
             // Import the release notes modules dynamically
             const { WhatsNewModal } = await import('./modals/WhatsNewModal');
-            const { getReleaseNotesBetweenVersions, getLatestReleaseNotes, compareVersions, shouldShowReleaseNotesForVersion } =
-                await import('./releaseNotes');
+            const { getReleaseNotesBetweenVersions, getLatestReleaseNotes, compareVersions } = await import('./releaseNotes');
 
             // Get release notes between versions
             let releaseNotes;
             if (compareVersions(currentVersion, lastShownVersion) > 0) {
-                // Upgraded - show notes from last shown to current
+                // Show notes from last shown to current
                 releaseNotes = getReleaseNotesBetweenVersions(lastShownVersion, currentVersion);
             } else {
                 // Downgraded or same version - just show latest 5 releases
                 releaseNotes = getLatestReleaseNotes();
             }
 
-            // Update version before showing modal so it doesn't show again
-            if (deferSave) {
-                // Store for later saving after sync check
-                this.pendingVersionUpdate = currentVersion;
-            } else {
-                this.settings.lastShownVersion = currentVersion;
-                await this.saveSettingsAndUpdate();
-            }
-
-            // Show the modal only if the current version doesn't have skipAutoShow
-            if (shouldShowReleaseNotesForVersion(currentVersion)) {
-                new WhatsNewModal(this.app, releaseNotes, this.settings.dateFormat).open();
-            }
+            // Show the info modal when version changes
+            new WhatsNewModal(this.app, releaseNotes, this.settings.dateFormat, () => {
+                // Save version after 1 second delay when user closes the modal
+                setTimeout(async () => {
+                    this.settings.lastShownVersion = currentVersion;
+                    await this.saveSettingsAndUpdate();
+                }, 1000);
+            }).open();
         }
     }
 }

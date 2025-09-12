@@ -78,7 +78,7 @@ interface UseNavigationPaneScrollResult {
     /** Handler to scroll to top (mobile header tap) */
     handleScrollToTop: () => void;
     /** Request a scroll to a specific path */
-    requestScroll: (path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end'; behavior?: 'auto' | 'smooth' }) => void;
+    requestScroll: (path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end' }) => void;
     /** Version counter for pending scrolls */
     pendingScrollVersion: number;
 }
@@ -107,7 +107,6 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     type PendingScroll = {
         path: string; // Target path to scroll to (resolved to index at execution)
         align?: Align;
-        behavior?: 'auto' | 'smooth';
         intent?: ScrollIntent; // Why this scroll was requested
         minIndexVersion?: number; // Don't execute until indexVersion >= this value
     };
@@ -190,19 +189,15 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
      * Request a scroll to a specific path
      * Used by external components like useNavigatorReveal
      */
-    const requestScroll = useCallback(
-        (path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end'; behavior?: 'auto' | 'smooth' }) => {
-            pendingScrollRef.current = {
-                path,
-                align: options?.align,
-                behavior: options?.behavior,
-                intent: 'external',
-                minIndexVersion: indexVersionRef.current
-            };
-            setPendingScrollVersion(v => v + 1);
-        },
-        []
-    );
+    const requestScroll = useCallback((path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end' }) => {
+        pendingScrollRef.current = {
+            path,
+            align: options?.align,
+            intent: 'external',
+            minIndexVersion: indexVersionRef.current
+        };
+        setPendingScrollVersion(v => v + 1);
+    }, []);
 
     /**
      * Get the current selected path based on selection type
@@ -249,7 +244,6 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
             pendingScrollRef.current = {
                 path: selectedPath,
                 align: 'auto',
-                behavior: 'auto',
                 intent: 'visibilityToggle',
                 minIndexVersion: indexVersionRef.current + 1 // Wait for next version
             };
@@ -260,10 +254,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         const index = pathToIndex.get(selectedPath);
 
         if (index !== undefined && index >= 0) {
-            rowVirtualizer.scrollToIndex(index, {
-                align: 'auto',
-                behavior: 'auto'
-            });
+            rowVirtualizer.scrollToIndex(index, { align: getNavAlign('selection') });
         }
     }, [selectedPath, rowVirtualizer, isVisible, pathToIndex, uiState.focusedPane, settings.showHiddenItems]);
 
@@ -289,7 +280,6 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
                     pendingScrollRef.current = {
                         path: selectedPath,
                         align: 'auto',
-                        behavior: 'auto',
                         intent: 'visibilityToggle',
                         minIndexVersion: indexVersionRef.current + 1
                     };
@@ -301,10 +291,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
             const tagIndex = pathToIndex.get(selectionState.selectedTag);
 
             if (tagIndex !== undefined && tagIndex >= 0) {
-                rowVirtualizer.scrollToIndex(tagIndex, {
-                    align: 'auto',
-                    behavior: 'auto'
-                });
+                rowVirtualizer.scrollToIndex(tagIndex, { align: getNavAlign('selection') });
             }
         }
     }, [
@@ -330,7 +317,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     useEffect(() => {
         if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) return;
 
-        const { path, align, behavior, intent, minIndexVersion } = pendingScrollRef.current;
+        const { path, align, intent, minIndexVersion } = pendingScrollRef.current;
 
         // Priority check: During visibility toggle, only process toggle-intent scrolls
         // This prevents stale selection scrolls from executing with wrong indices
@@ -347,7 +334,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
 
         if (index !== undefined && index !== -1) {
             const finalAlign: Align = align ?? getNavAlign(intent);
-            rowVirtualizer.scrollToIndex(index, { align: finalAlign, behavior: behavior ?? 'auto' });
+            rowVirtualizer.scrollToIndex(index, { align: finalAlign });
             pendingScrollRef.current = null;
 
             // Stabilization mechanism: Handle rare double rebuilds
@@ -363,7 +350,6 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
                         pendingScrollRef.current = {
                             path: usedPath,
                             align: 'auto',
-                            behavior: 'auto',
                             intent: 'visibilityToggle',
                             minIndexVersion: indexVersionRef.current + 1
                         };
@@ -387,10 +373,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
             if (selectedPath && rowVirtualizer) {
                 const index = pathToIndex.get(selectedPath);
                 if (index !== undefined && index >= 0) {
-                    rowVirtualizer.scrollToIndex(index, {
-                        align: 'auto',
-                        behavior: 'auto'
-                    });
+                    rowVirtualizer.scrollToIndex(index, { align: 'auto' });
                 }
             }
         };
@@ -424,10 +407,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
                 if (index !== undefined && index >= 0) {
                     // Use requestAnimationFrame to ensure measurements are complete
                     requestAnimationFrame(() => {
-                        rowVirtualizer.scrollToIndex(index, {
-                            align: 'auto',
-                            behavior: 'auto'
-                        });
+                        rowVirtualizer.scrollToIndex(index, { align: 'auto' });
                     });
                 }
             }
@@ -448,7 +428,6 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
                 pendingScrollRef.current = {
                     path: selectedPath,
                     align: 'auto',
-                    behavior: 'auto',
                     intent: 'visibilityToggle',
                     minIndexVersion: indexVersionRef.current + 1
                 };

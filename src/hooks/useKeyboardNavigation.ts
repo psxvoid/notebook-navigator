@@ -249,10 +249,7 @@ export function useKeyboardNavigation<T>({
                     findPreviousSelectableIndex(items, currentIndex, isSelectable, includeCurrent),
                 getPageSize: () => getVisiblePageSize(virtualizer),
                 scrollToIndex: (index: number) => {
-                    virtualizer.scrollToIndex(index, {
-                        align: 'auto',
-                        behavior: 'auto'
-                    });
+                    virtualizer.scrollToIndex(index, { align: 'auto' });
                 },
                 getItemAt: (index: number) => safeGetItem(items, index),
                 isRTL: () => document.body.classList.contains('mod-rtl')

@@ -395,20 +395,11 @@ For browsers without native support (Safari):
 - Ensures non-blocking startup operations
 - Used for background processing and cleanup
 
-### Debouncing Strategies
+### Debouncing
 
-The plugin uses two debouncing approaches:
+The plugin uses a single debouncing approach based on Obsidian's built‑in `debounce` utility. It is applied consistently
+across vault events and UI updates to coalesce rapid event bursts and avoid redundant work.
 
-**Leading Edge Debouncing** (custom implementation):
-
-- Used for: Vault events (create, delete, rename)
-- First event triggers immediate processing
-- Subsequent events within timeout are batched
-- Ensures responsive UI while preventing spam
-
-**Obsidian's Built-in Debounce**:
-
-- Used for: Settings changes, window resize, scroll events
-- Example: `debounce(this.handleResize, 200, true)`
-- Leverages Obsidian's optimized debouncer
-- Prevents excessive re-renders and calculations
+- Scope: vault events (create, delete, rename, modify) and UI flows (list refresh, tree rebuilds, focus changes)
+- Mechanism: `debounce(handler, timeout, options)` from the Obsidian API
+- Goal: reduce repeated processing and unnecessary re-renders when events arrive in quick succession

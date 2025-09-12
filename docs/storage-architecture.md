@@ -15,7 +15,7 @@
   - [UI State Change](#ui-state-change)
 - [Storage Selection Guidelines](#storage-selection-guidelines)
 - [Performance Considerations](#performance-considerations)
-- [Migration Strategies](#migration-strategies)
+- [Version Management](#version-management)
 
 ## Overview
 
@@ -289,7 +289,7 @@ interface NotebookNavigatorSettings {
 - **Metadata Cleanup**: Regularly remove orphaned metadata
 - **Change Detection**: Use React context for efficient re-renders
 
-## Migration Strategies
+## Version Management
 
 ### Schema Changes
 
@@ -309,20 +309,20 @@ When content generation logic changes:
 3. Content regenerated for all files
 4. Gradual population via background processing
 
-### Settings Migration
+### Settings Updates
 
 When settings structure changes:
 
 1. Load existing settings
-2. Apply migration logic in `loadSettings()`
-3. Save migrated settings
+2. Apply new structure in `loadSettings()`
+3. Save updated settings
 4. Sync propagates to other devices
 
-### Local Storage Migration
+### Local Storage Updates
 
 When storage keys change:
 
-1. Check for old keys in `migrateLocalStorage()`
+1. Check for old keys
 2. Copy data to new keys
 3. Delete old keys
 4. Handle missing data gracefully

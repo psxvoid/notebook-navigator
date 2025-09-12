@@ -50,7 +50,7 @@ export function generateUniqueFilename(folderPath: string, baseName: string, ext
     let counter = 1;
 
     const makePath = (name: string) => {
-        const base = folderPath && folderPath !== '/' ? `${folderPath}/` : '';
+        const base = folderPath === '/' ? '' : `${folderPath}/`;
         if (!extension) {
             return normalizePath(`${base}${name}`);
         }
@@ -85,7 +85,8 @@ export async function createFileWithOptions(parent: TFolder, app: App, options: 
         // Generate unique file path
         const baseName = strings.fileSystem.defaultNames.untitled;
         const fileName = generateUniqueFilename(parent.path, baseName, extension, app);
-        const path = normalizePath(parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`);
+        const base = parent.path === '/' ? '' : `${parent.path}/`;
+        const path = normalizePath(`${base}${fileName}.${extension}`);
 
         // Create the file
         const file = await app.vault.create(path, content);

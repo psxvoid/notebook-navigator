@@ -82,7 +82,7 @@ export interface NavigationPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
-    requestScroll: (path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end'; behavior?: 'auto' | 'smooth' }) => void;
+    requestScroll: (path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end' }) => void;
 }
 
 interface NavigationPaneProps {

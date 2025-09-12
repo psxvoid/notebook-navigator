@@ -314,7 +314,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
                             if (isSelectedFolderDeleted || isAncestorDeleted) {
                                 // If parent exists and is not root (or root is visible), select it
-                                if (parentFolder && (parentFolder.path !== '' || settings.showRootFolder)) {
+                                if (parentFolder && (parentFolder.path !== '/' || settings.showRootFolder)) {
                                     selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
                                 } else {
                                     // Clear selection if no valid parent

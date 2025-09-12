@@ -278,7 +278,8 @@ Different intents use different alignments:
 
 **Navigation Pane:**
 
-- default (selection, external): `center`
+- `selection`: `center` on mobile, `auto` on desktop
+- `external`: `center`
 - mobile reveal (onResize): `auto`
 - `visibilityToggle` (show/hide hidden items): `auto`
 - collapse/expand operations: pass `align: 'auto'` via `requestScroll`

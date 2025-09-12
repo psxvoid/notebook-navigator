@@ -7,11 +7,13 @@ export class WhatsNewModal extends Modal {
     private releaseNotes: ReleaseNote[];
     private dateFormat: string;
     private thanksButton: HTMLButtonElement | null = null;
+    private onCloseCallback?: () => void;
 
-    constructor(app: App, releaseNotes: ReleaseNote[], dateFormat: string) {
+    constructor(app: App, releaseNotes: ReleaseNote[], dateFormat: string, onCloseCallback?: () => void) {
         super(app);
         this.releaseNotes = releaseNotes;
         this.dateFormat = dateFormat;
+        this.onCloseCallback = onCloseCallback;
     }
 
     onOpen(): void {
@@ -137,5 +139,10 @@ export class WhatsNewModal extends Modal {
     onClose(): void {
         const { contentEl } = this;
         contentEl.empty();
+
+        // Call the callback when modal is closed
+        if (this.onCloseCallback) {
+            this.onCloseCallback();
+        }
     }
 }
