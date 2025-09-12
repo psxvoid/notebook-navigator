@@ -216,7 +216,7 @@ export class CommandQueueService {
             const filesToMove: { file: TFile; newPath: string }[] = [];
 
             for (const file of files) {
-                const base = targetFolder.path !== '/' ? `${targetFolder.path}/` : '';
+                const base = targetFolder.path === '/' ? '' : `${targetFolder.path}/`;
                 const newPath = `${base}${file.name}`;
 
                 // Check for name conflicts

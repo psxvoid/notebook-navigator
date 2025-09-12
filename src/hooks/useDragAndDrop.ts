@@ -431,7 +431,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
                     // Generate unique filename if needed
                     const uniqueBaseName = generateUniqueFilename(targetFolder.path, baseName, extension, app);
-                    const base = targetFolder.path !== '/' ? `${targetFolder.path}/` : '';
+                    const base = targetFolder.path === '/' ? '' : `${targetFolder.path}/`;
                     const finalPath = extension
                         ? normalizePath(`${base}${uniqueBaseName}.${extension}`)
                         : normalizePath(`${base}${uniqueBaseName}`);
@@ -577,7 +577,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
 
                     try {
-                        const base = targetFolder.path !== '/' ? `${targetFolder.path}/` : '';
+                        const base = targetFolder.path === '/' ? '' : `${targetFolder.path}/`;
                         const newPath = normalizePath(`${base}${sourceItem.name}`);
                         await app.fileManager.renameFile(sourceItem, newPath);
                         new Notice(strings.fileSystem.notifications.folderMoved.replace('{name}', sourceItem.name));

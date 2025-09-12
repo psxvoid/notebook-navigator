@@ -104,7 +104,8 @@ export class FileSystemOperations {
             async name => {
                 if (name) {
                     try {
-                        const path = normalizePath(parent.path ? `${parent.path}/${name}` : name);
+                        const base = parent.path === '/' ? '' : `${parent.path}/`;
+                        const path = normalizePath(`${base}${name}`);
                         await this.app.vault.createFolder(path);
                         if (onSuccess) {
                             onSuccess(path);
@@ -158,7 +159,8 @@ export class FileSystemOperations {
 
                         if (folderNote) {
                             const newNoteName = `${newName}.${folderNote.extension}`;
-                            const conflictPath = normalizePath(`${folder.path}/${newNoteName}`);
+                            const folderBase = folder.path === '/' ? '' : `${folder.path}/`;
+                            const conflictPath = normalizePath(`${folderBase}${newNoteName}`);
                             const conflict = this.app.vault.getFileByPath(conflictPath);
                             if (conflict) {
                                 new Notice(strings.fileSystem.errors.renameFolderNoteConflict.replace('{name}', newNoteName));
@@ -166,7 +168,9 @@ export class FileSystemOperations {
                             }
                         }
 
-                        const newFolderPath = normalizePath(folder.parent?.path ? `${folder.parent.path}/${newName}` : newName);
+                        const parentPath = folder.parent?.path ?? '/';
+                        const base = parentPath === '/' ? '' : `${parentPath}/`;
+                        const newFolderPath = normalizePath(`${base}${newName}`);
 
                         // Rename the folder (moves contents including the folder note)
                         await this.app.fileManager.renameFile(folder, newFolderPath);
@@ -204,7 +208,9 @@ export class FileSystemOperations {
                         if (!newName.includes('.')) {
                             newName += `.${file.extension}`;
                         }
-                        const newPath = normalizePath(file.parent?.path ? `${file.parent.path}/${newName}` : newName);
+                        const parentPath = file.parent?.path ?? '/';
+                        const base = parentPath === '/' ? '' : `${parentPath}/`;
+                        const newPath = normalizePath(`${base}${newName}`);
                         await this.app.fileManager.renameFile(file, newPath);
                     } catch (error) {
                         new Notice(strings.fileSystem.errors.renameFile.replace('{error}', error.message));
@@ -414,21 +420,6 @@ export class FileSystemOperations {
 
         if (files.length === 0) return result;
 
-        // For single file moves, check if it's a folder being moved into itself
-        if (files.length === 1) {
-            const sourceItem = files[0];
-            if (sourceItem instanceof TFolder && this.isDescendant(sourceItem, targetFolder)) {
-                if (showNotifications) {
-                    new Notice(strings.dragDrop.errors.cannotMoveIntoSelf, TIMEOUTS.NOTICE_ERROR);
-                }
-                result.errors.push({
-                    file: sourceItem,
-                    error: new Error('Cannot move folder into itself')
-                });
-                return result;
-            }
-        }
-
         // Determine if we need to handle selection updates
         const pathsToMove = new Set(files.map(f => f.path));
         const isMovingSelectedFile = selectionContext?.selectedFile && pathsToMove.has(selectionContext.selectedFile.path);
@@ -499,24 +490,6 @@ export class FileSystemOperations {
             excludePaths.add(files[0].parent.path);
         }
 
-        // Check if any files are actually folders (shouldn't happen, but check anyway)
-        for (const file of files) {
-            if (file instanceof TFolder) {
-                // This shouldn't happen as files should be TFile[], but handle it
-                excludePaths.add(file.path);
-                // Add all descendants
-                const addDescendants = (parent: TFolder) => {
-                    for (const child of parent.children) {
-                        if (child instanceof TFolder) {
-                            excludePaths.add(child.path);
-                            addDescendants(child);
-                        }
-                    }
-                };
-                addDescendants(file);
-            }
-        }
-
         // Show the folder selection modal
         const modal = new FolderSuggestModal(
             this.app,
@@ -556,12 +529,14 @@ export class FileSystemOperations {
             const extension = file.extension;
             let counter = 1;
             let newName = `${baseName} ${counter}`;
-            let newPath = normalizePath(file.parent ? `${file.parent.path}/${newName}.${extension}` : `${newName}.${extension}`);
+            const parentPath = file.parent?.path ?? '/';
+            const base = parentPath === '/' ? '' : `${parentPath}/`;
+            let newPath = normalizePath(`${base}${newName}.${extension}`);
 
             while (this.app.vault.getFileByPath(newPath)) {
                 counter++;
                 newName = `${baseName} ${counter}`;
-                newPath = normalizePath(file.parent ? `${file.parent.path}/${newName}.${extension}` : `${newName}.${extension}`);
+                newPath = normalizePath(`${base}${newName}.${extension}`);
             }
 
             const newFile = await this.app.vault.copy(file, newPath);
@@ -607,12 +582,14 @@ export class FileSystemOperations {
             const baseName = folder.name;
             let counter = 1;
             let newName = `${baseName} ${counter}`;
-            let newPath = normalizePath(folder.parent ? `${folder.parent.path}/${newName}` : newName);
+            const parentPath = folder.parent?.path ?? '/';
+            const base = parentPath === '/' ? '' : `${parentPath}/`;
+            let newPath = normalizePath(`${base}${newName}`);
 
             while (this.app.vault.getFolderByPath(newPath)) {
                 counter++;
                 newName = `${baseName} ${counter}`;
-                newPath = normalizePath(folder.parent ? `${folder.parent.path}/${newName}` : newName);
+                newPath = normalizePath(`${base}${newName}`);
             }
 
             await this.app.vault.copy(folder, newPath);
@@ -846,7 +823,8 @@ export class FileSystemOperations {
             // Generate unique filename with timestamp
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
             const fileName = `Drawing ${timestamp}.excalidraw.md`;
-            const filePath = parent.path ? `${parent.path}/${fileName}` : fileName;
+            const base = parent.path === '/' ? '' : `${parent.path}/`;
+            const filePath = normalizePath(`${base}${fileName}`);
 
             // Minimal Excalidraw file content
             const content = `---

@@ -29,13 +29,18 @@ export class SelectionAPI {
     /**
      * Internal state for tracking all selections
      */
-    private selectionState = {
+    private selectionState: {
+        files: Set<string>;
+        primaryFile: TFile | null;
+        navigationFolder: TFolder | null;
+        navigationTag: string | null;
+    } = {
         // File selection state
         files: new Set<string>(),
-        primaryFile: null as TFile | null,
+        primaryFile: null,
         // Navigation selection state
-        navigationFolder: null as TFolder | null,
-        navigationTag: null as string | null
+        navigationFolder: null,
+        navigationTag: null
     };
 
     // Snapshot signature of last-emitted selection to ensure events fire when
