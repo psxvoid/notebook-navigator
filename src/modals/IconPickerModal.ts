@@ -297,80 +297,59 @@ export class IconPickerModal extends Modal {
     }
 
     private setupKeyboardNavigation() {
-        // Similar to original but simplified
-        this.contentEl.addEventListener('keydown', e => {
-            const iconItems = Array.from(this.resultsContainer.querySelectorAll<HTMLElement>('.nn-icon-item'));
-            if (iconItems.length === 0) return;
+        // Shift+Tab -> focus search input
+        this.scope.register(['Shift'], 'Tab', evt => {
+            evt.preventDefault();
+            this.searchInput.focus();
+        });
 
+        // Tab -> focus first icon if not in grid
+        this.scope.register([], 'Tab', evt => {
             const currentFocused = document.activeElement as HTMLElement;
             const isInGrid = currentFocused?.classList.contains('nn-icon-item');
 
-            if (e.key === 'Tab' && !isInGrid) {
-                e.preventDefault();
-                const firstIcon = iconItems[0];
-                if (firstIcon) {
-                    firstIcon.focus();
-                }
-                return;
-            }
-
-            if (isInGrid) {
-                const currentIndex = iconItems.indexOf(currentFocused);
-                let newIndex = currentIndex;
-
-                switch (e.key) {
-                    case 'Tab':
-                        e.preventDefault();
-                        if (e.shiftKey) {
-                            this.searchInput.focus();
-                        }
-                        break;
-
-                    case 'ArrowLeft':
-                        e.preventDefault();
-                        if (currentIndex % GRID_COLUMNS > 0) {
-                            newIndex = currentIndex - 1;
-                        }
-                        break;
-
-                    case 'ArrowRight':
-                        e.preventDefault();
-                        if (currentIndex % GRID_COLUMNS < GRID_COLUMNS - 1 && currentIndex < iconItems.length - 1) {
-                            newIndex = currentIndex + 1;
-                        }
-                        break;
-
-                    case 'ArrowUp':
-                        e.preventDefault();
-                        if (currentIndex >= GRID_COLUMNS) {
-                            newIndex = currentIndex - GRID_COLUMNS;
-                        }
-                        break;
-
-                    case 'ArrowDown':
-                        e.preventDefault();
-                        if (currentIndex + GRID_COLUMNS < iconItems.length) {
-                            newIndex = currentIndex + GRID_COLUMNS;
-                        }
-                        break;
-
-                    case 'Enter':
-                    case ' ': {
-                        e.preventDefault();
-                        const iconId = currentFocused.getAttribute('data-icon-id');
-                        if (iconId) {
-                            this.selectIcon(iconId);
-                        }
-                        break;
-                    }
-                }
-
-                if (newIndex !== currentIndex && newIndex >= 0 && newIndex < iconItems.length) {
-                    iconItems[newIndex].focus();
-                    this.ensureIconVisible(iconItems[newIndex]);
-                }
+            if (!isInGrid) {
+                evt.preventDefault();
+                const firstIcon = this.resultsContainer.querySelector<HTMLElement>('.nn-icon-item');
+                if (firstIcon) firstIcon.focus();
             }
         });
+
+        // Arrow keys and Enter for grid navigation
+        this.scope.register([], 'ArrowLeft', evt => this.handleArrowKey(evt, -1, 0));
+        this.scope.register([], 'ArrowRight', evt => this.handleArrowKey(evt, 1, 0));
+        this.scope.register([], 'ArrowUp', evt => this.handleArrowKey(evt, 0, -1));
+        this.scope.register([], 'ArrowDown', evt => this.handleArrowKey(evt, 0, 1));
+
+        this.scope.register([], 'Enter', evt => {
+            const currentFocused = document.activeElement as HTMLElement;
+            if (currentFocused?.classList.contains('nn-icon-item')) {
+                evt.preventDefault();
+                const iconId = currentFocused.getAttribute('data-icon-id');
+                if (iconId) this.selectIcon(iconId);
+            }
+        });
+    }
+
+    private handleArrowKey(evt: KeyboardEvent, deltaX: number, deltaY: number) {
+        const currentFocused = document.activeElement as HTMLElement;
+        if (!currentFocused?.classList.contains('nn-icon-item')) return;
+
+        evt.preventDefault();
+        const iconItems = Array.from(this.resultsContainer.querySelectorAll<HTMLElement>('.nn-icon-item'));
+        const currentIndex = iconItems.indexOf(currentFocused);
+
+        let newIndex = currentIndex;
+        if (deltaX !== 0) {
+            newIndex = currentIndex + deltaX;
+        } else {
+            newIndex = currentIndex + deltaY * GRID_COLUMNS;
+        }
+
+        if (newIndex >= 0 && newIndex < iconItems.length) {
+            iconItems[newIndex].focus();
+            this.ensureIconVisible(iconItems[newIndex]);
+        }
     }
 
     private ensureIconVisible(iconElement: HTMLElement) {

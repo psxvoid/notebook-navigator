@@ -53,6 +53,13 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.15',
+        date: '2025-09-12',
+        fixed: [
+            "Fixed keyboard event handling in modals to use Obsidian's scope.register() native method. See https://github.com/obsidianmd/obsidian-releases/pull/6886#issuecomment-3286434078"
+        ]
+    },
+    {
         version: '1.4.14',
         date: '2025-09-12',
         improved: ['Improved settings sync between devices.'],
