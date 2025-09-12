@@ -123,23 +123,25 @@ export class FileMetadataService extends BaseMetadataService {
      * @returns True if any metadata was removed/changed
      */
     async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
-        let hasChanges = false;
+        // Check if cleanup is needed first
+        const settings = this.settingsProvider.settings;
+        if (!settings.pinnedNotes || Object.keys(settings.pinnedNotes).length === 0) {
+            return false;
+        }
 
+        const invalidPaths = Object.keys(settings.pinnedNotes).filter(path => !validators.vaultFiles.has(path));
+
+        if (invalidPaths.length === 0) {
+            // Nothing to clean up
+            return false;
+        }
+
+        // Only save if there are changes
         await this.saveAndUpdate(settings => {
-            if (!settings.pinnedNotes) {
-                settings.pinnedNotes = {};
-                return;
-            }
-
-            const invalidPaths = Object.keys(settings.pinnedNotes).filter(path => !validators.vaultFiles.has(path));
-
-            if (invalidPaths.length > 0) {
-                invalidPaths.forEach(path => delete settings.pinnedNotes[path]);
-                hasChanges = true;
-            }
+            invalidPaths.forEach(path => delete settings.pinnedNotes[path]);
         });
 
-        return hasChanges;
+        return true;
     }
 
     /**
