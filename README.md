@@ -1,4 +1,4 @@
-![Notebook Navigator Banner](https://github.com/johansan/notebook-navigator/blob/main/images/banner.png?raw=true)
+![Notebook Navigator Banner](https://github.com/johansan/notebook-navigator/blob/main/images/banner.gif?raw=true)
 
 Available in: English • Deutsch • Español • Français • 日本語 • 中文
 
