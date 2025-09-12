@@ -55,6 +55,12 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.14',
+        date: '2025-09-12',
+        showOnUpdate: true,
+        fixed: ['Folder and file moves to root ("/") now build correct paths in drag and drop and batch moves.']
+    },
+    {
         version: '1.4.13',
         date: '2025-09-12',
         showOnUpdate: true,
