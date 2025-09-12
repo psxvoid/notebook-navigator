@@ -51,8 +51,6 @@ import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
  * - Other non-critical startup operations
  */
 if (typeof window !== 'undefined' && !window.requestIdleCallback) {
-    console.log('requestIdleCallback not supported, using polyfill');
-
     window.requestIdleCallback = function (callback: IdleRequestCallback, options?: { timeout?: number }) {
         const timeout = options?.timeout || 0;
 
@@ -105,6 +103,53 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     // These keys are used to save and restore the plugin's state between sessions
     keys: LocalStorageKeys = STORAGE_KEYS;
 
+    // ==== Settings loading ====
+    /**
+     * Loads plugin settings from disk and applies defaults.
+     * Flow:
+     * - Load persisted data (data.json)
+     * - Detect first launch (no saved data)
+     * - Clear per‑vault localStorage on first launch
+     * - Merge defaults with saved values
+     * - Ensure date/time formats
+     * - Ensure root folder expanded (first launch only)
+     * - Normalize tag-related settings
+     */
+    async loadSettings() {
+        // Load persisted data
+        const data = await this.loadData();
+        const isFirstLaunch = !data;
+
+        // Clear localStorage on fresh install/reinstall
+        if (isFirstLaunch) {
+            this.clearAllLocalStorage();
+        }
+
+        // Merge defaults with any saved data
+        this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
+
+        // Ensure language-specific date/time formats
+        if (isFirstLaunch || !data?.dateFormat) {
+            this.settings.dateFormat = getDefaultDateFormat();
+        }
+        if (isFirstLaunch || !data?.timeFormat) {
+            this.settings.timeFormat = getDefaultTimeFormat();
+        }
+
+        // Ensure root folder expansion on first launch when enabled by default
+        if (isFirstLaunch && this.settings.showRootFolder) {
+            const oldExpanded = localStorage.get<string[]>(STORAGE_KEYS.expandedFoldersKey);
+            const expandedFolders = oldExpanded || [];
+            if (!expandedFolders.includes('/')) {
+                expandedFolders.push('/');
+                localStorage.set(STORAGE_KEYS.expandedFoldersKey, expandedFolders);
+            }
+        }
+
+        // Normalize tag-related settings (lowercase keys, dedupe arrays)
+        this.normalizeTagSettings();
+    }
+
     /**
      * Called when external changes to settings are detected (e.g., from sync)
      * This method is called automatically by Obsidian when the data.json file
@@ -128,14 +173,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
     /**
      * Plugin initialization - called when plugin is enabled
-     * Sets up views, commands, event handlers, and UI elements
-     * Ensures proper initialization order for all plugin components
      */
     async onload() {
-        // Initialize localStorage with app instance for vault-specific storage
-        // Must be done before loadSettings() which may call clearAllLocalStorage()
+        // ==== Storage ====
         localStorage.init(this.app);
 
+        // ==== Load settings ====
         await this.loadSettings();
 
         // Set localStorage version if not present
@@ -143,10 +186,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             localStorage.set(STORAGE_KEYS.localStorageVersionKey, LOCALSTORAGE_VERSION);
         }
 
-        // Initialize icon service
-        const { initializeIconService } = await import('./services/icons');
-        initializeIconService();
-
+        // ==== Initialize services ====
         // Initialize metadata service for managing folder/tag colors, icons, and sort overrides
         this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
 
@@ -166,14 +206,15 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             () => this.commandQueue
         );
 
-        // Initialize public API
+        // Public API construction
         this.api = new NotebookNavigatorAPI(this, this.app);
 
+        // ==== Register view ====
         this.registerView(NOTEBOOK_NAVIGATOR_VIEW, leaf => {
             return new NotebookNavigatorView(leaf, this);
         });
 
-        // View & Navigation commands
+        // ==== Register commands ====
         this.addCommand({
             id: 'open',
             name: strings.commands.open,
@@ -445,6 +486,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
         });
 
+        // ==== Settings tab ====
         this.addSettingTab(new NotebookNavigatorSettingTab(this.app, this));
 
         // Register editor context menu
@@ -468,11 +510,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             })
         );
 
-        // Ribbon Icon For Opening
+        // ==== Ribbon ====
         this.ribbonIconEl = this.addRibbonIcon('lucide-notebook', strings.plugin.ribbonTooltip, async () => {
             await this.activateView();
         });
 
+        // ==== Vault events ====
         // Register rename event handler to update folder metadata and notify file renames
         //
         // ARCHITECTURAL NOTE: Why folders and files are handled differently
@@ -545,6 +588,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             })
         );
 
+        // ==== Post-layout (heavy work) ====
         // Use onLayoutReady for reliable initialization
         this.app.workspace.onLayoutReady(async () => {
             // Always open the view if it doesn't exist

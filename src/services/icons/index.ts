@@ -50,7 +50,7 @@ let iconService: IconService | null = null;
  *
  * @returns The initialized IconService instance
  */
-export function initializeIconService(): IconService {
+function initializeIconService(): IconService {
     if (!iconService) {
         iconService = IconService.getInstance();
 
