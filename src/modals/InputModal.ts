@@ -28,7 +28,6 @@ export class InputModal extends Modal {
     private cancelBtn: HTMLButtonElement;
     private cancelHandler: () => void;
     private inputEl: HTMLInputElement;
-    private keydownHandler: (e: KeyboardEvent) => void;
     private submitBtn: HTMLButtonElement;
     private submitHandler: () => void;
 
@@ -58,20 +57,20 @@ export class InputModal extends Modal {
         this.inputEl.addClass('nn-input');
 
         // Store handlers for cleanup
-        this.keydownHandler = (e: KeyboardEvent) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.close();
-                this.onSubmit(this.inputEl.value);
-            }
-        };
         this.cancelHandler = () => this.close();
         this.submitHandler = () => {
             this.close();
             this.onSubmit(this.inputEl.value);
         };
 
-        this.inputEl.addEventListener('keydown', this.keydownHandler);
+        // Use Obsidian scope for keyboard handling
+        this.scope.register([], 'Enter', evt => {
+            if (document.activeElement === this.inputEl) {
+                evt.preventDefault();
+                this.close();
+                this.onSubmit(this.inputEl.value);
+            }
+        });
 
         const buttonContainer = this.contentEl.createDiv('nn-button-container');
 
@@ -95,9 +94,6 @@ export class InputModal extends Modal {
      * Prevents memory leaks by removing all event listeners
      */
     onClose() {
-        if (this.inputEl && this.keydownHandler) {
-            this.inputEl.removeEventListener('keydown', this.keydownHandler);
-        }
         if (this.cancelBtn && this.cancelHandler) {
             this.cancelBtn.removeEventListener('click', this.cancelHandler);
         }

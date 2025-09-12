@@ -66,6 +66,17 @@ export class ConfirmModal extends Modal {
             cls: 'mod-warning'
         });
         this.confirmBtn.addEventListener('click', this.confirmHandler);
+
+        // Keyboard shortcuts
+        this.scope.register([], 'Enter', evt => {
+            evt.preventDefault();
+            this.close();
+            this.onConfirm();
+        });
+        this.scope.register([], 'Escape', evt => {
+            evt.preventDefault();
+            this.close();
+        });
     }
 
     /**
