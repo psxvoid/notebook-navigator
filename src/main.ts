@@ -29,8 +29,6 @@ import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
-import { ItemType, PinnedNotes } from './types';
-import { FileVisibility } from './utils/fileTypeUtils';
 
 /**
  * Polyfill for requestIdleCallback
@@ -139,12 +137,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         localStorage.init(this.app);
 
         await this.loadSettings();
-
-        // Clear old recentIcons format if it's still an array
-        if (Array.isArray(this.settings.recentIcons)) {
-            this.settings.recentIcons = {};
-            await this.saveSettingsAndUpdate();
-        }
 
         // Set localStorage version if not present
         if (!localStorage.get(STORAGE_KEYS.localStorageVersionKey)) {
@@ -727,6 +719,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Start with default settings
         this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
 
+        // Initialize pinned notes if not present
+        if (!this.settings.pinnedNotes) {
+            this.settings.pinnedNotes = {};
+        }
+
         // On first launch, set language-specific date/time formats
         if (isFirstLaunch || !data?.dateFormat) {
             this.settings.dateFormat = getDefaultDateFormat();
@@ -748,45 +745,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         this.normalizeTagSettings();
-
-        // Migrate fileVisibility from 'markdown' to 'documents'
-        if ((this.settings.fileVisibility as string) === 'markdown') {
-            this.settings.fileVisibility = 'documents' as FileVisibility;
-        }
-
-        // Migrate pinnedNotes to new object format if needed
-        this.migratePinnedNotesToObject();
-    }
-
-    /**
-     * Migrates pinnedNotes from array format to object format
-     */
-    private migratePinnedNotesToObject() {
-        // Check if pinnedNotes is in array format
-        if (Array.isArray(this.settings.pinnedNotes)) {
-            console.log('Migrating pinnedNotes from array to object format');
-
-            const arrayFormat = this.settings.pinnedNotes as { path: string; context: Record<string, boolean> }[];
-            const objectFormat: PinnedNotes = {};
-
-            for (const note of arrayFormat) {
-                if (note.path && note.context) {
-                    objectFormat[note.path] = {
-                        folder: note.context[ItemType.FOLDER] || note.context['folder'] || false,
-                        tag: note.context[ItemType.TAG] || note.context['tag'] || false
-                    };
-                }
-            }
-
-            this.settings.pinnedNotes = objectFormat;
-            console.log(`Migrated ${Object.keys(objectFormat).length} pinned notes to object format`);
-
-            // Save immediately
-            this.saveData(this.settings);
-        } else if (!this.settings.pinnedNotes) {
-            // Initialize as empty object
-            this.settings.pinnedNotes = {};
-        }
     }
 
     /**
@@ -948,7 +906,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             // Get release notes between versions
             let releaseNotes;
             if (compareVersions(currentVersion, lastShownVersion) > 0) {
-                // Upgraded - show notes from last shown to current
+                // Show notes from last shown to current
                 releaseNotes = getReleaseNotesBetweenVersions(lastShownVersion, currentVersion);
             } else {
                 // Downgraded or same version - just show latest 5 releases

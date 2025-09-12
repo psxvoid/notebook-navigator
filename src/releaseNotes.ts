@@ -23,7 +23,7 @@
  * between plugin versions. The system works as follows:
  *
  * 1. On plugin load, it compares the current version with the last shown version
- * 2. If upgraded, it shows all release notes between versions
+ * 2. If version increased, it shows all release notes between versions
  * 3. If downgraded or same version, it shows the latest 5 releases
  * 4. Individual releases can be marked with showOnUpdate: false to skip auto-display
  * 5. Users can always manually access release notes via plugin settings
