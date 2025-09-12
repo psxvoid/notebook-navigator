@@ -450,10 +450,7 @@ export function useListPaneScroll({
             const index = getSelectionIndex(pending.filePath);
             if (index >= 0) {
                 const alignment: Align = getListAlign(pending.reason);
-                rowVirtualizer.scrollToIndex(index, {
-                    align: alignment,
-                    behavior: 'auto'
-                });
+                rowVirtualizer.scrollToIndex(index, { align: alignment });
 
                 // Stabilization mechanism: Handle rapid consecutive rebuilds
                 // Config changes can trigger multiple rebuilds. We check if

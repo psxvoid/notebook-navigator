@@ -1,7 +1,6 @@
 // Shared scroll types and helpers
 
 export type Align = 'auto' | 'center' | 'start' | 'end';
-export type ScrollBehavior = 'auto' | 'smooth';
 
 // Navigation pane scroll intents
 export type NavScrollIntent =
@@ -18,8 +17,15 @@ export type ListScrollIntent = 'folder-navigation' | 'visibility-change' | 'reve
 
 // Determine alignment for navigation pane based on intent and explicit override
 export function getNavAlign(intent?: NavScrollIntent): Align {
-    if (intent === 'visibilityToggle' || intent === 'mobile-visibility' || intent === 'selection') return 'auto';
-    return 'center';
+    switch (intent) {
+        case 'visibilityToggle':
+        case 'mobile-visibility':
+            return 'auto';
+        case 'selection':
+            return Platform.isMobile ? 'center' : 'auto';
+        default:
+            return 'center';
+    }
 }
 
 import { Platform } from 'obsidian';

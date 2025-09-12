@@ -143,10 +143,7 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
             }
 
             // Scroll to target position
-            virtualizer.scrollToIndex(targetIndex, {
-                align: 'auto',
-                behavior: 'auto'
-            });
+            virtualizer.scrollToIndex(targetIndex, { align: 'auto' });
         },
         [files, selectionState.selectedFiles, selectionDispatch, app.workspace, virtualizer]
     );
