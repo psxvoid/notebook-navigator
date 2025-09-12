@@ -719,11 +719,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Start with default settings
         this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
 
-        // Initialize pinned notes if not present
-        if (!this.settings.pinnedNotes) {
-            this.settings.pinnedNotes = {};
-        }
-
         // On first launch, set language-specific date/time formats
         if (isFirstLaunch || !data?.dateFormat) {
             this.settings.dateFormat = getDefaultDateFormat();
