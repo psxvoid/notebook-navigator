@@ -37,7 +37,6 @@
 export interface ReleaseNote {
     version: string;
     date: string;
-    showOnUpdate: boolean; // If false, won't show automatically on upgrade
     info?: string; // General information about the release, shown at top without bullets
     new?: string[];
     improved?: string[];
@@ -50,20 +49,18 @@ export interface ReleaseNote {
  *
  * When adding a new release:
  * 1. Add it at the beginning of the array (newest first)
- * 2. Set showOnUpdate to false for minor bug fixes that don't need user attention
- * 3. Categorize features into: new, improved, changed, or fixed arrays
+ * 2. Categorize features into: new, improved, changed, or fixed arrays
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.14',
         date: '2025-09-12',
-        showOnUpdate: true,
-        fixed: ['Fixed dragging external files to root ("/") folder in vault.']
+        improved: ['Improved settings sync between devices.'],
+        fixed: ['Fixed so dragging external files to root folder works as expected.']
     },
     {
         version: '1.4.13',
-        date: '2025-09-12',
-        showOnUpdate: true,
+        date: '2025-09-11',
         new: ['You can now **drag and drop files** from your operating system directly onto folders to import them into your vault.'],
         changed: [
             'The toolbar button "Show notes from subfolders" was renamed to **Show notes from descendants** and now applies to both folders and tags.',
@@ -80,7 +77,6 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.12',
         date: '2025-09-10',
-        showOnUpdate: false,
         fixed: [
             'Folders now properly show an expansion arrow when they contain only hidden subfolders while "Show hidden items" is enabled.',
             'Mobile keyboard hides correctly when switching from list pane to navigation pane.'
@@ -89,7 +85,6 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.11',
         date: '2025-09-09',
-        showOnUpdate: true,
         improved: [
             'Folders, tags, and files now use **natural sorting** that compares number sequences by value (e.g., "note2" is now listed before "note10").'
         ],
@@ -104,7 +99,6 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.10',
         date: '2025-09-07',
-        showOnUpdate: true,
         improved: ['**Quick search** now highlights filename matches in the list pane.'],
         changed: [
             '**File visibility**: You can now choose between documents / supported / all files (was previously "markdown only" / supported / all). Default is "documents" showing md, canvas and base files.',
@@ -149,18 +143,6 @@ export function getReleaseNotesBetweenVersions(fromVersion: string, toVersion: s
  */
 export function getLatestReleaseNotes(count: number = 5): ReleaseNote[] {
     return RELEASE_NOTES.slice(0, count);
-}
-
-/**
- * Determines if the "What's new" modal should automatically show for a specific version.
- *
- * @param version - The version to check
- * @returns true if the modal should show automatically, false if it should be skipped
- */
-export function shouldShowReleaseNotesForVersion(version: string): boolean {
-    const releaseNote = RELEASE_NOTES.find(note => note.version === version);
-    // Default to true if showOnUpdate is not specified
-    return releaseNote?.showOnUpdate !== false;
 }
 
 /**
