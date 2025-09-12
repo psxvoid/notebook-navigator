@@ -58,7 +58,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.4.14',
         date: '2025-09-12',
         showOnUpdate: true,
-        fixed: ['Folder and file moves to root ("/") now build correct paths in drag and drop and batch moves.']
+        fixed: ['Fixed dragging external files to root ("/") folder in vault.']
     },
     {
         version: '1.4.13',
