@@ -139,16 +139,18 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      * Plugin initialization - called when plugin is enabled
      */
     async onload() {
+        // Initialize localStorage before database so version checks work
+        localStorage.init(this.app);
+
         // Initialize database early for StorageContext consumers
         try {
             const appId = (this.app as ExtendedApp).appId || '';
             await initializeDatabase(appId);
         } catch (e) {
             console.error('Failed to initialize database during plugin load:', e);
+            // Fail fast: abort plugin load if database cannot initialize
+            throw e instanceof Error ? e : new Error(String(e));
         }
-
-        // Initialize localStorage
-        localStorage.init(this.app);
 
         // Load settings and check if this is first launch
         const isFirstLaunch = await this.loadSettings();

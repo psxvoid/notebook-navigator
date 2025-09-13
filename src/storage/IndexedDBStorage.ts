@@ -250,8 +250,8 @@ export class IndexedDBStorage {
             };
 
             deleteReq.onblocked = () => {
-                console.warn('Database deletion blocked');
-                resolve();
+                console.error('Database deletion blocked');
+                reject(new Error('Database deletion blocked'));
             };
         });
     }
@@ -265,8 +265,25 @@ export class IndexedDBStorage {
                 reject(new Error(`Failed to open database: ${request.error?.message || 'Unknown error'}`));
             };
 
+            request.onblocked = () => {
+                console.error('Database open blocked');
+                reject(new Error('Database open blocked'));
+            };
+
             request.onsuccess = async () => {
                 this.db = request.result;
+
+                // Close this connection if a version change is requested elsewhere
+                if (this.db) {
+                    this.db.onversionchange = () => {
+                        try {
+                            this.db?.close();
+                        } catch {
+                            // noop
+                        }
+                        this.db = null;
+                    };
+                }
 
                 // Initialize the cache with all data from IndexedDB
                 if (skipCacheLoad) {

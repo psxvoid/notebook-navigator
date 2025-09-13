@@ -369,17 +369,22 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         };
     }, [app]); // Only recreate when app changes, not settings
 
-    // Database readiness check (plugin initializes DB in onload)
+    // Database readiness check (await actual initialization)
     useEffect(() => {
-        try {
-            // If instance retrieval succeeds, consider DB available
-            getDBInstance();
-            setIsIndexedDBReady(true);
-        } catch (error) {
-            // DB not ready yet
-            console.error('Database not available for StorageContext:', error);
-            setIsIndexedDBReady(false);
-        }
+        let cancelled = false;
+        (async () => {
+            try {
+                const db = getDBInstance();
+                await db.init();
+                if (!cancelled) setIsIndexedDBReady(true);
+            } catch (error) {
+                console.error('Database not available for StorageContext:', error);
+                if (!cancelled) setIsIndexedDBReady(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     // Listen for tag changes to rebuild tag tree and trigger initial cleanup
