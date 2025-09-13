@@ -121,6 +121,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     // Content provider registry handles content generation (preview text, feature images, metadata, tags)
     const contentRegistry = useRef<ContentProviderRegistry | null>(null);
     const isFirstLoad = useRef(true);
+    // Track any scheduled idle callbacks to allow cancellation on unmount
+    const pendingIdleCallbackId = useRef<number | null>(null);
 
     // Track storage initialization state
     const [isStorageReady, setIsStorageReady] = useState(false);
@@ -477,7 +479,13 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 }
             } else {
                 // Non-initial loads still process in background
-                requestIdleCallback(
+                // Cancel any previously scheduled idle work before queuing a new one
+                if (pendingIdleCallbackId.current !== null) {
+                    cancelIdleCallback(pendingIdleCallbackId.current);
+                    pendingIdleCallbackId.current = null;
+                }
+
+                pendingIdleCallbackId.current = requestIdleCallback(
                     async () => {
                         try {
                             const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
@@ -657,6 +665,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             app.metadataCache.offref(metadataEvent);
             // Cancel any pending debounced rebuilds
             rebuildFileCache.cancel();
+            // Cancel any pending idle callback work
+            if (pendingIdleCallbackId.current !== null) {
+                cancelIdleCallback(pendingIdleCallbackId.current);
+                pendingIdleCallbackId.current = null;
+            }
         };
     }, [
         app,
