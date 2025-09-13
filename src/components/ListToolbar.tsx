@@ -32,7 +32,7 @@ export function ListToolbar({ isSearchActive, onSearchToggle }: ListToolbarProps
     const selectionState = useSelectionState();
 
     // Use the shared actions hook
-    const { handleNewFile, handleAppearanceMenu, handleSortMenu, handleToggleSubfolders, getSortIcon, isCustomSort, hasCustomAppearance } =
+    const { handleNewFile, handleAppearanceMenu, handleSortMenu, handleToggleDescendants, getSortIcon, isCustomSort, hasCustomAppearance } =
         useListActions();
 
     return (
@@ -49,7 +49,7 @@ export function ListToolbar({ isSearchActive, onSearchToggle }: ListToolbarProps
             <button
                 className={`nn-mobile-toolbar-button ${settings.includeDescendantNotes ? 'nn-mobile-toolbar-button-active' : ''}`}
                 aria-label={strings.paneHeader.toggleDescendantNotes}
-                onClick={handleToggleSubfolders}
+                onClick={handleToggleDescendants}
                 disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                 tabIndex={-1}
             >

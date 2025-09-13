@@ -410,7 +410,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         itemsWithMetadata.forEach(item => {
             if (item.type === NavigationPaneItemType.TAG) {
                 const tagNode = item.data;
-                // Respect subfolder setting for tags:
+                // Respect descendants setting for tags:
                 // - When enabled: include notes from descendant tags
                 // - When disabled: count only notes directly on the tag
                 const count = settings.includeDescendantNotes ? getTotalNoteCount(tagNode) : tagNode.notesWithTag.size;
@@ -443,7 +443,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                         }
                     }
                 } else if (settings.includeDescendantNotes && child instanceof TFolder) {
-                    // When showing hidden items, include files from excluded subfolders
+                    // When showing hidden items, include files from excluded descendant folders
                     if (settings.showHiddenItems || !shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
                         count += countFiles(child);
                     }

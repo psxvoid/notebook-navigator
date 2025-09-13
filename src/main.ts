@@ -115,7 +115,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
     /**
      * Loads plugin settings from Obsidian's data storage
-     * Merges saved settings with default settings to ensure all required fields exist
      * Returns true if this is the first launch (no saved data)
      */
     async loadSettings(): Promise<boolean> {

@@ -30,7 +30,8 @@ export const STRINGS_JA = {
         noSelection: '選択なし', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: 'タグなし', // Label for notes without any tags (English: Untagged)
         untitled: '無題', // Default name for notes without a title (English: Untitled)
-        featureImageAlt: 'アイキャッチ画像' // Alt text for thumbnail/preview images (English: Feature image)
+        featureImageAlt: 'アイキャッチ画像', // Alt text for thumbnail/preview images (English: Feature image)
+        unknownError: '不明なエラー' // Generic fallback when an error has no message (English: Unknown error)
     },
 
     // List pane
@@ -428,7 +429,7 @@ export const STRINGS_JA = {
             },
             showParentFolderNames: {
                 name: '親フォルダ名を表示',
-                desc: 'サブフォルダのノートに親フォルダ名を表示します。'
+                desc: 'サブフォルダまたはタグ内のノートに親フォルダ名を表示します。'
             },
             showQuickActions: {
                 name: 'クイックアクションを表示 (デスクトップのみ)',
@@ -436,7 +437,7 @@ export const STRINGS_JA = {
             },
             quickActionsRevealInFolder: {
                 name: 'フォルダで表示',
-                desc: 'クイックアクション：ノートを親フォルダで表示。サブフォルダまたはタグからノートを表示している場合のみ表示されます（ノートの実際のフォルダでは表示されません）。'
+                desc: 'クイックアクション：ノートを親フォルダで表示。サブフォルダまたはタグ内でノートを表示している場合のみ表示されます（ノートの実際のフォルダでは表示されません）。'
             },
             quickActionsPinNote: {
                 name: 'ノートをピン留め',

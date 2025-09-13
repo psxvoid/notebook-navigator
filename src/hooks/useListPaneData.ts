@@ -359,11 +359,11 @@ export function useListPaneData({
                 // Check if file is in the selected folder
                 const fileFolder = file.parent;
                 if (!fileFolder || fileFolder.path !== selectedFolder.path) {
-                    // If not showing subfolders, ignore files not in this folder
+                    // If not showing descendants, ignore files not in this folder
                     if (!settings.includeDescendantNotes) {
                         return;
                     }
-                    // If showing subfolders, check if it's a descendant
+                    // If showing descendants, check if it's a descendant
                     if (!fileFolder?.path.startsWith(`${selectedFolder.path}/`)) {
                         return;
                     }

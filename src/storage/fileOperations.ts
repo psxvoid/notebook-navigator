@@ -54,7 +54,7 @@ let isShuttingDown = false;
 export function getDBInstance(): IndexedDBStorage {
     if (!dbInstance) {
         if (!appId) {
-            throw new Error('Database not initialized. Call initializeCache with appId first.');
+            throw new Error('Database not initialized. Call initializeDatabase(appId) first.');
         }
         dbInstance = new IndexedDBStorage(appId);
     }

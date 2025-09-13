@@ -257,7 +257,7 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
 
         if (selectedNode) {
             // Collect tags to include based on setting:
-            // - When showing notes from subfolders: include selected tag and all descendants
+            // - When showing notes from descendants: include selected tag and all descendants
             // - Otherwise: include only the exact selected tag
             const tagsToInclude = settings.includeDescendantNotes
                 ? tagTreeService?.collectTagPaths(selectedNode) || new Set<string>()

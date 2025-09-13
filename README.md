@@ -147,7 +147,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
    - **Cmd/Ctrl+Click** to add notes to selection
    - **Shift+Click** to select a range of notes
    - **Double-click** folders and tags to expand/collapse
-   - **Option/Alt+Click** on chevrons to expand/collapse all descendants
+   - **Option/Alt+Click** on chevrons to expand/collapse all descendants (desktop)
    - **Arrow keys** for navigation
    - **Tab** to switch between navigation pane and list pane
    - **Delete/Backspace** to delete (with optional confirmation)
@@ -190,6 +190,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 | Shift+Click                                 | Select a range of notes                                                                                           |
 | Shift+Home/End                              | Select from current position to first/last item                                                                   |
 | Shift+↑/↓                                   | Extend selection up/down                                                                                          |
+| Option/Alt+Click on chevron (desktop)       | Expand or collapse all descendants                                                                                |
 
 <br>
 
@@ -208,13 +209,13 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 **Layout & display**
 
 - `Notebook Navigator: Toggle dual pane layout` Toggle single/dual-pane layout (desktop)
-- `Notebook Navigator: Toggle notes from subfolders` Toggle subfolder notes display. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+S` to quickly toggle display of notes from subfolders
+- `Notebook Navigator: Toggle notes from descendants` Toggle descendants notes display for both folders and tags. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+S` to quickly toggle display of notes from descendants
 - `Notebook Navigator: Toggle hidden items` Show or hide excluded folders and hidden tags
 - `Notebook Navigator: Collapse` Collapse or expand all items based on the current state. When `Keep selected item expanded` is enabled (default on), all folders except the current one will be collapsed. This is super handy to keep the navigation tree tidy when searching for documents. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+C` to quickly collapse non-selected items
 
 **File operations**
 
-**Note:** When creating new notes in Obsidian you can choose the `Default location for new notes` in Obsidian settings. This can be the the root folder, same folder as current file, or a specific folder. When working with Notebook Navigator, especially with the setting `Show notes from subfolders` enabled, none of these options are preferred. Instead you always want to create new notes in the currently selected folder (for example if you have `Show notes from subfolders` on, and have a note in a subfolder selected, you do not want the new note to appear in the subfolder). The same also applies to moving and deleting files. This is why you should use these commands instead of the built-in Obsidian commands when using Notebook Navigator.
+**Note:** When creating new notes in Obsidian you can choose the `Default location for new notes` in Obsidian settings. This can be the the root folder, same folder as current file, or a specific folder. When working with Notebook Navigator, especially with the setting `Show notes from descendants` enabled, none of these options are preferred. Instead you always want to create new notes in the currently selected folder (for example if you have `Show notes from descendants` on, and have a note in a descendant folder selected, you do not want the new note to appear in the descendant folder). The same also applies to moving and deleting files. This is why you should use these commands instead of the built-in Obsidian commands when using Notebook Navigator.
 
 - `Notebook Navigator: Create new note` Create note in currently selected folder. **Suggestion:** Bind `Cmd/Ctrl+N` to this command (unbind from Obsidian's default "Create new note" first)
 - `Notebook Navigator: Move files` Move selected files to another folder. Selects next file in current folder
@@ -239,7 +240,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Excluded folders:** Comma-separated list of folders to hide. Pattern types:
   - **Name patterns:** `archive` excludes all "archive" folders
   - **Path patterns:** `/archive` excludes root archive folder, `/projects/secret` excludes specific path
-  - **Wildcards:** `temp*` (starts with), `*_old` (ends with), `/projects/*` (all subfolders)
+  - **Wildcards:** `temp*` (starts with), `*_old` (ends with), `/projects/*` (all descendants)
   - Right-click folders to add to exclusion list
 - **Excluded notes:** Comma-separated frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
 
@@ -258,7 +259,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 ### Folders
 
 - **Show root folder:** Display "Vault" as root folder
-- **Inherit folder colors:** Subfolders inherit parent folder colors when no custom color set
+- **Inherit folder colors:** Descendant folders inherit parent folder colors when no custom color set
 - **Enable folder notes:** Folders with notes become clickable links
 - **Folder note name:** Note name without extension. Empty = folder name
 - **Folder note properties:** Frontmatter properties to add to newly created folder notes (comma-separated)
@@ -297,7 +298,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Title rows:** Rows for note titles. `1` or `2`
 - **Show date:** Display date below note names
 - **Show tags:** Display tags in file list. Tags are clickable with proper colors
-- **Show parent folder names:** Display parent folder names for notes from subfolders and child tags
+- **Show parent folder names:** Display parent folder names for notes from descendants and child tags
 - **Show note preview (\*):** Display preview text
 - **Skip headings in preview:** Skip heading lines in preview
 - **Preview properties:** Comma-separated list of frontmatter properties to check for preview text. The first property with text will be used

@@ -51,7 +51,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
     const expansionState = useExpansionState();
 
     // Use the shared actions hook
-    const { handleNewFile, handleAppearanceMenu, handleSortMenu, handleToggleSubfolders, getSortIcon, isCustomSort, hasCustomAppearance } =
+    const { handleNewFile, handleAppearanceMenu, handleSortMenu, handleToggleDescendants, getSortIcon, isCustomSort, hasCustomAppearance } =
         useListActions();
 
     // Function to render clickable path segments
@@ -322,7 +322,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                     <button
                         className={`nn-icon-button ${settings.includeDescendantNotes ? 'nn-icon-button-active' : ''}`}
                         aria-label={strings.paneHeader.toggleDescendantNotes}
-                        onClick={handleToggleSubfolders}
+                        onClick={handleToggleDescendants}
                         disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                         tabIndex={-1}
                     >

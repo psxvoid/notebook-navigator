@@ -30,7 +30,8 @@ export const STRINGS_ES = {
         noSelection: 'Sin selección', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: 'Sin etiquetas', // Label for notes without any tags (English: Untagged)
         untitled: 'Sin título', // Default name for notes without a title (English: Untitled)
-        featureImageAlt: 'Imagen destacada' // Alt text for thumbnail/preview images (English: Feature image)
+        featureImageAlt: 'Imagen destacada', // Alt text for thumbnail/preview images (English: Feature image)
+        unknownError: 'Error desconocido' // Generic fallback when an error has no message (English: Unknown error)
     },
 
     // List pane
@@ -428,7 +429,7 @@ export const STRINGS_ES = {
             },
             showParentFolderNames: {
                 name: 'Mostrar nombres de carpetas principales',
-                desc: 'Muestra el nombre de la carpeta principal para las notas de subcarpetas.'
+                desc: 'Muestra el nombre de la carpeta principal para las notas en subcarpetas o etiquetas.'
             },
             showQuickActions: {
                 name: 'Mostrar acciones rápidas (solo escritorio)',
@@ -436,7 +437,7 @@ export const STRINGS_ES = {
             },
             quickActionsRevealInFolder: {
                 name: 'Revelar en carpeta',
-                desc: 'Acción rápida: Revelar nota en su carpeta principal. Solo visible al ver notas de subcarpetas o etiquetas (no se muestra en la carpeta real de la nota).'
+                desc: 'Acción rápida: Revelar nota en su carpeta principal. Solo visible al ver notas de subcarpetas o en etiquetas (no se muestra en la carpeta real de la nota).'
             },
             quickActionsPinNote: {
                 name: 'Fijar nota',

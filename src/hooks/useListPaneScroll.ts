@@ -37,7 +37,7 @@
  * ## Handles:
  * - Virtual list initialization with dynamic heights
  * - Folder/tag navigation with file preservation
- * - Configuration changes (subfolders, appearance)
+ * - Configuration changes (descendants, appearance)
  * - Mobile drawer visibility
  * - Reveal operations (show active file)
  * - Search filter changes
@@ -243,9 +243,9 @@ export function useListPaneScroll({
                     // Parent folder gets its own line (not when pinned is in compact layout)
                     if (!pinnedItemShouldUseCompactLayout && settings.showParentFolderNames) {
                         const file = item.data instanceof TFile ? item.data : null;
-                        const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                        const isInDescendant = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolderLine =
-                            selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder);
+                            selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInDescendant);
                         if (showParentFolderLine) {
                             textContentHeight += heights.singleTextLineHeight;
                         }
@@ -255,11 +255,11 @@ export function useListPaneScroll({
                     if (shouldCollapseEmptyPreviewSpace) {
                         // Optimization enabled and empty preview: compact layout
                         const file = item.data instanceof TFile ? item.data : null;
-                        const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                        const isInDescendant = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolder =
                             settings.showParentFolderNames &&
                             !pinnedItemShouldUseCompactLayout &&
-                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder));
+                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInDescendant));
 
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
@@ -280,11 +280,11 @@ export function useListPaneScroll({
                         }
                         // Only add metadata line if date is shown OR parent folder is shown
                         const file = item.data instanceof TFile ? item.data : null;
-                        const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                        const isInDescendant = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolder =
                             settings.showParentFolderNames &&
                             !pinnedItemShouldUseCompactLayout &&
-                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder));
+                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInDescendant));
 
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
@@ -582,7 +582,7 @@ export function useListPaneScroll({
     }, [isStorageReady, rowVirtualizer]);
 
     /**
-     * Handle scrolling when list configuration changes (subfolder toggle, appearance, or sort).
+     * Handle scrolling when list configuration changes (descendants toggle, appearance, or sort).
      * Maintains scroll position on the selected file.
      * Effect includes all dependencies but only scrolls when config actually changes.
      */
@@ -599,9 +599,9 @@ export function useListPaneScroll({
             return; // No config change, don't scroll
         }
 
-        // Detect subfolder toggle for special handling
-        const wasShowingSubfolders = prevConfigKeyRef.current && prevConfigKeyRef.current.startsWith('true');
-        const nowShowingSubfolders = settings.includeDescendantNotes;
+        // Detect descendants toggle for special handling
+        const wasShowingDescendants = prevConfigKeyRef.current && prevConfigKeyRef.current.startsWith('true');
+        const nowShowingDescendants = settings.includeDescendantNotes;
 
         // Update the ref
         prevConfigKeyRef.current = configKey;
@@ -614,8 +614,8 @@ export function useListPaneScroll({
                 reason: 'list-config-change',
                 minIndexVersion: indexVersionRef.current + 1
             });
-        } else if (wasShowingSubfolders && !nowShowingSubfolders) {
-            // Special case: When disabling subfolders and no file selected, scroll to top
+        } else if (wasShowingDescendants && !nowShowingDescendants) {
+            // Special case: When disabling descendants and no file selected, scroll to top
             setPending({
                 type: 'top',
                 reason: 'list-config-change',

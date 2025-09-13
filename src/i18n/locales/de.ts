@@ -30,7 +30,8 @@ export const STRINGS_DE = {
         noSelection: 'Keine Auswahl', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: 'Ohne Tag', // Label for notes without any tags (English: Untagged)
         untitled: 'Ohne Titel', // Default name for notes without a title (English: Untitled)
-        featureImageAlt: 'Vorschaubild' // Alt text for thumbnail/preview images (English: Feature image)
+        featureImageAlt: 'Vorschaubild', // Alt text for thumbnail/preview images (English: Feature image)
+        unknownError: 'Unbekannter Fehler' // Generic fallback when an error has no message (English: Unknown error)
     },
 
     // List pane
@@ -428,7 +429,7 @@ export const STRINGS_DE = {
             },
             showParentFolderNames: {
                 name: 'Übergeordnete Ordnernamen anzeigen',
-                desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.'
+                desc: 'Den übergeordneten Ordnernamen für Notizen in Unterordnern oder Tags anzeigen.'
             },
             showQuickActions: {
                 name: 'Schnellaktionen anzeigen (nur Desktop)',
@@ -436,7 +437,7 @@ export const STRINGS_DE = {
             },
             quickActionsRevealInFolder: {
                 name: 'Im Ordner anzeigen',
-                desc: 'Schnellaktion: Notiz im übergeordneten Ordner anzeigen. Nur sichtbar bei Notizen aus Unterordnern oder Tags (nicht im eigentlichen Ordner der Notiz).'
+                desc: 'Schnellaktion: Notiz im übergeordneten Ordner anzeigen. Nur sichtbar bei Notizen aus Unterordnern oder in Tags (nicht im eigentlichen Ordner der Notiz).'
             },
             quickActionsPinNote: {
                 name: 'Notiz anheften',

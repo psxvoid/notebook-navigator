@@ -476,7 +476,7 @@ export class FileSystemOperations {
                     typeof (firstError as { message?: unknown })?.message === 'string' &&
                     ((firstError as { message?: string }).message?.trim() ?? '')
                         ? (firstError as { message: string }).message
-                        : '';
+                        : strings.common.unknownError;
                 new Notice(strings.dragDrop.errors.failedToMove.replace('{error}', msg));
             }
         }
