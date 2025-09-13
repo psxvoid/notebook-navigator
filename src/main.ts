@@ -17,7 +17,7 @@
  */
 
 import { Plugin, WorkspaceLeaf, TFile, TFolder } from 'obsidian';
-import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
+import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab, SETTINGS_VERSION } from './settings';
 import { LocalStorageKeys, NOTEBOOK_NAVIGATOR_VIEW, STORAGE_KEYS } from './types';
 import { ISettingsProvider } from './interfaces/ISettingsProvider';
 import { MetadataService } from './services/MetadataService';
@@ -124,16 +124,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Start with default settings
         this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
 
-        // On first launch, set language-specific date/time formats
-        if (isFirstLaunch || !data?.dateFormat) {
+        // Set language-specific date/time formats if not already set
+        if (!this.settings.dateFormat) {
             this.settings.dateFormat = getDefaultDateFormat();
         }
-        if (isFirstLaunch || !data?.timeFormat) {
+        if (!this.settings.timeFormat) {
             this.settings.timeFormat = getDefaultTimeFormat();
         }
-
-        // Normalize tag settings to use lowercase keys
-        this.normalizeTagSettings();
 
         return isFirstLaunch;
     }
@@ -149,59 +146,64 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         } catch (e) {
             console.error('Failed to initialize database during plugin load:', e);
         }
-        // ==== Load settings and check first launch ====
-        const isFirstLaunch = await this.loadSettings();
 
-        // ==== Initialize localStorage ====
+        // Initialize localStorage
         localStorage.init(this.app);
 
-        // ==== Handle first launch ====
+        // Load settings and check if this is first launch
+        const isFirstLaunch = await this.loadSettings();
+
+        // Handle first launch initialization
         if (isFirstLaunch) {
-            // Clear all localStorage data for a clean start
+            // Normalize all tag settings to lowercase
+            this.normalizeTagSettings();
+
+            // Clear all localStorage data (if plugin was reinstalled)
             this.clearAllLocalStorage();
 
-            // Ensure root folder is expanded if showRootFolder is enabled
+            // Ensure root folder is expanded on first launch (default is enabled)
             if (this.settings.showRootFolder) {
                 const expandedFolders = ['/'];
                 localStorage.set(STORAGE_KEYS.expandedFoldersKey, expandedFolders);
             }
-        }
 
-        // Set localStorage version if not present
-        if (!localStorage.get(STORAGE_KEYS.localStorageVersionKey)) {
+            // Set localStorage version
             localStorage.set(STORAGE_KEYS.localStorageVersionKey, LOCALSTORAGE_VERSION);
+        } else {
+            // Check localStorage version for potential migrations
+            const storedVersion = localStorage.get(STORAGE_KEYS.localStorageVersionKey);
+            if (!storedVersion || Number(storedVersion) !== LOCALSTORAGE_VERSION) {
+                // Future localStorage migration logic can go here
+                localStorage.set(STORAGE_KEYS.localStorageVersionKey, LOCALSTORAGE_VERSION);
+            }
+
+            // Check settings version for potential migrations
+            if (this.settings.settingsVersion && this.settings.settingsVersion < SETTINGS_VERSION) {
+                // Future settings migration logic can go here
+                // Example: if (this.settings.settingsVersion < 2) { migrate v1 to v2 }
+                this.settings.settingsVersion = SETTINGS_VERSION;
+                await this.saveData(this.settings);
+            }
         }
 
-        // ==== Initialize services ====
-
-        // Initialize metadata service for managing folder/tag colors, icons, and sort overrides
+        // Initialize services
         this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
-
-        // Initialize tag operations service
         this.tagOperations = new TagOperations(this.app);
-
-        // Initialize tag tree service
         this.tagTreeService = new TagTreeService();
-
-        // Initialize command queue service
         this.commandQueue = new CommandQueueService(this.app);
-
-        // Initialize file system operations service
         this.fileSystemOps = new FileSystemOperations(
             this.app,
             () => this.tagTreeService,
             () => this.commandQueue
         );
-
-        // Public API construction
         this.api = new NotebookNavigatorAPI(this, this.app);
 
-        // ==== Register view ====
+        // Register view
         this.registerView(NOTEBOOK_NAVIGATOR_VIEW, leaf => {
             return new NotebookNavigatorView(leaf, this);
         });
 
-        // ==== Register commands ====
+        // Register commands
         this.addCommand({
             id: 'open',
             name: strings.commands.open,
@@ -575,7 +577,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             })
         );
 
-        // ==== Post-layout (heavy work) ====
+        // Post-layout initialization
         this.app.workspace.onLayoutReady(async () => {
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
