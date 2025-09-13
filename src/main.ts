@@ -28,6 +28,7 @@ import { FileSystemOperations } from './services/FileSystemService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
+import { getDBInstance } from './storage/fileOperations';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
 
 /**
@@ -643,6 +644,14 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         if (this.commandQueue) {
             this.commandQueue.clearAllOperations();
             this.commandQueue = null;
+        }
+
+        // Close IndexedDB connection if initialized
+        try {
+            const db = getDBInstance();
+            db.close();
+        } catch {
+            // DB may not be initialized yet; ignore
         }
 
         // Clean up the ribbon icon

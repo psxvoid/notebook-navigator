@@ -103,17 +103,6 @@ export async function recordFileChanges(files: TFile[], existingData: Map<string
                 metadata: null // MetadataContentProvider will extract these
             };
             updates.push({ path: file.path, data: fileData });
-        } else if (existing.mtime === file.stat.mtime) {
-            // File hasn't changed (mtime matches)
-            // This can happen during sync operations or cache rebuilds
-            const fileData: FileData = {
-                mtime: existing.mtime,
-                tags: existing.tags,
-                preview: existing.preview,
-                featureImage: existing.featureImage,
-                metadata: existing.metadata
-            };
-            updates.push({ path: file.path, data: fileData });
         }
         // If file was actually modified (existing.mtime !== file.stat.mtime),
         // we intentionally skip the update. Content providers will detect
@@ -144,6 +133,7 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
     const paths = files.map(f => f.path);
     const existingData = db.getFiles(paths);
     const updates: { path: string; data: FileData }[] = [];
+    const mtimeOnlyUpdates: { path: string; mtime: number }[] = [];
 
     for (const file of files) {
         const existing = existingData.get(file.path);
@@ -160,23 +150,17 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
                 }
             });
         } else {
-            // For settings changes, we need a way to trigger regeneration
-            // Update mtime to 0 to force content providers to regenerate
-            // This is better than clearing content as it avoids the double render
-            updates.push({
-                path: file.path,
-                data: {
-                    mtime: 0, // Force regeneration by setting mtime to 0
-                    tags: existing.tags, // Keep existing tags
-                    preview: existing.preview, // Keep existing preview
-                    featureImage: existing.featureImage, // Keep existing image
-                    metadata: existing.metadata // Keep existing metadata
-                }
-            });
+            // Force regeneration by setting mtime to 0, without overwriting other fields
+            mtimeOnlyUpdates.push({ path: file.path, mtime: 0 });
         }
     }
 
-    await db.setFiles(updates);
+    if (updates.length > 0) {
+        await db.setFiles(updates);
+    }
+    if (mtimeOnlyUpdates.length > 0) {
+        await db.updateMtimes(mtimeOnlyUpdates);
+    }
 }
 
 /**
