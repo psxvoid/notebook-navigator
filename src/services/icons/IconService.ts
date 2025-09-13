@@ -144,7 +144,6 @@ export class IconService {
         const provider = this.providers.get(parsed.provider);
 
         if (!provider) {
-            console.log(`[IconService] Icon provider not found: ${parsed.provider} for icon: ${iconId}`);
             container.empty();
             return;
         }
@@ -152,7 +151,7 @@ export class IconService {
         try {
             provider.render(container, parsed.identifier, size);
         } catch (error) {
-            console.log(`[IconService] Error rendering icon ${iconId}: ${error}`);
+            console.error(`[IconService] Error rendering icon ${iconId}:`, error);
             container.empty();
         }
     }

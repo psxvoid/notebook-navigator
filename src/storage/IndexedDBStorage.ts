@@ -225,10 +225,7 @@ export class IndexedDBStorage {
             await this.clear();
         }
 
-        // Log initialization summary
-        const totalTime = (performance.now() - startTime).toFixed(2);
-        const stats = this.getDatabaseStats();
-        console.log(`[IndexedDB] Ready in ${totalTime}ms - ${stats.itemCount} items, ${stats.sizeMB.toFixed(2)}MB`);
+        
     }
 
     private async deleteDatabase(): Promise<void> {
