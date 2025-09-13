@@ -193,8 +193,6 @@ export class IndexedDBStorage {
     }
 
     private async checkSchemaAndInit(): Promise<void> {
-        const startTime = performance.now();
-
         const storedSchemaVersion = localStorage.get<string>(STORAGE_KEYS.databaseSchemaVersionKey);
         const storedContentVersion = localStorage.get<string>(STORAGE_KEYS.databaseContentVersionKey);
         const currentSchemaVersion = DB_SCHEMA_VERSION.toString();
@@ -224,8 +222,6 @@ export class IndexedDBStorage {
             // Clear all data to force rebuild
             await this.clear();
         }
-
-        
     }
 
     private async deleteDatabase(): Promise<void> {

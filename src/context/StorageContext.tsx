@@ -118,6 +118,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const isFirstLoad = useRef(true);
     // Track any scheduled idle callbacks to allow cancellation on unmount
     const pendingIdleCallbackId = useRef<number | null>(null);
+    // Global stop flag to gate background work after plugin/view stop
+    const stoppedRef = useRef<boolean>(false);
 
     // Track storage initialization state
     const [isStorageReady, setIsStorageReady] = useState(false);
@@ -393,6 +395,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
         const db = getDBInstance();
         const unsubscribe = db.onContentChange(changes => {
+            if (stoppedRef.current) return;
             // Check if any changes include tags
             const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
 
@@ -415,6 +418,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     useEffect(() => {
         // Process existing files and handle updates
         const processExistingCache = async (allFiles: TFile[], isInitialLoad: boolean = false) => {
+            if (stoppedRef.current) return;
             if (isFirstLoad.current) {
                 isFirstLoad.current = false;
             }
@@ -493,6 +497,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
                 pendingIdleCallbackId.current = requestIdleCallback(
                     async () => {
+                        if (stoppedRef.current) return;
                         try {
                             const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
 
@@ -611,13 +616,21 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
         // Main function that orchestrates the file cache building
         const buildFileCache = async (isInitialLoad: boolean = false) => {
+            if (stoppedRef.current) return;
             const allFiles = getFilteredMarkdownFilesCallback();
             await processExistingCache(allFiles, isInitialLoad);
         };
 
         // Trailing debounce for vault event bursts: schedule a rebuild and
         // extend the timer while more events arrive within FILE_OPERATION_DELAY
-        const rebuildFileCache = debounce(() => buildFileCache(false), TIMEOUTS.FILE_OPERATION_DELAY, true);
+        const rebuildFileCache = debounce(
+            () => {
+                if (stoppedRef.current) return;
+                void buildFileCache(false);
+            },
+            TIMEOUTS.FILE_OPERATION_DELAY,
+            true
+        );
 
         // Only build initial cache if IndexedDB is ready and we haven't built it yet
         if (isIndexedDBReady && !hasBuiltInitialCache.current) {
@@ -631,14 +644,19 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             app.vault.on('delete', rebuildFileCache),
             app.vault.on('rename', rebuildFileCache),
             app.vault.on('modify', async file => {
+                if (stoppedRef.current) return;
                 // Check if it's a TFile (not a folder)
                 if (file instanceof TFile && file.extension === 'md') {
                     // Get existing data for the file
-                    const db = getDBInstance();
-                    const existingData = db.getFiles([file.path]);
-
-                    // Record the file change (only does something for new files)
-                    await recordFileChanges([file], existingData);
+                    try {
+                        const db = getDBInstance();
+                        const existingData = db.getFiles([file.path]);
+                        // Record the file change (only does something for new files)
+                        await recordFileChanges([file], existingData);
+                    } catch (e) {
+                        console.error('Failed to record file change on modify:', e);
+                        return;
+                    }
 
                     // Content providers will detect the mtime mismatch (db.mtime != file.mtime) and regenerate
                     if (contentRegistry.current) {
@@ -651,9 +669,15 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         // Listen to metadata changes for non-tag updates
         // Tags are already handled by the modify event above
         const metadataEvent = app.metadataCache.on('changed', async file => {
+            if (stoppedRef.current) return;
             if (file && file.extension === 'md') {
                 // Mark file for regeneration - metadata changes might not update mtime
-                await markFilesForRegeneration([file]);
+                try {
+                    await markFilesForRegeneration([file]);
+                } catch (e) {
+                    console.error('Failed to mark file for regeneration:', e);
+                    return;
+                }
 
                 // Queue content regeneration for the file
                 if (contentRegistry.current) {
@@ -800,8 +824,20 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         return {
             ...contextValue,
             stopAllProcessing: () => {
+                // Mark stopped to gate any subsequent event handlers
+                stoppedRef.current = true;
+                // Stop all provider processing
                 if (contentRegistry.current) {
                     contentRegistry.current.stopAllProcessing();
+                }
+                // Cancel any pending idle work scheduled by StorageContext
+                if (pendingIdleCallbackId.current !== null) {
+                    try {
+                        cancelIdleCallback(pendingIdleCallbackId.current);
+                    } catch {
+                        // no-op: polyfill or environment may differ
+                    }
+                    pendingIdleCallbackId.current = null;
                 }
             }
         };

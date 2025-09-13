@@ -47,6 +47,9 @@ export abstract class BaseContentProvider implements IContentProvider {
     // Track files already queued to avoid unbounded duplicate enqueues
     protected queuedFiles: Set<string> = new Set();
 
+    // Track provider stop state to prevent any post-stop scheduling or enqueues
+    protected stopped = false;
+
     constructor(protected app: App) {}
 
     abstract getContentType(): ContentType;
@@ -83,6 +86,7 @@ export abstract class BaseContentProvider implements IContentProvider {
     protected abstract needsProcessing(fileData: FileData | null, file: TFile, settings: NotebookNavigatorSettings): boolean;
 
     queueFiles(files: TFile[]): void {
+        if (this.stopped) return;
         // Filter out files that are currently being processed or already queued
         const newJobs: ContentJob[] = [];
         for (const file of files) {
@@ -98,6 +102,8 @@ export abstract class BaseContentProvider implements IContentProvider {
     }
 
     startProcessing(settings: NotebookNavigatorSettings): void {
+        // Allow restarting after a stop
+        this.stopped = false;
         this.currentBatchSettings = settings;
 
         if (this.queueDebounceTimer !== null) {
@@ -106,7 +112,7 @@ export abstract class BaseContentProvider implements IContentProvider {
 
         this.queueDebounceTimer = window.setTimeout(() => {
             this.queueDebounceTimer = null;
-            if (!this.isProcessing && this.queue.length > 0) {
+            if (!this.stopped && !this.isProcessing && this.queue.length > 0) {
                 this.processNextBatch();
             }
         }, TIMEOUTS.DEBOUNCE_CONTENT);
@@ -117,7 +123,7 @@ export abstract class BaseContentProvider implements IContentProvider {
     }
 
     protected async processNextBatch(): Promise<void> {
-        if (this.isProcessing || this.queue.length === 0 || !this.currentBatchSettings) {
+        if (this.stopped || this.isProcessing || this.queue.length === 0 || !this.currentBatchSettings) {
             return;
         }
 
@@ -168,7 +174,7 @@ export abstract class BaseContentProvider implements IContentProvider {
             }[] = [];
 
             for (let i = 0; i < activeJobs.length; i += this.PARALLEL_LIMIT) {
-                if (this.abortController.signal.aborted) break;
+                if (this.stopped || this.abortController?.signal.aborted) break;
 
                 const parallelBatch = activeJobs.slice(i, i + this.PARALLEL_LIMIT);
                 const results = await Promise.all(
@@ -198,7 +204,7 @@ export abstract class BaseContentProvider implements IContentProvider {
             }
 
             // Batch update database
-            if (updates.length > 0 && !this.abortController.signal.aborted) {
+            if (updates.length > 0 && !(this.stopped || this.abortController?.signal.aborted)) {
                 await db.batchUpdateFileContent(updates);
 
                 // Update mtimes for successfully processed files
@@ -231,7 +237,7 @@ export abstract class BaseContentProvider implements IContentProvider {
 
             this.isProcessing = false;
 
-            if (this.queue.length > 0 && !this.abortController?.signal.aborted) {
+            if (this.queue.length > 0 && !(this.stopped || this.abortController?.signal.aborted)) {
                 // Process next batch
                 requestAnimationFrame(() => this.processNextBatch());
             }
@@ -239,6 +245,9 @@ export abstract class BaseContentProvider implements IContentProvider {
     }
 
     stopProcessing(): void {
+        // Mark stopped first so any in-flight logic can observe it
+        this.stopped = true;
+
         if (this.abortController) {
             this.abortController.abort();
             this.abortController = null;
