@@ -104,6 +104,8 @@ export class CommandQueueService {
     private activeOperations = new Map<string, Operation>();
     private operationCounter = 0;
     private listeners = new Set<(type: OperationType, active: boolean) => void>();
+    // Track active counts per operation type to handle overlapping operations
+    private activeCounts = new Map<OperationType, number>();
 
     constructor(private app: App) {}
 
@@ -133,6 +135,30 @@ export class CommandQueueService {
                 console.error('CommandQueueService listener error:', e);
             }
         });
+    }
+
+    /**
+     * Increment active count for type and notify only on transition to active
+     */
+    private markActive(type: OperationType) {
+        const prev = this.activeCounts.get(type) ?? 0;
+        const next = prev + 1;
+        this.activeCounts.set(type, next);
+        if (prev === 0 && next === 1) {
+            this.notify(type, true);
+        }
+    }
+
+    /**
+     * Decrement active count for type and notify only on transition to inactive
+     */
+    private markInactive(type: OperationType) {
+        const prev = this.activeCounts.get(type) ?? 0;
+        const next = Math.max(0, prev - 1);
+        this.activeCounts.set(type, next);
+        if (prev > 0 && next === 0) {
+            this.notify(type, false);
+        }
     }
 
     /**
@@ -195,7 +221,10 @@ export class CommandQueueService {
     /**
      * Execute a file move operation with proper context tracking
      */
-    async executeMoveFiles(files: TFile[], targetFolder: TFolder): Promise<CommandResult<{ movedCount: number; skippedCount: number }>> {
+    async executeMoveFiles(
+        files: TFile[],
+        targetFolder: TFolder
+    ): Promise<CommandResult<{ movedCount: number; skippedCount: number; errors: { filePath: string; error: unknown }[] }>> {
         const operationId = this.generateOperationId();
         const operation: MoveFileOperation = {
             id: operationId,
@@ -206,11 +235,12 @@ export class CommandQueueService {
         };
 
         this.activeOperations.set(operationId, operation);
-        this.notify(OperationType.MOVE_FILE, true);
+        this.markActive(OperationType.MOVE_FILE);
 
         try {
             let movedCount = 0;
             let skippedCount = 0;
+            const errors: { filePath: string; error: unknown }[] = [];
 
             // First, collect all valid moves (non-conflicting files)
             const filesToMove: { file: TFile; newPath: string }[] = [];
@@ -229,24 +259,26 @@ export class CommandQueueService {
             }
 
             // Move all non-conflicting files in parallel for instant operation
-            const results = await Promise.allSettled(
-                filesToMove.map(({ file, newPath }) => this.app.fileManager.renameFile(file, newPath))
+            await Promise.allSettled(
+                filesToMove.map(async ({ file, newPath }) => {
+                    // Re-check just before move to avoid TOCTOU conflicts
+                    if (this.app.vault.getAbstractFileByPath(newPath)) {
+                        skippedCount++;
+                        return;
+                    }
+                    try {
+                        await this.app.fileManager.renameFile(file, newPath);
+                        movedCount++;
+                    } catch (err) {
+                        console.error('Error moving file:', file.path, err);
+                        errors.push({ filePath: file.path, error: err });
+                    }
+                })
             );
-
-            // Count successes and log errors
-            results.forEach((result, index) => {
-                if (result.status === 'fulfilled') {
-                    movedCount++;
-                } else {
-                    const { file } = filesToMove[index];
-                    console.error('Error moving file:', file.path, result.reason);
-                    // Don't throw on individual failures, continue with other files
-                }
-            });
 
             return {
                 success: true,
-                data: { movedCount, skippedCount }
+                data: { movedCount, skippedCount, errors }
             };
         } catch (error) {
             return {
@@ -256,7 +288,7 @@ export class CommandQueueService {
         } finally {
             // Always clean up the operation
             this.activeOperations.delete(operationId);
-            this.notify(OperationType.MOVE_FILE, false);
+            this.markInactive(OperationType.MOVE_FILE);
         }
     }
 
@@ -273,7 +305,7 @@ export class CommandQueueService {
         };
 
         this.activeOperations.set(operationId, operation);
-        this.notify(OperationType.DELETE_FILES, true);
+        this.markActive(OperationType.DELETE_FILES);
 
         try {
             await performDelete();
@@ -282,7 +314,7 @@ export class CommandQueueService {
             return { success: false, error: error as Error };
         } finally {
             this.activeOperations.delete(operationId);
-            this.notify(OperationType.DELETE_FILES, false);
+            this.markInactive(OperationType.DELETE_FILES);
         }
     }
 

@@ -80,18 +80,21 @@ Both version changes result in a cold boot to ensure data consistency.
 
 ```
 1. Plugin.onload() called by Obsidian
-2. Load settings from data.json
-3. Initialize core services:
+2. Initialize database early via initializeDatabase(appId)
+   - Database is ready for all consumers from the start
+   - Idempotent operation safe for rapid enable/disable cycles
+3. Load settings from data.json
+4. Initialize core services:
    - LocalStorage (vault-specific storage)
    - IconService (icon providers)
    - MetadataService (colors, icons, sort overrides, appearance overrides)
    - TagOperations (tag manipulation)
    - TagTreeService (tag hierarchy)
    - CommandQueueService (operation tracking)
-4. Register view type with Obsidian
-5. Register commands and event handlers
-6. Add ribbon icon
-7. Wait for workspace.onLayoutReady()
+5. Register view type with Obsidian
+6. Register commands and event handlers
+7. Add ribbon icon
+8. Wait for workspace.onLayoutReady()
    - When ready, calls activateView() if no navigator exists
 ```
 
@@ -120,11 +123,13 @@ Both version changes result in a cold boot to ensure data consistency.
 
 ### Phase 3: Database Version Check and Initialization
 
-**Trigger**: StorageProvider mounts in React component tree (from Phase 2)
+**Trigger**: Database already initialized by Plugin.onload() in Phase 1
 
 ```
-1. StorageContext useEffect runs on mount
-2. Calls IndexedDBStorage.init()
+1. StorageContext useEffect checks database availability
+   - Calls getDBInstance() to verify database is ready
+   - Sets isIndexedDBReady state based on availability
+2. Database version check (already performed during init):
 3. Version check process:
    - Check stored versions in localStorage
    - Compare DB_SCHEMA_VERSION and DB_CONTENT_VERSION
@@ -403,3 +408,55 @@ across vault events and UI updates to coalesce rapid event bursts and avoid redu
 - Scope: vault events (create, delete, rename, modify) and UI flows (list refresh, tree rebuilds, focus changes)
 - Mechanism: `debounce(handler, timeout, options)` from the Obsidian API
 - Goal: reduce repeated processing and unnecessary re-renders when events arrive in quick succession
+
+## Shutdown Process
+
+### Phase 1: Plugin Unload (main.ts)
+
+**Trigger**: Obsidian calls Plugin.onunload() when disabling the plugin
+
+```
+1. Set isUnloading flag to prevent new operations
+2. Clear all listener maps:
+   - Settings update listeners
+   - File rename listeners
+3. Stop content processing in all views:
+   - Get all NotebookNavigatorView instances
+   - Call stopContentProcessing() on each view
+   - This stops all ContentProviders via StorageContext
+4. Clean up services:
+   - MetadataService (set to null)
+   - TagOperations (set to null)
+   - CommandQueueService (clear operations and set to null)
+5. Remove ribbon icon
+6. Call shutdownDatabase() to:
+   - Close IndexedDB connection
+   - Clear memory cache
+   - Reset singleton instances
+   - Idempotent operation safe for multiple calls
+```
+
+### Phase 2: View Cleanup (NotebookNavigatorView.tsx)
+
+**Trigger**: View.onClose() when view is destroyed
+
+```
+1. Remove CSS classes from container:
+   - notebook-navigator
+   - notebook-navigator-mobile (if applicable)
+2. Unmount React root:
+   - Call root.unmount()
+   - Set root to null
+3. StorageContext cleanup (via useEffect return):
+   - Stop all content processing in ContentProviderRegistry
+   - Cancel any pending idle callbacks
+   - Prevent setState calls after unmount
+```
+
+### Key Principles
+
+1. **Clear Ownership**: Plugin owns database lifecycle, not React components
+2. **Processing Before Shutdown**: Always stop content providers before closing database
+3. **Idempotent Operations**: Both initializeDatabase and shutdownDatabase are safe to call multiple times
+4. **Prevent Late Operations**: isUnloading flag prevents new operations during shutdown
+5. **Clean Separation**: Database lifecycle is separate from view lifecycle

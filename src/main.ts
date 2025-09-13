@@ -28,8 +28,9 @@ import { FileSystemOperations } from './services/FileSystemService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
-import { getDBInstance } from './storage/fileOperations';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
+import { initializeDatabase, shutdownDatabase } from './storage/fileOperations';
+import { ExtendedApp } from './types/obsidian-extended';
 
 /**
  * Polyfill for requestIdleCallback
@@ -142,6 +143,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      * Plugin initialization - called when plugin is enabled
      */
     async onload() {
+        // Initialize database early for StorageContext consumers
+        try {
+            const appId = (this.app as ExtendedApp).appId || '';
+            await initializeDatabase(appId);
+        } catch (e) {
+            console.error('Failed to initialize database during plugin load:', e);
+        }
         // ==== Load settings and check first launch ====
         const isFirstLaunch = await this.loadSettings();
 
@@ -646,17 +654,25 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             this.commandQueue = null;
         }
 
-        // Close IndexedDB connection if initialized
+        // First, stop any background content processing in all navigator views
         try {
-            const db = getDBInstance();
-            db.close();
-        } catch {
-            // DB may not be initialized yet; ignore
+            const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+            for (const leaf of leaves) {
+                const view = leaf.view;
+                if (view instanceof NotebookNavigatorView) {
+                    view.stopContentProcessing();
+                }
+            }
+        } catch (e) {
+            console.error('Failed stopping content processing during unload:', e);
         }
 
         // Clean up the ribbon icon
         this.ribbonIconEl?.remove();
         this.ribbonIconEl = undefined;
+
+        // Shutdown database after all processing is stopped
+        shutdownDatabase();
     }
 
     /**

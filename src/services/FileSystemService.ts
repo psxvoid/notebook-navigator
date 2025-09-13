@@ -436,6 +436,19 @@ export class FileSystemOperations {
             if (moveResult.success && moveResult.data) {
                 result.movedCount = moveResult.data.movedCount;
                 result.skippedCount = moveResult.data.skippedCount;
+                // Map per-file errors back to TFile where possible for downstream notices
+                if (Array.isArray(moveResult.data.errors) && moveResult.data.errors.length > 0) {
+                    for (const err of moveResult.data.errors) {
+                        const f = this.app.vault.getFileByPath(err.filePath);
+                        if (f) {
+                            result.errors.push({ file: f, error: err.error as Error });
+                        } else {
+                            // Fall back to first of the requested files with matching path
+                            const fallback = files.find(x => x.path === err.filePath) || files[0];
+                            result.errors.push({ file: fallback, error: err.error as Error });
+                        }
+                    }
+                }
             } else if (moveResult.error) {
                 console.error('Error during move operation:', moveResult.error);
                 throw moveResult.error;
@@ -458,7 +471,13 @@ export class FileSystemOperations {
             }
 
             if (result.errors.length > 0 && files.length === 1) {
-                new Notice(strings.dragDrop.errors.failedToMove.replace('{error}', result.errors[0].error.message));
+                const firstError = result.errors[0]?.error as unknown;
+                const msg =
+                    typeof (firstError as { message?: unknown })?.message === 'string' &&
+                    ((firstError as { message?: string }).message?.trim() ?? '')
+                        ? (firstError as { message: string }).message
+                        : '';
+                new Notice(strings.dragDrop.errors.failedToMove.replace('{error}', msg));
             }
         }
 

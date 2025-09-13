@@ -44,6 +44,8 @@ export abstract class BaseContentProvider implements IContentProvider {
     // Track files currently being processed to prevent duplicate processing
     // when multiple events fire for the same file in quick succession
     protected processingFiles: Set<string> = new Set();
+    // Track files already queued to avoid unbounded duplicate enqueues
+    protected queuedFiles: Set<string> = new Set();
 
     constructor(protected app: App) {}
 
@@ -81,13 +83,14 @@ export abstract class BaseContentProvider implements IContentProvider {
     protected abstract needsProcessing(fileData: FileData | null, file: TFile, settings: NotebookNavigatorSettings): boolean;
 
     queueFiles(files: TFile[]): void {
-        // Filter out files that are currently being processed
-        const newJobs = files
-            .filter(file => !this.processingFiles.has(file.path))
-            .map(file => ({
-                file,
-                path: file.path.split('/')
-            }));
+        // Filter out files that are currently being processed or already queued
+        const newJobs: ContentJob[] = [];
+        for (const file of files) {
+            const p = file.path;
+            if (this.processingFiles.has(p) || this.queuedFiles.has(p)) continue;
+            newJobs.push({ file, path: p.split('/') });
+            this.queuedFiles.add(p);
+        }
 
         if (newJobs.length > 0) {
             this.queue.push(...newJobs);
@@ -109,22 +112,6 @@ export abstract class BaseContentProvider implements IContentProvider {
         }, TIMEOUTS.DEBOUNCE_CONTENT);
     }
 
-    stopProcessing(): void {
-        if (this.abortController) {
-            this.abortController.abort();
-            this.abortController = null;
-        }
-
-        if (this.queueDebounceTimer !== null) {
-            window.clearTimeout(this.queueDebounceTimer);
-            this.queueDebounceTimer = null;
-        }
-
-        this.isProcessing = false;
-        this.queue = [];
-        this.processingFiles.clear();
-    }
-
     onSettingsChanged(settings: NotebookNavigatorSettings): void {
         this.currentBatchSettings = settings;
     }
@@ -144,6 +131,8 @@ export abstract class BaseContentProvider implements IContentProvider {
         try {
             const db = getDBInstance();
             const batch = this.queue.splice(0, this.QUEUE_BATCH_SIZE);
+            // Remove from queued set now that they're moving to evaluation/processing
+            batch.forEach(job => this.queuedFiles.delete(job.file.path));
 
             // Filter jobs based on current settings and database state
             const jobsWithData = await Promise.all(
@@ -247,5 +236,22 @@ export abstract class BaseContentProvider implements IContentProvider {
                 requestAnimationFrame(() => this.processNextBatch());
             }
         }
+    }
+
+    stopProcessing(): void {
+        if (this.abortController) {
+            this.abortController.abort();
+            this.abortController = null;
+        }
+
+        if (this.queueDebounceTimer !== null) {
+            window.clearTimeout(this.queueDebounceTimer);
+            this.queueDebounceTimer = null;
+        }
+
+        this.isProcessing = false;
+        this.queue = [];
+        this.processingFiles.clear();
+        this.queuedFiles.clear();
     }
 }

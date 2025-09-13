@@ -140,6 +140,13 @@ export class NotebookNavigatorView extends ItemView {
     }
 
     /**
+     * Stops all background content processing (providers) within this view's React tree
+     */
+    stopContentProcessing() {
+        this.componentRef.current?.stopContentProcessing();
+    }
+
+    /**
      * Navigates to a file in the navigator by selecting it and its parent folder
      */
     navigateToFile(file: TFile) {

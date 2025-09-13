@@ -42,6 +42,8 @@ import { IndexedDBStorage, FileData } from './IndexedDBStorage';
 // Global IndexedDB storage instance
 let dbInstance: IndexedDBStorage | null = null;
 let appId: string | null = null;
+let isInitializing = false;
+let isShuttingDown = false;
 
 /**
  * Get the singleton IndexedDB storage instance.
@@ -65,10 +67,46 @@ export function getDBInstance(): IndexedDBStorage {
  *
  * @param appIdParam - The app ID to use for database naming
  */
-export async function initializeCache(appIdParam: string): Promise<void> {
-    appId = appIdParam;
-    const db = getDBInstance();
-    await db.init();
+export async function initializeDatabase(appIdParam: string): Promise<void> {
+    // Idempotent: if already initialized or in progress, skip
+    if (isInitializing) return;
+    const existing = dbInstance;
+    if (existing && existing.isInitialized()) return;
+
+    isInitializing = true;
+    try {
+        appId = appIdParam;
+        const db = getDBInstance();
+        await db.init();
+    } finally {
+        isInitializing = false;
+    }
+}
+
+/**
+ * Dispose the global database instance and clear module singletons.
+ * Called on plugin unload to release IndexedDB connection and memory cache.
+ */
+export function shutdownDatabase(): void {
+    // Idempotent: if already shut down or in progress, skip
+    if (!dbInstance) {
+        appId = null;
+        return;
+    }
+    if (isShuttingDown) return;
+
+    isShuttingDown = true;
+    try {
+        try {
+            dbInstance.close();
+        } catch (e) {
+            console.error('Failed to close database on shutdown:', e);
+        }
+    } finally {
+        dbInstance = null;
+        appId = null;
+        isShuttingDown = false;
+    }
 }
 
 /**
