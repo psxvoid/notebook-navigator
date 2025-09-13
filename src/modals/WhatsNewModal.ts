@@ -8,6 +8,17 @@ export class WhatsNewModal extends Modal {
     private dateFormat: string;
     private thanksButton: HTMLButtonElement | null = null;
     private onCloseCallback?: () => void;
+    private domDisposers: (() => void)[] = [];
+
+    private addDomListener(
+        el: HTMLElement,
+        type: string,
+        handler: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions
+    ): void {
+        el.addEventListener(type, handler, options);
+        this.domDisposers.push(() => el.removeEventListener(type, handler, options));
+    }
 
     constructor(app: App, releaseNotes: ReleaseNote[], dateFormat: string, onCloseCallback?: () => void) {
         super(app);
@@ -109,7 +120,7 @@ export class WhatsNewModal extends Modal {
             text: strings.whatsNew.supportButton,
             cls: 'nn-support-button-small'
         });
-        supportButton.addEventListener('click', () => {
+        this.addDomListener(supportButton, 'click', () => {
             window.open('https://github.com/sponsors/johansan/');
         });
 
@@ -117,7 +128,7 @@ export class WhatsNewModal extends Modal {
             text: strings.whatsNew.thanksButton,
             cls: 'mod-cta'
         });
-        thanksButton.addEventListener('click', () => {
+        this.addDomListener(thanksButton, 'click', () => {
             this.close();
         });
 
@@ -139,6 +150,16 @@ export class WhatsNewModal extends Modal {
     onClose(): void {
         const { contentEl } = this;
         contentEl.empty();
+        if (this.domDisposers.length) {
+            this.domDisposers.forEach(dispose => {
+                try {
+                    dispose();
+                } catch (e) {
+                    console.error("Error disposing what's new modal listener:", e);
+                }
+            });
+            this.domDisposers = [];
+        }
 
         // Call the callback when modal is closed
         if (this.onCloseCallback) {

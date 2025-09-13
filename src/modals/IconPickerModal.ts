@@ -48,6 +48,17 @@ export class IconPickerModal extends Modal {
     private searchInput: HTMLInputElement;
 
     private tabContainer: HTMLDivElement;
+    private domDisposers: (() => void)[] = [];
+
+    private addDomListener(
+        el: HTMLElement,
+        type: string,
+        handler: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions
+    ): void {
+        el.addEventListener(type, handler, options);
+        this.domDisposers.push(() => el.removeEventListener(type, handler, options));
+    }
 
     constructor(
         app: App,
@@ -87,7 +98,7 @@ export class IconPickerModal extends Modal {
         this.resultsContainer = contentEl.createDiv('nn-icon-results-container');
 
         // Set up search functionality with debouncing
-        this.searchInput.addEventListener('input', () => {
+        this.addDomListener(this.searchInput, 'input', () => {
             if (this.searchDebounceTimer) {
                 window.clearTimeout(this.searchDebounceTimer);
             }
@@ -122,7 +133,7 @@ export class IconPickerModal extends Modal {
                 this.currentProvider = provider.id;
             }
 
-            tab.addEventListener('click', () => {
+            this.addDomListener(tab, 'click', () => {
                 // Update active tab
                 this.tabContainer.querySelectorAll('.nn-icon-provider-tab').forEach(t => t.removeClass('nn-active'));
                 tab.addClass('nn-active');
@@ -238,7 +249,7 @@ export class IconPickerModal extends Modal {
         iconName.setText(iconDef.displayName);
 
         // Click handler
-        iconItem.addEventListener('click', () => {
+        this.addDomListener(iconItem, 'click', () => {
             this.selectIcon(fullIconId);
         });
 
@@ -376,5 +387,16 @@ export class IconPickerModal extends Modal {
 
         const { contentEl } = this;
         contentEl.empty();
+        // Cleanup DOM listeners
+        if (this.domDisposers.length) {
+            this.domDisposers.forEach(dispose => {
+                try {
+                    dispose();
+                } catch (e) {
+                    console.error('Error disposing icon picker listener:', e);
+                }
+            });
+            this.domDisposers = [];
+        }
     }
 }

@@ -87,6 +87,17 @@ export class ColorPickerModal extends Modal {
     private recentColorsContainer: HTMLDivElement;
     private presetColorsContainer: HTMLDivElement;
     private isUpdating = false;
+    private domDisposers: (() => void)[] = [];
+
+    private addDomListener(
+        el: HTMLElement,
+        type: string,
+        handler: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions
+    ): void {
+        el.addEventListener(type, handler, options);
+        this.domDisposers.push(() => el.removeEventListener(type, handler, options));
+    }
 
     /** Callback function invoked when a color is selected */
     public onChooseColor: (color: string | null) => void;
@@ -232,7 +243,7 @@ export class ColorPickerModal extends Modal {
             cls: 'nn-clear-recent',
             title: strings.modals.colorPicker.clearRecentColors
         });
-        clearButton.addEventListener('click', () => {
+        this.addDomListener(clearButton, 'click', () => {
             this.clearRecentColors();
         });
 
@@ -246,7 +257,7 @@ export class ColorPickerModal extends Modal {
         const cancelRemoveButton = buttonContainer.createEl('button', {
             text: this.currentColor ? removeColorText : strings.common.cancel
         });
-        cancelRemoveButton.addEventListener('click', () => {
+        this.addDomListener(cancelRemoveButton, 'click', () => {
             if (this.currentColor) {
                 this.removeColor();
             } else {
@@ -259,7 +270,7 @@ export class ColorPickerModal extends Modal {
             text: strings.modals.colorPicker.apply,
             cls: 'mod-cta'
         });
-        applyButton.addEventListener('click', async () => {
+        this.addDomListener(applyButton, 'click', async () => {
             await this.applyColor();
         });
 
@@ -270,7 +281,7 @@ export class ColorPickerModal extends Modal {
         this.updateFromHex(this.selectedColor);
 
         // Hex input real-time update
-        this.hexInput.addEventListener('input', () => {
+        this.addDomListener(this.hexInput, 'input', () => {
             const hex = this.validateAndFormatHex(this.hexInput.value);
             if (hex) {
                 this.updateFromHex(hex);
@@ -284,6 +295,17 @@ export class ColorPickerModal extends Modal {
     onClose() {
         const { contentEl } = this;
         contentEl.empty();
+        // Cleanup DOM listeners
+        if (this.domDisposers.length) {
+            this.domDisposers.forEach(dispose => {
+                try {
+                    dispose();
+                } catch (e) {
+                    console.error('Error disposing color picker listener:', e);
+                }
+            });
+            this.domDisposers = [];
+        }
     }
 
     /**
@@ -293,7 +315,7 @@ export class ColorPickerModal extends Modal {
         // RGB slider handlers
         (Object.keys(this.rgbSliders) as RGBChannel[]).forEach(channel => {
             const slider = this.rgbSliders[channel];
-            slider.addEventListener('input', () => {
+            this.addDomListener(slider, 'input', () => {
                 if (!this.isUpdating) {
                     this.updateFromRGB();
                 }
@@ -312,7 +334,7 @@ export class ColorPickerModal extends Modal {
             const dot = this.recentColorsContainer.createDiv('nn-color-dot');
             dot.style.backgroundColor = color;
             dot.setAttribute('data-color', color);
-            dot.addEventListener('click', () => {
+            this.addDomListener(dot, 'click', () => {
                 this.applyColorAndClose(color, false);
             });
         });
@@ -343,7 +365,7 @@ export class ColorPickerModal extends Modal {
             dot.style.backgroundColor = color.value;
             dot.setAttribute('data-color', color.value);
             dot.setAttribute('title', color.name);
-            dot.addEventListener('click', () => {
+            this.addDomListener(dot, 'click', () => {
                 this.applyColorAndClose(color.value, false);
             });
         });
