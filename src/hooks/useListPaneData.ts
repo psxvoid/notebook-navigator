@@ -40,6 +40,7 @@ import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
 import { strings } from '../i18n';
+import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
 import type { NotebookNavigatorSettings } from '../settings';
 
 /**
@@ -233,6 +234,17 @@ export function useListPaneData({
         // Add unpinned files with date grouping if enabled
         if (!settings.groupByDate || sortOption.startsWith('title')) {
             // No date grouping
+            // If we showed a pinned section and have regular items, insert a split header
+            if (pinnedFiles.length > 0 && unpinnedFiles.length > 0) {
+                const label =
+                    settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS ? strings.listPane.notesSection : strings.listPane.filesSection;
+                items.push({
+                    type: ListPaneItemType.HEADER,
+                    data: label,
+                    key: `header-${label}`
+                });
+            }
+
             unpinnedFiles.forEach(file => {
                 items.push({
                     type: ListPaneItemType.FILE,

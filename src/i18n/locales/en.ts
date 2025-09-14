@@ -38,7 +38,9 @@ export const STRINGS_EN = {
     listPane: {
         emptyStateNoSelection: 'Select a folder or tag to view notes', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'No notes', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 Pinned' // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: '📌 Pinned', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        notesSection: 'Notes', // Header shown between pinned and regular items when showing documents only (English: Notes)
+        filesSection: 'Files' // Header shown between pinned and regular items when showing supported or all files (English: Files)
     },
 
     // Tag list
