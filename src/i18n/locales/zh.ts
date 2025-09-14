@@ -30,14 +30,17 @@ export const STRINGS_ZH = {
         noSelection: '未选择', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: '无标签', // Label for notes without any tags (English: Untagged)
         untitled: '无标题', // Default name for notes without a title (English: Untitled)
-        featureImageAlt: '特色图片' // Alt text for thumbnail/preview images (English: Feature image)
+        featureImageAlt: '特色图片', // Alt text for thumbnail/preview images (English: Feature image)
+        unknownError: '未知错误' // Generic fallback when an error has no message (English: Unknown error)
     },
 
     // List pane
     listPane: {
         emptyStateNoSelection: '选择文件夹或标签以查看笔记', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: '无笔记', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 已固定' // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: '📌 已固定', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        notesSection: '笔记', // Header shown between pinned and regular items when showing documents only (English: Notes)
+        filesSection: '文件' // Header shown between pinned and regular items when showing supported or all files (English: Files)
     },
 
     // Tag list
@@ -428,7 +431,7 @@ export const STRINGS_ZH = {
             },
             showParentFolderNames: {
                 name: '显示父文件夹名称',
-                desc: '为子文件夹中的笔记显示父文件夹名称。'
+                desc: '为子文件夹或标签中的笔记显示父文件夹名称。'
             },
             showQuickActions: {
                 name: '显示快速操作（仅桌面版）',
@@ -436,7 +439,7 @@ export const STRINGS_ZH = {
             },
             quickActionsRevealInFolder: {
                 name: '在文件夹中显示',
-                desc: '快速操作：在父文件夹中显示笔记。仅在从子文件夹或标签查看笔记时显示（在笔记的实际文件夹中不显示）。'
+                desc: '快速操作：在父文件夹中显示笔记。仅在从子文件夹或在标签中查看笔记时显示（在笔记的实际文件夹中不显示）。'
             },
             quickActionsPinNote: {
                 name: '固定笔记',

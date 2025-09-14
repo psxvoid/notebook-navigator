@@ -118,6 +118,8 @@ export function useNavigatorEventHandlers({ app, containerRef, setIsNavigatorFoc
         container.focus();
 
         return () => {
+            // Cancel any pending debounced callback to avoid setState after unmount
+            debouncedSetFocused.cancel();
             container.removeEventListener('focusin', handleFocus);
             container.removeEventListener('focusout', handleBlur);
         };

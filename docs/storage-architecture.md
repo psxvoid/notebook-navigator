@@ -51,6 +51,14 @@ caching vault information to enable fast searches and filtering without repeated
 - Database name: `notebooknavigator/cache/{appId}` (vault-specific)
 - Store name: `keyvaluepairs`
 
+**Lifecycle Management**:
+
+- Initialized early in Plugin.onload() via `initializeDatabase(appId)`
+- Database connection owned by plugin, not React components
+- Shutdown in Plugin.onunload() via `shutdownDatabase()`
+- Idempotent operations prevent issues with rapid enable/disable cycles
+- StorageContext checks availability but doesn't manage lifecycle
+
 **Implementation**: `src/storage/IndexedDBStorage.ts`
 
 ```typescript

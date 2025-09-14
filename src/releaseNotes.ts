@@ -32,6 +32,24 @@
  */
 
 /**
+ * Formatting in release notes
+ *
+ * Supported inline formats in both info and list items:
+ * - Bold text: **text**
+ * - Critical emphasis (red + bold): ==text==
+ * - Markdown link: [label](https://example.com)
+ * - Auto-link: https://example.com
+ *
+ * Not supported:
+ * - Italics, headings, inline code, HTML
+ *
+ * Writing rules:
+ * - Use factual, concise statements
+ * - Avoid benefit language and subjective adjectives
+ * - Keep to the categories: new, improved, changed, fixed
+ */
+
+/**
  * Represents a single release note entry
  */
 export interface ReleaseNote {
@@ -52,6 +70,21 @@ export interface ReleaseNote {
  * 2. Categorize features into: new, improved, changed, or fixed arrays
  */
 const RELEASE_NOTES: ReleaseNote[] = [
+    {
+        version: '1.4.16',
+        date: '2025-09-14',
+        info: [
+            'No new features or changes in this release. This update focuses on stability improvements, handling edge cases and rare configurations in preparation for the public community release.\n\n',
+            '==Important!== If you have been using Notebook Navigator through BRAT, **please copy the contents of data.json to a markdown document now to preserve your settings!** When you remove the BRAT version and install the community version, you can paste your settings back to keep pinned notes, colors, icons, custom sort orders and appearances.\n\n',
+            '**Recommendation**: Use the community version of Notebook Navigator to avoid multiple plugin instances loading when BRAT updates on startup.'
+        ].join(''),
+        improved: [
+            'Background processing stops cleanly and pending idle tasks are canceled when the plugin unloads.',
+            'Safety guards added to most services and hooks.',
+            'Stricter error handling in IndexedDB with proper transaction cleanup.',
+            'Proactive listener cleanup in drag-and-drop modules and modals.'
+        ]
+    },
     {
         version: '1.4.15',
         date: '2025-09-12',

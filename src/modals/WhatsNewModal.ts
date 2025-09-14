@@ -8,6 +8,75 @@ export class WhatsNewModal extends Modal {
     private dateFormat: string;
     private thanksButton: HTMLButtonElement | null = null;
     private onCloseCallback?: () => void;
+    private domDisposers: (() => void)[] = [];
+
+    // Renders limited formatting into a container element.
+    // Supports:
+    // - **bold**
+    // - ==text== (highlight as red + bold)
+    // - [label](https://link)
+    // - Auto-link bare http(s) URLs
+    // - Line breaks: single \n becomes <br>
+    private renderFormattedText(container: HTMLElement, text: string): void {
+        const renderInline = (segment: string, dest: HTMLElement) => {
+            const pattern = /==([\s\S]*?)==|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|\*\*([^*]+)\*\*|(https?:\/\/[^\s]+)/g;
+            let lastIndex = 0;
+            let match: RegExpExecArray | null;
+
+            const appendText = (t: string) => {
+                if (t.length > 0) dest.appendText(t);
+            };
+
+            while ((match = pattern.exec(segment)) !== null) {
+                appendText(segment.slice(lastIndex, match.index));
+
+                if (match[1]) {
+                    // ==highlight== -> bold + red, supports nested formatting inside
+                    const strong = dest.createEl('strong', { cls: 'nn-critical' });
+                    // Render inner text allowing nested formatting
+                    renderInline(match[1], strong);
+                } else if (match[2] && match[3]) {
+                    // Markdown link [label](url)
+                    const a = dest.createEl('a', { text: match[2] });
+                    a.setAttr('href', match[3]);
+                    a.setAttr('rel', 'noopener noreferrer');
+                    a.setAttr('target', '_blank');
+                } else if (match[4]) {
+                    // **bold**
+                    dest.createEl('strong', { text: match[4] });
+                } else if (match[5]) {
+                    // Bare URL
+                    const url = match[5];
+                    const a = dest.createEl('a', { text: url });
+                    a.setAttr('href', url);
+                    a.setAttr('rel', 'noopener noreferrer');
+                    a.setAttr('target', '_blank');
+                }
+
+                lastIndex = pattern.lastIndex;
+            }
+
+            appendText(segment.slice(lastIndex));
+        };
+
+        const lines = text.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            renderInline(lines[i], container);
+            if (i < lines.length - 1) {
+                container.createEl('br');
+            }
+        }
+    }
+
+    private addDomListener(
+        el: HTMLElement,
+        type: string,
+        handler: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions
+    ): void {
+        el.addEventListener(type, handler, options);
+        this.domDisposers.push(() => el.removeEventListener(type, handler, options));
+    }
 
     constructor(app: App, releaseNotes: ReleaseNote[], dateFormat: string, onCloseCallback?: () => void) {
         super(app);
@@ -45,11 +114,12 @@ export class WhatsNewModal extends Modal {
                 cls: 'nn-whats-new-date'
             });
 
-            // Show info text first if present
+            // Show info text first if present (supports paragraphs and line breaks)
             if (note.info) {
-                versionContainer.createEl('p', {
-                    text: note.info,
-                    cls: 'nn-whats-new-info'
+                const paragraphs = note.info.split(/\n\s*\n/);
+                paragraphs.forEach(para => {
+                    const p = versionContainer.createEl('p', { cls: 'nn-whats-new-info' });
+                    this.renderFormattedText(p, para);
                 });
             }
 
@@ -76,17 +146,7 @@ export class WhatsNewModal extends Modal {
 
                     items.forEach(item => {
                         const li = categoryList.createEl('li');
-                        // Parse the item text for **bold** markdown syntax
-                        const parts = item.split(/(\*\*[^*]+\*\*)/);
-                        parts.forEach(part => {
-                            if (part.startsWith('**') && part.endsWith('**')) {
-                                // Bold text
-                                li.createEl('strong', { text: part.slice(2, -2) });
-                            } else if (part) {
-                                // Regular text
-                                li.appendText(part);
-                            }
-                        });
+                        this.renderFormattedText(li, item);
                     });
                 }
             });
@@ -109,7 +169,7 @@ export class WhatsNewModal extends Modal {
             text: strings.whatsNew.supportButton,
             cls: 'nn-support-button-small'
         });
-        supportButton.addEventListener('click', () => {
+        this.addDomListener(supportButton, 'click', () => {
             window.open('https://github.com/sponsors/johansan/');
         });
 
@@ -117,7 +177,7 @@ export class WhatsNewModal extends Modal {
             text: strings.whatsNew.thanksButton,
             cls: 'mod-cta'
         });
-        thanksButton.addEventListener('click', () => {
+        this.addDomListener(thanksButton, 'click', () => {
             this.close();
         });
 
@@ -139,6 +199,16 @@ export class WhatsNewModal extends Modal {
     onClose(): void {
         const { contentEl } = this;
         contentEl.empty();
+        if (this.domDisposers.length) {
+            this.domDisposers.forEach(dispose => {
+                try {
+                    dispose();
+                } catch (e) {
+                    console.error("Error disposing what's new modal listener:", e);
+                }
+            });
+            this.domDisposers = [];
+        }
 
         // Call the callback when modal is closed
         if (this.onCloseCallback) {

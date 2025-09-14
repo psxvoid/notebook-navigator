@@ -42,6 +42,16 @@ import { IndexedDBStorage, FileData } from './IndexedDBStorage';
 // Global IndexedDB storage instance
 let dbInstance: IndexedDBStorage | null = null;
 let appId: string | null = null;
+let isInitializing = false;
+let isShuttingDown = false;
+
+/**
+ * Indicates whether a database shutdown is currently in progress.
+ * Used to avoid issuing write operations during teardown cycles.
+ */
+export function isShutdownInProgress(): boolean {
+    return isShuttingDown;
+}
 
 /**
  * Get the singleton IndexedDB storage instance.
@@ -52,7 +62,7 @@ let appId: string | null = null;
 export function getDBInstance(): IndexedDBStorage {
     if (!dbInstance) {
         if (!appId) {
-            throw new Error('Database not initialized. Call initializeCache with appId first.');
+            throw new Error('Database not initialized. Call initializeDatabase(appId) first.');
         }
         dbInstance = new IndexedDBStorage(appId);
     }
@@ -65,10 +75,43 @@ export function getDBInstance(): IndexedDBStorage {
  *
  * @param appIdParam - The app ID to use for database naming
  */
-export async function initializeCache(appIdParam: string): Promise<void> {
-    appId = appIdParam;
-    const db = getDBInstance();
-    await db.init();
+export async function initializeDatabase(appIdParam: string): Promise<void> {
+    // Idempotent: if already initialized or in progress, skip
+    if (isInitializing) return;
+    const existing = dbInstance;
+    if (existing && existing.isInitialized()) return;
+
+    isInitializing = true;
+    try {
+        appId = appIdParam;
+        const db = getDBInstance();
+        await db.init();
+    } finally {
+        isInitializing = false;
+    }
+}
+
+/**
+ * Dispose the global database instance and clear module singletons.
+ * Called on plugin unload to release IndexedDB connection and memory cache.
+ */
+export function shutdownDatabase(): void {
+    // Idempotent: if already shut down or in progress, skip
+    if (!dbInstance) {
+        return;
+    }
+    if (isShuttingDown) return;
+
+    isShuttingDown = true;
+    try {
+        try {
+            dbInstance.close();
+        } catch (e) {
+            console.error('Failed to close database on shutdown:', e);
+        }
+    } finally {
+        isShuttingDown = false;
+    }
 }
 
 /**
@@ -87,6 +130,7 @@ export async function initializeCache(appIdParam: string): Promise<void> {
  * @param existingData - Pre-fetched map of existing file data
  */
 export async function recordFileChanges(files: TFile[], existingData: Map<string, FileData>): Promise<void> {
+    if (isShuttingDown) return;
     const db = getDBInstance();
     const updates: { path: string; data: FileData }[] = [];
 
@@ -101,17 +145,6 @@ export async function recordFileChanges(files: TFile[], existingData: Map<string
                 preview: null, // PreviewContentProvider will generate these
                 featureImage: null, // FeatureImageContentProvider will generate these
                 metadata: null // MetadataContentProvider will extract these
-            };
-            updates.push({ path: file.path, data: fileData });
-        } else if (existing.mtime === file.stat.mtime) {
-            // File hasn't changed (mtime matches)
-            // This can happen during sync operations or cache rebuilds
-            const fileData: FileData = {
-                mtime: existing.mtime,
-                tags: existing.tags,
-                preview: existing.preview,
-                featureImage: existing.featureImage,
-                metadata: existing.metadata
             };
             updates.push({ path: file.path, data: fileData });
         }
@@ -140,10 +173,12 @@ export async function recordFileChanges(files: TFile[], existingData: Map<string
  * @param files - Array of Obsidian files to mark for regeneration
  */
 export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
+    if (isShuttingDown) return;
     const db = getDBInstance();
     const paths = files.map(f => f.path);
     const existingData = db.getFiles(paths);
     const updates: { path: string; data: FileData }[] = [];
+    const mtimeOnlyUpdates: { path: string; mtime: number }[] = [];
 
     for (const file of files) {
         const existing = existingData.get(file.path);
@@ -160,23 +195,17 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
                 }
             });
         } else {
-            // For settings changes, we need a way to trigger regeneration
-            // Update mtime to 0 to force content providers to regenerate
-            // This is better than clearing content as it avoids the double render
-            updates.push({
-                path: file.path,
-                data: {
-                    mtime: 0, // Force regeneration by setting mtime to 0
-                    tags: existing.tags, // Keep existing tags
-                    preview: existing.preview, // Keep existing preview
-                    featureImage: existing.featureImage, // Keep existing image
-                    metadata: existing.metadata // Keep existing metadata
-                }
-            });
+            // Force regeneration by setting mtime to 0, without overwriting other fields
+            mtimeOnlyUpdates.push({ path: file.path, mtime: 0 });
         }
     }
 
-    await db.setFiles(updates);
+    if (updates.length > 0) {
+        await db.setFiles(updates);
+    }
+    if (mtimeOnlyUpdates.length > 0) {
+        await db.updateMtimes(mtimeOnlyUpdates);
+    }
 }
 
 /**
@@ -185,6 +214,7 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
  * @param paths - Array of file paths to remove
  */
 export async function removeFilesFromCache(paths: string[]): Promise<void> {
+    if (isShuttingDown) return;
     const db = getDBInstance();
     await db.deleteFiles(paths);
 }

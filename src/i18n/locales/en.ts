@@ -30,14 +30,17 @@ export const STRINGS_EN = {
         noSelection: 'No selection', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: 'Untagged', // Label for notes without any tags (English: Untagged)
         untitled: 'Untitled', // Default name for notes without a title (English: Untitled)
-        featureImageAlt: 'Feature image' // Alt text for thumbnail/preview images (English: Feature image)
+        featureImageAlt: 'Feature image', // Alt text for thumbnail/preview images (English: Feature image)
+        unknownError: 'Unknown error' // Generic fallback when an error has no message (English: Unknown error)
     },
 
     // List pane
     listPane: {
         emptyStateNoSelection: 'Select a folder or tag to view notes', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'No notes', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 Pinned' // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: '📌 Pinned', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        notesSection: 'Notes', // Header shown between pinned and regular items when showing documents only (English: Notes)
+        filesSection: 'Files' // Header shown between pinned and regular items when showing supported or all files (English: Files)
     },
 
     // Tag list
@@ -427,7 +430,7 @@ export const STRINGS_EN = {
             },
             showParentFolderNames: {
                 name: 'Show parent folder names',
-                desc: 'Display the parent folder name for notes from subfolders.'
+                desc: 'Display the parent folder name for notes in subfolders or tags.'
             },
             showQuickActions: {
                 name: 'Show quick actions (desktop only)',
@@ -435,7 +438,7 @@ export const STRINGS_EN = {
             },
             quickActionsRevealInFolder: {
                 name: 'Reveal in folder',
-                desc: "Quick action: Reveal note in its parent folder. Only visible when viewing notes from subfolders or tags (not shown in the note's actual folder)."
+                desc: "Quick action: Reveal note in its parent folder. Only visible when viewing notes from subfolders or in tags (not shown in the note's actual folder)."
             },
             quickActionsPinNote: {
                 name: 'Pin note',

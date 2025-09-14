@@ -30,14 +30,17 @@ export const STRINGS_FR = {
         noSelection: 'Aucune sélection', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: 'Sans étiquette', // Label for notes without any tags (English: Untagged)
         untitled: 'Sans titre', // Default name for notes without a title (English: Untitled)
-        featureImageAlt: 'Image vedette' // Alt text for thumbnail/preview images (English: Feature image)
+        featureImageAlt: 'Image vedette', // Alt text for thumbnail/preview images (English: Feature image)
+        unknownError: 'Erreur inconnue' // Generic fallback when an error has no message (English: Unknown error)
     },
 
     // List pane
     listPane: {
         emptyStateNoSelection: 'Sélectionnez un dossier ou une étiquette pour afficher les notes', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Aucune note', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 Épinglées' // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: '📌 Épinglées', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        notesSection: 'Notes', // Header shown between pinned and regular items when showing documents only (English: Notes)
+        filesSection: 'Fichiers' // Header shown between pinned and regular items when showing supported or all files (English: Files)
     },
 
     // Tag list
@@ -428,7 +431,7 @@ export const STRINGS_FR = {
             },
             showParentFolderNames: {
                 name: 'Afficher les noms des dossiers parents',
-                desc: 'Afficher le nom du dossier parent pour les notes provenant des sous-dossiers.'
+                desc: 'Afficher le nom du dossier parent pour les notes dans les sous-dossiers ou étiquettes.'
             },
             showQuickActions: {
                 name: 'Afficher les actions rapides (bureau uniquement)',
@@ -436,7 +439,7 @@ export const STRINGS_FR = {
             },
             quickActionsRevealInFolder: {
                 name: 'Révéler dans le dossier',
-                desc: "Action rapide : Révéler la note dans son dossier parent. Visible uniquement lors de l'affichage de notes depuis des sous-dossiers ou des tags (non affiché dans le dossier réel de la note)."
+                desc: "Action rapide : Révéler la note dans son dossier parent. Visible uniquement lors de l'affichage de notes depuis des sous-dossiers ou dans des étiquettes (non affiché dans le dossier réel de la note)."
             },
             quickActionsPinNote: {
                 name: 'Épingler la note',

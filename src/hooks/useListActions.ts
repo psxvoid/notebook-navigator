@@ -159,21 +159,21 @@ export function useListActions() {
     );
 
     /**
-     * Toggles the display of notes from subfolders.
-     * When enabling subfolders, automatically selects the active file if it's within the current folder hierarchy.
+     * Toggles the display of notes from descendants.
+     * When enabling descendants, automatically selects the active file if it's within the current folder/tag hierarchy.
      */
-    const handleToggleSubfolders = useCallback(async () => {
-        const wasShowingSubfolders = settings.includeDescendantNotes;
+    const handleToggleDescendants = useCallback(async () => {
+        const wasShowingDescendants = settings.includeDescendantNotes;
 
         await updateSettings(s => {
             s.includeDescendantNotes = !s.includeDescendantNotes;
         });
 
-        // Special case: When enabling subfolders, auto-select the active file if it's in the folder
-        if (!wasShowingSubfolders && selectionState.selectedFolder && !selectionState.selectedFile) {
+        // Special case: When enabling descendants, auto-select the active file if it's in the folder
+        if (!wasShowingDescendants && selectionState.selectedFolder && !selectionState.selectedFile) {
             const activeFile = app.workspace.getActiveFile();
             if (activeFile) {
-                // Check if the active file would be visible with subfolders enabled
+                // Check if the active file would be visible with descendants enabled
                 const filesInFolder = getFilesForFolder(selectionState.selectedFolder, { ...settings, includeDescendantNotes: true }, app);
 
                 if (filesInFolder.some(f => f.path === activeFile.path)) {
@@ -206,7 +206,7 @@ export function useListActions() {
         handleNewFile,
         handleAppearanceMenu,
         handleSortMenu,
-        handleToggleSubfolders,
+        handleToggleDescendants,
         getCurrentSortOption,
         getSortIcon,
         isCustomSort,

@@ -30,6 +30,7 @@ import { useResizablePane } from '../hooks/useResizablePane';
 import { useNavigationActions } from '../hooks/useNavigationActions';
 import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
 import { useTagNavigation } from '../hooks/useTagNavigation';
+import { useFileCache } from '../context/StorageContext';
 import { strings } from '../i18n';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 import { TagSuggestModal } from '../modals/TagSuggestModal';
@@ -59,6 +60,7 @@ export interface NotebookNavigatorHandle {
     removeAllTagsFromSelectedFiles: () => Promise<void>;
     toggleSearch: () => void;
     triggerCollapse: () => void;
+    stopContentProcessing: () => void;
 }
 
 /**
@@ -79,6 +81,11 @@ export const NotebookNavigatorComponent = React.memo(
         const selectionDispatch = useSelectionDispatch();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
+        const { stopAllProcessing } = useFileCache();
+        const stopProcessingRef = useRef(stopAllProcessing);
+        useEffect(() => {
+            stopProcessingRef.current = stopAllProcessing;
+        }, [stopAllProcessing]);
 
         // Root container reference for the entire navigator
         // This ref is passed to both NavigationPane and ListPane to ensure
@@ -196,6 +203,13 @@ export const NotebookNavigatorComponent = React.memo(
                     const isOpeningInNewContext = commandQueue?.isOpeningInNewContext() || false;
                     if (!isOpeningVersionHistory && !isOpeningInNewContext) {
                         containerRef.current?.focus();
+                    }
+                },
+                stopContentProcessing: () => {
+                    try {
+                        stopProcessingRef.current?.();
+                    } catch (e) {
+                        console.error('Failed to stop content processing:', e);
                     }
                 },
                 refresh: () => {

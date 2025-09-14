@@ -40,8 +40,8 @@
  */
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
-import { App, TFile, debounce } from 'obsidian';
-import { TIMEOUTS, ExtendedApp } from '../types/obsidian-extended';
+import { App, TFile, debounce, EventRef } from 'obsidian';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { ProcessedMetadata, extractMetadata } from '../utils/metadataExtractor';
 import { ContentProviderRegistry } from '../services/content/ContentProviderRegistry';
 import { PreviewContentProvider } from '../services/content/PreviewContentProvider';
@@ -50,13 +50,7 @@ import { MetadataContentProvider } from '../services/content/MetadataContentProv
 import { TagContentProvider } from '../services/content/TagContentProvider';
 import { IndexedDBStorage, FileData as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { calculateFileDiff } from '../storage/diffCalculator';
-import {
-    initializeCache,
-    recordFileChanges,
-    markFilesForRegeneration,
-    removeFilesFromCache,
-    getDBInstance
-} from '../storage/fileOperations';
+import { recordFileChanges, markFilesForRegeneration, removeFilesFromCache, getDBInstance } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
 import { getFilteredMarkdownFiles } from '../utils/fileFilters';
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
@@ -103,6 +97,7 @@ interface StorageContextValue {
     hasPreview: (path: string) => boolean;
     // Storage initialization state
     isStorageReady: boolean;
+    stopAllProcessing: () => void;
 }
 
 const StorageContext = createContext<StorageContextValue | null>(null);
@@ -121,6 +116,15 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     // Content provider registry handles content generation (preview text, feature images, metadata, tags)
     const contentRegistry = useRef<ContentProviderRegistry | null>(null);
     const isFirstLoad = useRef(true);
+    // Track any scheduled idle callbacks to allow cancellation on unmount
+    const pendingIdleCallbackId = useRef<number | null>(null);
+    // Global stop flag to gate background work after plugin/view stop
+    const stoppedRef = useRef<boolean>(false);
+    // Track cancellers for waitForMetadataCache and active event refs for optional detaching
+    const waitDisposerRef = useRef<(() => void) | null>(null);
+    const activeVaultEventRefs = useRef<EventRef[] | null>(null);
+    const activeMetadataEventRef = useRef<EventRef | null>(null);
+    const rebuildFileCacheRef = useRef<ReturnType<typeof debounce> | null>(null);
 
     // Track storage initialization state
     const [isStorageReady, setIsStorageReady] = useState(false);
@@ -364,20 +368,31 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 contentRegistry.current.stopAllProcessing();
                 contentRegistry.current = null;
             }
+            // Also cancel any pending idle callback here as an extra safeguard
+            if (pendingIdleCallbackId.current !== null) {
+                cancelIdleCallback(pendingIdleCallbackId.current);
+                pendingIdleCallbackId.current = null;
+            }
         };
     }, [app]); // Only recreate when app changes, not settings
 
-    // Initialize IndexedDB on mount
+    // Database readiness check (await actual initialization)
     useEffect(() => {
-        const appId = (app as ExtendedApp).appId || '';
-        initializeCache(appId)
-            .then(() => {
-                setIsIndexedDBReady(true);
-            })
-            .catch(error => {
-                console.error('Failed to initialize IndexedDB cache:', error);
-            });
-    }, [app]);
+        let cancelled = false;
+        (async () => {
+            try {
+                const db = getDBInstance();
+                await db.init();
+                if (!cancelled) setIsIndexedDBReady(true);
+            } catch (error) {
+                console.error('Database not available for StorageContext:', error);
+                if (!cancelled) setIsIndexedDBReady(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     // Listen for tag changes to rebuild tag tree and trigger initial cleanup
     useEffect(() => {
@@ -385,6 +400,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
         const db = getDBInstance();
         const unsubscribe = db.onContentChange(changes => {
+            if (stoppedRef.current) return;
             // Check if any changes include tags
             const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
 
@@ -407,6 +423,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     useEffect(() => {
         // Process existing files and handle updates
         const processExistingCache = async (allFiles: TFile[], isInitialLoad: boolean = false) => {
+            if (stoppedRef.current) return;
             if (isFirstLoad.current) {
                 isFirstLoad.current = false;
             }
@@ -450,11 +467,13 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                         if (filesNeedingTags.length > 0) {
                             // Track and queue files for tag extraction
                             startTracking(filesNeedingTags.length);
-                            waitForMetadataCache(() => {
+                            const disposer = waitForMetadataCache(() => {
                                 if (contentRegistry.current) {
                                     contentRegistry.current.queueFilesForAllProviders(filesNeedingTags, settings);
                                 }
                             });
+                            // Store the disposer so we can cancel on unmount/stop
+                            waitDisposerRef.current = disposer;
                         } else {
                             // No tags to extract, run cleanup immediately
                             await runMetadataCleanupWithTags();
@@ -477,8 +496,15 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 }
             } else {
                 // Non-initial loads still process in background
-                requestIdleCallback(
+                // Cancel any previously scheduled idle work before queuing a new one
+                if (pendingIdleCallbackId.current !== null) {
+                    cancelIdleCallback(pendingIdleCallbackId.current);
+                    pendingIdleCallbackId.current = null;
+                }
+
+                pendingIdleCallbackId.current = requestIdleCallback(
                     async () => {
+                        if (stoppedRef.current) return;
                         try {
                             const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
 
@@ -597,13 +623,22 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
         // Main function that orchestrates the file cache building
         const buildFileCache = async (isInitialLoad: boolean = false) => {
+            if (stoppedRef.current) return;
             const allFiles = getFilteredMarkdownFilesCallback();
             await processExistingCache(allFiles, isInitialLoad);
         };
 
         // Trailing debounce for vault event bursts: schedule a rebuild and
         // extend the timer while more events arrive within FILE_OPERATION_DELAY
-        const rebuildFileCache = debounce(() => buildFileCache(false), TIMEOUTS.FILE_OPERATION_DELAY, true);
+        const rebuildFileCache = debounce(
+            () => {
+                if (stoppedRef.current) return;
+                void buildFileCache(false);
+            },
+            TIMEOUTS.FILE_OPERATION_DELAY,
+            true
+        );
+        rebuildFileCacheRef.current = rebuildFileCache;
 
         // Only build initial cache if IndexedDB is ready and we haven't built it yet
         if (isIndexedDBReady && !hasBuiltInitialCache.current) {
@@ -617,14 +652,19 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             app.vault.on('delete', rebuildFileCache),
             app.vault.on('rename', rebuildFileCache),
             app.vault.on('modify', async file => {
+                if (stoppedRef.current) return;
                 // Check if it's a TFile (not a folder)
                 if (file instanceof TFile && file.extension === 'md') {
                     // Get existing data for the file
-                    const db = getDBInstance();
-                    const existingData = db.getFiles([file.path]);
-
-                    // Record the file change (only does something for new files)
-                    await recordFileChanges([file], existingData);
+                    try {
+                        const db = getDBInstance();
+                        const existingData = db.getFiles([file.path]);
+                        // Record the file change (only does something for new files)
+                        await recordFileChanges([file], existingData);
+                    } catch (e) {
+                        console.error('Failed to record file change on modify:', e);
+                        return;
+                    }
 
                     // Content providers will detect the mtime mismatch (db.mtime != file.mtime) and regenerate
                     if (contentRegistry.current) {
@@ -633,13 +673,20 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 }
             })
         ];
+        activeVaultEventRefs.current = vaultEvents;
 
         // Listen to metadata changes for non-tag updates
         // Tags are already handled by the modify event above
         const metadataEvent = app.metadataCache.on('changed', async file => {
+            if (stoppedRef.current) return;
             if (file && file.extension === 'md') {
                 // Mark file for regeneration - metadata changes might not update mtime
-                await markFilesForRegeneration([file]);
+                try {
+                    await markFilesForRegeneration([file]);
+                } catch (e) {
+                    console.error('Failed to mark file for regeneration:', e);
+                    return;
+                }
 
                 // Queue content regeneration for the file
                 if (contentRegistry.current) {
@@ -650,13 +697,33 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 // No need to check for specific feature image changes
             }
         });
+        activeMetadataEventRef.current = metadataEvent;
 
         // Cleanup
         return () => {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
+            activeVaultEventRefs.current = null;
+            activeMetadataEventRef.current = null;
             // Cancel any pending debounced rebuilds
             rebuildFileCache.cancel();
+            if (rebuildFileCacheRef.current) {
+                rebuildFileCacheRef.current = null;
+            }
+            // Cancel any pending idle callback work
+            if (pendingIdleCallbackId.current !== null) {
+                cancelIdleCallback(pendingIdleCallbackId.current);
+                pendingIdleCallbackId.current = null;
+            }
+            // Cancel any pending metadata wait
+            if (waitDisposerRef.current) {
+                try {
+                    waitDisposerRef.current();
+                } catch {
+                    // ignore
+                }
+                waitDisposerRef.current = null;
+            }
         };
     }, [
         app,
@@ -777,7 +844,58 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
     }, [settings, handleSettingsChanges, rebuildTagTree, getFilteredMarkdownFilesCallback]);
 
-    return <StorageContext.Provider value={contextValue}>{children}</StorageContext.Provider>;
+    const contextWithControls = useMemo(() => {
+        return {
+            ...contextValue,
+            stopAllProcessing: () => {
+                // Mark stopped to gate any subsequent event handlers
+                stoppedRef.current = true;
+                // Stop all provider processing
+                if (contentRegistry.current) {
+                    contentRegistry.current.stopAllProcessing();
+                }
+                // Cancel any pending idle work scheduled by StorageContext
+                if (pendingIdleCallbackId.current !== null) {
+                    try {
+                        cancelIdleCallback(pendingIdleCallbackId.current);
+                    } catch {
+                        // no-op: polyfill or environment may differ
+                    }
+                    pendingIdleCallbackId.current = null;
+                }
+                // Optionally detach event subscriptions and cancel debouncers
+                try {
+                    if (activeVaultEventRefs.current) {
+                        activeVaultEventRefs.current.forEach(ref => app.vault.offref(ref));
+                        activeVaultEventRefs.current = null;
+                    }
+                    if (activeMetadataEventRef.current) {
+                        app.metadataCache.offref(activeMetadataEventRef.current);
+                        activeMetadataEventRef.current = null;
+                    }
+                } catch {
+                    // ignore
+                }
+                try {
+                    rebuildFileCacheRef.current?.cancel();
+                } catch {
+                    // ignore
+                }
+                rebuildFileCacheRef.current = null;
+                // Cancel any pending metadata cache wait
+                if (waitDisposerRef.current) {
+                    try {
+                        waitDisposerRef.current();
+                    } catch {
+                        // ignore
+                    }
+                    waitDisposerRef.current = null;
+                }
+            }
+        };
+    }, [contextValue, app.vault, app.metadataCache]);
+
+    return <StorageContext.Provider value={contextWithControls}>{children}</StorageContext.Provider>;
 }
 
 /**

@@ -20,7 +20,7 @@ import { App, TFile } from 'obsidian';
 import { IContentProvider, ContentType } from '../../interfaces/IContentProvider';
 import { NotebookNavigatorSettings } from '../../settings';
 import { FileData } from '../../storage/IndexedDBStorage';
-import { getDBInstance } from '../../storage/fileOperations';
+import { getDBInstance, isShutdownInProgress } from '../../storage/fileOperations';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 
 interface ContentJob {
@@ -44,6 +44,11 @@ export abstract class BaseContentProvider implements IContentProvider {
     // Track files currently being processed to prevent duplicate processing
     // when multiple events fire for the same file in quick succession
     protected processingFiles: Set<string> = new Set();
+    // Track files already queued to avoid unbounded duplicate enqueues
+    protected queuedFiles: Set<string> = new Set();
+
+    // Track provider stop state to prevent any post-stop scheduling or enqueues
+    protected stopped = false;
 
     constructor(protected app: App) {}
 
@@ -81,13 +86,15 @@ export abstract class BaseContentProvider implements IContentProvider {
     protected abstract needsProcessing(fileData: FileData | null, file: TFile, settings: NotebookNavigatorSettings): boolean;
 
     queueFiles(files: TFile[]): void {
-        // Filter out files that are currently being processed
-        const newJobs = files
-            .filter(file => !this.processingFiles.has(file.path))
-            .map(file => ({
-                file,
-                path: file.path.split('/')
-            }));
+        if (this.stopped) return;
+        // Filter out files that are currently being processed or already queued
+        const newJobs: ContentJob[] = [];
+        for (const file of files) {
+            const p = file.path;
+            if (this.processingFiles.has(p) || this.queuedFiles.has(p)) continue;
+            newJobs.push({ file, path: p.split('/') });
+            this.queuedFiles.add(p);
+        }
 
         if (newJobs.length > 0) {
             this.queue.push(...newJobs);
@@ -95,6 +102,8 @@ export abstract class BaseContentProvider implements IContentProvider {
     }
 
     startProcessing(settings: NotebookNavigatorSettings): void {
+        // Allow restarting after a stop
+        this.stopped = false;
         this.currentBatchSettings = settings;
 
         if (this.queueDebounceTimer !== null) {
@@ -103,26 +112,10 @@ export abstract class BaseContentProvider implements IContentProvider {
 
         this.queueDebounceTimer = window.setTimeout(() => {
             this.queueDebounceTimer = null;
-            if (!this.isProcessing && this.queue.length > 0) {
+            if (!this.stopped && !this.isProcessing && this.queue.length > 0) {
                 this.processNextBatch();
             }
         }, TIMEOUTS.DEBOUNCE_CONTENT);
-    }
-
-    stopProcessing(): void {
-        if (this.abortController) {
-            this.abortController.abort();
-            this.abortController = null;
-        }
-
-        if (this.queueDebounceTimer !== null) {
-            window.clearTimeout(this.queueDebounceTimer);
-            this.queueDebounceTimer = null;
-        }
-
-        this.isProcessing = false;
-        this.queue = [];
-        this.processingFiles.clear();
     }
 
     onSettingsChanged(settings: NotebookNavigatorSettings): void {
@@ -130,7 +123,7 @@ export abstract class BaseContentProvider implements IContentProvider {
     }
 
     protected async processNextBatch(): Promise<void> {
-        if (this.isProcessing || this.queue.length === 0 || !this.currentBatchSettings) {
+        if (this.stopped || this.isProcessing || this.queue.length === 0 || !this.currentBatchSettings) {
             return;
         }
 
@@ -144,6 +137,8 @@ export abstract class BaseContentProvider implements IContentProvider {
         try {
             const db = getDBInstance();
             const batch = this.queue.splice(0, this.QUEUE_BATCH_SIZE);
+            // Remove from queued set now that they're moving to evaluation/processing
+            batch.forEach(job => this.queuedFiles.delete(job.file.path));
 
             // Filter jobs based on current settings and database state
             const jobsWithData = await Promise.all(
@@ -179,7 +174,7 @@ export abstract class BaseContentProvider implements IContentProvider {
             }[] = [];
 
             for (let i = 0; i < activeJobs.length; i += this.PARALLEL_LIMIT) {
-                if (this.abortController.signal.aborted) break;
+                if (this.stopped || this.abortController?.signal.aborted) break;
 
                 const parallelBatch = activeJobs.slice(i, i + this.PARALLEL_LIMIT);
                 const results = await Promise.all(
@@ -209,25 +204,28 @@ export abstract class BaseContentProvider implements IContentProvider {
             }
 
             // Batch update database
-            if (updates.length > 0 && !this.abortController.signal.aborted) {
-                await db.batchUpdateFileContent(updates);
+            if (updates.length > 0 && !(this.stopped || this.abortController?.signal.aborted)) {
+                // During plugin shutdown, skip writes to avoid benign transaction errors
+                if (!isShutdownInProgress()) {
+                    await db.batchUpdateFileContent(updates);
 
-                // Update mtimes for successfully processed files
-                // This is done after content generation to prevent race conditions
-                // Note: updateMtimes does NOT emit notifications - it's internal bookkeeping only
-                // The UI already updated from batchUpdateFileContent above
-                const mtimeUpdates: { path: string; mtime: number }[] = [];
-                for (const { job } of activeJobs) {
-                    if (updates.some(u => u.path === job.file.path)) {
-                        mtimeUpdates.push({
-                            path: job.file.path,
-                            mtime: job.file.stat.mtime
-                        });
+                    // Update mtimes for successfully processed files
+                    // This is done after content generation to prevent race conditions
+                    // Note: updateMtimes does NOT emit notifications - it's internal bookkeeping only
+                    // The UI already updated from batchUpdateFileContent above
+                    const mtimeUpdates: { path: string; mtime: number }[] = [];
+                    for (const { job } of activeJobs) {
+                        if (updates.some(u => u.path === job.file.path)) {
+                            mtimeUpdates.push({
+                                path: job.file.path,
+                                mtime: job.file.stat.mtime
+                            });
+                        }
                     }
-                }
 
-                if (mtimeUpdates.length > 0) {
-                    await db.updateMtimes(mtimeUpdates);
+                    if (mtimeUpdates.length > 0) {
+                        await db.updateMtimes(mtimeUpdates);
+                    }
                 }
             }
         } catch (error) {
@@ -242,10 +240,30 @@ export abstract class BaseContentProvider implements IContentProvider {
 
             this.isProcessing = false;
 
-            if (this.queue.length > 0 && !this.abortController?.signal.aborted) {
+            if (this.queue.length > 0 && !(this.stopped || this.abortController?.signal.aborted)) {
                 // Process next batch
                 requestAnimationFrame(() => this.processNextBatch());
             }
         }
+    }
+
+    stopProcessing(): void {
+        // Mark stopped first so any in-flight logic can observe it
+        this.stopped = true;
+
+        if (this.abortController) {
+            this.abortController.abort();
+            this.abortController = null;
+        }
+
+        if (this.queueDebounceTimer !== null) {
+            window.clearTimeout(this.queueDebounceTimer);
+            this.queueDebounceTimer = null;
+        }
+
+        this.isProcessing = false;
+        this.queue = [];
+        this.processingFiles.clear();
+        this.queuedFiles.clear();
     }
 }

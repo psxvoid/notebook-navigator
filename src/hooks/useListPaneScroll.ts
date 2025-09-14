@@ -37,14 +37,14 @@
  * ## Handles:
  * - Virtual list initialization with dynamic heights
  * - Folder/tag navigation with file preservation
- * - Configuration changes (subfolders, appearance)
+ * - Configuration changes (descendants, appearance)
  * - Mobile drawer visibility
  * - Reveal operations (show active file)
  * - Search filter changes
  * - Sticky header tracking for date groups
  */
 
-import { useRef, useCallback, useEffect, useState } from 'react';
+import { useRef, useCallback, useEffect, useState, useMemo } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useServices } from '../context/ServicesContext';
@@ -154,9 +154,8 @@ export function useListPaneScroll({
     const prevIndexMapSizeRef = useRef<number>(filePathToIndex.size);
     const prevIndexMapObjRef = useRef<Map<string, number> | null>(null);
 
-    // Track list items order to detect when items are reordered (for virtualizer reset)
-    const listItemsKeyRef = useRef('');
-    const currentListItemsKey = listItems.map(item => item.key).join('|');
+    // Context tracking for index-version based reorder detection within a list context
+    const contextIndexVersionRef = useRef<{ key: string; version: number } | null>(null);
 
     // Check if we're in slim mode
     const isSlimMode = !folderSettings.showDate && !folderSettings.showPreview && !folderSettings.showImage;
@@ -243,9 +242,9 @@ export function useListPaneScroll({
                     // Parent folder gets its own line (not when pinned is in compact layout)
                     if (!pinnedItemShouldUseCompactLayout && settings.showParentFolderNames) {
                         const file = item.data instanceof TFile ? item.data : null;
-                        const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                        const isInDescendant = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolderLine =
-                            selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder);
+                            selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInDescendant);
                         if (showParentFolderLine) {
                             textContentHeight += heights.singleTextLineHeight;
                         }
@@ -255,11 +254,11 @@ export function useListPaneScroll({
                     if (shouldCollapseEmptyPreviewSpace) {
                         // Optimization enabled and empty preview: compact layout
                         const file = item.data instanceof TFile ? item.data : null;
-                        const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                        const isInDescendant = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolder =
                             settings.showParentFolderNames &&
                             !pinnedItemShouldUseCompactLayout &&
-                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder));
+                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInDescendant));
 
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
@@ -280,11 +279,11 @@ export function useListPaneScroll({
                         }
                         // Only add metadata line if date is shown OR parent folder is shown
                         const file = item.data instanceof TFile ? item.data : null;
-                        const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                        const isInDescendant = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolder =
                             settings.showParentFolderNames &&
                             !pinnedItemShouldUseCompactLayout &&
-                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder));
+                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInDescendant));
 
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
@@ -371,20 +370,6 @@ export function useListPaneScroll({
     );
 
     /**
-     * Reset virtualizer measurements when list items are reordered.
-     * This ensures correct scroll positions after sort changes.
-     */
-    useEffect(() => {
-        if (listItemsKeyRef.current && listItemsKeyRef.current !== currentListItemsKey) {
-            // List items have been reordered, reset virtualizer measurements
-            rowVirtualizer.measure();
-            // Increment version so pending scrolls execute after reorder
-            indexVersionRef.current = indexVersionRef.current + 1;
-        }
-        listItemsKeyRef.current = currentListItemsKey;
-    }, [currentListItemsKey, rowVirtualizer]);
-
-    /**
      * Increment indexVersion when list structure changes.
      * Critical for ensuring scrolls execute after list rebuilds.
      */
@@ -395,8 +380,12 @@ export function useListPaneScroll({
             prevIndexMapSizeRef.current = filePathToIndex.size;
             prevIndexMapObjRef.current = filePathToIndex;
             indexVersionRef.current = indexVersionRef.current + 1;
+            // Re-measure on any list structure/index change (covers reorders/add/remove)
+            if (rowVirtualizer) {
+                rowVirtualizer.measure();
+            }
         }
-    }, [filePathToIndex, filePathToIndex.size]);
+    }, [filePathToIndex, filePathToIndex.size, rowVirtualizer]);
 
     /**
      * Priority-based scroll queue management.
@@ -582,26 +571,43 @@ export function useListPaneScroll({
     }, [isStorageReady, rowVirtualizer]);
 
     /**
-     * Handle scrolling when list configuration changes (subfolder toggle, appearance, or sort).
+     * Handle scrolling when list configuration changes (descendants toggle, appearance, grouping, or sort).
      * Maintains scroll position on the selected file.
      * Effect includes all dependencies but only scrolls when config actually changes.
      */
+    const { defaultFolderSort, folderSortOverrides, tagSortOverrides } = settings;
+    const effectiveSort = useMemo(() => {
+        if (
+            selectionState.selectionType === 'folder' &&
+            selectedFolder &&
+            folderSortOverrides &&
+            folderSortOverrides[selectedFolder.path]
+        ) {
+            return folderSortOverrides[selectedFolder.path];
+        }
+        if (selectionState.selectionType === 'tag' && selectedTag && tagSortOverrides && tagSortOverrides[selectedTag]) {
+            return tagSortOverrides[selectedTag];
+        }
+        return defaultFolderSort;
+    }, [defaultFolderSort, folderSortOverrides, tagSortOverrides, selectionState.selectionType, selectedFolder, selectedTag]);
     useEffect(() => {
         if (!rowVirtualizer || !isVisible) {
             return;
         }
 
-        // Build a key from just the config values that should trigger scroll preservation
-        const configKey = `${settings.includeDescendantNotes}-${settings.optimizeNoteHeight}-${JSON.stringify(folderSettings)}-${currentListItemsKey}`;
+        // Build a key from the config values that should trigger scroll preservation
+        const configKey = `${settings.includeDescendantNotes}-${settings.optimizeNoteHeight}-${settings.groupByDate}-${effectiveSort}-${JSON.stringify(
+            folderSettings
+        )}`;
 
         // Check if config actually changed
         if (prevConfigKeyRef.current === configKey) {
             return; // No config change, don't scroll
         }
 
-        // Detect subfolder toggle for special handling
-        const wasShowingSubfolders = prevConfigKeyRef.current && prevConfigKeyRef.current.startsWith('true');
-        const nowShowingSubfolders = settings.includeDescendantNotes;
+        // Detect descendants toggle for special handling
+        const wasShowingDescendants = prevConfigKeyRef.current && prevConfigKeyRef.current.startsWith('true');
+        const nowShowingDescendants = settings.includeDescendantNotes;
 
         // Update the ref
         prevConfigKeyRef.current = configKey;
@@ -614,8 +620,8 @@ export function useListPaneScroll({
                 reason: 'list-config-change',
                 minIndexVersion: indexVersionRef.current + 1
             });
-        } else if (wasShowingSubfolders && !nowShowingSubfolders) {
-            // Special case: When disabling subfolders and no file selected, scroll to top
+        } else if (wasShowingDescendants && !nowShowingDescendants) {
+            // Special case: When disabling descendants and no file selected, scroll to top
             setPending({
                 type: 'top',
                 reason: 'list-config-change',
@@ -628,10 +634,44 @@ export function useListPaneScroll({
         selectedFile,
         settings.includeDescendantNotes,
         settings.optimizeNoteHeight,
+        settings.groupByDate,
         folderSettings,
-        currentListItemsKey,
+        effectiveSort,
         setPending
     ]);
+
+    /**
+     * Preserve scroll when the list index changes within the same context (implicit reorders like pin/unpin).
+     * Uses indexVersion changes keyed by current folder/tag context. Avoids duplicate triggers on navigation.
+     */
+    useEffect(() => {
+        if (!rowVirtualizer || !isVisible) return;
+
+        const contextKey = `${selectedFolder?.path || ''}_${selectedTag || ''}`;
+        const prev = contextIndexVersionRef.current;
+
+        // Initialize on first run or when context changes
+        if (!prev || prev.key !== contextKey) {
+            contextIndexVersionRef.current = { key: contextKey, version: indexVersionRef.current };
+            return;
+        }
+
+        // Same context: if index version advanced, maintain position on selected file
+        if (indexVersionRef.current > prev.version) {
+            contextIndexVersionRef.current = { key: contextKey, version: indexVersionRef.current };
+
+            // Only queue a file scroll if the selected file exists in the current index
+            const inList = !!(selectedFile && filePathToIndex.has(selectedFile.path));
+            if (inList) {
+                setPending({
+                    type: 'file',
+                    filePath: selectedFile.path,
+                    reason: 'list-config-change',
+                    minIndexVersion: indexVersionRef.current
+                });
+            }
+        }
+    }, [rowVirtualizer, isVisible, selectedFolder?.path, selectedTag, filePathToIndex, filePathToIndex.size, selectedFile, setPending]);
 
     /**
      * Handle scrolling when navigating between folders/tags.
@@ -770,27 +810,34 @@ export function useListPaneScroll({
      */
     useEffect(() => {
         // Only handle when search is active (searchQuery is defined)
-        if (searchQuery === undefined || !isVisible || !rowVirtualizer) {
+        if (searchQuery === undefined) {
             prevSearchQueryRef.current = searchQuery;
             return;
         }
 
-        // Check if search query actually changed
-        if (prevSearchQueryRef.current === searchQuery) {
-            return; // No change, don't scroll
+        if (!isVisible || !rowVirtualizer) {
+            // Defer handling until visible/ready without consuming the query change
+            return;
         }
 
-        // Update the ref
+        // Check if selected file exists in the filtered list (based on current index)
+        const selectedFileInList = !!(selectedFile && filePathToIndex.has(selectedFile.path));
+
+        const queryChanged = prevSearchQueryRef.current !== searchQuery;
         prevSearchQueryRef.current = searchQuery;
 
-        // Check if selected file exists in the filtered list
-        const selectedFileInList = selectedFile && filePathToIndex.has(selectedFile.path);
-
-        // If no selected file or selected file is filtered out, scroll to top
+        // Scroll to top when search filters remove the selected file, regardless of whether
+        // this happened immediately on query change or after the list rebuilt
         if (!selectedFileInList && listItems.length > 0) {
             setPending({ type: 'top', reason: 'list-config-change', minIndexVersion: indexVersionRef.current });
+            return;
         }
-        // If selected file is in list, the folder navigation effect will handle scrolling to it
+
+        // If the selected file remains in the list, folder-navigation effects handle its visibility
+        // No action needed here; keep for completeness when queryChanged
+        if (queryChanged) {
+            // No-op
+        }
     }, [searchQuery, selectedFile, filePathToIndex, isVisible, rowVirtualizer, listItems.length, setPending]);
 
     return {

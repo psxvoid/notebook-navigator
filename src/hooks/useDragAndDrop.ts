@@ -48,6 +48,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     // Uses IndexedDB lazily in drag ghost; falls back to icon
     const dragOverElement = useRef<HTMLElement | null>(null);
     const dragGhostElement = useRef<HTMLElement | null>(null);
+    // Track global window listeners to ensure proper cleanup on unmount
+    const windowDragEndHandlerRef = useRef<((e: DragEvent) => void) | null>(null);
+    const windowDropHandlerRef = useRef<((e: DragEvent) => void) | null>(null);
 
     /**
      * Type guard to check if an element is an HTMLElement
@@ -87,6 +90,15 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             document.removeEventListener('dragover', updateDragGhostPosition);
             dragGhostElement.current.remove();
             dragGhostElement.current = null;
+        }
+        // Always remove any lingering window-level listeners
+        if (windowDragEndHandlerRef.current) {
+            window.removeEventListener('dragend', windowDragEndHandlerRef.current);
+            windowDragEndHandlerRef.current = null;
+        }
+        if (windowDropHandlerRef.current) {
+            window.removeEventListener('drop', windowDropHandlerRef.current);
+            windowDropHandlerRef.current = null;
         }
     }, [updateDragGhostPosition]);
 
@@ -169,6 +181,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             // Ensure ghost is cleaned even if drag ends outside container
             const onGlobalEnd = () => cleanupDragGhost();
+            // Track handlers so they can be removed on unmount if the drag doesn't end
+            windowDragEndHandlerRef.current = onGlobalEnd as (e: DragEvent) => void;
+            windowDropHandlerRef.current = onGlobalEnd as (e: DragEvent) => void;
             window.addEventListener('dragend', onGlobalEnd, { once: true });
             window.addEventListener('drop', onGlobalEnd, { once: true });
         },

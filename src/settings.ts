@@ -28,7 +28,7 @@ import { FolderAppearance, TagAppearance } from './hooks/useListPaneAppearance';
 import { PinnedNotes } from './types';
 
 // Current settings schema version
-const SETTINGS_VERSION = 1;
+export const SETTINGS_VERSION = 1;
 
 /**
  * Available sort options for file listing

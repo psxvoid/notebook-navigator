@@ -57,6 +57,7 @@ import { useListPaneData } from '../hooks/useListPaneData';
 import { useListPaneScroll } from '../hooks/useListPaneScroll';
 import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
 import { strings } from '../i18n';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { ListPaneItemType } from '../types';
 import { getEffectiveSortOption } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
@@ -109,6 +110,8 @@ export const ListPane = React.memo(
         // Search state - use directly from settings for sync across devices
         const isSearchActive = settings.searchActive;
         const [searchQuery, setSearchQuery] = useState('');
+        // Debounced search query used for data filtering to avoid per-keystroke spikes
+        const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
         const [shouldFocusSearch, setShouldFocusSearch] = useState(false);
 
         // Clear search query when search is deactivated externally
@@ -117,6 +120,23 @@ export const ListPane = React.memo(
                 setSearchQuery('');
             }
         }, [isSearchActive, searchQuery]);
+
+        // Debounce the query passed into the data hook; keep immediate input for UI/HL
+        useEffect(() => {
+            if (!isSearchActive) {
+                // Clear debounced value when search is not active
+                if (debouncedSearchQuery) setDebouncedSearchQuery('');
+                return;
+            }
+            // Skip scheduling if values are already in sync
+            if (debouncedSearchQuery === searchQuery) {
+                return;
+            }
+            const id = window.setTimeout(() => {
+                setDebouncedSearchQuery(searchQuery);
+            }, TIMEOUTS.DEBOUNCE_KEYBOARD);
+            return () => window.clearTimeout(id);
+        }, [searchQuery, isSearchActive, debouncedSearchQuery]);
 
         // Helper to toggle search state
         const setIsSearchActive = useCallback(
@@ -155,7 +175,8 @@ export const ListPane = React.memo(
             selectedFolder,
             selectedTag,
             settings,
-            searchQuery: isSearchActive ? searchQuery : undefined
+            // Use debounced value for filtering
+            searchQuery: isSearchActive ? debouncedSearchQuery : undefined
         });
 
         // Use the new scroll hook
@@ -170,7 +191,8 @@ export const ListPane = React.memo(
             isVisible,
             selectionState,
             selectionDispatch,
-            searchQuery: isSearchActive ? searchQuery : undefined
+            // Use debounced value for scroll orchestration to align with filtering
+            searchQuery: isSearchActive ? debouncedSearchQuery : undefined
         });
 
         // Check if we're in slim mode

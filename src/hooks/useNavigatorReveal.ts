@@ -509,7 +509,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                     navigationPaneRef.current?.requestScroll(selectionState.selectedTag);
                 } else if (selectionState.selectedFolder && file.parent && selectionState.selectedFolder.path === file.parent.path) {
                     // Request scroll to folder - but only if we're not preserving the current folder
-                    // When preserveFolder is true (includeDescendantNotes), we don't want to jump to the subfolder
+                    // When preserveFolder is true (includeDescendantNotes), we don't want to jump to the descendant folder
                     navigationPaneRef.current?.requestScroll(file.parent.path);
                 }
             }
