@@ -46,6 +46,14 @@ let isInitializing = false;
 let isShuttingDown = false;
 
 /**
+ * Indicates whether a database shutdown is currently in progress.
+ * Used to avoid issuing write operations during teardown cycles.
+ */
+export function isShutdownInProgress(): boolean {
+    return isShuttingDown;
+}
+
+/**
  * Get the singleton IndexedDB storage instance.
  * Creates the instance on first call.
  *
@@ -90,7 +98,6 @@ export async function initializeDatabase(appIdParam: string): Promise<void> {
 export function shutdownDatabase(): void {
     // Idempotent: if already shut down or in progress, skip
     if (!dbInstance) {
-        appId = null;
         return;
     }
     if (isShuttingDown) return;
@@ -103,8 +110,6 @@ export function shutdownDatabase(): void {
             console.error('Failed to close database on shutdown:', e);
         }
     } finally {
-        dbInstance = null;
-        appId = null;
         isShuttingDown = false;
     }
 }
@@ -125,6 +130,7 @@ export function shutdownDatabase(): void {
  * @param existingData - Pre-fetched map of existing file data
  */
 export async function recordFileChanges(files: TFile[], existingData: Map<string, FileData>): Promise<void> {
+    if (isShuttingDown) return;
     const db = getDBInstance();
     const updates: { path: string; data: FileData }[] = [];
 
@@ -167,6 +173,7 @@ export async function recordFileChanges(files: TFile[], existingData: Map<string
  * @param files - Array of Obsidian files to mark for regeneration
  */
 export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
+    if (isShuttingDown) return;
     const db = getDBInstance();
     const paths = files.map(f => f.path);
     const existingData = db.getFiles(paths);
@@ -207,6 +214,7 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
  * @param paths - Array of file paths to remove
  */
 export async function removeFilesFromCache(paths: string[]): Promise<void> {
+    if (isShuttingDown) return;
     const db = getDBInstance();
     await db.deleteFiles(paths);
 }

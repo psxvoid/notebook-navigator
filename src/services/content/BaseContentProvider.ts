@@ -20,7 +20,7 @@ import { App, TFile } from 'obsidian';
 import { IContentProvider, ContentType } from '../../interfaces/IContentProvider';
 import { NotebookNavigatorSettings } from '../../settings';
 import { FileData } from '../../storage/IndexedDBStorage';
-import { getDBInstance } from '../../storage/fileOperations';
+import { getDBInstance, isShutdownInProgress } from '../../storage/fileOperations';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 
 interface ContentJob {
@@ -205,24 +205,27 @@ export abstract class BaseContentProvider implements IContentProvider {
 
             // Batch update database
             if (updates.length > 0 && !(this.stopped || this.abortController?.signal.aborted)) {
-                await db.batchUpdateFileContent(updates);
+                // During plugin shutdown, skip writes to avoid benign transaction errors
+                if (!isShutdownInProgress()) {
+                    await db.batchUpdateFileContent(updates);
 
-                // Update mtimes for successfully processed files
-                // This is done after content generation to prevent race conditions
-                // Note: updateMtimes does NOT emit notifications - it's internal bookkeeping only
-                // The UI already updated from batchUpdateFileContent above
-                const mtimeUpdates: { path: string; mtime: number }[] = [];
-                for (const { job } of activeJobs) {
-                    if (updates.some(u => u.path === job.file.path)) {
-                        mtimeUpdates.push({
-                            path: job.file.path,
-                            mtime: job.file.stat.mtime
-                        });
+                    // Update mtimes for successfully processed files
+                    // This is done after content generation to prevent race conditions
+                    // Note: updateMtimes does NOT emit notifications - it's internal bookkeeping only
+                    // The UI already updated from batchUpdateFileContent above
+                    const mtimeUpdates: { path: string; mtime: number }[] = [];
+                    for (const { job } of activeJobs) {
+                        if (updates.some(u => u.path === job.file.path)) {
+                            mtimeUpdates.push({
+                                path: job.file.path,
+                                mtime: job.file.stat.mtime
+                            });
+                        }
                     }
-                }
 
-                if (mtimeUpdates.length > 0) {
-                    await db.updateMtimes(mtimeUpdates);
+                    if (mtimeUpdates.length > 0) {
+                        await db.updateMtimes(mtimeUpdates);
+                    }
                 }
             }
         } catch (error) {
