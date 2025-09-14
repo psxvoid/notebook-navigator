@@ -83,7 +83,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 ### Advanced theming support
 
 - **Style Settings integration** - Full support for the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin
-- **80 CSS variables** - Complete set of `--nn-theme-*` variables for colors, backgrounds, and visual elements
+- **80+ CSS variables** - Complete set of `--nn-theme-*` variables for colors, backgrounds, and visual elements
 - **Light/dark mode support** - Separate theming for light and dark modes
 - **[Complete theming guide](docs/theming-guide.md)** - Detailed documentation with examples
 
@@ -102,7 +102,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 - **Obsidian ESLint Plugin** - Full compliance with [Obsidian's official ESLint plugin](https://github.com/obsidianmd/eslint-plugin)
 - **Zero-Tolerance Build Process** - Build aborts on any error or warning
-- **Zero-Tolerance Code Quality** - Strict ESLint configuration with `no-explicit-any` enforced. 0 errors, 0 warnings across 30,000 lines of TypeScript
+- **Zero-Tolerance Code Quality** - Strict ESLint configuration with `no-explicit-any` enforced. 0 errors, 0 warnings across 35,000+ lines of TypeScript
 - **Comprehensive Validation** - TypeScript, ESLint, Knip (dead code detection), and Prettier
 
 <br>
