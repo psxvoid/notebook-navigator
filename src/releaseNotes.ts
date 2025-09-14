@@ -74,15 +74,15 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.4.16',
         date: '2025-09-14',
         info: [
-            'This version has "safety nets" added all over in preparation for the public community release.\n\n',
-            '==Important!== If you have been using Notebook Navigator through BRAT, **please take the time now to copy the contents of data.json into a markdown document to keep your settings!** Then, when removing the BRAT version and installing the community version, you can easily write back your entire settings to keep pinned notes, colors, icons, custom sort and appearance.\n\n',
-            '**Recommendation**: It is recommended to use the community version of Notebook Navigator to avoid getting multiple instances of the plugin load every time BRAT updates the plugin on start.'
+            'No new features or changes in this release. This update focuses on stability improvements, handling edge cases and rare configurations in preparation for the public community release.\n\n',
+            '==Important!== If you have been using Notebook Navigator through BRAT, **please copy the contents of data.json to a markdown document now to preserve your settings!** When you remove the BRAT version and install the community version, you can paste your settings back to keep pinned notes, colors, icons, custom sort orders and appearances.\n\n',
+            '**Recommendation**: Use the community version of Notebook Navigator to avoid multiple plugin instances loading when BRAT updates on startup.'
         ].join(''),
         improved: [
-            'Background processing is now stopped cleanly and pending idle tasks are canceled when plugin is unloaded.',
-            'Safety guards were added to most services and hooks.',
-            'Stricter error handling in IndexedDB and transaction cleanup.',
-            'Added proactive listener cleanup in drag-and-drop modules and modals.'
+            'Background processing stops cleanly and pending idle tasks are canceled when the plugin unloads.',
+            'Safety guards added to most services and hooks.',
+            'Stricter error handling in IndexedDB with proper transaction cleanup.',
+            'Proactive listener cleanup in drag-and-drop modules and modals.'
         ]
     },
     {
