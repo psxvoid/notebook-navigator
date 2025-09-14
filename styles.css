@@ -1776,6 +1776,8 @@ body.nn-resizing {
     margin-bottom: 12px;
     color: var(--text-normal);
     line-height: 1.5;
+    /* Match list item text size on desktop */
+    font-size: 14px;
 }
 
 /* What's new divider */
@@ -1806,6 +1808,11 @@ body.nn-resizing {
     color: var(--text-normal);
     font-size: 14px;
     line-height: 1.5;
+}
+
+/* Critical emphasis (red + bold via <strong>) */
+.nn-critical {
+    color: var(--text-error);
 }
 
 /* Support container */
@@ -1849,6 +1856,54 @@ body.nn-resizing {
     .nn-whats-new-scroll {
         max-height: 300px;
         padding-right: 4px;
+    }
+
+    /* Use standard text sizing for readability on mobile */
+    .nn-whats-new-info,
+    .nn-whats-new-version li,
+    .nn-whats-new-category {
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    /* Mobile header size for the modal title */
+    .nn-whats-new-header {
+        font-size: 16px;
+    }
+
+    /* Version header and date sizes on mobile */
+    .nn-whats-new-version h3 {
+        font-size: 15px;
+    }
+
+    .nn-whats-new-date {
+        font-size: 14px;
+    }
+}
+
+/* Obsidian mobile app adjustments */
+.is-mobile {
+    /* Modal title */
+    .nn-whats-new-header {
+        font-size: 16px;
+    }
+
+    /* Body text and labels */
+    .nn-whats-new-info,
+    .nn-whats-new-version li,
+    .nn-whats-new-category {
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    /* Version header */
+    .nn-whats-new-version h3 {
+        font-size: 15px;
+    }
+
+    /* Date line */
+    .nn-whats-new-date {
+        font-size: 14px;
     }
 }
 
