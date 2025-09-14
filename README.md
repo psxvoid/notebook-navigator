@@ -190,7 +190,6 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 | Shift+Click                                 | Select a range of notes                                                                                           |
 | Shift+Home/End                              | Select from current position to first/last item                                                                   |
 | Shift+↑/↓                                   | Extend selection up/down                                                                                          |
-| Option/Alt+Click on chevron (desktop)       | Expand or collapse all descendants                                                                                |
 
 <br>
 
