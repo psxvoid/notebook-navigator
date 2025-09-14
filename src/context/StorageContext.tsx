@@ -40,7 +40,7 @@
  */
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
-import { App, TFile, debounce } from 'obsidian';
+import { App, TFile, debounce, EventRef } from 'obsidian';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { ProcessedMetadata, extractMetadata } from '../utils/metadataExtractor';
 import { ContentProviderRegistry } from '../services/content/ContentProviderRegistry';
@@ -120,6 +120,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const pendingIdleCallbackId = useRef<number | null>(null);
     // Global stop flag to gate background work after plugin/view stop
     const stoppedRef = useRef<boolean>(false);
+    // Track cancellers for waitForMetadataCache and active event refs for optional detaching
+    const waitDisposerRef = useRef<(() => void) | null>(null);
+    const activeVaultEventRefs = useRef<EventRef[] | null>(null);
+    const activeMetadataEventRef = useRef<EventRef | null>(null);
+    const rebuildFileCacheRef = useRef<ReturnType<typeof debounce> | null>(null);
 
     // Track storage initialization state
     const [isStorageReady, setIsStorageReady] = useState(false);
@@ -462,11 +467,13 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                         if (filesNeedingTags.length > 0) {
                             // Track and queue files for tag extraction
                             startTracking(filesNeedingTags.length);
-                            waitForMetadataCache(() => {
+                            const disposer = waitForMetadataCache(() => {
                                 if (contentRegistry.current) {
                                     contentRegistry.current.queueFilesForAllProviders(filesNeedingTags, settings);
                                 }
                             });
+                            // Store the disposer so we can cancel on unmount/stop
+                            waitDisposerRef.current = disposer;
                         } else {
                             // No tags to extract, run cleanup immediately
                             await runMetadataCleanupWithTags();
@@ -631,6 +638,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             TIMEOUTS.FILE_OPERATION_DELAY,
             true
         );
+        rebuildFileCacheRef.current = rebuildFileCache;
 
         // Only build initial cache if IndexedDB is ready and we haven't built it yet
         if (isIndexedDBReady && !hasBuiltInitialCache.current) {
@@ -665,6 +673,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 }
             })
         ];
+        activeVaultEventRefs.current = vaultEvents;
 
         // Listen to metadata changes for non-tag updates
         // Tags are already handled by the modify event above
@@ -688,17 +697,32 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 // No need to check for specific feature image changes
             }
         });
+        activeMetadataEventRef.current = metadataEvent;
 
         // Cleanup
         return () => {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
+            activeVaultEventRefs.current = null;
+            activeMetadataEventRef.current = null;
             // Cancel any pending debounced rebuilds
             rebuildFileCache.cancel();
+            if (rebuildFileCacheRef.current) {
+                rebuildFileCacheRef.current = null;
+            }
             // Cancel any pending idle callback work
             if (pendingIdleCallbackId.current !== null) {
                 cancelIdleCallback(pendingIdleCallbackId.current);
                 pendingIdleCallbackId.current = null;
+            }
+            // Cancel any pending metadata wait
+            if (waitDisposerRef.current) {
+                try {
+                    waitDisposerRef.current();
+                } catch {
+                    // ignore
+                }
+                waitDisposerRef.current = null;
             }
         };
     }, [
@@ -839,9 +863,37 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     }
                     pendingIdleCallbackId.current = null;
                 }
+                // Optionally detach event subscriptions and cancel debouncers
+                try {
+                    if (activeVaultEventRefs.current) {
+                        activeVaultEventRefs.current.forEach(ref => app.vault.offref(ref));
+                        activeVaultEventRefs.current = null;
+                    }
+                    if (activeMetadataEventRef.current) {
+                        app.metadataCache.offref(activeMetadataEventRef.current);
+                        activeMetadataEventRef.current = null;
+                    }
+                } catch {
+                    // ignore
+                }
+                try {
+                    rebuildFileCacheRef.current?.cancel();
+                } catch {
+                    // ignore
+                }
+                rebuildFileCacheRef.current = null;
+                // Cancel any pending metadata cache wait
+                if (waitDisposerRef.current) {
+                    try {
+                        waitDisposerRef.current();
+                    } catch {
+                        // ignore
+                    }
+                    waitDisposerRef.current = null;
+                }
             }
         };
-    }, [contextValue]);
+    }, [contextValue, app.vault, app.metadataCache]);
 
     return <StorageContext.Provider value={contextWithControls}>{children}</StorageContext.Provider>;
 }

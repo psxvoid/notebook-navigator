@@ -135,7 +135,13 @@ export class NotebookNavigatorView extends ItemView {
         // Unmount the React app when the view is closed to prevent memory leaks
         const container = this.containerEl.children[1];
         container.classList.remove('notebook-navigator');
+        // Also remove mobile/platform-specific classes added on open
+        container.classList.remove('notebook-navigator-mobile');
+        container.classList.remove('notebook-navigator-android');
+        container.classList.remove('notebook-navigator-ios');
         this.root?.unmount();
+        // Ensure container is cleared after unmount
+        container.empty();
         this.root = null;
     }
 

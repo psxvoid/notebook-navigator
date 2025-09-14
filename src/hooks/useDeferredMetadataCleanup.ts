@@ -17,7 +17,7 @@
  */
 
 import { useRef, useEffect, useCallback } from 'react';
-import { App } from 'obsidian';
+import { App, EventRef } from 'obsidian';
 import { MetadataService } from '../services/MetadataService';
 import { TagTreeNode } from '../types/storage';
 
@@ -93,41 +93,67 @@ export function useDeferredMetadataCleanup({ app, metadataService, isStorageRead
      * Wait for metadata cache to be ready before allowing tag extraction
      */
     const waitForMetadataCache = useCallback(
-        (callback: () => void) => {
+        (callback: () => void): (() => void) => {
             // If no files in vault, proceed immediately
             const files = app.vault.getMarkdownFiles();
             if (files.length === 0) {
                 callback();
-                return;
+                return () => {};
             }
 
             // Check if metadata cache already has data (plugin reload scenario)
             const hasExistingCache = files.some(file => app.metadataCache.getFileCache(file) !== null);
             if (hasExistingCache) {
                 callback();
-                return;
+                return () => {};
             }
 
-            // Set up a one-time listener for the 'resolved' event
+            // Set up a one-time listener for the 'resolved' event with cancellable disposer
             let hasResolved = false;
+            let currentEventRef: EventRef | null = null;
 
-            // Fallback timeout in case resolved never fires (shouldn't happen but better safe)
+            // Fallback timeout in case resolved never fires (defensive only)
             const timeoutId = window.setTimeout(() => {
                 if (!hasResolved) {
                     hasResolved = true;
-                    app.metadataCache.offref(eventRef);
+                    try {
+                        if (currentEventRef) app.metadataCache.offref(currentEventRef);
+                    } catch {
+                        // ignore
+                    }
                     callback();
                 }
             }, 5000); // 5 second fallback
 
-            const eventRef = app.metadataCache.on('resolved', () => {
+            currentEventRef = app.metadataCache.on('resolved', () => {
                 if (!hasResolved) {
                     hasResolved = true;
-                    app.metadataCache.offref(eventRef);
+                    try {
+                        if (currentEventRef) app.metadataCache.offref(currentEventRef);
+                    } catch {
+                        // ignore
+                    }
                     window.clearTimeout(timeoutId);
                     callback();
                 }
             });
+
+            // Return disposer that cancels both listener and timeout
+            return () => {
+                if (!hasResolved) {
+                    hasResolved = true;
+                }
+                try {
+                    if (currentEventRef) app.metadataCache.offref(currentEventRef);
+                } catch {
+                    // ignore
+                }
+                try {
+                    window.clearTimeout(timeoutId);
+                } catch {
+                    // ignore
+                }
+            };
         },
         [app]
     );
