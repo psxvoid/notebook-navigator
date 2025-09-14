@@ -95,10 +95,10 @@ export function useListPaneData({
     const [updateKey, setUpdateKey] = useState(0);
 
     /**
-     * Calculate the list of files based on current selection.
+     * Calculate the base list of files based on current selection without search filtering.
      * Re-runs when selection changes or vault is modified.
      */
-    const files = useMemo(() => {
+    const baseFiles = useMemo(() => {
         let allFiles: TFile[] = [];
 
         if (selectionType === ItemType.FOLDER && selectedFolder) {
@@ -107,39 +107,74 @@ export function useListPaneData({
             allFiles = getFilesForTag(selectedTag, settings, app, tagTreeService);
         }
 
-        // Apply search filter if query is provided
-        if (searchQuery && searchQuery.trim()) {
-            const query = searchQuery.toLowerCase().trim();
+        return allFiles;
+        // NOTE: Excluding getFilesForFolder/getFilesForTag - static imports
+        // updateKey triggers re-computation on storage updates
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectionType, selectedFolder, selectedTag, settings, app, tagTreeService, updateKey]);
 
-            // Split query into segments for multi-word search
-            const searchSegments = query.split(/\s+/).filter(s => s.length > 0);
-            const isMultiWordSearch = searchSegments.length > 1;
+    /**
+     * Maintain a stateful map of lowercase display names by file path.
+     * Rebuild on baseFiles changes; update entries on metadata changes for live name updates.
+     */
+    const [searchableNames, setSearchableNames] = useState<Map<string, string>>(new Map());
 
-            allFiles = allFiles.filter(file => {
-                // Use display name for matching so search aligns with UI (frontmatter-aware)
-                const name = getFileDisplayName(file).toLowerCase();
+    // Rebuild the entire map when the baseFiles list or name provider changes
+    useEffect(() => {
+        const map = new Map<string, string>();
+        for (const file of baseFiles) {
+            const name = getFileDisplayName(file);
+            map.set(file.path, name.toLowerCase());
+        }
+        setSearchableNames(map);
+    }, [baseFiles, getFileDisplayName]);
 
-                // Exact substring match (e.g., "test" matches "testing.md")
-                if (name.includes(query)) {
-                    return true;
-                }
-
-                // Multi-word search: all segments must be present
-                // (e.g., "inst mac" matches "Installation Macbook.md")
-                if (isMultiWordSearch) {
-                    const allSegmentsPresent = searchSegments.every(segment => name.includes(segment));
-                    return allSegmentsPresent;
-                }
-
-                return false;
+    // Incrementally update names when frontmatter changes for files in the current list
+    useEffect(() => {
+        const basePaths = new Set(baseFiles.map(f => f.path));
+        const offref = app.metadataCache.on('changed', changedFile => {
+            if (!changedFile) return;
+            const path = changedFile.path;
+            if (!basePaths.has(path)) return;
+            const lower = getFileDisplayName(changedFile).toLowerCase();
+            setSearchableNames(prev => {
+                const current = prev.get(path);
+                if (current === lower) return prev;
+                const next = new Map(prev);
+                next.set(path, lower);
+                return next;
             });
+        });
+        return () => {
+            app.metadataCache.offref(offref);
+        };
+    }, [app.metadataCache, baseFiles, getFileDisplayName]);
+
+    /**
+     * Apply search filter to the base files using the precomputed name map.
+     */
+    const files = useMemo(() => {
+        if (!searchQuery || !searchQuery.trim()) {
+            return baseFiles;
         }
 
-        return allFiles;
-        // NOTE TO REVIEWER: Excluding **getFilesForFolder**/**getFilesForTag** - static imports
-        // **updateKey** triggers re-computation on storage updates
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectionType, selectedFolder, selectedTag, settings, app, tagTreeService, updateKey, searchQuery]);
+        const query = searchQuery.toLowerCase().trim();
+        const searchSegments = query.split(/\s+/).filter(s => s.length > 0);
+        const isMultiWordSearch = searchSegments.length > 1;
+
+        const filtered = baseFiles.filter(file => {
+            const name = searchableNames.get(file.path) || '';
+            if (name.includes(query)) {
+                return true;
+            }
+            if (isMultiWordSearch) {
+                return searchSegments.every(segment => name.includes(segment));
+            }
+            return false;
+        });
+
+        return filtered;
+    }, [baseFiles, searchQuery, searchableNames]);
 
     /**
      * Build the complete list of items for rendering, including:
