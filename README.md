@@ -16,6 +16,15 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 
 ## Getting started
 
+> ⚠️ **IMPORTANT NOTICE - PENDING RELEASE** ⚠️
+>
+> **Notebook Navigator is currently awaiting approval from Obsidian and will be released any day now!**
+>
+> The plugin is next in the approval queue. You can track the progress here:
+> **[GitHub PR #6886 - Obsidian Releases](https://github.com/obsidianmd/obsidian-releases/pull/6886)**
+>
+> This notice will be removed immediately upon plugin approval. Thank you for your patience!
+
 1. **Install Obsidian** - Download and install from [obsidian.md](https://obsidian.md/)
 2. **Enable community plugins** - Go to Settings → Community plugins → Turn on community plugins
 3. **Install Notebook Navigator** - Click "Browse" → Search for "Notebook Navigator" → Install
