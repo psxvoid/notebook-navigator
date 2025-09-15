@@ -18,6 +18,7 @@
 
 import { useEffect, useRef, useCallback, RefObject, useState } from 'react';
 import { TFile, TFolder, App, FileView } from 'obsidian';
+import { getLeafSplitLocation } from '../utils/workspaceSplit';
 import type { ListPaneHandle } from '../components/ListPane';
 import type { NavigationPaneHandle } from '../components/NavigationPane';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
@@ -380,6 +381,18 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
 
             const file = view.file;
 
+            // Check if the file was just created; always reveal newly created files
+            const isRecentlyCreated = file.stat.ctime === file.stat.mtime && Date.now() - file.stat.ctime < TIMEOUTS.FILE_OPERATION_DELAY;
+
+            if (!isRecentlyCreated && settings.autoRevealIgnoreRightSidebar) {
+                // Determine split of the active leaf and skip right-sidebar
+                const activeLeaf = view.leaf;
+                const split = getLeafSplitLocation(app, activeLeaf);
+                if (split === 'right-sidebar') {
+                    return;
+                }
+            }
+
             // Check if this is actually a different file
             if (activeFileRef.current === file.path) {
                 return; // Same file, no change
@@ -387,9 +400,6 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
 
             // Update the active file reference
             activeFileRef.current = file.path;
-
-            // Check if this is a newly created file (any file created within last 100ms)
-            const isRecentlyCreated = file.stat.ctime === file.stat.mtime && Date.now() - file.stat.ctime < TIMEOUTS.FILE_OPERATION_DELAY;
 
             // Always reveal newly created files
             if (isRecentlyCreated) {
@@ -435,9 +445,14 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
         if (!hasInitializedRef.current) {
             const activeFile = app.workspace.getActiveFile();
             if (activeFile) {
-                activeFileRef.current = activeFile.path;
-                setIsStartupReveal(true);
-                setFileToReveal(activeFile);
+                // Skip startup auto-reveal if the active leaf is in right sidebar
+                const activeLeaf = app.workspace.getActiveViewOfType(FileView)?.leaf ?? null;
+                const split = getLeafSplitLocation(app, activeLeaf);
+                if (!settings.autoRevealIgnoreRightSidebar || split !== 'right-sidebar') {
+                    activeFileRef.current = activeFile.path;
+                    setIsStartupReveal(true);
+                    setFileToReveal(activeFile);
+                }
             }
             hasInitializedRef.current = true;
         }
@@ -446,7 +461,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             app.workspace.offref(activeLeafEventRef);
             app.workspace.offref(fileOpenEventRef);
         };
-    }, [app.workspace, settings.autoRevealActiveFile, commandQueue]);
+    }, [app, app.workspace, settings.autoRevealActiveFile, settings.autoRevealIgnoreRightSidebar, commandQueue]);
 
     // Handle revealing the file when detected
     useEffect(() => {

@@ -368,9 +368,9 @@ export const STRINGS_EN = {
         moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleDescendantNotes: 'Toggle notes from descendants', // Command palette: Toggles showing notes from descendants (English: Toggle notes from descendants)
+        toggleDescendants: 'Toggle descendants', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Toggle hidden items', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
-        collapse: 'Collapse / expand all items', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
+        collapseExpand: 'Collapse / expand all items', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Add tag to selected files', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Remove tag from selected files', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Remove all tags from selected files' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -455,6 +455,10 @@ export const STRINGS_EN = {
             autoRevealActiveNote: {
                 name: 'Auto-reveal active note',
                 desc: 'Automatically reveal notes when opened from Quick Switcher, links, or search.'
+            },
+            autoRevealIgnoreRightSidebar: {
+                name: 'Ignore right sidebar',
+                desc: 'Disable auto-reveal from right sidebar.'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Auto-select first note (desktop only)',

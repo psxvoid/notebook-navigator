@@ -217,9 +217,9 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 **Layout & display**
 
 - `Notebook Navigator: Toggle dual pane layout` Toggle single/dual-pane layout (desktop)
-- `Notebook Navigator: Toggle notes from descendants` Toggle descendants notes display for both folders and tags. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+S` to quickly toggle display of notes from descendants
+- `Notebook Navigator: Toggle descendants` Toggle descendants notes display for both folders and tags. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+S` to quickly toggle display of notes from descendants
 - `Notebook Navigator: Toggle hidden items` Show or hide excluded folders and hidden tags
-- `Notebook Navigator: Collapse` Collapse or expand all items based on the current state. When `Keep selected item expanded` is enabled (default on), all folders except the current one will be collapsed. This is super handy to keep the navigation tree tidy when searching for documents. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+C` to quickly collapse non-selected items
+- `Notebook Navigator: Collapse / expand all items` Collapse or expand all items based on the current state. When `Keep selected item expanded` is enabled (default on), all folders except the current one will be collapsed. This is super handy to keep the navigation tree tidy when searching for documents. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+C` to quickly collapse non-selected items
 
 **File operations**
 
@@ -234,6 +234,26 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Add tag to selected files` Dialog to add tag to selected files. Supports creating new tags
 - `Notebook Navigator: Remove tag from selected files` Dialog to remove specific tag. Removes immediately if only one tag
 - `Notebook Navigator: Remove all tags from selected files` Clear all tags from selected files with confirmation
+
+### Command IDs
+
+| Command ID                              | Command Name                                            |
+| --------------------------------------- | ------------------------------------------------------- |
+| `notebook-navigator:open`               | Notebook Navigator: Open                                |
+| `notebook-navigator:reveal-file`        | Notebook Navigator: Reveal file                         |
+| `notebook-navigator:navigate-to-folder` | Notebook Navigator: Navigate to folder                  |
+| `notebook-navigator:navigate-to-tag`    | Notebook Navigator: Navigate to tag                     |
+| `notebook-navigator:search`             | Notebook Navigator: Search                              |
+| `notebook-navigator:toggle-dual-pane`   | Notebook Navigator: Toggle dual pane layout             |
+| `notebook-navigator:toggle-descendants` | Notebook Navigator: Toggle descendants                  |
+| `notebook-navigator:toggle-hidden`      | Notebook Navigator: Toggle hidden items                 |
+| `notebook-navigator:collapse-expand`    | Notebook Navigator: Collapse / expand all items         |
+| `notebook-navigator:new-note`           | Notebook Navigator: Create new note                     |
+| `notebook-navigator:move-files`         | Notebook Navigator: Move files                          |
+| `notebook-navigator:delete-files`       | Notebook Navigator: Delete files                        |
+| `notebook-navigator:add-tag`            | Notebook Navigator: Add tag to selected files           |
+| `notebook-navigator:remove-tag`         | Notebook Navigator: Remove tag from selected files      |
+| `notebook-navigator:remove-all-tags`    | Notebook Navigator: Remove all tags from selected files |
 
 <br>
 

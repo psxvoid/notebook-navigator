@@ -369,9 +369,9 @@ export const STRINGS_DE = {
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleDescendantNotes: 'Notizen aus Nachkommen umschalten', // Command palette: Toggles showing notes from descendants (English: Toggle notes from descendants)
+        toggleDescendants: 'Nachkommen umschalten', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Versteckte Elemente umschalten', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
-        collapse: 'Alle Elemente ein-/ausklappen', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
+        collapseExpand: 'Alle Elemente ein-/ausklappen', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Tag zu ausgewählten Dateien hinzufügen', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Tag von ausgewählten Dateien entfernen', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Alle Tags von ausgewählten Dateien entfernen' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -456,6 +456,10 @@ export const STRINGS_DE = {
             autoRevealActiveNote: {
                 name: 'Aktive Notiz automatisch anzeigen',
                 desc: 'Notizen automatisch anzeigen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.'
+            },
+            autoRevealIgnoreRightSidebar: {
+                name: 'Rechte Seitenleiste ignorieren',
+                desc: 'Automatische Anzeige von der rechten Seitenleiste deaktivieren.'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Erste Notiz automatisch auswählen (nur Desktop)',

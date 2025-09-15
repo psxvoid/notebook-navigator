@@ -320,8 +320,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
 
         this.addCommand({
-            id: 'toggle-descendant-notes',
-            name: strings.commands.toggleDescendantNotes,
+            id: 'toggle-descendants',
+            name: strings.commands.toggleDescendants,
             callback: async () => {
                 // Ensure navigator is open and visible
                 await this.activateView();
@@ -344,8 +344,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
 
         this.addCommand({
-            id: 'collapse',
-            name: strings.commands.collapse,
+            id: 'collapse-expand',
+            name: strings.commands.collapseExpand,
             callback: async () => {
                 // Ensure navigator is open and visible
                 await this.activateView();

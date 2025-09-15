@@ -369,9 +369,9 @@ export const STRINGS_ES = {
         moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navegar a etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleDescendantNotes: 'Alternar notas de descendientes', // Command palette: Toggles showing notes from descendants (English: Toggle notes from descendants)
+        toggleDescendants: 'Alternar descendientes', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Alternar elementos ocultos', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
-        collapse: 'Contraer / expandir todos los elementos', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
+        collapseExpand: 'Contraer / expandir todos los elementos', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Añadir etiqueta a archivos seleccionados', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Eliminar etiqueta de archivos seleccionados', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Eliminar todas las etiquetas de archivos seleccionados' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -456,6 +456,10 @@ export const STRINGS_ES = {
             autoRevealActiveNote: {
                 name: 'Mostrar automáticamente la nota activa',
                 desc: 'Muestra automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.'
+            },
+            autoRevealIgnoreRightSidebar: {
+                name: 'Ignorar barra lateral derecha',
+                desc: 'Desactivar auto-revelado desde la barra lateral derecha.'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Seleccionar automáticamente la primera nota (solo escritorio)',

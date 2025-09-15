@@ -369,9 +369,9 @@ export const STRINGS_JA = {
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleDescendantNotes: '子孫のノート切り替え', // Command palette: Toggles showing notes from descendants (English: Toggle notes from descendants)
+        toggleDescendants: '子孫切り替え', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: '非表示項目を切り替え', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
-        collapse: 'すべての項目を折りたたむ/展開', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
+        collapseExpand: 'すべての項目を折りたたむ/展開', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '選択したファイルにタグを追加', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '選択したファイルからタグを削除', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: '選択したファイルからすべてのタグを削除' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -456,6 +456,10 @@ export const STRINGS_JA = {
             autoRevealActiveNote: {
                 name: 'アクティブなノートを自動表示',
                 desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示します。'
+            },
+            autoRevealIgnoreRightSidebar: {
+                name: '右サイドバーを無視',
+                desc: '右サイドバーからの自動表示を無効化。'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: '最初のノートを自動選択（デスクトップのみ）',

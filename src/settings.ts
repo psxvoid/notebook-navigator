@@ -60,6 +60,7 @@ export interface NotebookNavigatorSettings {
     // Top level settings (no category)
     dualPane: boolean;
     autoRevealActiveFile: boolean;
+    autoRevealIgnoreRightSidebar: boolean;
     showTooltips: boolean;
     fileVisibility: FileVisibility;
     excludedFolders: string[];
@@ -147,6 +148,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Top level settings (no category)
     dualPane: true,
     autoRevealActiveFile: true,
+    autoRevealIgnoreRightSidebar: true,
     showTooltips: true,
     fileVisibility: FILE_VISIBILITY.DOCUMENTS,
     excludedFolders: [],
@@ -441,6 +443,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
+        // Auto-reveal active note + sub-settings
         new Setting(containerEl)
             .setName(strings.settings.items.autoRevealActiveNote.name)
             .setDesc(strings.settings.items.autoRevealActiveNote.desc)
@@ -448,8 +451,23 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 toggle.setValue(this.plugin.settings.autoRevealActiveFile).onChange(async value => {
                     this.plugin.settings.autoRevealActiveFile = value;
                     await this.plugin.saveSettingsAndUpdate();
+                    autoRevealSettingsEl.toggle(value);
                 })
             );
+
+        // Container for auto-reveal sub-settings
+        const autoRevealSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(autoRevealSettingsEl)
+            .setName(strings.settings.items.autoRevealIgnoreRightSidebar.name)
+            .setDesc(strings.settings.items.autoRevealIgnoreRightSidebar.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.autoRevealIgnoreRightSidebar).onChange(async value => {
+                    this.plugin.settings.autoRevealIgnoreRightSidebar = value;
+                    await this.plugin.saveSettingsAndUpdate();
+                })
+            );
+        autoRevealSettingsEl.toggle(this.plugin.settings.autoRevealActiveFile);
 
         new Setting(containerEl)
             .setName(strings.settings.items.showTooltips.name)

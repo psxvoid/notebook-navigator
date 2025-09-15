@@ -71,13 +71,18 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.17',
+        date: '2025-09-15',
+        info: 'Welcome to the community release of Notebook Navigator!'
+    },
+    {
         version: '1.4.16',
         date: '2025-09-14',
         info: [
-            'No new features or changes in this release. This update focuses on performance and stability improvements, handling edge cases and rare configurations in preparation for the public community release.\n\n',
-            '==Important!== If you have been using Notebook Navigator through BRAT, **please copy the contents of data.json to a markdown document now to preserve your settings!** When you remove the BRAT version and install the community version, you can paste your settings back to keep pinned notes, colors, icons, custom sort orders and appearances.\n\n',
+            'No new features or changes in this release. This update focuses on performance and stability improvements, handling edge cases and rare configurations in preparation for the public community release.',
+            '==Important!== If you have been using Notebook Navigator through BRAT, **please copy the contents of data.json to a markdown document now to preserve your settings!** When you remove the BRAT version and install the community version, you can paste your settings back to keep pinned notes, colors, icons, custom sort orders and appearances.',
             '**Recommendation**: Use the community version of Notebook Navigator to avoid multiple plugin instances loading when BRAT updates on startup.'
-        ].join(''),
+        ].join('\n\n'),
         improved: [
             'Improved quick search performance for large vaults.',
             'Improved list rendering performance for large lists.',
