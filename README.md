@@ -1,6 +1,6 @@
 ![Notebook Navigator Banner](https://github.com/johansan/notebook-navigator/blob/main/images/banner.gif?raw=true)
 
-Available in: English • Deutsch • Español • Français • 日本語 • 中文 • 한국어
+Available in: English • Deutsch • Español • Français • Polski • 日本語 • 中文 • 한국어
 
 ![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=Downloads&query=%24%5B%22notebook-navigator%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
 ![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square)
@@ -43,7 +43,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Dual-pane layout** - Navigation pane on the left (folders and tags), list pane on right (files)
 - **Single-pane layout** - Default on mobile, optional on desktop. Switch between navigation and file list
 - **Mobile optimized** - Touch-friendly interface with properly sized buttons for Android, iOS and iPadOS
-- **Multi-language support** - English, Deutsch, Español, Français, 日本語, 中文, 한국어
+- **Multi-language support** - English, Deutsch, Español, Français, Polski, 日本語, 中文, 한국어
 - **RTL language support** - Right-to-left languages with proper layout mirroring (e.g., العربية)
 - **Resizable panes** - Adjust the split between navigation and list pane
 
@@ -82,7 +82,8 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 ### Productivity
 
 - **Quick actions** - Hover buttons for open in new tab, pin, and reveal in folder
-- **Quick search** - Search and filter notes in the current folder or tag with instant results
+- **Quick search** - File name filter for notes in the current folder or tag with instant results
+- **Omnisearch integration** - Full-text search with real-time results when [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin is installed
 - **Drag & drop** - Move files between folders, drag to tags to add tags, drag to Untagged to remove tags
 - **Tag operations** - Add, remove, or clear tags via context menu and commands
 - **File operations** - Create, rename, delete, duplicate, move files and folders
@@ -335,6 +336,10 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Use embedded image fallback:** Use the first embedded image in the document as a fallback when no thumbnail is found in frontmatter properties (requires Obsidian 1.9.4+). Disable this to verify that thumbnails are properly configured
 
 **Note:** When date, preview, and feature image are disabled, list pane displays in compact "slim mode" with only note names.
+
+### Search
+
+- **Search provider:** Choose between quick file name search or full-text search with Omnisearch plugin. `File name filter`, `Omnisearch (full-text)`. Requires [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin to be installed and enabled for full-text search
 
 ### Advanced
 
