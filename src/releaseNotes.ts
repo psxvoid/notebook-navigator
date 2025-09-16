@@ -72,14 +72,17 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.18',
-        date: '2025-09-16',
-        info: 'Notebook Navigator now integrates with the Omnisearch plugin for powerful full-text search! When Omnisearch is installed, you can switch between file name filtering and full-text search in Settings → Search → Search provider. This allows you to search through the actual content of your notes, not just their titles.',
+        date: '2025-09-17',
+        info: 'Notebook Navigator now integrates with the **Omnisearch plugin** for powerful full-text search! When Omnisearch is installed you can switch between file name filtering and full-text search in Settings → Search → Search provider. This allows you to search through the actual content of your notes, not just their titles!',
         new: [
-            '**Omnisearch integration** - Full-text search support when Omnisearch plugin is installed',
-            'New **Search provider** setting to switch between file name filter and Omnisearch',
-            '**Background colors** for folders and tags - Set custom background colors via context menu',
-            'New **API properties** - Added backgroundColor to FolderMetadata and TagMetadata interfaces (API v1.0.1)',
-            'Added Korean language support'
+            '**Omnisearch integration** - Full-text search support when the Omnisearch plugin is installed',
+            '**Search provider** setting to switch between file name filter and Omnisearch',
+            '**Background colors** for folders and tags: you can now set custom background colors via the context menu',
+            '**API properties**: Added backgroundColor to FolderMetadata and TagMetadata interfaces (API v1.0.1)',
+            'New languages: 한국어 and Polski'
+        ],
+        fixed: [
+            'Feature image detection now reads frontmatter wikilinks that include embed markers or alias text (for example ![[image.jpg|cover]])'
         ]
     },
     {
