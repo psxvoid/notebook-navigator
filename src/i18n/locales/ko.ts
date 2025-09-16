@@ -403,11 +403,25 @@ export const STRINGS_KO = {
             navigationPane: '탐색 창',
             folders: '폴더',
             tags: '태그',
+            search: '검색',
             listPane: '목록 창',
             notes: '노트',
             advanced: '고급'
         },
         items: {
+            searchProvider: {
+                name: '검색 제공자',
+                desc: '빠른 파일명 검색 또는 Omnisearch 플러그인을 통한 전체 텍스트 검색 중에서 선택하세요.',
+                options: {
+                    internal: '파일명 필터',
+                    omnisearch: 'Omnisearch (전체 텍스트)'
+                },
+                messages: {
+                    missingSelected: '전체 텍스트 검색을 위해 Omnisearch 설치.',
+                    missing: '전체 텍스트 검색을 위해 Omnisearch 설치.',
+                    installed: '전체 텍스트 검색을 위해 Omnisearch로 전환.'
+                }
+            },
             sortNotesBy: {
                 name: '노트 정렬 기준',
                 desc: '노트 목록에서 노트를 정렬하는 방법을 선택하세요.',
@@ -438,7 +452,7 @@ export const STRINGS_KO = {
             },
             quickActionsRevealInFolder: {
                 name: '폴더에서 표시',
-                desc: "빠른 작업: 노트를 상위 폴더에서 표시합니다. 하위 폴더나 태그에서 노트를 볼 때만 표시됩니다 (노트의 실제 폴더에서는 표시되지 않음)."
+                desc: '빠른 작업: 노트를 상위 폴더에서 표시합니다. 하위 폴더나 태그에서 노트를 볼 때만 표시됩니다 (노트의 실제 폴더에서는 표시되지 않음).'
             },
             quickActionsPinNote: {
                 name: '노트 고정',
@@ -646,7 +660,7 @@ export const STRINGS_KO = {
             },
             hideFolderNoteInList: {
                 name: '목록에서 폴더 노트 숨기기',
-                desc: "폴더 노트가 폴더의 노트 목록에 나타나지 않도록 숨깁니다."
+                desc: '폴더 노트가 폴더의 노트 목록에 나타나지 않도록 숨깁니다.'
             },
             confirmBeforeDelete: {
                 name: '삭제 전 확인',
@@ -683,7 +697,7 @@ export const STRINGS_KO = {
                 buttonText: '❤️ GitHub에서 후원'
             },
             whatsNew: {
-                name: "새로운 기능",
+                name: '새로운 기능',
                 desc: '최근 업데이트와 개선 사항 보기',
                 buttonText: '최근 업데이트 보기'
             },

@@ -63,6 +63,7 @@ import { DateUtils } from '../utils/dateUtils';
 import { getExtensionSuffix, isImageFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
 import { ObsidianIcon } from './ObsidianIcon';
+import type { SearchResultMeta } from '../types/search';
 
 interface FileItemProps {
     file: TFile;
@@ -77,50 +78,73 @@ interface FileItemProps {
     selectionType?: ItemType | null;
     /** Active search query for highlighting matches in the file name */
     searchQuery?: string;
+    /** Search metadata from Omnisearch provider */
+    searchMeta?: SearchResultMeta;
 }
 
 /**
  * Computes merged highlight ranges for all occurrences of search segments.
  * Overlapping ranges are merged to avoid nested highlights.
  */
-function getMergedHighlightRanges(text: string, query?: string): { start: number; end: number }[] {
-    if (!query) return [];
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) return [];
-    const segments = normalized.split(/\s+/).filter(Boolean);
-    if (segments.length === 0) return [];
+function getMergedHighlightRanges(text: string, query?: string, searchMeta?: SearchResultMeta): { start: number; end: number }[] {
+    if (!text) return [];
 
     const lower = text.toLowerCase();
     const ranges: { start: number; end: number }[] = [];
+    const seenTokens = new Set<string>();
 
-    segments.forEach(seg => {
-        let idx = lower.indexOf(seg);
+    const addTokenRanges = (rawToken: string | undefined) => {
+        if (!rawToken) return;
+        const token = rawToken.toLowerCase();
+        if (!token || seenTokens.has(token)) return;
+        seenTokens.add(token);
+
+        let idx = lower.indexOf(token);
         while (idx !== -1) {
-            ranges.push({ start: idx, end: idx + seg.length });
-            idx = lower.indexOf(seg, idx + seg.length);
+            ranges.push({ start: idx, end: idx + token.length });
+            idx = lower.indexOf(token, idx + token.length);
         }
-    });
+    };
 
-    if (ranges.length === 0) return [];
+    if (searchMeta) {
+        searchMeta.matches.forEach(match => addTokenRanges(match.text));
+        searchMeta.terms.forEach(term => addTokenRanges(term));
+    }
+
+    if (ranges.length === 0 && query) {
+        const normalizedQuery = query.trim().toLowerCase();
+        if (normalizedQuery) {
+            normalizedQuery
+                .split(/\s+/)
+                .filter(Boolean)
+                .forEach(segment => addTokenRanges(segment));
+        }
+    }
+
+    if (ranges.length === 0) {
+        return [];
+    }
 
     ranges.sort((a, b) => a.start - b.start || a.end - b.end);
     const merged: { start: number; end: number }[] = [];
-    for (const r of ranges) {
+    for (const range of ranges) {
         const last = merged[merged.length - 1];
-        if (!last || r.start > last.end) {
-            merged.push({ ...r });
-        } else if (r.end > last.end) {
-            last.end = r.end;
+        if (!last || range.start > last.end) {
+            merged.push({ ...range });
+        } else if (range.end > last.end) {
+            last.end = range.end;
         }
     }
+
     return merged;
 }
 
 /**
  * Splits text into plain and highlighted parts based on merged ranges.
  */
-function renderHighlightedText(text: string, query?: string): React.ReactNode {
-    const ranges = getMergedHighlightRanges(text, query);
+function renderHighlightedText(text: string, query?: string, searchMeta?: SearchResultMeta): React.ReactNode {
+    if (!text) return text;
+    const ranges = getMergedHighlightRanges(text, query, searchMeta);
     if (ranges.length === 0) return text;
 
     const parts: React.ReactNode[] = [];
@@ -165,7 +189,8 @@ export const FileItem = React.memo(function FileItem({
     parentFolder,
     isPinned = false,
     selectionType,
-    searchQuery
+    searchQuery,
+    searchMeta
 }: FileItemProps) {
     // === Hooks (all hooks together at the top) ===
     const { app, isMobile, plugin, commandQueue } = useServices();
@@ -243,7 +268,10 @@ export const FileItem = React.memo(function FileItem({
     }, [file, getFileDisplayName, metadataVersion]);
 
     // Highlight matches in display name when search is active
-    const highlightedName = useMemo(() => renderHighlightedText(displayName, searchQuery), [displayName, searchQuery]);
+    const highlightedName = useMemo(
+        () => renderHighlightedText(displayName, searchQuery, searchMeta),
+        [displayName, searchQuery, searchMeta]
+    );
 
     // Decide whether to render an inline extension suffix after the name
     const extensionSuffix = useMemo(() => getExtensionSuffix(file), [file]);
@@ -370,10 +398,19 @@ export const FileItem = React.memo(function FileItem({
 
     // Layout decision variables
     const pinnedItemShouldUseCompactLayout = isPinned && heightOptimizationEnabled; // Pinned items get compact treatment only when optimizing
+    const effectivePreviewText =
+        searchMeta && searchMeta.excerpt && searchMeta.excerpt.trim().length > 0 ? searchMeta.excerpt : previewText;
+    const hasPreviewContent = effectivePreviewText.trim().length > 0;
+    const highlightedPreview = useMemo(
+        // Only Omnisearch trigger highlighting in preview, not regular filter
+        () => (searchMeta ? renderHighlightedText(effectivePreviewText, undefined, searchMeta) : effectivePreviewText),
+        [effectivePreviewText, searchMeta]
+    );
+
     const shouldUseSingleLineForDateAndPreview = pinnedItemShouldUseCompactLayout || appearanceSettings.previewRows < 2;
     const shouldUseMultiLinePreviewLayout = !pinnedItemShouldUseCompactLayout && appearanceSettings.previewRows >= 2;
-    const shouldCollapseEmptyPreviewSpace = heightOptimizationEnabled && !previewText; // Optimization: compact layout for empty preview
-    const shouldAlwaysReservePreviewSpace = heightOptimizationDisabled || previewText; // Show full layout when not optimizing OR has content
+    const shouldCollapseEmptyPreviewSpace = heightOptimizationEnabled && !hasPreviewContent; // Optimization: compact layout for empty preview
+    const shouldAlwaysReservePreviewSpace = heightOptimizationDisabled || hasPreviewContent; // Show full layout when not optimizing OR has content
 
     // Detect slim mode when all display options are disabled
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
@@ -658,7 +695,7 @@ export const FileItem = React.memo(function FileItem({
                                             {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
                                             {settings.showFilePreview && (
                                                 <div className="nn-file-preview" style={{ '--preview-rows': 1 } as React.CSSProperties}>
-                                                    {previewText}
+                                                    {highlightedPreview}
                                                 </div>
                                             )}
                                         </div>
@@ -687,7 +724,7 @@ export const FileItem = React.memo(function FileItem({
                                 {shouldUseMultiLinePreviewLayout && (
                                     <>
                                         {/* CASE 1: COLLAPSED EMPTY PREVIEW */}
-                                        {/* Conditions: heightOptimizationEnabled AND !hasPreviewText */}
+                                        {/* Conditions: heightOptimizationEnabled AND !hasPreviewContent */}
                                         {/* Layout: Tags first, then Date+Parent on same line (compact) */}
                                         {shouldCollapseEmptyPreviewSpace && (
                                             <>
@@ -713,7 +750,7 @@ export const FileItem = React.memo(function FileItem({
                                         )}
 
                                         {/* CASE 2: ALWAYS RESERVE PREVIEW SPACE */}
-                                        {/* Conditions: heightOptimizationDisabled OR hasPreviewText */}
+                                        {/* Conditions: heightOptimizationDisabled OR hasPreviewContent */}
                                         {/* Layout: Full preview rows, tags, then Date+Parent on same line */}
                                         {shouldAlwaysReservePreviewSpace && (
                                             <>
@@ -723,7 +760,7 @@ export const FileItem = React.memo(function FileItem({
                                                         className="nn-file-preview"
                                                         style={{ '--preview-rows': appearanceSettings.previewRows } as React.CSSProperties}
                                                     >
-                                                        {previewText}
+                                                        {highlightedPreview}
                                                     </div>
                                                 )}
 

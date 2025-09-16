@@ -24,6 +24,7 @@ import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
 import { TagTreeService } from './services/TagTreeService';
 import { CommandQueueService } from './services/CommandQueueService';
+import { OmnisearchService } from './services/OmnisearchService';
 import { FileSystemOperations } from './services/FileSystemService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
@@ -89,6 +90,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     tagTreeService: TagTreeService | null = null;
     commandQueue: CommandQueueService | null = null;
     fileSystemOps: FileSystemOperations | null = null;
+    omnisearchService: OmnisearchService | null = null;
     api: NotebookNavigatorAPI | null = null;
     // A map of callbacks to notify open React views of changes
     private settingsUpdateListeners = new Map<string, () => void>();
@@ -198,7 +200,10 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             () => this.tagTreeService,
             () => this.commandQueue
         );
+        this.omnisearchService = new OmnisearchService(this.app);
         this.api = new NotebookNavigatorAPI(this, this.app);
+
+        await this.ensureSearchProviderDefault();
 
         // Register view
         this.registerView(NOTEBOOK_NAVIGATOR_VIEW, leaf => {
@@ -674,6 +679,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.ribbonIconEl?.remove();
         this.ribbonIconEl = undefined;
 
+        this.omnisearchService = null;
+
         // Shutdown database after all processing is stopped
         shutdownDatabase();
     }
@@ -735,6 +742,15 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         if (this.settings.hiddenTags) {
             this.settings.hiddenTags = normalizeArray(this.settings.hiddenTags);
+        }
+    }
+
+    // Set default search provider on first run based on plugin availability
+    private async ensureSearchProviderDefault(): Promise<void> {
+        if (this.settings.searchProvider === undefined || this.settings.searchProvider === null) {
+            const provider = this.omnisearchService?.isAvailable() ? 'omnisearch' : 'internal';
+            this.settings.searchProvider = provider;
+            await this.saveSettingsAndUpdate();
         }
     }
 

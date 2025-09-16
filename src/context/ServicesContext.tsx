@@ -25,6 +25,7 @@ import { MetadataService } from '../services/MetadataService';
 import { TagOperations } from '../services/TagOperations';
 import { TagTreeService } from '../services/TagTreeService';
 import { CommandQueueService } from '../services/CommandQueueService';
+import { OmnisearchService } from '../services/OmnisearchService';
 
 /**
  * Interface defining all services and stable dependencies available through the context.
@@ -47,6 +48,8 @@ interface Services {
     tagTreeService: TagTreeService | null;
     /** Command queue service for managing operations and their context */
     commandQueue: CommandQueueService | null;
+    /** Omnisearch integration service */
+    omnisearchService: OmnisearchService | null;
 }
 
 /**
@@ -83,7 +86,8 @@ export function ServicesProvider({ children, plugin }: { children: React.ReactNo
             metadataService: plugin.metadataService, // Use the single instance from plugin
             tagOperations: plugin.tagOperations, // Use the single instance from plugin
             tagTreeService: plugin.tagTreeService, // Use the single instance from plugin
-            commandQueue: plugin.commandQueue // Use the single instance from plugin
+            commandQueue: plugin.commandQueue, // Use the single instance from plugin
+            omnisearchService: plugin.omnisearchService // Use the single instance from plugin
         }),
         [plugin, isMobile]
     );

@@ -73,9 +73,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.18',
         date: '2025-09-16',
-        new: [
-            'Added Korean language support'
-        ]
+        new: ['Added Korean language support']
     },
     {
         version: '1.4.17',

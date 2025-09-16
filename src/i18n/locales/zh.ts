@@ -405,10 +405,24 @@ export const STRINGS_ZH = {
             navigationPane: '文件夹显示',
             tags: '标签显示',
             folders: '文件夹笔记',
+            search: '搜索',
             listPane: '列表窗格',
             advanced: '高级'
         },
         items: {
+            searchProvider: {
+                name: '搜索提供器',
+                desc: '在快速文件名搜索或使用Omnisearch插件的全文搜索之间选择。',
+                options: {
+                    internal: '文件名过滤器',
+                    omnisearch: 'Omnisearch（全文）'
+                },
+                messages: {
+                    missingSelected: '安装Omnisearch以进行全文搜索。',
+                    missing: '安装Omnisearch以进行全文搜索。',
+                    installed: '切换到Omnisearch进行全文搜索。'
+                }
+            },
             sortNotesBy: {
                 name: '笔记排序方式',
                 desc: '选择笔记列表中的笔记排序方式。',

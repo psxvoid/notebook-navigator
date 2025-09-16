@@ -49,6 +49,8 @@ export type ItemScope =
     | 'folders-only' // Only folders
     | 'tags-only'; // Only tags
 
+export type SearchProvider = 'internal' | 'omnisearch';
+
 /**
  * Quick actions configuration
  */
@@ -121,6 +123,7 @@ export interface NotebookNavigatorSettings {
     confirmBeforeDelete: boolean;
     // Internal
     searchActive: boolean;
+    searchProvider: SearchProvider | null;
     showHiddenItems: boolean;
     // Whether list/tag views include notes from descendants (subfolders/subtags)
     includeDescendantNotes: boolean;
@@ -209,6 +212,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     confirmBeforeDelete: true,
     // Internal
     searchActive: false,
+    searchProvider: null,
     showHiddenItems: false,
     includeDescendantNotes: true,
     customVaultName: '',
@@ -840,7 +844,51 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Add a custom class to make the input wider
         hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');
 
-        // Section 4: List pane
+        // Section 4: Search
+        new Setting(containerEl).setName(strings.settings.sections.search).setHeading();
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.searchProvider.name)
+            .setDesc(strings.settings.items.searchProvider.desc)
+            .addDropdown(dropdown => {
+                const currentProvider = this.plugin.settings.searchProvider ?? 'internal';
+                dropdown
+                    .addOption('internal', strings.settings.items.searchProvider.options.internal)
+                    .addOption('omnisearch', strings.settings.items.searchProvider.options.omnisearch)
+                    .setValue(currentProvider)
+                    .onChange(async value => {
+                        const provider = value as SearchProvider;
+                        this.plugin.settings.searchProvider = provider;
+                        await this.plugin.saveSettingsAndUpdate();
+                        updateSearchInfo();
+                    });
+            });
+
+        const searchInfoContainer = containerEl.createDiv('nn-setting-info-container');
+        const searchInfoEl = searchInfoContainer.createEl('div', {
+            cls: 'setting-item-description'
+        });
+
+        const updateSearchInfo = () => {
+            const provider = this.plugin.settings.searchProvider ?? 'internal';
+            const hasOmnisearch = this.plugin.omnisearchService?.isAvailable() ?? false;
+
+            let message = '';
+            if (provider === 'omnisearch' && !hasOmnisearch) {
+                message = strings.settings.items.searchProvider.messages.missingSelected;
+            } else if (provider !== 'omnisearch') {
+                message = hasOmnisearch
+                    ? strings.settings.items.searchProvider.messages.installed
+                    : strings.settings.items.searchProvider.messages.missing;
+            }
+
+            searchInfoEl.setText(message);
+            searchInfoContainer.toggle(message.length > 0);
+        };
+
+        updateSearchInfo();
+
+        // Section 5: List pane
         new Setting(containerEl).setName(strings.settings.sections.listPane).setHeading();
 
         new Setting(containerEl)

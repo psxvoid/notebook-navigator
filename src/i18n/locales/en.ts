@@ -403,11 +403,25 @@ export const STRINGS_EN = {
             navigationPane: 'Navigation pane',
             folders: 'Folders',
             tags: 'Tags',
+            search: 'Search',
             listPane: 'List pane',
             notes: 'Notes',
             advanced: 'Advanced'
         },
         items: {
+            searchProvider: {
+                name: 'Search provider',
+                desc: 'Choose between quick file name search or full-text search with Omnisearch plugin.',
+                options: {
+                    internal: 'File name filter',
+                    omnisearch: 'Omnisearch (full-text)'
+                },
+                messages: {
+                    missingSelected: 'Install Omnisearch for full-text search.',
+                    missing: 'Install Omnisearch for full-text search.',
+                    installed: 'Switch to Omnisearch for full-text search.'
+                }
+            },
             sortNotesBy: {
                 name: 'Sort notes by',
                 desc: 'Choose how notes are sorted in the note list.',

@@ -405,10 +405,24 @@ export const STRINGS_DE = {
             navigationPane: 'Ordneranzeige',
             tags: 'Tag-Anzeige',
             folders: 'Ordnernotizen',
+            search: 'Suchen',
             listPane: 'Listenbereich',
             advanced: 'Erweitert'
         },
         items: {
+            searchProvider: {
+                name: 'Suchanbieter',
+                desc: 'Wählen Sie zwischen schneller Dateinamensuche oder Volltextsuche mit dem Omnisearch-Plugin.',
+                options: {
+                    internal: 'Dateinamenfilter',
+                    omnisearch: 'Omnisearch (Volltext)'
+                },
+                messages: {
+                    missingSelected: 'Omnisearch für Volltextsuche installieren.',
+                    missing: 'Omnisearch für Volltextsuche installieren.',
+                    installed: 'Zu Omnisearch für Volltextsuche wechseln.'
+                }
+            },
             sortNotesBy: {
                 name: 'Notizen sortieren nach',
                 desc: 'Wählen Sie, wie Notizen in der Notizenliste sortiert werden.',

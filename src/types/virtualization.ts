@@ -18,6 +18,7 @@
 
 import { TFile, TFolder } from 'obsidian';
 import { ListPaneItemType, NavigationPaneItemType, VirtualFolder } from '../types';
+import type { SearchResultMeta } from './search';
 import { TagTreeNode } from '../types/storage';
 
 export interface VirtualItem<T> {
@@ -36,6 +37,7 @@ export interface ListPaneItem {
     fileIndex?: number;
     // Indicates if this file is pinned
     isPinned?: boolean;
+    searchMeta?: SearchResultMeta;
 }
 
 export interface FolderTreeItem {

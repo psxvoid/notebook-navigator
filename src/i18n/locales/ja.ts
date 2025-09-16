@@ -405,10 +405,24 @@ export const STRINGS_JA = {
             navigationPane: 'フォルダ表示',
             tags: 'タグ表示',
             folders: 'フォルダノート',
+            search: '検索',
             listPane: 'リストペイン',
             advanced: '詳細設定'
         },
         items: {
+            searchProvider: {
+                name: '検索プロバイダー',
+                desc: 'クイックファイル名検索またはOmnisearchプラグインによる全文検索を選択してください。',
+                options: {
+                    internal: 'ファイル名フィルター',
+                    omnisearch: 'Omnisearch（全文）'
+                },
+                messages: {
+                    missingSelected: '全文検索用にOmnisearchをインストール。',
+                    missing: '全文検索用にOmnisearchをインストール。',
+                    installed: '全文検索用にOmnisearchに切り替え。'
+                }
+            },
             sortNotesBy: {
                 name: 'ノートの並び順',
                 desc: 'ノートリストでのノートの並び順を選択します。',

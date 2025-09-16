@@ -405,10 +405,24 @@ export const STRINGS_ES = {
             navigationPane: 'Visualización de carpetas',
             tags: 'Visualización de etiquetas',
             folders: 'Notas de carpeta',
+            search: 'Buscar',
             listPane: 'Panel de lista',
             advanced: 'Avanzado'
         },
         items: {
+            searchProvider: {
+                name: 'Proveedor de búsqueda',
+                desc: 'Elija entre búsqueda rápida de nombres de archivo o búsqueda de texto completo con el plugin Omnisearch.',
+                options: {
+                    internal: 'Filtro de nombre de archivo',
+                    omnisearch: 'Omnisearch (texto completo)'
+                },
+                messages: {
+                    missingSelected: 'Instale Omnisearch para búsqueda de texto completo.',
+                    missing: 'Instale Omnisearch para búsqueda de texto completo.',
+                    installed: 'Cambiar a Omnisearch para búsqueda de texto completo.'
+                }
+            },
             sortNotesBy: {
                 name: 'Ordenar notas por',
                 desc: 'Elige cómo se ordenan las notas en la lista de notas.',

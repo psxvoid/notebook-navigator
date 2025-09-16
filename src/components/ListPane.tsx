@@ -631,6 +631,7 @@ export const ListPane = React.memo(
                                                     parentFolder={item.parentFolder}
                                                     isPinned={item.isPinned}
                                                     searchQuery={isSearchActive ? searchQuery : undefined}
+                                                    searchMeta={item.searchMeta}
                                                 />
                                             ) : null}
                                         </div>
