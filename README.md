@@ -1,6 +1,6 @@
 ![Notebook Navigator Banner](https://github.com/johansan/notebook-navigator/blob/main/images/banner.gif?raw=true)
 
-Available in: English • Deutsch • Español • Français • 日本語 • 中文
+Available in: English • Deutsch • Español • Français • 日本語 • 中文 • 한국어
 
 ![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=Downloads&query=%24%5B%22notebook-navigator%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
 ![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square)
@@ -43,7 +43,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Dual-pane layout** - Navigation pane on the left (folders and tags), list pane on right (files)
 - **Single-pane layout** - Default on mobile, optional on desktop. Switch between navigation and file list
 - **Mobile optimized** - Touch-friendly interface with properly sized buttons for Android, iOS and iPadOS
-- **Multi-language support** - English, Deutsch, Español, Français, 日本語, 中文
+- **Multi-language support** - English, Deutsch, Español, Français, 日本語, 中文, 한국어
 - **RTL language support** - Right-to-left languages with proper layout mirroring (e.g., العربية)
 - **Resizable panes** - Adjust the split between navigation and list pane
 

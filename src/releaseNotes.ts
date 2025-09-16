@@ -71,6 +71,13 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.18',
+        date: '2025-09-16',
+        new: [
+            'Added Korean language support'
+        ]
+    },
+    {
         version: '1.4.17',
         date: '2025-09-15',
         info: 'Welcome to the community release of Notebook Navigator!'
