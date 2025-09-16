@@ -53,6 +53,8 @@ const DEFAULT_COLOR = '#3b82f6';
 
 type RGBChannel = 'r' | 'g' | 'b';
 
+type ColorPickerMode = 'foreground' | 'background';
+
 /**
  * Extended metadata service interface for color operations
  */
@@ -61,6 +63,10 @@ interface ColorMetadataService {
     setFolderColor(path: string, color: string): Promise<void>;
     removeTagColor(path: string): Promise<void>;
     removeFolderColor(path: string): Promise<void>;
+    setTagBackgroundColor(path: string, color: string): Promise<void>;
+    setFolderBackgroundColor(path: string, color: string): Promise<void>;
+    removeTagBackgroundColor(path: string): Promise<void>;
+    removeFolderBackgroundColor(path: string): Promise<void>;
     getSettingsProvider(): ISettingsProvider;
 }
 
@@ -79,6 +85,7 @@ export class ColorPickerModal extends Modal {
     private settingsProvider: ISettingsProvider;
     private currentColor: string | null = null;
     private selectedColor: string = DEFAULT_COLOR;
+    private isBackgroundMode: boolean;
     private hexInput: HTMLInputElement;
     private previewCurrent: HTMLDivElement;
     private previewNew: HTMLDivElement;
@@ -113,22 +120,32 @@ export class ColorPickerModal extends Modal {
         app: App,
         metadataService: ColorMetadataService,
         itemPath: string,
-        itemType: typeof ItemType.FOLDER | typeof ItemType.TAG = ItemType.FOLDER
+        itemType: typeof ItemType.FOLDER | typeof ItemType.TAG = ItemType.FOLDER,
+        colorMode: ColorPickerMode = 'foreground'
     ) {
         super(app);
         this.metadataService = metadataService;
         this.itemPath = itemPath;
         this.itemType = itemType;
+        this.isBackgroundMode = colorMode === 'background';
 
         // Access settings through the service
         this.settingsProvider = metadataService.getSettingsProvider();
 
         // Get current color if exists
         const settings = this.settingsProvider.settings;
-        const currentColors = itemType === ItemType.TAG ? settings.tagColors : settings.folderColors;
-        if (currentColors && currentColors[itemPath]) {
-            this.currentColor = currentColors[itemPath];
-            this.selectedColor = currentColors[itemPath];
+        const currentColors = this.isBackgroundMode
+            ? itemType === ItemType.TAG
+                ? settings.tagBackgroundColors
+                : settings.folderBackgroundColors
+            : itemType === ItemType.TAG
+              ? settings.tagColors
+              : settings.folderColors;
+        const lookupKey = itemType === ItemType.TAG ? itemPath.toLowerCase() : itemPath;
+        const initialColor = currentColors?.[lookupKey];
+        if (initialColor) {
+            this.currentColor = initialColor;
+            this.selectedColor = initialColor;
         } else {
             // Default starting color
             this.selectedColor = DEFAULT_COLOR;
@@ -497,12 +514,7 @@ export class ColorPickerModal extends Modal {
      * Remove the color and close
      */
     private async removeColor() {
-        // Remove the color based on item type
-        if (this.isTag()) {
-            await this.metadataService.removeTagColor(this.itemPath);
-        } else {
-            await this.metadataService.removeFolderColor(this.itemPath);
-        }
+        await this.updateMetadataColor(null);
 
         // Notify callback with null
         this.onChooseColor?.(null);
@@ -518,12 +530,7 @@ export class ColorPickerModal extends Modal {
         // Save to recent colors
         await this.saveToRecentColors(this.selectedColor);
 
-        // Set the color based on item type
-        if (this.isTag()) {
-            await this.metadataService.setTagColor(this.itemPath, this.selectedColor);
-        } else {
-            await this.metadataService.setFolderColor(this.itemPath, this.selectedColor);
-        }
+        await this.updateMetadataColor(this.selectedColor);
 
         // Notify callback
         this.onChooseColor?.(this.selectedColor);
@@ -548,17 +555,46 @@ export class ColorPickerModal extends Modal {
             await this.saveToRecentColors(color);
         }
 
-        // Set the color based on item type
-        if (this.isTag()) {
-            await this.metadataService.setTagColor(this.itemPath, color);
-        } else {
-            await this.metadataService.setFolderColor(this.itemPath, color);
-        }
+        await this.updateMetadataColor(color);
 
         // Notify callback
         this.onChooseColor?.(color);
 
         // Close the modal
         this.close();
+    }
+
+    /**
+     * Update metadata for the current mode and item type
+     */
+    private async updateMetadataColor(color: string | null): Promise<void> {
+        const isTag = this.isTag();
+
+        if (color === null) {
+            if (isTag) {
+                if (this.isBackgroundMode) {
+                    await this.metadataService.removeTagBackgroundColor(this.itemPath);
+                } else {
+                    await this.metadataService.removeTagColor(this.itemPath);
+                }
+            } else if (this.isBackgroundMode) {
+                await this.metadataService.removeFolderBackgroundColor(this.itemPath);
+            } else {
+                await this.metadataService.removeFolderColor(this.itemPath);
+            }
+            return;
+        }
+
+        if (isTag) {
+            if (this.isBackgroundMode) {
+                await this.metadataService.setTagBackgroundColor(this.itemPath, color);
+            } else {
+                await this.metadataService.setTagColor(this.itemPath, color);
+            }
+        } else if (this.isBackgroundMode) {
+            await this.metadataService.setFolderBackgroundColor(this.itemPath, color);
+        } else {
+            await this.metadataService.setFolderColor(this.itemPath, color);
+        }
     }
 }

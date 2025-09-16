@@ -706,6 +706,33 @@ body {
     contain: paint; /* Isolate per-item painting */
 }
 
+.nn-navitem.nn-has-custom-background {
+    position: relative;
+}
+
+.nn-navitem.nn-has-custom-background:not(.nn-selected)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    bottom: 0;
+    background-color: var(--nn-navitem-custom-bg-color);
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
+    z-index: 0;
+    pointer-events: none;
+}
+
+.nn-navitem.nn-has-custom-background > .nn-navitem-content {
+    position: relative;
+    z-index: 2;
+}
+
+.nn-navitem.nn-has-custom-background > .nn-navitem-content > * {
+    position: relative;
+    z-index: 2;
+}
+
 /* Folder content - contains folder UI elements */
 .nn-navitem-content {
     display: flex;
@@ -734,14 +761,14 @@ body {
     inset-inline-end: 0;
     background-color: var(--nn-theme-navitem-hover-bg);
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
 }
 
 /* Ensure content appears above hover background */
 .nn-desktop .nn-navitem:hover > .nn-navitem-content > * {
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 /* Folder chevron - expand/collapse indicator */

@@ -28,7 +28,7 @@
 export const API_VERSION = {
     major: 1,
     minor: 0,
-    patch: 0,
+    patch: 1,
     toString(): string {
         return `${this.major}.${this.minor}.${this.patch}`;
     }

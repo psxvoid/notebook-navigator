@@ -724,6 +724,10 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             this.settings.tagColors = normalizeRecord(this.settings.tagColors);
         }
 
+        if (this.settings.tagBackgroundColors) {
+            this.settings.tagBackgroundColors = normalizeRecord(this.settings.tagBackgroundColors);
+        }
+
         if (this.settings.tagIcons) {
             this.settings.tagIcons = normalizeRecord(this.settings.tagIcons);
         }

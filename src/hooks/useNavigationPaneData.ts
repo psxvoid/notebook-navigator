@@ -323,7 +323,9 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         // We use JSON.stringify to detect any changes in the objects
         return JSON.stringify({
             folderColors: settings.folderColors || {},
+            folderBackgroundColors: settings.folderBackgroundColors || {},
             tagColors: settings.tagColors || {},
+            tagBackgroundColors: settings.tagBackgroundColors || {},
             folderIcons: settings.folderIcons || {},
             tagIcons: settings.tagIcons || {},
             inheritFolderColors: settings.inheritFolderColors
@@ -340,6 +342,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                 return {
                     ...item,
                     color: metadataService.getFolderColor(item.data.path),
+                    backgroundColor: metadataService.getFolderBackgroundColor(item.data.path),
                     icon: metadataService.getFolderIcon(item.data.path),
                     parsedExcludedFolders
                 };
@@ -348,6 +351,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                 return {
                     ...item,
                     color: metadataService.getTagColor(tagNode.path),
+                    backgroundColor: metadataService.getTagBackgroundColor(tagNode.path),
                     icon: metadataService.getTagIcon(tagNode.path)
                 };
             }

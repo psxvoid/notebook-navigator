@@ -47,6 +47,7 @@ export interface FolderTreeItem {
     path: string;
     key: string;
     color?: string;
+    backgroundColor?: string;
     icon?: string;
     parsedExcludedFolders?: string[];
     isExcluded?: boolean;
@@ -60,6 +61,7 @@ export interface TagTreeItem {
     key: string;
     context?: 'favorites' | 'tags'; // Indicates which section this tag is in
     color?: string;
+    backgroundColor?: string;
     icon?: string;
     isHidden?: boolean; // Marks tags that are normally hidden but being shown
 }
@@ -71,6 +73,7 @@ export interface UntaggedItem {
     key: string;
     context?: 'favorites' | 'tags'; // Indicates which section this item is in
     color?: string;
+    backgroundColor?: string;
     icon?: string;
 }
 

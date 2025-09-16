@@ -83,6 +83,8 @@ interface TagTreeItemProps {
     context?: 'favorites' | 'tags';
     /** Custom color for the tag - fetched by NavigationPane from MetadataService */
     color?: string;
+    /** Custom background color for the tag - fetched by NavigationPane from MetadataService */
+    backgroundColor?: string;
     /** Custom icon for the tag - fetched by NavigationPane from MetadataService */
     icon?: string;
     /** Whether this tag is normally hidden but being shown */
@@ -109,6 +111,7 @@ export const TagTreeItem = React.memo(
             showFileCount,
             context,
             color,
+            backgroundColor,
             icon
         },
         ref
@@ -123,6 +126,7 @@ export const TagTreeItem = React.memo(
 
         // Use color and icon from props (fetched by NavigationPane from MetadataService)
         const tagColor = color;
+        const tagBackground = backgroundColor;
         const tagIcon = icon;
 
         // Memoize className to avoid string concatenation on every render
@@ -130,8 +134,9 @@ export const TagTreeItem = React.memo(
             const classes = ['nn-navitem', 'nn-tag'];
             if (isSelected) classes.push('nn-selected');
             if (isHidden) classes.push('nn-excluded');
+            if (tagBackground && !isSelected) classes.push('nn-has-custom-background');
             return classes.join(' ');
-        }, [isSelected, isHidden]);
+        }, [isSelected, isHidden, tagBackground]);
 
         const tagNameClassName = useMemo(() => {
             const classes = ['nn-navitem-name'];
@@ -201,7 +206,12 @@ export const TagTreeItem = React.memo(
                 data-drop-path={tagNode.displayPath}
                 data-tag-context={context}
                 data-level={level}
-                style={{ '--level': level } as React.CSSProperties}
+                style={
+                    {
+                        '--level': level,
+                        ...(tagBackground && !isSelected ? { '--nn-navitem-custom-bg-color': tagBackground } : {})
+                    } as React.CSSProperties
+                }
                 role="treeitem"
                 aria-expanded={hasChildren ? isExpanded : undefined}
                 aria-level={level + 1}

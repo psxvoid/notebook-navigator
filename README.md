@@ -60,7 +60,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 - **Pin notes** - Keep important notes at the top of folders and tags
 - **Folder notes** - Turn folders into clickable links with associated notes
-- **Custom colors** - Set colors for folders and tags
+- **Custom colors and backgrounds** - Set text colors and background colors for folders and tags
 - **Custom icons** - Choose Lucide icons or emojis for folders and tags
 - **Custom sort order** - Override global sort settings per folder or tag
 - **Custom appearances** - Configure display settings per folder or tag (title rows, preview rows, slim mode)

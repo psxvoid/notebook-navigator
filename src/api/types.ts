@@ -46,6 +46,8 @@ export type IconString = `lucide:${string}` | `emoji:${string}`;
 export interface FolderMetadata {
     /** CSS color value (hex, rgb, hsl, named colors) */
     color?: string;
+    /** CSS background color value */
+    backgroundColor?: string;
     /** Icon identifier (e.g., 'lucide:folder' or 'emoji:📁') */
     icon?: IconString;
 }
@@ -56,6 +58,8 @@ export interface FolderMetadata {
 export interface TagMetadata {
     /** CSS color value (hex, rgb, hsl, named colors) */
     color?: string;
+    /** CSS background color value */
+    backgroundColor?: string;
     /** Icon identifier (e.g., 'lucide:tag' or 'emoji:🏷️') */
     icon?: IconString;
 }

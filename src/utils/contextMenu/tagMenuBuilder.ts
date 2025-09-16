@@ -20,7 +20,7 @@ import { MenuItem } from 'obsidian';
 import { TagMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { findMatchingPrefixes, cleanupTagPatterns } from '../tagPrefixMatcher';
-import { UNTAGGED_TAG_ID } from '../../types';
+import { ItemType, UNTAGGED_TAG_ID } from '../../types';
 
 /**
  * Builds the context menu for a tag
@@ -97,7 +97,6 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
             .setIcon('lucide-image')
             .onClick(async () => {
                 const { IconPickerModal } = await import('../../modals/IconPickerModal');
-                const { ItemType } = await import('../../types');
                 const modal = new IconPickerModal(app, metadataService, tagPath, ItemType.TAG);
                 modal.open();
             });
@@ -121,19 +120,32 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
             .setIcon('lucide-palette')
             .onClick(async () => {
                 const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
-                const modal = new ColorPickerModal(app, metadataService, tagPath, 'tag');
+                const modal = new ColorPickerModal(app, metadataService, tagPath, ItemType.TAG, 'foreground');
+                modal.open();
+            });
+    });
+
+    // Change background color
+    menu.addItem((item: MenuItem) => {
+        item.setTitle(strings.contextMenu.tag.changeBackground)
+            .setIcon('lucide-paint-bucket')
+            .onClick(async () => {
+                const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
+                const modal = new ColorPickerModal(app, metadataService, tagPath, ItemType.TAG, 'background');
                 modal.open();
             });
     });
 
     // Remove color (only show if custom color is set directly on this tag)
     const hasDirectColor = settings.tagColors && settings.tagColors[tagPath];
-    if (hasDirectColor) {
+    const hasDirectBackground = settings.tagBackgroundColors && settings.tagBackgroundColors[tagPath];
+    if (hasDirectColor || hasDirectBackground) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.tag.removeColor)
                 .setIcon('lucide-x')
                 .onClick(async () => {
                     await metadataService.removeTagColor(tagPath);
+                    await metadataService.removeTagBackgroundColor(tagPath);
                 });
         });
     }

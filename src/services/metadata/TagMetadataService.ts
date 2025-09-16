@@ -47,11 +47,28 @@ export class TagMetadataService extends BaseMetadataService {
     }
 
     /**
+     * Sets a custom background color for a tag
+     * @param tagPath - Path of the tag
+     * @param color - CSS color value
+     */
+    async setTagBackgroundColor(tagPath: string, color: string): Promise<void> {
+        return this.setEntityBackgroundColor(ItemType.TAG, tagPath.toLowerCase(), color);
+    }
+
+    /**
      * Removes the custom color from a tag
      * @param tagPath - Path of the tag
      */
     async removeTagColor(tagPath: string): Promise<void> {
         return this.removeEntityColor(ItemType.TAG, tagPath.toLowerCase());
+    }
+
+    /**
+     * Removes the custom background color from a tag
+     * @param tagPath - Path of the tag
+     */
+    async removeTagBackgroundColor(tagPath: string): Promise<void> {
+        return this.removeEntityBackgroundColor(ItemType.TAG, tagPath.toLowerCase());
     }
 
     /**
@@ -73,6 +90,27 @@ export class TagMetadataService extends BaseMetadataService {
             const ancestorPath = pathParts.slice(0, i).join('/');
             const ancestorColor = this.getEntityColor(ItemType.TAG, ancestorPath);
             if (ancestorColor) return ancestorColor;
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Gets the custom background color for a tag, checking ancestors if not directly set
+     * @param tagPath - Path of the tag
+     * @returns The background color value or undefined
+     */
+    getTagBackgroundColor(tagPath: string): string | undefined {
+        const lowerPath = tagPath.toLowerCase();
+
+        const directBackground = this.getEntityBackgroundColor(ItemType.TAG, lowerPath);
+        if (directBackground) return directBackground;
+
+        const pathParts = lowerPath.split('/');
+        for (let i = pathParts.length - 1; i > 0; i--) {
+            const ancestorPath = pathParts.slice(0, i).join('/');
+            const ancestorBackground = this.getEntityBackgroundColor(ItemType.TAG, ancestorPath);
+            if (ancestorBackground) return ancestorBackground;
         }
 
         return undefined;
@@ -145,6 +183,7 @@ export class TagMetadataService extends BaseMetadataService {
 
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'tagColors', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'tagBackgroundColors', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'tagIcons', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'tagAppearances', validator)
@@ -194,6 +233,7 @@ export class TagMetadataService extends BaseMetadataService {
         // Clean up all tag metadata types in parallel
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'tagColors', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'tagBackgroundColors', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'tagIcons', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'tagAppearances', validator)

@@ -23,6 +23,7 @@ import { getInternalPlugin, isFolderAncestor } from '../../utils/typeGuards';
 import { getFolderNote } from '../../utils/fileFinder';
 import { ExtendedApp } from '../../types/obsidian-extended';
 import { cleanupExclusionPatterns, isFolderInExcludedFolder } from '../../utils/fileFilters';
+import { ItemType } from '../../types';
 
 /**
  * Builds the context menu for a folder
@@ -224,19 +225,32 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             .setIcon('lucide-palette')
             .onClick(async () => {
                 const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
-                const modal = new ColorPickerModal(app, metadataService, folder.path);
+                const modal = new ColorPickerModal(app, metadataService, folder.path, ItemType.FOLDER, 'foreground');
+                modal.open();
+            });
+    });
+
+    // Change background color
+    menu.addItem((item: MenuItem) => {
+        item.setTitle(strings.contextMenu.folder.changeBackground)
+            .setIcon('lucide-paint-bucket')
+            .onClick(async () => {
+                const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
+                const modal = new ColorPickerModal(app, metadataService, folder.path, ItemType.FOLDER, 'background');
                 modal.open();
             });
     });
 
     // Remove color (only show if custom color is set directly on this folder)
     const hasDirectColor = settings.folderColors && settings.folderColors[folder.path];
-    if (hasDirectColor) {
+    const hasDirectBackground = settings.folderBackgroundColors && settings.folderBackgroundColors[folder.path];
+    if (hasDirectColor || hasDirectBackground) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.folder.removeColor)
                 .setIcon('lucide-x')
                 .onClick(async () => {
                     await metadataService.removeFolderColor(folder.path);
+                    await metadataService.removeFolderBackgroundColor(folder.path);
                 });
         });
     }

@@ -32,10 +32,12 @@ export class MetadataAPI {
     private metadataState = {
         // Folder metadata
         folderColors: {} as Record<string, string>,
+        folderBackgroundColors: {} as Record<string, string>,
         folderIcons: {} as Record<string, string>,
 
         // Tag metadata
         tagColors: {} as Record<string, string>,
+        tagBackgroundColors: {} as Record<string, string>,
         tagIcons: {} as Record<string, string>,
 
         // Pinned files
@@ -47,15 +49,19 @@ export class MetadataAPI {
      */
     private previousState: {
         folderColors: Record<string, string>;
+        folderBackgroundColors: Record<string, string>;
         folderIcons: Record<string, string>;
         tagColors: Record<string, string>;
+        tagBackgroundColors: Record<string, string>;
         tagIcons: Record<string, string>;
         pinnedNotes: PinnedNotes;
         initialized: boolean;
     } = {
         folderColors: {},
+        folderBackgroundColors: {},
         folderIcons: {},
         tagColors: {},
+        tagBackgroundColors: {},
         tagIcons: {},
         pinnedNotes: {},
         initialized: false
@@ -142,8 +148,10 @@ export class MetadataAPI {
     updateFromSettings(settings: NotebookNavigatorSettings): void {
         const current = {
             folderColors: settings.folderColors || {},
+            folderBackgroundColors: settings.folderBackgroundColors || {},
             folderIcons: settings.folderIcons || {},
             tagColors: settings.tagColors || {},
+            tagBackgroundColors: settings.tagBackgroundColors || {},
             tagIcons: settings.tagIcons || {},
             pinnedNotes: settings.pinnedNotes || {}
         };
@@ -151,8 +159,10 @@ export class MetadataAPI {
         // Update the cache first
         this.metadataState = {
             folderColors: { ...current.folderColors },
+            folderBackgroundColors: { ...current.folderBackgroundColors },
             folderIcons: { ...current.folderIcons },
             tagColors: { ...current.tagColors },
+            tagBackgroundColors: { ...current.tagBackgroundColors },
             tagIcons: { ...current.tagIcons },
             pinnedNotes: { ...current.pinnedNotes }
         };
@@ -161,8 +171,10 @@ export class MetadataAPI {
         if (!this.previousState.initialized) {
             this.previousState = {
                 folderColors: { ...current.folderColors },
+                folderBackgroundColors: { ...current.folderBackgroundColors },
                 folderIcons: { ...current.folderIcons },
                 tagColors: { ...current.tagColors },
+                tagBackgroundColors: { ...current.tagBackgroundColors },
                 tagIcons: { ...current.tagIcons },
                 pinnedNotes: { ...current.pinnedNotes },
                 initialized: true
@@ -172,8 +184,9 @@ export class MetadataAPI {
 
         // Find changed folders
         const changedFolderColors = this.findChangedKeys(this.previousState.folderColors, current.folderColors);
+        const changedFolderBackgrounds = this.findChangedKeys(this.previousState.folderBackgroundColors, current.folderBackgroundColors);
         const changedFolderIcons = this.findChangedKeys(this.previousState.folderIcons, current.folderIcons);
-        const changedFolders = new Set([...changedFolderColors, ...changedFolderIcons]);
+        const changedFolders = new Set([...changedFolderColors, ...changedFolderBackgrounds, ...changedFolderIcons]);
 
         // Fire events for changed folders
         for (const folderPath of changedFolders) {
@@ -182,22 +195,23 @@ export class MetadataAPI {
                 const metadata = this.getFolderMeta(folder);
                 this.api.trigger('folder-changed', {
                     folder,
-                    metadata: metadata || { color: undefined, icon: undefined }
+                    metadata: metadata || { color: undefined, backgroundColor: undefined, icon: undefined }
                 });
             }
         }
 
         // Find changed tags
         const changedTagColors = this.findChangedKeys(this.previousState.tagColors, current.tagColors);
+        const changedTagBackgrounds = this.findChangedKeys(this.previousState.tagBackgroundColors, current.tagBackgroundColors);
         const changedTagIcons = this.findChangedKeys(this.previousState.tagIcons, current.tagIcons);
-        const changedTags = new Set([...changedTagColors, ...changedTagIcons]);
+        const changedTags = new Set([...changedTagColors, ...changedTagBackgrounds, ...changedTagIcons]);
 
         // Fire events for changed tags
         for (const tag of changedTags) {
             const metadata = this.getTagMeta(tag);
             this.api.trigger('tag-changed', {
                 tag,
-                metadata: metadata || { color: undefined, icon: undefined }
+                metadata: metadata || { color: undefined, backgroundColor: undefined, icon: undefined }
             });
         }
 
@@ -210,8 +224,10 @@ export class MetadataAPI {
         // Update previous state for next comparison
         this.previousState = {
             folderColors: { ...current.folderColors },
+            folderBackgroundColors: { ...current.folderBackgroundColors },
             folderIcons: { ...current.folderIcons },
             tagColors: { ...current.tagColors },
+            tagBackgroundColors: { ...current.tagBackgroundColors },
             tagIcons: { ...current.tagIcons },
             pinnedNotes: { ...current.pinnedNotes },
             initialized: true
@@ -230,7 +246,8 @@ export class MetadataAPI {
         key: string,
         meta: Partial<FolderMetadata | TagMetadata>,
         colorStore: Record<string, string>,
-        iconStore: Record<string, string>
+        iconStore: Record<string, string>,
+        backgroundStore: Record<string, string>
     ): Promise<void> {
         const plugin = this.api.getPlugin();
         if (!plugin) return;
@@ -245,6 +262,16 @@ export class MetadataAPI {
             } else {
                 // Set color
                 colorStore[key] = meta.color;
+            }
+            changed = true;
+        }
+
+        // Update background color if provided
+        if (meta.backgroundColor !== undefined) {
+            if (meta.backgroundColor === null) {
+                delete backgroundStore[key];
+            } else {
+                backgroundStore[key] = meta.backgroundColor;
             }
             changed = true;
         }
@@ -278,14 +305,16 @@ export class MetadataAPI {
     getFolderMeta(folder: TFolder): FolderMetadata | null {
         const path = folder.path;
         const color = this.metadataState.folderColors[path];
+        const backgroundColor = this.metadataState.folderBackgroundColors[path];
         const icon = this.metadataState.folderIcons[path];
 
-        if (!color && !icon) {
+        if (!color && !backgroundColor && !icon) {
             return null;
         }
 
         return {
             color,
+            backgroundColor,
             icon: icon as IconString | undefined
         };
     }
@@ -299,7 +328,13 @@ export class MetadataAPI {
         const plugin = this.api.getPlugin();
         if (!plugin) return;
 
-        await this.updateMetadata(folder.path, meta, plugin.settings.folderColors, plugin.settings.folderIcons);
+        await this.updateMetadata(
+            folder.path,
+            meta,
+            plugin.settings.folderColors,
+            plugin.settings.folderIcons,
+            plugin.settings.folderBackgroundColors
+        );
     }
 
     // ===================================================================
@@ -315,14 +350,16 @@ export class MetadataAPI {
         const normalizedTag = this.normalizeTagKey(tag);
 
         const color = this.metadataState.tagColors[normalizedTag];
+        const backgroundColor = this.metadataState.tagBackgroundColors[normalizedTag];
         const icon = this.metadataState.tagIcons[normalizedTag];
 
-        if (!color && !icon) {
+        if (!color && !backgroundColor && !icon) {
             return null;
         }
 
         return {
             color,
+            backgroundColor,
             icon: icon as IconString | undefined
         };
     }
@@ -337,7 +374,13 @@ export class MetadataAPI {
         if (!plugin) return;
 
         const normalizedTag = this.normalizeTagKey(tag);
-        await this.updateMetadata(normalizedTag, meta, plugin.settings.tagColors, plugin.settings.tagIcons);
+        await this.updateMetadata(
+            normalizedTag,
+            meta,
+            plugin.settings.tagColors,
+            plugin.settings.tagIcons,
+            plugin.settings.tagBackgroundColors
+        );
     }
 
     // ===================================================================

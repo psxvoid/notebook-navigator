@@ -131,10 +131,12 @@ export interface NotebookNavigatorSettings {
     pinnedNotes: PinnedNotes;
     folderIcons: Record<string, string>;
     folderColors: Record<string, string>;
+    folderBackgroundColors: Record<string, string>;
     folderSortOverrides: Record<string, SortOption>;
     folderAppearances: Record<string, FolderAppearance>;
     tagIcons: Record<string, string>;
     tagColors: Record<string, string>;
+    tagBackgroundColors: Record<string, string>;
     tagSortOverrides: Record<string, SortOption>;
     tagAppearances: Record<string, TagAppearance>;
     recentIcons: Record<string, string[]>;
@@ -219,10 +221,12 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     pinnedNotes: {},
     folderIcons: {},
     folderColors: {},
+    folderBackgroundColors: {},
     folderSortOverrides: {},
     folderAppearances: {},
     tagIcons: {},
     tagColors: {},
+    tagBackgroundColors: {},
     tagSortOverrides: {},
     tagAppearances: {},
     recentIcons: {},

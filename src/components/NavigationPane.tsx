@@ -354,6 +354,7 @@ export const NavigationPane = React.memo(
                                 }}
                                 icon={item.icon}
                                 color={item.color}
+                                backgroundColor={item.backgroundColor}
                                 fileCount={folderCounts.get(item.data.path)}
                                 excludedFolders={item.parsedExcludedFolders || []}
                             />
@@ -395,6 +396,7 @@ export const NavigationPane = React.memo(
                                 onClick={() => handleTagClick(tagNode.path, item.context)}
                                 context={'context' in item ? item.context : undefined}
                                 color={item.color}
+                                backgroundColor={item.backgroundColor}
                                 icon={item.icon}
                                 onToggleAllSiblings={() => {
                                     const isCurrentlyExpanded = expansionState.expandedTags.has(tagNode.path);

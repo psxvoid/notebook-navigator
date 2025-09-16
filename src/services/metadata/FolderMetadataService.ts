@@ -46,11 +46,31 @@ export class FolderMetadataService extends BaseMetadataService {
     }
 
     /**
+     * Sets a custom background color for a folder
+     * @param folderPath - Path of the folder
+     * @param color - CSS color value
+     */
+    async setFolderBackgroundColor(folderPath: string, color: string): Promise<void> {
+        if (!this.validateFolder(folderPath)) {
+            return;
+        }
+        return this.setEntityBackgroundColor(ItemType.FOLDER, folderPath, color);
+    }
+
+    /**
      * Removes the custom color from a folder
      * @param folderPath - Path of the folder
      */
     async removeFolderColor(folderPath: string): Promise<void> {
         return this.removeEntityColor(ItemType.FOLDER, folderPath);
+    }
+
+    /**
+     * Removes the custom background color from a folder
+     * @param folderPath - Path of the folder
+     */
+    async removeFolderBackgroundColor(folderPath: string): Promise<void> {
+        return this.removeEntityBackgroundColor(ItemType.FOLDER, folderPath);
     }
 
     /**
@@ -70,6 +90,27 @@ export class FolderMetadataService extends BaseMetadataService {
                 const ancestorPath = pathParts.slice(0, i).join('/');
                 const ancestorColor = this.getEntityColor(ItemType.FOLDER, ancestorPath);
                 if (ancestorColor) return ancestorColor;
+            }
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Gets the custom background color for a folder, checking ancestors if inheritance is enabled
+     * @param folderPath - Path of the folder
+     * @returns The background color value or undefined
+     */
+    getFolderBackgroundColor(folderPath: string): string | undefined {
+        const directBackground = this.getEntityBackgroundColor(ItemType.FOLDER, folderPath);
+        if (directBackground) return directBackground;
+
+        if (this.settingsProvider.settings.inheritFolderColors) {
+            const pathParts = folderPath.split('/');
+            for (let i = pathParts.length - 1; i > 0; i--) {
+                const ancestorPath = pathParts.slice(0, i).join('/');
+                const ancestorBackground = this.getEntityBackgroundColor(ItemType.FOLDER, ancestorPath);
+                if (ancestorBackground) return ancestorBackground;
             }
         }
 
@@ -143,6 +184,7 @@ export class FolderMetadataService extends BaseMetadataService {
         await this.saveAndUpdate(settings => {
             // Update all metadata types
             this.updateNestedPaths(settings.folderColors, oldPath, newPath);
+            this.updateNestedPaths(settings.folderBackgroundColors, oldPath, newPath);
             this.updateNestedPaths(settings.folderIcons, oldPath, newPath);
             this.updateNestedPaths(settings.folderSortOverrides, oldPath, newPath);
             this.updateNestedPaths(settings.folderAppearances, oldPath, newPath);
@@ -156,6 +198,7 @@ export class FolderMetadataService extends BaseMetadataService {
     async handleFolderDelete(folderPath: string): Promise<void> {
         await this.saveAndUpdate(settings => {
             this.deleteNestedPaths(settings.folderColors, folderPath);
+            this.deleteNestedPaths(settings.folderBackgroundColors, folderPath);
             this.deleteNestedPaths(settings.folderIcons, folderPath);
             this.deleteNestedPaths(settings.folderSortOverrides, folderPath);
             this.deleteNestedPaths(settings.folderAppearances, folderPath);
@@ -171,6 +214,7 @@ export class FolderMetadataService extends BaseMetadataService {
 
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'folderColors', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderBackgroundColors', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'folderIcons', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'folderSortOverrides', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'folderAppearances', validator)
@@ -206,6 +250,7 @@ export class FolderMetadataService extends BaseMetadataService {
 
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'folderColors', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderBackgroundColors', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'folderIcons', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'folderSortOverrides', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'folderAppearances', validator)
