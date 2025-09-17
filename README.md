@@ -16,15 +16,6 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 
 ## Getting started
 
-> ⚠️ **IMPORTANT NOTICE - PENDING RELEASE** ⚠️
->
-> **Notebook Navigator is currently awaiting approval from Obsidian and will be released any day now!**
->
-> The plugin is next in the approval queue. You can track the progress here:
-> **[GitHub PR #6886 - Obsidian Releases](https://github.com/obsidianmd/obsidian-releases/pull/6886)**
->
-> This notice will be removed immediately upon plugin approval. Thank you for your patience!
-
 1. **Install Obsidian** - Download and install from [obsidian.md](https://obsidian.md/)
 2. **Enable community plugins** - Go to Settings → Community plugins → Turn on community plugins
 3. **Install Notebook Navigator** - Click "Browse" → Search for "Notebook Navigator" → Install
@@ -264,6 +255,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - **Dual pane layout (desktop only):** Show navigation and list panes side by side
 - **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
+  - **Ignore right sidebar:** Disable auto-reveal from right sidebar
 - **Show tooltips (desktop only):** Display hover tooltips for notes and folders
 - **Show file types:** Choose file types to display. Non-Obsidian files open in system's default application. `Markdown only`, `Supported files`, `All files`
 - **Hide folders:** Comma-separated list of folders to hide. Pattern types:
