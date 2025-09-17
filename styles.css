@@ -1837,9 +1837,13 @@ body.nn-resizing {
     line-height: 1.5;
 }
 
-/* Critical emphasis (red + bold via <strong>) */
-.nn-critical {
-    color: var(--text-error);
+/* Highlight emphasis */
+.nn-highlight {
+    background-color: var(--text-highlight-bg);
+    color: var(--text-normal);
+    padding: 0 2px;
+    border-radius: 3px;
+    font-weight: 600;
 }
 
 /* Support container */

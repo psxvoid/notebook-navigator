@@ -31,10 +31,9 @@ export class WhatsNewModal extends Modal {
                 appendText(segment.slice(lastIndex, match.index));
 
                 if (match[1]) {
-                    // ==highlight== -> bold + red, supports nested formatting inside
-                    const strong = dest.createEl('strong', { cls: 'nn-critical' });
-                    // Render inner text allowing nested formatting
-                    renderInline(match[1], strong);
+                    // ==highlight== -> highlight span, supports nested formatting inside
+                    const highlight = dest.createSpan({ cls: 'nn-highlight' });
+                    renderInline(match[1], highlight);
                 } else if (match[2] && match[3]) {
                     // Markdown link [label](url)
                     const a = dest.createEl('a', { text: match[2] });

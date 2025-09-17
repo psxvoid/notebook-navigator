@@ -74,21 +74,22 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.4.18',
         date: '2025-09-17',
         info: [
-            '**Omnisearch integration** - Notebook Navigator now integrates with the Omnisearch plugin for powerful full-text search! When Omnisearch is installed you can switch between file name filtering and full-text search in Settings → Search → Search provider. This allows you to search through the actual content of your notes, not just their titles!',
-            '**Minimal theme** - Many people have asked me what theme I use. It\'s the "Minimal" theme with the "Things" color scheme. To set the color scheme you install both the theme "Minimal" and the plugin "Minimal settings". You can then change the color scheme in "Minimal settings".'
+            '==Omnisearch integration== - Notebook Navigator now integrates with the Omnisearch plugin for powerful full-text search! When Omnisearch is installed you can switch between file name filtering and full-text search in Settings → Search → Search provider. This allows you to search through the actual content of your notes, not just their titles!',
+            '**Minimal theme** - Many people have asked me what theme I use for the screenshot. It\'s the "Minimal" theme with the "Things" color scheme. To set the color scheme you install both the theme "Minimal" and the plugin "Minimal Theme Settings". You can then change the color scheme in "Minimal Theme Settings".'
         ].join('\n\n'),
         new: [
             '**Omnisearch integration** - Full-text search support when the Omnisearch plugin is installed',
             '**Search provider** setting to switch between file name filter and Omnisearch',
-            '**Background colors** for folders and tags: you can now set custom background colors via the context menu (this is also now available in the API)',
+            '==Background colors== for folders and tags: you can now set custom background colors via the context menu (this is also now available in the API)',
             '**New setting**: You can now toggle file tags in slim mode. Default is disabled.',
             '**New setting**: You can now toggle text scaling with item height in navigation pane. Default is enabled.',
             '**New languages**: 한국어 and Polski'
         ],
-        changed: ['Hidden tags accept tag* and *tag name wildcards.'],
+        changed: ['Hidden tags setting now accepts tag* and *tag name wildcards.'],
         fixed: [
-            'Feature image detection now reads frontmatter wikilinks that include embed markers or alias text (for example ![[image.jpg|cover]])',
-            'Implemented a fix that hopefully resolves blurred text in Windows caused by rounding errors in subpixel rendering (rare, only some fonts affected).'
+            'Featured image detection now reads frontmatter wikilinks that include embed markers or alias text (for example ![[image.jpg|cover]])',
+            'Implemented a fix that should resolve blurred text in Windows caused by rounding errors in subpixel rendering (very rare, only some fonts affected).',
+            'Fixed a bug where navigation pane would jump to a tag when a folder with same name was selected.'
         ]
     },
     {
