@@ -85,7 +85,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New languages: 한국어 and Polski'
         ],
         fixed: [
-            'Feature image detection now reads frontmatter wikilinks that include embed markers or alias text (for example ![[image.jpg|cover]])'
+            'Feature image detection now reads frontmatter wikilinks that include embed markers or alias text (for example ![[image.jpg|cover]])',
+            'Implemented a fix that hopefully resolves blurred text in Windows caused by rounding errors in subpixel rendering (rare, only some fonts affected).'
         ]
     },
     {
