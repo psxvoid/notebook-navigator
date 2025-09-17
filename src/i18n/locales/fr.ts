@@ -515,8 +515,12 @@ export const STRINGS_FR = {
                 desc: 'Afficher la date sous les noms des notes.'
             },
             showFileTags: {
-                name: 'Afficher les tags',
+                name: 'Afficher les tags de fichier',
                 desc: 'Affiche les tags cliquables dans les éléments de fichier. Utilisez les couleurs de tags pour distinguer visuellement les différents types de tags.'
+            },
+            showFileTagsInSlimMode: {
+                name: 'Afficher les tags de fichier en mode compact',
+                desc: "Afficher les tags lorsque la date, l'aperçu et l'image sont masqués."
             },
             dateFormat: {
                 name: 'Format de date',
@@ -607,13 +611,17 @@ export const STRINGS_FR = {
                 name: 'Garder lélément sélectionné déplié',
                 desc: 'Lors du repliement, garde le dossier ou létiquette actuellement sélectionné et ses parents dépliés.'
             },
+            navIndent: {
+                name: "Indentation de l'arbre",
+                desc: "Ajuster la largeur d'indentation pour les dossiers et étiquettes imbriqués."
+            },
             navItemHeight: {
                 name: 'Hauteur de ligne',
                 desc: 'Ajuster la hauteur des dossiers et étiquettes dans le panneau de navigation.'
             },
-            navIndent: {
-                name: "Indentation de l'arbre",
-                desc: "Ajuster la largeur d'indentation pour les dossiers et étiquettes imbriqués."
+            navItemHeightScaleText: {
+                name: 'Adapter le texte à la hauteur de ligne',
+                desc: 'Réduit le texte de navigation lorsque la hauteur de ligne est diminuée.'
             },
             showTags: {
                 name: 'Afficher les étiquettes (*)',

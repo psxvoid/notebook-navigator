@@ -283,6 +283,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show note count:** Display the number of notes next to each folder and tag
 - **Tree indentation:** Adjust the indentation width for nested folders and tags
 - **Item height:** Adjust the height of folders and tags in the navigation pane
+  - **Scale text with item height:** Reduce navigation text when item height is decreased
 
 ### Folders
 
@@ -325,7 +326,8 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Timestamp format:** Format used to parse timestamps in frontmatter. Leave empty to use ISO 8601 format
 - **Title rows:** Number of rows to display for note titles. `1` or `2`
 - **Show date:** Display the date below note names
-- **Show tags:** Display clickable tags in file items. Use tag colors to visually distinguish different tag types
+- **Show file tags:** Display clickable tags in file items. Use tag colors to visually distinguish different tag types
+  - **Show file tags in slim mode:** Display tags when date, preview, and image are hidden
 - **Show parent folder names:** Display the parent folder name for notes in subfolders or tags
 - **Show note preview (\*):** Display preview text beneath note names
   - **Preview rows:** Number of rows to display for preview text. `1-5`

@@ -471,16 +471,19 @@ export const NotebookNavigatorComponent = React.memo(
                 const navItemHeight = settings.navItemHeight;
                 const defaultHeight = NAVPANE_MEASUREMENTS.defaultItemHeight;
                 const defaultFontSize = NAVPANE_MEASUREMENTS.defaultFontSize;
+                const scaleTextWithHeight = settings.navItemHeightScaleText;
 
                 // Calculate font sizes based on item height (default 28px)
                 // Desktop: default 13px, 12px if height ≤24, 11px if height ≤22
                 let fontSize = defaultFontSize;
-                if (navItemHeight <= defaultHeight - 6) {
-                    // ≤22
-                    fontSize = defaultFontSize - 2; // 11px
-                } else if (navItemHeight <= defaultHeight - 4) {
-                    // ≤24
-                    fontSize = defaultFontSize - 1; // 12px
+                if (scaleTextWithHeight) {
+                    if (navItemHeight <= defaultHeight - 6) {
+                        // ≤22
+                        fontSize = defaultFontSize - 2; // 11px
+                    } else if (navItemHeight <= defaultHeight - 4) {
+                        // ≤24
+                        fontSize = defaultFontSize - 1; // 12px
+                    }
                 }
 
                 // Mobile adjustments
@@ -500,7 +503,7 @@ export const NotebookNavigatorComponent = React.memo(
                 containerRef.current.style.setProperty('--nn-setting-nav-font-size-mobile', `${mobileFontSize}px`);
                 containerRef.current.style.setProperty('--nn-setting-nav-indent', `${settings.navIndent}px`);
             }
-        }, [settings.navItemHeight, settings.navIndent]);
+        }, [settings.navItemHeight, settings.navItemHeightScaleText, settings.navIndent]);
 
         return (
             <div

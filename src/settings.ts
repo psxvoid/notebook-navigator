@@ -74,8 +74,9 @@ export interface NotebookNavigatorSettings {
     smartCollapse: boolean;
     showIcons: boolean;
     showNoteCount: boolean;
-    navItemHeight: number;
     navIndent: number;
+    navItemHeight: number;
+    navItemHeightScaleText: boolean;
     // Folders
     showRootFolder: boolean;
     inheritFolderColors: boolean;
@@ -111,6 +112,7 @@ export interface NotebookNavigatorSettings {
     fileNameRows: number;
     showFileDate: boolean;
     showFileTags: boolean;
+    showFileTagsInSlimMode: boolean;
     showParentFolderNames: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
@@ -165,8 +167,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     smartCollapse: true,
     showIcons: true,
     showNoteCount: true,
-    navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
     navIndent: NAVPANE_MEASUREMENTS.defaultIndent,
+    navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
+    navItemHeightScaleText: true,
     // Folders
     showRootFolder: true,
     inheritFolderColors: false,
@@ -202,6 +205,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     fileNameRows: 1,
     showFileDate: true,
     showFileTags: true,
+    showFileTagsInSlimMode: false,
     showParentFolderNames: true,
     showFilePreview: true,
     skipHeadingsInPreview: true,
@@ -600,6 +604,33 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
+        let indentationSlider: SliderComponent;
+        new Setting(containerEl)
+            .setName(strings.settings.items.navIndent.name)
+            .setDesc(strings.settings.items.navIndent.desc)
+            .addSlider(slider => {
+                indentationSlider = slider
+                    .setLimits(10, 24, 1)
+                    .setValue(this.plugin.settings.navIndent)
+                    .setDynamicTooltip()
+                    .onChange(async value => {
+                        this.plugin.settings.navIndent = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                    });
+                return slider;
+            })
+            .addExtraButton(button =>
+                button
+                    .setIcon('lucide-rotate-ccw')
+                    .setTooltip('Restore to default (16px)')
+                    .onClick(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.navIndent;
+                        indentationSlider.setValue(defaultValue);
+                        this.plugin.settings.navIndent = defaultValue;
+                        await this.plugin.saveSettingsAndUpdate();
+                    })
+            );
+
         let lineHeightSlider: SliderComponent;
         new Setting(containerEl)
             .setName(strings.settings.items.navItemHeight.name)
@@ -627,31 +658,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     })
             );
 
-        let indentationSlider: SliderComponent;
-        new Setting(containerEl)
-            .setName(strings.settings.items.navIndent.name)
-            .setDesc(strings.settings.items.navIndent.desc)
-            .addSlider(slider => {
-                indentationSlider = slider
-                    .setLimits(10, 24, 1)
-                    .setValue(this.plugin.settings.navIndent)
-                    .setDynamicTooltip()
-                    .onChange(async value => {
-                        this.plugin.settings.navIndent = value;
-                        await this.plugin.saveSettingsAndUpdate();
-                    });
-                return slider;
-            })
-            .addExtraButton(button =>
-                button
-                    .setIcon('lucide-rotate-ccw')
-                    .setTooltip('Restore to default (16px)')
-                    .onClick(async () => {
-                        const defaultValue = DEFAULT_SETTINGS.navIndent;
-                        indentationSlider.setValue(defaultValue);
-                        this.plugin.settings.navIndent = defaultValue;
-                        await this.plugin.saveSettingsAndUpdate();
-                    })
+        const navItemHeightSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(navItemHeightSettingsEl)
+            .setName(strings.settings.items.navItemHeightScaleText.name)
+            .setDesc(strings.settings.items.navItemHeightScaleText.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.navItemHeightScaleText).onChange(async value => {
+                    this.plugin.settings.navItemHeightScaleText = value;
+                    await this.plugin.saveSettingsAndUpdate();
+                })
             );
 
         // Section 2: Folders
@@ -1127,6 +1143,21 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 toggle.setValue(this.plugin.settings.showFileTags).onChange(async value => {
                     this.plugin.settings.showFileTags = value;
                     await this.plugin.saveSettingsAndUpdate();
+                    // Update sub-settings visibility
+                    fileTagsSubSettingsEl.toggle(value);
+                })
+            );
+
+        // Container for file tags sub-settings
+        const fileTagsSubSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(fileTagsSubSettingsEl)
+            .setName(strings.settings.items.showFileTagsInSlimMode.name)
+            .setDesc(strings.settings.items.showFileTagsInSlimMode.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showFileTagsInSlimMode).onChange(async value => {
+                    this.plugin.settings.showFileTagsInSlimMode = value;
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -1325,7 +1356,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         tagSubSettingsEl.toggle(this.plugin.settings.showTags);
         frontmatterSettingsEl.toggle(this.plugin.settings.useFrontmatterMetadata);
         folderNotesSettingsEl.toggle(this.plugin.settings.enableFolderNotes);
-        // Hide "Show tags" in Notes section if main "Show tags" is disabled
+        fileTagsSubSettingsEl.toggle(this.plugin.settings.showFileTags);
+        // Hide "Show file tags" in Notes section if main "Show tags" is disabled
         if (showFileTagsSetting) {
             showFileTagsSetting.settingEl.toggle(this.plugin.settings.showTags);
         }

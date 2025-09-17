@@ -514,8 +514,12 @@ export const STRINGS_ES = {
                 desc: 'Muestra la fecha debajo de los nombres de las notas.'
             },
             showFileTags: {
-                name: 'Mostrar etiquetas',
+                name: 'Mostrar etiquetas de archivo',
                 desc: 'Muestra etiquetas clicables en los elementos de archivo. Use colores de etiquetas para distinguir visualmente diferentes tipos de etiquetas.'
+            },
+            showFileTagsInSlimMode: {
+                name: 'Mostrar etiquetas de archivo en modo compacto',
+                desc: 'Mostrar etiquetas cuando la fecha, vista previa e imagen están ocultas.'
             },
             dateFormat: {
                 name: 'Formato de fecha',
@@ -606,13 +610,17 @@ export const STRINGS_ES = {
                 name: 'Mantener elemento seleccionado expandido',
                 desc: 'Al contraer, mantiene la carpeta o etiqueta seleccionada actualmente y sus elementos principales expandidos.'
             },
+            navIndent: {
+                name: 'Sangría del árbol',
+                desc: 'Ajustar el ancho de sangría para carpetas y etiquetas anidadas.'
+            },
             navItemHeight: {
                 name: 'Altura de línea',
                 desc: 'Ajustar la altura de las carpetas y etiquetas en el panel de navegación.'
             },
-            navIndent: {
-                name: 'Sangría del árbol',
-                desc: 'Ajustar el ancho de sangría para carpetas y etiquetas anidadas.'
+            navItemHeightScaleText: {
+                name: 'Escalar texto con la altura de línea',
+                desc: 'Reduce el texto de navegación cuando la altura de línea se disminuye.'
             },
             showTags: {
                 name: 'Mostrar etiquetas (*)',

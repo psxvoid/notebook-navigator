@@ -293,14 +293,13 @@ export function useListPaneScroll({
                 }
             }
 
-            // Add tag row height if file has tags (in both normal and slim modes when showTags is enabled)
-            if (settings.showFileTags && item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
-                // Check if file has tags using the database
+            // Add tag row height only when tags are visible for this layout
+            const shouldShowFileTags = settings.showTags && settings.showFileTags && (!isSlimMode || settings.showFileTagsInSlimMode);
+
+            if (shouldShowFileTags && item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
                 const db = getDB();
                 const tags = db.getCachedTags(item.data.path);
-                const hasTags = tags.length > 0;
-
-                if (hasTags) {
+                if (tags.length > 0) {
                     textContentHeight += heights.tagRowHeight;
                 }
             }
@@ -556,7 +555,9 @@ export function useListPaneScroll({
         settings.fileNameRows,
         settings.previewRows,
         settings.showParentFolderNames,
+        settings.showTags,
         settings.showFileTags,
+        settings.showFileTagsInSlimMode,
         settings.optimizeNoteHeight,
         folderSettings,
         rowVirtualizer

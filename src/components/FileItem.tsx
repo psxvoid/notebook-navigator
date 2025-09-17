@@ -277,6 +277,8 @@ export const FileItem = React.memo(function FileItem({
     const extensionSuffix = useMemo(() => getExtensionSuffix(file), [file]);
     const showExtensionSuffix = useMemo(() => shouldShowExtensionSuffix(file), [file]);
 
+    const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
+
     // === Callbacks ===
 
     // Handle tag click
@@ -325,9 +327,22 @@ export const FileItem = React.memo(function FileItem({
         return [...favoriteTags, ...coloredTags, ...regularTags];
     }, [tags, findTagInFavoriteTree, getTagColor]);
 
+    const shouldShowFileTags = useMemo(() => {
+        if (!settings.showTags || !settings.showFileTags) {
+            return false;
+        }
+        if (categorizedTags.length === 0) {
+            return false;
+        }
+        if (isSlimMode && !settings.showFileTagsInSlimMode) {
+            return false;
+        }
+        return true;
+    }, [categorizedTags, isSlimMode, settings.showFileTags, settings.showFileTagsInSlimMode, settings.showTags]);
+
     // Render tags
     const renderTags = useCallback(() => {
-        if (!settings.showTags || !settings.showFileTags || categorizedTags.length === 0) {
+        if (!shouldShowFileTags) {
             return null;
         }
 
@@ -350,7 +365,7 @@ export const FileItem = React.memo(function FileItem({
                 })}
             </div>
         );
-    }, [settings.showTags, settings.showFileTags, categorizedTags, getTagColor, handleTagClick]);
+    }, [categorizedTags, getTagColor, handleTagClick, shouldShowFileTags]);
 
     // Format display date based on current sort
     const displayDate = useMemo(() => {
@@ -411,9 +426,6 @@ export const FileItem = React.memo(function FileItem({
     const shouldUseMultiLinePreviewLayout = !pinnedItemShouldUseCompactLayout && appearanceSettings.previewRows >= 2;
     const shouldCollapseEmptyPreviewSpace = heightOptimizationEnabled && !hasPreviewContent; // Optimization: compact layout for empty preview
     const shouldAlwaysReservePreviewSpace = heightOptimizationDisabled || hasPreviewContent; // Show full layout when not optimizing OR has content
-
-    // Detect slim mode when all display options are disabled
-    const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
     // Determine if we should show the feature image area (either with an image or extension badge)
     const shouldShowFeatureImageArea =
@@ -619,7 +631,7 @@ export const FileItem = React.memo(function FileItem({
                     <div
                         className={`nn-quick-actions-panel ${isSlimMode ? 'nn-slim-mode' : ''}`}
                         data-title-rows={appearanceSettings.titleRows}
-                        data-has-tags={settings.showTags && settings.showFileTags && categorizedTags.length > 0 ? 'true' : 'false'}
+                        data-has-tags={shouldShowFileTags ? 'true' : 'false'}
                     >
                         {shouldShowRevealIcon && (
                             <div

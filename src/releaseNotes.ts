@@ -74,7 +74,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.4.18',
         date: '2025-09-17',
         info: [
-            '**Omnisearch integration** - Notebook Navigator now integrates with the **Omnisearch plugin** for powerful full-text search! When Omnisearch is installed you can switch between file name filtering and full-text search in Settings → Search → Search provider. This allows you to search through the actual content of your notes, not just their titles!',
+            '**Omnisearch integration** - Notebook Navigator now integrates with the Omnisearch plugin for powerful full-text search! When Omnisearch is installed you can switch between file name filtering and full-text search in Settings → Search → Search provider. This allows you to search through the actual content of your notes, not just their titles!',
             '**Minimal theme** - Many people have asked me what theme I use. It\'s the "Minimal" theme with the "Things" color scheme. To set the color scheme you install both the theme "Minimal" and the plugin "Minimal settings". You can then change the color scheme in "Minimal settings".'
         ].join('\n\n'),
         new: [
@@ -82,6 +82,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '**Search provider** setting to switch between file name filter and Omnisearch',
             '**Background colors** for folders and tags: you can now set custom background colors via the context menu',
             '**API properties**: Added backgroundColor to FolderMetadata and TagMetadata interfaces (API v1.0.1)',
+            '**New setting** You can now toggle file tags in slim mode. Default is disabled.',
+            '**New setting** You can now toggle text scaling with item height in navigation pane. Default is enabled.',
             'New languages: 한국어 and Polski'
         ],
         fixed: [

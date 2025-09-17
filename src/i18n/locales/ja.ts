@@ -515,8 +515,12 @@ export const STRINGS_JA = {
                 desc: 'ノート名の下に日付を表示します。'
             },
             showFileTags: {
-                name: 'タグを表示',
+                name: 'ファイルタグを表示',
                 desc: 'ファイルアイテムにクリック可能なタグを表示します。タグの色を使用して、異なるタグタイプを視覚的に区別できます。'
+            },
+            showFileTagsInSlimMode: {
+                name: 'スリムモードでファイルタグを表示',
+                desc: '日付、プレビュー、画像が非表示のときにタグを表示します。'
             },
             dateFormat: {
                 name: '日付形式',
@@ -607,13 +611,17 @@ export const STRINGS_JA = {
                 name: '選択中の項目を展開したままにする',
                 desc: '折りたたむ時、現在選択されているフォルダまたはタグとその親を展開したままにします。'
             },
+            navIndent: {
+                name: 'ツリーインデント',
+                desc: 'ネストされたフォルダとタグのインデント幅を調整します。'
+            },
             navItemHeight: {
                 name: '行高',
                 desc: 'ナビゲーションペイン内のフォルダとタグの高さを調整します。'
             },
-            navIndent: {
-                name: 'ツリーインデント',
-                desc: 'ネストされたフォルダとタグのインデント幅を調整します。'
+            navItemHeightScaleText: {
+                name: '行高に合わせて文字サイズを調整',
+                desc: '行高を下げたときにナビゲーションの文字サイズを小さくします。'
             },
             showTags: {
                 name: 'タグを表示 (*)',

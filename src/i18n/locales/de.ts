@@ -514,8 +514,12 @@ export const STRINGS_DE = {
                 desc: 'Das Datum unter Notizennamen anzeigen.'
             },
             showFileTags: {
-                name: 'Tags anzeigen',
+                name: 'Datei-Tags anzeigen',
                 desc: 'Zeigt klickbare Tags in Datei-Elementen an. Verwenden Sie Tag-Farben, um verschiedene Tag-Typen visuell zu unterscheiden.'
+            },
+            showFileTagsInSlimMode: {
+                name: 'Datei-Tags im schlanken Modus anzeigen',
+                desc: 'Tags anzeigen, wenn Datum, Vorschau und Bild ausgeblendet sind.'
             },
             dateFormat: {
                 name: 'Datumsformat',
@@ -606,13 +610,17 @@ export const STRINGS_DE = {
                 name: 'Ausgewähltes Element erweitert halten',
                 desc: 'Beim Einklappen bleiben der aktuell ausgewählte Ordner oder Tag und seine übergeordneten Elemente erweitert.'
             },
+            navIndent: {
+                name: 'Baum-Einrückung',
+                desc: 'Passen Sie die Einrückungsbreite für verschachtelte Ordner und Tags an.'
+            },
             navItemHeight: {
                 name: 'Zeilenhöhe',
                 desc: 'Passen Sie die Höhe von Ordnern und Tags im Navigationsbereich an.'
             },
-            navIndent: {
-                name: 'Baum-Einrückung',
-                desc: 'Passen Sie die Einrückungsbreite für verschachtelte Ordner und Tags an.'
+            navItemHeightScaleText: {
+                name: 'Text mit Zeilenhöhe skalieren',
+                desc: 'Verkleinert die Navigationsschrift, wenn die Zeilenhöhe reduziert wird.'
             },
             showTags: {
                 name: 'Tags anzeigen (*)',

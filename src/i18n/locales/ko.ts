@@ -513,8 +513,12 @@ export const STRINGS_KO = {
                 desc: '노트 이름 아래에 날짜를 표시합니다.'
             },
             showFileTags: {
-                name: '태그 표시',
+                name: '파일 태그 표시',
                 desc: '파일 항목에 클릭 가능한 태그를 표시합니다. 태그 색상을 사용하여 다른 태그 유형을 시각적으로 구분합니다.'
+            },
+            showFileTagsInSlimMode: {
+                name: '슬림 모드에서 파일 태그 표시',
+                desc: '날짜, 미리보기, 이미지가 숨겨져 있을 때 태그를 표시합니다.'
             },
             dateFormat: {
                 name: '날짜 형식',
@@ -605,13 +609,17 @@ export const STRINGS_KO = {
                 name: '선택한 항목 펼친 상태 유지',
                 desc: '접을 때 현재 선택한 폴더나 태그와 상위 항목을 펼친 상태로 유지합니다.'
             },
+            navIndent: {
+                name: '트리 들여쓰기',
+                desc: '중첩된 폴더와 태그의 들여쓰기 너비를 조정합니다.'
+            },
             navItemHeight: {
                 name: '항목 높이',
                 desc: '탐색 창에서 폴더와 태그의 높이를 조정합니다.'
             },
-            navIndent: {
-                name: '트리 들여쓰기',
-                desc: '중첩된 폴더와 태그의 들여쓰기 너비를 조정합니다.'
+            navItemHeightScaleText: {
+                name: '항목 높이에 따라 글자 크기 조정',
+                desc: '항목 높이를 줄이면 탐색 글자 크기를 작게 합니다.'
             },
             showTags: {
                 name: '태그 표시 (*)',

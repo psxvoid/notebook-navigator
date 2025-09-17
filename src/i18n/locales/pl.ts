@@ -515,8 +515,12 @@ export const STRINGS_PL = {
                 desc: 'Wyświetl datę pod nazwami notatek.'
             },
             showFileTags: {
-                name: 'Pokaż tagi',
+                name: 'Pokaż tagi plików',
                 desc: 'Wyświetl klikalne tagi w elementach plików. Użyj kolorów tagów aby wizualnie odróżnić różne typy tagów.'
+            },
+            showFileTagsInSlimMode: {
+                name: 'Pokaż tagi plików w trybie kompaktowym',
+                desc: 'Wyświetl tagi, gdy data, podgląd i obraz są ukryte.'
             },
             dateFormat: {
                 name: 'Format daty',
@@ -607,13 +611,17 @@ export const STRINGS_PL = {
                 name: 'Zachowaj wybrany element rozwinięty',
                 desc: 'Podczas zwijania, zachowaj obecnie wybrany folder lub tag i jego rodziców rozwinięte.'
             },
+            navIndent: {
+                name: 'Wcięcie drzewa',
+                desc: 'Dostosuj szerokość wcięcia dla zagnieżdżonych folderów i tagów.'
+            },
             navItemHeight: {
                 name: 'Wysokość elementu',
                 desc: 'Dostosuj wysokość folderów i tagów w panelu nawigacji.'
             },
-            navIndent: {
-                name: 'Wcięcie drzewa',
-                desc: 'Dostosuj szerokość wcięcia dla zagnieżdżonych folderów i tagów.'
+            navItemHeightScaleText: {
+                name: 'Skaluj tekst z wysokością elementu',
+                desc: 'Zmniejsza tekst nawigacji, gdy wysokość elementu jest obniżona.'
             },
             showTags: {
                 name: 'Pokaż tagi (*)',

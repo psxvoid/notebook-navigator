@@ -515,8 +515,12 @@ export const STRINGS_ZH = {
                 desc: '在笔记名称下方显示日期。'
             },
             showFileTags: {
-                name: '显示标签',
+                name: '显示文件标签',
                 desc: '在文件项中显示可点击的标签。使用标签颜色来直观区分不同的标签类型。'
+            },
+            showFileTagsInSlimMode: {
+                name: '在精简模式中显示文件标签',
+                desc: '当日期、预览和图像被隐藏时显示标签。'
             },
             dateFormat: {
                 name: '日期格式',
@@ -607,13 +611,17 @@ export const STRINGS_ZH = {
                 name: '保持选中项展开',
                 desc: '折叠时，保持当前选中的文件夹或标签及其父级展开。'
             },
+            navIndent: {
+                name: '树形缩进',
+                desc: '调整嵌套文件夹和标签的缩进宽度。'
+            },
             navItemHeight: {
                 name: '行高',
                 desc: '调整导航窗格中文件夹和标签的高度。'
             },
-            navIndent: {
-                name: '树形缩进',
-                desc: '调整嵌套文件夹和标签的缩进宽度。'
+            navItemHeightScaleText: {
+                name: '随行高调整文字大小',
+                desc: '降低行高时减小导航文字大小。'
             },
             showTags: {
                 name: '显示标签 (*)',

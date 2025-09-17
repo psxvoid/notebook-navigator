@@ -513,8 +513,12 @@ export const STRINGS_EN = {
                 desc: 'Display the date below note names.'
             },
             showFileTags: {
-                name: 'Show tags',
+                name: 'Show file tags',
                 desc: 'Display clickable tags in file items. Use tag colors to visually distinguish different tag types.'
+            },
+            showFileTagsInSlimMode: {
+                name: 'Show file tags in slim mode',
+                desc: 'Display tags when date, preview, and image are hidden.'
             },
             dateFormat: {
                 name: 'Date format',
@@ -605,13 +609,17 @@ export const STRINGS_EN = {
                 name: 'Keep selected item expanded',
                 desc: 'When collapsing, keep the currently selected folder or tag and its parents expanded.'
             },
+            navIndent: {
+                name: 'Tree indentation',
+                desc: 'Adjust the indentation width for nested folders and tags.'
+            },
             navItemHeight: {
                 name: 'Item height',
                 desc: 'Adjust the height of folders and tags in the navigation pane.'
             },
-            navIndent: {
-                name: 'Tree indentation',
-                desc: 'Adjust the indentation width for nested folders and tags.'
+            navItemHeightScaleText: {
+                name: 'Scale text with item height',
+                desc: 'Reduce navigation text size when item height is decreased.'
             },
             showTags: {
                 name: 'Show tags (*)',
