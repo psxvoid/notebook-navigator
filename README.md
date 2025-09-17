@@ -65,7 +65,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Custom sort order** - Override global sort settings per folder or tag
 - **Custom appearances** - Configure display settings per folder or tag (title rows, preview rows, slim mode)
 - **Favorite tags** - Pin frequently used tags to a dedicated section
-- **Hidden tags** - Hide tags with wildcard and regex patterns
+- **Hidden tags** - Hide tags by prefix or name wildcards
 - **Toggle hidden items** - Show or hide excluded folders and hidden tags with toolbar button
 - **Untagged notes** - Find and organize notes without tags
 
@@ -303,7 +303,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Show untagged notes:** Display "Untagged" item for notes without any tags
     - **Show untagged notes in favorites section:** Display untagged notes in the favorites section, either inside the folder or directly below favorites
   - **Favorite tags:** Comma-separated list of tag prefixes. Adding a tag includes all its sub-tags (e.g., "photo" includes "photo/camera/fuji")
-  - **Hidden tags:** Comma-separated list of tag prefixes to hide. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs")
+  - **Hidden tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs")
 
 ### List pane
 

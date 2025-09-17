@@ -19,7 +19,7 @@
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
 import { isPathInExcludedFolder } from './fileFilters';
-import { matchesAnyPrefix } from './tagPrefixMatcher';
+import { matchesAnyPrefix, HiddenTagMatcher, matchesHiddenTagPattern } from './tagPrefixMatcher';
 import { naturalCompare } from './sortUtils';
 
 /**
@@ -305,11 +305,13 @@ export function findTagNode(tree: Map<string, TagTreeNode>, tagPath: string): Ta
  * Also removes parent tags that become empty (no notes and no children).
  *
  * @param tree - The original tag tree
- * @param excludePatterns - Array of patterns to exclude
+ * @param matcher - Compiled matcher describing hidden tag rules
  * @returns A new tree with excluded tags and empty parents removed
  */
-export function excludeFromTagTree(tree: Map<string, TagTreeNode>, excludePatterns: string[]): Map<string, TagTreeNode> {
-    if (excludePatterns.length === 0) return tree;
+export function excludeFromTagTree(tree: Map<string, TagTreeNode>, matcher: HiddenTagMatcher): Map<string, TagTreeNode> {
+    if (matcher.prefixes.length === 0 && matcher.startsWithNames.length === 0 && matcher.endsWithNames.length === 0) {
+        return tree;
+    }
 
     const filtered = new Map<string, TagTreeNode>();
 
@@ -317,7 +319,7 @@ export function excludeFromTagTree(tree: Map<string, TagTreeNode>, excludePatter
     // Returns null if node should be excluded, otherwise returns node with filtered children
     function shouldIncludeNode(node: TagTreeNode): TagTreeNode | null {
         // Check if this tag matches any exclusion prefix
-        const shouldExclude = matchesAnyPrefix(node.path, excludePatterns);
+        const shouldExclude = matchesHiddenTagPattern(node.path, node.name, matcher);
 
         if (shouldExclude) {
             return null;

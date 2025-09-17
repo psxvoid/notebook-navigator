@@ -654,7 +654,7 @@ export const STRINGS_ZH = {
             },
             hiddenTags: {
                 name: '隐藏标签',
-                desc: '要隐藏的标签前缀的逗号分隔列表。隐藏标签也会隐藏所有子标签（例如："归档"隐藏"归档/2024/docs"）。',
+                desc: '要隐藏的标签前缀或名称通配符的逗号分隔列表。使用 `tag*` 或 `*tag` 匹配标签名称。隐藏标签也会隐藏所有子标签（例如："归档"隐藏"归档/2024/docs"）。',
                 placeholder: '内部, 临时/草稿, 归档/2024'
             },
             enableFolderNotes: {

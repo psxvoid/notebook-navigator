@@ -652,7 +652,7 @@ export const STRINGS_EN = {
             },
             hiddenTags: {
                 name: 'Hidden tags',
-                desc: 'Comma-separated list of tag prefixes to hide. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs").',
+                desc: 'Comma-separated list of tag prefixes or name wildcards. Use tag* or *tag to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },
             enableFolderNotes: {

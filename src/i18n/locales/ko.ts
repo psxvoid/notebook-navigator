@@ -652,7 +652,7 @@ export const STRINGS_KO = {
             },
             hiddenTags: {
                 name: '숨겨진 태그',
-                desc: '숨길 태그 접두사의 쉼표로 구분된 목록입니다. 태그를 숨기면 모든 하위 태그도 숨겨집니다 (예: "archive"는 "archive/2024/docs" 숨김).',
+                desc: '숨길 태그 접두사 또는 이름 와일드카드의 쉼표로 구분된 목록입니다. `tag*` 또는 `*tag` 로 태그 이름을 일치시킵니다. 태그를 숨기면 모든 하위 태그도 숨겨집니다 (예: "archive"는 "archive/2024/docs" 숨김).',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },
             enableFolderNotes: {

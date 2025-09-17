@@ -19,7 +19,7 @@
 import { MenuItem } from 'obsidian';
 import { TagMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
-import { findMatchingPrefixes, cleanupTagPatterns } from '../tagPrefixMatcher';
+import { findMatchingPrefixes, cleanupTagPatterns, createHiddenTagMatcher, matchesHiddenTagPattern } from '../tagPrefixMatcher';
 import { ItemType, UNTAGGED_TAG_ID } from '../../types';
 
 /**
@@ -154,8 +154,11 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     if (tagPath !== UNTAGGED_TAG_ID) {
         menu.addSeparator();
 
-        // Hide tag option
-        const isHidden = settings.hiddenTags.includes(tagPath);
+        const hiddenMatcher = createHiddenTagMatcher(settings.hiddenTags);
+        const hasHiddenRules =
+            hiddenMatcher.prefixes.length > 0 || hiddenMatcher.startsWithNames.length > 0 || hiddenMatcher.endsWithNames.length > 0;
+        const tagName = tagPath.split('/').pop() ?? tagPath;
+        const isHidden = hasHiddenRules && matchesHiddenTagPattern(tagPath, tagName, hiddenMatcher);
 
         if (!isHidden) {
             menu.addItem((item: MenuItem) => {

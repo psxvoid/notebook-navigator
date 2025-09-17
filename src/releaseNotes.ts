@@ -80,12 +80,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: [
             '**Omnisearch integration** - Full-text search support when the Omnisearch plugin is installed',
             '**Search provider** setting to switch between file name filter and Omnisearch',
-            '**Background colors** for folders and tags: you can now set custom background colors via the context menu',
-            '**API properties**: Added backgroundColor to FolderMetadata and TagMetadata interfaces (API v1.0.1)',
-            '**New setting** You can now toggle file tags in slim mode. Default is disabled.',
-            '**New setting** You can now toggle text scaling with item height in navigation pane. Default is enabled.',
-            'New languages: 한국어 and Polski'
+            '**Background colors** for folders and tags: you can now set custom background colors via the context menu (this is also now available in the API)',
+            '**New setting**: You can now toggle file tags in slim mode. Default is disabled.',
+            '**New setting**: You can now toggle text scaling with item height in navigation pane. Default is enabled.',
+            '**New languages**: 한국어 and Polski'
         ],
+        changed: ['Hidden tags accept tag* and *tag name wildcards.'],
         fixed: [
             'Feature image detection now reads frontmatter wikilinks that include embed markers or alias text (for example ![[image.jpg|cover]])',
             'Implemented a fix that hopefully resolves blurred text in Windows caused by rounding errors in subpixel rendering (rare, only some fonts affected).'

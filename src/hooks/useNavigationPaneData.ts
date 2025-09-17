@@ -45,6 +45,7 @@ import { shouldDisplayFile } from '../utils/fileTypeUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
+import { createHiddenTagMatcher } from '../utils/tagPrefixMatcher';
 import { naturalCompare } from '../utils/sortUtils';
 
 /**
@@ -94,6 +95,12 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     const tagTree = fileData.tagTree;
     const untaggedCount = fileData.untagged;
 
+    // Create matcher for hidden tag patterns (supports "archive", "temp*", "*draft")
+    const hiddenTagMatcher = useMemo(() => createHiddenTagMatcher(settings.hiddenTags), [settings.hiddenTags]);
+    // Check if any hidden tag rules exist
+    const hiddenMatcherHasRules =
+        hiddenTagMatcher.prefixes.length > 0 || hiddenTagMatcher.startsWithNames.length > 0 || hiddenTagMatcher.endsWithNames.length > 0;
+
     /**
      * Build folder items from vault structure
      */
@@ -109,9 +116,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
         if (!settings.showTags) return items;
 
-        // Parse favorite and hidden tag patterns
+        // Parse favorite tag patterns
         const favoritePatterns = settings.favoriteTags;
-        const hiddenPatterns = settings.hiddenTags;
 
         // Helper function to add untagged node
         const addUntaggedNode = (level: number, context?: 'favorites' | 'tags') => {
@@ -145,14 +151,14 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             });
         };
 
-        // Apply hidden tag exclusion to both trees based on showHiddenItems setting
+        // Filter out hidden tags when showHiddenItems is false
         const shouldHideTags = !settings.showHiddenItems;
-        const visibleFavoriteTree =
-            hiddenPatterns.length > 0 && shouldHideTags ? excludeFromTagTree(favoriteTree, hiddenPatterns) : favoriteTree;
-        const visibleTagTree = hiddenPatterns.length > 0 && shouldHideTags ? excludeFromTagTree(tagTree, hiddenPatterns) : tagTree;
+        const hasHiddenPatterns = hiddenMatcherHasRules;
+        const visibleFavoriteTree = hasHiddenPatterns && shouldHideTags ? excludeFromTagTree(favoriteTree, hiddenTagMatcher) : favoriteTree;
+        const visibleTagTree = hasHiddenPatterns && shouldHideTags ? excludeFromTagTree(tagTree, hiddenTagMatcher) : tagTree;
 
-        // Determine which patterns to pass for marking hidden tags (when showing them)
-        const patternsToMark = !shouldHideTags ? hiddenPatterns : [];
+        // Pass matcher when showing hidden items (adds eye icon)
+        const matcherForMarking = !shouldHideTags && hasHiddenPatterns ? hiddenTagMatcher : undefined;
 
         // Helper function to add tags to list
         const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
@@ -162,7 +168,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                     expansionState.expandedTags,
                     1, // Start at level 1 since they're inside the virtual folder
                     folderId === 'favorite-tags-root' ? 'favorites' : 'tags',
-                    patternsToMark
+                    matcherForMarking
                 );
                 items.push(...tagItems);
 
@@ -196,7 +202,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                     expansionState.expandedTags,
                     0, // Start at level 0 since no virtual folder
                     'favorites',
-                    patternsToMark
+                    matcherForMarking
                 );
                 items.push(...favoriteItems);
 
@@ -217,7 +223,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                     expansionState.expandedTags,
                     0, // Start at level 0 since no virtual folder
                     'tags',
-                    patternsToMark
+                    matcherForMarking
                 );
                 items.push(...nonFavoriteItems);
 
@@ -239,7 +245,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                     expansionState.expandedTags,
                     0, // Start at level 0 since no virtual folder
                     'tags',
-                    patternsToMark
+                    matcherForMarking
                 );
                 items.push(...tagTreeItems);
 
@@ -252,7 +258,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     }, [
         settings.showTags,
         settings.favoriteTags,
-        settings.hiddenTags,
+        hiddenTagMatcher,
+        hiddenMatcherHasRules,
         settings.showHiddenItems,
         settings.showUntagged,
         settings.showUntaggedInFavorites,

@@ -654,7 +654,7 @@ export const STRINGS_PL = {
             },
             hiddenTags: {
                 name: 'Ukryte tagi',
-                desc: 'Lista prefiksów tagów do ukrycia oddzielonych przecinkami. Ukrycie tagu ukrywa też wszystkie jego pod-tagi (np. "archive" ukrywa "archive/2024/docs").',
+                desc: 'Lista prefiksów tagów lub symboli wieloznacznych nazw oddzielonych przecinkami. Użyj `tag*` lub `*tag`, aby dopasować nazwy tagów. Ukrycie tagu ukrywa też wszystkie jego pod-tagi (np. "archive" ukrywa "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },
             enableFolderNotes: {

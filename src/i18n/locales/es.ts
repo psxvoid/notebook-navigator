@@ -653,7 +653,7 @@ export const STRINGS_ES = {
             },
             hiddenTags: {
                 name: 'Etiquetas ocultas',
-                desc: 'Lista separada por comas de prefijos de etiquetas para ocultar. Ocultar una etiqueta también oculta todas sus sub-etiquetas (ej. "archivo" oculta "archivo/2024/docs").',
+                desc: 'Lista separada por comas de prefijos de etiquetas o comodines de nombre. Usa `tag*` o `*tag` para coincidir con nombres de etiquetas. Ocultar una etiqueta también oculta todas sus sub-etiquetas (ej. "archivo" oculta "archivo/2024/docs").',
                 placeholder: 'interno, temp/borradores, archivo/2024'
             },
             enableFolderNotes: {

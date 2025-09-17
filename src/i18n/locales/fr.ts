@@ -654,7 +654,7 @@ export const STRINGS_FR = {
             },
             hiddenTags: {
                 name: 'Étiquettes cachées',
-                desc: 'Liste séparée par des virgules de préfixes d\'étiquettes à masquer. Masquer une étiquette masque aussi toutes ses sous-étiquettes (par ex. "archive" masque "archive/2024/docs").',
+                desc: 'Liste séparée par des virgules de préfixes ou de jokers de nom d\'étiquettes à masquer. Utilisez `tag*` ou `*tag` pour faire correspondre les noms d\'étiquette. Masquer une étiquette masque aussi toutes ses sous-étiquettes (par ex. "archive" masque "archive/2024/docs").',
                 placeholder: 'interne, temp/brouillons, archive/2024'
             },
             enableFolderNotes: {

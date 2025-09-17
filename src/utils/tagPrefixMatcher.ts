@@ -63,6 +63,137 @@ export function matchesAnyPrefix(tagPath: string, prefixes: string[]): boolean {
 }
 
 /**
+ * Hidden tag pattern handling
+ *
+ * Rules:
+ * - Entries without wildcards act as prefix matchers against full tag paths
+ * - Entries with a single wildcard at the start (`*tag`) or end (`tag*`) act on tag names only
+ * - Entries containing slashes alongside wildcards are ignored
+ * - Entries containing more than one wildcard character are ignored
+ *
+ * Examples:
+ * - "archive" -> hides archive, archive/2024, archive/2024/docs (prefix match)
+ * - "temp*" -> hides temp, temp-file, temporary (name starts with)
+ * - "*draft" -> hides draft, my-draft, first-draft (name ends with)
+ * - "archive/*" -> IGNORED (contains slash with wildcard)
+ * - "*temp*" -> IGNORED (multiple wildcards)
+ */
+export interface HiddenTagMatcher {
+    prefixes: string[]; // Full path prefix matchers (e.g., "archive", "internal/private")
+    startsWithNames: string[]; // Tag name prefix matchers (e.g., "temp" from "temp*")
+    endsWithNames: string[]; // Tag name suffix matchers (e.g., "draft" from "*draft")
+}
+
+const EMPTY_HIDDEN_TAG_MATCHER: HiddenTagMatcher = {
+    prefixes: [],
+    startsWithNames: [],
+    endsWithNames: []
+};
+
+/**
+ * Removes # prefix, trims slashes, and converts to lowercase.
+ */
+function sanitizePattern(pattern: string): string {
+    return cleanTagPath(pattern).toLowerCase();
+}
+
+/**
+ * Parses patterns and categorizes them into prefix matchers or wildcard name matchers.
+ *
+ * @param patterns - Array of patterns from settings (e.g., ["archive", "temp*", "*draft"])
+ * @returns Matcher with categorized patterns
+ */
+export function createHiddenTagMatcher(patterns: string[]): HiddenTagMatcher {
+    if (patterns.length === 0) {
+        return EMPTY_HIDDEN_TAG_MATCHER;
+    }
+
+    const prefixes = new Set<string>();
+    const startsWithNames = new Set<string>();
+    const endsWithNames = new Set<string>();
+
+    for (const rawPattern of patterns) {
+        const normalized = sanitizePattern(rawPattern);
+        if (normalized.length === 0) {
+            continue;
+        }
+
+        // Patterns without wildcards become prefix matchers
+        if (!normalized.includes('*')) {
+            prefixes.add(normalized);
+            continue;
+        }
+
+        const firstIndex = normalized.indexOf('*');
+        const lastIndex = normalized.lastIndexOf('*');
+
+        if (firstIndex !== lastIndex) {
+            // Ignore patterns with multiple wildcards (e.g., "*temp*")
+            continue;
+        }
+
+        // Wildcard must be at start/end AND pattern must not contain slashes
+        if ((firstIndex === 0 || firstIndex === normalized.length - 1) && !normalized.includes('/')) {
+            if (firstIndex === 0) {
+                // Pattern like "*draft"
+                const suffix = normalized.substring(1);
+                if (suffix.length > 0) {
+                    endsWithNames.add(suffix);
+                }
+            } else {
+                // Pattern like "temp*"
+                const prefix = normalized.substring(0, normalized.length - 1);
+                if (prefix.length > 0) {
+                    startsWithNames.add(prefix);
+                }
+            }
+        }
+        // Patterns like "archive/*" are ignored (wildcards don't work with paths)
+    }
+
+    return {
+        prefixes: Array.from(prefixes),
+        startsWithNames: Array.from(startsWithNames),
+        endsWithNames: Array.from(endsWithNames)
+    };
+}
+
+/**
+ * Checks if a tag matches any hidden tag pattern.
+ *
+ * @param tagPath - Full tag path (e.g., "archive/2024/docs")
+ * @param tagName - Just the tag name (e.g., "docs")
+ * @param matcher - Matcher from createHiddenTagMatcher
+ * @returns true if tag matches a pattern
+ */
+export function matchesHiddenTagPattern(tagPath: string, tagName: string, matcher: HiddenTagMatcher): boolean {
+    if (!matcher.prefixes.length && !matcher.startsWithNames.length && !matcher.endsWithNames.length) {
+        return false;
+    }
+
+    const normalizedPath = sanitizePattern(tagPath);
+
+    // Check prefix matchers (e.g., "archive" matches "archive/2024")
+    if (matcher.prefixes.length > 0 && matchesAnyPrefix(normalizedPath, matcher.prefixes)) {
+        return true;
+    }
+
+    const normalizedName = tagName.toLowerCase();
+
+    // Check name starts with (e.g., "temp*" matches "temp-file")
+    if (matcher.startsWithNames.some(prefix => normalizedName.startsWith(prefix))) {
+        return true;
+    }
+
+    // Check name ends with (e.g., "*draft" matches "my-draft")
+    if (matcher.endsWithNames.some(suffix => normalizedName.endsWith(suffix))) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * Finds all prefixes that would match a given tag
  * Used for "Remove from favorites" to find which favorite entries to remove
  * Assumes lowercase inputs.
@@ -103,19 +234,36 @@ export function findMatchingPrefixes(tagPath: string, prefixes: string[]): strin
  * @returns Cleaned list with the new pattern added and redundant ones removed
  */
 export function cleanupTagPatterns(existingPatterns: string[], newPattern: string): string[] {
-    const cleanedNew = cleanTagPath(newPattern);
+    const normalizedNew = sanitizePattern(newPattern);
+    if (normalizedNew.length === 0) {
+        return existingPatterns;
+    }
 
-    // Filter out patterns that would be made redundant by the new pattern
-    const cleanedPatterns = existingPatterns.filter(existing => {
-        const cleanedExisting = cleanTagPath(existing);
+    const hasWildcard = normalizedNew.includes('*');
+    const result: string[] = [];
+    const seen = new Set<string>();
 
-        // Remove if the existing pattern is a child of the new pattern
-        // Example: new="photo" removes existing="photo/camera"
-        return !cleanedExisting.startsWith(`${cleanedNew}/`);
-    });
+    for (const existing of existingPatterns) {
+        const normalizedExisting = sanitizePattern(existing);
+        if (normalizedExisting.length === 0) {
+            continue;
+        }
 
-    // Add the new pattern
-    cleanedPatterns.push(cleanedNew);
+        if (seen.has(normalizedExisting)) {
+            continue;
+        }
 
-    return cleanedPatterns;
+        if (!hasWildcard && !normalizedExisting.includes('*') && normalizedExisting.startsWith(`${normalizedNew}/`)) {
+            continue;
+        }
+
+        result.push(normalizedExisting);
+        seen.add(normalizedExisting);
+    }
+
+    if (!seen.has(normalizedNew)) {
+        result.push(normalizedNew);
+    }
+
+    return result;
 }
