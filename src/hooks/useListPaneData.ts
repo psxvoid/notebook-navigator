@@ -246,16 +246,6 @@ export function useListPaneData({
      * Apply search filter to the base files using the precomputed name map.
      */
     const files = useMemo(() => {
-        if (useOmnisearch) {
-            if (!trimmedQuery) {
-                return baseFiles;
-            }
-            if (!omnisearchResult || omnisearchResult.query !== trimmedQuery) {
-                return [];
-            }
-            return omnisearchResult.files;
-        }
-
         if (!trimmedQuery) {
             return baseFiles;
         }
@@ -264,7 +254,7 @@ export function useListPaneData({
         const searchSegments = query.split(/\s+/).filter(segment => segment.length > 0);
         const isMultiWordSearch = searchSegments.length > 1;
 
-        const filtered = baseFiles.filter(file => {
+        const filteredByName = baseFiles.filter(file => {
             const name = searchableNames.get(file.path) || '';
             if (name.includes(query)) {
                 return true;
@@ -275,7 +265,18 @@ export function useListPaneData({
             return false;
         });
 
-        return filtered;
+        if (!useOmnisearch) {
+            return filteredByName;
+        }
+
+        if (!omnisearchResult || omnisearchResult.query !== trimmedQuery) {
+            return filteredByName;
+        }
+
+        const filteredByNamePaths = new Set(filteredByName.map(file => file.path));
+        const omnisearchPaths = new Set(omnisearchResult.files.map(file => file.path));
+
+        return baseFiles.filter(file => filteredByNamePaths.has(file.path) || omnisearchPaths.has(file.path));
     }, [useOmnisearch, trimmedQuery, baseFiles, searchableNames, omnisearchResult]);
 
     /**
