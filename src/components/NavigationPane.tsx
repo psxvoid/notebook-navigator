@@ -77,12 +77,13 @@ import { NavigationPaneHeader } from './NavigationPaneHeader';
 import { NavigationToolbar } from './NavigationToolbar';
 import { TagTreeItem } from './TagTreeItem';
 import { VirtualFolderComponent } from './VirtualFolderItem';
+import { getNavigationIndex, normalizeNavigationPath } from '../utils/navigationIndex';
 
 export interface NavigationPaneHandle {
-    getIndexOfPath: (path: string) => number;
+    getIndexOfPath: (itemType: ItemType, path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
-    requestScroll: (path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end' }) => void;
+    requestScroll: (path: string, options: { align?: 'auto' | 'center' | 'start' | 'end'; itemType: ItemType }) => void;
 }
 
 interface NavigationPaneProps {
@@ -141,7 +142,9 @@ export const NavigationPane = React.memo(
         const handleTreeUpdateComplete = useCallback(() => {
             const selectedPath = getSelectedPath(selectionState);
             if (selectedPath) {
-                requestScroll(selectedPath, { align: 'auto' });
+                const itemType = selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
+                const normalizedPath = normalizeNavigationPath(itemType, selectedPath);
+                requestScroll(normalizedPath, { align: 'auto', itemType });
             }
         }, [selectionState, requestScroll]);
 
@@ -532,7 +535,10 @@ export const NavigationPane = React.memo(
         useImperativeHandle(
             ref,
             () => ({
-                getIndexOfPath: (path: string) => pathToIndex.get(path) ?? -1,
+                getIndexOfPath: (itemType: ItemType, path: string) => {
+                    const index = getNavigationIndex(pathToIndex, itemType, path);
+                    return index ?? -1;
+                },
                 virtualizer: rowVirtualizer,
                 scrollContainerRef: scrollContainerRef.current,
                 requestScroll

@@ -54,6 +54,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { NavigationPaneItemType, ItemType, NAVPANE_MEASUREMENTS, OVERSCAN } from '../types';
 import { Align, NavScrollIntent, getNavAlign } from '../types/scroll';
 import type { CombinedNavigationItem } from '../types/virtualization';
+import { getNavigationIndex, normalizeNavigationPath } from '../utils/navigationIndex';
 
 /**
  * Parameters for the useNavigationPaneScroll hook
@@ -78,7 +79,7 @@ interface UseNavigationPaneScrollResult {
     /** Handler to scroll to top (mobile header tap) */
     handleScrollToTop: () => void;
     /** Request a scroll to a specific path */
-    requestScroll: (path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end' }) => void;
+    requestScroll: (path: string, options: { align?: Align; itemType: ItemType }) => void;
     /** Version counter for pending scrolls */
     pendingScrollVersion: number;
 }
@@ -99,6 +100,26 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     // Reference to the scroll container DOM element
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+    const resolveIndex = useCallback(
+        (path: string | null | undefined, itemType?: ItemType) => {
+            if (!path) {
+                return undefined;
+            }
+
+            if (itemType) {
+                return getNavigationIndex(pathToIndex, itemType, path);
+            }
+
+            const folderIndex = getNavigationIndex(pathToIndex, ItemType.FOLDER, path);
+            if (folderIndex !== undefined) {
+                return folderIndex;
+            }
+
+            return getNavigationIndex(pathToIndex, ItemType.TAG, path);
+        },
+        [pathToIndex]
+    );
+
     // ========== Scroll Orchestration ==========
     // Intent types determine scroll priority and behavior
     type ScrollIntent = NavScrollIntent;
@@ -109,6 +130,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         align?: Align;
         intent?: ScrollIntent; // Why this scroll was requested
         minIndexVersion?: number; // Don't execute until indexVersion >= this value
+        itemType: ItemType; // Item type for resolving correct index map
     };
     const pendingScrollRef = useRef<PendingScroll | null>(null);
     const [pendingScrollVersion, setPendingScrollVersion] = useState(0); // Triggers effect re-run
@@ -189,12 +211,14 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
      * Request a scroll to a specific path
      * Used by external components like useNavigatorReveal
      */
-    const requestScroll = useCallback((path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end' }) => {
+    const requestScroll = useCallback((path: string, options: { align?: Align; itemType: ItemType }) => {
+        const normalizedPath = normalizeNavigationPath(options.itemType, path);
         pendingScrollRef.current = {
-            path,
-            align: options?.align,
+            path: normalizedPath,
+            align: options.align,
             intent: 'external',
-            minIndexVersion: indexVersionRef.current
+            minIndexVersion: indexVersionRef.current,
+            itemType: options.itemType
         };
         setPendingScrollVersion(v => v + 1);
     }, []);
@@ -204,11 +228,9 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
      */
     const selectedPath =
         selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder
-            ? selectionState.selectedFolder.path
+            ? normalizeNavigationPath(ItemType.FOLDER, selectionState.selectedFolder.path)
             : selectionState.selectionType === ItemType.TAG && selectionState.selectedTag
-              ? selectionState.selectedTag.startsWith('#')
-                  ? selectionState.selectedTag.slice(1)
-                  : selectionState.selectedTag
+              ? normalizeNavigationPath(ItemType.TAG, selectionState.selectedTag)
               : null;
 
     /**
@@ -221,6 +243,8 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
      */
     useEffect(() => {
         if (!selectedPath || !rowVirtualizer || !isVisible) return;
+
+        const currentSelectionType = selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
 
         // Check if this is an actual selection change vs just a tree structure update
         const isSelectionChange = prevSelectedPathRef.current !== selectedPath;
@@ -245,18 +269,27 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
                 path: selectedPath,
                 align: 'auto',
                 intent: 'visibilityToggle',
-                minIndexVersion: indexVersionRef.current + 1 // Wait for next version
+                minIndexVersion: indexVersionRef.current + 1, // Wait for next version
+                itemType: currentSelectionType
             };
             setPendingScrollVersion(v => v + 1);
             return;
         }
 
-        const index = pathToIndex.get(selectedPath);
+        const index = resolveIndex(selectedPath, currentSelectionType);
 
         if (index !== undefined && index >= 0) {
             rowVirtualizer.scrollToIndex(index, { align: getNavAlign('selection') });
         }
-    }, [selectedPath, rowVirtualizer, isVisible, pathToIndex, uiState.focusedPane, settings.showHiddenItems]);
+    }, [
+        selectedPath,
+        rowVirtualizer,
+        isVisible,
+        uiState.focusedPane,
+        settings.showHiddenItems,
+        selectionState.selectionType,
+        resolveIndex
+    ]);
 
     /**
      * Special handling for startup tag scrolling
@@ -281,14 +314,15 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
                         path: selectedPath,
                         align: 'auto',
                         intent: 'visibilityToggle',
-                        minIndexVersion: indexVersionRef.current + 1
+                        minIndexVersion: indexVersionRef.current + 1,
+                        itemType: ItemType.TAG
                     };
                     setPendingScrollVersion(v => v + 1);
                 }
                 return;
             }
 
-            const tagIndex = pathToIndex.get(selectionState.selectedTag);
+            const tagIndex = resolveIndex(selectionState.selectedTag, ItemType.TAG);
 
             if (tagIndex !== undefined && tagIndex >= 0) {
                 rowVirtualizer.scrollToIndex(tagIndex, { align: getNavAlign('selection') });
@@ -301,7 +335,8 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         rowVirtualizer,
         isVisible,
         settings.showHiddenItems,
-        selectedPath
+        selectedPath,
+        resolveIndex
     ]);
 
     /**
@@ -317,7 +352,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     useEffect(() => {
         if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) return;
 
-        const { path, align, intent, minIndexVersion } = pendingScrollRef.current;
+        const { path, align, intent, minIndexVersion, itemType } = pendingScrollRef.current;
 
         // Priority check: During visibility toggle, only process toggle-intent scrolls
         // This prevents stale selection scrolls from executing with wrong indices
@@ -330,7 +365,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         const effectiveMin = minIndexVersion ?? indexVersionRef.current;
         if (indexVersionRef.current < effectiveMin) return;
 
-        const index = pathToIndex.get(path);
+        const index = resolveIndex(path, itemType);
 
         if (index !== undefined && index !== -1) {
             const finalAlign: Align = align ?? getNavAlign(intent);
@@ -345,13 +380,14 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
                 const usedIndex = index;
                 const usedPath = path;
                 requestAnimationFrame(() => {
-                    const newIndex = pathToIndex.get(usedPath);
+                    const newIndex = resolveIndex(usedPath, itemType);
                     if (newIndex !== undefined && newIndex !== usedIndex) {
                         pendingScrollRef.current = {
                             path: usedPath,
                             align: 'auto',
                             intent: 'visibilityToggle',
-                            minIndexVersion: indexVersionRef.current + 1
+                            minIndexVersion: indexVersionRef.current + 1,
+                            itemType
                         };
                         setPendingScrollVersion(v => v + 1);
                     }
@@ -359,7 +395,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
             }
         }
         // If index not found, keep the pending scroll for next rebuild
-    }, [rowVirtualizer, pathToIndex, isVisible, pendingScrollVersion, settings.showHiddenItems]);
+    }, [rowVirtualizer, isVisible, pendingScrollVersion, settings.showHiddenItems, resolveIndex]);
 
     /**
      * Listen for mobile drawer visibility events
@@ -371,7 +407,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         const handleVisible = () => {
             // If we have a selected folder or tag, scroll to it
             if (selectedPath && rowVirtualizer) {
-                const index = pathToIndex.get(selectedPath);
+                const index = resolveIndex(selectedPath, selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER);
                 if (index !== undefined && index >= 0) {
                     rowVirtualizer.scrollToIndex(index, { align: 'auto' });
                 }
@@ -380,7 +416,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
 
         window.addEventListener('notebook-navigator-visible', handleVisible);
         return () => window.removeEventListener('notebook-navigator-visible', handleVisible);
-    }, [isMobile, selectedPath, rowVirtualizer, pathToIndex]);
+    }, [isMobile, selectedPath, rowVirtualizer, selectionState.selectionType, resolveIndex]);
 
     /**
      * Re-measure all items when line height settings change
@@ -403,7 +439,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
 
         if (settingsChanged) {
             if (selectedPath && isVisible && rowVirtualizer) {
-                const index = pathToIndex.get(selectedPath);
+                const index = resolveIndex(selectedPath, selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER);
                 if (index !== undefined && index >= 0) {
                     // Use requestAnimationFrame to ensure measurements are complete
                     requestAnimationFrame(() => {
@@ -414,7 +450,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         }
 
         prevNavSettingsKeyRef.current = settingsKey;
-    }, [settings.navItemHeight, settings.navIndent, selectedPath, pathToIndex, isVisible, rowVirtualizer]);
+    }, [settings.navItemHeight, settings.navIndent, selectedPath, isVisible, rowVirtualizer, resolveIndex, selectionState.selectionType]);
 
     /**
      * Track showHiddenItems setting changes specifically
@@ -429,23 +465,15 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
                     path: selectedPath,
                     align: 'auto',
                     intent: 'visibilityToggle',
-                    minIndexVersion: indexVersionRef.current + 1
+                    minIndexVersion: indexVersionRef.current + 1,
+                    itemType: ItemType.TAG
                 };
                 setPendingScrollVersion(v => v + 1);
             }
 
             prevShowHiddenItemsRef.current = settings.showHiddenItems;
         }
-    }, [
-        settings.showHiddenItems,
-        selectedPath,
-        pathToIndex,
-        isVisible,
-        rowVirtualizer,
-        selectionState.selectionType,
-        selectionState.selectedTag,
-        setPendingScrollVersion
-    ]);
+    }, [settings.showHiddenItems, selectedPath, isVisible, rowVirtualizer, selectionState.selectionType, selectionState.selectedTag]);
 
     return {
         rowVirtualizer,

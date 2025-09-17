@@ -38,6 +38,7 @@ import { RemoveTagModal } from '../modals/RemoveTagModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType, NAVPANE_MEASUREMENTS } from '../types';
 import { getSelectedPath, getFilesForSelection } from '../utils/selectionUtils';
+import { normalizeNavigationPath } from '../utils/navigationIndex';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { localStorage } from '../utils/localStorage';
 import { ListPane } from './ListPane';
@@ -420,7 +421,12 @@ export const NotebookNavigatorComponent = React.memo(
                     requestAnimationFrame(() => {
                         const selectedPath = getSelectedPath(selectionState);
                         if (selectedPath && navigationPaneRef.current) {
-                            navigationPaneRef.current.requestScroll(selectedPath, { align: 'auto' });
+                            const itemType = selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
+                            const normalizedPath = normalizeNavigationPath(itemType, selectedPath);
+                            navigationPaneRef.current.requestScroll(normalizedPath, {
+                                align: 'auto',
+                                itemType
+                            });
                         }
                     });
                 }

@@ -35,7 +35,7 @@ import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useExpansionState } from '../context/ExpansionContext';
 import { useFileCache } from '../context/StorageContext';
 import { strings } from '../i18n';
-import { UNTAGGED_TAG_ID, NavigationPaneItemType, VirtualFolder } from '../types';
+import { UNTAGGED_TAG_ID, NavigationPaneItemType, VirtualFolder, ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
@@ -47,6 +47,7 @@ import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
 import { createHiddenTagMatcher } from '../utils/tagPrefixMatcher';
 import { naturalCompare } from '../utils/sortUtils';
+import { setNavigationIndex } from '../utils/navigationIndex';
 
 /**
  * Parameters for the useNavigationPaneData hook
@@ -64,7 +65,7 @@ interface UseNavigationPaneDataParams {
 interface UseNavigationPaneDataResult {
     /** Combined list of navigation items (folders and tags) */
     items: CombinedNavigationItem[];
-    /** Map from item path to index in items array */
+    /** Map from item keys to index in items array */
     pathToIndex: Map<string, number>;
     /** Map from tag path to file count */
     tagCounts: Map<string, number>;
@@ -391,16 +392,18 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
      * Build from filtered items so indices match what's displayed
      */
     const pathToIndex = useMemo(() => {
-        const map = new Map<string, number>();
+        const indexMap = new Map<string, number>();
+
         filteredItems.forEach((item, index) => {
             if (item.type === NavigationPaneItemType.FOLDER) {
-                map.set(item.data.path, index);
+                setNavigationIndex(indexMap, ItemType.FOLDER, item.data.path, index);
             } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
                 const tagNode = item.data;
-                map.set(tagNode.path, index);
+                setNavigationIndex(indexMap, ItemType.TAG, tagNode.path, index);
             }
         });
-        return map;
+
+        return indexMap;
     }, [filteredItems]);
 
     /**
