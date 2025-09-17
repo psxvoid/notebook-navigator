@@ -73,7 +73,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.18',
         date: '2025-09-17',
-        info: 'Notebook Navigator now integrates with the **Omnisearch plugin** for powerful full-text search! When Omnisearch is installed you can switch between file name filtering and full-text search in Settings → Search → Search provider. This allows you to search through the actual content of your notes, not just their titles!',
+        info: [
+            '**Omnisearch integration** - Notebook Navigator now integrates with the **Omnisearch plugin** for powerful full-text search! When Omnisearch is installed you can switch between file name filtering and full-text search in Settings → Search → Search provider. This allows you to search through the actual content of your notes, not just their titles!',
+            '**Minimal theme** - Many people have asked me what theme I use. It\'s the "Minimal" theme with the "Things" color scheme. To set the color scheme you install both the theme "Minimal" and the plugin "Minimal settings". You can then change the color scheme in "Minimal settings".'
+        ].join('\n\n'),
         new: [
             '**Omnisearch integration** - Full-text search support when the Omnisearch plugin is installed',
             '**Search provider** setting to switch between file name filter and Omnisearch',
