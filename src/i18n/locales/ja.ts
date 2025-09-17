@@ -76,6 +76,7 @@ export const STRINGS_JA = {
     // Search input
     searchInput: {
         placeholder: '検索...', // Placeholder text for search input (English: Search...)
+        placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
         clearSearch: '検索をクリア' // Tooltip for clear search button (English: Clear search)
     },
 
@@ -134,6 +135,7 @@ export const STRINGS_JA = {
             changeIcon: 'アイコンを変更',
             removeIcon: 'アイコンを削除',
             changeColor: '色を変更',
+            changeBackground: '背景色を変更',
             removeColor: '色を削除',
             excludeFolder: 'フォルダを非表示',
             renameFolder: 'フォルダの名前を変更',
@@ -143,6 +145,7 @@ export const STRINGS_JA = {
             changeIcon: 'アイコンを変更',
             removeIcon: 'アイコンを削除',
             changeColor: '色を変更',
+            changeBackground: '背景色を変更',
             removeColor: '色を削除',
             addToFavorites: 'お気に入りに追加',
             removeFromFavorites: 'お気に入りから削除',
@@ -405,10 +408,24 @@ export const STRINGS_JA = {
             navigationPane: 'フォルダ表示',
             tags: 'タグ表示',
             folders: 'フォルダノート',
+            search: '検索',
             listPane: 'リストペイン',
             advanced: '詳細設定'
         },
         items: {
+            searchProvider: {
+                name: '検索プロバイダー',
+                desc: 'クイックファイル名検索またはOmnisearchプラグインによる全文検索を選択してください。',
+                options: {
+                    internal: 'ファイル名フィルター',
+                    omnisearch: 'Omnisearch（全文）'
+                },
+                messages: {
+                    missingSelected: '全文検索用にOmnisearchをインストール。',
+                    missing: '全文検索用にOmnisearchをインストール。',
+                    installed: '全文検索用にOmnisearchに切り替え。'
+                }
+            },
             sortNotesBy: {
                 name: 'ノートの並び順',
                 desc: 'ノートリストでのノートの並び順を選択します。',
@@ -473,6 +490,14 @@ export const STRINGS_JA = {
                 name: 'ツールチップを表示（デスクトップのみ）',
                 desc: 'ノートとフォルダの追加情報をホバー時にツールチップで表示します。'
             },
+            multiSelectModifier: {
+                name: '複数選択モディファイア',
+                desc: '複数選択を切り替えるモディファイアキーを選択します。Option/Altが選択されている場合、Cmd/Ctrlクリックでノートを新しいタブで開きます。',
+                options: {
+                    cmdCtrl: 'Cmd/Ctrl クリック',
+                    optionAlt: 'Option/Alt クリック'
+                }
+            },
             excludedNotes: {
                 name: 'ノートを非表示',
                 desc: 'カンマ区切りのフロントマター属性のリスト。これらの属性を含むノートは非表示になります（例：draft, private, archived）。',
@@ -498,8 +523,12 @@ export const STRINGS_JA = {
                 desc: 'ノート名の下に日付を表示します。'
             },
             showFileTags: {
-                name: 'タグを表示',
+                name: 'ファイルタグを表示',
                 desc: 'ファイルアイテムにクリック可能なタグを表示します。タグの色を使用して、異なるタグタイプを視覚的に区別できます。'
+            },
+            showFileTagsInSlimMode: {
+                name: 'スリムモードでファイルタグを表示',
+                desc: '日付、プレビュー、画像が非表示のときにタグを表示します。'
             },
             dateFormat: {
                 name: '日付形式',
@@ -590,13 +619,17 @@ export const STRINGS_JA = {
                 name: '選択中の項目を展開したままにする',
                 desc: '折りたたむ時、現在選択されているフォルダまたはタグとその親を展開したままにします。'
             },
+            navIndent: {
+                name: 'ツリーインデント',
+                desc: 'ネストされたフォルダとタグのインデント幅を調整します。'
+            },
             navItemHeight: {
                 name: '行高',
                 desc: 'ナビゲーションペイン内のフォルダとタグの高さを調整します。'
             },
-            navIndent: {
-                name: 'ツリーインデント',
-                desc: 'ネストされたフォルダとタグのインデント幅を調整します。'
+            navItemHeightScaleText: {
+                name: '行高に合わせて文字サイズを調整',
+                desc: '行高を下げたときにナビゲーションの文字サイズを小さくします。'
             },
             showTags: {
                 name: 'タグを表示 (*)',
@@ -629,7 +662,7 @@ export const STRINGS_JA = {
             },
             hiddenTags: {
                 name: '非表示タグ',
-                desc: '非表示にするタグの接頭辞のカンマ区切りリスト。タグを非表示にすると、すべてのサブタグも非表示になります（例："アーカイブ"で"アーカイブ/2024/docs"も非表示）。',
+                desc: '非表示にするタグの接頭辞または名前ワイルドカードのカンマ区切りリスト。`tag*` や `*tag` でタグ名に一致します。タグを非表示にすると、すべてのサブタグも非表示になります（例："アーカイブ"で"アーカイブ/2024/docs"も非表示）。',
                 placeholder: '内部, temp/下書き, アーカイブ/2024'
             },
             enableFolderNotes: {

@@ -76,6 +76,7 @@ export const STRINGS_FR = {
     // Search input
     searchInput: {
         placeholder: 'Rechercher...', // Placeholder text for search input (English: Search...)
+        placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
         clearSearch: 'Effacer la recherche' // Tooltip for clear search button (English: Clear search)
     },
 
@@ -134,6 +135,7 @@ export const STRINGS_FR = {
             changeIcon: "Changer l'icône",
             removeIcon: "Supprimer l'icône",
             changeColor: 'Changer la couleur',
+            changeBackground: 'Changer l’arrière-plan',
             removeColor: 'Supprimer la couleur',
             excludeFolder: 'Masquer le dossier',
             renameFolder: 'Renommer le dossier',
@@ -143,6 +145,7 @@ export const STRINGS_FR = {
             changeIcon: "Changer l'icône",
             removeIcon: "Supprimer l'icône",
             changeColor: 'Changer la couleur',
+            changeBackground: 'Changer l’arrière-plan',
             removeColor: 'Supprimer la couleur',
             addToFavorites: 'Ajouter aux favoris',
             removeFromFavorites: 'Retirer des favoris',
@@ -405,10 +408,24 @@ export const STRINGS_FR = {
             navigationPane: 'Affichage des dossiers',
             tags: 'Affichage des étiquettes',
             folders: 'Notes de dossier',
+            search: 'Rechercher',
             listPane: 'Panneau de liste',
             advanced: 'Avancé'
         },
         items: {
+            searchProvider: {
+                name: 'Fournisseur de recherche',
+                desc: 'Choisissez entre la recherche rapide par nom de fichier ou la recherche plein texte avec le plugin Omnisearch.',
+                options: {
+                    internal: 'Filtre par nom de fichier',
+                    omnisearch: 'Omnisearch (plein texte)'
+                },
+                messages: {
+                    missingSelected: 'Installer Omnisearch pour la recherche plein texte.',
+                    missing: 'Installer Omnisearch pour la recherche plein texte.',
+                    installed: 'Basculer vers Omnisearch pour la recherche plein texte.'
+                }
+            },
             sortNotesBy: {
                 name: 'Trier les notes par',
                 desc: 'Choisissez comment les notes sont triées dans la liste des notes.',
@@ -473,6 +490,14 @@ export const STRINGS_FR = {
                 name: 'Afficher les infobulles (ordinateur uniquement)',
                 desc: 'Affiche des infobulles avec des informations supplémentaires pour les notes et dossiers au survol.'
             },
+            multiSelectModifier: {
+                name: 'Modificateur de sélection multiple',
+                desc: 'Choisissez quelle touche modificatrice active la sélection multiple. Quand Option/Alt est sélectionné, Cmd/Ctrl clic ouvre les notes dans un nouvel onglet.',
+                options: {
+                    cmdCtrl: 'Cmd/Ctrl clic',
+                    optionAlt: 'Option/Alt clic'
+                }
+            },
             excludedNotes: {
                 name: 'Masquer les notes',
                 desc: "Liste de propriétés de métadonnées séparées par des virgules. Les notes contenant l'une de ces propriétés seront masquées (ex. : draft, private, archived).",
@@ -498,8 +523,12 @@ export const STRINGS_FR = {
                 desc: 'Afficher la date sous les noms des notes.'
             },
             showFileTags: {
-                name: 'Afficher les tags',
+                name: 'Afficher les tags de fichier',
                 desc: 'Affiche les tags cliquables dans les éléments de fichier. Utilisez les couleurs de tags pour distinguer visuellement les différents types de tags.'
+            },
+            showFileTagsInSlimMode: {
+                name: 'Afficher les tags de fichier en mode compact',
+                desc: "Afficher les tags lorsque la date, l'aperçu et l'image sont masqués."
             },
             dateFormat: {
                 name: 'Format de date',
@@ -590,13 +619,17 @@ export const STRINGS_FR = {
                 name: 'Garder lélément sélectionné déplié',
                 desc: 'Lors du repliement, garde le dossier ou létiquette actuellement sélectionné et ses parents dépliés.'
             },
+            navIndent: {
+                name: "Indentation de l'arbre",
+                desc: "Ajuster la largeur d'indentation pour les dossiers et étiquettes imbriqués."
+            },
             navItemHeight: {
                 name: 'Hauteur de ligne',
                 desc: 'Ajuster la hauteur des dossiers et étiquettes dans le panneau de navigation.'
             },
-            navIndent: {
-                name: "Indentation de l'arbre",
-                desc: "Ajuster la largeur d'indentation pour les dossiers et étiquettes imbriqués."
+            navItemHeightScaleText: {
+                name: 'Adapter le texte à la hauteur de ligne',
+                desc: 'Réduit le texte de navigation lorsque la hauteur de ligne est diminuée.'
             },
             showTags: {
                 name: 'Afficher les étiquettes (*)',
@@ -629,7 +662,7 @@ export const STRINGS_FR = {
             },
             hiddenTags: {
                 name: 'Étiquettes cachées',
-                desc: 'Liste séparée par des virgules de préfixes d\'étiquettes à masquer. Masquer une étiquette masque aussi toutes ses sous-étiquettes (par ex. "archive" masque "archive/2024/docs").',
+                desc: 'Liste séparée par des virgules de préfixes ou de jokers de nom d\'étiquettes à masquer. Utilisez `tag*` ou `*tag` pour faire correspondre les noms d\'étiquette. Masquer une étiquette masque aussi toutes ses sous-étiquettes (par ex. "archive" masque "archive/2024/docs").',
                 placeholder: 'interne, temp/brouillons, archive/2024'
             },
             enableFolderNotes: {

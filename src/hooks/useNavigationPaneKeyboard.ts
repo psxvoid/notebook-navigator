@@ -40,6 +40,7 @@ import { NavigationPaneItemType, ItemType } from '../types';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { deleteSelectedFolder } from '../utils/deleteOperations';
 import { useKeyboardNavigation, KeyboardNavigationHelpers } from './useKeyboardNavigation';
+import { getNavigationIndex } from '../utils/navigationIndex';
 
 /**
  * Check if a navigation item is selectable
@@ -59,7 +60,7 @@ interface UseNavigationPaneKeyboardProps {
     virtualizer: Virtualizer<HTMLDivElement, Element>;
     /** Container element for event attachment */
     containerRef: React.RefObject<HTMLDivElement | null>;
-    /** Map from paths to their index in items */
+    /** Combined navigation index map */
     pathToIndex: Map<string, number>;
 }
 
@@ -78,17 +79,48 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
 
+    const resolveIndex = useCallback(
+        (path: string | null | undefined, type: ItemType | null) => {
+            if (!path) {
+                return -1;
+            }
+
+            if (type) {
+                const exactMatch = getNavigationIndex(pathToIndex, type, path);
+                if (exactMatch !== undefined) {
+                    return exactMatch;
+                }
+            }
+
+            const folderIndex = getNavigationIndex(pathToIndex, ItemType.FOLDER, path);
+            if (folderIndex !== undefined) {
+                return folderIndex;
+            }
+
+            const tagIndex = getNavigationIndex(pathToIndex, ItemType.TAG, path);
+            if (tagIndex !== undefined) {
+                return tagIndex;
+            }
+
+            return -1;
+        },
+        [pathToIndex]
+    );
+
     /**
      * Get current selection index
      */
     const getCurrentIndex = useCallback(() => {
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder?.path) {
-            return pathToIndex.get(selectionState.selectedFolder.path) ?? -1;
-        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            return pathToIndex.get(selectionState.selectedTag) ?? -1;
+            return resolveIndex(selectionState.selectedFolder.path, ItemType.FOLDER);
         }
+
+        if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+            return resolveIndex(selectionState.selectedTag, ItemType.TAG);
+        }
+
         return -1;
-    }, [selectionState, pathToIndex]);
+    }, [selectionState, resolveIndex]);
 
     /**
      * Select item at given index
@@ -310,7 +342,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                             } else if (folder.parent && (!settings.showRootFolder || folder.path !== '/')) {
                                 // Navigate to parent folder
                                 const parentPath = folder.parent.path;
-                                const parentIndex = pathToIndex.get(parentPath) ?? -1;
+                                const parentIndex = resolveIndex(parentPath, ItemType.FOLDER);
                                 if (parentIndex >= 0) {
                                     const parentItem = helpers.getItemAt(parentIndex);
                                     if (parentItem) {
@@ -330,7 +362,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                                 const lastSlashIndex = tag.path.lastIndexOf('/');
                                 if (lastSlashIndex > 0) {
                                     const parentPath = tag.path.substring(0, lastSlashIndex);
-                                    const parentIndex = pathToIndex.get(parentPath) ?? -1;
+                                    const parentIndex = resolveIndex(parentPath, ItemType.TAG);
                                     if (parentIndex >= 0) {
                                         const parentItem = helpers.getItemAt(parentIndex);
                                         if (parentItem) {
@@ -415,7 +447,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
             uiDispatch,
             selectionDispatch,
             settings,
-            pathToIndex,
+            resolveIndex,
             selectItemAtIndex,
             selectionState,
             app,

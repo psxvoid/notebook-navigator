@@ -76,6 +76,7 @@ export const STRINGS_ZH = {
     // Search input
     searchInput: {
         placeholder: '搜索...', // Placeholder text for search input (English: Search...)
+        placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
         clearSearch: '清除搜索' // Tooltip for clear search button (English: Clear search)
     },
 
@@ -134,6 +135,7 @@ export const STRINGS_ZH = {
             changeIcon: '更改图标',
             removeIcon: '移除图标',
             changeColor: '更改颜色',
+            changeBackground: '更改背景',
             removeColor: '移除颜色',
             excludeFolder: '隐藏文件夹',
             renameFolder: '重命名文件夹',
@@ -143,6 +145,7 @@ export const STRINGS_ZH = {
             changeIcon: '更改图标',
             removeIcon: '移除图标',
             changeColor: '更改颜色',
+            changeBackground: '更改背景',
             removeColor: '移除颜色',
             addToFavorites: '添加到收藏',
             removeFromFavorites: '从收藏中移除',
@@ -405,10 +408,24 @@ export const STRINGS_ZH = {
             navigationPane: '文件夹显示',
             tags: '标签显示',
             folders: '文件夹笔记',
+            search: '搜索',
             listPane: '列表窗格',
             advanced: '高级'
         },
         items: {
+            searchProvider: {
+                name: '搜索提供器',
+                desc: '在快速文件名搜索或使用Omnisearch插件的全文搜索之间选择。',
+                options: {
+                    internal: '文件名过滤器',
+                    omnisearch: 'Omnisearch（全文）'
+                },
+                messages: {
+                    missingSelected: '安装Omnisearch以进行全文搜索。',
+                    missing: '安装Omnisearch以进行全文搜索。',
+                    installed: '切换到Omnisearch进行全文搜索。'
+                }
+            },
             sortNotesBy: {
                 name: '笔记排序方式',
                 desc: '选择笔记列表中的笔记排序方式。',
@@ -473,6 +490,14 @@ export const STRINGS_ZH = {
                 name: '显示工具提示（仅桌面端）',
                 desc: '悬停时显示笔记和文件夹的额外信息工具提示。'
             },
+            multiSelectModifier: {
+                name: '多选修饰键',
+                desc: '选择哪个修饰键切换多选模式。选择 Option/Alt 时，Cmd/Ctrl 点击会在新标签页中打开笔记。',
+                options: {
+                    cmdCtrl: 'Cmd/Ctrl 点击',
+                    optionAlt: 'Option/Alt 点击'
+                }
+            },
             excludedNotes: {
                 name: '隐藏笔记',
                 desc: '逗号分隔的前置元数据属性列表。包含任何这些属性的笔记将被隐藏（例如：draft, private, archived）。',
@@ -498,8 +523,12 @@ export const STRINGS_ZH = {
                 desc: '在笔记名称下方显示日期。'
             },
             showFileTags: {
-                name: '显示标签',
+                name: '显示文件标签',
                 desc: '在文件项中显示可点击的标签。使用标签颜色来直观区分不同的标签类型。'
+            },
+            showFileTagsInSlimMode: {
+                name: '在精简模式中显示文件标签',
+                desc: '当日期、预览和图像被隐藏时显示标签。'
             },
             dateFormat: {
                 name: '日期格式',
@@ -590,13 +619,17 @@ export const STRINGS_ZH = {
                 name: '保持选中项展开',
                 desc: '折叠时，保持当前选中的文件夹或标签及其父级展开。'
             },
+            navIndent: {
+                name: '树形缩进',
+                desc: '调整嵌套文件夹和标签的缩进宽度。'
+            },
             navItemHeight: {
                 name: '行高',
                 desc: '调整导航窗格中文件夹和标签的高度。'
             },
-            navIndent: {
-                name: '树形缩进',
-                desc: '调整嵌套文件夹和标签的缩进宽度。'
+            navItemHeightScaleText: {
+                name: '随行高调整文字大小',
+                desc: '降低行高时减小导航文字大小。'
             },
             showTags: {
                 name: '显示标签 (*)',
@@ -629,7 +662,7 @@ export const STRINGS_ZH = {
             },
             hiddenTags: {
                 name: '隐藏标签',
-                desc: '要隐藏的标签前缀的逗号分隔列表。隐藏标签也会隐藏所有子标签（例如："归档"隐藏"归档/2024/docs"）。',
+                desc: '要隐藏的标签前缀或名称通配符的逗号分隔列表。使用 `tag*` 或 `*tag` 匹配标签名称。隐藏标签也会隐藏所有子标签（例如："归档"隐藏"归档/2024/docs"）。',
                 placeholder: '内部, 临时/草稿, 归档/2024'
             },
             enableFolderNotes: {

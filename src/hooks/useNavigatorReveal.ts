@@ -31,6 +31,7 @@ import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { matchesAnyPrefix } from '../utils/tagPrefixMatcher';
+import { normalizeNavigationPath } from '../utils/navigationIndex';
 
 interface UseNavigatorRevealOptions {
     app: App;
@@ -521,11 +522,17 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             if (shouldScrollNavigation) {
                 if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
                     // Request scroll to tag
-                    navigationPaneRef.current?.requestScroll(selectionState.selectedTag);
+                    const tagPath = normalizeNavigationPath(ItemType.TAG, selectionState.selectedTag);
+                    navigationPaneRef.current?.requestScroll(tagPath, {
+                        itemType: ItemType.TAG
+                    });
                 } else if (selectionState.selectedFolder && file.parent && selectionState.selectedFolder.path === file.parent.path) {
                     // Request scroll to folder - but only if we're not preserving the current folder
                     // When preserveFolder is true (includeDescendantNotes), we don't want to jump to the descendant folder
-                    navigationPaneRef.current?.requestScroll(file.parent.path);
+                    const folderPath = normalizeNavigationPath(ItemType.FOLDER, file.parent.path);
+                    navigationPaneRef.current?.requestScroll(folderPath, {
+                        itemType: ItemType.FOLDER
+                    });
                 }
             }
 

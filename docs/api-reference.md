@@ -3,7 +3,7 @@
 The Notebook Navigator plugin exposes a public API that allows other plugins and scripts to interact with its features
 programmatically.
 
-**Current Version:** 1.0.0
+**Current Version:** 1.0.1
 
 ## Table of Contents
 
@@ -98,8 +98,8 @@ When using `setFolderMeta` or `setTagMeta`, partial updates follow this pattern:
 - **`color: null`** - Clears the color (removes the property)
 - **`color: undefined`** or property not present - Leaves the color unchanged
 
-This applies to all metadata properties (color, icon, etc.). Only properties explicitly included in the update object
-are modified.
+This applies to all metadata properties (color, backgroundColor, icon). Only properties explicitly included in the
+update object are modified.
 
 ### Pinned Files
 
@@ -132,6 +132,7 @@ const folder = app.vault.getFolderByPath('Projects');
 if (folder) {
   await nn.metadata.setFolderMeta(folder, {
     color: '#FF5733', // Hex, or 'red', 'rgb(255, 87, 51)', 'hsl(9, 100%, 60%)'
+    backgroundColor: '#FFF3E0', // Light background color
     icon: 'lucide:folder-open' // Type-safe with IconString
   });
 
@@ -139,7 +140,7 @@ if (folder) {
   await nn.metadata.setFolderMeta(folder, { color: 'blue' });
 
   // Clear properties by passing null
-  await nn.metadata.setFolderMeta(folder, { icon: null });
+  await nn.metadata.setFolderMeta(folder, { icon: null, backgroundColor: null });
 }
 
 // Pin a file
@@ -345,3 +346,13 @@ The type definitions provide:
 
 **Note**: These type checks are compile-time only. At runtime, the API is permissive and accepts any values (see Runtime
 Behavior sections for each API).
+
+## Changelog
+
+### Version 1.0.1 (2025-09-16)
+
+- Added `backgroundColor` property to `FolderMetadata` and `TagMetadata` interfaces
+
+### Version 1.0.0 (2025-09-15)
+
+- Initial public API release

@@ -22,7 +22,7 @@ import { NavigationPaneItemType } from '../types';
 import { TagTreeNode } from '../types/storage';
 import type { FolderTreeItem, TagTreeItem } from '../types/virtualization';
 import { isFolderInExcludedFolder } from './fileFilters';
-import { matchesAnyPrefix } from './tagPrefixMatcher';
+import { matchesHiddenTagPattern, HiddenTagMatcher } from './tagPrefixMatcher';
 
 /**
  * Flattens a folder tree into a linear array for virtualization.
@@ -98,7 +98,7 @@ export function flattenFolderTree(
  * @param expandedTags - Set of expanded tag paths
  * @param level - Current nesting level (for indentation)
  * @param context - Whether these are favorite or regular tags
- * @param hiddenPatterns - Patterns for tags that are normally hidden
+ * @param hiddenMatcher - Compiled matcher for tags that are normally hidden
  * @returns Array of flattened tag items
  */
 export function flattenTagTree(
@@ -106,14 +106,17 @@ export function flattenTagTree(
     expandedTags: Set<string>,
     level: number = 0,
     context?: 'favorites' | 'tags',
-    hiddenPatterns: string[] = []
+    hiddenMatcher?: HiddenTagMatcher
 ): TagTreeItem[] {
     const items: TagTreeItem[] = [];
 
     // Sort tags alphabetically
     const sortedNodes = tagNodes.slice().sort((a, b) => naturalCompare(a.name, b.name));
 
-    function addNode(node: TagTreeNode, currentLevel: number) {
+    function addNode(node: TagTreeNode, currentLevel: number, parentHidden: boolean = false) {
+        const matchesRule = hiddenMatcher ? matchesHiddenTagPattern(node.path, node.name, hiddenMatcher) : false;
+        const isHidden = parentHidden || matchesRule;
+
         const item: TagTreeItem = {
             type: NavigationPaneItemType.TAG,
             data: node,
@@ -123,8 +126,8 @@ export function flattenTagTree(
             context
         };
 
-        // Check if this tag would normally be hidden
-        if (hiddenPatterns.length > 0 && matchesAnyPrefix(node.path.toLowerCase(), hiddenPatterns)) {
+        // Mark tags that match hidden patterns (shows eye icon when visible)
+        if (isHidden) {
             item.isHidden = true;
         }
 
@@ -134,7 +137,7 @@ export function flattenTagTree(
         if (expandedTags.has(node.path) && node.children && node.children.size > 0) {
             const sortedChildren = Array.from(node.children.values()).sort((a, b) => naturalCompare(a.name, b.name));
 
-            sortedChildren.forEach(child => addNode(child, currentLevel + 1));
+            sortedChildren.forEach(child => addNode(child, currentLevel + 1, isHidden));
         }
     }
 

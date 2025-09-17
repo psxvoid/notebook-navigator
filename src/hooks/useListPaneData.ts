@@ -28,7 +28,7 @@
  * - Creating efficient lookup maps for file access
  */
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { TFile, TFolder, debounce } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { OperationType } from '../services/CommandQueueService';
@@ -42,6 +42,9 @@ import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
 import { strings } from '../i18n';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
 import type { NotebookNavigatorSettings } from '../settings';
+import type { SearchResultMeta } from '../types/search';
+
+const EMPTY_SEARCH_META = new Map<string, SearchResultMeta>();
 
 /**
  * Parameters for the useListPaneData hook
@@ -73,6 +76,8 @@ interface UseListPaneDataResult {
     fileIndexMap: Map<string, number>;
     /** Raw array of files before grouping */
     files: TFile[];
+    /** Search metadata keyed by file path (populated when using Omnisearch) */
+    searchMeta: Map<string, SearchResultMeta>;
 }
 
 /**
@@ -89,11 +94,23 @@ export function useListPaneData({
     settings,
     searchQuery
 }: UseListPaneDataParams): UseListPaneDataResult {
-    const { app, tagTreeService, commandQueue } = useServices();
+    const { app, tagTreeService, commandQueue, omnisearchService } = useServices();
     const { getFileCreatedTime, getFileModifiedTime, getDB, getFileDisplayName } = useFileCache();
 
     // State to force updates when vault changes (incremented on create/delete/rename)
     const [updateKey, setUpdateKey] = useState(0);
+    const [omnisearchResult, setOmnisearchResult] = useState<{
+        query: string;
+        files: TFile[];
+        meta: Map<string, SearchResultMeta>;
+    } | null>(null);
+    const searchTokenRef = useRef(0);
+
+    const trimmedQuery = searchQuery?.trim() ?? '';
+    const hasSearchQuery = trimmedQuery.length > 0;
+    const isOmnisearchAvailable = omnisearchService?.isAvailable() ?? false;
+    // Use Omnisearch only when selected, available, and there's a query
+    const useOmnisearch = settings.searchProvider === 'omnisearch' && isOmnisearchAvailable && hasSearchQuery;
 
     /**
      * Calculate the base list of files based on current selection without search filtering.
@@ -114,11 +131,85 @@ export function useListPaneData({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectionType, selectedFolder, selectedTag, settings, app, tagTreeService, updateKey]);
 
+    // Set of file paths for the current view scope
+    const basePathSet = useMemo(() => new Set(baseFiles.map(file => file.path)), [baseFiles]);
+
     /**
      * Maintain a stateful map of lowercase display names by file path.
      * Rebuild on baseFiles changes; update entries on metadata changes for live name updates.
      */
     const [searchableNames, setSearchableNames] = useState<Map<string, string>>(new Map());
+
+    // Clear Omnisearch results when switching away from it
+    useEffect(() => {
+        if (!useOmnisearch) {
+            setOmnisearchResult(null);
+        }
+    }, [useOmnisearch]);
+
+    // Execute Omnisearch query when needed
+    useEffect(() => {
+        if (!useOmnisearch) {
+            return;
+        }
+        if (!omnisearchService) {
+            setOmnisearchResult(null);
+            return;
+        }
+
+        // Track request to handle race conditions
+        const token = ++searchTokenRef.current;
+        let disposed = false;
+
+        (async () => {
+            try {
+                const hits = await omnisearchService.search(trimmedQuery);
+                // Ignore stale results
+                if (disposed || searchTokenRef.current !== token) {
+                    return;
+                }
+
+                const meta = new Map<string, SearchResultMeta>();
+                const orderedFiles: TFile[] = [];
+
+                for (const hit of hits) {
+                    // Skip files outside the current view's scope
+                    if (!basePathSet.has(hit.path)) {
+                        continue;
+                    }
+                    orderedFiles.push(hit.file);
+
+                    // Sanitize and normalize match data
+                    const matches = hit.matches
+                        .filter(match => typeof match.text === 'string' && match.text.length > 0)
+                        .map(match => ({
+                            offset: match.offset,
+                            length: match.length,
+                            text: match.text
+                        }));
+
+                    const terms = hit.foundWords.filter(word => typeof word === 'string' && word.length > 0);
+
+                    meta.set(hit.path, {
+                        score: hit.score,
+                        terms,
+                        matches,
+                        excerpt: hit.excerpt
+                    });
+                }
+
+                setOmnisearchResult({ query: trimmedQuery, files: orderedFiles, meta });
+            } catch {
+                if (searchTokenRef.current === token) {
+                    setOmnisearchResult({ query: trimmedQuery, files: [], meta: new Map() });
+                }
+            }
+        })();
+
+        return () => {
+            disposed = true;
+        };
+    }, [useOmnisearch, omnisearchService, trimmedQuery, basePathSet]);
 
     // Rebuild the entire map when the baseFiles list or name provider changes
     useEffect(() => {
@@ -155,15 +246,15 @@ export function useListPaneData({
      * Apply search filter to the base files using the precomputed name map.
      */
     const files = useMemo(() => {
-        if (!searchQuery || !searchQuery.trim()) {
+        if (!trimmedQuery) {
             return baseFiles;
         }
 
-        const query = searchQuery.toLowerCase().trim();
-        const searchSegments = query.split(/\s+/).filter(s => s.length > 0);
+        const query = trimmedQuery.toLowerCase();
+        const searchSegments = query.split(/\s+/).filter(segment => segment.length > 0);
         const isMultiWordSearch = searchSegments.length > 1;
 
-        const filtered = baseFiles.filter(file => {
+        const filteredByName = baseFiles.filter(file => {
             const name = searchableNames.get(file.path) || '';
             if (name.includes(query)) {
                 return true;
@@ -174,8 +265,19 @@ export function useListPaneData({
             return false;
         });
 
-        return filtered;
-    }, [baseFiles, searchQuery, searchableNames]);
+        if (!useOmnisearch) {
+            return filteredByName;
+        }
+
+        if (!omnisearchResult || omnisearchResult.query !== trimmedQuery) {
+            return filteredByName;
+        }
+
+        const filteredByNamePaths = new Set(filteredByName.map(file => file.path));
+        const omnisearchPaths = new Set(omnisearchResult.files.map(file => file.path));
+
+        return baseFiles.filter(file => filteredByNamePaths.has(file.path) || omnisearchPaths.has(file.path));
+    }, [useOmnisearch, trimmedQuery, baseFiles, searchableNames, omnisearchResult]);
 
     /**
      * Build the complete list of items for rendering, including:
@@ -184,6 +286,13 @@ export function useListPaneData({
      * - Regular files
      * - Bottom spacer for scroll padding
      */
+    const searchMetaMap = useMemo(() => {
+        if (useOmnisearch && omnisearchResult) {
+            return omnisearchResult.meta;
+        }
+        return EMPTY_SEARCH_META;
+    }, [useOmnisearch, omnisearchResult]);
+
     const listItems = useMemo(() => {
         const items: ListPaneItem[] = [];
 
@@ -226,7 +335,8 @@ export function useListPaneData({
                     parentFolder: selectedFolder?.path,
                     key: file.path,
                     fileIndex: fileIndexCounter++,
-                    isPinned: true
+                    isPinned: true,
+                    searchMeta: searchMetaMap.get(file.path)
                 });
             });
         }
@@ -251,7 +361,8 @@ export function useListPaneData({
                     data: file,
                     parentFolder: selectedFolder?.path,
                     key: file.path,
-                    fileIndex: fileIndexCounter++
+                    fileIndex: fileIndexCounter++,
+                    searchMeta: searchMetaMap.get(file.path)
                 });
             });
         } else {
@@ -277,7 +388,8 @@ export function useListPaneData({
                     data: file,
                     parentFolder: selectedFolder?.path,
                     key: file.path,
-                    fileIndex: fileIndexCounter++
+                    fileIndex: fileIndexCounter++,
+                    searchMeta: searchMetaMap.get(file.path)
                 });
             });
         }
@@ -290,7 +402,7 @@ export function useListPaneData({
         });
 
         return items;
-    }, [files, settings, selectionType, selectedFolder, selectedTag, getFileCreatedTime, getFileModifiedTime]);
+    }, [files, settings, selectionType, selectedFolder, selectedTag, getFileCreatedTime, getFileModifiedTime, searchMetaMap]);
 
     /**
      * Create a map from file paths to their index in listItems.
@@ -461,6 +573,7 @@ export function useListPaneData({
         orderedFiles,
         filePathToIndex,
         fileIndexMap,
-        files
+        files,
+        searchMeta: searchMetaMap
     };
 }

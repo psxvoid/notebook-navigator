@@ -49,6 +49,10 @@ export type ItemScope =
     | 'folders-only' // Only folders
     | 'tags-only'; // Only tags
 
+export type MultiSelectModifier = 'cmdCtrl' | 'optionAlt';
+
+export type SearchProvider = 'internal' | 'omnisearch';
+
 /**
  * Quick actions configuration
  */
@@ -72,8 +76,9 @@ export interface NotebookNavigatorSettings {
     smartCollapse: boolean;
     showIcons: boolean;
     showNoteCount: boolean;
-    navItemHeight: number;
     navIndent: number;
+    navItemHeight: number;
+    navItemHeightScaleText: boolean;
     // Folders
     showRootFolder: boolean;
     inheritFolderColors: boolean;
@@ -92,6 +97,7 @@ export interface NotebookNavigatorSettings {
     hiddenTags: string[];
     // List pane
     defaultFolderSort: SortOption;
+    multiSelectModifier: MultiSelectModifier;
     groupByDate: boolean;
     optimizeNoteHeight: boolean;
     showQuickActions: boolean;
@@ -109,6 +115,7 @@ export interface NotebookNavigatorSettings {
     fileNameRows: number;
     showFileDate: boolean;
     showFileTags: boolean;
+    showFileTagsInSlimMode: boolean;
     showParentFolderNames: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
@@ -121,6 +128,7 @@ export interface NotebookNavigatorSettings {
     confirmBeforeDelete: boolean;
     // Internal
     searchActive: boolean;
+    searchProvider: SearchProvider | null;
     showHiddenItems: boolean;
     // Whether list/tag views include notes from descendants (subfolders/subtags)
     includeDescendantNotes: boolean;
@@ -128,10 +136,12 @@ export interface NotebookNavigatorSettings {
     pinnedNotes: PinnedNotes;
     folderIcons: Record<string, string>;
     folderColors: Record<string, string>;
+    folderBackgroundColors: Record<string, string>;
     folderSortOverrides: Record<string, SortOption>;
     folderAppearances: Record<string, FolderAppearance>;
     tagIcons: Record<string, string>;
     tagColors: Record<string, string>;
+    tagBackgroundColors: Record<string, string>;
     tagSortOverrides: Record<string, SortOption>;
     tagAppearances: Record<string, TagAppearance>;
     recentIcons: Record<string, string[]>;
@@ -160,8 +170,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     smartCollapse: true,
     showIcons: true,
     showNoteCount: true,
-    navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
     navIndent: NAVPANE_MEASUREMENTS.defaultIndent,
+    navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
+    navItemHeightScaleText: true,
     // Folders
     showRootFolder: true,
     inheritFolderColors: false,
@@ -180,6 +191,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     hiddenTags: [],
     // List pane
     defaultFolderSort: 'modified-desc',
+    multiSelectModifier: 'cmdCtrl',
     groupByDate: true,
     optimizeNoteHeight: true,
     showQuickActions: true,
@@ -197,6 +209,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     fileNameRows: 1,
     showFileDate: true,
     showFileTags: true,
+    showFileTagsInSlimMode: false,
     showParentFolderNames: true,
     showFilePreview: true,
     skipHeadingsInPreview: true,
@@ -209,16 +222,19 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     confirmBeforeDelete: true,
     // Internal
     searchActive: false,
+    searchProvider: null,
     showHiddenItems: false,
     includeDescendantNotes: true,
     customVaultName: '',
     pinnedNotes: {},
     folderIcons: {},
     folderColors: {},
+    folderBackgroundColors: {},
     folderSortOverrides: {},
     folderAppearances: {},
     tagIcons: {},
     tagColors: {},
+    tagBackgroundColors: {},
     tagSortOverrides: {},
     tagAppearances: {},
     recentIcons: {},
@@ -592,6 +608,33 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
+        let indentationSlider: SliderComponent;
+        new Setting(containerEl)
+            .setName(strings.settings.items.navIndent.name)
+            .setDesc(strings.settings.items.navIndent.desc)
+            .addSlider(slider => {
+                indentationSlider = slider
+                    .setLimits(10, 24, 1)
+                    .setValue(this.plugin.settings.navIndent)
+                    .setDynamicTooltip()
+                    .onChange(async value => {
+                        this.plugin.settings.navIndent = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                    });
+                return slider;
+            })
+            .addExtraButton(button =>
+                button
+                    .setIcon('lucide-rotate-ccw')
+                    .setTooltip('Restore to default (16px)')
+                    .onClick(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.navIndent;
+                        indentationSlider.setValue(defaultValue);
+                        this.plugin.settings.navIndent = defaultValue;
+                        await this.plugin.saveSettingsAndUpdate();
+                    })
+            );
+
         let lineHeightSlider: SliderComponent;
         new Setting(containerEl)
             .setName(strings.settings.items.navItemHeight.name)
@@ -619,31 +662,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     })
             );
 
-        let indentationSlider: SliderComponent;
-        new Setting(containerEl)
-            .setName(strings.settings.items.navIndent.name)
-            .setDesc(strings.settings.items.navIndent.desc)
-            .addSlider(slider => {
-                indentationSlider = slider
-                    .setLimits(10, 24, 1)
-                    .setValue(this.plugin.settings.navIndent)
-                    .setDynamicTooltip()
-                    .onChange(async value => {
-                        this.plugin.settings.navIndent = value;
-                        await this.plugin.saveSettingsAndUpdate();
-                    });
-                return slider;
-            })
-            .addExtraButton(button =>
-                button
-                    .setIcon('lucide-rotate-ccw')
-                    .setTooltip('Restore to default (16px)')
-                    .onClick(async () => {
-                        const defaultValue = DEFAULT_SETTINGS.navIndent;
-                        indentationSlider.setValue(defaultValue);
-                        this.plugin.settings.navIndent = defaultValue;
-                        await this.plugin.saveSettingsAndUpdate();
-                    })
+        const navItemHeightSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(navItemHeightSettingsEl)
+            .setName(strings.settings.items.navItemHeightScaleText.name)
+            .setDesc(strings.settings.items.navItemHeightScaleText.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.navItemHeightScaleText).onChange(async value => {
+                    this.plugin.settings.navItemHeightScaleText = value;
+                    await this.plugin.saveSettingsAndUpdate();
+                })
             );
 
         // Section 2: Folders
@@ -840,7 +868,51 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Add a custom class to make the input wider
         hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');
 
-        // Section 4: List pane
+        // Section 4: Search
+        new Setting(containerEl).setName(strings.settings.sections.search).setHeading();
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.searchProvider.name)
+            .setDesc(strings.settings.items.searchProvider.desc)
+            .addDropdown(dropdown => {
+                const currentProvider = this.plugin.settings.searchProvider ?? 'internal';
+                dropdown
+                    .addOption('internal', strings.settings.items.searchProvider.options.internal)
+                    .addOption('omnisearch', strings.settings.items.searchProvider.options.omnisearch)
+                    .setValue(currentProvider)
+                    .onChange(async value => {
+                        const provider = value as SearchProvider;
+                        this.plugin.settings.searchProvider = provider;
+                        await this.plugin.saveSettingsAndUpdate();
+                        updateSearchInfo();
+                    });
+            });
+
+        const searchInfoContainer = containerEl.createDiv('nn-setting-info-container');
+        const searchInfoEl = searchInfoContainer.createEl('div', {
+            cls: 'setting-item-description'
+        });
+
+        const updateSearchInfo = () => {
+            const provider = this.plugin.settings.searchProvider ?? 'internal';
+            const hasOmnisearch = this.plugin.omnisearchService?.isAvailable() ?? false;
+
+            let message = '';
+            if (provider === 'omnisearch' && !hasOmnisearch) {
+                message = strings.settings.items.searchProvider.messages.missingSelected;
+            } else if (provider !== 'omnisearch') {
+                message = hasOmnisearch
+                    ? strings.settings.items.searchProvider.messages.installed
+                    : strings.settings.items.searchProvider.messages.missing;
+            }
+
+            searchInfoEl.setText(message);
+            searchInfoContainer.toggle(message.length > 0);
+        };
+
+        updateSearchInfo();
+
+        // Section 5: List pane
         new Setting(containerEl).setName(strings.settings.sections.listPane).setHeading();
 
         new Setting(containerEl)
@@ -857,6 +929,20 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.defaultFolderSort)
                     .onChange(async (value: SortOption) => {
                         this.plugin.settings.defaultFolderSort = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                    })
+            );
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.multiSelectModifier.name)
+            .setDesc(strings.settings.items.multiSelectModifier.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('cmdCtrl', strings.settings.items.multiSelectModifier.options.cmdCtrl)
+                    .addOption('optionAlt', strings.settings.items.multiSelectModifier.options.optionAlt)
+                    .setValue(this.plugin.settings.multiSelectModifier)
+                    .onChange(async (value: MultiSelectModifier) => {
+                        this.plugin.settings.multiSelectModifier = value;
                         await this.plugin.saveSettingsAndUpdate();
                     })
             );
@@ -1075,6 +1161,21 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 toggle.setValue(this.plugin.settings.showFileTags).onChange(async value => {
                     this.plugin.settings.showFileTags = value;
                     await this.plugin.saveSettingsAndUpdate();
+                    // Update sub-settings visibility
+                    fileTagsSubSettingsEl.toggle(value);
+                })
+            );
+
+        // Container for file tags sub-settings
+        const fileTagsSubSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(fileTagsSubSettingsEl)
+            .setName(strings.settings.items.showFileTagsInSlimMode.name)
+            .setDesc(strings.settings.items.showFileTagsInSlimMode.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showFileTagsInSlimMode).onChange(async value => {
+                    this.plugin.settings.showFileTagsInSlimMode = value;
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -1273,7 +1374,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         tagSubSettingsEl.toggle(this.plugin.settings.showTags);
         frontmatterSettingsEl.toggle(this.plugin.settings.useFrontmatterMetadata);
         folderNotesSettingsEl.toggle(this.plugin.settings.enableFolderNotes);
-        // Hide "Show tags" in Notes section if main "Show tags" is disabled
+        fileTagsSubSettingsEl.toggle(this.plugin.settings.showFileTags);
+        // Hide "Show file tags" in Notes section if main "Show tags" is disabled
         if (showFileTagsSetting) {
             showFileTagsSetting.settingEl.toggle(this.plugin.settings.showTags);
         }

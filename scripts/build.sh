@@ -109,6 +109,19 @@ else
     fi
 fi
 
+# Step 5: Run unit tests
+echo -e "\nRunning unit tests..."
+TEST_OUTPUT=$(npm run test 2>&1)
+TEST_STATUS=$?
+echo "$TEST_OUTPUT"
+
+if [ $TEST_STATUS -ne 0 ]; then
+    echo "❌ Unit tests failed"
+    BUILD_ERRORS=$((BUILD_ERRORS + 1))
+else
+    echo "✅ Unit tests passed"
+fi
+
 # Only run the build if there are zero errors AND zero warnings
 if [ $BUILD_ERRORS -eq 0 ] && [ $BUILD_WARNINGS -eq 0 ]; then
     # Run the standard npm build

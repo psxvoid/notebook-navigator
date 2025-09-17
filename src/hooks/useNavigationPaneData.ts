@@ -35,7 +35,7 @@ import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useExpansionState } from '../context/ExpansionContext';
 import { useFileCache } from '../context/StorageContext';
 import { strings } from '../i18n';
-import { UNTAGGED_TAG_ID, NavigationPaneItemType, VirtualFolder } from '../types';
+import { UNTAGGED_TAG_ID, NavigationPaneItemType, VirtualFolder, ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
@@ -45,7 +45,9 @@ import { shouldDisplayFile } from '../utils/fileTypeUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
+import { createHiddenTagMatcher } from '../utils/tagPrefixMatcher';
 import { naturalCompare } from '../utils/sortUtils';
+import { setNavigationIndex } from '../utils/navigationIndex';
 
 /**
  * Parameters for the useNavigationPaneData hook
@@ -63,7 +65,7 @@ interface UseNavigationPaneDataParams {
 interface UseNavigationPaneDataResult {
     /** Combined list of navigation items (folders and tags) */
     items: CombinedNavigationItem[];
-    /** Map from item path to index in items array */
+    /** Map from item keys to index in items array */
     pathToIndex: Map<string, number>;
     /** Map from tag path to file count */
     tagCounts: Map<string, number>;
@@ -94,6 +96,12 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     const tagTree = fileData.tagTree;
     const untaggedCount = fileData.untagged;
 
+    // Create matcher for hidden tag patterns (supports "archive", "temp*", "*draft")
+    const hiddenTagMatcher = useMemo(() => createHiddenTagMatcher(settings.hiddenTags), [settings.hiddenTags]);
+    // Check if any hidden tag rules exist
+    const hiddenMatcherHasRules =
+        hiddenTagMatcher.prefixes.length > 0 || hiddenTagMatcher.startsWithNames.length > 0 || hiddenTagMatcher.endsWithNames.length > 0;
+
     /**
      * Build folder items from vault structure
      */
@@ -109,9 +117,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
         if (!settings.showTags) return items;
 
-        // Parse favorite and hidden tag patterns
+        // Parse favorite tag patterns
         const favoritePatterns = settings.favoriteTags;
-        const hiddenPatterns = settings.hiddenTags;
 
         // Helper function to add untagged node
         const addUntaggedNode = (level: number, context?: 'favorites' | 'tags') => {
@@ -145,14 +152,14 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             });
         };
 
-        // Apply hidden tag exclusion to both trees based on showHiddenItems setting
+        // Filter out hidden tags when showHiddenItems is false
         const shouldHideTags = !settings.showHiddenItems;
-        const visibleFavoriteTree =
-            hiddenPatterns.length > 0 && shouldHideTags ? excludeFromTagTree(favoriteTree, hiddenPatterns) : favoriteTree;
-        const visibleTagTree = hiddenPatterns.length > 0 && shouldHideTags ? excludeFromTagTree(tagTree, hiddenPatterns) : tagTree;
+        const hasHiddenPatterns = hiddenMatcherHasRules;
+        const visibleFavoriteTree = hasHiddenPatterns && shouldHideTags ? excludeFromTagTree(favoriteTree, hiddenTagMatcher) : favoriteTree;
+        const visibleTagTree = hasHiddenPatterns && shouldHideTags ? excludeFromTagTree(tagTree, hiddenTagMatcher) : tagTree;
 
-        // Determine which patterns to pass for marking hidden tags (when showing them)
-        const patternsToMark = !shouldHideTags ? hiddenPatterns : [];
+        // Pass matcher when showing hidden items (adds eye icon)
+        const matcherForMarking = !shouldHideTags && hasHiddenPatterns ? hiddenTagMatcher : undefined;
 
         // Helper function to add tags to list
         const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
@@ -162,7 +169,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                     expansionState.expandedTags,
                     1, // Start at level 1 since they're inside the virtual folder
                     folderId === 'favorite-tags-root' ? 'favorites' : 'tags',
-                    patternsToMark
+                    matcherForMarking
                 );
                 items.push(...tagItems);
 
@@ -196,7 +203,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                     expansionState.expandedTags,
                     0, // Start at level 0 since no virtual folder
                     'favorites',
-                    patternsToMark
+                    matcherForMarking
                 );
                 items.push(...favoriteItems);
 
@@ -217,7 +224,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                     expansionState.expandedTags,
                     0, // Start at level 0 since no virtual folder
                     'tags',
-                    patternsToMark
+                    matcherForMarking
                 );
                 items.push(...nonFavoriteItems);
 
@@ -239,7 +246,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                     expansionState.expandedTags,
                     0, // Start at level 0 since no virtual folder
                     'tags',
-                    patternsToMark
+                    matcherForMarking
                 );
                 items.push(...tagTreeItems);
 
@@ -252,7 +259,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     }, [
         settings.showTags,
         settings.favoriteTags,
-        settings.hiddenTags,
+        hiddenTagMatcher,
+        hiddenMatcherHasRules,
         settings.showHiddenItems,
         settings.showUntagged,
         settings.showUntaggedInFavorites,
@@ -323,7 +331,9 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         // We use JSON.stringify to detect any changes in the objects
         return JSON.stringify({
             folderColors: settings.folderColors || {},
+            folderBackgroundColors: settings.folderBackgroundColors || {},
             tagColors: settings.tagColors || {},
+            tagBackgroundColors: settings.tagBackgroundColors || {},
             folderIcons: settings.folderIcons || {},
             tagIcons: settings.tagIcons || {},
             inheritFolderColors: settings.inheritFolderColors
@@ -340,6 +350,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                 return {
                     ...item,
                     color: metadataService.getFolderColor(item.data.path),
+                    backgroundColor: metadataService.getFolderBackgroundColor(item.data.path),
                     icon: metadataService.getFolderIcon(item.data.path),
                     parsedExcludedFolders
                 };
@@ -348,6 +359,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                 return {
                     ...item,
                     color: metadataService.getTagColor(tagNode.path),
+                    backgroundColor: metadataService.getTagBackgroundColor(tagNode.path),
                     icon: metadataService.getTagIcon(tagNode.path)
                 };
             }
@@ -380,16 +392,18 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
      * Build from filtered items so indices match what's displayed
      */
     const pathToIndex = useMemo(() => {
-        const map = new Map<string, number>();
+        const indexMap = new Map<string, number>();
+
         filteredItems.forEach((item, index) => {
             if (item.type === NavigationPaneItemType.FOLDER) {
-                map.set(item.data.path, index);
+                setNavigationIndex(indexMap, ItemType.FOLDER, item.data.path, index);
             } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
                 const tagNode = item.data;
-                map.set(tagNode.path, index);
+                setNavigationIndex(indexMap, ItemType.TAG, tagNode.path, index);
             }
         });
-        return map;
+
+        return indexMap;
     }, [filteredItems]);
 
     /**

@@ -73,6 +73,7 @@ interface FolderItemProps {
     onToggleAllSiblings?: () => void;
     icon?: string;
     color?: string;
+    backgroundColor?: string;
     fileCount?: number;
     excludedFolders: string[];
 }
@@ -103,6 +104,7 @@ export const FolderItem = React.memo(function FolderItem({
     onToggleAllSiblings,
     icon,
     color,
+    backgroundColor,
     fileCount: precomputedFileCount,
     excludedFolders
 }: FolderItemProps) {
@@ -168,6 +170,7 @@ export const FolderItem = React.memo(function FolderItem({
 
     // Use color from props (passed from NavigationPane)
     const customColor = color;
+    const customBackground = backgroundColor;
 
     const hasFolderNote = useMemo(() => {
         if (!settings.enableFolderNotes) return false;
@@ -182,8 +185,9 @@ export const FolderItem = React.memo(function FolderItem({
         const classes = ['nn-navitem', 'nn-folder'];
         if (isSelected) classes.push('nn-selected');
         if (isExcluded) classes.push('nn-excluded');
+        if (customBackground && !isSelected) classes.push('nn-has-custom-background');
         return classes.join(' ');
-    }, [isSelected, isExcluded]);
+    }, [customBackground, isSelected, isExcluded]);
 
     const folderNameClassName = useMemo(() => {
         const classes = ['nn-navitem-name'];
@@ -312,7 +316,12 @@ export const FolderItem = React.memo(function FolderItem({
             data-level={level}
             onClick={onClick}
             onDoubleClick={handleDoubleClick}
-            style={{ '--level': level } as React.CSSProperties}
+            style={
+                {
+                    '--level': level,
+                    ...(customBackground && !isSelected ? { '--nn-navitem-custom-bg-color': customBackground } : {})
+                } as React.CSSProperties
+            }
             role="treeitem"
             aria-expanded={hasChildren ? isExpanded : undefined}
             aria-level={level + 1}

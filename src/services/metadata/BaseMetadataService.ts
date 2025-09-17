@@ -29,13 +29,18 @@ import { FolderAppearance, TagAppearance } from '../../hooks/useListPaneAppearan
 type MetadataFields = {
     folderIcons: Record<string, string>;
     folderColors: Record<string, string>;
+    folderBackgroundColors: Record<string, string>;
     folderSortOverrides: Record<string, SortOption>;
     folderAppearances: Record<string, FolderAppearance>;
     tagColors: Record<string, string>;
     tagIcons: Record<string, string>;
+    tagBackgroundColors: Record<string, string>;
     tagSortOverrides: Record<string, SortOption>;
     tagAppearances: Record<string, TagAppearance>;
 };
+
+type ColorRecordKey = 'folderColors' | 'tagColors' | 'folderBackgroundColors' | 'tagBackgroundColors';
+type ColorVariant = 'color' | 'background';
 
 type MetadataKey = keyof MetadataFields;
 
@@ -101,24 +106,7 @@ export abstract class BaseMetadataService {
      * @param color - CSS color value
      */
     protected async setEntityColor(entityType: EntityType, path: string, color: string): Promise<void> {
-        // Validate color format
-        if (!this.validateColor(color)) {
-            return;
-        }
-
-        await this.saveAndUpdate(settings => {
-            if (entityType === ItemType.FOLDER) {
-                if (!settings.folderColors) {
-                    settings.folderColors = {};
-                }
-                settings.folderColors[path] = color;
-            } else {
-                if (!settings.tagColors) {
-                    settings.tagColors = {};
-                }
-                settings.tagColors[path] = color;
-            }
-        });
+        await this.setEntityColorVariant(entityType, path, color, 'color');
     }
 
     /**
@@ -127,19 +115,7 @@ export abstract class BaseMetadataService {
      * @param path - Path of the entity
      */
     protected async removeEntityColor(entityType: EntityType, path: string): Promise<void> {
-        if (entityType === ItemType.FOLDER && this.settingsProvider.settings.folderColors?.[path]) {
-            await this.saveAndUpdate(settings => {
-                if (settings.folderColors) {
-                    delete settings.folderColors[path];
-                }
-            });
-        } else if (entityType === ItemType.TAG && this.settingsProvider.settings.tagColors?.[path]) {
-            await this.saveAndUpdate(settings => {
-                if (settings.tagColors) {
-                    delete settings.tagColors[path];
-                }
-            });
-        }
+        await this.removeEntityColorVariant(entityType, path, 'color');
     }
 
     /**
@@ -149,10 +125,96 @@ export abstract class BaseMetadataService {
      * @returns The color value or undefined
      */
     protected getEntityColor(entityType: EntityType, path: string): string | undefined {
+        return this.getEntityColorVariant(entityType, path, 'color');
+    }
+
+    /**
+     * Sets a custom background color for an entity (folder or tag)
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
+     * @param color - CSS color value
+     */
+    protected async setEntityBackgroundColor(entityType: EntityType, path: string, color: string): Promise<void> {
+        await this.setEntityColorVariant(entityType, path, color, 'background');
+    }
+
+    /**
+     * Removes the custom background color from an entity
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
+     */
+    protected async removeEntityBackgroundColor(entityType: EntityType, path: string): Promise<void> {
+        await this.removeEntityColorVariant(entityType, path, 'background');
+    }
+
+    /**
+     * Gets the custom background color for an entity
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
+     */
+    protected getEntityBackgroundColor(entityType: EntityType, path: string): string | undefined {
+        return this.getEntityColorVariant(entityType, path, 'background');
+    }
+
+    /**
+     * Maps entity type and variant to the corresponding settings key
+     */
+    private getColorRecordKey(entityType: EntityType, variant: ColorVariant): ColorRecordKey {
         if (entityType === ItemType.FOLDER) {
-            return this.settingsProvider.settings.folderColors?.[path];
+            return variant === 'color' ? 'folderColors' : 'folderBackgroundColors';
         }
-        return this.settingsProvider.settings.tagColors?.[path];
+        return variant === 'color' ? 'tagColors' : 'tagBackgroundColors';
+    }
+
+    /**
+     * Ensures a color record exists and returns it
+     */
+    private ensureColorRecord(settings: NotebookNavigatorSettings, key: ColorRecordKey): Record<string, string> {
+        if (!settings[key]) {
+            settings[key] = {};
+        }
+        return settings[key];
+    }
+
+    /**
+     * Shared logic for setting entity color/background values
+     */
+    private async setEntityColorVariant(entityType: EntityType, path: string, color: string, variant: ColorVariant): Promise<void> {
+        if (!this.validateColor(color)) {
+            return;
+        }
+
+        await this.saveAndUpdate(settings => {
+            const recordKey = this.getColorRecordKey(entityType, variant);
+            const record = this.ensureColorRecord(settings, recordKey);
+            record[path] = color;
+        });
+    }
+
+    /**
+     * Shared logic for removing entity color/background values
+     */
+    private async removeEntityColorVariant(entityType: EntityType, path: string, variant: ColorVariant): Promise<void> {
+        const recordKey = this.getColorRecordKey(entityType, variant);
+        const record = this.settingsProvider.settings[recordKey];
+        if (!record || !(path in record)) {
+            return;
+        }
+
+        await this.saveAndUpdate(settings => {
+            const mutableRecord = settings[recordKey];
+            if (mutableRecord) {
+                delete mutableRecord[path];
+            }
+        });
+    }
+
+    /**
+     * Shared logic for getting entity color/background values
+     */
+    private getEntityColorVariant(entityType: EntityType, path: string, variant: ColorVariant): string | undefined {
+        const recordKey = this.getColorRecordKey(entityType, variant);
+        return this.settingsProvider.settings[recordKey]?.[path];
     }
 
     // ========== Generic Icon Management ==========

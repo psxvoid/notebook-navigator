@@ -198,15 +198,16 @@ export function useListPaneScroll({
 
             // Get actual preview status for accurate height calculation
             let hasPreviewText = false;
-            if (
-                item.type === ListPaneItemType.FILE &&
-                item.data instanceof TFile &&
-                folderSettings.showPreview &&
-                item.data.extension === 'md'
-            ) {
-                // Use synchronous check from cache
-                hasPreviewText = hasPreview(item.data.path);
+            let hasOmnisearchExcerpt = false;
+            if (item.type === ListPaneItemType.FILE && item.data instanceof TFile && folderSettings.showPreview) {
+                if (item.data.extension === 'md') {
+                    // Use synchronous check from cache for markdown preview text
+                    hasPreviewText = hasPreview(item.data.path);
+                }
+                const excerpt = item.searchMeta?.excerpt;
+                hasOmnisearchExcerpt = typeof excerpt === 'string' && excerpt.trim().length > 0;
             }
+            const hasPreviewContent = hasPreviewText || hasOmnisearchExcerpt;
 
             // Note: Preview rows are calculated differently based on context
 
@@ -218,8 +219,8 @@ export function useListPaneScroll({
             const pinnedItemShouldUseCompactLayout = item.isPinned && heightOptimizationEnabled; // Pinned items get compact treatment only when optimizing
             const shouldUseSingleLineForDateAndPreview = pinnedItemShouldUseCompactLayout || folderSettings.previewRows < 2;
             const shouldUseMultiLinePreviewLayout = !pinnedItemShouldUseCompactLayout && folderSettings.previewRows >= 2;
-            const shouldCollapseEmptyPreviewSpace = heightOptimizationEnabled && !hasPreviewText; // Optimization: compact layout for empty preview
-            const shouldAlwaysReservePreviewSpace = heightOptimizationDisabled || hasPreviewText; // Show full layout when not optimizing OR has content
+            const shouldCollapseEmptyPreviewSpace = heightOptimizationEnabled && !hasPreviewContent; // Optimization: compact layout for empty preview
+            const shouldAlwaysReservePreviewSpace = heightOptimizationDisabled || hasPreviewContent; // Show full layout when not optimizing OR has content
 
             // Start with base padding
             let textContentHeight = 0;
@@ -267,10 +268,10 @@ export function useListPaneScroll({
                         // Has preview text OR using full height: show full layout
                         if (folderSettings.showPreview) {
                             // When using full height, always reserve full preview rows even if empty
-                            // When optimizing, only show preview if there's text
+                            // When optimizing, only show preview if there's content
                             const previewRows = heightOptimizationDisabled
                                 ? folderSettings.previewRows
-                                : hasPreviewText
+                                : hasPreviewContent
                                   ? folderSettings.previewRows
                                   : 0;
                             if (previewRows > 0) {
@@ -292,14 +293,13 @@ export function useListPaneScroll({
                 }
             }
 
-            // Add tag row height if file has tags (in both normal and slim modes when showTags is enabled)
-            if (settings.showFileTags && item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
-                // Check if file has tags using the database
+            // Add tag row height only when tags are visible for this layout
+            const shouldShowFileTags = settings.showTags && settings.showFileTags && (!isSlimMode || settings.showFileTagsInSlimMode);
+
+            if (shouldShowFileTags && item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
                 const db = getDB();
                 const tags = db.getCachedTags(item.data.path);
-                const hasTags = tags.length > 0;
-
-                if (hasTags) {
+                if (tags.length > 0) {
                     textContentHeight += heights.tagRowHeight;
                 }
             }
@@ -312,7 +312,8 @@ export function useListPaneScroll({
 
             // Use reduced padding for slim mode (with mobile-specific padding)
             const padding = isSlimMode ? (isMobile ? heights.slimPaddingMobile : heights.slimPadding) : heights.basePadding;
-            return padding + textContentHeight;
+            const totalHeight = padding + textContentHeight;
+            return Math.round(totalHeight);
         },
         overscan: OVERSCAN,
         scrollPaddingStart: 0,
@@ -554,7 +555,9 @@ export function useListPaneScroll({
         settings.fileNameRows,
         settings.previewRows,
         settings.showParentFolderNames,
+        settings.showTags,
         settings.showFileTags,
+        settings.showFileTagsInSlimMode,
         settings.optimizeNoteHeight,
         folderSettings,
         rowVirtualizer

@@ -1,5 +1,3 @@
-import { getLanguage } from 'obsidian';
-import { STRINGS_DE } from './locales/de';
 /*
  * Notebook Navigator - Plugin for Obsidian
  * Copyright (c) 2025 Johan Sanneblad
@@ -22,10 +20,14 @@ import { STRINGS_DE } from './locales/de';
  * Central export point for internationalization
  * Dynamically loads the appropriate language based on Obsidian's language setting
  */
+import { getLanguage } from 'obsidian';
+import { STRINGS_DE } from './locales/de';
 import { STRINGS_EN } from './locales/en';
 import { STRINGS_ES } from './locales/es';
 import { STRINGS_FR } from './locales/fr';
 import { STRINGS_JA } from './locales/ja';
+import { STRINGS_KO } from './locales/ko';
+import { STRINGS_PL } from './locales/pl';
 import { STRINGS_ZH } from './locales/zh';
 
 // Type for the translation strings structure
@@ -39,6 +41,8 @@ const LANGUAGE_MAP: Record<string, TranslationStrings> = {
     es: STRINGS_ES,
     fr: STRINGS_FR,
     ja: STRINGS_JA,
+    ko: STRINGS_KO,
+    pl: STRINGS_PL,
     zh: STRINGS_ZH
 };
 

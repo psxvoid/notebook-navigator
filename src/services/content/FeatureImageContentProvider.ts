@@ -125,8 +125,11 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                 continue;
             }
 
-            // Handle wikilinks e.g., [[image.png]]
-            const resolvedPath = imagePath.startsWith('[[') && imagePath.endsWith(']]') ? imagePath.slice(2, -2) : imagePath;
+            const resolvedPath = this.normalizeLinkPath(imagePath);
+
+            if (!resolvedPath) {
+                continue;
+            }
 
             const imageFile = this.app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
 
@@ -149,5 +152,25 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         }
 
         return null;
+    }
+
+    private normalizeLinkPath(rawPath: string): string {
+        let normalized = rawPath.trim();
+
+        if (normalized.startsWith('!')) {
+            normalized = normalized.slice(1).trim();
+        }
+
+        if (normalized.startsWith('[[') && normalized.endsWith(']]')) {
+            normalized = normalized.slice(2, -2).trim();
+        }
+
+        const aliasSeparatorIndex = normalized.indexOf('|');
+
+        if (aliasSeparatorIndex !== -1) {
+            normalized = normalized.slice(0, aliasSeparatorIndex).trim();
+        }
+
+        return normalized;
     }
 }

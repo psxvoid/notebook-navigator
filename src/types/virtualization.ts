@@ -18,6 +18,7 @@
 
 import { TFile, TFolder } from 'obsidian';
 import { ListPaneItemType, NavigationPaneItemType, VirtualFolder } from '../types';
+import type { SearchResultMeta } from './search';
 import { TagTreeNode } from '../types/storage';
 
 export interface VirtualItem<T> {
@@ -36,6 +37,7 @@ export interface ListPaneItem {
     fileIndex?: number;
     // Indicates if this file is pinned
     isPinned?: boolean;
+    searchMeta?: SearchResultMeta;
 }
 
 export interface FolderTreeItem {
@@ -45,6 +47,7 @@ export interface FolderTreeItem {
     path: string;
     key: string;
     color?: string;
+    backgroundColor?: string;
     icon?: string;
     parsedExcludedFolders?: string[];
     isExcluded?: boolean;
@@ -58,6 +61,7 @@ export interface TagTreeItem {
     key: string;
     context?: 'favorites' | 'tags'; // Indicates which section this tag is in
     color?: string;
+    backgroundColor?: string;
     icon?: string;
     isHidden?: boolean; // Marks tags that are normally hidden but being shown
 }
@@ -69,6 +73,7 @@ export interface UntaggedItem {
     key: string;
     context?: 'favorites' | 'tags'; // Indicates which section this item is in
     color?: string;
+    backgroundColor?: string;
     icon?: string;
 }
 

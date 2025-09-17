@@ -1,6 +1,6 @@
 /**
  * Notebook Navigator Plugin API Type Definitions
- * Version: 1.0.0
+ * Version: 1.0.1
  *
  * Download this file to your Obsidian plugin project to get TypeScript support
  * for the Notebook Navigator API.
@@ -35,6 +35,8 @@ export type IconString = `lucide:${string}` | `emoji:${string}`;
 export interface FolderMetadata {
     /** CSS color value (hex, rgb, hsl, named colors) */
     color?: string;
+    /** CSS background color value */
+    backgroundColor?: string;
     /** Icon identifier in format 'lucide:<name>' or 'emoji:<unicode>' */
     icon?: IconString;
 }
@@ -45,6 +47,8 @@ export interface FolderMetadata {
 export interface TagMetadata {
     /** CSS color value (hex, rgb, hsl, named colors) */
     color?: string;
+    /** CSS background color value */
+    backgroundColor?: string;
     /** Icon identifier in format 'lucide:<name>' or 'emoji:<unicode>' */
     icon?: IconString;
 }
@@ -132,7 +136,7 @@ export interface NotebookNavigatorEvents {
 
 /**
  * Main Notebook Navigator API interface
- * @version 1.0.0
+ * @version 1.0.1
  */
 export interface NotebookNavigatorAPI {
     /** Get the API version string */
@@ -188,3 +192,13 @@ export interface NotebookNavigatorAPI {
     /** Unsubscribe from an event */
     off(ref: EventRef): void;
 }
+
+/**
+ * API Changelog
+ *
+ * Version 1.0.1 (2025-09-16)
+ * - Added backgroundColor property to FolderMetadata and TagMetadata interfaces
+ *
+ * Version 1.0.0 (2025-09-15)
+ * - Initial public API release
+ */

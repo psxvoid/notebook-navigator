@@ -74,12 +74,24 @@ export class MetadataService {
         return this.folderService.setFolderColor(folderPath, color);
     }
 
+    async setFolderBackgroundColor(folderPath: string, color: string): Promise<void> {
+        return this.folderService.setFolderBackgroundColor(folderPath, color);
+    }
+
     async removeFolderColor(folderPath: string): Promise<void> {
         return this.folderService.removeFolderColor(folderPath);
     }
 
+    async removeFolderBackgroundColor(folderPath: string): Promise<void> {
+        return this.folderService.removeFolderBackgroundColor(folderPath);
+    }
+
     getFolderColor(folderPath: string): string | undefined {
         return this.folderService.getFolderColor(folderPath);
+    }
+
+    getFolderBackgroundColor(folderPath: string): string | undefined {
+        return this.folderService.getFolderBackgroundColor(folderPath);
     }
 
     async setFolderIcon(folderPath: string, iconId: string): Promise<void> {
@@ -120,12 +132,24 @@ export class MetadataService {
         return this.tagService.setTagColor(tagPath, color);
     }
 
+    async setTagBackgroundColor(tagPath: string, color: string): Promise<void> {
+        return this.tagService.setTagBackgroundColor(tagPath, color);
+    }
+
     async removeTagColor(tagPath: string): Promise<void> {
         return this.tagService.removeTagColor(tagPath);
     }
 
+    async removeTagBackgroundColor(tagPath: string): Promise<void> {
+        return this.tagService.removeTagBackgroundColor(tagPath);
+    }
+
     getTagColor(tagPath: string): string | undefined {
         return this.tagService.getTagColor(tagPath);
+    }
+
+    getTagBackgroundColor(tagPath: string): string | undefined {
+        return this.tagService.getTagBackgroundColor(tagPath);
     }
 
     async setTagIcon(tagPath: string, iconId: string): Promise<void> {

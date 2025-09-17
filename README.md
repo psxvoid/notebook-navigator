@@ -1,6 +1,6 @@
 ![Notebook Navigator Banner](https://github.com/johansan/notebook-navigator/blob/main/images/banner.gif?raw=true)
 
-Available in: English • Deutsch • Español • Français • 日本語 • 中文
+Available in: English • Deutsch • Español • Français • Polski • 日本語 • 中文 • 한국어
 
 ![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=Downloads&query=%24%5B%22notebook-navigator%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
 ![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square)
@@ -34,7 +34,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Dual-pane layout** - Navigation pane on the left (folders and tags), list pane on right (files)
 - **Single-pane layout** - Default on mobile, optional on desktop. Switch between navigation and file list
 - **Mobile optimized** - Touch-friendly interface with properly sized buttons for Android, iOS and iPadOS
-- **Multi-language support** - English, Deutsch, Español, Français, 日本語, 中文
+- **Multi-language support** - English, Deutsch, Español, Français, Polski, 日本語, 中文, 한국어
 - **RTL language support** - Right-to-left languages with proper layout mirroring (e.g., العربية)
 - **Resizable panes** - Adjust the split between navigation and list pane
 
@@ -51,12 +51,12 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 - **Pin notes** - Keep important notes at the top of folders and tags
 - **Folder notes** - Turn folders into clickable links with associated notes
-- **Custom colors** - Set colors for folders and tags
+- **Custom colors and backgrounds** - Set text colors and background colors for folders and tags
 - **Custom icons** - Choose Lucide icons or emojis for folders and tags
 - **Custom sort order** - Override global sort settings per folder or tag
 - **Custom appearances** - Configure display settings per folder or tag (title rows, preview rows, slim mode)
 - **Favorite tags** - Pin frequently used tags to a dedicated section
-- **Hidden tags** - Hide tags with wildcard and regex patterns
+- **Hidden tags** - Hide tags by prefix or name wildcards
 - **Toggle hidden items** - Show or hide excluded folders and hidden tags with toolbar button
 - **Untagged notes** - Find and organize notes without tags
 
@@ -73,7 +73,8 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 ### Productivity
 
 - **Quick actions** - Hover buttons for open in new tab, pin, and reveal in folder
-- **Quick search** - Search and filter notes in the current folder or tag with instant results
+- **Quick search** - File name filter for notes in the current folder or tag with instant results
+- **Omnisearch integration** - Full-text search with real-time results when [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin is installed
 - **Drag & drop** - Move files between folders, drag to tags to add tags, drag to Untagged to remove tags
 - **Tag operations** - Add, remove, or clear tags via context menu and commands
 - **File operations** - Create, rename, delete, duplicate, move files and folders
@@ -274,6 +275,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show note count:** Display the number of notes next to each folder and tag
 - **Tree indentation:** Adjust the indentation width for nested folders and tags
 - **Item height:** Adjust the height of folders and tags in the navigation pane
+  - **Scale text with item height:** Reduce navigation text when item height is decreased
 
 ### Folders
 
@@ -293,11 +295,12 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Show untagged notes:** Display "Untagged" item for notes without any tags
     - **Show untagged notes in favorites section:** Display untagged notes in the favorites section, either inside the folder or directly below favorites
   - **Favorite tags:** Comma-separated list of tag prefixes. Adding a tag includes all its sub-tags (e.g., "photo" includes "photo/camera/fuji")
-  - **Hidden tags:** Comma-separated list of tag prefixes to hide. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs")
+  - **Hidden tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs")
 
 ### List pane
 
 - **Sort notes by:** Choose how notes are sorted in the note list. `Date edited (newest/oldest first)`, `Date created (newest/oldest first)`, `Title (A-Z first)`
+- **Multi-select modifier:** Choose which modifier key toggles multi-selection. When Option/Alt is selected, Cmd/Ctrl click opens notes in a new tab. `Cmd/Ctrl click`, `Option/Alt click`
 - **Group notes by date:** When sorted by date, group notes under date headers
 - **Optimize note height:** Reduce height for pinned notes and notes without preview text
 - **Show quick actions (desktop only):** Show hover actions on file items
@@ -316,7 +319,8 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Timestamp format:** Format used to parse timestamps in frontmatter. Leave empty to use ISO 8601 format
 - **Title rows:** Number of rows to display for note titles. `1` or `2`
 - **Show date:** Display the date below note names
-- **Show tags:** Display clickable tags in file items. Use tag colors to visually distinguish different tag types
+- **Show file tags:** Display clickable tags in file items. Use tag colors to visually distinguish different tag types
+  - **Show file tags in slim mode:** Display tags when date, preview, and image are hidden
 - **Show parent folder names:** Display the parent folder name for notes in subfolders or tags
 - **Show note preview (\*):** Display preview text beneath note names
   - **Preview rows:** Number of rows to display for preview text. `1-5`
@@ -327,6 +331,10 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Use embedded image fallback:** Use the first embedded image in the document as a fallback when no thumbnail is found in frontmatter properties (requires Obsidian 1.9.4+). Disable this to verify that thumbnails are properly configured
 
 **Note:** When date, preview, and feature image are disabled, list pane displays in compact "slim mode" with only note names.
+
+### Search
+
+- **Search provider:** Choose between quick file name search or full-text search with Omnisearch plugin. `File name filter`, `Omnisearch (full-text)`. Requires [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin to be installed and enabled for full-text search
 
 ### Advanced
 

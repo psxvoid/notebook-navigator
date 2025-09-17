@@ -76,6 +76,7 @@ export const STRINGS_DE = {
     // Search input
     searchInput: {
         placeholder: 'Suchen...', // Placeholder text for search input (English: Search...)
+        placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
         clearSearch: 'Suche löschen' // Tooltip for clear search button (English: Clear search)
     },
 
@@ -134,6 +135,7 @@ export const STRINGS_DE = {
             changeIcon: 'Symbol ändern',
             removeIcon: 'Symbol entfernen',
             changeColor: 'Farbe ändern',
+            changeBackground: 'Hintergrund ändern',
             removeColor: 'Farbe entfernen',
             excludeFolder: 'Ordner verstecken',
             renameFolder: 'Ordner umbenennen',
@@ -143,6 +145,7 @@ export const STRINGS_DE = {
             changeIcon: 'Symbol ändern',
             removeIcon: 'Symbol entfernen',
             changeColor: 'Farbe ändern',
+            changeBackground: 'Hintergrund ändern',
             removeColor: 'Farbe entfernen',
             addToFavorites: 'Zu Favoriten hinzufügen',
             removeFromFavorites: 'Aus Favoriten entfernen',
@@ -405,10 +408,24 @@ export const STRINGS_DE = {
             navigationPane: 'Ordneranzeige',
             tags: 'Tag-Anzeige',
             folders: 'Ordnernotizen',
+            search: 'Suchen',
             listPane: 'Listenbereich',
             advanced: 'Erweitert'
         },
         items: {
+            searchProvider: {
+                name: 'Suchanbieter',
+                desc: 'Wählen Sie zwischen schneller Dateinamensuche oder Volltextsuche mit dem Omnisearch-Plugin.',
+                options: {
+                    internal: 'Dateinamenfilter',
+                    omnisearch: 'Omnisearch (Volltext)'
+                },
+                messages: {
+                    missingSelected: 'Omnisearch für Volltextsuche installieren.',
+                    missing: 'Omnisearch für Volltextsuche installieren.',
+                    installed: 'Zu Omnisearch für Volltextsuche wechseln.'
+                }
+            },
             sortNotesBy: {
                 name: 'Notizen sortieren nach',
                 desc: 'Wählen Sie, wie Notizen in der Notizenliste sortiert werden.',
@@ -473,6 +490,14 @@ export const STRINGS_DE = {
                 name: 'Tooltips anzeigen (nur Desktop)',
                 desc: 'Zeige Hover-Tooltips mit zusätzlichen Informationen für Notizen und Ordner an.'
             },
+            multiSelectModifier: {
+                name: 'Mehrfachauswahl-Modifikator',
+                desc: 'Wählen Sie, welche Modifikatortaste die Mehrfachauswahl umschaltet. Wenn Option/Alt ausgewählt ist, öffnet Cmd/Strg-Klick Notizen in einem neuen Tab.',
+                options: {
+                    cmdCtrl: 'Cmd/Strg-Klick',
+                    optionAlt: 'Option/Alt-Klick'
+                }
+            },
             excludedNotes: {
                 name: 'Notizen verstecken',
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften. Notizen mit diesen Eigenschaften werden ausgeblendet (z.B. Entwurf, privat, archiviert).',
@@ -497,8 +522,12 @@ export const STRINGS_DE = {
                 desc: 'Das Datum unter Notizennamen anzeigen.'
             },
             showFileTags: {
-                name: 'Tags anzeigen',
+                name: 'Datei-Tags anzeigen',
                 desc: 'Zeigt klickbare Tags in Datei-Elementen an. Verwenden Sie Tag-Farben, um verschiedene Tag-Typen visuell zu unterscheiden.'
+            },
+            showFileTagsInSlimMode: {
+                name: 'Datei-Tags im schlanken Modus anzeigen',
+                desc: 'Tags anzeigen, wenn Datum, Vorschau und Bild ausgeblendet sind.'
             },
             dateFormat: {
                 name: 'Datumsformat',
@@ -589,13 +618,17 @@ export const STRINGS_DE = {
                 name: 'Ausgewähltes Element erweitert halten',
                 desc: 'Beim Einklappen bleiben der aktuell ausgewählte Ordner oder Tag und seine übergeordneten Elemente erweitert.'
             },
+            navIndent: {
+                name: 'Baum-Einrückung',
+                desc: 'Passen Sie die Einrückungsbreite für verschachtelte Ordner und Tags an.'
+            },
             navItemHeight: {
                 name: 'Zeilenhöhe',
                 desc: 'Passen Sie die Höhe von Ordnern und Tags im Navigationsbereich an.'
             },
-            navIndent: {
-                name: 'Baum-Einrückung',
-                desc: 'Passen Sie die Einrückungsbreite für verschachtelte Ordner und Tags an.'
+            navItemHeightScaleText: {
+                name: 'Text mit Zeilenhöhe skalieren',
+                desc: 'Verkleinert die Navigationsschrift, wenn die Zeilenhöhe reduziert wird.'
             },
             showTags: {
                 name: 'Tags anzeigen (*)',
@@ -628,7 +661,7 @@ export const STRINGS_DE = {
             },
             hiddenTags: {
                 name: 'Versteckte Tags',
-                desc: 'Kommagetrennte Liste von Tag-Präfixen zum Ausblenden. Ein versteckter Tag blendet auch alle Unter-Tags aus (z.B. "archiv" blendet "archiv/2024/docs" aus).',
+                desc: 'Kommagetrennte Liste von Tag-Präfixen oder Namensplatzhaltern zum Ausblenden. Verwende `tag*` oder `*tag`, um Tagnamen abzugleichen. Ein versteckter Tag blendet auch alle Unter-Tags aus (z.B. "archiv" blendet "archiv/2024/docs" aus).',
                 placeholder: 'intern, temp/entwürfe, archiv/2024'
             },
             enableFolderNotes: {

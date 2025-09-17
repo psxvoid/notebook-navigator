@@ -76,6 +76,7 @@ export const STRINGS_EN = {
     // Search input
     searchInput: {
         placeholder: 'Search...', // Placeholder text for search input (English: Search...)
+        placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
         clearSearch: 'Clear search' // Tooltip for clear search button (English: Clear search)
     },
 
@@ -133,6 +134,7 @@ export const STRINGS_EN = {
             changeIcon: 'Change icon',
             removeIcon: 'Remove icon',
             changeColor: 'Change color',
+            changeBackground: 'Change background',
             removeColor: 'Remove color',
             excludeFolder: 'Hide folder',
             renameFolder: 'Rename folder',
@@ -142,6 +144,7 @@ export const STRINGS_EN = {
             changeIcon: 'Change icon',
             removeIcon: 'Remove icon',
             changeColor: 'Change color',
+            changeBackground: 'Change background',
             removeColor: 'Remove color',
             addToFavorites: 'Add to favorites',
             removeFromFavorites: 'Remove from favorites',
@@ -403,11 +406,25 @@ export const STRINGS_EN = {
             navigationPane: 'Navigation pane',
             folders: 'Folders',
             tags: 'Tags',
+            search: 'Search',
             listPane: 'List pane',
             notes: 'Notes',
             advanced: 'Advanced'
         },
         items: {
+            searchProvider: {
+                name: 'Search provider',
+                desc: 'Choose between quick file name search or full-text search with Omnisearch plugin.',
+                options: {
+                    internal: 'File name filter',
+                    omnisearch: 'Omnisearch (full-text)'
+                },
+                messages: {
+                    missingSelected: 'Install Omnisearch for full-text search.',
+                    missing: 'Install Omnisearch for full-text search.',
+                    installed: 'Switch to Omnisearch for full-text search.'
+                }
+            },
             sortNotesBy: {
                 name: 'Sort notes by',
                 desc: 'Choose how notes are sorted in the note list.',
@@ -472,6 +489,14 @@ export const STRINGS_EN = {
                 name: 'Show tooltips (desktop only)',
                 desc: 'Display hover tooltips with additional information for notes and folders.'
             },
+            multiSelectModifier: {
+                name: 'Multi-select modifier',
+                desc: 'Choose which modifier key toggles multi-selection. When Option/Alt is selected, Cmd/Ctrl click opens notes in a new tab.',
+                options: {
+                    cmdCtrl: 'Cmd/Ctrl click',
+                    optionAlt: 'Option/Alt click'
+                }
+            },
             fileVisibility: {
                 name: 'Show file types',
                 desc: 'Filter which file types are shown in the navigator. File types not supported by Obsidian may open in external applications.',
@@ -496,8 +521,12 @@ export const STRINGS_EN = {
                 desc: 'Display the date below note names.'
             },
             showFileTags: {
-                name: 'Show tags',
+                name: 'Show file tags',
                 desc: 'Display clickable tags in file items. Use tag colors to visually distinguish different tag types.'
+            },
+            showFileTagsInSlimMode: {
+                name: 'Show file tags in slim mode',
+                desc: 'Display tags when date, preview, and image are hidden.'
             },
             dateFormat: {
                 name: 'Date format',
@@ -588,13 +617,17 @@ export const STRINGS_EN = {
                 name: 'Keep selected item expanded',
                 desc: 'When collapsing, keep the currently selected folder or tag and its parents expanded.'
             },
+            navIndent: {
+                name: 'Tree indentation',
+                desc: 'Adjust the indentation width for nested folders and tags.'
+            },
             navItemHeight: {
                 name: 'Item height',
                 desc: 'Adjust the height of folders and tags in the navigation pane.'
             },
-            navIndent: {
-                name: 'Tree indentation',
-                desc: 'Adjust the indentation width for nested folders and tags.'
+            navItemHeightScaleText: {
+                name: 'Scale text with item height',
+                desc: 'Reduce navigation text size when item height is decreased.'
             },
             showTags: {
                 name: 'Show tags (*)',
@@ -627,7 +660,7 @@ export const STRINGS_EN = {
             },
             hiddenTags: {
                 name: 'Hidden tags',
-                desc: 'Comma-separated list of tag prefixes to hide. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs").',
+                desc: 'Comma-separated list of tag prefixes or name wildcards. Use tag* or *tag to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },
             enableFolderNotes: {
