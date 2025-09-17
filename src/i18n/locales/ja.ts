@@ -76,6 +76,7 @@ export const STRINGS_JA = {
     // Search input
     searchInput: {
         placeholder: '検索...', // Placeholder text for search input (English: Search...)
+        placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
         clearSearch: '検索をクリア' // Tooltip for clear search button (English: Clear search)
     },
 

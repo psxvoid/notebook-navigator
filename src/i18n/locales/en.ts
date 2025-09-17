@@ -76,6 +76,7 @@ export const STRINGS_EN = {
     // Search input
     searchInput: {
         placeholder: 'Search...', // Placeholder text for search input (English: Search...)
+        placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
         clearSearch: 'Clear search' // Tooltip for clear search button (English: Clear search)
     },
 

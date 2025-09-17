@@ -76,6 +76,7 @@ export const STRINGS_KO = {
     // Search input
     searchInput: {
         placeholder: '검색...', // Placeholder text for search input (English: Search...)
+        placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
         clearSearch: '검색 지우기' // Tooltip for clear search button (English: Clear search)
     },
 

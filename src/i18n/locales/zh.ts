@@ -76,6 +76,7 @@ export const STRINGS_ZH = {
     // Search input
     searchInput: {
         placeholder: '搜索...', // Placeholder text for search input (English: Search...)
+        placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
         clearSearch: '清除搜索' // Tooltip for clear search button (English: Clear search)
     },
 

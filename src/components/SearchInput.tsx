@@ -16,9 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useUIDispatch, useUIState } from '../context/UIStateContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { useServices } from '../context/ServicesContext';
 import { strings } from '../i18n';
 
@@ -44,8 +45,14 @@ export function SearchInput({
 }: SearchInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const { isMobile } = useServices();
+    const settings = useSettingsState();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
+
+    const placeholderText = useMemo(
+        () => (settings.searchProvider === 'omnisearch' ? strings.searchInput.placeholderOmnisearch : strings.searchInput.placeholder),
+        [settings.searchProvider]
+    );
 
     // Auto-focus input when shouldFocus is true
     useEffect(() => {
@@ -146,7 +153,7 @@ export function SearchInput({
                     ref={inputRef}
                     type="search"
                     className={`nn-search-input ${searchQuery ? 'nn-search-active' : ''}`}
-                    placeholder={strings.searchInput.placeholder}
+                    placeholder={placeholderText}
                     spellCheck={false}
                     enterKeyHint="search"
                     value={searchQuery}
