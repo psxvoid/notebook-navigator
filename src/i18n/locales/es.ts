@@ -490,6 +490,14 @@ export const STRINGS_ES = {
                 name: 'Mostrar tooltips (solo escritorio)',
                 desc: 'Muestra tooltips con información adicional para notas y carpetas al pasar el cursor.'
             },
+            multiSelectModifier: {
+                name: 'Modificador de selección múltiple',
+                desc: 'Elige qué tecla modificadora activa la selección múltiple. Cuando se selecciona Option/Alt, Cmd/Ctrl clic abre notas en una nueva pestaña.',
+                options: {
+                    cmdCtrl: 'Cmd/Ctrl clic',
+                    optionAlt: 'Option/Alt clic'
+                }
+            },
             excludedNotes: {
                 name: 'Ocultar notas',
                 desc: 'Lista de propiedades del frontmatter separadas por comas. Las notas que contengan cualquiera de estas propiedades se ocultarán (ej.: draft, private, archived).',

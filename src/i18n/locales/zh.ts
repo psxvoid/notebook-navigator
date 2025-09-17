@@ -490,6 +490,14 @@ export const STRINGS_ZH = {
                 name: '显示工具提示（仅桌面端）',
                 desc: '悬停时显示笔记和文件夹的额外信息工具提示。'
             },
+            multiSelectModifier: {
+                name: '多选修饰键',
+                desc: '选择哪个修饰键切换多选模式。选择 Option/Alt 时，Cmd/Ctrl 点击会在新标签页中打开笔记。',
+                options: {
+                    cmdCtrl: 'Cmd/Ctrl 点击',
+                    optionAlt: 'Option/Alt 点击'
+                }
+            },
             excludedNotes: {
                 name: '隐藏笔记',
                 desc: '逗号分隔的前置元数据属性列表。包含任何这些属性的笔记将被隐藏（例如：draft, private, archived）。',

@@ -300,6 +300,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 ### List pane
 
 - **Sort notes by:** Choose how notes are sorted in the note list. `Date edited (newest/oldest first)`, `Date created (newest/oldest first)`, `Title (A-Z first)`
+- **Multi-select modifier:** Choose which modifier key toggles multi-selection. When Option/Alt is selected, Cmd/Ctrl click opens notes in a new tab. `Cmd/Ctrl click`, `Option/Alt click`
 - **Group notes by date:** When sorted by date, group notes under date headers
 - **Optimize note height:** Reduce height for pinned notes and notes without preview text
 - **Show quick actions (desktop only):** Show hover actions on file items

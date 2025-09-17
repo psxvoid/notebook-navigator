@@ -81,6 +81,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '**Omnisearch integration** - Full-text search support when the Omnisearch plugin is installed',
             '**Search provider** setting to switch between file name filter and Omnisearch',
             '==Background colors== for folders and tags: you can now set custom background colors via the context menu (this is also now available in the API)',
+            '**New setting**: ==Multi-select modifier==. You can now switch to Option/Alt for multi-select and use Cmd/Ctrl click to open notes in new tab 🎉.',
             '**New setting**: You can now toggle file tags in slim mode. Default is disabled.',
             '**New setting**: You can now toggle text scaling with item height in navigation pane. Default is enabled.',
             '**New languages**: 한국어 and Polski'

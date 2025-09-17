@@ -490,6 +490,14 @@ export const STRINGS_FR = {
                 name: 'Afficher les infobulles (ordinateur uniquement)',
                 desc: 'Affiche des infobulles avec des informations supplémentaires pour les notes et dossiers au survol.'
             },
+            multiSelectModifier: {
+                name: 'Modificateur de sélection multiple',
+                desc: 'Choisissez quelle touche modificatrice active la sélection multiple. Quand Option/Alt est sélectionné, Cmd/Ctrl clic ouvre les notes dans un nouvel onglet.',
+                options: {
+                    cmdCtrl: 'Cmd/Ctrl clic',
+                    optionAlt: 'Option/Alt clic'
+                }
+            },
             excludedNotes: {
                 name: 'Masquer les notes',
                 desc: "Liste de propriétés de métadonnées séparées par des virgules. Les notes contenant l'une de ces propriétés seront masquées (ex. : draft, private, archived).",

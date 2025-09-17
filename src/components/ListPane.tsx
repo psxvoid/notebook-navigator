@@ -99,7 +99,7 @@ interface ListPaneProps {
 
 export const ListPane = React.memo(
     forwardRef<ListPaneHandle, ListPaneProps>(function ListPane(props, ref) {
-        const { app, isMobile, plugin } = useServices();
+        const { app, commandQueue, isMobile, plugin } = useServices();
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
@@ -234,12 +234,17 @@ export const ListPane = React.memo(
 
                 isUserSelectionRef.current = true; // Mark this as a user selection
 
-                // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed for multi-select
-                const isMultiSelectModifier = e.metaKey || e.ctrlKey;
                 const isShiftKey = e.shiftKey;
+                const isCmdCtrlClick = e.metaKey || e.ctrlKey;
+                const isOptionClick = e.altKey;
+                const prefersCmdCtrl = settings.multiSelectModifier === 'cmdCtrl';
 
-                // Don't enable multi-select on mobile
-                if (!isMobile && isMultiSelectModifier) {
+                const shouldMultiSelect = !isMobile && ((prefersCmdCtrl && isCmdCtrlClick) || (!prefersCmdCtrl && isOptionClick));
+
+                const shouldOpenInNewTab =
+                    !isMobile && !shouldMultiSelect && settings.multiSelectModifier === 'optionAlt' && isCmdCtrlClick;
+
+                if (shouldMultiSelect) {
                     multiSelection.handleMultiSelectClick(file, fileIndex, orderedFiles);
                 } else if (!isMobile && isShiftKey && fileIndex !== undefined && orderedFiles) {
                     multiSelection.handleRangeSelectClick(file, fileIndex, orderedFiles);
@@ -252,21 +257,30 @@ export const ListPane = React.memo(
                 // Always ensure list pane has focus when clicking a file
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
-                // Only open file if not multi-selecting
-                if (!isMultiSelectModifier && !isShiftKey) {
-                    // Open file in current tab
-                    const leaf = app.workspace.getLeaf(false);
-                    if (leaf) {
-                        leaf.openFile(file, { active: false });
+                if (!shouldMultiSelect && !isShiftKey) {
+                    if (shouldOpenInNewTab) {
+                        if (commandQueue) {
+                            commandQueue.executeOpenInNewContext(file, 'tab', async () => {
+                                await app.workspace.getLeaf('tab').openFile(file);
+                            });
+                        } else {
+                            app.workspace.getLeaf('tab').openFile(file);
+                        }
+                    } else {
+                        // Open file in current tab
+                        const leaf = app.workspace.getLeaf(false);
+                        if (leaf) {
+                            leaf.openFile(file, { active: false });
+                        }
                     }
                 }
 
                 // Collapse left sidebar on mobile after opening file
-                if (isMobile && app.workspace.leftSplit && !isMultiSelectModifier && !isShiftKey) {
+                if (isMobile && app.workspace.leftSplit && !shouldMultiSelect && !isShiftKey) {
                     app.workspace.leftSplit.collapse();
                 }
             },
-            [app.workspace, selectionDispatch, uiDispatch, isMobile, multiSelection]
+            [app.workspace, commandQueue, isMobile, multiSelection, selectionDispatch, settings.multiSelectModifier, uiDispatch]
         );
 
         // Scroll to top handler for mobile header click

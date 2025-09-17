@@ -489,6 +489,14 @@ export const STRINGS_EN = {
                 name: 'Show tooltips (desktop only)',
                 desc: 'Display hover tooltips with additional information for notes and folders.'
             },
+            multiSelectModifier: {
+                name: 'Multi-select modifier',
+                desc: 'Choose which modifier key toggles multi-selection. When Option/Alt is selected, Cmd/Ctrl click opens notes in a new tab.',
+                options: {
+                    cmdCtrl: 'Cmd/Ctrl click',
+                    optionAlt: 'Option/Alt click'
+                }
+            },
             fileVisibility: {
                 name: 'Show file types',
                 desc: 'Filter which file types are shown in the navigator. File types not supported by Obsidian may open in external applications.',

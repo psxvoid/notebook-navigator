@@ -491,6 +491,14 @@ export const STRINGS_PL = {
                 name: 'Pokaż podpowiedzi (tylko desktop)',
                 desc: 'Wyświetl podpowiedzi przy najechaniu z dodatkowymi informacjami dla notatek i folderów.'
             },
+            multiSelectModifier: {
+                name: 'Modyfikator wielokrotnego wyboru',
+                desc: 'Wybierz, który klawisz modyfikatora przełącza wielokrotny wybór. Gdy wybrano Option/Alt, Cmd/Ctrl klik otwiera notatki w nowej karcie.',
+                options: {
+                    cmdCtrl: 'Cmd/Ctrl klik',
+                    optionAlt: 'Option/Alt klik'
+                }
+            },
             fileVisibility: {
                 name: 'Pokaż typy plików',
                 desc: 'Filtruj które typy plików są pokazywane w nawigatorze. Typy plików nieobsługiwane przez Obsidian mogą otworzyć się w zewnętrznych aplikacjach.',

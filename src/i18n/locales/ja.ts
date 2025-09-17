@@ -490,6 +490,14 @@ export const STRINGS_JA = {
                 name: 'ツールチップを表示（デスクトップのみ）',
                 desc: 'ノートとフォルダの追加情報をホバー時にツールチップで表示します。'
             },
+            multiSelectModifier: {
+                name: '複数選択モディファイア',
+                desc: '複数選択を切り替えるモディファイアキーを選択します。Option/Altが選択されている場合、Cmd/Ctrlクリックでノートを新しいタブで開きます。',
+                options: {
+                    cmdCtrl: 'Cmd/Ctrl クリック',
+                    optionAlt: 'Option/Alt クリック'
+                }
+            },
             excludedNotes: {
                 name: 'ノートを非表示',
                 desc: 'カンマ区切りのフロントマター属性のリスト。これらの属性を含むノートは非表示になります（例：draft, private, archived）。',

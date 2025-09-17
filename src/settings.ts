@@ -49,6 +49,8 @@ export type ItemScope =
     | 'folders-only' // Only folders
     | 'tags-only'; // Only tags
 
+export type MultiSelectModifier = 'cmdCtrl' | 'optionAlt';
+
 export type SearchProvider = 'internal' | 'omnisearch';
 
 /**
@@ -95,6 +97,7 @@ export interface NotebookNavigatorSettings {
     hiddenTags: string[];
     // List pane
     defaultFolderSort: SortOption;
+    multiSelectModifier: MultiSelectModifier;
     groupByDate: boolean;
     optimizeNoteHeight: boolean;
     showQuickActions: boolean;
@@ -188,6 +191,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     hiddenTags: [],
     // List pane
     defaultFolderSort: 'modified-desc',
+    multiSelectModifier: 'cmdCtrl',
     groupByDate: true,
     optimizeNoteHeight: true,
     showQuickActions: true,
@@ -925,6 +929,20 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.defaultFolderSort)
                     .onChange(async (value: SortOption) => {
                         this.plugin.settings.defaultFolderSort = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                    })
+            );
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.multiSelectModifier.name)
+            .setDesc(strings.settings.items.multiSelectModifier.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('cmdCtrl', strings.settings.items.multiSelectModifier.options.cmdCtrl)
+                    .addOption('optionAlt', strings.settings.items.multiSelectModifier.options.optionAlt)
+                    .setValue(this.plugin.settings.multiSelectModifier)
+                    .onChange(async (value: MultiSelectModifier) => {
+                        this.plugin.settings.multiSelectModifier = value;
                         await this.plugin.saveSettingsAndUpdate();
                     })
             );

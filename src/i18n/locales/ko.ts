@@ -489,6 +489,14 @@ export const STRINGS_KO = {
                 name: '도구 설명 표시 (데스크톱 전용)',
                 desc: '노트와 폴더에 대한 추가 정보가 있는 호버 도구 설명을 표시합니다.'
             },
+            multiSelectModifier: {
+                name: '다중 선택 수정자',
+                desc: '다중 선택을 전환하는 수정자 키를 선택하세요. Option/Alt를 선택하면 Cmd/Ctrl 클릭이 새 탭에서 노트를 엽니다.',
+                options: {
+                    cmdCtrl: 'Cmd/Ctrl 클릭',
+                    optionAlt: 'Option/Alt 클릭'
+                }
+            },
             fileVisibility: {
                 name: '파일 유형 표시',
                 desc: '네비게이터에 표시할 파일 유형을 필터링합니다. Obsidian에서 지원하지 않는 파일 유형은 외부 응용 프로그램에서 열릴 수 있습니다.',
