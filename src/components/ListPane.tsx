@@ -529,6 +529,7 @@ export const ListPane = React.memo(
                                 {rowVirtualizer.getVirtualItems().map(virtualItem => {
                                     const item = safeGetItem(listItems, virtualItem.index);
                                     if (!item) return null;
+                                    const translateY = Math.round(virtualItem.start);
                                     // Check if file is selected
                                     let isSelected = false;
                                     if (item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
@@ -603,7 +604,7 @@ export const ListPane = React.memo(
                                             } ${isLastFile ? 'nn-last-file' : ''} ${hideSeparator ? 'nn-hide-separator-selection' : ''}`}
                                             style={
                                                 {
-                                                    transform: `translateY(${virtualItem.start}px)`,
+                                                    transform: `translateY(${translateY}px)`,
                                                     '--item-height': `${virtualItem.size}px`
                                                 } as React.CSSProperties
                                             }
