@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, FuzzySuggestModal, FuzzyMatch, renderMatches } from 'obsidian';
+import { App, FuzzySuggestModal, FuzzyMatch, prepareSimpleSearch, renderMatches } from 'obsidian';
 
 /**
  * Configuration for modal instructions
@@ -55,6 +55,58 @@ export abstract class BaseSuggestModal<T> extends FuzzySuggestModal<T> {
             { command: '↵', purpose: instructions.action },
             { command: 'esc', purpose: instructions.dismiss }
         ]);
+    }
+
+    /**
+     * Provides a unique key for an item to avoid duplicate suggestions
+     * @param item - The item to identify
+     * @returns Unique string key for the item
+     */
+    protected getItemKey(item: T): string {
+        return this.getItemText(item);
+    }
+
+    /**
+     * Overrides fuzzy suggestions to add multi-token matching support using simple search
+     * @param query - User input query string
+     * @returns Array of matched items with highlight data
+     */
+    getSuggestions(query: string): FuzzyMatch<T>[] {
+        const baseSuggestions = super.getSuggestions(query);
+        const trimmedQuery = query.trim();
+
+        if (!trimmedQuery) {
+            return baseSuggestions;
+        }
+
+        const tokens = trimmedQuery.split(/\s+/u).filter(Boolean);
+        if (tokens.length <= 1) {
+            return baseSuggestions;
+        }
+
+        const simpleSearch = prepareSimpleSearch(trimmedQuery);
+        const seenKeys = new Set(baseSuggestions.map(result => this.getItemKey(result.item)));
+        const additionalMatches: FuzzyMatch<T>[] = [];
+
+        for (const item of this.getItems()) {
+            const key = this.getItemKey(item);
+            if (seenKeys.has(key)) {
+                continue;
+            }
+
+            const match = simpleSearch(this.getItemText(item));
+            if (match) {
+                additionalMatches.push({ item, match });
+            }
+        }
+
+        if (additionalMatches.length === 0) {
+            return baseSuggestions;
+        }
+
+        const combined = [...baseSuggestions, ...additionalMatches];
+        combined.sort((a, b) => a.match.score - b.match.score);
+        return combined;
     }
 
     /**

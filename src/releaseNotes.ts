@@ -83,6 +83,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Due to the improvements to filter search, Omnisearch no longer combines search results with Filter search.',
             'Folder note detection accepts canvas and base files.'
         ],
+        improved: ['"Navigate to folder" and "Navigate to tag" fuzzy modals now match multi-word queries in any order.'],
         fixed: [
             'Fixed so list pane properly updates sort order for notes if it is sorted by modification date.',
             'Further improvements to pixel perfect rendering to avoid blurry text on scaled Windows displays (125% and 150% scaling).'
