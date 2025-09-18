@@ -44,15 +44,21 @@ export function SearchInput({
     containerRef
 }: SearchInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
-    const { isMobile } = useServices();
+    const { isMobile, omnisearchService } = useServices();
     const settings = useSettingsState();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
 
-    const placeholderText = useMemo(
-        () => (settings.searchProvider === 'omnisearch' ? strings.searchInput.placeholderOmnisearch : strings.searchInput.placeholder),
-        [settings.searchProvider]
-    );
+    const placeholderText = useMemo(() => {
+        const isOmnisearchSelected = settings.searchProvider === 'omnisearch';
+        const isOmnisearchAvailable = omnisearchService?.isAvailable() ?? false;
+
+        if (isOmnisearchSelected && isOmnisearchAvailable) {
+            return strings.searchInput.placeholderOmnisearch;
+        }
+
+        return strings.searchInput.placeholder;
+    }, [settings.searchProvider, omnisearchService]);
 
     // Auto-focus input when shouldFocus is true
     useEffect(() => {

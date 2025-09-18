@@ -424,12 +424,13 @@ export const STRINGS_FR = {
                     filterSearch: {
                         title: 'Recherche par filtre (par défaut):',
                         description:
-                            'Recherche rapide et légère qui filtre les fichiers par nom et étiquettes dans le dossier actuel et les sous-dossiers. Prend en charge le filtrage par étiquettes avec le préfixe # (ex. #projet), l\'exclusion avec le préfixe ! (ex. !brouillon, !#archivé), et la recherche de notes sans étiquettes avec !#. Idéal pour la navigation rapide dans votre contexte actuel.'
+                            "Recherche rapide et légère qui filtre les fichiers par nom et étiquettes dans le dossier actuel et les sous-dossiers. Prend en charge le filtrage par étiquettes avec le préfixe # (ex. #projet), l'exclusion avec le préfixe ! (ex. !brouillon, !#archivé), et la recherche de notes sans étiquettes avec !#. Idéal pour la navigation rapide dans votre contexte actuel."
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
                         description:
                             "Recherche plein texte qui parcourt l'ensemble de votre coffre, puis filtre les résultats pour n'afficher que les fichiers du dossier actuel, des sous-dossiers ou des étiquettes sélectionnées. Nécessite l'installation du plugin Omnisearch - s'il n'est pas disponible, la recherche reviendra automatiquement à la recherche par filtre.",
+                        warningNotInstalled: 'Le plugin Omnisearch n’est pas installé. La recherche par filtre est utilisée.',
                         limitations: {
                             title: 'Limitations connues:',
                             performance:

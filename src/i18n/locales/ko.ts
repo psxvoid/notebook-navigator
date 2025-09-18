@@ -429,6 +429,7 @@ export const STRINGS_KO = {
                         title: 'Omnisearch:',
                         description:
                             '전체 보관소를 검색한 다음 현재 폴더, 하위 폴더 또는 선택한 태그의 파일만 표시하도록 결과를 필터링하는 전체 텍스트 검색. Omnisearch 플러그인 설치가 필요합니다 - 사용할 수 없는 경우 검색이 자동으로 필터 검색으로 대체됩니다.',
+                        warningNotInstalled: 'Omnisearch 플러그인이 설치되지 않았습니다. 필터 검색을 사용합니다.',
                         limitations: {
                             title: '알려진 제한 사항:',
                             performance: '성능: 대용량 보관소에서 3자 미만을 검색할 때 특히 느릴 수 있음',

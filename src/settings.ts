@@ -894,8 +894,19 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         });
 
         const updateSearchInfo = () => {
+            const provider = this.plugin.settings.searchProvider;
+            const hasOmnisearch = this.plugin.omnisearchService?.isAvailable() ?? false;
+
             // Clear existing content
             searchInfoEl.empty();
+
+            if (provider === 'omnisearch' && !hasOmnisearch) {
+                const warningDiv = searchInfoEl.createDiv({ cls: 'setting-item-description' });
+                warningDiv.createEl('strong', {
+                    text: strings.settings.items.searchProvider.info.omnisearch.warningNotInstalled
+                });
+                searchInfoEl.createEl('br');
+            }
 
             // Always show comprehensive information about search providers
             const infoDiv = searchInfoEl.createDiv();

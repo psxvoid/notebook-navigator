@@ -429,6 +429,7 @@ export const STRINGS_EN = {
                         title: 'Omnisearch:',
                         description:
                             'Full-text search that searches your entire vault, then filters the results to show only files from the current folder, subfolders, or selected tags. Requires the Omnisearch plugin to be installed - if not available, search will automatically fall back to Filter search.',
+                        warningNotInstalled: 'Omnisearch plugin not installed. Filter search is used.',
                         limitations: {
                             title: 'Known limitations:',
                             performance: 'Performance: Can be slow, especially when searching for less than 3 characters in large vaults',

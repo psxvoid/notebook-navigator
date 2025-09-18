@@ -431,6 +431,7 @@ export const STRINGS_PL = {
                         title: 'Omnisearch:',
                         description:
                             'Wyszukiwanie pełnotekstowe, które przeszukuje cały skarbiec, a następnie filtruje wyniki, aby pokazywać tylko pliki z bieżącego folderu, podfolderów lub wybranych tagów. Wymaga zainstalowania wtyczki Omnisearch - jeśli nie jest dostępna, wyszukiwanie automatycznie powróci do wyszukiwania filtrującego.',
+                        warningNotInstalled: 'Wtyczka Omnisearch nie jest zainstalowana. Używana jest wyszukiwarka filtrująca.',
                         limitations: {
                             title: 'Znane ograniczenia:',
                             performance: 'Wydajność: Może być wolne, szczególnie przy wyszukiwaniu mniej niż 3 znaków w dużych skarbcach',

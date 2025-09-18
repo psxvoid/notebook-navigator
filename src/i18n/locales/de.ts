@@ -430,6 +430,7 @@ export const STRINGS_DE = {
                         title: 'Omnisearch:',
                         description:
                             'Volltextsuche, die Ihren gesamten Tresor durchsucht und dann die Ergebnisse filtert, um nur Dateien aus dem aktuellen Ordner, Unterordnern oder ausgewählten Tags anzuzeigen. Erfordert die Installation des Omnisearch-Plugins - falls nicht verfügbar, fällt die Suche automatisch auf die Filtersuche zurück.',
+                        warningNotInstalled: 'Omnisearch-Plugin nicht installiert. Filtersuche wird verwendet.',
                         limitations: {
                             title: 'Bekannte Einschränkungen:',
                             performance:

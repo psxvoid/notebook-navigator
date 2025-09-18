@@ -430,6 +430,7 @@ export const STRINGS_ES = {
                         title: 'Omnisearch:',
                         description:
                             'Búsqueda de texto completo que busca en toda su bóveda, luego filtra los resultados para mostrar solo archivos de la carpeta actual, subcarpetas o etiquetas seleccionadas. Requiere que el plugin Omnisearch esté instalado - si no está disponible, la búsqueda volverá automáticamente a la búsqueda por filtro.',
+                        warningNotInstalled: 'El plugin Omnisearch no está instalado. Se usa la búsqueda por filtro.',
                         limitations: {
                             title: 'Limitaciones conocidas:',
                             performance: 'Rendimiento: Puede ser lento, especialmente al buscar menos de 3 caracteres en bóvedas grandes',

@@ -430,6 +430,7 @@ export const STRINGS_JA = {
                         title: 'Omnisearch：',
                         description:
                             'ボールト全体を検索し、現在のフォルダ、サブフォルダ、または選択したタグからのファイルのみを表示するように結果をフィルタリングする全文検索。Omnisearchプラグインのインストールが必要 - 利用できない場合、検索は自動的にフィルター検索にフォールバックします。',
+                        warningNotInstalled: 'Omnisearchプラグインがインストールされていません。フィルター検索を使用します。',
                         limitations: {
                             title: '既知の制限事項：',
                             performance: 'パフォーマンス：大きなボールトで3文字未満を検索する場合、特に遅くなることがあります',
