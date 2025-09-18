@@ -75,7 +75,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-09-19',
         improved: [
             'File tags in list pane are now sorted alphabetically. Display order is favorite tags, followed by colored non-favorite tags, then uncolored non-favorite tags.'
-        ],
+        ]
     },
     {
         version: '1.4.19',

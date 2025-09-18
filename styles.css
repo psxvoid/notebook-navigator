@@ -643,7 +643,7 @@ body {
 
 /* Navigation pane spacers - provide visual breathing room in the list */
 .nn-nav-top-spacer {
-    height: 10px;
+    height: 8px;
     flex-shrink: 0;
 }
 
@@ -653,13 +653,13 @@ body {
 }
 
 .nn-nav-list-spacer {
-    height: 10px;
+    height: 8px;
     flex-shrink: 0;
 }
 
 /* List pane spacers - match navigation pane for consistency */
 .nn-list-top-spacer {
-    height: 10px;
+    height: 8px;
 }
 
 .nn-list-bottom-spacer {
