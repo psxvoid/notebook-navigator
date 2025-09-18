@@ -41,6 +41,7 @@ import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/
 import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
 import { strings } from '../i18n';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
+import { parseFilterSearchTokens, fileMatchesFilterTokens } from '../utils/filterSearch';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { SearchResultMeta } from '../types/search';
 
@@ -257,34 +258,48 @@ export function useListPaneData({
             return baseFiles;
         }
 
-        const query = trimmedQuery.toLowerCase();
-        const searchSegments = query.split(/\s+/).filter(segment => segment.length > 0);
-        const isMultiWordSearch = searchSegments.length > 1;
+        const tokens = parseFilterSearchTokens(trimmedQuery);
+        const hasTokens = tokens.nameTokens.length > 0 || tokens.tagTokens.length > 0 || tokens.requireTagged;
+        if (!hasTokens) {
+            return baseFiles;
+        }
 
-        const filteredByName = baseFiles.filter(file => {
+        const db = getDB();
+        const lowercaseTagCache = new Map<string, string[]>();
+
+        const filteredByFilterSearch = baseFiles.filter(file => {
             const name = searchableNames.get(file.path) || '';
-            if (name.includes(query)) {
-                return true;
+
+            let lowercaseTags: string[] = [];
+            if (tokens.requireTagged || tokens.tagTokens.length > 0) {
+                const tags = db.getCachedTags(file.path);
+                if (tags.length === 0) {
+                    return false;
+                }
+                let cached = lowercaseTagCache.get(file.path);
+                if (!cached) {
+                    cached = tags.map(tag => tag.toLowerCase());
+                    lowercaseTagCache.set(file.path, cached);
+                }
+                lowercaseTags = cached;
             }
-            if (isMultiWordSearch) {
-                return searchSegments.every(segment => name.includes(segment));
-            }
-            return false;
+
+            return fileMatchesFilterTokens(name, lowercaseTags, tokens);
         });
 
         if (!useOmnisearch) {
-            return filteredByName;
+            return filteredByFilterSearch;
         }
 
         if (!omnisearchResult || omnisearchResult.query !== trimmedQuery) {
-            return filteredByName;
+            return filteredByFilterSearch;
         }
 
-        const filteredByNamePaths = new Set(filteredByName.map(file => file.path));
+        const filteredPathSet = new Set(filteredByFilterSearch.map(file => file.path));
         const omnisearchPaths = new Set(omnisearchResult.files.map(file => file.path));
 
-        return baseFiles.filter(file => filteredByNamePaths.has(file.path) || omnisearchPaths.has(file.path));
-    }, [useOmnisearch, trimmedQuery, baseFiles, searchableNames, omnisearchResult]);
+        return baseFiles.filter(file => filteredPathSet.has(file.path) || omnisearchPaths.has(file.path));
+    }, [useOmnisearch, trimmedQuery, baseFiles, searchableNames, omnisearchResult, getDB]);
 
     /**
      * Build the complete list of items for rendering, including:
