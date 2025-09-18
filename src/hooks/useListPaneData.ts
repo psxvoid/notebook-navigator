@@ -33,7 +33,7 @@ import { TFile, TFolder, debounce } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { OperationType } from '../services/CommandQueueService';
 import { useFileCache } from '../context/StorageContext';
-import { ListPaneItemType, ItemType, NavigationItemType } from '../types';
+import { ListPaneItemType, ItemType } from '../types';
 import type { ListPaneItem } from '../types/virtualization';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { DateUtils } from '../utils/dateUtils';
@@ -111,6 +111,13 @@ export function useListPaneData({
     const isOmnisearchAvailable = omnisearchService?.isAvailable() ?? false;
     // Use Omnisearch only when selected, available, and there's a query
     const useOmnisearch = settings.searchProvider === 'omnisearch' && isOmnisearchAvailable && hasSearchQuery;
+
+    const sortOption = useMemo(() => {
+        if (selectionType === ItemType.TAG && selectedTag) {
+            return getEffectiveSortOption(settings, ItemType.TAG, null, selectedTag);
+        }
+        return getEffectiveSortOption(settings, ItemType.FOLDER, selectedFolder, selectedTag);
+    }, [selectionType, selectedFolder, selectedTag, settings]);
 
     /**
      * Calculate the base list of files based on current selection without search filtering.
@@ -314,8 +321,6 @@ export function useListPaneData({
         const unpinnedFiles = files.filter(f => !pinnedPaths.has(f.path));
 
         // Determine which sort option to use
-        const sortOption = getEffectiveSortOption(settings, selectionType as NavigationItemType, selectedFolder, selectedTag);
-
         // Files are already sorted in fileFinder; preserve order here
 
         // Track file index for stable onClick handlers
@@ -402,7 +407,7 @@ export function useListPaneData({
         });
 
         return items;
-    }, [files, settings, selectionType, selectedFolder, selectedTag, getFileCreatedTime, getFileModifiedTime, searchMetaMap]);
+    }, [files, settings, selectionType, selectedFolder, getFileCreatedTime, getFileModifiedTime, searchMetaMap, sortOption]);
 
     /**
      * Create a map from file paths to their index in listItems.
@@ -489,6 +494,8 @@ export function useListPaneData({
             });
         }
 
+        const isModifiedSort = sortOption.startsWith('modified');
+
         const vaultEvents = [
             app.vault.on('create', () => {
                 if (operationActiveRef.current) {
@@ -505,6 +512,22 @@ export function useListPaneData({
                 }
             }),
             app.vault.on('rename', () => {
+                if (operationActiveRef.current) {
+                    pendingRefreshRef.current = true;
+                } else {
+                    scheduleRefresh();
+                }
+            }),
+            app.vault.on('modify', file => {
+                if (!isModifiedSort) {
+                    return;
+                }
+                if (!(file instanceof TFile)) {
+                    return;
+                }
+                if (!basePathSet.has(file.path)) {
+                    return;
+                }
                 if (operationActiveRef.current) {
                     pendingRefreshRef.current = true;
                 } else {
@@ -566,7 +589,7 @@ export function useListPaneData({
             // Cancel any pending scheduled refresh to avoid stray updates
             scheduleRefresh.cancel();
         };
-    }, [app, selectionType, selectedTag, selectedFolder, settings.includeDescendantNotes, getDB, commandQueue]);
+    }, [app, selectionType, selectedTag, selectedFolder, settings.includeDescendantNotes, getDB, commandQueue, basePathSet, sortOption]);
 
     return {
         listItems,

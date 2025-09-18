@@ -14,6 +14,8 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 
 <br>
 
+<!-- DOCUMENTATION_START -->
+
 ## Getting started
 
 1. **Install Obsidian** - Download and install from [obsidian.md](https://obsidian.md/)
