@@ -180,9 +180,16 @@ if [ "$HTTP_STATUS" = "200" ]; then
     # Append the fetched documentation
     cat /tmp/docs-content.md >> /tmp/readme-intro.md
 
-    # Replace README with combined content
-    cp /tmp/readme-intro.md README.md
-    echo "✅ README updated with documentation from website"
+    # Ensure README ends with a trailing newline to keep diffs clean
+    printf '\n' >> /tmp/readme-intro.md
+
+    # Replace README only when content changed to avoid unnecessary diffs
+    if cmp -s /tmp/readme-intro.md README.md; then
+        echo "✅ README already up to date"
+    else
+        cp /tmp/readme-intro.md README.md
+        echo "✅ README updated with documentation from website"
+    fi
 else
     echo "⚠️  Warning: Could not fetch documentation (HTTP $HTTP_STATUS). README not updated."
     echo "   Documentation should be available at: $DOCS_URL"
