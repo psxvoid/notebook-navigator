@@ -19,13 +19,13 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 Choose your preferred language below to view the documentation on our website:
 
 🇺🇸 [English](https://notebooknavigator.com/docs.html) •
-🇩🇪 [Deutsch](https://notebooknavigator.com/docs.html?lang=de) •
-🇪🇸 [Español](https://notebooknavigator.com/docs.html?lang=es) •
-🇫🇷 [Français](https://notebooknavigator.com/docs.html?lang=fr) •
-🇵🇱 [Polski](https://notebooknavigator.com/docs.html?lang=pl) •
-🇯🇵 [日本語](https://notebooknavigator.com/docs.html?lang=ja) •
-🇨🇳 [中文](https://notebooknavigator.com/docs.html?lang=zh) •
-🇰🇷 [한국어](https://notebooknavigator.com/docs.html?lang=ko)
+🇩🇪 [Deutsch](https://notebooknavigator.com/de/docs.html) •
+🇪🇸 [Español](https://notebooknavigator.com/es/docs.html) •
+🇫🇷 [Français](https://notebooknavigator.com/fr/docs.html) •
+🇵🇱 [Polski](https://notebooknavigator.com/pl/docs.html) •
+🇯🇵 [日本語](https://notebooknavigator.com/ja/docs.html) •
+🇨🇳 [中文](https://notebooknavigator.com/zh/docs.html) •
+🇰🇷 [한국어](https://notebooknavigator.com/ko/docs.html)
 
 <br>
 
