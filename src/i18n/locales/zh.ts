@@ -686,6 +686,15 @@ export const STRINGS_ZH = {
                 name: '启用文件夹笔记',
                 desc: '启用后，具有关联笔记的文件夹将显示为可点击的链接。'
             },
+            folderNoteType: {
+                name: '默认文件夹笔记类型',
+                desc: '从上下文菜单创建的文件夹笔记类型。',
+                options: {
+                    markdown: 'Markdown',
+                    canvas: 'Canvas',
+                    base: 'Base'
+                }
+            },
             folderNoteName: {
                 name: '文件夹笔记名称',
                 desc: '文件夹笔记的名称。留空以使用与文件夹相同的名称。',
@@ -763,7 +772,7 @@ export const STRINGS_ZH = {
     whatsNew: {
         title: 'Notebook Navigator 的新功能',
         supportMessage: '如果您觉得 Notebook Navigator 有用，请考虑支持其开发。',
-        supportButton: '❤️ 支持',
+        supportButton: '请我喝咖啡',
         thanksButton: '谢谢！'
     }
 };

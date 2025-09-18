@@ -165,11 +165,20 @@ export class WhatsNewModal extends Modal {
 
         // Create buttons directly without Setting wrapper
         const supportButton = buttonContainer.createEl('button', {
-            text: strings.whatsNew.supportButton,
             cls: 'nn-support-button-small'
         });
+        supportButton.setAttr('type', 'button');
+
+        const supportIcon = supportButton.createSpan({ cls: 'nn-support-button-icon' });
+        supportIcon.setAttr('aria-hidden', 'true');
+        supportIcon.setText('☕');
+
+        supportButton.createSpan({
+            cls: 'nn-support-button-label',
+            text: strings.whatsNew.supportButton
+        });
         this.addDomListener(supportButton, 'click', () => {
-            window.open('https://github.com/sponsors/johansan/');
+            window.open('https://www.buymeacoffee.com/johansan');
         });
 
         const thanksButton = buttonContainer.createEl('button', {

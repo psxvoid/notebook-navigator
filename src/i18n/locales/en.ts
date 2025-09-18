@@ -685,6 +685,15 @@ export const STRINGS_EN = {
                 name: 'Enable folder notes',
                 desc: 'When enabled, folders with associated notes are displayed as clickable links.'
             },
+            folderNoteType: {
+                name: 'Default folder note type',
+                desc: 'Folder note type created from the context menu.',
+                options: {
+                    markdown: 'Markdown',
+                    canvas: 'Canvas',
+                    base: 'Base'
+                }
+            },
             folderNoteName: {
                 name: 'Folder note name',
                 desc: 'Name of the folder note without extension. Leave empty to use the same name as the folder.',
@@ -762,7 +771,7 @@ export const STRINGS_EN = {
     whatsNew: {
         title: "What's new in Notebook Navigator",
         supportMessage: 'If you find Notebook Navigator helpful, please consider supporting its development.',
-        supportButton: '❤️ Support',
+        supportButton: 'Buy me a coffee',
         thanksButton: 'Thanks!'
     }
 };

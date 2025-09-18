@@ -57,7 +57,7 @@ import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
 import { getIconService } from '../services/icons';
 import { ItemType } from '../types';
-import { getFolderNote } from '../utils/fileFinder';
+import { getFolderNote } from '../utils/folderNotes';
 import { hasSubfolders, shouldExcludeFolder, shouldExcludeFile } from '../utils/fileFilters';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
 

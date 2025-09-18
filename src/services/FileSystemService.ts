@@ -26,7 +26,7 @@ import { NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, ItemType } from '../types';
 import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
-import { getFolderNote } from '../utils/fileFinder';
+import { getFolderNote } from '../utils/folderNotes';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 import { executeCommand } from '../utils/typeGuards';
 import { TagTreeService } from './TagTreeService';

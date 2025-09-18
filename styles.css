@@ -1869,7 +1869,16 @@ body.nn-resizing {
 
 /* Support button styling */
 .nn-support-button-small {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 12px;
+}
+
+.nn-support-button-icon {
+    display: inline-flex;
+    font-size: 14px;
+    line-height: 1;
 }
 
 /* Mobile adjustments */

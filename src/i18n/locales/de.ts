@@ -687,6 +687,15 @@ export const STRINGS_DE = {
                 name: 'Ordnernotizen aktivieren',
                 desc: 'Wenn aktiviert, werden Ordner mit zugehörigen Notizen als anklickbare Links angezeigt.'
             },
+            folderNoteType: {
+                name: 'Standardtyp für Ordnernotizen',
+                desc: 'Ordnernotiztyp, der über das Kontextmenü erstellt wird.',
+                options: {
+                    markdown: 'Markdown',
+                    canvas: 'Canvas',
+                    base: 'Base'
+                }
+            },
             folderNoteName: {
                 name: 'Name der Ordnernotiz',
                 desc: 'Name der Ordnernotiz. Leer lassen, um denselben Namen wie der Ordner zu verwenden.',
@@ -764,7 +773,7 @@ export const STRINGS_DE = {
     whatsNew: {
         title: 'Neuigkeiten in Notebook Navigator',
         supportMessage: 'Wenn Sie Notebook Navigator hilfreich finden, erwägen Sie bitte, die Entwicklung zu unterstützen.',
-        supportButton: '❤️ Unterstützen',
+        supportButton: 'Kauf mir einen Kaffee',
         thanksButton: 'Danke!'
     }
 };

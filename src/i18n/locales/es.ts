@@ -686,6 +686,15 @@ export const STRINGS_ES = {
                 name: 'Habilitar notas de carpeta',
                 desc: 'Cuando está habilitado, las carpetas con notas asociadas se muestran como enlaces clicables.'
             },
+            folderNoteType: {
+                name: 'Tipo predeterminado de nota de carpeta',
+                desc: 'Tipo de nota de carpeta creado desde el menú contextual.',
+                options: {
+                    markdown: 'Markdown',
+                    canvas: 'Canvas',
+                    base: 'Base'
+                }
+            },
             folderNoteName: {
                 name: 'Nombre de la nota de carpeta',
                 desc: 'Nombre de la nota de carpeta. Dejar vacío para usar el mismo nombre que la carpeta.',
@@ -763,7 +772,7 @@ export const STRINGS_ES = {
     whatsNew: {
         title: 'Novedades en Notebook Navigator',
         supportMessage: 'Si encuentras útil Notebook Navigator, considera apoyar su desarrollo.',
-        supportButton: '❤️ Apoyar',
+        supportButton: 'Invítame a un café',
         thanksButton: '¡Gracias!'
     }
 };

@@ -685,6 +685,15 @@ export const STRINGS_KO = {
                 name: '폴더 노트 활성화',
                 desc: '활성화되면 관련 노트가 있는 폴더가 클릭 가능한 링크로 표시됩니다.'
             },
+            folderNoteType: {
+                name: '기본 폴더 노트 형식',
+                desc: '컨텍스트 메뉴에서 생성되는 폴더 노트 형식입니다.',
+                options: {
+                    markdown: 'Markdown',
+                    canvas: 'Canvas',
+                    base: 'Base'
+                }
+            },
             folderNoteName: {
                 name: '폴더 노트 이름',
                 desc: '확장자 없는 폴더 노트의 이름입니다. 폴더와 같은 이름을 사용하려면 비워 두세요.',
@@ -762,7 +771,7 @@ export const STRINGS_KO = {
     whatsNew: {
         title: 'Notebook Navigator의 새로운 기능',
         supportMessage: 'Notebook Navigator가 도움이 되신다면 개발을 지원해 주시기 바랍니다.',
-        supportButton: '❤️ 지원',
+        supportButton: '커피 사주기',
         thanksButton: '감사합니다!'
     }
 };

@@ -75,13 +75,18 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-09-18',
         new: [
             '**Filter search** You can now ==search for tags== in the built-in Filter search using the # prefix! For example: "#oo" matches #tool and #mytags/root. Just typing "#" filters to show only notes with tags',
-            '**Filter search** Now supports negation tokens: ==!name and !#tag==. This makes it super easy to find untagged notes in a folder, or notes without a certain word in the title.'
+            '**Filter search** Now supports negation tokens: ==!name and !#tag==. This makes it super easy to find untagged notes in a folder, or notes without a certain word in the title.',
+            'Folder notes can now be Markdown, Canvas or Base** Notebook Navigator also has a new setting "Default folder note type" where you can change the default document type when creating folder notes from the context menu.'
         ],
         changed: [
             'Default search provider set to Filter search due to performance issues with Omnisearch in large vaults.',
-            'Due to the improvements to filter search, Omnisearch no longer combines search results with Filter search.'
+            'Due to the improvements to filter search, Omnisearch no longer combines search results with Filter search.',
+            'Folder note detection accepts canvas and base files.'
         ],
-        fixed: ['Fixed so list pane properly updates sort order for notes if it is sorted by modification date.']
+        fixed: [
+            'Fixed so list pane properly updates sort order for notes if it is sorted by modification date.',
+            'Further improvements to pixel perfect rendering to avoid blurry text on scaled Windows displays (125% and 150% scaling).'
+        ]
     },
     {
         version: '1.4.18',

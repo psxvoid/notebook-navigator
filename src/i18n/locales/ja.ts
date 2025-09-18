@@ -687,6 +687,15 @@ export const STRINGS_JA = {
                 name: 'フォルダノートを有効化',
                 desc: '有効にすると、関連するノートを持つフォルダがクリック可能なリンクとして表示されます。'
             },
+            folderNoteType: {
+                name: '既定のフォルダノート形式',
+                desc: 'コンテキストメニューで作成されるフォルダノートの形式です。',
+                options: {
+                    markdown: 'Markdown',
+                    canvas: 'Canvas',
+                    base: 'Base'
+                }
+            },
             folderNoteName: {
                 name: 'フォルダノート名',
                 desc: 'フォルダノートの名前。空のままにするとフォルダと同じ名前を使用します。',
@@ -764,7 +773,7 @@ export const STRINGS_JA = {
     whatsNew: {
         title: 'Notebook Navigatorの新機能',
         supportMessage: 'Notebook Navigatorが役立つと思われる場合は、開発のサポートをご検討ください。',
-        supportButton: '❤️ サポート',
+        supportButton: 'コーヒーをおごる',
         thanksButton: 'ありがとう！'
     }
 };

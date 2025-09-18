@@ -16,11 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { MenuItem, Notice, normalizePath, Platform } from 'obsidian';
+import { MenuItem, Notice, Platform } from 'obsidian';
 import { FolderMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin, isFolderAncestor } from '../../utils/typeGuards';
-import { getFolderNote } from '../../utils/fileFinder';
+import { getFolderNote, createFolderNote } from '../../utils/folderNotes';
 import { ExtendedApp } from '../../types/obsidian-extended';
 import { cleanupExclusionPatterns, isFolderInExcludedFolder } from '../../utils/fileFilters';
 import { ItemType } from '../../types';
@@ -30,7 +30,7 @@ import { ItemType } from '../../types';
  */
 export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     const { folder, menu, services, settings, state, dispatchers } = params;
-    const { app, fileSystemOps, metadataService, commandQueue } = services;
+    const { app, fileSystemOps, metadataService } = services;
     const { selectionState, expandedFolders } = state;
     const { selectionDispatch, expansionDispatch } = dispatchers;
 
@@ -158,34 +158,16 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                 item.setTitle(strings.contextMenu.folder.createFolderNote)
                     .setIcon('lucide-pen-box')
                     .onClick(async () => {
-                        // Use folderNoteName if set, otherwise use folder name
-                        const noteName = `${settings.folderNoteName || folder.name}.md`;
-                        const notePath = normalizePath(`${folder.path}/${noteName}`);
-
-                        // Check if file already exists
-                        const existingFile = app.vault.getFileByPath(notePath);
-                        if (existingFile) {
-                            new Notice(strings.fileSystem.errors.folderNoteAlreadyExists);
-                            return;
-                        }
-
-                        // Create content with frontmatter if folderNoteProperties are set
-                        let content = '';
-                        if (settings.folderNoteProperties.length > 0) {
-                            const properties = settings.folderNoteProperties.map(prop => `${prop}: true`).join('\n');
-                            content = `---\n${properties}\n---\n`;
-                        }
-
-                        const file = await app.vault.create(notePath, content);
-
-                        if (commandQueue) {
-                            await commandQueue.executeOpenFolderNote(folder.path, async () => {
-                                await app.workspace.getLeaf().openFile(file);
-                            });
-                        } else {
-                            // Fallback: just open the file without command queue
-                            await app.workspace.getLeaf().openFile(file);
-                        }
+                        await createFolderNote(
+                            app,
+                            folder,
+                            {
+                                folderNoteType: settings.folderNoteType,
+                                folderNoteName: settings.folderNoteName,
+                                folderNoteProperties: settings.folderNoteProperties
+                            },
+                            services.commandQueue
+                        );
                     });
             });
         }

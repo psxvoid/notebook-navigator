@@ -26,6 +26,7 @@ import { calculateCacheStatistics, CacheStatistics } from './storage/statistics'
 import { ISO_DATE_FORMAT } from './utils/dateUtils';
 import { FolderAppearance, TagAppearance } from './hooks/useListPaneAppearance';
 import { PinnedNotes } from './types';
+import { FolderNoteType, isFolderNoteType } from './types/folderNote';
 
 // Current settings schema version
 export const SETTINGS_VERSION = 1;
@@ -83,6 +84,7 @@ export interface NotebookNavigatorSettings {
     showRootFolder: boolean;
     inheritFolderColors: boolean;
     enableFolderNotes: boolean;
+    folderNoteType: FolderNoteType;
     folderNoteName: string;
     folderNoteProperties: string[];
     hideFolderNoteInList: boolean;
@@ -177,6 +179,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showRootFolder: true,
     inheritFolderColors: false,
     enableFolderNotes: false,
+    folderNoteType: 'markdown',
     folderNoteName: '',
     folderNoteProperties: [],
     hideFolderNoteInList: true,
@@ -711,6 +714,24 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Container for folder notes sub-settings
         const folderNotesSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(folderNotesSettingsEl)
+            .setName(strings.settings.items.folderNoteType.name)
+            .setDesc(strings.settings.items.folderNoteType.desc)
+            .addDropdown(dropdown => {
+                dropdown
+                    .addOption('markdown', strings.settings.items.folderNoteType.options.markdown)
+                    .addOption('canvas', strings.settings.items.folderNoteType.options.canvas)
+                    .addOption('base', strings.settings.items.folderNoteType.options.base)
+                    .setValue(this.plugin.settings.folderNoteType)
+                    .onChange(async value => {
+                        if (!isFolderNoteType(value)) {
+                            return;
+                        }
+                        this.plugin.settings.folderNoteType = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                    });
+            });
 
         this.createDebouncedTextSetting(
             folderNotesSettingsEl,

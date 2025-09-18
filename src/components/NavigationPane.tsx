@@ -70,7 +70,7 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import { NavigationPaneItemType, ItemType } from '../types';
 import { getSelectedPath } from '../utils/selectionUtils';
 import { TagTreeNode } from '../types/storage';
-import { getFolderNote } from '../utils/fileFinder';
+import { getFolderNote } from '../utils/folderNotes';
 import { findTagNode } from '../utils/tagTree';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';

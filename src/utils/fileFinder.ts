@@ -28,40 +28,8 @@ import { getDBInstance } from '../storage/fileOperations';
 import { extractMetadata } from '../utils/metadataExtractor';
 import { METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { getFileDisplayName as getDisplayName } from './fileNameUtils';
-
-/**
- * Gets the folder note for a folder if it exists
- */
-export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettings): TFile | null {
-    if (!settings.enableFolderNotes) {
-        return null;
-    }
-
-    // Look for the folder note in the folder
-    for (const child of folder.children) {
-        // Only check files, not folders
-        if (child instanceof TFile) {
-            // Check if file is a folder note
-            // Must be directly in the folder
-            if (child.parent?.path !== folder.path) {
-                continue;
-            }
-
-            // Only markdown files can be folder notes
-            if (child.extension !== 'md') {
-                continue;
-            }
-
-            // If folderNoteName is empty, use the folder name
-            const expectedName = settings.folderNoteName || folder.name;
-            if (child.basename === expectedName) {
-                return child;
-            }
-        }
-    }
-
-    return null;
-}
+import { isFolderNote } from './folderNotes';
+export { getFolderNote } from './folderNotes';
 
 /**
  * Collects all pinned note paths from settings
@@ -126,16 +94,11 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
     // Filter out folder notes if enabled and set to hide
     if (settings.enableFolderNotes && settings.hideFolderNoteInList) {
         allFiles = allFiles.filter(file => {
-            // Check if this file is a folder note for its parent folder
             if (file.parent && file.parent instanceof TFolder) {
-                // Only markdown files can be folder notes
-                if (file.extension !== 'md') {
-                    return true;
-                }
-
-                // If folderNoteName is empty, use the folder name
-                const expectedName = settings.folderNoteName || file.parent.name;
-                return file.basename !== expectedName;
+                return !isFolderNote(file, file.parent, {
+                    enableFolderNotes: true,
+                    folderNoteName: settings.folderNoteName
+                });
             }
             return true;
         });

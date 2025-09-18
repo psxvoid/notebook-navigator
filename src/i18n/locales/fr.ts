@@ -688,6 +688,15 @@ export const STRINGS_FR = {
                 name: 'Activer les notes de dossier',
                 desc: "Lorsqu'activé, les dossiers avec des notes associées sont affichés comme des liens cliquables."
             },
+            folderNoteType: {
+                name: 'Type de note de dossier par défaut',
+                desc: 'Type de note de dossier créé depuis le menu contextuel.',
+                options: {
+                    markdown: 'Markdown',
+                    canvas: 'Canvas',
+                    base: 'Base'
+                }
+            },
             folderNoteName: {
                 name: 'Nom de la note de dossier',
                 desc: 'Nom de la note de dossier. Laisser vide pour utiliser le même nom que le dossier.',
@@ -765,7 +774,7 @@ export const STRINGS_FR = {
     whatsNew: {
         title: 'Nouveautés dans Notebook Navigator',
         supportMessage: 'Si vous trouvez Notebook Navigator utile, veuillez envisager de soutenir son développement.',
-        supportButton: '❤️ Soutenir',
+        supportButton: 'Offrir un café',
         thanksButton: 'Merci !'
     }
 };

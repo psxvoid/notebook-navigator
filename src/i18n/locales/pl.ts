@@ -687,6 +687,15 @@ export const STRINGS_PL = {
                 name: 'Włącz notatki folderów',
                 desc: 'Gdy włączone, foldery z powiązanymi notatkami są wyświetlane jako klikalne linki.'
             },
+            folderNoteType: {
+                name: 'Domyślny typ notatki folderu',
+                desc: 'Typ notatki folderu tworzony z menu kontekstowego.',
+                options: {
+                    markdown: 'Markdown',
+                    canvas: 'Canvas',
+                    base: 'Base'
+                }
+            },
             folderNoteName: {
                 name: 'Nazwa notatki folderu',
                 desc: 'Nazwa notatki folderu bez rozszerzenia. Zostaw puste aby użyć takiej samej nazwy jak folder.',
@@ -764,7 +773,7 @@ export const STRINGS_PL = {
     whatsNew: {
         title: 'Co nowego w Notebook Navigator',
         supportMessage: 'Jeśli uważasz Notebook Navigator za pomocny, rozważ wsparcie jego rozwoju.',
-        supportButton: '❤️ Wesprzyj',
+        supportButton: 'Postaw mi kawę',
         thanksButton: 'Dzięki!'
     }
 };
