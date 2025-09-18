@@ -424,7 +424,7 @@ export const STRINGS_DE = {
                     filterSearch: {
                         title: 'Filtersuche (Standard):',
                         description:
-                            'Schnelle, leichtgewichtige Suche, die Dateien nach Namen im aktuellen Ordner und Unterordnern filtert. Ideal für die schnelle Navigation im aktuellen Kontext.'
+                            'Schnelle, leichtgewichtige Suche, die Dateien nach Namen und Tags im aktuellen Ordner und Unterordnern filtert. Unterstützt Tag-Filterung mit # Präfix (z.B. #projekt), Ausschluss mit ! Präfix (z.B. !entwurf, !#archiviert), und das Finden von Notizen ohne Tags mit !#. Ideal für die schnelle Navigation im aktuellen Kontext.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

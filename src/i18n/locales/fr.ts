@@ -424,7 +424,7 @@ export const STRINGS_FR = {
                     filterSearch: {
                         title: 'Recherche par filtre (par défaut):',
                         description:
-                            'Recherche rapide et légère qui filtre les fichiers par nom dans le dossier actuel et les sous-dossiers. Idéal pour la navigation rapide dans votre contexte actuel.'
+                            'Recherche rapide et légère qui filtre les fichiers par nom et étiquettes dans le dossier actuel et les sous-dossiers. Prend en charge le filtrage par étiquettes avec le préfixe # (ex. #projet), l\'exclusion avec le préfixe ! (ex. !brouillon, !#archivé), et la recherche de notes sans étiquettes avec !#. Idéal pour la navigation rapide dans votre contexte actuel.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

@@ -423,7 +423,7 @@ export const STRINGS_EN = {
                     filterSearch: {
                         title: 'Filter search (default):',
                         description:
-                            'Fast, lightweight search that filters files by name within the current folder and subfolders. Ideal for quick navigation within your current context.'
+                            'Fast, lightweight search that filters files by name and tags within the current folder and subfolders. Supports tag filtering with # prefix (e.g., #project), exclusion with ! prefix (e.g., !draft, !#archived), and finding untagged notes with !#. Ideal for quick navigation within your current context.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

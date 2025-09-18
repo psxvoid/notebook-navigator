@@ -423,7 +423,7 @@ export const STRINGS_ZH = {
                 info: {
                     filterSearch: {
                         title: '过滤搜索（默认）：',
-                        description: '快速、轻量级搜索，按名称过滤当前文件夹和子文件夹中的文件。非常适合在当前上下文中快速导航。'
+                        description: '快速、轻量级搜索，按名称和标签过滤当前文件夹和子文件夹中的文件。支持使用 # 前缀进行标签过滤（例如 #项目），使用 ! 前缀进行排除（例如 !草稿，!#已归档），以及使用 !# 查找无标签笔记。非常适合在当前上下文中快速导航。'
                     },
                     omnisearch: {
                         title: 'Omnisearch：',

@@ -424,7 +424,7 @@ export const STRINGS_ES = {
                     filterSearch: {
                         title: 'Búsqueda por filtro (predeterminado):',
                         description:
-                            'Búsqueda rápida y ligera que filtra archivos por nombre dentro de la carpeta actual y subcarpetas. Ideal para navegación rápida dentro de su contexto actual.'
+                            'Búsqueda rápida y ligera que filtra archivos por nombre y etiquetas dentro de la carpeta actual y subcarpetas. Admite filtrado de etiquetas con prefijo # (ej. #proyecto), exclusión con prefijo ! (ej. !borrador, !#archivado), y búsqueda de notas sin etiquetas con !#. Ideal para navegación rápida dentro de su contexto actual.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

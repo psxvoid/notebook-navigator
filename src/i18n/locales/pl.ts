@@ -425,7 +425,7 @@ export const STRINGS_PL = {
                     filterSearch: {
                         title: 'Wyszukiwanie filtrujące (domyślne):',
                         description:
-                            'Szybkie, lekkie wyszukiwanie, które filtruje pliki według nazwy w bieżącym folderze i podfolderach. Idealne do szybkiej nawigacji w aktualnym kontekście.'
+                            'Szybkie, lekkie wyszukiwanie, które filtruje pliki według nazwy i tagów w bieżącym folderze i podfolderach. Obsługuje filtrowanie tagów z prefiksem # (np. #projekt), wykluczanie z prefiksem ! (np. !szkic, !#zarchiwizowane), oraz znajdowanie notatek bez tagów za pomocą !#. Idealne do szybkiej nawigacji w aktualnym kontekście.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
