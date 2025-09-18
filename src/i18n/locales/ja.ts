@@ -417,13 +417,30 @@ export const STRINGS_JA = {
                 name: '検索プロバイダー',
                 desc: 'クイックファイル名検索またはOmnisearchプラグインによる全文検索を選択してください。',
                 options: {
-                    internal: 'ファイル名フィルター',
+                    internal: 'フィルター検索',
                     omnisearch: 'Omnisearch（全文）'
                 },
-                messages: {
-                    missingSelected: '全文検索用にOmnisearchをインストール。',
-                    missing: '全文検索用にOmnisearchをインストール。',
-                    installed: '全文検索用にOmnisearchに切り替え。'
+                info: {
+                    filterSearch: {
+                        title: 'フィルター検索（デフォルト）：',
+                        description:
+                            '現在のフォルダとサブフォルダ内のファイルを名前でフィルタリングする高速で軽量な検索。現在のコンテキスト内でのクイックナビゲーションに最適。'
+                    },
+                    omnisearch: {
+                        title: 'Omnisearch：',
+                        description:
+                            'ボールト全体を検索し、現在のフォルダ、サブフォルダ、または選択したタグからのファイルのみを表示するように結果をフィルタリングする全文検索。Omnisearchプラグインのインストールが必要 - 利用できない場合、検索は自動的にフィルター検索にフォールバックします。',
+                        limitations: {
+                            title: '既知の制限事項：',
+                            performance: 'パフォーマンス：大きなボールトで3文字未満を検索する場合、特に遅くなることがあります',
+                            pathBug:
+                                'パスのバグ：非ASCII文字を含むパスで検索できず、サブパスを正しく検索しません。検索結果に表示されるファイルに影響します',
+                            limitedResults:
+                                '制限された結果：Omnisearchはボールト全体を検索し、フィルタリング前に限られた数の結果を返すため、ボールトの他の場所に多くの一致が存在する場合、現在のフォルダからの関連ファイルが表示されない可能性があります',
+                            previewText:
+                                'プレビューテキスト：ノートのプレビューはOmnisearchの結果の抜粋に置き換えられ、検索一致のハイライトがファイルの他の場所に表示される場合、実際のハイライトが表示されない可能性があります'
+                        }
+                    }
                 }
             },
             sortNotesBy: {

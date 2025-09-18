@@ -418,13 +418,30 @@ export const STRINGS_PL = {
                 name: 'Dostawca wyszukiwania',
                 desc: 'Wybierz między szybkim wyszukiwaniem nazwy pliku lub pełnotekstowym wyszukiwaniem z pluginem Omnisearch.',
                 options: {
-                    internal: 'Filtr nazwy pliku',
+                    internal: 'Wyszukiwanie filtrujące',
                     omnisearch: 'Omnisearch (pełnotekstowy)'
                 },
-                messages: {
-                    missingSelected: 'Zainstaluj Omnisearch dla wyszukiwania pełnotekstowego.',
-                    missing: 'Zainstaluj Omnisearch dla wyszukiwania pełnotekstowego.',
-                    installed: 'Przełącz na Omnisearch dla wyszukiwania pełnotekstowego.'
+                info: {
+                    filterSearch: {
+                        title: 'Wyszukiwanie filtrujące (domyślne):',
+                        description:
+                            'Szybkie, lekkie wyszukiwanie, które filtruje pliki według nazwy w bieżącym folderze i podfolderach. Idealne do szybkiej nawigacji w aktualnym kontekście.'
+                    },
+                    omnisearch: {
+                        title: 'Omnisearch:',
+                        description:
+                            'Wyszukiwanie pełnotekstowe, które przeszukuje cały skarbiec, a następnie filtruje wyniki, aby pokazywać tylko pliki z bieżącego folderu, podfolderów lub wybranych tagów. Wymaga zainstalowania wtyczki Omnisearch - jeśli nie jest dostępna, wyszukiwanie automatycznie powróci do wyszukiwania filtrującego.',
+                        limitations: {
+                            title: 'Znane ograniczenia:',
+                            performance: 'Wydajność: Może być wolne, szczególnie przy wyszukiwaniu mniej niż 3 znaków w dużych skarbcach',
+                            pathBug:
+                                'Błąd ścieżki: Nie może wyszukiwać w ścieżkach z nie-ASCII znakami i nieprawidłowo przeszukuje podścieżki, wpływając na pliki pojawiające się w wynikach wyszukiwania',
+                            limitedResults:
+                                'Ograniczone wyniki: Ponieważ Omnisearch przeszukuje cały skarbiec i zwraca ograniczoną liczbę wyników przed filtrowaniem, istotne pliki z bieżącego folderu mogą się nie pojawić, jeśli istnieje zbyt wiele dopasowań w innym miejscu skarbca',
+                            previewText:
+                                'Tekst podglądu: Podglądy notatek są zastępowane fragmentami wyników Omnisearch, które mogą nie pokazywać rzeczywistego podświetlenia dopasowania wyszukiwania, jeśli pojawia się ono w innym miejscu pliku'
+                        }
+                    }
                 }
             },
             sortNotesBy: {

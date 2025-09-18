@@ -417,13 +417,31 @@ export const STRINGS_FR = {
                 name: 'Fournisseur de recherche',
                 desc: 'Choisissez entre la recherche rapide par nom de fichier ou la recherche plein texte avec le plugin Omnisearch.',
                 options: {
-                    internal: 'Filtre par nom de fichier',
+                    internal: 'Recherche par filtre',
                     omnisearch: 'Omnisearch (plein texte)'
                 },
-                messages: {
-                    missingSelected: 'Installer Omnisearch pour la recherche plein texte.',
-                    missing: 'Installer Omnisearch pour la recherche plein texte.',
-                    installed: 'Basculer vers Omnisearch pour la recherche plein texte.'
+                info: {
+                    filterSearch: {
+                        title: 'Recherche par filtre (par défaut):',
+                        description:
+                            'Recherche rapide et légère qui filtre les fichiers par nom dans le dossier actuel et les sous-dossiers. Idéal pour la navigation rapide dans votre contexte actuel.'
+                    },
+                    omnisearch: {
+                        title: 'Omnisearch:',
+                        description:
+                            "Recherche plein texte qui parcourt l'ensemble de votre coffre, puis filtre les résultats pour n'afficher que les fichiers du dossier actuel, des sous-dossiers ou des étiquettes sélectionnées. Nécessite l'installation du plugin Omnisearch - s'il n'est pas disponible, la recherche reviendra automatiquement à la recherche par filtre.",
+                        limitations: {
+                            title: 'Limitations connues:',
+                            performance:
+                                'Performance: Peut être lent, surtout lors de la recherche de moins de 3 caractères dans de grandes coffres',
+                            pathBug:
+                                'Bug de chemin: Ne peut pas rechercher dans les chemins avec des caractères non-ASCII et ne recherche pas correctement dans les sous-chemins, affectant les fichiers qui apparaissent dans les résultats de recherche',
+                            limitedResults:
+                                "Résultats limités: Comme Omnisearch recherche dans tout le coffre et renvoie un nombre limité de résultats avant le filtrage, les fichiers pertinents de votre dossier actuel peuvent ne pas apparaître s'il existe trop de correspondances ailleurs dans le coffre",
+                            previewText:
+                                "Texte d'aperçu: Les aperçus de notes sont remplacés par des extraits de résultats Omnisearch, qui peuvent ne pas afficher la mise en surbrillance réelle de la correspondance de recherche si elle apparaît ailleurs dans le fichier"
+                        }
+                    }
                 }
             },
             sortNotesBy: {

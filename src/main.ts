@@ -203,8 +203,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.omnisearchService = new OmnisearchService(this.app);
         this.api = new NotebookNavigatorAPI(this, this.app);
 
-        await this.ensureSearchProviderDefault();
-
         // Register view
         this.registerView(NOTEBOOK_NAVIGATOR_VIEW, leaf => {
             return new NotebookNavigatorView(leaf, this);
@@ -746,15 +744,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         if (this.settings.hiddenTags) {
             this.settings.hiddenTags = normalizeArray(this.settings.hiddenTags);
-        }
-    }
-
-    // Set default search provider on first run based on plugin availability
-    private async ensureSearchProviderDefault(): Promise<void> {
-        if (this.settings.searchProvider === undefined || this.settings.searchProvider === null) {
-            const provider = this.omnisearchService?.isAvailable() ? 'omnisearch' : 'internal';
-            this.settings.searchProvider = provider;
-            await this.saveSettingsAndUpdate();
         }
     }
 

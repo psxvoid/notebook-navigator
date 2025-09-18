@@ -416,13 +416,30 @@ export const STRINGS_EN = {
                 name: 'Search provider',
                 desc: 'Choose between quick file name search or full-text search with Omnisearch plugin.',
                 options: {
-                    internal: 'File name filter',
+                    internal: 'Filter search',
                     omnisearch: 'Omnisearch (full-text)'
                 },
-                messages: {
-                    missingSelected: 'Install Omnisearch for full-text search.',
-                    missing: 'Install Omnisearch for full-text search.',
-                    installed: 'Switch to Omnisearch for full-text search.'
+                info: {
+                    filterSearch: {
+                        title: 'Filter search (default):',
+                        description:
+                            'Fast, lightweight search that filters files by name within the current folder and subfolders. Ideal for quick navigation within your current context.'
+                    },
+                    omnisearch: {
+                        title: 'Omnisearch:',
+                        description:
+                            'Full-text search that searches your entire vault, then filters the results to show only files from the current folder, subfolders, or selected tags. Requires the Omnisearch plugin to be installed - if not available, search will automatically fall back to Filter search.',
+                        limitations: {
+                            title: 'Known limitations:',
+                            performance: 'Performance: Can be slow, especially when searching for less than 3 characters in large vaults',
+                            pathBug:
+                                'Path bug: Cannot search in paths with non-ASCII characters and does not search subpaths correctly, affecting which files appear in search results',
+                            limitedResults:
+                                'Limited results: Since Omnisearch searches the entire vault and returns a limited number of results before filtering, relevant files from your current folder may not appear if too many matches exist elsewhere in the vault',
+                            previewText:
+                                'Preview text: Note previews are replaced with Omnisearch result excerpts, which may not show the actual search match highlight if it appears elsewhere in the file'
+                        }
+                    }
                 }
             },
             sortNotesBy: {

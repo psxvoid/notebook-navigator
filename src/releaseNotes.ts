@@ -73,6 +73,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.19',
         date: '2025-09-18',
+        changed: ['Default search provider set to Filter search due to performance issues with Omnisearch in large vaults.'],
         fixed: ['Fixed so list pane properly updates sort order for notes if it is sorted by modification date.']
     },
     {

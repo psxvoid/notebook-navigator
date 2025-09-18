@@ -222,7 +222,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     confirmBeforeDelete: true,
     // Internal
     searchActive: false,
-    searchProvider: null,
+    searchProvider: 'internal',
     showHiddenItems: false,
     includeDescendantNotes: true,
     customVaultName: '',
@@ -894,20 +894,46 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         });
 
         const updateSearchInfo = () => {
-            const provider = this.plugin.settings.searchProvider ?? 'internal';
-            const hasOmnisearch = this.plugin.omnisearchService?.isAvailable() ?? false;
+            // Clear existing content
+            searchInfoEl.empty();
 
-            let message = '';
-            if (provider === 'omnisearch' && !hasOmnisearch) {
-                message = strings.settings.items.searchProvider.messages.missingSelected;
-            } else if (provider !== 'omnisearch') {
-                message = hasOmnisearch
-                    ? strings.settings.items.searchProvider.messages.installed
-                    : strings.settings.items.searchProvider.messages.missing;
-            }
+            // Always show comprehensive information about search providers
+            const infoDiv = searchInfoEl.createDiv();
 
-            searchInfoEl.setText(message);
-            searchInfoContainer.toggle(message.length > 0);
+            // Add information about Filter search
+            const filterSection = infoDiv.createEl('div', { cls: 'nn-search-info-section' });
+            filterSection.createEl('strong', { text: strings.settings.items.searchProvider.info.filterSearch.title });
+            filterSection.createEl('div', {
+                text: strings.settings.items.searchProvider.info.filterSearch.description,
+                cls: 'nn-search-description'
+            });
+
+            infoDiv.createEl('br');
+
+            // Add information about Omnisearch
+            const omnisearchSection = infoDiv.createEl('div', { cls: 'nn-search-info-section' });
+            omnisearchSection.createEl('strong', { text: strings.settings.items.searchProvider.info.omnisearch.title });
+
+            const omnisearchDesc = omnisearchSection.createEl('div', { cls: 'nn-search-description' });
+            omnisearchDesc.createSpan({
+                text: `${strings.settings.items.searchProvider.info.omnisearch.description} `
+            });
+
+            omnisearchDesc.createEl('br');
+            omnisearchDesc.createEl('strong', { text: strings.settings.items.searchProvider.info.omnisearch.limitations.title });
+            const limitsList = omnisearchDesc.createEl('ul', { cls: 'nn-search-limitations' });
+            limitsList.createEl('li', {
+                text: strings.settings.items.searchProvider.info.omnisearch.limitations.performance
+            });
+            limitsList.createEl('li', {
+                text: strings.settings.items.searchProvider.info.omnisearch.limitations.pathBug
+            });
+            limitsList.createEl('li', {
+                text: strings.settings.items.searchProvider.info.omnisearch.limitations.limitedResults
+            });
+            limitsList.createEl('li', {
+                text: strings.settings.items.searchProvider.info.omnisearch.limitations.previewText
+            });
         };
 
         updateSearchInfo();

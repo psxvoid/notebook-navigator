@@ -417,13 +417,28 @@ export const STRINGS_ZH = {
                 name: '搜索提供器',
                 desc: '在快速文件名搜索或使用Omnisearch插件的全文搜索之间选择。',
                 options: {
-                    internal: '文件名过滤器',
+                    internal: '过滤搜索',
                     omnisearch: 'Omnisearch（全文）'
                 },
-                messages: {
-                    missingSelected: '安装Omnisearch以进行全文搜索。',
-                    missing: '安装Omnisearch以进行全文搜索。',
-                    installed: '切换到Omnisearch进行全文搜索。'
+                info: {
+                    filterSearch: {
+                        title: '过滤搜索（默认）：',
+                        description: '快速、轻量级搜索，按名称过滤当前文件夹和子文件夹中的文件。非常适合在当前上下文中快速导航。'
+                    },
+                    omnisearch: {
+                        title: 'Omnisearch：',
+                        description:
+                            '全文搜索，搜索整个仓库，然后过滤结果以仅显示来自当前文件夹、子文件夹或选定标签的文件。需要安装Omnisearch插件 - 如果不可用，搜索将自动回退到过滤搜索。',
+                        limitations: {
+                            title: '已知限制：',
+                            performance: '性能：可能较慢，特别是在大型仓库中搜索少于3个字符时',
+                            pathBug: '路径错误：无法在包含非ASCII字符的路径中搜索，且不能正确搜索子路径，影响搜索结果中显示的文件',
+                            limitedResults:
+                                '结果有限：由于Omnisearch搜索整个仓库并在过滤前返回有限数量的结果，如果仓库其他地方存在太多匹配项，当前文件夹中的相关文件可能不会出现',
+                            previewText:
+                                '预览文本：笔记预览被Omnisearch结果摘录替换，如果搜索匹配高亮出现在文件的其他位置，可能不会显示实际的高亮'
+                        }
+                    }
                 }
             },
             sortNotesBy: {

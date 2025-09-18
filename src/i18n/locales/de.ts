@@ -417,13 +417,31 @@ export const STRINGS_DE = {
                 name: 'Suchanbieter',
                 desc: 'Wählen Sie zwischen schneller Dateinamensuche oder Volltextsuche mit dem Omnisearch-Plugin.',
                 options: {
-                    internal: 'Dateinamenfilter',
+                    internal: 'Filtersuche',
                     omnisearch: 'Omnisearch (Volltext)'
                 },
-                messages: {
-                    missingSelected: 'Omnisearch für Volltextsuche installieren.',
-                    missing: 'Omnisearch für Volltextsuche installieren.',
-                    installed: 'Zu Omnisearch für Volltextsuche wechseln.'
+                info: {
+                    filterSearch: {
+                        title: 'Filtersuche (Standard):',
+                        description:
+                            'Schnelle, leichtgewichtige Suche, die Dateien nach Namen im aktuellen Ordner und Unterordnern filtert. Ideal für die schnelle Navigation im aktuellen Kontext.'
+                    },
+                    omnisearch: {
+                        title: 'Omnisearch:',
+                        description:
+                            'Volltextsuche, die Ihren gesamten Tresor durchsucht und dann die Ergebnisse filtert, um nur Dateien aus dem aktuellen Ordner, Unterordnern oder ausgewählten Tags anzuzeigen. Erfordert die Installation des Omnisearch-Plugins - falls nicht verfügbar, fällt die Suche automatisch auf die Filtersuche zurück.',
+                        limitations: {
+                            title: 'Bekannte Einschränkungen:',
+                            performance:
+                                'Leistung: Kann langsam sein, besonders bei der Suche nach weniger als 3 Zeichen in großen Tresoren',
+                            pathBug:
+                                'Pfadfehler: Kann nicht in Pfaden mit Nicht-ASCII-Zeichen suchen und durchsucht Unterpfade nicht korrekt, was die angezeigten Suchergebnisse beeinflusst',
+                            limitedResults:
+                                'Begrenzte Ergebnisse: Da Omnisearch den gesamten Tresor durchsucht und eine begrenzte Anzahl von Ergebnissen vor der Filterung zurückgibt, erscheinen relevante Dateien aus Ihrem aktuellen Ordner möglicherweise nicht, wenn zu viele Treffer an anderer Stelle im Tresor vorhanden sind',
+                            previewText:
+                                'Vorschautext: Notizvorschauen werden durch Omnisearch-Ergebnisauszüge ersetzt, die möglicherweise nicht die tatsächliche Suchtreffhervorhebung anzeigen, wenn sie an anderer Stelle in der Datei erscheint'
+                        }
+                    }
                 }
             },
             sortNotesBy: {

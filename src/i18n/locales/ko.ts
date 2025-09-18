@@ -416,13 +416,30 @@ export const STRINGS_KO = {
                 name: '검색 제공자',
                 desc: '빠른 파일명 검색 또는 Omnisearch 플러그인을 통한 전체 텍스트 검색 중에서 선택하세요.',
                 options: {
-                    internal: '파일명 필터',
+                    internal: '필터 검색',
                     omnisearch: 'Omnisearch (전체 텍스트)'
                 },
-                messages: {
-                    missingSelected: '전체 텍스트 검색을 위해 Omnisearch 설치.',
-                    missing: '전체 텍스트 검색을 위해 Omnisearch 설치.',
-                    installed: '전체 텍스트 검색을 위해 Omnisearch로 전환.'
+                info: {
+                    filterSearch: {
+                        title: '필터 검색 (기본값):',
+                        description:
+                            '현재 폴더와 하위 폴더 내의 파일을 이름으로 필터링하는 빠르고 가벼운 검색. 현재 컨텍스트 내에서 빠른 탐색에 이상적입니다.'
+                    },
+                    omnisearch: {
+                        title: 'Omnisearch:',
+                        description:
+                            '전체 보관소를 검색한 다음 현재 폴더, 하위 폴더 또는 선택한 태그의 파일만 표시하도록 결과를 필터링하는 전체 텍스트 검색. Omnisearch 플러그인 설치가 필요합니다 - 사용할 수 없는 경우 검색이 자동으로 필터 검색으로 대체됩니다.',
+                        limitations: {
+                            title: '알려진 제한 사항:',
+                            performance: '성능: 대용량 보관소에서 3자 미만을 검색할 때 특히 느릴 수 있음',
+                            pathBug:
+                                '경로 버그: 비ASCII 문자가 있는 경로에서 검색할 수 없으며 하위 경로를 올바르게 검색하지 않아 검색 결과에 표시되는 파일에 영향을 줍니다',
+                            limitedResults:
+                                '제한된 결과: Omnisearch가 전체 보관소를 검색하고 필터링 전에 제한된 수의 결과를 반환하므로 보관소의 다른 곳에 일치 항목이 너무 많으면 현재 폴더의 관련 파일이 나타나지 않을 수 있음',
+                            previewText:
+                                '미리보기 텍스트: 노트 미리보기가 Omnisearch 결과 발췌로 대체되어 검색 일치 하이라이트가 파일의 다른 위치에 나타나는 경우 실제 하이라이트가 표시되지 않을 수 있음'
+                        }
+                    }
                 }
             },
             sortNotesBy: {

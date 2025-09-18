@@ -417,13 +417,30 @@ export const STRINGS_ES = {
                 name: 'Proveedor de búsqueda',
                 desc: 'Elija entre búsqueda rápida de nombres de archivo o búsqueda de texto completo con el plugin Omnisearch.',
                 options: {
-                    internal: 'Filtro de nombre de archivo',
+                    internal: 'Búsqueda por filtro',
                     omnisearch: 'Omnisearch (texto completo)'
                 },
-                messages: {
-                    missingSelected: 'Instale Omnisearch para búsqueda de texto completo.',
-                    missing: 'Instale Omnisearch para búsqueda de texto completo.',
-                    installed: 'Cambiar a Omnisearch para búsqueda de texto completo.'
+                info: {
+                    filterSearch: {
+                        title: 'Búsqueda por filtro (predeterminado):',
+                        description:
+                            'Búsqueda rápida y ligera que filtra archivos por nombre dentro de la carpeta actual y subcarpetas. Ideal para navegación rápida dentro de su contexto actual.'
+                    },
+                    omnisearch: {
+                        title: 'Omnisearch:',
+                        description:
+                            'Búsqueda de texto completo que busca en toda su bóveda, luego filtra los resultados para mostrar solo archivos de la carpeta actual, subcarpetas o etiquetas seleccionadas. Requiere que el plugin Omnisearch esté instalado - si no está disponible, la búsqueda volverá automáticamente a la búsqueda por filtro.',
+                        limitations: {
+                            title: 'Limitaciones conocidas:',
+                            performance: 'Rendimiento: Puede ser lento, especialmente al buscar menos de 3 caracteres en bóvedas grandes',
+                            pathBug:
+                                'Error de ruta: No puede buscar en rutas con caracteres no ASCII y no busca correctamente en subrutas, afectando qué archivos aparecen en los resultados de búsqueda',
+                            limitedResults:
+                                'Resultados limitados: Como Omnisearch busca en toda la bóveda y devuelve un número limitado de resultados antes del filtrado, los archivos relevantes de su carpeta actual pueden no aparecer si existen demasiadas coincidencias en otro lugar de la bóveda',
+                            previewText:
+                                'Texto de vista previa: Las vistas previas de notas se reemplazan con extractos de resultados de Omnisearch, que pueden no mostrar el resaltado real de la coincidencia de búsqueda si aparece en otro lugar del archivo'
+                        }
+                    }
                 }
             },
             sortNotesBy: {
