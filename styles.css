@@ -23,12 +23,12 @@ body {
     /* File item heights - fixed pixel values to prevent fractional rendering */
     --nn-file-title-line-height: 20px; /* Height of file title text */
     --nn-file-padding-vertical: 8px; /* 8px */
-    --nn-file-padding-vertical-slim: 5px; /* Reduced padding for slim mode */
+    --nn-file-padding-vertical-slim: 6px; /* Reduced padding for slim mode */
     --nn-file-padding-vertical-slim-mobile: 8px; /* Mobile slim mode padding for touch targets */
     --nn-file-padding-total: calc(var(--nn-file-padding-vertical) * 2); /* Total vertical padding (top + bottom) */
-    --nn-file-single-text-line-height: 19px; /* Height for single-line text (metadata, date, or single preview) */
-    --nn-file-multiline-text-line-height: 18px; /* Height for multi-line preview text */
-    --nn-feature-image-min-size: 42px; /* Minimum size for feature images */
+    --nn-file-single-text-line-height: 20px; /* Height for single-line text (metadata, date, or single preview) */
+    --nn-file-multiline-text-line-height: 16px; /* Height for multi-line preview text */
+    --nn-feature-image-min-size: 40px; /* Minimum size for feature images */
     --nn-feature-image-max-size: 64px; /* Maximum size for feature images */
 
     /* Font sizes - fixed pixel values to prevent scaling with Obsidian font size */
@@ -36,10 +36,10 @@ body {
     --nn-file-small-size: 13px; /* Fixed 13px */
 
     /* Date header heights and padding */
-    --nn-date-header-height: 35px; /* First header */
-    --nn-date-header-height-subsequent: 50px; /* Headers with margin */
+    --nn-date-header-height: 36px; /* First header */
+    --nn-date-header-height-subsequent: 52px; /* Headers with margin */
     --nn-date-header-padding-top: 24px; /* Top padding for subsequent headers */
-    --nn-date-header-padding-bottom: 6px; /* Bottom padding for subsequent headers */
+    --nn-date-header-padding-bottom: 4px; /* Bottom padding for subsequent headers */
 
     /* Navigation item heights - fixed pixel values to prevent fractional rendering */
     --nn-nav-line-height: 18px; /* Fixed line height for folder/tag names */
@@ -1022,15 +1022,15 @@ body {
     flex-shrink: 0;
 }
 
-/* Slim mode with 1 title row and no tags: center vertically (3px offset) */
+/* Slim mode with 1 title row and no tags: center vertically (4px offset) */
 .nn-quick-actions-panel.nn-slim-mode[data-title-rows='1'][data-has-tags='false'] {
-    top: 3px; /* (20px line height + 10px padding - 24px icon) / 2 = 3px */
+    top: 4px; /* (20px line height + 12px padding - 24px icon) / 2 = 4px */
 }
 
-/* Slim mode with tags or 2 title rows: use default slim padding (5px) */
+/* Slim mode with tags or 2 title rows: use default slim padding (6px) */
 .nn-quick-actions-panel.nn-slim-mode[data-title-rows='2'],
 .nn-quick-actions-panel.nn-slim-mode[data-has-tags='true'] {
-    top: 5px; /* Match slim mode padding */
+    top: 6px; /* Match slim mode padding */
 }
 
 /* Panel appears when hovering anywhere on file row */
@@ -1127,7 +1127,7 @@ body {
     gap: 4px;
     margin-top: 4px;
     overflow: hidden;
-    height: 22px; /* Fixed height for single row */
+    height: 20px; /* Fixed height for single row */
     position: relative;
 }
 
