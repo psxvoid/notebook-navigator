@@ -258,47 +258,82 @@ export function useListPaneData({
             return baseFiles;
         }
 
+        // Use Omnisearch for full-text search when enabled
+        if (useOmnisearch) {
+            // Return empty while waiting for search results or if query doesn't match
+            if (!omnisearchResult || omnisearchResult.query !== trimmedQuery) {
+                return [];
+            }
+
+            // Build a set of paths from Omnisearch results for efficient filtering
+            const omnisearchPaths = new Set(omnisearchResult.files.map(file => file.path));
+            if (omnisearchPaths.size === 0) {
+                return [];
+            }
+
+            // Filter baseFiles to only include those found by Omnisearch
+            return baseFiles.filter(file => omnisearchPaths.has(file.path));
+        }
+
+        // Parse the search query into filter tokens
         const tokens = parseFilterSearchTokens(trimmedQuery);
-        const hasTokens = tokens.nameTokens.length > 0 || tokens.tagTokens.length > 0 || tokens.requireTagged;
+
+        // Check if any meaningful tokens exist (inclusions or exclusions)
+        const hasTokens =
+            tokens.nameTokens.length > 0 ||
+            tokens.tagTokens.length > 0 ||
+            tokens.requireTagged ||
+            tokens.excludeNameTokens.length > 0 ||
+            tokens.excludeTagTokens.length > 0 ||
+            tokens.excludeTagged;
+
+        // Skip filtering if no tokens (e.g., query was only connector words)
         if (!hasTokens) {
             return baseFiles;
         }
 
+        // Get database instance for tag lookups
         const db = getDB();
+
+        // Local cache for lowercase tags to avoid repeated transformations
         const lowercaseTagCache = new Map<string, string[]>();
 
         const filteredByFilterSearch = baseFiles.filter(file => {
             const name = searchableNames.get(file.path) || '';
 
+            // Performance optimization: Only access the tag cache when the query actually
+            // references tags (either for inclusion or exclusion). This avoids expensive
+            // tag lookups for simple name-only searches.
+            const needsTags =
+                tokens.requireTagged || tokens.tagTokens.length > 0 || tokens.excludeTagged || tokens.excludeTagTokens.length > 0;
+
             let lowercaseTags: string[] = [];
-            if (tokens.requireTagged || tokens.tagTokens.length > 0) {
+            if (needsTags) {
                 const tags = db.getCachedTags(file.path);
                 if (tags.length === 0) {
-                    return false;
+                    // File has no tags - fail if we require tags for inclusion
+                    if (tokens.requireTagged || tokens.tagTokens.length > 0) {
+                        return false;
+                    }
+                    // Otherwise, continue with empty tag array for exclusion checks
+                    lowercaseTags = [];
+                } else {
+                    // Performance optimization: Cache lowercase tag arrays to avoid repeated
+                    // toLowerCase() calls when checking multiple files
+                    let cached = lowercaseTagCache.get(file.path);
+                    if (!cached) {
+                        cached = tags.map(tag => tag.toLowerCase());
+                        lowercaseTagCache.set(file.path, cached);
+                    }
+                    lowercaseTags = cached;
                 }
-                let cached = lowercaseTagCache.get(file.path);
-                if (!cached) {
-                    cached = tags.map(tag => tag.toLowerCase());
-                    lowercaseTagCache.set(file.path, cached);
-                }
-                lowercaseTags = cached;
             }
 
             return fileMatchesFilterTokens(name, lowercaseTags, tokens);
         });
 
-        if (!useOmnisearch) {
-            return filteredByFilterSearch;
-        }
-
-        if (!omnisearchResult || omnisearchResult.query !== trimmedQuery) {
-            return filteredByFilterSearch;
-        }
-
-        const filteredPathSet = new Set(filteredByFilterSearch.map(file => file.path));
-        const omnisearchPaths = new Set(omnisearchResult.files.map(file => file.path));
-
-        return baseFiles.filter(file => filteredPathSet.has(file.path) || omnisearchPaths.has(file.path));
+        // Return the filtered results from the internal filter search
+        return filteredByFilterSearch;
     }, [useOmnisearch, trimmedQuery, baseFiles, searchableNames, omnisearchResult, getDB]);
 
     /**

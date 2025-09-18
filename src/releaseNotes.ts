@@ -74,9 +74,13 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.4.19',
         date: '2025-09-18',
         new: [
-            'You can now search for tags in the built-in Filter search using the # prefix! For example: "#oo" matches #tool and #mytags/root. Just typing "#" filters to show only notes with tags.'
+            '**Filter search** You can now ==search for tags== in the built-in Filter search using the # prefix! For example: "#oo" matches #tool and #mytags/root. Just typing "#" filters to show only notes with tags',
+            '**Filter search** Now supports negation tokens: ==!name and !#tag==. This makes it super easy to find untagged notes in a folder, or notes without a certain word in the title.'
         ],
-        changed: ['Default search provider set to Filter search due to performance issues with Omnisearch in large vaults.'],
+        changed: [
+            'Default search provider set to Filter search due to performance issues with Omnisearch in large vaults.',
+            'Due to the improvements to filter search, Omnisearch no longer combines search results with Filter search.'
+        ],
         fixed: ['Fixed so list pane properly updates sort order for notes if it is sorted by modification date.']
     },
     {
