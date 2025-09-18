@@ -14,7 +14,9 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 
 <br>
 
-## View Documentation Online
+## Read in Your Language
+
+Choose your preferred language below to view the documentation on our website:
 
 🇺🇸 [English](https://notebooknavigator.com/docs.html) •
 🇩🇪 [Deutsch](https://notebooknavigator.com/docs.html?lang=de) •
