@@ -76,7 +76,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: [
             '**Filter search** You can now ==search for tags== in the built-in Filter search using the # prefix! For example: "#oo" matches #tool and #mytags/root. Just typing "#" filters to show only notes with tags',
             '**Filter search** Now supports negation tokens: ==!name and !#tag==. This makes it super easy to find untagged notes in a folder, or notes without a certain word in the title.',
-            '==Folder notes can now be Markdown, Canvas or Base== Notebook Navigator also has a new setting "Default folder note type" where you can change the default document type when creating folder notes from the context menu.'
+            '==Folder notes can now be Markdown, Canvas or Base==. Notebook Navigator also has a new setting "Default folder note type" where you can change the default document type when creating folder notes from the context menu.'
         ],
         changed: [
             'Changed default search provider to **Filter search** due to performance issues with Omnisearch in large vaults.',
