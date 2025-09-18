@@ -98,14 +98,14 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Filtering** - Exclude folders and notes with patterns, wildcards, and frontmatter properties
 - **Search commands** - Quick navigation to any folder or tag via command palette
 
-### Advanced theming support
+### Advanced theming support on GitHub
 
 - **Style Settings integration** - Full support for the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin
 - **80+ CSS variables** - Complete set of `--nn-theme-*` variables for colors, backgrounds, and visual elements
 - **Light/dark mode support** - Separate theming for light and dark modes
 - **[Complete theming guide](https://github.com/johansan/notebook-navigator/blob/main/docs/theming-guide.md)** - Detailed documentation with examples
 
-### Developer API
+### Developer API on GitHub
 
 - **Public API for JavaScript/TypeScript** - API for plugins and scripts to interact with Notebook Navigator
 - **Metadata control** - Set folder/tag colors, icons, and manage pinned notes programmatically
@@ -134,7 +134,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 <br>
 
-## Documentation
+## Documentation on GitHub
 
 - [**API Reference**](https://github.com/johansan/notebook-navigator/blob/main/docs/api-reference.md) - Public API documentation. Covers metadata management, navigation control and event subscriptions for JavaScript/TypeScript developers.
 
@@ -246,7 +246,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Command IDs
 
-| Command ID                              | Command Name                                            |
+| Command ID                              | Command name                                            |
 | --------------------------------------- | ------------------------------------------------------- |
 | `notebook-navigator:open`               | Notebook Navigator: Open                                |
 | `notebook-navigator:reveal-file`        | Notebook Navigator: Reveal file                         |
