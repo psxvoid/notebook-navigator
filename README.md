@@ -14,6 +14,19 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 
 <br>
 
+## View Documentation Online
+
+🇺🇸 [English](https://notebooknavigator.com/docs.html) •
+🇩🇪 [Deutsch](https://notebooknavigator.com/docs.html?lang=de) •
+🇪🇸 [Español](https://notebooknavigator.com/docs.html?lang=es) •
+🇫🇷 [Français](https://notebooknavigator.com/docs.html?lang=fr) •
+🇵🇱 [Polski](https://notebooknavigator.com/docs.html?lang=pl) •
+🇯🇵 [日本語](https://notebooknavigator.com/docs.html?lang=ja) •
+🇨🇳 [中文](https://notebooknavigator.com/docs.html?lang=zh) •
+🇰🇷 [한국어](https://notebooknavigator.com/docs.html?lang=ko)
+
+<br>
+
 <!-- DOCUMENTATION_START -->
 
 ## Getting started
@@ -88,7 +101,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Style Settings integration** - Full support for the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin
 - **80+ CSS variables** - Complete set of `--nn-theme-*` variables for colors, backgrounds, and visual elements
 - **Light/dark mode support** - Separate theming for light and dark modes
-- **[Complete theming guide](docs/theming-guide.md)** - Detailed documentation with examples
+- **[Complete theming guide](https://github.com/johansan/notebook-navigator/blob/main/docs/theming-guide.md)** - Detailed documentation with examples
 
 ### Developer API
 
@@ -97,7 +110,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Navigation & selection** - Navigate to files and query current selections
 - **Event subscriptions** - Subscribe to Notebook Navigator events
 - **Full type definitions** - Complete TypeScript support
-- **[Complete API documentation](docs/api-reference.md)** - Detailed reference with examples
+- **[Complete API documentation](https://github.com/johansan/notebook-navigator/blob/main/docs/api-reference.md)** - Detailed reference with examples
 
 <br>
 
@@ -121,23 +134,23 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 ## Documentation
 
-- [**API Reference**](docs/api-reference.md) - Public API documentation. Covers metadata management, navigation control and event subscriptions for JavaScript/TypeScript developers.
+- [**API Reference**](https://github.com/johansan/notebook-navigator/blob/main/docs/api-reference.md) - Public API documentation. Covers metadata management, navigation control and event subscriptions for JavaScript/TypeScript developers.
 
-- [**Theming Guide**](docs/theming-guide.md) - Guide for theme developers. Includes CSS class reference, custom
+- [**Theming Guide**](https://github.com/johansan/notebook-navigator/blob/main/docs/theming-guide.md) - Guide for theme developers. Includes CSS class reference, custom
   properties, and theme examples for light and dark modes.
 
-- [**Startup Process**](docs/startup-process.md) - Plugin initialization sequence. Cold boot vs warm boot flows,
+- [**Startup Process**](https://github.com/johansan/notebook-navigator/blob/main/docs/startup-process.md) - Plugin initialization sequence. Cold boot vs warm boot flows,
   metadata cache resolution, deferred cleanup, and content generation pipeline. Includes Mermaid diagrams.
 
-- [**Storage Architecture**](docs/storage-architecture.md) - Guide to storage containers (IndexedDB, Local Storage,
+- [**Storage Architecture**](https://github.com/johansan/notebook-navigator/blob/main/docs/storage-architecture.md) - Guide to storage containers (IndexedDB, Local Storage,
   Memory Cache, Settings). Data flow patterns and usage guidelines.
 
-- [**Rendering Architecture**](docs/rendering-architecture.md) - React component hierarchy, virtual scrolling with
+- [**Rendering Architecture**](https://github.com/johansan/notebook-navigator/blob/main/docs/rendering-architecture.md) - React component hierarchy, virtual scrolling with
   TanStack Virtual, performance optimizations, and data flow.
 
-- [**Scroll Orchestration**](docs/scroll-orchestration.md) - How the plugin ensures accurate scrolling when tree structures change (tag visibility, settings, etc.)
+- [**Scroll Orchestration**](https://github.com/johansan/notebook-navigator/blob/main/docs/scroll-orchestration.md) - How the plugin ensures accurate scrolling when tree structures change (tag visibility, settings, etc.)
 
-- [**Service Architecture**](docs/service-architecture.md) - Business logic layer: MetadataService, FileSystemOperations, ContentProviderRegistry. Dependency injection patterns and service data flow.
+- [**Service Architecture**](https://github.com/johansan/notebook-navigator/blob/main/docs/service-architecture.md) - Business logic layer: MetadataService, FileSystemOperations, ContentProviderRegistry. Dependency injection patterns and service data flow.
 
 <br>
 
@@ -355,7 +368,7 @@ Notebook Navigator integrates with the [Style Settings](https://github.com/mgmey
 - **Font weights** - Text weights for folders, tags, files, and various UI elements
 - **Mobile styles** - Separate customizations for mobile interface
 
-For theme developers who want to style Notebook Navigator, see the [Theming Guide](docs/theming-guide.md).
+For theme developers who want to style Notebook Navigator, see the [Theming Guide](https://github.com/johansan/notebook-navigator/blob/main/docs/theming-guide.md).
 
 <br>
 
@@ -482,5 +495,5 @@ Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/johansan/
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 (GPL-3.0) - see the [LICENSE](LICENSE) file for
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0) - see the [LICENSE](https://github.com/johansan/notebook-navigator/blob/main/LICENSE) file for
 details.
