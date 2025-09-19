@@ -73,6 +73,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.20',
         date: '2025-09-19',
+        new: [
+            '==ICON PACKS!== You can now download **Bootstrap Icons**, **Font Awesome**, **Material Icons**, **Phosphor Icons** and **RPG Awesome** ICON PACKS from within the Notebook Navigator settings! This is done using a super modular implementation where icon packs are stored locally on each device in a database, with just tiny metadata syncing between devices indicating if they should download or remove packs. Everything "just works" in the background! '
+        ],
         improved: [
             '==Tags in list pane are now sorted alphabetically==. Display order is favorite tags, followed by colored non-favorite tags, then uncolored non-favorite tags.'
         ],
