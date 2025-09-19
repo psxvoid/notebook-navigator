@@ -9,7 +9,7 @@ This directory contains icon font files and metadata for external icon providers
 
 ### Official Download URLs
 
-- **Font File (Regular):** https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/webfonts/fa-regular-400.woff2
+- **Font File (Solid):** https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/webfonts/fa-solid-900.woff2
 - **Metadata (All Icons):** https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/metadata/icons.json
 - **CSS Stylesheet:** https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/all.min.css
 
@@ -20,8 +20,8 @@ This directory contains icon font files and metadata for external icon providers
 
 ### Local Files
 
-- `fontawesome/6.6.0/fa-regular-400.woff2` - Regular icon font file
-- `fontawesome/6.6.0/icons-regular.json` - Filtered metadata for regular icons only
+- `fontawesome/6.6.0/fa-solid-900.woff2` - Solid icon font file
+- `fontawesome/6.6.0/icons-solid.json` - Filtered metadata for solid icons only
 - `fontawesome/latest.json` - Version and URL configuration
 
 ## RPG-Awesome 0.2.0
@@ -48,9 +48,88 @@ This directory contains icon font files and metadata for external icon providers
 - `rpg-awesome/0.2.0/icons.json` - Custom generated metadata
 - `rpg-awesome/latest.json` - Version and URL configuration
 
+## Bootstrap Icons 1.13.1
+
+**Version:** 1.13.1
+**License:** [MIT License](https://github.com/twbs/icons/blob/main/LICENSE)
+**Creator:** Bootstrap Team
+
+### Official Download URLs
+
+- **Font File (WOFF2):** https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/fonts/bootstrap-icons.woff2
+- **Metadata (JSON):** https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.json
+- **CSS Stylesheet:** https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css
+- **GitHub Repository:** https://github.com/twbs/icons
+
+### CDN Providers
+
+- **cdnjs (Primary):** https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/
+- **jsDelivr (Alternative):** https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/
+- **unpkg (Alternative):** https://unpkg.com/bootstrap-icons@1.13.1/
+
+### Local Files
+
+- `bootstrap-icons/1.13.1/bootstrap-icons.woff2` - Icon font file
+- `bootstrap-icons/1.13.1/bootstrap-icons.json` - Icon metadata with unicode mappings
+- `bootstrap-icons/latest.json` - Version and URL configuration
+
+## Phosphor Icons 2.1.1
+
+**Version:** 2.1.1
+**License:** [MIT License](https://github.com/phosphor-icons/core/blob/main/LICENSE)
+**Creator:** Phosphor Icons
+
+### Official Download URLs
+
+- **Font File (Regular):** https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/Phosphor.woff2
+- **CSS Stylesheet:** https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css
+- **GitHub Repository:** https://github.com/phosphor-icons/web
+
+### Available Weights
+
+Phosphor Icons comes in 6 weights: regular, thin, light, bold, fill, and duotone.
+
+### CDN Providers
+
+- **unpkg (Primary):** https://unpkg.com/@phosphor-icons/web@2.1.1/
+- **jsDelivr (Alternative):** https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/
+
+### Local Files
+
+- `phosphor/2.1.1/phosphor-regular.woff2` - Regular weight icon font file
+- `phosphor/2.1.1/icons.json` - Custom generated metadata
+- `phosphor/latest.json` - Version and URL configuration
+
+## Google Material Icons
+
+**Version:** 140
+**License:** [Apache License 2.0](https://github.com/google/material-design-icons/blob/master/LICENSE)
+**Creator:** Google
+
+### Official Download URLs
+
+- **Font File (WOFF2):** https://fonts.gstatic.com/s/materialicons/v140/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2
+- **Codepoints:** https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints
+- **CSS Stylesheet:** https://fonts.googleapis.com/icon?family=Material+Icons
+- **GitHub Repository:** https://github.com/google/material-design-icons
+
+### CDN Providers
+
+- **Google Fonts (Primary):** https://fonts.googleapis.com/icon?family=Material+Icons
+- **gstatic (Font Files):** https://fonts.gstatic.com/s/materialicons/
+
+### Local Files
+
+- `material-icons/140/MaterialIcons-Regular.woff2` - Regular icon font file
+- `material-icons/140/icons.json` - Generated metadata from codepoints
+- `material-icons/latest.json` - Version and URL configuration
+
 ## Notes
 
 - The metadata JSON files contain icon definitions, unicode values, and search terms
-- FontAwesome metadata is filtered to include only regular style icons
+- FontAwesome metadata is filtered to include only solid style icons
 - RPG-Awesome metadata is custom generated as no official metadata file exists
+- Bootstrap Icons metadata contains icon name to unicode mappings
+- Phosphor Icons metadata is custom generated with common icon names and unicode mappings
+- Material Icons metadata is generated from the official codepoints file
 - All font files are downloaded from official CDN sources for reliability

@@ -19,9 +19,9 @@ export interface ExternalIconProviderConfig {
 export const EXTERNAL_ICON_PROVIDERS: Record<ExternalIconProviderId, ExternalIconProviderConfig> = {
     'fontawesome-regular': {
         id: 'fontawesome-regular',
-        name: 'Font Awesome Regular',
+        name: 'Font Awesome',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/fontawesome/latest.json',
-        fontFamily: 'NotebookNavigatorFontAwesomeRegular'
+        fontFamily: 'NotebookNavigatorFontAwesomeSolid'
     },
     'rpg-awesome': {
         id: 'rpg-awesome',

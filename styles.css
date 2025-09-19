@@ -3118,17 +3118,15 @@ body.nn-resizing {
     text-rendering: optimizeLegibility;
 }
 
-.nn-iconfont-fa-regular,
+.nn-iconfont-fa-solid {
+    font-style: normal;
+    font-weight: 900;
+    font-family: 'NotebookNavigatorFontAwesomeSolid', 'Font Awesome 6 Free', sans-serif;
+}
+
 .nn-iconfont-rpg-awesome {
     font-style: normal;
     font-weight: 400;
-}
-
-.nn-iconfont-fa-regular {
-    font-family: 'NotebookNavigatorFontAwesomeRegular', 'Font Awesome 6 Free', sans-serif;
-}
-
-.nn-iconfont-rpg-awesome {
     font-family: 'NotebookNavigatorRpgAwesome', 'RPG Awesome', sans-serif;
 }
 

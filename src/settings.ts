@@ -695,7 +695,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
             container.empty();
 
-            const providerDescriptions: Record<ExternalIconProviderId, string> = {
+            const providerLinks: Record<ExternalIconProviderId, string> = {
                 'fontawesome-regular': strings.settings.items.externalIcons.providers.fontAwesomeDesc,
                 'rpg-awesome': strings.settings.items.externalIcons.providers.rpgAwesomeDesc
             };
@@ -712,9 +712,20 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                       )
                     : strings.settings.items.externalIcons.statusNotInstalled;
 
-                const setting = new Setting(container).setName(config.name).setDesc(providerDescriptions[config.id]);
+                const setting = new Setting(container).setName(config.name).setDesc('');
 
-                setting.descEl.createEl('div', { text: statusText });
+                const descriptionEl = setting.descEl;
+                descriptionEl.empty();
+
+                const linkRow = descriptionEl.createDiv();
+                const linkEl = linkRow.createEl('a', {
+                    text: providerLinks[config.id],
+                    href: providerLinks[config.id]
+                });
+                linkEl.setAttr('rel', 'noopener noreferrer');
+                linkEl.setAttr('target', '_blank');
+
+                descriptionEl.createEl('div', { text: statusText });
 
                 if (isInstalled) {
                     setting.addButton(button => {
@@ -760,9 +771,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             });
         };
 
-        externalIconSettingsContainer = containerEl.createDiv('nn-sub-settings');
+        externalIconSettingsContainer = containerEl.createDiv();
 
         renderExternalProviders();
+
+        const externalIconInfoContainer = containerEl.createDiv('nn-setting-info-container');
+        const externalIconInfo = externalIconInfoContainer.createEl('div', {
+            cls: 'setting-item-description'
+        });
+        externalIconInfo.createEl('strong', { text: 'Important!' });
+        externalIconInfo.createSpan({ text: ` ${strings.settings.items.externalIcons.infoNote}` });
 
         // Section 2: Folders
         new Setting(containerEl).setName(strings.settings.sections.folders).setHeading();

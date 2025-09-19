@@ -59,7 +59,7 @@ export class RpgAwesomeIconProvider implements IconProvider {
         container.removeClass('nn-emoji-icon');
         container.removeClass('nn-iconfont');
         container.removeClass('nn-iconfont-rpg-awesome');
-        container.removeClass('nn-iconfont-fa-regular');
+        container.removeClass('nn-iconfont-fa-solid');
         if (!icon) {
             return;
         }

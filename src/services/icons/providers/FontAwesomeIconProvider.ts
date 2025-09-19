@@ -24,11 +24,11 @@ interface IconLookupEntry {
 }
 
 /**
- * Icon provider for Font Awesome Regular icons loaded from external assets.
+ * Icon provider for Font Awesome solid icons loaded from external assets.
  */
 export class FontAwesomeIconProvider implements IconProvider {
     readonly id = 'fontawesome-regular';
-    readonly name = 'Font Awesome Regular';
+    readonly name = 'Font Awesome';
 
     private readonly fontFamily: string;
     private iconDefinitions: IconDefinition[] = [];
@@ -62,7 +62,7 @@ export class FontAwesomeIconProvider implements IconProvider {
         container.empty();
         container.removeClass('nn-emoji-icon');
         container.removeClass('nn-iconfont');
-        container.removeClass('nn-iconfont-fa-regular');
+        container.removeClass('nn-iconfont-fa-solid');
         container.removeClass('nn-iconfont-rpg-awesome');
         if (!icon) {
             return;
@@ -71,7 +71,7 @@ export class FontAwesomeIconProvider implements IconProvider {
         const glyph = this.unicodeToGlyph(icon.unicode);
         container.setText(glyph);
         container.addClass('nn-iconfont');
-        container.addClass('nn-iconfont-fa-regular');
+        container.addClass('nn-iconfont-fa-solid');
 
         if (size) {
             container.style.fontSize = `${size}px`;
@@ -118,7 +118,7 @@ export class FontAwesomeIconProvider implements IconProvider {
                 if (!data || !data.unicode) {
                     continue;
                 }
-                if (Array.isArray(data.styles) && !data.styles.includes('regular')) {
+                if (Array.isArray(data.styles) && !data.styles.includes('solid')) {
                     continue;
                 }
 

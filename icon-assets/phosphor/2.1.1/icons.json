@@ -1,0 +1,1220 @@
+[
+  {
+    "id": "ph-address-book",
+    "name": "Address Book",
+    "unicode": "e900",
+    "keywords": ["contacts", "people", "directory"],
+    "categories": ["communication"]
+  },
+  {
+    "id": "ph-airplane",
+    "name": "Airplane",
+    "unicode": "e901",
+    "keywords": ["travel", "flight", "transport", "aviation"],
+    "categories": ["transport"]
+  },
+  {
+    "id": "ph-alarm",
+    "name": "Alarm",
+    "unicode": "e902",
+    "keywords": ["clock", "time", "alert", "notification"],
+    "categories": ["time"]
+  },
+  {
+    "id": "ph-align-center",
+    "name": "Align Center",
+    "unicode": "e903",
+    "keywords": ["text", "format", "paragraph", "center"],
+    "categories": ["editor"]
+  },
+  {
+    "id": "ph-align-left",
+    "name": "Align Left",
+    "unicode": "e904",
+    "keywords": ["text", "format", "paragraph", "left"],
+    "categories": ["editor"]
+  },
+  {
+    "id": "ph-align-right",
+    "name": "Align Right",
+    "unicode": "e905",
+    "keywords": ["text", "format", "paragraph", "right"],
+    "categories": ["editor"]
+  },
+  {
+    "id": "ph-archive",
+    "name": "Archive",
+    "unicode": "e906",
+    "keywords": ["storage", "box", "file", "backup"],
+    "categories": ["files"]
+  },
+  {
+    "id": "ph-arrow-down",
+    "name": "Arrow Down",
+    "unicode": "e907",
+    "keywords": ["direction", "navigation", "down"],
+    "categories": ["arrows"]
+  },
+  {
+    "id": "ph-arrow-left",
+    "name": "Arrow Left",
+    "unicode": "e908",
+    "keywords": ["direction", "navigation", "back", "left"],
+    "categories": ["arrows"]
+  },
+  {
+    "id": "ph-arrow-right",
+    "name": "Arrow Right",
+    "unicode": "e909",
+    "keywords": ["direction", "navigation", "forward", "right"],
+    "categories": ["arrows"]
+  },
+  {
+    "id": "ph-arrow-up",
+    "name": "Arrow Up",
+    "unicode": "e90a",
+    "keywords": ["direction", "navigation", "up"],
+    "categories": ["arrows"]
+  },
+  {
+    "id": "ph-at",
+    "name": "At",
+    "unicode": "e90b",
+    "keywords": ["email", "mention", "contact", "@"],
+    "categories": ["communication"]
+  },
+  {
+    "id": "ph-bank",
+    "name": "Bank",
+    "unicode": "e90c",
+    "keywords": ["finance", "money", "building", "institution"],
+    "categories": ["finance"]
+  },
+  {
+    "id": "ph-barcode",
+    "name": "Barcode",
+    "unicode": "e90d",
+    "keywords": ["scan", "product", "code", "identifier"],
+    "categories": ["commerce"]
+  },
+  {
+    "id": "ph-battery-charging",
+    "name": "Battery Charging",
+    "unicode": "e90e",
+    "keywords": ["power", "energy", "charge", "charging"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-battery-empty",
+    "name": "Battery Empty",
+    "unicode": "e90f",
+    "keywords": ["power", "energy", "low", "empty"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-battery-full",
+    "name": "Battery Full",
+    "unicode": "e910",
+    "keywords": ["power", "energy", "charged", "full"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-bell",
+    "name": "Bell",
+    "unicode": "e911",
+    "keywords": ["notification", "alert", "alarm", "ring"],
+    "categories": ["communication"]
+  },
+  {
+    "id": "ph-book",
+    "name": "Book",
+    "unicode": "e912",
+    "keywords": ["reading", "education", "library", "knowledge"],
+    "categories": ["education"]
+  },
+  {
+    "id": "ph-bookmark",
+    "name": "Bookmark",
+    "unicode": "e913",
+    "keywords": ["save", "favorite", "mark", "saved"],
+    "categories": ["user"]
+  },
+  {
+    "id": "ph-brain",
+    "name": "Brain",
+    "unicode": "e914",
+    "keywords": ["mind", "think", "intelligence", "thought"],
+    "categories": ["health"]
+  },
+  {
+    "id": "ph-briefcase",
+    "name": "Briefcase",
+    "unicode": "e915",
+    "keywords": ["work", "business", "bag", "office"],
+    "categories": ["business"]
+  },
+  {
+    "id": "ph-bug",
+    "name": "Bug",
+    "unicode": "e916",
+    "keywords": ["error", "insect", "debug", "issue"],
+    "categories": ["development"]
+  },
+  {
+    "id": "ph-calendar",
+    "name": "Calendar",
+    "unicode": "e917",
+    "keywords": ["date", "schedule", "event", "time"],
+    "categories": ["time"]
+  },
+  {
+    "id": "ph-camera",
+    "name": "Camera",
+    "unicode": "e918",
+    "keywords": ["photo", "picture", "image", "photography"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-car",
+    "name": "Car",
+    "unicode": "e919",
+    "keywords": ["vehicle", "transport", "drive", "automobile"],
+    "categories": ["transport"]
+  },
+  {
+    "id": "ph-caret-down",
+    "name": "Caret Down",
+    "unicode": "e91a",
+    "keywords": ["arrow", "expand", "dropdown", "chevron"],
+    "categories": ["arrows"]
+  },
+  {
+    "id": "ph-caret-left",
+    "name": "Caret Left",
+    "unicode": "e91b",
+    "keywords": ["arrow", "navigate", "previous", "chevron"],
+    "categories": ["arrows"]
+  },
+  {
+    "id": "ph-caret-right",
+    "name": "Caret Right",
+    "unicode": "e91c",
+    "keywords": ["arrow", "navigate", "next", "chevron"],
+    "categories": ["arrows"]
+  },
+  {
+    "id": "ph-caret-up",
+    "name": "Caret Up",
+    "unicode": "e91d",
+    "keywords": ["arrow", "collapse", "dropdown", "chevron"],
+    "categories": ["arrows"]
+  },
+  {
+    "id": "ph-chart-bar",
+    "name": "Chart Bar",
+    "unicode": "e91e",
+    "keywords": ["graph", "data", "analytics", "statistics"],
+    "categories": ["data"]
+  },
+  {
+    "id": "ph-chart-line",
+    "name": "Chart Line",
+    "unicode": "e91f",
+    "keywords": ["graph", "data", "analytics", "trend"],
+    "categories": ["data"]
+  },
+  {
+    "id": "ph-chat",
+    "name": "Chat",
+    "unicode": "e920",
+    "keywords": ["message", "conversation", "talk", "communication"],
+    "categories": ["communication"]
+  },
+  {
+    "id": "ph-check",
+    "name": "Check",
+    "unicode": "e921",
+    "keywords": ["done", "complete", "tick", "checkmark"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-check-circle",
+    "name": "Check Circle",
+    "unicode": "e922",
+    "keywords": ["done", "complete", "success", "verified"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-circle",
+    "name": "Circle",
+    "unicode": "e923",
+    "keywords": ["shape", "round", "dot", "geometry"],
+    "categories": ["shapes"]
+  },
+  {
+    "id": "ph-clipboard",
+    "name": "Clipboard",
+    "unicode": "e924",
+    "keywords": ["copy", "paste", "document", "notes"],
+    "categories": ["office"]
+  },
+  {
+    "id": "ph-clock",
+    "name": "Clock",
+    "unicode": "e925",
+    "keywords": ["time", "watch", "schedule", "hour"],
+    "categories": ["time"]
+  },
+  {
+    "id": "ph-cloud",
+    "name": "Cloud",
+    "unicode": "e926",
+    "keywords": ["weather", "storage", "sync", "online"],
+    "categories": ["nature"]
+  },
+  {
+    "id": "ph-code",
+    "name": "Code",
+    "unicode": "e927",
+    "keywords": ["programming", "development", "script", "coding"],
+    "categories": ["development"]
+  },
+  {
+    "id": "ph-coffee",
+    "name": "Coffee",
+    "unicode": "e928",
+    "keywords": ["drink", "break", "cafe", "beverage"],
+    "categories": ["food"]
+  },
+  {
+    "id": "ph-compass",
+    "name": "Compass",
+    "unicode": "e929",
+    "keywords": ["navigation", "direction", "explore", "travel"],
+    "categories": ["location"]
+  },
+  {
+    "id": "ph-computer",
+    "name": "Computer",
+    "unicode": "e92a",
+    "keywords": ["desktop", "pc", "device", "workstation"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-copy",
+    "name": "Copy",
+    "unicode": "e92b",
+    "keywords": ["duplicate", "clipboard", "clone", "paste"],
+    "categories": ["editor"]
+  },
+  {
+    "id": "ph-credit-card",
+    "name": "Credit Card",
+    "unicode": "e92c",
+    "keywords": ["payment", "money", "finance", "card"],
+    "categories": ["finance"]
+  },
+  {
+    "id": "ph-crown",
+    "name": "Crown",
+    "unicode": "e92d",
+    "keywords": ["king", "queen", "royal", "premium"],
+    "categories": ["user"]
+  },
+  {
+    "id": "ph-database",
+    "name": "Database",
+    "unicode": "e92e",
+    "keywords": ["storage", "data", "server", "sql"],
+    "categories": ["development"]
+  },
+  {
+    "id": "ph-desktop",
+    "name": "Desktop",
+    "unicode": "e92f",
+    "keywords": ["computer", "monitor", "screen", "display"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-dice",
+    "name": "Dice",
+    "unicode": "e930",
+    "keywords": ["game", "random", "chance", "gambling"],
+    "categories": ["games"]
+  },
+  {
+    "id": "ph-download",
+    "name": "Download",
+    "unicode": "e931",
+    "keywords": ["save", "arrow", "file", "down"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-edit",
+    "name": "Edit",
+    "unicode": "e932",
+    "keywords": ["pencil", "write", "modify", "change"],
+    "categories": ["editor"]
+  },
+  {
+    "id": "ph-envelope",
+    "name": "Envelope",
+    "unicode": "e933",
+    "keywords": ["mail", "email", "message", "letter"],
+    "categories": ["communication"]
+  },
+  {
+    "id": "ph-eye",
+    "name": "Eye",
+    "unicode": "e934",
+    "keywords": ["view", "see", "look", "visible"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-eye-slash",
+    "name": "Eye Slash",
+    "unicode": "e935",
+    "keywords": ["hide", "hidden", "private", "invisible"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-file",
+    "name": "File",
+    "unicode": "e936",
+    "keywords": ["document", "page", "paper", "text"],
+    "categories": ["files"]
+  },
+  {
+    "id": "ph-file-text",
+    "name": "File Text",
+    "unicode": "e937",
+    "keywords": ["document", "text", "content", "paper"],
+    "categories": ["files"]
+  },
+  {
+    "id": "ph-filter",
+    "name": "Filter",
+    "unicode": "e938",
+    "keywords": ["funnel", "sort", "refine", "sift"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-fingerprint",
+    "name": "Fingerprint",
+    "unicode": "e939",
+    "keywords": ["security", "identity", "biometric", "authentication"],
+    "categories": ["security"]
+  },
+  {
+    "id": "ph-fire",
+    "name": "Fire",
+    "unicode": "e93a",
+    "keywords": ["flame", "hot", "burn", "heat"],
+    "categories": ["nature"]
+  },
+  {
+    "id": "ph-flag",
+    "name": "Flag",
+    "unicode": "e93b",
+    "keywords": ["report", "mark", "country", "banner"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-folder",
+    "name": "Folder",
+    "unicode": "e93c",
+    "keywords": ["directory", "files", "organize", "storage"],
+    "categories": ["files"]
+  },
+  {
+    "id": "ph-folder-open",
+    "name": "Folder Open",
+    "unicode": "e93d",
+    "keywords": ["directory", "files", "expand", "opened"],
+    "categories": ["files"]
+  },
+  {
+    "id": "ph-game-controller",
+    "name": "Game Controller",
+    "unicode": "e93e",
+    "keywords": ["gaming", "play", "joystick", "gamepad"],
+    "categories": ["games"]
+  },
+  {
+    "id": "ph-gear",
+    "name": "Gear",
+    "unicode": "e93f",
+    "keywords": ["settings", "cog", "options", "preferences"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-gift",
+    "name": "Gift",
+    "unicode": "e940",
+    "keywords": ["present", "surprise", "box", "package"],
+    "categories": ["commerce"]
+  },
+  {
+    "id": "ph-globe",
+    "name": "Globe",
+    "unicode": "e941",
+    "keywords": ["world", "earth", "international", "global"],
+    "categories": ["location"]
+  },
+  {
+    "id": "ph-graduation-cap",
+    "name": "Graduation Cap",
+    "unicode": "e942",
+    "keywords": ["education", "school", "university", "degree"],
+    "categories": ["education"]
+  },
+  {
+    "id": "ph-graph",
+    "name": "Graph",
+    "unicode": "e943",
+    "keywords": ["chart", "network", "connections", "nodes"],
+    "categories": ["data"]
+  },
+  {
+    "id": "ph-grid",
+    "name": "Grid",
+    "unicode": "e944",
+    "keywords": ["layout", "squares", "tiles", "matrix"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-hammer",
+    "name": "Hammer",
+    "unicode": "e945",
+    "keywords": ["tool", "build", "construction", "fix"],
+    "categories": ["tools"]
+  },
+  {
+    "id": "ph-hand",
+    "name": "Hand",
+    "unicode": "e946",
+    "keywords": ["wave", "stop", "gesture", "palm"],
+    "categories": ["people"]
+  },
+  {
+    "id": "ph-hard-drive",
+    "name": "Hard Drive",
+    "unicode": "e947",
+    "keywords": ["storage", "disk", "memory", "hdd"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-hash",
+    "name": "Hash",
+    "unicode": "e948",
+    "keywords": ["hashtag", "number", "tag", "pound"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-headphones",
+    "name": "Headphones",
+    "unicode": "e949",
+    "keywords": ["audio", "music", "listen", "sound"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-heart",
+    "name": "Heart",
+    "unicode": "e94a",
+    "keywords": ["love", "like", "favorite", "health"],
+    "categories": ["health"]
+  },
+  {
+    "id": "ph-home",
+    "name": "Home",
+    "unicode": "e94b",
+    "keywords": ["house", "main", "dashboard", "residence"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-hourglass",
+    "name": "Hourglass",
+    "unicode": "e94c",
+    "keywords": ["time", "wait", "loading", "timer"],
+    "categories": ["time"]
+  },
+  {
+    "id": "ph-image",
+    "name": "Image",
+    "unicode": "e94d",
+    "keywords": ["picture", "photo", "gallery", "media"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-info",
+    "name": "Info",
+    "unicode": "e94e",
+    "keywords": ["information", "about", "help", "details"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-key",
+    "name": "Key",
+    "unicode": "e94f",
+    "keywords": ["password", "security", "unlock", "access"],
+    "categories": ["security"]
+  },
+  {
+    "id": "ph-keyboard",
+    "name": "Keyboard",
+    "unicode": "e950",
+    "keywords": ["type", "input", "typing", "keys"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-lamp",
+    "name": "Lamp",
+    "unicode": "e951",
+    "keywords": ["light", "idea", "bulb", "illumination"],
+    "categories": ["objects"]
+  },
+  {
+    "id": "ph-laptop",
+    "name": "Laptop",
+    "unicode": "e952",
+    "keywords": ["computer", "notebook", "portable", "device"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-leaf",
+    "name": "Leaf",
+    "unicode": "e953",
+    "keywords": ["nature", "plant", "eco", "environment"],
+    "categories": ["nature"]
+  },
+  {
+    "id": "ph-lightbulb",
+    "name": "Lightbulb",
+    "unicode": "e954",
+    "keywords": ["idea", "innovation", "bright", "creativity"],
+    "categories": ["objects"]
+  },
+  {
+    "id": "ph-link",
+    "name": "Link",
+    "unicode": "e955",
+    "keywords": ["chain", "url", "connection", "hyperlink"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-list",
+    "name": "List",
+    "unicode": "e956",
+    "keywords": ["menu", "items", "bullets", "todo"],
+    "categories": ["editor"]
+  },
+  {
+    "id": "ph-lock",
+    "name": "Lock",
+    "unicode": "e957",
+    "keywords": ["security", "private", "closed", "secure"],
+    "categories": ["security"]
+  },
+  {
+    "id": "ph-lock-open",
+    "name": "Lock Open",
+    "unicode": "e958",
+    "keywords": ["unlocked", "open", "accessible", "unsecured"],
+    "categories": ["security"]
+  },
+  {
+    "id": "ph-magnifying-glass",
+    "name": "Magnifying Glass",
+    "unicode": "e959",
+    "keywords": ["search", "zoom", "find", "look"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-map",
+    "name": "Map",
+    "unicode": "e95a",
+    "keywords": ["location", "navigation", "directions", "geography"],
+    "categories": ["location"]
+  },
+  {
+    "id": "ph-map-pin",
+    "name": "Map Pin",
+    "unicode": "e95b",
+    "keywords": ["location", "marker", "place", "destination"],
+    "categories": ["location"]
+  },
+  {
+    "id": "ph-medal",
+    "name": "Medal",
+    "unicode": "e95c",
+    "keywords": ["award", "achievement", "prize", "winner"],
+    "categories": ["games"]
+  },
+  {
+    "id": "ph-megaphone",
+    "name": "Megaphone",
+    "unicode": "e95d",
+    "keywords": ["announce", "speaker", "broadcast", "loud"],
+    "categories": ["communication"]
+  },
+  {
+    "id": "ph-microphone",
+    "name": "Microphone",
+    "unicode": "e95e",
+    "keywords": ["audio", "record", "voice", "speak"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-minus",
+    "name": "Minus",
+    "unicode": "e95f",
+    "keywords": ["subtract", "remove", "decrease", "negative"],
+    "categories": ["math"]
+  },
+  {
+    "id": "ph-minus-circle",
+    "name": "Minus Circle",
+    "unicode": "e960",
+    "keywords": ["remove", "delete", "subtract", "decrease"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-money",
+    "name": "Money",
+    "unicode": "e961",
+    "keywords": ["cash", "currency", "payment", "dollar"],
+    "categories": ["finance"]
+  },
+  {
+    "id": "ph-monitor",
+    "name": "Monitor",
+    "unicode": "e962",
+    "keywords": ["screen", "display", "desktop", "computer"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-moon",
+    "name": "Moon",
+    "unicode": "e963",
+    "keywords": ["night", "dark", "sleep", "lunar"],
+    "categories": ["nature"]
+  },
+  {
+    "id": "ph-mouse",
+    "name": "Mouse",
+    "unicode": "e964",
+    "keywords": ["click", "pointer", "device", "cursor"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-music-note",
+    "name": "Music Note",
+    "unicode": "e965",
+    "keywords": ["song", "audio", "melody", "sound"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-newspaper",
+    "name": "Newspaper",
+    "unicode": "e966",
+    "keywords": ["news", "article", "media", "press"],
+    "categories": ["communication"]
+  },
+  {
+    "id": "ph-note",
+    "name": "Note",
+    "unicode": "e967",
+    "keywords": ["memo", "sticky", "reminder", "message"],
+    "categories": ["office"]
+  },
+  {
+    "id": "ph-notebook",
+    "name": "Notebook",
+    "unicode": "e968",
+    "keywords": ["journal", "notes", "diary", "writing"],
+    "categories": ["office"]
+  },
+  {
+    "id": "ph-paint-brush",
+    "name": "Paint Brush",
+    "unicode": "e969",
+    "keywords": ["art", "design", "draw", "paint"],
+    "categories": ["design"]
+  },
+  {
+    "id": "ph-palette",
+    "name": "Palette",
+    "unicode": "e96a",
+    "keywords": ["colors", "art", "design", "paint"],
+    "categories": ["design"]
+  },
+  {
+    "id": "ph-paper-clip",
+    "name": "Paper Clip",
+    "unicode": "e96b",
+    "keywords": ["attach", "attachment", "clip", "fasten"],
+    "categories": ["office"]
+  },
+  {
+    "id": "ph-paper-plane",
+    "name": "Paper Plane",
+    "unicode": "e96c",
+    "keywords": ["send", "message", "telegram", "fly"],
+    "categories": ["communication"]
+  },
+  {
+    "id": "ph-pause",
+    "name": "Pause",
+    "unicode": "e96d",
+    "keywords": ["stop", "break", "media", "player"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-pen",
+    "name": "Pen",
+    "unicode": "e96e",
+    "keywords": ["write", "edit", "sign", "ink"],
+    "categories": ["editor"]
+  },
+  {
+    "id": "ph-pencil",
+    "name": "Pencil",
+    "unicode": "e96f",
+    "keywords": ["write", "edit", "draw", "sketch"],
+    "categories": ["editor"]
+  },
+  {
+    "id": "ph-phone",
+    "name": "Phone",
+    "unicode": "e970",
+    "keywords": ["call", "telephone", "contact", "mobile"],
+    "categories": ["communication"]
+  },
+  {
+    "id": "ph-play",
+    "name": "Play",
+    "unicode": "e971",
+    "keywords": ["start", "media", "video", "player"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-plus",
+    "name": "Plus",
+    "unicode": "e972",
+    "keywords": ["add", "new", "create", "positive"],
+    "categories": ["math"]
+  },
+  {
+    "id": "ph-plus-circle",
+    "name": "Plus Circle",
+    "unicode": "e973",
+    "keywords": ["add", "create", "new", "increase"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-power",
+    "name": "Power",
+    "unicode": "e974",
+    "keywords": ["on", "off", "shutdown", "switch"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-printer",
+    "name": "Printer",
+    "unicode": "e975",
+    "keywords": ["print", "document", "paper", "output"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-puzzle-piece",
+    "name": "Puzzle Piece",
+    "unicode": "e976",
+    "keywords": ["plugin", "extension", "addon", "component"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-question",
+    "name": "Question",
+    "unicode": "e977",
+    "keywords": ["help", "faq", "support", "ask"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-receipt",
+    "name": "Receipt",
+    "unicode": "e978",
+    "keywords": ["bill", "invoice", "payment", "transaction"],
+    "categories": ["finance"]
+  },
+  {
+    "id": "ph-record",
+    "name": "Record",
+    "unicode": "e979",
+    "keywords": ["circle", "recording", "live", "capture"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-recycle",
+    "name": "Recycle",
+    "unicode": "e97a",
+    "keywords": ["reuse", "eco", "environment", "green"],
+    "categories": ["nature"]
+  },
+  {
+    "id": "ph-rocket",
+    "name": "Rocket",
+    "unicode": "e97b",
+    "keywords": ["launch", "startup", "space", "speed"],
+    "categories": ["transport"]
+  },
+  {
+    "id": "ph-rss",
+    "name": "RSS",
+    "unicode": "e97c",
+    "keywords": ["feed", "news", "subscribe", "syndication"],
+    "categories": ["communication"]
+  },
+  {
+    "id": "ph-ruler",
+    "name": "Ruler",
+    "unicode": "e97d",
+    "keywords": ["measure", "length", "tool", "scale"],
+    "categories": ["tools"]
+  },
+  {
+    "id": "ph-scan",
+    "name": "Scan",
+    "unicode": "e97e",
+    "keywords": ["qr", "barcode", "reader", "scanner"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-scissors",
+    "name": "Scissors",
+    "unicode": "e97f",
+    "keywords": ["cut", "trim", "tool", "snip"],
+    "categories": ["tools"]
+  },
+  {
+    "id": "ph-screenshot",
+    "name": "Screenshot",
+    "unicode": "e980",
+    "keywords": ["capture", "screen", "image", "snapshot"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-share",
+    "name": "Share",
+    "unicode": "e981",
+    "keywords": ["social", "network", "send", "distribute"],
+    "categories": ["communication"]
+  },
+  {
+    "id": "ph-shield",
+    "name": "Shield",
+    "unicode": "e982",
+    "keywords": ["security", "protection", "guard", "defense"],
+    "categories": ["security"]
+  },
+  {
+    "id": "ph-shopping-bag",
+    "name": "Shopping Bag",
+    "unicode": "e983",
+    "keywords": ["shop", "buy", "commerce", "purchase"],
+    "categories": ["commerce"]
+  },
+  {
+    "id": "ph-shopping-cart",
+    "name": "Shopping Cart",
+    "unicode": "e984",
+    "keywords": ["shop", "buy", "ecommerce", "basket"],
+    "categories": ["commerce"]
+  },
+  {
+    "id": "ph-shuffle",
+    "name": "Shuffle",
+    "unicode": "e985",
+    "keywords": ["random", "mix", "reorder", "randomize"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-sign-in",
+    "name": "Sign In",
+    "unicode": "e986",
+    "keywords": ["login", "enter", "access", "authenticate"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-sign-out",
+    "name": "Sign Out",
+    "unicode": "e987",
+    "keywords": ["logout", "exit", "leave", "signoff"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-sliders",
+    "name": "Sliders",
+    "unicode": "e988",
+    "keywords": ["settings", "adjust", "controls", "preferences"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-smiley",
+    "name": "Smiley",
+    "unicode": "e989",
+    "keywords": ["emoji", "face", "happy", "smile"],
+    "categories": ["people"]
+  },
+  {
+    "id": "ph-snowflake",
+    "name": "Snowflake",
+    "unicode": "e98a",
+    "keywords": ["winter", "cold", "frozen", "ice"],
+    "categories": ["nature"]
+  },
+  {
+    "id": "ph-speaker",
+    "name": "Speaker",
+    "unicode": "e98b",
+    "keywords": ["audio", "volume", "sound", "music"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-star",
+    "name": "Star",
+    "unicode": "e98c",
+    "keywords": ["favorite", "rating", "bookmark", "featured"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-stop",
+    "name": "Stop",
+    "unicode": "e98d",
+    "keywords": ["square", "halt", "media", "end"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-sun",
+    "name": "Sun",
+    "unicode": "e98e",
+    "keywords": ["day", "light", "bright", "solar"],
+    "categories": ["nature"]
+  },
+  {
+    "id": "ph-tag",
+    "name": "Tag",
+    "unicode": "e98f",
+    "keywords": ["label", "category", "price", "badge"],
+    "categories": ["commerce"]
+  },
+  {
+    "id": "ph-target",
+    "name": "Target",
+    "unicode": "e990",
+    "keywords": ["aim", "goal", "bullseye", "focus"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-terminal",
+    "name": "Terminal",
+    "unicode": "e991",
+    "keywords": ["console", "command", "code", "cli"],
+    "categories": ["development"]
+  },
+  {
+    "id": "ph-thermometer",
+    "name": "Thermometer",
+    "unicode": "e992",
+    "keywords": ["temperature", "hot", "cold", "weather"],
+    "categories": ["health"]
+  },
+  {
+    "id": "ph-thumbs-down",
+    "name": "Thumbs Down",
+    "unicode": "e993",
+    "keywords": ["dislike", "bad", "negative", "disapprove"],
+    "categories": ["people"]
+  },
+  {
+    "id": "ph-thumbs-up",
+    "name": "Thumbs Up",
+    "unicode": "e994",
+    "keywords": ["like", "good", "positive", "approve"],
+    "categories": ["people"]
+  },
+  {
+    "id": "ph-ticket",
+    "name": "Ticket",
+    "unicode": "e995",
+    "keywords": ["pass", "entry", "event", "admission"],
+    "categories": ["commerce"]
+  },
+  {
+    "id": "ph-timer",
+    "name": "Timer",
+    "unicode": "e996",
+    "keywords": ["stopwatch", "countdown", "clock", "time"],
+    "categories": ["time"]
+  },
+  {
+    "id": "ph-toggle-left",
+    "name": "Toggle Left",
+    "unicode": "e997",
+    "keywords": ["switch", "off", "button", "control"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-toggle-right",
+    "name": "Toggle Right",
+    "unicode": "e998",
+    "keywords": ["switch", "on", "button", "control"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-trash",
+    "name": "Trash",
+    "unicode": "e999",
+    "keywords": ["delete", "remove", "bin", "garbage"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-tree",
+    "name": "Tree",
+    "unicode": "e99a",
+    "keywords": ["nature", "forest", "plant", "wood"],
+    "categories": ["nature"]
+  },
+  {
+    "id": "ph-trophy",
+    "name": "Trophy",
+    "unicode": "e99b",
+    "keywords": ["winner", "award", "prize", "champion"],
+    "categories": ["games"]
+  },
+  {
+    "id": "ph-truck",
+    "name": "Truck",
+    "unicode": "e99c",
+    "keywords": ["delivery", "transport", "vehicle", "shipping"],
+    "categories": ["transport"]
+  },
+  {
+    "id": "ph-umbrella",
+    "name": "Umbrella",
+    "unicode": "e99d",
+    "keywords": ["rain", "weather", "protection", "wet"],
+    "categories": ["objects"]
+  },
+  {
+    "id": "ph-upload",
+    "name": "Upload",
+    "unicode": "e99e",
+    "keywords": ["send", "arrow", "file", "up"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-user",
+    "name": "User",
+    "unicode": "e99f",
+    "keywords": ["person", "account", "profile", "avatar"],
+    "categories": ["people"]
+  },
+  {
+    "id": "ph-user-circle",
+    "name": "User Circle",
+    "unicode": "e9a0",
+    "keywords": ["avatar", "account", "profile", "person"],
+    "categories": ["people"]
+  },
+  {
+    "id": "ph-users",
+    "name": "Users",
+    "unicode": "e9a1",
+    "keywords": ["people", "group", "team", "community"],
+    "categories": ["people"]
+  },
+  {
+    "id": "ph-video",
+    "name": "Video",
+    "unicode": "e9a2",
+    "keywords": ["camera", "film", "movie", "recording"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-volume-off",
+    "name": "Volume Off",
+    "unicode": "e9a3",
+    "keywords": ["mute", "silent", "sound", "quiet"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-volume-up",
+    "name": "Volume Up",
+    "unicode": "e9a4",
+    "keywords": ["loud", "audio", "sound", "speaker"],
+    "categories": ["media"]
+  },
+  {
+    "id": "ph-wallet",
+    "name": "Wallet",
+    "unicode": "e9a5",
+    "keywords": ["money", "payment", "cash", "finance"],
+    "categories": ["finance"]
+  },
+  {
+    "id": "ph-warning",
+    "name": "Warning",
+    "unicode": "e9a6",
+    "keywords": ["alert", "caution", "attention", "danger"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-watch",
+    "name": "Watch",
+    "unicode": "e9a7",
+    "keywords": ["time", "clock", "wrist", "timepiece"],
+    "categories": ["time"]
+  },
+  {
+    "id": "ph-wifi",
+    "name": "WiFi",
+    "unicode": "e9a8",
+    "keywords": ["internet", "connection", "wireless", "network"],
+    "categories": ["device"]
+  },
+  {
+    "id": "ph-wrench",
+    "name": "Wrench",
+    "unicode": "e9a9",
+    "keywords": ["tool", "settings", "fix", "repair"],
+    "categories": ["tools"]
+  },
+  {
+    "id": "ph-x",
+    "name": "X",
+    "unicode": "e9aa",
+    "keywords": ["close", "cancel", "delete", "remove"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-x-circle",
+    "name": "X Circle",
+    "unicode": "e9ab",
+    "keywords": ["close", "cancel", "error", "remove"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-zoom-in",
+    "name": "Zoom In",
+    "unicode": "e9ac",
+    "keywords": ["magnify", "enlarge", "plus", "expand"],
+    "categories": ["interface"]
+  },
+  {
+    "id": "ph-zoom-out",
+    "name": "Zoom Out",
+    "unicode": "e9ad",
+    "keywords": ["minimize", "shrink", "minus", "reduce"],
+    "categories": ["interface"]
+  }
+]
