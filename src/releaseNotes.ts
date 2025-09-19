@@ -76,9 +76,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         improved: [
             '==Tags in list pane are now sorted alphabetically==. Display order is favorite tags, followed by colored non-favorite tags, then uncolored non-favorite tags.'
         ],
-        changed: [
-            'Show tooltips (desktop only) is now disabled by default based on user feedback.',
-        ],
+        changed: ['Show tooltips (desktop only) is now disabled by default based on user feedback.'],
         fixed: [
             'Fixed so Notebook Navigator will properly scroll to the selected ancestor folder during startup (problem was introduced in 1.4.18 when we fixed an issue with auto reveal).',
             'Finally fixed ==ClearType rendering== on Windows by removing GPU transforms from virtualized list rows.'
