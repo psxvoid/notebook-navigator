@@ -1474,6 +1474,28 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
+        new Setting(containerEl)
+            .setName(strings.settings.items.metadataCleanup.name)
+            .setDesc(strings.settings.items.metadataCleanup.desc)
+            .addButton(button =>
+                button.setButtonText(strings.settings.items.metadataCleanup.buttonText).onClick(async () => {
+                    button.setDisabled(true);
+                    try {
+                        const changesMade = await this.plugin.runMetadataCleanup();
+                        new Notice(
+                            changesMade
+                                ? strings.settings.items.metadataCleanup.success
+                                : strings.settings.items.metadataCleanup.successNoChanges
+                        );
+                    } catch (error) {
+                        console.error('Metadata cleanup failed', error);
+                        new Notice(strings.settings.items.metadataCleanup.error);
+                    } finally {
+                        button.setDisabled(false);
+                    }
+                })
+            );
+
         // What's New button
         new Setting(containerEl)
             .setName(strings.settings.items.whatsNew.name)

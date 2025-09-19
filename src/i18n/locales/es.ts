@@ -714,6 +714,14 @@ export const STRINGS_ES = {
                 name: 'Confirmar antes de eliminar',
                 desc: 'Muestra un diálogo de confirmación al eliminar notas o carpetas'
             },
+            metadataCleanup: {
+                name: 'Limpiar configuración del plugin',
+                desc: 'Elimina configuraciones guardadas para archivos, carpetas y etiquetas que ya no existen en tu vault. Esto solo afecta el archivo de configuración de Notebook Navigator.',
+                buttonText: 'Limpiar configuración',
+                success: 'Limpieza de configuración completada',
+                successNoChanges: 'No se encontraron configuraciones sin usar',
+                error: 'Falló la limpieza de configuración'
+            },
             externalIcons: {
                 downloadButton: 'Descargar',
                 downloadingLabel: 'Descargando...',

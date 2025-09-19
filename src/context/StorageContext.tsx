@@ -59,8 +59,6 @@ import { buildTagTreeFromDatabase, findTagNode, collectAllTagPaths } from '../ut
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
-import { useDeferredMetadataCleanup } from '../hooks/useDeferredMetadataCleanup';
-import { MetadataService } from '../services/MetadataService';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 
 /**
@@ -110,7 +108,7 @@ interface StorageProviderProps {
 
 export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const settings = useSettingsState();
-    const { metadataService, tagTreeService } = useServices();
+    const { tagTreeService } = useServices();
     const [fileData, setFileData] = useState<FileData>({ favoriteTree: new Map(), tagTree: new Map(), untagged: 0 });
 
     // Content provider registry handles content generation (preview text, feature images, metadata, tags)
@@ -298,38 +296,75 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
     }, [settings.showHiddenItems, settings.showTags, isStorageReady, rebuildTagTree]);
 
-    // Hook for handling deferred cleanup after tag extraction
-    const { startTracking, handleTagsExtracted, waitForMetadataCache } = useDeferredMetadataCleanup({
-        app,
-        metadataService,
-        isStorageReady,
-        showTags: settings.showTags
-    });
+    const waitForMetadataCache = useCallback(
+        (callback: () => void): (() => void) => {
+            const files = app.vault.getMarkdownFiles();
+            if (files.length === 0) {
+                callback();
+                return () => {};
+            }
 
-    /**
-     * Run metadata cleanup without tags (for when tags are disabled)
-     * This cleans up folder metadata and pinned notes only
-     */
-    const runMetadataCleanupWithoutTags = useCallback(async () => {
-        if (!metadataService) return;
+            const hasExistingCache = files.some(file => app.metadataCache.getFileCache(file) !== null);
+            if (hasExistingCache) {
+                callback();
+                return () => {};
+            }
 
-        const validators = MetadataService.prepareCleanupValidators(app);
-        await metadataService.runUnifiedCleanup(validators);
-    }, [app, metadataService]);
+            let hasResolved = false;
+            let currentEventRef: EventRef | null = null;
 
-    /**
-     * Run metadata cleanup with tags (for when tags are enabled and extracted)
-     * This cleans up folder, tag, and file metadata
-     */
-    const runMetadataCleanupWithTags = useCallback(async () => {
-        if (!metadataService) return;
+            const timeoutId = window.setTimeout(() => {
+                if (hasResolved) {
+                    return;
+                }
+                hasResolved = true;
+                try {
+                    if (currentEventRef) {
+                        app.metadataCache.offref(currentEventRef);
+                    }
+                } catch {
+                    // ignore
+                }
+                callback();
+            }, 5000);
 
-        const { favoriteTree, tagTree } = rebuildTagTree();
-        const combinedTree = new Map([...favoriteTree, ...tagTree]);
-        const validators = MetadataService.prepareCleanupValidators(app, combinedTree);
+            currentEventRef = app.metadataCache.on('resolved', () => {
+                if (hasResolved) {
+                    return;
+                }
+                hasResolved = true;
+                try {
+                    if (currentEventRef) {
+                        app.metadataCache.offref(currentEventRef);
+                    }
+                } catch {
+                    // ignore
+                }
+                window.clearTimeout(timeoutId);
+                callback();
+            });
 
-        await metadataService.runUnifiedCleanup(validators);
-    }, [app, metadataService, rebuildTagTree]);
+            return () => {
+                if (hasResolved) {
+                    return;
+                }
+                hasResolved = true;
+                try {
+                    if (currentEventRef) {
+                        app.metadataCache.offref(currentEventRef);
+                    }
+                } catch {
+                    // ignore
+                }
+                try {
+                    window.clearTimeout(timeoutId);
+                } catch {
+                    // ignore
+                }
+            };
+        },
+        [app]
+    );
 
     /**
      * Centralized handler for all content-related settings changes
@@ -406,18 +441,12 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
             if (hasTagChanges && settings.showTags) {
                 // Rebuild tag tree when tags change
-                const { favoriteTree, tagTree } = rebuildTagTree();
-
-                // Handle initial cleanup tracking
-                const tagChanges = changes.filter(change => change.changes.tags !== undefined);
-                if (tagChanges.length > 0) {
-                    handleTagsExtracted(tagChanges.length, tagTree, favoriteTree);
-                }
+                rebuildTagTree();
             }
         });
 
         return unsubscribe;
-    }, [isStorageReady, settings.showTags, rebuildTagTree, handleTagsExtracted]);
+    }, [isStorageReady, settings.showTags, rebuildTagTree]);
 
     // Main initialization and vault monitoring effect
     useEffect(() => {
@@ -458,29 +487,19 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
                     // Step 5: Handle metadata cleanup and content generation
                     if (settings.showTags) {
-                        // With tags enabled, determine which files need tag extraction
                         const filesNeedingTags = allFiles.filter(file => {
                             const fileData = getDBInstance().getFile(file.path);
                             return fileData && fileData.tags === null;
                         });
 
                         if (filesNeedingTags.length > 0) {
-                            // Track and queue files for tag extraction
-                            startTracking(filesNeedingTags.length);
                             const disposer = waitForMetadataCache(() => {
                                 if (contentRegistry.current) {
                                     contentRegistry.current.queueFilesForAllProviders(filesNeedingTags, settings);
                                 }
                             });
-                            // Store the disposer so we can cancel on unmount/stop
                             waitDisposerRef.current = disposer;
-                        } else {
-                            // No tags to extract, run cleanup immediately
-                            await runMetadataCleanupWithTags();
                         }
-                    } else {
-                        // Tags disabled - run cleanup immediately
-                        await runMetadataCleanupWithoutTags();
                     }
 
                     // Step 6: Queue remaining content generation for new/modified files
@@ -725,19 +744,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 waitDisposerRef.current = null;
             }
         };
-    }, [
-        app,
-        api,
-        isIndexedDBReady,
-        getFilteredMarkdownFilesCallback,
-        rebuildTagTree,
-        settings,
-        metadataService,
-        startTracking,
-        waitForMetadataCache,
-        runMetadataCleanupWithoutTags,
-        runMetadataCleanupWithTags
-    ]);
+    }, [app, api, isIndexedDBReady, getFilteredMarkdownFilesCallback, rebuildTagTree, settings, waitForMetadataCache]);
 
     // Single effect to handle ALL content-related settings changes
     useEffect(() => {

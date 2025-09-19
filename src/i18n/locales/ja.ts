@@ -715,6 +715,14 @@ export const STRINGS_JA = {
                 name: '削除前に確認',
                 desc: 'ノートやフォルダを削除する際に確認ダイアログを表示'
             },
+            metadataCleanup: {
+                name: 'プラグイン設定をクリーンアップ',
+                desc: 'ボールトに存在しなくなったファイル、フォルダ、タグの保存された設定を削除します。これはNotebook Navigatorの設定ファイルのみに影響します。',
+                buttonText: '設定をクリーンアップ',
+                success: '設定のクリーンアップが完了しました',
+                successNoChanges: '未使用の設定は見つかりませんでした',
+                error: '設定のクリーンアップに失敗しました'
+            },
             externalIcons: {
                 downloadButton: 'ダウンロード',
                 downloadingLabel: 'ダウンロード中...',

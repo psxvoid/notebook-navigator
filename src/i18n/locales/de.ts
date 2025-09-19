@@ -715,6 +715,14 @@ export const STRINGS_DE = {
                 name: 'Vor dem Löschen bestätigen',
                 desc: 'Bestätigungsdialog beim Löschen von Notizen oder Ordnern anzeigen'
             },
+            metadataCleanup: {
+                name: 'Plugin-Einstellungen bereinigen',
+                desc: 'Entfernt gespeicherte Einstellungen für Dateien, Ordner und Tags, die in Ihrer Vault nicht mehr existieren. Dies betrifft nur die Notebook Navigator Einstellungsdatei.',
+                buttonText: 'Einstellungen bereinigen',
+                success: 'Einstellungen-Bereinigung abgeschlossen',
+                successNoChanges: 'Keine ungenutzten Einstellungen gefunden',
+                error: 'Einstellungen-Bereinigung fehlgeschlagen'
+            },
             externalIcons: {
                 downloadButton: 'Herunterladen',
                 downloadingLabel: 'Wird heruntergeladen...',

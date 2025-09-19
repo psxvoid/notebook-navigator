@@ -806,6 +806,19 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.onSettingsUpdate();
     }
 
+    public async runMetadataCleanup(): Promise<boolean> {
+        if (!this.metadataService || this.isUnloading) {
+            return false;
+        }
+
+        const changesMade = await this.metadataService.cleanupAllMetadata();
+        if (changesMade) {
+            await this.saveSettingsAndUpdate();
+        }
+
+        return changesMade;
+    }
+
     /**
      * Notifies all running views that the settings have been updated.
      * This triggers a re-render in the React components.

@@ -714,6 +714,14 @@ export const STRINGS_ZH = {
                 name: '删除前确认',
                 desc: '删除笔记或文件夹时显示确认对话框'
             },
+            metadataCleanup: {
+                name: '清理插件设置',
+                desc: '移除在您的仓库中不再存在的文件、文件夹和标签的已保存设置。这仅影响 Notebook Navigator 设置文件。',
+                buttonText: '清理设置',
+                success: '设置清理完成',
+                successNoChanges: '未找到未使用的设置',
+                error: '设置清理失败'
+            },
             externalIcons: {
                 downloadButton: '下载',
                 downloadingLabel: '正在下载...',

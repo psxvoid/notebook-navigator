@@ -716,6 +716,14 @@ export const STRINGS_FR = {
                 name: 'Confirmer avant de supprimer',
                 desc: 'Afficher une boîte de dialogue de confirmation lors de la suppression de notes ou de dossiers'
             },
+            metadataCleanup: {
+                name: 'Nettoyer les paramètres du plugin',
+                desc: 'Supprime les paramètres sauvegardés pour les fichiers, dossiers et étiquettes qui n’existent plus dans votre coffre. Cela n’affecte que le fichier de configuration de Notebook Navigator.',
+                buttonText: 'Nettoyer les paramètres',
+                success: 'Nettoyage des paramètres terminé',
+                successNoChanges: 'Aucun paramètre inutilisé trouvé',
+                error: 'Échec du nettoyage des paramètres'
+            },
             externalIcons: {
                 downloadButton: 'Télécharger',
                 downloadingLabel: 'Téléchargement...',

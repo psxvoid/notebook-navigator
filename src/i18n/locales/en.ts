@@ -713,6 +713,14 @@ export const STRINGS_EN = {
                 name: 'Confirm before deleting',
                 desc: 'Show confirmation dialog when deleting notes or folders'
             },
+            metadataCleanup: {
+                name: 'Clean up plugin settings',
+                desc: 'Removes saved settings for files, folders, and tags that no longer exist in your vault. This only affects the Notebook Navigator settings file.',
+                buttonText: 'Clean settings',
+                success: 'Settings cleanup completed',
+                successNoChanges: 'No unused settings found',
+                error: 'Settings cleanup failed'
+            },
             externalIcons: {
                 downloadButton: 'Download',
                 downloadingLabel: 'Downloading...',

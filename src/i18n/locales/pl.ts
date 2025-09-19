@@ -715,6 +715,14 @@ export const STRINGS_PL = {
                 name: 'Potwierdź przed usunięciem',
                 desc: 'Pokaż dialog potwierdzenia podczas usuwania notatek lub folderów'
             },
+            metadataCleanup: {
+                name: 'Wyczyść ustawienia wtyczki',
+                desc: 'Usuwa zapisane ustawienia dla plików, folderów i tagów, które już nie istnieją w magazynie. Ma to wpływ tylko na plik ustawień Notebook Navigator.',
+                buttonText: 'Wyczyść ustawienia',
+                success: 'Czyszczenie ustawień zakończone',
+                successNoChanges: 'Nie znaleziono nieużywanych ustawień',
+                error: 'Czyszczenie ustawień nie powiodło się'
+            },
             externalIcons: {
                 downloadButton: 'Pobierz',
                 downloadingLabel: 'Pobieranie...',

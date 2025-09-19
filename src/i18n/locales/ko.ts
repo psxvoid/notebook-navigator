@@ -713,6 +713,14 @@ export const STRINGS_KO = {
                 name: '삭제 전 확인',
                 desc: '노트나 폴더를 삭제할 때 확인 대화 상자 표시'
             },
+            metadataCleanup: {
+                name: '플러그인 설정 정리',
+                desc: '보관소에 더 이상 존재하지 않는 파일, 폴더, 태그에 대한 저장된 설정을 제거합니다. 이는 Notebook Navigator 설정 파일에만 영향을 줍니다.',
+                buttonText: '설정 정리',
+                success: '설정 정리가 완료되었습니다',
+                successNoChanges: '사용하지 않는 설정을 찾지 못했습니다',
+                error: '설정 정리에 실패했습니다'
+            },
             externalIcons: {
                 downloadButton: '다운로드',
                 downloadingLabel: '다운로드 중...',
