@@ -82,7 +82,6 @@ export interface NotebookNavigatorSettings {
     navItemHeight: number;
     navItemHeightScaleText: boolean;
     // Icons
-    useExternalIconProviders: boolean;
     externalIconProviders: Record<string, boolean>;
     // Folders
     showRootFolder: boolean;
@@ -180,7 +179,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
     navItemHeightScaleText: true,
     // Icons
-    useExternalIconProviders: false,
     externalIconProviders: {},
     // Folders
     showRootFolder: true,
@@ -697,13 +695,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
             container.empty();
 
-            const isEnabled = this.plugin.settings.useExternalIconProviders;
-            container.toggle(isEnabled);
-
-            if (!isEnabled) {
-                return;
-            }
-
             const providerDescriptions: Record<ExternalIconProviderId, string> = {
                 'fontawesome-regular': strings.settings.items.externalIcons.providers.fontAwesomeDesc,
                 'rpg-awesome': strings.settings.items.externalIcons.providers.rpgAwesomeDesc
@@ -768,17 +759,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }
             });
         };
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.externalIcons.enable.name)
-            .setDesc(strings.settings.items.externalIcons.enable.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.useExternalIconProviders).onChange(async value => {
-                    this.plugin.settings.useExternalIconProviders = value;
-                    await this.plugin.saveSettingsAndUpdate();
-                    renderExternalProviders();
-                })
-            );
 
         externalIconSettingsContainer = containerEl.createDiv('nn-sub-settings');
 

@@ -153,20 +153,6 @@ export class ExternalIconProviderController {
     async syncWithSettings(): Promise<void> {
         await this.ensureInitialized();
         const settings = this.settingsProvider.settings;
-
-        if (!settings.useExternalIconProviders) {
-            const removals = Array.from(this.installedProviders).map(id =>
-                this.removeProvider(id, { persistSetting: false }).catch(error => {
-                    console.error(`[IconProviders] Failed to remove provider ${id}:`, error);
-                })
-            );
-            if (removals.length > 0) {
-                await Promise.all(removals);
-                this.settingsProvider.notifySettingsUpdate();
-            }
-            return;
-        }
-
         const map = settings.externalIconProviders || {};
         const tasks: Promise<void>[] = [];
         let shouldNotifyAfterLoop = false;
@@ -244,9 +230,6 @@ export class ExternalIconProviderController {
 
     private async activateIfEnabled(config: ExternalIconProviderConfig, record: IconAssetRecord): Promise<boolean> {
         const settings = this.settingsProvider.settings;
-        if (!settings.useExternalIconProviders) {
-            return false;
-        }
         if (!settings.externalIconProviders || !settings.externalIconProviders[config.id]) {
             return false;
         }
@@ -406,11 +389,10 @@ export class ExternalIconProviderController {
 
         const settings = this.settingsProvider.settings;
         const map = settings.externalIconProviders || {};
-        const removeAll = !settings.useExternalIconProviders;
         const toRemove: ExternalIconProviderId[] = [];
 
         this.installedProviders.forEach(id => {
-            if (removeAll || !map[id]) {
+            if (!map[id]) {
                 toRemove.push(id);
             }
         });
@@ -421,10 +403,9 @@ export class ExternalIconProviderController {
 
         await Promise.all(
             toRemove.map(async id => {
+                this.deactivateProvider(id);
                 this.installedProviders.delete(id);
                 this.providerVersions.delete(id);
-                this.activeProviders.delete(id);
-                this.iconService.unregisterProvider(id);
                 try {
                     await this.database.delete(id);
                 } catch (error) {
