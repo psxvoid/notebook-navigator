@@ -187,6 +187,12 @@ export class IconPickerModal extends Modal {
                                 preview: parsed.identifier
                             };
                             this.createIconItem(iconDef, grid, provider);
+                        } else {
+                            const icons = provider.getAll();
+                            const iconDef = icons.find(i => i.id === parsed.identifier);
+                            if (iconDef) {
+                                this.createIconItem(iconDef, grid, provider);
+                            }
                         }
                     }
                 });
@@ -237,7 +243,7 @@ export class IconPickerModal extends Modal {
 
         // Icon preview
         const iconPreview = iconItem.createDiv('nn-icon-item-preview');
-        provider.render(iconPreview, iconDef.id);
+        this.iconService.renderIcon(iconPreview, fullIconId);
 
         // For emojis, also show the emoji as preview text if available
         if (provider.id === 'emoji' && iconDef.preview) {

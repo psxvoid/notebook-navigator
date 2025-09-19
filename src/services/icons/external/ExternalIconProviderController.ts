@@ -116,35 +116,46 @@ export class ExternalIconProviderController {
             const config = this.requireProviderConfig(id);
             // TODO REMOVE
             console.log(`[ExternalIconController] Provider config loaded for ${id}`);
-            const manifest = await this.fetchManifest(config);
-            // TODO REMOVE
-            console.log(`[ExternalIconController] Manifest fetched for ${id} (version ${manifest.version})`);
-            const record = await this.downloadAssets(config, manifest);
-            // TODO REMOVE
-            console.log(`[ExternalIconController] Assets downloaded for ${id} (version ${record.version})`);
 
-            await this.database.put(record);
-            // TODO REMOVE
-            console.log(`[ExternalIconController] Assets stored for ${id}`);
-            this.installedProviders.add(id);
-            this.providerVersions.set(id, record.version);
-            // TODO REMOVE
-            console.log(`[ExternalIconController] Provider ${id} marked installed (version ${record.version})`);
-
-            if (options.persistSetting !== false) {
+            try {
+                const manifest = await this.fetchManifest(config);
                 // TODO REMOVE
-                console.log(`[ExternalIconController] Persisting enabled setting for ${id}`);
-                this.markProviderSetting(id, true);
-            }
-
-            await this.activateIfEnabled(config, record);
-            // TODO REMOVE
-            console.log(`[ExternalIconController] Activation processed for ${id}`);
-
-            if (options.persistSetting !== false) {
+                console.log(`[ExternalIconController] Manifest fetched for ${id} (version ${manifest.version})`);
+                const record = await this.downloadAssets(config, manifest);
                 // TODO REMOVE
-                console.log('[ExternalIconController] Saving settings after install');
-                await this.settingsProvider.saveSettingsAndUpdate();
+                console.log(`[ExternalIconController] Assets downloaded for ${id} (version ${record.version})`);
+
+                await this.database.put(record);
+                // TODO REMOVE
+                console.log(`[ExternalIconController] Assets stored for ${id}`);
+                this.installedProviders.add(id);
+                this.providerVersions.set(id, record.version);
+                // TODO REMOVE
+                console.log(`[ExternalIconController] Provider ${id} marked installed (version ${record.version})`);
+
+                if (options.persistSetting !== false) {
+                    // TODO REMOVE
+                    console.log(`[ExternalIconController] Persisting enabled setting for ${id}`);
+                    this.markProviderSetting(id, true);
+                }
+
+                const activated = await this.activateIfEnabled(config, record);
+                // TODO REMOVE
+                console.log(`[ExternalIconController] Activation processed for ${id}`);
+
+                if (options.persistSetting !== false) {
+                    // TODO REMOVE
+                    console.log('[ExternalIconController] Saving settings after install');
+                    await this.settingsProvider.saveSettingsAndUpdate();
+                } else if (activated) {
+                    // TODO REMOVE
+                    console.log('[ExternalIconController] Notifying listeners after install (no persistence)');
+                    this.settingsProvider.notifySettingsUpdate();
+                }
+            } catch (error) {
+                // TODO REMOVE
+                console.log(`[ExternalIconController] installProvider task failed for ${id}`, error);
+                throw error;
             }
         });
 
@@ -190,7 +201,7 @@ export class ExternalIconProviderController {
         await this.enqueue(async () => {
             // TODO REMOVE
             console.log(`[ExternalIconController] removeProvider task started for ${id}`);
-            this.deactivateProvider(config.id);
+            const wasActive = this.deactivateProvider(config.id);
             // TODO REMOVE
             console.log(`[ExternalIconController] Provider ${id} deactivated`);
             await this.database.delete(config.id);
@@ -208,6 +219,10 @@ export class ExternalIconProviderController {
                 // TODO REMOVE
                 console.log('[ExternalIconController] Saving settings after removal');
                 await this.settingsProvider.saveSettingsAndUpdate();
+            } else if (wasActive) {
+                // TODO REMOVE
+                console.log('[ExternalIconController] Notifying listeners after removal (no persistence)');
+                this.settingsProvider.notifySettingsUpdate();
             }
         });
         // TODO REMOVE
@@ -224,12 +239,23 @@ export class ExternalIconProviderController {
             // TODO REMOVE
             console.log('[ExternalIconController] External providers disabled in settings; deactivating all active providers');
             // Unregister active providers but leave assets intact for next enable
-            this.activeProviders.forEach((_, providerId) => this.deactivateProvider(providerId));
+            let changed = false;
+            this.activeProviders.forEach((_, providerId) => {
+                if (this.deactivateProvider(providerId)) {
+                    changed = true;
+                }
+            });
+            if (changed) {
+                // TODO REMOVE
+                console.log('[ExternalIconController] Notifying listeners after disabling all providers');
+                this.settingsProvider.notifySettingsUpdate();
+            }
             return;
         }
 
         const map = settings.externalIconProviders || {};
         const tasks: Promise<void>[] = [];
+        let shouldNotifyAfterLoop = false;
 
         (Object.keys(EXTERNAL_ICON_PROVIDERS) as ExternalIconProviderId[]).forEach(id => {
             const shouldEnable = !!map[id];
@@ -247,13 +273,21 @@ export class ExternalIconProviderController {
             } else {
                 // TODO REMOVE
                 console.log(`[ExternalIconController] syncWithSettings deactivating ${id}`);
-                this.deactivateProvider(id);
+                if (this.deactivateProvider(id)) {
+                    shouldNotifyAfterLoop = true;
+                }
             }
         });
 
         await Promise.all(tasks);
         // TODO REMOVE
         console.log('[ExternalIconController] syncWithSettings completed');
+
+        if (shouldNotifyAfterLoop) {
+            // TODO REMOVE
+            console.log('[ExternalIconController] Notifying listeners after provider deactivation');
+            this.settingsProvider.notifySettingsUpdate();
+        }
     }
 
     private async ensureProviderAvailable(config: ExternalIconProviderConfig, options: InstallOptions): Promise<void> {
@@ -279,7 +313,12 @@ export class ExternalIconProviderController {
         this.providerVersions.set(config.id, record.version);
         // TODO REMOVE
         console.log(`[ExternalIconController] Database record found for ${config.id} (version ${record.version}); activating if enabled`);
-        await this.activateIfEnabled(config, record);
+        const activated = await this.activateIfEnabled(config, record);
+        if (activated && options.persistSetting === false) {
+            // TODO REMOVE
+            console.log('[ExternalIconController] Notifying listeners after activation from cache');
+            this.settingsProvider.notifySettingsUpdate();
+        }
     }
 
     private markProviderSetting(id: ExternalIconProviderId, enabled: boolean): void {
@@ -296,10 +335,11 @@ export class ExternalIconProviderController {
         console.log(`[ExternalIconController] externalIconProviders[${id}] set to ${enabled}`);
     }
 
-    private deactivateProvider(id: ExternalIconProviderId): void {
+    private deactivateProvider(id: ExternalIconProviderId): boolean {
         // TODO REMOVE
         console.log(`[ExternalIconController] deactivateProvider called for ${id}`);
         const entry = this.activeProviders.get(id);
+        let changed = false;
         if (entry) {
             // TODO REMOVE
             console.log(`[ExternalIconController] Disposing provider instance for ${id}`);
@@ -307,25 +347,27 @@ export class ExternalIconProviderController {
             this.activeProviders.delete(id);
             // TODO REMOVE
             console.log(`[ExternalIconController] Provider ${id} removed from active cache`);
+            changed = true;
         }
         this.iconService.unregisterProvider(id);
         // TODO REMOVE
         console.log(`[ExternalIconController] Provider ${id} unregistered from icon service`);
+        return changed;
     }
 
-    private async activateIfEnabled(config: ExternalIconProviderConfig, record: IconAssetRecord): Promise<void> {
+    private async activateIfEnabled(config: ExternalIconProviderConfig, record: IconAssetRecord): Promise<boolean> {
         // TODO REMOVE
         console.log(`[ExternalIconController] activateIfEnabled called for ${config.id}`);
         const settings = this.settingsProvider.settings;
         if (!settings.useExternalIconProviders) {
             // TODO REMOVE
             console.log('[ExternalIconController] Global external icon providers disabled; skipping activation');
-            return;
+            return false;
         }
         if (!settings.externalIconProviders || !settings.externalIconProviders[config.id]) {
             // TODO REMOVE
             console.log(`[ExternalIconController] Provider ${config.id} not enabled in settings; skipping activation`);
-            return;
+            return false;
         }
 
         const activeEntry = this.activeProviders.get(config.id);
@@ -334,7 +376,7 @@ export class ExternalIconProviderController {
             console.log(
                 `[ExternalIconController] Provider ${config.id} already active with matching version ${record.version}; nothing to do`
             );
-            return;
+            return false;
         }
 
         if (activeEntry) {
@@ -350,7 +392,7 @@ export class ExternalIconProviderController {
             // TODO REMOVE
             console.log(`[ExternalIconController] Provider factory returned null for ${config.id}`);
             console.warn(`[IconProviders] Provider ${config.id} could not be created.`);
-            return;
+            return false;
         }
 
         this.iconService.registerProvider(provider);
@@ -359,6 +401,7 @@ export class ExternalIconProviderController {
         this.activeProviders.set(config.id, { provider, version: record.version });
         // TODO REMOVE
         console.log(`[ExternalIconController] Provider ${config.id} cached as active (version ${record.version})`);
+        return true;
     }
 
     private createProvider(config: ExternalIconProviderConfig, record: IconAssetRecord): (IconProvider & { dispose?: () => void }) | null {
@@ -389,10 +432,32 @@ export class ExternalIconProviderController {
     private async fetchManifest(config: ExternalIconProviderConfig): Promise<ExternalIconManifest> {
         // TODO REMOVE
         console.log(`[ExternalIconController] fetchManifest started for ${config.id} (${config.manifestUrl})`);
-        const response = await requestUrl({ url: config.manifestUrl, method: 'GET' });
+        const response = await requestUrl({
+            url: config.manifestUrl,
+            method: 'GET',
+            headers: {
+                'User-Agent': 'NotebookNavigator/1.0 (Obsidian Plugin)',
+                Accept: 'application/json'
+            },
+            throw: false
+        });
+        // TODO REMOVE
+        console.log(
+            `[ExternalIconController] fetchManifest response for ${config.id}: status=${response.status}, headers=${JSON.stringify(response.headers)}`
+        );
+
+        if (response.status !== 200) {
+            // TODO REMOVE
+            console.log(
+                `[ExternalIconController] fetchManifest unexpected status for ${config.id}: status=${response.status}, bodyLength=${response.text?.length ?? 0}`
+            );
+            throw new Error(`Manifest request for ${config.id} failed with status ${response.status}`);
+        }
+
         if (!response.json) {
             throw new Error(`Manifest response for ${config.id} is empty`);
         }
+
         const manifest = response.json as ExternalIconManifest;
         // TODO REMOVE
         console.log(`[ExternalIconController] fetchManifest completed for ${config.id} (version ${manifest.version})`);
@@ -402,12 +467,43 @@ export class ExternalIconProviderController {
     private async downloadAssets(config: ExternalIconProviderConfig, manifest: ExternalIconManifest): Promise<IconAssetRecord> {
         // TODO REMOVE
         console.log(`[ExternalIconController] downloadAssets started for ${config.id}`);
-        const fontResponse = await requestUrl({ url: manifest.font, method: 'GET' });
+        const fontResponse = await requestUrl({
+            url: manifest.font,
+            method: 'GET',
+            headers: {
+                'User-Agent': 'NotebookNavigator/1.0 (Obsidian Plugin)'
+            },
+            throw: false
+        });
         // TODO REMOVE
         console.log(`[ExternalIconController] Font response received for ${config.id} with status ${fontResponse.status}`);
-        const metadataResponse = await requestUrl({ url: manifest.metadata, method: 'GET' });
+        const metadataResponse = await requestUrl({
+            url: manifest.metadata,
+            method: 'GET',
+            headers: {
+                'User-Agent': 'NotebookNavigator/1.0 (Obsidian Plugin)',
+                Accept: 'application/json'
+            },
+            throw: false
+        });
         // TODO REMOVE
         console.log(`[ExternalIconController] Metadata response received for ${config.id} with status ${metadataResponse.status}`);
+
+        if (fontResponse.status !== 200) {
+            // TODO REMOVE
+            console.log(
+                `[ExternalIconController] Font download failed for ${config.id} with status ${fontResponse.status}, bodyLength=${fontResponse.arrayBuffer ? fontResponse.arrayBuffer.byteLength : 0}`
+            );
+            throw new Error(`Font download for ${config.id} failed with status ${fontResponse.status}`);
+        }
+
+        if (metadataResponse.status !== 200) {
+            // TODO REMOVE
+            console.log(
+                `[ExternalIconController] Metadata download failed for ${config.id} with status ${metadataResponse.status}, bodyLength=${metadataResponse.text ? metadataResponse.text.length : 0}`
+            );
+            throw new Error(`Metadata download for ${config.id} failed with status ${metadataResponse.status}`);
+        }
 
         const fontData = fontResponse.arrayBuffer;
         const metadataRaw = metadataResponse.text;

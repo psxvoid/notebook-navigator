@@ -312,8 +312,7 @@ export function useListPaneScroll({
 
             // Use reduced padding for slim mode (with mobile-specific padding)
             const padding = isSlimMode ? (isMobile ? heights.slimPaddingMobile : heights.slimPadding) : heights.basePadding;
-            const totalHeight = padding + textContentHeight;
-            return Math.round(totalHeight);
+            return padding + textContentHeight;
         },
         overscan: OVERSCAN,
         scrollPaddingStart: 0,

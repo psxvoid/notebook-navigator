@@ -38,6 +38,9 @@ export class IconService {
     private providers = new Map<string, IconProvider>();
     private config: IconServiceConfig;
     private static readonly DEFAULT_PROVIDER = 'lucide';
+    private static readonly FALLBACK_ICON_ID = 'lucide-image-off';
+    private version = 0;
+    private listeners = new Set<() => void>();
 
     private constructor(config: IconServiceConfig = {}) {
         this.config = {
@@ -70,11 +73,17 @@ export class IconService {
         if (!provider.isAvailable()) {
             return;
         }
+        const existing = this.providers.get(provider.id);
         this.providers.set(provider.id, provider);
+        if (existing !== provider) {
+            this.notifyListeners();
+        }
     }
 
     unregisterProvider(providerId: string): void {
-        this.providers.delete(providerId);
+        if (this.providers.delete(providerId)) {
+            this.notifyListeners();
+        }
     }
 
     getProvider(providerId: string): IconProvider | undefined {
@@ -144,15 +153,18 @@ export class IconService {
         const provider = this.providers.get(parsed.provider);
 
         if (!provider) {
-            container.empty();
+            this.renderFallbackIcon(container, size);
             return;
         }
 
         try {
             provider.render(container, parsed.identifier, size);
+            if (!this.hasRenderedContent(container)) {
+                this.renderFallbackIcon(container, size);
+            }
         } catch (error) {
             console.error(`[IconService] Error rendering icon ${iconId}:`, error);
-            container.empty();
+            this.renderFallbackIcon(container, size);
         }
     }
 
@@ -205,6 +217,56 @@ export class IconService {
             );
         }
         return results;
+    }
+
+    getVersion(): number {
+        return this.version;
+    }
+
+    subscribe(listener: () => void): () => void {
+        this.listeners.add(listener);
+        return () => {
+            this.listeners.delete(listener);
+        };
+    }
+
+    private notifyListeners(): void {
+        this.version += 1;
+        this.listeners.forEach(listener => {
+            try {
+                listener();
+            } catch (error) {
+                console.error('[IconService] Listener error', error);
+            }
+        });
+    }
+
+    private hasRenderedContent(container: HTMLElement): boolean {
+        return container.childElementCount > 0 || (container.textContent?.trim().length ?? 0) > 0;
+    }
+
+    private renderFallbackIcon(container: HTMLElement, size?: number): void {
+        if (!container) {
+            return;
+        }
+
+        const fallbackProviderId = this.config.defaultProvider || IconService.DEFAULT_PROVIDER;
+        const fallbackProvider = this.providers.get(fallbackProviderId);
+
+        if (!fallbackProvider) {
+            container.empty();
+            return;
+        }
+
+        try {
+            fallbackProvider.render(container, IconService.FALLBACK_ICON_ID, size);
+            if (!this.hasRenderedContent(container)) {
+                container.empty();
+            }
+        } catch (error) {
+            console.error('[IconService] Error rendering fallback icon', error);
+            container.empty();
+        }
     }
 
     /**

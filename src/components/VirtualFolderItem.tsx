@@ -46,7 +46,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
-import { getIconService } from '../services/icons';
+import { getIconService, useIconServiceVersion } from '../services/icons';
 import { VirtualFolder } from '../types';
 
 interface VirtualFolderItemProps {
@@ -83,6 +83,7 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
     const folderRef = useRef<HTMLDivElement>(null);
     const chevronRef = useRef<HTMLDivElement>(null);
     const iconRef = useRef<HTMLSpanElement>(null);
+    const iconVersion = useIconServiceVersion();
 
     const handleDoubleClick = useCallback(() => {
         if (hasChildren) {
@@ -113,7 +114,7 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
         if (iconRef.current && settings.showIcons && virtualFolder.icon) {
             getIconService().renderIcon(iconRef.current, virtualFolder.icon);
         }
-    }, [virtualFolder.icon, settings.showIcons]);
+    }, [virtualFolder.icon, settings.showIcons, iconVersion]);
 
     return (
         <div

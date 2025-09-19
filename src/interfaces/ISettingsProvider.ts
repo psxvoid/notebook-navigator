@@ -34,4 +34,9 @@ export interface ISettingsProvider {
      * @returns Promise that resolves when settings are saved
      */
     saveSettingsAndUpdate(): Promise<void>;
+
+    /**
+     * Notifies listeners that settings relevant state changed without persisting
+     */
+    notifySettingsUpdate(): void;
 }

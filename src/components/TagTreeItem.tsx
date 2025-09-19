@@ -53,7 +53,7 @@ import React, { forwardRef, useMemo, useCallback } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
 import { useContextMenu } from '../hooks/useContextMenu';
-import { getIconService } from '../services/icons';
+import { getIconService, useIconServiceVersion } from '../services/icons';
 import { ItemType } from '../types';
 import { TagTreeNode } from '../types/storage';
 
@@ -119,6 +119,7 @@ export const TagTreeItem = React.memo(
         const settings = useSettingsState();
         const chevronRef = React.useRef<HTMLDivElement>(null);
         const iconRef = React.useRef<HTMLSpanElement>(null);
+        const iconVersion = useIconServiceVersion();
         const itemRef = React.useRef<HTMLDivElement>(null);
 
         // Memoize computed values
@@ -186,7 +187,7 @@ export const TagTreeItem = React.memo(
             if (iconRef.current && settings.showIcons) {
                 getIconService().renderIcon(iconRef.current, tagIcon || 'lucide-tags');
             }
-        }, [tagIcon, settings.showIcons]);
+        }, [tagIcon, settings.showIcons, iconVersion]);
 
         // Set up forwarded ref
         React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);

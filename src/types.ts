@@ -134,18 +134,18 @@ export const OVERSCAN = 10;
  */
 export const LISTPANE_MEASUREMENTS = {
     // Date group headers
-    firstHeader: 36, // var(--nn-date-header-height)
-    subsequentHeader: 52, // var(--nn-date-header-height-subsequent)
+    firstHeader: 35, // var(--nn-date-header-height)
+    subsequentHeader: 50, // var(--nn-date-header-height-subsequent)
 
     // File item components
     basePadding: 16, // var(--nn-file-padding-total) = var(--nn-file-padding-vertical) * 2
-    slimPadding: 12, // var(--nn-file-padding-vertical-slim) * 2
+    slimPadding: 10, // var(--nn-file-padding-vertical-slim) * 2
     slimPaddingMobile: 16, // var(--nn-file-padding-vertical-slim-mobile) * 2
     titleLineHeight: 20, // var(--nn-file-title-line-height)
-    singleTextLineHeight: 20, // var(--nn-file-single-text-line-height)
-    multilineTextLineHeight: 16, // var(--nn-file-multiline-text-line-height)
-    tagRowHeight: 24, // Height of tag row (20px container + 4px margin-top)
-    featureImageHeight: 40, // var(--nn-feature-image-min-size)
+    singleTextLineHeight: 19, // var(--nn-file-single-text-line-height)
+    multilineTextLineHeight: 18, // var(--nn-file-multiline-text-line-height)
+    tagRowHeight: 26, // Height of tag row (20px container + 4px margin-top)
+    featureImageHeight: 42, // var(--nn-feature-image-min-size)
 
     // Spacers
     bottomSpacer: 20,

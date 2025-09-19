@@ -38,6 +38,7 @@
 
 export * from './types';
 
+import { useSyncExternalStore } from 'react';
 import { IconService } from './IconService';
 import { LucideIconProvider } from './providers/LucideIconProvider';
 import { EmojiIconProvider } from './providers/EmojiIconProvider';
@@ -73,4 +74,13 @@ export function getIconService(): IconService {
         return initializeIconService();
     }
     return iconService;
+}
+
+export function useIconServiceVersion(): number {
+    const service = getIconService();
+    return useSyncExternalStore(
+        listener => service.subscribe(listener),
+        () => service.getVersion(),
+        () => service.getVersion()
+    );
 }

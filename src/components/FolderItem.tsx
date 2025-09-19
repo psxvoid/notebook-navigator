@@ -55,7 +55,7 @@ import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
-import { getIconService } from '../services/icons';
+import { getIconService, useIconServiceVersion } from '../services/icons';
 import { ItemType } from '../types';
 import { getFolderNote } from '../utils/folderNotes';
 import { hasSubfolders, shouldExcludeFolder, shouldExcludeFile } from '../utils/fileFilters';
@@ -114,6 +114,7 @@ export const FolderItem = React.memo(function FolderItem({
 
     const chevronRef = React.useRef<HTMLDivElement>(null);
     const iconRef = React.useRef<HTMLSpanElement>(null);
+    const iconVersion = useIconServiceVersion();
 
     // Count folders and files for tooltip (skip on mobile to save computation)
     const folderStats = React.useMemo(() => {
@@ -292,7 +293,7 @@ export const FolderItem = React.memo(function FolderItem({
                 iconService.renderIcon(iconRef.current, iconName);
             }
         }
-    }, [isExpanded, icon, hasChildren, settings.showIcons, folder.path]);
+    }, [isExpanded, icon, hasChildren, settings.showIcons, folder.path, iconVersion]);
 
     // Enable context menu
     useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });

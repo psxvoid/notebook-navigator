@@ -810,6 +810,10 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.onSettingsUpdate();
     }
 
+    public notifySettingsUpdate(): void {
+        this.onSettingsUpdate();
+    }
+
     /**
      * Notifies all running views that the settings have been updated.
      * This triggers a re-render in the React components.

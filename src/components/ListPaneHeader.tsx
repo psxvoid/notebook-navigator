@@ -25,7 +25,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { useExpansionState } from '../context/ExpansionContext';
 import { strings } from '../i18n';
-import { getIconService } from '../services/icons';
+import { getIconService, useIconServiceVersion } from '../services/icons';
 import { UNTAGGED_TAG_ID, ItemType } from '../types';
 import { hasSubfolders } from '../utils/fileFilters';
 import { ObsidianIcon } from './ObsidianIcon';
@@ -49,6 +49,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
     const metadataService = useMetadataService();
     const { getTagDisplayPath } = useFileCache();
     const expansionState = useExpansionState();
+    const iconVersion = useIconServiceVersion();
 
     // Use the shared actions hook
     const { handleNewFile, handleAppearanceMenu, handleSortMenu, handleToggleDescendants, getSortIcon, isCustomSort, hasCustomAppearance } =
@@ -233,7 +234,8 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
         selectionState.selectedFolder,
         selectionState.selectedTag,
         selectionState.selectionType,
-        expansionState.expandedFolders
+        expansionState.expandedFolders,
+        iconVersion
     ]);
 
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
