@@ -12,6 +12,9 @@ interface IconLookupEntry {
     keywords: string[];
 }
 
+/**
+ * Base class for icon providers that use web fonts.
+ */
 export abstract class BaseFontIconProvider implements IconProvider {
     abstract readonly id: string;
     abstract readonly name: string;
@@ -29,6 +32,9 @@ export abstract class BaseFontIconProvider implements IconProvider {
         this.ensureFontLoaded(options.record.data);
     }
 
+    /**
+     * Cleans up font resources when provider is unregistered.
+     */
     dispose(): void {
         if (this.fontFace) {
             try {
@@ -44,6 +50,9 @@ export abstract class BaseFontIconProvider implements IconProvider {
         return this.iconDefinitions.length > 0;
     }
 
+    /**
+     * Renders an icon glyph to the container element.
+     */
     render(container: HTMLElement, iconId: string, size?: number): void {
         const icon = this.iconLookup.get(iconId);
         resetIconContainer(container);
@@ -70,6 +79,9 @@ export abstract class BaseFontIconProvider implements IconProvider {
         this.fontLoadPromise?.catch(() => undefined);
     }
 
+    /**
+     * Searches icons by display name and keywords.
+     */
     search(query: string): IconDefinition[] {
         const normalized = query.trim().toLowerCase();
         if (!normalized) {
@@ -93,11 +105,17 @@ export abstract class BaseFontIconProvider implements IconProvider {
 
     protected abstract getCssClass(): string;
 
+    /**
+     * Sets the icon definitions and lookup map from parsed metadata.
+     */
     protected setIconData(definitions: IconDefinition[], lookup: Map<string, IconLookupEntry>): void {
         this.iconDefinitions = definitions;
         this.iconLookup = lookup;
     }
 
+    /**
+     * Clears all icon data when parsing fails.
+     */
     protected clearIconData(): void {
         this.iconDefinitions = [];
         this.iconLookup.clear();
@@ -107,6 +125,9 @@ export abstract class BaseFontIconProvider implements IconProvider {
         console.error(`${this.getLogPrefix()} ${message}`, error);
     }
 
+    /**
+     * Creates and loads the font face from binary data.
+     */
     private ensureFontLoaded(data: ArrayBuffer): void {
         if (typeof document === 'undefined' || typeof FontFace === 'undefined') {
             return;
@@ -126,6 +147,9 @@ export abstract class BaseFontIconProvider implements IconProvider {
             });
     }
 
+    /**
+     * Converts a hex unicode string to its corresponding character.
+     */
     private unicodeToGlyph(unicode: string): string {
         try {
             return String.fromCodePoint(parseInt(unicode, 16));
@@ -134,6 +158,9 @@ export abstract class BaseFontIconProvider implements IconProvider {
         }
     }
 
+    /**
+     * Adds loaded font to the document's font set.
+     */
     private addFontToDocument(fontFace: FontFace): void {
         if (typeof document === 'undefined') {
             return;
@@ -142,6 +169,9 @@ export abstract class BaseFontIconProvider implements IconProvider {
         fontSet.add?.(fontFace);
     }
 
+    /**
+     * Removes font from the document's font set.
+     */
     private removeFontFromDocument(fontFace: FontFace): void {
         if (typeof document === 'undefined') {
             return;

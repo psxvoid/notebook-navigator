@@ -28,6 +28,9 @@ export class FontAwesomeIconProvider extends BaseFontIconProvider {
         return 'nn-iconfont-fa-solid';
     }
 
+    /**
+     * Parses Font Awesome metadata, filtering for solid style icons.
+     */
     protected parseMetadata(raw: string): void {
         try {
             const parsed = JSON.parse(raw) as Record<string, FontAwesomeMetadataItem>;
@@ -67,6 +70,9 @@ export class FontAwesomeIconProvider extends BaseFontIconProvider {
         }
     }
 
+    /**
+     * Converts kebab-case icon ID to title case display name.
+     */
     private formatDisplayName(iconId: string): string {
         return iconId
             .split('-')

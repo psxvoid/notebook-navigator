@@ -129,7 +129,10 @@ export class IconPickerModal extends Modal {
     private createProviderTabs() {
         this.tabContainer = this.contentEl.createDiv('nn-icon-provider-tabs');
 
-        const providers = this.iconService.getAllProviders();
+        const providers = this.iconService
+            .getAllProviders()
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name));
         const resolvedProviderId = this.resolveInitialProvider(providers);
         this.currentProvider = resolvedProviderId;
         IconPickerModal.setLastUsedProvider(resolvedProviderId);

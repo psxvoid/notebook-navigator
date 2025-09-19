@@ -42,6 +42,9 @@ export class ExternalIconProviderController {
         this.database = new IconAssetDatabase(app);
     }
 
+    /**
+     * Initializes the controller by loading cached provider data and syncing with settings.
+     */
     async initialize(): Promise<void> {
         if (this.isInitialized) {
             return;
@@ -63,6 +66,9 @@ export class ExternalIconProviderController {
         this.isInitialized = true;
     }
 
+    /**
+     * Cleans up resources, disposes active providers, and closes database connection.
+     */
     dispose(): void {
         this.activeProviders.forEach(entry => {
             entry.provider.dispose?.();
@@ -84,6 +90,9 @@ export class ExternalIconProviderController {
         return this.providerVersions.get(id) ?? null;
     }
 
+    /**
+     * Downloads and installs an external icon provider's assets.
+     */
     async installProvider(id: ExternalIconProviderId, options: InstallOptions = {}): Promise<void> {
         await this.ensureInitialized();
 
@@ -123,6 +132,9 @@ export class ExternalIconProviderController {
         }
     }
 
+    /**
+     * Removes an installed provider and its cached assets.
+     */
     async removeProvider(id: ExternalIconProviderId, options: RemoveOptions = {}): Promise<void> {
         await this.ensureInitialized();
 
@@ -153,6 +165,9 @@ export class ExternalIconProviderController {
         });
     }
 
+    /**
+     * Synchronizes installed providers with user settings, installing/removing as needed.
+     */
     async syncWithSettings(): Promise<void> {
         await this.ensureInitialized();
         const settings = this.settingsProvider.settings;
@@ -190,6 +205,9 @@ export class ExternalIconProviderController {
         }
     }
 
+    /**
+     * Ensures a provider is installed and activated if enabled in settings.
+     */
     private async ensureProviderAvailable(config: ExternalIconProviderConfig, options: InstallOptions): Promise<void> {
         if (!this.isProviderInstalled(config.id)) {
             await this.installProvider(config.id, options);
@@ -211,6 +229,9 @@ export class ExternalIconProviderController {
         }
     }
 
+    /**
+     * Updates the provider's enabled/disabled state in settings.
+     */
     private markProviderSetting(id: ExternalIconProviderId, enabled: boolean): void {
         const { settings } = this.settingsProvider;
         if (!settings.externalIconProviders) {
@@ -219,6 +240,9 @@ export class ExternalIconProviderController {
         settings.externalIconProviders[id] = enabled;
     }
 
+    /**
+     * Deactivates and unregisters a provider from the IconService.
+     */
     private deactivateProvider(id: ExternalIconProviderId): boolean {
         const entry = this.activeProviders.get(id);
         let changed = false;
@@ -231,6 +255,9 @@ export class ExternalIconProviderController {
         return changed;
     }
 
+    /**
+     * Activates a provider if it's enabled in settings.
+     */
     private async activateIfEnabled(config: ExternalIconProviderConfig, record: IconAssetRecord): Promise<boolean> {
         const settings = this.settingsProvider.settings;
         if (!settings.externalIconProviders || !settings.externalIconProviders[config.id]) {
@@ -270,6 +297,9 @@ export class ExternalIconProviderController {
         return true;
     }
 
+    /**
+     * Creates a provider instance based on config type.
+     */
     private createProvider(config: ExternalIconProviderConfig, record: IconAssetRecord): (IconProvider & { dispose?: () => void }) | null {
         switch (config.id) {
             case 'bootstrap-icons':
@@ -302,6 +332,9 @@ export class ExternalIconProviderController {
         }
     }
 
+    /**
+     * Fetches the provider's manifest file containing version and asset URLs.
+     */
     private async fetchManifest(config: ExternalIconProviderConfig): Promise<ExternalIconManifest> {
         const response = await requestUrl({
             url: config.manifestUrl,
@@ -325,6 +358,9 @@ export class ExternalIconProviderController {
         return manifest;
     }
 
+    /**
+     * Downloads font and metadata files for a provider.
+     */
     private async downloadAssets(config: ExternalIconProviderConfig, manifest: ExternalIconManifest): Promise<IconAssetRecord> {
         const fontResponse = await requestUrl({
             url: manifest.font,
@@ -380,6 +416,9 @@ export class ExternalIconProviderController {
         }
     }
 
+    /**
+     * Disables providers in settings that aren't actually installed.
+     */
     private async disableMissingSettings(): Promise<void> {
         const settings = this.settingsProvider.settings;
         const map = settings.externalIconProviders;
@@ -400,6 +439,9 @@ export class ExternalIconProviderController {
         }
     }
 
+    /**
+     * Removes installed providers that are disabled in settings.
+     */
     private async removeDisabledProviders(): Promise<void> {
         if (this.installedProviders.size === 0) {
             return;
@@ -433,6 +475,9 @@ export class ExternalIconProviderController {
         );
     }
 
+    /**
+     * Queues async tasks to prevent concurrent database operations.
+     */
     private enqueue(task: () => Promise<void>): Promise<void> {
         const wrappedTask = async () => {
             await task();

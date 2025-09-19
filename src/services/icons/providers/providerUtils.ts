@@ -7,6 +7,9 @@ const ICON_FONT_CLASSES = [
     'nn-iconfont-phosphor'
 ];
 
+/**
+ * Resets a container element by removing icon-related classes and content.
+ */
 export function resetIconContainer(container: HTMLElement): void {
     container.empty();
     container.removeClass('nn-emoji-icon');

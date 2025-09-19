@@ -219,10 +219,16 @@ export class IconService {
         return results;
     }
 
+    /**
+     * Returns current version number, incremented when providers change.
+     */
     getVersion(): number {
         return this.version;
     }
 
+    /**
+     * Subscribes to provider change events.
+     */
     subscribe(listener: () => void): () => void {
         this.listeners.add(listener);
         return () => {
@@ -230,6 +236,9 @@ export class IconService {
         };
     }
 
+    /**
+     * Notifies all subscribers when providers change.
+     */
     private notifyListeners(): void {
         this.version += 1;
         this.listeners.forEach(listener => {
@@ -241,10 +250,16 @@ export class IconService {
         });
     }
 
+    /**
+     * Checks if container has any rendered content.
+     */
     private hasRenderedContent(container: HTMLElement): boolean {
         return container.childElementCount > 0 || (container.textContent?.trim().length ?? 0) > 0;
     }
 
+    /**
+     * Renders a fallback icon when the requested icon cannot be rendered.
+     */
     private renderFallbackIcon(container: HTMLElement, size?: number): void {
         if (!container) {
             return;

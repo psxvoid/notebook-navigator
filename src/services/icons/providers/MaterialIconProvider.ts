@@ -7,6 +7,9 @@ interface MaterialIconMetadataItem {
     search?: string[];
 }
 
+/**
+ * Icon provider for Google Material Icons web font.
+ */
 export class MaterialIconProvider extends BaseFontIconProvider {
     readonly id = 'material-icons';
     readonly name = 'Material Icons';
@@ -19,6 +22,9 @@ export class MaterialIconProvider extends BaseFontIconProvider {
         return 'nn-iconfont-material-icons';
     }
 
+    /**
+     * Parses Material Icons JSON metadata into icon definitions.
+     */
     protected parseMetadata(raw: string): void {
         try {
             const parsed = JSON.parse(raw) as Record<string, MaterialIconMetadataItem>;
@@ -63,6 +69,9 @@ export class MaterialIconProvider extends BaseFontIconProvider {
         }
     }
 
+    /**
+     * Converts snake_case or kebab-case icon ID to title case.
+     */
     private formatDisplayName(iconId: string): string {
         return iconId
             .split(/[-_]/g)

@@ -1,6 +1,9 @@
 import { IconDefinition } from '../types';
 import { BaseFontIconProvider, BaseFontIconProviderOptions } from './BaseFontIconProvider';
 
+/**
+ * Icon provider for Bootstrap Icons web font.
+ */
 export class BootstrapIconProvider extends BaseFontIconProvider {
     readonly id = 'bootstrap-icons';
     readonly name = 'Bootstrap Icons';
@@ -13,6 +16,9 @@ export class BootstrapIconProvider extends BaseFontIconProvider {
         return 'nn-iconfont-bootstrap-icons';
     }
 
+    /**
+     * Parses Bootstrap Icons JSON metadata into icon definitions.
+     */
     protected parseMetadata(raw: string): void {
         try {
             const parsed = JSON.parse(raw) as Record<string, string>;
@@ -53,6 +59,9 @@ export class BootstrapIconProvider extends BaseFontIconProvider {
         }
     }
 
+    /**
+     * Converts kebab-case icon ID to title case display name.
+     */
     private formatDisplayName(iconId: string): string {
         return iconId
             .split('-')

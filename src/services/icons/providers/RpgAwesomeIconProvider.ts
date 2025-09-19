@@ -24,6 +24,9 @@ export class RpgAwesomeIconProvider extends BaseFontIconProvider {
         return 'nn-iconfont-rpg-awesome';
     }
 
+    /**
+     * Parses RPG Awesome metadata, handling both array and object formats.
+     */
     protected parseMetadata(raw: string): void {
         try {
             const parsed = JSON.parse(raw) as RpgAwesomeMetadataEntry[] | Record<string, RpgAwesomeMetadataEntry | string>;
@@ -61,6 +64,9 @@ export class RpgAwesomeIconProvider extends BaseFontIconProvider {
         }
     }
 
+    /**
+     * Adds a single icon entry to definitions and lookup.
+     */
     private addEntry(
         entry: Partial<RpgAwesomeMetadataEntry>,
         definitions: IconDefinition[],
@@ -89,6 +95,9 @@ export class RpgAwesomeIconProvider extends BaseFontIconProvider {
         });
     }
 
+    /**
+     * Formats icon ID by removing prefix and converting to title case.
+     */
     private formatDisplayName(id: string): string {
         return id
             .replace(/^ra-/, '')

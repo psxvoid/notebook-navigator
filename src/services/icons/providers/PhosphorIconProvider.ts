@@ -9,6 +9,9 @@ interface PhosphorMetadataEntry {
     categories?: string[];
 }
 
+/**
+ * Icon provider for Phosphor Icons web font.
+ */
 export class PhosphorIconProvider extends BaseFontIconProvider {
     readonly id = 'phosphor';
     readonly name = 'Phosphor Icons';
@@ -21,6 +24,9 @@ export class PhosphorIconProvider extends BaseFontIconProvider {
         return 'nn-iconfont-phosphor';
     }
 
+    /**
+     * Parses Phosphor Icons JSON metadata into icon definitions.
+     */
     protected parseMetadata(raw: string): void {
         try {
             const parsed = JSON.parse(raw) as PhosphorMetadataEntry[];
@@ -58,6 +64,9 @@ export class PhosphorIconProvider extends BaseFontIconProvider {
         }
     }
 
+    /**
+     * Formats icon ID by removing prefix and converting to title case.
+     */
     private formatDisplayName(id: string): string {
         return id
             .replace(/^ph-/, '')
