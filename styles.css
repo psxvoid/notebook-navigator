@@ -2052,6 +2052,16 @@ body.nn-resizing {
     height: 24px;
 }
 
+.nn-icon-item-preview.nn-iconfont {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.nn-icon-item-preview.nn-emoji-icon {
+    font-size: 24px;
+    line-height: 1;
+}
+
 /* Icon name label */
 .nn-icon-item-name {
     font-size: 11px;
@@ -3156,6 +3166,7 @@ body.nn-resizing {
 
 .nn-icon-provider-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
     margin-bottom: 8px;
     border-bottom: 1px solid var(--background-modifier-border);
@@ -3166,6 +3177,7 @@ body.nn-resizing {
     padding: 4px 12px;
     border-radius: var(--radius-s);
     color: var(--text-muted);
+    white-space: nowrap;
 }
 
 .nn-icon-provider-tab:hover {
