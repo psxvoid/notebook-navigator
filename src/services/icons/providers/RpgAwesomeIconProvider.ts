@@ -34,8 +34,8 @@ export class RpgAwesomeIconProvider implements IconProvider {
 
     constructor(options: RpgAwesomeProviderOptions) {
         this.fontFamily = options.fontFamily;
-        this.parseMetadata(options.record.metadataRaw);
-        this.ensureFontLoaded(options.record.fontData);
+        this.parseMetadata(options.record.metadata);
+        this.ensureFontLoaded(options.record.data);
     }
 
     dispose(): void {
@@ -165,12 +165,12 @@ export class RpgAwesomeIconProvider implements IconProvider {
         });
     }
 
-    private ensureFontLoaded(fontData: ArrayBuffer): void {
+    private ensureFontLoaded(data: ArrayBuffer): void {
         if (typeof document === 'undefined' || typeof FontFace === 'undefined') {
             return;
         }
 
-        const fontFace = new FontFace(this.fontFamily, fontData);
+        const fontFace = new FontFace(this.fontFamily, data);
         this.fontLoadPromise = fontFace
             .load()
             .then(loaded => {

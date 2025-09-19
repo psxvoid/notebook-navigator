@@ -54,6 +54,9 @@ export class ExternalIconProviderController {
             }
         });
 
+        await this.disableMissingSettings();
+        await this.removeDisabledProviders();
+
         this.isInitialized = true;
     }
 
@@ -152,14 +155,13 @@ export class ExternalIconProviderController {
         const settings = this.settingsProvider.settings;
 
         if (!settings.useExternalIconProviders) {
-            // Unregister active providers but leave assets intact for next enable
-            let changed = false;
-            this.activeProviders.forEach((_, providerId) => {
-                if (this.deactivateProvider(providerId)) {
-                    changed = true;
-                }
-            });
-            if (changed) {
+            const removals = Array.from(this.installedProviders).map(id =>
+                this.removeProvider(id, { persistSetting: false }).catch(error => {
+                    console.error(`[IconProviders] Failed to remove provider ${id}:`, error);
+                })
+            );
+            if (removals.length > 0) {
+                await Promise.all(removals);
                 this.settingsProvider.notifySettingsUpdate();
             }
             return;
@@ -179,7 +181,14 @@ export class ExternalIconProviderController {
                     })
                 );
             } else {
-                if (this.deactivateProvider(id)) {
+                if (this.installedProviders.has(id)) {
+                    shouldNotifyAfterLoop = true;
+                    tasks.push(
+                        this.removeProvider(id, { persistSetting: false }).catch(error => {
+                            console.error(`[IconProviders] Failed to remove provider ${id}:`, error);
+                        })
+                    );
+                } else if (this.deactivateProvider(id)) {
                     shouldNotifyAfterLoop = true;
                 }
             }
@@ -257,7 +266,20 @@ export class ExternalIconProviderController {
             return false;
         }
 
+        if (!provider.isAvailable()) {
+            provider.dispose?.();
+            console.warn(`[IconProviders] Provider ${config.id} reported unavailable during activation.`);
+            return false;
+        }
+
         this.iconService.registerProvider(provider);
+        const registered = this.iconService.getProvider(config.id);
+        if (registered !== provider) {
+            provider.dispose?.();
+            console.warn(`[IconProviders] Provider ${config.id} failed to register with icon service.`);
+            return false;
+        }
+
         this.activeProviders.set(config.id, { provider, version: record.version });
         return true;
     }
@@ -329,25 +351,25 @@ export class ExternalIconProviderController {
             throw new Error(`Metadata download for ${config.id} failed with status ${metadataResponse.status}`);
         }
 
-        const fontData = fontResponse.arrayBuffer;
-        const metadataRaw = metadataResponse.text;
+        const data = fontResponse.arrayBuffer;
+        const metadata = metadataResponse.text;
 
-        if (!fontData) {
+        if (!data) {
             throw new Error(`Failed to download font for provider ${config.id}`);
         }
 
-        if (!metadataRaw) {
+        if (!metadata) {
             throw new Error(`Failed to download metadata for provider ${config.id}`);
         }
 
         return {
             id: config.id,
             version: manifest.version,
-            fontMimeType: manifest.fontMimeType ?? 'font/woff2',
-            fontData,
+            mimeType: manifest.fontMimeType ?? 'font/woff2',
+            data,
             metadataFormat: manifest.metadataFormat ?? 'json',
-            metadataRaw,
-            updatedAt: Date.now()
+            metadata,
+            updated: Date.now()
         };
     }
 
@@ -355,6 +377,61 @@ export class ExternalIconProviderController {
         if (!this.isInitialized) {
             await this.initialize();
         }
+    }
+
+    private async disableMissingSettings(): Promise<void> {
+        const settings = this.settingsProvider.settings;
+        const map = settings.externalIconProviders;
+        if (!map) {
+            return;
+        }
+
+        let changed = false;
+        (Object.keys(map) as ExternalIconProviderId[]).forEach(id => {
+            if (map[id] && !this.installedProviders.has(id)) {
+                map[id] = false;
+                changed = true;
+            }
+        });
+
+        if (changed) {
+            await this.settingsProvider.saveSettingsAndUpdate();
+        }
+    }
+
+    private async removeDisabledProviders(): Promise<void> {
+        if (this.installedProviders.size === 0) {
+            return;
+        }
+
+        const settings = this.settingsProvider.settings;
+        const map = settings.externalIconProviders || {};
+        const removeAll = !settings.useExternalIconProviders;
+        const toRemove: ExternalIconProviderId[] = [];
+
+        this.installedProviders.forEach(id => {
+            if (removeAll || !map[id]) {
+                toRemove.push(id);
+            }
+        });
+
+        if (toRemove.length === 0) {
+            return;
+        }
+
+        await Promise.all(
+            toRemove.map(async id => {
+                this.installedProviders.delete(id);
+                this.providerVersions.delete(id);
+                this.activeProviders.delete(id);
+                this.iconService.unregisterProvider(id);
+                try {
+                    await this.database.delete(id);
+                } catch (error) {
+                    console.error(`[IconProviders] Failed to delete cached assets for ${id}:`, error);
+                }
+            })
+        );
     }
 
     private enqueue(task: () => Promise<void>): Promise<void> {

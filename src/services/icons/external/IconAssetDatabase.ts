@@ -4,11 +4,11 @@ import { ExtendedApp } from '../../../types/obsidian-extended';
 export interface IconAssetRecord {
     id: string;
     version: string;
-    fontMimeType: string;
-    fontData: ArrayBuffer;
+    mimeType: string;
+    data: ArrayBuffer;
     metadataFormat: 'json';
-    metadataRaw: string;
-    updatedAt: number;
+    metadata: string;
+    updated: number;
 }
 
 /**
