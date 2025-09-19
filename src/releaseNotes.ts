@@ -77,12 +77,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==ICON PACKS!== You can now download **Bootstrap Icons**, **Font Awesome**, **Material Icons**, **Phosphor Icons** and **RPG Awesome** ICON PACKS from within the Notebook Navigator settings! This is done using a super modular implementation where icon packs are stored locally on each device in a database, with just tiny metadata syncing between devices indicating if they should download or remove packs. Everything "just works" in the background! '
         ],
         improved: [
-            '==Tags in list pane are now sorted alphabetically==. Display order is favorite tags, followed by colored non-favorite tags, then uncolored non-favorite tags.'
+            '==Tags in list pane are now sorted alphabetically==. Tags in file list are sorted as follows: first favorite tags are shown, then colored non-favorite tags, then uncolored non-favorite tags.'
         ],
-        changed: ['Show tooltips (desktop only) is now disabled by default based on user feedback.'],
+        changed: ['Show tooltips (desktop) is now disabled by default, based on user feedback.'],
         fixed: [
-            'Fixed so Notebook Navigator will properly scroll to the selected ancestor folder during startup (problem was introduced in 1.4.18 when we fixed an issue with auto reveal).',
-            'Finally fixed ==ClearType rendering== on Windows by removing GPU transforms from virtualized list rows.'
+            'Notebook Navigator will now properly scroll to the selected ancestor folder during startup (a problem introduced in 1.4.18 when we fixed another issue with auto reveal).',
+            'Finally fixed ==ClearType rendering== fuzzyness on Windows by removing GPU transforms from virtualized list rows.'
         ]
     },
     {
