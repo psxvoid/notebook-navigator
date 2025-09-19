@@ -406,6 +406,7 @@ export const STRINGS_FR = {
         sections: {
             notes: 'Affichage des notes',
             navigationPane: 'Affichage des dossiers',
+            icons: 'Icons',
             tags: 'Affichage des étiquettes',
             folders: 'Notes de dossier',
             search: 'Rechercher',
@@ -714,6 +715,24 @@ export const STRINGS_FR = {
             confirmBeforeDelete: {
                 name: 'Confirmer avant de supprimer',
                 desc: 'Afficher une boîte de dialogue de confirmation lors de la suppression de notes ou de dossiers'
+            },
+            externalIcons: {
+                enable: {
+                    name: 'Use external icon providers',
+                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
+                },
+                downloadButton: 'Download',
+                downloadingLabel: 'Downloading...',
+                removeButton: 'Remove',
+                statusInstalled: 'Downloaded (version {version})',
+                statusNotInstalled: 'Not downloaded',
+                versionUnknown: 'unknown',
+                downloadFailed: 'Failed to download {name}. Check your connection and try again.',
+                removeFailed: 'Failed to remove {name}.',
+                providers: {
+                    fontAwesomeDesc: 'Font Awesome regular icon set.',
+                    rpgAwesomeDesc: 'RPG Awesome fantasy icon set.'
+                }
             },
             useFrontmatterDates: {
                 name: 'Lire les métadonnées du frontmatter (*)',

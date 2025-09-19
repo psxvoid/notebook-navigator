@@ -406,6 +406,7 @@ export const STRINGS_DE = {
         sections: {
             notes: 'Notizenanzeige',
             navigationPane: 'Ordneranzeige',
+            icons: 'Icons',
             tags: 'Tag-Anzeige',
             folders: 'Ordnernotizen',
             search: 'Suchen',
@@ -713,6 +714,24 @@ export const STRINGS_DE = {
             confirmBeforeDelete: {
                 name: 'Vor dem Löschen bestätigen',
                 desc: 'Bestätigungsdialog beim Löschen von Notizen oder Ordnern anzeigen'
+            },
+            externalIcons: {
+                enable: {
+                    name: 'Use external icon providers',
+                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
+                },
+                downloadButton: 'Download',
+                downloadingLabel: 'Downloading...',
+                removeButton: 'Remove',
+                statusInstalled: 'Downloaded (version {version})',
+                statusNotInstalled: 'Not downloaded',
+                versionUnknown: 'unknown',
+                downloadFailed: 'Failed to download {name}. Check your connection and try again.',
+                removeFailed: 'Failed to remove {name}.',
+                providers: {
+                    fontAwesomeDesc: 'Font Awesome regular icon set.',
+                    rpgAwesomeDesc: 'RPG Awesome fantasy icon set.'
+                }
             },
             useFrontmatterDates: {
                 name: 'Metadaten aus Frontmatter lesen (*)',

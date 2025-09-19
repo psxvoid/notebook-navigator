@@ -404,6 +404,7 @@ export const STRINGS_KO = {
         },
         sections: {
             navigationPane: '탐색 창',
+            icons: 'Icons',
             folders: '폴더',
             tags: '태그',
             search: '검색',
@@ -711,6 +712,24 @@ export const STRINGS_KO = {
             confirmBeforeDelete: {
                 name: '삭제 전 확인',
                 desc: '노트나 폴더를 삭제할 때 확인 대화 상자 표시'
+            },
+            externalIcons: {
+                enable: {
+                    name: 'Use external icon providers',
+                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
+                },
+                downloadButton: 'Download',
+                downloadingLabel: 'Downloading...',
+                removeButton: 'Remove',
+                statusInstalled: 'Downloaded (version {version})',
+                statusNotInstalled: 'Not downloaded',
+                versionUnknown: 'unknown',
+                downloadFailed: 'Failed to download {name}. Check your connection and try again.',
+                removeFailed: 'Failed to remove {name}.',
+                providers: {
+                    fontAwesomeDesc: 'Font Awesome regular icon set.',
+                    rpgAwesomeDesc: 'RPG Awesome fantasy icon set.'
+                }
             },
             useFrontmatterDates: {
                 name: 'frontmatter에서 메타데이터 읽기 (*)',

@@ -3115,6 +3115,31 @@ body.nn-resizing {
     min-height: 380px;
 }
 
+/* Icon font styles */
+.nn-iconfont {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    text-rendering: optimizeLegibility;
+}
+
+.nn-iconfont-fa-regular,
+.nn-iconfont-rpg-awesome {
+    font-style: normal;
+    font-weight: 400;
+}
+
+.nn-iconfont-fa-regular {
+    font-family: 'NotebookNavigatorFontAwesomeRegular', 'Font Awesome 6 Free', sans-serif;
+}
+
+.nn-iconfont-rpg-awesome {
+    font-family: 'NotebookNavigatorRpgAwesome', 'RPG Awesome', sans-serif;
+}
+
 .nn-icon-provider-tabs {
     display: flex;
     gap: 4px;

@@ -406,6 +406,7 @@ export const STRINGS_ZH = {
         sections: {
             notes: '笔记显示',
             navigationPane: '文件夹显示',
+            icons: 'Icons',
             tags: '标签显示',
             folders: '文件夹笔记',
             search: '搜索',
@@ -712,6 +713,24 @@ export const STRINGS_ZH = {
             confirmBeforeDelete: {
                 name: '删除前确认',
                 desc: '删除笔记或文件夹时显示确认对话框'
+            },
+            externalIcons: {
+                enable: {
+                    name: 'Use external icon providers',
+                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
+                },
+                downloadButton: 'Download',
+                downloadingLabel: 'Downloading...',
+                removeButton: 'Remove',
+                statusInstalled: 'Downloaded (version {version})',
+                statusNotInstalled: 'Not downloaded',
+                versionUnknown: 'unknown',
+                downloadFailed: 'Failed to download {name}. Check your connection and try again.',
+                removeFailed: 'Failed to remove {name}.',
+                providers: {
+                    fontAwesomeDesc: 'Font Awesome regular icon set.',
+                    rpgAwesomeDesc: 'RPG Awesome fantasy icon set.'
+                }
             },
             useFrontmatterDates: {
                 name: '从前言读取元数据 (*)',

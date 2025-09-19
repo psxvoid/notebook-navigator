@@ -26,6 +26,9 @@ import { TagTreeService } from './services/TagTreeService';
 import { CommandQueueService } from './services/CommandQueueService';
 import { OmnisearchService } from './services/OmnisearchService';
 import { FileSystemOperations } from './services/FileSystemService';
+import { getIconService } from './services/icons';
+import { ExternalIconProviderController } from './services/icons/external/ExternalIconProviderController';
+import { ExternalIconProviderId } from './services/icons/external/providerRegistry';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
@@ -91,6 +94,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     commandQueue: CommandQueueService | null = null;
     fileSystemOps: FileSystemOperations | null = null;
     omnisearchService: OmnisearchService | null = null;
+    externalIconController: ExternalIconProviderController | null = null;
     api: NotebookNavigatorAPI | null = null;
     // A map of callbacks to notify open React views of changes
     private settingsUpdateListeners = new Map<string, () => void>();
@@ -202,6 +206,23 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         );
         this.omnisearchService = new OmnisearchService(this.app);
         this.api = new NotebookNavigatorAPI(this, this.app);
+
+        const iconService = getIconService();
+        // TODO REMOVE
+        console.log('[ExternalIconController] Creating controller instance');
+        this.externalIconController = new ExternalIconProviderController(this.app, iconService, this);
+        // TODO REMOVE
+        console.log('[ExternalIconController] Initializing controller');
+        await this.externalIconController.initialize();
+        // TODO REMOVE
+        console.log('[ExternalIconController] Initialization complete, syncing with settings');
+        void this.externalIconController.syncWithSettings();
+
+        this.registerSettingsUpdateListener('external-icon-controller', () => {
+            // TODO REMOVE
+            console.log('[ExternalIconController] Settings update listener triggered, syncing providers');
+            void this.externalIconController?.syncWithSettings();
+        });
 
         // Register view
         this.registerView(NOTEBOOK_NAVIGATOR_VIEW, leaf => {
@@ -614,6 +635,32 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.settingsUpdateListeners.delete(id);
     }
 
+    public isExternalIconProviderInstalled(providerId: ExternalIconProviderId): boolean {
+        return this.externalIconController?.isProviderInstalled(providerId) ?? false;
+    }
+
+    public isExternalIconProviderDownloading(providerId: ExternalIconProviderId): boolean {
+        return this.externalIconController?.isProviderDownloading(providerId) ?? false;
+    }
+
+    public getExternalIconProviderVersion(providerId: ExternalIconProviderId): string | null {
+        return this.externalIconController?.getProviderVersion(providerId) ?? null;
+    }
+
+    public async downloadExternalIconProvider(providerId: ExternalIconProviderId): Promise<void> {
+        if (!this.externalIconController) {
+            throw new Error('External icon controller not initialized');
+        }
+        await this.externalIconController.installProvider(providerId);
+    }
+
+    public async removeExternalIconProvider(providerId: ExternalIconProviderId): Promise<void> {
+        if (!this.externalIconController) {
+            throw new Error('External icon controller not initialized');
+        }
+        await this.externalIconController.removeProvider(providerId);
+    }
+
     /**
      * Register a callback to be notified when files are renamed
      * Used by React views to update selection state
@@ -642,6 +689,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Clear all listeners first to prevent any callbacks during cleanup
         this.settingsUpdateListeners.clear();
         this.fileRenameListeners.clear();
+
+        if (this.externalIconController) {
+            this.externalIconController.dispose();
+            this.externalIconController = null;
+        }
 
         // Clean up the metadata service
         if (this.metadataService) {
