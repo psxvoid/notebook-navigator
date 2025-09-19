@@ -406,6 +406,7 @@ export const STRINGS_JA = {
         sections: {
             notes: 'ノート表示',
             navigationPane: 'フォルダ表示',
+            icons: 'Icons',
             tags: 'タグ表示',
             folders: 'フォルダノート',
             search: '検索',
@@ -713,6 +714,24 @@ export const STRINGS_JA = {
             confirmBeforeDelete: {
                 name: '削除前に確認',
                 desc: 'ノートやフォルダを削除する際に確認ダイアログを表示'
+            },
+            externalIcons: {
+                enable: {
+                    name: 'Use external icon providers',
+                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
+                },
+                downloadButton: 'Download',
+                downloadingLabel: 'Downloading...',
+                removeButton: 'Remove',
+                statusInstalled: 'Downloaded (version {version})',
+                statusNotInstalled: 'Not downloaded',
+                versionUnknown: 'unknown',
+                downloadFailed: 'Failed to download {name}. Check your connection and try again.',
+                removeFailed: 'Failed to remove {name}.',
+                providers: {
+                    fontAwesomeDesc: 'Font Awesome regular icon set.',
+                    rpgAwesomeDesc: 'RPG Awesome fantasy icon set.'
+                }
             },
             useFrontmatterDates: {
                 name: 'フロントマターからメタデータを読み込む (*)',

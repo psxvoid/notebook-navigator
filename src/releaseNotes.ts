@@ -71,6 +71,17 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.20',
+        date: '2025-09-19',
+        improved: [
+            'File tags in list pane are now sorted alphabetically. Display order is favorite tags, followed by colored non-favorite tags, then uncolored non-favorite tags.'
+        ],
+        fixed: [
+            'Adjusted list pane spacer heights to keep file rows aligned to pixel grid on scaled displays.',
+            'Fixed so Notebook Navigator will properly scroll to the selected ancestor folder during startup (problem was introduced when we fixed an issue with auto reveal in 1.4.18.'
+        ]
+    },
+    {
         version: '1.4.19',
         date: '2025-09-18',
         new: [

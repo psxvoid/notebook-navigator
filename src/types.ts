@@ -117,8 +117,8 @@ export const NAVPANE_MEASUREMENTS = {
     mobileFontSizeIncrement: 3, // Mobile font size is desktop + 3px
 
     // Spacers
-    topSpacer: 10,
-    listSpacer: 10,
+    topSpacer: 8,
+    listSpacer: 8,
     bottomSpacer: 20
 };
 
@@ -149,7 +149,7 @@ export const LISTPANE_MEASUREMENTS = {
 
     // Spacers
     bottomSpacer: 20,
-    topSpacer: 10
+    topSpacer: 8
 };
 
 /**

@@ -514,8 +514,6 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
     useEffect(() => {
         // ONLY process if this is a reveal operation, not normal keyboard navigation
         if (selectionState.isRevealOperation && selectionState.selectedFile) {
-            const file = selectionState.selectedFile;
-
             // Request scroll in navigation pane if visible
             const shouldScrollNavigation = !uiState.singlePane || uiState.currentSinglePaneView === 'navigation';
 
@@ -526,10 +524,9 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                     navigationPaneRef.current?.requestScroll(tagPath, {
                         itemType: ItemType.TAG
                     });
-                } else if (selectionState.selectedFolder && file.parent && selectionState.selectedFolder.path === file.parent.path) {
-                    // Request scroll to folder - but only if we're not preserving the current folder
-                    // When preserveFolder is true (includeDescendantNotes), we don't want to jump to the descendant folder
-                    const folderPath = normalizeNavigationPath(ItemType.FOLDER, file.parent.path);
+                } else if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                    // Scroll to the selected folder even when it remains an ancestor during descendant reveals
+                    const folderPath = normalizeNavigationPath(ItemType.FOLDER, selectionState.selectedFolder.path);
                     navigationPaneRef.current?.requestScroll(folderPath, {
                         itemType: ItemType.FOLDER
                     });

@@ -323,7 +323,12 @@ export const FileItem = React.memo(function FileItem({
             }
         });
 
-        // Combine in priority order without sorting
+        const tagSorter = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base' });
+
+        favoriteTags.sort(tagSorter);
+        coloredTags.sort(tagSorter);
+        regularTags.sort(tagSorter);
+
         return [...favoriteTags, ...coloredTags, ...regularTags];
     }, [tags, findTagInFavoriteTree, getTagColor]);
 
