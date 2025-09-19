@@ -617,7 +617,7 @@ export const ListPane = React.memo(
                                             } ${isLastFile ? 'nn-last-file' : ''} ${hideSeparator ? 'nn-hide-separator-selection' : ''}`}
                                             style={
                                                 {
-                                                    transform: `translateY(${virtualItem.start}px)`,
+                                                    top: virtualItem.start,
                                                     '--item-height': `${virtualItem.size}px`
                                                 } as React.CSSProperties
                                             }
