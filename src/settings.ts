@@ -692,23 +692,15 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         const renderExternalProviders = () => {
             const container = externalIconSettingsContainer;
             if (!container) {
-                // TODO REMOVE
-                console.log('[ExternalIconSettings] renderExternalProviders called without container');
                 return;
             }
 
-            // TODO REMOVE
-            console.log('[ExternalIconSettings] Rendering external icon providers');
             container.empty();
 
             const isEnabled = this.plugin.settings.useExternalIconProviders;
             container.toggle(isEnabled);
-            // TODO REMOVE
-            console.log(`[ExternalIconSettings] External providers enabled setting: ${isEnabled}`);
 
             if (!isEnabled) {
-                // TODO REMOVE
-                console.log('[ExternalIconSettings] External icon providers disabled; nothing to render');
                 return;
             }
 
@@ -721,11 +713,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 const isInstalled = this.plugin.isExternalIconProviderInstalled(config.id);
                 const isDownloading = this.plugin.isExternalIconProviderDownloading(config.id);
                 const version = this.plugin.getExternalIconProviderVersion(config.id);
-
-                // TODO REMOVE
-                console.log(
-                    `[ExternalIconSettings] Provider ${config.id} row render: installed=${isInstalled}, downloading=${isDownloading}, version=${version}`
-                );
 
                 const statusText = isInstalled
                     ? strings.settings.items.externalIcons.statusInstalled.replace(
@@ -744,17 +731,11 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                         button.setDisabled(isDownloading);
 
                         button.onClick(async () => {
-                            // TODO REMOVE
-                            console.log(`[ExternalIconSettings] Remove button clicked for ${config.id}`);
                             button.setDisabled(true);
                             try {
                                 await this.plugin.removeExternalIconProvider(config.id);
-                                // TODO REMOVE
-                                console.log(`[ExternalIconSettings] Remove completed for ${config.id}`);
                                 renderExternalProviders();
                             } catch (error) {
-                                // TODO REMOVE
-                                console.log(`[ExternalIconSettings] Remove failed for ${config.id}`, error);
                                 console.error('Failed to remove icon provider', error);
                                 new Notice(strings.settings.items.externalIcons.removeFailed.replace('{name}', config.name));
                                 button.setDisabled(false);
@@ -771,18 +752,12 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                         button.setDisabled(isDownloading);
 
                         button.onClick(async () => {
-                            // TODO REMOVE
-                            console.log(`[ExternalIconSettings] Download button clicked for ${config.id}`);
                             button.setDisabled(true);
                             button.setButtonText(strings.settings.items.externalIcons.downloadingLabel);
                             try {
                                 await this.plugin.downloadExternalIconProvider(config.id);
-                                // TODO REMOVE
-                                console.log(`[ExternalIconSettings] Download completed for ${config.id}`);
                                 renderExternalProviders();
                             } catch (error) {
-                                // TODO REMOVE
-                                console.log(`[ExternalIconSettings] Download failed for ${config.id}`, error);
                                 console.error('Failed to download icon provider', error);
                                 new Notice(strings.settings.items.externalIcons.downloadFailed.replace('{name}', config.name));
                                 button.setDisabled(false);
@@ -792,8 +767,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     });
                 }
             });
-            // TODO REMOVE
-            console.log('[ExternalIconSettings] Finished rendering external icon providers');
         };
 
         new Setting(containerEl)
@@ -801,23 +774,15 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setDesc(strings.settings.items.externalIcons.enable.desc)
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.useExternalIconProviders).onChange(async value => {
-                    // TODO REMOVE
-                    console.log(`[ExternalIconSettings] Toggle changed: ${value}`);
                     this.plugin.settings.useExternalIconProviders = value;
                     await this.plugin.saveSettingsAndUpdate();
-                    // TODO REMOVE
-                    console.log('[ExternalIconSettings] Settings saved after toggle change');
                     renderExternalProviders();
                 })
             );
 
         externalIconSettingsContainer = containerEl.createDiv('nn-sub-settings');
-        // TODO REMOVE
-        console.log('[ExternalIconSettings] Created external icon sub-settings container');
 
         renderExternalProviders();
-        // TODO REMOVE
-        console.log('[ExternalIconSettings] Initial render executed');
 
         // Section 2: Folders
         new Setting(containerEl).setName(strings.settings.sections.folders).setHeading();

@@ -208,19 +208,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.api = new NotebookNavigatorAPI(this, this.app);
 
         const iconService = getIconService();
-        // TODO REMOVE
-        console.log('[ExternalIconController] Creating controller instance');
         this.externalIconController = new ExternalIconProviderController(this.app, iconService, this);
-        // TODO REMOVE
-        console.log('[ExternalIconController] Initializing controller');
         await this.externalIconController.initialize();
-        // TODO REMOVE
-        console.log('[ExternalIconController] Initialization complete, syncing with settings');
         void this.externalIconController.syncWithSettings();
 
         this.registerSettingsUpdateListener('external-icon-controller', () => {
-            // TODO REMOVE
-            console.log('[ExternalIconController] Settings update listener triggered, syncing providers');
             void this.externalIconController?.syncWithSettings();
         });
 
