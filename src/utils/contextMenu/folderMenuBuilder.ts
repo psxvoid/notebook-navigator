@@ -183,7 +183,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                 .setIcon('lucide-image')
                 .onClick(async () => {
                     const { IconPickerModal } = await import('../../modals/IconPickerModal');
-                    const modal = new IconPickerModal(app, metadataService, folder.path);
+                    const modal = new IconPickerModal(app, metadataService, folder.path, ItemType.FOLDER);
                     modal.open();
                 });
         });

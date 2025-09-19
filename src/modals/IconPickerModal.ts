@@ -36,6 +36,7 @@ const MAX_RECENT_PER_PROVIDER = 15;
  */
 export class IconPickerModal extends Modal {
     private currentProvider: string = 'lucide';
+    private static lastUsedProvider: string | null = null; // Shared session default
     private iconService = getIconService();
     private itemPath: string;
     private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
@@ -49,6 +50,14 @@ export class IconPickerModal extends Modal {
 
     private tabContainer: HTMLDivElement;
     private domDisposers: (() => void)[] = [];
+
+    public static getLastUsedProvider(): string | null {
+        return IconPickerModal.lastUsedProvider;
+    }
+
+    public static setLastUsedProvider(providerId: string | null): void {
+        IconPickerModal.lastUsedProvider = providerId;
+    }
 
     private addDomListener(
         el: HTMLElement,
@@ -121,16 +130,18 @@ export class IconPickerModal extends Modal {
         this.tabContainer = this.contentEl.createDiv('nn-icon-provider-tabs');
 
         const providers = this.iconService.getAllProviders();
+        const resolvedProviderId = this.resolveInitialProvider(providers);
+        this.currentProvider = resolvedProviderId;
+        IconPickerModal.setLastUsedProvider(resolvedProviderId);
 
-        providers.forEach((provider, index) => {
+        providers.forEach(provider => {
             const tab = this.tabContainer.createDiv({
                 cls: 'nn-icon-provider-tab',
                 text: provider.name
             });
 
-            if (index === 0 || provider.id === this.currentProvider) {
+            if (provider.id === resolvedProviderId) {
                 tab.addClass('nn-active');
-                this.currentProvider = provider.id;
             }
 
             this.addDomListener(tab, 'click', () => {
@@ -140,9 +151,28 @@ export class IconPickerModal extends Modal {
 
                 // Update current provider and refresh results
                 this.currentProvider = provider.id;
+                IconPickerModal.setLastUsedProvider(provider.id);
                 this.updateResults();
             });
         });
+    }
+
+    private resolveInitialProvider(providers: IconProvider[]): string {
+        if (!providers.length) {
+            return 'lucide';
+        }
+
+        const providerIds = new Set(providers.map(provider => provider.id));
+        const fallbackProvider = providers.find(provider => provider.id === 'lucide')?.id ?? providers[0].id;
+        const candidates = [IconPickerModal.getLastUsedProvider(), this.currentProvider]; // Prefer stored selection
+
+        for (const candidate of candidates) {
+            if (candidate && providerIds.has(candidate)) {
+                return candidate;
+            }
+        }
+
+        return fallbackProvider;
     }
 
     private updateResults() {
