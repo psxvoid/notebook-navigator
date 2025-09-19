@@ -294,6 +294,17 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Item height:** Adjust the height of folders and tags in the navigation pane
   - **Scale text with item height:** Reduce navigation text when item height is decreased
 
+### Icon packs
+
+- **External icon providers:** Download additional icon packs to expand available icons
+  - **Bootstrap Icons:** Over 2,000 icons - [icons.getbootstrap.com](https://icons.getbootstrap.com/)
+  - **Font Awesome (Regular):** Classic icon set - [fontawesome.com](https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r)
+  - **Material Icons:** Google's Material Design icons - [fonts.google.com/icons](https://fonts.google.com/icons)
+  - **Phosphor:** Flexible icon family - [phosphoricons.com](https://phosphoricons.com/)
+  - **RPG Awesome:** Fantasy and RPG-themed icons - [nagoshiashumari.github.io/Rpg-Awesome](https://nagoshiashumari.github.io/Rpg-Awesome/)
+
+**Note:** Downloaded icon packs sync installation state across devices. Fonts stay in the local database on each device; sync only tracks whether to download or remove them.
+
 ### Folders
 
 - **Show root folder:** Display the vault name as the root folder in the tree
@@ -351,11 +362,19 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Search
 
-- **Search provider:** Choose between quick file name search or full-text search with Omnisearch plugin. `File name filter`, `Omnisearch (full-text)`. Requires [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin to be installed and enabled for full-text search
+- **Search provider:** Choose between quick file name search or full-text search with Omnisearch plugin
+  - **Filter search (default):** Fast, lightweight search that filters files by name and tags within the current folder and subfolders. Supports tag filtering with # prefix (e.g., #project), exclusion with ! prefix (e.g., !draft, !#archived), and finding untagged notes with !#. Ideal for quick navigation within your current context
+  - **Omnisearch:** Full-text search that searches your entire vault, then filters the results to show only files from the current folder, subfolders, or selected tags. Requires the [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin to be installed - if not available, search will automatically fall back to Filter search
+    - **Known limitations:**
+      - Performance can be slow, especially when searching for less than 3 characters in large vaults
+      - Cannot search in paths with non-ASCII characters and does not search subpaths correctly
+      - Since Omnisearch searches the entire vault and returns a limited number of results before filtering, relevant files from your current folder may not appear if too many matches exist elsewhere
+      - Note previews are replaced with Omnisearch result excerpts, which may not show the actual search match highlight
 
 ### Advanced
 
 - **Confirm before deleting:** Show confirmation dialog when deleting notes or folders
+- **Clean up plugin settings:** Removes orphaned settings left behind when files, folders, or tags are deleted, moved, or renamed outside of Obsidian. This only affects the Notebook Navigator settings file
 
 _(\*) These settings store data to a local cache database. You can see the total size of the database at the bottom of the Settings pane. Uncheck each item to remove its data from the cache._
 
