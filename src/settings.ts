@@ -164,7 +164,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     dualPane: true,
     autoRevealActiveFile: true,
     autoRevealIgnoreRightSidebar: true,
-    showTooltips: true,
+    showTooltips: false,
     fileVisibility: FILE_VISIBILITY.DOCUMENTS,
     excludedFolders: [],
     excludedFiles: [],
