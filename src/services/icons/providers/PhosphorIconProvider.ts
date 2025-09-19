@@ -1,6 +1,5 @@
-import { IconProvider, IconDefinition } from '../types';
-import { IconAssetRecord } from '../external/IconAssetDatabase';
-import { resetIconContainer } from './providerUtils';
+import { IconDefinition } from '../types';
+import { BaseFontIconProvider, BaseFontIconProviderOptions } from './BaseFontIconProvider';
 
 interface PhosphorMetadataEntry {
     id: string;
@@ -10,97 +9,23 @@ interface PhosphorMetadataEntry {
     categories?: string[];
 }
 
-interface PhosphorProviderOptions {
-    record: IconAssetRecord;
-    fontFamily: string;
-}
-
-interface IconLookupEntry {
-    unicode: string;
-    keywords: string[];
-}
-
-export class PhosphorIconProvider implements IconProvider {
+export class PhosphorIconProvider extends BaseFontIconProvider {
     readonly id = 'phosphor';
     readonly name = 'Phosphor Icons';
 
-    private readonly fontFamily: string;
-    private iconDefinitions: IconDefinition[] = [];
-    private iconLookup = new Map<string, IconLookupEntry>();
-    private fontFace: FontFace | null = null;
-    private fontLoadPromise: Promise<FontFace> | null = null;
-
-    constructor(options: PhosphorProviderOptions) {
-        this.fontFamily = options.fontFamily;
-        this.parseMetadata(options.record.metadata);
-        this.ensureFontLoaded(options.record.data);
+    constructor(options: BaseFontIconProviderOptions) {
+        super(options);
     }
 
-    dispose(): void {
-        if (this.fontFace) {
-            try {
-                this.removeFontFromDocument(this.fontFace);
-            } catch (error) {
-                console.error('[PhosphorIconProvider] Failed to delete font face', error);
-            }
-            this.fontFace = null;
-        }
+    protected getCssClass(): string {
+        return 'nn-iconfont-phosphor';
     }
 
-    isAvailable(): boolean {
-        return this.iconDefinitions.length > 0;
-    }
-
-    render(container: HTMLElement, iconId: string, size?: number): void {
-        const icon = this.iconLookup.get(iconId);
-        resetIconContainer(container);
-        if (!icon) {
-            return;
-        }
-
-        container.addClass('nn-iconfont');
-        container.addClass('nn-iconfont-phosphor');
-        container.setText(this.unicodeToGlyph(icon.unicode));
-
-        if (size) {
-            container.style.fontSize = `${size}px`;
-            container.style.width = `${size}px`;
-            container.style.height = `${size}px`;
-            container.style.lineHeight = `${size}px`;
-        } else {
-            container.style.removeProperty('font-size');
-            container.style.removeProperty('width');
-            container.style.removeProperty('height');
-            container.style.removeProperty('line-height');
-        }
-
-        this.fontLoadPromise?.catch(() => undefined);
-    }
-
-    search(query: string): IconDefinition[] {
-        const normalized = query.trim().toLowerCase();
-        if (!normalized) {
-            return [];
-        }
-
-        return this.iconDefinitions.filter(icon => {
-            const keywords = this.iconLookup.get(icon.id)?.keywords || [];
-            if (icon.displayName.toLowerCase().includes(normalized)) {
-                return true;
-            }
-            return keywords.some(keyword => keyword.includes(normalized));
-        });
-    }
-
-    getAll(): IconDefinition[] {
-        return this.iconDefinitions;
-    }
-
-    private parseMetadata(raw: string): void {
+    protected parseMetadata(raw: string): void {
         try {
             const parsed = JSON.parse(raw) as PhosphorMetadataEntry[];
             const definitions: IconDefinition[] = [];
-            const lookup = new Map<string, IconLookupEntry>();
+            const lookup = new Map<string, { unicode: string; keywords: string[] }>();
 
             parsed.forEach(entry => {
                 if (!entry || !entry.id || !entry.unicode) {
@@ -126,39 +51,10 @@ export class PhosphorIconProvider implements IconProvider {
                 });
             });
 
-            this.iconDefinitions = definitions;
-            this.iconLookup = lookup;
+            this.setIconData(definitions, lookup);
         } catch (error) {
-            console.error('[PhosphorIconProvider] Failed to parse metadata', error);
-            this.iconDefinitions = [];
-            this.iconLookup.clear();
-        }
-    }
-
-    private ensureFontLoaded(data: ArrayBuffer): void {
-        if (typeof document === 'undefined' || typeof FontFace === 'undefined') {
-            return;
-        }
-
-        const fontFace = new FontFace(this.fontFamily, data);
-        this.fontLoadPromise = fontFace
-            .load()
-            .then(loaded => {
-                this.addFontToDocument(loaded);
-                this.fontFace = loaded;
-                return loaded;
-            })
-            .catch(error => {
-                console.error('[PhosphorIconProvider] Failed to load font', error);
-                throw error;
-            });
-    }
-
-    private unicodeToGlyph(unicode: string): string {
-        try {
-            return String.fromCodePoint(parseInt(unicode, 16));
-        } catch {
-            return '';
+            this.logParseError('Failed to parse metadata', error);
+            this.clearIconData();
         }
     }
 
@@ -168,21 +64,5 @@ export class PhosphorIconProvider implements IconProvider {
             .split('-')
             .map(part => part.charAt(0).toUpperCase() + part.slice(1))
             .join(' ');
-    }
-
-    private addFontToDocument(fontFace: FontFace): void {
-        if (typeof document === 'undefined') {
-            return;
-        }
-        const fontSet = document.fonts as unknown as { add?: (font: FontFace) => void };
-        fontSet.add?.(fontFace);
-    }
-
-    private removeFontFromDocument(fontFace: FontFace): void {
-        if (typeof document === 'undefined') {
-            return;
-        }
-        const fontSet = document.fonts as unknown as { delete?: (font: FontFace) => void };
-        fontSet.delete?.(fontFace);
     }
 }

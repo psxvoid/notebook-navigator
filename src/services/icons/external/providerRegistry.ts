@@ -1,4 +1,4 @@
-export type ExternalIconProviderId = 'fontawesome-regular' | 'rpg-awesome' | 'bootstrap-icons' | 'material-icons' | 'phosphor';
+export type ExternalIconProviderId = 'bootstrap-icons' | 'fontawesome-regular' | 'material-icons' | 'phosphor' | 'rpg-awesome';
 
 export interface ExternalIconManifest {
     version: string;
@@ -17,23 +17,17 @@ export interface ExternalIconProviderConfig {
 }
 
 export const EXTERNAL_ICON_PROVIDERS: Record<ExternalIconProviderId, ExternalIconProviderConfig> = {
-    'fontawesome-regular': {
-        id: 'fontawesome-regular',
-        name: 'Font Awesome',
-        manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/fontawesome/latest.json',
-        fontFamily: 'NotebookNavigatorFontAwesomeSolid'
-    },
-    'rpg-awesome': {
-        id: 'rpg-awesome',
-        name: 'RPG Awesome',
-        manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/rpg-awesome/latest.json',
-        fontFamily: 'NotebookNavigatorRpgAwesome'
-    },
     'bootstrap-icons': {
         id: 'bootstrap-icons',
         name: 'Bootstrap Icons',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/bootstrap-icons/latest.json',
         fontFamily: 'NotebookNavigatorBootstrapIcons'
+    },
+    'fontawesome-regular': {
+        id: 'fontawesome-regular',
+        name: 'Font Awesome',
+        manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/fontawesome/latest.json',
+        fontFamily: 'NotebookNavigatorFontAwesomeSolid'
     },
     'material-icons': {
         id: 'material-icons',
@@ -46,5 +40,11 @@ export const EXTERNAL_ICON_PROVIDERS: Record<ExternalIconProviderId, ExternalIco
         name: 'Phosphor Icons',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/phosphor/latest.json',
         fontFamily: 'NotebookNavigatorPhosphorIcons'
+    },
+    'rpg-awesome': {
+        id: 'rpg-awesome',
+        name: 'RPG Awesome',
+        manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/rpg-awesome/latest.json',
+        fontFamily: 'NotebookNavigatorRpgAwesome'
     }
 };

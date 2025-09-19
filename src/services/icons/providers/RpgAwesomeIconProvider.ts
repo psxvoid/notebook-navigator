@@ -1,6 +1,5 @@
-import { IconProvider, IconDefinition } from '../types';
-import { IconAssetRecord } from '../external/IconAssetDatabase';
-import { resetIconContainer } from './providerUtils';
+import { IconDefinition } from '../types';
+import { BaseFontIconProvider, BaseFontIconProviderOptions } from './BaseFontIconProvider';
 
 interface RpgAwesomeMetadataEntry {
     id: string;
@@ -10,103 +9,29 @@ interface RpgAwesomeMetadataEntry {
     categories?: string[];
 }
 
-interface RpgAwesomeProviderOptions {
-    record: IconAssetRecord;
-    fontFamily: string;
-}
-
-interface IconLookupEntry {
-    unicode: string;
-    keywords: string[];
-}
-
 /**
  * Icon provider for RPG Awesome icons loaded from external assets.
  */
-export class RpgAwesomeIconProvider implements IconProvider {
+export class RpgAwesomeIconProvider extends BaseFontIconProvider {
     readonly id = 'rpg-awesome';
     readonly name = 'RPG Awesome';
 
-    private readonly fontFamily: string;
-    private iconDefinitions: IconDefinition[] = [];
-    private iconLookup = new Map<string, IconLookupEntry>();
-    private fontFace: FontFace | null = null;
-    private fontLoadPromise: Promise<FontFace> | null = null;
-
-    constructor(options: RpgAwesomeProviderOptions) {
-        this.fontFamily = options.fontFamily;
-        this.parseMetadata(options.record.metadata);
-        this.ensureFontLoaded(options.record.data);
+    constructor(options: BaseFontIconProviderOptions) {
+        super(options);
     }
 
-    dispose(): void {
-        if (this.fontFace) {
-            try {
-                this.removeFontFromDocument(this.fontFace);
-            } catch (error) {
-                console.error('[RpgAwesomeIconProvider] Failed to delete font face', error);
-            }
-            this.fontFace = null;
-        }
+    protected getCssClass(): string {
+        return 'nn-iconfont-rpg-awesome';
     }
 
-    isAvailable(): boolean {
-        return this.iconDefinitions.length > 0;
-    }
-
-    render(container: HTMLElement, iconId: string, size?: number): void {
-        const icon = this.iconLookup.get(iconId);
-        resetIconContainer(container);
-        if (!icon) {
-            return;
-        }
-
-        container.addClass('nn-iconfont');
-        container.addClass('nn-iconfont-rpg-awesome');
-        container.setText(this.unicodeToGlyph(icon.unicode));
-
-        if (size) {
-            container.style.fontSize = `${size}px`;
-            container.style.width = `${size}px`;
-            container.style.height = `${size}px`;
-            container.style.lineHeight = `${size}px`;
-        } else {
-            container.style.removeProperty('font-size');
-            container.style.removeProperty('width');
-            container.style.removeProperty('height');
-            container.style.removeProperty('line-height');
-        }
-
-        this.fontLoadPromise?.catch(() => undefined);
-    }
-
-    search(query: string): IconDefinition[] {
-        const normalized = query.trim().toLowerCase();
-        if (!normalized) {
-            return [];
-        }
-
-        return this.iconDefinitions.filter(icon => {
-            const keywords = this.iconLookup.get(icon.id)?.keywords || [];
-            if (icon.displayName.toLowerCase().includes(normalized)) {
-                return true;
-            }
-            return keywords.some(keyword => keyword.includes(normalized));
-        });
-    }
-
-    getAll(): IconDefinition[] {
-        return this.iconDefinitions;
-    }
-
-    private parseMetadata(raw: string): void {
+    protected parseMetadata(raw: string): void {
         try {
             const parsed = JSON.parse(raw) as RpgAwesomeMetadataEntry[] | Record<string, RpgAwesomeMetadataEntry | string>;
             const definitions: IconDefinition[] = [];
-            const lookup = new Map<string, IconLookupEntry>();
+            const lookup = new Map<string, { unicode: string; keywords: string[] }>();
 
             if (Array.isArray(parsed)) {
-                parsed.forEach(item => this.addEntry(item, definitions, lookup));
+                parsed.forEach(entry => this.addEntry(entry, definitions, lookup));
             } else {
                 Object.entries(parsed).forEach(([key, value]) => {
                     if (typeof value === 'string') {
@@ -129,16 +54,18 @@ export class RpgAwesomeIconProvider implements IconProvider {
                 });
             }
 
-            this.iconDefinitions = definitions;
-            this.iconLookup = lookup;
+            this.setIconData(definitions, lookup);
         } catch (error) {
-            console.error('[RpgAwesomeIconProvider] Failed to parse metadata', error);
-            this.iconDefinitions = [];
-            this.iconLookup.clear();
+            this.logParseError('Failed to parse metadata', error);
+            this.clearIconData();
         }
     }
 
-    private addEntry(entry: RpgAwesomeMetadataEntry, definitions: IconDefinition[], lookup: Map<string, IconLookupEntry>): void {
+    private addEntry(
+        entry: Partial<RpgAwesomeMetadataEntry>,
+        definitions: IconDefinition[],
+        lookup: Map<string, { unicode: string; keywords: string[] }>
+    ): void {
         if (!entry || !entry.id || !entry.unicode) {
             return;
         }
@@ -162,54 +89,11 @@ export class RpgAwesomeIconProvider implements IconProvider {
         });
     }
 
-    private ensureFontLoaded(data: ArrayBuffer): void {
-        if (typeof document === 'undefined' || typeof FontFace === 'undefined') {
-            return;
-        }
-
-        const fontFace = new FontFace(this.fontFamily, data);
-        this.fontLoadPromise = fontFace
-            .load()
-            .then(loaded => {
-                this.addFontToDocument(loaded);
-                this.fontFace = loaded;
-                return loaded;
-            })
-            .catch(error => {
-                console.error('[RpgAwesomeIconProvider] Failed to load font', error);
-                throw error;
-            });
-    }
-
-    private unicodeToGlyph(unicode: string): string {
-        try {
-            return String.fromCodePoint(parseInt(unicode, 16));
-        } catch {
-            return '';
-        }
-    }
-
     private formatDisplayName(id: string): string {
         return id
             .replace(/^ra-/, '')
             .split('-')
             .map(part => part.charAt(0).toUpperCase() + part.slice(1))
             .join(' ');
-    }
-
-    private addFontToDocument(fontFace: FontFace): void {
-        if (typeof document === 'undefined') {
-            return;
-        }
-        const fontSet = document.fonts as unknown as { add?: (font: FontFace) => void };
-        fontSet.add?.(fontFace);
-    }
-
-    private removeFontFromDocument(fontFace: FontFace): void {
-        if (typeof document === 'undefined') {
-            return;
-        }
-        const fontSet = document.fonts as unknown as { delete?: (font: FontFace) => void };
-        fontSet.delete?.(fontFace);
     }
 }

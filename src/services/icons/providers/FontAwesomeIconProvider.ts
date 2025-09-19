@@ -1,6 +1,5 @@
-import { IconProvider, IconDefinition } from '../types';
-import { IconAssetRecord } from '../external/IconAssetDatabase';
-import { resetIconContainer } from './providerUtils';
+import { IconDefinition } from '../types';
+import { BaseFontIconProvider, BaseFontIconProviderOptions } from './BaseFontIconProvider';
 
 interface FontAwesomeMetadataItem {
     unicode: string;
@@ -14,102 +13,26 @@ interface FontAwesomeMetadataItem {
     };
 }
 
-interface FontAwesomeProviderOptions {
-    record: IconAssetRecord;
-    fontFamily: string;
-}
-
-interface IconLookupEntry {
-    unicode: string;
-    keywords: string[];
-}
-
 /**
  * Icon provider for Font Awesome solid icons loaded from external assets.
  */
-export class FontAwesomeIconProvider implements IconProvider {
+export class FontAwesomeIconProvider extends BaseFontIconProvider {
     readonly id = 'fontawesome-regular';
     readonly name = 'Font Awesome';
 
-    private readonly fontFamily: string;
-    private iconDefinitions: IconDefinition[] = [];
-    private iconLookup = new Map<string, IconLookupEntry>();
-    private fontFace: FontFace | null = null;
-    private fontLoadPromise: Promise<FontFace> | null = null;
-
-    constructor(options: FontAwesomeProviderOptions) {
-        this.fontFamily = options.fontFamily;
-        this.parseMetadata(options.record.metadata);
-        this.ensureFontLoaded(options.record.data);
+    constructor(options: BaseFontIconProviderOptions) {
+        super(options);
     }
 
-    dispose(): void {
-        if (this.fontFace) {
-            try {
-                this.removeFontFromDocument(this.fontFace);
-            } catch (error) {
-                console.error('[FontAwesomeIconProvider] Failed to delete font face', error);
-            }
-            this.fontFace = null;
-        }
+    protected getCssClass(): string {
+        return 'nn-iconfont-fa-solid';
     }
 
-    isAvailable(): boolean {
-        return this.iconDefinitions.length > 0;
-    }
-
-    render(container: HTMLElement, iconId: string, size?: number): void {
-        const icon = this.iconLookup.get(iconId);
-        resetIconContainer(container);
-        if (!icon) {
-            return;
-        }
-
-        const glyph = this.unicodeToGlyph(icon.unicode);
-        container.setText(glyph);
-        container.addClass('nn-iconfont');
-        container.addClass('nn-iconfont-fa-solid');
-
-        if (size) {
-            container.style.fontSize = `${size}px`;
-            container.style.width = `${size}px`;
-            container.style.height = `${size}px`;
-            container.style.lineHeight = `${size}px`;
-        } else {
-            container.style.removeProperty('font-size');
-            container.style.removeProperty('width');
-            container.style.removeProperty('height');
-            container.style.removeProperty('line-height');
-        }
-
-        // Ensure the font is loaded; ignore errors because we fallback to glyph anyway
-        this.fontLoadPromise?.catch(() => undefined);
-    }
-
-    search(query: string): IconDefinition[] {
-        const normalized = query.trim().toLowerCase();
-        if (!normalized) {
-            return [];
-        }
-
-        return this.iconDefinitions.filter(icon => {
-            const keywords = this.iconLookup.get(icon.id)?.keywords || [];
-            if (icon.displayName.toLowerCase().includes(normalized)) {
-                return true;
-            }
-            return keywords.some(keyword => keyword.includes(normalized));
-        });
-    }
-
-    getAll(): IconDefinition[] {
-        return this.iconDefinitions;
-    }
-
-    private parseMetadata(raw: string): void {
+    protected parseMetadata(raw: string): void {
         try {
             const parsed = JSON.parse(raw) as Record<string, FontAwesomeMetadataItem>;
             const definitions: IconDefinition[] = [];
-            const lookup = new Map<string, IconLookupEntry>();
+            const lookup = new Map<string, { unicode: string; keywords: string[] }>();
 
             for (const [iconId, data] of Object.entries(parsed)) {
                 if (!data || !data.unicode) {
@@ -125,7 +48,6 @@ export class FontAwesomeIconProvider implements IconProvider {
                 data.aliases?.names?.forEach(alias => keywords.add(alias.toLowerCase()));
 
                 const displayName = data.label || this.formatDisplayName(iconId);
-                const unicode = data.unicode;
 
                 definitions.push({
                     id: iconId,
@@ -133,44 +55,15 @@ export class FontAwesomeIconProvider implements IconProvider {
                     keywords: Array.from(keywords)
                 });
                 lookup.set(iconId, {
-                    unicode,
+                    unicode: data.unicode,
                     keywords: Array.from(keywords)
                 });
             }
 
-            this.iconDefinitions = definitions;
-            this.iconLookup = lookup;
+            this.setIconData(definitions, lookup);
         } catch (error) {
-            console.error('[FontAwesomeIconProvider] Failed to parse metadata', error);
-            this.iconDefinitions = [];
-            this.iconLookup.clear();
-        }
-    }
-
-    private ensureFontLoaded(data: ArrayBuffer): void {
-        if (typeof document === 'undefined' || typeof FontFace === 'undefined') {
-            return;
-        }
-
-        const fontFace = new FontFace(this.fontFamily, data);
-        this.fontLoadPromise = fontFace
-            .load()
-            .then(loaded => {
-                this.addFontToDocument(loaded);
-                this.fontFace = loaded;
-                return loaded;
-            })
-            .catch(error => {
-                console.error('[FontAwesomeIconProvider] Failed to load font', error);
-                throw error;
-            });
-    }
-
-    private unicodeToGlyph(unicode: string): string {
-        try {
-            return String.fromCodePoint(parseInt(unicode, 16));
-        } catch {
-            return '';
+            this.logParseError('Failed to parse metadata', error);
+            this.clearIconData();
         }
     }
 
@@ -179,21 +72,5 @@ export class FontAwesomeIconProvider implements IconProvider {
             .split('-')
             .map(part => part.charAt(0).toUpperCase() + part.slice(1))
             .join(' ');
-    }
-
-    private addFontToDocument(fontFace: FontFace): void {
-        if (typeof document === 'undefined') {
-            return;
-        }
-        const fontSet = document.fonts as unknown as { add?: (font: FontFace) => void };
-        fontSet.add?.(fontFace);
-    }
-
-    private removeFontFromDocument(fontFace: FontFace): void {
-        if (typeof document === 'undefined') {
-            return;
-        }
-        const fontSet = document.fonts as unknown as { delete?: (font: FontFace) => void };
-        fontSet.delete?.(fontFace);
     }
 }

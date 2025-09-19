@@ -406,7 +406,7 @@ export const STRINGS_FR = {
         sections: {
             notes: 'Affichage des notes',
             navigationPane: 'Affichage des dossiers',
-            icons: 'Icons',
+            icons: "Packs d'icônes",
             tags: 'Affichage des étiquettes',
             folders: 'Notes de dossier',
             search: 'Rechercher',
@@ -717,26 +717,22 @@ export const STRINGS_FR = {
                 desc: 'Afficher une boîte de dialogue de confirmation lors de la suppression de notes ou de dossiers'
             },
             externalIcons: {
-                enable: {
-                    name: 'Use external icon providers',
-                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
-                },
-                downloadButton: 'Download',
-                downloadingLabel: 'Downloading...',
-                removeButton: 'Remove',
-                statusInstalled: 'Downloaded (version {version})',
-                statusNotInstalled: 'Not downloaded',
-                versionUnknown: 'unknown',
-                downloadFailed: 'Failed to download {name}. Check your connection and try again.',
-                removeFailed: 'Failed to remove {name}.',
+                downloadButton: 'Télécharger',
+                downloadingLabel: 'Téléchargement...',
+                removeButton: 'Supprimer',
+                statusInstalled: 'Téléchargé (version {version})',
+                statusNotInstalled: 'Non téléchargé',
+                versionUnknown: 'inconnue',
+                downloadFailed: 'Échec du téléchargement de {name}. Vérifiez votre connexion et réessayez.',
+                removeFailed: 'Échec de la suppression de {name}.',
                 infoNote:
-                    'Downloaded icon packs sync installation state across devices. Fonts stay in the local database on each device; sync only tracks whether to download or remove them. Fonts download from the Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
+                    "Les packs d'icônes téléchargés synchronisent l'état d'installation entre les appareils. Les polices restent dans la base de données locale sur chaque appareil ; la synchronisation ne fait que suivre s'ils doivent être téléchargés ou supprimés. Les polices sont téléchargées depuis le dépôt Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).",
                 providers: {
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
+                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
                     materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/'
+                    phosphorDesc: 'https://phosphoricons.com/',
+                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/'
                 }
             },
             useFrontmatterDates: {

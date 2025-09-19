@@ -406,7 +406,7 @@ export const STRINGS_ES = {
         sections: {
             notes: 'Visualización de notas',
             navigationPane: 'Visualización de carpetas',
-            icons: 'Icons',
+            icons: 'Paquetes de iconos',
             tags: 'Visualización de etiquetas',
             folders: 'Notas de carpeta',
             search: 'Buscar',
@@ -715,26 +715,22 @@ export const STRINGS_ES = {
                 desc: 'Muestra un diálogo de confirmación al eliminar notas o carpetas'
             },
             externalIcons: {
-                enable: {
-                    name: 'Use external icon providers',
-                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
-                },
-                downloadButton: 'Download',
-                downloadingLabel: 'Downloading...',
-                removeButton: 'Remove',
-                statusInstalled: 'Downloaded (version {version})',
-                statusNotInstalled: 'Not downloaded',
-                versionUnknown: 'unknown',
-                downloadFailed: 'Failed to download {name}. Check your connection and try again.',
-                removeFailed: 'Failed to remove {name}.',
+                downloadButton: 'Descargar',
+                downloadingLabel: 'Descargando...',
+                removeButton: 'Eliminar',
+                statusInstalled: 'Descargado (versión {version})',
+                statusNotInstalled: 'No descargado',
+                versionUnknown: 'desconocida',
+                downloadFailed: 'Error al descargar {name}. Verifica tu conexión e intenta nuevamente.',
+                removeFailed: 'Error al eliminar {name}.',
                 infoNote:
-                    'Downloaded icon packs sync installation state across devices. Fonts stay in the local database on each device; sync only tracks whether to download or remove them. Fonts download from the Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
+                    'Los paquetes de iconos descargados sincronizan el estado de instalación entre dispositivos. Las fuentes permanecen en la base de datos local en cada dispositivo; la sincronización solo rastrea si deben descargarse o eliminarse. Las fuentes se descargan del repositorio de Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
                 providers: {
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
+                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
                     materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/'
+                    phosphorDesc: 'https://phosphoricons.com/',
+                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/'
                 }
             },
             useFrontmatterDates: {

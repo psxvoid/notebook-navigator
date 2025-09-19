@@ -404,7 +404,7 @@ export const STRINGS_EN = {
         },
         sections: {
             navigationPane: 'Navigation pane',
-            icons: 'Icons',
+            icons: 'Icon packs',
             folders: 'Folders',
             tags: 'Tags',
             search: 'Search',
@@ -714,10 +714,6 @@ export const STRINGS_EN = {
                 desc: 'Show confirmation dialog when deleting notes or folders'
             },
             externalIcons: {
-                enable: {
-                    name: 'Use external icon providers',
-                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
-                },
                 downloadButton: 'Download',
                 downloadingLabel: 'Downloading...',
                 removeButton: 'Remove',
@@ -729,11 +725,11 @@ export const STRINGS_EN = {
                 infoNote:
                     'Downloaded icon packs sync installation state across devices. Fonts stay in the local database on each device; sync only tracks whether to download or remove them. Fonts download from the Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
                 providers: {
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
+                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
                     materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/'
+                    phosphorDesc: 'https://phosphoricons.com/',
+                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/'
                 }
             },
             useFrontmatterDates: {

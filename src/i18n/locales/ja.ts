@@ -406,7 +406,7 @@ export const STRINGS_JA = {
         sections: {
             notes: 'ノート表示',
             navigationPane: 'フォルダ表示',
-            icons: 'Icons',
+            icons: 'アイコンパック',
             tags: 'タグ表示',
             folders: 'フォルダノート',
             search: '検索',
@@ -716,26 +716,22 @@ export const STRINGS_JA = {
                 desc: 'ノートやフォルダを削除する際に確認ダイアログを表示'
             },
             externalIcons: {
-                enable: {
-                    name: 'Use external icon providers',
-                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
-                },
-                downloadButton: 'Download',
-                downloadingLabel: 'Downloading...',
-                removeButton: 'Remove',
-                statusInstalled: 'Downloaded (version {version})',
-                statusNotInstalled: 'Not downloaded',
-                versionUnknown: 'unknown',
-                downloadFailed: 'Failed to download {name}. Check your connection and try again.',
-                removeFailed: 'Failed to remove {name}.',
+                downloadButton: 'ダウンロード',
+                downloadingLabel: 'ダウンロード中...',
+                removeButton: '削除',
+                statusInstalled: 'ダウンロード済み (バージョン {version})',
+                statusNotInstalled: '未ダウンロード',
+                versionUnknown: '不明',
+                downloadFailed: '{name}のダウンロードに失敗しました。接続を確認してもう一度お試しください。',
+                removeFailed: '{name}の削除に失敗しました。',
                 infoNote:
-                    'Downloaded icon packs sync installation state across devices. Fonts stay in the local database on each device; sync only tracks whether to download or remove them. Fonts download from the Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
+                    'ダウンロードしたアイコンパックはデバイス間でインストール状態を同期します。フォントは各デバイスのローカルデータベースに保存されます。同期はダウンロードまたは削除の必要性のみを追跡します。フォントはNotebook Navigatorリポジトリからダウンロードされます (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)。',
                 providers: {
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
+                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
                     materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/'
+                    phosphorDesc: 'https://phosphoricons.com/',
+                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/'
                 }
             },
             useFrontmatterDates: {

@@ -272,18 +272,13 @@ export class ExternalIconProviderController {
 
     private createProvider(config: ExternalIconProviderConfig, record: IconAssetRecord): (IconProvider & { dispose?: () => void }) | null {
         switch (config.id) {
-            case 'fontawesome-regular':
-                return new FontAwesomeIconProvider({
-                    record,
-                    fontFamily: config.fontFamily
-                });
-            case 'rpg-awesome':
-                return new RpgAwesomeIconProvider({
-                    record,
-                    fontFamily: config.fontFamily
-                });
             case 'bootstrap-icons':
                 return new BootstrapIconProvider({
+                    record,
+                    fontFamily: config.fontFamily
+                });
+            case 'fontawesome-regular':
+                return new FontAwesomeIconProvider({
                     record,
                     fontFamily: config.fontFamily
                 });
@@ -294,6 +289,11 @@ export class ExternalIconProviderController {
                 });
             case 'phosphor':
                 return new PhosphorIconProvider({
+                    record,
+                    fontFamily: config.fontFamily
+                });
+            case 'rpg-awesome':
+                return new RpgAwesomeIconProvider({
                     record,
                     fontFamily: config.fontFamily
                 });

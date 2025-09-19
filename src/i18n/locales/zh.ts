@@ -406,7 +406,7 @@ export const STRINGS_ZH = {
         sections: {
             notes: '笔记显示',
             navigationPane: '文件夹显示',
-            icons: 'Icons',
+            icons: '图标包',
             tags: '标签显示',
             folders: '文件夹笔记',
             search: '搜索',
@@ -715,26 +715,22 @@ export const STRINGS_ZH = {
                 desc: '删除笔记或文件夹时显示确认对话框'
             },
             externalIcons: {
-                enable: {
-                    name: 'Use external icon providers',
-                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
-                },
-                downloadButton: 'Download',
-                downloadingLabel: 'Downloading...',
-                removeButton: 'Remove',
-                statusInstalled: 'Downloaded (version {version})',
-                statusNotInstalled: 'Not downloaded',
-                versionUnknown: 'unknown',
-                downloadFailed: 'Failed to download {name}. Check your connection and try again.',
-                removeFailed: 'Failed to remove {name}.',
+                downloadButton: '下载',
+                downloadingLabel: '正在下载...',
+                removeButton: '移除',
+                statusInstalled: '已下载 (版本 {version})',
+                statusNotInstalled: '未下载',
+                versionUnknown: '未知',
+                downloadFailed: '下载{name}失败。请检查您的连接并重试。',
+                removeFailed: '移除{name}失败。',
                 infoNote:
-                    'Downloaded icon packs sync installation state across devices. Fonts stay in the local database on each device; sync only tracks whether to download or remove them. Fonts download from the Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
+                    '下载的图标包会在设备之间同步安装状态。字体保存在每个设备的本地数据库中；同步仅跟踪它们是否应该被下载或移除。字体从Notebook Navigator仓库下载 (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)。',
                 providers: {
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
+                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
                     materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/'
+                    phosphorDesc: 'https://phosphoricons.com/',
+                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/'
                 }
             },
             useFrontmatterDates: {

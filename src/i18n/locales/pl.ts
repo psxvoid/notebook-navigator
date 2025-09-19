@@ -406,7 +406,7 @@ export const STRINGS_PL = {
         },
         sections: {
             navigationPane: 'Panel nawigacji',
-            icons: 'Icons',
+            icons: 'Pakiety ikon',
             folders: 'Foldery',
             tags: 'Tagi',
             search: 'Wyszukiwanie',
@@ -716,26 +716,22 @@ export const STRINGS_PL = {
                 desc: 'Pokaż dialog potwierdzenia podczas usuwania notatek lub folderów'
             },
             externalIcons: {
-                enable: {
-                    name: 'Use external icon providers',
-                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
-                },
-                downloadButton: 'Download',
-                downloadingLabel: 'Downloading...',
-                removeButton: 'Remove',
-                statusInstalled: 'Downloaded (version {version})',
-                statusNotInstalled: 'Not downloaded',
-                versionUnknown: 'unknown',
-                downloadFailed: 'Failed to download {name}. Check your connection and try again.',
-                removeFailed: 'Failed to remove {name}.',
+                downloadButton: 'Pobierz',
+                downloadingLabel: 'Pobieranie...',
+                removeButton: 'Usuń',
+                statusInstalled: 'Pobrano (wersja {version})',
+                statusNotInstalled: 'Nie pobrano',
+                versionUnknown: 'nieznana',
+                downloadFailed: 'Nie udało się pobrać {name}. Sprawdź połączenie i spróbuj ponownie.',
+                removeFailed: 'Nie udało się usunąć {name}.',
                 infoNote:
-                    'Downloaded icon packs sync installation state across devices. Fonts stay in the local database on each device; sync only tracks whether to download or remove them. Fonts download from the Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
+                    'Pobrane pakiety ikon synchronizują stan instalacji między urządzeniami. Czcionki pozostają w lokalnej bazie danych na każdym urządzeniu; synchronizacja śledzi tylko czy powinny być pobrane lub usunięte. Czcionki są pobierane z repozytorium Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
                 providers: {
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
+                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
                     materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/'
+                    phosphorDesc: 'https://phosphoricons.com/',
+                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/'
                 }
             },
             useFrontmatterDates: {

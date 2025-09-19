@@ -696,11 +696,11 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             container.empty();
 
             const providerLinks: Record<ExternalIconProviderId, string> = {
-                'fontawesome-regular': strings.settings.items.externalIcons.providers.fontAwesomeDesc,
-                'rpg-awesome': strings.settings.items.externalIcons.providers.rpgAwesomeDesc,
                 'bootstrap-icons': strings.settings.items.externalIcons.providers.bootstrapIconsDesc,
+                'fontawesome-regular': strings.settings.items.externalIcons.providers.fontAwesomeDesc,
                 'material-icons': strings.settings.items.externalIcons.providers.materialIconsDesc,
-                phosphor: strings.settings.items.externalIcons.providers.phosphorDesc
+                phosphor: strings.settings.items.externalIcons.providers.phosphorDesc,
+                'rpg-awesome': strings.settings.items.externalIcons.providers.rpgAwesomeDesc
             };
 
             Object.values(EXTERNAL_ICON_PROVIDERS).forEach(config => {

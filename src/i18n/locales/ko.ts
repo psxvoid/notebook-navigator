@@ -404,7 +404,7 @@ export const STRINGS_KO = {
         },
         sections: {
             navigationPane: '탐색 창',
-            icons: 'Icons',
+            icons: '아이콘 팩',
             folders: '폴더',
             tags: '태그',
             search: '검색',
@@ -714,26 +714,22 @@ export const STRINGS_KO = {
                 desc: '노트나 폴더를 삭제할 때 확인 대화 상자 표시'
             },
             externalIcons: {
-                enable: {
-                    name: 'Use external icon providers',
-                    desc: 'Download additional icon fonts from the Notebook Navigator repository. Currently includes Font Awesome and RPG Awesome.'
-                },
-                downloadButton: 'Download',
-                downloadingLabel: 'Downloading...',
-                removeButton: 'Remove',
-                statusInstalled: 'Downloaded (version {version})',
-                statusNotInstalled: 'Not downloaded',
-                versionUnknown: 'unknown',
-                downloadFailed: 'Failed to download {name}. Check your connection and try again.',
-                removeFailed: 'Failed to remove {name}.',
+                downloadButton: '다운로드',
+                downloadingLabel: '다운로드 중...',
+                removeButton: '제거',
+                statusInstalled: '다운로드됨 (버전 {version})',
+                statusNotInstalled: '다운로드되지 않음',
+                versionUnknown: '알 수 없음',
+                downloadFailed: '{name} 다운로드에 실패했습니다. 연결을 확인하고 다시 시도해주세요.',
+                removeFailed: '{name} 제거에 실패했습니다.',
                 infoNote:
-                    'Downloaded icon packs sync installation state across devices. Fonts stay in the local database on each device; sync only tracks whether to download or remove them. Fonts download from the Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
+                    '다운로드된 아이콘 팩은 기기 간 설치 상태를 동기화합니다. 글꼴은 각 기기의 로컬 데이터베이스에 남아 있습니다. 동기화는 다운로드 또는 제거 여부만 추적합니다. 글꼴은 Notebook Navigator 저장소에서 다운로드됩니다 (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
                 providers: {
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
+                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
                     materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/'
+                    phosphorDesc: 'https://phosphoricons.com/',
+                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/'
                 }
             },
             useFrontmatterDates: {
