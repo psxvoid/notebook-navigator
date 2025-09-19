@@ -7,6 +7,9 @@ import { IconAssetDatabase, IconAssetRecord } from './IconAssetDatabase';
 import { EXTERNAL_ICON_PROVIDERS, ExternalIconManifest, ExternalIconProviderConfig, ExternalIconProviderId } from './providerRegistry';
 import { FontAwesomeIconProvider } from '../providers/FontAwesomeIconProvider';
 import { RpgAwesomeIconProvider } from '../providers/RpgAwesomeIconProvider';
+import { BootstrapIconProvider } from '../providers/BootstrapIconProvider';
+import { MaterialIconProvider } from '../providers/MaterialIconProvider';
+import { PhosphorIconProvider } from '../providers/PhosphorIconProvider';
 
 interface InstallOptions {
     persistSetting?: boolean;
@@ -276,6 +279,21 @@ export class ExternalIconProviderController {
                 });
             case 'rpg-awesome':
                 return new RpgAwesomeIconProvider({
+                    record,
+                    fontFamily: config.fontFamily
+                });
+            case 'bootstrap-icons':
+                return new BootstrapIconProvider({
+                    record,
+                    fontFamily: config.fontFamily
+                });
+            case 'material-icons':
+                return new MaterialIconProvider({
+                    record,
+                    fontFamily: config.fontFamily
+                });
+            case 'phosphor':
+                return new PhosphorIconProvider({
                     record,
                     fontFamily: config.fontFamily
                 });

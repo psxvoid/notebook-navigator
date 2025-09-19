@@ -2,19 +2,15 @@ import { IconProvider, IconDefinition } from '../types';
 import { IconAssetRecord } from '../external/IconAssetDatabase';
 import { resetIconContainer } from './providerUtils';
 
-interface FontAwesomeMetadataItem {
+interface PhosphorMetadataEntry {
+    id: string;
+    name?: string;
     unicode: string;
-    label?: string;
-    styles?: string[];
-    search?: {
-        terms?: string[];
-    };
-    aliases?: {
-        names?: string[];
-    };
+    keywords?: string[];
+    categories?: string[];
 }
 
-interface FontAwesomeProviderOptions {
+interface PhosphorProviderOptions {
     record: IconAssetRecord;
     fontFamily: string;
 }
@@ -24,12 +20,9 @@ interface IconLookupEntry {
     keywords: string[];
 }
 
-/**
- * Icon provider for Font Awesome solid icons loaded from external assets.
- */
-export class FontAwesomeIconProvider implements IconProvider {
-    readonly id = 'fontawesome-regular';
-    readonly name = 'Font Awesome';
+export class PhosphorIconProvider implements IconProvider {
+    readonly id = 'phosphor';
+    readonly name = 'Phosphor Icons';
 
     private readonly fontFamily: string;
     private iconDefinitions: IconDefinition[] = [];
@@ -37,7 +30,7 @@ export class FontAwesomeIconProvider implements IconProvider {
     private fontFace: FontFace | null = null;
     private fontLoadPromise: Promise<FontFace> | null = null;
 
-    constructor(options: FontAwesomeProviderOptions) {
+    constructor(options: PhosphorProviderOptions) {
         this.fontFamily = options.fontFamily;
         this.parseMetadata(options.record.metadata);
         this.ensureFontLoaded(options.record.data);
@@ -48,7 +41,7 @@ export class FontAwesomeIconProvider implements IconProvider {
             try {
                 this.removeFontFromDocument(this.fontFace);
             } catch (error) {
-                console.error('[FontAwesomeIconProvider] Failed to delete font face', error);
+                console.error('[PhosphorIconProvider] Failed to delete font face', error);
             }
             this.fontFace = null;
         }
@@ -65,10 +58,9 @@ export class FontAwesomeIconProvider implements IconProvider {
             return;
         }
 
-        const glyph = this.unicodeToGlyph(icon.unicode);
-        container.setText(glyph);
         container.addClass('nn-iconfont');
-        container.addClass('nn-iconfont-fa-solid');
+        container.addClass('nn-iconfont-phosphor');
+        container.setText(this.unicodeToGlyph(icon.unicode));
 
         if (size) {
             container.style.fontSize = `${size}px`;
@@ -82,7 +74,6 @@ export class FontAwesomeIconProvider implements IconProvider {
             container.style.removeProperty('line-height');
         }
 
-        // Ensure the font is loaded; ignore errors because we fallback to glyph anyway
         this.fontLoadPromise?.catch(() => undefined);
     }
 
@@ -107,41 +98,38 @@ export class FontAwesomeIconProvider implements IconProvider {
 
     private parseMetadata(raw: string): void {
         try {
-            const parsed = JSON.parse(raw) as Record<string, FontAwesomeMetadataItem>;
+            const parsed = JSON.parse(raw) as PhosphorMetadataEntry[];
             const definitions: IconDefinition[] = [];
             const lookup = new Map<string, IconLookupEntry>();
 
-            for (const [iconId, data] of Object.entries(parsed)) {
-                if (!data || !data.unicode) {
-                    continue;
-                }
-                if (Array.isArray(data.styles) && !data.styles.includes('solid')) {
-                    continue;
+            parsed.forEach(entry => {
+                if (!entry || !entry.id || !entry.unicode) {
+                    return;
                 }
 
                 const keywords = new Set<string>();
-                keywords.add(iconId);
-                data.search?.terms?.forEach(term => keywords.add(term.toLowerCase()));
-                data.aliases?.names?.forEach(alias => keywords.add(alias.toLowerCase()));
+                keywords.add(entry.id);
+                entry.keywords?.forEach(keyword => keywords.add(keyword.toLowerCase()));
+                entry.categories?.forEach(category => keywords.add(category.toLowerCase()));
 
-                const displayName = data.label || this.formatDisplayName(iconId);
-                const unicode = data.unicode;
+                const displayName = entry.name || this.formatDisplayName(entry.id);
 
                 definitions.push({
-                    id: iconId,
+                    id: entry.id,
                     displayName,
                     keywords: Array.from(keywords)
                 });
-                lookup.set(iconId, {
-                    unicode,
+
+                lookup.set(entry.id, {
+                    unicode: entry.unicode,
                     keywords: Array.from(keywords)
                 });
-            }
+            });
 
             this.iconDefinitions = definitions;
             this.iconLookup = lookup;
         } catch (error) {
-            console.error('[FontAwesomeIconProvider] Failed to parse metadata', error);
+            console.error('[PhosphorIconProvider] Failed to parse metadata', error);
             this.iconDefinitions = [];
             this.iconLookup.clear();
         }
@@ -161,7 +149,7 @@ export class FontAwesomeIconProvider implements IconProvider {
                 return loaded;
             })
             .catch(error => {
-                console.error('[FontAwesomeIconProvider] Failed to load font', error);
+                console.error('[PhosphorIconProvider] Failed to load font', error);
                 throw error;
             });
     }
@@ -174,8 +162,9 @@ export class FontAwesomeIconProvider implements IconProvider {
         }
     }
 
-    private formatDisplayName(iconId: string): string {
-        return iconId
+    private formatDisplayName(id: string): string {
+        return id
+            .replace(/^ph-/, '')
             .split('-')
             .map(part => part.charAt(0).toUpperCase() + part.slice(1))
             .join(' ');

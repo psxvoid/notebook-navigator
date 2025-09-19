@@ -3118,16 +3118,40 @@ body.nn-resizing {
     text-rendering: optimizeLegibility;
 }
 
-.nn-iconfont-fa-solid {
+.nn-iconfont-fa-solid,
+.nn-iconfont-rpg-awesome,
+.nn-iconfont-bootstrap-icons,
+.nn-iconfont-material-icons,
+.nn-iconfont-phosphor {
     font-style: normal;
+}
+
+.nn-iconfont-fa-solid {
     font-weight: 900;
     font-family: 'NotebookNavigatorFontAwesomeSolid', 'Font Awesome 6 Free', sans-serif;
 }
 
-.nn-iconfont-rpg-awesome {
-    font-style: normal;
+.nn-iconfont-rpg-awesome,
+.nn-iconfont-bootstrap-icons,
+.nn-iconfont-material-icons,
+.nn-iconfont-phosphor {
     font-weight: 400;
+}
+
+.nn-iconfont-rpg-awesome {
     font-family: 'NotebookNavigatorRpgAwesome', 'RPG Awesome', sans-serif;
+}
+
+.nn-iconfont-bootstrap-icons {
+    font-family: 'NotebookNavigatorBootstrapIcons', 'Bootstrap Icons', sans-serif;
+}
+
+.nn-iconfont-material-icons {
+    font-family: 'NotebookNavigatorMaterialIcons', 'Material Icons', sans-serif;
+}
+
+.nn-iconfont-phosphor {
+    font-family: 'NotebookNavigatorPhosphorIcons', 'Phosphor', sans-serif;
 }
 
 .nn-icon-provider-tabs {

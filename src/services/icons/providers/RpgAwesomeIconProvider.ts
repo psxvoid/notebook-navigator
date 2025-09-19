@@ -1,5 +1,6 @@
 import { IconProvider, IconDefinition } from '../types';
 import { IconAssetRecord } from '../external/IconAssetDatabase';
+import { resetIconContainer } from './providerUtils';
 
 interface RpgAwesomeMetadataEntry {
     id: string;
@@ -55,11 +56,7 @@ export class RpgAwesomeIconProvider implements IconProvider {
 
     render(container: HTMLElement, iconId: string, size?: number): void {
         const icon = this.iconLookup.get(iconId);
-        container.empty();
-        container.removeClass('nn-emoji-icon');
-        container.removeClass('nn-iconfont');
-        container.removeClass('nn-iconfont-rpg-awesome');
-        container.removeClass('nn-iconfont-fa-solid');
+        resetIconContainer(container);
         if (!icon) {
             return;
         }

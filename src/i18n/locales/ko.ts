@@ -730,7 +730,10 @@ export const STRINGS_KO = {
                     'Downloaded icon packs sync installation state across devices. Fonts stay in the local database on each device; sync only tracks whether to download or remove them. Fonts download from the Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
                 providers: {
                     fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/'
+                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
+                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
+                    materialIconsDesc: 'https://fonts.google.com/icons',
+                    phosphorDesc: 'https://phosphoricons.com/'
                 }
             },
             useFrontmatterDates: {
