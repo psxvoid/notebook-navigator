@@ -1,0 +1,5738 @@
+[
+  {
+    "id": "ra-acid",
+    "name": "Acid",
+    "unicode": "e900",
+    "keywords": [
+      "acid"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-acorn",
+    "name": "Acorn",
+    "unicode": "e901",
+    "keywords": [
+      "acorn"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-alien-fire",
+    "name": "Alien Fire",
+    "unicode": "e902",
+    "keywords": [
+      "alien",
+      "fire"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-all-for-one",
+    "name": "All For One",
+    "unicode": "e903",
+    "keywords": [
+      "all",
+      "for",
+      "one"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-alligator-clip",
+    "name": "Alligator Clip",
+    "unicode": "e904",
+    "keywords": [
+      "alligator",
+      "clip"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-ammo-bag",
+    "name": "Ammo Bag",
+    "unicode": "e905",
+    "keywords": [
+      "ammo",
+      "bag"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-anchor",
+    "name": "Anchor",
+    "unicode": "e906",
+    "keywords": [
+      "anchor"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-angel-wings",
+    "name": "Angel Wings",
+    "unicode": "e907",
+    "keywords": [
+      "angel",
+      "wings"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-ankh",
+    "name": "Ankh",
+    "unicode": "e908",
+    "keywords": [
+      "ankh"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-anvil",
+    "name": "Anvil",
+    "unicode": "e909",
+    "keywords": [
+      "anvil"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-apple",
+    "name": "Apple",
+    "unicode": "e90a",
+    "keywords": [
+      "apple"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-aquarius",
+    "name": "Aquarius",
+    "unicode": "e90b",
+    "keywords": [
+      "aquarius"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-arcane-mask",
+    "name": "Arcane Mask",
+    "unicode": "e90c",
+    "keywords": [
+      "arcane",
+      "mask"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-archer",
+    "name": "Archer",
+    "unicode": "e90d",
+    "keywords": [
+      "archer"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-archery-target",
+    "name": "Archery Target",
+    "unicode": "e90e",
+    "keywords": [
+      "archery",
+      "target"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-arena",
+    "name": "Arena",
+    "unicode": "e90f",
+    "keywords": [
+      "arena"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-aries",
+    "name": "Aries",
+    "unicode": "e910",
+    "keywords": [
+      "aries"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-arrow-cluster",
+    "name": "Arrow Cluster",
+    "unicode": "e911",
+    "keywords": [
+      "arrow",
+      "cluster"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-arrow-flights",
+    "name": "Arrow Flights",
+    "unicode": "e912",
+    "keywords": [
+      "arrow",
+      "flights"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-arson",
+    "name": "Arson",
+    "unicode": "e913",
+    "keywords": [
+      "arson"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-aura",
+    "name": "Aura",
+    "unicode": "e914",
+    "keywords": [
+      "aura"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-aware",
+    "name": "Aware",
+    "unicode": "e915",
+    "keywords": [
+      "aware"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-axe",
+    "name": "Axe",
+    "unicode": "e917",
+    "keywords": [
+      "axe"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-axe-swing",
+    "name": "Axe Swing",
+    "unicode": "e916",
+    "keywords": [
+      "axe",
+      "swing"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-ball",
+    "name": "Ball",
+    "unicode": "e918",
+    "keywords": [
+      "ball"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-barbed-arrow",
+    "name": "Barbed Arrow",
+    "unicode": "e919",
+    "keywords": [
+      "barbed",
+      "arrow"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-barrier",
+    "name": "Barrier",
+    "unicode": "e91a",
+    "keywords": [
+      "barrier"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-bat-sword",
+    "name": "Bat Sword",
+    "unicode": "e91b",
+    "keywords": [
+      "bat",
+      "sword"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-battered-axe",
+    "name": "Battered Axe",
+    "unicode": "e91c",
+    "keywords": [
+      "battered",
+      "axe"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-batteries",
+    "name": "Batteries",
+    "unicode": "e91d",
+    "keywords": [
+      "batteries"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-battery-0",
+    "name": "Battery 0",
+    "unicode": "e91e",
+    "keywords": [
+      "battery",
+      "0"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-battery-100",
+    "name": "Battery 100",
+    "unicode": "e922",
+    "keywords": [
+      "battery",
+      "100"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-battery-25",
+    "name": "Battery 25",
+    "unicode": "e91f",
+    "keywords": [
+      "battery",
+      "25"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-battery-50",
+    "name": "Battery 50",
+    "unicode": "e920",
+    "keywords": [
+      "battery",
+      "50"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-battery-75",
+    "name": "Battery 75",
+    "unicode": "e921",
+    "keywords": [
+      "battery",
+      "75"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-battery-black",
+    "name": "Battery Black",
+    "unicode": "e923",
+    "keywords": [
+      "battery",
+      "black"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-battery-negative",
+    "name": "Battery Negative",
+    "unicode": "e924",
+    "keywords": [
+      "battery",
+      "negative"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-battery-positive",
+    "name": "Battery Positive",
+    "unicode": "e925",
+    "keywords": [
+      "battery",
+      "positive"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-battery-white",
+    "name": "Battery White",
+    "unicode": "e926",
+    "keywords": [
+      "battery",
+      "white"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-batwings",
+    "name": "Batwings",
+    "unicode": "e927",
+    "keywords": [
+      "batwings"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-beam-wake",
+    "name": "Beam Wake",
+    "unicode": "e928",
+    "keywords": [
+      "beam",
+      "wake"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-bear-trap",
+    "name": "Bear Trap",
+    "unicode": "e929",
+    "keywords": [
+      "bear",
+      "trap"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-beer",
+    "name": "Beer",
+    "unicode": "e92a",
+    "keywords": [
+      "beer"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-beetle",
+    "name": "Beetle",
+    "unicode": "e92b",
+    "keywords": [
+      "beetle"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-bell",
+    "name": "Bell",
+    "unicode": "e92c",
+    "keywords": [
+      "bell"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-biohazard",
+    "name": "Biohazard",
+    "unicode": "e92d",
+    "keywords": [
+      "biohazard"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-bird-claw",
+    "name": "Bird Claw",
+    "unicode": "e92e",
+    "keywords": [
+      "bird",
+      "claw"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-bird-mask",
+    "name": "Bird Mask",
+    "unicode": "e92f",
+    "keywords": [
+      "bird",
+      "mask"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-blade-bite",
+    "name": "Blade Bite",
+    "unicode": "e930",
+    "keywords": [
+      "blade",
+      "bite"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-blast",
+    "name": "Blast",
+    "unicode": "e931",
+    "keywords": [
+      "blast"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-blaster",
+    "name": "Blaster",
+    "unicode": "e932",
+    "keywords": [
+      "blaster"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-bleeding-eye",
+    "name": "Bleeding Eye",
+    "unicode": "e933",
+    "keywords": [
+      "bleeding",
+      "eye"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-bleeding-hearts",
+    "name": "Bleeding Hearts",
+    "unicode": "e934",
+    "keywords": [
+      "bleeding",
+      "hearts"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-bolt-shield",
+    "name": "Bolt Shield",
+    "unicode": "e935",
+    "keywords": [
+      "bolt",
+      "shield"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-bomb-explosion",
+    "name": "Bomb Explosion",
+    "unicode": "e936",
+    "keywords": [
+      "bomb",
+      "explosion"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-bombs",
+    "name": "Bombs",
+    "unicode": "e937",
+    "keywords": [
+      "bombs"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-bone-bite",
+    "name": "Bone Bite",
+    "unicode": "e938",
+    "keywords": [
+      "bone",
+      "bite"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-bone-knife",
+    "name": "Bone Knife",
+    "unicode": "e939",
+    "keywords": [
+      "bone",
+      "knife"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-book",
+    "name": "Book",
+    "unicode": "e93a",
+    "keywords": [
+      "book"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-boomerang",
+    "name": "Boomerang",
+    "unicode": "e93b",
+    "keywords": [
+      "boomerang"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-boot-stomp",
+    "name": "Boot Stomp",
+    "unicode": "e93c",
+    "keywords": [
+      "boot",
+      "stomp"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-bottle-vapors",
+    "name": "Bottle Vapors",
+    "unicode": "e93d",
+    "keywords": [
+      "bottle",
+      "vapors"
+    ],
+    "categories": [
+      "consumable"
+    ]
+  },
+  {
+    "id": "ra-bottled-bolt",
+    "name": "Bottled Bolt",
+    "unicode": "e93e",
+    "keywords": [
+      "bottled",
+      "bolt"
+    ],
+    "categories": [
+      "consumable"
+    ]
+  },
+  {
+    "id": "ra-bottom-right",
+    "name": "Bottom Right",
+    "unicode": "e93f",
+    "keywords": [
+      "bottom",
+      "right"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-bowie-knife",
+    "name": "Bowie Knife",
+    "unicode": "e940",
+    "keywords": [
+      "bowie",
+      "knife"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-bowling-pin",
+    "name": "Bowling Pin",
+    "unicode": "e941",
+    "keywords": [
+      "bowling",
+      "pin"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-brain-freeze",
+    "name": "Brain Freeze",
+    "unicode": "e942",
+    "keywords": [
+      "brain",
+      "freeze"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-brandy-bottle",
+    "name": "Brandy Bottle",
+    "unicode": "e943",
+    "keywords": [
+      "brandy",
+      "bottle"
+    ],
+    "categories": [
+      "consumable"
+    ]
+  },
+  {
+    "id": "ra-bridge",
+    "name": "Bridge",
+    "unicode": "e944",
+    "keywords": [
+      "bridge"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-broadhead-arrow",
+    "name": "Broadhead Arrow",
+    "unicode": "e945",
+    "keywords": [
+      "broadhead",
+      "arrow"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-broadsword",
+    "name": "Broadsword",
+    "unicode": "e946",
+    "keywords": [
+      "broadsword"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-broken-bone",
+    "name": "Broken Bone",
+    "unicode": "e947",
+    "keywords": [
+      "broken",
+      "bone"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-broken-bottle",
+    "name": "Broken Bottle",
+    "unicode": "e948",
+    "keywords": [
+      "broken",
+      "bottle"
+    ],
+    "categories": [
+      "consumable"
+    ]
+  },
+  {
+    "id": "ra-broken-heart",
+    "name": "Broken Heart",
+    "unicode": "e948",
+    "keywords": [
+      "broken",
+      "heart"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-broken-shield",
+    "name": "Broken Shield",
+    "unicode": "e94a",
+    "keywords": [
+      "broken",
+      "shield"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-broken-skull",
+    "name": "Broken Skull",
+    "unicode": "e94b",
+    "keywords": [
+      "broken",
+      "skull"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-bubbling-potion",
+    "name": "Bubbling Potion",
+    "unicode": "e94c",
+    "keywords": [
+      "bubbling",
+      "potion"
+    ],
+    "categories": [
+      "consumable"
+    ]
+  },
+  {
+    "id": "ra-bullets",
+    "name": "Bullets",
+    "unicode": "e94d",
+    "keywords": [
+      "bullets"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-burning-book",
+    "name": "Burning Book",
+    "unicode": "e94e",
+    "keywords": [
+      "burning",
+      "book"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-burning-embers",
+    "name": "Burning Embers",
+    "unicode": "e94f",
+    "keywords": [
+      "burning",
+      "embers"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-burning-eye",
+    "name": "Burning Eye",
+    "unicode": "e950",
+    "keywords": [
+      "burning",
+      "eye"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-burning-meteor",
+    "name": "Burning Meteor",
+    "unicode": "e951",
+    "keywords": [
+      "burning",
+      "meteor"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-burst-blob",
+    "name": "Burst Blob",
+    "unicode": "e952",
+    "keywords": [
+      "burst",
+      "blob"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-butterfly",
+    "name": "Butterfly",
+    "unicode": "e953",
+    "keywords": [
+      "butterfly"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-campfire",
+    "name": "Campfire",
+    "unicode": "e954",
+    "keywords": [
+      "campfire"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cancel",
+    "name": "Cancel",
+    "unicode": "e955",
+    "keywords": [
+      "cancel"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cancer",
+    "name": "Cancer",
+    "unicode": "e956",
+    "keywords": [
+      "cancer"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-candle",
+    "name": "Candle",
+    "unicode": "e958",
+    "keywords": [
+      "candle"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-candle-fire",
+    "name": "Candle Fire",
+    "unicode": "e957",
+    "keywords": [
+      "candle",
+      "fire"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cannon-shot",
+    "name": "Cannon Shot",
+    "unicode": "e959",
+    "keywords": [
+      "cannon",
+      "shot"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-capitol",
+    "name": "Capitol",
+    "unicode": "e95a",
+    "keywords": [
+      "capitol"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-capricorn",
+    "name": "Capricorn",
+    "unicode": "e95b",
+    "keywords": [
+      "capricorn"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-carrot",
+    "name": "Carrot",
+    "unicode": "e95c",
+    "keywords": [
+      "carrot"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-castle-emblem",
+    "name": "Castle Emblem",
+    "unicode": "e95d",
+    "keywords": [
+      "castle",
+      "emblem"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-castle-flag",
+    "name": "Castle Flag",
+    "unicode": "e95e",
+    "keywords": [
+      "castle",
+      "flag"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cat",
+    "name": "Cat",
+    "unicode": "e95f",
+    "keywords": [
+      "cat"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-chain",
+    "name": "Chain",
+    "unicode": "e960",
+    "keywords": [
+      "chain"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cheese",
+    "name": "Cheese",
+    "unicode": "e961",
+    "keywords": [
+      "cheese"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-chemical-arrow",
+    "name": "Chemical Arrow",
+    "unicode": "e962",
+    "keywords": [
+      "chemical",
+      "arrow"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-chessboard",
+    "name": "Chessboard",
+    "unicode": "e963",
+    "keywords": [
+      "chessboard"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-chicken-leg",
+    "name": "Chicken Leg",
+    "unicode": "e964",
+    "keywords": [
+      "chicken",
+      "leg"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-circle-of-circles",
+    "name": "Circle Of Circles",
+    "unicode": "e965",
+    "keywords": [
+      "circle",
+      "of",
+      "circles"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-circular-saw",
+    "name": "Circular Saw",
+    "unicode": "e966",
+    "keywords": [
+      "circular",
+      "saw"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-circular-shield",
+    "name": "Circular Shield",
+    "unicode": "e967",
+    "keywords": [
+      "circular",
+      "shield"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-cloak-and-dagger",
+    "name": "Cloak And Dagger",
+    "unicode": "e968",
+    "keywords": [
+      "cloak",
+      "and",
+      "dagger"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-clockwork",
+    "name": "Clockwork",
+    "unicode": "e969",
+    "keywords": [
+      "clockwork"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-clover",
+    "name": "Clover",
+    "unicode": "e96a",
+    "keywords": [
+      "clover"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-clovers",
+    "name": "Clovers",
+    "unicode": "e96c",
+    "keywords": [
+      "clovers"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-clovers-card",
+    "name": "Clovers Card",
+    "unicode": "e96b",
+    "keywords": [
+      "clovers",
+      "card"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cluster-bomb",
+    "name": "Cluster Bomb",
+    "unicode": "e96d",
+    "keywords": [
+      "cluster",
+      "bomb"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-coffee-mug",
+    "name": "Coffee Mug",
+    "unicode": "e96e",
+    "keywords": [
+      "coffee",
+      "mug"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cog",
+    "name": "Cog",
+    "unicode": "e970",
+    "keywords": [
+      "cog"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cog-wheel",
+    "name": "Cog Wheel",
+    "unicode": "e96f",
+    "keywords": [
+      "cog",
+      "wheel"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cold-heart",
+    "name": "Cold Heart",
+    "unicode": "e971",
+    "keywords": [
+      "cold",
+      "heart"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-compass",
+    "name": "Compass",
+    "unicode": "e972",
+    "keywords": [
+      "compass"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-corked-tube",
+    "name": "Corked Tube",
+    "unicode": "e973",
+    "keywords": [
+      "corked",
+      "tube"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-crab-claw",
+    "name": "Crab Claw",
+    "unicode": "e974",
+    "keywords": [
+      "crab",
+      "claw"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cracked-helm",
+    "name": "Cracked Helm",
+    "unicode": "e975",
+    "keywords": [
+      "cracked",
+      "helm"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cracked-shield",
+    "name": "Cracked Shield",
+    "unicode": "e976",
+    "keywords": [
+      "cracked",
+      "shield"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-croc-sword",
+    "name": "Croc Sword",
+    "unicode": "e977",
+    "keywords": [
+      "croc",
+      "sword"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-crossbow",
+    "name": "Crossbow",
+    "unicode": "e978",
+    "keywords": [
+      "crossbow"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-crossed-axes",
+    "name": "Crossed Axes",
+    "unicode": "e979",
+    "keywords": [
+      "crossed",
+      "axes"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-crossed-bones",
+    "name": "Crossed Bones",
+    "unicode": "e97a",
+    "keywords": [
+      "crossed",
+      "bones"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-crossed-pistols",
+    "name": "Crossed Pistols",
+    "unicode": "e97b",
+    "keywords": [
+      "crossed",
+      "pistols"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-crossed-sabres",
+    "name": "Crossed Sabres",
+    "unicode": "e97c",
+    "keywords": [
+      "crossed",
+      "sabres"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-crossed-swords",
+    "name": "Crossed Swords",
+    "unicode": "e97d",
+    "keywords": [
+      "crossed",
+      "swords"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-crown",
+    "name": "Crown",
+    "unicode": "e97f",
+    "keywords": [
+      "crown"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-crown-of-thorns",
+    "name": "Crown Of Thorns",
+    "unicode": "e97e",
+    "keywords": [
+      "crown",
+      "of",
+      "thorns"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-crowned-heart",
+    "name": "Crowned Heart",
+    "unicode": "e980",
+    "keywords": [
+      "crowned",
+      "heart"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-crush",
+    "name": "Crush",
+    "unicode": "e981",
+    "keywords": [
+      "crush"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-crystal-ball",
+    "name": "Crystal Ball",
+    "unicode": "e982",
+    "keywords": [
+      "crystal",
+      "ball"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-crystal-cluster",
+    "name": "Crystal Cluster",
+    "unicode": "e983",
+    "keywords": [
+      "crystal",
+      "cluster"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-crystal-wand",
+    "name": "Crystal Wand",
+    "unicode": "e984",
+    "keywords": [
+      "crystal",
+      "wand"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-crystals",
+    "name": "Crystals",
+    "unicode": "e985",
+    "keywords": [
+      "crystals"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cubes",
+    "name": "Cubes",
+    "unicode": "e986",
+    "keywords": [
+      "cubes"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cut-palm",
+    "name": "Cut Palm",
+    "unicode": "e987",
+    "keywords": [
+      "cut",
+      "palm"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-cycle",
+    "name": "Cycle",
+    "unicode": "e988",
+    "keywords": [
+      "cycle"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-daggers",
+    "name": "Daggers",
+    "unicode": "e989",
+    "keywords": [
+      "daggers"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-daisy",
+    "name": "Daisy",
+    "unicode": "e98a",
+    "keywords": [
+      "daisy"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dead-tree",
+    "name": "Dead Tree",
+    "unicode": "e98b",
+    "keywords": [
+      "dead",
+      "tree"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-death-skull",
+    "name": "Death Skull",
+    "unicode": "e98c",
+    "keywords": [
+      "death",
+      "skull"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-decapitation",
+    "name": "Decapitation",
+    "unicode": "e98d",
+    "keywords": [
+      "decapitation"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-defibrillate",
+    "name": "Defibrillate",
+    "unicode": "e98e",
+    "keywords": [
+      "defibrillate"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-demolish",
+    "name": "Demolish",
+    "unicode": "e98f",
+    "keywords": [
+      "demolish"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dervish-swords",
+    "name": "Dervish Swords",
+    "unicode": "e990",
+    "keywords": [
+      "dervish",
+      "swords"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-desert-skull",
+    "name": "Desert Skull",
+    "unicode": "e991",
+    "keywords": [
+      "desert",
+      "skull"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-diamond",
+    "name": "Diamond",
+    "unicode": "e992",
+    "keywords": [
+      "diamond"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-diamonds",
+    "name": "Diamonds",
+    "unicode": "e994",
+    "keywords": [
+      "diamonds"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-diamonds-card",
+    "name": "Diamonds Card",
+    "unicode": "e993",
+    "keywords": [
+      "diamonds",
+      "card"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dice-five",
+    "name": "Dice Five",
+    "unicode": "e995",
+    "keywords": [
+      "dice",
+      "five"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dice-four",
+    "name": "Dice Four",
+    "unicode": "e996",
+    "keywords": [
+      "dice",
+      "four"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dice-one",
+    "name": "Dice One",
+    "unicode": "e997",
+    "keywords": [
+      "dice",
+      "one"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dice-six",
+    "name": "Dice Six",
+    "unicode": "e998",
+    "keywords": [
+      "dice",
+      "six"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dice-three",
+    "name": "Dice Three",
+    "unicode": "e999",
+    "keywords": [
+      "dice",
+      "three"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dice-two",
+    "name": "Dice Two",
+    "unicode": "e99a",
+    "keywords": [
+      "dice",
+      "two"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dinosaur",
+    "name": "Dinosaur",
+    "unicode": "e99b",
+    "keywords": [
+      "dinosaur"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-divert",
+    "name": "Divert",
+    "unicode": "e99c",
+    "keywords": [
+      "divert"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-diving-dagger",
+    "name": "Diving Dagger",
+    "unicode": "e99d",
+    "keywords": [
+      "diving",
+      "dagger"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-double-team",
+    "name": "Double Team",
+    "unicode": "e99e",
+    "keywords": [
+      "double",
+      "team"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-doubled",
+    "name": "Doubled",
+    "unicode": "e99f",
+    "keywords": [
+      "doubled"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dragon",
+    "name": "Dragon",
+    "unicode": "e9a2",
+    "keywords": [
+      "dragon"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dragon-breath",
+    "name": "Dragon Breath",
+    "unicode": "e9a0",
+    "keywords": [
+      "dragon",
+      "breath"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dragon-wing",
+    "name": "Dragon Wing",
+    "unicode": "e9a1",
+    "keywords": [
+      "dragon",
+      "wing"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dragonfly",
+    "name": "Dragonfly",
+    "unicode": "e9a3",
+    "keywords": [
+      "dragonfly"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-drill",
+    "name": "Drill",
+    "unicode": "e9a4",
+    "keywords": [
+      "drill"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dripping-blade",
+    "name": "Dripping Blade",
+    "unicode": "e9a5",
+    "keywords": [
+      "dripping",
+      "blade"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dripping-knife",
+    "name": "Dripping Knife",
+    "unicode": "e9a6",
+    "keywords": [
+      "dripping",
+      "knife"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-dripping-sword",
+    "name": "Dripping Sword",
+    "unicode": "e9a7",
+    "keywords": [
+      "dripping",
+      "sword"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-droplet",
+    "name": "Droplet",
+    "unicode": "e9a9",
+    "keywords": [
+      "droplet"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-droplet-splash",
+    "name": "Droplet Splash",
+    "unicode": "e9a8",
+    "keywords": [
+      "droplet",
+      "splash"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-droplets",
+    "name": "Droplets",
+    "unicode": "e9aa",
+    "keywords": [
+      "droplets"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-duel",
+    "name": "Duel",
+    "unicode": "e9ab",
+    "keywords": [
+      "duel"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-egg",
+    "name": "Egg",
+    "unicode": "e9ad",
+    "keywords": [
+      "egg"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-egg-pod",
+    "name": "Egg Pod",
+    "unicode": "e9ac",
+    "keywords": [
+      "egg",
+      "pod"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-eggplant",
+    "name": "Eggplant",
+    "unicode": "e9ae",
+    "keywords": [
+      "eggplant"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-emerald",
+    "name": "Emerald",
+    "unicode": "e9af",
+    "keywords": [
+      "emerald"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-energise",
+    "name": "Energise",
+    "unicode": "e9b0",
+    "keywords": [
+      "energise"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-explosion",
+    "name": "Explosion",
+    "unicode": "e9b1",
+    "keywords": [
+      "explosion"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-explosive-materials",
+    "name": "Explosive Materials",
+    "unicode": "e9b2",
+    "keywords": [
+      "explosive",
+      "materials"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-eye-monster",
+    "name": "Eye Monster",
+    "unicode": "e9b3",
+    "keywords": [
+      "eye",
+      "monster"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-eye-shield",
+    "name": "Eye Shield",
+    "unicode": "e9b4",
+    "keywords": [
+      "eye",
+      "shield"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-eyeball",
+    "name": "Eyeball",
+    "unicode": "e9b5",
+    "keywords": [
+      "eyeball"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fairy",
+    "name": "Fairy",
+    "unicode": "e9b7",
+    "keywords": [
+      "fairy"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fairy-wand",
+    "name": "Fairy Wand",
+    "unicode": "e9b6",
+    "keywords": [
+      "fairy",
+      "wand"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fall-down",
+    "name": "Fall Down",
+    "unicode": "e9b8",
+    "keywords": [
+      "fall",
+      "down"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-falling",
+    "name": "Falling",
+    "unicode": "e9b9",
+    "keywords": [
+      "falling"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fast-ship",
+    "name": "Fast Ship",
+    "unicode": "e9ba",
+    "keywords": [
+      "fast",
+      "ship"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-feather-wing",
+    "name": "Feather Wing",
+    "unicode": "e9bb",
+    "keywords": [
+      "feather",
+      "wing"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-feathered-wing",
+    "name": "Feathered Wing",
+    "unicode": "e9bc",
+    "keywords": [
+      "feathered",
+      "wing"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fedora",
+    "name": "Fedora",
+    "unicode": "e9bd",
+    "keywords": [
+      "fedora"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fire",
+    "name": "Fire",
+    "unicode": "e9c3",
+    "keywords": [
+      "fire"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fire-bomb",
+    "name": "Fire Bomb",
+    "unicode": "e9be",
+    "keywords": [
+      "fire",
+      "bomb"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fire-breath",
+    "name": "Fire Breath",
+    "unicode": "e9bf",
+    "keywords": [
+      "fire",
+      "breath"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fire-ring",
+    "name": "Fire Ring",
+    "unicode": "e9c0",
+    "keywords": [
+      "fire",
+      "ring"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fire-shield",
+    "name": "Fire Shield",
+    "unicode": "e9c1",
+    "keywords": [
+      "fire",
+      "shield"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-fire-symbol",
+    "name": "Fire Symbol",
+    "unicode": "e9c2",
+    "keywords": [
+      "fire",
+      "symbol"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fireball-sword",
+    "name": "Fireball Sword",
+    "unicode": "e9c4",
+    "keywords": [
+      "fireball",
+      "sword"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-fish",
+    "name": "Fish",
+    "unicode": "e9c5",
+    "keywords": [
+      "fish"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fizzing-flask",
+    "name": "Fizzing Flask",
+    "unicode": "e9c6",
+    "keywords": [
+      "fizzing",
+      "flask"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-flame-symbol",
+    "name": "Flame Symbol",
+    "unicode": "e9c7",
+    "keywords": [
+      "flame",
+      "symbol"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-flaming-arrow",
+    "name": "Flaming Arrow",
+    "unicode": "e9c8",
+    "keywords": [
+      "flaming",
+      "arrow"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-flaming-claw",
+    "name": "Flaming Claw",
+    "unicode": "e9c9",
+    "keywords": [
+      "flaming",
+      "claw"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-flaming-trident",
+    "name": "Flaming Trident",
+    "unicode": "e9ca",
+    "keywords": [
+      "flaming",
+      "trident"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-flask",
+    "name": "Flask",
+    "unicode": "e9cb",
+    "keywords": [
+      "flask"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-flat-hammer",
+    "name": "Flat Hammer",
+    "unicode": "e9cc",
+    "keywords": [
+      "flat",
+      "hammer"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-flower",
+    "name": "Flower",
+    "unicode": "e9cd",
+    "keywords": [
+      "flower"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-flowers",
+    "name": "Flowers",
+    "unicode": "e9ce",
+    "keywords": [
+      "flowers"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fluffy-swirl",
+    "name": "Fluffy Swirl",
+    "unicode": "e9cf",
+    "keywords": [
+      "fluffy",
+      "swirl"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-focused-lightning",
+    "name": "Focused Lightning",
+    "unicode": "e9d0",
+    "keywords": [
+      "focused",
+      "lightning"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-food-chain",
+    "name": "Food Chain",
+    "unicode": "e9d1",
+    "keywords": [
+      "food",
+      "chain"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-footprint",
+    "name": "Footprint",
+    "unicode": "e9d2",
+    "keywords": [
+      "footprint"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-forging",
+    "name": "Forging",
+    "unicode": "e9d3",
+    "keywords": [
+      "forging"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-forward",
+    "name": "Forward",
+    "unicode": "e9d4",
+    "keywords": [
+      "forward"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-fox",
+    "name": "Fox",
+    "unicode": "e9d5",
+    "keywords": [
+      "fox"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-frost-emblem",
+    "name": "Frost Emblem",
+    "unicode": "e9d6",
+    "keywords": [
+      "frost",
+      "emblem"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-frostfire",
+    "name": "Frostfire",
+    "unicode": "e9d7",
+    "keywords": [
+      "frostfire"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-frozen-arrow",
+    "name": "Frozen Arrow",
+    "unicode": "e9d8",
+    "keywords": [
+      "frozen",
+      "arrow"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-gamepad-cross",
+    "name": "Gamepad Cross",
+    "unicode": "e9d9",
+    "keywords": [
+      "gamepad",
+      "cross"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-gavel",
+    "name": "Gavel",
+    "unicode": "e9da",
+    "keywords": [
+      "gavel"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-gear-hammer",
+    "name": "Gear Hammer",
+    "unicode": "e9db",
+    "keywords": [
+      "gear",
+      "hammer"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-gear-heart",
+    "name": "Gear Heart",
+    "unicode": "e9dc",
+    "keywords": [
+      "gear",
+      "heart"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-gears",
+    "name": "Gears",
+    "unicode": "e9dd",
+    "keywords": [
+      "gears"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-gecko",
+    "name": "Gecko",
+    "unicode": "e9de",
+    "keywords": [
+      "gecko"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-gem",
+    "name": "Gem",
+    "unicode": "e9e0",
+    "keywords": [
+      "gem"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-gem-pendant",
+    "name": "Gem Pendant",
+    "unicode": "e9df",
+    "keywords": [
+      "gem",
+      "pendant"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-gemini",
+    "name": "Gemini",
+    "unicode": "e9e1",
+    "keywords": [
+      "gemini"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-glass-heart",
+    "name": "Glass Heart",
+    "unicode": "e9e2",
+    "keywords": [
+      "glass",
+      "heart"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-gloop",
+    "name": "Gloop",
+    "unicode": "e9e3",
+    "keywords": [
+      "gloop"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-gold-bar",
+    "name": "Gold Bar",
+    "unicode": "e9e4",
+    "keywords": [
+      "gold",
+      "bar"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-grappling-hook",
+    "name": "Grappling Hook",
+    "unicode": "e9e5",
+    "keywords": [
+      "grappling",
+      "hook"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-grass",
+    "name": "Grass",
+    "unicode": "e9e7",
+    "keywords": [
+      "grass"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-grass-patch",
+    "name": "Grass Patch",
+    "unicode": "e9e6",
+    "keywords": [
+      "grass",
+      "patch"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-grenade",
+    "name": "Grenade",
+    "unicode": "e9e8",
+    "keywords": [
+      "grenade"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-groundbreaker",
+    "name": "Groundbreaker",
+    "unicode": "e9e9",
+    "keywords": [
+      "groundbreaker"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-guarded-tower",
+    "name": "Guarded Tower",
+    "unicode": "e9ea",
+    "keywords": [
+      "guarded",
+      "tower"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-guillotine",
+    "name": "Guillotine",
+    "unicode": "e9eb",
+    "keywords": [
+      "guillotine"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-halberd",
+    "name": "Halberd",
+    "unicode": "e9ec",
+    "keywords": [
+      "halberd"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-hammer",
+    "name": "Hammer",
+    "unicode": "e9ee",
+    "keywords": [
+      "hammer"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-hammer-drop",
+    "name": "Hammer Drop",
+    "unicode": "e9ed",
+    "keywords": [
+      "hammer",
+      "drop"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-hand",
+    "name": "Hand",
+    "unicode": "e9f1",
+    "keywords": [
+      "hand"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-hand-emblem",
+    "name": "Hand Emblem",
+    "unicode": "e9ef",
+    "keywords": [
+      "hand",
+      "emblem"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-hand-saw",
+    "name": "Hand Saw",
+    "unicode": "e9f0",
+    "keywords": [
+      "hand",
+      "saw"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-harpoon-trident",
+    "name": "Harpoon Trident",
+    "unicode": "e9f2",
+    "keywords": [
+      "harpoon",
+      "trident"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-health",
+    "name": "Health",
+    "unicode": "e9f5",
+    "keywords": [
+      "health"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-health-decrease",
+    "name": "Health Decrease",
+    "unicode": "e9f3",
+    "keywords": [
+      "health",
+      "decrease"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-health-increase",
+    "name": "Health Increase",
+    "unicode": "e9f4",
+    "keywords": [
+      "health",
+      "increase"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-heart-bottle",
+    "name": "Heart Bottle",
+    "unicode": "e9f6",
+    "keywords": [
+      "heart",
+      "bottle"
+    ],
+    "categories": [
+      "consumable",
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-heart-tower",
+    "name": "Heart Tower",
+    "unicode": "e9f7",
+    "keywords": [
+      "heart",
+      "tower"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-heartburn",
+    "name": "Heartburn",
+    "unicode": "e9f8",
+    "keywords": [
+      "heartburn"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-hearts",
+    "name": "Hearts",
+    "unicode": "e9fa",
+    "keywords": [
+      "hearts"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-hearts-card",
+    "name": "Hearts Card",
+    "unicode": "e9f9",
+    "keywords": [
+      "hearts",
+      "card"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-heat-haze",
+    "name": "Heat Haze",
+    "unicode": "e9fb",
+    "keywords": [
+      "heat",
+      "haze"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-heavy-fall",
+    "name": "Heavy Fall",
+    "unicode": "e9fc",
+    "keywords": [
+      "heavy",
+      "fall"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-heavy-shield",
+    "name": "Heavy Shield",
+    "unicode": "e9fd",
+    "keywords": [
+      "heavy",
+      "shield"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-helmet",
+    "name": "Helmet",
+    "unicode": "e9fe",
+    "keywords": [
+      "helmet"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-help",
+    "name": "Help",
+    "unicode": "e9ff",
+    "keywords": [
+      "help"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-hive-emblem",
+    "name": "Hive Emblem",
+    "unicode": "ea00",
+    "keywords": [
+      "hive",
+      "emblem"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-hole-ladder",
+    "name": "Hole Ladder",
+    "unicode": "ea01",
+    "keywords": [
+      "hole",
+      "ladder"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-honeycomb",
+    "name": "Honeycomb",
+    "unicode": "ea02",
+    "keywords": [
+      "honeycomb"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-hood",
+    "name": "Hood",
+    "unicode": "ea03",
+    "keywords": [
+      "hood"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-horn-call",
+    "name": "Horn Call",
+    "unicode": "ea04",
+    "keywords": [
+      "horn",
+      "call"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-horns",
+    "name": "Horns",
+    "unicode": "ea05",
+    "keywords": [
+      "horns"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-horseshoe",
+    "name": "Horseshoe",
+    "unicode": "ea06",
+    "keywords": [
+      "horseshoe"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-hospital-cross",
+    "name": "Hospital Cross",
+    "unicode": "ea07",
+    "keywords": [
+      "hospital",
+      "cross"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-hot-surface",
+    "name": "Hot Surface",
+    "unicode": "ea08",
+    "keywords": [
+      "hot",
+      "surface"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-hourglass",
+    "name": "Hourglass",
+    "unicode": "ea09",
+    "keywords": [
+      "hourglass"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-hydra",
+    "name": "Hydra",
+    "unicode": "ea0b",
+    "keywords": [
+      "hydra"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-hydra-shot",
+    "name": "Hydra Shot",
+    "unicode": "ea0a",
+    "keywords": [
+      "hydra",
+      "shot"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-ice-cube",
+    "name": "Ice Cube",
+    "unicode": "ea0c",
+    "keywords": [
+      "ice",
+      "cube"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-implosion",
+    "name": "Implosion",
+    "unicode": "ea0d",
+    "keywords": [
+      "implosion"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-incense",
+    "name": "Incense",
+    "unicode": "ea0e",
+    "keywords": [
+      "incense"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-insect-jaws",
+    "name": "Insect Jaws",
+    "unicode": "ea0f",
+    "keywords": [
+      "insect",
+      "jaws"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-interdiction",
+    "name": "Interdiction",
+    "unicode": "ea10",
+    "keywords": [
+      "interdiction"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-jetpack",
+    "name": "Jetpack",
+    "unicode": "ea11",
+    "keywords": [
+      "jetpack"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-jigsaw-piece",
+    "name": "Jigsaw Piece",
+    "unicode": "ea12",
+    "keywords": [
+      "jigsaw",
+      "piece"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-kaleidoscope",
+    "name": "Kaleidoscope",
+    "unicode": "ea13",
+    "keywords": [
+      "kaleidoscope"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-kettlebell",
+    "name": "Kettlebell",
+    "unicode": "ea14",
+    "keywords": [
+      "kettlebell"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-key",
+    "name": "Key",
+    "unicode": "ea16",
+    "keywords": [
+      "key"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-key-basic",
+    "name": "Key Basic",
+    "unicode": "ea15",
+    "keywords": [
+      "key",
+      "basic"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-kitchen-knives",
+    "name": "Kitchen Knives",
+    "unicode": "ea17",
+    "keywords": [
+      "kitchen",
+      "knives"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-knife",
+    "name": "Knife",
+    "unicode": "ea19",
+    "keywords": [
+      "knife"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-knife-fork",
+    "name": "Knife Fork",
+    "unicode": "ea18",
+    "keywords": [
+      "knife",
+      "fork"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-knight-helmet",
+    "name": "Knight Helmet",
+    "unicode": "ea1a",
+    "keywords": [
+      "knight",
+      "helmet"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-kunai",
+    "name": "Kunai",
+    "unicode": "ea1b",
+    "keywords": [
+      "kunai"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-lantern-flame",
+    "name": "Lantern Flame",
+    "unicode": "ea1c",
+    "keywords": [
+      "lantern",
+      "flame"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-large-hammer",
+    "name": "Large Hammer",
+    "unicode": "ea1d",
+    "keywords": [
+      "large",
+      "hammer"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-laser-blast",
+    "name": "Laser Blast",
+    "unicode": "ea1e",
+    "keywords": [
+      "laser",
+      "blast"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-laser-site",
+    "name": "Laser Site",
+    "unicode": "ea1f",
+    "keywords": [
+      "laser",
+      "site"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-lava",
+    "name": "Lava",
+    "unicode": "ea20",
+    "keywords": [
+      "lava"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-leaf",
+    "name": "Leaf",
+    "unicode": "ea21",
+    "keywords": [
+      "leaf"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-leo",
+    "name": "Leo",
+    "unicode": "ea22",
+    "keywords": [
+      "leo"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-level-four",
+    "name": "Level Four",
+    "unicode": "ea24",
+    "keywords": [
+      "level",
+      "four"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-level-four-advanced",
+    "name": "Level Four Advanced",
+    "unicode": "ea23",
+    "keywords": [
+      "level",
+      "four",
+      "advanced"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-level-three",
+    "name": "Level Three",
+    "unicode": "ea26",
+    "keywords": [
+      "level",
+      "three"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-level-three-advanced",
+    "name": "Level Three Advanced",
+    "unicode": "ea25",
+    "keywords": [
+      "level",
+      "three",
+      "advanced"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-level-two",
+    "name": "Level Two",
+    "unicode": "ea28",
+    "keywords": [
+      "level",
+      "two"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-level-two-advanced",
+    "name": "Level Two Advanced",
+    "unicode": "ea27",
+    "keywords": [
+      "level",
+      "two",
+      "advanced"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-lever",
+    "name": "Lever",
+    "unicode": "ea29",
+    "keywords": [
+      "lever"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-libra",
+    "name": "Libra",
+    "unicode": "ea2a",
+    "keywords": [
+      "libra"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-light-bulb",
+    "name": "Light Bulb",
+    "unicode": "ea2b",
+    "keywords": [
+      "light",
+      "bulb"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-lighthouse",
+    "name": "Lighthouse",
+    "unicode": "ea2c",
+    "keywords": [
+      "lighthouse"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-lightning",
+    "name": "Lightning",
+    "unicode": "ea31",
+    "keywords": [
+      "lightning"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-lightning-bolt",
+    "name": "Lightning Bolt",
+    "unicode": "ea2d",
+    "keywords": [
+      "lightning",
+      "bolt"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-lightning-storm",
+    "name": "Lightning Storm",
+    "unicode": "ea2e",
+    "keywords": [
+      "lightning",
+      "storm"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-lightning-sword",
+    "name": "Lightning Sword",
+    "unicode": "ea2f",
+    "keywords": [
+      "lightning",
+      "sword"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-lightning-trio",
+    "name": "Lightning Trio",
+    "unicode": "ea30",
+    "keywords": [
+      "lightning",
+      "trio"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-lion",
+    "name": "Lion",
+    "unicode": "ea32",
+    "keywords": [
+      "lion"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-lit-candelabra",
+    "name": "Lit Candelabra",
+    "unicode": "ea33",
+    "keywords": [
+      "lit",
+      "candelabra"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-load",
+    "name": "Load",
+    "unicode": "ea34",
+    "keywords": [
+      "load"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-locked-fortress",
+    "name": "Locked Fortress",
+    "unicode": "ea35",
+    "keywords": [
+      "locked",
+      "fortress"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-love-howl",
+    "name": "Love Howl",
+    "unicode": "ea36",
+    "keywords": [
+      "love",
+      "howl"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-maggot",
+    "name": "Maggot",
+    "unicode": "ea37",
+    "keywords": [
+      "maggot"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-magnet",
+    "name": "Magnet",
+    "unicode": "ea38",
+    "keywords": [
+      "magnet"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-mass-driver",
+    "name": "Mass Driver",
+    "unicode": "ea39",
+    "keywords": [
+      "mass",
+      "driver"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-match",
+    "name": "Match",
+    "unicode": "ea3a",
+    "keywords": [
+      "match"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-meat",
+    "name": "Meat",
+    "unicode": "ea3c",
+    "keywords": [
+      "meat"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-meat-hook",
+    "name": "Meat Hook",
+    "unicode": "ea3b",
+    "keywords": [
+      "meat",
+      "hook"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-medical-pack",
+    "name": "Medical Pack",
+    "unicode": "ea3d",
+    "keywords": [
+      "medical",
+      "pack"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-metal-gate",
+    "name": "Metal Gate",
+    "unicode": "ea3e",
+    "keywords": [
+      "metal",
+      "gate"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-microphone",
+    "name": "Microphone",
+    "unicode": "ea3f",
+    "keywords": [
+      "microphone"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-mine-wagon",
+    "name": "Mine Wagon",
+    "unicode": "ea40",
+    "keywords": [
+      "mine",
+      "wagon"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-mining-diamonds",
+    "name": "Mining Diamonds",
+    "unicode": "ea41",
+    "keywords": [
+      "mining",
+      "diamonds"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-mirror",
+    "name": "Mirror",
+    "unicode": "ea42",
+    "keywords": [
+      "mirror"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-monster-skull",
+    "name": "Monster Skull",
+    "unicode": "ea43",
+    "keywords": [
+      "monster",
+      "skull"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-moon-sun",
+    "name": "Moon Sun",
+    "unicode": "ea45",
+    "keywords": [
+      "moon",
+      "sun"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-mountains",
+    "name": "Mountains",
+    "unicode": "ea44",
+    "keywords": [
+      "mountains"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-mp5",
+    "name": "Mp5",
+    "unicode": "ea46",
+    "keywords": [
+      "mp5"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-muscle-fat",
+    "name": "Muscle Fat",
+    "unicode": "ea47",
+    "keywords": [
+      "muscle",
+      "fat"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-muscle-up",
+    "name": "Muscle Up",
+    "unicode": "ea48",
+    "keywords": [
+      "muscle",
+      "up"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-musket",
+    "name": "Musket",
+    "unicode": "ea49",
+    "keywords": [
+      "musket"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-nails",
+    "name": "Nails",
+    "unicode": "ea4a",
+    "keywords": [
+      "nails"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-nodular",
+    "name": "Nodular",
+    "unicode": "ea4b",
+    "keywords": [
+      "nodular"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-noose",
+    "name": "Noose",
+    "unicode": "ea4c",
+    "keywords": [
+      "noose"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-nuclear",
+    "name": "Nuclear",
+    "unicode": "ea4d",
+    "keywords": [
+      "nuclear"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-ocarina",
+    "name": "Ocarina",
+    "unicode": "ea4e",
+    "keywords": [
+      "ocarina"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-ocean-emblem",
+    "name": "Ocean Emblem",
+    "unicode": "ea4f",
+    "keywords": [
+      "ocean",
+      "emblem"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-octopus",
+    "name": "Octopus",
+    "unicode": "ea50",
+    "keywords": [
+      "octopus"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-omega",
+    "name": "Omega",
+    "unicode": "ea51",
+    "keywords": [
+      "omega"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-on-target",
+    "name": "On Target",
+    "unicode": "ea52",
+    "keywords": [
+      "on",
+      "target"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-ophiuchus",
+    "name": "Ophiuchus",
+    "unicode": "ea53",
+    "keywords": [
+      "ophiuchus"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-overhead",
+    "name": "Overhead",
+    "unicode": "ea54",
+    "keywords": [
+      "overhead"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-overmind",
+    "name": "Overmind",
+    "unicode": "ea55",
+    "keywords": [
+      "overmind"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-palm-tree",
+    "name": "Palm Tree",
+    "unicode": "ea56",
+    "keywords": [
+      "palm",
+      "tree"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-pawn",
+    "name": "Pawn",
+    "unicode": "ea57",
+    "keywords": [
+      "pawn"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-pawprint",
+    "name": "Pawprint",
+    "unicode": "ea58",
+    "keywords": [
+      "pawprint"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-perspective-dice-five",
+    "name": "Perspective Dice Five",
+    "unicode": "ea59",
+    "keywords": [
+      "perspective",
+      "dice",
+      "five"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-perspective-dice-four",
+    "name": "Perspective Dice Four",
+    "unicode": "ea5a",
+    "keywords": [
+      "perspective",
+      "dice",
+      "four"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-perspective-dice-one",
+    "name": "Perspective Dice One",
+    "unicode": "ea5b",
+    "keywords": [
+      "perspective",
+      "dice",
+      "one"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-perspective-dice-random",
+    "name": "Perspective Dice Random",
+    "unicode": "ea5c",
+    "keywords": [
+      "perspective",
+      "dice",
+      "random"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-perspective-dice-six",
+    "name": "Perspective Dice Six",
+    "unicode": "ea5e",
+    "keywords": [
+      "perspective",
+      "dice",
+      "six"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-perspective-dice-three",
+    "name": "Perspective Dice Three",
+    "unicode": "ea5f",
+    "keywords": [
+      "perspective",
+      "dice",
+      "three"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-perspective-dice-two",
+    "name": "Perspective Dice Two",
+    "unicode": "ea5d",
+    "keywords": [
+      "perspective",
+      "dice",
+      "two"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-pill",
+    "name": "Pill",
+    "unicode": "ea60",
+    "keywords": [
+      "pill"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-pills",
+    "name": "Pills",
+    "unicode": "ea61",
+    "keywords": [
+      "pills"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-pine-tree",
+    "name": "Pine Tree",
+    "unicode": "ea62",
+    "keywords": [
+      "pine",
+      "tree"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-ping-pong",
+    "name": "Ping Pong",
+    "unicode": "ea63",
+    "keywords": [
+      "ping",
+      "pong"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-pisces",
+    "name": "Pisces",
+    "unicode": "ea64",
+    "keywords": [
+      "pisces"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-plain-dagger",
+    "name": "Plain Dagger",
+    "unicode": "ea65",
+    "keywords": [
+      "plain",
+      "dagger"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-player",
+    "name": "Player",
+    "unicode": "ea6f",
+    "keywords": [
+      "player"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-player-despair",
+    "name": "Player Despair",
+    "unicode": "ea66",
+    "keywords": [
+      "player",
+      "despair"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-player-dodge",
+    "name": "Player Dodge",
+    "unicode": "ea67",
+    "keywords": [
+      "player",
+      "dodge"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-player-king",
+    "name": "Player King",
+    "unicode": "ea68",
+    "keywords": [
+      "player",
+      "king"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-player-lift",
+    "name": "Player Lift",
+    "unicode": "ea69",
+    "keywords": [
+      "player",
+      "lift"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-player-pain",
+    "name": "Player Pain",
+    "unicode": "ea6a",
+    "keywords": [
+      "player",
+      "pain"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-player-pyromaniac",
+    "name": "Player Pyromaniac",
+    "unicode": "ea6b",
+    "keywords": [
+      "player",
+      "pyromaniac"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-player-shot",
+    "name": "Player Shot",
+    "unicode": "ea6c",
+    "keywords": [
+      "player",
+      "shot"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-player-teleport",
+    "name": "Player Teleport",
+    "unicode": "ea6d",
+    "keywords": [
+      "player",
+      "teleport"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-player-thunder-struck",
+    "name": "Player Thunder Struck",
+    "unicode": "ea6e",
+    "keywords": [
+      "player",
+      "thunder",
+      "struck"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-podium",
+    "name": "Podium",
+    "unicode": "ea70",
+    "keywords": [
+      "podium"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-poison-cloud",
+    "name": "Poison Cloud",
+    "unicode": "ea71",
+    "keywords": [
+      "poison",
+      "cloud"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-potion",
+    "name": "Potion",
+    "unicode": "ea72",
+    "keywords": [
+      "potion"
+    ],
+    "categories": [
+      "consumable"
+    ]
+  },
+  {
+    "id": "ra-pyramids",
+    "name": "Pyramids",
+    "unicode": "ea73",
+    "keywords": [
+      "pyramids"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-queen-crown",
+    "name": "Queen Crown",
+    "unicode": "ea74",
+    "keywords": [
+      "queen",
+      "crown"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-quill-ink",
+    "name": "Quill Ink",
+    "unicode": "ea75",
+    "keywords": [
+      "quill",
+      "ink"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-rabbit",
+    "name": "Rabbit",
+    "unicode": "ea76",
+    "keywords": [
+      "rabbit"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-radar-dish",
+    "name": "Radar Dish",
+    "unicode": "ea77",
+    "keywords": [
+      "radar",
+      "dish"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-radial-balance",
+    "name": "Radial Balance",
+    "unicode": "ea78",
+    "keywords": [
+      "radial",
+      "balance"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-radioactive",
+    "name": "Radioactive",
+    "unicode": "ea79",
+    "keywords": [
+      "radioactive"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-raven",
+    "name": "Raven",
+    "unicode": "ea7a",
+    "keywords": [
+      "raven"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-reactor",
+    "name": "Reactor",
+    "unicode": "ea7b",
+    "keywords": [
+      "reactor"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-recycle",
+    "name": "Recycle",
+    "unicode": "ea7c",
+    "keywords": [
+      "recycle"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-regeneration",
+    "name": "Regeneration",
+    "unicode": "ea7d",
+    "keywords": [
+      "regeneration"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-relic-blade",
+    "name": "Relic Blade",
+    "unicode": "ea7e",
+    "keywords": [
+      "relic",
+      "blade"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-repair",
+    "name": "Repair",
+    "unicode": "ea7f",
+    "keywords": [
+      "repair"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-reverse",
+    "name": "Reverse",
+    "unicode": "ea80",
+    "keywords": [
+      "reverse"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-revolver",
+    "name": "Revolver",
+    "unicode": "ea81",
+    "keywords": [
+      "revolver"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-rifle",
+    "name": "Rifle",
+    "unicode": "ea82",
+    "keywords": [
+      "rifle"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-ringing-bell",
+    "name": "Ringing Bell",
+    "unicode": "ea83",
+    "keywords": [
+      "ringing",
+      "bell"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-roast-chicken",
+    "name": "Roast Chicken",
+    "unicode": "ea84",
+    "keywords": [
+      "roast",
+      "chicken"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-robot-arm",
+    "name": "Robot Arm",
+    "unicode": "ea85",
+    "keywords": [
+      "robot",
+      "arm"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-round-bottom-flask",
+    "name": "Round Bottom Flask",
+    "unicode": "ea86",
+    "keywords": [
+      "round",
+      "bottom",
+      "flask"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-round-shield",
+    "name": "Round Shield",
+    "unicode": "ea87",
+    "keywords": [
+      "round",
+      "shield"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-rss",
+    "name": "Rss",
+    "unicode": "ea88",
+    "keywords": [
+      "rss"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-rune-stone",
+    "name": "Rune Stone",
+    "unicode": "ea89",
+    "keywords": [
+      "rune",
+      "stone"
+    ],
+    "categories": [
+      "magic"
+    ]
+  },
+  {
+    "id": "ra-sagittarius",
+    "name": "Sagittarius",
+    "unicode": "ea8a",
+    "keywords": [
+      "sagittarius"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-sapphire",
+    "name": "Sapphire",
+    "unicode": "ea8b",
+    "keywords": [
+      "sapphire"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-satellite",
+    "name": "Satellite",
+    "unicode": "ea8c",
+    "keywords": [
+      "satellite"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-save",
+    "name": "Save",
+    "unicode": "ea8d",
+    "keywords": [
+      "save"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-scorpio",
+    "name": "Scorpio",
+    "unicode": "ea8e",
+    "keywords": [
+      "scorpio"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-scroll-unfurled",
+    "name": "Scroll Unfurled",
+    "unicode": "ea8f",
+    "keywords": [
+      "scroll",
+      "unfurled"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-scythe",
+    "name": "Scythe",
+    "unicode": "ea90",
+    "keywords": [
+      "scythe"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-sea-serpent",
+    "name": "Sea Serpent",
+    "unicode": "ea91",
+    "keywords": [
+      "sea",
+      "serpent"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-seagull",
+    "name": "Seagull",
+    "unicode": "ea92",
+    "keywords": [
+      "seagull"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-shark",
+    "name": "Shark",
+    "unicode": "ea93",
+    "keywords": [
+      "shark"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-sheep",
+    "name": "Sheep",
+    "unicode": "ea94",
+    "keywords": [
+      "sheep"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-sheriff",
+    "name": "Sheriff",
+    "unicode": "ea95",
+    "keywords": [
+      "sheriff"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-shield",
+    "name": "Shield",
+    "unicode": "ea96",
+    "keywords": [
+      "shield"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-ship-emblem",
+    "name": "Ship Emblem",
+    "unicode": "ea97",
+    "keywords": [
+      "ship",
+      "emblem"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-shoe-prints",
+    "name": "Shoe Prints",
+    "unicode": "ea98",
+    "keywords": [
+      "shoe",
+      "prints"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-shot-through-the-heart",
+    "name": "Shot Through The Heart",
+    "unicode": "ea99",
+    "keywords": [
+      "shot",
+      "through",
+      "the",
+      "heart"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-shotgun-shell",
+    "name": "Shotgun Shell",
+    "unicode": "ea9a",
+    "keywords": [
+      "shotgun",
+      "shell"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-shovel",
+    "name": "Shovel",
+    "unicode": "ea9b",
+    "keywords": [
+      "shovel"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-shuriken",
+    "name": "Shuriken",
+    "unicode": "ea9c",
+    "keywords": [
+      "shuriken"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-sickle",
+    "name": "Sickle",
+    "unicode": "ea9d",
+    "keywords": [
+      "sickle"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-sideswipe",
+    "name": "Sideswipe",
+    "unicode": "ea9e",
+    "keywords": [
+      "sideswipe"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-site",
+    "name": "Site",
+    "unicode": "ea9f",
+    "keywords": [
+      "site"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-skull",
+    "name": "Skull",
+    "unicode": "eaa1",
+    "keywords": [
+      "skull"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-skull-trophy",
+    "name": "Skull Trophy",
+    "unicode": "eaa0",
+    "keywords": [
+      "skull",
+      "trophy"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-slash-ring",
+    "name": "Slash Ring",
+    "unicode": "eaa2",
+    "keywords": [
+      "slash",
+      "ring"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-small-fire",
+    "name": "Small Fire",
+    "unicode": "eaa3",
+    "keywords": [
+      "small",
+      "fire"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-snail",
+    "name": "Snail",
+    "unicode": "eaa4",
+    "keywords": [
+      "snail"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-snake",
+    "name": "Snake",
+    "unicode": "eaa5",
+    "keywords": [
+      "snake"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-snorkel",
+    "name": "Snorkel",
+    "unicode": "eaa6",
+    "keywords": [
+      "snorkel"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-snowflake",
+    "name": "Snowflake",
+    "unicode": "eaa7",
+    "keywords": [
+      "snowflake"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-soccer-ball",
+    "name": "Soccer Ball",
+    "unicode": "eaa8",
+    "keywords": [
+      "soccer",
+      "ball"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-spades",
+    "name": "Spades",
+    "unicode": "eaaa",
+    "keywords": [
+      "spades"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-spades-card",
+    "name": "Spades Card",
+    "unicode": "eaa9",
+    "keywords": [
+      "spades",
+      "card"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-spawn-node",
+    "name": "Spawn Node",
+    "unicode": "eaab",
+    "keywords": [
+      "spawn",
+      "node"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-spear-head",
+    "name": "Spear Head",
+    "unicode": "eaac",
+    "keywords": [
+      "spear",
+      "head"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-speech-bubble",
+    "name": "Speech Bubble",
+    "unicode": "eaad",
+    "keywords": [
+      "speech",
+      "bubble"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-speech-bubbles",
+    "name": "Speech Bubbles",
+    "unicode": "eaae",
+    "keywords": [
+      "speech",
+      "bubbles"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-spider-face",
+    "name": "Spider Face",
+    "unicode": "eaaf",
+    "keywords": [
+      "spider",
+      "face"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-spikeball",
+    "name": "Spikeball",
+    "unicode": "eab0",
+    "keywords": [
+      "spikeball"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-spiked-mace",
+    "name": "Spiked Mace",
+    "unicode": "eab1",
+    "keywords": [
+      "spiked",
+      "mace"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-spiked-tentacle",
+    "name": "Spiked Tentacle",
+    "unicode": "eab2",
+    "keywords": [
+      "spiked",
+      "tentacle"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-spinning-sword",
+    "name": "Spinning Sword",
+    "unicode": "eab3",
+    "keywords": [
+      "spinning",
+      "sword"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-spiral-shell",
+    "name": "Spiral Shell",
+    "unicode": "eab4",
+    "keywords": [
+      "spiral",
+      "shell"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-splash",
+    "name": "Splash",
+    "unicode": "eab5",
+    "keywords": [
+      "splash"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-spray-can",
+    "name": "Spray Can",
+    "unicode": "eab6",
+    "keywords": [
+      "spray",
+      "can"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-sprout",
+    "name": "Sprout",
+    "unicode": "eab8",
+    "keywords": [
+      "sprout"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-sprout-emblem",
+    "name": "Sprout Emblem",
+    "unicode": "eab7",
+    "keywords": [
+      "sprout",
+      "emblem"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-stopwatch",
+    "name": "Stopwatch",
+    "unicode": "eab9",
+    "keywords": [
+      "stopwatch"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-suckered-tentacle",
+    "name": "Suckered Tentacle",
+    "unicode": "eaba",
+    "keywords": [
+      "suckered",
+      "tentacle"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-suits",
+    "name": "Suits",
+    "unicode": "eabb",
+    "keywords": [
+      "suits"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-sun",
+    "name": "Sun",
+    "unicode": "eabd",
+    "keywords": [
+      "sun"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-sun-symbol",
+    "name": "Sun Symbol",
+    "unicode": "eabc",
+    "keywords": [
+      "sun",
+      "symbol"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-sunbeams",
+    "name": "Sunbeams",
+    "unicode": "eabe",
+    "keywords": [
+      "sunbeams"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-super-mushroom",
+    "name": "Super Mushroom",
+    "unicode": "eabf",
+    "keywords": [
+      "super",
+      "mushroom"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-supersonic-arrow",
+    "name": "Supersonic Arrow",
+    "unicode": "eac0",
+    "keywords": [
+      "supersonic",
+      "arrow"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-surveillance-camera",
+    "name": "Surveillance Camera",
+    "unicode": "eac1",
+    "keywords": [
+      "surveillance",
+      "camera"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-syringe",
+    "name": "Syringe",
+    "unicode": "eac2",
+    "keywords": [
+      "syringe"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-target-arrows",
+    "name": "Target Arrows",
+    "unicode": "eac3",
+    "keywords": [
+      "target",
+      "arrows"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-target-laser",
+    "name": "Target Laser",
+    "unicode": "eac4",
+    "keywords": [
+      "target",
+      "laser"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-targeted",
+    "name": "Targeted",
+    "unicode": "eac5",
+    "keywords": [
+      "targeted"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-taurus",
+    "name": "Taurus",
+    "unicode": "eac6",
+    "keywords": [
+      "taurus"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-telescope",
+    "name": "Telescope",
+    "unicode": "eac7",
+    "keywords": [
+      "telescope"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-tentacle",
+    "name": "Tentacle",
+    "unicode": "eac8",
+    "keywords": [
+      "tentacle"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-tesla",
+    "name": "Tesla",
+    "unicode": "eac9",
+    "keywords": [
+      "tesla"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-thorn-arrow",
+    "name": "Thorn Arrow",
+    "unicode": "eaca",
+    "keywords": [
+      "thorn",
+      "arrow"
+    ],
+    "categories": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "ra-thorny-vine",
+    "name": "Thorny Vine",
+    "unicode": "eacb",
+    "keywords": [
+      "thorny",
+      "vine"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-three-keys",
+    "name": "Three Keys",
+    "unicode": "eacc",
+    "keywords": [
+      "three",
+      "keys"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-tic-tac-toe",
+    "name": "Tic Tac Toe",
+    "unicode": "eacd",
+    "keywords": [
+      "tic",
+      "tac",
+      "toe"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-toast",
+    "name": "Toast",
+    "unicode": "eace",
+    "keywords": [
+      "toast"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-tombstone",
+    "name": "Tombstone",
+    "unicode": "eacf",
+    "keywords": [
+      "tombstone"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-tooth",
+    "name": "Tooth",
+    "unicode": "ead0",
+    "keywords": [
+      "tooth"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-torch",
+    "name": "Torch",
+    "unicode": "ead1",
+    "keywords": [
+      "torch"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-tower",
+    "name": "Tower",
+    "unicode": "ead2",
+    "keywords": [
+      "tower"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-trail",
+    "name": "Trail",
+    "unicode": "ead3",
+    "keywords": [
+      "trail"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-trefoil-lily",
+    "name": "Trefoil Lily",
+    "unicode": "ead4",
+    "keywords": [
+      "trefoil",
+      "lily"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-trident",
+    "name": "Trident",
+    "unicode": "ead5",
+    "keywords": [
+      "trident"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-triforce",
+    "name": "Triforce",
+    "unicode": "ead6",
+    "keywords": [
+      "triforce"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-trophy",
+    "name": "Trophy",
+    "unicode": "ead7",
+    "keywords": [
+      "trophy"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-turd",
+    "name": "Turd",
+    "unicode": "ead8",
+    "keywords": [
+      "turd"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-two-dragons",
+    "name": "Two Dragons",
+    "unicode": "ead9",
+    "keywords": [
+      "two",
+      "dragons"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-two-hearts",
+    "name": "Two Hearts",
+    "unicode": "eada",
+    "keywords": [
+      "two",
+      "hearts"
+    ],
+    "categories": [
+      "anatomy"
+    ]
+  },
+  {
+    "id": "ra-uncertainty",
+    "name": "Uncertainty",
+    "unicode": "eadb",
+    "keywords": [
+      "uncertainty"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-underhand",
+    "name": "Underhand",
+    "unicode": "eadc",
+    "keywords": [
+      "underhand"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-unplugged",
+    "name": "Unplugged",
+    "unicode": "eadd",
+    "keywords": [
+      "unplugged"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-vase",
+    "name": "Vase",
+    "unicode": "eade",
+    "keywords": [
+      "vase"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-venomous-snake",
+    "name": "Venomous Snake",
+    "unicode": "eadf",
+    "keywords": [
+      "venomous",
+      "snake"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-vest",
+    "name": "Vest",
+    "unicode": "eae0",
+    "keywords": [
+      "vest"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-vial",
+    "name": "Vial",
+    "unicode": "eae1",
+    "keywords": [
+      "vial"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-vine-whip",
+    "name": "Vine Whip",
+    "unicode": "eae2",
+    "keywords": [
+      "vine",
+      "whip"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-virgo",
+    "name": "Virgo",
+    "unicode": "eae3",
+    "keywords": [
+      "virgo"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-water-drop",
+    "name": "Water Drop",
+    "unicode": "eae4",
+    "keywords": [
+      "water",
+      "drop"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-wifi",
+    "name": "Wifi",
+    "unicode": "eae5",
+    "keywords": [
+      "wifi"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-wireless-signal",
+    "name": "Wireless Signal",
+    "unicode": "eae6",
+    "keywords": [
+      "wireless",
+      "signal"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-wolf-head",
+    "name": "Wolf Head",
+    "unicode": "eae7",
+    "keywords": [
+      "wolf",
+      "head"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-wolf-howl",
+    "name": "Wolf Howl",
+    "unicode": "eae8",
+    "keywords": [
+      "wolf",
+      "howl"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-wooden-sign",
+    "name": "Wooden Sign",
+    "unicode": "eae9",
+    "keywords": [
+      "wooden",
+      "sign"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-wrench",
+    "name": "Wrench",
+    "unicode": "eaea",
+    "keywords": [
+      "wrench"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-wyvern",
+    "name": "Wyvern",
+    "unicode": "eaeb",
+    "keywords": [
+      "wyvern"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-x-mark",
+    "name": "X Mark",
+    "unicode": "eaec",
+    "keywords": [
+      "x",
+      "mark"
+    ],
+    "categories": [
+      "misc"
+    ]
+  },
+  {
+    "id": "ra-zebra-shield",
+    "name": "Zebra Shield",
+    "unicode": "eaed",
+    "keywords": [
+      "zebra",
+      "shield"
+    ],
+    "categories": [
+      "armor"
+    ]
+  },
+  {
+    "id": "ra-zigzag-leaf",
+    "name": "Zigzag Leaf",
+    "unicode": "eaee",
+    "keywords": [
+      "zigzag",
+      "leaf"
+    ],
+    "categories": [
+      "misc"
+    ]
+  }
+]
