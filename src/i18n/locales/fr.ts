@@ -718,7 +718,7 @@ export const STRINGS_FR = {
             },
             metadataCleanup: {
                 name: 'Nettoyer les paramètres du plugin',
-                desc: 'Supprime les paramètres orphelins laissés lorsque des fichiers, dossiers ou étiquettes sont supprimés, déplacés ou renommés en dehors d'Obsidian. Cela n'affecte que le fichier de configuration de Notebook Navigator.',
+                desc: 'Supprime les paramètres orphelins laissés lorsque des fichiers, dossiers ou étiquettes sont supprimés, déplacés ou renommés en dehors d\'Obsidian. Cela n\'affecte que le fichier de configuration de Notebook Navigator.',
                 buttonText: 'Nettoyer les paramètres',
                 error: 'Échec du nettoyage des paramètres',
                 loading: 'Vérification des métadonnées...',
