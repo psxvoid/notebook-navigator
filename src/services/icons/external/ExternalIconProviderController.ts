@@ -60,7 +60,6 @@ export class ExternalIconProviderController {
             }
         });
 
-        await this.disableMissingSettings();
         await this.removeDisabledProviders();
 
         this.isInitialized = true;
@@ -413,29 +412,6 @@ export class ExternalIconProviderController {
     private async ensureInitialized(): Promise<void> {
         if (!this.isInitialized) {
             await this.initialize();
-        }
-    }
-
-    /**
-     * Disables providers in settings that aren't actually installed.
-     */
-    private async disableMissingSettings(): Promise<void> {
-        const settings = this.settingsProvider.settings;
-        const map = settings.externalIconProviders;
-        if (!map) {
-            return;
-        }
-
-        let changed = false;
-        (Object.keys(map) as ExternalIconProviderId[]).forEach(id => {
-            if (map[id] && !this.installedProviders.has(id)) {
-                map[id] = false;
-                changed = true;
-            }
-        });
-
-        if (changed) {
-            await this.settingsProvider.saveSettingsAndUpdate();
         }
     }
 
