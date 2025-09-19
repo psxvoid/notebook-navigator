@@ -717,11 +717,12 @@ export const STRINGS_DE = {
             },
             metadataCleanup: {
                 name: 'Plugin-Einstellungen bereinigen',
-                desc: 'Entfernt gespeicherte Einstellungen für Dateien, Ordner und Tags, die in Ihrer Vault nicht mehr existieren. Dies betrifft nur die Notebook Navigator Einstellungsdatei.',
+                desc: 'Entfernt verwaiste Einstellungen, die zurückbleiben, wenn Dateien, Ordner oder Tags außerhalb von Obsidian gelöscht, verschoben oder umbenannt werden. Dies betrifft nur die Notebook Navigator Einstellungsdatei.',
                 buttonText: 'Einstellungen bereinigen',
-                success: 'Einstellungen-Bereinigung abgeschlossen',
-                successNoChanges: 'Keine ungenutzten Einstellungen gefunden',
-                error: 'Einstellungen-Bereinigung fehlgeschlagen'
+                error: 'Einstellungen-Bereinigung fehlgeschlagen',
+                loading: 'Metadaten werden überprüft...',
+                statusClean: 'Keine Metadaten zu bereinigen',
+                statusCounts: 'Verwaiste Elemente: {folders} Ordner, {tags} Tags, {pinned} Pins'
             },
             externalIcons: {
                 downloadButton: 'Herunterladen',

@@ -20,7 +20,7 @@ import { Plugin, WorkspaceLeaf, TFile, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab, SETTINGS_VERSION } from './settings';
 import { LocalStorageKeys, NOTEBOOK_NAVIGATOR_VIEW, STORAGE_KEYS } from './types';
 import { ISettingsProvider } from './interfaces/ISettingsProvider';
-import { MetadataService } from './services/MetadataService';
+import { MetadataService, type MetadataCleanupSummary } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
 import { TagTreeService } from './services/TagTreeService';
 import { CommandQueueService } from './services/CommandQueueService';
@@ -817,6 +817,14 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         return changesMade;
+    }
+
+    public async getMetadataCleanupSummary(): Promise<MetadataCleanupSummary> {
+        if (!this.metadataService || this.isUnloading) {
+            return { folders: 0, tags: 0, pinnedNotes: 0, total: 0 };
+        }
+
+        return this.metadataService.getCleanupSummary();
     }
 
     /**

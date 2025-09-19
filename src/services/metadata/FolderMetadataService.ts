@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { SortOption } from '../../settings';
+import { SortOption, type NotebookNavigatorSettings } from '../../settings';
 import { ItemType } from '../../types';
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
@@ -209,15 +209,15 @@ export class FolderMetadataService extends BaseMetadataService {
      * Clean up folder metadata for non-existent folders
      * @returns True if any changes were made
      */
-    async cleanupFolderMetadata(): Promise<boolean> {
+    async cleanupFolderMetadata(targetSettings: NotebookNavigatorSettings = this.settingsProvider.settings): Promise<boolean> {
         const validator = (path: string) => this.app.vault.getFolderByPath(path) !== null;
 
         const results = await Promise.all([
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderColors', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderBackgroundColors', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderIcons', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderSortOverrides', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderAppearances', validator)
+            this.cleanupMetadata(targetSettings, 'folderColors', validator),
+            this.cleanupMetadata(targetSettings, 'folderBackgroundColors', validator),
+            this.cleanupMetadata(targetSettings, 'folderIcons', validator),
+            this.cleanupMetadata(targetSettings, 'folderSortOverrides', validator),
+            this.cleanupMetadata(targetSettings, 'folderAppearances', validator)
         ]);
 
         return results.some(changed => changed);
@@ -244,16 +244,19 @@ export class FolderMetadataService extends BaseMetadataService {
      * @param validators - Pre-loaded data containing vault files, folders, database files, and tag tree
      * @returns True if any metadata was removed/changed
      */
-    async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
+    async cleanupWithValidators(
+        validators: CleanupValidators,
+        targetSettings: NotebookNavigatorSettings = this.settingsProvider.settings
+    ): Promise<boolean> {
         // Use the actual folder paths directly from the validators
         const validator = (path: string) => validators.vaultFolders.has(path);
 
         const results = await Promise.all([
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderColors', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderBackgroundColors', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderIcons', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderSortOverrides', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderAppearances', validator)
+            this.cleanupMetadata(targetSettings, 'folderColors', validator),
+            this.cleanupMetadata(targetSettings, 'folderBackgroundColors', validator),
+            this.cleanupMetadata(targetSettings, 'folderIcons', validator),
+            this.cleanupMetadata(targetSettings, 'folderSortOverrides', validator),
+            this.cleanupMetadata(targetSettings, 'folderAppearances', validator)
         ]);
 
         return results.some(changed => changed);

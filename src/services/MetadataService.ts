@@ -17,7 +17,7 @@
  */
 
 import { App, TFolder } from 'obsidian';
-import { SortOption } from '../settings';
+import { SortOption, type NotebookNavigatorSettings } from '../settings';
 import { ISettingsProvider } from '../interfaces/ISettingsProvider';
 import { ITagTreeProvider } from '../interfaces/ITagTreeProvider';
 import { FolderMetadataService, TagMetadataService, FileMetadataService } from './metadata';
@@ -34,6 +34,13 @@ export interface CleanupValidators {
     tagTree: Map<string, TagTreeNode>;
     vaultFiles: Set<string>;
     vaultFolders: Set<string>; // Actual folder paths from vault
+}
+
+export interface MetadataCleanupSummary {
+    folders: number;
+    tags: number;
+    pinnedNotes: number;
+    total: number;
 }
 
 /**
@@ -205,11 +212,11 @@ export class MetadataService {
      * Called on plugin startup to remove references to deleted items
      * @returns True if any changes were made
      */
-    async cleanupAllMetadata(): Promise<boolean> {
+    async cleanupAllMetadata(targetSettings: NotebookNavigatorSettings = this.settingsProvider.settings): Promise<boolean> {
         const [folderChanges, tagChanges, fileChanges] = await Promise.all([
-            this.folderService.cleanupFolderMetadata(),
-            this.tagService.cleanupTagMetadata(),
-            this.fileService.cleanupPinnedNotes()
+            this.folderService.cleanupFolderMetadata(targetSettings),
+            this.tagService.cleanupTagMetadata(targetSettings),
+            this.fileService.cleanupPinnedNotes(targetSettings)
         ]);
 
         return folderChanges || tagChanges || fileChanges;
@@ -221,8 +228,8 @@ export class MetadataService {
      * This ensures the metadata cache is ready and all parent tags are identified
      * @returns True if any changes were made
      */
-    async cleanupTagMetadata(): Promise<boolean> {
-        return this.tagService.cleanupTagMetadata();
+    async cleanupTagMetadata(targetSettings: NotebookNavigatorSettings = this.settingsProvider.settings): Promise<boolean> {
+        return this.tagService.cleanupTagMetadata(targetSettings);
     }
 
     /**
@@ -232,14 +239,74 @@ export class MetadataService {
      * @param validators - Object containing database files, tag tree, and vault files
      * @returns true if any changes were made
      */
-    async runUnifiedCleanup(validators: CleanupValidators): Promise<boolean> {
+    async runUnifiedCleanup(
+        validators: CleanupValidators,
+        targetSettings: NotebookNavigatorSettings = this.settingsProvider.settings
+    ): Promise<boolean> {
         const [folderChanges, tagChanges, fileChanges] = await Promise.all([
-            this.folderService.cleanupWithValidators(validators),
-            this.tagService.cleanupWithValidators(validators),
-            this.fileService.cleanupWithValidators(validators)
+            this.folderService.cleanupWithValidators(validators, targetSettings),
+            this.tagService.cleanupWithValidators(validators, targetSettings),
+            this.fileService.cleanupWithValidators(validators, targetSettings)
         ]);
 
         return folderChanges || tagChanges || fileChanges;
+    }
+
+    async getCleanupSummary(): Promise<MetadataCleanupSummary> {
+        const clonedSettings = MetadataService.cloneSettings(this.settingsProvider.settings);
+        const before = MetadataService.computeMetadataCounts(clonedSettings);
+        await this.cleanupAllMetadata(clonedSettings);
+        const after = MetadataService.computeMetadataCounts(clonedSettings);
+
+        const folders = Math.max(0, before.folders - after.folders);
+        const tags = Math.max(0, before.tags - after.tags);
+        const pinnedNotes = Math.max(0, before.pinnedNotes - after.pinnedNotes);
+        const total = folders + tags + pinnedNotes;
+
+        return { folders, tags, pinnedNotes, total };
+    }
+
+    private static cloneSettings(settings: NotebookNavigatorSettings): NotebookNavigatorSettings {
+        return JSON.parse(JSON.stringify(settings)) as NotebookNavigatorSettings;
+    }
+
+    private static computeMetadataCounts(settings: NotebookNavigatorSettings) {
+        const folderKeys = MetadataService.collectUniqueKeys([
+            settings.folderColors,
+            settings.folderBackgroundColors,
+            settings.folderIcons,
+            settings.folderSortOverrides,
+            settings.folderAppearances
+        ]);
+
+        const tagKeys = MetadataService.collectUniqueKeys([
+            settings.tagColors,
+            settings.tagBackgroundColors,
+            settings.tagIcons,
+            settings.tagSortOverrides,
+            settings.tagAppearances
+        ]);
+
+        const pinnedNotes = settings.pinnedNotes ? Object.keys(settings.pinnedNotes).length : 0;
+
+        return {
+            folders: folderKeys.size,
+            tags: tagKeys.size,
+            pinnedNotes
+        };
+    }
+
+    private static collectUniqueKeys(records: (Record<string, unknown> | undefined)[]): Set<string> {
+        const result = new Set<string>();
+        records.forEach(record => {
+            if (!record) {
+                return;
+            }
+            Object.keys(record).forEach(key => {
+                result.add(key);
+            });
+        });
+        return result;
     }
 
     /**

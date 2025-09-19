@@ -715,11 +715,12 @@ export const STRINGS_KO = {
             },
             metadataCleanup: {
                 name: '플러그인 설정 정리',
-                desc: '보관소에 더 이상 존재하지 않는 파일, 폴더, 태그에 대한 저장된 설정을 제거합니다. 이는 Notebook Navigator 설정 파일에만 영향을 줍니다.',
+                desc: 'Obsidian 외부에서 파일, 폴더 또는 태그가 삭제, 이동 또는 이름이 변경될 때 남겨진 고아 설정을 제거합니다. 이는 Notebook Navigator 설정 파일에만 영향을 줍니다.',
                 buttonText: '설정 정리',
-                success: '설정 정리가 완료되었습니다',
-                successNoChanges: '사용하지 않는 설정을 찾지 못했습니다',
-                error: '설정 정리에 실패했습니다'
+                error: '설정 정리에 실패했습니다',
+                loading: '메타데이터 확인 중...',
+                statusClean: '정리할 메타데이터가 없습니다',
+                statusCounts: '고아 항목: {folders} 폴더, {tags} 태그, {pinned} 고정'
             },
             externalIcons: {
                 downloadButton: '다운로드',

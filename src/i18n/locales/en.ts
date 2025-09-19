@@ -715,11 +715,12 @@ export const STRINGS_EN = {
             },
             metadataCleanup: {
                 name: 'Clean up plugin settings',
-                desc: 'Removes saved settings for files, folders, and tags that no longer exist in your vault. This only affects the Notebook Navigator settings file.',
+                desc: 'Removes orphaned settings left behind when files, folders, or tags are deleted, moved, or renamed outside of Obsidian. This only affects the Notebook Navigator settings file.',
                 buttonText: 'Clean settings',
-                success: 'Settings cleanup completed',
-                successNoChanges: 'No unused settings found',
-                error: 'Settings cleanup failed'
+                error: 'Settings cleanup failed',
+                loading: 'Checking metadata...',
+                statusClean: 'No metadata to clean',
+                statusCounts: 'Orphaned items: {folders} folders, {tags} tags, {pinned} pins'
             },
             externalIcons: {
                 downloadButton: 'Download',

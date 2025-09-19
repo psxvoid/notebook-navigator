@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, Notice, PluginSettingTab, Setting, SliderComponent } from 'obsidian';
+import { App, Notice, PluginSettingTab, Setting, SliderComponent, ButtonComponent } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
 import { strings } from './i18n';
 import { TIMEOUTS } from './types/obsidian-extended';
@@ -28,6 +28,7 @@ import { FolderAppearance, TagAppearance } from './hooks/useListPaneAppearance';
 import { PinnedNotes } from './types';
 import { FolderNoteType, isFolderNoteType } from './types/folderNote';
 import { EXTERNAL_ICON_PROVIDERS, ExternalIconProviderId } from './services/icons/external/providerRegistry';
+import type { MetadataCleanupSummary } from './services/MetadataService';
 
 // Current settings schema version
 export const SETTINGS_VERSION = 1;
@@ -1474,27 +1475,71 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
-        new Setting(containerEl)
+        let metadataCleanupButton: ButtonComponent | null = null;
+        let metadataCleanupInfoText: HTMLDivElement | null = null;
+
+        const setMetadataCleanupLoadingState = () => {
+            metadataCleanupInfoText?.setText(strings.settings.items.metadataCleanup.loading);
+            metadataCleanupButton?.setDisabled(true);
+        };
+
+        const updateMetadataCleanupInfo = ({ folders, tags, pinnedNotes, total }: MetadataCleanupSummary) => {
+            if (!metadataCleanupInfoText) {
+                return;
+            }
+
+            if (total === 0) {
+                metadataCleanupInfoText.setText(strings.settings.items.metadataCleanup.statusClean);
+                metadataCleanupButton?.setDisabled(true);
+                return;
+            }
+
+            const infoText = strings.settings.items.metadataCleanup.statusCounts
+                .replace('{folders}', folders.toString())
+                .replace('{tags}', tags.toString())
+                .replace('{pinned}', pinnedNotes.toString());
+            metadataCleanupInfoText.setText(infoText);
+            metadataCleanupButton?.setDisabled(false);
+        };
+
+        const refreshMetadataCleanupSummary = async () => {
+            setMetadataCleanupLoadingState();
+            try {
+                const summary = await this.plugin.getMetadataCleanupSummary();
+                updateMetadataCleanupInfo(summary);
+            } catch (error) {
+                console.error('Failed to fetch metadata cleanup summary', error);
+                metadataCleanupInfoText?.setText(strings.settings.items.metadataCleanup.error);
+                metadataCleanupButton?.setDisabled(false);
+            }
+        };
+
+        const metadataCleanupSetting = new Setting(containerEl)
             .setName(strings.settings.items.metadataCleanup.name)
-            .setDesc(strings.settings.items.metadataCleanup.desc)
-            .addButton(button =>
-                button.setButtonText(strings.settings.items.metadataCleanup.buttonText).onClick(async () => {
-                    button.setDisabled(true);
-                    try {
-                        const changesMade = await this.plugin.runMetadataCleanup();
-                        new Notice(
-                            changesMade
-                                ? strings.settings.items.metadataCleanup.success
-                                : strings.settings.items.metadataCleanup.successNoChanges
-                        );
-                    } catch (error) {
-                        console.error('Metadata cleanup failed', error);
-                        new Notice(strings.settings.items.metadataCleanup.error);
-                    } finally {
-                        button.setDisabled(false);
-                    }
-                })
-            );
+            .setDesc(strings.settings.items.metadataCleanup.desc);
+
+        metadataCleanupSetting.addButton(button => {
+            metadataCleanupButton = button.setButtonText(strings.settings.items.metadataCleanup.buttonText);
+            metadataCleanupButton.setDisabled(true);
+            metadataCleanupButton.onClick(async () => {
+                setMetadataCleanupLoadingState();
+                try {
+                    await this.plugin.runMetadataCleanup();
+                } catch (error) {
+                    console.error('Metadata cleanup failed', error);
+                    new Notice(strings.settings.items.metadataCleanup.error);
+                } finally {
+                    await refreshMetadataCleanupSummary();
+                }
+            });
+        });
+
+        metadataCleanupInfoText = metadataCleanupSetting.descEl.createDiv({
+            cls: 'setting-item-description',
+            text: strings.settings.items.metadataCleanup.loading
+        });
+
+        void refreshMetadataCleanupSummary();
 
         // What's New button
         new Setting(containerEl)

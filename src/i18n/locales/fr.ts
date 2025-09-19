@@ -718,11 +718,12 @@ export const STRINGS_FR = {
             },
             metadataCleanup: {
                 name: 'Nettoyer les paramètres du plugin',
-                desc: 'Supprime les paramètres sauvegardés pour les fichiers, dossiers et étiquettes qui n’existent plus dans votre coffre. Cela n’affecte que le fichier de configuration de Notebook Navigator.',
+                desc: 'Supprime les paramètres orphelins laissés lorsque des fichiers, dossiers ou étiquettes sont supprimés, déplacés ou renommés en dehors d'Obsidian. Cela n'affecte que le fichier de configuration de Notebook Navigator.',
                 buttonText: 'Nettoyer les paramètres',
-                success: 'Nettoyage des paramètres terminé',
-                successNoChanges: 'Aucun paramètre inutilisé trouvé',
-                error: 'Échec du nettoyage des paramètres'
+                error: 'Échec du nettoyage des paramètres',
+                loading: 'Vérification des métadonnées...',
+                statusClean: 'Aucune métadonnée à nettoyer',
+                statusCounts: 'Éléments orphelins: {folders} dossiers, {tags} étiquettes, {pinned} épingles'
             },
             externalIcons: {
                 downloadButton: 'Télécharger',

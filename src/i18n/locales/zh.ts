@@ -716,11 +716,12 @@ export const STRINGS_ZH = {
             },
             metadataCleanup: {
                 name: '清理插件设置',
-                desc: '移除在您的仓库中不再存在的文件、文件夹和标签的已保存设置。这仅影响 Notebook Navigator 设置文件。',
+                desc: '移除在 Obsidian 外部删除、移动或重命名文件、文件夹或标签时留下的孤立设置。这仅影响 Notebook Navigator 设置文件。',
                 buttonText: '清理设置',
-                success: '设置清理完成',
-                successNoChanges: '未找到未使用的设置',
-                error: '设置清理失败'
+                error: '设置清理失败',
+                loading: '正在检查元数据...',
+                statusClean: '没有需要清理的元数据',
+                statusCounts: '孤立项目：{folders} 文件夹，{tags} 标签，{pinned} 置顶'
             },
             externalIcons: {
                 downloadButton: '下载',

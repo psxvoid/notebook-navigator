@@ -17,7 +17,7 @@
  */
 
 import { App } from 'obsidian';
-import { SortOption } from '../../settings';
+import { SortOption, type NotebookNavigatorSettings } from '../../settings';
 import { ItemType } from '../../types';
 import { ISettingsProvider } from '../../interfaces/ISettingsProvider';
 import { ITagTreeProvider } from '../../interfaces/ITagTreeProvider';
@@ -173,7 +173,7 @@ export class TagMetadataService extends BaseMetadataService {
      * Clean up tag metadata for non-existent tags
      * @returns True if any changes were made
      */
-    async cleanupTagMetadata(): Promise<boolean> {
+    async cleanupTagMetadata(targetSettings: NotebookNavigatorSettings = this.settingsProvider.settings): Promise<boolean> {
         // Get valid tags from TagTreeService
         const tagTreeProvider = this.getTagTreeProvider();
         const validTagPaths = tagTreeProvider?.getAllTagPaths() || [];
@@ -182,11 +182,11 @@ export class TagMetadataService extends BaseMetadataService {
         const validator = (path: string) => validTagsLower.has(path.toLowerCase());
 
         const results = await Promise.all([
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagColors', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagBackgroundColors', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagIcons', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagAppearances', validator)
+            this.cleanupMetadata(targetSettings, 'tagColors', validator),
+            this.cleanupMetadata(targetSettings, 'tagBackgroundColors', validator),
+            this.cleanupMetadata(targetSettings, 'tagIcons', validator),
+            this.cleanupMetadata(targetSettings, 'tagSortOverrides', validator),
+            this.cleanupMetadata(targetSettings, 'tagAppearances', validator)
         ]);
 
         return results.some(changed => changed);
@@ -207,7 +207,10 @@ export class TagMetadataService extends BaseMetadataService {
      * @param validators - Pre-loaded data including the complete tag tree
      * @returns True if any tag metadata was removed
      */
-    async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
+    async cleanupWithValidators(
+        validators: CleanupValidators,
+        targetSettings: NotebookNavigatorSettings = this.settingsProvider.settings
+    ): Promise<boolean> {
         // Only run if tags are enabled (tagTree is provided)
         if (!validators.tagTree || validators.tagTree.size === 0) {
             return false;
@@ -232,11 +235,11 @@ export class TagMetadataService extends BaseMetadataService {
 
         // Clean up all tag metadata types in parallel
         const results = await Promise.all([
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagColors', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagBackgroundColors', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagIcons', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagAppearances', validator)
+            this.cleanupMetadata(targetSettings, 'tagColors', validator),
+            this.cleanupMetadata(targetSettings, 'tagBackgroundColors', validator),
+            this.cleanupMetadata(targetSettings, 'tagIcons', validator),
+            this.cleanupMetadata(targetSettings, 'tagSortOverrides', validator),
+            this.cleanupMetadata(targetSettings, 'tagAppearances', validator)
         ]);
 
         return results.some(changed => changed);

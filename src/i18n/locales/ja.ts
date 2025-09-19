@@ -717,11 +717,12 @@ export const STRINGS_JA = {
             },
             metadataCleanup: {
                 name: 'プラグイン設定をクリーンアップ',
-                desc: 'ボールトに存在しなくなったファイル、フォルダ、タグの保存された設定を削除します。これはNotebook Navigatorの設定ファイルのみに影響します。',
+                desc: 'Obsidian外でファイル、フォルダ、タグが削除、移動、または名前変更された際に残された孤立した設定を削除します。これはNotebook Navigatorの設定ファイルのみに影響します。',
                 buttonText: '設定をクリーンアップ',
-                success: '設定のクリーンアップが完了しました',
-                successNoChanges: '未使用の設定は見つかりませんでした',
-                error: '設定のクリーンアップに失敗しました'
+                error: '設定のクリーンアップに失敗しました',
+                loading: 'メタデータを確認中...',
+                statusClean: 'クリーンアップするメタデータはありません',
+                statusCounts: '孤立した項目: {folders} フォルダ, {tags} タグ, {pinned} ピン'
             },
             externalIcons: {
                 downloadButton: 'ダウンロード',

@@ -19,6 +19,7 @@
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
 import { NavigatorContext } from '../../types';
+import type { NotebookNavigatorSettings } from '../../settings';
 
 /**
  * Service for managing file-specific metadata operations
@@ -122,24 +123,37 @@ export class FileMetadataService extends BaseMetadataService {
      * @param validators - Pre-loaded data containing vault files
      * @returns True if any metadata was removed/changed
      */
-    async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
-        // Check if cleanup is needed first
-        const settings = this.settingsProvider.settings;
-        if (!settings.pinnedNotes || Object.keys(settings.pinnedNotes).length === 0) {
+    async cleanupWithValidators(
+        validators: CleanupValidators,
+        targetSettings: NotebookNavigatorSettings = this.settingsProvider.settings
+    ): Promise<boolean> {
+        const pinnedNotes = targetSettings.pinnedNotes;
+        if (!pinnedNotes || Object.keys(pinnedNotes).length === 0) {
             return false;
         }
 
-        const invalidPaths = Object.keys(settings.pinnedNotes).filter(path => !validators.vaultFiles.has(path));
+        const invalidPaths = Object.keys(pinnedNotes).filter(path => !validators.vaultFiles.has(path));
 
         if (invalidPaths.length === 0) {
             // Nothing to clean up
             return false;
         }
 
-        // Only save if there are changes
-        await this.saveAndUpdate(settings => {
-            invalidPaths.forEach(path => delete settings.pinnedNotes[path]);
-        });
+        if (targetSettings === this.settingsProvider.settings) {
+            await this.saveAndUpdate(settings => {
+                invalidPaths.forEach(path => {
+                    if (settings.pinnedNotes) {
+                        delete settings.pinnedNotes[path];
+                    }
+                });
+            });
+        } else {
+            invalidPaths.forEach(path => {
+                if (targetSettings.pinnedNotes) {
+                    delete targetSettings.pinnedNotes[path];
+                }
+            });
+        }
 
         return true;
     }
@@ -148,13 +162,16 @@ export class FileMetadataService extends BaseMetadataService {
      * Clean up pinned notes for files that don't exist
      * @returns True if any changes were made
      */
-    async cleanupPinnedNotes(): Promise<boolean> {
+    async cleanupPinnedNotes(targetSettings: NotebookNavigatorSettings = this.settingsProvider.settings): Promise<boolean> {
         const vaultFiles = new Set(this.app.vault.getFiles().map(f => f.path));
-        return this.cleanupWithValidators({
-            vaultFiles,
-            vaultFolders: new Set(),
-            dbFiles: [],
-            tagTree: new Map()
-        });
+        return this.cleanupWithValidators(
+            {
+                vaultFiles,
+                vaultFolders: new Set(),
+                dbFiles: [],
+                tagTree: new Map()
+            },
+            targetSettings
+        );
     }
 }

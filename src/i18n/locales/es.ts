@@ -716,11 +716,12 @@ export const STRINGS_ES = {
             },
             metadataCleanup: {
                 name: 'Limpiar configuración del plugin',
-                desc: 'Elimina configuraciones guardadas para archivos, carpetas y etiquetas que ya no existen en tu vault. Esto solo afecta el archivo de configuración de Notebook Navigator.',
+                desc: 'Elimina configuraciones huérfanas dejadas cuando archivos, carpetas o etiquetas son eliminados, movidos o renombrados fuera de Obsidian. Esto solo afecta el archivo de configuración de Notebook Navigator.',
                 buttonText: 'Limpiar configuración',
-                success: 'Limpieza de configuración completada',
-                successNoChanges: 'No se encontraron configuraciones sin usar',
-                error: 'Falló la limpieza de configuración'
+                error: 'Falló la limpieza de configuración',
+                loading: 'Verificando metadatos...',
+                statusClean: 'No hay metadatos para limpiar',
+                statusCounts: 'Elementos huérfanos: {folders} carpetas, {tags} etiquetas, {pinned} fijados'
             },
             externalIcons: {
                 downloadButton: 'Descargar',

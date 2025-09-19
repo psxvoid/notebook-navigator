@@ -717,11 +717,12 @@ export const STRINGS_PL = {
             },
             metadataCleanup: {
                 name: 'Wyczyść ustawienia wtyczki',
-                desc: 'Usuwa zapisane ustawienia dla plików, folderów i tagów, które już nie istnieją w magazynie. Ma to wpływ tylko na plik ustawień Notebook Navigator.',
+                desc: 'Usuwa osierocone ustawienia pozostawione, gdy pliki, foldery lub tagi są usuwane, przenoszone lub zmieniane poza Obsidian. Ma to wpływ tylko na plik ustawień Notebook Navigator.',
                 buttonText: 'Wyczyść ustawienia',
-                success: 'Czyszczenie ustawień zakończone',
-                successNoChanges: 'Nie znaleziono nieużywanych ustawień',
-                error: 'Czyszczenie ustawień nie powiodło się'
+                error: 'Czyszczenie ustawień nie powiodło się',
+                loading: 'Sprawdzanie metadanych...',
+                statusClean: 'Brak metadanych do wyczyszczenia',
+                statusCounts: 'Osierocone elementy: {folders} folderów, {tags} tagów, {pinned} przypiętych'
             },
             externalIcons: {
                 downloadButton: 'Pobierz',
