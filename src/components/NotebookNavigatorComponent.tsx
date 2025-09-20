@@ -17,7 +17,7 @@
  */
 
 // src/components/NotebookNavigatorComponent.tsx
-import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback, useLayoutEffect } from 'react';
 import { TFile, TFolder, Notice } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
@@ -62,6 +62,7 @@ export interface NotebookNavigatorHandle {
     toggleSearch: () => void;
     triggerCollapse: () => void;
     stopContentProcessing: () => void;
+    rebuildCache: () => Promise<void>;
 }
 
 /**
@@ -82,11 +83,16 @@ export const NotebookNavigatorComponent = React.memo(
         const selectionDispatch = useSelectionDispatch();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
-        const { stopAllProcessing } = useFileCache();
+        const { stopAllProcessing, rebuildCache } = useFileCache();
+        // Keep stable references to avoid stale closures in imperative handles
         const stopProcessingRef = useRef(stopAllProcessing);
         useEffect(() => {
             stopProcessingRef.current = stopAllProcessing;
         }, [stopAllProcessing]);
+        const rebuildCacheRef = useRef(rebuildCache);
+        useEffect(() => {
+            rebuildCacheRef.current = rebuildCache;
+        }, [rebuildCache]);
 
         // Root container reference for the entire navigator
         // This ref is passed to both NavigationPane and ListPane to ensure
@@ -117,27 +123,38 @@ export const NotebookNavigatorComponent = React.memo(
         // Track if initial visibility check has been performed
         const hasCheckedInitialVisibility = useRef(false);
 
-        // Container ref callback that checks if file list is visible on first mount
-        const containerCallbackRef = useCallback(
-            (node: HTMLDivElement | null) => {
-                containerRef.current = node;
+        // Container ref callback that stores the navigator root element
+        const containerCallbackRef = useCallback((node: HTMLDivElement | null) => {
+            containerRef.current = node;
+        }, []);
 
-                // Only check width on very first startup (when there's no saved pane width)
-                const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
-                const isFirstRun = !savedWidth;
+        useLayoutEffect(() => {
+            if (isMobile) {
+                return;
+            }
 
-                // Auto-disable dual pane on first run if viewport too narrow
-                if (node && !isMobile && !hasCheckedInitialVisibility.current && isFirstRun) {
-                    hasCheckedInitialVisibility.current = true;
+            if (hasCheckedInitialVisibility.current) {
+                return;
+            }
 
-                    const containerWidth = node.getBoundingClientRect().width;
-                    if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
-                        plugin.setDualPanePreference(false);
-                    }
-                }
-            },
-            [isMobile, paneWidth, plugin]
-        );
+            const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
+            if (savedWidth) {
+                hasCheckedInitialVisibility.current = true;
+                return;
+            }
+
+            const node = containerRef.current;
+            if (!node) {
+                return;
+            }
+
+            hasCheckedInitialVisibility.current = true;
+
+            const containerWidth = node.getBoundingClientRect().width;
+            if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
+                plugin.setDualPanePreference(false);
+            }
+        }, [isMobile, paneWidth, plugin]);
 
         // Determine CSS classes
         const containerClasses = ['nn-split-container'];
@@ -208,6 +225,10 @@ export const NotebookNavigatorComponent = React.memo(
                     } catch (e) {
                         console.error('Failed to stop content processing:', e);
                     }
+                },
+                rebuildCache: async () => {
+                    // Trigger complete cache rebuild from storage context
+                    await rebuildCacheRef.current?.();
                 },
                 refresh: () => {
                     // A no-op update will increment the version and force a re-render

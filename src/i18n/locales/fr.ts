@@ -389,7 +389,8 @@ export const STRINGS_FR = {
         collapseExpand: 'Replier / déplier tous les éléments', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Ajouter une étiquette aux fichiers sélectionnés', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Supprimer une étiquette des fichiers sélectionnés', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
-        removeAllTags: 'Supprimer toutes les étiquettes des fichiers sélectionnés' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        removeAllTags: 'Supprimer toutes les étiquettes des fichiers sélectionnés', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        rebuildCache: 'Reconstruire le cache' // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
     },
 
     // Plugin UI
@@ -740,13 +741,20 @@ export const STRINGS_FR = {
                 desc: 'Afficher une boîte de dialogue de confirmation lors de la suppression de notes ou de dossiers'
             },
             metadataCleanup: {
-                name: 'Nettoyer les paramètres du plugin',
-                desc: "Supprime les paramètres orphelins laissés lorsque des fichiers, dossiers ou étiquettes sont supprimés, déplacés ou renommés en dehors d'Obsidian. Cela n'affecte que le fichier de configuration de Notebook Navigator.",
-                buttonText: 'Nettoyer les paramètres',
+                name: 'Nettoyer les métadonnées',
+                desc: "Supprime les métadonnées orphelines laissées lorsque des fichiers, dossiers ou étiquettes sont supprimés, déplacés ou renommés en dehors d'Obsidian. Cela n'affecte que le fichier de configuration de Notebook Navigator.",
+                buttonText: 'Nettoyer les métadonnées',
                 error: 'Échec du nettoyage des paramètres',
                 loading: 'Vérification des métadonnées...',
                 statusClean: 'Aucune métadonnée à nettoyer',
                 statusCounts: 'Éléments orphelins: {folders} dossiers, {tags} étiquettes, {pinned} épingles'
+            },
+            rebuildCache: {
+                name: 'Reconstruire le cache',
+                desc: 'Utilisez ceci si des étiquettes manquent, les aperçus sont incorrects ou des images manquent. Cela peut arriver après des conflits de synchronisation ou des fermetures inattendues.',
+                buttonText: 'Reconstruire le cache',
+                success: 'Cache reconstruit',
+                error: 'Échec de la reconstruction du cache'
             },
             externalIcons: {
                 downloadButton: 'Télécharger',

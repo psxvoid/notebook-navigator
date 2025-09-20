@@ -106,7 +106,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private isWorkspaceReady = false;
     private lastHomepagePath: string | null = null;
     private pendingHomepageTrigger: 'settings-change' | 'command' | null = null;
-    private dualPanePreference = true;  // Stored in localStorage, not settings
+    private dualPanePreference = true; // Stored in localStorage, not settings
 
     // LocalStorage keys for state persistence
     // These keys are used to save and restore the plugin's state between sessions
@@ -458,6 +458,19 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
         });
 
+        // Command to clear and rebuild the entire local cache database
+        this.addCommand({
+            id: 'rebuild-cache',
+            name: strings.commands.rebuildCache,
+            callback: async () => {
+                try {
+                    await this.rebuildCache();
+                } catch (error) {
+                    console.error('Failed to rebuild cache:', error);
+                }
+            }
+        });
+
         // Tag Operations commands
         this.addCommand({
             id: 'add-tag',
@@ -676,6 +689,35 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     public unregisterSettingsUpdateListener(id: string): void {
         this.settingsUpdateListeners.delete(id);
+    }
+
+    /**
+     * Rebuilds the entire Notebook Navigator cache.
+     * Activates the view if needed and delegates to the view's rebuild method.
+     * Throws if plugin is unloading or view is not available.
+     */
+    public async rebuildCache(): Promise<void> {
+        // Prevent rebuild if plugin is being unloaded
+        if (this.isUnloading) {
+            throw new Error('Plugin is unloading');
+        }
+
+        // Ensure the Navigator view is active before rebuilding
+        await this.activateView();
+
+        // Find the Navigator view leaf in the workspace
+        const leaf = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW)[0];
+        if (!leaf) {
+            throw new Error('Notebook Navigator view not available');
+        }
+
+        // Get the view instance and delegate the rebuild operation
+        const { view } = leaf;
+        if (!(view instanceof NotebookNavigatorView)) {
+            throw new Error('Notebook Navigator view not found');
+        }
+
+        await view.rebuildCache();
     }
 
     public isExternalIconProviderInstalled(providerId: ExternalIconProviderId): boolean {

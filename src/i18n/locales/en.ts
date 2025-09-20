@@ -387,7 +387,8 @@ export const STRINGS_EN = {
         collapseExpand: 'Collapse / expand all items', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Add tag to selected files', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Remove tag from selected files', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
-        removeAllTags: 'Remove all tags from selected files' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        removeAllTags: 'Remove all tags from selected files', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        rebuildCache: 'Rebuild cache' // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
     },
 
     // Plugin UI
@@ -736,13 +737,20 @@ export const STRINGS_EN = {
                 desc: 'Show confirmation dialog when deleting notes or folders'
             },
             metadataCleanup: {
-                name: 'Clean up plugin settings',
-                desc: 'Removes orphaned settings left behind when files, folders, or tags are deleted, moved, or renamed outside of Obsidian. This only affects the Notebook Navigator settings file.',
-                buttonText: 'Clean settings',
+                name: 'Clean up metadata',
+                desc: 'Removes orphaned metadata left behind when files, folders, or tags are deleted, moved, or renamed outside of Obsidian. This only affects the Notebook Navigator settings file.',
+                buttonText: 'Clean metadata',
                 error: 'Settings cleanup failed',
                 loading: 'Checking metadata...',
                 statusClean: 'No metadata to clean',
                 statusCounts: 'Orphaned items: {folders} folders, {tags} tags, {pinned} pins'
+            },
+            rebuildCache: {
+                name: 'Rebuild cache',
+                desc: 'Use this if you experience missing tags, incorrect previews or missing feature images. This can happen after sync conflicts or unexpected closures.',
+                buttonText: 'Rebuild cache',
+                success: 'Cache rebuilt',
+                error: 'Failed to rebuild cache'
             },
             externalIcons: {
                 downloadButton: 'Download',

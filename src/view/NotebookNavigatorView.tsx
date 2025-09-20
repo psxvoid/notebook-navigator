@@ -153,6 +153,19 @@ export class NotebookNavigatorView extends ItemView {
     }
 
     /**
+     * Triggers a complete cache rebuild through the component hierarchy.
+     * Clears and rebuilds all cached data from the current vault state.
+     */
+    async rebuildCache(): Promise<void> {
+        // Delegate to the main component which handles the actual rebuild
+        const handle = this.componentRef.current;
+        if (!handle) {
+            throw new Error('Navigator not ready');
+        }
+        await handle.rebuildCache();
+    }
+
+    /**
      * Navigates to a file in the navigator by selecting it and its parent folder
      */
     navigateToFile(file: TFile) {

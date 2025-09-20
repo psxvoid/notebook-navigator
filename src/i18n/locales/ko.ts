@@ -388,7 +388,8 @@ export const STRINGS_KO = {
         collapseExpand: '모든 항목 접기 / 펼치기', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '선택한 파일에 태그 추가', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '선택한 파일에서 태그 제거', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
-        removeAllTags: '선택한 파일에서 모든 태그 제거' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        removeAllTags: '선택한 파일에서 모든 태그 제거', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        rebuildCache: '캐시 다시 빌드' // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
     },
 
     // Plugin UI
@@ -737,13 +738,20 @@ export const STRINGS_KO = {
                 desc: '노트나 폴더를 삭제할 때 확인 대화 상자 표시'
             },
             metadataCleanup: {
-                name: '플러그인 설정 정리',
-                desc: 'Obsidian 외부에서 파일, 폴더 또는 태그가 삭제, 이동 또는 이름이 변경될 때 남겨진 고아 설정을 제거합니다. 이는 Notebook Navigator 설정 파일에만 영향을 줍니다.',
-                buttonText: '설정 정리',
+                name: '메타데이터 정리',
+                desc: 'Obsidian 외부에서 파일, 폴더 또는 태그가 삭제, 이동 또는 이름이 변경될 때 남겨진 고아 메타데이터를 제거합니다. 이는 Notebook Navigator 설정 파일에만 영향을 줍니다.',
+                buttonText: '메타데이터 정리',
                 error: '설정 정리에 실패했습니다',
                 loading: '메타데이터 확인 중...',
                 statusClean: '정리할 메타데이터가 없습니다',
                 statusCounts: '고아 항목: {folders} 폴더, {tags} 태그, {pinned} 고정'
+            },
+            rebuildCache: {
+                name: '캐시 다시 빌드',
+                desc: '태그 누락, 잘못된 미리보기 또는 누락된 이미지가 있을 때 사용하세요. 동기화 충돌이나 예기치 않은 종료 후에 발생할 수 있습니다.',
+                buttonText: '캐시 다시 빌드',
+                success: '캐시가 다시 빌드되었습니다',
+                error: '캐시 다시 빌드 실패'
             },
             externalIcons: {
                 downloadButton: '다운로드',

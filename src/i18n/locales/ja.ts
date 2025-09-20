@@ -389,7 +389,8 @@ export const STRINGS_JA = {
         collapseExpand: 'すべての項目を折りたたむ/展開', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '選択したファイルにタグを追加', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '選択したファイルからタグを削除', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
-        removeAllTags: '選択したファイルからすべてのタグを削除' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        removeAllTags: '選択したファイルからすべてのタグを削除', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        rebuildCache: 'キャッシュを再構築' // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
     },
 
     // Plugin UI
@@ -739,13 +740,20 @@ export const STRINGS_JA = {
                 desc: 'ノートやフォルダを削除する際に確認ダイアログを表示'
             },
             metadataCleanup: {
-                name: 'プラグイン設定をクリーンアップ',
-                desc: 'Obsidian外でファイル、フォルダ、タグが削除、移動、または名前変更された際に残された孤立した設定を削除します。これはNotebook Navigatorの設定ファイルのみに影響します。',
-                buttonText: '設定をクリーンアップ',
+                name: 'メタデータをクリーンアップ',
+                desc: 'Obsidian外でファイル、フォルダ、タグが削除、移動、または名前変更された際に残された孤立したメタデータを削除します。これはNotebook Navigatorの設定ファイルのみに影響します。',
+                buttonText: 'メタデータをクリーンアップ',
                 error: '設定のクリーンアップに失敗しました',
                 loading: 'メタデータを確認中...',
                 statusClean: 'クリーンアップするメタデータはありません',
                 statusCounts: '孤立した項目: {folders} フォルダ, {tags} タグ, {pinned} ピン'
+            },
+            rebuildCache: {
+                name: 'キャッシュを再構築',
+                desc: 'タグの欠落、不正確なプレビュー、画像の欠落がある場合に使用してください。同期の競合や予期しない終了後に発生することがあります。',
+                buttonText: 'キャッシュを再構築',
+                success: 'キャッシュを再構築しました',
+                error: 'キャッシュの再構築に失敗しました'
             },
             externalIcons: {
                 downloadButton: 'ダウンロード',

@@ -96,6 +96,7 @@ interface StorageContextValue {
     // Storage initialization state
     isStorageReady: boolean;
     stopAllProcessing: () => void;
+    rebuildCache: () => Promise<void>;
 }
 
 const StorageContext = createContext<StorageContextValue | null>(null);
@@ -123,6 +124,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const activeVaultEventRefs = useRef<EventRef[] | null>(null);
     const activeMetadataEventRef = useRef<EventRef | null>(null);
     const rebuildFileCacheRef = useRef<ReturnType<typeof debounce> | null>(null);
+    const buildFileCacheFnRef = useRef<((isInitialLoad?: boolean) => Promise<void>) | null>(null);
 
     // Track storage initialization state
     const [isStorageReady, setIsStorageReady] = useState(false);
@@ -138,127 +140,6 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const prevFavoriteTags = useRef<string[]>(settings.favoriteTags);
 
     // Memoize the context value to prevent re-renders when fileData/cache haven't changed
-    const contextValue = useMemo(() => {
-        // Get file display name from frontmatter, falling back to file basename
-        const getFileDisplayName = (file: TFile): string => {
-            // If metadata is enabled, extract on-demand
-            if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (metadata.fn) {
-                    return metadata.fn;
-                }
-            }
-
-            // Fall back to default display name
-            return getDisplayName(file, undefined, settings);
-        };
-
-        const getFileCreatedTime = (file: TFile): number => {
-            // If metadata is enabled, extract on-demand
-            if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (
-                    metadata.fc !== undefined &&
-                    metadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
-                    metadata.fc !== METADATA_SENTINEL.PARSE_FAILED
-                ) {
-                    return metadata.fc;
-                }
-            }
-
-            // Fall back to file system timestamp
-            return file.stat.ctime;
-        };
-
-        const getFileModifiedTime = (file: TFile): number => {
-            // If metadata is enabled, extract on-demand
-            if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (
-                    metadata.fm !== undefined &&
-                    metadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
-                    metadata.fm !== METADATA_SENTINEL.PARSE_FAILED
-                ) {
-                    return metadata.fm;
-                }
-            }
-
-            // Fall back to file system timestamp
-            return file.stat.mtime;
-        };
-
-        const getFileMetadata = (file: TFile): { name: string; created: number; modified: number } => {
-            // If metadata is enabled, extract on-demand
-            let extractedMetadata: ProcessedMetadata | null = null;
-            if (settings.useFrontmatterMetadata) {
-                extractedMetadata = extractMetadata(app, file, settings);
-            }
-
-            return {
-                name: extractedMetadata?.fn || getDisplayName(file, undefined, settings),
-                created:
-                    extractedMetadata?.fc !== undefined && extractedMetadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
-                        ? extractedMetadata.fc
-                        : file.stat.ctime,
-                modified:
-                    extractedMetadata?.fm !== undefined && extractedMetadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
-                        ? extractedMetadata.fm
-                        : file.stat.mtime
-            };
-        };
-
-        // Tag tree accessor methods
-        const getTagTree = () => fileData.tagTree;
-        const getFavoriteTree = () => fileData.favoriteTree;
-
-        const findTagInTree = (tagPath: string) => {
-            return findTagNode(fileData.tagTree, tagPath);
-        };
-
-        const findTagInFavoriteTree = (tagPath: string) => {
-            return findTagNode(fileData.favoriteTree, tagPath);
-        };
-
-        const getAllTagPaths = () => {
-            const allPaths: string[] = [];
-            // Collect from both trees
-            for (const rootNode of fileData.favoriteTree.values()) {
-                const paths = collectAllTagPaths(rootNode);
-                allPaths.push(...paths);
-            }
-            for (const rootNode of fileData.tagTree.values()) {
-                const paths = collectAllTagPaths(rootNode);
-                allPaths.push(...paths);
-            }
-            return allPaths;
-        };
-
-        const getTagDisplayPath = (path: string): string => {
-            // Try to find the tag in either tree to get its displayPath
-            const tagNode = findTagNode(fileData.favoriteTree, path) || findTagNode(fileData.tagTree, path);
-            return tagNode?.displayPath ?? path;
-        };
-
-        return {
-            fileData,
-            getFileDisplayName,
-            getFileCreatedTime,
-            getFileModifiedTime,
-            getFileMetadata,
-            getDB: getDBInstance,
-            getFile: (path: string) => getDBInstance().getFile(path),
-            getFiles: (paths: string[]) => getDBInstance().getFiles(paths),
-            hasPreview: (path: string) => getDBInstance().hasPreview(path),
-            isStorageReady,
-            getTagTree,
-            getFavoriteTree,
-            findTagInTree,
-            findTagInFavoriteTree,
-            getAllTagPaths,
-            getTagDisplayPath
-        };
-    }, [fileData, settings, app, isStorageReady]);
-
     // Helper function to get markdown files filtered by excluded properties and folders
     const getFilteredMarkdownFilesCallback = useCallback((): TFile[] => {
         return getFilteredMarkdownFiles(app, settings);
@@ -288,7 +169,15 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         return { favoriteTree, tagTree };
     }, [settings.excludedFolders, settings.favoriteTags, settings.showHiddenItems, tagTreeService, getFilteredMarkdownFilesCallback]);
 
-    // Rebuild tag tree when toggling visibility of hidden items
+    /**
+     * Effect: Rebuild tag tree when hidden items visibility changes
+     *
+     * When the user toggles "Show hidden items" in the UI, we need to rebuild
+     * the tag tree because:
+     * - Hidden items setting affects which folders are excluded from tag counting
+     * - Tag tree needs to recalculate note counts with the new exclusion rules
+     * - This ensures tag counts stay accurate when showing/hiding excluded folders
+     */
     useEffect(() => {
         if (!isStorageReady) return;
         if (settings.showTags) {
@@ -296,75 +185,310 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
     }, [settings.showHiddenItems, settings.showTags, isStorageReady, rebuildTagTree]);
 
+    /**
+     * Waits until all provided markdown files have entries in Obsidian's metadata cache.
+     *
+     * Why this works:
+     * - Obsidian emits a global `resolved` event once the initial index pass completes.
+     * - Subsequent metadata recalculations emit `changed` with the affected file.
+     * - `getFileCache` returns `null` until the indexer has produced a cache object, even when
+     *   the file has malformed frontmatter.
+     *
+     * Strategy:
+     * 1. Filter down to real markdown files and remember their paths.
+     * 2. If every tracked file already has cache data (common after the first load), bail out immediately.
+     * 3. Otherwise, subscribe to `resolved` and `changed`.
+     *    - `resolved` covers the initial indexing burst.
+     *    - `changed` lets us react when specific files are recalculated later.
+     * 4. On each event, re-check the tracked paths. As soon as every file reports a cache entry,
+     *    detach the listeners and run the callback.
+     *
+     * There is no timeout: the callback fires exactly when Obsidian surfaces metadata for every
+     * target file, and missing files naturally drop out of the tracked set because they are no
+     * longer returned by `getAbstractFileByPath`.
+     */
     const waitForMetadataCache = useCallback(
-        (callback: () => void): (() => void) => {
-            const files = app.vault.getMarkdownFiles();
+        (files: TFile[], callback: () => void): (() => void) => {
             if (files.length === 0) {
                 callback();
                 return () => {};
             }
 
-            const hasExistingCache = files.some(file => app.metadataCache.getFileCache(file) !== null);
-            if (hasExistingCache) {
+            // Waiting is only meaningful for real markdown files that still exist in the vault.
+            const trackedPaths = new Set(files.filter((file): file is TFile => file instanceof TFile).map(file => file.path));
+
+            // Helper checks if every tracked file has an entry in Obsidian's metadata cache.
+            const hasMetadataForAll = (): boolean => {
+                for (const path of trackedPaths) {
+                    const abstract = app.vault.getAbstractFileByPath(path);
+                    if (abstract && abstract instanceof TFile) {
+                        const metadata = app.metadataCache.getFileCache(abstract);
+                        if (metadata === null || metadata === undefined) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            };
+
+            if (trackedPaths.size === 0 || hasMetadataForAll()) {
                 callback();
                 return () => {};
             }
 
-            let hasResolved = false;
-            let currentEventRef: EventRef | null = null;
+            let resolvedEventRef: EventRef | null = null;
+            let changedEventRef: EventRef | null = null;
+            let disposed = false;
 
-            const timeoutId = window.setTimeout(() => {
-                if (hasResolved) {
+            const cleanup = () => {
+                if (disposed) {
                     return;
                 }
-                hasResolved = true;
-                try {
-                    if (currentEventRef) {
-                        app.metadataCache.offref(currentEventRef);
+                disposed = true;
+                if (resolvedEventRef) {
+                    try {
+                        app.metadataCache.offref(resolvedEventRef);
+                    } catch {
+                        // ignore
                     }
-                } catch {
-                    // ignore
+                    resolvedEventRef = null;
                 }
-                callback();
-            }, 5000);
-
-            currentEventRef = app.metadataCache.on('resolved', () => {
-                if (hasResolved) {
-                    return;
-                }
-                hasResolved = true;
-                try {
-                    if (currentEventRef) {
-                        app.metadataCache.offref(currentEventRef);
+                if (changedEventRef) {
+                    try {
+                        app.metadataCache.offref(changedEventRef);
+                    } catch {
+                        // ignore
                     }
-                } catch {
-                    // ignore
-                }
-                window.clearTimeout(timeoutId);
-                callback();
-            });
-
-            return () => {
-                if (hasResolved) {
-                    return;
-                }
-                hasResolved = true;
-                try {
-                    if (currentEventRef) {
-                        app.metadataCache.offref(currentEventRef);
-                    }
-                } catch {
-                    // ignore
-                }
-                try {
-                    window.clearTimeout(timeoutId);
-                } catch {
-                    // ignore
+                    changedEventRef = null;
                 }
             };
+
+            const maybeFinish = () => {
+                if (!disposed && hasMetadataForAll()) {
+                    cleanup();
+                    callback();
+                }
+            };
+
+            // resolved fires during the initial index pass; changed covers later updates.
+            resolvedEventRef = app.metadataCache.on('resolved', maybeFinish);
+            changedEventRef = app.metadataCache.on('changed', file => {
+                if (!file || !(file instanceof TFile)) {
+                    return;
+                }
+                if (!trackedPaths.has(file.path)) {
+                    return;
+                }
+                maybeFinish();
+            });
+
+            return cleanup;
         },
         [app]
     );
+
+    /**
+     * Clears all cached data and rebuilds the entire cache from scratch.
+     * Stops all ongoing processing, clears the database, resets state,
+     * and triggers a full initial cache rebuild.
+     */
+    const rebuildCache = useCallback(async () => {
+        // Save the current processing state to restore after rebuild
+        const previousStopped = stoppedRef.current;
+        stoppedRef.current = true;
+
+        // Stop all content processing operations (previews, feature images, etc.)
+        if (contentRegistry.current) {
+            contentRegistry.current.stopAllProcessing();
+        }
+
+        // Cancel any pending idle callbacks for processing
+        if (pendingIdleCallbackId.current !== null) {
+            try {
+                cancelIdleCallback(pendingIdleCallbackId.current);
+            } catch {
+                // ignore
+            }
+            pendingIdleCallbackId.current = null;
+        }
+
+        // Cancel any debounced file cache rebuild operations
+        const rebuildFileCache = rebuildFileCacheRef.current;
+        if (rebuildFileCache) {
+            try {
+                rebuildFileCache.cancel();
+            } catch {
+                // ignore
+            }
+        }
+
+        // Clean up any active wait disposers for metadata loading
+        if (waitDisposerRef.current) {
+            try {
+                waitDisposerRef.current();
+            } catch {
+                // ignore
+            }
+            waitDisposerRef.current = null;
+        }
+
+        // Clear the entire IndexedDB database
+        try {
+            const db = getDBInstance();
+            await db.clearDatabase();
+        } catch (error) {
+            console.error('Failed to clear database during cache rebuild:', error);
+            stoppedRef.current = previousStopped;
+            throw error;
+        }
+
+        // Reset all in-memory tag tree structures to empty state
+        const emptyFavoriteTree = new Map<string, TagTreeNode>();
+        const emptyTagTree = new Map<string, TagTreeNode>();
+        setFileData({ favoriteTree: emptyFavoriteTree, tagTree: emptyTagTree, untagged: 0 });
+        if (tagTreeService) {
+            tagTreeService.updateTagTree(emptyTagTree, 0, emptyFavoriteTree);
+        }
+        clearNoteCountCache();
+
+        // Mark storage as not ready while rebuilding
+        setIsStorageReady(false);
+        api?.setStorageReady(false);
+        hasBuiltInitialCache.current = false;
+
+        // Verify the cache building function is available
+        const buildCache = buildFileCacheFnRef.current;
+        if (!buildCache) {
+            stoppedRef.current = previousStopped;
+            console.error('Rebuild cache requested before initialization completed.');
+            return;
+        }
+
+        // Re-enable processing and trigger full cache rebuild
+        stoppedRef.current = false;
+
+        try {
+            hasBuiltInitialCache.current = true;
+            await buildCache(true);
+        } catch (error) {
+            hasBuiltInitialCache.current = false;
+            stoppedRef.current = previousStopped;
+            throw error;
+        }
+
+        // Restore the original processing state
+        stoppedRef.current = previousStopped;
+    }, [api, tagTreeService]);
+
+    const contextValue = useMemo(() => {
+        const getFileDisplayName = (file: TFile): string => {
+            if (settings.useFrontmatterMetadata) {
+                const metadata = extractMetadata(app, file, settings);
+                if (metadata.fn) {
+                    return metadata.fn;
+                }
+            }
+            return getDisplayName(file, undefined, settings);
+        };
+
+        const getFileCreatedTime = (file: TFile): number => {
+            if (settings.useFrontmatterMetadata) {
+                const metadata = extractMetadata(app, file, settings);
+                if (
+                    metadata.fc !== undefined &&
+                    metadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
+                    metadata.fc !== METADATA_SENTINEL.PARSE_FAILED
+                ) {
+                    return metadata.fc;
+                }
+            }
+
+            return file.stat.ctime;
+        };
+
+        const getFileModifiedTime = (file: TFile): number => {
+            if (settings.useFrontmatterMetadata) {
+                const metadata = extractMetadata(app, file, settings);
+                if (
+                    metadata.fm !== undefined &&
+                    metadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
+                    metadata.fm !== METADATA_SENTINEL.PARSE_FAILED
+                ) {
+                    return metadata.fm;
+                }
+            }
+
+            return file.stat.mtime;
+        };
+
+        const getFileMetadata = (file: TFile): { name: string; created: number; modified: number } => {
+            let extractedMetadata: ProcessedMetadata | null = null;
+            if (settings.useFrontmatterMetadata) {
+                extractedMetadata = extractMetadata(app, file, settings);
+            }
+
+            return {
+                name: extractedMetadata?.fn || getDisplayName(file, undefined, settings),
+                created:
+                    extractedMetadata?.fc !== undefined && extractedMetadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
+                        ? extractedMetadata.fc
+                        : file.stat.ctime,
+                modified:
+                    extractedMetadata?.fm !== undefined && extractedMetadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
+                        ? extractedMetadata.fm
+                        : file.stat.mtime
+            };
+        };
+
+        const getTagTree = () => fileData.tagTree;
+        const getFavoriteTree = () => fileData.favoriteTree;
+
+        const findTagInTree = (tagPath: string) => {
+            return findTagNode(fileData.tagTree, tagPath);
+        };
+
+        const findTagInFavoriteTree = (tagPath: string) => {
+            return findTagNode(fileData.favoriteTree, tagPath);
+        };
+
+        const getAllTagPaths = () => {
+            const allPaths: string[] = [];
+            for (const rootNode of fileData.favoriteTree.values()) {
+                const paths = collectAllTagPaths(rootNode);
+                allPaths.push(...paths);
+            }
+            for (const rootNode of fileData.tagTree.values()) {
+                const paths = collectAllTagPaths(rootNode);
+                allPaths.push(...paths);
+            }
+            return allPaths;
+        };
+
+        const getTagDisplayPath = (path: string): string => {
+            const tagNode = findTagNode(fileData.favoriteTree, path) || findTagNode(fileData.tagTree, path);
+            return tagNode?.displayPath ?? path;
+        };
+
+        return {
+            fileData,
+            getFileDisplayName,
+            getFileCreatedTime,
+            getFileModifiedTime,
+            getFileMetadata,
+            getDB: getDBInstance,
+            getFile: (path: string) => getDBInstance().getFile(path),
+            getFiles: (paths: string[]) => getDBInstance().getFiles(paths),
+            hasPreview: (path: string) => getDBInstance().hasPreview(path),
+            isStorageReady,
+            getTagTree,
+            getFavoriteTree,
+            findTagInTree,
+            findTagInFavoriteTree,
+            getAllTagPaths,
+            getTagDisplayPath,
+            rebuildCache
+        };
+    }, [fileData, settings, app, isStorageReady, rebuildCache]);
 
     /**
      * Centralized handler for all content-related settings changes
@@ -411,7 +535,16 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         };
     }, [app]); // Only recreate when app changes, not settings
 
-    // Database readiness check (await actual initialization)
+    /**
+     * Effect: Check if IndexedDB is ready and available
+     *
+     * This effect verifies that the database has been properly initialized by the plugin.
+     * The database is initialized early in main.ts during plugin load, but we need to
+     * confirm it's ready before attempting any database operations.
+     *
+     * The 'cancelled' flag prevents state updates if the component unmounts during
+     * the async initialization check.
+     */
     useEffect(() => {
         let cancelled = false;
         (async () => {
@@ -429,7 +562,17 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         };
     }, []);
 
-    // Listen for tag changes to rebuild tag tree and trigger initial cleanup
+    /**
+     * Effect: Listen for tag changes in the database to rebuild tag tree
+     *
+     * This subscribes to database content changes specifically for tag updates.
+     * When any file's tags are modified (added, removed, or changed), we need to:
+     * - Rebuild the entire tag tree structure to reflect the new tag hierarchy
+     * - Update note counts for affected tags and their parent tags
+     * - Update the untagged notes count if files gained or lost all tags
+     *
+     * The subscription is only active when storage is ready and tags are enabled.
+     */
     useEffect(() => {
         if (!isStorageReady) return;
 
@@ -448,9 +591,40 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         return unsubscribe;
     }, [isStorageReady, settings.showTags, rebuildTagTree]);
 
-    // Main initialization and vault monitoring effect
+    /**
+     * Main Effect: Initialize storage system and monitor vault changes
+     *
+     * This is the core effect that:
+     * 1. Performs initial database synchronization on startup
+     * 2. Sets up vault event listeners for file changes
+     * 3. Manages content generation queuing
+     * 4. Handles both cold boot (empty database) and warm boot (existing data)
+     *
+     * The effect has two main code paths:
+     * - Initial load (isInitialLoad=true): Synchronous processing for immediate UI
+     * - Background updates: Uses requestIdleCallback to avoid blocking UI
+     */
     useEffect(() => {
-        // Process existing files and handle updates
+        /**
+         * Process vault files and sync with database
+         *
+         * @param allFiles - All markdown files in the vault (after exclusion filters)
+         * @param isInitialLoad - True for initial startup, false for background updates
+         *
+         * Initial load path (isInitialLoad=true):
+         * - Runs synchronously to get UI ready quickly
+         * - Calculates diff between vault and database
+         * - Updates database with changes
+         * - Builds tag tree
+         * - Marks storage as ready
+         * - Waits for Obsidian metadata cache before extracting tags
+         * - Queues content generation for new/modified files
+         *
+         * Background update path (isInitialLoad=false):
+         * - Uses requestIdleCallback to avoid blocking UI
+         * - Processes changes incrementally
+         * - Only rebuilds tag tree if files were deleted
+         */
         const processExistingCache = async (allFiles: TFile[], isInitialLoad: boolean = false) => {
             if (stoppedRef.current) return;
             if (isFirstLoad.current) {
@@ -459,8 +633,12 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
             if (isInitialLoad) {
                 try {
-                    // Step 1: Process file changes to sync the database
+                    // Step 1: Calculate differences between vault and database
                     // This MUST happen first to ensure the database reflects the current vault state
+                    // toAdd: Files in vault but not in database (new files)
+                    // toUpdate: Files modified since last cached (mtime mismatch)
+                    // toRemove: Files in database but not in vault (deleted files)
+                    // cachedFiles: Current database state for comparison
                     const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
 
                     // Step 2: Update database with changes
@@ -485,7 +663,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                         api.setStorageReady(true);
                     }
 
-                    // Step 5: Handle metadata cleanup and content generation
+                    // Step 5: Wait for Obsidian's metadata cache before extracting tags
+                    // Tags come from Obsidian's metadata cache, not from reading files directly.
+                    // We must wait until Obsidian has parsed the frontmatter and content of each file
+                    // before we can extract tags. This is especially important on cold boot when
+                    // Obsidian is still indexing the vault.
                     if (settings.showTags) {
                         const filesNeedingTags = allFiles.filter(file => {
                             const fileData = getDBInstance().getFile(file.path);
@@ -493,7 +675,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                         });
 
                         if (filesNeedingTags.length > 0) {
-                            const disposer = waitForMetadataCache(() => {
+                            // waitForMetadataCache will fire the callback when all files have metadata
+                            const disposer = waitForMetadataCache(filesNeedingTags, () => {
                                 if (contentRegistry.current) {
                                     contentRegistry.current.queueFilesForAllProviders(filesNeedingTags, settings);
                                 }
@@ -514,8 +697,12 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     console.error('Failed during initial load sequence:', error);
                 }
             } else {
-                // Non-initial loads still process in background
+                // Background update path: Process changes when browser is idle
+                // This path is used for all vault changes after initial load to avoid
+                // blocking the UI. Changes are batched and processed during idle time.
+
                 // Cancel any previously scheduled idle work before queuing a new one
+                // This ensures we don't process stale updates if multiple changes happen quickly
                 if (pendingIdleCallbackId.current !== null) {
                     cancelIdleCallback(pendingIdleCallbackId.current);
                     pendingIdleCallbackId.current = null;
@@ -638,17 +825,31 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             }
         };
 
-        // The initial build is handled by processExistingCache with isInitialLoad=true
-
-        // Main function that orchestrates the file cache building
+        /**
+         * Build or rebuild the file cache
+         *
+         * This is the entry point for all cache building operations.
+         * Called with isInitialLoad=true on startup, false for updates.
+         */
         const buildFileCache = async (isInitialLoad: boolean = false) => {
             if (stoppedRef.current) return;
             const allFiles = getFilteredMarkdownFilesCallback();
             await processExistingCache(allFiles, isInitialLoad);
         };
 
-        // Trailing debounce for vault event bursts: schedule a rebuild and
-        // extend the timer while more events arrive within FILE_OPERATION_DELAY
+        buildFileCacheFnRef.current = buildFileCache;
+
+        /**
+         * Debounced cache rebuild for vault events
+         *
+         * Vault events (create, delete, rename) often come in bursts when:
+         * - Multiple files are moved/deleted at once
+         * - Sync operations update many files
+         * - Plugins modify multiple files
+         *
+         * The trailing debounce waits for events to stop before processing,
+         * extending the delay with each new event. This batches updates efficiently.
+         */
         const rebuildFileCache = debounce(
             () => {
                 if (stoppedRef.current) return;
@@ -665,7 +866,18 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             buildFileCache(true);
         }
 
-        // Listen to specific vault and metadata events
+        /**
+         * Set up vault event listeners
+         *
+         * These listeners trigger cache updates when files change:
+         * - create: New file added to vault
+         * - delete: File removed from vault
+         * - rename: File moved or renamed
+         * - modify: File content changed (special handling for immediate tag updates)
+         *
+         * Most events use debounced processing except 'modify' which processes
+         * immediately to ensure tags update quickly when editing files.
+         */
         const vaultEvents = [
             app.vault.on('create', rebuildFileCache),
             app.vault.on('delete', rebuildFileCache),
@@ -694,8 +906,16 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         ];
         activeVaultEventRefs.current = vaultEvents;
 
-        // Listen to metadata changes for non-tag updates
-        // Tags are already handled by the modify event above
+        /**
+         * Listen for metadata cache changes
+         *
+         * This handles frontmatter changes that might not trigger file modify events:
+         * - External tools changing files without updating mtime
+         * - Sync conflicts that preserve timestamps
+         * - Some plugins that modify frontmatter directly
+         *
+         * We mark files for regeneration to ensure content stays in sync.
+         */
         const metadataEvent = app.metadataCache.on('changed', async file => {
             if (stoppedRef.current) return;
             if (file && file.extension === 'md') {
@@ -720,6 +940,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
         // Cleanup
         return () => {
+            buildFileCacheFnRef.current = null;
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
             activeVaultEventRefs.current = null;
@@ -746,7 +967,19 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         };
     }, [app, api, isIndexedDBReady, getFilteredMarkdownFilesCallback, rebuildTagTree, settings, waitForMetadataCache]);
 
-    // Single effect to handle ALL content-related settings changes
+    /**
+     * Effect: Handle settings changes and exclusion updates
+     *
+     * This effect monitors for two types of changes:
+     * 1. Content settings (preview, images, metadata) - handled by ContentProviderRegistry
+     * 2. Exclusion settings (excluded folders/files) - requires cache resync
+     *
+     * When exclusions change, we must:
+     * - Recalculate which files should be in the cache
+     * - Add newly included files
+     * - Remove newly excluded files
+     * - Rebuild tag tree with new exclusion rules
+     */
     useEffect(() => {
         // Skip on initial mount
         if (!prevSettings.current) {
@@ -851,6 +1084,21 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
     }, [settings, handleSettingsChanges, rebuildTagTree, getFilteredMarkdownFilesCallback]);
 
+    /**
+     * Augment context with control methods
+     *
+     * Adds the stopAllProcessing method to the context value.
+     * This method is called when:
+     * - The view is being closed
+     * - The plugin is being disabled
+     * - A cache rebuild is starting (to stop current operations)
+     *
+     * It ensures clean shutdown by:
+     * - Stopping all content providers
+     * - Cancelling pending operations
+     * - Detaching event listeners
+     * - Preventing any new operations from starting
+     */
     const contextWithControls = useMemo(() => {
         return {
             ...contextValue,

@@ -389,7 +389,8 @@ export const STRINGS_ZH = {
         collapseExpand: '折叠/展开所有项目', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '为选定文件添加标签', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '从选定文件移除标签', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
-        removeAllTags: '从选定文件移除所有标签' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        removeAllTags: '从选定文件移除所有标签', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        rebuildCache: '重建缓存' // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
     },
 
     // Plugin UI
@@ -738,13 +739,20 @@ export const STRINGS_ZH = {
                 desc: '删除笔记或文件夹时显示确认对话框'
             },
             metadataCleanup: {
-                name: '清理插件设置',
-                desc: '移除在 Obsidian 外部删除、移动或重命名文件、文件夹或标签时留下的孤立设置。这仅影响 Notebook Navigator 设置文件。',
-                buttonText: '清理设置',
+                name: '清理元数据',
+                desc: '移除在 Obsidian 外部删除、移动或重命名文件、文件夹或标签时留下的孤立元数据。这仅影响 Notebook Navigator 设置文件。',
+                buttonText: '清理元数据',
                 error: '设置清理失败',
                 loading: '正在检查元数据...',
                 statusClean: '没有需要清理的元数据',
                 statusCounts: '孤立项目：{folders} 文件夹，{tags} 标签，{pinned} 置顶'
+            },
+            rebuildCache: {
+                name: '重建缓存',
+                desc: '如果出现标签缺失、预览不正确或图片缺失，请使用此功能。这可能在同步冲突或意外关闭后发生。',
+                buttonText: '重建缓存',
+                success: '缓存已重建',
+                error: '重建缓存失败'
             },
             externalIcons: {
                 downloadButton: '下载',

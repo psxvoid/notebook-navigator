@@ -245,6 +245,10 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Remove tag from selected files` Dialog to remove specific tag. Removes immediately if only one tag
 - `Notebook Navigator: Remove all tags from selected files` Clear all tags from selected files with confirmation
 
+**Maintenance**
+
+- `Notebook Navigator: Rebuild cache` Rebuilds the local Notebook Navigator cache. Use this if you experience missing tags, incorrect previews or missing feature images
+
 ### Command IDs
 
 | Command ID                              | Command name                                            |
@@ -265,6 +269,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 | `notebook-navigator:add-tag`            | Notebook Navigator: Add tag to selected files           |
 | `notebook-navigator:remove-tag`         | Notebook Navigator: Remove tag from selected files      |
 | `notebook-navigator:remove-all-tags`    | Notebook Navigator: Remove all tags from selected files |
+| `notebook-navigator:rebuild-cache`      | Notebook Navigator: Rebuild cache                       |
 
 <br>
 
@@ -305,7 +310,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Phosphor:** Flexible icon family - [phosphoricons.com](https://phosphoricons.com/)
   - **RPG Awesome:** Fantasy and RPG-themed icons - [nagoshiashumari.github.io/Rpg-Awesome](https://nagoshiashumari.github.io/Rpg-Awesome/)
 
-**Note:** Downloaded icon packs sync installation state across devices. Fonts stay in the local database on each device; sync only tracks whether to download or remove them.
+**Note:** Downloaded icon packs sync installation state across devices. Icons stay in the local database on each device; sync only tracks whether to download or remove them.
 
 ### Folders
 
@@ -377,7 +382,8 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 ### Advanced
 
 - **Confirm before deleting:** Show confirmation dialog when deleting notes or folders
-- **Clean up plugin settings:** Removes orphaned settings left behind when files, folders, or tags are deleted, moved, or renamed outside of Obsidian. This only affects the Notebook Navigator settings file
+- **Clean up metadata:** Removes orphaned metadata left behind when files, folders, or tags are deleted, moved, or renamed outside of Obsidian. This only affects the Notebook Navigator settings file
+- **Rebuild cache:** Use this if you experience missing tags, incorrect previews or missing feature images. This can happen after sync conflicts or unexpected closures
 
 _(\*) These settings store data to a local cache database. You can see the total size of the database at the bottom of the Settings pane. Uncheck each item to remove its data from the cache._
 

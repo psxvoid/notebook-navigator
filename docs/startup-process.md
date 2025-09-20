@@ -217,9 +217,13 @@ tag extraction:
    - Cold boot: UI can now render with files visible but no content
    - Warm boot: UI renders immediately with cached content
 8. If tags enabled (settings.showTags):
-   - Start tracking files needing tags (startTracking)
-   - Wait for metadata cache (useDeferredMetadataCleanup.waitForMetadataCache)
-   - Both cold and warm boot wait, but warm boot typically resolves immediately
+   - Filter files needing tags (where fileData.tags === null)
+   - Call waitForMetadataCache with these files
+   - Function tracks pending files without metadata
+   - Registers listeners for 'resolved' and 'changed' events on metadataCache
+   - As metadata becomes available, files are removed from pending set
+   - When all files have metadata (pending set empty), callback fires
+   - Callback queues files for tag extraction via ContentProviderRegistry
 9. When metadata cache ready:
    - Queue files (ContentProviderRegistry.queueFilesForAllProviders)
    - Tag extraction begins immediately
@@ -230,7 +234,8 @@ tag extraction:
 
 #### Data Flow Diagram
 
-The metadata cache resolution and tag extraction process is managed by the `useDeferredMetadataCleanup` hook:
+The metadata cache resolution and tag extraction process is managed by the `waitForMetadataCache` function in
+StorageContext:
 
 ```mermaid
 graph TD
@@ -267,17 +272,20 @@ graph TD
     subgraph "Shared Final Steps"
         M[Mark Storage Ready]
         M --> N{Tags Enabled?}
-        N -->|Yes| O[Start Tracking Files<br/>startTracking]
-        O --> P[Wait for Metadata Cache<br/>useDeferredMetadataCleanup]
-        P --> Q{Cache Ready?}
-        Q -->|Yes<br/>Usually warm boot| R[Queue Files Immediately]
-        Q -->|No<br/>Usually cold boot| S[Wait for 'resolved' Event]
-        S --> T[Metadata Resolves]
-        T --> R
+        N -->|Yes| O[Filter Files Needing Tags<br/>tags === null]
+        O --> P[waitForMetadataCache<br/>with filtered files]
+        P --> Q{Files have<br/>metadata?}
+        Q -->|All have metadata| R[Fire Callback Immediately]
+        Q -->|Some missing| S[Register Event Listeners<br/>'resolved' and 'changed']
+        S --> T[Track Pending Files]
+        T --> T2[As metadata arrives,<br/>remove from pending]
+        T2 --> T3{Pending<br/>empty?}
+        T3 -->|No| T2
+        T3 -->|Yes| R
         R --> U[ContentProviderRegistry<br/>queueFilesForAllProviders]
         U --> V[Process Files in Queue]
         V --> W[TagContentProvider<br/>Extracts Tags]
-        W --> X[Update Database<br/>Track Progress]
+        W --> X[Update Database]
         X --> Y{All Files<br/>Processed?}
         Y -->|No<br/>More files| V
         Y -->|Yes<br/>Complete| Skip[Begin Background Processing<br/>Phase 5]

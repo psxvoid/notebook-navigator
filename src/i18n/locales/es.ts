@@ -389,7 +389,8 @@ export const STRINGS_ES = {
         collapseExpand: 'Contraer / expandir todos los elementos', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Añadir etiqueta a archivos seleccionados', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Eliminar etiqueta de archivos seleccionados', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
-        removeAllTags: 'Eliminar todas las etiquetas de archivos seleccionados' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        removeAllTags: 'Eliminar todas las etiquetas de archivos seleccionados', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        rebuildCache: 'Reconstruir caché' // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
     },
 
     // Plugin UI
@@ -738,13 +739,20 @@ export const STRINGS_ES = {
                 desc: 'Muestra un diálogo de confirmación al eliminar notas o carpetas'
             },
             metadataCleanup: {
-                name: 'Limpiar configuración del plugin',
-                desc: 'Elimina configuraciones huérfanas dejadas cuando archivos, carpetas o etiquetas son eliminados, movidos o renombrados fuera de Obsidian. Esto solo afecta el archivo de configuración de Notebook Navigator.',
-                buttonText: 'Limpiar configuración',
+                name: 'Limpiar metadatos',
+                desc: 'Elimina metadatos huérfanos dejados cuando archivos, carpetas o etiquetas son eliminados, movidos o renombrados fuera de Obsidian. Esto solo afecta el archivo de configuración de Notebook Navigator.',
+                buttonText: 'Limpiar metadatos',
                 error: 'Falló la limpieza de configuración',
                 loading: 'Verificando metadatos...',
                 statusClean: 'No hay metadatos para limpiar',
                 statusCounts: 'Elementos huérfanos: {folders} carpetas, {tags} etiquetas, {pinned} fijados'
+            },
+            rebuildCache: {
+                name: 'Reconstruir caché',
+                desc: 'Úselo si faltan etiquetas, las vistas previas son incorrectas o faltan imágenes. Esto puede ocurrir después de conflictos de sincronización o cierres inesperados.',
+                buttonText: 'Reconstruir caché',
+                success: 'Caché reconstruido',
+                error: 'Error al reconstruir caché'
             },
             externalIcons: {
                 downloadButton: 'Descargar',

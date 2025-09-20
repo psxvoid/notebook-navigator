@@ -1604,6 +1604,30 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         void refreshMetadataCleanupSummary();
 
+        // Setting for manually triggering a complete cache rebuild
+        new Setting(containerEl)
+            .setName(strings.settings.items.rebuildCache.name)
+            .setDesc(strings.settings.items.rebuildCache.desc)
+            .addButton(button =>
+                button.setButtonText(strings.settings.items.rebuildCache.buttonText).onClick(async () => {
+                    // Disable button during rebuild operation
+                    button.setDisabled(true);
+                    try {
+                        // Trigger the cache rebuild through the plugin
+                        await this.plugin.rebuildCache();
+                        // Show success notification to user
+                        new Notice(strings.settings.items.rebuildCache.success);
+                    } catch (error) {
+                        console.error('Failed to rebuild cache from settings:', error);
+                        // Show error notification if rebuild fails
+                        new Notice(strings.settings.items.rebuildCache.error);
+                    } finally {
+                        // Re-enable button after operation completes
+                        button.setDisabled(false);
+                    }
+                })
+            );
+
         // What's New button
         new Setting(containerEl)
             .setName(strings.settings.items.whatsNew.name)

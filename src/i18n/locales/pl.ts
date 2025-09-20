@@ -390,7 +390,8 @@ export const STRINGS_PL = {
         collapseExpand: 'Zwiń / rozwiń wszystkie elementy', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Dodaj tag do wybranych plików', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Usuń tag z wybranych plików', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
-        removeAllTags: 'Usuń wszystkie tagi z wybranych plików' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        removeAllTags: 'Usuń wszystkie tagi z wybranych plików', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        rebuildCache: 'Odbuduj pamięć podręczną' // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
     },
 
     // Plugin UI
@@ -739,13 +740,20 @@ export const STRINGS_PL = {
                 desc: 'Pokaż dialog potwierdzenia podczas usuwania notatek lub folderów'
             },
             metadataCleanup: {
-                name: 'Wyczyść ustawienia wtyczki',
-                desc: 'Usuwa osierocone ustawienia pozostawione, gdy pliki, foldery lub tagi są usuwane, przenoszone lub zmieniane poza Obsidian. Ma to wpływ tylko na plik ustawień Notebook Navigator.',
-                buttonText: 'Wyczyść ustawienia',
+                name: 'Wyczyść metadane',
+                desc: 'Usuwa osierocone metadane pozostawione, gdy pliki, foldery lub tagi są usuwane, przenoszone lub zmieniane poza Obsidian. Ma to wpływ tylko na plik ustawień Notebook Navigator.',
+                buttonText: 'Wyczyść metadane',
                 error: 'Czyszczenie ustawień nie powiodło się',
                 loading: 'Sprawdzanie metadanych...',
                 statusClean: 'Brak metadanych do wyczyszczenia',
                 statusCounts: 'Osierocone elementy: {folders} folderów, {tags} tagów, {pinned} przypiętych'
+            },
+            rebuildCache: {
+                name: 'Odbuduj pamięć podręczną',
+                desc: 'Użyj tego, jeśli brakuje tagów, podglądy są nieprawidłowe lub brakuje obrazów. Może się to zdarzyć po konfliktach synchronizacji lub nieoczekiwanych zamknięciach.',
+                buttonText: 'Odbuduj pamięć podręczną',
+                success: 'Pamięć podręczna została odbudowana',
+                error: 'Nie udało się odbudować pamięci podręcznej'
             },
             externalIcons: {
                 downloadButton: 'Pobierz',

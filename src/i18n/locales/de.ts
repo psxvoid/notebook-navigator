@@ -389,7 +389,8 @@ export const STRINGS_DE = {
         collapseExpand: 'Alle Elemente ein-/ausklappen', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Tag zu ausgewählten Dateien hinzufügen', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Tag von ausgewählten Dateien entfernen', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
-        removeAllTags: 'Alle Tags von ausgewählten Dateien entfernen' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        removeAllTags: 'Alle Tags von ausgewählten Dateien entfernen', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        rebuildCache: 'Cache neu aufbauen' // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
     },
 
     // Plugin UI
@@ -739,13 +740,20 @@ export const STRINGS_DE = {
                 desc: 'Bestätigungsdialog beim Löschen von Notizen oder Ordnern anzeigen'
             },
             metadataCleanup: {
-                name: 'Plugin-Einstellungen bereinigen',
-                desc: 'Entfernt verwaiste Einstellungen, die zurückbleiben, wenn Dateien, Ordner oder Tags außerhalb von Obsidian gelöscht, verschoben oder umbenannt werden. Dies betrifft nur die Notebook Navigator Einstellungsdatei.',
-                buttonText: 'Einstellungen bereinigen',
+                name: 'Metadaten bereinigen',
+                desc: 'Entfernt verwaiste Metadaten, die zurückbleiben, wenn Dateien, Ordner oder Tags außerhalb von Obsidian gelöscht, verschoben oder umbenannt werden. Dies betrifft nur die Notebook Navigator Einstellungsdatei.',
+                buttonText: 'Metadaten bereinigen',
                 error: 'Einstellungen-Bereinigung fehlgeschlagen',
                 loading: 'Metadaten werden überprüft...',
                 statusClean: 'Keine Metadaten zu bereinigen',
                 statusCounts: 'Verwaiste Elemente: {folders} Ordner, {tags} Tags, {pinned} Pins'
+            },
+            rebuildCache: {
+                name: 'Cache neu aufbauen',
+                desc: 'Verwenden Sie dies, wenn Tags fehlen, Vorschauen falsch sind oder Bilder fehlen. Dies kann nach Synchronisierungskonflikten oder unerwarteten Schließungen auftreten.',
+                buttonText: 'Cache neu aufbauen',
+                success: 'Cache wurde neu aufgebaut',
+                error: 'Cache-Neuaufbau fehlgeschlagen'
             },
             externalIcons: {
                 downloadButton: 'Herunterladen',

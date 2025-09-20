@@ -75,7 +75,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-09-20',
         new: [
             'You can now choose a ==Homepage document== that opens a Markdown, Canvas, or Base file on startup. You can change it in settings.',
-            'Added a new command "Notebook Navigator: Open homepage" to open your configured homepage file directly.'
+            'Added a new command "Notebook Navigator: Open homepage" to open your configured homepage file directly.',
+            'Added a ==Rebuild cache== command to clear and rebuild the Notebook Navigator cache. Use this if you experience missing tags, incorrect previews or missing feature images. This can happen after sync conflicts or unexpected closures.',
+            'Settings now also include a **Rebuild cache** button that clears and rebuilds the cache.'
         ],
         improved: [
             'Icon picker now provides better search results with improved relevance scoring and fuzzy matching.',
