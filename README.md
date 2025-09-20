@@ -218,6 +218,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 **View & navigation**
 
 - `Notebook Navigator: Open` Opens Notebook Navigator in left sidebar. If already open, focuses the file list pane. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+E` to move keyboard focus to the list pane - **this is essential for full keyboard navigation**
+- `Notebook Navigator: Open homepage` Opens the Notebook Navigator view and loads the homepage file configured in settings
 - `Notebook Navigator: Reveal file` Reveals current file in navigator. Expands parent folders and scrolls to file. This command is useful if you have the setting `Auto-reveal active note` switched off and want to reveal notes manually
 - `Notebook Navigator: Navigate to folder` Search dialog to jump to any folder
 - `Notebook Navigator: Navigate to tag` Search dialog to jump to any tag
@@ -249,6 +250,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 | Command ID                              | Command name                                            |
 | --------------------------------------- | ------------------------------------------------------- |
 | `notebook-navigator:open`               | Notebook Navigator: Open                                |
+| `notebook-navigator:open-homepage`      | Notebook Navigator: Open homepage                       |
 | `notebook-navigator:reveal-file`        | Notebook Navigator: Reveal file                         |
 | `notebook-navigator:navigate-to-folder` | Notebook Navigator: Navigate to folder                  |
 | `notebook-navigator:navigate-to-tag`    | Notebook Navigator: Navigate to tag                     |
@@ -353,6 +355,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show note preview (\*):** Display preview text beneath note names
   - **Preview rows:** Number of rows to display for preview text. `1-5`
   - **Skip headings in preview:** Skip heading lines when generating preview text
+  - **Skip code blocks in preview:** Skip code blocks when generating preview text
   - **Preview properties:** Comma-separated list of frontmatter properties to check for preview text. The first property with text will be used
 - **Show feature image (\*):** Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents
   - **Image properties:** Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. If empty and the fallback setting is enabled, the first embedded image will be used
