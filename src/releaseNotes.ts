@@ -77,9 +77,14 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'You can now choose a ==Homepage document== that opens a Markdown, Canvas, or Base file on startup. You can change it in settings.',
             'Added a new command "Notebook Navigator: Open homepage" to open your configured homepage file directly.'
         ],
-        improved: ['Icon picker now provides better search results with improved relevance scoring and fuzzy matching.'],
+        improved: [
+            'Icon picker now provides better search results with improved relevance scoring and fuzzy matching.',
+            'Read metadata from frontmatter now also accepts string arrays as name property and will use the first entry if that is the case.'
+        ],
         changed: ['File tags now show without the # prefix. Makes for a cleaner look.'],
-        fixed: ['Icon packs now re-download automatically on the next app launch if download should fail.']
+        fixed: [
+            'Icon packs now re-download automatically on the next app launch if download should fail.'
+        ]
     },
     {
         version: '1.4.20',

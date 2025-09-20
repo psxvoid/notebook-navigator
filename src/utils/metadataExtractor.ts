@@ -60,8 +60,20 @@ export function extractMetadataFromCache(metadata: CachedMetadata | null, settin
     // Extract name if field is specified
     if (settings.frontmatterNameField && settings.frontmatterNameField.trim()) {
         const nameValue = frontmatter[settings.frontmatterNameField];
-        if (nameValue && typeof nameValue === 'string' && nameValue.trim()) {
-            result.fn = nameValue.trim();
+
+        if (typeof nameValue === 'string') {
+            const trimmedName = nameValue.trim();
+            if (trimmedName) {
+                result.fn = trimmedName;
+            }
+        } else if (Array.isArray(nameValue)) {
+            const firstValue = nameValue[0];
+            if (typeof firstValue === 'string') {
+                const trimmedName = firstValue.trim();
+                if (trimmedName) {
+                    result.fn = trimmedName;
+                }
+            }
         }
     } else {
         // Field is empty, don't set name field (leave undefined)
