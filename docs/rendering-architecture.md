@@ -371,7 +371,7 @@ Renders file entries with:
 - Title with custom names from frontmatter
 - Preview text (configurable rows)
 - Feature images
-- Tag pills
+- Tag pills (sorted alphabetically with priority: favorites → colored → uncolored)
 - Date display
 - File type badges
 - Quick action buttons on hover (desktop only):

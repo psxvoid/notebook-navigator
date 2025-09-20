@@ -97,7 +97,7 @@ separation of concerns.
 - Folder metadata (colors, icons, sort overrides, appearances)
 - Tag metadata (colors, icons, sort overrides, appearances)
 - File metadata (pinned notes)
-- Metadata cleanup during startup
+- Metadata cleanup (automatic for Obsidian operations, manual for external changes)
 - Rename operations coordination
 
 **Sub-Services:**
@@ -145,10 +145,12 @@ getPinnedNotes(context?: PinContext): string[]
 handleFileDelete(filePath: string): Promise<void>
 handleFileRename(oldPath: string, newPath: string): Promise<void>
 
-// Cleanup operations
-cleanupAllMetadata(): Promise<boolean>
-cleanupTagMetadata(): Promise<boolean>
-runUnifiedCleanup(validators: CleanupValidators): Promise<boolean>
+// Cleanup operations (for external file changes)
+cleanupAllMetadata(): Promise<CleanupResult>  // Manual trigger from settings
+cleanupTagMetadata(): Promise<CleanupResult>
+cleanupFolderMetadata(): Promise<CleanupResult>
+cleanupPinnedNotes(): Promise<CleanupResult>
+runUnifiedCleanup(validators: CleanupValidators): Promise<CleanupResult>
 static prepareCleanupValidators(app: App, tagTree: Map<string, TagTreeNode>): CleanupValidators
 ```
 
@@ -401,16 +403,40 @@ Singleton service managing icon providers and rendering.
 
 **Responsibilities:**
 
-- Provider registration (Lucide, Emoji)
+- Provider registration (built-in and external)
 - Icon ID parsing with prefixes
 - Recent icons tracking
 - Cross-provider search
 - Icon rendering coordination
+- External icon pack management
 
-**Icon Providers:**
+**Built-in Icon Providers:**
 
 - **LucideIconProvider** - Obsidian's built-in Lucide icons
 - **EmojiIconProvider** - Unicode emoji support
+
+**Downloadable Icon Packs:**
+
+External icon packs can be downloaded and managed through settings:
+
+- **BootstrapIconProvider** - Bootstrap Icons (1,800+ icons)
+- **FontAwesomeIconProvider** - Font Awesome Free (2,000+ icons)
+- **MaterialIconProvider** - Material Icons (2,100+ icons)
+- **PhosphorIconProvider** - Phosphor Icons (7,000+ icons)
+- **RpgAwesomeIconProvider** - RPG Awesome (500+ game/fantasy icons)
+
+**Icon Pack Architecture:**
+
+- **ExternalIconProviderController** (`src/services/icons/external/ExternalIconProviderController.ts`)
+  - Manages download, installation, and removal of icon packs
+  - Handles version management and updates
+  - Coordinates with IconAssetDatabase for storage
+
+- **IconAssetDatabase** (`src/services/icons/external/IconAssetDatabase.ts`)
+  - IndexedDB-based storage for icon pack assets (fonts, CSS, manifests)
+  - Device-local storage (not synced across devices)
+  - Automatic cleanup and version management
+  - Database name: `notebooknavigator/icon-assets/{appId}`
 
 **Key Methods:**
 
@@ -586,11 +612,17 @@ Background content generation follows this process (see startup-process.md Phase
 
 ### Metadata Cleanup Flow
 
-Cleanup runs after initial load to remove orphaned metadata:
+Metadata cleanup handles two scenarios:
+
+**Automatic Cleanup**: When files/folders are deleted through Obsidian's interface, their metadata is cleaned up immediately.
+
+**Manual Cleanup**: For files/folders deleted outside Obsidian (file system, external tools), cleanup must be triggered from settings.
+
+**Manual Trigger**: Settings → Notebook Navigator → Advanced → "Clean up metadata" button
 
 1. **Validator Preparation**: `MetadataService.prepareCleanupValidators()`
    - Collects all vault files and folders
-   - Builds tag tree from extracted tags
+   - Builds tag tree from current tags
    - Creates validator data structures
 
 2. **Cleanup Operations**: `MetadataService.runUnifiedCleanup()`
@@ -598,8 +630,11 @@ Cleanup runs after initial load to remove orphaned metadata:
    - Validates pinned notes against vault files
    - Validates tag metadata against tag tree
    - Removes orphaned entries
+   - Returns cleanup results with counts of removed items
 
 3. **Settings Persistence**: Updated settings saved to `data.json`
+
+4. **User Feedback**: Shows notice with cleanup results (e.g., "Cleaned up 3 folders, 5 tags")
 
 ### File Operation Flow
 

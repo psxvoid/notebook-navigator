@@ -19,7 +19,7 @@
 
 ## Overview
 
-The Notebook Navigator plugin uses four distinct storage containers, each serving a specific purpose in the plugin's
+The Notebook Navigator plugin uses five distinct storage containers, each serving a specific purpose in the plugin's
 data management strategy. These containers work together to provide fast performance, data persistence, and cross-device
 synchronization while maintaining clear separation of concerns.
 
@@ -206,6 +206,57 @@ interface NotebookNavigatorSettings {
   // ... more settings
 ```
 
+### 5. Icon Assets Database (Device-Specific Storage)
+
+**Purpose**: Stores downloaded icon pack assets locally on each device. This allows users to have extensive icon libraries without bloating the vault or sync system.
+
+**Location**: Browser's IndexedDB storage (device-specific)
+
+**Synchronization**: Not synchronized - each device downloads its own icon packs
+
+**Data Stored**:
+
+- Icon font files (WOFF2 format)
+- CSS stylesheets for icon rendering
+- Icon manifests with metadata
+- Version information for each pack
+
+**Key Characteristics**:
+
+- Persists across Obsidian restarts
+- Large storage capacity for font assets (5MB-10MB per pack)
+- Asynchronous download and storage
+- Automatic version management
+- Database name: `notebooknavigator/icon-assets/{appId}`
+- Separate from main cache database
+
+**Icon Pack Management**:
+
+- Settings only store which packs are enabled (small metadata)
+- Each device checks settings and downloads needed packs
+- Packs can be installed/removed independently per device
+- Updates handled automatically when new versions available
+
+**Available Icon Packs**:
+
+- **Bootstrap Icons**: 1,800+ icons
+- **Font Awesome Free**: 2,000+ icons
+- **Material Icons**: 2,100+ icons
+- **Phosphor Icons**: 7,000+ icons
+- **RPG Awesome**: 500+ game/fantasy icons
+
+**Implementation**: `src/services/icons/external/IconAssetDatabase.ts`
+
+```typescript
+interface IconAssetRecord {
+  providerId: string;
+  version: string;
+  css: string;
+  fontData: ArrayBuffer;
+  manifest: ExternalIconManifest;
+}
+```
+
 ## Data Flow Patterns
 
 ### Initial Load (Cold Boot)
@@ -271,6 +322,13 @@ interface NotebookNavigatorSettings {
 - Changes should trigger UI updates
 - Data is small and JSON-serializable
 
+### Use Icon Assets Database When:
+
+- Storing large binary assets (fonts, images)
+- Data is too large for settings sync
+- Device-specific resources are acceptable
+- Content can be re-downloaded if needed
+
 ## Performance Considerations
 
 ### IndexedDB
@@ -294,7 +352,7 @@ interface NotebookNavigatorSettings {
 ### Settings
 
 - **File Size**: Keep under 1MB to avoid sync conflicts
-- **Metadata Cleanup**: Regularly remove orphaned metadata
+- **Metadata Cleanup**: Remove orphaned metadata via settings for files deleted outside Obsidian
 - **Change Detection**: Use React context for efficient re-renders
 
 ## Version Management

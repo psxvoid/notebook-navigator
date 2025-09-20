@@ -280,81 +280,33 @@ graph TD
         W --> X[Update Database<br/>Track Progress]
         X --> Y{All Files<br/>Processed?}
         Y -->|No<br/>More files| V
-        Y -->|Yes<br/>Complete| Z[Run Metadata Cleanup<br/>see 4.1]
+        Y -->|Yes<br/>Complete| Skip[Begin Background Processing<br/>Phase 5]
         N -->|No<br/>Tags disabled| Skip2[Queue Files Without Tags]
-        Skip2 --> Z
-        Z --> Skip[Begin Background Processing<br/>Phase 5]
+        Skip2 --> Skip
     end
 
     Skip
 ```
 
-#### 4.1 Metadata Cleanup Process:
+#### Metadata Cleanup
 
-**Purpose**: Remove orphaned metadata for folders, tags, and files that no longer exist in the vault. This prevents the
-settings file from growing indefinitely with obsolete data.
+**Purpose**: Remove orphaned metadata for folders, tags, and files that were deleted outside of Obsidian. When files are deleted through Obsidian's interface, metadata is cleaned up automatically. This manual cleanup is only needed for external changes.
 
-**Timing**:
+**When It's Needed**:
+- Files/folders deleted directly from file system
+- Vault synchronized with missing files
+- Files removed by external tools or scripts
+- After major vault reorganization outside Obsidian
 
-- With tags enabled: Runs after all tags are extracted
-- With tags disabled: Runs immediately after files are queued
+**How to Run**: Open Settings → Notebook Navigator → Advanced → Clean up metadata
 
-**Architecture**: The cleanup uses "validators" - data structures that contain the current state of the vault (which
-files, folders, and tags actually exist). The cleanup process compares stored metadata against these validators to
-identify and remove orphaned entries:
+**What Gets Cleaned**:
+- Folder colors, icons, and sort settings for deleted folders
+- Tag colors, icons, and sort settings for removed tags
+- Pinned notes that no longer exist
+- Custom appearances for non-existent items
 
-```typescript
-// Prepare validators with current vault state (files, folders, tags)
-const validators = MetadataService.prepareCleanupValidators(app, tagTree);
-
-// Run unified cleanup using validators to identify orphaned metadata
-await metadataService.runUnifiedCleanup(validators);
-```
-
-**Validator Preparation** (`MetadataService.prepareCleanupValidators`):
-
-Validators are data structures containing the current "truth" about what exists in the vault:
-
-```
-1. Collect vault files:
-   - Get all markdown files from vault
-   - Store as set of all file paths
-
-2. Collect vault folders:
-   - Recursively traverse folder tree from root
-   - Collect actual folder paths directly from vault structure
-   - Store as set of all folder paths including empty folders
-
-3. Create validators object containing:
-   - dbFiles: All files from IndexedDB (for cross-referencing)
-   - tagTree: Combined favorite and regular tag trees (empty Map if tags disabled)
-   - vaultFiles: Set of all file paths that currently exist
-   - vaultFolders: Set of all folder paths that currently exist
-```
-
-**Cleanup Operations** (`runUnifiedCleanup`):
-
-Using the validators, the cleanup removes orphaned metadata:
-
-```
-1. Validate folder metadata (always runs):
-   - Compare stored folder settings against vaultFolders validator
-   - Check each folder color/icon/sort/appearance setting
-   - Remove settings for folders not in vaultFolders set
-
-2. Validate pinned notes (always runs):
-   - Compare pinned file paths against vaultFiles validator
-   - Check each folder's pinned notes list
-   - Remove references to files not in vaultFiles set
-
-3. Validate tag metadata:
-   - Compare stored tag settings against tagTree validator
-   - Remove settings for tags not present in the combined tag tree
-   - Uses the complete tag tree after extraction to avoid premature cleanup
-
-4. Save cleaned settings:
-   - Write updated settings back to data.json if any changes were made
-```
+**Technical Details**: The cleanup process uses validators to compare stored metadata against the current vault state. See `MetadataService.cleanupAllMetadata()` for implementation.
 
 ### Phase 5: Background Processing
 
