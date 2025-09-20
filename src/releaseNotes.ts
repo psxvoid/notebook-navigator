@@ -76,6 +76,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: [
             'You can now choose a ==Homepage document== that opens a Markdown, Canvas, or Base file on startup.',
             'Added a new command "Notebook Navigator: Open homepage" to quickly open your configured homepage file.'
+        ],
+        improved: [
+            'Icon picker now provides better search results with improved relevance scoring and fuzzy matching.'
+        ],
+        fixed: [
+            'Fixed icon picker search for single letters and exact matches not appearing in the results (e.g. searching for "d" now properly shows matching icons).'
         ]
     },
     {

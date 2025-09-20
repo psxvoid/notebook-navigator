@@ -50,6 +50,7 @@ export class IconPickerModal extends Modal {
 
     private tabContainer: HTMLDivElement;
     private domDisposers: (() => void)[] = [];
+    private providerTabs: HTMLElement[] = [];
 
     public static getLastUsedProvider(): string | null {
         return IconPickerModal.lastUsedProvider;
@@ -121,6 +122,11 @@ export class IconPickerModal extends Modal {
 
         // Focus search input
         this.searchInput.focus();
+        if (typeof window !== 'undefined') {
+            window.requestAnimationFrame(() => {
+                this.searchInput.focus();
+            });
+        }
 
         // Show initial results
         this.updateResults();
@@ -128,6 +134,8 @@ export class IconPickerModal extends Modal {
 
     private createProviderTabs() {
         this.tabContainer = this.contentEl.createDiv('nn-icon-provider-tabs');
+        this.tabContainer.setAttribute('role', 'tablist');
+        this.providerTabs = [];
 
         const providers = this.iconService
             .getAllProviders()
@@ -142,22 +150,21 @@ export class IconPickerModal extends Modal {
                 cls: 'nn-icon-provider-tab',
                 text: provider.name
             });
-
-            if (provider.id === resolvedProviderId) {
-                tab.addClass('nn-active');
-            }
+            tab.setAttribute('role', 'tab');
+            tab.setAttribute('tabindex', '-1');
+            tab.dataset.providerId = provider.id;
+            this.providerTabs.push(tab);
 
             this.addDomListener(tab, 'click', () => {
-                // Update active tab
-                this.tabContainer.querySelectorAll('.nn-icon-provider-tab').forEach(t => t.removeClass('nn-active'));
-                tab.addClass('nn-active');
-
-                // Update current provider and refresh results
+                this.setActiveProviderTab(provider.id);
                 this.currentProvider = provider.id;
                 IconPickerModal.setLastUsedProvider(provider.id);
                 this.updateResults();
+                this.resetResultsScroll();
             });
         });
+
+        this.setActiveProviderTab(resolvedProviderId);
     }
 
     private resolveInitialProvider(providers: IconProvider[]): string {
@@ -182,86 +189,111 @@ export class IconPickerModal extends Modal {
         this.resultsContainer.empty();
 
         const searchTerm = this.searchInput.value.toLowerCase().trim();
+        const provider = this.iconService.getProvider(this.currentProvider);
 
         if (searchTerm === '') {
-            // Show recently used icons for the current provider
-            const settings = this.settingsProvider.settings;
-            const recentIcons = settings.recentIcons?.[this.currentProvider] || [];
+            const hasRecents = this.renderRecentIcons();
 
-            if (recentIcons.length > 0) {
-                const header = this.resultsContainer.createDiv('nn-icon-section-header');
-                header.setText(strings.modals.iconPicker.recentlyUsedHeader);
-
-                const grid = this.resultsContainer.createDiv('nn-icon-grid');
-                recentIcons.forEach(iconId => {
-                    const parsed = this.iconService.parseIconId(iconId);
-                    const provider = this.iconService.getProvider(parsed.provider);
-                    if (provider) {
-                        if (this.currentProvider === 'lucide') {
-                            const icons = provider.getAll();
-                            const iconDef = icons.find(i => i.id === parsed.identifier);
-                            if (iconDef) {
-                                this.createIconItem(iconDef, grid, provider);
-                            }
-                        } else if (this.currentProvider === 'emoji') {
-                            // For emojis, create icon definition on the fly
-                            // Try to find the emoji name from emojilib
-                            let displayName = '';
-                            for (const [emoji, keywords] of Object.entries(emojilib)) {
-                                if (emoji === parsed.identifier && Array.isArray(keywords)) {
-                                    displayName = keywords[0] || '';
-                                    break;
-                                }
-                            }
-
-                            const iconDef = {
-                                id: parsed.identifier,
-                                displayName: displayName,
-                                preview: parsed.identifier
-                            };
-                            this.createIconItem(iconDef, grid, provider);
-                        } else {
-                            const icons = provider.getAll();
-                            const iconDef = icons.find(i => i.id === parsed.identifier);
-                            if (iconDef) {
-                                this.createIconItem(iconDef, grid, provider);
-                            }
-                        }
-                    }
-                });
-            } else {
+            if (!hasRecents) {
                 if (this.currentProvider === 'emoji') {
-                    // Show instructions for emoji tab when no recent emojis
                     const emptyMessage = this.resultsContainer.createDiv('nn-icon-empty-message');
                     emptyMessage.setText(strings.modals.iconPicker.emojiInstructions);
                 } else {
                     this.showEmptyState();
                 }
             }
-        } else {
-            // Search within current provider
-            const results = this.iconService.search(searchTerm, this.currentProvider);
-
-            if (results.length > 0) {
-                const grid = this.resultsContainer.createDiv('nn-icon-grid');
-                const provider = this.iconService.getProvider(this.currentProvider);
-
-                // Limit to first MAX_SEARCH_RESULTS results
-                results.slice(0, MAX_SEARCH_RESULTS).forEach(iconDef => {
-                    if (provider) {
-                        this.createIconItem(iconDef, grid, provider);
-                    }
-                });
-
-                if (results.length > MAX_SEARCH_RESULTS) {
-                    const moreMessage = this.resultsContainer.createDiv('nn-icon-more-message');
-                    moreMessage.setText(strings.modals.iconPicker.showingResultsInfo.replace('{count}', results.length.toString()));
-                }
-            } else {
-                // Show empty state for all providers
-                this.showEmptyState(true);
-            }
+            return;
         }
+
+        const results = this.iconService.search(searchTerm, this.currentProvider);
+
+        if (results.length > 0 && provider) {
+            const grid = this.resultsContainer.createDiv('nn-icon-grid');
+
+            results.slice(0, MAX_SEARCH_RESULTS).forEach(iconDef => {
+                this.createIconItem(iconDef, grid, provider);
+            });
+
+            if (results.length > MAX_SEARCH_RESULTS) {
+                const moreMessage = this.resultsContainer.createDiv('nn-icon-more-message');
+                moreMessage.setText(strings.modals.iconPicker.showingResultsInfo.replace('{count}', results.length.toString()));
+            }
+            return;
+        }
+
+        this.showEmptyState(true);
+    }
+
+    private renderRecentIcons(): boolean {
+        const settings = this.settingsProvider.settings;
+        const recentIcons = settings.recentIcons?.[this.currentProvider] || [];
+
+        if (!recentIcons.length) {
+            return false;
+        }
+
+        const header = this.resultsContainer.createDiv('nn-icon-section-header');
+        header.setText(strings.modals.iconPicker.recentlyUsedHeader);
+        const grid = this.resultsContainer.createDiv('nn-icon-grid');
+
+        let rendered = 0;
+        const providerCache = new Map<string, IconDefinition[]>();
+
+        recentIcons.forEach(iconId => {
+            const parsed = this.iconService.parseIconId(iconId);
+            const provider = this.iconService.getProvider(parsed.provider);
+            if (!provider) {
+                return;
+            }
+
+            if (provider.id === 'emoji') {
+                let displayName = '';
+                for (const [emoji, keywords] of Object.entries(emojilib)) {
+                    if (emoji === parsed.identifier && Array.isArray(keywords)) {
+                        displayName = keywords[0] || '';
+                        break;
+                    }
+                }
+
+                const iconDef = {
+                    id: parsed.identifier,
+                    displayName,
+                    preview: parsed.identifier
+                };
+                this.createIconItem(iconDef, grid, provider);
+                rendered += 1;
+                return;
+            }
+
+            let icons = providerCache.get(provider.id);
+            if (!icons) {
+                icons = provider.getAll();
+                providerCache.set(provider.id, icons);
+            }
+
+            const iconDef = icons.find(icon => icon.id === parsed.identifier);
+            if (!iconDef) {
+                return;
+            }
+
+            this.createIconItem(iconDef, grid, provider);
+            rendered += 1;
+        });
+
+        if (rendered === 0) {
+            header.remove();
+            grid.remove();
+            return false;
+        }
+
+        return true;
+    }
+
+    private resetResultsScroll(): void {
+        if (!this.resultsContainer) {
+            return;
+        }
+        this.resultsContainer.scrollTop = 0;
     }
 
     private showEmptyState(isSearch: boolean = false) {
@@ -347,15 +379,39 @@ export class IconPickerModal extends Modal {
     }
 
     private setupKeyboardNavigation() {
-        // Shift+Tab -> focus search input
+        // Shift+Tab -> focus search input or provider tabs based on current focus
         this.scope.register(['Shift'], 'Tab', evt => {
+            const currentFocused = document.activeElement as HTMLElement | null;
+
+            if (currentFocused?.classList.contains('nn-icon-provider-tab')) {
+                evt.preventDefault();
+                return;
+            }
+
             evt.preventDefault();
+            const activeTab = this.getActiveProviderTab();
+
+            if (currentFocused?.classList.contains('nn-icon-item')) {
+                this.searchInput.focus();
+                return;
+            }
+
+            if (currentFocused === this.searchInput) {
+                activeTab?.focus();
+                return;
+            }
+
             this.searchInput.focus();
         });
 
         // Tab -> focus first icon if not in grid
         this.scope.register([], 'Tab', evt => {
             const currentFocused = document.activeElement as HTMLElement;
+            if (currentFocused?.classList.contains('nn-icon-provider-tab')) {
+                evt.preventDefault();
+                this.searchInput.focus();
+                return;
+            }
             const isInGrid = currentFocused?.classList.contains('nn-icon-item');
 
             if (!isInGrid) {
@@ -383,6 +439,14 @@ export class IconPickerModal extends Modal {
 
     private handleArrowKey(evt: KeyboardEvent, deltaX: number, deltaY: number) {
         const currentFocused = document.activeElement as HTMLElement;
+        if (currentFocused?.classList.contains('nn-icon-provider-tab')) {
+            if (deltaX === 0) {
+                return;
+            }
+            evt.preventDefault();
+            this.focusAdjacentTab(currentFocused, deltaX);
+            return;
+        }
         if (!currentFocused?.classList.contains('nn-icon-item')) return;
 
         evt.preventDefault();
@@ -402,6 +466,28 @@ export class IconPickerModal extends Modal {
         }
     }
 
+    private focusAdjacentTab(currentTab: HTMLElement, deltaX: number) {
+        const currentIndex = this.providerTabs.indexOf(currentTab);
+        if (currentIndex === -1) {
+            return;
+        }
+
+        const nextIndex = currentIndex + (deltaX < 0 ? -1 : 1);
+        if (nextIndex < 0 || nextIndex >= this.providerTabs.length) {
+            return;
+        }
+
+        const nextTab = this.providerTabs[nextIndex];
+        const providerId = nextTab.dataset.providerId;
+        if (!providerId) {
+            return;
+        }
+
+        this.setActiveProviderTab(providerId);
+        nextTab.focus();
+        nextTab.click();
+    }
+
     private ensureIconVisible(iconElement: HTMLElement) {
         const container = this.resultsContainer;
         const containerRect = container.getBoundingClientRect();
@@ -416,6 +502,23 @@ export class IconPickerModal extends Modal {
         if (elementRect.bottom > containerRect.bottom - padding) {
             container.scrollTop += elementRect.bottom - containerRect.bottom + padding;
         }
+    }
+
+    private setActiveProviderTab(providerId: string) {
+        this.providerTabs.forEach(tab => {
+            const isActive = tab.dataset.providerId === providerId;
+            if (isActive) {
+                tab.addClass('nn-active');
+                tab.setAttribute('tabindex', '0');
+            } else {
+                tab.removeClass('nn-active');
+                tab.setAttribute('tabindex', '-1');
+            }
+        });
+    }
+
+    private getActiveProviderTab(): HTMLElement | null {
+        return this.providerTabs.find(tab => tab.dataset.providerId === this.currentProvider) ?? null;
     }
 
     onClose() {

@@ -80,18 +80,46 @@ export class LucideIconProvider implements IconProvider {
         }
 
         const allIcons = this.getIconList();
+        const matches: { icon: IconDefinition; score: number; name: string; id: string }[] = [];
 
-        return allIcons
-            .filter(id => {
-                const normalizedId = id.toLowerCase();
-                return normalizedId.includes(normalizedQuery) || this.getKeywords(id).some(keyword => keyword.includes(normalizedQuery));
-            })
-            .map(id => ({
-                id,
-                displayName: this.formatDisplayName(id),
-                keywords: this.getKeywords(id)
-            }))
-            .slice(0, 50);
+        for (const id of allIcons) {
+            const keywords = this.getKeywords(id);
+            const normalizedKeywords = keywords.map(keyword => keyword.toLowerCase());
+            const displayName = this.formatDisplayName(id);
+            const normalizedId = id.toLowerCase();
+            const normalizedDisplay = displayName.toLowerCase();
+            const score = this.resolveMatchScore(normalizedQuery, normalizedId, normalizedDisplay, normalizedKeywords);
+
+            if (score === null) {
+                continue;
+            }
+
+            matches.push({
+                icon: {
+                    id,
+                    displayName,
+                    keywords
+                },
+                score,
+                name: normalizedDisplay || normalizedId,
+                id
+            });
+        }
+
+        matches.sort((a, b) => {
+            if (a.score !== b.score) {
+                return a.score - b.score;
+            }
+
+            const nameCompare = a.name.localeCompare(b.name);
+            if (nameCompare !== 0) {
+                return nameCompare;
+            }
+
+            return a.id.localeCompare(b.id);
+        });
+
+        return matches.map(match => match.icon).slice(0, 50);
     }
 
     /**
@@ -212,5 +240,36 @@ export class LucideIconProvider implements IconProvider {
         });
 
         return [...keywords, ...additionalKeywords];
+    }
+
+    private resolveMatchScore(query: string, iconId: string, displayName: string, keywords: string[]): number | null {
+        if (iconId === query) {
+            return 0;
+        }
+        if (displayName && displayName === query) {
+            return 1;
+        }
+        if (keywords.includes(query)) {
+            return 2;
+        }
+        if (iconId.startsWith(query)) {
+            return 3;
+        }
+        if (displayName && displayName.startsWith(query)) {
+            return 4;
+        }
+        if (keywords.some(keyword => keyword.startsWith(query))) {
+            return 5;
+        }
+        if (iconId.includes(query)) {
+            return 6;
+        }
+        if (displayName && displayName.includes(query)) {
+            return 7;
+        }
+        if (keywords.some(keyword => keyword.includes(query))) {
+            return 8;
+        }
+        return null;
     }
 }

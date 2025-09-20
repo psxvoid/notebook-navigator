@@ -88,13 +88,42 @@ export abstract class BaseFontIconProvider implements IconProvider {
             return [];
         }
 
-        return this.iconDefinitions.filter(icon => {
-            const keywords = this.iconLookup.get(icon.id)?.keywords || [];
-            if (icon.displayName.toLowerCase().includes(normalized)) {
-                return true;
+        const matches: { icon: IconDefinition; score: number; name: string; id: string }[] = [];
+
+        for (const icon of this.iconDefinitions) {
+            const lookupEntry = this.iconLookup.get(icon.id);
+            const keywords = lookupEntry?.keywords ?? [];
+            const normalizedKeywords = keywords.map(keyword => keyword.toLowerCase());
+            const displayName = icon.displayName?.toLowerCase() ?? '';
+            const iconId = icon.id.toLowerCase();
+            const score = this.resolveMatchScore(normalized, iconId, displayName, normalizedKeywords);
+
+            if (score === null) {
+                continue;
             }
-            return keywords.some(keyword => keyword.includes(normalized));
+
+            matches.push({
+                icon,
+                score,
+                name: displayName || iconId,
+                id: icon.id
+            });
+        }
+
+        matches.sort((a, b) => {
+            if (a.score !== b.score) {
+                return a.score - b.score;
+            }
+
+            const nameCompare = a.name.localeCompare(b.name);
+            if (nameCompare !== 0) {
+                return nameCompare;
+            }
+
+            return a.id.localeCompare(b.id);
         });
+
+        return matches.map(match => match.icon);
     }
 
     getAll(): IconDefinition[] {
@@ -178,6 +207,37 @@ export abstract class BaseFontIconProvider implements IconProvider {
         }
         const fontSet = document.fonts as unknown as { delete?: (font: FontFace) => void };
         fontSet.delete?.(fontFace);
+    }
+
+    private resolveMatchScore(query: string, iconId: string, displayName: string, keywords: string[]): number | null {
+        if (iconId === query) {
+            return 0;
+        }
+        if (displayName && displayName === query) {
+            return 1;
+        }
+        if (keywords.includes(query)) {
+            return 2;
+        }
+        if (iconId.startsWith(query)) {
+            return 3;
+        }
+        if (displayName && displayName.startsWith(query)) {
+            return 4;
+        }
+        if (keywords.some(keyword => keyword.startsWith(query))) {
+            return 5;
+        }
+        if (iconId.includes(query)) {
+            return 6;
+        }
+        if (displayName && displayName.includes(query)) {
+            return 7;
+        }
+        if (keywords.some(keyword => keyword.includes(query))) {
+            return 8;
+        }
+        return null;
     }
 
     private getLogPrefix(): string {
