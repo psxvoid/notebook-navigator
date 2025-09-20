@@ -271,7 +271,6 @@ export const STRINGS_EN = {
             }
         }
     },
-
     // File system operations
     fileSystem: {
         errors: {
@@ -314,7 +313,10 @@ export const STRINGS_EN = {
             tagsClearedFromNotes: 'Cleared all tags from {count} notes',
             noTagsToRemove: 'No tags to remove',
             noFilesSelected: 'No files selected',
-            tagOperationsNotAvailable: 'Tag operations not available'
+            tagOperationsNotAvailable: 'Tag operations not available',
+            iconPackDownloaded: '{provider} downloaded',
+            iconPackRemoved: '{provider} removed',
+            iconPackLoadFailed: 'Failed to load {provider}'
         },
         confirmations: {
             deleteMultipleFiles: 'Are you sure you want to delete {count} files?',

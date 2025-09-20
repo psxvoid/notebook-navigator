@@ -1,4 +1,4 @@
-import { App, requestUrl } from 'obsidian';
+import { App, Notice, requestUrl } from 'obsidian';
 import { IconProvider } from '../types';
 import { IconService } from '../IconService';
 import { ISettingsProvider } from '../../../interfaces/ISettingsProvider';
@@ -10,6 +10,7 @@ import { RpgAwesomeIconProvider } from '../providers/RpgAwesomeIconProvider';
 import { BootstrapIconProvider } from '../providers/BootstrapIconProvider';
 import { MaterialIconProvider } from '../providers/MaterialIconProvider';
 import { PhosphorIconProvider } from '../providers/PhosphorIconProvider';
+import { strings } from '../../../i18n';
 
 interface InstallOptions {
     persistSetting?: boolean;
@@ -34,6 +35,9 @@ export class ExternalIconProviderController {
         ExternalIconProviderId,
         { provider: IconProvider & { dispose?: () => void }; version: string }
     >();
+    private readonly failedActivationNoticeProviders = new Set<ExternalIconProviderId>();
+    private readonly recoveryTasks = new Map<ExternalIconProviderId, Promise<void>>();
+    private readonly recoveryAttempts = new Map<ExternalIconProviderId, number>();
     private isInitialized = false;
 
     constructor(app: App, iconService: IconService, settingsProvider: ISettingsProvider & { settings: NotebookNavigatorSettings }) {
@@ -115,6 +119,9 @@ export class ExternalIconProviderController {
             }
 
             const activated = await this.activateIfEnabled(config, record);
+            if (activated) {
+                this.showDownloadNotice(config);
+            }
 
             if (options.persistSetting !== false) {
                 await this.settingsProvider.saveSettingsAndUpdate();
@@ -154,6 +161,7 @@ export class ExternalIconProviderController {
             await this.database.delete(config.id);
             this.installedProviders.delete(config.id);
             this.providerVersions.delete(config.id);
+            this.showRemovalNotice(config);
 
             if (options.persistSetting !== false) {
                 this.markProviderSetting(config.id, false);
@@ -274,13 +282,15 @@ export class ExternalIconProviderController {
 
         const provider = this.createProvider(config, record);
         if (!provider) {
-            console.warn(`[IconProviders] Provider ${config.id} could not be created.`);
+            this.showActivationFailureNotice(config);
+            this.scheduleRecovery(config);
             return false;
         }
 
         if (!provider.isAvailable()) {
             provider.dispose?.();
-            console.warn(`[IconProviders] Provider ${config.id} reported unavailable during activation.`);
+            this.showActivationFailureNotice(config);
+            this.scheduleRecovery(config);
             return false;
         }
 
@@ -288,11 +298,14 @@ export class ExternalIconProviderController {
         const registered = this.iconService.getProvider(config.id);
         if (registered !== provider) {
             provider.dispose?.();
-            console.warn(`[IconProviders] Provider ${config.id} failed to register with icon service.`);
+            this.showActivationFailureNotice(config);
+            this.scheduleRecovery(config);
             return false;
         }
 
         this.activeProviders.set(config.id, { provider, version: record.version });
+        this.failedActivationNoticeProviders.delete(config.id);
+        this.recoveryAttempts.delete(config.id);
         return true;
     }
 
@@ -469,5 +482,59 @@ export class ExternalIconProviderController {
             throw new Error(`Unknown external icon provider: ${id}`);
         }
         return config;
+    }
+
+    private showActivationFailureNotice(config: ExternalIconProviderConfig): void {
+        if (this.failedActivationNoticeProviders.has(config.id)) {
+            return;
+        }
+        this.failedActivationNoticeProviders.add(config.id);
+        const message = strings.fileSystem.notifications.iconPackLoadFailed.replace('{provider}', config.name);
+        new Notice(message);
+    }
+
+    private scheduleRecovery(config: ExternalIconProviderConfig): void {
+        const attempts = this.recoveryAttempts.get(config.id) ?? 0;
+        if (attempts >= 1 || this.recoveryTasks.has(config.id)) {
+            return;
+        }
+
+        this.recoveryAttempts.set(config.id, attempts + 1);
+
+        const task = this.enqueue(async () => {
+            this.deactivateProvider(config.id);
+            this.installedProviders.delete(config.id);
+            this.providerVersions.delete(config.id);
+
+            try {
+                await this.database.delete(config.id);
+            } catch (error) {
+                console.error(`[IconProviders] Failed to delete cached assets for ${config.id} during recovery:`, error);
+            }
+
+            try {
+                await this.installProvider(config.id, { persistSetting: false });
+            } catch (error) {
+                console.error(`[IconProviders] Failed to reinstall provider ${config.id} after activation failure:`, error);
+            }
+        })
+            .catch(error => {
+                console.error(`[IconProviders] Recovery task for ${config.id} failed:`, error);
+            })
+            .finally(() => {
+                this.recoveryTasks.delete(config.id);
+            });
+
+        this.recoveryTasks.set(config.id, task);
+    }
+
+    private showDownloadNotice(config: ExternalIconProviderConfig): void {
+        const message = strings.fileSystem.notifications.iconPackDownloaded.replace('{provider}', config.name);
+        new Notice(message);
+    }
+
+    private showRemovalNotice(config: ExternalIconProviderConfig): void {
+        const message = strings.fileSystem.notifications.iconPackRemoved.replace('{provider}', config.name);
+        new Notice(message);
     }
 }

@@ -315,7 +315,10 @@ export const STRINGS_ZH = {
             tagsClearedFromNotes: '已从 {count} 个笔记中清除所有标签',
             noTagsToRemove: '没有可移除的标签',
             noFilesSelected: '未选择文件',
-            tagOperationsNotAvailable: '标签操作不可用'
+            tagOperationsNotAvailable: '标签操作不可用',
+            iconPackDownloaded: '{provider} 已下载',
+            iconPackRemoved: '{provider} 已移除',
+            iconPackLoadFailed: '{provider} 加载失败'
         },
         confirmations: {
             deleteMultipleFiles: '确定要删除 {count} 个文件吗？',

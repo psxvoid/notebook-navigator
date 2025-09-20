@@ -314,7 +314,10 @@ export const STRINGS_KO = {
             tagsClearedFromNotes: '{count}개의 노트에서 모든 태그 제거됨',
             noTagsToRemove: '제거할 태그 없음',
             noFilesSelected: '선택된 파일 없음',
-            tagOperationsNotAvailable: '태그 작업을 사용할 수 없음'
+            tagOperationsNotAvailable: '태그 작업을 사용할 수 없음',
+            iconPackDownloaded: '{provider} 다운로드됨',
+            iconPackRemoved: '{provider} 제거됨',
+            iconPackLoadFailed: '{provider} 로드에 실패했습니다'
         },
         confirmations: {
             deleteMultipleFiles: '{count}개의 파일을 삭제하시겠습니까?',

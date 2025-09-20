@@ -137,10 +137,7 @@ export class IconPickerModal extends Modal {
         this.tabContainer.setAttribute('role', 'tablist');
         this.providerTabs = [];
 
-        const providers = this.iconService
-            .getAllProviders()
-            .slice()
-            .sort((a, b) => a.name.localeCompare(b.name));
+        const providers = this.sortProvidersForDisplay(this.iconService.getAllProviders().slice());
         const resolvedProviderId = this.resolveInitialProvider(providers);
         this.currentProvider = resolvedProviderId;
         IconPickerModal.setLastUsedProvider(resolvedProviderId);
@@ -165,6 +162,28 @@ export class IconPickerModal extends Modal {
         });
 
         this.setActiveProviderTab(resolvedProviderId);
+    }
+
+    private sortProvidersForDisplay(providers: IconProvider[]): IconProvider[] {
+        const pinnedOrder = ['lucide', 'emoji'];
+        return providers.sort((a, b) => {
+            const aPinnedIndex = pinnedOrder.indexOf(a.id);
+            const bPinnedIndex = pinnedOrder.indexOf(b.id);
+
+            if (aPinnedIndex !== -1 && bPinnedIndex !== -1) {
+                return aPinnedIndex - bPinnedIndex;
+            }
+
+            if (aPinnedIndex !== -1) {
+                return -1;
+            }
+
+            if (bPinnedIndex !== -1) {
+                return 1;
+            }
+
+            return a.name.localeCompare(b.name);
+        });
     }
 
     private resolveInitialProvider(providers: IconProvider[]): string {

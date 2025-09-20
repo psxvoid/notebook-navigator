@@ -315,7 +315,10 @@ export const STRINGS_JA = {
             tagsClearedFromNotes: '{count}個のノートからすべてのタグをクリアしました',
             noTagsToRemove: '削除するタグがありません',
             noFilesSelected: 'ファイルが選択されていません',
-            tagOperationsNotAvailable: 'タグ操作は利用できません'
+            tagOperationsNotAvailable: 'タグ操作は利用できません',
+            iconPackDownloaded: '「{provider}」をダウンロードしました',
+            iconPackRemoved: '「{provider}」を削除しました',
+            iconPackLoadFailed: '「{provider}」を読み込めませんでした'
         },
         confirmations: {
             deleteMultipleFiles: '本当に{count}個のファイルを削除しますか？',

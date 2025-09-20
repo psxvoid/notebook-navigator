@@ -316,7 +316,10 @@ export const STRINGS_PL = {
             tagsClearedFromNotes: 'Wyczyszczono wszystkie tagi z {count} notatek',
             noTagsToRemove: 'Brak tagów do usunięcia',
             noFilesSelected: 'Nie wybrano plików',
-            tagOperationsNotAvailable: 'Operacje na tagach niedostępne'
+            tagOperationsNotAvailable: 'Operacje na tagach niedostępne',
+            iconPackDownloaded: '{provider} pobrano',
+            iconPackRemoved: '{provider} usunięto',
+            iconPackLoadFailed: 'Nie udało się załadować {provider}'
         },
         confirmations: {
             deleteMultipleFiles: 'Czy na pewno chcesz usunąć {count} plików?',

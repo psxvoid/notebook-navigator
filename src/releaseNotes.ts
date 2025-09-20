@@ -74,15 +74,11 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.4.21',
         date: '2025-09-20',
         new: [
-            'You can now choose a ==Homepage document== that opens a Markdown, Canvas, or Base file on startup.',
-            'Added a new command "Notebook Navigator: Open homepage" to quickly open your configured homepage file.'
+            'You can now choose a ==Homepage document== that opens a Markdown, Canvas, or Base file on startup. You can change it in settings.',
+            'Added a new command "Notebook Navigator: Open homepage" to open your configured homepage file directly.'
         ],
-        improved: [
-            'Icon picker now provides better search results with improved relevance scoring and fuzzy matching.'
-        ],
-        fixed: [
-            'Fixed icon picker search for single letters and exact matches not appearing in the results (e.g. searching for "d" now properly shows matching icons).'
-        ]
+        improved: ['Icon picker now provides better search results with improved relevance scoring and fuzzy matching.'],
+        fixed: ['Icon packs now re-download automatically on the next app launch if download should fail.']
     },
     {
         version: '1.4.20',

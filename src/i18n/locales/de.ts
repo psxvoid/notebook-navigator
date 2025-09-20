@@ -315,7 +315,10 @@ export const STRINGS_DE = {
             tagsClearedFromNotes: 'Alle Tags von {count} Notizen entfernt',
             noTagsToRemove: 'Keine Tags zum Entfernen',
             noFilesSelected: 'Keine Dateien ausgewählt',
-            tagOperationsNotAvailable: 'Tag-Operationen nicht verfügbar'
+            tagOperationsNotAvailable: 'Tag-Operationen nicht verfügbar',
+            iconPackDownloaded: '{provider} heruntergeladen',
+            iconPackRemoved: '{provider} entfernt',
+            iconPackLoadFailed: '{provider} konnte nicht geladen werden'
         },
         confirmations: {
             deleteMultipleFiles: 'Möchten Sie wirklich {count} Dateien löschen?',

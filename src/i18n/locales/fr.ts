@@ -315,7 +315,10 @@ export const STRINGS_FR = {
             tagsClearedFromNotes: 'Toutes les étiquettes supprimées de {count} notes',
             noTagsToRemove: 'Aucune étiquette à supprimer',
             noFilesSelected: 'Aucun fichier sélectionné',
-            tagOperationsNotAvailable: "Opérations d'étiquettes non disponibles"
+            tagOperationsNotAvailable: "Opérations d'étiquettes non disponibles",
+            iconPackDownloaded: '{provider} téléchargé',
+            iconPackRemoved: '{provider} supprimé',
+            iconPackLoadFailed: 'Échec du chargement de {provider}'
         },
         confirmations: {
             deleteMultipleFiles: 'Voulez-vous vraiment supprimer {count} fichiers ?',
