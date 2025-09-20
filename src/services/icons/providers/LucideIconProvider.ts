@@ -80,6 +80,7 @@ export class LucideIconProvider implements IconProvider {
         }
 
         const allIcons = this.getIconList();
+        // Collect all matching icons with relevance scores
         const matches: { icon: IconDefinition; score: number; name: string; id: string }[] = [];
 
         for (const id of allIcons) {
@@ -88,10 +89,11 @@ export class LucideIconProvider implements IconProvider {
             const displayName = this.formatDisplayName(id);
             const normalizedId = id.toLowerCase();
             const normalizedDisplay = displayName.toLowerCase();
+            // Calculate match relevance score (lower score = better match)
             const score = this.resolveMatchScore(normalizedQuery, normalizedId, normalizedDisplay, normalizedKeywords);
 
             if (score === null) {
-                continue;
+                continue; // No match found
             }
 
             matches.push({
@@ -106,19 +108,24 @@ export class LucideIconProvider implements IconProvider {
             });
         }
 
+        // Sort matches by relevance score, then alphabetically
         matches.sort((a, b) => {
+            // Primary sort: by relevance score (lower is better)
             if (a.score !== b.score) {
                 return a.score - b.score;
             }
 
+            // Secondary sort: alphabetically by display name
             const nameCompare = a.name.localeCompare(b.name);
             if (nameCompare !== 0) {
                 return nameCompare;
             }
 
+            // Tertiary sort: alphabetically by ID
             return a.id.localeCompare(b.id);
         });
 
+        // Return top 50 results to avoid overwhelming the UI
         return matches.map(match => match.icon).slice(0, 50);
     }
 
@@ -242,7 +249,17 @@ export class LucideIconProvider implements IconProvider {
         return [...keywords, ...additionalKeywords];
     }
 
+    /**
+     * Calculates a relevance score for how well an icon matches a search query
+     * Lower scores indicate better matches
+     * @param query - The search query (normalized to lowercase)
+     * @param iconId - The icon ID (normalized to lowercase)
+     * @param displayName - The display name (normalized to lowercase)
+     * @param keywords - Array of keywords (normalized to lowercase)
+     * @returns Score from 0-8 (lower is better) or null if no match
+     */
     private resolveMatchScore(query: string, iconId: string, displayName: string, keywords: string[]): number | null {
+        // Exact matches (highest priority)
         if (iconId === query) {
             return 0;
         }
@@ -252,6 +269,7 @@ export class LucideIconProvider implements IconProvider {
         if (keywords.includes(query)) {
             return 2;
         }
+        // Prefix matches (high priority)
         if (iconId.startsWith(query)) {
             return 3;
         }
@@ -261,6 +279,7 @@ export class LucideIconProvider implements IconProvider {
         if (keywords.some(keyword => keyword.startsWith(query))) {
             return 5;
         }
+        // Substring matches (lower priority)
         if (iconId.includes(query)) {
             return 6;
         }
@@ -270,6 +289,7 @@ export class LucideIconProvider implements IconProvider {
         if (keywords.some(keyword => keyword.includes(query))) {
             return 8;
         }
+        // No match found
         return null;
     }
 }

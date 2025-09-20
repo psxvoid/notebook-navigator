@@ -164,24 +164,34 @@ export class IconPickerModal extends Modal {
         this.setActiveProviderTab(resolvedProviderId);
     }
 
+    /**
+     * Sorts icon providers for display in the UI, prioritizing certain providers
+     * @param providers - Array of icon providers to sort
+     * @returns Sorted array with pinned providers first, then alphabetically
+     */
     private sortProvidersForDisplay(providers: IconProvider[]): IconProvider[] {
+        // Define providers that should appear first in the UI
         const pinnedOrder = ['lucide', 'emoji'];
         return providers.sort((a, b) => {
             const aPinnedIndex = pinnedOrder.indexOf(a.id);
             const bPinnedIndex = pinnedOrder.indexOf(b.id);
 
+            // Both providers are pinned - sort by their pinned order
             if (aPinnedIndex !== -1 && bPinnedIndex !== -1) {
                 return aPinnedIndex - bPinnedIndex;
             }
 
+            // Provider a is pinned - it comes first
             if (aPinnedIndex !== -1) {
                 return -1;
             }
 
+            // Provider b is pinned - it comes first
             if (bPinnedIndex !== -1) {
                 return 1;
             }
 
+            // Neither provider is pinned - sort alphabetically by name
             return a.name.localeCompare(b.name);
         });
     }
@@ -243,6 +253,10 @@ export class IconPickerModal extends Modal {
         this.showEmptyState(true);
     }
 
+    /**
+     * Renders recently used icons for the current provider
+     * @returns true if any icons were rendered, false otherwise
+     */
     private renderRecentIcons(): boolean {
         const settings = this.settingsProvider.settings;
         const recentIcons = settings.recentIcons?.[this.currentProvider] || [];
@@ -256,6 +270,7 @@ export class IconPickerModal extends Modal {
         const grid = this.resultsContainer.createDiv('nn-icon-grid');
 
         let rendered = 0;
+        // Cache provider icons to avoid multiple getAll() calls
         const providerCache = new Map<string, IconDefinition[]>();
 
         recentIcons.forEach(iconId => {
@@ -265,8 +280,10 @@ export class IconPickerModal extends Modal {
                 return;
             }
 
+            // Special handling for emoji provider - create icon definition on the fly
             if (provider.id === 'emoji') {
                 let displayName = '';
+                // Look up emoji keywords from emojilib
                 for (const [emoji, keywords] of Object.entries(emojilib)) {
                     if (emoji === parsed.identifier && Array.isArray(keywords)) {
                         displayName = keywords[0] || '';
@@ -284,6 +301,7 @@ export class IconPickerModal extends Modal {
                 return;
             }
 
+            // For non-emoji providers, look up icon from cached provider data
             let icons = providerCache.get(provider.id);
             if (!icons) {
                 icons = provider.getAll();
@@ -299,6 +317,7 @@ export class IconPickerModal extends Modal {
             rendered += 1;
         });
 
+        // Clean up UI if no icons were actually rendered
         if (rendered === 0) {
             header.remove();
             grid.remove();
@@ -308,6 +327,10 @@ export class IconPickerModal extends Modal {
         return true;
     }
 
+    /**
+     * Resets the scroll position of the results container to top
+     * Called when switching between provider tabs
+     */
     private resetResultsScroll(): void {
         if (!this.resultsContainer) {
             return;
@@ -397,11 +420,16 @@ export class IconPickerModal extends Modal {
         this.close();
     }
 
+    /**
+     * Sets up keyboard navigation for the icon picker modal
+     * Handles Tab/Shift+Tab cycling, arrow key navigation, and Enter selection
+     */
     private setupKeyboardNavigation() {
         // Shift+Tab -> focus search input or provider tabs based on current focus
         this.scope.register(['Shift'], 'Tab', evt => {
             const currentFocused = document.activeElement as HTMLElement | null;
 
+            // Prevent default tab cycling when on provider tabs
             if (currentFocused?.classList.contains('nn-icon-provider-tab')) {
                 evt.preventDefault();
                 return;
@@ -410,11 +438,13 @@ export class IconPickerModal extends Modal {
             evt.preventDefault();
             const activeTab = this.getActiveProviderTab();
 
+            // From icon grid -> back to search input
             if (currentFocused?.classList.contains('nn-icon-item')) {
                 this.searchInput.focus();
                 return;
             }
 
+            // From search input -> to provider tabs
             if (currentFocused === this.searchInput) {
                 activeTab?.focus();
                 return;
@@ -456,11 +486,18 @@ export class IconPickerModal extends Modal {
         });
     }
 
+    /**
+     * Handles arrow key navigation in the icon grid and provider tabs
+     * @param evt - The keyboard event
+     * @param deltaX - Horizontal movement (-1 for left, 1 for right)
+     * @param deltaY - Vertical movement (-1 for up, 1 for down)
+     */
     private handleArrowKey(evt: KeyboardEvent, deltaX: number, deltaY: number) {
         const currentFocused = document.activeElement as HTMLElement;
+        // Handle horizontal navigation between provider tabs
         if (currentFocused?.classList.contains('nn-icon-provider-tab')) {
             if (deltaX === 0) {
-                return;
+                return; // Ignore vertical arrows on tabs
             }
             evt.preventDefault();
             this.focusAdjacentTab(currentFocused, deltaX);
@@ -485,6 +522,11 @@ export class IconPickerModal extends Modal {
         }
     }
 
+    /**
+     * Focuses the adjacent provider tab when using arrow keys
+     * @param currentTab - The currently focused tab
+     * @param deltaX - Direction to move (-1 for left, 1 for right)
+     */
     private focusAdjacentTab(currentTab: HTMLElement, deltaX: number) {
         const currentIndex = this.providerTabs.indexOf(currentTab);
         if (currentIndex === -1) {
@@ -502,6 +544,7 @@ export class IconPickerModal extends Modal {
             return;
         }
 
+        // Update active tab and trigger click to switch provider
         this.setActiveProviderTab(providerId);
         nextTab.focus();
         nextTab.click();
@@ -523,19 +566,27 @@ export class IconPickerModal extends Modal {
         }
     }
 
+    /**
+     * Sets the active provider tab and updates ARIA attributes
+     * @param providerId - The ID of the provider to activate
+     */
     private setActiveProviderTab(providerId: string) {
         this.providerTabs.forEach(tab => {
             const isActive = tab.dataset.providerId === providerId;
             if (isActive) {
                 tab.addClass('nn-active');
-                tab.setAttribute('tabindex', '0');
+                tab.setAttribute('tabindex', '0'); // Make tab focusable
             } else {
                 tab.removeClass('nn-active');
-                tab.setAttribute('tabindex', '-1');
+                tab.setAttribute('tabindex', '-1'); // Remove from tab order
             }
         });
     }
 
+    /**
+     * Gets the currently active provider tab element
+     * @returns The active tab element or null if not found
+     */
     private getActiveProviderTab(): HTMLElement | null {
         return this.providerTabs.find(tab => tab.dataset.providerId === this.currentProvider) ?? null;
     }

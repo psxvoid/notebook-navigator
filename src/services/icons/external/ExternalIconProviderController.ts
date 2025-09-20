@@ -35,8 +35,11 @@ export class ExternalIconProviderController {
         ExternalIconProviderId,
         { provider: IconProvider & { dispose?: () => void }; version: string }
     >();
+    // Track which providers have already shown a failure notice to avoid duplicates
     private readonly failedActivationNoticeProviders = new Set<ExternalIconProviderId>();
+    // Map of ongoing recovery tasks for failed providers
     private readonly recoveryTasks = new Map<ExternalIconProviderId, Promise<void>>();
+    // Track recovery attempts to prevent infinite retry loops
     private readonly recoveryAttempts = new Map<ExternalIconProviderId, number>();
     private isInitialized = false;
 
@@ -119,6 +122,7 @@ export class ExternalIconProviderController {
             }
 
             const activated = await this.activateIfEnabled(config, record);
+            // Show success notification if provider activated successfully
             if (activated) {
                 this.showDownloadNotice(config);
             }
@@ -282,6 +286,7 @@ export class ExternalIconProviderController {
 
         const provider = this.createProvider(config, record);
         if (!provider) {
+            // Provider creation failed - show error and attempt recovery
             this.showActivationFailureNotice(config);
             this.scheduleRecovery(config);
             return false;
@@ -289,6 +294,7 @@ export class ExternalIconProviderController {
 
         if (!provider.isAvailable()) {
             provider.dispose?.();
+            // Provider not available - show error and attempt recovery
             this.showActivationFailureNotice(config);
             this.scheduleRecovery(config);
             return false;
@@ -298,11 +304,13 @@ export class ExternalIconProviderController {
         const registered = this.iconService.getProvider(config.id);
         if (registered !== provider) {
             provider.dispose?.();
+            // Registration failed - show error and attempt recovery
             this.showActivationFailureNotice(config);
             this.scheduleRecovery(config);
             return false;
         }
 
+        // Successfully activated - track the provider and clear failure state
         this.activeProviders.set(config.id, { provider, version: record.version });
         this.failedActivationNoticeProviders.delete(config.id);
         this.recoveryAttempts.delete(config.id);
@@ -484,7 +492,12 @@ export class ExternalIconProviderController {
         return config;
     }
 
+    /**
+     * Shows a notification when an icon pack fails to activate
+     * Only shows one notification per provider to avoid spam
+     */
     private showActivationFailureNotice(config: ExternalIconProviderConfig): void {
+        // Check if we've already shown a notice for this provider
         if (this.failedActivationNoticeProviders.has(config.id)) {
             return;
         }
@@ -493,8 +506,14 @@ export class ExternalIconProviderController {
         new Notice(message);
     }
 
+    /**
+     * Schedules automatic recovery for a failed icon pack
+     * Will attempt to re-download and reinstall the pack once
+     * This handles cases where downloads fail or assets become corrupted
+     */
     private scheduleRecovery(config: ExternalIconProviderConfig): void {
         const attempts = this.recoveryAttempts.get(config.id) ?? 0;
+        // Only try recovery once per provider and skip if already in progress
         if (attempts >= 1 || this.recoveryTasks.has(config.id)) {
             return;
         }
@@ -502,16 +521,19 @@ export class ExternalIconProviderController {
         this.recoveryAttempts.set(config.id, attempts + 1);
 
         const task = this.enqueue(async () => {
+            // Clean up the failed provider completely
             this.deactivateProvider(config.id);
             this.installedProviders.delete(config.id);
             this.providerVersions.delete(config.id);
 
+            // Attempt to delete cached assets
             try {
                 await this.database.delete(config.id);
             } catch (error) {
                 console.error(`[IconProviders] Failed to delete cached assets for ${config.id} during recovery:`, error);
             }
 
+            // Try to reinstall the provider fresh
             try {
                 await this.installProvider(config.id, { persistSetting: false });
             } catch (error) {
@@ -522,17 +544,24 @@ export class ExternalIconProviderController {
                 console.error(`[IconProviders] Recovery task for ${config.id} failed:`, error);
             })
             .finally(() => {
+                // Clean up the recovery task from tracking
                 this.recoveryTasks.delete(config.id);
             });
 
         this.recoveryTasks.set(config.id, task);
     }
 
+    /**
+     * Shows a success notification when an icon pack is downloaded
+     */
     private showDownloadNotice(config: ExternalIconProviderConfig): void {
         const message = strings.fileSystem.notifications.iconPackDownloaded.replace('{provider}', config.name);
         new Notice(message);
     }
 
+    /**
+     * Shows a notification when an icon pack is removed
+     */
     private showRemovalNotice(config: ExternalIconProviderConfig): void {
         const message = strings.fileSystem.notifications.iconPackRemoved.replace('{provider}', config.name);
         new Notice(message);
