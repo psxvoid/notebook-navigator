@@ -82,9 +82,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Read metadata from frontmatter now also accepts string arrays as name property and will use the first entry if that is the case.'
         ],
         changed: ['File tags now show without the # prefix. Makes for a cleaner look.'],
-        fixed: [
-            'Icon packs now re-download automatically on the next app launch if download should fail.'
-        ]
+        fixed: ['Icon packs now re-download automatically on the next app launch if download should fail.']
     },
     {
         version: '1.4.20',

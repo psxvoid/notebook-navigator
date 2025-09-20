@@ -37,6 +37,7 @@ export class ExternalIconProviderController {
     >();
     // Track which providers have already shown a failure notice to avoid duplicates
     private readonly failedActivationNoticeProviders = new Set<ExternalIconProviderId>();
+    private readonly removalNoticeProviders = new Set<ExternalIconProviderId>();
     // Map of ongoing recovery tasks for failed providers
     private readonly recoveryTasks = new Map<ExternalIconProviderId, Promise<void>>();
     // Track recovery attempts to prevent infinite retry loops
@@ -116,6 +117,7 @@ export class ExternalIconProviderController {
             await this.database.put(record);
             this.installedProviders.add(id);
             this.providerVersions.set(id, record.version);
+            this.removalNoticeProviders.delete(id);
 
             if (options.persistSetting !== false) {
                 this.markProviderSetting(id, true);
@@ -314,6 +316,7 @@ export class ExternalIconProviderController {
         this.activeProviders.set(config.id, { provider, version: record.version });
         this.failedActivationNoticeProviders.delete(config.id);
         this.recoveryAttempts.delete(config.id);
+        this.removalNoticeProviders.delete(config.id);
         return true;
     }
 
@@ -563,6 +566,10 @@ export class ExternalIconProviderController {
      * Shows a notification when an icon pack is removed
      */
     private showRemovalNotice(config: ExternalIconProviderConfig): void {
+        if (this.removalNoticeProviders.has(config.id)) {
+            return;
+        }
+        this.removalNoticeProviders.add(config.id);
         const message = strings.fileSystem.notifications.iconPackRemoved.replace('{provider}', config.name);
         new Notice(message);
     }
