@@ -364,7 +364,7 @@ export const FileItem = React.memo(function FileItem({
                             tabIndex={0}
                             style={tagColor ? { backgroundColor: tagColor } : undefined}
                         >
-                            #{tag}
+                            {tag}
                         </span>
                     );
                 })}

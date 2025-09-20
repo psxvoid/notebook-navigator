@@ -305,7 +305,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Phosphor:** Flexible icon family - [phosphoricons.com](https://phosphoricons.com/)
   - **RPG Awesome:** Fantasy and RPG-themed icons - [nagoshiashumari.github.io/Rpg-Awesome](https://nagoshiashumari.github.io/Rpg-Awesome/)
 
-**Note:** Downloaded icon packs sync installation state across devices. Icon packs stay in the local database on each device; sync only tracks whether to download or remove them.
+**Note:** Downloaded icon packs sync installation state across devices. Fonts stay in the local database on each device; sync only tracks whether to download or remove them.
 
 ### Folders
 
