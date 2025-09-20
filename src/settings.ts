@@ -127,6 +127,7 @@ export interface NotebookNavigatorSettings {
     showParentFolderNames: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
+    skipCodeBlocksInPreview: boolean;
     previewProperties: string[];
     previewRows: number;
     showFeatureImage: boolean;
@@ -225,6 +226,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showParentFolderNames: true,
     showFilePreview: true,
     skipHeadingsInPreview: true,
+    skipCodeBlocksInPreview: true,
     previewProperties: [],
     previewRows: 2,
     showFeatureImage: true,
@@ -1428,6 +1430,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.skipHeadingsInPreview).onChange(async value => {
                     this.plugin.settings.skipHeadingsInPreview = value;
+                    await this.plugin.saveSettingsAndUpdate();
+                })
+            );
+
+        new Setting(previewSettingsEl)
+            .setName(strings.settings.items.skipCodeBlocksInPreview.name)
+            .setDesc(strings.settings.items.skipCodeBlocksInPreview.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.skipCodeBlocksInPreview).onChange(async value => {
+                    this.plugin.settings.skipCodeBlocksInPreview = value;
                     await this.plugin.saveSettingsAndUpdate();
                 })
             );

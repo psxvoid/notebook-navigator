@@ -586,6 +586,10 @@ export const STRINGS_ES = {
                 name: 'Omitir encabezados en vista previa',
                 desc: 'Omite las líneas de encabezado al generar el texto de vista previa.'
             },
+            skipCodeBlocksInPreview: {
+                name: 'Omitir bloques de código en vista previa',
+                desc: 'Omite los bloques de código al generar el texto de vista previa.'
+            },
             previewProperties: {
                 name: 'Propiedades de vista previa',
                 desc: 'Lista separada por comas de propiedades de frontmatter para buscar texto de vista previa. Se usará la primera propiedad con texto.',

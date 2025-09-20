@@ -585,6 +585,10 @@ export const STRINGS_EN = {
                 name: 'Skip headings in preview',
                 desc: 'Skip heading lines when generating preview text.'
             },
+            skipCodeBlocksInPreview: {
+                name: 'Skip code blocks in preview',
+                desc: 'Skip code blocks when generating preview text.'
+            },
             previewProperties: {
                 name: 'Preview properties',
                 desc: 'Comma-separated list of frontmatter properties to check for preview text. The first property with text will be used.',

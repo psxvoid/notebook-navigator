@@ -147,17 +147,21 @@ export class PreviewTextUtils {
     /**
      * Strips markdown syntax from text to create clean preview text
      * @param text The text to strip markdown from
-     * @param skipHeadings Whether to also remove headings
+     * @param skipHeadings Whether to remove headings
+     * @param skipCodeBlocks Whether to remove fenced code blocks
      * @returns The text with markdown syntax removed
      */
-    static stripMarkdownSyntax(text: string, skipHeadings: boolean = false): string {
+    static stripMarkdownSyntax(text: string, skipHeadings: boolean = false, skipCodeBlocks: boolean = true): string {
         const regex = skipHeadings ? REGEX_STRIP_MARKDOWN_WITH_HEADINGS : REGEX_STRIP_MARKDOWN;
 
         return text.replace(regex, (match, ...groups) => {
             // Check for specific patterns to remove entirely
             // Code blocks
             if (match.startsWith('```')) {
-                return '';
+                if (skipCodeBlocks) {
+                    return '';
+                }
+                return PreviewTextUtils.extractCodeBlockContent(match);
             }
 
             // Obsidian comments
@@ -234,6 +238,12 @@ export class PreviewTextUtils {
         });
     }
 
+    private static extractCodeBlockContent(block: string): string {
+        const withoutOpeningFence = block.replace(/^```[^\n\r]*\r?\n?/, '');
+        const withoutClosingFence = withoutOpeningFence.replace(/\r?\n?```(?:\s*)$/, '');
+        return withoutClosingFence;
+    }
+
     /**
      * Extracts preview text from markdown content
      * Simple one-pass implementation with fixed character limit
@@ -268,7 +278,11 @@ export class PreviewTextUtils {
         if (!contentWithoutFrontmatter.trim()) return '';
 
         // Strip all markdown at once with appropriate regex
-        const stripped = this.stripMarkdownSyntax(contentWithoutFrontmatter, settings.skipHeadingsInPreview);
+        const stripped = this.stripMarkdownSyntax(
+            contentWithoutFrontmatter,
+            settings.skipHeadingsInPreview,
+            settings.skipCodeBlocksInPreview
+        );
 
         // Remove lines that only contain dashes (like -, ---, ----- etc.)
         const withoutDashLines = stripped.replace(/^-+$/gm, '');

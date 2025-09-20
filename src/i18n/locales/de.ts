@@ -587,6 +587,10 @@ export const STRINGS_DE = {
                 name: 'Überschriften in Vorschau überspringen',
                 desc: 'Überschriftenzeilen bei der Erstellung des Vorschautextes überspringen.'
             },
+            skipCodeBlocksInPreview: {
+                name: 'Codeblöcke in Vorschau überspringen',
+                desc: 'Codeblöcke bei der Erstellung des Vorschautextes überspringen.'
+            },
             previewProperties: {
                 name: 'Vorschau-Eigenschaften',
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften für Vorschautext. Die erste Eigenschaft mit Text wird verwendet.',

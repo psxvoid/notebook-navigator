@@ -588,6 +588,10 @@ export const STRINGS_FR = {
                 name: "Ignorer les en-têtes dans l'aperçu",
                 desc: "Ignorer les lignes d'en-tête lors de la génération du texte d'aperçu."
             },
+            skipCodeBlocksInPreview: {
+                name: "Ignorer les blocs de code dans l'aperçu",
+                desc: "Ignorer les blocs de code lors de la génération du texte d'aperçu."
+            },
             previewProperties: {
                 name: "Propriétés d'aperçu",
                 desc: "Liste séparée par des virgules de propriétés frontmatter pour le texte d'aperçu. La première propriété avec du texte sera utilisée.",

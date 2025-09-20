@@ -585,6 +585,10 @@ export const STRINGS_KO = {
                 name: '미리보기에서 제목 건너뛰기',
                 desc: '미리보기 텍스트를 생성할 때 제목 줄을 건너뜁니다.'
             },
+            skipCodeBlocksInPreview: {
+                name: '미리보기에서 코드 블록 건너뛰기',
+                desc: '미리보기 텍스트를 생성할 때 코드 블록을 건너뜁니다.'
+            },
             previewProperties: {
                 name: '미리보기 속성',
                 desc: '미리보기 텍스트를 확인할 frontmatter 속성의 쉼표로 구분된 목록입니다. 텍스트가 있는 첫 번째 속성이 사용됩니다.',

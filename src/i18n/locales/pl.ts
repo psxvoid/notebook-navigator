@@ -587,6 +587,10 @@ export const STRINGS_PL = {
                 name: 'Pomiń nagłówki w podglądzie',
                 desc: 'Pomiń linie nagłówków podczas generowania tekstu podglądu.'
             },
+            skipCodeBlocksInPreview: {
+                name: 'Pomiń bloki kodu w podglądzie',
+                desc: 'Pomija bloki kodu podczas generowania tekstu podglądu.'
+            },
             previewProperties: {
                 name: 'Właściwości podglądu',
                 desc: 'Lista właściwości frontmatter oddzielonych przecinkami do sprawdzenia dla tekstu podglądu. Pierwsza właściwość z tekstem zostanie użyta.',

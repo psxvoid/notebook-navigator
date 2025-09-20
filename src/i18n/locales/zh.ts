@@ -586,6 +586,10 @@ export const STRINGS_ZH = {
                 name: '预览中跳过标题',
                 desc: '生成预览文本时跳过标题行。'
             },
+            skipCodeBlocksInPreview: {
+                name: '预览中跳过代码块',
+                desc: '生成预览文本时跳过代码块。'
+            },
             previewProperties: {
                 name: '预览属性',
                 desc: '用于查找预览文本的前置属性的逗号分隔列表。将使用第一个包含文本的属性。',
