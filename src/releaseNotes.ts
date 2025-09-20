@@ -71,6 +71,14 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.21',
+        date: '2025-09-20',
+        new: [
+            'You can now choose a ==Homepage document== that opens a Markdown, Canvas, or Base file on startup.',
+            'Added a new command "Notebook Navigator: Open homepage" to quickly open your configured homepage file.'
+        ]
+    },
+    {
         version: '1.4.20',
         date: '2025-09-19',
         new: [

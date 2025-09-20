@@ -249,6 +249,14 @@ export const STRINGS_DE = {
                 dismiss: 'zum Abbrechen'
             }
         },
+        homepage: {
+            placeholder: 'Dateien durchsuchen...',
+            instructions: {
+                navigate: 'zum Navigieren',
+                select: 'als Startseite setzen',
+                dismiss: 'zum Abbrechen'
+            }
+        },
         tagSuggest: {
             placeholder: 'Tags suchen...',
             navigatePlaceholder: 'Zu Tag navigieren...',
@@ -364,6 +372,7 @@ export const STRINGS_DE = {
     // Plugin commands
     commands: {
         open: 'Öffnen', // Command palette: Opens the Notebook Navigator view (English: Open)
+        openHomepage: 'Startseite öffnen', // Command palette: Opens the Notebook Navigator view and loads the homepage file (English: Open homepage)
         revealFile: 'Datei anzeigen', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: 'Suchen', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Doppelbereichslayout umschalten', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
@@ -536,6 +545,13 @@ export const STRINGS_DE = {
                     supported: 'Unterstützt (öffnet in Obsidian)',
                     all: 'Alle (öffnet ggf. extern)'
                 }
+            },
+            homepage: {
+                name: 'Startseite',
+                desc: 'Datei auswählen, die Notebook Navigator automatisch öffnet, z. B. ein Dashboard oder eine Tagesnotiz, beim Start und wenn sich die Startseiten-Einstellung ändert.',
+                current: 'Aktuell: {path}',
+                chooseButton: 'Datei auswählen',
+                clearButton: 'Zurücksetzen'
             },
             showFileDate: {
                 name: 'Datum anzeigen',

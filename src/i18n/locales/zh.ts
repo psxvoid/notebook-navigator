@@ -249,6 +249,14 @@ export const STRINGS_ZH = {
                 dismiss: '取消'
             }
         },
+        homepage: {
+            placeholder: '搜索文件...',
+            instructions: {
+                navigate: '导航',
+                select: '设为主页',
+                dismiss: '取消'
+            }
+        },
         tagSuggest: {
             placeholder: '搜索标签...',
             navigatePlaceholder: '导航到标签...',
@@ -364,6 +372,7 @@ export const STRINGS_ZH = {
     // Plugin commands
     commands: {
         open: '打开', // Command palette: Opens the Notebook Navigator view (English: Open)
+        openHomepage: '打开主页', // Command palette: Opens the Notebook Navigator view and loads the homepage file (English: Open homepage)
         revealFile: '显示文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: '搜索', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: '切换双窗格布局', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
@@ -535,6 +544,13 @@ export const STRINGS_ZH = {
                     supported: '支持 (在Obsidian中打开)',
                     all: '全部 (可能外部打开)'
                 }
+            },
+            homepage: {
+                name: '主页',
+                desc: '选择在启动时以及主页设置更新时自动打开的文件，例如仪表板或每日笔记。',
+                current: '当前：{path}',
+                chooseButton: '选择文件',
+                clearButton: '清除'
             },
             showFileDate: {
                 name: '显示日期',

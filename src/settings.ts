@@ -29,6 +29,7 @@ import { PinnedNotes } from './types';
 import { FolderNoteType, isFolderNoteType } from './types/folderNote';
 import { EXTERNAL_ICON_PROVIDERS, ExternalIconProviderId } from './services/icons/external/providerRegistry';
 import type { MetadataCleanupSummary } from './services/MetadataService';
+import { HomepageModal } from './modals/HomepageModal';
 
 // Current settings schema version
 export const SETTINGS_VERSION = 1;
@@ -69,6 +70,7 @@ export interface NotebookNavigatorSettings {
     autoRevealActiveFile: boolean;
     autoRevealIgnoreRightSidebar: boolean;
     showTooltips: boolean;
+    homepage: string | null;
     fileVisibility: FileVisibility;
     excludedFolders: string[];
     excludedFiles: string[];
@@ -166,6 +168,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     autoRevealActiveFile: true,
     autoRevealIgnoreRightSidebar: true,
     showTooltips: false,
+    homepage: null,
     fileVisibility: FILE_VISIBILITY.DOCUMENTS,
     excludedFolders: [],
     excludedFiles: [],
@@ -503,6 +506,55 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettingsAndUpdate();
                 })
             );
+
+        const homepageSetting = new Setting(containerEl).setName(strings.settings.items.homepage.name);
+        homepageSetting.setDesc('');
+
+        const homepageDescEl = homepageSetting.descEl;
+        homepageDescEl.empty();
+        homepageDescEl.createDiv({ text: strings.settings.items.homepage.desc });
+
+        const homepageValueEl = homepageDescEl.createDiv();
+        let clearHomepageButton: ButtonComponent | null = null;
+
+        const renderHomepageValue = () => {
+            const { homepage } = this.plugin.settings;
+            homepageValueEl.setText('');
+            if (homepage) {
+                homepageValueEl.setText(strings.settings.items.homepage.current.replace('{path}', homepage));
+            }
+
+            if (clearHomepageButton) {
+                clearHomepageButton.setDisabled(!homepage);
+            }
+        };
+
+        homepageSetting.addButton(button => {
+            button.setButtonText(strings.settings.items.homepage.chooseButton);
+            button.onClick(() => {
+                new HomepageModal(this.app, file => {
+                    this.plugin.settings.homepage = file.path;
+                    renderHomepageValue();
+                    void this.plugin.saveSettingsAndUpdate();
+                }).open();
+            });
+        });
+
+        homepageSetting.addButton(button => {
+            button.setButtonText(strings.settings.items.homepage.clearButton);
+            clearHomepageButton = button;
+            button.setDisabled(!this.plugin.settings.homepage);
+            button.onClick(async () => {
+                if (!this.plugin.settings.homepage) {
+                    return;
+                }
+                this.plugin.settings.homepage = null;
+                renderHomepageValue();
+                await this.plugin.saveSettingsAndUpdate();
+            });
+        });
+
+        renderHomepageValue();
 
         new Setting(containerEl)
             .setName(strings.settings.items.fileVisibility.name)

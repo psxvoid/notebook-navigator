@@ -248,6 +248,14 @@ export const STRINGS_KO = {
                 dismiss: '닫기'
             }
         },
+        homepage: {
+            placeholder: '파일 검색...',
+            instructions: {
+                navigate: '이동',
+                select: '홈페이지 설정',
+                dismiss: '닫기'
+            }
+        },
         tagSuggest: {
             placeholder: '태그 검색...',
             navigatePlaceholder: '태그로 이동...',
@@ -363,6 +371,7 @@ export const STRINGS_KO = {
     // Plugin commands
     commands: {
         open: '열기', // Command palette: Opens the Notebook Navigator view (English: Open)
+        openHomepage: '홈페이지 열기', // Command palette: Opens the Notebook Navigator view and loads the homepage file (English: Open homepage)
         revealFile: '파일 표시', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: '검색', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: '이중 창 레이아웃 전환', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
@@ -524,6 +533,13 @@ export const STRINGS_KO = {
                     supported: '지원됨 (Obsidian에서 열림)',
                     all: '모두 (외부에서 열릴 수 있음)'
                 }
+            },
+            homepage: {
+                name: '홈페이지',
+                desc: '시작하거나 홈페이지 설정이 바뀔 때 자동으로 열릴 대시보드나 데일리 노트 같은 파일을 선택합니다.',
+                current: '현재: {path}',
+                chooseButton: '파일 선택',
+                clearButton: '지우기'
             },
             excludedNotes: {
                 name: '노트 숨기기',

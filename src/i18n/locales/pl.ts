@@ -250,6 +250,14 @@ export const STRINGS_PL = {
                 dismiss: 'aby anulować'
             }
         },
+        homepage: {
+            placeholder: 'Wyszukaj pliki...',
+            instructions: {
+                navigate: 'aby nawigować',
+                select: 'aby ustawić stronę główną',
+                dismiss: 'aby anulować'
+            }
+        },
         tagSuggest: {
             placeholder: 'Szukaj tagów...',
             navigatePlaceholder: 'Przejdź do tagu...',
@@ -365,6 +373,7 @@ export const STRINGS_PL = {
     // Plugin commands
     commands: {
         open: 'Otwórz', // Command palette: Opens the Notebook Navigator view (English: Open)
+        openHomepage: 'Otwórz stronę główną', // Command palette: Opens the Notebook Navigator view and loads the homepage file (English: Open homepage)
         revealFile: 'Pokaż plik', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: 'Szukaj', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Przełącz układ podwójnego panelu', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
@@ -526,6 +535,13 @@ export const STRINGS_PL = {
                     supported: 'Obsługiwane (otwiera się w Obsidian)',
                     all: 'Wszystkie (mogą otworzyć się zewnętrznie)'
                 }
+            },
+            homepage: {
+                name: 'Strona główna',
+                desc: 'Wybierz plik, który Notebook Navigator otwiera automatycznie, np. pulpit lub dzienną notatkę, przy uruchomieniu i gdy ustawienie strony głównej się zmienia.',
+                current: 'Bieżący: {path}',
+                chooseButton: 'Wybierz plik',
+                clearButton: 'Wyczyść'
             },
             excludedNotes: {
                 name: 'Ukryj notatki',

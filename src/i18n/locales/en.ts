@@ -248,6 +248,14 @@ export const STRINGS_EN = {
                 dismiss: 'to dismiss'
             }
         },
+        homepage: {
+            placeholder: 'Search files...',
+            instructions: {
+                navigate: 'to navigate',
+                select: 'to set homepage',
+                dismiss: 'to dismiss'
+            }
+        },
         tagSuggest: {
             placeholder: 'Search tags...',
             navigatePlaceholder: 'Navigate to tag...',
@@ -363,6 +371,7 @@ export const STRINGS_EN = {
     // Plugin commands
     commands: {
         open: 'Open', // Command palette: Opens the Notebook Navigator view (English: Open)
+        openHomepage: 'Open homepage', // Command palette: Opens the Notebook Navigator view and loads the homepage file (English: Open homepage)
         revealFile: 'Reveal file', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: 'Search', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Toggle dual pane layout', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
@@ -524,6 +533,13 @@ export const STRINGS_EN = {
                     supported: 'Supported (opens in Obsidian)',
                     all: 'All (may open externally)'
                 }
+            },
+            homepage: {
+                name: 'Homepage',
+                desc: 'Choose the file that Notebook Navigator opens automatically, such as a dashboard or daily note, at startup and when the homepage setting changes.',
+                current: 'Current: {path}',
+                chooseButton: 'Choose file',
+                clearButton: 'Clear'
             },
             excludedNotes: {
                 name: 'Hide notes',

@@ -35,6 +35,7 @@ import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
 import { initializeDatabase, shutdownDatabase } from './storage/fileOperations';
 import { ExtendedApp } from './types/obsidian-extended';
+import { isSupportedHomepageFile } from './utils/homepageUtils';
 
 /**
  * Polyfill for requestIdleCallback
@@ -102,6 +103,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private fileRenameListeners = new Map<string, (oldPath: string, newPath: string) => void>();
     // Track if we're in the process of unloading
     private isUnloading = false;
+    private isWorkspaceReady = false;
+    private lastHomepagePath: string | null = null;
+    private pendingHomepageTrigger: 'settings-change' | 'command' | null = null;
 
     // LocalStorage keys for state persistence
     // These keys are used to save and restore the plugin's state between sessions
@@ -240,6 +244,24 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                     // Navigator is not open - open it
                     await this.activateView();
                 }
+            }
+        });
+
+        // Command: open homepage file
+        this.addCommand({
+            id: 'open-homepage',
+            name: strings.commands.openHomepage,
+            checkCallback: (checking: boolean) => {
+                const homepageFile = this.resolveHomepageFile();
+                if (!homepageFile) {
+                    return false;
+                }
+
+                if (!checking) {
+                    void this.openHomepage('command', true);
+                }
+
+                return true;
             }
         });
 
@@ -597,10 +619,20 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Post-layout initialization
         this.app.workspace.onLayoutReady(async () => {
+            this.isWorkspaceReady = true;
+
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
             if (leaves.length === 0 && !this.isUnloading) {
                 await this.activateView();
+            }
+
+            const pendingHomepageTrigger = this.pendingHomepageTrigger;
+            this.pendingHomepageTrigger = null;
+
+            if (!this.isUnloading) {
+                const trigger = pendingHomepageTrigger ?? 'startup';
+                await this.openHomepage(trigger, true);
             }
 
             // Check for version updates
@@ -850,6 +882,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 // Silently ignore errors from settings update callbacks
             }
         });
+
+        void this.openHomepage('settings-change');
     }
 
     /**
@@ -904,6 +938,79 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 view.navigateToFile(file);
             }
         });
+    }
+
+    /**
+     * Resolves the configured homepage file
+     * @returns The homepage file if it exists and is supported, null otherwise
+     */
+    private resolveHomepageFile(): TFile | null {
+        const { homepage } = this.settings;
+        if (!homepage) {
+            return null;
+        }
+
+        const candidate = this.app.vault.getAbstractFileByPath(homepage);
+        if (!isSupportedHomepageFile(candidate)) {
+            return null;
+        }
+
+        return candidate;
+    }
+
+    /**
+     * Opens the configured homepage file in the navigator and workspace
+     * @param trigger - What triggered the homepage open (startup, settings change, or command)
+     * @param force - Whether to force opening even if already on the homepage
+     * @returns True if the homepage was opened, false otherwise
+     */
+    private async openHomepage(trigger: 'startup' | 'settings-change' | 'command', force = false): Promise<boolean> {
+        // Defer opening if workspace isn't ready yet (except on startup)
+        if (!this.isWorkspaceReady && trigger !== 'startup') {
+            this.pendingHomepageTrigger = trigger;
+            return false;
+        }
+
+        const homepagePath = this.settings.homepage;
+        if (!homepagePath) {
+            this.lastHomepagePath = null;
+            return false;
+        }
+
+        // Skip if we're already on this homepage (unless forced)
+        if (!force && homepagePath === this.lastHomepagePath) {
+            return false;
+        }
+
+        const homepageFile = this.resolveHomepageFile();
+        if (!homepageFile) {
+            this.lastHomepagePath = null;
+            return false;
+        }
+
+        // Open the navigator view
+        const leaf = await this.activateView();
+        const shouldFocusPane = trigger !== 'settings-change';
+
+        // Navigate to the homepage file in the navigator
+        const navigatorLeaves = leaf ? [leaf] : this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+        for (const navigatorLeaf of navigatorLeaves) {
+            const view = navigatorLeaf.view;
+            if (view instanceof NotebookNavigatorView) {
+                view.navigateToFile(homepageFile);
+                if (shouldFocusPane) {
+                    view.focusFilePane();
+                }
+                break;
+            }
+        }
+
+        // Reveal the file in the navigator and open it in the workspace
+        await this.revealFileInActualFolder(homepageFile);
+        await this.app.workspace.openLinkText(homepageFile.path, '', false);
+
+        this.lastHomepagePath = homepageFile.path;
+        return true;
     }
 
     /**

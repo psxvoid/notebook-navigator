@@ -249,6 +249,14 @@ export const STRINGS_JA = {
                 dismiss: 'でキャンセル'
             }
         },
+        homepage: {
+            placeholder: 'ファイルを検索...',
+            instructions: {
+                navigate: 'でナビゲート',
+                select: 'でホームページを設定',
+                dismiss: 'でキャンセル'
+            }
+        },
         tagSuggest: {
             placeholder: 'タグを検索...',
             navigatePlaceholder: 'タグにナビゲート...',
@@ -364,6 +372,7 @@ export const STRINGS_JA = {
     // Plugin commands
     commands: {
         open: '開く', // Command palette: Opens the Notebook Navigator view (English: Open)
+        openHomepage: 'ホームページを開く', // Command palette: Opens the Notebook Navigator view and loads the homepage file (English: Open homepage)
         revealFile: 'ファイルを表示', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: '検索', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'デュアルペインレイアウトを切り替え', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
@@ -536,6 +545,13 @@ export const STRINGS_JA = {
                     supported: 'サポート (Obsidianで開く)',
                     all: 'すべて (外部で開く場合あり)'
                 }
+            },
+            homepage: {
+                name: 'ホームページ',
+                desc: 'ホームページ設定が変わったときや起動時に自動で開く、ダッシュボードや日次ノートなどのファイルを選びます。',
+                current: '現在: {path}',
+                chooseButton: 'ファイルを選択',
+                clearButton: 'クリア'
             },
             showFileDate: {
                 name: '日付を表示',
