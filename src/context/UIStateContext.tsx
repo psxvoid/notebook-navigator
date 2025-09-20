@@ -21,14 +21,14 @@ import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 // Storage keys
 import { STORAGE_KEYS } from '../types';
 import { localStorage } from '../utils/localStorage';
-
-import { useSettingsState } from './SettingsContext';
+import { useServices } from './ServicesContext';
 
 // State interface
 interface UIState {
     focusedPane: 'navigation' | 'files' | 'search';
     currentSinglePaneView: 'navigation' | 'files';
     paneWidth: number;
+    dualPanePreference: boolean;
     dualPane: boolean;
     singlePane: boolean;
 }
@@ -37,7 +37,8 @@ interface UIState {
 export type UIAction =
     | { type: 'SET_FOCUSED_PANE'; pane: 'navigation' | 'files' | 'search' }
     | { type: 'SET_SINGLE_PANE_VIEW'; view: 'navigation' | 'files' }
-    | { type: 'SET_PANE_WIDTH'; width: number };
+    | { type: 'SET_PANE_WIDTH'; width: number }
+    | { type: 'SET_DUAL_PANE'; value: boolean };
 
 // Create contexts
 const UIStateContext = createContext<UIState | null>(null);
@@ -55,6 +56,9 @@ function uiStateReducer(state: UIState, action: UIAction): UIState {
         case 'SET_PANE_WIDTH':
             return { ...state, paneWidth: action.width };
 
+        case 'SET_DUAL_PANE':
+            return { ...state, dualPanePreference: action.value };
+
         default:
             return state;
     }
@@ -67,6 +71,8 @@ interface UIStateProviderProps {
 }
 
 export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
+    const { plugin } = useServices();
+
     const loadInitialState = (): UIState => {
         const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
 
@@ -76,6 +82,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
             focusedPane: 'navigation' as const,
             currentSinglePaneView: 'files' as const,
             paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, paneWidth),
+            dualPanePreference: plugin.useDualPane(),
             dualPane: false, // Will be computed later
             singlePane: false // Will be computed later
         };
@@ -84,17 +91,29 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     };
 
     const [state, dispatch] = useReducer(uiStateReducer, undefined, loadInitialState);
-    const settings = useSettingsState();
 
     // Compute dualPane and singlePane based on isMobile and settings
     const stateWithPaneMode = useMemo(() => {
-        const dualPane = !isMobile && settings.dualPane;
+        const dualPane = !isMobile && state.dualPanePreference;
         return {
             ...state,
             dualPane,
             singlePane: !dualPane
         };
-    }, [state, isMobile, settings.dualPane]);
+    }, [state, isMobile]);
+
+    useEffect(() => {
+        const id = `ui-state-${Date.now()}`;
+        const handleUpdate = () => {
+            dispatch({ type: 'SET_DUAL_PANE', value: plugin.useDualPane() });
+        };
+
+        plugin.registerSettingsUpdateListener(id, handleUpdate);
+
+        return () => {
+            plugin.unregisterSettingsUpdateListener(id);
+        };
+    }, [plugin]);
 
     // Note: Pane width persistence is handled by useResizablePane hook
     // to avoid duplicate writes during drag operations

@@ -126,33 +126,29 @@ export const NotebookNavigatorComponent = React.memo(
                 const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
                 const isFirstRun = !savedWidth;
 
-                // Auto-disable dual pane mode on first startup if viewport is too narrow for both panes
-                if (node && !isMobile && !hasCheckedInitialVisibility.current && settings.dualPane && isFirstRun) {
+                // Auto-disable dual pane on first run if viewport too narrow
+                if (node && !isMobile && !hasCheckedInitialVisibility.current && isFirstRun) {
                     hasCheckedInitialVisibility.current = true;
 
                     const containerWidth = node.getBoundingClientRect().width;
-                    // Check if container is too narrow to show both panes
                     if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
-                        updateSettings(settings => {
-                            settings.dualPane = false;
-                        });
+                        plugin.setDualPanePreference(false);
                     }
                 }
             },
-            [isMobile, paneWidth, settings.dualPane, updateSettings]
+            [isMobile, paneWidth, plugin]
         );
 
         // Determine CSS classes
         const containerClasses = ['nn-split-container'];
 
-        // Handle side effects when dualPane setting changes
+        // Switch to files view when dual pane disabled
         useEffect(() => {
-            if (!isMobile && !settings.dualPane) {
-                // When disabling dual pane mode, switch to files view and focus it
+            if (!isMobile && !uiState.dualPane) {
                 uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             }
-        }, [settings.dualPane, isMobile, uiDispatch]);
+        }, [uiState.dualPane, isMobile, uiDispatch]);
 
         // Enable drag and drop only on desktop
         useDragAndDrop(containerRef);

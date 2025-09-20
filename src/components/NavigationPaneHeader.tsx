@@ -18,7 +18,8 @@
 
 import { useSelectionState } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
-import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
+import { useSettingsState } from '../context/SettingsContext';
+import { useUIState } from '../context/UIStateContext';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useNavigationActions } from '../hooks/useNavigationActions';
@@ -28,9 +29,9 @@ interface NavigationPaneHeaderProps {
 }
 
 export function NavigationPaneHeader({ onTreeUpdateComplete }: NavigationPaneHeaderProps) {
-    const { isMobile } = useServices();
+    const { isMobile, plugin } = useServices();
     const settings = useSettingsState();
-    const updateSettings = useSettingsUpdate();
+    const uiState = useUIState();
     const selectionState = useSelectionState();
 
     // Use the shared actions hook
@@ -46,15 +47,13 @@ export function NavigationPaneHeader({ onTreeUpdateComplete }: NavigationPaneHea
             <div className="nn-header-actions nn-header-actions--space-between">
                 <button
                     className="nn-icon-button"
-                    aria-label={settings.dualPane ? strings.paneHeader.showSinglePane : strings.paneHeader.showDualPane}
+                    aria-label={uiState.dualPane ? strings.paneHeader.showSinglePane : strings.paneHeader.showDualPane}
                     onClick={() => {
-                        updateSettings(s => {
-                            s.dualPane = !s.dualPane;
-                        });
+                        plugin.setDualPanePreference(!plugin.useDualPane());
                     }}
                     tabIndex={-1}
                 >
-                    <ObsidianIcon name={settings.dualPane ? 'lucide-panel-left-close' : 'lucide-panel-right-open'} />
+                    <ObsidianIcon name={uiState.dualPane ? 'lucide-panel-left-close' : 'lucide-panel-right-open'} />
                 </button>
                 <div className="nn-header-actions">
                     <button

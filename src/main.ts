@@ -106,6 +106,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private isWorkspaceReady = false;
     private lastHomepagePath: string | null = null;
     private pendingHomepageTrigger: 'settings-change' | 'command' | null = null;
+    private dualPanePreference = true;  // Stored in localStorage, not settings
 
     // LocalStorage keys for state persistence
     // These keys are used to save and restore the plugin's state between sessions
@@ -164,6 +165,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Load settings and check if this is first launch
         const isFirstLaunch = await this.loadSettings();
+        const storedDualPane = localStorage.get<boolean>(this.keys.dualPaneKey);
+        this.dualPanePreference = typeof storedDualPane === 'boolean' ? storedDualPane : true;
 
         // Handle first launch initialization
         if (isFirstLaunch) {
@@ -351,9 +354,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 // Ensure navigator is open and visible
                 await this.activateView();
 
-                // Toggle the dual pane setting
-                this.settings.dualPane = !this.settings.dualPane;
-                await this.saveSettingsAndUpdate();
+                this.toggleDualPanePreference();
             }
         });
 
@@ -649,6 +650,24 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     public registerSettingsUpdateListener(id: string, callback: () => void): void {
         this.settingsUpdateListeners.set(id, callback);
+    }
+
+    public useDualPane(): boolean {
+        return this.dualPanePreference;
+    }
+
+    public setDualPanePreference(enabled: boolean): void {
+        if (this.dualPanePreference === enabled) {
+            return;
+        }
+
+        this.dualPanePreference = enabled;
+        localStorage.set(this.keys.dualPaneKey, enabled);
+        this.notifySettingsUpdate();
+    }
+
+    public toggleDualPanePreference(): void {
+        this.setDualPanePreference(!this.dualPanePreference);
     }
 
     /**

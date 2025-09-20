@@ -193,6 +193,7 @@ export interface LocalStorageKeys {
     selectedTagKey: string;
     selectedTagContextKey: string;
     navigationPaneWidthKey: string;
+    dualPaneKey: string;
     fileCacheKey: string;
     databaseSchemaVersionKey: string;
     databaseContentVersionKey: string;
@@ -213,6 +214,7 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     selectedTagKey: 'notebook-navigator-selected-tag',
     selectedTagContextKey: 'notebook-navigator-selected-tag-context',
     navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width',
+    dualPaneKey: 'notebook-navigator-dual-pane',
     fileCacheKey: 'notebook-navigator-file-cache',
     databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
     databaseContentVersionKey: 'notebook-navigator-db-content-version',

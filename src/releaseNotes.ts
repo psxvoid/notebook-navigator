@@ -81,7 +81,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Icon picker now provides better search results with improved relevance scoring and fuzzy matching.',
             'Read metadata from frontmatter now also accepts string arrays as name property and will use the first entry if that is the case.'
         ],
-        changed: ['File tags now show without the # prefix. Makes for a cleaner look.'],
+        changed: [
+            'File tags now show without the # prefix. Looks better.',
+            'Dual pane preference is now stored per-device in local storage instead of synced settings, allowing different pane layouts on different devices.'
+        ],
         fixed: ['Icon packs now re-download automatically on the next app launch if download should fail.']
     },
     {

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, Notice, PluginSettingTab, Setting, SliderComponent, ButtonComponent } from 'obsidian';
+import { App, Notice, PluginSettingTab, Setting, SliderComponent, ButtonComponent, Platform } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
 import { strings } from './i18n';
 import { TIMEOUTS } from './types/obsidian-extended';
@@ -66,7 +66,6 @@ export type SearchProvider = 'internal' | 'omnisearch';
  */
 export interface NotebookNavigatorSettings {
     // Top level settings (no category)
-    dualPane: boolean;
     autoRevealActiveFile: boolean;
     autoRevealIgnoreRightSidebar: boolean;
     showTooltips: boolean;
@@ -165,7 +164,6 @@ export interface NotebookNavigatorSettings {
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Top level settings (no category)
-    dualPane: true,
     autoRevealActiveFile: true,
     autoRevealIgnoreRightSidebar: true,
     showTooltips: false,
@@ -463,15 +461,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Top level settings (no category header)
 
-        new Setting(containerEl)
-            .setName(strings.settings.items.dualPane.name)
-            .setDesc(strings.settings.items.dualPane.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.dualPane).onChange(async value => {
-                    this.plugin.settings.dualPane = value;
-                    await this.plugin.saveSettingsAndUpdate();
-                })
-            );
+        if (!Platform.isMobile) {
+            new Setting(containerEl)
+                .setName(strings.settings.items.dualPane.name)
+                .setDesc(strings.settings.items.dualPane.desc)
+                .addToggle(toggle =>
+                    toggle.setValue(this.plugin.useDualPane()).onChange(value => {
+                        this.plugin.setDualPanePreference(value);
+                    })
+                );
+        }
 
         // Auto-reveal active note + sub-settings
         new Setting(containerEl)
