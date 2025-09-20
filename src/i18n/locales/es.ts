@@ -753,7 +753,7 @@ export const STRINGS_ES = {
                 downloadFailed: 'Error al descargar {name}. Verifica tu conexión e intenta nuevamente.',
                 removeFailed: 'Error al eliminar {name}.',
                 infoNote:
-                    'Los paquetes de iconos descargados sincronizan el estado de instalación entre dispositivos. Las fuentes permanecen en la base de datos local en cada dispositivo; la sincronización solo rastrea si deben descargarse o eliminarse. Las fuentes se descargan del repositorio de Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
+                    'Los paquetes de iconos descargados sincronizan el estado de instalación entre dispositivos. Los paquetes de iconos permanecen en la base de datos local en cada dispositivo; la sincronización solo rastrea si deben descargarse o eliminarse. Los paquetes de iconos se descargan del repositorio de Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
                 providers: {
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
                     fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',

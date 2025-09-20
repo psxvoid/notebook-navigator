@@ -217,7 +217,7 @@ libraries without bloating the vault or sync system.
 
 **Data Stored**:
 
-- Icon font files (WOFF2 format)
+- Icon pack files (WOFF2 web font format)
 - CSS stylesheets for icon rendering
 - Icon manifests with metadata
 - Version information for each pack
@@ -225,7 +225,7 @@ libraries without bloating the vault or sync system.
 **Key Characteristics**:
 
 - Persists across Obsidian restarts
-- Large storage capacity for font assets (5MB-10MB per pack)
+- Large storage capacity for icon pack assets (5MB-10MB per pack)
 - Asynchronous download and storage
 - Automatic version management
 - Database name: `notebooknavigator/icon-assets/{appId}`
