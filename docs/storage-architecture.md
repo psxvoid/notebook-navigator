@@ -208,7 +208,8 @@ interface NotebookNavigatorSettings {
 
 ### 5. Icon Assets Database (Device-Specific Storage)
 
-**Purpose**: Stores downloaded icon pack assets locally on each device. This allows users to have extensive icon libraries without bloating the vault or sync system.
+**Purpose**: Stores downloaded icon pack assets locally on each device. This allows users to have extensive icon
+libraries without bloating the vault or sync system.
 
 **Location**: Browser's IndexedDB storage (device-specific)
 

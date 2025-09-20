@@ -290,9 +290,12 @@ graph TD
 
 #### Metadata Cleanup
 
-**Purpose**: Remove orphaned metadata for folders, tags, and files that were deleted outside of Obsidian. When files are deleted through Obsidian's interface, metadata is cleaned up automatically. This manual cleanup is only needed for external changes.
+**Purpose**: Remove orphaned metadata for folders, tags, and files that were deleted outside of Obsidian. When files are
+deleted through Obsidian's interface, metadata is cleaned up automatically. This manual cleanup is only needed for
+external changes.
 
 **When It's Needed**:
+
 - Files/folders deleted directly from file system
 - Vault synchronized with missing files
 - Files removed by external tools or scripts
@@ -301,12 +304,14 @@ graph TD
 **How to Run**: Open Settings → Notebook Navigator → Advanced → Clean up metadata
 
 **What Gets Cleaned**:
+
 - Folder colors, icons, and sort settings for deleted folders
 - Tag colors, icons, and sort settings for removed tags
 - Pinned notes that no longer exist
 - Custom appearances for non-existent items
 
-**Technical Details**: The cleanup process uses validators to compare stored metadata against the current vault state. See `MetadataService.cleanupAllMetadata()` for implementation.
+**Technical Details**: The cleanup process uses validators to compare stored metadata against the current vault state.
+See `MetadataService.cleanupAllMetadata()` for implementation.
 
 ### Phase 5: Background Processing
 

@@ -614,9 +614,11 @@ Background content generation follows this process (see startup-process.md Phase
 
 Metadata cleanup handles two scenarios:
 
-**Automatic Cleanup**: When files/folders are deleted through Obsidian's interface, their metadata is cleaned up immediately.
+**Automatic Cleanup**: When files/folders are deleted through Obsidian's interface, their metadata is cleaned up
+immediately.
 
-**Manual Cleanup**: For files/folders deleted outside Obsidian (file system, external tools), cleanup must be triggered from settings.
+**Manual Cleanup**: For files/folders deleted outside Obsidian (file system, external tools), cleanup must be triggered
+from settings.
 
 **Manual Trigger**: Settings → Notebook Navigator → Advanced → "Clean up metadata" button
 
