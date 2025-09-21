@@ -158,39 +158,3 @@ else
     exit 1
 fi
 
-# Step 6: Update README with documentation from website
-echo -e "\nUpdating README with latest documentation..."
-
-# Fetch documentation from production website
-DOCS_URL="https://notebooknavigator.com/docs/en/content.md"
-
-echo "Fetching documentation from website..."
-
-# Use curl to fetch the documentation
-HTTP_STATUS=$(curl -s -o /tmp/docs-content.md -w "%{http_code}" "$DOCS_URL")
-
-if [ "$HTTP_STATUS" = "200" ]; then
-    # Extract intro section (everything before the marker)
-    sed -n '/<!-- DOCUMENTATION_START -->/q;p' README.md > /tmp/readme-intro.md
-
-    # Append the marker
-    echo "<!-- DOCUMENTATION_START -->" >> /tmp/readme-intro.md
-    echo "" >> /tmp/readme-intro.md
-
-    # Append the fetched documentation
-    cat /tmp/docs-content.md >> /tmp/readme-intro.md
-
-    # Ensure README ends with a trailing newline to keep diffs clean
-    printf '\n' >> /tmp/readme-intro.md
-
-    # Replace README only when content changed to avoid unnecessary diffs
-    if cmp -s /tmp/readme-intro.md README.md; then
-        echo "✅ README already up to date"
-    else
-        cp /tmp/readme-intro.md README.md
-        echo "✅ README updated with documentation from website"
-    fi
-else
-    echo "⚠️  Warning: Could not fetch documentation (HTTP $HTTP_STATUS). README not updated."
-    echo "   Documentation should be available at: $DOCS_URL"
-fi

@@ -121,8 +121,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Load settings and check if this is first launch
         const isFirstLaunch = await this.loadSettings();
-        const storedDualPane = localStorage.get<boolean>(this.keys.dualPaneKey);
-        this.dualPanePreference = typeof storedDualPane === 'boolean' ? storedDualPane : true;
+        const storedDualPane = localStorage.get<unknown>(this.keys.dualPaneKey);
+        const parsedDualPane = this.parseDualPanePreference(storedDualPane);
+        this.dualPanePreference = parsedDualPane ?? true;
+
+        const storedLocalStorageVersion = localStorage.get<number>(STORAGE_KEYS.localStorageVersionKey);
 
         // Handle first launch initialization
         if (isFirstLaunch) {
@@ -131,6 +134,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
             // Clear all localStorage data (if plugin was reinstalled)
             this.clearAllLocalStorage();
+
+            // Reset dual-pane preference to default on fresh install
+            this.dualPanePreference = true;
 
             // Ensure root folder is expanded on first launch (default is enabled)
             if (this.settings.showRootFolder) {
@@ -142,8 +148,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             localStorage.set(STORAGE_KEYS.localStorageVersionKey, LOCALSTORAGE_VERSION);
         } else {
             // Check localStorage version for potential migrations
-            const storedVersion = localStorage.get(STORAGE_KEYS.localStorageVersionKey);
-            if (!storedVersion || Number(storedVersion) !== LOCALSTORAGE_VERSION) {
+            const versionNumber =
+                typeof storedLocalStorageVersion === 'number' ? storedLocalStorageVersion : Number(storedLocalStorageVersion ?? Number.NaN);
+            if (!versionNumber || versionNumber !== LOCALSTORAGE_VERSION) {
                 // Future localStorage migration logic can go here
                 localStorage.set(STORAGE_KEYS.localStorageVersionKey, LOCALSTORAGE_VERSION);
             }
@@ -631,12 +638,20 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         this.dualPanePreference = enabled;
-        localStorage.set(this.keys.dualPaneKey, enabled);
+        localStorage.set(this.keys.dualPaneKey, enabled ? '1' : '0');
         this.notifySettingsUpdate();
     }
 
     public toggleDualPanePreference(): void {
         this.setDualPanePreference(!this.dualPanePreference);
+    }
+
+    private parseDualPanePreference(raw: unknown): boolean | null {
+        if (typeof raw === 'string') {
+            return raw === '1';
+        }
+
+        return false;
     }
 
     /**
