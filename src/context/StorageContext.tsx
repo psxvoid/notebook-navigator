@@ -60,6 +60,7 @@ import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
+import type { ContentType } from '../interfaces/IContentProvider';
 
 /**
  * Data structure containing the hierarchical tag trees and untagged file count
@@ -112,45 +113,47 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const { tagTreeService } = useServices();
     const [fileData, setFileData] = useState<FileData>({ favoriteTree: new Map(), tagTree: new Map(), untagged: 0 });
 
-    // Content provider registry handles content generation (preview text, feature images, metadata, tags)
+    // Registry managing all content providers for generating preview text, feature images, metadata, and tags
     const contentRegistry = useRef<ContentProviderRegistry | null>(null);
     const isFirstLoad = useRef(true);
-    // Track any scheduled idle callbacks to allow cancellation on unmount
-    const pendingIdleCallbackId = useRef<number | null>(null);
-    // Global stop flag to gate background work after plugin/view stop
+    // ID of any scheduled timeout for deferred processing, used for cancellation on unmount
+    const pendingSyncTimeoutId = useRef<number | null>(null);
+    // Flag indicating whether all processing should be stopped (plugin disabled or view closed)
     const stoppedRef = useRef<boolean>(false);
-    // Track cancellers for waitForMetadataCache and active event refs for optional detaching
+    // Cleanup function for current metadata wait operation
     const waitDisposerRef = useRef<(() => void) | null>(null);
+    const metadataWaitDisposersRef = useRef<Set<() => void>>(new Set());
+    const pendingTagMetadataPathsRef = useRef<Set<string>>(new Set());
+    const latestSettingsRef = useRef(settings);
     const activeVaultEventRefs = useRef<EventRef[] | null>(null);
     const activeMetadataEventRef = useRef<EventRef | null>(null);
     const rebuildFileCacheRef = useRef<ReturnType<typeof debounce> | null>(null);
     const buildFileCacheFnRef = useRef<((isInitialLoad?: boolean) => Promise<void>) | null>(null);
 
-    // Track storage initialization state
+    // State tracking whether storage system and IndexedDB are fully initialized
     const [isStorageReady, setIsStorageReady] = useState(false);
     const [isIndexedDBReady, setIsIndexedDBReady] = useState(false);
 
-    // Track if we've already built the initial cache
+    // Flag preventing duplicate initial cache building during startup
     const hasBuiltInitialCache = useRef(false);
 
-    // Track previous settings to detect changes
+    // Previous settings reference for detecting what changed between renders
     const prevSettings = useRef<NotebookNavigatorSettings | null>(null);
 
-    // Track previous favoriteTags to detect changes
+    // Previous favorite tags for detecting when favorites have been added/removed
     const prevFavoriteTags = useRef<string[]>(settings.favoriteTags);
 
-    // Memoize the context value to prevent re-renders when fileData/cache haven't changed
-    // Helper function to get markdown files filtered by excluded properties and folders
+    // Returns all markdown files in vault after applying exclusion filters from settings
     const getFilteredMarkdownFilesCallback = useCallback((): TFile[] => {
         return getFilteredMarkdownFiles(app, settings);
     }, [app, settings]);
 
-    // Helper function to rebuild tag tree
+    // Rebuilds the complete tag tree structure from database contents
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
-        // When showing hidden items, do not exclude folders from the tag tree
+        // Hidden items override: when enabled, include all folders in tag tree regardless of exclusions
         const excludedFolderPatterns = settings.showHiddenItems ? [] : settings.excludedFolders;
-        // Include only files that pass current frontmatter + folder exclusion filters
+        // Filter database results to only include files matching current visibility settings
         const includedPaths = new Set(getFilteredMarkdownFilesCallback().map(f => f.path));
         const {
             favoriteTree,
@@ -161,7 +164,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         const untaggedCount = newUntagged;
         setFileData({ favoriteTree, tagTree, untagged: untaggedCount });
 
-        // Update the TagTreeService with both trees
+        // Propagate updated tag trees to the global TagTreeService for cross-component access
         if (tagTreeService) {
             tagTreeService.updateTagTree(tagTree, untaggedCount, favoriteTree);
         }
@@ -186,6 +189,49 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     }, [settings.showHiddenItems, settings.showTags, isStorageReady, rebuildTagTree]);
 
     /**
+     * Effect: Keep a ref with the latest settings for use in callbacks
+     *
+     * This ref is needed because callbacks and async operations may close over
+     * stale settings values. By keeping a ref updated with the latest settings,
+     * we can always access current settings even in older callback closures.
+     */
+    useEffect(() => {
+        latestSettingsRef.current = settings;
+    }, [settings]);
+
+    /**
+     * Effect: Clean up tag-related metadata operations when tags are disabled
+     *
+     * When the user disables tags in settings, we need to:
+     * 1. Cancel any pending metadata wait operations for tag extraction
+     * 2. Clear the set of files waiting for metadata
+     * 3. This prevents unnecessary processing and memory leaks
+     *
+     * The effect only runs cleanup when tags are disabled (showTags = false).
+     * When tags are enabled, we keep existing operations running.
+     */
+    useEffect(() => {
+        if (settings.showTags) {
+            return;
+        }
+
+        // Clean up all active metadata wait disposers
+        if (metadataWaitDisposersRef.current.size > 0) {
+            for (const dispose of metadataWaitDisposersRef.current) {
+                try {
+                    dispose();
+                } catch {
+                    // ignore cleanup errors
+                }
+            }
+            metadataWaitDisposersRef.current.clear();
+        }
+
+        // Clear the set of paths waiting for metadata
+        pendingTagMetadataPathsRef.current.clear();
+    }, [settings.showTags]);
+
+    /**
      * Waits until all provided markdown files have entries in Obsidian's metadata cache.
      *
      * Why this works:
@@ -203,9 +249,9 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
      * 4. On each event, re-check the tracked paths. As soon as every file reports a cache entry,
      *    detach the listeners and run the callback.
      *
-     * There is no timeout: the callback fires exactly when Obsidian surfaces metadata for every
-     * target file, and missing files naturally drop out of the tracked set because they are no
-     * longer returned by `getAbstractFileByPath`.
+     * The callback still only fires when Obsidian surfaces metadata for every tracked file.
+     * If any files never resolve (large notes, invalid frontmatter), we log an error after 10s
+     * so users know why tags remain disabled, but we do not fall back to partial data.
      */
     const waitForMetadataCache = useCallback(
         (files: TFile[], callback: () => void): (() => void) => {
@@ -217,21 +263,31 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             // Waiting is only meaningful for real markdown files that still exist in the vault.
             const trackedPaths = new Set(files.filter((file): file is TFile => file instanceof TFile).map(file => file.path));
 
-            // Helper checks if every tracked file has an entry in Obsidian's metadata cache.
-            const hasMetadataForAll = (): boolean => {
-                for (const path of trackedPaths) {
+            // Checks which files have metadata ready and removes them from tracking
+            const removeReadyPaths = (paths: Iterable<string>) => {
+                for (const path of paths) {
+                    // Skip paths not being tracked
+                    if (!trackedPaths.has(path)) {
+                        continue;
+                    }
                     const abstract = app.vault.getAbstractFileByPath(path);
-                    if (abstract && abstract instanceof TFile) {
-                        const metadata = app.metadataCache.getFileCache(abstract);
-                        if (metadata === null || metadata === undefined) {
-                            return false;
-                        }
+                    // Remove deleted or non-file paths from tracking
+                    if (!abstract || !(abstract instanceof TFile)) {
+                        trackedPaths.delete(path);
+                        continue;
+                    }
+                    // Check if metadata cache has data for this file
+                    const metadata = app.metadataCache.getFileCache(abstract);
+                    // Remove from tracking if metadata is available
+                    if (metadata !== null && metadata !== undefined) {
+                        trackedPaths.delete(path);
                     }
                 }
-                return true;
             };
 
-            if (trackedPaths.size === 0 || hasMetadataForAll()) {
+            removeReadyPaths(trackedPaths);
+
+            if (trackedPaths.size === 0) {
                 callback();
                 return () => {};
             }
@@ -239,12 +295,51 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             let resolvedEventRef: EventRef | null = null;
             let changedEventRef: EventRef | null = null;
             let disposed = false;
+            let warningTimeoutId: number | null = null;
+
+            // Clears the warning timer if it's currently scheduled
+            const clearWarningTimer = () => {
+                if (warningTimeoutId !== null && typeof window !== 'undefined') {
+                    window.clearTimeout(warningTimeoutId);
+                    warningTimeoutId = null;
+                }
+            };
+
+            // Schedules a warning message after 10 seconds if metadata hasn't resolved
+            const scheduleWarning = () => {
+                // Don't schedule if already scheduled
+                if (warningTimeoutId !== null) {
+                    return;
+                }
+                // Skip in non-browser environments
+                if (typeof window === 'undefined') {
+                    return;
+                }
+                warningTimeoutId = window.setTimeout(() => {
+                    warningTimeoutId = null;
+                    // Don't warn if all files resolved
+                    if (trackedPaths.size === 0) {
+                        return;
+                    }
+                    // Log first 20 unresolved files for debugging
+                    const unresolved = Array.from(trackedPaths).slice(0, 20);
+                    console.error(
+                        'Notebook Navigator could not resolve metadata for all files. Tags remain disabled until metadata becomes available.',
+                        {
+                            unresolved,
+                            totalPending: trackedPaths.size,
+                            hint: 'Reduce file size, fix invalid frontmatter, exclude the files, or disable tags.'
+                        }
+                    );
+                }, 10000);
+            };
 
             const cleanup = () => {
                 if (disposed) {
                     return;
                 }
                 disposed = true;
+                clearWarningTimer();
                 if (resolvedEventRef) {
                     try {
                         app.metadataCache.offref(resolvedEventRef);
@@ -264,27 +359,178 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             };
 
             const maybeFinish = () => {
-                if (!disposed && hasMetadataForAll()) {
+                if (!disposed && trackedPaths.size === 0) {
                     cleanup();
                     callback();
                 }
             };
 
-            // resolved fires during the initial index pass; changed covers later updates.
-            resolvedEventRef = app.metadataCache.on('resolved', maybeFinish);
+            // Listen for Obsidian's initial metadata indexing completion
+            resolvedEventRef = app.metadataCache.on('resolved', () => {
+                // Clear any existing warning timer since we're checking again
+                clearWarningTimer();
+                // Check all tracked paths for metadata availability
+                removeReadyPaths(trackedPaths);
+                // Schedule warning if files remain unresolved
+                if (trackedPaths.size > 0) {
+                    scheduleWarning();
+                }
+                // Fire callback if all files are ready
+                maybeFinish();
+            });
+            // Listen for individual file metadata updates
             changedEventRef = app.metadataCache.on('changed', file => {
+                // Ignore non-file events
                 if (!file || !(file instanceof TFile)) {
                     return;
                 }
+                // Ignore files we're not tracking
                 if (!trackedPaths.has(file.path)) {
                     return;
                 }
+                // Check if this file's metadata is now ready
+                removeReadyPaths([file.path]);
+                // Fire callback if all files are ready
                 maybeFinish();
             });
+
+            // Schedule a warning in case metadata never resolves after the initial sweep.
+            scheduleWarning();
 
             return cleanup;
         },
         [app]
+    );
+
+    /**
+     * Queues tag extraction for files once their metadata is ready in Obsidian's cache.
+     *
+     * This function:
+     * 1. Deduplicates the input files to avoid duplicate processing
+     * 2. Filters to only markdown files (tags are only in .md files)
+     * 3. Waits for Obsidian's metadata cache to be ready for all files
+     * 4. Queues tag extraction once metadata is available
+     * 5. Tracks the cleanup function to cancel if needed
+     */
+    const queueTagsWhenMetadataReady = useCallback(
+        (files: TFile[]) => {
+            // Exit early if tags are disabled in settings
+            const currentSettings = latestSettingsRef.current;
+            if (!currentSettings.showTags) {
+                return;
+            }
+
+            // Deduplicate files by path to avoid processing the same file multiple times
+            const uniqueFiles = new Map<string, TFile>();
+            for (const file of files) {
+                if (!uniqueFiles.has(file.path)) {
+                    uniqueFiles.set(file.path, file);
+                }
+            }
+
+            // Filter to only markdown files that aren't already being processed
+            // Only .md files can have tags, and we skip files already waiting for metadata
+            const tagCandidates = Array.from(uniqueFiles.values()).filter(file => {
+                return file.extension === 'md' && !pendingTagMetadataPathsRef.current.has(file.path);
+            });
+
+            // Exit early if no files need processing
+            if (tagCandidates.length === 0) {
+                return;
+            }
+
+            // Extract paths and create a function to release them from tracking
+            const trackedPaths = tagCandidates.map(file => file.path);
+            const releaseTrackedPaths = () => {
+                for (const path of trackedPaths) {
+                    pendingTagMetadataPathsRef.current.delete(path);
+                }
+            };
+
+            // Mark these paths as being processed to avoid duplicate operations
+            for (const path of trackedPaths) {
+                pendingTagMetadataPathsRef.current.add(path);
+            }
+
+            // Track whether we need to store a cleanup function and if callback fired sync
+            let cleanupWrapper: (() => void) | null = null;
+            let firedImmediately = false;
+
+            // Callback executed when metadata is ready for all files
+            const handleReady = () => {
+                // Mark that callback fired immediately (synchronously)
+                firedImmediately = true;
+                // Release the paths from tracking since we're done with them
+                releaseTrackedPaths();
+
+                // Remove cleanup wrapper from tracking if it exists
+                if (cleanupWrapper) {
+                    metadataWaitDisposersRef.current.delete(cleanupWrapper);
+                    cleanupWrapper = null;
+                }
+
+                // Exit early if processing was stopped
+                if (stoppedRef.current) {
+                    return;
+                }
+
+                // Check again if tags are still enabled (settings might have changed)
+                const latestSettings = latestSettingsRef.current;
+                if (!latestSettings.showTags) {
+                    return;
+                }
+
+                // Ensure content registry is available
+                if (!contentRegistry.current) {
+                    return;
+                }
+
+                // Queue tag extraction for all candidate files
+                contentRegistry.current.queueFilesForAllProviders(tagCandidates, latestSettings, {
+                    include: ['tags'] as ContentType[]
+                });
+            };
+
+            // Start waiting for metadata cache to be ready
+            // This returns a cleanup function if the wait is async
+            let rawCleanup: (() => void) | null = null;
+            try {
+                rawCleanup = waitForMetadataCache(tagCandidates, handleReady);
+            } catch (error) {
+                // If wait setup fails, release tracked paths and re-throw
+                releaseTrackedPaths();
+                throw error;
+            }
+
+            // Handle the cleanup function based on whether callback fired immediately
+            if (!firedImmediately && rawCleanup) {
+                // Callback didn't fire immediately - we need to track the cleanup function
+                // Wrap it to also release tracked paths when cleaned up
+                cleanupWrapper = () => {
+                    releaseTrackedPaths();
+                    try {
+                        rawCleanup();
+                    } catch {
+                        // ignore cleanup errors
+                    }
+                };
+                // Add to our set of tracked disposers for later cleanup
+                metadataWaitDisposersRef.current.add(cleanupWrapper);
+            } else if (!firedImmediately) {
+                // Callback didn't fire but no cleanup function returned
+                // Just release the tracked paths
+                releaseTrackedPaths();
+                if (rawCleanup) {
+                    // Clean up immediately if we have a cleanup function
+                    try {
+                        rawCleanup();
+                    } catch {
+                        // ignore cleanup errors
+                    }
+                }
+            }
+        },
+        [waitForMetadataCache]
     );
 
     /**
@@ -302,14 +548,12 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             contentRegistry.current.stopAllProcessing();
         }
 
-        // Cancel any pending idle callbacks for processing
-        if (pendingIdleCallbackId.current !== null) {
-            try {
-                cancelIdleCallback(pendingIdleCallbackId.current);
-            } catch {
-                // ignore
+        // Cancel any scheduled background processing
+        if (pendingSyncTimeoutId.current !== null) {
+            if (typeof window !== 'undefined') {
+                window.clearTimeout(pendingSyncTimeoutId.current);
             }
-            pendingIdleCallbackId.current = null;
+            pendingSyncTimeoutId.current = null;
         }
 
         // Cancel any debounced file cache rebuild operations
@@ -331,6 +575,20 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             }
             waitDisposerRef.current = null;
         }
+
+        // Clean up all tracked metadata wait disposers
+        if (metadataWaitDisposersRef.current.size > 0) {
+            for (const dispose of metadataWaitDisposersRef.current) {
+                try {
+                    dispose();
+                } catch {
+                    // ignore errors during cleanup
+                }
+            }
+            metadataWaitDisposersRef.current.clear();
+        }
+
+        pendingTagMetadataPathsRef.current.clear();
 
         // Clear the entire IndexedDB database
         try {
@@ -380,7 +638,21 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         stoppedRef.current = previousStopped;
     }, [api, tagTreeService]);
 
+    /**
+     * Memoized context value to prevent unnecessary re-renders
+     *
+     * This memo creates the context value object that will be provided to all child
+     * components. It includes:
+     * - Helper methods for getting file metadata with frontmatter support
+     * - Direct database access methods
+     * - Tag tree navigation methods
+     * - Storage state information
+     *
+     * The value is memoized to only recreate when its dependencies change,
+     * preventing child components from re-rendering unnecessarily.
+     */
     const contextValue = useMemo(() => {
+        // Gets the display name for a file, using frontmatter if configured
         const getFileDisplayName = (file: TFile): string => {
             if (settings.useFrontmatterMetadata) {
                 const metadata = extractMetadata(app, file, settings);
@@ -391,6 +663,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             return getDisplayName(file, undefined, settings);
         };
 
+        // Gets the creation time for a file, using frontmatter if configured
         const getFileCreatedTime = (file: TFile): number => {
             if (settings.useFrontmatterMetadata) {
                 const metadata = extractMetadata(app, file, settings);
@@ -406,6 +679,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             return file.stat.ctime;
         };
 
+        // Gets the modification time for a file, using frontmatter if configured
         const getFileModifiedTime = (file: TFile): number => {
             if (settings.useFrontmatterMetadata) {
                 const metadata = extractMetadata(app, file, settings);
@@ -421,6 +695,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             return file.stat.mtime;
         };
 
+        // Gets all metadata for a file in one call (name, created, modified)
         const getFileMetadata = (file: TFile): { name: string; created: number; modified: number } => {
             let extractedMetadata: ProcessedMetadata | null = null;
             if (settings.useFrontmatterMetadata) {
@@ -440,17 +715,21 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             };
         };
 
+        // Direct accessors for tag tree data structures
         const getTagTree = () => fileData.tagTree;
         const getFavoriteTree = () => fileData.favoriteTree;
 
+        // Finds a tag node by path in the main tag tree
         const findTagInTree = (tagPath: string) => {
             return findTagNode(fileData.tagTree, tagPath);
         };
 
+        // Finds a tag node by path in the favorites tree
         const findTagInFavoriteTree = (tagPath: string) => {
             return findTagNode(fileData.favoriteTree, tagPath);
         };
 
+        // Collects all tag paths from both trees (favorites and main)
         const getAllTagPaths = () => {
             const allPaths: string[] = [];
             for (const rootNode of fileData.favoriteTree.values()) {
@@ -464,6 +743,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             return allPaths;
         };
 
+        // Gets the display path for a tag (may differ from actual path due to display settings)
         const getTagDisplayPath = (path: string): string => {
             const tagNode = findTagNode(fileData.favoriteTree, path) || findTagNode(fileData.tagTree, path);
             return tagNode?.displayPath ?? path;
@@ -503,14 +783,30 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
             // Queue content generation for all files if needed
             const allFiles = getFilteredMarkdownFilesCallback();
-            contentRegistry.current.queueFilesForAllProviders(allFiles, newSettings);
+            const options = newSettings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
+            contentRegistry.current.queueFilesForAllProviders(allFiles, newSettings, options);
+
+            if (newSettings.showTags) {
+                queueTagsWhenMetadataReady(allFiles);
+            }
         },
-        [getFilteredMarkdownFilesCallback]
+        [getFilteredMarkdownFilesCallback, queueTagsWhenMetadataReady]
     );
 
     // ==================== Effects ====================
 
-    // Initialize content service
+    /**
+     * Effect: Initialize content provider registry
+     *
+     * Creates and configures the ContentProviderRegistry with all content providers:
+     * - PreviewContentProvider: Generates preview text for files
+     * - FeatureImageContentProvider: Extracts feature images from frontmatter
+     * - MetadataContentProvider: Extracts custom metadata from frontmatter
+     * - TagContentProvider: Extracts tags from file content and frontmatter
+     *
+     * The registry coordinates all content generation and handles provider lifecycle.
+     * On cleanup, it stops all processing and cleans up resources.
+     */
     useEffect(() => {
         // Only create registry if it doesn't exist
         if (!contentRegistry.current) {
@@ -528,9 +824,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 contentRegistry.current = null;
             }
             // Also cancel any pending idle callback here as an extra safeguard
-            if (pendingIdleCallbackId.current !== null) {
-                cancelIdleCallback(pendingIdleCallbackId.current);
-                pendingIdleCallbackId.current = null;
+            if (pendingSyncTimeoutId.current !== null) {
+                if (typeof window !== 'undefined') {
+                    window.clearTimeout(pendingSyncTimeoutId.current);
+                }
+                pendingSyncTimeoutId.current = null;
             }
         };
     }, [app]); // Only recreate when app changes, not settings
@@ -602,7 +900,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
      *
      * The effect has two main code paths:
      * - Initial load (isInitialLoad=true): Synchronous processing for immediate UI
-     * - Background updates: Uses requestIdleCallback to avoid blocking UI
+     * - Background updates: Uses deferred timeouts to avoid blocking the UI and to run on all platforms
      */
     useEffect(() => {
         /**
@@ -621,7 +919,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
          * - Queues content generation for new/modified files
          *
          * Background update path (isInitialLoad=false):
-         * - Uses requestIdleCallback to avoid blocking UI
+         * - Uses deferred scheduling to avoid blocking UI
          * - Processes changes incrementally
          * - Only rebuilds tag tree if files were deleted
          */
@@ -678,7 +976,9 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                             // waitForMetadataCache will fire the callback when all files have metadata
                             const disposer = waitForMetadataCache(filesNeedingTags, () => {
                                 if (contentRegistry.current) {
-                                    contentRegistry.current.queueFilesForAllProviders(filesNeedingTags, settings);
+                                    contentRegistry.current.queueFilesForAllProviders(filesNeedingTags, settings, {
+                                        include: ['tags']
+                                    });
                                 }
                             });
                             waitDisposerRef.current = disposer;
@@ -689,139 +989,133 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     const contentEnabled = settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata;
 
                     if (contentRegistry.current && contentEnabled && (toAdd.length > 0 || toUpdate.length > 0)) {
-                        // Queue non-tag content generation (preview, images, metadata)
-                        // Tags are already handled above if enabled
-                        contentRegistry.current.queueFilesForAllProviders([...toAdd, ...toUpdate], settings);
+                        const nonTagOptions = settings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
+
+                        contentRegistry.current.queueFilesForAllProviders([...toAdd, ...toUpdate], settings, nonTagOptions);
+
+                        if (settings.showTags && toUpdate.length > 0) {
+                            queueTagsWhenMetadataReady(toUpdate);
+                        }
                     }
                 } catch (error) {
                     console.error('Failed during initial load sequence:', error);
                 }
             } else {
-                // Background update path: Process changes when browser is idle
-                // This path is used for all vault changes after initial load to avoid
-                // blocking the UI. Changes are batched and processed during idle time.
+                // Background update path: Process changes asynchronously without blocking the UI.
+                // This path is used for all vault changes after initial load to batch bursts of events.
 
-                // Cancel any previously scheduled idle work before queuing a new one
+                // Cancel any previously scheduled background work before queuing a new one
                 // This ensures we don't process stale updates if multiple changes happen quickly
-                if (pendingIdleCallbackId.current !== null) {
-                    cancelIdleCallback(pendingIdleCallbackId.current);
-                    pendingIdleCallbackId.current = null;
+                if (pendingSyncTimeoutId.current !== null) {
+                    if (typeof window !== 'undefined') {
+                        window.clearTimeout(pendingSyncTimeoutId.current);
+                    }
+                    pendingSyncTimeoutId.current = null;
                 }
 
-                pendingIdleCallbackId.current = requestIdleCallback(
-                    async () => {
-                        if (stoppedRef.current) return;
-                        try {
-                            const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
+                const processDiff = async () => {
+                    if (stoppedRef.current) return;
+                    try {
+                        const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
 
-                            if (toAdd.length > 0 || toUpdate.length > 0 || toRemove.length > 0) {
-                                // Update only the changed files in IndexedDB
-                                try {
-                                    const filesToUpdate = [...toAdd, ...toUpdate];
-                                    if (filesToUpdate.length > 0) {
-                                        await recordFileChanges(filesToUpdate, cachedFiles);
-                                    }
-
-                                    // Remove deleted files from IndexedDB
-                                    if (toRemove.length > 0) {
-                                        await removeFilesFromCache(toRemove);
-                                        // Rebuild tag tree after removing files
-                                        if (settings.showTags) {
-                                            rebuildTagTree();
-                                        }
-                                    }
-
-                                    // Note: Tag change detection is no longer needed here
-                                    // Tags are now extracted by TagContentProvider and will trigger
-                                    // tag tree rebuild via database change notifications
-                                } catch (error) {
-                                    console.error('Failed to update IndexedDB cache:', error);
+                        if (toAdd.length > 0 || toUpdate.length > 0 || toRemove.length > 0) {
+                            try {
+                                const filesToUpdate = [...toAdd, ...toUpdate];
+                                if (filesToUpdate.length > 0) {
+                                    await recordFileChanges(filesToUpdate, cachedFiles);
                                 }
 
-                                // Queue content generation
-
-                                const contentEnabled =
-                                    settings.showTags ||
-                                    settings.showFilePreview ||
-                                    settings.showFeatureImage ||
-                                    settings.useFrontmatterMetadata;
-
-                                if (contentRegistry.current && contentEnabled) {
-                                    // Always process new and updated files (but only if they need content)
-                                    // Check IndexedDB to see what content is needed
-                                    const db = getDBInstance();
-                                    let filesToProcess: TFile[] = [];
-
-                                    try {
-                                        const filesToCheck = [...toAdd, ...toUpdate];
-                                        const paths = filesToCheck.map(f => f.path);
-                                        const indexedFiles = db.getFiles(paths);
-
-                                        filesToProcess = filesToCheck.filter(file => {
-                                            const fileData = indexedFiles.get(file.path);
-                                            if (!fileData) {
-                                                return true; // New file, needs all content
-                                            }
-
-                                            // Check if file was modified (mtime mismatch)
-                                            if (fileData.mtime !== file.stat.mtime) {
-                                                return true; // Modified file, needs content regeneration
-                                            }
-
-                                            const needsContent =
-                                                (settings.showFilePreview && fileData.preview === null && file.extension === 'md') ||
-                                                (settings.showFeatureImage && fileData.featureImage === null) ||
-                                                (settings.useFrontmatterMetadata && fileData.metadata === null && file.extension === 'md');
-
-                                            return needsContent;
-                                        });
-
-                                        // If no changes, check if any existing files need content generation
-                                        // This handles the case where settings were enabled on another device
-                                        // Also check on initial load to ensure content is generated on fresh install
-                                        if (filesToProcess.length === 0) {
-                                            // Get files needing content from database
-                                            const filesNeedingTags = settings.showTags
-                                                ? db.getFilesNeedingContent('tags')
-                                                : new Set<string>();
-                                            const filesNeedingPreview = settings.showFilePreview
-                                                ? db.getFilesNeedingContent('preview')
-                                                : new Set<string>();
-                                            const filesNeedingImage = settings.showFeatureImage
-                                                ? db.getFilesNeedingContent('featureImage')
-                                                : new Set<string>();
-                                            const filesNeedingMetadata = settings.useFrontmatterMetadata
-                                                ? db.getFilesNeedingContent('metadata')
-                                                : new Set<string>();
-
-                                            // Combine all paths that need any content
-                                            const pathsNeedingContent = new Set([
-                                                ...filesNeedingTags,
-                                                ...filesNeedingPreview,
-                                                ...filesNeedingImage,
-                                                ...filesNeedingMetadata
-                                            ]);
-
-                                            // Filter vault files to only those needing content
-                                            if (pathsNeedingContent.size > 0) {
-                                                filesToProcess = allFiles.filter(file => pathsNeedingContent.has(file.path));
-                                            }
-                                        }
-                                    } catch (error) {
-                                        console.error('Failed to check content needs from IndexedDB:', error);
+                                if (toRemove.length > 0) {
+                                    await removeFilesFromCache(toRemove);
+                                    if (settings.showTags) {
+                                        rebuildTagTree();
                                     }
+                                }
+                            } catch (error) {
+                                console.error('Failed to update IndexedDB cache:', error);
+                            }
 
-                                    if (filesToProcess.length > 0) {
-                                        contentRegistry.current.queueFilesForAllProviders(filesToProcess, settings);
+                            const contentEnabled =
+                                settings.showTags ||
+                                settings.showFilePreview ||
+                                settings.showFeatureImage ||
+                                settings.useFrontmatterMetadata;
+
+                            if (contentRegistry.current && contentEnabled) {
+                                const db = getDBInstance();
+                                let filesToProcess: TFile[] = [];
+
+                                try {
+                                    const filesToCheck = [...toAdd, ...toUpdate];
+                                    const paths = filesToCheck.map(f => f.path);
+                                    const indexedFiles = db.getFiles(paths);
+
+                                    filesToProcess = filesToCheck.filter(file => {
+                                        const fileData = indexedFiles.get(file.path);
+                                        if (!fileData) {
+                                            return true;
+                                        }
+
+                                        if (fileData.mtime !== file.stat.mtime) {
+                                            return true;
+                                        }
+
+                                        return (
+                                            (settings.showFilePreview && fileData.preview === null && file.extension === 'md') ||
+                                            (settings.showFeatureImage && fileData.featureImage === null) ||
+                                            (settings.useFrontmatterMetadata && fileData.metadata === null && file.extension === 'md')
+                                        );
+                                    });
+
+                                    if (filesToProcess.length === 0) {
+                                        const filesNeedingTags = settings.showTags ? db.getFilesNeedingContent('tags') : new Set<string>();
+                                        const filesNeedingPreview = settings.showFilePreview
+                                            ? db.getFilesNeedingContent('preview')
+                                            : new Set<string>();
+                                        const filesNeedingImage = settings.showFeatureImage
+                                            ? db.getFilesNeedingContent('featureImage')
+                                            : new Set<string>();
+                                        const filesNeedingMetadata = settings.useFrontmatterMetadata
+                                            ? db.getFilesNeedingContent('metadata')
+                                            : new Set<string>();
+
+                                        const pathsNeedingContent = new Set([
+                                            ...filesNeedingTags,
+                                            ...filesNeedingPreview,
+                                            ...filesNeedingImage,
+                                            ...filesNeedingMetadata
+                                        ]);
+
+                                        if (pathsNeedingContent.size > 0) {
+                                            filesToProcess = allFiles.filter(file => pathsNeedingContent.has(file.path));
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error('Failed to check content needs from IndexedDB:', error);
+                                }
+
+                                if (filesToProcess.length > 0) {
+                                    const options = settings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
+                                    contentRegistry.current.queueFilesForAllProviders(filesToProcess, settings, options);
+                                    if (settings.showTags) {
+                                        queueTagsWhenMetadataReady(filesToProcess);
                                     }
                                 }
                             }
-                        } catch (error) {
-                            console.error('Error processing file cache diff:', error);
                         }
-                    },
-                    { timeout: 500 }
-                );
+                    } catch (error) {
+                        console.error('Error processing file cache diff:', error);
+                    }
+                };
+
+                if (typeof window !== 'undefined') {
+                    pendingSyncTimeoutId.current = window.setTimeout(() => {
+                        pendingSyncTimeoutId.current = null;
+                        void processDiff();
+                    }, 0);
+                } else {
+                    void processDiff();
+                }
             }
         };
 
@@ -899,7 +1193,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
                     // Content providers will detect the mtime mismatch (db.mtime != file.mtime) and regenerate
                     if (contentRegistry.current) {
-                        contentRegistry.current.queueFilesForAllProviders([file], settings);
+                        const options = settings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
+                        contentRegistry.current.queueFilesForAllProviders([file], settings, options);
+                        if (settings.showTags) {
+                            queueTagsWhenMetadataReady([file]);
+                        }
                     }
                 }
             })
@@ -929,7 +1227,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
                 // Queue content regeneration for the file
                 if (contentRegistry.current) {
-                    contentRegistry.current.queueFilesForAllProviders([file], settings);
+                    const options = settings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
+                    contentRegistry.current.queueFilesForAllProviders([file], settings, options);
+                    if (settings.showTags) {
+                        queueTagsWhenMetadataReady([file]);
+                    }
                 }
 
                 // Note: We already queued content regeneration above
@@ -939,6 +1241,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         activeMetadataEventRef.current = metadataEvent;
 
         // Cleanup
+        const activeMetadataWaitDisposers = metadataWaitDisposersRef.current;
+
         return () => {
             buildFileCacheFnRef.current = null;
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
@@ -950,10 +1254,12 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             if (rebuildFileCacheRef.current) {
                 rebuildFileCacheRef.current = null;
             }
-            // Cancel any pending idle callback work
-            if (pendingIdleCallbackId.current !== null) {
-                cancelIdleCallback(pendingIdleCallbackId.current);
-                pendingIdleCallbackId.current = null;
+            // Cancel any pending scheduled background work
+            if (pendingSyncTimeoutId.current !== null) {
+                if (typeof window !== 'undefined') {
+                    window.clearTimeout(pendingSyncTimeoutId.current);
+                }
+                pendingSyncTimeoutId.current = null;
             }
             // Cancel any pending metadata wait
             if (waitDisposerRef.current) {
@@ -964,8 +1270,29 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 }
                 waitDisposerRef.current = null;
             }
+
+            // Clean up all metadata wait disposers that were queued
+            if (activeMetadataWaitDisposers.size > 0) {
+                for (const dispose of activeMetadataWaitDisposers) {
+                    try {
+                        dispose();
+                    } catch {
+                        // ignore errors during cleanup
+                    }
+                }
+                activeMetadataWaitDisposers.clear();
+            }
         };
-    }, [app, api, isIndexedDBReady, getFilteredMarkdownFilesCallback, rebuildTagTree, settings, waitForMetadataCache]);
+    }, [
+        app,
+        api,
+        isIndexedDBReady,
+        getFilteredMarkdownFilesCallback,
+        rebuildTagTree,
+        settings,
+        waitForMetadataCache,
+        queueTagsWhenMetadataReady
+    ]);
 
     /**
      * Effect: Handle settings changes and exclusion updates
@@ -1065,7 +1392,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                         }
 
                         if (filesToProcess.length > 0) {
-                            contentRegistry.current.queueFilesForAllProviders(filesToProcess, settings);
+                            const options = settings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
+                            contentRegistry.current.queueFilesForAllProviders(filesToProcess, settings, options);
+                            if (settings.showTags) {
+                                queueTagsWhenMetadataReady(filesToProcess);
+                            }
                         }
                     }
                 } catch (error) {
@@ -1082,7 +1413,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             rebuildTagTree();
             prevFavoriteTags.current = settings.favoriteTags;
         }
-    }, [settings, handleSettingsChanges, rebuildTagTree, getFilteredMarkdownFilesCallback]);
+    }, [settings, handleSettingsChanges, rebuildTagTree, getFilteredMarkdownFilesCallback, queueTagsWhenMetadataReady]);
 
     /**
      * Augment context with control methods
@@ -1109,14 +1440,12 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 if (contentRegistry.current) {
                     contentRegistry.current.stopAllProcessing();
                 }
-                // Cancel any pending idle work scheduled by StorageContext
-                if (pendingIdleCallbackId.current !== null) {
-                    try {
-                        cancelIdleCallback(pendingIdleCallbackId.current);
-                    } catch {
-                        // no-op: polyfill or environment may differ
+                // Cancel any pending scheduled work initiated by StorageContext
+                if (pendingSyncTimeoutId.current !== null) {
+                    if (typeof window !== 'undefined') {
+                        window.clearTimeout(pendingSyncTimeoutId.current);
                     }
-                    pendingIdleCallbackId.current = null;
+                    pendingSyncTimeoutId.current = null;
                 }
                 // Optionally detach event subscriptions and cancel debouncers
                 try {
@@ -1146,6 +1475,18 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     }
                     waitDisposerRef.current = null;
                 }
+                // Clean up all tracked metadata wait disposers on shutdown
+                if (metadataWaitDisposersRef.current.size > 0) {
+                    for (const dispose of metadataWaitDisposersRef.current) {
+                        try {
+                            dispose();
+                        } catch {
+                            // ignore errors during cleanup
+                        }
+                    }
+                    metadataWaitDisposersRef.current.clear();
+                }
+                pendingTagMetadataPathsRef.current.clear();
             }
         };
     }, [contextValue, app.vault, app.metadataCache]);

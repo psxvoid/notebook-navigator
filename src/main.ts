@@ -38,50 +38,6 @@ import { ExtendedApp } from './types/obsidian-extended';
 import { isSupportedHomepageFile } from './utils/homepageUtils';
 
 /**
- * Polyfill for requestIdleCallback
- *
- * The requestIdleCallback API allows scheduling non-critical work to be performed
- * when the browser is idle, improving performance by not blocking user interactions.
- *
- * Browser Support Issues:
- * - Not supported in Safari (both desktop and iOS)
- * - Not supported in older browsers
- *
- * This polyfill provides a fallback implementation using setTimeout:
- * - Executes the callback after the specified timeout (or immediately if no timeout)
- * - Provides a mock IdleDeadline object with timeRemaining() returning 50ms
- * - The 50ms value is a reasonable estimate for available idle time
- *
- * Usage in the plugin:
- * - Deferred metadata cleanup after plugin initialization
- * - Background tag tree diff calculations
- * - Other non-critical startup operations
- */
-if (typeof window !== 'undefined' && !window.requestIdleCallback) {
-    window.requestIdleCallback = function (callback: IdleRequestCallback, options?: { timeout?: number }) {
-        const timeout = options?.timeout || 0;
-
-        // setTimeout returns a number in browser environments
-        const timeoutId = window.setTimeout(() => {
-            // Create a mock IdleDeadline object
-            const deadline: IdleDeadline = {
-                didTimeout: timeout > 0,
-                timeRemaining: () => 50 // Conservative estimate of available time
-            };
-
-            callback(deadline);
-        }, timeout);
-
-        // Cast is safe because we're in a browser environment
-        return timeoutId;
-    };
-
-    window.cancelIdleCallback = function (id: number) {
-        window.clearTimeout(id);
-    };
-}
-
-/**
  * Main plugin class for Notebook Navigator
  * Provides a Notes-style file explorer for Obsidian with two-pane layout
  * Manages plugin lifecycle, settings, and view registration

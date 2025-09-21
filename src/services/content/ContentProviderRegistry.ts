@@ -98,9 +98,30 @@ export class ContentProviderRegistry {
      * Queues files for content generation across all providers
      * @param files - Files to queue
      * @param settings - Current settings
+     * @param options - Optional filtering to include or exclude specific content types
      */
-    queueFilesForAllProviders(files: TFile[], settings: NotebookNavigatorSettings): void {
+    queueFilesForAllProviders(
+        files: TFile[],
+        settings: NotebookNavigatorSettings,
+        options?: { include?: ContentType[]; exclude?: ContentType[] }
+    ): void {
+        const include = options?.include;
+        const exclude = options?.exclude;
+
         for (const provider of this.providers.values()) {
+            const type = provider.getContentType();
+
+            // Skip providers not in the include list (if specified)
+            if (include && !include.includes(type)) {
+                continue;
+            }
+
+            // Skip providers in the exclude list (if specified)
+            if (exclude && exclude.includes(type)) {
+                continue;
+            }
+
+            // Queue files and start processing for this provider
             provider.queueFiles(files);
             provider.startProcessing(settings);
         }
