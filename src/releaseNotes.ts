@@ -90,12 +90,13 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Significantly improved **tag extraction from frontmatter**. Notebook Navigator now always waits until Obsidian metadata cache has indexed every file even if it takes a very long time.'
         ],
         changed: [
-            'Tags in list pane now show without the # prefix. (looks/better).',
+            'Tags in list pane now show without the # prefix.',
             'Dual pane preference is now stored per-device instead of synced, allowing different pane layouts on different devices (laptop, desktop).'
         ],
         fixed: [
             'Icon packs now re-download automatically on the next app launch if download should fail.',
-            'Icons from icon packs now render with the correct size on mobile devices.'
+            'Icons from icon packs now render with the correct size on mobile devices.',
+            'Previously tag extraction would miss tags if Obsidian metadata cache took more than 5 seconds to be ready; this is now fixed.'
         ]
     },
     {
