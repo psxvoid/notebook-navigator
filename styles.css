@@ -805,6 +805,21 @@ body {
     align-items: center;
 }
 
+.nn-navitem-icon svg,
+.nn-pane-header-icon svg,
+.nn-mobile-header-icon svg {
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
+}
+
+.nn-navitem-icon.nn-iconfont,
+.nn-tag-icon.nn-iconfont,
+.nn-pane-header-icon.nn-iconfont,
+.nn-mobile-header-icon.nn-iconfont {
+    font-size: var(--nn-nav-icon-size);
+    line-height: var(--nn-nav-icon-size);
+}
+
 /* Folder name text - truncates with ellipsis on overflow */
 .nn-navitem-name {
     font-size: var(--nn-setting-nav-font-size);
@@ -2328,8 +2343,8 @@ body.nn-resizing {
 
 /* Mobile header emoji icon - match mobile navigation icon size */
 .notebook-navigator-mobile .nn-mobile-header-icon.nn-emoji-icon {
-    font-size: 20px;
-    line-height: 20px;
+    font-size: var(--nn-nav-icon-size);
+    line-height: var(--nn-nav-icon-size);
 }
 
 /* Scrollable breadcrumb container */
@@ -2872,29 +2887,19 @@ body.nn-resizing {
    Mobile-specific Folder Text Size
    ======================================================================== */
 
+/* Mobile root variables */
+.notebook-navigator-mobile {
+    --nn-nav-icon-size: 20px;
+}
+
 /* Folder text size on mobile */
 .notebook-navigator-mobile .nn-navitem-name {
     font-size: var(--nn-setting-nav-font-size-mobile);
 }
 
-/* Increase folder icon size on mobile */
-.notebook-navigator-mobile .nn-navitem-icon {
-    width: 20px;
-    height: 20px;
-}
-
 /* Increase folder count size on mobile to match folder text */
 .notebook-navigator-mobile .nn-navitem-count {
     font-size: 13px;
-}
-
-/* Mobile emoji icon size to match regular mobile icons */
-.notebook-navigator-mobile .nn-navitem-icon.nn-emoji-icon,
-.notebook-navigator-mobile .nn-tag-icon.nn-emoji-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
 }
 
 /* Mobile folder content padding adjustment for proper selection height */
@@ -3088,10 +3093,10 @@ body.nn-resizing {
 /* Ensure emojis in navigation items display properly */
 .nn-navitem-icon.nn-emoji-icon,
 .nn-tag-icon.nn-emoji-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
+    font-size: var(--nn-nav-icon-size);
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
+    line-height: var(--nn-nav-icon-size);
     text-align: center;
     display: flex;
     align-items: center;

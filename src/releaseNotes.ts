@@ -87,7 +87,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'File tags now show without the # prefix. Looks better.',
             'Dual pane preference is now stored per-device in local storage instead of synced settings, allowing different pane layouts on different devices.'
         ],
-        fixed: ['Icon packs now re-download automatically on the next app launch if download should fail.']
+        fixed: [
+            'Icon packs now re-download automatically on the next app launch if download should fail.',
+            'Icons from icon packs now render with the correct size on mobile devices.'
+        ]
     },
     {
         version: '1.4.20',
