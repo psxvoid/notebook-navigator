@@ -595,13 +595,17 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         );
 
         // Post-layout initialization
+        // Only auto-create the navigator view on first launch; upgrades restore existing leaves themselves
+        const shouldActivateOnStartup = isFirstLaunch;
+
         this.app.workspace.onLayoutReady(async () => {
             this.isWorkspaceReady = true;
 
-            // Always open the view if it doesn't exist
-            const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            if (leaves.length === 0 && !this.isUnloading) {
-                await this.activateView();
+            if (!this.isUnloading && shouldActivateOnStartup) {
+                const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                if (leaves.length === 0) {
+                    await this.activateView();
+                }
             }
 
             const pendingHomepageTrigger = this.pendingHomepageTrigger;

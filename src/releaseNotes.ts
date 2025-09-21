@@ -72,8 +72,11 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.22',
-        date: '2025-09-22',
-        fixed: ['Fixed dual-pane layout persistence so the preference stays disabled after restarts.']
+        date: '2025-09-21',
+        fixed: [
+            'Fixed dual-pane layout persistence so the preference stays disabled after restarts.',
+            'Adjusted Notebook Navigator view startup process to hopefully prevent duplicate instances on update.'
+        ]
     },
     {
         version: '1.4.21',
