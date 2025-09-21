@@ -498,7 +498,7 @@ export const STRINGS_KO = {
                 desc: '빠른 작업: 새 탭에서 노트를 엽니다.'
             },
             dualPane: {
-                name: '이중 창 레이아웃 (데스크톱 전용)',
+                name: '이중 창 레이아웃 (데스크톱 전용, 동기화되지 않음)',
                 desc: '데스크톱에서 탐색 창과 목록 창을 나란히 표시합니다.'
             },
             autoRevealActiveNote: {
@@ -540,7 +540,7 @@ export const STRINGS_KO = {
             },
             homepage: {
                 name: '홈페이지',
-                desc: '시작하거나 홈페이지 설정이 바뀔 때 자동으로 열릴 대시보드나 데일리 노트 같은 파일을 선택합니다.',
+                desc: '자동으로 열릴 대시보드나 데일리 노트 같은 파일을 선택합니다.',
                 current: '현재: {path}',
                 chooseButton: '파일 선택',
                 clearButton: '지우기'

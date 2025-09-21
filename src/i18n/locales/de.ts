@@ -500,7 +500,7 @@ export const STRINGS_DE = {
                 desc: 'Schnellaktion: Notiz in neuem Tab öffnen.'
             },
             dualPane: {
-                name: 'Doppelbereichslayout (nur Desktop)',
+                name: 'Doppelbereichslayout (nur Desktop, nicht synchronisiert)',
                 desc: 'Navigationsbereich und Listenbereich nebeneinander auf dem Desktop anzeigen.'
             },
             autoRevealActiveNote: {
@@ -552,7 +552,7 @@ export const STRINGS_DE = {
             },
             homepage: {
                 name: 'Startseite',
-                desc: 'Datei auswählen, die Notebook Navigator automatisch öffnet, z. B. ein Dashboard oder eine Tagesnotiz, beim Start und wenn sich die Startseiten-Einstellung ändert.',
+                desc: 'Datei auswählen, die Notebook Navigator automatisch öffnet, z. B. ein Dashboard oder eine Tagesnotiz.',
                 current: 'Aktuell: {path}',
                 chooseButton: 'Datei auswählen',
                 clearButton: 'Zurücksetzen'

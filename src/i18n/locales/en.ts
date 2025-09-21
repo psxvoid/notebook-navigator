@@ -497,7 +497,7 @@ export const STRINGS_EN = {
                 desc: 'Quick action: Open note in new tab.'
             },
             dualPane: {
-                name: 'Dual pane layout (desktop only)',
+                name: 'Dual pane layout (desktop only, not synced)',
                 desc: 'Show navigation pane and list pane side by side on desktop.'
             },
             autoRevealActiveNote: {
@@ -539,7 +539,7 @@ export const STRINGS_EN = {
             },
             homepage: {
                 name: 'Homepage',
-                desc: 'Choose the file that Notebook Navigator opens automatically, such as a dashboard or daily note, at startup and when the homepage setting changes.',
+                desc: 'Choose the file that Notebook Navigator opens automatically, such as a dashboard or daily note.',
                 current: 'Current: {path}',
                 chooseButton: 'Choose file',
                 clearButton: 'Clear'

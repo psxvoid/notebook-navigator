@@ -498,15 +498,17 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             );
         autoRevealSettingsEl.toggle(this.plugin.settings.autoRevealActiveFile);
 
-        new Setting(containerEl)
-            .setName(strings.settings.items.showTooltips.name)
-            .setDesc(strings.settings.items.showTooltips.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.showTooltips).onChange(async value => {
-                    this.plugin.settings.showTooltips = value;
-                    await this.plugin.saveSettingsAndUpdate();
-                })
-            );
+        if (!Platform.isMobile) {
+            new Setting(containerEl)
+                .setName(strings.settings.items.showTooltips.name)
+                .setDesc(strings.settings.items.showTooltips.desc)
+                .addToggle(toggle =>
+                    toggle.setValue(this.plugin.settings.showTooltips).onChange(async value => {
+                        this.plugin.settings.showTooltips = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                    })
+                );
+        }
 
         const homepageSetting = new Setting(containerEl).setName(strings.settings.items.homepage.name);
         homepageSetting.setDesc('');
@@ -605,15 +607,17 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Section 1: Navigation pane
         new Setting(containerEl).setName(strings.settings.sections.navigationPane).setHeading();
 
-        new Setting(containerEl)
-            .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
-            .setDesc(strings.settings.items.autoSelectFirstFileOnFocusChange.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.autoSelectFirstFileOnFocusChange).onChange(async value => {
-                    this.plugin.settings.autoSelectFirstFileOnFocusChange = value;
-                    await this.plugin.saveSettingsAndUpdate();
-                })
-            );
+        if (!Platform.isMobile) {
+            new Setting(containerEl)
+                .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
+                .setDesc(strings.settings.items.autoSelectFirstFileOnFocusChange.desc)
+                .addToggle(toggle =>
+                    toggle.setValue(this.plugin.settings.autoSelectFirstFileOnFocusChange).onChange(async value => {
+                        this.plugin.settings.autoSelectFirstFileOnFocusChange = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                    })
+                );
+        }
 
         new Setting(containerEl)
             .setName(strings.settings.items.autoExpandFoldersTags.name)

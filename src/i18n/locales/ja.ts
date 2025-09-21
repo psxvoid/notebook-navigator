@@ -499,7 +499,7 @@ export const STRINGS_JA = {
                 desc: 'クイックアクション：ノートを新しいタブで開く。'
             },
             dualPane: {
-                name: 'デュアルペインレイアウト（デスクトップのみ）',
+                name: 'デュアルペインレイアウト（デスクトップのみ、同期されません）',
                 desc: 'デスクトップでナビゲーションペインとリストペインを並べて表示します。'
             },
             autoRevealActiveNote: {
@@ -552,7 +552,7 @@ export const STRINGS_JA = {
             },
             homepage: {
                 name: 'ホームページ',
-                desc: 'ホームページ設定が変わったときや起動時に自動で開く、ダッシュボードや日次ノートなどのファイルを選びます。',
+                desc: '自動で開く、ダッシュボードや日次ノートなどのファイルを選びます。',
                 current: '現在: {path}',
                 chooseButton: 'ファイルを選択',
                 clearButton: 'クリア'

@@ -500,7 +500,7 @@ export const STRINGS_FR = {
                 desc: 'Action rapide : Ouvrir la note dans un nouvel onglet.'
             },
             dualPane: {
-                name: 'Disposition à double panneau (ordinateur uniquement)',
+                name: 'Disposition à double panneau (ordinateur uniquement, non synchronisé)',
                 desc: 'Afficher le panneau de navigation et le panneau de liste côte à côte sur ordinateur.'
             },
             autoRevealActiveNote: {
@@ -553,7 +553,7 @@ export const STRINGS_FR = {
             },
             homepage: {
                 name: 'Page d’accueil',
-                desc: 'Sélectionnez le fichier que Notebook Navigator ouvre automatiquement, par exemple un tableau de bord ou une note quotidienne, au démarrage et lorsque la page d’accueil change.',
+                desc: 'Sélectionnez le fichier que Notebook Navigator ouvre automatiquement, par exemple un tableau de bord ou une note quotidienne.',
                 current: 'Actuel : {path}',
                 chooseButton: 'Choisir un fichier',
                 clearButton: 'Effacer'

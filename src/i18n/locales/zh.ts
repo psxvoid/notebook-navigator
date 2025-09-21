@@ -498,7 +498,7 @@ export const STRINGS_ZH = {
                 desc: '快速操作：在新标签页中打开笔记。'
             },
             dualPane: {
-                name: '双窗格布局（仅桌面端）',
+                name: '双窗格布局（仅桌面端，不同步）',
                 desc: '在桌面端并排显示导航窗格和列表窗格。'
             },
             autoRevealActiveNote: {
@@ -551,7 +551,7 @@ export const STRINGS_ZH = {
             },
             homepage: {
                 name: '主页',
-                desc: '选择在启动时以及主页设置更新时自动打开的文件，例如仪表板或每日笔记。',
+                desc: '选择自动打开的文件，例如仪表板或每日笔记。',
                 current: '当前：{path}',
                 chooseButton: '选择文件',
                 clearButton: '清除'

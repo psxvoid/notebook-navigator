@@ -500,7 +500,7 @@ export const STRINGS_PL = {
                 desc: 'Szybka akcja: Otwórz notatkę w nowej karcie.'
             },
             dualPane: {
-                name: 'Układ podwójnego panelu (tylko desktop)',
+                name: 'Układ podwójnego panelu (tylko desktop, nie synchronizowany)',
                 desc: 'Pokaż panel nawigacji i panel listy obok siebie na komputerze.'
             },
             autoRevealActiveNote: {
@@ -542,7 +542,7 @@ export const STRINGS_PL = {
             },
             homepage: {
                 name: 'Strona główna',
-                desc: 'Wybierz plik, który Notebook Navigator otwiera automatycznie, np. pulpit lub dzienną notatkę, przy uruchomieniu i gdy ustawienie strony głównej się zmienia.',
+                desc: 'Wybierz plik, który Notebook Navigator otwiera automatycznie, np. pulpit lub dzienną notatkę.',
                 current: 'Bieżący: {path}',
                 chooseButton: 'Wybierz plik',
                 clearButton: 'Wyczyść'

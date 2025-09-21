@@ -499,7 +499,7 @@ export const STRINGS_ES = {
                 desc: 'Acción rápida: Abrir nota en nueva pestaña.'
             },
             dualPane: {
-                name: 'Diseño de doble panel (solo escritorio)',
+                name: 'Diseño de doble panel (solo escritorio, no sincronizado)',
                 desc: 'Mostrar panel de navegación y panel de lista lado a lado en escritorio.'
             },
             autoRevealActiveNote: {
@@ -551,7 +551,7 @@ export const STRINGS_ES = {
             },
             homepage: {
                 name: 'Página de inicio',
-                desc: 'Selecciona el archivo que Notebook Navigator abre automáticamente, como un panel o nota diaria, al iniciar y cuando cambia la configuración de página de inicio.',
+                desc: 'Selecciona el archivo que Notebook Navigator abre automáticamente, como un panel o nota diaria.',
                 current: 'Actual: {path}',
                 chooseButton: 'Elegir archivo',
                 clearButton: 'Limpiar'
