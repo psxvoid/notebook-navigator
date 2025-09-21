@@ -72,7 +72,8 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.21',
-        date: '2025-09-20',
+        date: '2025-09-21',
+        info: 'Thank you all for an amazing first week of amazing feedback! I love to hear how you use Notebook Navigator, and I will continue to add thoughtful features that makes your life easier and at the same time does not add bloat or overhead to the core experience.\n\nIn this release you have a new Rebuild cache button in settings. If you see metadata missing on some of your devices just click it to rebuild the cache, this can typically happen on slower devices with slower third party sync services. Have a great day and enjoy Notebook Navigator!',
         new: [
             'You can now choose a ==Homepage document== that opens a Markdown, Canvas, or Base file on startup. You can change it in settings.',
             'Added a new command "Notebook Navigator: Open homepage" to open your configured homepage file directly.',
@@ -80,12 +81,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Settings now also include a **Rebuild cache** button that clears and rebuilds the cache.'
         ],
         improved: [
-            'Icon picker now provides better search results with improved relevance scoring and fuzzy matching.',
-            'Read metadata from frontmatter now also accepts string arrays as name property and will use the first entry if that is the case.'
+            'Icon picker now provides better search results with improved relevance scoring and fuzzy matching. It will now prioritize direct matches etc.',
+            '**Read metadata from frontmatter** now accepts a string array as name property and will use the first entry.'
         ],
         changed: [
-            'File tags now show without the # prefix. Looks better.',
-            'Dual pane preference is now stored per-device in local storage instead of synced settings, allowing different pane layouts on different devices.'
+            'Tags in list pane now show without the # prefix. Looks better.',
+            'Dual pane preference is now stored per-device instead of synced, allowing different pane layouts on different devices (laptop, desktop).'
         ],
         fixed: [
             'Icon packs now re-download automatically on the next app launch if download should fail.',
