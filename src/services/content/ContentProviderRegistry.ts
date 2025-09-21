@@ -121,9 +121,9 @@ export class ContentProviderRegistry {
                 continue;
             }
 
-            // Queue files and start processing for this provider
-            provider.queueFiles(files);
+            // Resume provider before queuing so it accepts new work after a stop
             provider.startProcessing(settings);
+            provider.queueFiles(files);
         }
     }
 

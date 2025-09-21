@@ -298,7 +298,8 @@ graph TD
 
 #### Metadata Cleanup
 
-**Purpose**: Remove orphaned metadata for folders, tags, and files deleted or renamed outside of Obsidian. Metadata cleanup is performed manually from settings.
+**Purpose**: Remove orphaned metadata for folders, tags, and files deleted or renamed outside of Obsidian. Metadata
+cleanup is performed manually from settings.
 
 **When It's Needed**:
 
