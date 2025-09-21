@@ -73,19 +73,24 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.21',
         date: '2025-09-21',
-        info: 'Thank you all for an amazing first week of amazing feedback! I love to hear how you use Notebook Navigator, and I will continue to add thoughtful features that makes your life easier and at the same time does not add bloat or overhead to the core experience.\n\nIn this release you have a new Rebuild cache button in settings. If you see metadata missing on some of your devices just click it to rebuild the cache, this can typically happen on slower devices with slower third party sync services. Have a great day and enjoy Notebook Navigator!',
+        info: [
+            '==Thank you all for a week of amazing feedback!== I love to hear how you use Notebook Navigator, and I will continue to add thoughtful features that makes your life easier and at the same time does not add bloat or overhead to the core experience.',
+            'In this release I significantly improved the **tag extraction reliability from frontmatter**. If you previously were not showing some tags, this issue should now be resolved. If it still happens due to sync issues or app restarts, you can now manually rebuild the cache from Notebook Navigator settings.',
+            'Have a great day and enjoy Notebook Navigator!'
+        ].join('\n\n'),
         new: [
-            'You can now choose a ==Homepage document== that opens a Markdown, Canvas, or Base file on startup. You can change it in settings.',
-            'Added a new command "Notebook Navigator: Open homepage" to open your configured homepage file directly.',
+            'You can now choose a ==Homepage document== that opens a Markdown, Canvas, or Base file on startup. 🎉 You can change it in settings.',
+            'Added a new command **"Notebook Navigator: Open homepage"** to open your configured homepage file directly.',
             'Added a ==Rebuild cache== command to clear and rebuild the Notebook Navigator cache. Use this if you experience missing tags, incorrect previews or missing feature images. This can happen after sync conflicts or unexpected closures.',
             'Settings now also include a **Rebuild cache** button that clears and rebuilds the cache.'
         ],
         improved: [
-            'Icon picker now provides better search results with improved relevance scoring and fuzzy matching. It will now prioritize direct matches etc.',
-            '**Read metadata from frontmatter** now accepts a string array as name property and will use the first entry.'
+            '**Icon picker** now provides better search results with improved relevance scoring and fuzzy matching. No longer will your direct name match be outside the 50 search results. 🥳',
+            '**Read metadata from frontmatter** now accepts a string array as name property and will use the first entry.',
+            'Significantly improved **tag extraction from frontmatter**. Notebook Navigator now always waits until Obsidian metadata cache has indexed every file even if it takes a very long time.'
         ],
         changed: [
-            'Tags in list pane now show without the # prefix. Looks better.',
+            'Tags in list pane now show without the # prefix. (looks/better).',
             'Dual pane preference is now stored per-device instead of synced, allowing different pane layouts on different devices (laptop, desktop).'
         ],
         fixed: [
