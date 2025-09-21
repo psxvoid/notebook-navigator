@@ -97,7 +97,7 @@ separation of concerns.
 - Folder metadata (colors, icons, sort overrides, appearances)
 - Tag metadata (colors, icons, sort overrides, appearances)
 - File metadata (pinned notes)
-- Metadata cleanup (automatic for Obsidian operations, manual for external changes)
+- Metadata cleanup (manual trigger from settings only)
 - Rename operations coordination
 
 **Sub-Services:**
@@ -591,7 +591,7 @@ Background content generation follows this process (see startup-process.md Phase
 2. **Queue Management**: `ContentProviderRegistry` manages the queue
    - Files queued based on enabled settings
    - Processes files in batches (100 files per batch)
-   - Uses requestIdleCallback for non-blocking processing
+   - Uses deferred scheduling for non-blocking processing
    - Parallel processing limit of 10 files
 
 3. **Processing**: Each provider processes files independently
@@ -612,13 +612,13 @@ Background content generation follows this process (see startup-process.md Phase
 
 ### Metadata Cleanup Flow
 
-Metadata cleanup handles two scenarios:
+Metadata cleanup is **manually triggered** from settings.
 
-**Automatic Cleanup**: When files/folders are deleted through Obsidian's interface, their metadata is cleaned up
-immediately.
+**When cleanup is needed:**
 
-**Manual Cleanup**: For files/folders deleted outside Obsidian (file system, external tools), cleanup must be triggered
-from settings.
+- Files/folders renamed or deleted outside of Obsidian
+- Files/folders renamed or deleted while the plugin was disabled
+- Sync conflicts resulted in orphaned metadata
 
 **Manual Trigger**: Settings → Notebook Navigator → Advanced → "Clean up metadata" button
 

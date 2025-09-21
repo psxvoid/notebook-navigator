@@ -471,13 +471,13 @@ const tags = fileData?.tags || [];
 
 ### 5. Deferred Updates
 
-Non-critical updates use `requestIdleCallback`:
+Non-critical updates use deferred scheduling with `setTimeout`:
 
 ```typescript
 // Update preview text in background
-requestIdleCallback(() => {
+setTimeout(() => {
   generatePreviewText(file);
-});
+}, 0);
 ```
 
 ### 6. Batch DOM Updates

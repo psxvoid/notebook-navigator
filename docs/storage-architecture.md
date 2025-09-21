@@ -335,7 +335,7 @@ interface IconAssetRecord {
 ### IndexedDB
 
 - **Batch Operations**: Group multiple updates in single transaction
-- **Async Processing**: Use requestIdleCallback for background updates
+- **Async Processing**: Use deferred scheduling for background updates
 - **Version Management**: Increment versions carefully to avoid unnecessary cache clears
 
 ### Local Storage

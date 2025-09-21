@@ -176,7 +176,7 @@ tag extraction:
 ```
 1. StorageContext: Begin processing (processExistingCache)
    - Cold boot: isInitialLoad=true (synchronous)
-   - Warm boot: isInitialLoad=false (uses requestIdleCallback)
+   - Warm boot: isInitialLoad=false (queued via deferred scheduling)
 2. Get all markdown files from vault (getFilteredMarkdownFiles)
 3. Calculate diff via diffCalculator
    - Cold boot: All files appear as new (database is empty)
@@ -298,28 +298,28 @@ graph TD
 
 #### Metadata Cleanup
 
-**Purpose**: Remove orphaned metadata for folders, tags, and files that were deleted outside of Obsidian. When files are
-deleted through Obsidian's interface, metadata is cleaned up automatically. This manual cleanup is only needed for
-external changes.
+**Purpose**: Remove orphaned metadata for folders, tags, and files deleted or renamed outside of Obsidian. Metadata cleanup is performed manually from settings.
 
 **When It's Needed**:
 
 - Files/folders deleted directly from file system
-- Vault synchronized with missing files
-- Files removed by external tools or scripts
+- Files/folders renamed outside of Obsidian
+- Vault synchronized with missing or renamed files
+- Files renamed or deleted by external tools or scripts
 - After major vault reorganization outside Obsidian
+- Sync conflicts that resulted in orphaned metadata
 
 **How to Run**: Open Settings → Notebook Navigator → Advanced → Clean up metadata
 
 **What Gets Cleaned**:
 
-- Folder colors, icons, and sort settings for deleted folders
-- Tag colors, icons, and sort settings for removed tags
+- Folder colors, icons, sort settings, and background colors for deleted/renamed folders
+- Tag colors, icons, sort settings, and background colors for removed tags
 - Pinned notes that no longer exist
 - Custom appearances for non-existent items
 
 **Technical Details**: The cleanup process uses validators to compare stored metadata against the current vault state.
-See `MetadataService.cleanupAllMetadata()` for implementation.
+See `MetadataService.cleanupAllMetadata()` and `MetadataService.getCleanupSummary()` for implementation.
 
 ### Phase 5: Background Processing
 
@@ -336,7 +336,7 @@ Content is generated asynchronously in the background by the ContentProviderRegi
 2. **Queue Management**: Files are queued based on enabled settings
    - ContentProviderRegistry manages the queue
    - Processes files in batches to avoid blocking UI
-   - Uses requestIdleCallback for background processing
+   - Uses deferred scheduling for background processing
 
 3. **Processing**: Each provider processes files independently
    - TagContentProvider: Extracts tags from app.metadataCache.getFileCache()
@@ -357,12 +357,12 @@ Content is generated asynchronously in the background by the ContentProviderRegi
 
 ## Critical Timing Mechanisms
 
-### RequestIdleCallback Polyfill
+### Deferred Scheduling
 
-For browsers without native support (Safari):
+StorageContext defers non-blocking work with `setTimeout`, keeping the UI responsive:
 
-- Provides fallback using setTimeout
-- Ensures non-blocking startup operations
+- Schedules background batches with zero-delay timeouts
+- Works across desktop, mobile, and Safari
 - Used for background processing and cleanup
 
 ### Debouncing
@@ -414,7 +414,7 @@ across vault events and UI updates to coalesce rapid event bursts and avoid redu
    - Set root to null
 3. StorageContext cleanup (via useEffect return):
    - Stop all content processing in ContentProviderRegistry
-   - Cancel any pending idle callbacks
+   - Cancel any pending timers
    - Prevent setState calls after unmount
 ```
 
