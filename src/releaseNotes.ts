@@ -75,7 +75,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-09-21',
         fixed: [
             'Fixed dual-pane layout persistence so the preference stays disabled after restarts.',
-            'Adjusted Notebook Navigator view startup process to hopefully prevent duplicate instances on update.'
+            'Adjusted Notebook Navigator view startup process to prevent duplicate instances on version update.'
         ]
     },
     {
