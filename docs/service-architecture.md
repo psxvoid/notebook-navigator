@@ -17,6 +17,19 @@ The service layer provides the business logic that sits between the storage laye
 encapsulate complex operations, manage state transitions, and coordinate between different parts of the system. All
 services are accessed through dependency injection via the ServicesContext, ensuring loose coupling and testability.
 
+ServicesContext currently exposes the plugin instance, Obsidian app, and these singleton services:
+
+- FileSystemOperations (file and folder actions)
+- MetadataService (folder/tag/file metadata)
+- TagTreeService (tag tree state)
+- TagOperations (frontmatter tag mutations)
+- CommandQueueService (operation tracking)
+- OmnisearchService (optional search integration)
+
+IconService remains a plugin-level singleton accessed through `getIconService()`, and the content generation pipeline is
+constructed inside `StorageContext` via `ContentProviderRegistry` rather than being part of the dependency injection
+container.
+
 ## Service Hierarchy
 
 ### Service Context and Main Services
@@ -28,23 +41,21 @@ graph TB
     subgraph "Core Services"
         MetadataService["MetadataService<br/>Folder/tag/file metadata"]
         FileSystemOperations["FileSystemOperations<br/>File operations & modals"]
-        ContentRegistry["ContentProviderRegistry<br/>Content generation"]
     end
 
     subgraph "Supporting Services"
         TagTreeService["TagTreeService<br/>Tag hierarchy"]
         CommandQueue["CommandQueueService<br/>Operation tracking"]
-        IconService["IconService<br/>Icon providers"]
         TagOperations["TagOperations<br/>Tag management"]
+        OmnisearchService["OmnisearchService<br/>Omnisearch integration"]
     end
 
     ServicesContext --> MetadataService
     ServicesContext --> FileSystemOperations
-    ServicesContext --> ContentRegistry
     ServicesContext --> TagTreeService
     ServicesContext --> CommandQueue
-    ServicesContext --> IconService
     ServicesContext --> TagOperations
+    ServicesContext --> OmnisearchService
 ```
 
 ### Metadata Service Structure
@@ -82,6 +93,9 @@ graph TB
     ContentRegistry --> MetadataProvider
     ContentRegistry --> TagProvider
 ```
+
+`ContentProviderRegistry` is owned by `StorageContext`. The registry and its providers are created when storage mounts
+and are not exposed through `ServicesContext`.
 
 ## Core Services
 
@@ -210,7 +224,9 @@ isDescendant(parent: TAbstractFile, child: TAbstractFile): boolean
 
 ### ContentProviderRegistry
 
-Manages the registration and coordination of content providers for background content generation.
+Manages the registration and coordination of content providers for background content generation. StorageContext creates
+and owns the registry during mount; consumers interact with content through StorageContext rather than via
+ServicesContext.
 
 **Location:** `src/services/content/ContentProviderRegistry.ts`
 
@@ -397,7 +413,8 @@ const unsubscribe = commandQueue.onOperationChange((type, active) => {
 
 ### IconService
 
-Singleton service managing icon providers and rendering.
+Singleton service managing icon providers and rendering. IconService is not part of `ServicesContext`; consumers access
+it via `getIconService()` from `src/services/icons`.
 
 **Location:** `src/services/icons/IconService.ts`
 
@@ -483,6 +500,28 @@ getTagsFromFiles(files: TFile[]): string[]
 // Note: fileHasTagOrAncestor is a private method, not part of public API
 ```
 
+### OmnisearchService
+
+Wraps the community Omnisearch plugin and exposes optional full-text search features.
+
+**Location:** `src/services/OmnisearchService.ts`
+
+**Responsibilities:**
+
+- Detect Omnisearch availability
+- Execute full-text searches when the plugin is installed
+- Translate raw Omnisearch results into `OmnisearchHit`
+- Register and unregister indexing callbacks for reactive updates
+
+**Key Methods:**
+
+```typescript
+isAvailable(): boolean
+search(query: string): Promise<OmnisearchHit[]>
+registerOnIndexed(callback: () => void): void
+unregisterOnIndexed(callback: () => void): void
+```
+
 ## Dependency Injection
 
 Services use dependency injection through interfaces to reduce coupling:
@@ -544,15 +583,14 @@ this.commandQueue = new CommandQueueService(this.app);
 this.fileSystemOps = new FileSystemOperations(
   this.app,
   () => this.tagTreeService,
-  () => this.metadataService,
-  () => this.commandQueue,
-  this.settings
+  () => this.commandQueue
 );
+this.omnisearchService = new OmnisearchService(this.app);
 
-// Icon service is a singleton
-const iconService = IconService.getInstance();
-iconService.registerProvider(new LucideIconProvider());
-iconService.registerProvider(new EmojiIconProvider());
+const iconService = getIconService();
+this.externalIconController = new ExternalIconProviderController(this.app, iconService, this);
+await this.externalIconController.initialize();
+void this.externalIconController.syncWithSettings();
 ```
 
 **In React mount** - Services provided through context:

@@ -14,7 +14,7 @@
   - [Phase 4: Initial Data Load](#phase-4-initial-data-load-and-metadata-resolution)
   - [Phase 5: Background Processing](#phase-5-background-processing)
 - [Critical Timing Mechanisms](#critical-timing-mechanisms)
-  - [RequestIdleCallback Polyfill](#requestidlecallback-polyfill)
+  - [Deferred Scheduling](#deferred-scheduling)
   - [Debouncing Strategies](#debouncing-strategies)
 
 ## Overview
@@ -216,6 +216,7 @@ tag extraction:
 7. Mark storage as ready (setIsStorageReady(true))
    - Cold boot: UI can now render with files visible but no content
    - Warm boot: UI renders immediately with cached content
+   - Tag trees and other metadata-driven views remain empty until Step 9 finishes extracting content
 8. If tags enabled (settings.showTags):
    - Filter files needing tags (where fileData.tags === null)
    - Call waitForMetadataCache with these files

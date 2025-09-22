@@ -103,7 +103,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Style Settings integration** - Full support for the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin
 - **80+ CSS variables** - Complete set of `--nn-theme-*` variables for colors, backgrounds, and visual elements
 - **Light/dark mode support** - Separate theming for light and dark modes
-- **[Complete theming guide](https://github.com/johansan/notebook-navigator/blob/main/docs/theming-guide.md)** - Detailed documentation with examples
+- **[Complete theming guide](docs/theming-guide.md)** - Detailed documentation with examples
 
 ### Developer API on GitHub
 
@@ -112,7 +112,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Navigation & selection** - Navigate to files and query current selections
 - **Event subscriptions** - Subscribe to Notebook Navigator events
 - **Full type definitions** - Complete TypeScript support
-- **[Complete API documentation](https://github.com/johansan/notebook-navigator/blob/main/docs/api-reference.md)** - Detailed reference with examples
+- **[Complete API documentation](docs/api-reference.md)** - Detailed reference with examples
 
 <br>
 
@@ -398,7 +398,7 @@ Notebook Navigator integrates with the [Style Settings](https://github.com/mgmey
 - **Font weights** - Text weights for folders, tags, files, and various UI elements
 - **Mobile styles** - Separate customizations for mobile interface
 
-For theme developers who want to style Notebook Navigator, see the [Theming Guide](https://github.com/johansan/notebook-navigator/blob/main/docs/theming-guide.md).
+For theme developers who want to style Notebook Navigator, see the [Theming Guide](docs/theming-guide.md).
 
 <br>
 
