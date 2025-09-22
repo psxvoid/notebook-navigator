@@ -134,25 +134,25 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 <br>
 
-## Documentation on GitHub
+## Documentation
 
-- [**API Reference**](https://github.com/johansan/notebook-navigator/blob/main/docs/api-reference.md) - Public API documentation. Covers metadata management, navigation control and event subscriptions for JavaScript/TypeScript developers.
+- [**API Reference**](docs/api-reference.md) - Public API documentation. Covers metadata management, navigation control and event subscriptions for JavaScript/TypeScript developers.
 
-- [**Theming Guide**](https://github.com/johansan/notebook-navigator/blob/main/docs/theming-guide.md) - Guide for theme developers. Includes CSS class reference, custom
+- [**Theming Guide**](docs/theming-guide.md) - Guide for theme developers. Includes CSS class reference, custom
   properties, and theme examples for light and dark modes.
 
-- [**Startup Process**](https://github.com/johansan/notebook-navigator/blob/main/docs/startup-process.md) - Plugin initialization sequence. Cold boot vs warm boot flows,
+- [**Startup Process**](docs/startup-process.md) - Plugin initialization sequence. Cold boot vs warm boot flows,
   metadata cache resolution, deferred cleanup, and content generation pipeline. Includes Mermaid diagrams.
 
-- [**Storage Architecture**](https://github.com/johansan/notebook-navigator/blob/main/docs/storage-architecture.md) - Guide to storage containers (IndexedDB, Local Storage,
+- [**Storage Architecture**](docs/storage-architecture.md) - Guide to storage containers (IndexedDB, Local Storage,
   Memory Cache, Settings). Data flow patterns and usage guidelines.
 
-- [**Rendering Architecture**](https://github.com/johansan/notebook-navigator/blob/main/docs/rendering-architecture.md) - React component hierarchy, virtual scrolling with
+- [**Rendering Architecture**](docs/rendering-architecture.md) - React component hierarchy, virtual scrolling with
   TanStack Virtual, performance optimizations, and data flow.
 
-- [**Scroll Orchestration**](https://github.com/johansan/notebook-navigator/blob/main/docs/scroll-orchestration.md) - How the plugin ensures accurate scrolling when tree structures change (tag visibility, settings, etc.)
+- [**Scroll Orchestration**](docs/scroll-orchestration.md) - How the plugin ensures accurate scrolling when tree structures change (tag visibility, settings, etc.)
 
-- [**Service Architecture**](https://github.com/johansan/notebook-navigator/blob/main/docs/service-architecture.md) - Business logic layer: MetadataService, FileSystemOperations, ContentProviderRegistry. Dependency injection patterns and service data flow.
+- [**Service Architecture**](docs/service-architecture.md) - Business logic layer: MetadataService, FileSystemOperations, ContentProviderRegistry. Dependency injection patterns and service data flow.
 
 <br>
 
