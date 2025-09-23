@@ -8,6 +8,16 @@ Available in: English • Deutsch • Español • Français • Polski • 日�
 
 Notebook Navigator is a plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a Notes-style interface with a dual-pane layout.
 
+## Network Usage Disclosure
+
+**Optional Network Access:** This plugin includes an **optional** feature to download additional icon packs. Network access is only used when you explicitly choose to download icon packs through the plugin settings.
+
+- **What is downloaded:** Icon font files and metadata for additional icon packs (Bootstrap Icons, Font Awesome, Material Icons, Phosphor, RPG Awesome)
+- **Source:** All icon assets are downloaded from GitHub repositories (`https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/`)
+- **When it happens:** Only when you manually enable icon packs in the settings - no automatic downloads occur
+- **Storage:** Downloaded icons are cached locally in your vault for offline use
+- **Privacy:** No telemetry or user data is collected or transmitted
+
 If you love using Notebook Navigator, please consider [buying me a coffee](https://buymeacoffee.com/johansan) or [Sponsor on GitHub ❤️](https://github.com/sponsors/johansan).
 
 <a href="https://www.buymeacoffee.com/johansan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
@@ -303,12 +313,14 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Icon packs
 
-- **External icon providers:** Download additional icon packs to expand available icons
+- **External icon providers:** Optional feature to download additional icon packs to expand available icons
   - **Bootstrap Icons:** Over 2,000 icons - [icons.getbootstrap.com](https://icons.getbootstrap.com/)
   - **Font Awesome (Regular):** Classic icon set - [fontawesome.com](https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r)
   - **Material Icons:** Google's Material Design icons - [fonts.google.com/icons](https://fonts.google.com/icons)
   - **Phosphor:** Flexible icon family - [phosphoricons.com](https://phosphoricons.com/)
   - **RPG Awesome:** Fantasy and RPG-themed icons - [nagoshiashumari.github.io/Rpg-Awesome](https://nagoshiashumari.github.io/Rpg-Awesome/)
+
+**How it works:** Icon packs are downloaded on-demand when you enable them in settings. Downloads occur from GitHub (`github.com/johansan/notebook-navigator`) and are cached locally for offline use. No automatic downloads or updates occur - you have full control over when icon packs are installed or removed.
 
 **Note:** Downloaded icon packs sync installation state across devices. Icons stay in the local database on each device; sync only tracks whether to download or remove them.
 
