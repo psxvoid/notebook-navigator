@@ -8,16 +8,6 @@ Available in: English • Deutsch • Español • Français • Polski • 日�
 
 Notebook Navigator is a plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a Notes-style interface with a dual-pane layout.
 
-## Network Usage Disclosure
-
-**Optional Network Access:** This plugin includes an **optional** feature to download additional icon packs. Network access is only used when you explicitly choose to download icon packs through the plugin settings.
-
-- **What is downloaded:** Icon font files and metadata for additional icon packs (Bootstrap Icons, Font Awesome, Material Icons, Phosphor, RPG Awesome)
-- **Source:** All icon assets are downloaded from GitHub repositories (`https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/`)
-- **When it happens:** Only when you manually enable icon packs in the settings - no automatic downloads occur
-- **Storage:** Downloaded icons are cached locally in your vault for offline use
-- **Privacy:** No telemetry or user data is collected or transmitted
-
 If you love using Notebook Navigator, please consider [buying me a coffee](https://buymeacoffee.com/johansan) or [Sponsor on GitHub ❤️](https://github.com/sponsors/johansan).
 
 <a href="https://www.buymeacoffee.com/johansan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
@@ -532,6 +522,18 @@ Notebook Navigator is built and maintained by [Johan Sanneblad](https://www.link
 in Software Development and has worked with innovation development for companies such as Apple, Electronic Arts, Google, Microsoft, Lego, SKF, Volvo Cars, Volvo Group and Yamaha.
 
 Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/johansan/).
+
+<br>
+
+## Network Usage Disclosure
+
+**Optional Network Access:** This plugin includes an **optional** feature to download additional icon packs. Network access is only used when you explicitly choose to download icon packs through the plugin settings.
+
+- **What is downloaded:** Icon font files and metadata for additional icon packs (Bootstrap Icons, Font Awesome, Material Icons, Phosphor, RPG Awesome)
+- **Source:** All icon assets are downloaded from GitHub repositories (`https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/`)
+- **When it happens:** Only when you manually enable icon packs in the settings - no automatic downloads occur
+- **Storage:** Downloaded icons are cached locally in your vault for offline use
+- **Privacy:** No telemetry or user data is collected or transmitted
 
 <br>
 
