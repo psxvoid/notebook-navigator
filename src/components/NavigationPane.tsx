@@ -400,6 +400,13 @@ export const NavigationPane = React.memo(
                     uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
                 }
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                const leaf = app.workspace.getLeaf(false);
+                if (leaf) {
+                    void leaf.openFile(note, { active: false });
+                }
+                if (isMobile && app.workspace.leftSplit) {
+                    app.workspace.leftSplit.collapse();
+                }
             },
             [
                 setActiveShortcut,
@@ -408,7 +415,9 @@ export const NavigationPane = React.memo(
                 scheduleShortcutRelease,
                 uiDispatch,
                 uiState.singlePane,
-                uiState.currentSinglePaneView
+                uiState.currentSinglePaneView,
+                app.workspace,
+                isMobile
             ]
         );
 
