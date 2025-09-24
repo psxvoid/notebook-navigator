@@ -16,8 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useMemo } from 'react';
-import { ObsidianIcon } from './ObsidianIcon';
+import React, { useMemo, useEffect, useRef } from 'react';
+import { useSettingsState } from '../context/SettingsContext';
+import { getIconService, useIconServiceVersion } from '../services/icons';
 
 interface ShortcutItemProps {
     icon: string;
@@ -44,6 +45,10 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     onClick,
     onContextMenu
 }: ShortcutItemProps) {
+    const settings = useSettingsState();
+    const iconRef = useRef<HTMLSpanElement>(null);
+    const iconVersion = useIconServiceVersion();
+
     // Build CSS classes based on disabled state
     const itemClassName = useMemo(() => {
         const classes = ['nn-navitem', 'nn-shortcut-item'];
@@ -52,6 +57,12 @@ export const ShortcutItem = React.memo(function ShortcutItem({
         }
         return classes.join(' ');
     }, [isDisabled]);
+
+    useEffect(() => {
+        if (iconRef.current && settings.showIcons) {
+            getIconService().renderIcon(iconRef.current, icon);
+        }
+    }, [icon, settings.showIcons, iconVersion]);
 
     return (
         <div
@@ -78,9 +89,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             aria-level={level + 1}
         >
             <div className="nn-navitem-content">
-                <span className="nn-navitem-icon">
-                    <ObsidianIcon name={icon} />
-                </span>
+                {settings.showIcons && <span className="nn-navitem-icon" ref={iconRef} />}
                 <span className="nn-navitem-name">
                     {label}
                     {description ? <span className="nn-shortcut-description">{description}</span> : null}

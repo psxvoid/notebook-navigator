@@ -555,7 +555,7 @@ export const NavigationPane = React.memo(
                     case NavigationPaneItemType.SHORTCUT_TAG: {
                         return (
                             <ShortcutItem
-                                icon={item.icon ?? 'lucide-tag'}
+                                icon={item.icon ?? 'lucide-tags'}
                                 label={item.displayName}
                                 level={item.level}
                                 type="tag"

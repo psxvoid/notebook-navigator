@@ -480,7 +480,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                 // Apply custom tag icon to shortcut if available
                 return {
                     ...item,
-                    icon: metadataService.getTagIcon(item.tagPath) || 'lucide-tag'
+                    icon: metadataService.getTagIcon(item.tagPath) || 'lucide-tags'
                 };
             }
             return item;
