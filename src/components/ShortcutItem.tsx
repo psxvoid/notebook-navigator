@@ -27,6 +27,7 @@ interface ShortcutItemProps {
     level: number;
     isDisabled?: boolean;
     type: 'folder' | 'note' | 'search' | 'tag';
+    count?: number;
     onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
     onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
@@ -42,6 +43,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     level,
     isDisabled,
     type,
+    count,
     onClick,
     onContextMenu
 }: ShortcutItemProps) {
@@ -63,6 +65,8 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             getIconService().renderIcon(iconRef.current, icon);
         }
     }, [icon, settings.showIcons, iconVersion]);
+
+    const shouldShowCount = settings.showNoteCount && typeof count === 'number' && count > 0 && (type === 'folder' || type === 'tag');
 
     return (
         <div
@@ -94,6 +98,8 @@ export const ShortcutItem = React.memo(function ShortcutItem({
                     {label}
                     {description ? <span className="nn-shortcut-description">{description}</span> : null}
                 </span>
+                <span className="nn-navitem-spacer" />
+                {shouldShowCount ? <span className="nn-navitem-count">{count}</span> : null}
             </div>
         </div>
     );

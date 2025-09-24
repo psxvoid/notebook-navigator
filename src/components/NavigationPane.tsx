@@ -71,7 +71,9 @@ import { NavigationPaneItemType, ItemType } from '../types';
 import { getSelectedPath } from '../utils/selectionUtils';
 import { TagTreeNode } from '../types/storage';
 import { getFolderNote } from '../utils/folderNotes';
-import { findTagNode } from '../utils/tagTree';
+import { findTagNode, getTotalNoteCount } from '../utils/tagTree';
+import { shouldExcludeFolder, shouldExcludeFile } from '../utils/fileFilters';
+import { shouldDisplayFile } from '../utils/fileTypeUtils';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';
 import { NavigationToolbar } from './NavigationToolbar';
@@ -434,6 +436,73 @@ export const NavigationPane = React.memo(
             [setActiveShortcut, handleTagClick, scrollShortcutIntoView, scheduleShortcutRelease]
         );
 
+        const getFolderShortcutCount = useCallback(
+            (folder: TFolder): number => {
+                if (!settings.showNoteCount) {
+                    return 0;
+                }
+
+                const precomputed = folderCounts.get(folder.path);
+                if (typeof precomputed === 'number') {
+                    return precomputed;
+                }
+
+                const countFiles = (currentFolder: TFolder): number => {
+                    let total = 0;
+                    for (const child of currentFolder.children) {
+                        if (child instanceof TFile) {
+                            if (shouldDisplayFile(child, settings.fileVisibility, app)) {
+                                if (!shouldExcludeFile(child, settings.excludedFiles, app)) {
+                                    total++;
+                                }
+                            }
+                        } else if (child instanceof TFolder) {
+                            if (!settings.includeDescendantNotes) {
+                                continue;
+                            }
+                            if (settings.showHiddenItems || !shouldExcludeFolder(child.name, settings.excludedFolders, child.path)) {
+                                total += countFiles(child);
+                            }
+                        }
+                    }
+                    return total;
+                };
+
+                return countFiles(folder);
+            },
+            [
+                app,
+                folderCounts,
+                settings.showNoteCount,
+                settings.fileVisibility,
+                settings.excludedFiles,
+                settings.includeDescendantNotes,
+                settings.showHiddenItems,
+                settings.excludedFolders
+            ]
+        );
+
+        const getTagShortcutCount = useCallback(
+            (tagPath: string): number => {
+                if (!settings.showNoteCount) {
+                    return 0;
+                }
+
+                const precomputed = tagCounts.get(tagPath);
+                if (typeof precomputed === 'number') {
+                    return precomputed;
+                }
+
+                const tagNode = favoriteTree.get(tagPath) ?? tagTree.get(tagPath);
+                if (!tagNode) {
+                    return 0;
+                }
+
+                return settings.includeDescendantNotes ? getTotalNoteCount(tagNode) : tagNode.notesWithTag.size;
+            },
+            [settings.showNoteCount, settings.includeDescendantNotes, tagCounts, favoriteTree, tagTree]
+        );
+
         useEffect(() => {
             if (!activeShortcutId) {
                 return;
@@ -496,7 +565,6 @@ export const NavigationPane = React.memo(
                                     </span>
                                     <span className="nn-navitem-name">{strings.navigationPane.shortcutsHeader}</span>
                                     <span className="nn-navitem-spacer" />
-                                    <span className="nn-navitem-count">{item.count}</span>
                                 </div>
                             </div>
                         );
@@ -507,12 +575,15 @@ export const NavigationPane = React.memo(
                             return null;
                         }
 
+                        const folderCount = getFolderShortcutCount(folder);
+
                         return (
                             <ShortcutItem
                                 icon={item.icon ?? 'lucide-folder'}
                                 label={folder.name}
                                 level={item.level}
                                 type="folder"
+                                count={folderCount}
                                 onClick={() => handleShortcutFolderActivate(folder, item.shortcut.id)}
                             />
                         );
@@ -553,12 +624,14 @@ export const NavigationPane = React.memo(
                     }
 
                     case NavigationPaneItemType.SHORTCUT_TAG: {
+                        const tagCount = getTagShortcutCount(item.tagPath);
                         return (
                             <ShortcutItem
                                 icon={item.icon ?? 'lucide-tags'}
                                 label={item.displayName}
                                 level={item.level}
                                 type="tag"
+                                count={tagCount}
                                 onClick={() => handleShortcutTagActivate(item.tagPath, item.shortcut.id, item.context)}
                             />
                         );
@@ -704,8 +777,10 @@ export const NavigationPane = React.memo(
                 getAllDescendantTags,
                 expansionDispatch,
                 settings,
-                tagCounts,
                 folderCounts,
+                tagCounts,
+                getFolderShortcutCount,
+                getTagShortcutCount,
                 handleShortcutFolderActivate,
                 handleShortcutNoteActivate,
                 handleShortcutSearchActivate,
