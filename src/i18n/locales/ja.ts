@@ -52,6 +52,18 @@ export const STRINGS_JA = {
         tags: 'タグ' // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
+    navigationPane: {
+        shortcutsHeader: 'ショートカット'
+    },
+
+    shortcuts: {
+        folderExists: 'Folder already in shortcuts',
+        noteExists: 'Note already in shortcuts',
+        tagExists: 'Tag already in shortcuts',
+        searchExists: 'Search already in shortcuts',
+        emptySearchQuery: 'Enter a search query before saving it'
+    },
+
     // Pane header
     paneHeader: {
         collapseAllFolders: 'アイテムを折りたたむ', // Tooltip for button that collapses expanded items (English: Collapse items)
@@ -77,7 +89,12 @@ export const STRINGS_JA = {
     searchInput: {
         placeholder: '検索...', // Placeholder text for search input (English: Search...)
         placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
-        clearSearch: '検索をクリア' // Tooltip for clear search button (English: Clear search)
+        clearSearch: '検索をクリア', // Tooltip for clear search button (English: Clear search)
+        saveSearchShortcut: '検索をショートカットに保存',
+        removeSearchShortcut: 'ショートカットから検索を削除',
+        shortcutModalTitle: '検索ショートカットを保存',
+        shortcutNameLabel: 'ショートカット名',
+        shortcutNamePlaceholder: 'ショートカット名を入力'
     },
 
     // Context menus
@@ -108,6 +125,8 @@ export const STRINGS_JA = {
             addTag: 'タグを追加',
             removeTag: 'タグを削除',
             removeAllTags: 'すべてのタグを削除',
+            addToShortcuts: 'ショートカットに追加',
+            removeFromShortcuts: 'ショートカットから削除',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count}個のファイルを新しいタブで開く',
             openMultipleFilesToRight: '{count}個のファイルを右側で開く',
@@ -139,7 +158,9 @@ export const STRINGS_JA = {
             removeColor: '色を削除',
             excludeFolder: 'フォルダを非表示',
             renameFolder: 'フォルダの名前を変更',
-            deleteFolder: 'フォルダを削除'
+            deleteFolder: 'フォルダを削除',
+            addToShortcuts: 'ショートカットに追加',
+            removeFromShortcuts: 'ショートカットから削除'
         },
         tag: {
             changeIcon: 'アイコンを変更',
@@ -149,6 +170,8 @@ export const STRINGS_JA = {
             removeColor: '色を削除',
             addToFavorites: 'お気に入りに追加',
             removeFromFavorites: 'お気に入りから削除',
+            addToShortcuts: 'ショートカットに追加',
+            removeFromShortcuts: 'ショートカットから削除',
             hideTag: 'タグを非表示'
         }
     },

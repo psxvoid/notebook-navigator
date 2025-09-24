@@ -44,7 +44,7 @@
  *    - Keyboard navigation optimized
  */
 
-import React, { useCallback, useRef, useEffect, useImperativeHandle, forwardRef, useState } from 'react';
+import React, { useCallback, useRef, useEffect, useImperativeHandle, forwardRef, useState, useMemo } from 'react';
 import { TFile, Platform } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -64,6 +64,9 @@ import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
 import { ListToolbar } from './ListToolbar';
 import { SearchInput } from './SearchInput';
+import { SaveSearchShortcutModal } from '../modals/SaveSearchShortcutModal';
+import { useShortcuts } from '../context/ShortcutsContext';
+import type { SavedSearch } from '../types/shortcuts';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -72,11 +75,16 @@ import { SearchInput } from './SearchInput';
  *
  * @returns A scrollable list of files grouped by date (if enabled) with empty state handling
  */
+interface ExecuteSearchShortcutParams {
+    savedSearch: SavedSearch;
+}
+
 export interface ListPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
     toggleSearch: () => void;
+    executeSearchShortcut: (params: ExecuteSearchShortcutParams) => Promise<void>;
 }
 
 interface ListPaneProps {
@@ -106,6 +114,10 @@ export const ListPane = React.memo(
         const appearanceSettings = useListPaneAppearance();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
+        const shortcuts = useShortcuts();
+        const { addSearchShortcut, removeSearchShortcut, savedSearchesById } = shortcuts;
+        const [isSavingSearchShortcut, setIsSavingSearchShortcut] = useState(false);
+        const currentSearchProvider = settings.searchProvider ?? 'internal';
 
         // Search state - use directly from settings for sync across devices
         const isSearchActive = settings.searchActive;
@@ -113,6 +125,22 @@ export const ListPane = React.memo(
         // Debounced search query used for data filtering to avoid per-keystroke spikes
         const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
         const [shouldFocusSearch, setShouldFocusSearch] = useState(false);
+
+        // Check if the current search query matches any saved search
+        const activeSavedSearch = useMemo(() => {
+            const normalizedQuery = searchQuery.trim();
+            if (!normalizedQuery) {
+                return null;
+            }
+
+            for (const saved of savedSearchesById.values()) {
+                if (saved.query === normalizedQuery && saved.provider === currentSearchProvider) {
+                    return saved;
+                }
+            }
+
+            return null;
+        }, [searchQuery, savedSearchesById, currentSearchProvider]);
 
         // Clear search query when search is deactivated externally
         useEffect(() => {
@@ -179,6 +207,9 @@ export const ListPane = React.memo(
             searchQuery: isSearchActive ? debouncedSearchQuery : undefined
         });
 
+        // Flag to prevent automatic scroll to top when search is triggered from shortcut
+        const suppressSearchTopScrollRef = useRef(false);
+
         // Use the new scroll hook
         const { rowVirtualizer, scrollContainerRef, scrollContainerRefCallback, handleScrollToTop } = useListPaneScroll({
             listItems,
@@ -192,7 +223,8 @@ export const ListPane = React.memo(
             selectionState,
             selectionDispatch,
             // Use debounced value for scroll orchestration to align with filtering
-            searchQuery: isSearchActive ? debouncedSearchQuery : undefined
+            searchQuery: isSearchActive ? debouncedSearchQuery : undefined,
+            suppressSearchTopScrollRef
         });
 
         // Check if we're in slim mode
@@ -200,15 +232,16 @@ export const ListPane = React.memo(
 
         // Ensure the list has a valid selection for the current filter
         const ensureSelectionForCurrentFilter = useCallback(
-            (options?: { openInEditor?: boolean; clearIfEmpty?: boolean }) => {
+            (options?: { openInEditor?: boolean; clearIfEmpty?: boolean; selectFallback?: boolean }) => {
                 const openInEditor = options?.openInEditor ?? false;
                 const clearIfEmpty = options?.clearIfEmpty ?? false;
+                const selectFallback = options?.selectFallback ?? true;
                 const hasNoSelection = !selectedFile;
                 const selectedFileInList = selectedFile ? filePathToIndex.has(selectedFile.path) : false;
                 const needsSelection = hasNoSelection || !selectedFileInList;
 
                 if (needsSelection) {
-                    if (orderedFiles.length > 0) {
+                    if (selectFallback && orderedFiles.length > 0) {
                         const firstFile = orderedFiles[0];
                         selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
                         if (openInEditor) {
@@ -217,13 +250,46 @@ export const ListPane = React.memo(
                                 leaf.openFile(firstFile, { active: false });
                             }
                         }
-                    } else if (clearIfEmpty) {
+                    } else if (!selectFallback && clearIfEmpty && orderedFiles.length === 0) {
                         selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
                     }
                 }
             },
             [selectedFile, orderedFiles, filePathToIndex, selectionDispatch, app.workspace]
         );
+
+        const handleSaveSearchShortcut = useCallback(() => {
+            const normalizedQuery = searchQuery.trim();
+            if (!normalizedQuery || isSavingSearchShortcut) {
+                return;
+            }
+
+            const modal = new SaveSearchShortcutModal(app, {
+                initialName: normalizedQuery,
+                onSubmit: async name => {
+                    setIsSavingSearchShortcut(true);
+                    try {
+                        await addSearchShortcut({ name, query: normalizedQuery, provider: currentSearchProvider });
+                    } finally {
+                        setIsSavingSearchShortcut(false);
+                    }
+                }
+            });
+            modal.open();
+        }, [app, addSearchShortcut, currentSearchProvider, isSavingSearchShortcut, searchQuery]);
+
+        const handleRemoveSearchShortcut = useCallback(async () => {
+            if (!activeSavedSearch || isSavingSearchShortcut) {
+                return;
+            }
+
+            setIsSavingSearchShortcut(true);
+            try {
+                await removeSearchShortcut(activeSavedSearch.id);
+            } finally {
+                setIsSavingSearchShortcut(false);
+            }
+        }, [activeSavedSearch, isSavingSearchShortcut, removeSearchShortcut]);
 
         const handleFileClick = useCallback(
             (file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {
@@ -281,6 +347,100 @@ export const ListPane = React.memo(
                 }
             },
             [app.workspace, commandQueue, isMobile, multiSelection, selectionDispatch, settings.multiSelectModifier, uiDispatch]
+        );
+
+        const waitForNextFrame = useCallback(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())), []);
+
+        const waitForMobilePaneTransition = useCallback(async () => {
+            if (!isMobile) {
+                return;
+            }
+
+            const container = props.rootContainerRef.current;
+            if (!container) {
+                return;
+            }
+
+            const targetClass = 'show-files';
+            const TRANSITION_MS = 200;
+            const SAFETY_MS = 20;
+            const deadline = performance.now() + TRANSITION_MS + SAFETY_MS;
+
+            while (performance.now() < deadline && container.isConnected && !container.classList.contains(targetClass)) {
+                await new Promise(requestAnimationFrame);
+            }
+        }, [isMobile, props.rootContainerRef]);
+
+        const focusListScroller = useCallback(() => {
+            const scope = props.rootContainerRef.current ?? document;
+            const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');
+            if (listPaneScroller instanceof HTMLElement) {
+                listPaneScroller.focus();
+            }
+        }, [props.rootContainerRef]);
+
+        // Execute a saved search from a shortcut
+        const executeSearchShortcut = useCallback(
+            async ({ savedSearch }: ExecuteSearchShortcutParams) => {
+                const normalizedQuery = savedSearch.query.trim();
+                const targetProvider = savedSearch.provider ?? 'internal';
+                const currentProviderSetting = plugin.settings.searchProvider ?? 'internal';
+
+                // Check if provider needs to be switched
+                let providerChanged = false;
+                if (currentProviderSetting !== targetProvider) {
+                    plugin.settings.searchProvider = targetProvider;
+                    providerChanged = true;
+                }
+
+                const needsSearchActivation = !isSearchActive;
+                if (uiState.singlePane) {
+                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                }
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+
+                // Prevent scroll to top on mobile when activating from shortcut
+                if (isMobile) {
+                    suppressSearchTopScrollRef.current = true;
+                    await waitForMobilePaneTransition();
+                }
+
+                // Activate search or save provider change
+                if (needsSearchActivation) {
+                    await setIsSearchActive(true);
+                } else if (providerChanged) {
+                    await plugin.saveSettingsAndUpdate();
+                }
+
+                // Set the search query
+                setShouldFocusSearch(false);
+                setSearchQuery(normalizedQuery);
+                setDebouncedSearchQuery(normalizedQuery);
+
+                await waitForNextFrame();
+                await waitForNextFrame();
+
+                if (!isMobile) {
+                    ensureSelectionForCurrentFilter({ openInEditor: false, clearIfEmpty: true, selectFallback: true });
+                }
+
+                focusListScroller();
+            },
+            [
+                plugin,
+                isSearchActive,
+                setIsSearchActive,
+                uiState.singlePane,
+                uiDispatch,
+                isMobile,
+                waitForMobilePaneTransition,
+                setSearchQuery,
+                setDebouncedSearchQuery,
+                waitForNextFrame,
+                ensureSelectionForCurrentFilter,
+                focusListScroller,
+                suppressSearchTopScrollRef
+            ]
         );
 
         // Scroll to top handler for mobile header click
@@ -407,6 +567,7 @@ export const ListPane = React.memo(
                 getIndexOfPath: (path: string) => filePathToIndex.get(path) ?? -1,
                 virtualizer: rowVirtualizer,
                 scrollContainerRef: scrollContainerRef.current,
+                // Toggle search mode on/off or focus existing search
                 toggleSearch: () => {
                     if (isSearchActive) {
                         // Search is already open - just focus the search input
@@ -427,7 +588,8 @@ export const ListPane = React.memo(
                         }
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
                     }
-                }
+                },
+                executeSearchShortcut
             }),
             [
                 filePathToIndex,
@@ -437,7 +599,8 @@ export const ListPane = React.memo(
                 uiDispatch,
                 setIsSearchActive,
                 props.rootContainerRef,
-                uiState.singlePane
+                uiState.singlePane,
+                executeSearchShortcut
             ]
         );
 
@@ -494,6 +657,10 @@ export const ListPane = React.memo(
                                 ensureSelectionForCurrentFilter({ openInEditor: false });
                             }}
                             containerRef={props.rootContainerRef}
+                            onSaveShortcut={!activeSavedSearch ? handleSaveSearchShortcut : undefined}
+                            onRemoveShortcut={activeSavedSearch ? handleRemoveSearchShortcut : undefined}
+                            isShortcutSaved={Boolean(activeSavedSearch)}
+                            isShortcutDisabled={isSavingSearchShortcut}
                         />
                     )}
                 </div>

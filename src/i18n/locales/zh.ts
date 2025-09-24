@@ -52,6 +52,18 @@ export const STRINGS_ZH = {
         tags: '标签' // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
+    navigationPane: {
+        shortcutsHeader: '快捷方式'
+    },
+
+    shortcuts: {
+        folderExists: 'Folder already in shortcuts',
+        noteExists: 'Note already in shortcuts',
+        tagExists: 'Tag already in shortcuts',
+        searchExists: 'Search already in shortcuts',
+        emptySearchQuery: 'Enter a search query before saving it'
+    },
+
     // Pane header
     paneHeader: {
         collapseAllFolders: '折叠项目', // Tooltip for button that collapses expanded items (English: Collapse items)
@@ -77,7 +89,12 @@ export const STRINGS_ZH = {
     searchInput: {
         placeholder: '搜索...', // Placeholder text for search input (English: Search...)
         placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
-        clearSearch: '清除搜索' // Tooltip for clear search button (English: Clear search)
+        clearSearch: '清除搜索', // Tooltip for clear search button (English: Clear search)
+        saveSearchShortcut: '将搜索保存到快捷方式',
+        removeSearchShortcut: '从快捷方式移除搜索',
+        shortcutModalTitle: '保存搜索快捷方式',
+        shortcutNameLabel: '快捷方式名称',
+        shortcutNamePlaceholder: '输入快捷方式名称'
     },
 
     // Context menus
@@ -108,6 +125,8 @@ export const STRINGS_ZH = {
             addTag: '添加标签',
             removeTag: '移除标签',
             removeAllTags: '移除所有标签',
+            addToShortcuts: '添加到快捷方式',
+            removeFromShortcuts: '从快捷方式移除',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '在新标签页中打开 {count} 个文件',
             openMultipleFilesToRight: '在右侧打开 {count} 个文件',
@@ -139,7 +158,9 @@ export const STRINGS_ZH = {
             removeColor: '移除颜色',
             excludeFolder: '隐藏文件夹',
             renameFolder: '重命名文件夹',
-            deleteFolder: '删除文件夹'
+            deleteFolder: '删除文件夹',
+            addToShortcuts: '添加到快捷方式',
+            removeFromShortcuts: '从快捷方式移除'
         },
         tag: {
             changeIcon: '更改图标',
@@ -149,6 +170,8 @@ export const STRINGS_ZH = {
             removeColor: '移除颜色',
             addToFavorites: '添加到收藏',
             removeFromFavorites: '从收藏中移除',
+            addToShortcuts: '添加到快捷方式',
+            removeFromShortcuts: '从快捷方式移除',
             hideTag: '隐藏标签'
         }
     },

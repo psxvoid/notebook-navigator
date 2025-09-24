@@ -52,6 +52,18 @@ export const STRINGS_PL = {
         tags: 'Tagi' // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
+    navigationPane: {
+        shortcutsHeader: 'Skróty'
+    },
+
+    shortcuts: {
+        folderExists: 'Folder already in shortcuts',
+        noteExists: 'Note already in shortcuts',
+        tagExists: 'Tag already in shortcuts',
+        searchExists: 'Search already in shortcuts',
+        emptySearchQuery: 'Enter a search query before saving it'
+    },
+
     // Pane header
     paneHeader: {
         collapseAllFolders: 'Zwiń elementy', // Tooltip for button that collapses expanded items (English: Collapse items)
@@ -77,7 +89,12 @@ export const STRINGS_PL = {
     searchInput: {
         placeholder: 'Szukaj...', // Placeholder text for search input (English: Search...)
         placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
-        clearSearch: 'Wyczyść wyszukiwanie' // Tooltip for clear search button (English: Clear search)
+        clearSearch: 'Wyczyść wyszukiwanie', // Tooltip for clear search button (English: Clear search)
+        saveSearchShortcut: 'Zapisz wyszukiwanie w skrótach',
+        removeSearchShortcut: 'Usuń wyszukiwanie ze skrótów',
+        shortcutModalTitle: 'Zapisz wyszukiwanie',
+        shortcutNameLabel: 'Nazwa skrótu',
+        shortcutNamePlaceholder: 'Wprowadź nazwę skrótu'
     },
 
     // Context menus
@@ -119,7 +136,9 @@ export const STRINGS_PL = {
             moveMultipleToFolder: 'Przenieś {count} plików do...',
             addTag: 'Dodaj tag',
             removeTag: 'Usuń tag',
-            removeAllTags: 'Usuń wszystkie tagi'
+            removeAllTags: 'Usuń wszystkie tagi',
+            addToShortcuts: 'Dodaj do skrótów',
+            removeFromShortcuts: 'Usuń ze skrótów'
         },
         folder: {
             newNote: 'Nowa notatka',
@@ -138,7 +157,9 @@ export const STRINGS_PL = {
             removeColor: 'Usuń kolor',
             excludeFolder: 'Ukryj folder',
             renameFolder: 'Zmień nazwę folderu',
-            deleteFolder: 'Usuń folder'
+            deleteFolder: 'Usuń folder',
+            addToShortcuts: 'Dodaj do skrótów',
+            removeFromShortcuts: 'Usuń ze skrótów'
         },
         tag: {
             changeIcon: 'Zmień ikonę',
@@ -148,6 +169,8 @@ export const STRINGS_PL = {
             removeColor: 'Usuń kolor',
             addToFavorites: 'Dodaj do ulubionych',
             removeFromFavorites: 'Usuń z ulubionych',
+            addToShortcuts: 'Dodaj do skrótów',
+            removeFromShortcuts: 'Usuń ze skrótów',
             hideTag: 'Ukryj tag'
         }
     },

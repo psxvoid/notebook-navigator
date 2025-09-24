@@ -17,34 +17,25 @@
  */
 
 /**
- * Represents a highlighted segment returned by a search provider.
- * Used to indicate which parts of text should be highlighted in the UI.
+ * Search providers supported by Notebook Navigator.
  */
-export interface SearchMatchRange {
-    /** Zero-based character offset where the match starts */
+export type SearchProvider = 'internal' | 'omnisearch';
+
+/**
+ * Individual match returned by search providers that support excerpts (e.g., Omnisearch).
+ */
+export interface SearchResultMatch {
     offset: number;
-    /** Length of the matched text in characters */
     length: number;
-    /** The actual matched text content */
     text: string;
 }
 
 /**
- * Metadata attached to files when search results are provided by Omnisearch.
- * Contains all information needed to display search results with context and highlights.
- *
- * @remarks
- * This metadata is attached to file items in the list view when Omnisearch is active.
- * When Omnisearch is not available, file items will not have this metadata and
- * the UI falls back to simple filename filtering.
+ * Metadata captured for search results when using external providers.
  */
 export interface SearchResultMeta {
-    /** Relevance score from the search engine (higher is more relevant) */
     score: number;
-    /** Search terms that were found in this file */
     terms: string[];
-    /** Specific text segments to highlight in the file name or content */
-    matches: SearchMatchRange[];
-    /** Optional text excerpt showing the match in context */
+    matches: SearchResultMatch[];
     excerpt?: string;
 }

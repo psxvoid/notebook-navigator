@@ -52,6 +52,18 @@ export const STRINGS_KO = {
         tags: '태그' // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
+    navigationPane: {
+        shortcutsHeader: '바로가기'
+    },
+
+    shortcuts: {
+        folderExists: 'Folder already in shortcuts',
+        noteExists: 'Note already in shortcuts',
+        tagExists: 'Tag already in shortcuts',
+        searchExists: 'Search already in shortcuts',
+        emptySearchQuery: 'Enter a search query before saving it'
+    },
+
     // Pane header
     paneHeader: {
         collapseAllFolders: '항목 접기', // Tooltip for button that collapses expanded items (English: Collapse items)
@@ -77,7 +89,12 @@ export const STRINGS_KO = {
     searchInput: {
         placeholder: '검색...', // Placeholder text for search input (English: Search...)
         placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
-        clearSearch: '검색 지우기' // Tooltip for clear search button (English: Clear search)
+        clearSearch: '검색 지우기', // Tooltip for clear search button (English: Clear search)
+        saveSearchShortcut: '검색을 바로가기에 저장',
+        removeSearchShortcut: '바로가기에서 검색 제거',
+        shortcutModalTitle: '검색 바로가기 저장',
+        shortcutNameLabel: '바로가기 이름',
+        shortcutNamePlaceholder: '바로가기 이름을 입력하세요'
     },
 
     // Context menus
@@ -119,7 +136,9 @@ export const STRINGS_KO = {
             moveMultipleToFolder: '{count}개의 파일을 이동...',
             addTag: '태그 추가',
             removeTag: '태그 제거',
-            removeAllTags: '모든 태그 제거'
+            removeAllTags: '모든 태그 제거',
+            addToShortcuts: '바로가기에 추가',
+            removeFromShortcuts: '바로가기에서 제거'
         },
         folder: {
             newNote: '새 노트',
@@ -138,7 +157,9 @@ export const STRINGS_KO = {
             removeColor: '색상 제거',
             excludeFolder: '폴더 숨기기',
             renameFolder: '폴더 이름 변경',
-            deleteFolder: '폴더 삭제'
+            deleteFolder: '폴더 삭제',
+            addToShortcuts: '바로가기에 추가',
+            removeFromShortcuts: '바로가기에서 제거'
         },
         tag: {
             changeIcon: '아이콘 변경',
@@ -148,6 +169,8 @@ export const STRINGS_KO = {
             removeColor: '색상 제거',
             addToFavorites: '즐겨찾기에 추가',
             removeFromFavorites: '즐겨찾기에서 제거',
+            addToShortcuts: '바로가기에 추가',
+            removeFromShortcuts: '바로가기에서 제거',
             hideTag: '태그 숨기기'
         }
     },

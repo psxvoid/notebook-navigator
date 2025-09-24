@@ -20,6 +20,7 @@ import { TFile, TFolder } from 'obsidian';
 import { ListPaneItemType, NavigationPaneItemType, VirtualFolder } from '../types';
 import type { SearchResultMeta } from './search';
 import { TagTreeNode } from '../types/storage';
+import type { SavedSearch, ShortcutEntry } from '../types/shortcuts';
 
 export interface VirtualItem<T> {
     type: string;
@@ -84,11 +85,52 @@ export interface VirtualFolderItem {
     key: string;
 }
 
+interface ShortcutNavigationBase {
+    shortcut: ShortcutEntry;
+    level: number;
+    key: string;
+    icon?: string;
+}
+
+export interface ShortcutHeaderItem {
+    type: typeof NavigationPaneItemType.SHORTCUT_HEADER;
+    key: string;
+    level: number;
+    count: number;
+}
+
+export interface ShortcutFolderNavItem extends ShortcutNavigationBase {
+    type: typeof NavigationPaneItemType.SHORTCUT_FOLDER;
+    folder: TFolder | null;
+}
+
+export interface ShortcutNoteNavItem extends ShortcutNavigationBase {
+    type: typeof NavigationPaneItemType.SHORTCUT_NOTE;
+    note: TFile | null;
+}
+
+export interface ShortcutSearchNavItem extends ShortcutNavigationBase {
+    type: typeof NavigationPaneItemType.SHORTCUT_SEARCH;
+    savedSearch: SavedSearch | null;
+}
+
+export interface ShortcutTagNavItem extends ShortcutNavigationBase {
+    type: typeof NavigationPaneItemType.SHORTCUT_TAG;
+    tagPath: string;
+    displayName: string;
+    context?: 'favorites' | 'tags';
+}
+
 export type CombinedNavigationItem =
     | FolderTreeItem
     | VirtualFolderItem
     | TagTreeItem
     | UntaggedItem
+    | ShortcutHeaderItem
+    | ShortcutFolderNavItem
+    | ShortcutNoteNavItem
+    | ShortcutSearchNavItem
+    | ShortcutTagNavItem
     | { type: typeof NavigationPaneItemType.TOP_SPACER; key: string }
     | { type: typeof NavigationPaneItemType.BOTTOM_SPACER; key: string }
     | { type: typeof NavigationPaneItemType.LIST_SPACER; key: string };

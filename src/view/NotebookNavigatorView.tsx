@@ -28,6 +28,7 @@ import { ServicesProvider } from '../context/ServicesContext';
 import { SettingsProvider } from '../context/SettingsContext';
 import { StorageProvider } from '../context/StorageContext';
 import { UIStateProvider } from '../context/UIStateContext';
+import { ShortcutsProvider } from '../context/ShortcutsContext';
 import { strings } from '../i18n';
 import NotebookNavigatorPlugin from '../main';
 import { NOTEBOOK_NAVIGATOR_VIEW } from '../types';
@@ -104,22 +105,24 @@ export class NotebookNavigatorView extends ItemView {
             <React.StrictMode>
                 <SettingsProvider plugin={this.plugin}>
                     <ServicesProvider plugin={this.plugin}>
-                        <StorageProvider app={this.plugin.app} api={this.plugin.api}>
-                            <ExpansionProvider>
-                                <SelectionProvider
-                                    app={this.plugin.app}
-                                    api={this.plugin.api}
-                                    tagTreeService={this.plugin.tagTreeService}
-                                    onFileRename={this.plugin.registerFileRenameListener.bind(this.plugin)}
-                                    onFileRenameUnsubscribe={this.plugin.unregisterFileRenameListener.bind(this.plugin)}
-                                    isMobile={isMobile}
-                                >
-                                    <UIStateProvider isMobile={isMobile}>
-                                        <NotebookNavigatorContainer ref={this.componentRef} />
-                                    </UIStateProvider>
-                                </SelectionProvider>
-                            </ExpansionProvider>
-                        </StorageProvider>
+                        <ShortcutsProvider>
+                            <StorageProvider app={this.plugin.app} api={this.plugin.api}>
+                                <ExpansionProvider>
+                                    <SelectionProvider
+                                        app={this.plugin.app}
+                                        api={this.plugin.api}
+                                        tagTreeService={this.plugin.tagTreeService}
+                                        onFileRename={this.plugin.registerFileRenameListener.bind(this.plugin)}
+                                        onFileRenameUnsubscribe={this.plugin.unregisterFileRenameListener.bind(this.plugin)}
+                                        isMobile={isMobile}
+                                    >
+                                        <UIStateProvider isMobile={isMobile}>
+                                            <NotebookNavigatorContainer ref={this.componentRef} />
+                                        </UIStateProvider>
+                                    </SelectionProvider>
+                                </ExpansionProvider>
+                            </StorageProvider>
+                        </ShortcutsProvider>
                     </ServicesProvider>
                 </SettingsProvider>
             </React.StrictMode>

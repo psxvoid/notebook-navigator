@@ -366,7 +366,7 @@ body {
 .nn-search-input {
     width: 100%;
     height: 32px;
-    padding: 4px 36px !important;
+    padding: 4px 60px !important;
     font-size: 13px;
     color: var(--nn-theme-file-selected-name-color) !important;
     background: var(--nn-theme-list-bg) !important;
@@ -397,23 +397,6 @@ body {
 }
 
 /* Clear button */
-.nn-search-clear-button {
-    position: absolute;
-    right: 10px;
-    top: 8px;
-    cursor: pointer;
-    color: var(--nn-theme-list-header-icon-color);
-}
-
-.nn-search-clear-button:hover {
-    color: var(--nn-theme-header-button-active-icon-color);
-}
-
-.nn-search-clear-button svg {
-    width: 16px;
-    height: 16px;
-}
-
 /* Hide webkit search cancel button */
 .nn-search-input::-webkit-search-cancel-button {
     display: none;
@@ -448,7 +431,7 @@ body {
 .notebook-navigator-mobile .nn-search-input {
     height: 36px;
     font-size: 16px; /* Prevent zoom on iOS */
-    padding: 4px 36px !important;
+    padding: 4px 60px !important;
     border-radius: 8px;
 }
 
@@ -459,6 +442,51 @@ body {
 
 /* Mobile clear button */
 .notebook-navigator-mobile .nn-search-clear-button {
+    top: 10px;
+}
+
+.nn-search-clear-button,
+.nn-search-star-button {
+    position: absolute;
+    top: 8px;
+    cursor: pointer;
+    color: var(--nn-theme-list-header-icon-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nn-search-clear-button:hover,
+.nn-search-star-button:hover {
+    color: var(--nn-theme-header-button-active-icon-color);
+}
+
+.nn-search-clear-button:focus-visible,
+.nn-search-star-button:focus-visible {
+    outline: 2px solid var(--interactive-accent);
+    outline-offset: 2px;
+}
+
+.nn-search-clear-button svg,
+.nn-search-star-button svg {
+    width: 16px;
+    height: 16px;
+}
+
+.nn-search-clear-button {
+    right: 10px;
+}
+
+.nn-search-star-button {
+    right: 34px;
+}
+
+.nn-search-star-button--active {
+    color: var(--interactive-accent);
+}
+
+.notebook-navigator-mobile .nn-search-clear-button,
+.notebook-navigator-mobile .nn-search-star-button {
     top: 10px;
 }
 
@@ -874,6 +902,26 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Shortcut section styling */
+.nn-shortcut-header-item .nn-navitem-name {
+    font-weight: 400;
+}
+
+.nn-shortcut-header-item .nn-navitem-count {
+    font-size: 11px;
+}
+
+.nn-shortcut-item .nn-navitem-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nn-shortcut-disabled {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 /* ========================================================================

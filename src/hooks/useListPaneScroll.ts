@@ -87,6 +87,8 @@ interface UseListPaneScrollParams {
     selectionDispatch: (action: { type: string; [key: string]: unknown }) => void;
     /** Current search query (undefined if search is not active) */
     searchQuery?: string;
+    /** Suppress scroll-to-top behavior after search filtering (used for mobile shortcuts) */
+    suppressSearchTopScrollRef?: { current: boolean } | null;
 }
 
 /**
@@ -121,7 +123,8 @@ export function useListPaneScroll({
     isVisible,
     selectionState,
     selectionDispatch,
-    searchQuery
+    searchQuery,
+    suppressSearchTopScrollRef
 }: UseListPaneScrollParams): UseListPaneScrollResult {
     const { isMobile } = useServices();
     const { hasPreview, getDB, isStorageReady } = useFileCache();
@@ -830,9 +833,19 @@ export function useListPaneScroll({
 
         // Scroll to top when search filters remove the selected file, regardless of whether
         // this happened immediately on query change or after the list rebuilt
+        const suppressTopScroll = suppressSearchTopScrollRef?.current ?? false;
+
         if (!selectedFileInList && listItems.length > 0) {
+            if (suppressTopScroll && suppressSearchTopScrollRef) {
+                suppressSearchTopScrollRef.current = false;
+                return;
+            }
             setPending({ type: 'top', reason: 'list-config-change', minIndexVersion: indexVersionRef.current });
             return;
+        }
+
+        if (suppressTopScroll && suppressSearchTopScrollRef) {
+            suppressSearchTopScrollRef.current = false;
         }
 
         // If the selected file remains in the list, folder-navigation effects handle its visibility
@@ -840,7 +853,7 @@ export function useListPaneScroll({
         if (queryChanged) {
             // No-op
         }
-    }, [searchQuery, selectedFile, filePathToIndex, isVisible, rowVirtualizer, listItems.length, setPending]);
+    }, [searchQuery, selectedFile, filePathToIndex, isVisible, rowVirtualizer, listItems.length, setPending, suppressSearchTopScrollRef]);
 
     return {
         rowVirtualizer,

@@ -139,6 +139,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                         expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
                     }
                 }
+                return;
             } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
                 const tagNode = item.data;
                 const context = 'context' in item ? item.context : undefined;

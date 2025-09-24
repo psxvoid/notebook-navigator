@@ -52,6 +52,18 @@ export const STRINGS_ES = {
         tags: 'Etiquetas' // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
+    navigationPane: {
+        shortcutsHeader: 'Accesos directos'
+    },
+
+    shortcuts: {
+        folderExists: 'Folder already in shortcuts',
+        noteExists: 'Note already in shortcuts',
+        tagExists: 'Tag already in shortcuts',
+        searchExists: 'Search already in shortcuts',
+        emptySearchQuery: 'Enter a search query before saving it'
+    },
+
     // Pane header
     paneHeader: {
         collapseAllFolders: 'Contraer elementos', // Tooltip for button that collapses expanded items (English: Collapse items)
@@ -77,7 +89,12 @@ export const STRINGS_ES = {
     searchInput: {
         placeholder: 'Buscar...', // Placeholder text for search input (English: Search...)
         placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
-        clearSearch: 'Borrar búsqueda' // Tooltip for clear search button (English: Clear search)
+        clearSearch: 'Borrar búsqueda', // Tooltip for clear search button (English: Clear search)
+        saveSearchShortcut: 'Guardar búsqueda en accesos directos',
+        removeSearchShortcut: 'Eliminar búsqueda de accesos directos',
+        shortcutModalTitle: 'Guardar búsqueda',
+        shortcutNameLabel: 'Nombre del acceso directo',
+        shortcutNamePlaceholder: 'Introduce el nombre'
     },
 
     // Context menus
@@ -108,6 +125,8 @@ export const STRINGS_ES = {
             addTag: 'Añadir etiqueta',
             removeTag: 'Eliminar etiqueta',
             removeAllTags: 'Eliminar todas las etiquetas',
+            addToShortcuts: 'Agregar a accesos directos',
+            removeFromShortcuts: 'Quitar de accesos directos',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Abrir {count} archivos en nuevas pestañas',
             openMultipleFilesToRight: 'Abrir {count} archivos a la derecha',
@@ -139,7 +158,9 @@ export const STRINGS_ES = {
             removeColor: 'Quitar color',
             excludeFolder: 'Ocultar carpeta',
             renameFolder: 'Renombrar carpeta',
-            deleteFolder: 'Eliminar carpeta'
+            deleteFolder: 'Eliminar carpeta',
+            addToShortcuts: 'Agregar a accesos directos',
+            removeFromShortcuts: 'Quitar de accesos directos'
         },
         tag: {
             changeIcon: 'Cambiar icono',
@@ -149,6 +170,8 @@ export const STRINGS_ES = {
             removeColor: 'Quitar color',
             addToFavorites: 'Añadir a favoritos',
             removeFromFavorites: 'Quitar de favoritos',
+            addToShortcuts: 'Agregar a accesos directos',
+            removeFromShortcuts: 'Quitar de accesos directos',
             hideTag: 'Ocultar etiqueta'
         }
     },

@@ -514,6 +514,9 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
     useEffect(() => {
         // ONLY process if this is a reveal operation, not normal keyboard navigation
         if (selectionState.isRevealOperation && selectionState.selectedFile) {
+            if (selectionState.revealSource === 'shortcut') {
+                return;
+            }
             // Request scroll in navigation pane if visible
             const shouldScrollNavigation = !uiState.singlePane || uiState.currentSinglePaneView === 'navigation';
 
@@ -542,6 +545,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
         selectionState.selectedFile,
         selectionState.selectionType,
         selectionState.selectedTag,
+        selectionState.revealSource,
         navigationPaneRef,
         listPaneRef,
         uiState.singlePane,

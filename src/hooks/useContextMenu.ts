@@ -25,6 +25,7 @@ import { useServices, useFileSystemOps, useMetadataService, useTagOperations, us
 import { useSettingsState } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
 import { useUIDispatch } from '../context/UIStateContext';
+import { useShortcuts } from '../context/ShortcutsContext';
 import { isFileType, isFolderType, isTagType } from '../types';
 import { MenuConfig, MenuServices, MenuState, MenuDispatchers, buildFolderMenu, buildTagMenu, buildFileMenu } from '../utils/contextMenu';
 import { TFile, TFolder } from 'obsidian';
@@ -52,6 +53,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     const { getFavoriteTree, findTagInFavoriteTree } = useFileCache();
     const tagOperations = useTagOperations();
     const commandQueue = useCommandQueue();
+    const shortcuts = useShortcuts();
     const selectionState = useSelectionState();
     const { expandedFolders, expandedTags } = useExpansionState();
     const selectionDispatch = useSelectionDispatch();
@@ -106,7 +108,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 tagTreeService,
                 commandQueue,
                 getFavoriteTree,
-                findTagInFavoriteTree
+                findTagInFavoriteTree,
+                shortcuts
             };
 
             const state: MenuState = {
@@ -204,7 +207,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             tagTreeService,
             getFavoriteTree,
             findTagInFavoriteTree,
-            commandQueue
+            commandQueue,
+            shortcuts
         ]
     );
 

@@ -34,6 +34,7 @@ import { TFile, TFolder, debounce } from 'obsidian';
 import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useExpansionState } from '../context/ExpansionContext';
 import { useFileCache } from '../context/StorageContext';
+import { useShortcuts } from '../context/ShortcutsContext';
 import { strings } from '../i18n';
 import { UNTAGGED_TAG_ID, NavigationPaneItemType, VirtualFolder, ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
@@ -48,6 +49,7 @@ import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
 import { createHiddenTagMatcher } from '../utils/tagPrefixMatcher';
 import { naturalCompare } from '../utils/sortUtils';
 import { setNavigationIndex } from '../utils/navigationIndex';
+import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } from '../types/shortcuts';
 
 /**
  * Parameters for the useNavigationPaneData hook
@@ -67,6 +69,8 @@ interface UseNavigationPaneDataResult {
     items: CombinedNavigationItem[];
     /** Map from item keys to index in items array */
     pathToIndex: Map<string, number>;
+    /** Map from shortcut id to index */
+    shortcutIndex: Map<string, number>;
     /** Map from tag path to file count */
     tagCounts: Map<string, number>;
     /** Map from folder path to file count */
@@ -85,6 +89,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     const metadataService = useMetadataService();
     const expansionState = useExpansionState();
     const { fileData } = useFileCache();
+    const { hydratedShortcuts } = useShortcuts();
 
     // Stable folder data across re-renders
     const [rootFolders, setRootFolders] = useState<TFolder[]>([]);
@@ -278,8 +283,97 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
      */
     const parsedExcludedFolders = useMemo(() => settings.excludedFolders, [settings.excludedFolders]);
 
+    // Build shortcut items for the navigation pane including header and individual shortcuts
+    const shortcutItems = useMemo(() => {
+        if (hydratedShortcuts.length === 0) {
+            return [] as CombinedNavigationItem[];
+        }
+
+        const items: CombinedNavigationItem[] = [];
+        const headerLevel = 0;
+        const itemLevel = headerLevel + 1;
+
+        // Add shortcuts header with count
+        items.push({
+            type: NavigationPaneItemType.SHORTCUT_HEADER,
+            key: 'shortcuts-header',
+            level: headerLevel,
+            count: hydratedShortcuts.length
+        });
+
+        // Process each shortcut based on its type
+        hydratedShortcuts.forEach(entry => {
+            const { shortcut, folder, note, savedSearch, tagPath } = entry;
+
+            if (isFolderShortcut(shortcut)) {
+                if (!folder) {
+                    return;
+                }
+                items.push({
+                    type: NavigationPaneItemType.SHORTCUT_FOLDER,
+                    key: `shortcut-folder-${shortcut.id}`,
+                    level: itemLevel,
+                    shortcut,
+                    folder
+                });
+                return;
+            }
+
+            if (isNoteShortcut(shortcut)) {
+                if (!note) {
+                    return;
+                }
+                items.push({
+                    type: NavigationPaneItemType.SHORTCUT_NOTE,
+                    key: `shortcut-note-${shortcut.id}`,
+                    level: itemLevel,
+                    shortcut,
+                    note
+                });
+                return;
+            }
+
+            if (isSearchShortcut(shortcut)) {
+                if (!savedSearch) {
+                    return;
+                }
+                items.push({
+                    type: NavigationPaneItemType.SHORTCUT_SEARCH,
+                    key: `shortcut-search-${shortcut.id}`,
+                    level: itemLevel,
+                    shortcut,
+                    savedSearch
+                });
+                return;
+            }
+
+            if (isTagShortcut(shortcut)) {
+                if (!tagPath) {
+                    return;
+                }
+
+                // Determine display name and context for tag shortcuts
+                const tagNode = favoriteTree.get(tagPath) ?? tagTree.get(tagPath);
+                const displayPath = tagNode?.displayPath ?? tagPath;
+                const context = favoriteTree.has(tagPath) ? ('favorites' as const) : ('tags' as const);
+
+                items.push({
+                    type: NavigationPaneItemType.SHORTCUT_TAG,
+                    key: `shortcut-tag-${shortcut.id}`,
+                    level: itemLevel,
+                    shortcut,
+                    tagPath,
+                    displayName: displayPath,
+                    context
+                });
+            }
+        });
+
+        return items;
+    }, [hydratedShortcuts, favoriteTree, tagTree]);
+
     /**
-     * Combine folder and tag items based on display order settings
+     * Combine shortcut, folder, and tag items based on display order settings
      */
     const items = useMemo(() => {
         const allItems: CombinedNavigationItem[] = [];
@@ -289,6 +383,19 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             type: NavigationPaneItemType.TOP_SPACER,
             key: 'top-spacer'
         });
+
+        const hasAdditionalItems = folderItems.length > 0 || (settings.showTags && tagItems.length > 0);
+
+        // Add shortcuts at the top if present
+        if (shortcutItems.length > 0) {
+            allItems.push(...shortcutItems);
+            if (hasAdditionalItems) {
+                allItems.push({
+                    type: NavigationPaneItemType.LIST_SPACER,
+                    key: 'shortcuts-spacer'
+                });
+            }
+        }
 
         if (settings.showTags && settings.showTagsAboveFolders) {
             // Tags first, then folders
@@ -319,7 +426,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         });
 
         return allItems;
-    }, [folderItems, tagItems, settings.showTags, settings.showTagsAboveFolders]);
+    }, [folderItems, tagItems, shortcutItems, settings.showTags, settings.showTagsAboveFolders]);
 
     /**
      * Create a stable version key for metadata objects that gets updated when they're mutated
@@ -362,6 +469,19 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                     backgroundColor: metadataService.getTagBackgroundColor(tagNode.path),
                     icon: metadataService.getTagIcon(tagNode.path)
                 };
+            } else if (item.type === NavigationPaneItemType.SHORTCUT_FOLDER) {
+                // Apply custom folder icon to shortcut if available
+                const folderPath = item.folder?.path;
+                return {
+                    ...item,
+                    icon: (folderPath && metadataService.getFolderIcon(folderPath)) || 'lucide-folder'
+                };
+            } else if (item.type === NavigationPaneItemType.SHORTCUT_TAG) {
+                // Apply custom tag icon to shortcut if available
+                return {
+                    ...item,
+                    icon: metadataService.getTagIcon(item.tagPath) || 'lucide-tag'
+                };
             }
             return item;
         });
@@ -400,6 +520,24 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
                 const tagNode = item.data;
                 setNavigationIndex(indexMap, ItemType.TAG, tagNode.path, index);
+            }
+        });
+
+        return indexMap;
+    }, [filteredItems]);
+
+    // Build index map for shortcuts to enable scrolling to specific shortcuts
+    const shortcutIndex = useMemo(() => {
+        const indexMap = new Map<string, number>();
+
+        filteredItems.forEach((item, index) => {
+            if (
+                item.type === NavigationPaneItemType.SHORTCUT_FOLDER ||
+                item.type === NavigationPaneItemType.SHORTCUT_NOTE ||
+                item.type === NavigationPaneItemType.SHORTCUT_SEARCH ||
+                item.type === NavigationPaneItemType.SHORTCUT_TAG
+            ) {
+                indexMap.set(item.shortcut.id, index);
             }
         });
 
@@ -566,6 +704,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     return {
         items: filteredItems,
         pathToIndex,
+        shortcutIndex,
         tagCounts,
         folderCounts
     };

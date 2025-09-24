@@ -97,6 +97,27 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         });
     }
 
+    if (services.shortcuts) {
+        const { folderShortcutIdsByPath, addFolderShortcut, removeShortcut } = services.shortcuts;
+        const existingShortcutId = folderShortcutIdsByPath.get(folder.path);
+
+        menu.addItem((item: MenuItem) => {
+            if (existingShortcutId) {
+                item.setTitle(strings.contextMenu.folder.removeFromShortcuts)
+                    .setIcon('lucide-star-off')
+                    .onClick(() => {
+                        void removeShortcut(existingShortcutId);
+                    });
+            } else {
+                item.setTitle(strings.contextMenu.folder.addToShortcuts)
+                    .setIcon('lucide-star')
+                    .onClick(() => {
+                        void addFolderShortcut(folder.path);
+                    });
+            }
+        });
+    }
+
     menu.addSeparator();
 
     // Duplicate folder

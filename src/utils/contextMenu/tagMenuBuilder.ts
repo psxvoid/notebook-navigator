@@ -88,6 +88,48 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
             }
         }
 
+        if (services.shortcuts) {
+            const { tagShortcutIdsByPath, addTagShortcut, removeShortcut } = services.shortcuts;
+            const existingShortcutId = tagShortcutIdsByPath.get(tagPath);
+
+            menu.addItem((item: MenuItem) => {
+                if (existingShortcutId) {
+                    item.setTitle(strings.contextMenu.tag.removeFromShortcuts)
+                        .setIcon('lucide-star-off')
+                        .onClick(() => {
+                            void removeShortcut(existingShortcutId);
+                        });
+                } else {
+                    item.setTitle(strings.contextMenu.tag.addToShortcuts)
+                        .setIcon('lucide-star')
+                        .onClick(() => {
+                            void addTagShortcut(tagPath);
+                        });
+                }
+            });
+        }
+
+        menu.addSeparator();
+    } else if (services.shortcuts) {
+        const { tagShortcutIdsByPath, addTagShortcut, removeShortcut } = services.shortcuts;
+        const existingShortcutId = tagShortcutIdsByPath.get(tagPath);
+
+        menu.addItem((item: MenuItem) => {
+            if (existingShortcutId) {
+                item.setTitle(strings.contextMenu.tag.removeFromShortcuts)
+                    .setIcon('lucide-star-off')
+                    .onClick(() => {
+                        void removeShortcut(existingShortcutId);
+                    });
+            } else {
+                item.setTitle(strings.contextMenu.tag.addToShortcuts)
+                    .setIcon('lucide-star')
+                    .onClick(() => {
+                        void addTagShortcut(tagPath);
+                    });
+            }
+        });
+
         menu.addSeparator();
     }
 

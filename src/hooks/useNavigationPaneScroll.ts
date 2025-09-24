@@ -66,6 +66,8 @@ interface UseNavigationPaneScrollParams {
     pathToIndex: Map<string, number>;
     /** Whether the navigation pane is currently visible */
     isVisible: boolean;
+    /** Currently active shortcut id (if any) */
+    activeShortcutId: string | null;
 }
 
 /**
@@ -91,7 +93,12 @@ interface UseNavigationPaneScrollResult {
  * @param params - Configuration parameters
  * @returns Virtualizer instance and scroll management utilities
  */
-export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNavigationPaneScrollParams): UseNavigationPaneScrollResult {
+export function useNavigationPaneScroll({
+    items,
+    pathToIndex,
+    isVisible,
+    activeShortcutId
+}: UseNavigationPaneScrollParams): UseNavigationPaneScrollResult {
     const { isMobile } = useServices();
     const selectionState = useSelectionState();
     const uiState = useUIState();
@@ -261,6 +268,10 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         // Only scroll on actual selection changes or visibility/focus changes
         if (!isSelectionChange && !justBecameVisible && !justGainedFocus) return;
 
+        if (activeShortcutId) {
+            return;
+        }
+
         // CRITICAL: Guard against race condition during visibility toggle
         // When showHiddenItems changes, the tree will rebuild with different indices.
         // We must defer this scroll until AFTER the rebuild completes.
@@ -288,7 +299,8 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         uiState.focusedPane,
         settings.showHiddenItems,
         selectionState.selectionType,
-        resolveIndex
+        resolveIndex,
+        activeShortcutId
     ]);
 
     /**
@@ -298,6 +310,10 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
      */
     useEffect(() => {
         if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag && rowVirtualizer && isVisible) {
+            if (activeShortcutId) {
+                prevSelectedTagRef.current = selectionState.selectedTag;
+                return;
+            }
             // Check if this is an actual tag selection change
             const isTagSelectionChange = prevSelectedTagRef.current !== selectionState.selectedTag;
 
@@ -336,7 +352,8 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         isVisible,
         settings.showHiddenItems,
         selectedPath,
-        resolveIndex
+        resolveIndex,
+        activeShortcutId
     ]);
 
     /**
@@ -405,6 +422,9 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         if (!isMobile) return;
 
         const handleVisible = () => {
+            if (activeShortcutId) {
+                return;
+            }
             // If we have a selected folder or tag, scroll to it
             if (selectedPath && rowVirtualizer) {
                 const index = resolveIndex(selectedPath, selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER);
@@ -416,7 +436,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
 
         window.addEventListener('notebook-navigator-visible', handleVisible);
         return () => window.removeEventListener('notebook-navigator-visible', handleVisible);
-    }, [isMobile, selectedPath, rowVirtualizer, selectionState.selectionType, resolveIndex]);
+    }, [isMobile, selectedPath, rowVirtualizer, selectionState.selectionType, resolveIndex, activeShortcutId]);
 
     /**
      * Re-measure all items when line height settings change
@@ -437,6 +457,11 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         const settingsKey = `${settings.navItemHeight}-${settings.navIndent}`;
         const settingsChanged = prevNavSettingsKeyRef.current && prevNavSettingsKeyRef.current !== settingsKey;
 
+        if (activeShortcutId) {
+            prevNavSettingsKeyRef.current = settingsKey;
+            return;
+        }
+
         if (settingsChanged) {
             if (selectedPath && isVisible && rowVirtualizer) {
                 const index = resolveIndex(selectedPath, selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER);
@@ -450,7 +475,16 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         }
 
         prevNavSettingsKeyRef.current = settingsKey;
-    }, [settings.navItemHeight, settings.navIndent, selectedPath, isVisible, rowVirtualizer, resolveIndex, selectionState.selectionType]);
+    }, [
+        settings.navItemHeight,
+        settings.navIndent,
+        selectedPath,
+        isVisible,
+        rowVirtualizer,
+        resolveIndex,
+        selectionState.selectionType,
+        activeShortcutId
+    ]);
 
     /**
      * Track showHiddenItems setting changes specifically

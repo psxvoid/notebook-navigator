@@ -25,6 +25,8 @@ import { localStorage } from '../utils/localStorage';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { TagTreeService } from '../services/TagTreeService';
 
+export type SelectionRevealSource = 'auto' | 'manual' | 'shortcut';
+
 // State interface
 export interface SelectionState {
     selectionType: NavigationItemType;
@@ -40,6 +42,7 @@ export interface SelectionState {
     isFolderNavigation: boolean; // Flag to track if we just navigated to a different folder
 
     selectedFile: TFile | null; // Current cursor position / primary selected file
+    revealSource: SelectionRevealSource | null; // Identifies how the latest reveal was triggered
 }
 
 // Action types
@@ -49,7 +52,14 @@ export type SelectionAction =
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_SELECTION_TYPE'; selectionType: NavigationItemType }
     | { type: 'CLEAR_SELECTION' }
-    | { type: 'REVEAL_FILE'; file: TFile; preserveFolder?: boolean; isManualReveal?: boolean; targetTag?: string | null }
+    | {
+          type: 'REVEAL_FILE';
+          file: TFile;
+          preserveFolder?: boolean;
+          isManualReveal?: boolean;
+          targetTag?: string | null;
+          source?: SelectionRevealSource;
+      }
     | { type: 'CLEANUP_DELETED_FOLDER'; deletedPath: string }
     | { type: 'CLEANUP_DELETED_FILE'; deletedPath: string; nextFileToSelect?: TFile | null }
     // Multi-selection actions
@@ -119,7 +129,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
                 isKeyboardNavigation: false,
-                isFolderNavigation: true // Set flag when folder changes
+                isFolderNavigation: true, // Set flag when folder changes
+                revealSource: null
             };
         }
 
@@ -141,7 +152,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
                 isKeyboardNavigation: false,
-                isFolderNavigation: true // Set flag when tag changes too
+                isFolderNavigation: true, // Set flag when tag changes too
+                revealSource: null
             };
         }
 
@@ -160,7 +172,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: false,
                 isKeyboardNavigation: false,
-                isFolderNavigation: false // Clear folder navigation flag
+                isFolderNavigation: false,
+                revealSource: null // Clear folder navigation flag
             };
         }
 
@@ -170,7 +183,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 selectionType: action.selectionType,
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: false,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                revealSource: null
             };
 
         case 'CLEAR_SELECTION':
@@ -185,7 +199,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null,
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: false,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                revealSource: null
             };
 
         case 'REVEAL_FILE': {
@@ -195,6 +210,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
 
             const newSelectedFiles = new Set<string>();
             newSelectedFiles.add(action.file.path);
+
+            const revealSource: SelectionRevealSource = action.source ?? (action.isManualReveal ? 'manual' : 'auto');
 
             // Manual reveals always go to folder view
             if (action.isManualReveal) {
@@ -209,7 +226,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                     lastMovementDirection: null,
                     isRevealOperation: true,
                     isFolderChangeWithAutoSelect: false,
-                    isKeyboardNavigation: false
+                    isKeyboardNavigation: false,
+                    revealSource
                 };
             }
 
@@ -228,7 +246,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                         lastMovementDirection: null,
                         isRevealOperation: true,
                         isFolderChangeWithAutoSelect: false,
-                        isKeyboardNavigation: false
+                        isKeyboardNavigation: false,
+                        revealSource
                     };
                 }
                 // No tag to reveal, switch to folder view
@@ -244,7 +263,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                     lastMovementDirection: null,
                     isRevealOperation: true,
                     isFolderChangeWithAutoSelect: false,
-                    isKeyboardNavigation: false
+                    isKeyboardNavigation: false,
+                    revealSource
                 };
             }
 
@@ -262,7 +282,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                     lastMovementDirection: null,
                     isRevealOperation: true,
                     isFolderChangeWithAutoSelect: false,
-                    isKeyboardNavigation: false
+                    isKeyboardNavigation: false,
+                    revealSource
                 };
             }
 
@@ -279,7 +300,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null,
                 isRevealOperation: true,
                 isFolderChangeWithAutoSelect: false,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                revealSource
             };
         }
 
@@ -293,7 +315,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                     anchorIndex: null,
                     lastMovementDirection: null,
                     isFolderChangeWithAutoSelect: false,
-                    isKeyboardNavigation: false
+                    isKeyboardNavigation: false,
+                    revealSource: null
                 };
             }
             return state;
@@ -319,7 +342,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 selectedFile: action.nextFileToSelect || (app ? getFirstSelectedFile(newSelectedFiles, app) : null),
                 anchorIndex: newAnchorIndex,
                 isFolderChangeWithAutoSelect: false,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                revealSource: null
             };
         }
 
@@ -580,7 +604,8 @@ export function SelectionProvider({
             isRevealOperation: false,
             isFolderChangeWithAutoSelect: false,
             isKeyboardNavigation: false,
-            isFolderNavigation: false
+            isFolderNavigation: false,
+            revealSource: null
         };
     }, [app.vault]);
 

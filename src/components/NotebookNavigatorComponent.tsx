@@ -45,6 +45,7 @@ import { ListPane } from './ListPane';
 import type { ListPaneHandle } from './ListPane';
 import { NavigationPane } from './NavigationPane';
 import type { NavigationPaneHandle } from './NavigationPane';
+import type { SavedSearch } from '../types/shortcuts';
 
 export interface NotebookNavigatorHandle {
     navigateToFile: (file: TFile) => void;
@@ -103,6 +104,14 @@ export const NotebookNavigatorComponent = React.memo(
         const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
         const navigationPaneRef = useRef<NavigationPaneHandle>(null);
         const listPaneRef = useRef<ListPaneHandle>(null);
+
+        const handleSearchShortcutExecution = useCallback(async (_shortcutId: string, savedSearch: SavedSearch) => {
+            const listHandle = listPaneRef.current;
+            if (!listHandle) {
+                return;
+            }
+            await listHandle.executeSearchShortcut({ savedSearch });
+        }, []);
 
         // Enable resizable pane
         const { paneWidth, isResizing, resizeHandleProps } = useResizablePane({
@@ -553,6 +562,7 @@ export const NotebookNavigatorComponent = React.memo(
                     ref={navigationPaneRef}
                     style={{ width: uiState.singlePane ? '100%' : `${paneWidth}px` }}
                     rootContainerRef={containerRef}
+                    onExecuteSearchShortcut={handleSearchShortcutExecution}
                 />
                 <ListPane
                     ref={listPaneRef}

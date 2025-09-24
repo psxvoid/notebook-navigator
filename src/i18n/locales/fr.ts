@@ -52,6 +52,18 @@ export const STRINGS_FR = {
         tags: 'Étiquettes' // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
+    navigationPane: {
+        shortcutsHeader: 'Raccourcis'
+    },
+
+    shortcuts: {
+        folderExists: 'Folder already in shortcuts',
+        noteExists: 'Note already in shortcuts',
+        tagExists: 'Tag already in shortcuts',
+        searchExists: 'Search already in shortcuts',
+        emptySearchQuery: 'Enter a search query before saving it'
+    },
+
     // Pane header
     paneHeader: {
         collapseAllFolders: 'Replier les éléments', // Tooltip for button that collapses expanded items (English: Collapse items)
@@ -77,7 +89,12 @@ export const STRINGS_FR = {
     searchInput: {
         placeholder: 'Rechercher...', // Placeholder text for search input (English: Search...)
         placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
-        clearSearch: 'Effacer la recherche' // Tooltip for clear search button (English: Clear search)
+        clearSearch: 'Effacer la recherche', // Tooltip for clear search button (English: Clear search)
+        saveSearchShortcut: 'Ajouter la recherche aux raccourcis',
+        removeSearchShortcut: 'Retirer la recherche des raccourcis',
+        shortcutModalTitle: 'Enregistrer la recherche',
+        shortcutNameLabel: 'Nom du raccourci',
+        shortcutNamePlaceholder: 'Saisir le nom du raccourci'
     },
 
     // Context menus
@@ -108,6 +125,8 @@ export const STRINGS_FR = {
             addTag: 'Ajouter une étiquette',
             removeTag: 'Supprimer l’étiquette',
             removeAllTags: 'Supprimer toutes les étiquettes',
+            addToShortcuts: 'Ajouter aux raccourcis',
+            removeFromShortcuts: 'Retirer des raccourcis',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Ouvrir {count} fichiers dans de nouveaux onglets',
             openMultipleFilesToRight: 'Ouvrir {count} fichiers à droite',
@@ -139,7 +158,9 @@ export const STRINGS_FR = {
             removeColor: 'Supprimer la couleur',
             excludeFolder: 'Masquer le dossier',
             renameFolder: 'Renommer le dossier',
-            deleteFolder: 'Supprimer le dossier'
+            deleteFolder: 'Supprimer le dossier',
+            addToShortcuts: 'Ajouter aux raccourcis',
+            removeFromShortcuts: 'Retirer des raccourcis'
         },
         tag: {
             changeIcon: "Changer l'icône",
@@ -149,6 +170,8 @@ export const STRINGS_FR = {
             removeColor: 'Supprimer la couleur',
             addToFavorites: 'Ajouter aux favoris',
             removeFromFavorites: 'Retirer des favoris',
+            addToShortcuts: 'Ajouter aux raccourcis',
+            removeFromShortcuts: 'Retirer des raccourcis',
             hideTag: 'Masquer létiquette'
         }
     },

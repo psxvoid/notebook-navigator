@@ -52,6 +52,19 @@ export const STRINGS_EN = {
         tags: 'Tags' // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
+    // Navigation pane
+    navigationPane: {
+        shortcutsHeader: 'Shortcuts' // Header label for shortcuts section in navigation pane (English: Shortcuts)
+    },
+
+    shortcuts: {
+        folderExists: 'Folder already in shortcuts',
+        noteExists: 'Note already in shortcuts',
+        tagExists: 'Tag already in shortcuts',
+        searchExists: 'Search already in shortcuts',
+        emptySearchQuery: 'Enter a search query before saving it'
+    },
+
     // Pane header
     paneHeader: {
         collapseAllFolders: 'Collapse items', // Tooltip for button that collapses expanded items (English: Collapse items)
@@ -77,7 +90,12 @@ export const STRINGS_EN = {
     searchInput: {
         placeholder: 'Search...', // Placeholder text for search input (English: Search...)
         placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
-        clearSearch: 'Clear search' // Tooltip for clear search button (English: Clear search)
+        clearSearch: 'Clear search', // Tooltip for clear search button (English: Clear search)
+        saveSearchShortcut: 'Save search shortcut',
+        removeSearchShortcut: 'Remove search shortcut',
+        shortcutModalTitle: 'Save search shortcut',
+        shortcutNameLabel: 'Shortcut name',
+        shortcutNamePlaceholder: 'Enter shortcut name'
     },
 
     // Context menus
@@ -119,7 +137,9 @@ export const STRINGS_EN = {
             moveMultipleToFolder: 'Move {count} files to...',
             addTag: 'Add tag',
             removeTag: 'Remove tag',
-            removeAllTags: 'Remove all tags'
+            removeAllTags: 'Remove all tags',
+            addToShortcuts: 'Add to shortcuts',
+            removeFromShortcuts: 'Remove from shortcuts'
         },
         folder: {
             newNote: 'New note',
@@ -138,7 +158,9 @@ export const STRINGS_EN = {
             removeColor: 'Remove color',
             excludeFolder: 'Hide folder',
             renameFolder: 'Rename folder',
-            deleteFolder: 'Delete folder'
+            deleteFolder: 'Delete folder',
+            addToShortcuts: 'Add to shortcuts',
+            removeFromShortcuts: 'Remove from shortcuts'
         },
         tag: {
             changeIcon: 'Change icon',
@@ -148,6 +170,8 @@ export const STRINGS_EN = {
             removeColor: 'Remove color',
             addToFavorites: 'Add to favorites',
             removeFromFavorites: 'Remove from favorites',
+            addToShortcuts: 'Add to shortcuts',
+            removeFromShortcuts: 'Remove from shortcuts',
             hideTag: 'Hide tag'
         }
     },

@@ -29,6 +29,7 @@ import { SelectionState, SelectionAction } from '../../context/SelectionContext'
 import type NotebookNavigatorPlugin from '../../main';
 import { ExpansionAction } from '../../context/ExpansionContext';
 import { UIAction } from '../../context/UIStateContext';
+import type { ShortcutsContextValue } from '../../context/ShortcutsContext';
 
 /**
  * Configuration for the context menu
@@ -54,6 +55,7 @@ export interface MenuServices {
     commandQueue: CommandQueueService | null;
     getFavoriteTree?: () => Map<string, TagTreeNode>;
     findTagInFavoriteTree?: (tagPath: string) => TagTreeNode | null;
+    shortcuts: ShortcutsContextValue | null;
 }
 
 /**

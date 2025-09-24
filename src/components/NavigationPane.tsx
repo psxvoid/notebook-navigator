@@ -54,8 +54,8 @@
  *    - Prevents unnecessary child re-renders
  */
 
-import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react';
-import { TFolder, Platform } from 'obsidian';
+import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo, useState } from 'react';
+import { TFolder, TFile, Platform } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -78,6 +78,11 @@ import { NavigationToolbar } from './NavigationToolbar';
 import { TagTreeItem } from './TagTreeItem';
 import { VirtualFolderComponent } from './VirtualFolderItem';
 import { getNavigationIndex, normalizeNavigationPath } from '../utils/navigationIndex';
+import { useShortcuts } from '../context/ShortcutsContext';
+import { ShortcutItem } from './ShortcutItem';
+import { ShortcutType, SavedSearch } from '../types/shortcuts';
+import { ObsidianIcon } from './ObsidianIcon';
+import { strings } from '../i18n';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (itemType: ItemType, path: string) => number;
@@ -96,11 +101,13 @@ interface NavigationPaneProps {
      * other Obsidian views.
      */
     rootContainerRef: React.RefObject<HTMLDivElement | null>;
+    onExecuteSearchShortcut?: (shortcutId: string, savedSearch: SavedSearch) => Promise<void> | void;
 }
 
 export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
         const { app, isMobile } = useServices();
+        const { onExecuteSearchShortcut, rootContainerRef } = props;
         const commandQueue = useCommandQueue();
         const expansionState = useExpansionState();
         const expansionDispatch = useExpansionDispatch();
@@ -109,6 +116,8 @@ export const NavigationPane = React.memo(
         const settings = useSettingsState();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
+        const { shortcutsById } = useShortcuts();
+        const [activeShortcutId, setActiveShortcut] = useState<string | null>(null);
 
         // Android uses toolbar at top, iOS at bottom
         const isAndroid = Platform.isAndroidApp;
@@ -126,7 +135,7 @@ export const NavigationPane = React.memo(
         const tagTree = fileData.tagTree;
 
         // Use the new data hook - now returns filtered items and pathToIndex
-        const { items, pathToIndex, tagCounts, folderCounts } = useNavigationPaneData({
+        const { items, pathToIndex, shortcutIndex, tagCounts, folderCounts } = useNavigationPaneData({
             settings,
             isVisible
         });
@@ -135,7 +144,8 @@ export const NavigationPane = React.memo(
         const { rowVirtualizer, scrollContainerRef, requestScroll } = useNavigationPaneScroll({
             items,
             pathToIndex,
-            isVisible
+            isVisible,
+            activeShortcutId
         });
 
         // Callback for after expand/collapse operations
@@ -158,8 +168,11 @@ export const NavigationPane = React.memo(
 
         // Handle folder click
         const handleFolderClick = useCallback(
-            (folder: TFolder) => {
-                // Normal folder selection behavior
+            (folder: TFolder, options?: { fromShortcut?: boolean }) => {
+                if (!options?.fromShortcut) {
+                    setActiveShortcut(null);
+                }
+
                 selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
 
                 // Auto-expand/collapse if enabled and folder has children
@@ -171,14 +184,13 @@ export const NavigationPane = React.memo(
                 // Switch to files view in single pane mode
                 if (uiState.singlePane) {
                     uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                    // Set focus to files pane when switching
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                 } else {
-                    // In dual-pane mode, keep focus on folders
+                    // In dual-pane mode, keep focus on folders for direct interactions
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                 }
             },
-            [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, expansionDispatch]
+            [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, expansionDispatch, setActiveShortcut]
         );
 
         // Handle folder name click (for folder notes)
@@ -264,7 +276,7 @@ export const NavigationPane = React.memo(
 
         // Handle tag click
         const handleTagClick = useCallback(
-            (tagPath: string, context?: 'favorites' | 'tags') => {
+            (tagPath: string, context?: 'favorites' | 'tags', options?: { fromShortcut?: boolean }) => {
                 // Check if clicking the same tag with same context
                 const isSameTag =
                     selectionState.selectionType === 'tag' &&
@@ -276,11 +288,21 @@ export const NavigationPane = React.memo(
                     if (uiState.singlePane) {
                         uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    } else if (options?.fromShortcut) {
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     } else {
                         // In dual-pane mode, still need to set focus
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                     }
+
+                    if (options?.fromShortcut) {
+                        selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+                    }
                     return;
+                }
+
+                if (!options?.fromShortcut) {
+                    setActiveShortcut(null);
                 }
 
                 selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath, context });
@@ -300,9 +322,15 @@ export const NavigationPane = React.memo(
                     uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
                     // Set focus to files pane when switching
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                } else if (options?.fromShortcut) {
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                 } else {
                     // In dual-pane mode, keep focus on folders
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                }
+
+                if (options?.fromShortcut) {
+                    selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
                 }
             },
             [
@@ -314,23 +342,238 @@ export const NavigationPane = React.memo(
                 expansionDispatch,
                 selectionState.selectedTag,
                 selectionState.selectedTagContext,
-                selectionState.selectionType
+                selectionState.selectionType,
+                setActiveShortcut
             ]
         );
+
+        // Scrolls a shortcut into view when activated
+        const scrollShortcutIntoView = useCallback(
+            (shortcutId: string) => {
+                const index = shortcutIndex.get(shortcutId);
+                if (index !== undefined) {
+                    rowVirtualizer.scrollToIndex(index, { align: 'auto' });
+                }
+            },
+            [shortcutIndex, rowVirtualizer]
+        );
+
+        // Clears active shortcut after two animation frames to allow visual feedback
+        const scheduleShortcutRelease = useCallback(() => {
+            const release = () => setActiveShortcut(null);
+
+            if (typeof requestAnimationFrame !== 'undefined') {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(release);
+                });
+                return;
+            }
+
+            setTimeout(release, 0);
+        }, [setActiveShortcut]);
+
+        // Handles folder shortcut activation - navigates to folder and provides visual feedback
+        const handleShortcutFolderActivate = useCallback(
+            (folder: TFolder, shortcutId: string) => {
+                setActiveShortcut(shortcutId);
+                handleFolderClick(folder, { fromShortcut: true });
+                scrollShortcutIntoView(shortcutId);
+                scheduleShortcutRelease();
+                const container = rootContainerRef.current;
+                if (container && !uiState.singlePane) {
+                    container.focus();
+                }
+            },
+            [setActiveShortcut, handleFolderClick, scrollShortcutIntoView, scheduleShortcutRelease, rootContainerRef, uiState.singlePane]
+        );
+
+        // Handles note shortcut activation - reveals file in list pane
+        const handleShortcutNoteActivate = useCallback(
+            (note: TFile, shortcutId: string) => {
+                setActiveShortcut(shortcutId);
+                selectionDispatch({ type: 'REVEAL_FILE', file: note, isManualReveal: true, source: 'shortcut' });
+                scrollShortcutIntoView(shortcutId);
+                scheduleShortcutRelease();
+                if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
+                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                }
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            },
+            [
+                setActiveShortcut,
+                selectionDispatch,
+                scrollShortcutIntoView,
+                scheduleShortcutRelease,
+                uiDispatch,
+                uiState.singlePane,
+                uiState.currentSinglePaneView
+            ]
+        );
+
+        // Handles search shortcut activation - executes saved search query
+        const handleShortcutSearchActivate = useCallback(
+            (shortcutId: string, savedSearch: SavedSearch | null) => {
+                setActiveShortcut(shortcutId);
+                scrollShortcutIntoView(shortcutId);
+                if (savedSearch && onExecuteSearchShortcut) {
+                    void onExecuteSearchShortcut(shortcutId, savedSearch);
+                }
+                scheduleShortcutRelease();
+            },
+            [setActiveShortcut, scrollShortcutIntoView, onExecuteSearchShortcut, scheduleShortcutRelease]
+        );
+
+        // Handles tag shortcut activation - navigates to tag and shows its files
+        const handleShortcutTagActivate = useCallback(
+            (tagPath: string, shortcutId: string, context?: 'favorites' | 'tags') => {
+                setActiveShortcut(shortcutId);
+                handleTagClick(tagPath, context, { fromShortcut: true });
+                scrollShortcutIntoView(shortcutId);
+                scheduleShortcutRelease();
+            },
+            [setActiveShortcut, handleTagClick, scrollShortcutIntoView, scheduleShortcutRelease]
+        );
+
+        useEffect(() => {
+            if (!activeShortcutId) {
+                return;
+            }
+
+            const shortcut = shortcutsById.get(activeShortcutId);
+            if (!shortcut) {
+                setActiveShortcut(null);
+                return;
+            }
+
+            if (shortcut.type === ShortcutType.FOLDER) {
+                const selectedPath = selectionState.selectedFolder?.path;
+                if (!selectedPath || selectedPath !== shortcut.path) {
+                    setActiveShortcut(null);
+                }
+                return;
+            }
+
+            if (shortcut.type === ShortcutType.NOTE) {
+                const selectedPath = selectionState.selectedFile?.path;
+                if (!selectedPath || selectedPath !== shortcut.path) {
+                    setActiveShortcut(null);
+                }
+                return;
+            }
+
+            if (shortcut.type === ShortcutType.TAG) {
+                const selectedTag = selectionState.selectedTag;
+                if (!selectedTag || selectedTag !== shortcut.tagPath) {
+                    setActiveShortcut(null);
+                }
+            }
+        }, [
+            activeShortcutId,
+            shortcutsById,
+            selectionState.selectedFolder,
+            selectionState.selectedFile,
+            selectionState.selectedTag,
+            setActiveShortcut
+        ]);
 
         // Render individual item
         const renderItem = useCallback(
             (item: CombinedNavigationItem): React.ReactNode => {
                 switch (item.type) {
-                    case NavigationPaneItemType.FOLDER:
+                    case NavigationPaneItemType.SHORTCUT_HEADER:
+                        return (
+                            <div
+                                className="nn-navitem nn-shortcut-header-item"
+                                style={{ '--level': item.level } as React.CSSProperties}
+                                data-level={item.level}
+                                role="treeitem"
+                                tabIndex={-1}
+                                aria-level={item.level + 1}
+                            >
+                                <div className="nn-navitem-content">
+                                    <span className="nn-navitem-icon">
+                                        <ObsidianIcon name="lucide-star" />
+                                    </span>
+                                    <span className="nn-navitem-name">{strings.navigationPane.shortcutsHeader}</span>
+                                    <span className="nn-navitem-spacer" />
+                                    <span className="nn-navitem-count">{item.count}</span>
+                                </div>
+                            </div>
+                        );
+
+                    case NavigationPaneItemType.SHORTCUT_FOLDER: {
+                        const folder = item.folder;
+                        if (!folder) {
+                            return null;
+                        }
+
+                        return (
+                            <ShortcutItem
+                                icon={item.icon ?? 'lucide-folder'}
+                                label={folder.name}
+                                level={item.level}
+                                type="folder"
+                                onClick={() => handleShortcutFolderActivate(folder, item.shortcut.id)}
+                            />
+                        );
+                    }
+
+                    case NavigationPaneItemType.SHORTCUT_NOTE: {
+                        const note = item.note;
+                        if (!note) {
+                            return null;
+                        }
+
+                        return (
+                            <ShortcutItem
+                                icon="lucide-file-text"
+                                label={note.basename}
+                                level={item.level}
+                                type="note"
+                                onClick={() => handleShortcutNoteActivate(note, item.shortcut.id)}
+                            />
+                        );
+                    }
+
+                    case NavigationPaneItemType.SHORTCUT_SEARCH: {
+                        const savedSearch = item.savedSearch;
+                        if (!savedSearch) {
+                            return null;
+                        }
+
+                        return (
+                            <ShortcutItem
+                                icon="lucide-search"
+                                label={savedSearch.name}
+                                level={item.level}
+                                type="search"
+                                onClick={() => handleShortcutSearchActivate(item.shortcut.id, savedSearch)}
+                            />
+                        );
+                    }
+
+                    case NavigationPaneItemType.SHORTCUT_TAG: {
+                        return (
+                            <ShortcutItem
+                                icon={item.icon ?? 'lucide-tag'}
+                                label={item.displayName}
+                                level={item.level}
+                                type="tag"
+                                onClick={() => handleShortcutTagActivate(item.tagPath, item.shortcut.id, item.context)}
+                            />
+                        );
+                    }
+
+                    case NavigationPaneItemType.FOLDER: {
+                        const folderPath = item.data.path;
+
                         return (
                             <FolderItem
                                 folder={item.data}
                                 level={item.level}
                                 isExpanded={expansionState.expandedFolders.has(item.data.path)}
                                 isSelected={
-                                    selectionState.selectionType === ItemType.FOLDER &&
-                                    selectionState.selectedFolder?.path === item.data.path
+                                    selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder?.path === folderPath
                                 }
                                 isExcluded={item.isExcluded}
                                 onToggle={() => handleFolderToggle(item.data.path)}
@@ -362,6 +605,7 @@ export const NavigationPane = React.memo(
                                 excludedFolders={item.parsedExcludedFolders || []}
                             />
                         );
+                    }
 
                     case NavigationPaneItemType.VIRTUAL_FOLDER: {
                         const virtualFolder = item.data;
@@ -461,7 +705,11 @@ export const NavigationPane = React.memo(
                 expansionDispatch,
                 settings,
                 tagCounts,
-                folderCounts
+                folderCounts,
+                handleShortcutFolderActivate,
+                handleShortcutNoteActivate,
+                handleShortcutSearchActivate,
+                handleShortcutTagActivate
             ]
         );
 

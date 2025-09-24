@@ -52,6 +52,18 @@ export const STRINGS_DE = {
         tags: 'Tags' // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
+    navigationPane: {
+        shortcutsHeader: 'Kurzbefehle'
+    },
+
+    shortcuts: {
+        folderExists: 'Folder already in shortcuts',
+        noteExists: 'Note already in shortcuts',
+        tagExists: 'Tag already in shortcuts',
+        searchExists: 'Search already in shortcuts',
+        emptySearchQuery: 'Enter a search query before saving it'
+    },
+
     // Pane header
     paneHeader: {
         collapseAllFolders: 'Elemente einklappen', // Tooltip for button that collapses expanded items (English: Collapse items)
@@ -77,7 +89,12 @@ export const STRINGS_DE = {
     searchInput: {
         placeholder: 'Suchen...', // Placeholder text for search input (English: Search...)
         placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
-        clearSearch: 'Suche löschen' // Tooltip for clear search button (English: Clear search)
+        clearSearch: 'Suche löschen', // Tooltip for clear search button (English: Clear search)
+        saveSearchShortcut: 'Suche zu Shortcuts hinzufügen',
+        removeSearchShortcut: 'Suche aus Shortcuts entfernen',
+        shortcutModalTitle: 'Suche als Shortcut speichern',
+        shortcutNameLabel: 'Shortcut-Name',
+        shortcutNamePlaceholder: 'Shortcut-Namen eingeben'
     },
 
     // Context menus
@@ -108,6 +125,8 @@ export const STRINGS_DE = {
             addTag: 'Tag hinzufügen',
             removeTag: 'Tag entfernen',
             removeAllTags: 'Alle Tags entfernen',
+            addToShortcuts: 'Zu Shortcuts hinzufügen',
+            removeFromShortcuts: 'Aus Shortcuts entfernen',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count} Dateien in neuen Tabs öffnen',
             openMultipleFilesToRight: '{count} Dateien rechts öffnen',
@@ -139,7 +158,9 @@ export const STRINGS_DE = {
             removeColor: 'Farbe entfernen',
             excludeFolder: 'Ordner verstecken',
             renameFolder: 'Ordner umbenennen',
-            deleteFolder: 'Ordner löschen'
+            deleteFolder: 'Ordner löschen',
+            addToShortcuts: 'Zu Shortcuts hinzufügen',
+            removeFromShortcuts: 'Aus Shortcuts entfernen'
         },
         tag: {
             changeIcon: 'Symbol ändern',
@@ -149,6 +170,8 @@ export const STRINGS_DE = {
             removeColor: 'Farbe entfernen',
             addToFavorites: 'Zu Favoriten hinzufügen',
             removeFromFavorites: 'Aus Favoriten entfernen',
+            addToShortcuts: 'Zu Shortcuts hinzufügen',
+            removeFromShortcuts: 'Aus Shortcuts entfernen',
             hideTag: 'Tag ausblenden'
         }
     },

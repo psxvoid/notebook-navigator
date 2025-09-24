@@ -32,6 +32,10 @@ interface SearchInputProps {
     onFocusComplete?: () => void;
     /** Root container to scope DOM queries within this navigator instance */
     containerRef?: React.RefObject<HTMLDivElement | null>;
+    onSaveShortcut?: () => void;
+    onRemoveShortcut?: () => void;
+    isShortcutSaved?: boolean;
+    isShortcutDisabled?: boolean;
 }
 
 export function SearchInput({
@@ -41,7 +45,11 @@ export function SearchInput({
     onFocusFiles,
     shouldFocus,
     onFocusComplete,
-    containerRef
+    containerRef,
+    onSaveShortcut,
+    onRemoveShortcut,
+    isShortcutSaved,
+    isShortcutDisabled
 }: SearchInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const { isMobile, omnisearchService } = useServices();
@@ -151,6 +159,10 @@ export function SearchInput({
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
     };
 
+    const hasQuery = searchQuery.trim().length > 0;
+    const showShortcutButton = hasQuery && Boolean(onSaveShortcut || (isShortcutSaved && onRemoveShortcut));
+    const shortcutButtonDisabled = isShortcutDisabled || (!isShortcutSaved && !onSaveShortcut) || (isShortcutSaved && !onRemoveShortcut);
+
     return (
         <div className="nn-search-input-wrapper">
             <div className="nn-search-input-container">
@@ -167,15 +179,54 @@ export function SearchInput({
                     onKeyDown={handleKeyDown}
                     onClick={handleSearchClick}
                 />
-                {searchQuery && (
+                {showShortcutButton && (
                     <div
-                        className="nn-search-clear-button"
+                        className={`nn-search-star-button ${isShortcutSaved ? 'nn-search-star-button--active' : ''}`}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={isShortcutSaved ? strings.searchInput.removeSearchShortcut : strings.searchInput.saveSearchShortcut}
+                        aria-pressed={isShortcutSaved || false}
                         onClick={() => {
-                            onSearchQueryChange('');
-                            // Keep focus in the search field after clearing
+                            if (shortcutButtonDisabled) {
+                                return;
+                            }
+                            const action = isShortcutSaved ? onRemoveShortcut : onSaveShortcut;
+                            if (action) {
+                                void action();
+                            }
                             inputRef.current?.focus();
                         }}
+                        onKeyDown={event => {
+                            if ((event.key === 'Enter' || event.key === ' ') && !shortcutButtonDisabled) {
+                                event.preventDefault();
+                                const action = isShortcutSaved ? onRemoveShortcut : onSaveShortcut;
+                                if (action) {
+                                    void action();
+                                }
+                                inputRef.current?.focus();
+                            }
+                        }}
+                    >
+                        <ObsidianIcon name="lucide-star" />
+                    </div>
+                )}
+                {hasQuery && (
+                    <div
+                        className="nn-search-clear-button"
+                        role="button"
+                        tabIndex={0}
                         aria-label={strings.searchInput.clearSearch}
+                        onClick={() => {
+                            onSearchQueryChange('');
+                            inputRef.current?.focus();
+                        }}
+                        onKeyDown={event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                onSearchQueryChange('');
+                                inputRef.current?.focus();
+                            }
+                        }}
                     >
                         <ObsidianIcon name="lucide-circle-x" />
                     </div>

@@ -83,6 +83,27 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         addMultipleFilesOpenOptions(menu, selectedCount, selectionState, app, isMobile, cachedSelectedFiles, commandQueue);
     }
 
+    if (!shouldShowMultiOptions && services.shortcuts && isMarkdown) {
+        const { noteShortcutIdsByPath, addNoteShortcut, removeShortcut } = services.shortcuts;
+        const existingShortcutId = noteShortcutIdsByPath.get(file.path);
+
+        menu.addItem((item: MenuItem) => {
+            if (existingShortcutId) {
+                item.setTitle(strings.contextMenu.file.removeFromShortcuts)
+                    .setIcon('lucide-star-off')
+                    .onClick(() => {
+                        void removeShortcut(existingShortcutId);
+                    });
+            } else {
+                item.setTitle(strings.contextMenu.file.addToShortcuts)
+                    .setIcon('lucide-star')
+                    .onClick(() => {
+                        void addNoteShortcut(file.path);
+                    });
+            }
+        });
+    }
+
     menu.addSeparator();
 
     // Pin/Unpin note(s)
