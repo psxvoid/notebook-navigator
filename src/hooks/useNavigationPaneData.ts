@@ -303,7 +303,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
         // Process each shortcut based on its type
         hydratedShortcuts.forEach(entry => {
-            const { shortcut, folder, note, savedSearch, tagPath } = entry;
+            const { key, shortcut, folder, note, search, tagPath } = entry;
 
             if (isFolderShortcut(shortcut)) {
                 if (!folder) {
@@ -317,7 +317,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_FOLDER,
-                    key: `shortcut-folder-${shortcut.id}`,
+                    key,
                     level: itemLevel,
                     shortcut,
                     folder,
@@ -332,7 +332,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                 }
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_NOTE,
-                    key: `shortcut-note-${shortcut.id}`,
+                    key,
                     level: itemLevel,
                     shortcut,
                     note
@@ -341,15 +341,12 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             }
 
             if (isSearchShortcut(shortcut)) {
-                if (!savedSearch) {
-                    return;
-                }
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_SEARCH,
-                    key: `shortcut-search-${shortcut.id}`,
+                    key,
                     level: itemLevel,
                     shortcut,
-                    savedSearch
+                    searchShortcut: search ?? shortcut
                 });
                 return;
             }
@@ -366,7 +363,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_TAG,
-                    key: `shortcut-tag-${shortcut.id}`,
+                    key,
                     level: itemLevel,
                     shortcut,
                     tagPath,
@@ -544,7 +541,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                 item.type === NavigationPaneItemType.SHORTCUT_SEARCH ||
                 item.type === NavigationPaneItemType.SHORTCUT_TAG
             ) {
-                indexMap.set(item.shortcut.id, index);
+                indexMap.set(item.key, index);
             }
         });
 

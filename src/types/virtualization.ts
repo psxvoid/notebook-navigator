@@ -20,7 +20,7 @@ import { TFile, TFolder } from 'obsidian';
 import { ListPaneItemType, NavigationPaneItemType, VirtualFolder } from '../types';
 import type { SearchResultMeta } from './search';
 import { TagTreeNode } from '../types/storage';
-import type { SavedSearch, ShortcutEntry } from '../types/shortcuts';
+import type { SearchShortcut, ShortcutEntry } from '../types/shortcuts';
 
 export interface VirtualItem<T> {
     type: string;
@@ -112,7 +112,7 @@ export interface ShortcutNoteNavItem extends ShortcutNavigationBase {
 
 export interface ShortcutSearchNavItem extends ShortcutNavigationBase {
     type: typeof NavigationPaneItemType.SHORTCUT_SEARCH;
-    savedSearch: SavedSearch | null;
+    searchShortcut: SearchShortcut;
 }
 
 export interface ShortcutTagNavItem extends ShortcutNavigationBase {

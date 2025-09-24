@@ -30,62 +30,29 @@ export const ShortcutType = {
 
 export type ShortcutType = (typeof ShortcutType)[keyof typeof ShortcutType];
 
-/**
- * Common properties shared by all shortcut types
- */
-interface ShortcutBase {
-    id: string;
-    type: ShortcutType;
-    order: number;
-    createdAt: number;
-    updatedAt: number;
-}
-
-/**
- * Shortcut pointing to a folder in the vault
- */
-export interface FolderShortcut extends ShortcutBase {
+export interface FolderShortcut {
     type: typeof ShortcutType.FOLDER;
     path: string;
 }
 
-/**
- * Shortcut pointing to a specific note file
- */
-export interface NoteShortcut extends ShortcutBase {
+export interface NoteShortcut {
     type: typeof ShortcutType.NOTE;
     path: string;
 }
 
-/**
- * Shortcut referencing a saved search query
- */
-export interface SearchShortcut extends ShortcutBase {
+export interface SearchShortcut {
     type: typeof ShortcutType.SEARCH;
-    savedSearchId: string;
+    name: string;
+    query: string;
+    provider: SearchProvider;
 }
 
-/**
- * Shortcut pointing to a tag
- */
-export interface TagShortcut extends ShortcutBase {
+export interface TagShortcut {
     type: typeof ShortcutType.TAG;
     tagPath: string;
 }
 
 export type ShortcutEntry = FolderShortcut | NoteShortcut | SearchShortcut | TagShortcut;
-
-/**
- * Represents a saved search query with metadata
- */
-export interface SavedSearch {
-    id: string;
-    name: string;
-    query: string;
-    provider: SearchProvider;
-    createdAt: number;
-    updatedAt: number;
-}
 
 /**
  * Type guard to check if a shortcut is a folder shortcut
@@ -113,4 +80,30 @@ export function isSearchShortcut(shortcut: ShortcutEntry): shortcut is SearchSho
  */
 export function isTagShortcut(shortcut: ShortcutEntry): shortcut is TagShortcut {
     return shortcut.type === ShortcutType.TAG;
+}
+
+/**
+ * Returns a deterministic key for the provided shortcut.
+ * Keys are used to identify shortcuts without storing separate IDs.
+ */
+export function getShortcutKey(shortcut: ShortcutEntry): string {
+    if (isFolderShortcut(shortcut)) {
+        return `${ShortcutType.FOLDER}:${shortcut.path}`;
+    }
+
+    if (isNoteShortcut(shortcut)) {
+        return `${ShortcutType.NOTE}:${shortcut.path}`;
+    }
+
+    if (isTagShortcut(shortcut)) {
+        return `${ShortcutType.TAG}:${shortcut.tagPath}`;
+    }
+
+    if (isSearchShortcut(shortcut)) {
+        return `${ShortcutType.SEARCH}:${shortcut.name.toLowerCase()}`;
+    }
+
+    // Exhaustive check - ensures compiler warns if new shortcut type is added
+    const exhaustiveCheck: never = shortcut;
+    throw new Error(`Unsupported shortcut type: ${exhaustiveCheck}`);
 }

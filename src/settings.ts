@@ -30,7 +30,7 @@ import { FolderNoteType, isFolderNoteType } from './types/folderNote';
 import { EXTERNAL_ICON_PROVIDERS, ExternalIconProviderId } from './services/icons/external/providerRegistry';
 import type { MetadataCleanupSummary } from './services/MetadataService';
 import { HomepageModal } from './modals/HomepageModal';
-import type { ShortcutEntry, SavedSearch } from './types/shortcuts';
+import type { ShortcutEntry } from './types/shortcuts';
 import type { SearchProvider } from './types/search';
 
 // Current settings schema version
@@ -140,8 +140,6 @@ export interface NotebookNavigatorSettings {
     showHiddenItems: boolean;
     // Shortcuts
     shortcuts: ShortcutEntry[];
-    savedSearches: Record<string, SavedSearch>;
-    shortcutsVersion: number;
     // Whether list/tag views include notes from descendants (subfolders/subtags)
     includeDescendantNotes: boolean;
     customVaultName: string;
@@ -242,8 +240,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showHiddenItems: false,
     // Shortcuts
     shortcuts: [],
-    savedSearches: {},
-    shortcutsVersion: 1,
     includeDescendantNotes: true,
     customVaultName: '',
     pinnedNotes: {},

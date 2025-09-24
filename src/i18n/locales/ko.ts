@@ -60,8 +60,11 @@ export const STRINGS_KO = {
         folderExists: 'Folder already in shortcuts',
         noteExists: 'Note already in shortcuts',
         tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search already in shortcuts',
-        emptySearchQuery: 'Enter a search query before saving it'
+        searchExists: 'Search shortcut already exists',
+        emptySearchQuery: 'Enter a search query before saving it',
+        emptySearchName: 'Enter a name before saving the search',
+        add: '바로가기에 추가',
+        remove: '바로가기에 제거'
     },
 
     // Pane header
@@ -136,9 +139,7 @@ export const STRINGS_KO = {
             moveMultipleToFolder: '{count}개의 파일을 이동...',
             addTag: '태그 추가',
             removeTag: '태그 제거',
-            removeAllTags: '모든 태그 제거',
-            addToShortcuts: '바로가기에 추가',
-            removeFromShortcuts: '바로가기에서 제거'
+            removeAllTags: '모든 태그 제거'
         },
         folder: {
             newNote: '새 노트',
@@ -157,9 +158,7 @@ export const STRINGS_KO = {
             removeColor: '색상 제거',
             excludeFolder: '폴더 숨기기',
             renameFolder: '폴더 이름 변경',
-            deleteFolder: '폴더 삭제',
-            addToShortcuts: '바로가기에 추가',
-            removeFromShortcuts: '바로가기에서 제거'
+            deleteFolder: '폴더 삭제'
         },
         tag: {
             changeIcon: '아이콘 변경',
@@ -169,8 +168,6 @@ export const STRINGS_KO = {
             removeColor: '색상 제거',
             addToFavorites: '즐겨찾기에 추가',
             removeFromFavorites: '즐겨찾기에서 제거',
-            addToShortcuts: '바로가기에 추가',
-            removeFromShortcuts: '바로가기에서 제거',
             hideTag: '태그 숨기기'
         }
     },

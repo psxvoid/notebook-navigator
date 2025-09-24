@@ -89,18 +89,18 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
         }
 
         if (services.shortcuts) {
-            const { tagShortcutIdsByPath, addTagShortcut, removeShortcut } = services.shortcuts;
-            const existingShortcutId = tagShortcutIdsByPath.get(tagPath);
+            const { tagShortcutKeysByPath, addTagShortcut, removeShortcut } = services.shortcuts;
+            const existingShortcutKey = tagShortcutKeysByPath.get(tagPath);
 
             menu.addItem((item: MenuItem) => {
-                if (existingShortcutId) {
-                    item.setTitle(strings.contextMenu.tag.removeFromShortcuts)
+                if (existingShortcutKey) {
+                    item.setTitle(strings.shortcuts.remove)
                         .setIcon('lucide-star-off')
                         .onClick(() => {
-                            void removeShortcut(existingShortcutId);
+                            void removeShortcut(existingShortcutKey);
                         });
                 } else {
-                    item.setTitle(strings.contextMenu.tag.addToShortcuts)
+                    item.setTitle(strings.shortcuts.add)
                         .setIcon('lucide-star')
                         .onClick(() => {
                             void addTagShortcut(tagPath);
@@ -111,18 +111,18 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
 
         menu.addSeparator();
     } else if (services.shortcuts) {
-        const { tagShortcutIdsByPath, addTagShortcut, removeShortcut } = services.shortcuts;
-        const existingShortcutId = tagShortcutIdsByPath.get(tagPath);
+        const { tagShortcutKeysByPath, addTagShortcut, removeShortcut } = services.shortcuts;
+        const existingShortcutKey = tagShortcutKeysByPath.get(tagPath);
 
         menu.addItem((item: MenuItem) => {
-            if (existingShortcutId) {
-                item.setTitle(strings.contextMenu.tag.removeFromShortcuts)
+            if (existingShortcutKey) {
+                item.setTitle(strings.shortcuts.remove)
                     .setIcon('lucide-star-off')
                     .onClick(() => {
-                        void removeShortcut(existingShortcutId);
+                        void removeShortcut(existingShortcutKey);
                     });
             } else {
-                item.setTitle(strings.contextMenu.tag.addToShortcuts)
+                item.setTitle(strings.shortcuts.add)
                     .setIcon('lucide-star')
                     .onClick(() => {
                         void addTagShortcut(tagPath);

@@ -60,8 +60,11 @@ export const STRINGS_ZH = {
         folderExists: 'Folder already in shortcuts',
         noteExists: 'Note already in shortcuts',
         tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search already in shortcuts',
-        emptySearchQuery: 'Enter a search query before saving it'
+        searchExists: 'Search shortcut already exists',
+        emptySearchQuery: 'Enter a search query before saving it',
+        emptySearchName: 'Enter a name before saving the search',
+        add: '添加到快捷方式',
+        remove: '从快捷方式移除'
     },
 
     // Pane header
@@ -125,8 +128,6 @@ export const STRINGS_ZH = {
             addTag: '添加标签',
             removeTag: '移除标签',
             removeAllTags: '移除所有标签',
-            addToShortcuts: '添加到快捷方式',
-            removeFromShortcuts: '从快捷方式移除',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '在新标签页中打开 {count} 个文件',
             openMultipleFilesToRight: '在右侧打开 {count} 个文件',
@@ -158,9 +159,7 @@ export const STRINGS_ZH = {
             removeColor: '移除颜色',
             excludeFolder: '隐藏文件夹',
             renameFolder: '重命名文件夹',
-            deleteFolder: '删除文件夹',
-            addToShortcuts: '添加到快捷方式',
-            removeFromShortcuts: '从快捷方式移除'
+            deleteFolder: '删除文件夹'
         },
         tag: {
             changeIcon: '更改图标',
@@ -170,8 +169,6 @@ export const STRINGS_ZH = {
             removeColor: '移除颜色',
             addToFavorites: '添加到收藏',
             removeFromFavorites: '从收藏中移除',
-            addToShortcuts: '添加到快捷方式',
-            removeFromShortcuts: '从快捷方式移除',
             hideTag: '隐藏标签'
         }
     },

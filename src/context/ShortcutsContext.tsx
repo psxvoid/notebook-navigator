@@ -16,23 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
 import { Notice, TAbstractFile, TFile, TFolder } from 'obsidian';
 import { useSettingsState, useSettingsUpdate } from './SettingsContext';
 import { useServices } from './ServicesContext';
-import { ShortcutEntry, ShortcutType, SavedSearch, isFolderShortcut, isNoteShortcut, isTagShortcut } from '../types/shortcuts';
+import {
+    ShortcutEntry,
+    ShortcutType,
+    SearchShortcut,
+    getShortcutKey,
+    isFolderShortcut,
+    isNoteShortcut,
+    isSearchShortcut,
+    isTagShortcut
+} from '../types/shortcuts';
 import type { SearchProvider } from '../types/search';
 import { strings } from '../i18n';
 
-/**
- * Represents a shortcut with its resolved target.
- * Hydration resolves shortcut references to actual Obsidian objects.
- */
 interface HydratedShortcut {
+    key: string;
     shortcut: ShortcutEntry;
     folder: TFolder | null;
     note: TFile | null;
-    savedSearch: SavedSearch | null;
+    search: SearchShortcut | null;
     tagPath: string | null;
     isMissing: boolean;
 }
@@ -40,39 +46,25 @@ interface HydratedShortcut {
 export interface ShortcutsContextValue {
     shortcuts: ShortcutEntry[];
     hydratedShortcuts: HydratedShortcut[];
-    shortcutsById: Map<string, ShortcutEntry>;
-    folderShortcutIdsByPath: Map<string, string>;
-    noteShortcutIdsByPath: Map<string, string>;
-    tagShortcutIdsByPath: Map<string, string>;
-    savedSearchesById: Map<string, SavedSearch>;
-    addFolderShortcut: (path: string) => Promise<string | null>;
-    addNoteShortcut: (path: string) => Promise<string | null>;
-    addTagShortcut: (tagPath: string) => Promise<string | null>;
-    addSearchShortcut: (input: { name: string; query: string; provider: SearchProvider }) => Promise<{
-        shortcutId: string;
-        savedSearchId: string;
-    } | null>;
-    removeShortcut: (shortcutId: string) => Promise<boolean>;
-    removeSearchShortcut: (savedSearchId: string) => Promise<boolean>;
-    renameSavedSearch: (savedSearchId: string, name: string) => Promise<boolean>;
-    reorderShortcuts: (orderedIds: string[]) => Promise<boolean>;
+    shortcutMap: Map<string, ShortcutEntry>;
+    folderShortcutKeysByPath: Map<string, string>;
+    noteShortcutKeysByPath: Map<string, string>;
+    tagShortcutKeysByPath: Map<string, string>;
+    searchShortcutsByName: Map<string, SearchShortcut>;
+    addFolderShortcut: (path: string) => Promise<boolean>;
+    addNoteShortcut: (path: string) => Promise<boolean>;
+    addTagShortcut: (tagPath: string) => Promise<boolean>;
+    addSearchShortcut: (input: { name: string; query: string; provider: SearchProvider }) => Promise<boolean>;
+    removeShortcut: (key: string) => Promise<boolean>;
+    removeSearchShortcut: (name: string) => Promise<boolean>;
+    reorderShortcuts: (orderedKeys: string[]) => Promise<boolean>;
     hasFolderShortcut: (path: string) => boolean;
     hasNoteShortcut: (path: string) => boolean;
     hasTagShortcut: (tagPath: string) => boolean;
-    findSearchShortcutId: (savedSearchId: string) => string | null;
+    findSearchShortcut: (name: string) => SearchShortcut | undefined;
 }
 
 const ShortcutsContext = createContext<ShortcutsContextValue | null>(null);
-
-const SHORTCUTS_SCHEMA_VERSION = 1;
-
-function createId(): string {
-    if (typeof globalThis !== 'undefined' && typeof globalThis.crypto !== 'undefined' && globalThis.crypto.randomUUID) {
-        return globalThis.crypto.randomUUID();
-    }
-    // Fallback for environments without crypto.randomUUID
-    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-}
 
 function isFolder(file: TAbstractFile | null): file is TFolder {
     return file instanceof TFolder;
@@ -91,92 +83,79 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     const updateSettings = useSettingsUpdate();
     const { app } = useServices();
 
-    const hasMigratedRef = useRef(false);
-
-    // Extract saved searches and shortcuts from settings with fallback to empty collections
-    const savedSearchEntries = useMemo(() => settings.savedSearches ?? {}, [settings.savedSearches]);
     const rawShortcuts = useMemo(() => settings.shortcuts ?? [], [settings.shortcuts]);
 
-    // Convert saved searches object to Map for efficient lookup
-    const savedSearchesById = useMemo(() => {
-        return new Map<string, SavedSearch>(Object.entries(savedSearchEntries));
-    }, [savedSearchEntries]);
-
-    // Create lookup map for shortcuts by ID
-    const shortcutsById = useMemo(() => {
+    const shortcutMap = useMemo(() => {
         const map = new Map<string, ShortcutEntry>();
         rawShortcuts.forEach(shortcut => {
-            map.set(shortcut.id, shortcut);
+            map.set(getShortcutKey(shortcut), shortcut);
         });
         return map;
     }, [rawShortcuts]);
 
-    // Create lookup map for folder shortcuts by path to detect duplicates
-    const folderShortcutIdsByPath = useMemo(() => {
+    const folderShortcutKeysByPath = useMemo(() => {
         const map = new Map<string, string>();
         rawShortcuts.forEach(shortcut => {
             if (isFolderShortcut(shortcut)) {
-                map.set(shortcut.path, shortcut.id);
+                map.set(shortcut.path, getShortcutKey(shortcut));
             }
         });
         return map;
     }, [rawShortcuts]);
 
-    // Create lookup map for note shortcuts by path to detect duplicates
-    const noteShortcutIdsByPath = useMemo(() => {
+    const noteShortcutKeysByPath = useMemo(() => {
         const map = new Map<string, string>();
         rawShortcuts.forEach(shortcut => {
             if (isNoteShortcut(shortcut)) {
-                map.set(shortcut.path, shortcut.id);
+                map.set(shortcut.path, getShortcutKey(shortcut));
             }
         });
         return map;
     }, [rawShortcuts]);
 
-    // Create lookup map for tag shortcuts by path to detect duplicates
-    const tagShortcutIdsByPath = useMemo(() => {
+    const tagShortcutKeysByPath = useMemo(() => {
         const map = new Map<string, string>();
         rawShortcuts.forEach(shortcut => {
             if (isTagShortcut(shortcut)) {
-                map.set(shortcut.tagPath, shortcut.id);
+                map.set(shortcut.tagPath, getShortcutKey(shortcut));
             }
         });
         return map;
     }, [rawShortcuts]);
 
-    // Sort shortcuts by order, then creation time, then ID for consistent display
-    const shortcuts = useMemo(() => {
-        return [...rawShortcuts].sort((a, b) => {
-            if (a.order !== b.order) {
-                return a.order - b.order;
+    const searchShortcutsByName = useMemo(() => {
+        const map = new Map<string, SearchShortcut>();
+        rawShortcuts.forEach(shortcut => {
+            if (isSearchShortcut(shortcut)) {
+                map.set(shortcut.name.toLowerCase(), shortcut);
             }
-            if (a.createdAt !== b.createdAt) {
-                return a.createdAt - b.createdAt;
-            }
-            return a.id.localeCompare(b.id);
         });
+        return map;
     }, [rawShortcuts]);
 
-    // Resolve shortcut targets to actual vault objects and detect missing items
-    const hydratedShortcuts = useMemo(() => {
-        return shortcuts.map<HydratedShortcut>(shortcut => {
+    const hydratedShortcuts = useMemo<HydratedShortcut[]>(() => {
+        return rawShortcuts.map(shortcut => {
+            const key = getShortcutKey(shortcut);
+
             if (isFolderShortcut(shortcut)) {
                 const target = app.vault.getAbstractFileByPath(shortcut.path);
                 if (isFolder(target)) {
                     return {
+                        key,
                         shortcut,
                         folder: target,
                         note: null,
-                        savedSearch: null,
+                        search: null,
                         tagPath: null,
                         isMissing: false
                     };
                 }
                 return {
+                    key,
                     shortcut,
                     folder: null,
                     note: null,
-                    savedSearch: null,
+                    search: null,
                     tagPath: null,
                     isMissing: true
                 };
@@ -186,19 +165,21 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
                 const target = app.vault.getAbstractFileByPath(shortcut.path);
                 if (isFile(target)) {
                     return {
+                        key,
                         shortcut,
                         folder: null,
                         note: target,
-                        savedSearch: null,
+                        search: null,
                         tagPath: null,
                         isMissing: false
                     };
                 }
                 return {
+                    key,
                     shortcut,
                     folder: null,
                     note: null,
-                    savedSearch: null,
+                    search: null,
                     tagPath: null,
                     isMissing: true
                 };
@@ -206,213 +187,83 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
 
             if (isTagShortcut(shortcut)) {
                 return {
+                    key,
                     shortcut,
                     folder: null,
                     note: null,
-                    savedSearch: null,
+                    search: null,
                     tagPath: shortcut.tagPath,
                     isMissing: false
                 };
             }
 
-            const savedSearch = savedSearchesById.get(shortcut.savedSearchId) ?? null;
+            // Search shortcut
             return {
+                key,
                 shortcut,
                 folder: null,
                 note: null,
-                savedSearch,
+                search: shortcut,
                 tagPath: null,
-                isMissing: savedSearch === null
+                isMissing: false
             };
         });
-    }, [app.vault, shortcuts, savedSearchesById]);
-
-    // Ensure shortcuts have required fields for backwards compatibility
-    const migrateShortcuts = useCallback(async () => {
-        if (hasMigratedRef.current) {
-            return;
-        }
-
-        hasMigratedRef.current = true;
-        await updateSettings(current => {
-            const now = Date.now();
-            let changed = false;
-
-            current.shortcuts = current.shortcuts ?? [];
-            current.savedSearches = current.savedSearches ?? {};
-
-            current.shortcuts.forEach((shortcut, index) => {
-                const base = shortcut as Partial<ShortcutEntry> & { savedSearchId?: string };
-                if (!base.id) {
-                    base.id = createId();
-                    changed = true;
-                }
-                if (typeof base.order !== 'number') {
-                    base.order = index;
-                    changed = true;
-                }
-                if (typeof base.createdAt !== 'number') {
-                    base.createdAt = now;
-                    changed = true;
-                }
-                if (typeof base.updatedAt !== 'number') {
-                    base.updatedAt = base.createdAt ?? now;
-                    changed = true;
-                }
-                if (base.type === ShortcutType.SEARCH) {
-                    if (!base.savedSearchId && base.id) {
-                        base.savedSearchId = base.id;
-                        changed = true;
-                    }
-                }
-            });
-
-            Object.values(current.savedSearches).forEach(saved => {
-                const record = saved as Partial<SavedSearch>;
-                if (!record.id) {
-                    record.id = createId();
-                    changed = true;
-                }
-                if (typeof record.createdAt !== 'number') {
-                    record.createdAt = now;
-                    changed = true;
-                }
-                if (typeof record.updatedAt !== 'number') {
-                    record.updatedAt = record.createdAt ?? now;
-                    changed = true;
-                }
-            });
-
-            if (current.shortcutsVersion !== SHORTCUTS_SCHEMA_VERSION) {
-                current.shortcutsVersion = SHORTCUTS_SCHEMA_VERSION;
-                changed = true;
-            }
-
-            if (!changed) {
-                return;
-            }
-        });
-    }, [updateSettings]);
+    }, [app.vault, rawShortcuts]);
 
     useEffect(() => {
-        if (settings.shortcutsVersion !== SHORTCUTS_SCHEMA_VERSION) {
-            void migrateShortcuts();
-        } else if (!hasMigratedRef.current) {
-            hasMigratedRef.current = true;
-        }
-    }, [settings.shortcutsVersion, migrateShortcuts]);
-
-    // Clean up shortcuts pointing to deleted files/folders
-    const removeMissingShortcuts = useCallback(async () => {
-        const missingIds = hydratedShortcuts.filter(entry => entry.isMissing).map(entry => entry.shortcut.id);
-
-        if (missingIds.length === 0) {
+        const missingKeys = hydratedShortcuts.filter(entry => entry.isMissing).map(entry => entry.key);
+        if (missingKeys.length === 0) {
             return;
         }
 
-        const missingSet = new Set(missingIds);
-        await updateSettings(current => {
-            const before = current.shortcuts.length;
-            current.shortcuts = current.shortcuts.filter(shortcut => !missingSet.has(shortcut.id));
-            if (current.shortcuts.length !== before) {
-                current.shortcutsVersion = SHORTCUTS_SCHEMA_VERSION;
-            }
+        void updateSettings(current => {
+            const existing = current.shortcuts ?? [];
+            current.shortcuts = existing.filter(shortcut => !missingKeys.includes(getShortcutKey(shortcut)));
         });
     }, [hydratedShortcuts, updateSettings]);
 
-    useEffect(() => {
-        if (!hasMigratedRef.current) {
-            return;
-        }
-
-        const hasMissing = hydratedShortcuts.some(entry => entry.isMissing);
-        if (hasMissing) {
-            void removeMissingShortcuts();
-        }
-    }, [hydratedShortcuts, removeMissingShortcuts]);
-
-    type ShortcutCreateInput =
-        | {
-              type: typeof ShortcutType.FOLDER;
-              path: string;
-          }
-        | {
-              type: typeof ShortcutType.NOTE;
-              path: string;
-          }
-        | {
-              type: typeof ShortcutType.TAG;
-              tagPath: string;
-          };
-
-    // Generic function to create any type of shortcut
-    const addShortcut = useCallback(
-        async (shortcut: ShortcutCreateInput) => {
-            const shortcutId = createId();
-            const now = Date.now();
+    const appendShortcut = useCallback(
+        async (shortcut: ShortcutEntry) => {
             await updateSettings(current => {
-                const existingShortcuts = current.shortcuts ?? [];
-                const order = existingShortcuts.length;
-                current.shortcuts = [
-                    ...existingShortcuts,
-                    {
-                        ...shortcut,
-                        id: shortcutId,
-                        order,
-                        createdAt: now,
-                        updatedAt: now
-                    } as ShortcutEntry
-                ];
-                current.shortcutsVersion = SHORTCUTS_SCHEMA_VERSION;
+                const existing = current.shortcuts ?? [];
+                current.shortcuts = [...existing, shortcut];
             });
-            return shortcutId;
+            return true;
         },
         [updateSettings]
     );
 
     const addFolderShortcut = useCallback(
         async (path: string) => {
-            if (folderShortcutIdsByPath.has(path)) {
+            if (folderShortcutKeysByPath.has(path)) {
                 new Notice(strings.shortcuts.folderExists);
-                return null;
+                return false;
             }
-            const shortcutId = await addShortcut({
-                type: ShortcutType.FOLDER,
-                path
-            });
-            return shortcutId;
+            return appendShortcut({ type: ShortcutType.FOLDER, path });
         },
-        [addShortcut, folderShortcutIdsByPath]
+        [appendShortcut, folderShortcutKeysByPath]
     );
 
     const addNoteShortcut = useCallback(
         async (path: string) => {
-            if (noteShortcutIdsByPath.has(path)) {
+            if (noteShortcutKeysByPath.has(path)) {
                 new Notice(strings.shortcuts.noteExists);
-                return null;
+                return false;
             }
-            const shortcutId = await addShortcut({
-                type: ShortcutType.NOTE,
-                path
-            });
-            return shortcutId;
+            return appendShortcut({ type: ShortcutType.NOTE, path });
         },
-        [addShortcut, noteShortcutIdsByPath]
+        [appendShortcut, noteShortcutKeysByPath]
     );
 
     const addTagShortcut = useCallback(
         async (tagPath: string) => {
-            if (tagShortcutIdsByPath.has(tagPath)) {
+            if (tagShortcutKeysByPath.has(tagPath)) {
                 new Notice(strings.shortcuts.tagExists);
-                return null;
+                return false;
             }
-            const shortcutId = await addShortcut({
-                type: ShortcutType.TAG,
-                tagPath
-            });
-            return shortcutId;
+            return appendShortcut({ type: ShortcutType.TAG, tagPath });
         },
-        [addShortcut, tagShortcutIdsByPath]
+        [appendShortcut, tagShortcutKeysByPath]
     );
 
     const addSearchShortcut = useCallback(
@@ -420,311 +271,133 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
             const normalizedQuery = query.trim();
             if (!normalizedQuery) {
                 new Notice(strings.shortcuts.emptySearchQuery);
-                return null;
+                return false;
             }
 
-            const existing = Array.from(savedSearchesById.values()).find(
-                saved => saved.query === normalizedQuery && saved.provider === provider
-            );
-            if (existing) {
+            const normalizedName = name.trim();
+            if (!normalizedName) {
+                new Notice(strings.shortcuts.emptySearchName);
+                return false;
+            }
+
+            const nameKey = normalizedName.toLowerCase();
+            if (searchShortcutsByName.has(nameKey)) {
                 new Notice(strings.shortcuts.searchExists);
-                return null;
+                return false;
             }
 
-            const savedSearchId = createId();
-            const shortcutId = createId();
-            const now = Date.now();
-            await updateSettings(current => {
-                const existingSavedSearches = current.savedSearches ?? {};
-                current.savedSearches = {
-                    ...existingSavedSearches,
-                    [savedSearchId]: {
-                        id: savedSearchId,
-                        name,
-                        query: normalizedQuery,
-                        provider,
-                        createdAt: now,
-                        updatedAt: now
-                    }
-                };
-
-                const existingShortcuts = current.shortcuts ?? [];
-                const order = existingShortcuts.length;
-                current.shortcuts = [
-                    ...existingShortcuts,
-                    {
-                        id: shortcutId,
-                        type: ShortcutType.SEARCH,
-                        savedSearchId,
-                        order,
-                        createdAt: now,
-                        updatedAt: now
-                    }
-                ];
-                current.shortcutsVersion = SHORTCUTS_SCHEMA_VERSION;
+            return appendShortcut({
+                type: ShortcutType.SEARCH,
+                name: normalizedName,
+                query: normalizedQuery,
+                provider
             });
-
-            return {
-                shortcutId,
-                savedSearchId
-            };
         },
-        [updateSettings, savedSearchesById]
+        [appendShortcut, searchShortcutsByName]
     );
 
     const removeShortcut = useCallback(
-        async (shortcutId: string) => {
-            if (!shortcutsById.has(shortcutId)) {
+        async (key: string) => {
+            if (!shortcutMap.has(key)) {
                 return false;
             }
+
             await updateSettings(current => {
-                const updatedShortcuts = (current.shortcuts ?? []).filter(shortcut => shortcut.id !== shortcutId);
-                updatedShortcuts.forEach((shortcut, index) => {
-                    shortcut.order = index;
-                    shortcut.updatedAt = Date.now();
-                });
-                current.shortcuts = updatedShortcuts;
-                current.shortcutsVersion = SHORTCUTS_SCHEMA_VERSION;
+                const existing = current.shortcuts ?? [];
+                current.shortcuts = existing.filter(entry => getShortcutKey(entry) !== key);
             });
 
             return true;
         },
-        [updateSettings, shortcutsById]
+        [shortcutMap, updateSettings]
     );
 
     const removeSearchShortcut = useCallback(
-        async (savedSearchId: string) => {
-            if (!savedSearchesById.has(savedSearchId)) {
+        async (name: string) => {
+            const shortcut = searchShortcutsByName.get(name.trim().toLowerCase());
+            if (!shortcut) {
                 return false;
             }
 
-            await updateSettings(current => {
-                if (current.savedSearches) {
-                    const nextSavedSearches = { ...current.savedSearches };
-                    delete nextSavedSearches[savedSearchId];
-                    current.savedSearches = nextSavedSearches;
-                }
-
-                const updatedShortcuts = (current.shortcuts ?? []).filter(shortcut => {
-                    if (shortcut.type === ShortcutType.SEARCH) {
-                        return shortcut.savedSearchId !== savedSearchId;
-                    }
-                    return true;
-                });
-
-                updatedShortcuts.forEach((shortcut, index) => {
-                    shortcut.order = index;
-                    shortcut.updatedAt = Date.now();
-                });
-
-                current.shortcuts = updatedShortcuts;
-                current.shortcutsVersion = SHORTCUTS_SCHEMA_VERSION;
-            });
-            return true;
+            return removeShortcut(getShortcutKey(shortcut));
         },
-        [updateSettings, savedSearchesById]
+        [removeShortcut, searchShortcutsByName]
     );
 
-    const renameSavedSearch = useCallback(
-        async (savedSearchId: string, name: string) => {
-            if (!savedSearchesById.has(savedSearchId)) {
-                return false;
-            }
-            await updateSettings(current => {
-                const existing = current.savedSearches?.[savedSearchId];
-                if (existing) {
-                    current.savedSearches = {
-                        ...current.savedSearches,
-                        [savedSearchId]: {
-                            ...existing,
-                            name,
-                            updatedAt: Date.now()
-                        }
-                    };
-                }
-            });
-            return true;
-        },
-        [updateSettings, savedSearchesById]
-    );
-
-    // Update shortcut display order after drag and drop
     const reorderShortcuts = useCallback(
-        async (orderedIds: string[]) => {
-            const uniqueIds = new Set(orderedIds);
-            if (uniqueIds.size !== orderedIds.length) {
+        async (orderedKeys: string[]) => {
+            if (orderedKeys.length !== rawShortcuts.length) {
                 return false;
             }
 
-            const hasAll = shortcuts.every(shortcut => uniqueIds.has(shortcut.id));
-            if (!hasAll || orderedIds.length !== shortcuts.length) {
-                return false;
+            const orderedEntries: ShortcutEntry[] = [];
+            for (const key of orderedKeys) {
+                const entry = shortcutMap.get(key);
+                if (!entry) {
+                    return false;
+                }
+                orderedEntries.push(entry);
             }
 
             await updateSettings(current => {
-                const byId = new Map(current.shortcuts.map(shortcut => [shortcut.id, shortcut] as const));
-                current.shortcuts = orderedIds.map(id => byId.get(id)).filter((entry): entry is ShortcutEntry => Boolean(entry));
-                current.shortcuts.forEach((shortcut, index) => {
-                    shortcut.order = index;
-                    shortcut.updatedAt = Date.now();
-                });
-                current.shortcutsVersion = SHORTCUTS_SCHEMA_VERSION;
+                current.shortcuts = orderedEntries;
             });
+
             return true;
         },
-        [updateSettings, shortcuts]
+        [rawShortcuts.length, shortcutMap, updateSettings]
     );
 
-    // Update shortcut paths when files/folders are renamed
-    const handleVaultRename = useCallback(
-        async (file: TAbstractFile, oldPath: string) => {
-            if (!isFile(file) && !isFolder(file)) {
-                return;
-            }
+    const hasFolderShortcut = useCallback((path: string) => folderShortcutKeysByPath.has(path), [folderShortcutKeysByPath]);
+    const hasNoteShortcut = useCallback((path: string) => noteShortcutKeysByPath.has(path), [noteShortcutKeysByPath]);
+    const hasTagShortcut = useCallback((tagPath: string) => tagShortcutKeysByPath.has(tagPath), [tagShortcutKeysByPath]);
 
-            const newPath = file.path;
-            const targetShortcuts = rawShortcuts.filter(shortcut => {
-                if (isFolderShortcut(shortcut)) {
-                    return shortcut.path === oldPath;
-                }
-                if (isNoteShortcut(shortcut)) {
-                    return shortcut.path === oldPath;
-                }
-                return false;
-            });
+    const findSearchShortcut = useCallback((name: string) => searchShortcutsByName.get(name.trim().toLowerCase()), [searchShortcutsByName]);
 
-            if (targetShortcuts.length === 0) {
-                return;
-            }
-
-            await updateSettings(current => {
-                const shortcuts = current.shortcuts ?? [];
-                let didChange = false;
-                const updatedShortcuts = shortcuts.map(shortcut => {
-                    if ((isFolderShortcut(shortcut) || isNoteShortcut(shortcut)) && shortcut.path === oldPath) {
-                        didChange = true;
-                        return {
-                            ...shortcut,
-                            path: newPath,
-                            updatedAt: Date.now()
-                        } as ShortcutEntry;
-                    }
-                    return shortcut;
-                });
-
-                if (didChange) {
-                    current.shortcuts = updatedShortcuts;
-                    current.shortcutsVersion = SHORTCUTS_SCHEMA_VERSION;
-                }
-            });
-        },
-        [rawShortcuts, updateSettings]
-    );
-
-    // Remove shortcuts when their targets are deleted
-    const handleVaultDelete = useCallback(
-        async (file: TAbstractFile) => {
-            const path = file.path;
-            const targetShortcuts = rawShortcuts.filter(shortcut => {
-                if (isFolderShortcut(shortcut) || isNoteShortcut(shortcut)) {
-                    return shortcut.path === path;
-                }
-                return false;
-            });
-
-            if (targetShortcuts.length === 0) {
-                return;
-            }
-
-            await updateSettings(current => {
-                const updatedShortcuts = (current.shortcuts ?? []).filter(shortcut => {
-                    if (isFolderShortcut(shortcut) || isNoteShortcut(shortcut)) {
-                        return shortcut.path !== path;
-                    }
-                    return true;
-                });
-
-                updatedShortcuts.forEach((shortcut, index) => {
-                    shortcut.order = index;
-                    shortcut.updatedAt = Date.now();
-                });
-
-                current.shortcuts = updatedShortcuts;
-                current.shortcutsVersion = SHORTCUTS_SCHEMA_VERSION;
-            });
-        },
-        [rawShortcuts, updateSettings]
-    );
-
-    useEffect(() => {
-        const renameRef = app.vault.on('rename', handleVaultRename);
-        const deleteRef = app.vault.on('delete', handleVaultDelete);
-        return () => {
-            app.vault.offref(renameRef);
-            app.vault.offref(deleteRef);
-        };
-    }, [app.vault, handleVaultRename, handleVaultDelete]);
-
-    const hasFolderShortcut = useCallback((path: string) => folderShortcutIdsByPath.has(path), [folderShortcutIdsByPath]);
-
-    const hasNoteShortcut = useCallback((path: string) => noteShortcutIdsByPath.has(path), [noteShortcutIdsByPath]);
-
-    const hasTagShortcut = useCallback((tagPath: string) => tagShortcutIdsByPath.has(tagPath), [tagShortcutIdsByPath]);
-
-    // Find shortcut ID for a given saved search
-    const findSearchShortcutId = useCallback(
-        (savedSearchId: string) => {
-            const entry = shortcuts.find(shortcut => shortcut.type === ShortcutType.SEARCH && shortcut.savedSearchId === savedSearchId);
-            return entry ? entry.id : null;
-        },
-        [shortcuts]
-    );
-
-    const contextValue = useMemo<ShortcutsContextValue>(() => {
-        return {
-            shortcuts,
+    const value: ShortcutsContextValue = useMemo(
+        () => ({
+            shortcuts: rawShortcuts,
             hydratedShortcuts,
-            shortcutsById,
-            folderShortcutIdsByPath,
-            noteShortcutIdsByPath,
-            tagShortcutIdsByPath,
-            savedSearchesById,
+            shortcutMap,
+            folderShortcutKeysByPath,
+            noteShortcutKeysByPath,
+            tagShortcutKeysByPath,
+            searchShortcutsByName,
             addFolderShortcut,
             addNoteShortcut,
             addTagShortcut,
             addSearchShortcut,
             removeShortcut,
             removeSearchShortcut,
-            renameSavedSearch,
             reorderShortcuts,
             hasFolderShortcut,
             hasNoteShortcut,
             hasTagShortcut,
-            findSearchShortcutId
-        };
-    }, [
-        shortcuts,
-        hydratedShortcuts,
-        shortcutsById,
-        folderShortcutIdsByPath,
-        noteShortcutIdsByPath,
-        tagShortcutIdsByPath,
-        savedSearchesById,
-        addFolderShortcut,
-        addNoteShortcut,
-        addTagShortcut,
-        addSearchShortcut,
-        removeShortcut,
-        removeSearchShortcut,
-        renameSavedSearch,
-        reorderShortcuts,
-        hasFolderShortcut,
-        hasNoteShortcut,
-        hasTagShortcut,
-        findSearchShortcutId
-    ]);
+            findSearchShortcut
+        }),
+        [
+            rawShortcuts,
+            hydratedShortcuts,
+            shortcutMap,
+            folderShortcutKeysByPath,
+            noteShortcutKeysByPath,
+            tagShortcutKeysByPath,
+            searchShortcutsByName,
+            addFolderShortcut,
+            addNoteShortcut,
+            addTagShortcut,
+            addSearchShortcut,
+            removeShortcut,
+            removeSearchShortcut,
+            reorderShortcuts,
+            hasFolderShortcut,
+            hasNoteShortcut,
+            hasTagShortcut,
+            findSearchShortcut
+        ]
+    );
 
-    return <ShortcutsContext.Provider value={contextValue}>{children}</ShortcutsContext.Provider>;
+    return <ShortcutsContext.Provider value={value}>{children}</ShortcutsContext.Provider>;
 }
 
 export function useShortcuts() {

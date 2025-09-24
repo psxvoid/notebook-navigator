@@ -97,19 +97,21 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         });
     }
 
+    menu.addSeparator();
+
     if (services.shortcuts) {
-        const { folderShortcutIdsByPath, addFolderShortcut, removeShortcut } = services.shortcuts;
-        const existingShortcutId = folderShortcutIdsByPath.get(folder.path);
+        const { folderShortcutKeysByPath, addFolderShortcut, removeShortcut } = services.shortcuts;
+        const existingShortcutKey = folderShortcutKeysByPath.get(folder.path);
 
         menu.addItem((item: MenuItem) => {
-            if (existingShortcutId) {
-                item.setTitle(strings.contextMenu.folder.removeFromShortcuts)
+            if (existingShortcutKey) {
+                item.setTitle(strings.shortcuts.remove)
                     .setIcon('lucide-star-off')
                     .onClick(() => {
-                        void removeShortcut(existingShortcutId);
+                        void removeShortcut(existingShortcutKey);
                     });
             } else {
-                item.setTitle(strings.contextMenu.folder.addToShortcuts)
+                item.setTitle(strings.shortcuts.add)
                     .setIcon('lucide-star')
                     .onClick(() => {
                         void addFolderShortcut(folder.path);
@@ -117,8 +119,6 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             }
         });
     }
-
-    menu.addSeparator();
 
     // Duplicate folder
     menu.addItem((item: MenuItem) => {

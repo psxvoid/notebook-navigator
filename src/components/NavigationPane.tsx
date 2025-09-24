@@ -55,7 +55,7 @@
  */
 
 import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo, useState } from 'react';
-import { TFolder, TFile, Platform } from 'obsidian';
+import { TFolder, TFile, Platform, Menu } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -82,7 +82,7 @@ import { VirtualFolderComponent } from './VirtualFolderItem';
 import { getNavigationIndex, normalizeNavigationPath } from '../utils/navigationIndex';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { ShortcutItem } from './ShortcutItem';
-import { ShortcutType, SavedSearch } from '../types/shortcuts';
+import { ShortcutType, SearchShortcut } from '../types/shortcuts';
 import { ObsidianIcon } from './ObsidianIcon';
 import { strings } from '../i18n';
 
@@ -103,7 +103,7 @@ interface NavigationPaneProps {
      * other Obsidian views.
      */
     rootContainerRef: React.RefObject<HTMLDivElement | null>;
-    onExecuteSearchShortcut?: (shortcutId: string, savedSearch: SavedSearch) => Promise<void> | void;
+    onExecuteSearchShortcut?: (shortcutKey: string, searchShortcut: SearchShortcut) => Promise<void> | void;
 }
 
 export const NavigationPane = React.memo(
@@ -118,8 +118,8 @@ export const NavigationPane = React.memo(
         const settings = useSettingsState();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
-        const { shortcutsById } = useShortcuts();
-        const [activeShortcutId, setActiveShortcut] = useState<string | null>(null);
+        const { shortcutMap, removeShortcut } = useShortcuts();
+        const [activeShortcutKey, setActiveShortcut] = useState<string | null>(null);
 
         // Android uses toolbar at top, iOS at bottom
         const isAndroid = Platform.isAndroidApp;
@@ -147,7 +147,7 @@ export const NavigationPane = React.memo(
             items,
             pathToIndex,
             isVisible,
-            activeShortcutId
+            activeShortcutKey
         });
 
         // Callback for after expand/collapse operations
@@ -351,8 +351,8 @@ export const NavigationPane = React.memo(
 
         // Scrolls a shortcut into view when activated
         const scrollShortcutIntoView = useCallback(
-            (shortcutId: string) => {
-                const index = shortcutIndex.get(shortcutId);
+            (shortcutKey: string) => {
+                const index = shortcutIndex.get(shortcutKey);
                 if (index !== undefined) {
                     rowVirtualizer.scrollToIndex(index, { align: 'auto' });
                 }
@@ -376,10 +376,10 @@ export const NavigationPane = React.memo(
 
         // Handles folder shortcut activation - navigates to folder and provides visual feedback
         const handleShortcutFolderActivate = useCallback(
-            (folder: TFolder, shortcutId: string) => {
-                setActiveShortcut(shortcutId);
+            (folder: TFolder, shortcutKey: string) => {
+                setActiveShortcut(shortcutKey);
                 handleFolderClick(folder, { fromShortcut: true });
-                scrollShortcutIntoView(shortcutId);
+                scrollShortcutIntoView(shortcutKey);
                 scheduleShortcutRelease();
                 const container = rootContainerRef.current;
                 if (container && !uiState.singlePane) {
@@ -391,10 +391,10 @@ export const NavigationPane = React.memo(
 
         // Handles note shortcut activation - reveals file in list pane
         const handleShortcutNoteActivate = useCallback(
-            (note: TFile, shortcutId: string) => {
-                setActiveShortcut(shortcutId);
+            (note: TFile, shortcutKey: string) => {
+                setActiveShortcut(shortcutKey);
                 selectionDispatch({ type: 'REVEAL_FILE', file: note, isManualReveal: true, source: 'shortcut' });
-                scrollShortcutIntoView(shortcutId);
+                scrollShortcutIntoView(shortcutKey);
                 scheduleShortcutRelease();
                 if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
                     uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
@@ -414,11 +414,11 @@ export const NavigationPane = React.memo(
 
         // Handles search shortcut activation - executes saved search query
         const handleShortcutSearchActivate = useCallback(
-            (shortcutId: string, savedSearch: SavedSearch | null) => {
-                setActiveShortcut(shortcutId);
-                scrollShortcutIntoView(shortcutId);
-                if (savedSearch && onExecuteSearchShortcut) {
-                    void onExecuteSearchShortcut(shortcutId, savedSearch);
+            (shortcutKey: string, searchShortcut: SearchShortcut) => {
+                setActiveShortcut(shortcutKey);
+                scrollShortcutIntoView(shortcutKey);
+                if (onExecuteSearchShortcut) {
+                    void onExecuteSearchShortcut(shortcutKey, searchShortcut);
                 }
                 scheduleShortcutRelease();
             },
@@ -427,13 +427,31 @@ export const NavigationPane = React.memo(
 
         // Handles tag shortcut activation - navigates to tag and shows its files
         const handleShortcutTagActivate = useCallback(
-            (tagPath: string, shortcutId: string, context?: 'favorites' | 'tags') => {
-                setActiveShortcut(shortcutId);
+            (tagPath: string, shortcutKey: string, context?: 'favorites' | 'tags') => {
+                setActiveShortcut(shortcutKey);
                 handleTagClick(tagPath, context, { fromShortcut: true });
-                scrollShortcutIntoView(shortcutId);
+                scrollShortcutIntoView(shortcutKey);
                 scheduleShortcutRelease();
             },
             [setActiveShortcut, handleTagClick, scrollShortcutIntoView, scheduleShortcutRelease]
+        );
+
+        const handleShortcutContextMenu = useCallback(
+            (event: React.MouseEvent<HTMLDivElement>, shortcutKey: string) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const menu = new Menu();
+                menu.addItem(item => {
+                    item.setTitle(strings.shortcuts.remove)
+                        .setIcon('lucide-star-off')
+                        .onClick(() => {
+                            void removeShortcut(shortcutKey);
+                        });
+                });
+                menu.showAtMouseEvent(event.nativeEvent);
+            },
+            [removeShortcut]
         );
 
         const getFolderShortcutCount = useCallback(
@@ -504,11 +522,11 @@ export const NavigationPane = React.memo(
         );
 
         useEffect(() => {
-            if (!activeShortcutId) {
+            if (!activeShortcutKey) {
                 return;
             }
 
-            const shortcut = shortcutsById.get(activeShortcutId);
+            const shortcut = shortcutMap.get(activeShortcutKey);
             if (!shortcut) {
                 setActiveShortcut(null);
                 return;
@@ -537,8 +555,8 @@ export const NavigationPane = React.memo(
                 }
             }
         }, [
-            activeShortcutId,
-            shortcutsById,
+            activeShortcutKey,
+            shortcutMap,
             selectionState.selectedFolder,
             selectionState.selectedFile,
             selectionState.selectedTag,
@@ -585,7 +603,8 @@ export const NavigationPane = React.memo(
                                 type="folder"
                                 count={folderCount}
                                 isExcluded={item.isExcluded}
-                                onClick={() => handleShortcutFolderActivate(folder, item.shortcut.id)}
+                                onClick={() => handleShortcutFolderActivate(folder, item.key)}
+                                onContextMenu={event => handleShortcutContextMenu(event, item.key)}
                             />
                         );
                     }
@@ -602,24 +621,23 @@ export const NavigationPane = React.memo(
                                 label={note.basename}
                                 level={item.level}
                                 type="note"
-                                onClick={() => handleShortcutNoteActivate(note, item.shortcut.id)}
+                                onClick={() => handleShortcutNoteActivate(note, item.key)}
+                                onContextMenu={event => handleShortcutContextMenu(event, item.key)}
                             />
                         );
                     }
 
                     case NavigationPaneItemType.SHORTCUT_SEARCH: {
-                        const savedSearch = item.savedSearch;
-                        if (!savedSearch) {
-                            return null;
-                        }
+                        const searchShortcut = item.searchShortcut;
 
                         return (
                             <ShortcutItem
                                 icon="lucide-search"
-                                label={savedSearch.name}
+                                label={searchShortcut.name}
                                 level={item.level}
                                 type="search"
-                                onClick={() => handleShortcutSearchActivate(item.shortcut.id, savedSearch)}
+                                onClick={() => handleShortcutSearchActivate(item.key, searchShortcut)}
+                                onContextMenu={event => handleShortcutContextMenu(event, item.key)}
                             />
                         );
                     }
@@ -633,7 +651,8 @@ export const NavigationPane = React.memo(
                                 level={item.level}
                                 type="tag"
                                 count={tagCount}
-                                onClick={() => handleShortcutTagActivate(item.tagPath, item.shortcut.id, item.context)}
+                                onClick={() => handleShortcutTagActivate(item.tagPath, item.key, item.context)}
+                                onContextMenu={event => handleShortcutContextMenu(event, item.key)}
                             />
                         );
                     }
@@ -785,7 +804,8 @@ export const NavigationPane = React.memo(
                 handleShortcutFolderActivate,
                 handleShortcutNoteActivate,
                 handleShortcutSearchActivate,
-                handleShortcutTagActivate
+                handleShortcutTagActivate,
+                handleShortcutContextMenu
             ]
         );
 

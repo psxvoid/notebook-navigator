@@ -60,8 +60,11 @@ export const STRINGS_DE = {
         folderExists: 'Folder already in shortcuts',
         noteExists: 'Note already in shortcuts',
         tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search already in shortcuts',
-        emptySearchQuery: 'Enter a search query before saving it'
+        searchExists: 'Search shortcut already exists',
+        emptySearchQuery: 'Enter a search query before saving it',
+        emptySearchName: 'Enter a name before saving the search',
+        add: 'Zu Shortcuts hinzufügen',
+        remove: 'Aus Shortcuts entfernen'
     },
 
     // Pane header
@@ -125,8 +128,6 @@ export const STRINGS_DE = {
             addTag: 'Tag hinzufügen',
             removeTag: 'Tag entfernen',
             removeAllTags: 'Alle Tags entfernen',
-            addToShortcuts: 'Zu Shortcuts hinzufügen',
-            removeFromShortcuts: 'Aus Shortcuts entfernen',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count} Dateien in neuen Tabs öffnen',
             openMultipleFilesToRight: '{count} Dateien rechts öffnen',
@@ -158,9 +159,7 @@ export const STRINGS_DE = {
             removeColor: 'Farbe entfernen',
             excludeFolder: 'Ordner verstecken',
             renameFolder: 'Ordner umbenennen',
-            deleteFolder: 'Ordner löschen',
-            addToShortcuts: 'Zu Shortcuts hinzufügen',
-            removeFromShortcuts: 'Aus Shortcuts entfernen'
+            deleteFolder: 'Ordner löschen'
         },
         tag: {
             changeIcon: 'Symbol ändern',
@@ -170,8 +169,6 @@ export const STRINGS_DE = {
             removeColor: 'Farbe entfernen',
             addToFavorites: 'Zu Favoriten hinzufügen',
             removeFromFavorites: 'Aus Favoriten entfernen',
-            addToShortcuts: 'Zu Shortcuts hinzufügen',
-            removeFromShortcuts: 'Aus Shortcuts entfernen',
             hideTag: 'Tag ausblenden'
         }
     },

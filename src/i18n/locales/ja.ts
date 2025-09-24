@@ -60,8 +60,11 @@ export const STRINGS_JA = {
         folderExists: 'Folder already in shortcuts',
         noteExists: 'Note already in shortcuts',
         tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search already in shortcuts',
-        emptySearchQuery: 'Enter a search query before saving it'
+        searchExists: 'Search shortcut already exists',
+        emptySearchQuery: 'Enter a search query before saving it',
+        emptySearchName: 'Enter a name before saving the search',
+        add: 'ショートカットに追加',
+        remove: 'ショートカットから削除'
     },
 
     // Pane header
@@ -125,8 +128,6 @@ export const STRINGS_JA = {
             addTag: 'タグを追加',
             removeTag: 'タグを削除',
             removeAllTags: 'すべてのタグを削除',
-            addToShortcuts: 'ショートカットに追加',
-            removeFromShortcuts: 'ショートカットから削除',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count}個のファイルを新しいタブで開く',
             openMultipleFilesToRight: '{count}個のファイルを右側で開く',
@@ -158,9 +159,7 @@ export const STRINGS_JA = {
             removeColor: '色を削除',
             excludeFolder: 'フォルダを非表示',
             renameFolder: 'フォルダの名前を変更',
-            deleteFolder: 'フォルダを削除',
-            addToShortcuts: 'ショートカットに追加',
-            removeFromShortcuts: 'ショートカットから削除'
+            deleteFolder: 'フォルダを削除'
         },
         tag: {
             changeIcon: 'アイコンを変更',
@@ -170,8 +169,6 @@ export const STRINGS_JA = {
             removeColor: '色を削除',
             addToFavorites: 'お気に入りに追加',
             removeFromFavorites: 'お気に入りから削除',
-            addToShortcuts: 'ショートカットに追加',
-            removeFromShortcuts: 'ショートカットから削除',
             hideTag: 'タグを非表示'
         }
     },

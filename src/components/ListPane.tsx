@@ -66,7 +66,7 @@ import { ListToolbar } from './ListToolbar';
 import { SearchInput } from './SearchInput';
 import { SaveSearchShortcutModal } from '../modals/SaveSearchShortcutModal';
 import { useShortcuts } from '../context/ShortcutsContext';
-import type { SavedSearch } from '../types/shortcuts';
+import type { SearchShortcut } from '../types/shortcuts';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -76,7 +76,7 @@ import type { SavedSearch } from '../types/shortcuts';
  * @returns A scrollable list of files grouped by date (if enabled) with empty state handling
  */
 interface ExecuteSearchShortcutParams {
-    savedSearch: SavedSearch;
+    searchShortcut: SearchShortcut;
 }
 
 export interface ListPaneHandle {
@@ -115,7 +115,8 @@ export const ListPane = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const shortcuts = useShortcuts();
-        const { addSearchShortcut, removeSearchShortcut, savedSearchesById } = shortcuts;
+        const { addSearchShortcut, removeSearchShortcut, searchShortcutsByName } = shortcuts;
+        const searchShortcuts = useMemo(() => Array.from(searchShortcutsByName.values()), [searchShortcutsByName]);
         const [isSavingSearchShortcut, setIsSavingSearchShortcut] = useState(false);
         const currentSearchProvider = settings.searchProvider ?? 'internal';
 
@@ -127,20 +128,20 @@ export const ListPane = React.memo(
         const [shouldFocusSearch, setShouldFocusSearch] = useState(false);
 
         // Check if the current search query matches any saved search
-        const activeSavedSearch = useMemo(() => {
+        const activeSearchShortcut = useMemo(() => {
             const normalizedQuery = searchQuery.trim();
             if (!normalizedQuery) {
                 return null;
             }
 
-            for (const saved of savedSearchesById.values()) {
+            for (const saved of searchShortcuts) {
                 if (saved.query === normalizedQuery && saved.provider === currentSearchProvider) {
                     return saved;
                 }
             }
 
             return null;
-        }, [searchQuery, savedSearchesById, currentSearchProvider]);
+        }, [searchQuery, searchShortcuts, currentSearchProvider]);
 
         // Clear search query when search is deactivated externally
         useEffect(() => {
@@ -268,8 +269,10 @@ export const ListPane = React.memo(
                 initialName: normalizedQuery,
                 onSubmit: async name => {
                     setIsSavingSearchShortcut(true);
+                    let success = false;
                     try {
-                        await addSearchShortcut({ name, query: normalizedQuery, provider: currentSearchProvider });
+                        success = await addSearchShortcut({ name, query: normalizedQuery, provider: currentSearchProvider });
+                        return success;
                     } finally {
                         setIsSavingSearchShortcut(false);
                     }
@@ -279,17 +282,17 @@ export const ListPane = React.memo(
         }, [app, addSearchShortcut, currentSearchProvider, isSavingSearchShortcut, searchQuery]);
 
         const handleRemoveSearchShortcut = useCallback(async () => {
-            if (!activeSavedSearch || isSavingSearchShortcut) {
+            if (!activeSearchShortcut || isSavingSearchShortcut) {
                 return;
             }
 
             setIsSavingSearchShortcut(true);
             try {
-                await removeSearchShortcut(activeSavedSearch.id);
+                await removeSearchShortcut(activeSearchShortcut.name);
             } finally {
                 setIsSavingSearchShortcut(false);
             }
-        }, [activeSavedSearch, isSavingSearchShortcut, removeSearchShortcut]);
+        }, [activeSearchShortcut, isSavingSearchShortcut, removeSearchShortcut]);
 
         const handleFileClick = useCallback(
             (file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {
@@ -381,9 +384,9 @@ export const ListPane = React.memo(
 
         // Execute a saved search from a shortcut
         const executeSearchShortcut = useCallback(
-            async ({ savedSearch }: ExecuteSearchShortcutParams) => {
-                const normalizedQuery = savedSearch.query.trim();
-                const targetProvider = savedSearch.provider ?? 'internal';
+            async ({ searchShortcut }: ExecuteSearchShortcutParams) => {
+                const normalizedQuery = searchShortcut.query.trim();
+                const targetProvider = searchShortcut.provider ?? 'internal';
                 const currentProviderSetting = plugin.settings.searchProvider ?? 'internal';
 
                 // Check if provider needs to be switched
@@ -657,9 +660,9 @@ export const ListPane = React.memo(
                                 ensureSelectionForCurrentFilter({ openInEditor: false });
                             }}
                             containerRef={props.rootContainerRef}
-                            onSaveShortcut={!activeSavedSearch ? handleSaveSearchShortcut : undefined}
-                            onRemoveShortcut={activeSavedSearch ? handleRemoveSearchShortcut : undefined}
-                            isShortcutSaved={Boolean(activeSavedSearch)}
+                            onSaveShortcut={!activeSearchShortcut ? handleSaveSearchShortcut : undefined}
+                            onRemoveShortcut={activeSearchShortcut ? handleRemoveSearchShortcut : undefined}
+                            isShortcutSaved={Boolean(activeSearchShortcut)}
                             isShortcutDisabled={isSavingSearchShortcut}
                         />
                     )}

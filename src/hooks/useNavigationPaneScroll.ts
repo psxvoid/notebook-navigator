@@ -67,7 +67,7 @@ interface UseNavigationPaneScrollParams {
     /** Whether the navigation pane is currently visible */
     isVisible: boolean;
     /** Currently active shortcut id (if any) */
-    activeShortcutId: string | null;
+    activeShortcutKey: string | null;
 }
 
 /**
@@ -97,7 +97,7 @@ export function useNavigationPaneScroll({
     items,
     pathToIndex,
     isVisible,
-    activeShortcutId
+    activeShortcutKey
 }: UseNavigationPaneScrollParams): UseNavigationPaneScrollResult {
     const { isMobile } = useServices();
     const selectionState = useSelectionState();
@@ -268,7 +268,7 @@ export function useNavigationPaneScroll({
         // Only scroll on actual selection changes or visibility/focus changes
         if (!isSelectionChange && !justBecameVisible && !justGainedFocus) return;
 
-        if (activeShortcutId) {
+        if (activeShortcutKey) {
             return;
         }
 
@@ -300,7 +300,7 @@ export function useNavigationPaneScroll({
         settings.showHiddenItems,
         selectionState.selectionType,
         resolveIndex,
-        activeShortcutId
+        activeShortcutKey
     ]);
 
     /**
@@ -310,7 +310,7 @@ export function useNavigationPaneScroll({
      */
     useEffect(() => {
         if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag && rowVirtualizer && isVisible) {
-            if (activeShortcutId) {
+            if (activeShortcutKey) {
                 prevSelectedTagRef.current = selectionState.selectedTag;
                 return;
             }
@@ -353,7 +353,7 @@ export function useNavigationPaneScroll({
         settings.showHiddenItems,
         selectedPath,
         resolveIndex,
-        activeShortcutId
+        activeShortcutKey
     ]);
 
     /**
@@ -422,7 +422,7 @@ export function useNavigationPaneScroll({
         if (!isMobile) return;
 
         const handleVisible = () => {
-            if (activeShortcutId) {
+            if (activeShortcutKey) {
                 return;
             }
             // If we have a selected folder or tag, scroll to it
@@ -436,7 +436,7 @@ export function useNavigationPaneScroll({
 
         window.addEventListener('notebook-navigator-visible', handleVisible);
         return () => window.removeEventListener('notebook-navigator-visible', handleVisible);
-    }, [isMobile, selectedPath, rowVirtualizer, selectionState.selectionType, resolveIndex, activeShortcutId]);
+    }, [isMobile, selectedPath, rowVirtualizer, selectionState.selectionType, resolveIndex, activeShortcutKey]);
 
     /**
      * Re-measure all items when line height settings change
@@ -457,7 +457,7 @@ export function useNavigationPaneScroll({
         const settingsKey = `${settings.navItemHeight}-${settings.navIndent}`;
         const settingsChanged = prevNavSettingsKeyRef.current && prevNavSettingsKeyRef.current !== settingsKey;
 
-        if (activeShortcutId) {
+        if (activeShortcutKey) {
             prevNavSettingsKeyRef.current = settingsKey;
             return;
         }
@@ -483,7 +483,7 @@ export function useNavigationPaneScroll({
         rowVirtualizer,
         resolveIndex,
         selectionState.selectionType,
-        activeShortcutId
+        activeShortcutKey
     ]);
 
     /**

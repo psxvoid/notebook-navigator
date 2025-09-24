@@ -83,19 +83,21 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         addMultipleFilesOpenOptions(menu, selectedCount, selectionState, app, isMobile, cachedSelectedFiles, commandQueue);
     }
 
+    menu.addSeparator();
+
     if (!shouldShowMultiOptions && services.shortcuts && isMarkdown) {
-        const { noteShortcutIdsByPath, addNoteShortcut, removeShortcut } = services.shortcuts;
-        const existingShortcutId = noteShortcutIdsByPath.get(file.path);
+        const { noteShortcutKeysByPath, addNoteShortcut, removeShortcut } = services.shortcuts;
+        const existingShortcutKey = noteShortcutKeysByPath.get(file.path);
 
         menu.addItem((item: MenuItem) => {
-            if (existingShortcutId) {
-                item.setTitle(strings.contextMenu.file.removeFromShortcuts)
+            if (existingShortcutKey) {
+                item.setTitle(strings.shortcuts.remove)
                     .setIcon('lucide-star-off')
                     .onClick(() => {
-                        void removeShortcut(existingShortcutId);
+                        void removeShortcut(existingShortcutKey);
                     });
             } else {
-                item.setTitle(strings.contextMenu.file.addToShortcuts)
+                item.setTitle(strings.shortcuts.add)
                     .setIcon('lucide-star')
                     .onClick(() => {
                         void addNoteShortcut(file.path);
@@ -103,8 +105,6 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
             }
         });
     }
-
-    menu.addSeparator();
 
     // Pin/Unpin note(s)
     const pinContext: NavigatorContext = selectionState.selectionType === ItemType.TAG ? 'tag' : 'folder';

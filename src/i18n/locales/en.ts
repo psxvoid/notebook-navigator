@@ -61,8 +61,11 @@ export const STRINGS_EN = {
         folderExists: 'Folder already in shortcuts',
         noteExists: 'Note already in shortcuts',
         tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search already in shortcuts',
-        emptySearchQuery: 'Enter a search query before saving it'
+        searchExists: 'Search shortcut already exists',
+        emptySearchQuery: 'Enter a search query before saving it',
+        emptySearchName: 'Enter a name before saving the search',
+        add: 'Add to shortcuts',
+        remove: 'Remove from shortcuts'
     },
 
     // Pane header
@@ -137,9 +140,7 @@ export const STRINGS_EN = {
             moveMultipleToFolder: 'Move {count} files to...',
             addTag: 'Add tag',
             removeTag: 'Remove tag',
-            removeAllTags: 'Remove all tags',
-            addToShortcuts: 'Add to shortcuts',
-            removeFromShortcuts: 'Remove from shortcuts'
+            removeAllTags: 'Remove all tags'
         },
         folder: {
             newNote: 'New note',
@@ -158,9 +159,7 @@ export const STRINGS_EN = {
             removeColor: 'Remove color',
             excludeFolder: 'Hide folder',
             renameFolder: 'Rename folder',
-            deleteFolder: 'Delete folder',
-            addToShortcuts: 'Add to shortcuts',
-            removeFromShortcuts: 'Remove from shortcuts'
+            deleteFolder: 'Delete folder'
         },
         tag: {
             changeIcon: 'Change icon',
@@ -170,8 +169,6 @@ export const STRINGS_EN = {
             removeColor: 'Remove color',
             addToFavorites: 'Add to favorites',
             removeFromFavorites: 'Remove from favorites',
-            addToShortcuts: 'Add to shortcuts',
-            removeFromShortcuts: 'Remove from shortcuts',
             hideTag: 'Hide tag'
         }
     },

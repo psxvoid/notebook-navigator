@@ -60,8 +60,11 @@ export const STRINGS_PL = {
         folderExists: 'Folder already in shortcuts',
         noteExists: 'Note already in shortcuts',
         tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search already in shortcuts',
-        emptySearchQuery: 'Enter a search query before saving it'
+        searchExists: 'Search shortcut already exists',
+        emptySearchQuery: 'Enter a search query before saving it',
+        emptySearchName: 'Enter a name before saving the search',
+        add: 'Dodaj do skrótów',
+        remove: 'Usuń ze skrótów'
     },
 
     // Pane header
@@ -136,9 +139,7 @@ export const STRINGS_PL = {
             moveMultipleToFolder: 'Przenieś {count} plików do...',
             addTag: 'Dodaj tag',
             removeTag: 'Usuń tag',
-            removeAllTags: 'Usuń wszystkie tagi',
-            addToShortcuts: 'Dodaj do skrótów',
-            removeFromShortcuts: 'Usuń ze skrótów'
+            removeAllTags: 'Usuń wszystkie tagi'
         },
         folder: {
             newNote: 'Nowa notatka',
@@ -157,9 +158,7 @@ export const STRINGS_PL = {
             removeColor: 'Usuń kolor',
             excludeFolder: 'Ukryj folder',
             renameFolder: 'Zmień nazwę folderu',
-            deleteFolder: 'Usuń folder',
-            addToShortcuts: 'Dodaj do skrótów',
-            removeFromShortcuts: 'Usuń ze skrótów'
+            deleteFolder: 'Usuń folder'
         },
         tag: {
             changeIcon: 'Zmień ikonę',
@@ -169,8 +168,6 @@ export const STRINGS_PL = {
             removeColor: 'Usuń kolor',
             addToFavorites: 'Dodaj do ulubionych',
             removeFromFavorites: 'Usuń z ulubionych',
-            addToShortcuts: 'Dodaj do skrótów',
-            removeFromShortcuts: 'Usuń ze skrótów',
             hideTag: 'Ukryj tag'
         }
     },

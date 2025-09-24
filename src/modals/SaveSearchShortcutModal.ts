@@ -16,12 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, Modal, Setting } from 'obsidian';
+import { App, Modal, Setting, Notice } from 'obsidian';
 import { strings } from '../i18n';
 
 interface SaveSearchShortcutModalOptions {
     initialName: string;
-    onSubmit: (name: string) => Promise<void> | void;
+    onSubmit: (name: string) => Promise<boolean> | boolean;
 }
 
 /**
@@ -84,10 +84,13 @@ export class SaveSearchShortcutModal extends Modal {
     private async handleSubmit(): Promise<void> {
         const trimmedName = this.name.trim();
         if (trimmedName.length === 0) {
+            new Notice(strings.shortcuts.emptySearchName);
             return;
         }
 
-        await this.onSubmitHandler(trimmedName);
-        this.close();
+        const result = await this.onSubmitHandler(trimmedName);
+        if (result !== false) {
+            this.close();
+        }
     }
 }

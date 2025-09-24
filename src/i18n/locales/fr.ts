@@ -60,8 +60,11 @@ export const STRINGS_FR = {
         folderExists: 'Folder already in shortcuts',
         noteExists: 'Note already in shortcuts',
         tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search already in shortcuts',
-        emptySearchQuery: 'Enter a search query before saving it'
+        searchExists: 'Search shortcut already exists',
+        emptySearchQuery: 'Enter a search query before saving it',
+        emptySearchName: 'Enter a name before saving the search',
+        add: 'Ajouter aux raccourcis',
+        remove: 'Retirer des raccourcis'
     },
 
     // Pane header
@@ -125,8 +128,6 @@ export const STRINGS_FR = {
             addTag: 'Ajouter une étiquette',
             removeTag: 'Supprimer l’étiquette',
             removeAllTags: 'Supprimer toutes les étiquettes',
-            addToShortcuts: 'Ajouter aux raccourcis',
-            removeFromShortcuts: 'Retirer des raccourcis',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Ouvrir {count} fichiers dans de nouveaux onglets',
             openMultipleFilesToRight: 'Ouvrir {count} fichiers à droite',
@@ -158,9 +159,7 @@ export const STRINGS_FR = {
             removeColor: 'Supprimer la couleur',
             excludeFolder: 'Masquer le dossier',
             renameFolder: 'Renommer le dossier',
-            deleteFolder: 'Supprimer le dossier',
-            addToShortcuts: 'Ajouter aux raccourcis',
-            removeFromShortcuts: 'Retirer des raccourcis'
+            deleteFolder: 'Supprimer le dossier'
         },
         tag: {
             changeIcon: "Changer l'icône",
@@ -170,8 +169,6 @@ export const STRINGS_FR = {
             removeColor: 'Supprimer la couleur',
             addToFavorites: 'Ajouter aux favoris',
             removeFromFavorites: 'Retirer des favoris',
-            addToShortcuts: 'Ajouter aux raccourcis',
-            removeFromShortcuts: 'Retirer des raccourcis',
             hideTag: 'Masquer létiquette'
         }
     },
