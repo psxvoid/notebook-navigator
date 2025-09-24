@@ -203,23 +203,30 @@ export function useNavigationPaneData({
         if (favoritePatterns.length > 0) {
             // We already have separate trees from StorageContext
 
+            const hasVisibleFavoriteTags = visibleFavoriteTree.size > 0;
+            const hasFavoriteUntagged = settings.showUntagged && settings.showUntaggedInFavorites && untaggedCount > 0;
+
             if (settings.showFavoriteTagsFolder) {
-                // Show "Favorites" folder
-                addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'lucide-star');
-                addTagItems(visibleFavoriteTree, 'favorite-tags-root');
+                // Only render the favorites folder when it has content
+                if (hasVisibleFavoriteTags || hasFavoriteUntagged) {
+                    addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'lucide-star');
+                    addTagItems(visibleFavoriteTree, 'favorite-tags-root');
+                }
             } else {
                 // Show favorite tags directly without folder
-                const favoriteItems = flattenTagTree(
-                    Array.from(visibleFavoriteTree.values()),
-                    expansionState.expandedTags,
-                    0, // Start at level 0 since no virtual folder
-                    'favorites',
-                    matcherForMarking
-                );
-                items.push(...favoriteItems);
+                if (hasVisibleFavoriteTags) {
+                    const favoriteItems = flattenTagTree(
+                        Array.from(visibleFavoriteTree.values()),
+                        expansionState.expandedTags,
+                        0, // Start at level 0 since no virtual folder
+                        'favorites',
+                        matcherForMarking
+                    );
+                    items.push(...favoriteItems);
+                }
 
                 // Add untagged after favorite tags when folder isn't shown
-                if (settings.showUntaggedInFavorites) {
+                if (settings.showUntaggedInFavorites && hasFavoriteUntagged) {
                     addUntaggedNode(0, 'favorites');
                 }
             }
