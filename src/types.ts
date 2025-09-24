@@ -199,6 +199,7 @@ export interface LocalStorageKeys {
     selectedTagContextKey: string;
     navigationPaneWidthKey: string;
     dualPaneKey: string;
+    shortcutsExpandedKey: string;
     fileCacheKey: string;
     databaseSchemaVersionKey: string;
     databaseContentVersionKey: string;
@@ -220,6 +221,7 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     selectedTagContextKey: 'notebook-navigator-selected-tag-context',
     navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width',
     dualPaneKey: 'notebook-navigator-dual-pane',
+    shortcutsExpandedKey: 'notebook-navigator-shortcuts-expanded',
     fileCacheKey: 'notebook-navigator-file-cache',
     databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
     databaseContentVersionKey: 'notebook-navigator-db-content-version',
@@ -293,6 +295,11 @@ export interface VirtualFolder {
     /** Optional custom icon for the virtual folder */
     icon?: string;
 }
+
+/**
+ * Virtual folder id for the shortcuts section in the navigation pane
+ */
+export const SHORTCUTS_VIRTUAL_FOLDER_ID = 'shortcuts-root';
 
 /**
  * Data attributes for drag-and-drop functionality using event delegation

@@ -36,7 +36,7 @@ import { useExpansionState } from '../context/ExpansionContext';
 import { useFileCache } from '../context/StorageContext';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { strings } from '../i18n';
-import { UNTAGGED_TAG_ID, NavigationPaneItemType, VirtualFolder, ItemType } from '../types';
+import { UNTAGGED_TAG_ID, NavigationPaneItemType, VirtualFolder, ItemType, SHORTCUTS_VIRTUAL_FOLDER_ID } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
@@ -59,6 +59,8 @@ interface UseNavigationPaneDataParams {
     settings: NotebookNavigatorSettings;
     /** Whether the navigation pane is currently visible */
     isVisible: boolean;
+    /** Whether the shortcuts virtual folder is expanded */
+    shortcutsExpanded: boolean;
 }
 
 /**
@@ -84,7 +86,11 @@ interface UseNavigationPaneDataResult {
  * @param params - Configuration parameters
  * @returns Navigation items and lookup maps
  */
-export function useNavigationPaneData({ settings, isVisible }: UseNavigationPaneDataParams): UseNavigationPaneDataResult {
+export function useNavigationPaneData({
+    settings,
+    isVisible,
+    shortcutsExpanded
+}: UseNavigationPaneDataParams): UseNavigationPaneDataResult {
     const { app } = useServices();
     const metadataService = useMetadataService();
     const expansionState = useExpansionState();
@@ -289,17 +295,25 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             return [] as CombinedNavigationItem[];
         }
 
-        const items: CombinedNavigationItem[] = [];
         const headerLevel = 0;
         const itemLevel = headerLevel + 1;
 
-        // Add shortcuts header with count
-        items.push({
-            type: NavigationPaneItemType.SHORTCUT_HEADER,
-            key: 'shortcuts-header',
-            level: headerLevel,
-            count: hydratedShortcuts.length
-        });
+        const items: CombinedNavigationItem[] = [
+            {
+                type: NavigationPaneItemType.VIRTUAL_FOLDER,
+                key: SHORTCUTS_VIRTUAL_FOLDER_ID,
+                level: headerLevel,
+                data: {
+                    id: SHORTCUTS_VIRTUAL_FOLDER_ID,
+                    name: strings.navigationPane.shortcutsHeader,
+                    icon: 'lucide-star'
+                }
+            }
+        ];
+
+        if (!shortcutsExpanded) {
+            return items;
+        }
 
         // Process each shortcut based on its type
         hydratedShortcuts.forEach(entry => {
@@ -374,7 +388,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         });
 
         return items;
-    }, [hydratedShortcuts, favoriteTree, tagTree, settings.excludedFolders, settings.showHiddenItems]);
+    }, [hydratedShortcuts, favoriteTree, tagTree, settings.excludedFolders, settings.showHiddenItems, shortcutsExpanded]);
 
     /**
      * Combine shortcut, folder, and tag items based on display order settings

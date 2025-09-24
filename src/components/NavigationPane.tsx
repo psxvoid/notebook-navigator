@@ -80,10 +80,11 @@ import { NavigationToolbar } from './NavigationToolbar';
 import { TagTreeItem } from './TagTreeItem';
 import { VirtualFolderComponent } from './VirtualFolderItem';
 import { getNavigationIndex, normalizeNavigationPath } from '../utils/navigationIndex';
+import { STORAGE_KEYS, SHORTCUTS_VIRTUAL_FOLDER_ID } from '../types';
+import { localStorage } from '../utils/localStorage';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { ShortcutItem } from './ShortcutItem';
 import { ShortcutType, SearchShortcut } from '../types/shortcuts';
-import { ObsidianIcon } from './ObsidianIcon';
 import { strings } from '../i18n';
 
 export interface NavigationPaneHandle {
@@ -118,8 +119,12 @@ export const NavigationPane = React.memo(
         const settings = useSettingsState();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
-        const { shortcutMap, removeShortcut } = useShortcuts();
+        const { shortcutMap, removeShortcut, hydratedShortcuts } = useShortcuts();
         const [activeShortcutKey, setActiveShortcut] = useState<string | null>(null);
+        const [shortcutsExpanded, setShortcutsExpanded] = useState<boolean>(() => {
+            const stored = localStorage.get<string>(STORAGE_KEYS.shortcutsExpandedKey);
+            return stored !== '0';
+        });
 
         // Android uses toolbar at top, iOS at bottom
         const isAndroid = Platform.isAndroidApp;
@@ -139,7 +144,8 @@ export const NavigationPane = React.memo(
         // Use the new data hook - now returns filtered items and pathToIndex
         const { items, pathToIndex, shortcutIndex, tagCounts, folderCounts } = useNavigationPaneData({
             settings,
-            isVisible
+            isVisible,
+            shortcutsExpanded
         });
 
         // Use the new scroll hook
@@ -231,9 +237,17 @@ export const NavigationPane = React.memo(
         // Handle virtual folder toggle
         const handleVirtualFolderToggle = useCallback(
             (folderId: string) => {
+                if (folderId === SHORTCUTS_VIRTUAL_FOLDER_ID) {
+                    setShortcutsExpanded(prev => {
+                        const next = !prev;
+                        localStorage.set(STORAGE_KEYS.shortcutsExpandedKey, next ? '1' : '0');
+                        return next;
+                    });
+                    return;
+                }
                 expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId });
             },
-            [expansionDispatch]
+            [expansionDispatch, setShortcutsExpanded]
         );
 
         // Get all descendant folders recursively
@@ -576,26 +590,6 @@ export const NavigationPane = React.memo(
         const renderItem = useCallback(
             (item: CombinedNavigationItem): React.ReactNode => {
                 switch (item.type) {
-                    case NavigationPaneItemType.SHORTCUT_HEADER:
-                        return (
-                            <div
-                                className="nn-navitem nn-shortcut-header-item"
-                                style={{ '--level': item.level } as React.CSSProperties}
-                                data-level={item.level}
-                                role="treeitem"
-                                tabIndex={-1}
-                                aria-level={item.level + 1}
-                            >
-                                <div className="nn-navitem-content">
-                                    <span className="nn-navitem-icon">
-                                        <ObsidianIcon name="lucide-star" />
-                                    </span>
-                                    <span className="nn-navitem-name">{strings.navigationPane.shortcutsHeader}</span>
-                                    <span className="nn-navitem-spacer" />
-                                </div>
-                            </div>
-                        );
-
                     case NavigationPaneItemType.SHORTCUT_FOLDER: {
                         const folder = item.folder;
                         if (!folder) {
@@ -711,16 +705,22 @@ export const NavigationPane = React.memo(
 
                     case NavigationPaneItemType.VIRTUAL_FOLDER: {
                         const virtualFolder = item.data;
-                        const hasChildren =
-                            virtualFolder.id === 'tags-root' ||
-                            virtualFolder.id === 'all-tags-root' ||
-                            virtualFolder.id === 'favorite-tags-root';
+                        const isShortcutsGroup = virtualFolder.id === SHORTCUTS_VIRTUAL_FOLDER_ID;
+                        const hasChildren = isShortcutsGroup
+                            ? hydratedShortcuts.length > 0
+                            : virtualFolder.id === 'tags-root' ||
+                              virtualFolder.id === 'all-tags-root' ||
+                              virtualFolder.id === 'favorite-tags-root';
+
+                        const isExpanded = isShortcutsGroup
+                            ? shortcutsExpanded
+                            : expansionState.expandedVirtualFolders.has(virtualFolder.id);
 
                         return (
                             <VirtualFolderComponent
                                 virtualFolder={virtualFolder}
                                 level={item.level}
-                                isExpanded={expansionState.expandedVirtualFolders.has(virtualFolder.id)}
+                                isExpanded={isExpanded}
                                 hasChildren={hasChildren}
                                 onToggle={() => handleVirtualFolderToggle(virtualFolder.id)}
                             />
@@ -814,7 +814,9 @@ export const NavigationPane = React.memo(
                 handleShortcutNoteActivate,
                 handleShortcutSearchActivate,
                 handleShortcutTagActivate,
-                handleShortcutContextMenu
+                handleShortcutContextMenu,
+                hydratedShortcuts,
+                shortcutsExpanded
             ]
         );
 
