@@ -584,6 +584,7 @@ export const NavigationPane = React.memo(
                                 level={item.level}
                                 type="folder"
                                 count={folderCount}
+                                isExcluded={item.isExcluded}
                                 onClick={() => handleShortcutFolderActivate(folder, item.shortcut.id)}
                             />
                         );

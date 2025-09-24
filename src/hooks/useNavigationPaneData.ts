@@ -41,7 +41,7 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings } from '../settings';
-import { shouldExcludeFile, shouldExcludeFolder } from '../utils/fileFilters';
+import { shouldExcludeFile, shouldExcludeFolder, isFolderInExcludedFolder } from '../utils/fileFilters';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
@@ -309,12 +309,19 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                 if (!folder) {
                     return;
                 }
+
+                const isExcluded = settings.excludedFolders.length > 0 && isFolderInExcludedFolder(folder, settings.excludedFolders);
+                if (isExcluded && !settings.showHiddenItems) {
+                    return;
+                }
+
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_FOLDER,
                     key: `shortcut-folder-${shortcut.id}`,
                     level: itemLevel,
                     shortcut,
-                    folder
+                    folder,
+                    isExcluded
                 });
                 return;
             }
@@ -370,7 +377,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         });
 
         return items;
-    }, [hydratedShortcuts, favoriteTree, tagTree]);
+    }, [hydratedShortcuts, favoriteTree, tagTree, settings.excludedFolders, settings.showHiddenItems]);
 
     /**
      * Combine shortcut, folder, and tag items based on display order settings

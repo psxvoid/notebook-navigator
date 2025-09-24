@@ -28,6 +28,7 @@ interface ShortcutItemProps {
     isDisabled?: boolean;
     type: 'folder' | 'note' | 'search' | 'tag';
     count?: number;
+    isExcluded?: boolean;
     onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
     onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
@@ -44,6 +45,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     isDisabled,
     type,
     count,
+    isExcluded,
     onClick,
     onContextMenu
 }: ShortcutItemProps) {
@@ -57,8 +59,11 @@ export const ShortcutItem = React.memo(function ShortcutItem({
         if (isDisabled) {
             classes.push('nn-shortcut-disabled');
         }
+        if (isExcluded) {
+            classes.push('nn-excluded');
+        }
         return classes.join(' ');
-    }, [isDisabled]);
+    }, [isDisabled, isExcluded]);
 
     useEffect(() => {
         if (iconRef.current && settings.showIcons) {
