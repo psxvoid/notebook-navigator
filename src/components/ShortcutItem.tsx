@@ -98,6 +98,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             aria-level={level + 1}
         >
             <div className="nn-navitem-content">
+                <span className="nn-navitem-chevron nn-navitem-chevron--no-children" aria-hidden="true" />
                 {settings.showIcons && <span className="nn-navitem-icon" ref={iconRef} />}
                 <span className="nn-navitem-name">
                     <span className="nn-shortcut-label">{label}</span>
