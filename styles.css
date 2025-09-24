@@ -366,7 +366,7 @@ body {
 .nn-search-input {
     width: 100%;
     height: 32px;
-    padding: 4px 60px !important;
+    padding: 4px 60px 4px 36px !important;
     font-size: 13px;
     color: var(--nn-theme-file-selected-name-color) !important;
     background: var(--nn-theme-list-bg) !important;
@@ -431,7 +431,7 @@ body {
 .notebook-navigator-mobile .nn-search-input {
     height: 36px;
     font-size: 16px; /* Prevent zoom on iOS */
-    padding: 4px 60px !important;
+    padding: 4px 60px 4px 36px !important;
     border-radius: 8px;
 }
 
