@@ -917,6 +917,18 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    min-width: 0;
+}
+
+.nn-shortcut-item .nn-shortcut-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nn-shortcut-item .nn-shortcut-description {
+    flex-shrink: 0;
 }
 
 .nn-shortcut-disabled {

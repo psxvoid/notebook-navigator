@@ -95,7 +95,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             <div className="nn-navitem-content">
                 {settings.showIcons && <span className="nn-navitem-icon" ref={iconRef} />}
                 <span className="nn-navitem-name">
-                    {label}
+                    <span className="nn-shortcut-label">{label}</span>
                     {description ? <span className="nn-shortcut-description">{description}</span> : null}
                 </span>
                 <span className="nn-navitem-spacer" />
