@@ -106,12 +106,15 @@ interface NavigationPaneProps {
      */
     rootContainerRef: React.RefObject<HTMLDivElement | null>;
     onExecuteSearchShortcut?: (shortcutKey: string, searchShortcut: SearchShortcut) => Promise<void> | void;
+    onNavigateToFolder: (folderPath: string) => void;
+    onRevealTag: (tagPath: string) => void;
+    onRevealFile: (file: TFile) => void;
 }
 
 export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
         const { app, isMobile } = useServices();
-        const { onExecuteSearchShortcut, rootContainerRef } = props;
+        const { onExecuteSearchShortcut, rootContainerRef, onNavigateToFolder, onRevealTag, onRevealFile } = props;
         const commandQueue = useCommandQueue();
         const expansionState = useExpansionState();
         const expansionDispatch = useExpansionDispatch();
@@ -438,28 +441,22 @@ export const NavigationPane = React.memo(
         const handleShortcutFolderActivate = useCallback(
             (folder: TFolder, shortcutKey: string) => {
                 setActiveShortcut(shortcutKey);
-                handleFolderClick(folder, { fromShortcut: true });
-                scrollShortcutIntoView(shortcutKey);
+                onNavigateToFolder(folder.path);
                 scheduleShortcutRelease();
                 const container = rootContainerRef.current;
                 if (container && !uiState.singlePane) {
                     container.focus();
                 }
             },
-            [setActiveShortcut, handleFolderClick, scrollShortcutIntoView, scheduleShortcutRelease, rootContainerRef, uiState.singlePane]
+            [setActiveShortcut, onNavigateToFolder, scheduleShortcutRelease, rootContainerRef, uiState.singlePane]
         );
 
         // Handles note shortcut activation - reveals file in list pane
         const handleShortcutNoteActivate = useCallback(
             (note: TFile, shortcutKey: string) => {
                 setActiveShortcut(shortcutKey);
-                selectionDispatch({ type: 'REVEAL_FILE', file: note, isManualReveal: true, source: 'shortcut' });
-                scrollShortcutIntoView(shortcutKey);
-                scheduleShortcutRelease();
-                if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
-                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                }
-                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                onRevealFile(note);
+
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
                     void leaf.openFile(note, { active: false });
@@ -467,18 +464,10 @@ export const NavigationPane = React.memo(
                 if (isMobile && app.workspace.leftSplit) {
                     app.workspace.leftSplit.collapse();
                 }
+
+                scheduleShortcutRelease();
             },
-            [
-                setActiveShortcut,
-                selectionDispatch,
-                scrollShortcutIntoView,
-                scheduleShortcutRelease,
-                uiDispatch,
-                uiState.singlePane,
-                uiState.currentSinglePaneView,
-                app.workspace,
-                isMobile
-            ]
+            [setActiveShortcut, onRevealFile, scheduleShortcutRelease, app.workspace, isMobile]
         );
 
         // Handles search shortcut activation - executes saved search query
@@ -496,13 +485,12 @@ export const NavigationPane = React.memo(
 
         // Handles tag shortcut activation - navigates to tag and shows its files
         const handleShortcutTagActivate = useCallback(
-            (tagPath: string, shortcutKey: string, context?: 'favorites' | 'tags') => {
+            (tagPath: string, shortcutKey: string) => {
                 setActiveShortcut(shortcutKey);
-                handleTagClick(tagPath, context, { fromShortcut: true });
-                scrollShortcutIntoView(shortcutKey);
+                onRevealTag(tagPath);
                 scheduleShortcutRelease();
             },
-            [setActiveShortcut, handleTagClick, scrollShortcutIntoView, scheduleShortcutRelease]
+            [setActiveShortcut, onRevealTag, scheduleShortcutRelease]
         );
 
         const moveShortcut = useCallback(
@@ -783,7 +771,7 @@ export const NavigationPane = React.memo(
                                 level={item.level}
                                 type="tag"
                                 count={tagCount}
-                                onClick={() => handleShortcutTagActivate(item.tagPath, item.key, item.context)}
+                                onClick={() => handleShortcutTagActivate(item.tagPath, item.key)}
                                 onContextMenu={event => handleShortcutContextMenu(event, item.key)}
                                 dragHandlers={dragHandlers}
                                 showDropIndicatorBefore={showBefore}

@@ -108,8 +108,12 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
 
             // Always shift focus to list pane
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+
+            if (navigationPaneRef.current) {
+                navigationPaneRef.current.requestScroll(file.parent.path, { align: 'auto', itemType: ItemType.FOLDER });
+            }
         },
-        [expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiState, uiDispatch]
+        [expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiState, uiDispatch, navigationPaneRef]
     );
 
     /**
@@ -186,6 +190,10 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             // Always shift focus to list pane (same as revealFileInActualFolder)
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
+            if (navigationPaneRef.current) {
+                navigationPaneRef.current.requestScroll(tagPath, { align: 'auto', itemType: ItemType.TAG });
+            }
+
             // If we have a selected file, trigger a reveal to ensure proper item visibility
             // This makes tag reveal follow the same flow as folder reveal
             if (selectionState.selectedFile) {
@@ -208,7 +216,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             settings,
             selectionState.selectedFile,
             findTagInTree,
-            findTagInFavoriteTree
+            findTagInFavoriteTree,
+            navigationPaneRef
         ]
     );
 
@@ -292,6 +301,10 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             }
 
             // Don't change focus - let Obsidian handle focus naturally when opening files
+
+            if (!targetTag && file.parent && navigationPaneRef.current) {
+                navigationPaneRef.current.requestScroll(file.parent.path, { align: 'auto', itemType: ItemType.FOLDER });
+            }
         },
         [
             settings,
@@ -304,7 +317,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             selectionDispatch,
             uiState,
             uiDispatch,
-            getDB
+            getDB,
+            navigationPaneRef
         ]
     );
 
@@ -349,8 +363,12 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 // In dual-pane mode, focus the folders pane
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
             }
+
+            if (navigationPaneRef.current) {
+                navigationPaneRef.current.requestScroll(folder.path, { align: 'auto', itemType: ItemType.FOLDER });
+            }
         },
-        [app, expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiState, uiDispatch]
+        [app, expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiState, uiDispatch, navigationPaneRef]
     );
 
     // Auto-reveal effect: Reset fileToReveal after it's been consumed

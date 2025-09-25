@@ -121,7 +121,11 @@ export const NotebookNavigatorComponent = React.memo(
         });
 
         // Use navigator reveal logic
-        const { revealFileInActualFolder, navigateToFolder } = useNavigatorReveal({ app, navigationPaneRef, listPaneRef });
+        const { revealFileInActualFolder, navigateToFolder, revealTag } = useNavigatorReveal({
+            app,
+            navigationPaneRef,
+            listPaneRef
+        });
 
         // Use tag navigation logic
         const { navigateToTag } = useTagNavigation();
@@ -563,6 +567,9 @@ export const NotebookNavigatorComponent = React.memo(
                     style={{ width: uiState.singlePane ? '100%' : `${paneWidth}px` }}
                     rootContainerRef={containerRef}
                     onExecuteSearchShortcut={handleSearchShortcutExecution}
+                    onNavigateToFolder={navigateToFolder}
+                    onRevealTag={revealTag}
+                    onRevealFile={revealFileInActualFolder}
                 />
                 <ListPane
                     ref={listPaneRef}
