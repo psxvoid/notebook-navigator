@@ -110,6 +110,13 @@ export interface ShortcutNoteNavItem extends ShortcutNavigationBase {
     note: TFile | null;
 }
 
+export interface RecentNoteNavItem {
+    type: typeof NavigationPaneItemType.RECENT_NOTE;
+    note: TFile;
+    level: number;
+    key: string;
+}
+
 export interface ShortcutSearchNavItem extends ShortcutNavigationBase {
     type: typeof NavigationPaneItemType.SHORTCUT_SEARCH;
     searchShortcut: SearchShortcut;
@@ -130,6 +137,7 @@ export type CombinedNavigationItem =
     | ShortcutHeaderItem
     | ShortcutFolderNavItem
     | ShortcutNoteNavItem
+    | RecentNoteNavItem
     | ShortcutSearchNavItem
     | ShortcutTagNavItem
     | { type: typeof NavigationPaneItemType.TOP_SPACER; key: string }

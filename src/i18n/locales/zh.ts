@@ -53,7 +53,8 @@ export const STRINGS_ZH = {
     },
 
     navigationPane: {
-        shortcutsHeader: '快捷方式'
+        shortcutsHeader: '快捷方式',
+        recentNotesHeader: 'Recent notes'
     },
 
     shortcuts: {
@@ -543,6 +544,14 @@ export const STRINGS_ZH = {
             showShortcuts: {
                 name: '显示快捷方式',
                 desc: '在导航窗格中显示快捷方式部分。'
+            },
+            showRecentNotes: {
+                name: 'Show recent notes',
+                desc: 'Display the recent notes section in the navigation pane.'
+            },
+            recentNotesCount: {
+                name: 'Recent notes count',
+                desc: 'Number of recent notes to display.'
             },
             showTooltips: {
                 name: '显示工具提示（仅桌面端）',

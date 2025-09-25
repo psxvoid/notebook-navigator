@@ -36,7 +36,14 @@ import { useExpansionState } from '../context/ExpansionContext';
 import { useFileCache } from '../context/StorageContext';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { strings } from '../i18n';
-import { UNTAGGED_TAG_ID, NavigationPaneItemType, VirtualFolder, ItemType, SHORTCUTS_VIRTUAL_FOLDER_ID } from '../types';
+import {
+    UNTAGGED_TAG_ID,
+    NavigationPaneItemType,
+    VirtualFolder,
+    ItemType,
+    SHORTCUTS_VIRTUAL_FOLDER_ID,
+    RECENT_NOTES_VIRTUAL_FOLDER_ID
+} from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
@@ -61,6 +68,8 @@ interface UseNavigationPaneDataParams {
     isVisible: boolean;
     /** Whether the shortcuts virtual folder is expanded */
     shortcutsExpanded: boolean;
+    /** Whether the recent notes virtual folder is expanded */
+    recentNotesExpanded: boolean;
 }
 
 /**
@@ -89,7 +98,8 @@ interface UseNavigationPaneDataResult {
 export function useNavigationPaneData({
     settings,
     isVisible,
-    shortcutsExpanded
+    shortcutsExpanded,
+    recentNotesExpanded
 }: UseNavigationPaneDataParams): UseNavigationPaneDataResult {
     const { app } = useServices();
     const metadataService = useMetadataService();
@@ -405,61 +415,113 @@ export function useNavigationPaneData({
         shortcutsExpanded
     ]);
 
+    const recentNotesItems = useMemo(() => {
+        if (!settings.showRecentNotes) {
+            return [] as CombinedNavigationItem[];
+        }
+
+        const headerLevel = 0;
+        const itemLevel = headerLevel + 1;
+
+        const items: CombinedNavigationItem[] = [
+            {
+                type: NavigationPaneItemType.VIRTUAL_FOLDER,
+                key: RECENT_NOTES_VIRTUAL_FOLDER_ID,
+                level: headerLevel,
+                data: {
+                    id: RECENT_NOTES_VIRTUAL_FOLDER_ID,
+                    name: strings.navigationPane.recentNotesHeader,
+                    icon: 'lucide-history'
+                }
+            }
+        ];
+
+        if (!recentNotesExpanded) {
+            return items;
+        }
+
+        const limit = Math.max(1, settings.recentNotesCount ?? 1);
+        const recentPaths = Array.isArray(settings.recentNotes) ? settings.recentNotes.slice(0, limit) : [];
+
+        recentPaths.forEach(path => {
+            const file = app.vault.getAbstractFileByPath(path);
+            if (file instanceof TFile) {
+                items.push({
+                    type: NavigationPaneItemType.RECENT_NOTE,
+                    key: `recent-${path}`,
+                    level: itemLevel,
+                    note: file
+                });
+            }
+        });
+
+        return items;
+    }, [settings.showRecentNotes, settings.recentNotes, settings.recentNotesCount, recentNotesExpanded, app.vault]);
+
     /**
      * Combine shortcut, folder, and tag items based on display order settings
      */
     const items = useMemo(() => {
         const allItems: CombinedNavigationItem[] = [];
 
-        // Add top spacer at the beginning
         allItems.push({
             type: NavigationPaneItemType.TOP_SPACER,
             key: 'top-spacer'
         });
 
-        const hasAdditionalItems = folderItems.length > 0 || (settings.showTags && tagItems.length > 0);
+        const sections: CombinedNavigationItem[][] = [];
 
-        // Add shortcuts at the top if present
         if (shortcutItems.length > 0) {
-            allItems.push(...shortcutItems);
-            if (hasAdditionalItems) {
-                allItems.push({
-                    type: NavigationPaneItemType.LIST_SPACER,
-                    key: 'shortcuts-spacer'
-                });
-            }
+            sections.push(shortcutItems);
         }
 
+        if (recentNotesItems.length > 0) {
+            sections.push(recentNotesItems);
+        }
+
+        const mainSection: CombinedNavigationItem[] = [];
+
         if (settings.showTags && settings.showTagsAboveFolders) {
-            // Tags first, then folders
-            allItems.push(...tagItems);
+            mainSection.push(...tagItems);
             if (folderItems.length > 0 && tagItems.length > 0) {
-                allItems.push({
+                mainSection.push({
                     type: NavigationPaneItemType.LIST_SPACER,
                     key: 'tags-folders-spacer'
                 });
             }
-            allItems.push(...folderItems);
+            mainSection.push(...folderItems);
         } else {
-            // Folders first, then tags (default)
-            allItems.push(...folderItems);
+            mainSection.push(...folderItems);
             if (settings.showTags && tagItems.length > 0) {
-                allItems.push({
+                mainSection.push({
                     type: NavigationPaneItemType.LIST_SPACER,
                     key: 'folders-tags-spacer'
                 });
-                allItems.push(...tagItems);
+                mainSection.push(...tagItems);
             }
         }
 
-        // Add spacer at the end for better visibility
+        if (mainSection.length > 0) {
+            sections.push(mainSection);
+        }
+
+        sections.forEach((section, index) => {
+            allItems.push(...section);
+            if (index < sections.length - 1) {
+                allItems.push({
+                    type: NavigationPaneItemType.LIST_SPACER,
+                    key: `section-spacer-${index}`
+                });
+            }
+        });
+
         allItems.push({
             type: NavigationPaneItemType.BOTTOM_SPACER,
             key: 'bottom-spacer'
         });
 
         return allItems;
-    }, [folderItems, tagItems, shortcutItems, settings.showTags, settings.showTagsAboveFolders]);
+    }, [folderItems, tagItems, shortcutItems, recentNotesItems, settings.showTags, settings.showTagsAboveFolders]);
 
     /**
      * Create a stable version key for metadata objects that gets updated when they're mutated

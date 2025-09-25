@@ -74,9 +74,11 @@ export interface NotebookNavigatorSettings {
     excludedFolders: string[];
     excludedFiles: string[];
     // Navigation pane
+    showShortcuts: boolean;
+    showRecentNotes: boolean;
+    recentNotesCount: number;
     autoSelectFirstFileOnFocusChange: boolean;
     autoExpandFoldersTags: boolean;
-    showShortcuts: boolean;
     collapseBehavior: ItemScope;
     smartCollapse: boolean;
     showIcons: boolean;
@@ -141,6 +143,7 @@ export interface NotebookNavigatorSettings {
     showHiddenItems: boolean;
     // Shortcuts
     shortcuts: ShortcutEntry[];
+    recentNotes: string[];
     // Whether list/tag views include notes from descendants (subfolders/subtags)
     includeDescendantNotes: boolean;
     customVaultName: string;
@@ -165,6 +168,8 @@ export interface NotebookNavigatorSettings {
  * Default settings for the plugin
  * Used when plugin is first installed or settings are reset
  */
+export const RECENT_NOTES_DEFAULT_COUNT = 5;
+
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Top level settings (no category)
     autoRevealActiveFile: true,
@@ -175,9 +180,11 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     excludedFolders: [],
     excludedFiles: [],
     // Navigation pane
+    showShortcuts: true,
+    showRecentNotes: true,
+    recentNotesCount: RECENT_NOTES_DEFAULT_COUNT,
     autoSelectFirstFileOnFocusChange: false,
     autoExpandFoldersTags: false,
-    showShortcuts: true,
     collapseBehavior: 'all',
     smartCollapse: true,
     showIcons: true,
@@ -242,6 +249,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showHiddenItems: false,
     // Shortcuts
     shortcuts: [],
+    recentNotes: [],
     includeDescendantNotes: true,
     customVaultName: '',
     pinnedNotes: {},
@@ -613,6 +621,56 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Section 1: Navigation pane
         new Setting(containerEl).setName(strings.settings.sections.navigationPane).setHeading();
 
+        new Setting(containerEl)
+            .setName(strings.settings.items.showShortcuts.name)
+            .setDesc(strings.settings.items.showShortcuts.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showShortcuts).onChange(async value => {
+                    this.plugin.settings.showShortcuts = value;
+                    await this.plugin.saveSettingsAndUpdate();
+                })
+            );
+
+        let recentNotesSubSettings: HTMLDivElement | null = null;
+
+        const updateRecentNotesVisibility = (visible: boolean) => {
+            if (recentNotesSubSettings) {
+                recentNotesSubSettings.toggleClass('nn-setting-hidden', !visible);
+            }
+        };
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.showRecentNotes.name)
+            .setDesc(strings.settings.items.showRecentNotes.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showRecentNotes).onChange(async value => {
+                    this.plugin.settings.showRecentNotes = value;
+                    await this.plugin.saveSettingsAndUpdate();
+                    updateRecentNotesVisibility(value);
+                })
+            );
+
+        recentNotesSubSettings = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(recentNotesSubSettings)
+            .setName(strings.settings.items.recentNotesCount.name)
+            .setDesc(strings.settings.items.recentNotesCount.desc)
+            .addSlider(slider =>
+                slider
+                    .setLimits(1, 10, 1)
+                    .setValue(this.plugin.settings.recentNotesCount)
+                    .setDynamicTooltip()
+                    .onChange(async value => {
+                        this.plugin.settings.recentNotesCount = value;
+                        if (this.plugin.settings.recentNotes.length > value) {
+                            this.plugin.settings.recentNotes = this.plugin.settings.recentNotes.slice(0, value);
+                        }
+                        await this.plugin.saveSettingsAndUpdate();
+                    })
+            );
+
+        updateRecentNotesVisibility(this.plugin.settings.showRecentNotes);
+
         if (!Platform.isMobile) {
             new Setting(containerEl)
                 .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
@@ -631,16 +689,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.autoExpandFoldersTags).onChange(async value => {
                     this.plugin.settings.autoExpandFoldersTags = value;
-                    await this.plugin.saveSettingsAndUpdate();
-                })
-            );
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.showShortcuts.name)
-            .setDesc(strings.settings.items.showShortcuts.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.showShortcuts).onChange(async value => {
-                    this.plugin.settings.showShortcuts = value;
                     await this.plugin.saveSettingsAndUpdate();
                 })
             );

@@ -53,7 +53,8 @@ export const STRINGS_KO = {
     },
 
     navigationPane: {
-        shortcutsHeader: '바로가기'
+        shortcutsHeader: '바로가기',
+        recentNotesHeader: 'Recent notes'
     },
 
     shortcuts: {
@@ -543,6 +544,14 @@ export const STRINGS_KO = {
             showShortcuts: {
                 name: '바로가기 표시',
                 desc: '탐색 창에 바로가기 섹션을 표시합니다.'
+            },
+            showRecentNotes: {
+                name: 'Show recent notes',
+                desc: 'Display the recent notes section in the navigation pane.'
+            },
+            recentNotesCount: {
+                name: 'Recent notes count',
+                desc: 'Number of recent notes to display.'
             },
             showTooltips: {
                 name: '도구 설명 표시 (데스크톱 전용)',

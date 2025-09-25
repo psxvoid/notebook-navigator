@@ -73,7 +73,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.5.0',
         date: '2025-09-22',
-        new: ['Shortcuts pane lists favorite folders, notes, searches, and tags.'],
+        new: [
+            'Shortcuts pane lists favorite folders, notes, searches, and tags.',
+            'Recent notes section shows recently opened files in the navigation pane.'
+        ],
         changed: ['Auto reveal selects the nearest expanded ancestor when descendant notes are enabled.']
     },
     {

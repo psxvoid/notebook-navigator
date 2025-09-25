@@ -81,7 +81,7 @@ import { NavigationToolbar } from './NavigationToolbar';
 import { TagTreeItem } from './TagTreeItem';
 import { VirtualFolderComponent } from './VirtualFolderItem';
 import { getNavigationIndex, normalizeNavigationPath } from '../utils/navigationIndex';
-import { STORAGE_KEYS, SHORTCUTS_VIRTUAL_FOLDER_ID } from '../types';
+import { STORAGE_KEYS, SHORTCUTS_VIRTUAL_FOLDER_ID, RECENT_NOTES_VIRTUAL_FOLDER_ID } from '../types';
 import { localStorage } from '../utils/localStorage';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { ShortcutItem } from './ShortcutItem';
@@ -129,6 +129,16 @@ export const NavigationPane = React.memo(
         const [shortcutsExpanded, setShortcutsExpanded] = useState<boolean>(() => {
             const stored = localStorage.get<string>(STORAGE_KEYS.shortcutsExpandedKey);
             return stored !== '0';
+        });
+        const [recentNotesExpanded, setRecentNotesExpanded] = useState<boolean>(() => {
+            const stored = localStorage.get<string>(STORAGE_KEYS.recentNotesExpandedKey);
+            if (stored === '1') {
+                return true;
+            }
+            if (stored === '0') {
+                return false;
+            }
+            return false;
         });
 
         const shortcutCount = hydratedShortcuts.length;
@@ -186,7 +196,8 @@ export const NavigationPane = React.memo(
         const { items, pathToIndex, shortcutIndex, tagCounts, folderCounts } = useNavigationPaneData({
             settings,
             isVisible,
-            shortcutsExpanded
+            shortcutsExpanded,
+            recentNotesExpanded
         });
 
         // Use the new scroll hook
@@ -286,9 +297,17 @@ export const NavigationPane = React.memo(
                     });
                     return;
                 }
+                if (folderId === RECENT_NOTES_VIRTUAL_FOLDER_ID) {
+                    setRecentNotesExpanded(prev => {
+                        const next = !prev;
+                        localStorage.set(STORAGE_KEYS.recentNotesExpandedKey, next ? '1' : '0');
+                        return next;
+                    });
+                    return;
+                }
                 expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId });
             },
-            [expansionDispatch, setShortcutsExpanded]
+            [expansionDispatch, setRecentNotesExpanded, setShortcutsExpanded]
         );
 
         // Get all descendant folders recursively
@@ -487,6 +506,25 @@ export const NavigationPane = React.memo(
                 app.workspace,
                 isMobile
             ]
+        );
+
+        const handleRecentNoteActivate = useCallback(
+            (note: TFile) => {
+                if (selectionState.selectionType === ItemType.TAG && onRevealShortcutFile) {
+                    onRevealShortcutFile(note);
+                } else {
+                    onRevealFile(note);
+                }
+
+                const leaf = app.workspace.getLeaf(false);
+                if (leaf) {
+                    void leaf.openFile(note, { active: false });
+                }
+                if (isMobile && app.workspace.leftSplit) {
+                    app.workspace.leftSplit.collapse();
+                }
+            },
+            [selectionState.selectionType, onRevealFile, onRevealShortcutFile, app.workspace, isMobile]
         );
 
         // Handles search shortcut activation - executes saved search query
@@ -846,15 +884,20 @@ export const NavigationPane = React.memo(
                     case NavigationPaneItemType.VIRTUAL_FOLDER: {
                         const virtualFolder = item.data;
                         const isShortcutsGroup = virtualFolder.id === SHORTCUTS_VIRTUAL_FOLDER_ID;
+                        const isRecentNotesGroup = virtualFolder.id === RECENT_NOTES_VIRTUAL_FOLDER_ID;
                         const hasChildren = isShortcutsGroup
                             ? hydratedShortcuts.length > 0
-                            : virtualFolder.id === 'tags-root' ||
-                              virtualFolder.id === 'all-tags-root' ||
-                              virtualFolder.id === 'favorite-tags-root';
+                            : isRecentNotesGroup
+                              ? settings.recentNotes.length > 0
+                              : virtualFolder.id === 'tags-root' ||
+                                virtualFolder.id === 'all-tags-root' ||
+                                virtualFolder.id === 'favorite-tags-root';
 
                         const isExpanded = isShortcutsGroup
                             ? shortcutsExpanded
-                            : expansionState.expandedVirtualFolders.has(virtualFolder.id);
+                            : isRecentNotesGroup
+                              ? recentNotesExpanded
+                              : expansionState.expandedVirtualFolders.has(virtualFolder.id);
 
                         return (
                             <VirtualFolderComponent
@@ -863,6 +906,19 @@ export const NavigationPane = React.memo(
                                 isExpanded={isExpanded}
                                 hasChildren={hasChildren}
                                 onToggle={() => handleVirtualFolderToggle(virtualFolder.id)}
+                            />
+                        );
+                    }
+
+                    case NavigationPaneItemType.RECENT_NOTE: {
+                        const note = item.note;
+                        return (
+                            <ShortcutItem
+                                icon="lucide-file-text"
+                                label={note.basename}
+                                level={item.level}
+                                type="note"
+                                onClick={() => handleRecentNoteActivate(note)}
                             />
                         );
                     }
@@ -954,10 +1010,12 @@ export const NavigationPane = React.memo(
                 handleShortcutNoteActivate,
                 handleShortcutSearchActivate,
                 handleShortcutTagActivate,
+                handleRecentNoteActivate,
                 handleShortcutContextMenu,
                 getShortcutVisualState,
                 hydratedShortcuts,
-                shortcutsExpanded
+                shortcutsExpanded,
+                recentNotesExpanded
             ]
         );
 

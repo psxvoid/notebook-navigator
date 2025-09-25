@@ -54,7 +54,8 @@ export const STRINGS_EN = {
 
     // Navigation pane
     navigationPane: {
-        shortcutsHeader: 'Shortcuts' // Header label for shortcuts section in navigation pane (English: Shortcuts)
+        shortcutsHeader: 'Shortcuts', // Header label for shortcuts section in navigation pane (English: Shortcuts)
+        recentNotesHeader: 'Recent notes' // Header label for recent notes section in navigation pane (English: Recent notes)
     },
 
     shortcuts: {
@@ -543,6 +544,14 @@ export const STRINGS_EN = {
             showShortcuts: {
                 name: 'Show shortcuts',
                 desc: 'Display the shortcuts section in the navigation pane.'
+            },
+            showRecentNotes: {
+                name: 'Show recent notes',
+                desc: 'Display the recent notes section in the navigation pane.'
+            },
+            recentNotesCount: {
+                name: 'Recent notes count',
+                desc: 'Number of recent notes to display.'
             },
             showTooltips: {
                 name: 'Show tooltips (desktop only)',

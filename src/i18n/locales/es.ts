@@ -53,7 +53,8 @@ export const STRINGS_ES = {
     },
 
     navigationPane: {
-        shortcutsHeader: 'Accesos directos'
+        shortcutsHeader: 'Accesos directos',
+        recentNotesHeader: 'Recent notes'
     },
 
     shortcuts: {
@@ -544,6 +545,14 @@ export const STRINGS_ES = {
             showShortcuts: {
                 name: 'Mostrar accesos directos',
                 desc: 'Mostrar la sección de accesos directos en el panel de navegación.'
+            },
+            showRecentNotes: {
+                name: 'Show recent notes',
+                desc: 'Display the recent notes section in the navigation pane.'
+            },
+            recentNotesCount: {
+                name: 'Recent notes count',
+                desc: 'Number of recent notes to display.'
             },
             showTooltips: {
                 name: 'Mostrar tooltips (solo escritorio)',

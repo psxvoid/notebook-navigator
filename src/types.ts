@@ -93,6 +93,7 @@ export const NavigationPaneItemType = {
     SHORTCUT_NOTE: 'shortcut-note',
     SHORTCUT_SEARCH: 'shortcut-search',
     SHORTCUT_TAG: 'shortcut-tag',
+    RECENT_NOTE: 'recent-note',
     TOP_SPACER: 'top-spacer',
     BOTTOM_SPACER: 'bottom-spacer',
     LIST_SPACER: 'list-spacer'
@@ -200,6 +201,7 @@ export interface LocalStorageKeys {
     navigationPaneWidthKey: string;
     dualPaneKey: string;
     shortcutsExpandedKey: string;
+    recentNotesExpandedKey: string;
     fileCacheKey: string;
     databaseSchemaVersionKey: string;
     databaseContentVersionKey: string;
@@ -222,6 +224,7 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width',
     dualPaneKey: 'notebook-navigator-dual-pane',
     shortcutsExpandedKey: 'notebook-navigator-shortcuts-expanded',
+    recentNotesExpandedKey: 'notebook-navigator-recent-notes-expanded',
     fileCacheKey: 'notebook-navigator-file-cache',
     databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
     databaseContentVersionKey: 'notebook-navigator-db-content-version',
@@ -300,6 +303,7 @@ export interface VirtualFolder {
  * Virtual folder id for the shortcuts section in the navigation pane
  */
 export const SHORTCUTS_VIRTUAL_FOLDER_ID = 'shortcuts-root';
+export const RECENT_NOTES_VIRTUAL_FOLDER_ID = 'recent-notes-root';
 
 /**
  * Data attributes for drag-and-drop functionality using event delegation

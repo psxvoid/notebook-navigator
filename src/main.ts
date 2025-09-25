@@ -16,8 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Plugin, WorkspaceLeaf, TFile, TFolder } from 'obsidian';
-import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab, SETTINGS_VERSION } from './settings';
+import { Plugin, WorkspaceLeaf, TFile, TFolder, FileView } from 'obsidian';
+import {
+    NotebookNavigatorSettings,
+    DEFAULT_SETTINGS,
+    NotebookNavigatorSettingTab,
+    SETTINGS_VERSION,
+    RECENT_NOTES_DEFAULT_COUNT
+} from './settings';
 import { LocalStorageKeys, NOTEBOOK_NAVIGATOR_VIEW, STORAGE_KEYS } from './types';
 import { ISettingsProvider } from './interfaces/ISettingsProvider';
 import { MetadataService, type MetadataCleanupSummary } from './services/MetadataService';
@@ -35,6 +41,7 @@ import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
 import { initializeDatabase, shutdownDatabase } from './storage/fileOperations';
 import { ExtendedApp } from './types/obsidian-extended';
+import { getLeafSplitLocation } from './utils/workspaceSplit';
 import { isSupportedHomepageFile } from './utils/homepageUtils';
 
 /**
@@ -99,7 +106,53 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             this.settings.timeFormat = getDefaultTimeFormat();
         }
 
+        if (!Array.isArray(this.settings.recentNotes)) {
+            this.settings.recentNotes = [];
+        }
+
+        if (typeof this.settings.recentNotesCount !== 'number' || this.settings.recentNotesCount <= 0) {
+            this.settings.recentNotesCount = RECENT_NOTES_DEFAULT_COUNT;
+        }
+
         return isFirstLaunch;
+    }
+
+    private updateRecentNotes(file: TFile | null) {
+        if (!file) {
+            return;
+        }
+
+        const existing = Array.isArray(this.settings.recentNotes) ? this.settings.recentNotes : [];
+        const filtered = existing.filter(entry => entry !== file.path);
+        filtered.unshift(file.path);
+
+        const limit = Math.max(1, this.settings.recentNotesCount || RECENT_NOTES_DEFAULT_COUNT);
+        if (filtered.length > limit) {
+            filtered.length = limit;
+        }
+
+        const changed = filtered.length !== existing.length || filtered.some((value, index) => value !== existing[index]);
+
+        if (!changed) {
+            return;
+        }
+
+        this.settings.recentNotes = filtered;
+        void this.saveSettingsAndUpdate();
+    }
+
+    private isFileInRightSidebar(file: TFile): boolean {
+        if (!this.settings.autoRevealIgnoreRightSidebar) {
+            return false;
+        }
+
+        const view = this.app.workspace.getActiveViewOfType(FileView);
+        if (!view?.file || view.file.path !== file.path) {
+            return false;
+        }
+
+        const split = getLeafSplitLocation(this.app, view.leaf ?? null);
+        return split === 'right-sidebar';
     }
 
     /**
@@ -522,6 +575,19 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
 
         // ==== Vault events ====
+        this.registerEvent(
+            this.app.workspace.on('file-open', file => {
+                if (file instanceof TFile && !this.isFileInRightSidebar(file)) {
+                    this.updateRecentNotes(file);
+                }
+            })
+        );
+
+        const initialActiveFile = this.app.workspace.getActiveFile();
+        if (initialActiveFile instanceof TFile && !this.isFileInRightSidebar(initialActiveFile)) {
+            this.updateRecentNotes(initialActiveFile);
+        }
+
         // Register rename event handler to update folder metadata and notify file renames
         //
         // ARCHITECTURAL NOTE: Why folders and files are handled differently

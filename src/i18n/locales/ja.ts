@@ -53,7 +53,8 @@ export const STRINGS_JA = {
     },
 
     navigationPane: {
-        shortcutsHeader: 'ショートカット'
+        shortcutsHeader: 'ショートカット',
+        recentNotesHeader: 'Recent notes'
     },
 
     shortcuts: {
@@ -544,6 +545,14 @@ export const STRINGS_JA = {
             showShortcuts: {
                 name: 'ショートカットを表示',
                 desc: 'ナビゲーションペインにショートカットセクションを表示します。'
+            },
+            showRecentNotes: {
+                name: 'Show recent notes',
+                desc: 'Display the recent notes section in the navigation pane.'
+            },
+            recentNotesCount: {
+                name: 'Recent notes count',
+                desc: 'Number of recent notes to display.'
             },
             showTooltips: {
                 name: 'ツールチップを表示（デスクトップのみ）',
