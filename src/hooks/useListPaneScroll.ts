@@ -833,9 +833,11 @@ export function useListPaneScroll({
 
         // Scroll to top when search filters remove the selected file, regardless of whether
         // this happened immediately on query change or after the list rebuilt
+        // Check if scroll-to-top should be suppressed (used for mobile search shortcuts)
         const suppressTopScroll = suppressSearchTopScrollRef?.current ?? false;
 
         if (!selectedFileInList && listItems.length > 0) {
+            // Skip scroll-to-top if suppressed (mobile shortcut activation)
             if (suppressTopScroll && suppressSearchTopScrollRef) {
                 suppressSearchTopScrollRef.current = false;
                 return;
@@ -844,6 +846,7 @@ export function useListPaneScroll({
             return;
         }
 
+        // Reset suppression flag after checking
         if (suppressTopScroll && suppressSearchTopScrollRef) {
             suppressSearchTopScrollRef.current = false;
         }

@@ -125,11 +125,14 @@ export const NavigationPane = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts } = useShortcuts();
+        // Track which shortcut is currently active/selected
         const [activeShortcutKey, setActiveShortcut] = useState<string | null>(null);
+        // Track expansion state of shortcuts virtual folder
         const [shortcutsExpanded, setShortcutsExpanded] = useState<boolean>(() => {
             const stored = localStorage.get<string>(STORAGE_KEYS.shortcutsExpandedKey);
             return stored !== '0';
         });
+        // Track expansion state of recent notes virtual folder
         const [recentNotesExpanded, setRecentNotesExpanded] = useState<boolean>(() => {
             const stored = localStorage.get<string>(STORAGE_KEYS.recentNotesExpandedKey);
             if (stored === '1') {
@@ -141,9 +144,11 @@ export const NavigationPane = React.memo(
             return false;
         });
 
+        // Determine if drag and drop should be enabled for shortcuts
         const shortcutCount = hydratedShortcuts.length;
         const isShortcutDnDEnabled = !isMobile && shortcutsExpanded && shortcutCount > 1 && settings.showShortcuts;
 
+        // Map shortcut keys to their position in the list
         const shortcutPositionMap = useMemo(() => {
             const map = new Map<string, number>();
             hydratedShortcuts.forEach((entry, index) => {
@@ -158,6 +163,7 @@ export const NavigationPane = React.memo(
             reorderShortcuts
         });
 
+        // Get visual state for a shortcut item (drag state, drop indicators)
         const getShortcutVisualState = useCallback(
             (key: string) => {
                 const dragHandlers = getDragHandlers(key);
@@ -550,6 +556,7 @@ export const NavigationPane = React.memo(
             [setActiveShortcut, onRevealTag, scheduleShortcutRelease]
         );
 
+        // Move a shortcut up or down in the list
         const moveShortcut = useCallback(
             async (shortcutKey: string, direction: 'up' | 'down') => {
                 if (!settings.showShortcuts) {
@@ -581,6 +588,7 @@ export const NavigationPane = React.memo(
             [hydratedShortcuts, reorderShortcuts, settings.showShortcuts, shortcutPositionMap]
         );
 
+        // Handle right-click context menu for shortcuts (move up/down, remove)
         const handleShortcutContextMenu = useCallback(
             (event: React.MouseEvent<HTMLDivElement>, shortcutKey: string) => {
                 if (!settings.showShortcuts) {

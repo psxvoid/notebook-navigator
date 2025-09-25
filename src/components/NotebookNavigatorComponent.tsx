@@ -105,6 +105,7 @@ export const NotebookNavigatorComponent = React.memo(
         const navigationPaneRef = useRef<NavigationPaneHandle>(null);
         const listPaneRef = useRef<ListPaneHandle>(null);
 
+        // Execute a search shortcut by delegating to the list pane
         const handleSearchShortcutExecution = useCallback(async (_shortcutKey: string, searchShortcut: SearchShortcut) => {
             const listHandle = listPaneRef.current;
             if (!listHandle) {
@@ -130,6 +131,7 @@ export const NotebookNavigatorComponent = React.memo(
         // Use tag navigation logic
         const { navigateToTag } = useTagNavigation();
 
+        // Reveal a note when clicked from shortcuts (uses nearest folder logic)
         const handleShortcutNoteReveal = useCallback(
             (file: TFile) => {
                 revealFileInNearestFolder(file, { source: 'shortcut' });

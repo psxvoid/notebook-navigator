@@ -307,6 +307,7 @@ export function useNavigationPaneData({
     const parsedExcludedFolders = useMemo(() => settings.excludedFolders, [settings.excludedFolders]);
 
     // Build shortcut items for the navigation pane including header and individual shortcuts
+    // Build list of shortcut items with proper hierarchy
     const shortcutItems = useMemo(() => {
         if (!settings.showShortcuts) {
             return [] as CombinedNavigationItem[];
@@ -328,6 +329,7 @@ export function useNavigationPaneData({
             }
         ];
 
+        // Return only header if shortcuts folder is collapsed
         if (!shortcutsExpanded) {
             return items;
         }
@@ -415,6 +417,7 @@ export function useNavigationPaneData({
         shortcutsExpanded
     ]);
 
+    // Build list of recent notes items with proper hierarchy
     const recentNotesItems = useMemo(() => {
         if (!settings.showRecentNotes) {
             return [] as CombinedNavigationItem[];
@@ -436,6 +439,7 @@ export function useNavigationPaneData({
             }
         ];
 
+        // Return only header if recent notes folder is collapsed
         if (!recentNotesExpanded) {
             return items;
         }

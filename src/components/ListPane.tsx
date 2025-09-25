@@ -259,6 +259,7 @@ export const ListPane = React.memo(
             [selectedFile, orderedFiles, filePathToIndex, selectionDispatch, app.workspace]
         );
 
+        // Handle saving the current search query as a shortcut
         const handleSaveSearchShortcut = useCallback(() => {
             const normalizedQuery = searchQuery.trim();
             if (!normalizedQuery || isSavingSearchShortcut) {
@@ -281,6 +282,7 @@ export const ListPane = React.memo(
             modal.open();
         }, [app, addSearchShortcut, currentSearchProvider, isSavingSearchShortcut, searchQuery]);
 
+        // Handle removing the currently active search shortcut
         const handleRemoveSearchShortcut = useCallback(async () => {
             if (!activeSearchShortcut || isSavingSearchShortcut) {
                 return;
@@ -352,8 +354,10 @@ export const ListPane = React.memo(
             [app.workspace, commandQueue, isMobile, multiSelection, selectionDispatch, settings.multiSelectModifier, uiDispatch]
         );
 
+        // Utility to wait for next animation frame for UI updates
         const waitForNextFrame = useCallback(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())), []);
 
+        // Wait for mobile pane transition animation to complete
         const waitForMobilePaneTransition = useCallback(async () => {
             if (!isMobile) {
                 return;
@@ -374,6 +378,7 @@ export const ListPane = React.memo(
             }
         }, [isMobile, props.rootContainerRef]);
 
+        // Move focus to the list pane scroll container
         const focusListScroller = useCallback(() => {
             const scope = props.rootContainerRef.current ?? document;
             const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');

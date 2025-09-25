@@ -81,6 +81,7 @@ export class SaveSearchShortcutModal extends Modal {
         );
     }
 
+    // Validate input and call the submit handler
     private async handleSubmit(): Promise<void> {
         const trimmedName = this.name.trim();
         if (trimmedName.length === 0) {

@@ -49,6 +49,10 @@ function noopHandler() {
     // Intentionally empty - used when drag and drop is disabled
 }
 
+/**
+ * Hook that manages drag and drop reordering of shortcuts in the navigation pane.
+ * Returns drag handlers and current drag state for visual feedback.
+ */
 export function useShortcutReorder<T extends ShortcutDescriptor>({
     shortcuts,
     isEnabled,
@@ -57,8 +61,10 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
     const [draggingKey, setDraggingKey] = useState<string | null>(null);
     const [dropIndex, setDropIndex] = useState<number | null>(null);
 
+    // Extract ordered list of shortcut keys from the shortcuts array
     const shortcutOrder = useMemo(() => shortcuts.map(shortcut => shortcut.key), [shortcuts]);
 
+    // Build a map of shortcut keys to their current index for fast lookup
     const keyToIndex = useMemo(() => {
         const indexMap = new Map<string, number>();
         shortcutOrder.forEach((key, index) => {
@@ -67,17 +73,20 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
         return indexMap;
     }, [shortcutOrder]);
 
+    // Reset all drag-related state to initial values
     const resetDragState = useCallback(() => {
         setDraggingKey(null);
         setDropIndex(null);
     }, []);
 
+    // Clear drag state when drag and drop is disabled
     useEffect(() => {
         if (!isEnabled) {
             resetDragState();
         }
     }, [isEnabled, resetDragState]);
 
+    // Clear drag state if the dragged shortcut is no longer in the list
     useEffect(() => {
         if (!draggingKey) {
             return;
@@ -87,12 +96,14 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
         }
     }, [draggingKey, keyToIndex, resetDragState]);
 
+    // Disable drag and drop when there are fewer than 2 shortcuts
     useEffect(() => {
         if (shortcuts.length < 2) {
             resetDragState();
         }
     }, [shortcuts.length, resetDragState]);
 
+    // Calculate where to insert the dragged item based on mouse position
     const computeInsertIndex = useCallback(
         (event: DragEvent<HTMLDivElement>, targetKey: string) => {
             if (!draggingKey) {
@@ -104,6 +115,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
                 return null;
             }
 
+            // Determine if drop is in top or bottom half of target element
             const element = event.currentTarget;
             const bounds = element.getBoundingClientRect();
             const offset = event.clientY - bounds.top;
@@ -115,6 +127,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
         [draggingKey, keyToIndex, shortcutOrder.length]
     );
 
+    // Apply the reorder operation and update settings
     const finalizeReorder = useCallback(
         async (targetIndex: number | null) => {
             if (draggingKey === null) {
@@ -131,10 +144,12 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
 
             let insertIndex = Math.max(0, Math.min(targetIndex, shortcutOrder.length));
 
+            // Skip reorder if item would end up in the same position
             if (fromIndex === insertIndex || fromIndex + 1 === insertIndex) {
                 return;
             }
 
+            // Build new order array with the moved item in its new position
             const nextOrder = [...shortcutOrder];
             const [moved] = nextOrder.splice(fromIndex, 1);
             if (fromIndex < insertIndex) {
@@ -142,6 +157,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
             }
             nextOrder.splice(insertIndex, 0, moved);
 
+            // Check if the order actually changed
             let changed = false;
             for (let index = 0; index < nextOrder.length; index += 1) {
                 if (nextOrder[index] !== shortcutOrder[index]) {
@@ -166,6 +182,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
         [draggingKey, keyToIndex, reorderShortcuts, shortcutOrder]
     );
 
+    // Initialize drag operation and set dragging state
     const handleDragStart = useCallback(
         (event: DragEvent<HTMLDivElement>, key: string) => {
             if (!isEnabled) {
@@ -185,6 +202,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
         [isEnabled, keyToIndex]
     );
 
+    // Update drop indicator position as drag moves over elements
     const handleDragOver = useCallback(
         (event: DragEvent<HTMLDivElement>, key: string) => {
             if (!isEnabled || draggingKey === null) {
@@ -207,6 +225,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
         [computeInsertIndex, dropIndex, draggingKey, isEnabled]
     );
 
+    // Complete the drag operation and reorder shortcuts
     const handleDrop = useCallback(
         async (event: DragEvent<HTMLDivElement>, key: string) => {
             if (!isEnabled || draggingKey === null) {
@@ -223,6 +242,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
         [computeInsertIndex, draggingKey, finalizeReorder, isEnabled, resetDragState]
     );
 
+    // Clear drop indicator when drag leaves the valid drop zone
     const handleDragLeave = useCallback(
         (event: DragEvent<HTMLDivElement>) => {
             if (!isEnabled || draggingKey === null) {
@@ -248,6 +268,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
         [draggingKey, isEnabled, setDropIndex]
     );
 
+    // Clean up drag state when drag operation ends
     const handleDragEnd = useCallback(() => {
         if (!draggingKey) {
             return;
@@ -255,6 +276,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
         resetDragState();
     }, [draggingKey, resetDragState]);
 
+    // No-op handlers used when drag and drop is disabled
     const disabledHandlers = useMemo<ShortcutDragHandlers>(
         () => ({
             draggable: false,
@@ -267,6 +289,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
         []
     );
 
+    // Factory function to create drag handlers for a specific shortcut
     const getDragHandlers = useCallback(
         (key: string): ShortcutDragHandlers => {
             if (!isEnabled) {

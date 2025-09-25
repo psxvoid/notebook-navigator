@@ -268,6 +268,7 @@ export function useNavigationPaneScroll({
         // Only scroll on actual selection changes or visibility/focus changes
         if (!isSelectionChange && !justBecameVisible && !justGainedFocus) return;
 
+        // Skip scroll when a shortcut is active (prevents interference)
         if (activeShortcutKey) {
             return;
         }
@@ -310,6 +311,7 @@ export function useNavigationPaneScroll({
      */
     useEffect(() => {
         if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag && rowVirtualizer && isVisible) {
+            // Skip tag scrolling when a shortcut is active
             if (activeShortcutKey) {
                 prevSelectedTagRef.current = selectionState.selectedTag;
                 return;
@@ -422,6 +424,7 @@ export function useNavigationPaneScroll({
         if (!isMobile) return;
 
         const handleVisible = () => {
+            // Skip mobile visibility scroll when a shortcut is active
             if (activeShortcutKey) {
                 return;
             }
@@ -457,6 +460,7 @@ export function useNavigationPaneScroll({
         const settingsKey = `${settings.navItemHeight}-${settings.navIndent}`;
         const settingsChanged = prevNavSettingsKeyRef.current && prevNavSettingsKeyRef.current !== settingsKey;
 
+        // Skip settings-triggered scroll when a shortcut is active
         if (activeShortcutKey) {
             prevNavSettingsKeyRef.current = settingsKey;
             return;

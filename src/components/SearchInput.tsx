@@ -159,6 +159,7 @@ export function SearchInput({
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
     };
 
+    // Determine if shortcut save/remove button should be shown and its state
     const hasQuery = searchQuery.trim().length > 0;
     const showShortcutButton = hasQuery && Boolean(onSaveShortcut || (isShortcutSaved && onRemoveShortcut));
     const shortcutButtonDisabled = isShortcutDisabled || (!isShortcutSaved && !onSaveShortcut) || (isShortcutSaved && !onRemoveShortcut);
@@ -179,6 +180,7 @@ export function SearchInput({
                     onKeyDown={handleKeyDown}
                     onClick={handleSearchClick}
                 />
+                {/* Star button to save/remove search as shortcut */}
                 {showShortcutButton && (
                     <div
                         className={`nn-search-star-button ${isShortcutSaved ? 'nn-search-star-button--active' : ''}`}
