@@ -64,7 +64,9 @@ export const STRINGS_JA = {
         emptySearchQuery: 'Enter a search query before saving it',
         emptySearchName: 'Enter a name before saving the search',
         add: 'ショートカットに追加',
-        remove: 'ショートカットから削除'
+        remove: 'ショートカットから削除',
+        moveUp: '上に移動',
+        moveDown: '下に移動'
     },
 
     // Pane header

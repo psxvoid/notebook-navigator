@@ -64,7 +64,9 @@ export const STRINGS_KO = {
         emptySearchQuery: 'Enter a search query before saving it',
         emptySearchName: 'Enter a name before saving the search',
         add: '바로가기에 추가',
-        remove: '바로가기에 제거'
+        remove: '바로가기에 제거',
+        moveUp: '위로 이동',
+        moveDown: '아래로 이동'
     },
 
     // Pane header

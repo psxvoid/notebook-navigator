@@ -65,7 +65,9 @@ export const STRINGS_EN = {
         emptySearchQuery: 'Enter a search query before saving it',
         emptySearchName: 'Enter a name before saving the search',
         add: 'Add to shortcuts',
-        remove: 'Remove from shortcuts'
+        remove: 'Remove from shortcuts',
+        moveUp: 'Move up',
+        moveDown: 'Move down'
     },
 
     // Pane header

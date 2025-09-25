@@ -127,7 +127,8 @@ export const NavigationPane = React.memo(
             return stored !== '0';
         });
 
-        const isShortcutDnDEnabled = !isMobile && shortcutsExpanded && hydratedShortcuts.length > 1;
+        const shortcutCount = hydratedShortcuts.length;
+        const isShortcutDnDEnabled = !isMobile && shortcutsExpanded && shortcutCount > 1;
 
         const shortcutPositionMap = useMemo(() => {
             const map = new Map<string, number>();
@@ -489,12 +490,71 @@ export const NavigationPane = React.memo(
             [setActiveShortcut, handleTagClick, scrollShortcutIntoView, scheduleShortcutRelease]
         );
 
+        const moveShortcut = useCallback(
+            async (shortcutKey: string, direction: 'up' | 'down') => {
+                const currentIndex = shortcutPositionMap.get(shortcutKey);
+                if (currentIndex === undefined) {
+                    return;
+                }
+
+                const keys = hydratedShortcuts.map(entry => entry.key);
+                const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+                if (targetIndex < 0 || targetIndex >= keys.length) {
+                    return;
+                }
+
+                const [moved] = keys.splice(currentIndex, 1);
+                keys.splice(targetIndex, 0, moved);
+
+                try {
+                    const success = await reorderShortcuts(keys);
+                    if (!success) {
+                        console.warn('Shortcut move operation did not persist order change');
+                    }
+                } catch (error) {
+                    console.error('Failed to move shortcut', error);
+                }
+            },
+            [hydratedShortcuts, reorderShortcuts, shortcutPositionMap]
+        );
+
         const handleShortcutContextMenu = useCallback(
             (event: React.MouseEvent<HTMLDivElement>, shortcutKey: string) => {
                 event.preventDefault();
                 event.stopPropagation();
 
+                const shortcutIndex = shortcutPositionMap.get(shortcutKey);
+                const canMoveUp = typeof shortcutIndex === 'number' && shortcutIndex > 0;
+                const canMoveDown = typeof shortcutIndex === 'number' && shortcutIndex < shortcutCount - 1;
+
                 const menu = new Menu();
+
+                if (isMobile) {
+                    menu.addItem(item => {
+                        item.setTitle(strings.shortcuts.moveUp)
+                            .setIcon('lucide-arrow-up')
+                            .setDisabled(!canMoveUp)
+                            .onClick(() => {
+                                if (canMoveUp) {
+                                    void moveShortcut(shortcutKey, 'up');
+                                }
+                            });
+                    });
+
+                    menu.addItem(item => {
+                        item.setTitle(strings.shortcuts.moveDown)
+                            .setIcon('lucide-arrow-down')
+                            .setDisabled(!canMoveDown)
+                            .onClick(() => {
+                                if (canMoveDown) {
+                                    void moveShortcut(shortcutKey, 'down');
+                                }
+                            });
+                    });
+
+                    menu.addSeparator();
+                }
+
                 menu.addItem(item => {
                     item.setTitle(strings.shortcuts.remove)
                         .setIcon('lucide-star-off')
@@ -504,7 +564,7 @@ export const NavigationPane = React.memo(
                 });
                 menu.showAtMouseEvent(event.nativeEvent);
             },
-            [removeShortcut]
+            [isMobile, moveShortcut, removeShortcut, shortcutCount, shortcutPositionMap]
         );
 
         const getFolderShortcutCount = useCallback(

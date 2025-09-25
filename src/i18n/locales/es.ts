@@ -64,7 +64,9 @@ export const STRINGS_ES = {
         emptySearchQuery: 'Enter a search query before saving it',
         emptySearchName: 'Enter a name before saving the search',
         add: 'Agregar a accesos directos',
-        remove: 'Quitar de accesos directos'
+        remove: 'Quitar de accesos directos',
+        moveUp: 'Mover arriba',
+        moveDown: 'Mover abajo'
     },
 
     // Pane header

@@ -64,7 +64,9 @@ export const STRINGS_ZH = {
         emptySearchQuery: 'Enter a search query before saving it',
         emptySearchName: 'Enter a name before saving the search',
         add: '添加到快捷方式',
-        remove: '从快捷方式移除'
+        remove: '从快捷方式移除',
+        moveUp: '上移',
+        moveDown: '下移'
     },
 
     // Pane header
