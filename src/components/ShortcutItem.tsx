@@ -19,6 +19,7 @@
 import React, { useMemo, useEffect, useRef } from 'react';
 import { useSettingsState } from '../context/SettingsContext';
 import { getIconService, useIconServiceVersion } from '../services/icons';
+import type { ShortcutDragHandlers } from '../hooks/useShortcutReorder';
 
 interface ShortcutItemProps {
     icon: string;
@@ -31,6 +32,10 @@ interface ShortcutItemProps {
     isExcluded?: boolean;
     onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
     onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
+    dragHandlers?: ShortcutDragHandlers;
+    showDropIndicatorBefore?: boolean;
+    showDropIndicatorAfter?: boolean;
+    isDragSource?: boolean;
 }
 
 /**
@@ -47,7 +52,11 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     count,
     isExcluded,
     onClick,
-    onContextMenu
+    onContextMenu,
+    dragHandlers,
+    showDropIndicatorBefore,
+    showDropIndicatorAfter,
+    isDragSource
 }: ShortcutItemProps) {
     const settings = useSettingsState();
     const iconRef = useRef<HTMLSpanElement>(null);
@@ -62,8 +71,11 @@ export const ShortcutItem = React.memo(function ShortcutItem({
         if (isExcluded) {
             classes.push('nn-excluded');
         }
+        if (isDragSource) {
+            classes.push('nn-shortcut-drag-source');
+        }
         return classes.join(' ');
-    }, [isDisabled, isExcluded]);
+    }, [isDisabled, isExcluded, isDragSource]);
 
     useEffect(() => {
         if (iconRef.current && settings.showIcons) {
@@ -72,6 +84,8 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     }, [icon, settings.showIcons, iconVersion]);
 
     const shouldShowCount = settings.showNoteCount && typeof count === 'number' && count > 0 && (type === 'folder' || type === 'tag');
+
+    const draggable = dragHandlers?.draggable ?? false;
 
     return (
         <div
@@ -93,10 +107,19 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             role="treeitem"
             tabIndex={-1}
             aria-disabled={isDisabled || undefined}
+            aria-grabbed={isDragSource ? true : undefined}
             data-shortcut-type={type}
             data-level={level}
+            data-shortcut-draggable={draggable ? 'true' : undefined}
             aria-level={level + 1}
+            draggable={draggable}
+            onDragStart={dragHandlers?.onDragStart}
+            onDragOver={dragHandlers?.onDragOver}
+            onDragLeave={dragHandlers?.onDragLeave}
+            onDrop={dragHandlers?.onDrop}
+            onDragEnd={dragHandlers?.onDragEnd}
         >
+            {showDropIndicatorBefore ? <div className="nn-shortcut-drop-indicator" data-position="before" aria-hidden="true" /> : null}
             <div className="nn-navitem-content">
                 <span className="nn-navitem-chevron nn-navitem-chevron--no-children" aria-hidden="true" />
                 {settings.showIcons && <span className="nn-navitem-icon" ref={iconRef} />}
@@ -107,6 +130,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
                 <span className="nn-navitem-spacer" />
                 {shouldShowCount ? <span className="nn-navitem-count">{count}</span> : null}
             </div>
+            {showDropIndicatorAfter ? <div className="nn-shortcut-drop-indicator" data-position="after" aria-hidden="true" /> : null}
         </div>
     );
 });

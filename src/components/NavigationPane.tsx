@@ -66,6 +66,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useNavigationPaneKeyboard } from '../hooks/useNavigationPaneKeyboard';
 import { useNavigationPaneData } from '../hooks/useNavigationPaneData';
 import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
+import { useShortcutReorder } from '../hooks/useShortcutReorder';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { NavigationPaneItemType, ItemType } from '../types';
 import { getSelectedPath } from '../utils/selectionUtils';
@@ -119,12 +120,41 @@ export const NavigationPane = React.memo(
         const settings = useSettingsState();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
-        const { shortcutMap, removeShortcut, hydratedShortcuts } = useShortcuts();
+        const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts } = useShortcuts();
         const [activeShortcutKey, setActiveShortcut] = useState<string | null>(null);
         const [shortcutsExpanded, setShortcutsExpanded] = useState<boolean>(() => {
             const stored = localStorage.get<string>(STORAGE_KEYS.shortcutsExpandedKey);
             return stored !== '0';
         });
+
+        const isShortcutDnDEnabled = !isMobile && shortcutsExpanded && hydratedShortcuts.length > 1;
+
+        const shortcutPositionMap = useMemo(() => {
+            const map = new Map<string, number>();
+            hydratedShortcuts.forEach((entry, index) => {
+                map.set(entry.key, index);
+            });
+            return map;
+        }, [hydratedShortcuts]);
+
+        const { getDragHandlers, dropIndex, draggingKey } = useShortcutReorder({
+            shortcuts: hydratedShortcuts,
+            isEnabled: isShortcutDnDEnabled,
+            reorderShortcuts
+        });
+
+        const getShortcutVisualState = useCallback(
+            (key: string) => {
+                const dragHandlers = getDragHandlers(key);
+                const shortcutIndex = shortcutPositionMap.get(key);
+                const showBefore = dropIndex !== null && shortcutIndex !== undefined && dropIndex === shortcutIndex && draggingKey !== key;
+                const showAfter =
+                    dropIndex !== null && shortcutIndex !== undefined && dropIndex === shortcutIndex + 1 && draggingKey !== key;
+                const isDragSource = draggingKey === key;
+                return { dragHandlers, showBefore, showAfter, isDragSource };
+            },
+            [draggingKey, dropIndex, getDragHandlers, shortcutPositionMap]
+        );
 
         // Android uses toolbar at top, iOS at bottom
         const isAndroid = Platform.isAndroidApp;
@@ -596,6 +626,7 @@ export const NavigationPane = React.memo(
                             return null;
                         }
 
+                        const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
                         const folderCount = getFolderShortcutCount(folder);
 
                         return (
@@ -608,6 +639,10 @@ export const NavigationPane = React.memo(
                                 isExcluded={item.isExcluded}
                                 onClick={() => handleShortcutFolderActivate(folder, item.key)}
                                 onContextMenu={event => handleShortcutContextMenu(event, item.key)}
+                                dragHandlers={dragHandlers}
+                                showDropIndicatorBefore={showBefore}
+                                showDropIndicatorAfter={showAfter}
+                                isDragSource={isDragSource}
                             />
                         );
                     }
@@ -618,6 +653,8 @@ export const NavigationPane = React.memo(
                             return null;
                         }
 
+                        const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+
                         return (
                             <ShortcutItem
                                 icon="lucide-file-text"
@@ -626,12 +663,18 @@ export const NavigationPane = React.memo(
                                 type="note"
                                 onClick={() => handleShortcutNoteActivate(note, item.key)}
                                 onContextMenu={event => handleShortcutContextMenu(event, item.key)}
+                                dragHandlers={dragHandlers}
+                                showDropIndicatorBefore={showBefore}
+                                showDropIndicatorAfter={showAfter}
+                                isDragSource={isDragSource}
                             />
                         );
                     }
 
                     case NavigationPaneItemType.SHORTCUT_SEARCH: {
                         const searchShortcut = item.searchShortcut;
+
+                        const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
 
                         return (
                             <ShortcutItem
@@ -641,12 +684,17 @@ export const NavigationPane = React.memo(
                                 type="search"
                                 onClick={() => handleShortcutSearchActivate(item.key, searchShortcut)}
                                 onContextMenu={event => handleShortcutContextMenu(event, item.key)}
+                                dragHandlers={dragHandlers}
+                                showDropIndicatorBefore={showBefore}
+                                showDropIndicatorAfter={showAfter}
+                                isDragSource={isDragSource}
                             />
                         );
                     }
 
                     case NavigationPaneItemType.SHORTCUT_TAG: {
                         const tagCount = getTagShortcutCount(item.tagPath);
+                        const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
                         return (
                             <ShortcutItem
                                 icon={item.icon ?? 'lucide-tags'}
@@ -656,6 +704,10 @@ export const NavigationPane = React.memo(
                                 count={tagCount}
                                 onClick={() => handleShortcutTagActivate(item.tagPath, item.key, item.context)}
                                 onContextMenu={event => handleShortcutContextMenu(event, item.key)}
+                                dragHandlers={dragHandlers}
+                                showDropIndicatorBefore={showBefore}
+                                showDropIndicatorAfter={showAfter}
+                                isDragSource={isDragSource}
                             />
                         );
                     }
@@ -815,6 +867,7 @@ export const NavigationPane = React.memo(
                 handleShortcutSearchActivate,
                 handleShortcutTagActivate,
                 handleShortcutContextMenu,
+                getShortcutVisualState,
                 hydratedShortcuts,
                 shortcutsExpanded
             ]

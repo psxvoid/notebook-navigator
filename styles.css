@@ -913,6 +913,35 @@ body {
     font-size: 11px;
 }
 
+.nn-shortcut-item {
+    position: relative;
+}
+
+.nn-shortcut-drag-source {
+    opacity: 0.6;
+}
+
+.nn-shortcut-drop-indicator {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    height: 0;
+    border-top: 2px solid var(--interactive-accent);
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
+    pointer-events: none;
+    z-index: 5;
+}
+
+.nn-shortcut-drop-indicator[data-position='before'] {
+    top: 0;
+    transform: translateY(-1px);
+}
+
+.nn-shortcut-drop-indicator[data-position='after'] {
+    bottom: 0;
+    transform: translateY(1px);
+}
+
 .nn-shortcut-item .nn-navitem-name {
     display: inline-flex;
     align-items: center;
