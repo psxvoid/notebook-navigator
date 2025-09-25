@@ -109,12 +109,13 @@ interface NavigationPaneProps {
     onNavigateToFolder: (folderPath: string) => void;
     onRevealTag: (tagPath: string) => void;
     onRevealFile: (file: TFile) => void;
+    onRevealShortcutFile?: (file: TFile) => void;
 }
 
 export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
         const { app, isMobile } = useServices();
-        const { onExecuteSearchShortcut, rootContainerRef, onNavigateToFolder, onRevealTag, onRevealFile } = props;
+        const { onExecuteSearchShortcut, rootContainerRef, onNavigateToFolder, onRevealTag, onRevealFile, onRevealShortcutFile } = props;
         const commandQueue = useCommandQueue();
         const expansionState = useExpansionState();
         const expansionDispatch = useExpansionDispatch();
@@ -461,7 +462,11 @@ export const NavigationPane = React.memo(
         const handleShortcutNoteActivate = useCallback(
             (note: TFile, shortcutKey: string) => {
                 setActiveShortcut(shortcutKey);
-                onRevealFile(note);
+                if (selectionState.selectionType === ItemType.TAG && onRevealShortcutFile) {
+                    onRevealShortcutFile(note);
+                } else {
+                    onRevealFile(note);
+                }
 
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
@@ -473,7 +478,15 @@ export const NavigationPane = React.memo(
 
                 scheduleShortcutRelease();
             },
-            [setActiveShortcut, onRevealFile, scheduleShortcutRelease, app.workspace, isMobile]
+            [
+                selectionState.selectionType,
+                setActiveShortcut,
+                onRevealFile,
+                onRevealShortcutFile,
+                scheduleShortcutRelease,
+                app.workspace,
+                isMobile
+            ]
         );
 
         // Handles search shortcut activation - executes saved search query

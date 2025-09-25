@@ -23,6 +23,7 @@ import type { ListPaneHandle } from '../components/ListPane';
 import type { NavigationPaneHandle } from '../components/NavigationPane';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import type { SelectionRevealSource } from '../context/SelectionContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
@@ -37,6 +38,10 @@ interface UseNavigatorRevealOptions {
     app: App;
     navigationPaneRef: RefObject<NavigationPaneHandle | null>;
     listPaneRef: RefObject<ListPaneHandle | null>;
+}
+
+interface RevealFileOptions {
+    source?: SelectionRevealSource;
 }
 
 /**
@@ -299,13 +304,14 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
      * @param file - The file to reveal in nearest appropriate folder
      */
     const revealFileInNearestFolder = useCallback(
-        (file: TFile) => {
+        (file: TFile, options?: RevealFileOptions) => {
             if (!file?.parent) return;
 
             // Check if we're in tag view and should switch tags
             let targetTag: string | null | undefined = undefined;
             let targetFolderOverride: TFolder | null = null;
             let preserveFolder = false;
+            const revealSource = options?.source;
             if (selectionState.selectionType === 'tag') {
                 targetTag = determineTagToReveal(file, selectionState.selectedTag, settings, getDB());
 
@@ -368,7 +374,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 preserveFolder,
                 isManualReveal: false,
                 targetTag,
-                targetFolder: targetFolderOverride ?? undefined
+                targetFolder: targetFolderOverride ?? undefined,
+                source: revealSource
             });
 
             // In single pane mode, switch to list pane view
@@ -654,6 +661,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
 
     return {
         revealFileInActualFolder,
+        revealFileInNearestFolder,
         navigateToFolder,
         revealTag
     };

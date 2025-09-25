@@ -121,7 +121,7 @@ export const NotebookNavigatorComponent = React.memo(
         });
 
         // Use navigator reveal logic
-        const { revealFileInActualFolder, navigateToFolder, revealTag } = useNavigatorReveal({
+        const { revealFileInActualFolder, revealFileInNearestFolder, navigateToFolder, revealTag } = useNavigatorReveal({
             app,
             navigationPaneRef,
             listPaneRef
@@ -129,6 +129,13 @@ export const NotebookNavigatorComponent = React.memo(
 
         // Use tag navigation logic
         const { navigateToTag } = useTagNavigation();
+
+        const handleShortcutNoteReveal = useCallback(
+            (file: TFile) => {
+                revealFileInNearestFolder(file, { source: 'shortcut' });
+            },
+            [revealFileInNearestFolder]
+        );
 
         // Get updateSettings from SettingsContext for refresh
         const updateSettings = useSettingsUpdate();
@@ -570,6 +577,7 @@ export const NotebookNavigatorComponent = React.memo(
                     onNavigateToFolder={navigateToFolder}
                     onRevealTag={revealTag}
                     onRevealFile={revealFileInActualFolder}
+                    onRevealShortcutFile={handleShortcutNoteReveal}
                 />
                 <ListPane
                     ref={listPaneRef}
