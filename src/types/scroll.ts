@@ -23,6 +23,9 @@ export function getNavAlign(intent?: NavScrollIntent): Align {
             return 'auto';
         case 'selection':
             return Platform.isMobile ? 'center' : 'auto';
+        case 'reveal':
+        case 'external':
+            return 'auto';
         default:
             return 'center';
     }

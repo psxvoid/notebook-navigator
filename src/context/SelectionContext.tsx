@@ -59,6 +59,7 @@ export type SelectionAction =
           isManualReveal?: boolean;
           targetTag?: string | null;
           source?: SelectionRevealSource;
+          targetFolder?: TFolder | null;
       }
     | { type: 'CLEANUP_DELETED_FOLDER'; deletedPath: string }
     | { type: 'CLEANUP_DELETED_FILE'; deletedPath: string; nextFileToSelect?: TFile | null }
@@ -212,13 +213,15 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             newSelectedFiles.add(action.file.path);
 
             const revealSource: SelectionRevealSource = action.source ?? (action.isManualReveal ? 'manual' : 'auto');
+            const targetFolder = action.targetFolder ?? null;
 
             // Manual reveals always go to folder view
             if (action.isManualReveal) {
+                const folderToSelect = targetFolder ?? action.file.parent;
                 return {
                     ...state,
                     selectionType: 'folder',
-                    selectedFolder: action.file.parent,
+                    selectedFolder: folderToSelect,
                     selectedTag: null,
                     selectedFiles: newSelectedFiles,
                     selectedFile: action.file,
@@ -251,7 +254,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                     };
                 }
                 // No tag to reveal, switch to folder view
-                const newFolder = action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent;
+                const newFolder =
+                    targetFolder ?? (action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent);
                 return {
                     ...state,
                     selectionType: 'folder',
@@ -288,7 +292,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             }
 
             // Default: switch to folder view
-            const newFolder = action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent;
+            const newFolder = targetFolder ?? (action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent);
             return {
                 ...state,
                 selectionType: 'folder',

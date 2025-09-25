@@ -66,6 +66,66 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
     const activeFileRef = useRef<string | null>(null);
     const hasInitializedRef = useRef<boolean>(false);
 
+    const getRevealTargetFolder = useCallback(
+        (folder: TFolder | null): { target: TFolder | null; expandAncestors: boolean } => {
+            if (!folder) {
+                return { target: null, expandAncestors: false };
+            }
+
+            if (!settings.includeDescendantNotes) {
+                return { target: folder, expandAncestors: true };
+            }
+
+            const root = app.vault.getRoot();
+            const rootPath = root?.path ?? '/';
+
+            const isFolderVisible = (candidate: TFolder): boolean => {
+                if (!settings.showRootFolder && root && candidate === root) {
+                    return false;
+                }
+
+                let current: TFolder | null = candidate;
+                while (current) {
+                    const parent: TFolder | null = current.parent;
+                    if (!parent) {
+                        break;
+                    }
+                    const parentIsRoot = root && parent.path === rootPath;
+
+                    if (parentIsRoot && !settings.showRootFolder) {
+                        current = parent;
+                        continue;
+                    }
+
+                    if (!expansionState.expandedFolders.has(parent.path)) {
+                        return false;
+                    }
+
+                    current = parent;
+                }
+
+                return true;
+            };
+
+            let current: TFolder | null = folder;
+            while (current && !isFolderVisible(current)) {
+                current = current.parent;
+            }
+
+            if (!current) {
+                const fallback = settings.showRootFolder ? (root ?? folder) : folder;
+                return { target: fallback, expandAncestors: false };
+            }
+
+            if (!settings.showRootFolder && root && current === root) {
+                return { target: folder, expandAncestors: false };
+            }
+
+            return { target: current, expandAncestors: false };
+        },
+        [settings.includeDescendantNotes, settings.showRootFolder, expansionState.expandedFolders, app]
+    );
+
     /**
      * Reveals a file in its actual parent folder.
      * Always navigates to the file's parent folder and expands ancestors.
@@ -77,29 +137,31 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
         (file: TFile) => {
             if (!file?.parent) return;
 
-            // Always expand folders for actual folder reveal
-            const foldersToExpand: string[] = [];
-            let currentFolder: TFolder | null = file.parent;
+            const { target, expandAncestors } = getRevealTargetFolder(file.parent);
+            const resolvedFolder = target ?? file.parent;
 
-            // Expand all ancestors except the immediate parent
-            // This preserves the user's choice of whether the parent is expanded/collapsed
-            if (currentFolder && currentFolder.parent) {
-                currentFolder = currentFolder.parent; // Skip immediate parent
-                while (currentFolder) {
-                    foldersToExpand.unshift(currentFolder.path);
-                    if (currentFolder.path === '/') break;
-                    currentFolder = currentFolder.parent;
+            if (expandAncestors && file.parent) {
+                const foldersToExpand: string[] = [];
+                let ancestor: TFolder | null = file.parent.parent;
+
+                while (ancestor) {
+                    foldersToExpand.unshift(ancestor.path);
+                    if (ancestor.path === '/') break;
+                    ancestor = ancestor.parent;
+                }
+
+                if (foldersToExpand.some(path => !expansionState.expandedFolders.has(path))) {
+                    expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
                 }
             }
 
-            // Expand folders if needed
-            const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
-            if (needsExpansion) {
-                expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
-            }
-
-            // Trigger the reveal - never preserve folder for actual folder reveals
-            selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder: false, isManualReveal: true });
+            selectionDispatch({
+                type: 'REVEAL_FILE',
+                file,
+                preserveFolder: false,
+                isManualReveal: true,
+                targetFolder: resolvedFolder ?? undefined
+            });
 
             // In single pane mode, switch to list pane view
             if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
@@ -109,11 +171,19 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             // Always shift focus to list pane
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
-            if (navigationPaneRef.current) {
-                navigationPaneRef.current.requestScroll(file.parent.path, { align: 'auto', itemType: ItemType.FOLDER });
+            if (navigationPaneRef.current && resolvedFolder) {
+                navigationPaneRef.current.requestScroll(resolvedFolder.path, { align: 'auto', itemType: ItemType.FOLDER });
             }
         },
-        [expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiState, uiDispatch, navigationPaneRef]
+        [
+            expansionState.expandedFolders,
+            expansionDispatch,
+            selectionDispatch,
+            uiState,
+            uiDispatch,
+            navigationPaneRef,
+            getRevealTargetFolder
+        ]
     );
 
     /**
@@ -234,6 +304,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
 
             // Check if we're in tag view and should switch tags
             let targetTag: string | null | undefined = undefined;
+            let targetFolderOverride: TFolder | null = null;
+            let preserveFolder = false;
             if (selectionState.selectionType === 'tag') {
                 targetTag = determineTagToReveal(file, selectionState.selectedTag, settings, getDB());
 
@@ -256,44 +328,48 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 }
             }
 
-            // Determine if we should preserve the current folder selection
-            let preserveFolder = false;
-            if (settings.includeDescendantNotes && selectionState.selectedFolder && file.parent) {
-                // Check if the file's parent is a descendant of the currently selected folder
-                let currentParent: TFolder | null = file.parent;
-                while (currentParent) {
-                    if (currentParent.path === selectionState.selectedFolder.path) {
+            let resolvedFolder: TFolder | null = null;
+
+            if ((targetTag === null || targetTag === undefined) && file.parent) {
+                const { target, expandAncestors } = getRevealTargetFolder(file.parent);
+                resolvedFolder = target;
+
+                if (target) {
+                    if (selectionState.selectedFolder && selectionState.selectedFolder.path === target.path) {
                         preserveFolder = true;
-                        break;
+                    } else {
+                        targetFolderOverride = target;
                     }
-                    currentParent = currentParent.parent;
                 }
-            }
 
-            // Only expand folders if we're not preserving the current folder and not switching to tag view
-            if (!preserveFolder && (targetTag === null || targetTag === undefined)) {
-                const foldersToExpand: string[] = [];
-                let currentFolder: TFolder | null = file.parent;
+                if (expandAncestors) {
+                    const foldersToExpand: string[] = [];
+                    let currentFolder: TFolder | null = file.parent;
 
-                // Expand all ancestors except the immediate parent
-                if (currentFolder && currentFolder.parent) {
-                    currentFolder = currentFolder.parent; // Skip immediate parent
-                    while (currentFolder) {
-                        foldersToExpand.unshift(currentFolder.path);
-                        if (currentFolder.path === '/') break;
+                    if (currentFolder && currentFolder.parent) {
                         currentFolder = currentFolder.parent;
+                        while (currentFolder) {
+                            foldersToExpand.unshift(currentFolder.path);
+                            if (currentFolder.path === '/') break;
+                            currentFolder = currentFolder.parent;
+                        }
                     }
-                }
 
-                // Expand folders if needed
-                const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
-                if (needsExpansion) {
-                    expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+                    if (foldersToExpand.some(path => !expansionState.expandedFolders.has(path))) {
+                        expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+                    }
                 }
             }
 
             // Trigger the reveal - this is an auto-reveal, not manual
-            selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder, isManualReveal: false, targetTag });
+            selectionDispatch({
+                type: 'REVEAL_FILE',
+                file,
+                preserveFolder,
+                isManualReveal: false,
+                targetTag,
+                targetFolder: targetFolderOverride ?? undefined
+            });
 
             // In single pane mode, switch to list pane view
             if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
@@ -302,8 +378,13 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
 
             // Don't change focus - let Obsidian handle focus naturally when opening files
 
-            if (!targetTag && file.parent && navigationPaneRef.current) {
-                navigationPaneRef.current.requestScroll(file.parent.path, { align: 'auto', itemType: ItemType.FOLDER });
+            if (!targetTag && navigationPaneRef.current) {
+                const scrollFolder =
+                    targetFolderOverride ??
+                    (preserveFolder && selectionState.selectedFolder ? selectionState.selectedFolder : (resolvedFolder ?? file.parent));
+                if (scrollFolder) {
+                    navigationPaneRef.current.requestScroll(scrollFolder.path, { align: 'auto', itemType: ItemType.FOLDER });
+                }
             }
         },
         [
@@ -318,6 +399,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             uiState,
             uiDispatch,
             getDB,
+            getRevealTargetFolder,
             navigationPaneRef
         ]
     );

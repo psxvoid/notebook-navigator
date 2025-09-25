@@ -71,6 +71,12 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.5.0',
+        date: '2025-09-22',
+        new: ['Shortcuts pane lists favorite folders, notes, searches, and tags.'],
+        changed: ['Auto reveal selects the nearest expanded ancestor when descendant notes are enabled.']
+    },
+    {
         version: '1.4.22',
         date: '2025-09-21',
         fixed: [
