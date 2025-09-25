@@ -151,10 +151,16 @@ export const NavigationPane = React.memo(
             (key: string) => {
                 const dragHandlers = getDragHandlers(key);
                 const shortcutIndex = shortcutPositionMap.get(key);
-                const showBefore = dropIndex !== null && shortcutIndex !== undefined && dropIndex === shortcutIndex && draggingKey !== key;
-                const showAfter =
-                    dropIndex !== null && shortcutIndex !== undefined && dropIndex === shortcutIndex + 1 && draggingKey !== key;
                 const isDragSource = draggingKey === key;
+
+                if (shortcutIndex === undefined) {
+                    return { dragHandlers, showBefore: false, showAfter: false, isDragSource };
+                }
+
+                const isFirstShortcut = shortcutIndex === 0;
+                const showBefore = isFirstShortcut && dropIndex !== null && dropIndex === 0 && draggingKey !== key;
+                const showAfter = dropIndex !== null && dropIndex === shortcutIndex + 1 && draggingKey !== key;
+
                 return { dragHandlers, showBefore, showAfter, isDragSource };
             },
             [draggingKey, dropIndex, getDragHandlers, shortcutPositionMap]

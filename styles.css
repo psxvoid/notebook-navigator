@@ -921,25 +921,25 @@ body {
     opacity: 0.6;
 }
 
-.nn-shortcut-drop-indicator {
+.nn-shortcut-item[data-shortcut-drop-before='true'] .nn-navitem-content::before,
+.nn-shortcut-item[data-shortcut-drop-after='true'] .nn-navitem-content::after {
+    content: '';
     position: absolute;
     inset-inline-start: 0;
     inset-inline-end: 0;
-    height: 0;
-    border-top: 2px solid var(--interactive-accent);
-    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
+    height: 2px;
+    background-color: var(--interactive-accent);
+    border-radius: 999px;
     pointer-events: none;
-    z-index: 5;
+    z-index: 3;
 }
 
-.nn-shortcut-drop-indicator[data-position='before'] {
+.nn-shortcut-item[data-shortcut-drop-before='true'] .nn-navitem-content::before {
     top: 0;
-    transform: translateY(-1px);
 }
 
-.nn-shortcut-drop-indicator[data-position='after'] {
+.nn-shortcut-item[data-shortcut-drop-after='true'] .nn-navitem-content::after {
     bottom: 0;
-    transform: translateY(1px);
 }
 
 .nn-shortcut-item .nn-navitem-name {

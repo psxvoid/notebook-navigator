@@ -111,6 +111,8 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             data-shortcut-type={type}
             data-level={level}
             data-shortcut-draggable={draggable ? 'true' : undefined}
+            data-shortcut-drop-before={showDropIndicatorBefore ? 'true' : undefined}
+            data-shortcut-drop-after={showDropIndicatorAfter ? 'true' : undefined}
             aria-level={level + 1}
             draggable={draggable}
             onDragStart={dragHandlers?.onDragStart}
@@ -119,7 +121,6 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             onDrop={dragHandlers?.onDrop}
             onDragEnd={dragHandlers?.onDragEnd}
         >
-            {showDropIndicatorBefore ? <div className="nn-shortcut-drop-indicator" data-position="before" aria-hidden="true" /> : null}
             <div className="nn-navitem-content">
                 <span className="nn-navitem-chevron nn-navitem-chevron--no-children" aria-hidden="true" />
                 {settings.showIcons && <span className="nn-navitem-icon" ref={iconRef} />}
@@ -130,7 +131,6 @@ export const ShortcutItem = React.memo(function ShortcutItem({
                 <span className="nn-navitem-spacer" />
                 {shouldShowCount ? <span className="nn-navitem-count">{count}</span> : null}
             </div>
-            {showDropIndicatorAfter ? <div className="nn-shortcut-drop-indicator" data-position="after" aria-hidden="true" /> : null}
         </div>
     );
 });
