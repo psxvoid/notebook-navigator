@@ -30,6 +30,8 @@ export const ShortcutType = {
 
 export type ShortcutType = (typeof ShortcutType)[keyof typeof ShortcutType];
 
+export const SHORTCUT_DRAG_MIME = 'application/x-notebook-shortcut';
+
 export interface FolderShortcut {
     type: typeof ShortcutType.FOLDER;
     path: string;

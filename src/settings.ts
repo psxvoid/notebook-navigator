@@ -76,6 +76,7 @@ export interface NotebookNavigatorSettings {
     // Navigation pane
     autoSelectFirstFileOnFocusChange: boolean;
     autoExpandFoldersTags: boolean;
+    showShortcuts: boolean;
     collapseBehavior: ItemScope;
     smartCollapse: boolean;
     showIcons: boolean;
@@ -176,6 +177,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Navigation pane
     autoSelectFirstFileOnFocusChange: false,
     autoExpandFoldersTags: false,
+    showShortcuts: true,
     collapseBehavior: 'all',
     smartCollapse: true,
     showIcons: true,
@@ -629,6 +631,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.autoExpandFoldersTags).onChange(async value => {
                     this.plugin.settings.autoExpandFoldersTags = value;
+                    await this.plugin.saveSettingsAndUpdate();
+                })
+            );
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.showShortcuts.name)
+            .setDesc(strings.settings.items.showShortcuts.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showShortcuts).onChange(async value => {
+                    this.plugin.settings.showShortcuts = value;
                     await this.plugin.saveSettingsAndUpdate();
                 })
             );

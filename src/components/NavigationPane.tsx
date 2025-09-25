@@ -128,7 +128,7 @@ export const NavigationPane = React.memo(
         });
 
         const shortcutCount = hydratedShortcuts.length;
-        const isShortcutDnDEnabled = !isMobile && shortcutsExpanded && shortcutCount > 1;
+        const isShortcutDnDEnabled = !isMobile && shortcutsExpanded && shortcutCount > 1 && settings.showShortcuts;
 
         const shortcutPositionMap = useMemo(() => {
             const map = new Map<string, number>();
@@ -419,6 +419,21 @@ export const NavigationPane = React.memo(
             setTimeout(release, 0);
         }, [setActiveShortcut]);
 
+        const scrollShortcutsToTop = useCallback(() => {
+            if (!settings.showShortcuts) {
+                return;
+            }
+
+            if (rowVirtualizer) {
+                rowVirtualizer.scrollToIndex(0, { align: 'start' });
+            }
+
+            const container = scrollContainerRef.current;
+            if (container) {
+                container.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }, [rowVirtualizer, scrollContainerRef, settings.showShortcuts]);
+
         // Handles folder shortcut activation - navigates to folder and provides visual feedback
         const handleShortcutFolderActivate = useCallback(
             (folder: TFolder, shortcutKey: string) => {
@@ -492,6 +507,9 @@ export const NavigationPane = React.memo(
 
         const moveShortcut = useCallback(
             async (shortcutKey: string, direction: 'up' | 'down') => {
+                if (!settings.showShortcuts) {
+                    return;
+                }
                 const currentIndex = shortcutPositionMap.get(shortcutKey);
                 if (currentIndex === undefined) {
                     return;
@@ -515,11 +533,14 @@ export const NavigationPane = React.memo(
                     console.error('Failed to move shortcut', error);
                 }
             },
-            [hydratedShortcuts, reorderShortcuts, shortcutPositionMap]
+            [hydratedShortcuts, reorderShortcuts, settings.showShortcuts, shortcutPositionMap]
         );
 
         const handleShortcutContextMenu = useCallback(
             (event: React.MouseEvent<HTMLDivElement>, shortcutKey: string) => {
+                if (!settings.showShortcuts) {
+                    return;
+                }
                 event.preventDefault();
                 event.stopPropagation();
 
@@ -564,7 +585,7 @@ export const NavigationPane = React.memo(
                 });
                 menu.showAtMouseEvent(event.nativeEvent);
             },
-            [isMobile, moveShortcut, removeShortcut, shortcutCount, shortcutPositionMap]
+            [isMobile, moveShortcut, removeShortcut, settings.showShortcuts, shortcutCount, shortcutPositionMap]
         );
 
         const getFolderShortcutCount = useCallback(
@@ -1027,9 +1048,11 @@ export const NavigationPane = React.memo(
 
         return (
             <div className="nn-navigation-pane" style={props.style}>
-                <NavigationPaneHeader onTreeUpdateComplete={handleTreeUpdateComplete} />
+                <NavigationPaneHeader onTreeUpdateComplete={handleTreeUpdateComplete} onScrollToShortcuts={scrollShortcutsToTop} />
                 {/* Android - toolbar at top */}
-                {isMobile && isAndroid && <NavigationToolbar onTreeUpdateComplete={handleTreeUpdateComplete} />}
+                {isMobile && isAndroid && (
+                    <NavigationToolbar onTreeUpdateComplete={handleTreeUpdateComplete} onScrollToShortcuts={scrollShortcutsToTop} />
+                )}
                 <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
                     {items.length > 0 && (
                         <div
@@ -1060,7 +1083,9 @@ export const NavigationPane = React.memo(
                     )}
                 </div>
                 {/* iOS - toolbar at bottom */}
-                {isMobile && !isAndroid && <NavigationToolbar onTreeUpdateComplete={handleTreeUpdateComplete} />}
+                {isMobile && !isAndroid && (
+                    <NavigationToolbar onTreeUpdateComplete={handleTreeUpdateComplete} onScrollToShortcuts={scrollShortcutsToTop} />
+                )}
             </div>
         );
     })

@@ -24,9 +24,10 @@ import { useNavigationActions } from '../hooks/useNavigationActions';
 
 interface NavigationToolbarProps {
     onTreeUpdateComplete?: () => void;
+    onScrollToShortcuts?: () => void;
 }
 
-export function NavigationToolbar({ onTreeUpdateComplete }: NavigationToolbarProps) {
+export function NavigationToolbar({ onTreeUpdateComplete, onScrollToShortcuts }: NavigationToolbarProps) {
     const settings = useSettingsState();
     const selectionState = useSelectionState();
 
@@ -35,6 +36,20 @@ export function NavigationToolbar({ onTreeUpdateComplete }: NavigationToolbarPro
 
     return (
         <div className="nn-mobile-toolbar">
+            {settings.showShortcuts ? (
+                <button
+                    className="nn-mobile-toolbar-button"
+                    aria-label={strings.paneHeader.scrollToShortcuts}
+                    onClick={() => {
+                        if (onScrollToShortcuts) {
+                            onScrollToShortcuts();
+                        }
+                    }}
+                    tabIndex={-1}
+                >
+                    <ObsidianIcon name="lucide-star" />
+                </button>
+            ) : null}
             <button
                 className="nn-mobile-toolbar-button"
                 aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}

@@ -73,6 +73,7 @@ export const STRINGS_ZH = {
     paneHeader: {
         collapseAllFolders: '折叠项目', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: '展开所有项目', // Tooltip for button that expands all items (English: Expand all items)
+        scrollToShortcuts: 'Scroll to shortcuts',
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
         newNote: '新笔记', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: '返回导航', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -538,6 +539,10 @@ export const STRINGS_ZH = {
             autoExpandFoldersTags: {
                 name: '自动展开文件夹和标签',
                 desc: '选择文件夹和标签时自动展开它们。'
+            },
+            showShortcuts: {
+                name: '显示快捷方式',
+                desc: '在导航窗格中显示快捷方式部分。'
             },
             showTooltips: {
                 name: '显示工具提示（仅桌面端）',

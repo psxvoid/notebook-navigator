@@ -74,6 +74,7 @@ export const STRINGS_EN = {
     paneHeader: {
         collapseAllFolders: 'Collapse items', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Expand all items', // Tooltip for button that expands all items (English: Expand all items)
+        scrollToShortcuts: 'Scroll to shortcuts',
         newFolder: 'New folder', // Tooltip for create new folder button (English: New folder)
         newNote: 'New note', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Back to navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -538,6 +539,10 @@ export const STRINGS_EN = {
             autoExpandFoldersTags: {
                 name: 'Auto-expand folders and tags',
                 desc: 'Automatically expand folders and tags when they are selected.'
+            },
+            showShortcuts: {
+                name: 'Show shortcuts',
+                desc: 'Display the shortcuts section in the navigation pane.'
             },
             showTooltips: {
                 name: 'Show tooltips (desktop only)',

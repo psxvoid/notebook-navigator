@@ -73,6 +73,7 @@ export const STRINGS_FR = {
     paneHeader: {
         collapseAllFolders: 'Replier les éléments', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Déplier tous les éléments', // Tooltip for button that expands all items (English: Expand all items)
+        scrollToShortcuts: 'Scroll to shortcuts',
         newFolder: 'Nouveau dossier', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nouvelle note', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Retour à la navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -540,6 +541,10 @@ export const STRINGS_FR = {
             autoExpandFoldersTags: {
                 name: 'Développer automatiquement les dossiers et les étiquettes',
                 desc: "Développer automatiquement les dossiers et les étiquettes lorsqu'ils sont sélectionnés."
+            },
+            showShortcuts: {
+                name: 'Afficher les raccourcis',
+                desc: 'Afficher la section des raccourcis dans le panneau de navigation.'
             },
             showTooltips: {
                 name: 'Afficher les infobulles (ordinateur uniquement)',

@@ -298,7 +298,7 @@ export function useNavigationPaneData({
 
     // Build shortcut items for the navigation pane including header and individual shortcuts
     const shortcutItems = useMemo(() => {
-        if (hydratedShortcuts.length === 0) {
+        if (!settings.showShortcuts) {
             return [] as CombinedNavigationItem[];
         }
 
@@ -395,7 +395,15 @@ export function useNavigationPaneData({
         });
 
         return items;
-    }, [hydratedShortcuts, favoriteTree, tagTree, settings.excludedFolders, settings.showHiddenItems, shortcutsExpanded]);
+    }, [
+        hydratedShortcuts,
+        favoriteTree,
+        tagTree,
+        settings.excludedFolders,
+        settings.showHiddenItems,
+        settings.showShortcuts,
+        shortcutsExpanded
+    ]);
 
     /**
      * Combine shortcut, folder, and tag items based on display order settings

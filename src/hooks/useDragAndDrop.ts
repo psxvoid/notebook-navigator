@@ -25,6 +25,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { strings } from '../i18n';
 import { getDBInstance } from '../storage/fileOperations';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
+import { SHORTCUT_DRAG_MIME } from '../types/shortcuts';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { getPathFromDataAttribute } from '../utils/domUtils';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
@@ -305,34 +306,51 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      * @param e - The drag event
      */
     const handleDragOver = useCallback((e: DragEvent) => {
-        e.preventDefault();
         if (!isHTMLElement(e.target)) return;
         const dropZone = e.target.closest<HTMLElement>('[data-drop-zone="folder"],[data-drop-zone="tag"]');
+        const isShortcutDrag = Boolean(e.dataTransfer?.types?.includes(SHORTCUT_DRAG_MIME));
 
         if (dragOverElement.current && dragOverElement.current !== dropZone) {
             dragOverElement.current.classList.remove('nn-drag-over');
             dragOverElement.current = null;
         }
 
-        if (dropZone) {
-            if (e.dataTransfer) {
-                const dropType = dropZone.getAttribute('data-drop-zone');
-                const targetPath = dropZone.getAttribute('data-drop-path');
-
-                const typesList = e.dataTransfer.types;
-                const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
-                const isExternal = !!typesList?.includes('Files') && !hasObsidianData;
-
-                // Folder: move (internal) / copy (external); Tag: untagged = move, tag = copy
-                if (dropType === 'folder') {
-                    e.dataTransfer.dropEffect = isExternal ? 'copy' : 'move';
-                } else if (dropType === 'tag') {
-                    e.dataTransfer.dropEffect = targetPath === UNTAGGED_TAG_ID ? 'move' : 'copy';
-                }
+        if (!dropZone) {
+            if (isShortcutDrag && e.dataTransfer) {
+                e.dataTransfer.dropEffect = 'none';
             }
-            dropZone.classList.add('nn-drag-over');
-            dragOverElement.current = dropZone;
+            return;
         }
+
+        if (isShortcutDrag) {
+            dropZone.classList.remove('nn-drag-over');
+            dragOverElement.current = null;
+            if (e.dataTransfer) {
+                e.dataTransfer.dropEffect = 'none';
+            }
+            return;
+        }
+
+        e.preventDefault();
+
+        if (e.dataTransfer) {
+            const dropType = dropZone.getAttribute('data-drop-zone');
+            const targetPath = dropZone.getAttribute('data-drop-path');
+
+            const typesList = e.dataTransfer.types;
+            const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
+            const isExternal = !!typesList?.includes('Files') && !hasObsidianData;
+
+            // Folder: move (internal) / copy (external); Tag: untagged = move, tag = copy
+            if (dropType === 'folder') {
+                e.dataTransfer.dropEffect = isExternal ? 'copy' : 'move';
+            } else if (dropType === 'tag') {
+                e.dataTransfer.dropEffect = targetPath === UNTAGGED_TAG_ID ? 'move' : 'copy';
+            }
+        }
+
+        dropZone.classList.add('nn-drag-over');
+        dragOverElement.current = dropZone;
     }, []);
 
     /**
@@ -505,17 +523,27 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      */
     const handleDrop = useCallback(
         async (e: DragEvent) => {
-            e.preventDefault();
-            if (dragOverElement.current) {
-                dragOverElement.current.classList.remove('nn-drag-over');
-            }
-
             let dropZone = dragOverElement.current;
+            if (dropZone) {
+                dropZone.classList.remove('nn-drag-over');
+            }
+            dragOverElement.current = null;
+
             if (!dropZone && isHTMLElement(e.target)) {
                 const candidate = e.target.closest('[data-drop-zone]');
                 dropZone = candidate instanceof HTMLElement ? candidate : null;
             }
-            if (!dropZone) return;
+
+            const isShortcutDrag = Boolean(e.dataTransfer?.types?.includes(SHORTCUT_DRAG_MIME));
+            if (isShortcutDrag) {
+                return;
+            }
+
+            if (!dropZone) {
+                return;
+            }
+
+            e.preventDefault();
 
             const dropType = dropZone.getAttribute('data-drop-zone');
             const targetPath = getPathFromDataAttribute(dropZone, 'data-drop-path');

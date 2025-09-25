@@ -26,9 +26,10 @@ import { useNavigationActions } from '../hooks/useNavigationActions';
 
 interface NavigationPaneHeaderProps {
     onTreeUpdateComplete?: () => void;
+    onScrollToShortcuts?: () => void;
 }
 
-export function NavigationPaneHeader({ onTreeUpdateComplete }: NavigationPaneHeaderProps) {
+export function NavigationPaneHeader({ onTreeUpdateComplete, onScrollToShortcuts }: NavigationPaneHeaderProps) {
     const { isMobile, plugin } = useServices();
     const settings = useSettingsState();
     const uiState = useUIState();
@@ -56,6 +57,20 @@ export function NavigationPaneHeader({ onTreeUpdateComplete }: NavigationPaneHea
                     <ObsidianIcon name={uiState.dualPane ? 'lucide-panel-left-close' : 'lucide-panel-right-open'} />
                 </button>
                 <div className="nn-header-actions">
+                    {settings.showShortcuts ? (
+                        <button
+                            className="nn-icon-button"
+                            aria-label={strings.paneHeader.scrollToShortcuts}
+                            onClick={() => {
+                                if (onScrollToShortcuts) {
+                                    onScrollToShortcuts();
+                                }
+                            }}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="lucide-star" />
+                        </button>
+                    ) : null}
                     <button
                         className="nn-icon-button"
                         aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}

@@ -18,6 +18,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { DragEvent } from 'react';
+import { SHORTCUT_DRAG_MIME } from '../types/shortcuts';
 
 interface ShortcutDescriptor {
     key: string;
@@ -172,6 +173,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
             }
 
             try {
+                event.dataTransfer.setData(SHORTCUT_DRAG_MIME, key);
                 event.dataTransfer.setData('text/plain', key);
             } catch (error) {
                 console.debug('Drag dataTransfer setData failed', error);
