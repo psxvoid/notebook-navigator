@@ -78,7 +78,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Recent notes section shows recently opened files in the navigation pane.',
             'Keyboard shortcuts can be customized in synced settings using Mod, Ctrl, Shift, and Alt modifiers.'
         ],
-        changed: ['Auto reveal selects the nearest expanded ancestor when descendant notes are enabled.']
+        changed: ['Auto reveal selects the nearest expanded ancestor when descendant notes are enabled.'],
+        fixed: [
+            'Moving tagged notes between folders could drop them from the tag tree after the move because the background refresh cancelled itself; the refresh now always completes so the tags stay attached.'
+        ]
     },
     {
         version: '1.4.22',

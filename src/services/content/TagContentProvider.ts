@@ -82,6 +82,17 @@ export class TagContentProvider extends BaseContentProvider {
             const metadata = this.app.metadataCache.getFileCache(job.file);
             const tags = this.extractTagsFromMetadata(metadata);
 
+            if (
+                fileData &&
+                Array.isArray(fileData.tags) &&
+                fileData.tags.length > 0 &&
+                tags.length === 0 &&
+                fileData.mtime === job.file.stat.mtime
+            ) {
+                // Metadata has not been refreshed after a rename; keep existing tags until Obsidian re-parses the file
+                return null;
+            }
+
             // Only return update if tags changed
             if (fileData && this.tagsEqual(fileData.tags, tags)) {
                 return null;

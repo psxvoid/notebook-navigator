@@ -129,15 +129,29 @@ export function shutdownDatabase(): void {
  * @param files - Array of Obsidian files to record
  * @param existingData - Pre-fetched map of existing file data
  */
-export async function recordFileChanges(files: TFile[], existingData: Map<string, FileData>): Promise<void> {
+export async function recordFileChanges(
+    files: TFile[],
+    existingData: Map<string, FileData>,
+    renamedData?: Map<string, FileData>
+): Promise<void> {
     if (isShuttingDown) return;
     const db = getDBInstance();
     const updates: { path: string; data: FileData }[] = [];
 
     for (const file of files) {
         const existing = existingData.get(file.path);
+        const renamed = renamedData?.get(file.path);
 
         if (!existing) {
+            if (renamed) {
+                const clonedData: FileData = {
+                    ...renamed,
+                    mtime: file.stat.mtime
+                };
+                updates.push({ path: file.path, data: clonedData });
+                renamedData?.delete(file.path);
+                continue;
+            }
             // New file - initialize with null content
             const fileData: FileData = {
                 mtime: file.stat.mtime,
@@ -147,6 +161,9 @@ export async function recordFileChanges(files: TFile[], existingData: Map<string
                 metadata: null // MetadataContentProvider will extract these
             };
             updates.push({ path: file.path, data: fileData });
+        } else if (renamed) {
+            // Existing data already copied; ensure we clear cached rename entry
+            renamedData?.delete(file.path);
         }
         // If file was actually modified (existing.mtime !== file.stat.mtime),
         // we intentionally skip the update. Content providers will detect

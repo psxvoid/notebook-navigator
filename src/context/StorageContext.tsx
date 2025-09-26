@@ -40,7 +40,7 @@
  */
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
-import { App, TFile, debounce, EventRef } from 'obsidian';
+import { App, TAbstractFile, TFile, debounce, EventRef } from 'obsidian';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { ProcessedMetadata, extractMetadata } from '../utils/metadataExtractor';
 import { ContentProviderRegistry } from '../services/content/ContentProviderRegistry';
@@ -124,6 +124,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const waitDisposerRef = useRef<(() => void) | null>(null);
     const metadataWaitDisposersRef = useRef<Set<() => void>>(new Set());
     const pendingTagMetadataPathsRef = useRef<Set<string>>(new Set());
+    const pendingRenameDataRef = useRef<Map<string, DBFileData>>(new Map());
     const latestSettingsRef = useRef(settings);
     const activeVaultEventRefs = useRef<EventRef[] | null>(null);
     const activeMetadataEventRef = useRef<EventRef | null>(null);
@@ -945,7 +946,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     }
 
                     if (toAdd.length > 0 || toUpdate.length > 0) {
-                        await recordFileChanges([...toAdd, ...toUpdate], cachedFiles);
+                        await recordFileChanges([...toAdd, ...toUpdate], cachedFiles, pendingRenameDataRef.current);
                     }
 
                     // Step 3: Build tag tree from the now-synced database
@@ -1022,7 +1023,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                             try {
                                 const filesToUpdate = [...toAdd, ...toUpdate];
                                 if (filesToUpdate.length > 0) {
-                                    await recordFileChanges(filesToUpdate, cachedFiles);
+                                    await recordFileChanges(filesToUpdate, cachedFiles, pendingRenameDataRef.current);
                                 }
 
                                 if (toRemove.length > 0) {
@@ -1144,15 +1145,24 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
          * The trailing debounce waits for events to stop before processing,
          * extending the delay with each new event. This batches updates efficiently.
          */
-        const rebuildFileCache = debounce(
-            () => {
-                if (stoppedRef.current) return;
-                void buildFileCache(false);
-            },
-            TIMEOUTS.FILE_OPERATION_DELAY,
-            true
-        );
-        rebuildFileCacheRef.current = rebuildFileCache;
+        let rebuildFileCache = rebuildFileCacheRef.current;
+        if (!rebuildFileCache) {
+            rebuildFileCache = debounce(
+                () => {
+                    if (stoppedRef.current) {
+                        return;
+                    }
+                    const build = buildFileCacheFnRef.current;
+                    if (!build) {
+                        return;
+                    }
+                    void build(false);
+                },
+                TIMEOUTS.FILE_OPERATION_DELAY,
+                true
+            );
+            rebuildFileCacheRef.current = rebuildFileCache;
+        }
 
         // Only build initial cache if IndexedDB is ready and we haven't built it yet
         if (isIndexedDBReady && !hasBuiltInitialCache.current) {
@@ -1172,10 +1182,25 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
          * Most events use debounced processing except 'modify' which processes
          * immediately to ensure tags update quickly when editing files.
          */
+        const handleRename = (file: TAbstractFile, oldPath: string) => {
+            if (file instanceof TFile) {
+                try {
+                    const db = getDBInstance();
+                    const existing = db.getFile(oldPath);
+                    if (existing) {
+                        pendingRenameDataRef.current.set(file.path, existing);
+                    }
+                } catch (error) {
+                    console.error('Failed to capture renamed file data:', error);
+                }
+            }
+            rebuildFileCache();
+        };
+
         const vaultEvents = [
             app.vault.on('create', rebuildFileCache),
             app.vault.on('delete', rebuildFileCache),
-            app.vault.on('rename', rebuildFileCache),
+            app.vault.on('rename', handleRename),
             app.vault.on('modify', async file => {
                 if (stoppedRef.current) return;
                 // Check if it's a TFile (not a folder)
@@ -1185,7 +1210,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                         const db = getDBInstance();
                         const existingData = db.getFiles([file.path]);
                         // Record the file change (only does something for new files)
-                        await recordFileChanges([file], existingData);
+                        await recordFileChanges([file], existingData, pendingRenameDataRef.current);
                     } catch (e) {
                         console.error('Failed to record file change on modify:', e);
                         return;
@@ -1249,11 +1274,6 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             app.metadataCache.offref(metadataEvent);
             activeVaultEventRefs.current = null;
             activeMetadataEventRef.current = null;
-            // Cancel any pending debounced rebuilds
-            rebuildFileCache.cancel();
-            if (rebuildFileCacheRef.current) {
-                rebuildFileCacheRef.current = null;
-            }
             // Cancel any pending scheduled background work
             if (pendingSyncTimeoutId.current !== null) {
                 if (typeof window !== 'undefined') {
@@ -1332,7 +1352,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     }
 
                     if (toAdd.length > 0 || toUpdate.length > 0) {
-                        await recordFileChanges([...toAdd, ...toUpdate], cachedFiles);
+                        await recordFileChanges([...toAdd, ...toUpdate], cachedFiles, pendingRenameDataRef.current);
                     }
 
                     // Always rebuild tag tree so folder exclusion rule changes take effect immediately
