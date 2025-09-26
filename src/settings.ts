@@ -32,6 +32,7 @@ import type { MetadataCleanupSummary } from './services/MetadataService';
 import { HomepageModal } from './modals/HomepageModal';
 import type { ShortcutEntry } from './types/shortcuts';
 import type { SearchProvider } from './types/search';
+import { getDefaultKeyboardShortcuts, type KeyboardShortcutConfig } from './utils/keyboardShortcuts';
 
 // Current settings schema version
 export const SETTINGS_VERSION = 1;
@@ -141,7 +142,8 @@ export interface NotebookNavigatorSettings {
     searchActive: boolean;
     searchProvider: SearchProvider | null;
     showHiddenItems: boolean;
-    // Shortcuts
+    // Keyboard shortcuts
+    keyboardShortcuts: KeyboardShortcutConfig;
     shortcuts: ShortcutEntry[];
     recentNotes: string[];
     // Whether list/tag views include notes from descendants (subfolders/subtags)
@@ -247,7 +249,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     searchActive: false,
     searchProvider: 'internal',
     showHiddenItems: false,
-    // Shortcuts
+    // Keyboard shortcuts
+    keyboardShortcuts: getDefaultKeyboardShortcuts(),
     shortcuts: [],
     recentNotes: [],
     includeDescendantNotes: true,

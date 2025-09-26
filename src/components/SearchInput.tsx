@@ -22,6 +22,7 @@ import { useUIDispatch, useUIState } from '../context/UIStateContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useServices } from '../context/ServicesContext';
 import { strings } from '../i18n';
+import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
 
 interface SearchInputProps {
     searchQuery: string;
@@ -79,78 +80,52 @@ export function SearchInput({
         }
     }, [shouldFocus, onFocusComplete]);
 
-    // Handle keyboard navigation
-    // Mobile: Escape closes, Enter moves focus to list (hides keyboard) but doesn't select
-    // Desktop: Escape closes, Enter/Tab move to file list, Shift+Tab to nav pane
+    // Focuses the list pane scroll container to enable keyboard navigation
+    const focusListPane = () => {
+        setTimeout(() => {
+            const scope = containerRef?.current ?? document;
+            const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');
+            if (listPaneScroller instanceof HTMLElement) {
+                listPaneScroller.focus();
+            }
+        }, 0);
+    };
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Escape') {
+        const nativeEvent = e.nativeEvent;
+        const shortcuts = settings.keyboardShortcuts;
+
+        if (matchesShortcut(nativeEvent, shortcuts, KeyboardShortcutAction.SEARCH_CLOSE)) {
             e.preventDefault();
             onClose();
-
-            // Return focus to files pane and focus the scroll container
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            focusListPane();
+            return;
+        }
 
-            setTimeout(() => {
-                const scope = containerRef?.current ?? document;
-                const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');
-                if (listPaneScroller instanceof HTMLElement) {
-                    listPaneScroller.focus();
-                }
-            }, 0);
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-
-            if (!isMobile) {
-                // Desktop: Handle file selection and focus the list
-                if (onFocusFiles) {
-                    onFocusFiles();
-                }
-
-                // Focus the list pane scroller to enable keyboard navigation
-                setTimeout(() => {
-                    const scope = containerRef?.current ?? document;
-                    const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');
-                    if (listPaneScroller instanceof HTMLElement) {
-                        listPaneScroller.focus();
-                    }
-                }, 0);
-            } else {
-                // Mobile: Switch to files view and focus list to hide keyboard
-                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                setTimeout(() => {
-                    const scope = containerRef?.current ?? document;
-                    const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');
-                    if (listPaneScroller instanceof HTMLElement) {
-                        listPaneScroller.focus();
-                    }
-                }, 0);
-            }
-        } else if (e.key === 'Tab') {
-            e.preventDefault();
-
-            if (e.shiftKey && !uiState.singlePane && !isMobile) {
-                // Shift+Tab: Move focus to navigation pane (only in dual pane desktop mode)
+        if (matchesShortcut(nativeEvent, shortcuts, KeyboardShortcutAction.SEARCH_FOCUS_NAVIGATION)) {
+            if (!uiState.singlePane && !isMobile) {
+                e.preventDefault();
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-            } else if (!isMobile) {
-                // Tab: Move focus to files pane (desktop only)
-                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-
-                // Handle file selection and focus the list
-                if (onFocusFiles) {
-                    onFocusFiles();
-                }
-
-                // Focus the list pane scroller to enable keyboard navigation
-                setTimeout(() => {
-                    const scope = containerRef?.current ?? document;
-                    const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');
-                    if (listPaneScroller instanceof HTMLElement) {
-                        listPaneScroller.focus();
-                    }
-                }, 0);
             }
-            // On mobile, Tab does nothing (stays in search field)
+            return;
+        }
+
+        if (matchesShortcut(nativeEvent, shortcuts, KeyboardShortcutAction.SEARCH_FOCUS_LIST)) {
+            e.preventDefault();
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+
+            if (isMobile) {
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                focusListPane();
+                return;
+            }
+
+            if (onFocusFiles) {
+                onFocusFiles();
+            }
+
+            focusListPane();
         }
     };
 

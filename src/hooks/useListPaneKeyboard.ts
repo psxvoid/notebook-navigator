@@ -41,6 +41,7 @@ import { deleteSelectedFiles } from '../utils/deleteOperations';
 import { getFilesInRange } from '../utils/selectionUtils';
 import { useKeyboardNavigation, KeyboardNavigationHelpers } from './useKeyboardNavigation';
 import { useMultiSelection } from './useMultiSelection';
+import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
 
 /**
  * Check if a list item is selectable (file, not header or spacer)
@@ -154,94 +155,69 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
     const handleKeyDown = useCallback(
         (e: KeyboardEvent, helpers: KeyboardNavigationHelpers<ListPaneItem>) => {
             const currentIndex = getCurrentIndex();
+            const shortcuts = settings.keyboardShortcuts;
+            const isRTL = helpers.isRTL();
             let targetIndex = -1;
 
-            // Swap left/right arrow behavior for RTL layouts
-            let effectiveKey = e.key;
-            if (helpers.isRTL()) {
-                switch (e.key) {
-                    case 'ArrowLeft':
-                        effectiveKey = 'ArrowRight';
-                        break;
-                    case 'ArrowRight':
-                        effectiveKey = 'ArrowLeft';
-                        break;
+            if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.LIST_EXTEND_SELECTION_DOWN)) {
+                e.preventDefault();
+                if (!isMobile && selectionState.selectedFile?.path) {
+                    const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
+                    if (currentFileIndex !== undefined && currentFileIndex !== -1) {
+                        const finalFileIndex = multiSelection.handleShiftArrowSelection('down', currentFileIndex, files);
+                        if (finalFileIndex >= 0) {
+                            const finalFile = files[finalFileIndex];
+                            const itemIndex = pathToIndex.get(finalFile.path);
+                            if (itemIndex !== undefined) {
+                                helpers.scrollToIndex(itemIndex);
+                            }
+                        }
+                    }
                 }
+                return;
             }
 
-            switch (effectiveKey) {
-                case 'ArrowDown':
-                    e.preventDefault();
-                    if (e.shiftKey && !isMobile && selectionState.selectedFile?.path) {
-                        // Multi-selection with Shift+Down
-                        const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
-                        if (currentFileIndex !== undefined && currentFileIndex !== -1) {
-                            const finalFileIndex = multiSelection.handleShiftArrowSelection('down', currentFileIndex, files);
-                            if (finalFileIndex >= 0) {
-                                // Convert file index to items index and scroll
-                                const finalFile = files[finalFileIndex];
-                                const itemIndex = pathToIndex.get(finalFile.path);
-                                if (itemIndex !== undefined) {
-                                    helpers.scrollToIndex(itemIndex);
-                                }
+            if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.LIST_EXTEND_SELECTION_UP)) {
+                e.preventDefault();
+                if (!isMobile && selectionState.selectedFile?.path) {
+                    const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
+                    if (currentFileIndex !== undefined && currentFileIndex !== -1) {
+                        const finalFileIndex = multiSelection.handleShiftArrowSelection('up', currentFileIndex, files);
+                        if (finalFileIndex >= 0) {
+                            const finalFile = files[finalFileIndex];
+                            const itemIndex = pathToIndex.get(finalFile.path);
+                            if (itemIndex !== undefined) {
+                                helpers.scrollToIndex(itemIndex);
                             }
                         }
-                        return; // Don't process normal navigation
                     }
+                }
+                return;
+            }
 
-                    targetIndex = helpers.findNextIndex(currentIndex);
-
-                    // Don't clear selection if we're at the bottom boundary
+            if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_MOVE_DOWN)) {
+                e.preventDefault();
+                targetIndex = helpers.findNextIndex(currentIndex);
+                if (targetIndex === currentIndex && currentIndex >= 0) {
+                    return;
+                }
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_MOVE_UP)) {
+                e.preventDefault();
+                if (currentIndex === -1) {
+                    targetIndex = helpers.findNextIndex(-1);
+                } else {
+                    targetIndex = helpers.findPreviousIndex(currentIndex);
                     if (targetIndex === currentIndex && currentIndex >= 0) {
-                        return; // Do nothing, stay at current position with selection intact
+                        return;
                     }
-                    break;
-
-                case 'ArrowUp':
-                    e.preventDefault();
-                    if (e.shiftKey && !isMobile && currentIndex !== -1 && selectionState.selectedFile?.path) {
-                        // Multi-selection with Shift+Up
-                        const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
-                        if (currentFileIndex !== undefined && currentFileIndex !== -1) {
-                            const finalFileIndex = multiSelection.handleShiftArrowSelection('up', currentFileIndex, files);
-                            if (finalFileIndex >= 0) {
-                                // Convert file index to items index and scroll
-                                const finalFile = files[finalFileIndex];
-                                const itemIndex = pathToIndex.get(finalFile.path);
-                                if (itemIndex !== undefined) {
-                                    helpers.scrollToIndex(itemIndex);
-                                }
-                            }
-                        }
-                        return; // Don't process normal navigation
-                    }
-
-                    // If nothing is selected, select the first item
-                    if (currentIndex === -1) {
-                        targetIndex = helpers.findNextIndex(-1);
-                    } else {
-                        targetIndex = helpers.findPreviousIndex(currentIndex);
-
-                        // Don't clear selection if we're at the top boundary
-                        if (targetIndex === currentIndex && currentIndex >= 0) {
-                            return; // Do nothing, stay at current position with selection intact
-                        }
-                    }
-                    break;
-
-                case 'PageDown': {
-                    e.preventDefault();
-                    if (currentIndex === -1) break;
-
+                }
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_PAGE_DOWN)) {
+                e.preventDefault();
+                if (currentIndex !== -1) {
                     const pageSize = helpers.getPageSize();
                     const newIndex = Math.min(currentIndex + pageSize, items.length - 1);
-
-                    // Find the next selectable item starting from the new position
                     let newTargetIndex = helpers.findNextIndex(newIndex - 1);
-
-                    // If we didn't move, ensure we go to the very last selectable item
                     if (newTargetIndex === currentIndex && currentIndex !== items.length - 1) {
-                        // Find the last selectable item
                         for (let i = items.length - 1; i >= 0; i--) {
                             const item = helpers.getItemAt(i);
                             if (item && isSelectableListItem(item)) {
@@ -250,138 +226,104 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
                             }
                         }
                     }
-
                     targetIndex = newTargetIndex;
-                    break;
                 }
-
-                case 'PageUp': {
-                    e.preventDefault();
-                    if (currentIndex === -1) break;
-
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_PAGE_UP)) {
+                e.preventDefault();
+                if (currentIndex !== -1) {
                     const pageSize = helpers.getPageSize();
                     const newIndex = Math.max(0, currentIndex - pageSize);
-
-                    // Find the previous selectable item starting from the new position
                     let newTargetIndex = helpers.findPreviousIndex(newIndex + 1);
-
-                    // If we didn't move, ensure we go to the very first selectable item
                     if (newTargetIndex === currentIndex && currentIndex !== 0) {
                         newTargetIndex = helpers.findNextIndex(-1);
                     }
-
                     targetIndex = newTargetIndex;
-                    break;
                 }
-
-                case 'ArrowRight':
-                case 'Tab':
-                    if (effectiveKey === 'Tab' && e.shiftKey) {
-                        // Shift+Tab: Move focus back to navigation pane
-                        e.preventDefault();
-                        if (uiState.singlePane && !isMobile) {
-                            // In single-pane mode, switch to navigation view
-                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
-                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-                        } else if (!uiState.singlePane) {
-                            // In dual-pane mode, switch focus to folders pane
-                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-                        }
-                    } else if (selectionState.selectedFile) {
-                        // Tab or RIGHT arrow: focus the editor
-                        e.preventDefault();
-                        const leaves = getSupportedLeaves(app);
-                        const targetLeaf = leaves.find(leaf => {
-                            const view = leaf.view;
-                            return view instanceof FileView && view.file?.path === selectionState.selectedFile?.path;
-                        });
-                        if (targetLeaf) {
-                            app.workspace.setActiveLeaf(targetLeaf, { focus: true });
-                        }
-                    }
-                    break;
-
-                case 'ArrowLeft':
+            } else if (
+                matchesShortcut(e, shortcuts, KeyboardShortcutAction.LIST_FOCUS_EDITOR, {
+                    isRTL,
+                    directional: 'horizontal'
+                })
+            ) {
+                if (selectionState.selectedFile) {
                     e.preventDefault();
-                    if (uiState.singlePane && !isMobile) {
-                        // In single-pane mode, switch to navigation view
-                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-                    } else if (!uiState.singlePane) {
-                        // In dual-pane mode, switch focus to folders pane
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                    const leaves = getSupportedLeaves(app);
+                    const targetLeaf = leaves.find(leaf => {
+                        const view = leaf.view;
+                        return view instanceof FileView && view.file?.path === selectionState.selectedFile?.path;
+                    });
+                    if (targetLeaf) {
+                        app.workspace.setActiveLeaf(targetLeaf, { focus: true });
                     }
-                    break;
-
-                case 'Delete':
-                case 'Backspace':
-                    if (selectionState.selectedFile || selectionState.selectedFiles.size > 0) {
-                        e.preventDefault();
-                        // Use shared delete function
-                        deleteSelectedFiles({
-                            app,
-                            fileSystemOps,
-                            settings,
-                            selectionState,
-                            selectionDispatch,
-                            tagTreeService
-                        });
-                    }
-                    break;
-
-                case 'a':
-                case 'A':
-                    // Cmd+A (Mac) or Ctrl+A (Windows/Linux) for Select All
-                    if (e.metaKey || e.ctrlKey) {
-                        e.preventDefault();
-
-                        // Get all files in the current view
-                        const allFiles = items
-                            .filter(item => item.type === ListPaneItemType.FILE)
-                            .map(item => {
-                                const fileItem = item;
-                                return fileItem.data instanceof TFile ? fileItem.data : null;
-                            })
-                            .filter((file): file is TFile => file !== null);
-
-                        multiSelection.selectAll(allFiles);
-                    }
-                    break;
-
-                case 'Home':
+                }
+            } else if (
+                matchesShortcut(e, shortcuts, KeyboardShortcutAction.LIST_FOCUS_NAVIGATION, {
+                    isRTL,
+                    directional: 'horizontal'
+                })
+            ) {
+                e.preventDefault();
+                if (uiState.singlePane && !isMobile) {
+                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                } else if (!uiState.singlePane) {
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                }
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.DELETE_SELECTED)) {
+                if (selectionState.selectedFile || selectionState.selectedFiles.size > 0) {
                     e.preventDefault();
-                    if (e.shiftKey && !isMobile && selectionState.selectedFile?.path) {
-                        const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
-                        if (currentFileIndex !== undefined && currentFileIndex !== -1) {
-                            handleRangeSelection('home', currentFileIndex);
-                        }
-                        return;
-                    }
-                    // Find the first selectable item
-                    targetIndex = helpers.findNextIndex(-1);
-                    break;
+                    deleteSelectedFiles({
+                        app,
+                        fileSystemOps,
+                        settings,
+                        selectionState,
+                        selectionDispatch,
+                        tagTreeService
+                    });
+                }
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.LIST_SELECT_ALL)) {
+                e.preventDefault();
+                const allFiles = items
+                    .filter(item => item.type === ListPaneItemType.FILE)
+                    .map(item => {
+                        const fileItem = item;
+                        return fileItem.data instanceof TFile ? fileItem.data : null;
+                    })
+                    .filter((file): file is TFile => file !== null);
 
-                case 'End':
-                    e.preventDefault();
-                    if (e.shiftKey && !isMobile && selectionState.selectedFile?.path) {
-                        const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
-                        if (currentFileIndex !== undefined && currentFileIndex !== -1) {
-                            handleRangeSelection('end', currentFileIndex);
-                        }
-                        return;
+                multiSelection.selectAll(allFiles);
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.LIST_RANGE_TO_START)) {
+                e.preventDefault();
+                if (!isMobile && selectionState.selectedFile?.path) {
+                    const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
+                    if (currentFileIndex !== undefined && currentFileIndex !== -1) {
+                        handleRangeSelection('home', currentFileIndex);
                     }
-                    // Find the last selectable item
-                    for (let i = items.length - 1; i >= 0; i--) {
-                        const item = helpers.getItemAt(i);
-                        if (item && isSelectableListItem(item)) {
-                            targetIndex = i;
-                            break;
-                        }
+                }
+                return;
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.LIST_RANGE_TO_END)) {
+                e.preventDefault();
+                if (!isMobile && selectionState.selectedFile?.path) {
+                    const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
+                    if (currentFileIndex !== undefined && currentFileIndex !== -1) {
+                        handleRangeSelection('end', currentFileIndex);
                     }
-                    break;
+                }
+                return;
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_HOME)) {
+                e.preventDefault();
+                targetIndex = helpers.findNextIndex(-1);
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_END)) {
+                e.preventDefault();
+                for (let i = items.length - 1; i >= 0; i--) {
+                    const item = helpers.getItemAt(i);
+                    if (item && isSelectableListItem(item)) {
+                        targetIndex = i;
+                        break;
+                    }
+                }
             }
 
-            // Scroll to and select new item
             if (targetIndex >= 0 && targetIndex < items.length) {
                 const item = helpers.getItemAt(targetIndex);
                 if (item) {
@@ -392,22 +334,22 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
         },
         [
             getCurrentIndex,
+            settings,
             isMobile,
             selectionState,
             fileIndexMap,
             multiSelection,
             files,
+            pathToIndex,
+            app,
             uiState.singlePane,
             uiDispatch,
-            app,
             fileSystemOps,
-            settings,
             tagTreeService,
             selectionDispatch,
             selectItemAtIndex,
             handleRangeSelection,
-            items,
-            pathToIndex
+            items
         ]
     );
 

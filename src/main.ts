@@ -43,6 +43,7 @@ import { initializeDatabase, shutdownDatabase } from './storage/fileOperations';
 import { ExtendedApp } from './types/obsidian-extended';
 import { getLeafSplitLocation } from './utils/workspaceSplit';
 import { isSupportedHomepageFile } from './utils/homepageUtils';
+import { sanitizeKeyboardShortcuts } from './utils/keyboardShortcuts';
 
 /**
  * Main plugin class for Notebook Navigator
@@ -97,6 +98,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Start with default settings
         this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
+        // Ensure keyboard shortcuts are valid and use proper modifier names
+        this.settings.keyboardShortcuts = sanitizeKeyboardShortcuts(this.settings.keyboardShortcuts);
 
         // Set language-specific date/time formats if not already set
         if (!this.settings.dateFormat) {

@@ -75,7 +75,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-09-22',
         new: [
             'Shortcuts pane lists favorite folders, notes, searches, and tags.',
-            'Recent notes section shows recently opened files in the navigation pane.'
+            'Recent notes section shows recently opened files in the navigation pane.',
+            'Keyboard shortcuts can be customized in synced settings using Mod, Ctrl, Shift, and Alt modifiers.'
         ],
         changed: ['Auto reveal selects the nearest expanded ancestor when descendant notes are enabled.']
     },

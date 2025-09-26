@@ -40,6 +40,7 @@ import { NavigationPaneItemType, ItemType } from '../types';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { deleteSelectedFolder } from '../utils/deleteOperations';
 import { useKeyboardNavigation, KeyboardNavigationHelpers } from './useKeyboardNavigation';
+import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
 import { getNavigationIndex } from '../utils/navigationIndex';
 
 /**
@@ -190,60 +191,33 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
     const handleKeyDown = useCallback(
         (e: KeyboardEvent, helpers: KeyboardNavigationHelpers<CombinedNavigationItem>) => {
             const currentIndex = getCurrentIndex();
+            const shortcuts = settings.keyboardShortcuts;
+            const isRTL = helpers.isRTL();
             let targetIndex = -1;
 
-            // Swap left/right arrow behavior for RTL layouts
-            let effectiveKey = e.key;
-            if (helpers.isRTL()) {
-                switch (e.key) {
-                    case 'ArrowLeft':
-                        effectiveKey = 'ArrowRight';
-                        break;
-                    case 'ArrowRight':
-                        effectiveKey = 'ArrowLeft';
-                        break;
+            if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_MOVE_DOWN)) {
+                e.preventDefault();
+                targetIndex = helpers.findNextIndex(currentIndex);
+                if (targetIndex === currentIndex && currentIndex >= 0) {
+                    return;
                 }
-            }
-
-            switch (effectiveKey) {
-                case 'ArrowDown':
-                    e.preventDefault();
-                    targetIndex = helpers.findNextIndex(currentIndex);
-
-                    // Don't clear selection if we're at the bottom boundary
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_MOVE_UP)) {
+                e.preventDefault();
+                if (currentIndex === -1) {
+                    targetIndex = helpers.findNextIndex(-1);
+                } else {
+                    targetIndex = helpers.findPreviousIndex(currentIndex);
                     if (targetIndex === currentIndex && currentIndex >= 0) {
-                        return; // Do nothing, stay at current position with selection intact
+                        return;
                     }
-                    break;
-
-                case 'ArrowUp':
-                    e.preventDefault();
-                    // If nothing is selected, select the first item
-                    if (currentIndex === -1) {
-                        targetIndex = helpers.findNextIndex(-1);
-                    } else {
-                        targetIndex = helpers.findPreviousIndex(currentIndex);
-
-                        // Don't clear selection if we're at the top boundary
-                        if (targetIndex === currentIndex && currentIndex >= 0) {
-                            return; // Do nothing, stay at current position with selection intact
-                        }
-                    }
-                    break;
-
-                case 'PageDown': {
-                    e.preventDefault();
-                    if (currentIndex === -1) break;
-
+                }
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_PAGE_DOWN)) {
+                e.preventDefault();
+                if (currentIndex !== -1) {
                     const pageSize = helpers.getPageSize();
                     const newIndex = Math.min(currentIndex + pageSize, items.length - 1);
-
-                    // Find the next selectable item starting from the new position
                     let newTargetIndex = helpers.findNextIndex(newIndex - 1);
-
-                    // If we didn't move, ensure we go to the very last selectable item
                     if (newTargetIndex === currentIndex && currentIndex !== items.length - 1) {
-                        // Find the last selectable item
                         for (let i = items.length - 1; i >= 0; i--) {
                             const item = helpers.getItemAt(i);
                             if (item && isSelectableNavigationItem(item)) {
@@ -252,98 +226,112 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                             }
                         }
                     }
-
                     targetIndex = newTargetIndex;
-                    break;
                 }
-
-                case 'PageUp': {
-                    e.preventDefault();
-                    if (currentIndex === -1) break;
-
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_PAGE_UP)) {
+                e.preventDefault();
+                if (currentIndex !== -1) {
                     const pageSize = helpers.getPageSize();
                     const newIndex = Math.max(0, currentIndex - pageSize);
-
-                    // Find the previous selectable item starting from the new position
                     let newTargetIndex = helpers.findPreviousIndex(newIndex + 1);
-
-                    // If we didn't move, ensure we go to the very first selectable item
                     if (newTargetIndex === currentIndex && currentIndex !== 0) {
                         newTargetIndex = helpers.findNextIndex(-1);
                     }
-
                     targetIndex = newTargetIndex;
-                    break;
                 }
+            } else if (
+                matchesShortcut(e, shortcuts, KeyboardShortcutAction.NAV_EXPAND_OR_FOCUS_LIST, {
+                    isRTL,
+                    directional: 'horizontal'
+                })
+            ) {
+                e.preventDefault();
+                if (currentIndex >= 0) {
+                    const item = helpers.getItemAt(currentIndex);
+                    if (!item) {
+                        return;
+                    }
 
-                case 'ArrowRight': {
-                    e.preventDefault();
-                    if (currentIndex >= 0) {
-                        const item = helpers.getItemAt(currentIndex);
-                        if (!item) break;
+                    let shouldSwitchPane = false;
+                    if (item.type === NavigationPaneItemType.FOLDER) {
+                        if (!(item.data instanceof TFolder)) {
+                            return;
+                        }
+                        const folder = item.data;
+                        const isExpanded = expansionState.expandedFolders.has(folder.path);
+                        const hasChildren = folder.children.some(child => child instanceof TFolder);
 
-                        let shouldSwitchPane = false;
-                        if (item.type === NavigationPaneItemType.FOLDER) {
-                            if (!(item.data instanceof TFolder)) break;
-                            const folder = item.data;
-                            const isExpanded = expansionState.expandedFolders.has(folder.path);
-                            const hasChildren = folder.children.some(child => child instanceof TFolder);
-
-                            if (hasChildren && !isExpanded) {
-                                // If it has children and is collapsed, expand it
-                                handleExpandCollapse(item, true);
-                            } else {
-                                // If it has no children, or is already expanded, switch to the file pane
-                                shouldSwitchPane = true;
-                            }
-                        } else if (item.type === NavigationPaneItemType.TAG) {
-                            // Similarly for tags
-                            const tag = item.data;
-                            const isExpanded = expansionState.expandedTags.has(tag.path);
-                            const hasChildren = tag.children.size > 0;
-
-                            if (hasChildren && !isExpanded) {
-                                handleExpandCollapse(item, true);
-                            } else {
-                                shouldSwitchPane = true;
-                            }
+                        if (hasChildren && !isExpanded) {
+                            handleExpandCollapse(item, true);
                         } else {
-                            // For items with no children like 'untagged', just switch
                             shouldSwitchPane = true;
                         }
+                    } else if (item.type === NavigationPaneItemType.TAG) {
+                        const tag = item.data;
+                        const isExpanded = expansionState.expandedTags.has(tag.path);
+                        const hasChildren = tag.children.size > 0;
 
-                        if (shouldSwitchPane) {
-                            if (uiState.singlePane && !isMobile) {
-                                // In single-pane mode, switch to files view
-                                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                            } else {
-                                // In dual-pane mode, just switch focus
-                                selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
-                                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                            }
+                        if (hasChildren && !isExpanded) {
+                            handleExpandCollapse(item, true);
+                        } else {
+                            shouldSwitchPane = true;
+                        }
+                    } else {
+                        shouldSwitchPane = true;
+                    }
+
+                    if (shouldSwitchPane) {
+                        if (uiState.singlePane && !isMobile) {
+                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        } else {
+                            selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                         }
                     }
-                    break;
                 }
+            } else if (
+                matchesShortcut(e, shortcuts, KeyboardShortcutAction.NAV_COLLAPSE_OR_PARENT, {
+                    isRTL,
+                    directional: 'horizontal'
+                })
+            ) {
+                e.preventDefault();
+                if (currentIndex >= 0) {
+                    const item = helpers.getItemAt(currentIndex);
+                    if (!item) {
+                        return;
+                    }
 
-                case 'ArrowLeft': {
-                    e.preventDefault();
-                    if (currentIndex >= 0) {
-                        const item = helpers.getItemAt(currentIndex);
-                        if (!item) return;
-
-                        if (item.type === NavigationPaneItemType.FOLDER) {
-                            if (!(item.data instanceof TFolder)) break;
-                            const folder = item.data;
-                            const isExpanded = expansionState.expandedFolders.has(folder.path);
-                            if (isExpanded) {
-                                // Collapse the folder
-                                handleExpandCollapse(item, false);
-                            } else if (folder.parent && (!settings.showRootFolder || folder.path !== '/')) {
-                                // Navigate to parent folder
-                                const parentPath = folder.parent.path;
-                                const parentIndex = resolveIndex(parentPath, ItemType.FOLDER);
+                    if (item.type === NavigationPaneItemType.FOLDER) {
+                        if (!(item.data instanceof TFolder)) {
+                            return;
+                        }
+                        const folder = item.data;
+                        const isExpanded = expansionState.expandedFolders.has(folder.path);
+                        if (isExpanded) {
+                            handleExpandCollapse(item, false);
+                        } else if (folder.parent && (!settings.showRootFolder || folder.path !== '/')) {
+                            const parentPath = folder.parent.path;
+                            const parentIndex = resolveIndex(parentPath, ItemType.FOLDER);
+                            if (parentIndex >= 0) {
+                                const parentItem = helpers.getItemAt(parentIndex);
+                                if (parentItem) {
+                                    selectItemAtIndex(parentItem);
+                                    helpers.scrollToIndex(parentIndex);
+                                }
+                            }
+                        }
+                    } else if (item.type === NavigationPaneItemType.TAG) {
+                        const tag = item.data;
+                        const isExpanded = expansionState.expandedTags.has(tag.path);
+                        if (isExpanded) {
+                            handleExpandCollapse(item, false);
+                        } else {
+                            const lastSlashIndex = tag.path.lastIndexOf('/');
+                            if (lastSlashIndex > 0) {
+                                const parentPath = tag.path.substring(0, lastSlashIndex);
+                                const parentIndex = resolveIndex(parentPath, ItemType.TAG);
                                 if (parentIndex >= 0) {
                                     const parentItem = helpers.getItemAt(parentIndex);
                                     if (parentItem) {
@@ -352,85 +340,45 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                                     }
                                 }
                             }
-                        } else if (item.type === NavigationPaneItemType.TAG) {
-                            const tag = item.data;
-                            const isExpanded = expansionState.expandedTags.has(tag.path);
-                            if (isExpanded) {
-                                // Collapse the tag
-                                handleExpandCollapse(item, false);
-                            } else {
-                                // Navigate to parent tag
-                                const lastSlashIndex = tag.path.lastIndexOf('/');
-                                if (lastSlashIndex > 0) {
-                                    const parentPath = tag.path.substring(0, lastSlashIndex);
-                                    const parentIndex = resolveIndex(parentPath, ItemType.TAG);
-                                    if (parentIndex >= 0) {
-                                        const parentItem = helpers.getItemAt(parentIndex);
-                                        if (parentItem) {
-                                            selectItemAtIndex(parentItem);
-                                            helpers.scrollToIndex(parentIndex);
-                                        }
-                                    }
-                                }
-                            }
                         }
                     }
-                    break;
                 }
-
-                case 'Tab': {
-                    e.preventDefault();
-                    if (!e.shiftKey) {
-                        // Tab: Move focus to files pane
-                        if (uiState.singlePane && !isMobile) {
-                            // In single-pane mode, switch to files view
-                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                        } else {
-                            // In dual-pane mode, just switch focus
-                            selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
-                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                        }
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.NAV_FOCUS_LIST)) {
+                e.preventDefault();
+                if (!isMobile) {
+                    if (uiState.singlePane) {
+                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    } else {
+                        selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     }
-                    // Note: Shift+Tab is not handled here as there's nowhere to go back
-                    break;
                 }
-
-                case 'Delete':
-                case 'Backspace':
-                    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                        e.preventDefault();
-                        // Use shared delete function
-                        deleteSelectedFolder({
-                            app,
-                            fileSystemOps,
-                            settings,
-                            selectionState,
-                            selectionDispatch
-                        });
-                    }
-                    break;
-
-                case 'Home':
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.DELETE_SELECTED)) {
+                if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                     e.preventDefault();
-                    // Find the first selectable item
-                    targetIndex = helpers.findNextIndex(-1);
-                    break;
-
-                case 'End':
-                    e.preventDefault();
-                    // Find the last selectable item
-                    for (let i = items.length - 1; i >= 0; i--) {
-                        const item = helpers.getItemAt(i);
-                        if (item && isSelectableNavigationItem(item)) {
-                            targetIndex = i;
-                            break;
-                        }
+                    deleteSelectedFolder({
+                        app,
+                        fileSystemOps,
+                        settings,
+                        selectionState,
+                        selectionDispatch
+                    });
+                }
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_HOME)) {
+                e.preventDefault();
+                targetIndex = helpers.findNextIndex(-1);
+            } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_END)) {
+                e.preventDefault();
+                for (let i = items.length - 1; i >= 0; i--) {
+                    const item = helpers.getItemAt(i);
+                    if (item && isSelectableNavigationItem(item)) {
+                        targetIndex = i;
+                        break;
                     }
-                    break;
+                }
             }
 
-            // Scroll to and select new item
             if (targetIndex >= 0 && targetIndex < items.length) {
                 const item = helpers.getItemAt(targetIndex);
                 if (item) {
@@ -441,19 +389,19 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
         },
         [
             getCurrentIndex,
+            settings,
+            items.length,
             expansionState,
             handleExpandCollapse,
             uiState.singlePane,
             isMobile,
             uiDispatch,
             selectionDispatch,
-            settings,
             resolveIndex,
             selectItemAtIndex,
             selectionState,
             app,
-            fileSystemOps,
-            items.length
+            fileSystemOps
         ]
     );
 
