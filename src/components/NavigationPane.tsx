@@ -551,9 +551,20 @@ export const NavigationPane = React.memo(
             (tagPath: string, shortcutKey: string) => {
                 setActiveShortcut(shortcutKey);
                 onRevealTag(tagPath);
+
+                if (!uiState.singlePane) {
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                    const container = rootContainerRef.current;
+                    if (container) {
+                        container.focus();
+                    }
+                }
+
+                selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+
                 scheduleShortcutRelease();
             },
-            [setActiveShortcut, onRevealTag, scheduleShortcutRelease]
+            [setActiveShortcut, onRevealTag, uiState.singlePane, uiDispatch, rootContainerRef, selectionDispatch, scheduleShortcutRelease]
         );
 
         // Move a shortcut up or down in the list
