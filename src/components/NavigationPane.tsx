@@ -460,7 +460,7 @@ export const NavigationPane = React.memo(
             }
 
             if (rowVirtualizer) {
-                rowVirtualizer.scrollToIndex(0, { align: 'start' });
+                rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'smooth' });
             }
 
             const container = scrollContainerRef.current;
