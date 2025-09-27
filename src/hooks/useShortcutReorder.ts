@@ -26,11 +26,11 @@ interface ShortcutDescriptor {
 
 export interface ShortcutDragHandlers {
     draggable: boolean;
-    onDragStart: (event: DragEvent<HTMLDivElement>) => void;
-    onDragOver: (event: DragEvent<HTMLDivElement>) => void;
-    onDragLeave: (event: DragEvent<HTMLDivElement>) => void;
-    onDrop: (event: DragEvent<HTMLDivElement>) => void;
-    onDragEnd: (event: DragEvent<HTMLDivElement>) => void;
+    onDragStart: (event: DragEvent<HTMLElement>) => void;
+    onDragOver: (event: DragEvent<HTMLElement>) => void;
+    onDragLeave: (event: DragEvent<HTMLElement>) => void;
+    onDrop: (event: DragEvent<HTMLElement>) => void;
+    onDragEnd: (event: DragEvent<HTMLElement>) => void;
 }
 
 interface UseShortcutReorderParams<T extends ShortcutDescriptor> {
@@ -105,7 +105,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
 
     // Calculate where to insert the dragged item based on mouse position
     const computeInsertIndex = useCallback(
-        (event: DragEvent<HTMLDivElement>, targetKey: string) => {
+        (event: DragEvent<HTMLElement>, targetKey: string) => {
             if (!draggingKey) {
                 return null;
             }
@@ -184,7 +184,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
 
     // Initialize drag operation and set dragging state
     const handleDragStart = useCallback(
-        (event: DragEvent<HTMLDivElement>, key: string) => {
+        (event: DragEvent<HTMLElement>, key: string) => {
             if (!isEnabled) {
                 return;
             }
@@ -204,7 +204,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
 
     // Update drop indicator position as drag moves over elements
     const handleDragOver = useCallback(
-        (event: DragEvent<HTMLDivElement>, key: string) => {
+        (event: DragEvent<HTMLElement>, key: string) => {
             if (!isEnabled || draggingKey === null) {
                 return;
             }
@@ -227,7 +227,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
 
     // Complete the drag operation and reorder shortcuts
     const handleDrop = useCallback(
-        async (event: DragEvent<HTMLDivElement>, key: string) => {
+        async (event: DragEvent<HTMLElement>, key: string) => {
             if (!isEnabled || draggingKey === null) {
                 return;
             }
@@ -244,7 +244,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
 
     // Clear drop indicator when drag leaves the valid drop zone
     const handleDragLeave = useCallback(
-        (event: DragEvent<HTMLDivElement>) => {
+        (event: DragEvent<HTMLElement>) => {
             if (!isEnabled || draggingKey === null) {
                 return;
             }

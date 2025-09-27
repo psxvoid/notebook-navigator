@@ -34,7 +34,7 @@ import type { ShortcutEntry } from './types/shortcuts';
 import type { SearchProvider } from './types/search';
 import { getDefaultKeyboardShortcuts, type KeyboardShortcutConfig } from './utils/keyboardShortcuts';
 
-// Current settings schema version
+// Version number for settings schema migrations
 export const SETTINGS_VERSION = 1;
 
 /**
@@ -66,7 +66,7 @@ export type MultiSelectModifier = 'cmdCtrl' | 'optionAlt';
  * These settings control the appearance and behavior of the navigator
  */
 export interface NotebookNavigatorSettings {
-    // Top level settings (no category)
+    // General behavior settings
     autoRevealActiveFile: boolean;
     autoRevealIgnoreRightSidebar: boolean;
     showTooltips: boolean;
@@ -74,7 +74,7 @@ export interface NotebookNavigatorSettings {
     fileVisibility: FileVisibility;
     excludedFolders: string[];
     excludedFiles: string[];
-    // Navigation pane
+    // Navigation pane appearance and behavior
     showShortcuts: boolean;
     showRecentNotes: boolean;
     recentNotesCount: number;
@@ -87,9 +87,9 @@ export interface NotebookNavigatorSettings {
     navIndent: number;
     navItemHeight: number;
     navItemHeightScaleText: boolean;
-    // Icons
+    // External icon provider configuration
     externalIconProviders: Record<string, boolean>;
-    // Folders
+    // Folder-specific settings and folder note configuration
     showRootFolder: boolean;
     inheritFolderColors: boolean;
     enableFolderNotes: boolean;
@@ -97,7 +97,7 @@ export interface NotebookNavigatorSettings {
     folderNoteName: string;
     folderNoteProperties: string[];
     hideFolderNoteInList: boolean;
-    // Tags
+    // Tag organization and visibility settings
     showTags: boolean;
     showTagsAboveFolders: boolean;
     showFavoriteTagsFolder: boolean;
@@ -106,7 +106,7 @@ export interface NotebookNavigatorSettings {
     showUntaggedInFavorites: boolean;
     favoriteTags: string[];
     hiddenTags: string[];
-    // List pane
+    // File list appearance and interaction settings
     defaultFolderSort: SortOption;
     multiSelectModifier: MultiSelectModifier;
     groupByDate: boolean;
@@ -117,7 +117,7 @@ export interface NotebookNavigatorSettings {
     quickActionOpenInNewTab: boolean;
     dateFormat: string;
     timeFormat: string;
-    // Notes
+    // Note display and metadata extraction settings
     useFrontmatterMetadata: boolean;
     frontmatterNameField: string;
     frontmatterCreatedField: string;
@@ -136,17 +136,17 @@ export interface NotebookNavigatorSettings {
     showFeatureImage: boolean;
     featureImageProperties: string[];
     useEmbeddedImageFallback: boolean;
-    // Advanced
+    // Advanced user preferences
     confirmBeforeDelete: boolean;
-    // Internal
+    // Internal state (not shown in settings UI)
     searchActive: boolean;
     searchProvider: SearchProvider | null;
     showHiddenItems: boolean;
-    // Keyboard shortcuts
+    // Keyboard shortcuts configuration
     keyboardShortcuts: KeyboardShortcutConfig;
     shortcuts: ShortcutEntry[];
     recentNotes: string[];
-    // Whether list/tag views include notes from descendants (subfolders/subtags)
+    // Controls whether list/tag views show notes from descendant folders/tags
     includeDescendantNotes: boolean;
     customVaultName: string;
     pinnedNotes: PinnedNotes;
@@ -164,6 +164,7 @@ export interface NotebookNavigatorSettings {
     recentColors: string[];
     lastShownVersion: string;
     settingsVersion: number;
+    rootFolderOrder: string[];
 }
 
 /**
@@ -269,7 +270,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     recentIcons: {},
     recentColors: [],
     lastShownVersion: '',
-    settingsVersion: SETTINGS_VERSION
+    settingsVersion: SETTINGS_VERSION,
+    rootFolderOrder: []
 };
 
 /**

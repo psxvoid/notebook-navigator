@@ -24,6 +24,26 @@ import type { FolderTreeItem, TagTreeItem } from '../types/virtualization';
 import { isFolderInExcludedFolder } from './fileFilters';
 import { matchesHiddenTagPattern, HiddenTagMatcher } from './tagPrefixMatcher';
 
+interface FlattenFolderTreeOptions {
+    rootOrderMap?: Map<string, number>;
+}
+
+function compareWithOrderMap(a: TFolder, b: TFolder, orderMap: Map<string, number>): number {
+    const orderA = orderMap.get(a.path);
+    const orderB = orderMap.get(b.path);
+
+    if (orderA !== undefined && orderB !== undefined) {
+        return orderA - orderB;
+    }
+    if (orderA !== undefined) {
+        return -1;
+    }
+    if (orderB !== undefined) {
+        return 1;
+    }
+    return naturalCompare(a.name, b.name);
+}
+
 /**
  * Flattens a folder tree into a linear array for virtualization.
  * Only includes folders that are visible based on the expanded state.
@@ -39,22 +59,27 @@ export function flattenFolderTree(
     expandedFolders: Set<string>,
     excludePatterns: string[],
     level: number = 0,
-    visitedPaths: Set<string> = new Set()
+    visitedPaths: Set<string> = new Set(),
+    options: FlattenFolderTreeOptions = {}
 ): FolderTreeItem[] {
     const items: FolderTreeItem[] = [];
+    const { rootOrderMap } = options;
 
-    // Folders are already sorted by the caller
-    folders.forEach(folder => {
-        // Prevent circular references
+    const foldersToProcess =
+        level === 0 && rootOrderMap && rootOrderMap.size > 0
+            ? folders.slice().sort((a, b) => compareWithOrderMap(a, b, rootOrderMap))
+            : folders;
+
+    foldersToProcess.forEach(folder => {
+        // Skip folders already visited to prevent infinite loops
         if (visitedPaths.has(folder.path)) {
-            // Circular reference detected, skip this folder
             return;
         }
 
-        // Check if folder is excluded (including if parent is excluded)
+        // Check if folder matches exclusion patterns or is within an excluded parent
         const isExcluded = excludePatterns.length > 0 && isFolderInExcludedFolder(folder, excludePatterns);
 
-        // Add the folder itself - always include it with the flag
+        // Create folder item for display
         const folderItem: FolderTreeItem = {
             type: NavigationPaneItemType.FOLDER,
             data: folder,
@@ -63,26 +88,29 @@ export function flattenFolderTree(
             key: folder.path
         };
 
-        // Mark as excluded if applicable
+        // Add exclusion flag for visual indication
         if (isExcluded) {
             folderItem.isExcluded = true;
         }
 
         items.push(folderItem);
 
-        // Add children if expanded
+        // Process child folders if this folder is expanded
         if (expandedFolders.has(folder.path) && folder.children && folder.children.length > 0) {
             const childFolders = folder.children.filter((child): child is TFolder => child instanceof TFolder);
 
-            // Sort the child folders using natural (numeric-aware) comparison.
-            childFolders.sort((a, b) => naturalCompare(a.name, b.name));
+            if (rootOrderMap && rootOrderMap.size > 0 && folder.path === '/') {
+                childFolders.sort((a, b) => compareWithOrderMap(a, b, rootOrderMap));
+            } else {
+                childFolders.sort((a, b) => naturalCompare(a.name, b.name));
+            }
 
             if (childFolders.length > 0) {
-                // Create a new set with the current path added
+                // Track visited paths to prevent circular references
                 const newVisitedPaths = new Set(visitedPaths);
                 newVisitedPaths.add(folder.path);
 
-                items.push(...flattenFolderTree(childFolders, expandedFolders, excludePatterns, level + 1, newVisitedPaths));
+                items.push(...flattenFolderTree(childFolders, expandedFolders, excludePatterns, level + 1, newVisitedPaths, options));
             }
         }
     });
@@ -110,7 +138,7 @@ export function flattenTagTree(
 ): TagTreeItem[] {
     const items: TagTreeItem[] = [];
 
-    // Sort tags alphabetically
+    // Sort tags alphabetically by name
     const sortedNodes = tagNodes.slice().sort((a, b) => naturalCompare(a.name, b.name));
 
     function addNode(node: TagTreeNode, currentLevel: number, parentHidden: boolean = false) {

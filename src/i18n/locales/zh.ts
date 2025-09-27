@@ -54,7 +54,12 @@ export const STRINGS_ZH = {
 
     navigationPane: {
         shortcutsHeader: '快捷方式',
-        recentNotesHeader: 'Recent notes'
+        recentNotesHeader: 'Recent notes',
+        reorderRootFoldersTitle: 'Reorder root folders',
+        reorderRootFoldersHint: 'Drag folders to change order',
+        vaultRootLabel: 'Vault',
+        resetRootFolderOrder: 'Reset to alphabetical order',
+        dragHandleLabel: 'Drag to reorder'
     },
 
     shortcuts: {
@@ -83,6 +88,8 @@ export const STRINGS_ZH = {
         customSort: '自定义', // Label for custom sorting mode (English: Custom)
         showFolders: '显示导航', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: '隐藏导航', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        reorderRootFolders: 'Reorder root folders',
+        finishRootFolderReorder: 'Finish root folder reorder',
         toggleDescendantNotes: '显示后代笔记（文件夹和标签）', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '显示隐藏项', // Tooltip for button to show hidden items (English: Show hidden items)

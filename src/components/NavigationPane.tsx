@@ -60,13 +60,14 @@ import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useCommandQueue } from '../context/ServicesContext';
-import { useSettingsState } from '../context/SettingsContext';
+import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useNavigationPaneKeyboard } from '../hooks/useNavigationPaneKeyboard';
 import { useNavigationPaneData } from '../hooks/useNavigationPaneData';
 import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
 import { useShortcutReorder } from '../hooks/useShortcutReorder';
+import type { ShortcutDragHandlers } from '../hooks/useShortcutReorder';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { NavigationPaneItemType, ItemType } from '../types';
 import { getSelectedPath } from '../utils/selectionUtils';
@@ -85,6 +86,7 @@ import { STORAGE_KEYS, SHORTCUTS_VIRTUAL_FOLDER_ID, RECENT_NOTES_VIRTUAL_FOLDER_
 import { localStorage } from '../utils/localStorage';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { ShortcutItem } from './ShortcutItem';
+import { RootFolderReorderItem } from './RootFolderReorderItem';
 import { ShortcutType, SearchShortcut } from '../types/shortcuts';
 import { strings } from '../i18n';
 
@@ -112,6 +114,12 @@ interface NavigationPaneProps {
     onRevealShortcutFile?: (file: TFile) => void;
 }
 
+type RootFolderDescriptor = {
+    key: string;
+    folder: TFolder;
+    isVault?: boolean;
+};
+
 export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
         const { app, isMobile } = useServices();
@@ -122,6 +130,7 @@ export const NavigationPane = React.memo(
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
+        const updateSettings = useSettingsUpdate();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts } = useShortcuts();
@@ -143,6 +152,7 @@ export const NavigationPane = React.memo(
             }
             return false;
         });
+        const [isRootReorderMode, setRootReorderMode] = useState(false);
 
         // Determine if drag and drop should be enabled for shortcuts
         const shortcutCount = hydratedShortcuts.length;
@@ -162,6 +172,17 @@ export const NavigationPane = React.memo(
             isEnabled: isShortcutDnDEnabled,
             reorderShortcuts
         });
+
+        const getShortcutDragHandleConfig = useCallback((handlers: ShortcutDragHandlers) => {
+            if (!handlers.draggable) {
+                return undefined;
+            }
+            return {
+                label: strings.navigationPane.dragHandleLabel,
+                visible: true,
+                icon: 'lucide-grip'
+            } as const;
+        }, []);
 
         // Get visual state for a shortcut item (drag state, drop indicators)
         const getShortcutVisualState = useCallback(
@@ -199,12 +220,131 @@ export const NavigationPane = React.memo(
         const tagTree = fileData.tagTree;
 
         // Use the new data hook - now returns filtered items and pathToIndex
-        const { items, pathToIndex, shortcutIndex, tagCounts, folderCounts } = useNavigationPaneData({
+        const { items, pathToIndex, shortcutIndex, tagCounts, folderCounts, rootLevelFolders } = useNavigationPaneData({
             settings,
             isVisible,
             shortcutsExpanded,
             recentNotesExpanded
         });
+
+        const vaultRootFolder = useMemo(() => app.vault.getRoot(), [app]);
+
+        const rootFolderDescriptors = useMemo<RootFolderDescriptor[]>(() => {
+            const descriptors: RootFolderDescriptor[] = [];
+            if (settings.showRootFolder) {
+                descriptors.push({ key: vaultRootFolder.path, folder: vaultRootFolder, isVault: true });
+            }
+            rootLevelFolders.forEach(folder => {
+                descriptors.push({ key: folder.path, folder });
+            });
+            return descriptors;
+        }, [rootLevelFolders, settings.showRootFolder, vaultRootFolder]);
+
+        const reorderableRootFolders = useMemo<RootFolderDescriptor[]>(() => {
+            return rootFolderDescriptors.filter(entry => !entry.isVault);
+        }, [rootFolderDescriptors]);
+
+        const rootFolderPositionMap = useMemo(() => {
+            const map = new Map<string, number>();
+            reorderableRootFolders.forEach((entry, index) => {
+                map.set(entry.key, index);
+            });
+            return map;
+        }, [reorderableRootFolders]);
+
+        const canReorderRootFolders = reorderableRootFolders.length > 1;
+
+        const rootFolderIconMap = useMemo(() => {
+            const map = new Map<string, string | undefined>();
+            items.forEach(item => {
+                if (item.type === NavigationPaneItemType.FOLDER) {
+                    map.set(item.data.path, item.icon);
+                }
+            });
+            return map;
+        }, [items]);
+
+        const isRootReorderDnDEnabled = isRootReorderMode && canReorderRootFolders;
+
+        useEffect(() => {
+            if (isRootReorderMode && !canReorderRootFolders) {
+                setRootReorderMode(false);
+            }
+        }, [isRootReorderMode, canReorderRootFolders]);
+
+        const arePathArraysEqual = useCallback((first: string[], second: string[]) => {
+            if (first.length !== second.length) {
+                return false;
+            }
+            for (let index = 0; index < first.length; index += 1) {
+                if (first[index] !== second[index]) {
+                    return false;
+                }
+            }
+            return true;
+        }, []);
+
+        const handleRootOrderChange = useCallback(
+            async (orderedPaths: string[]) => {
+                const normalizedOrder = orderedPaths.slice();
+                if (arePathArraysEqual(normalizedOrder, settings.rootFolderOrder)) {
+                    return;
+                }
+                await updateSettings(current => {
+                    current.rootFolderOrder = normalizedOrder;
+                });
+            },
+            [arePathArraysEqual, settings.rootFolderOrder, updateSettings]
+        );
+
+        const {
+            getDragHandlers: getRootDragHandlers,
+            dropIndex: rootReorderDropIndex,
+            draggingKey: rootReorderDraggingKey
+        } = useShortcutReorder({
+            shortcuts: reorderableRootFolders,
+            isEnabled: isRootReorderDnDEnabled,
+            reorderShortcuts: async orderedKeys => {
+                await handleRootOrderChange(orderedKeys);
+                return true;
+            }
+        });
+
+        const getRootReorderVisualState = useCallback(
+            (key: string) => {
+                const index = rootFolderPositionMap.get(key);
+
+                if (index === undefined) {
+                    return {
+                        dragHandlers: undefined,
+                        showBefore: false,
+                        showAfter: false,
+                        isDragSource: false
+                    };
+                }
+
+                const dragHandlers = getRootDragHandlers(key);
+                const isDragSource = rootReorderDraggingKey === key;
+                const isFirst = index === 0;
+                const showBefore = isFirst && rootReorderDropIndex !== null && rootReorderDropIndex === 0 && rootReorderDraggingKey !== key;
+                const showAfter = rootReorderDropIndex !== null && rootReorderDropIndex === index + 1 && rootReorderDraggingKey !== key;
+
+                return {
+                    dragHandlers,
+                    showBefore,
+                    showAfter,
+                    isDragSource
+                };
+            },
+            [getRootDragHandlers, rootFolderPositionMap, rootReorderDropIndex, rootReorderDraggingKey]
+        );
+
+        const handleToggleRootReorder = useCallback(() => {
+            if (!canReorderRootFolders) {
+                return;
+            }
+            setRootReorderMode(prev => !prev);
+        }, [canReorderRootFolders]);
 
         // Use the new scroll hook
         const { rowVirtualizer, scrollContainerRef, requestScroll } = useNavigationPaneScroll({
@@ -773,6 +913,7 @@ export const NavigationPane = React.memo(
 
                         const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
                         const folderCount = getFolderShortcutCount(folder);
+                        const dragHandleConfig = getShortcutDragHandleConfig(dragHandlers);
 
                         return (
                             <ShortcutItem
@@ -788,6 +929,7 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
+                                dragHandleConfig={dragHandleConfig}
                             />
                         );
                     }
@@ -799,6 +941,7 @@ export const NavigationPane = React.memo(
                         }
 
                         const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+                        const dragHandleConfig = getShortcutDragHandleConfig(dragHandlers);
 
                         return (
                             <ShortcutItem
@@ -812,6 +955,7 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
+                                dragHandleConfig={dragHandleConfig}
                             />
                         );
                     }
@@ -820,6 +964,7 @@ export const NavigationPane = React.memo(
                         const searchShortcut = item.searchShortcut;
 
                         const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+                        const dragHandleConfig = getShortcutDragHandleConfig(dragHandlers);
 
                         return (
                             <ShortcutItem
@@ -833,6 +978,7 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
+                                dragHandleConfig={dragHandleConfig}
                             />
                         );
                     }
@@ -840,6 +986,7 @@ export const NavigationPane = React.memo(
                     case NavigationPaneItemType.SHORTCUT_TAG: {
                         const tagCount = getTagShortcutCount(item.tagPath);
                         const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+                        const dragHandleConfig = getShortcutDragHandleConfig(dragHandlers);
                         return (
                             <ShortcutItem
                                 icon={item.icon ?? 'lucide-tags'}
@@ -853,6 +1000,7 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
+                                dragHandleConfig={dragHandleConfig}
                             />
                         );
                     }
@@ -1031,6 +1179,7 @@ export const NavigationPane = React.memo(
                 handleShortcutTagActivate,
                 handleRecentNoteActivate,
                 handleShortcutContextMenu,
+                getShortcutDragHandleConfig,
                 getShortcutVisualState,
                 hydratedShortcuts,
                 shortcutsExpanded,
@@ -1123,52 +1272,128 @@ export const NavigationPane = React.memo(
         // Note: We pass the root container ref, not the scroll container ref.
         // This ensures keyboard events work across the entire navigator, allowing
         // users to navigate between panes (navigation <-> files) with Tab/Arrow keys.
+        const keyboardItems = isRootReorderMode ? [] : items;
+        const keyboardPathToIndex = isRootReorderMode ? new Map<string, number>() : pathToIndex;
+
         useNavigationPaneKeyboard({
-            items,
+            items: keyboardItems,
             virtualizer: rowVirtualizer,
             containerRef: props.rootContainerRef,
-            pathToIndex
+            pathToIndex: keyboardPathToIndex
         });
 
         return (
             <div className="nn-navigation-pane" style={props.style}>
-                <NavigationPaneHeader onTreeUpdateComplete={handleTreeUpdateComplete} onScrollToShortcuts={scrollShortcutsToTop} />
+                <NavigationPaneHeader
+                    onTreeUpdateComplete={handleTreeUpdateComplete}
+                    onScrollToShortcuts={scrollShortcutsToTop}
+                    onToggleRootFolderReorder={handleToggleRootReorder}
+                    rootReorderActive={isRootReorderMode}
+                    rootReorderDisabled={!canReorderRootFolders}
+                />
                 {/* Android - toolbar at top */}
                 {isMobile && isAndroid && (
-                    <NavigationToolbar onTreeUpdateComplete={handleTreeUpdateComplete} onScrollToShortcuts={scrollShortcutsToTop} />
+                    <NavigationToolbar
+                        onTreeUpdateComplete={handleTreeUpdateComplete}
+                        onScrollToShortcuts={scrollShortcutsToTop}
+                        onToggleRootFolderReorder={handleToggleRootReorder}
+                        rootReorderActive={isRootReorderMode}
+                        rootReorderDisabled={!canReorderRootFolders}
+                    />
                 )}
-                <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
-                    {items.length > 0 && (
-                        <div
-                            className="nn-virtual-container"
-                            style={{
-                                height: `${rowVirtualizer.getTotalSize()}px`
-                            }}
-                        >
-                            {rowVirtualizer.getVirtualItems().map(virtualItem => {
-                                // Safe array access
-                                const item = virtualItem.index >= 0 && virtualItem.index < items.length ? items[virtualItem.index] : null;
-                                if (!item) return null;
+                <div
+                    ref={scrollContainerRef}
+                    className="nn-navigation-pane-scroller"
+                    data-pane="navigation"
+                    role={isRootReorderMode ? 'list' : 'tree'}
+                    tabIndex={-1}
+                >
+                    {isRootReorderMode ? (
+                        <div className="nn-root-reorder-panel">
+                            <div className="nn-root-reorder-header">
+                                <span className="nn-root-reorder-title">{strings.navigationPane.reorderRootFoldersTitle}</span>
+                                <span className="nn-root-reorder-hint">{strings.navigationPane.reorderRootFoldersHint}</span>
+                            </div>
+                            <div className="nn-root-reorder-list" role="presentation">
+                                {rootFolderDescriptors.map(entry => {
+                                    const { dragHandlers, showBefore, showAfter, isDragSource } = getRootReorderVisualState(entry.key);
+                                    const iconName = rootFolderIconMap.get(entry.key);
+                                    const displayLabel = entry.isVault
+                                        ? settings.customVaultName || app.vault.getName()
+                                        : entry.folder.name;
+                                    const displayIcon = entry.isVault ? (iconName ?? 'vault') : (iconName ?? 'lucide-folder');
 
-                                return (
-                                    <div
-                                        key={virtualItem.key}
-                                        data-index={virtualItem.index}
-                                        className="nn-virtual-nav-item"
-                                        style={{
-                                            transform: `translateY(${virtualItem.start}px)`
+                                    return (
+                                        <RootFolderReorderItem
+                                            key={`root-reorder-${entry.key}`}
+                                            icon={displayIcon}
+                                            label={displayLabel}
+                                            level={entry.isVault ? 0 : 1}
+                                            dragHandlers={entry.isVault ? undefined : dragHandlers}
+                                            showDropIndicatorBefore={showBefore}
+                                            showDropIndicatorAfter={showAfter}
+                                            isDragSource={entry.isVault ? false : isDragSource}
+                                            dragHandleLabel={strings.navigationPane.dragHandleLabel}
+                                        />
+                                    );
+                                })}
+                                {settings.rootFolderOrder.length > 0 ? (
+                                    <button
+                                        type="button"
+                                        className="nn-root-reorder-reset"
+                                        onClick={event => {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+                                            void updateSettings(current => {
+                                                current.rootFolderOrder = [];
+                                            });
                                         }}
                                     >
-                                        {renderItem(item)}
-                                    </div>
-                                );
-                            })}
+                                        {strings.navigationPane.resetRootFolderOrder}
+                                    </button>
+                                ) : null}
+                            </div>
                         </div>
+                    ) : (
+                        items.length > 0 && (
+                            <div
+                                className="nn-virtual-container"
+                                style={{
+                                    height: `${rowVirtualizer.getTotalSize()}px`
+                                }}
+                            >
+                                {rowVirtualizer.getVirtualItems().map(virtualItem => {
+                                    // Safe array access
+                                    const item =
+                                        virtualItem.index >= 0 && virtualItem.index < items.length ? items[virtualItem.index] : null;
+                                    if (!item) return null;
+
+                                    return (
+                                        <div
+                                            key={virtualItem.key}
+                                            data-index={virtualItem.index}
+                                            className="nn-virtual-nav-item"
+                                            style={{
+                                                transform: `translateY(${virtualItem.start}px)`
+                                            }}
+                                        >
+                                            {renderItem(item)}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )
                     )}
                 </div>
                 {/* iOS - toolbar at bottom */}
                 {isMobile && !isAndroid && (
-                    <NavigationToolbar onTreeUpdateComplete={handleTreeUpdateComplete} onScrollToShortcuts={scrollShortcutsToTop} />
+                    <NavigationToolbar
+                        onTreeUpdateComplete={handleTreeUpdateComplete}
+                        onScrollToShortcuts={scrollShortcutsToTop}
+                        onToggleRootFolderReorder={handleToggleRootReorder}
+                        rootReorderActive={isRootReorderMode}
+                        rootReorderDisabled={!canReorderRootFolders}
+                    />
                 )}
             </div>
         );

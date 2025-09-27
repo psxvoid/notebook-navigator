@@ -54,7 +54,12 @@ export const STRINGS_KO = {
 
     navigationPane: {
         shortcutsHeader: '바로가기',
-        recentNotesHeader: 'Recent notes'
+        recentNotesHeader: 'Recent notes',
+        reorderRootFoldersTitle: 'Reorder root folders',
+        reorderRootFoldersHint: 'Drag folders to change order',
+        vaultRootLabel: 'Vault',
+        resetRootFolderOrder: 'Reset to alphabetical order',
+        dragHandleLabel: 'Drag to reorder'
     },
 
     shortcuts: {
@@ -83,6 +88,8 @@ export const STRINGS_KO = {
         customSort: '사용자 정의', // Label for custom sorting mode (English: Custom)
         showFolders: '탐색 표시', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: '탐색 숨기기', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        reorderRootFolders: 'Reorder root folders',
+        finishRootFolderReorder: 'Finish root folder reorder',
         toggleDescendantNotes: '하위 항목의 노트 표시 (폴더 및 태그)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: '폴더 및 태그 자동 펼치기', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '숨겨진 항목 표시', // Tooltip for button to show hidden items (English: Show hidden items)

@@ -54,7 +54,12 @@ export const STRINGS_DE = {
 
     navigationPane: {
         shortcutsHeader: 'Kurzbefehle',
-        recentNotesHeader: 'Recent notes'
+        recentNotesHeader: 'Recent notes',
+        reorderRootFoldersTitle: 'Reorder root folders',
+        reorderRootFoldersHint: 'Drag folders to change order',
+        vaultRootLabel: 'Vault',
+        resetRootFolderOrder: 'Reset to alphabetical order',
+        dragHandleLabel: 'Drag to reorder'
     },
 
     shortcuts: {
@@ -83,6 +88,8 @@ export const STRINGS_DE = {
         customSort: 'Benutzerdefiniert', // Label for custom sorting mode (English: Custom)
         showFolders: 'Navigation anzeigen', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Navigation ausblenden', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        reorderRootFolders: 'Reorder root folders',
+        finishRootFolderReorder: 'Finish root folder reorder',
         toggleDescendantNotes: 'Notizen aus Nachkommen anzeigen (Ordner und Tags)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Versteckte Elemente anzeigen', // Tooltip for button to show hidden items (English: Show hidden items)

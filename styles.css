@@ -913,7 +913,7 @@ body {
     font-size: 11px;
 }
 
-.nn-shortcut-item {
+.nn-drag-item {
     position: relative;
 }
 
@@ -921,8 +921,8 @@ body {
     opacity: 0.6;
 }
 
-.nn-shortcut-item[data-shortcut-drop-before='true'] .nn-navitem-content::before,
-.nn-shortcut-item[data-shortcut-drop-after='true'] .nn-navitem-content::after {
+.nn-drag-item[data-shortcut-drop-before='true'] .nn-navitem-content::before,
+.nn-drag-item[data-shortcut-drop-after='true'] .nn-navitem-content::after {
     content: '';
     position: absolute;
     inset-inline-start: 0;
@@ -934,30 +934,152 @@ body {
     z-index: 3;
 }
 
-.nn-shortcut-item[data-shortcut-drop-before='true'] .nn-navitem-content::before {
+.nn-drag-item[data-shortcut-drop-before='true'] .nn-navitem-content::before {
     top: 0;
 }
 
-.nn-shortcut-item[data-shortcut-drop-after='true'] .nn-navitem-content::after {
+.nn-drag-item[data-shortcut-drop-after='true'] .nn-navitem-content::after {
     bottom: 0;
 }
 
-.nn-shortcut-item .nn-navitem-name {
+.nn-desktop .nn-drag-item[data-shortcut-drop-before='true']::before,
+.nn-desktop .nn-drag-item[data-shortcut-drop-after='true']::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    height: 3px;
+    background-color: var(--interactive-accent);
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.nn-desktop .nn-drag-item[data-shortcut-drop-before='true']::before {
+    top: -1px;
+}
+
+.nn-desktop .nn-drag-item[data-shortcut-drop-after='true']::after {
+    bottom: -1px;
+}
+
+.nn-drag-item .nn-navitem-name {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     min-width: 0;
 }
 
-.nn-shortcut-item .nn-shortcut-label {
+.nn-drag-item .nn-shortcut-label {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.nn-shortcut-item .nn-shortcut-description {
+.nn-drag-item .nn-shortcut-description {
     flex-shrink: 0;
+}
+
+.nn-shortcut-actions {
+    display: flex;
+    gap: 0.25rem;
+    margin-inline-start: 0.5rem;
+}
+
+.nn-drag-item-has-handle .nn-navitem-content {
+    gap: 0.25rem;
+}
+
+.nn-drag-item[data-shortcut-draggable='true'] .nn-navitem-content {
+    cursor: grab;
+}
+
+.nn-drag-item[data-shortcut-draggable='true'].nn-shortcut-drag-source .nn-navitem-content,
+.nn-drag-item[data-shortcut-draggable='true'] .nn-navitem-content:active {
+    cursor: grabbing;
+}
+
+.nn-drag-handle {
+    width: 28px;
+    height: calc(var(--nn-setting-nav-item-height) - 4px);
+    margin-inline-start: 0.25rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    touch-action: none;
+    color: var(--nn-theme-navitem-icon-color);
+}
+
+.nn-drag-handle:active,
+.nn-drag-handle-active {
+    cursor: grabbing;
+}
+
+.nn-drag-handle-disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.nn-drag-handle:focus {
+    outline: none;
+}
+
+.nn-drag-handle .nn-iconfont,
+.nn-drag-handle svg {
+    width: 16px;
+    height: 16px;
+}
+
+.nn-root-reorder-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+.nn-root-reorder-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.nn-root-reorder-title {
+    font-size: var(--font-small);
+    font-weight: 600;
+}
+
+.nn-root-reorder-hint {
+    font-size: var(--font-smaller);
+    color: var(--text-muted);
+}
+
+.nn-root-reorder-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+.nn-root-reorder-item {
+    cursor: default;
+}
+
+.nn-root-reorder-reset {
+    margin-top: 0.75rem;
+    align-self: flex-start;
+    background: transparent;
+    border: none;
+    color: var(--text-accent);
+    font-size: var(--font-small);
+    padding: 0;
+    cursor: pointer;
+}
+
+.nn-root-reorder-reset:hover {
+    text-decoration: underline;
 }
 
 .nn-shortcut-disabled {

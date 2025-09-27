@@ -16,10 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useMemo, useEffect, useRef } from 'react';
+import React from 'react';
 import { useSettingsState } from '../context/SettingsContext';
-import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { ShortcutDragHandlers } from '../hooks/useShortcutReorder';
+import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
 
 interface ShortcutItemProps {
     icon: string;
@@ -36,12 +36,9 @@ interface ShortcutItemProps {
     showDropIndicatorBefore?: boolean;
     showDropIndicatorAfter?: boolean;
     isDragSource?: boolean;
+    dragHandleConfig?: DragHandleConfig;
 }
 
-/**
- * Renders a single shortcut item in the navigation pane.
- * Handles click events and visual states for different shortcut types.
- */
 export const ShortcutItem = React.memo(function ShortcutItem({
     icon,
     label,
@@ -56,81 +53,41 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     dragHandlers,
     showDropIndicatorBefore,
     showDropIndicatorAfter,
-    isDragSource
+    isDragSource,
+    dragHandleConfig
 }: ShortcutItemProps) {
     const settings = useSettingsState();
-    const iconRef = useRef<HTMLSpanElement>(null);
-    const iconVersion = useIconServiceVersion();
-
-    // Build CSS classes based on disabled state
-    const itemClassName = useMemo(() => {
-        const classes = ['nn-navitem', 'nn-shortcut-item'];
-        if (isDisabled) {
-            classes.push('nn-shortcut-disabled');
-        }
-        if (isExcluded) {
-            classes.push('nn-excluded');
-        }
-        if (isDragSource) {
-            classes.push('nn-shortcut-drag-source');
-        }
-        return classes.join(' ');
-    }, [isDisabled, isExcluded, isDragSource]);
-
-    useEffect(() => {
-        if (iconRef.current && settings.showIcons) {
-            getIconService().renderIcon(iconRef.current, icon);
-        }
-    }, [icon, settings.showIcons, iconVersion]);
-
+    // Determine whether to display count based on settings and item type
     const shouldShowCount = settings.showNoteCount && typeof count === 'number' && count > 0 && (type === 'folder' || type === 'tag');
 
-    const draggable = dragHandlers?.draggable ?? false;
-
     return (
-        <div
-            className={itemClassName}
-            style={{ '--level': level } as React.CSSProperties}
+        <NavigationListRow
+            icon={icon}
+            label={label}
+            description={description}
+            level={level}
+            itemType={type}
+            isDisabled={isDisabled}
+            isExcluded={isExcluded}
             onClick={event => {
-                // Prevent clicks on disabled shortcuts
                 if (isDisabled) {
                     event.preventDefault();
                     return;
                 }
                 onClick(event);
             }}
-            onContextMenu={event => {
-                if (onContextMenu) {
-                    onContextMenu(event);
-                }
-            }}
-            role="treeitem"
+            onContextMenu={onContextMenu}
+            dragHandlers={dragHandlers}
+            showDropIndicatorBefore={showDropIndicatorBefore}
+            showDropIndicatorAfter={showDropIndicatorAfter}
+            isDragSource={isDragSource}
+            showCount={shouldShowCount}
+            count={count}
+            className="nn-shortcut-item"
             tabIndex={-1}
-            aria-disabled={isDisabled || undefined}
-            aria-grabbed={isDragSource ? true : undefined}
-            data-shortcut-type={type}
-            data-level={level}
-            data-shortcut-draggable={draggable ? 'true' : undefined}
-            data-shortcut-drop-before={showDropIndicatorBefore ? 'true' : undefined}
-            data-shortcut-drop-after={showDropIndicatorAfter ? 'true' : undefined}
-            aria-level={level + 1}
-            draggable={draggable}
-            onDragStart={dragHandlers?.onDragStart}
-            onDragOver={dragHandlers?.onDragOver}
-            onDragLeave={dragHandlers?.onDragLeave}
-            onDrop={dragHandlers?.onDrop}
-            onDragEnd={dragHandlers?.onDragEnd}
-        >
-            <div className="nn-navitem-content">
-                <span className="nn-navitem-chevron nn-navitem-chevron--no-children" aria-hidden="true" />
-                {settings.showIcons && <span className="nn-navitem-icon" ref={iconRef} />}
-                <span className="nn-navitem-name">
-                    <span className="nn-shortcut-label">{label}</span>
-                    {description ? <span className="nn-shortcut-description">{description}</span> : null}
-                </span>
-                <span className="nn-navitem-spacer" />
-                {shouldShowCount ? <span className="nn-navitem-count">{count}</span> : null}
-            </div>
-        </div>
+            ariaDisabled={isDisabled}
+            ariaGrabbed={isDragSource}
+            dragHandleConfig={dragHandleConfig}
+        />
     );
 });

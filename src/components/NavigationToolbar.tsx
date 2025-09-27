@@ -25,13 +25,22 @@ import { useNavigationActions } from '../hooks/useNavigationActions';
 interface NavigationToolbarProps {
     onTreeUpdateComplete?: () => void;
     onScrollToShortcuts?: () => void;
+    onToggleRootFolderReorder?: () => void;
+    rootReorderActive?: boolean;
+    rootReorderDisabled?: boolean;
 }
 
-export function NavigationToolbar({ onTreeUpdateComplete, onScrollToShortcuts }: NavigationToolbarProps) {
+export function NavigationToolbar({
+    onTreeUpdateComplete,
+    onScrollToShortcuts,
+    onToggleRootFolderReorder,
+    rootReorderActive,
+    rootReorderDisabled
+}: NavigationToolbarProps) {
     const settings = useSettingsState();
     const selectionState = useSelectionState();
 
-    // Use the shared actions hook
+    // Hook providing shared navigation actions (expand/collapse, folder creation, toggle visibility)
     const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
 
     return (
@@ -56,7 +65,7 @@ export function NavigationToolbar({ onTreeUpdateComplete, onScrollToShortcuts }:
                 onClick={() => {
                     handleExpandCollapseAll();
                     if (onTreeUpdateComplete) {
-                        // Use requestAnimationFrame to ensure DOM updates are complete
+                        // Defer callback until after DOM updates complete
                         requestAnimationFrame(() => {
                             onTreeUpdateComplete();
                         });
@@ -72,7 +81,7 @@ export function NavigationToolbar({ onTreeUpdateComplete, onScrollToShortcuts }:
                 onClick={async () => {
                     await handleToggleShowExcludedFolders();
                     if (onTreeUpdateComplete) {
-                        // Ensure DOM updates before attempting to scroll
+                        // Defer callback until after DOM updates complete
                         requestAnimationFrame(() => {
                             onTreeUpdateComplete();
                         });
@@ -82,6 +91,19 @@ export function NavigationToolbar({ onTreeUpdateComplete, onScrollToShortcuts }:
                 tabIndex={-1}
             >
                 <ObsidianIcon name="lucide-eye" />
+            </button>
+            <button
+                className={`nn-mobile-toolbar-button ${rootReorderActive ? 'nn-mobile-toolbar-button-active' : ''}`}
+                aria-label={rootReorderActive ? strings.paneHeader.finishRootFolderReorder : strings.paneHeader.reorderRootFolders}
+                onClick={() => {
+                    if (onToggleRootFolderReorder) {
+                        onToggleRootFolderReorder();
+                    }
+                }}
+                disabled={rootReorderDisabled}
+                tabIndex={-1}
+            >
+                <ObsidianIcon name="lucide-list-tree" />
             </button>
             <button
                 className="nn-mobile-toolbar-button"

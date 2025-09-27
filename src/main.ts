@@ -61,19 +61,19 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     omnisearchService: OmnisearchService | null = null;
     externalIconController: ExternalIconProviderController | null = null;
     api: NotebookNavigatorAPI | null = null;
-    // A map of callbacks to notify open React views of changes
+    // Map of callbacks to notify open React views when settings change
     private settingsUpdateListeners = new Map<string, () => void>();
-    // A map of callbacks to notify open React views of file renames
+    // Map of callbacks to notify open React views when files are renamed
     private fileRenameListeners = new Map<string, (oldPath: string, newPath: string) => void>();
-    // Track if we're in the process of unloading
+    // Flag indicating plugin is being unloaded to prevent operations during shutdown
     private isUnloading = false;
     private isWorkspaceReady = false;
     private lastHomepagePath: string | null = null;
     private pendingHomepageTrigger: 'settings-change' | 'command' | null = null;
-    private dualPanePreference = true; // Stored in localStorage, not settings
+    // User preference for dual-pane mode (persisted in localStorage, not settings)
+    private dualPanePreference = true;
 
-    // LocalStorage keys for state persistence
-    // These keys are used to save and restore the plugin's state between sessions
+    // Keys used for persisting UI state in browser localStorage
     keys: LocalStorageKeys = STORAGE_KEYS;
 
     /**
@@ -98,7 +98,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Start with default settings
         this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
-        // Ensure keyboard shortcuts are valid and use proper modifier names
+        // Validate and normalize keyboard shortcuts to use standard modifier names
         this.settings.keyboardShortcuts = sanitizeKeyboardShortcuts(this.settings.keyboardShortcuts);
 
         // Set language-specific date/time formats if not already set
@@ -115,6 +115,10 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         if (typeof this.settings.recentNotesCount !== 'number' || this.settings.recentNotesCount <= 0) {
             this.settings.recentNotesCount = RECENT_NOTES_DEFAULT_COUNT;
+        }
+
+        if (!Array.isArray(this.settings.rootFolderOrder)) {
+            this.settings.rootFolderOrder = [];
         }
 
         return isFirstLaunch;
