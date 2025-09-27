@@ -148,6 +148,48 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         void this.saveSettingsAndUpdate();
     }
 
+    private updateRecentNotePath(oldPath: string, newPath: string) {
+        if (!Array.isArray(this.settings.recentNotes) || this.settings.recentNotes.length === 0) {
+            return;
+        }
+
+        const limit = Math.max(1, this.settings.recentNotesCount || RECENT_NOTES_DEFAULT_COUNT);
+        const updated: string[] = [];
+        const seen = new Set<string>();
+        let changed = false;
+
+        for (const entry of this.settings.recentNotes) {
+            const candidate = entry === oldPath ? newPath : entry;
+            if (candidate !== entry) {
+                changed = true;
+            }
+
+            if (!candidate) {
+                changed = true;
+                continue;
+            }
+
+            if (!seen.has(candidate)) {
+                seen.add(candidate);
+                updated.push(candidate);
+            } else {
+                changed = true;
+            }
+        }
+
+        if (updated.length > limit) {
+            updated.length = limit;
+            changed = true;
+        }
+
+        if (!changed) {
+            return;
+        }
+
+        this.settings.recentNotes = updated;
+        void this.saveSettingsAndUpdate();
+    }
+
     private isFileInRightSidebar(file: TFile): boolean {
         if (!this.settings.autoRevealIgnoreRightSidebar) {
             return false;
@@ -622,6 +664,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 } else if (file instanceof TFile && this.metadataService) {
                     // Update pinned files metadata
                     await this.metadataService.handleFileRename(oldPath, file.path);
+                    this.updateRecentNotePath(oldPath, file.path);
 
                     // Check if file moved to a different folder
                     const getParentPath = (path: string): string => {
