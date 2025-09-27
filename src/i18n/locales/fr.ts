@@ -56,19 +56,19 @@ export const STRINGS_FR = {
         shortcutsHeader: 'Raccourcis',
         recentNotesHeader: 'Notes récentes',
         reorderRootFoldersTitle: 'Réorganiser les dossiers racine',
-        reorderRootFoldersHint: 'Faites glisser les dossiers pour modifier l'ordre',
+        reorderRootFoldersHint: "Faites glisser les dossiers pour modifier l'ordre",
         vaultRootLabel: 'Coffre',
-        resetRootFolderOrder: 'Réinitialiser l'ordre alphabétique',
+        resetRootFolderOrder: "Réinitialiser l'ordre alphabétique",
         dragHandleLabel: 'Faire glisser pour réorganiser'
     },
 
     shortcuts: {
         folderExists: 'Le dossier est déjà dans les raccourcis',
         noteExists: 'La note est déjà dans les raccourcis',
-        tagExists: 'L'étiquette est déjà dans les raccourcis',
+        tagExists: "L'étiquette est déjà dans les raccourcis",
         searchExists: 'Le raccourci de recherche existe déjà',
-        emptySearchQuery: 'Entrez une requête de recherche avant de l'enregistrer',
-        emptySearchName: 'Entrez un nom avant d'enregistrer la recherche',
+        emptySearchQuery: "Entrez une requête de recherche avant de l'enregistrer",
+        emptySearchName: "Entrez un nom avant d'enregistrer la recherche",
         add: 'Ajouter aux raccourcis',
         remove: 'Retirer des raccourcis',
         moveUp: 'Déplacer vers le haut',
@@ -540,7 +540,7 @@ export const STRINGS_FR = {
             },
             autoRevealIgnoreRightSidebar: {
                 name: 'Ignorer les événements du panneau de droite',
-                desc: 'Ne pas changer la note active lors d'un clic ou du changement de notes dans le panneau de droite.'
+                desc: "Ne pas changer la note active lors d'un clic ou du changement de notes dans le panneau de droite."
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Sélectionner automatiquement la première note (ordinateur uniquement)',
