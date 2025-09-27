@@ -85,27 +85,6 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
     menu.addSeparator();
 
-    if (!shouldShowMultiOptions && services.shortcuts && isMarkdown) {
-        const { noteShortcutKeysByPath, addNoteShortcut, removeShortcut } = services.shortcuts;
-        const existingShortcutKey = noteShortcutKeysByPath.get(file.path);
-
-        menu.addItem((item: MenuItem) => {
-            if (existingShortcutKey) {
-                item.setTitle(strings.shortcuts.remove)
-                    .setIcon('lucide-star-off')
-                    .onClick(() => {
-                        void removeShortcut(existingShortcutKey);
-                    });
-            } else {
-                item.setTitle(strings.shortcuts.add)
-                    .setIcon('lucide-star')
-                    .onClick(() => {
-                        void addNoteShortcut(file.path);
-                    });
-            }
-        });
-    }
-
     // Pin/Unpin note(s)
     const pinContext: NavigatorContext = selectionState.selectionType === ItemType.TAG ? 'tag' : 'folder';
     if (!shouldShowMultiOptions) {
@@ -133,6 +112,28 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     });
             });
         }
+    }
+
+    // Add to shortcuts / Remove from shortcuts
+    if (!shouldShowMultiOptions && services.shortcuts && isMarkdown) {
+        const { noteShortcutKeysByPath, addNoteShortcut, removeShortcut } = services.shortcuts;
+        const existingShortcutKey = noteShortcutKeysByPath.get(file.path);
+
+        menu.addItem((item: MenuItem) => {
+            if (existingShortcutKey) {
+                item.setTitle(strings.shortcuts.remove)
+                    .setIcon('lucide-star-off')
+                    .onClick(() => {
+                        void removeShortcut(existingShortcutKey);
+                    });
+            } else {
+                item.setTitle(strings.shortcuts.add)
+                    .setIcon('lucide-star')
+                    .onClick(() => {
+                        void addNoteShortcut(file.path);
+                    });
+            }
+        });
     }
 
     // Tag operations
