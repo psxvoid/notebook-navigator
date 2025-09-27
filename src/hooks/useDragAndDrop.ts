@@ -40,7 +40,17 @@ import { generateUniqueFilename } from '../utils/fileCreationUtils';
  * data attributes: `data-draggable`, `data-drag-type`, `data-drag-path`,
  * and drop zones with `data-drop-zone`, `data-drop-path`.
  */
-const FOLDER_AUTO_EXPAND_DELAY = 500;
+const AUTO_EXPAND_DELAY = 500;
+
+type AutoExpandTarget = { type: 'folder' | 'tag'; path: string };
+
+interface AutoExpandConfig {
+    type: AutoExpandTarget['type'];
+    path: string;
+    isAlreadyExpanded: () => boolean;
+    resolveNode: () => { isValid: boolean; hasChildren: boolean };
+    expand: () => void;
+}
 
 export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>) {
     const { app, isMobile, tagTreeService } = useServices();
@@ -58,8 +68,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const windowDragEndHandlerRef = useRef<((e: DragEvent) => void) | null>(null);
     const windowDropHandlerRef = useRef<((e: DragEvent) => void) | null>(null);
     const autoExpandTimeoutRef = useRef<number | null>(null);
-    const autoExpandTargetRef = useRef<string | null>(null);
+    const autoExpandTargetRef = useRef<AutoExpandTarget | null>(null);
     const expandedFoldersRef = useRef(expansionState.expandedFolders);
+    const expandedTagsRef = useRef(expansionState.expandedTags);
 
     /**
      * Type guard to check if an element is an HTMLElement
@@ -311,6 +322,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         expandedFoldersRef.current = expansionState.expandedFolders;
     }, [expansionState.expandedFolders]);
 
+    useEffect(() => {
+        expandedTagsRef.current = expansionState.expandedTags;
+    }, [expansionState.expandedTags]);
+
     const clearAutoExpandTimer = useCallback(() => {
         if (autoExpandTimeoutRef.current !== null) {
             window.clearTimeout(autoExpandTimeoutRef.current);
@@ -319,45 +334,87 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         autoExpandTargetRef.current = null;
     }, []);
 
-    const scheduleFolderAutoExpand = useCallback(
-        (targetPath: string) => {
-            if (autoExpandTargetRef.current === targetPath) {
+    const scheduleAutoExpand = useCallback(
+        (config: AutoExpandConfig) => {
+            if (autoExpandTargetRef.current?.type === config.type && autoExpandTargetRef.current.path === config.path) {
                 return;
             }
 
             clearAutoExpandTimer();
 
-            if (expandedFoldersRef.current.has(targetPath)) {
+            if (config.isAlreadyExpanded()) {
                 return;
             }
 
-            const targetFolder = app.vault.getFolderByPath(targetPath);
-            if (!targetFolder) {
+            const initial = config.resolveNode();
+            if (!initial.isValid || !initial.hasChildren) {
                 return;
             }
 
-            const hasChildFolders = targetFolder.children.some(child => child instanceof TFolder);
-            if (!hasChildFolders) {
-                return;
-            }
-
-            autoExpandTargetRef.current = targetPath;
+            autoExpandTargetRef.current = { type: config.type, path: config.path };
             autoExpandTimeoutRef.current = window.setTimeout(() => {
-                // Ensure folder still exists and is not already expanded before dispatching
-                const folder = app.vault.getFolderByPath(targetPath);
-                if (!folder) {
+                const latest = config.resolveNode();
+                if (!latest.isValid) {
                     clearAutoExpandTimer();
                     return;
                 }
 
-                if (!expandedFoldersRef.current.has(targetPath)) {
-                    expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: [targetPath] });
+                if (latest.hasChildren && !config.isAlreadyExpanded()) {
+                    config.expand();
                 }
 
                 clearAutoExpandTimer();
-            }, FOLDER_AUTO_EXPAND_DELAY);
+            }, AUTO_EXPAND_DELAY);
         },
-        [app, expansionDispatch, clearAutoExpandTimer]
+        [clearAutoExpandTimer]
+    );
+
+    const scheduleFolderAutoExpand = useCallback(
+        (targetPath: string) => {
+            scheduleAutoExpand({
+                type: 'folder',
+                path: targetPath,
+                isAlreadyExpanded: () => expandedFoldersRef.current.has(targetPath),
+                resolveNode: () => {
+                    const folder = app.vault.getFolderByPath(targetPath);
+                    if (!folder) {
+                        return { isValid: false, hasChildren: false };
+                    }
+                    return {
+                        isValid: true,
+                        hasChildren: folder.children.some(child => child instanceof TFolder)
+                    };
+                },
+                expand: () => expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: [targetPath] })
+            });
+        },
+        [app, expansionDispatch, scheduleAutoExpand]
+    );
+
+    const scheduleTagAutoExpand = useCallback(
+        (targetPath: string) => {
+            if (!tagTreeService) {
+                return;
+            }
+
+            scheduleAutoExpand({
+                type: 'tag',
+                path: targetPath,
+                isAlreadyExpanded: () => expandedTagsRef.current.has(targetPath),
+                resolveNode: () => {
+                    if (!tagTreeService) {
+                        return { isValid: false, hasChildren: false };
+                    }
+                    const node = tagTreeService.findTagNode(targetPath);
+                    if (!node) {
+                        return { isValid: false, hasChildren: false };
+                    }
+                    return { isValid: true, hasChildren: node.children.size > 0 };
+                },
+                expand: () => expansionDispatch({ type: 'EXPAND_TAGS', tagPaths: [targetPath] })
+            });
+        },
+        [tagTreeService, expansionDispatch, scheduleAutoExpand]
     );
 
     /**
@@ -414,14 +471,23 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
                 } else if (dropType === 'tag') {
                     e.dataTransfer.dropEffect = targetPath === UNTAGGED_TAG_ID ? 'move' : 'copy';
-                    clearAutoExpandTimer();
+                    if (targetPath !== UNTAGGED_TAG_ID) {
+                        const canonicalTagPath = dropZone.getAttribute('data-tag');
+                        if (canonicalTagPath) {
+                            scheduleTagAutoExpand(canonicalTagPath);
+                        } else {
+                            clearAutoExpandTimer();
+                        }
+                    } else {
+                        clearAutoExpandTimer();
+                    }
                 }
             }
 
             dropZone.classList.add('nn-drag-over');
             dragOverElement.current = dropZone;
         },
-        [clearAutoExpandTimer, scheduleFolderAutoExpand]
+        [clearAutoExpandTimer, scheduleFolderAutoExpand, scheduleTagAutoExpand]
     );
 
     /**
