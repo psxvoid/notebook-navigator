@@ -79,9 +79,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==Recent Notes==. New section showing recently opened files in the navigation pane. You can disable this in settings.',
             '==Keyboard Shortcuts==. You can now customize all keyboard shortcuts in settings using Mod, Ctrl, Shift, and Alt modifiers.'
         ],
-        changed: ['Auto reveal file now selects the nearest expanded ancestor when descendant notes are enabled.'],
+        changed: [
+            'Auto reveal file now selects the nearest expanded ancestor when descendant notes are enabled.',
+            'Favorite tags section is now hidden if there are no favorite tags matching.'
+        ],
         fixed: [
-            'Moving tagged notes between folders could drop them from the tag tree after the move because the background refresh cancelled itself; the refresh now always completes so the tags stay attached.'
+            'Moving notes with tags previously removed them from the tag tree, meaning it looked like they no longer had any tags. This has been fixed.'
         ]
     },
     {
