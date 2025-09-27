@@ -56,6 +56,7 @@ export const STRINGS_EN = {
     navigationPane: {
         shortcutsHeader: 'Shortcuts', // Header label for shortcuts section in navigation pane (English: Shortcuts)
         recentNotesHeader: 'Recent notes', // Header label for recent notes section in navigation pane (English: Recent notes)
+        recentFilesHeader: 'Recent files', // Header label when showing recent non-note files in navigation pane (English: Recent files)
         reorderRootFoldersTitle: 'Reorder root folders',
         reorderRootFoldersHint: 'Drag folders to change order',
         vaultRootLabel: 'Vault',

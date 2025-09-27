@@ -55,6 +55,7 @@ export const STRINGS_KO = {
     navigationPane: {
         shortcutsHeader: '바로가기',
         recentNotesHeader: '최근 노트',
+        recentFilesHeader: '최근 파일',
         reorderRootFoldersTitle: '루트 폴더 순서 변경',
         reorderRootFoldersHint: '폴더를 드래그하여 순서 변경',
         vaultRootLabel: '보관함',

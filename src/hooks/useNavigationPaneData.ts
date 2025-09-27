@@ -49,7 +49,7 @@ import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings } from '../settings';
 import { shouldExcludeFile, shouldExcludeFolder, isFolderInExcludedFolder } from '../utils/fileFilters';
-import { shouldDisplayFile } from '../utils/fileTypeUtils';
+import { shouldDisplayFile, FILE_VISIBILITY } from '../utils/fileTypeUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
@@ -436,6 +436,11 @@ export function useNavigationPaneData({
         const headerLevel = 0;
         const itemLevel = headerLevel + 1;
 
+        const recentHeaderName =
+            settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS
+                ? strings.navigationPane.recentNotesHeader
+                : strings.navigationPane.recentFilesHeader;
+
         const items: CombinedNavigationItem[] = [
             {
                 type: NavigationPaneItemType.VIRTUAL_FOLDER,
@@ -443,7 +448,7 @@ export function useNavigationPaneData({
                 level: headerLevel,
                 data: {
                     id: RECENT_NOTES_VIRTUAL_FOLDER_ID,
-                    name: strings.navigationPane.recentNotesHeader,
+                    name: recentHeaderName,
                     icon: 'lucide-history'
                 }
             }
@@ -470,7 +475,14 @@ export function useNavigationPaneData({
         });
 
         return items;
-    }, [settings.showRecentNotes, settings.recentNotes, settings.recentNotesCount, recentNotesExpanded, app.vault]);
+    }, [
+        settings.showRecentNotes,
+        settings.recentNotes,
+        settings.recentNotesCount,
+        settings.fileVisibility,
+        recentNotesExpanded,
+        app.vault
+    ]);
 
     /**
      * Combine shortcut, folder, and tag items based on display order settings

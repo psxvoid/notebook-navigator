@@ -55,6 +55,7 @@ export const STRINGS_PL = {
     navigationPane: {
         shortcutsHeader: 'Skróty',
         recentNotesHeader: 'Ostatnie notatki',
+        recentFilesHeader: 'Ostatnie pliki',
         reorderRootFoldersTitle: 'Zmień kolejność folderów głównych',
         reorderRootFoldersHint: 'Przeciągnij foldery aby zmienić kolejność',
         vaultRootLabel: 'Magazyn',

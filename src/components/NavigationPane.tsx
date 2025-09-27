@@ -74,7 +74,7 @@ import { TagTreeNode } from '../types/storage';
 import { getFolderNote } from '../utils/folderNotes';
 import { findTagNode, getTotalNoteCount } from '../utils/tagTree';
 import { shouldExcludeFolder, shouldExcludeFile } from '../utils/fileFilters';
-import { shouldDisplayFile } from '../utils/fileTypeUtils';
+import { shouldDisplayFile, getExtensionSuffix, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';
 import { NavigationToolbar } from './NavigationToolbar';
@@ -203,7 +203,7 @@ export const NavigationPane = React.memo(
         const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
 
         // Get tag data from the context
-        const { fileData } = useFileCache();
+        const { fileData, getFileDisplayName } = useFileCache();
         const favoriteTree = fileData.favoriteTree;
         const tagTree = fileData.tagTree;
 
@@ -1063,11 +1063,14 @@ export const NavigationPane = React.memo(
 
                     case NavigationPaneItemType.RECENT_NOTE: {
                         const note = item.note;
+                        const displayName = getFileDisplayName(note);
+                        const extensionSuffix = shouldShowExtensionSuffix(note) ? getExtensionSuffix(note) : '';
+                        const label = extensionSuffix ? `${displayName}${extensionSuffix}` : displayName;
                         return (
                             <ShortcutItem
                                 icon={item.icon ?? 'lucide-file-text'}
                                 color={item.color}
-                                label={note.basename}
+                                label={label}
                                 level={item.level}
                                 type="note"
                                 onClick={() => handleRecentNoteActivate(note)}
@@ -1167,7 +1170,8 @@ export const NavigationPane = React.memo(
                 getShortcutVisualState,
                 hydratedShortcuts,
                 shortcutsExpanded,
-                recentNotesExpanded
+                recentNotesExpanded,
+                getFileDisplayName
             ]
         );
 

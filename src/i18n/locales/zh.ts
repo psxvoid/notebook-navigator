@@ -55,6 +55,7 @@ export const STRINGS_ZH = {
     navigationPane: {
         shortcutsHeader: '快捷方式',
         recentNotesHeader: '最近笔记',
+        recentFilesHeader: '最近文件',
         reorderRootFoldersTitle: '重新排列根文件夹',
         reorderRootFoldersHint: '拖拽文件夹来更改顺序',
         vaultRootLabel: '仓库',

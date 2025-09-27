@@ -55,6 +55,7 @@ export const STRINGS_FR = {
     navigationPane: {
         shortcutsHeader: 'Raccourcis',
         recentNotesHeader: 'Notes récentes',
+        recentFilesHeader: 'Fichiers récents',
         reorderRootFoldersTitle: 'Réorganiser les dossiers racine',
         reorderRootFoldersHint: "Faites glisser les dossiers pour modifier l'ordre",
         vaultRootLabel: 'Coffre',

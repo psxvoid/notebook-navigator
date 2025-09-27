@@ -33,6 +33,7 @@ import { CommandQueueService } from './services/CommandQueueService';
 import { OmnisearchService } from './services/OmnisearchService';
 import { FileSystemOperations } from './services/FileSystemService';
 import { getIconService } from './services/icons';
+import { RecentNotesService } from './services/RecentNotesService';
 import { ExternalIconProviderController } from './services/icons/external/ExternalIconProviderController';
 import { ExternalIconProviderId } from './services/icons/external/providerRegistry';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
@@ -61,6 +62,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     omnisearchService: OmnisearchService | null = null;
     externalIconController: ExternalIconProviderController | null = null;
     api: NotebookNavigatorAPI | null = null;
+    recentNotesService: RecentNotesService | null = null;
     // Map of callbacks to notify open React views when settings change
     private settingsUpdateListeners = new Map<string, () => void>();
     // Map of callbacks to notify open React views when files are renamed
@@ -122,90 +124,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         return isFirstLaunch;
-    }
-
-    private updateRecentNotes(file: TFile | null) {
-        if (!file) {
-            return;
-        }
-
-        const existing = Array.isArray(this.settings.recentNotes) ? this.settings.recentNotes : [];
-        const filtered = existing.filter(entry => entry !== file.path);
-        filtered.unshift(file.path);
-
-        const limit = Math.max(1, this.settings.recentNotesCount || RECENT_NOTES_DEFAULT_COUNT);
-        if (filtered.length > limit) {
-            filtered.length = limit;
-        }
-
-        const changed = filtered.length !== existing.length || filtered.some((value, index) => value !== existing[index]);
-
-        if (!changed) {
-            return;
-        }
-
-        this.settings.recentNotes = filtered;
-        void this.saveSettingsAndUpdate();
-    }
-
-    private updateRecentNotePath(oldPath: string, newPath: string) {
-        if (!Array.isArray(this.settings.recentNotes) || this.settings.recentNotes.length === 0) {
-            return;
-        }
-
-        const limit = Math.max(1, this.settings.recentNotesCount || RECENT_NOTES_DEFAULT_COUNT);
-        const updated: string[] = [];
-        const seen = new Set<string>();
-        let changed = false;
-
-        for (const entry of this.settings.recentNotes) {
-            const candidate = entry === oldPath ? newPath : entry;
-            if (candidate !== entry) {
-                changed = true;
-            }
-
-            if (!candidate) {
-                changed = true;
-                continue;
-            }
-
-            if (!seen.has(candidate)) {
-                seen.add(candidate);
-                updated.push(candidate);
-            } else {
-                changed = true;
-            }
-        }
-
-        if (updated.length > limit) {
-            updated.length = limit;
-            changed = true;
-        }
-
-        if (!changed) {
-            return;
-        }
-
-        this.settings.recentNotes = updated;
-        void this.saveSettingsAndUpdate();
-    }
-
-    private removeRecentNoteEntry(path: string): boolean {
-        if (!path) {
-            return false;
-        }
-
-        if (!Array.isArray(this.settings.recentNotes) || this.settings.recentNotes.length === 0) {
-            return false;
-        }
-
-        const filtered = this.settings.recentNotes.filter(entry => entry !== path);
-        if (filtered.length === this.settings.recentNotes.length) {
-            return false;
-        }
-
-        this.settings.recentNotes = filtered;
-        return true;
     }
 
     private isFileInRightSidebar(file: TFile): boolean {
@@ -283,6 +201,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.saveData(this.settings);
             }
         }
+
+        this.recentNotesService = new RecentNotesService(this);
 
         // Initialize services
         this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
@@ -644,15 +564,27 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // ==== Vault events ====
         this.registerEvent(
             this.app.workspace.on('file-open', file => {
-                if (file instanceof TFile && !this.isFileInRightSidebar(file)) {
-                    this.updateRecentNotes(file);
+                if (!(file instanceof TFile) || this.isFileInRightSidebar(file)) {
+                    return;
+                }
+
+                const service = this.recentNotesService;
+                if (!service) {
+                    return;
+                }
+
+                if (service.recordFileOpen(file)) {
+                    void this.saveSettingsAndUpdate();
                 }
             })
         );
 
         const initialActiveFile = this.app.workspace.getActiveFile();
         if (initialActiveFile instanceof TFile && !this.isFileInRightSidebar(initialActiveFile)) {
-            this.updateRecentNotes(initialActiveFile);
+            const service = this.recentNotesService;
+            if (service && service.recordFileOpen(initialActiveFile)) {
+                void this.saveSettingsAndUpdate();
+            }
         }
 
         // Register rename event handler to update folder metadata and notify file renames
@@ -676,41 +608,51 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             this.app.vault.on('rename', async (file, oldPath) => {
                 if (this.isUnloading) return;
 
-                if (file instanceof TFolder && this.metadataService) {
-                    await this.metadataService.handleFolderRename(oldPath, file.path);
-                    // The metadata service saves settings which triggers reactive updates
-                } else if (file instanceof TFile && this.metadataService) {
-                    // Update pinned files metadata
-                    await this.metadataService.handleFileRename(oldPath, file.path);
-                    this.updateRecentNotePath(oldPath, file.path);
-
-                    // Check if file moved to a different folder
-                    const getParentPath = (path: string): string => {
-                        const lastSlash = path.lastIndexOf('/');
-                        return lastSlash > 0 ? path.substring(0, lastSlash) : '/';
-                    };
-
-                    const oldParent = getParentPath(oldPath);
-                    const newParent = getParentPath(file.path);
-                    const movedToDifferentFolder = oldParent !== newParent;
-
-                    // If the active file moved to a different folder, reveal it
-                    // UNLESS it was moved from within the Navigator (drag-drop or context menu)
-                    if (movedToDifferentFolder && file === this.app.workspace.getActiveFile()) {
-                        if (this.commandQueue && !this.commandQueue.isMovingFile()) {
-                            await this.revealFileInActualFolder(file);
-                        }
+                if (file instanceof TFolder) {
+                    if (this.metadataService) {
+                        await this.metadataService.handleFolderRename(oldPath, file.path);
                     }
-
-                    // Notify all listeners about the file rename
-                    this.fileRenameListeners.forEach(callback => {
-                        try {
-                            callback(oldPath, file.path);
-                        } catch (error) {
-                            console.error('Error in file rename listener:', error);
-                        }
-                    });
+                    return;
                 }
+
+                if (!(file instanceof TFile)) {
+                    return;
+                }
+
+                const recentService = this.recentNotesService;
+                const recentsChanged = recentService?.renameEntry(oldPath, file.path) ?? false;
+
+                if (this.metadataService) {
+                    await this.metadataService.handleFileRename(oldPath, file.path);
+                } else if (recentsChanged) {
+                    await this.saveSettingsAndUpdate();
+                }
+
+                const getParentPath = (path: string): string => {
+                    const lastSlash = path.lastIndexOf('/');
+                    return lastSlash > 0 ? path.substring(0, lastSlash) : '/';
+                };
+
+                const oldParent = getParentPath(oldPath);
+                const newParent = getParentPath(file.path);
+                const movedToDifferentFolder = oldParent !== newParent;
+
+                // If the active file moved to a different folder, reveal it
+                // UNLESS it was moved from within the Navigator (drag-drop or context menu)
+                if (movedToDifferentFolder && file === this.app.workspace.getActiveFile()) {
+                    if (this.commandQueue && !this.commandQueue.isMovingFile()) {
+                        await this.revealFileInActualFolder(file);
+                    }
+                }
+
+                // Notify all listeners about the file rename
+                this.fileRenameListeners.forEach(callback => {
+                    try {
+                        callback(oldPath, file.path);
+                    } catch (error) {
+                        console.error('Error in file rename listener:', error);
+                    }
+                });
             })
         );
 
@@ -728,17 +670,20 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                     return;
                 }
 
-                if (file instanceof TFile) {
-                    const removedFromRecents = this.removeRecentNoteEntry(file.path);
+                if (!(file instanceof TFile)) {
+                    return;
+                }
 
-                    if (this.metadataService) {
-                        await this.metadataService.handleFileDelete(file.path);
-                        return;
-                    }
+                const recentService = this.recentNotesService;
+                const recentsChanged = recentService?.removeEntry(file.path) ?? false;
 
-                    if (removedFromRecents) {
-                        await this.saveSettingsAndUpdate();
-                    }
+                if (this.metadataService) {
+                    await this.metadataService.handleFileDelete(file.path);
+                    return;
+                }
+
+                if (recentsChanged) {
+                    await this.saveSettingsAndUpdate();
                 }
                 // Saving settings (metadata service or manual) triggers reactive updates
             })

@@ -55,6 +55,7 @@ export const STRINGS_JA = {
     navigationPane: {
         shortcutsHeader: 'ショートカット',
         recentNotesHeader: '最近のノート',
+        recentFilesHeader: '最近のファイル',
         reorderRootFoldersTitle: 'ルートフォルダの並び替え',
         reorderRootFoldersHint: 'フォルダをドラッグして順序を変更',
         vaultRootLabel: 'ボールト',
