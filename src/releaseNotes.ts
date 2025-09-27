@@ -83,7 +83,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         changed: [
             'Auto reveal file now selects the nearest expanded ancestor when descendant notes are enabled.',
             'Favorite tags section is now hidden if there are no favorite tags matching.',
-            'Remove color and Remove icon options were removed from the context menu, you now remove icons or colors with the "change" dialogs.'
+            'Remove color and Remove icon options were removed from the context menu, you now remove icons or colors with the "change" dialogs.',
+            'Dragging notes to folders or tags will now auto-expand the target folder/tag after a short delay.'
         ],
         fixed: [
             'Moving notes with tags previously removed them from the tag tree, meaning it looked like they no longer had any tags. This has been fixed.'
