@@ -59,7 +59,7 @@ import { TFolder, TFile, Platform, Menu } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useServices, useCommandQueue } from '../context/ServicesContext';
+import { useServices, useCommandQueue, useFileSystemOps, useMetadataService, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -89,6 +89,14 @@ import { RootFolderReorderItem } from './RootFolderReorderItem';
 import { ShortcutType, SearchShortcut } from '../types/shortcuts';
 import { strings } from '../i18n';
 import { createDragGhostManager, type DragGhostOptions } from '../utils/dragGhost';
+import {
+    buildFolderMenu,
+    buildFileMenu,
+    buildTagMenu,
+    type MenuServices,
+    type MenuState,
+    type MenuDispatchers
+} from '../utils/contextMenu';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (itemType: ItemType, path: string) => number;
@@ -122,9 +130,12 @@ type RootFolderDescriptor = {
 
 export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
-        const { app, isMobile } = useServices();
+        const { app, isMobile, plugin, tagTreeService } = useServices();
         const { onExecuteSearchShortcut, rootContainerRef, onNavigateToFolder, onRevealTag, onRevealFile, onRevealShortcutFile } = props;
         const commandQueue = useCommandQueue();
+        const fileSystemOps = useFileSystemOps();
+        const metadataService = useMetadataService();
+        const tagOperations = useTagOperations();
         const expansionState = useExpansionState();
         const expansionDispatch = useExpansionDispatch();
         const selectionState = useSelectionState();
@@ -133,8 +144,39 @@ export const NavigationPane = React.memo(
         const updateSettings = useSettingsUpdate();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
-        const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts } = useShortcuts();
+        const shortcuts = useShortcuts();
+        const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts, noteShortcutKeysByPath } = shortcuts;
+        const { fileData, getFileDisplayName, getFavoriteTree, findTagInFavoriteTree } = useFileCache();
         const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
+
+        const menuServices = useMemo<MenuServices>(
+            () => ({
+                app,
+                plugin,
+                isMobile,
+                fileSystemOps,
+                metadataService,
+                tagOperations,
+                tagTreeService,
+                commandQueue,
+                getFavoriteTree,
+                findTagInFavoriteTree,
+                shortcuts
+            }),
+            [
+                app,
+                plugin,
+                isMobile,
+                fileSystemOps,
+                metadataService,
+                tagOperations,
+                tagTreeService,
+                commandQueue,
+                getFavoriteTree,
+                findTagInFavoriteTree,
+                shortcuts
+            ]
+        );
 
         useEffect(() => {
             return () => {
@@ -255,8 +297,6 @@ export const NavigationPane = React.memo(
         // Determine if navigation pane is visible early for optimization
         const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
 
-        // Get tag data from the context
-        const { fileData, getFileDisplayName } = useFileCache();
         const favoriteTree = fileData.favoriteTree;
         const tagTree = fileData.tagTree;
 
@@ -775,27 +815,159 @@ export const NavigationPane = React.memo(
             [setActiveShortcut, onRevealTag, uiState.singlePane, uiDispatch, rootContainerRef, selectionDispatch, scheduleShortcutRelease]
         );
 
-        // Handle context menu for shortcuts (remove action)
+        type ShortcutContextMenuTarget =
+            | { type: 'folder'; key: string; folder: TFolder }
+            | { type: 'note'; key: string; file: TFile }
+            | { type: 'tag'; key: string; tagPath: string }
+            | { type: 'search'; key: string };
+
         const handleShortcutContextMenu = useCallback(
-            (event: React.MouseEvent<HTMLDivElement>, shortcutKey: string) => {
+            (event: React.MouseEvent<HTMLDivElement>, target: ShortcutContextMenuTarget) => {
                 if (!settings.showShortcuts) {
                     return;
                 }
+
                 event.preventDefault();
                 event.stopPropagation();
 
                 const menu = new Menu();
 
-                menu.addItem(item => {
-                    item.setTitle(strings.shortcuts.remove)
-                        .setIcon('lucide-star-off')
-                        .onClick(() => {
-                            void removeShortcut(shortcutKey);
+                if (target.type === 'search') {
+                    menu.addItem(item => {
+                        item.setTitle(strings.shortcuts.remove)
+                            .setIcon('lucide-star-off')
+                            .onClick(() => {
+                                void removeShortcut(target.key);
+                            });
+                    });
+                    menu.showAtMouseEvent(event.nativeEvent);
+                    return;
+                }
+
+                const state: MenuState = {
+                    selectionState,
+                    expandedFolders: expansionState.expandedFolders,
+                    expandedTags: expansionState.expandedTags
+                };
+
+                const dispatchers: MenuDispatchers = {
+                    selectionDispatch,
+                    expansionDispatch,
+                    uiDispatch
+                };
+
+                if (target.type === 'folder') {
+                    buildFolderMenu({
+                        folder: target.folder,
+                        menu,
+                        services: menuServices,
+                        settings,
+                        state,
+                        dispatchers
+                    });
+                } else if (target.type === 'note') {
+                    buildFileMenu({
+                        file: target.file,
+                        menu,
+                        services: menuServices,
+                        settings,
+                        state,
+                        dispatchers
+                    });
+
+                    if (target.file.extension !== 'md') {
+                        menu.addSeparator();
+                        menu.addItem(item => {
+                            item.setTitle(strings.shortcuts.remove)
+                                .setIcon('lucide-star-off')
+                                .onClick(() => {
+                                    void removeShortcut(target.key);
+                                });
                         });
-                });
+                    }
+                } else if (target.type === 'tag') {
+                    buildTagMenu({
+                        tagPath: target.tagPath,
+                        menu,
+                        services: menuServices,
+                        settings,
+                        state,
+                        dispatchers,
+                        context: 'tags'
+                    });
+                }
+
                 menu.showAtMouseEvent(event.nativeEvent);
             },
-            [removeShortcut, settings.showShortcuts]
+            [
+                settings,
+                menuServices,
+                selectionState,
+                expansionState.expandedFolders,
+                expansionState.expandedTags,
+                selectionDispatch,
+                expansionDispatch,
+                uiDispatch,
+                removeShortcut
+            ]
+        );
+
+        const handleRecentFileContextMenu = useCallback(
+            (event: React.MouseEvent<HTMLDivElement>, file: TFile) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const menu = new Menu();
+
+                const state: MenuState = {
+                    selectionState,
+                    expandedFolders: expansionState.expandedFolders,
+                    expandedTags: expansionState.expandedTags
+                };
+
+                const dispatchers: MenuDispatchers = {
+                    selectionDispatch,
+                    expansionDispatch,
+                    uiDispatch
+                };
+
+                buildFileMenu({
+                    file,
+                    menu,
+                    services: menuServices,
+                    settings,
+                    state,
+                    dispatchers
+                });
+
+                if (file.extension !== 'md') {
+                    const shortcutKey = noteShortcutKeysByPath.get(file.path);
+                    if (shortcutKey) {
+                        menu.addSeparator();
+                        menu.addItem(item => {
+                            item.setTitle(strings.shortcuts.remove)
+                                .setIcon('lucide-star-off')
+                                .onClick(() => {
+                                    void removeShortcut(shortcutKey);
+                                });
+                        });
+                    }
+                }
+
+                menu.showAtMouseEvent(event.nativeEvent);
+            },
+            [
+                menuServices,
+                settings,
+                selectionState,
+                expansionState.expandedFolders,
+                expansionState.expandedTags,
+                selectionDispatch,
+                expansionDispatch,
+                uiDispatch,
+                noteShortcutKeysByPath,
+                removeShortcut
+            ]
         );
 
         const getFolderShortcutCount = useCallback(
@@ -936,7 +1108,13 @@ export const NavigationPane = React.memo(
                                 count={folderCount}
                                 isExcluded={item.isExcluded}
                                 onClick={() => handleShortcutFolderActivate(folder, item.key)}
-                                onContextMenu={event => handleShortcutContextMenu(event, item.key)}
+                                onContextMenu={event =>
+                                    handleShortcutContextMenu(event, {
+                                        type: 'folder',
+                                        key: item.key,
+                                        folder
+                                    })
+                                }
                                 dragHandlers={dragHandlers}
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
@@ -968,7 +1146,13 @@ export const NavigationPane = React.memo(
                                 level={item.level}
                                 type="note"
                                 onClick={() => handleShortcutNoteActivate(note, item.key)}
-                                onContextMenu={event => handleShortcutContextMenu(event, item.key)}
+                                onContextMenu={event =>
+                                    handleShortcutContextMenu(event, {
+                                        type: 'note',
+                                        key: item.key,
+                                        file: note
+                                    })
+                                }
                                 dragHandlers={dragHandlers}
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
@@ -996,7 +1180,12 @@ export const NavigationPane = React.memo(
                                 level={item.level}
                                 type="search"
                                 onClick={() => handleShortcutSearchActivate(item.key, searchShortcut)}
-                                onContextMenu={event => handleShortcutContextMenu(event, item.key)}
+                                onContextMenu={event =>
+                                    handleShortcutContextMenu(event, {
+                                        type: 'search',
+                                        key: item.key
+                                    })
+                                }
                                 dragHandlers={dragHandlers}
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
@@ -1024,7 +1213,13 @@ export const NavigationPane = React.memo(
                                 type="tag"
                                 count={tagCount}
                                 onClick={() => handleShortcutTagActivate(item.tagPath, item.key)}
-                                onContextMenu={event => handleShortcutContextMenu(event, item.key)}
+                                onContextMenu={event =>
+                                    handleShortcutContextMenu(event, {
+                                        type: 'tag',
+                                        key: item.key,
+                                        tagPath: item.tagPath
+                                    })
+                                }
                                 dragHandlers={dragHandlers}
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
@@ -1119,6 +1314,7 @@ export const NavigationPane = React.memo(
                                 level={item.level}
                                 type="note"
                                 onClick={() => handleRecentNoteActivate(note)}
+                                onContextMenu={event => handleRecentFileContextMenu(event, note)}
                             />
                         );
                     }
@@ -1211,6 +1407,7 @@ export const NavigationPane = React.memo(
                 handleShortcutSearchActivate,
                 handleShortcutTagActivate,
                 handleRecentNoteActivate,
+                handleRecentFileContextMenu,
                 handleShortcutContextMenu,
                 getShortcutVisualState,
                 buildShortcutDragHandlers,
