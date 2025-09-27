@@ -18,7 +18,7 @@
 
 import React from 'react';
 import { useSettingsState } from '../context/SettingsContext';
-import type { ShortcutDragHandlers } from '../hooks/useShortcutReorder';
+import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
 
 interface ShortcutItemProps {
@@ -32,7 +32,7 @@ interface ShortcutItemProps {
     isExcluded?: boolean;
     onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
     onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
-    dragHandlers?: ShortcutDragHandlers;
+    dragHandlers?: ListReorderHandlers;
     showDropIndicatorBefore?: boolean;
     showDropIndicatorAfter?: boolean;
     isDragSource?: boolean;

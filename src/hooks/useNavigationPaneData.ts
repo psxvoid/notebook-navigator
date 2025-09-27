@@ -29,13 +29,12 @@
  * - Managing tag contexts (favorites vs all tags)
  */
 
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { TFile, TFolder, debounce } from 'obsidian';
 import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useExpansionState } from '../context/ExpansionContext';
 import { useFileCache } from '../context/StorageContext';
 import { useShortcuts } from '../context/ShortcutsContext';
-import { useSettingsUpdate } from '../context/SettingsContext';
 import { strings } from '../i18n';
 import {
     UNTAGGED_TAG_ID,
@@ -55,93 +54,9 @@ import { shouldDisplayFile } from '../utils/fileTypeUtils';
 import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
 import { createHiddenTagMatcher } from '../utils/tagPrefixMatcher';
-import { naturalCompare } from '../utils/sortUtils';
 import { setNavigationIndex } from '../utils/navigationIndex';
 import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } from '../types/shortcuts';
-
-const ROOT_PATH = '/';
-
-interface PendingRootOrderChanges {
-    renames: Map<string, string>;
-    removals: Set<string>;
-    additions: Set<string>;
-}
-
-function stripTrailingSlash(path: string): string {
-    if (path === ROOT_PATH) {
-        return path;
-    }
-    return path.endsWith('/') ? path.slice(0, -1) : path;
-}
-
-function isRootLevelPath(path: string): boolean {
-    if (!path) {
-        return false;
-    }
-    const normalized = stripTrailingSlash(path);
-    if (normalized === ROOT_PATH) {
-        return false;
-    }
-    return !normalized.includes('/');
-}
-
-function normalizeRootFolderOrder(existingOrder: string[], folders: TFolder[]): string[] {
-    if (folders.length === 0) {
-        return [];
-    }
-
-    const folderMap = new Map<string, TFolder>();
-    folders.forEach(folder => {
-        folderMap.set(folder.path, folder);
-    });
-
-    const sanitizedOrder = existingOrder.filter(path => folderMap.has(path));
-    const existingSet = new Set(sanitizedOrder);
-
-    const missingFolders = folders
-        .filter(folder => !existingSet.has(folder.path))
-        .sort((a, b) => naturalCompare(a.name, b.name))
-        .map(folder => folder.path);
-
-    return [...sanitizedOrder, ...missingFolders];
-}
-
-function createRootOrderMap(order: string[]): Map<string, number> {
-    const map = new Map<string, number>();
-    order.forEach((path, index) => {
-        map.set(path, index);
-    });
-    return map;
-}
-
-function sortFoldersByOrder(folders: TFolder[], orderMap: Map<string, number>): TFolder[] {
-    if (orderMap.size === 0) {
-        return folders.slice().sort((a, b) => naturalCompare(a.name, b.name));
-    }
-
-    return folders.slice().sort((a, b) => {
-        const orderA = orderMap.get(a.path);
-        const orderB = orderMap.get(b.path);
-
-        if (orderA !== undefined && orderB !== undefined) {
-            return orderA - orderB;
-        }
-        if (orderA !== undefined) {
-            return -1;
-        }
-        if (orderB !== undefined) {
-            return 1;
-        }
-        return naturalCompare(a.name, b.name);
-    });
-}
-
-function arraysEqual(first: string[], second: string[]): boolean {
-    if (first.length !== second.length) {
-        return false;
-    }
-    return first.every((value, index) => value === second[index]);
-}
+import { useRootFolderOrder } from './useRootFolderOrder';
 
 /**
  * Parameters for the useNavigationPaneData hook
@@ -193,24 +108,17 @@ export function useNavigationPaneData({
     const expansionState = useExpansionState();
     const { fileData } = useFileCache();
     const { hydratedShortcuts } = useShortcuts();
-    const updateSettings = useSettingsUpdate();
 
     // Stable folder data across re-renders
-    const [rootFolders, setRootFolders] = useState<TFolder[]>([]);
-    const [rootFolderOrderMap, setRootFolderOrderMap] = useState<Map<string, number>>(new Map());
-    const [rootLevelFolders, setRootLevelFolders] = useState<TFolder[]>([]);
     // Track file changes to trigger count updates for non-markdown files
     const [fileChangeVersion, setFileChangeVersion] = useState(0);
-    const pendingRootOrderChangesRef = useRef<PendingRootOrderChanges>({
-        renames: new Map(),
-        removals: new Set(),
-        additions: new Set()
+    const handleRootFileChange = useCallback(() => {
+        setFileChangeVersion(value => value + 1);
+    }, []);
+    const { rootFolders, rootLevelFolders, rootFolderOrderMap } = useRootFolderOrder({
+        settings,
+        onFileChange: handleRootFileChange
     });
-    const rootFolderOrderRef = useRef<string[]>(settings.rootFolderOrder);
-
-    useEffect(() => {
-        rootFolderOrderRef.current = settings.rootFolderOrder.slice();
-    }, [settings.rootFolderOrder]);
 
     // Get tag data from context
     const favoriteTree = fileData.favoriteTree;
@@ -827,156 +735,6 @@ export function useNavigationPaneData({
         isVisible,
         fileChangeVersion
     ]);
-
-    /**
-     * Build root folders from vault structure and listen for changes
-     */
-    useEffect(() => {
-        const pendingChanges = pendingRootOrderChangesRef.current;
-
-        const buildFolders = () => {
-            const vault = app.vault;
-            const root = vault.getRoot();
-
-            const rootChildren = root.children.filter((child): child is TFolder => child instanceof TFolder);
-
-            let workingOrder = rootFolderOrderRef.current.slice();
-
-            if (pendingChanges.renames.size > 0 || pendingChanges.removals.size > 0 || pendingChanges.additions.size > 0) {
-                pendingChanges.renames.forEach((newPath, oldPath) => {
-                    const index = workingOrder.indexOf(oldPath);
-                    if (index !== -1) {
-                        workingOrder[index] = newPath;
-                    }
-                });
-
-                if (pendingChanges.removals.size > 0) {
-                    workingOrder = workingOrder.filter(path => !pendingChanges.removals.has(path));
-                }
-
-                pendingChanges.additions.forEach(path => {
-                    if (!workingOrder.includes(path)) {
-                        workingOrder.push(path);
-                    }
-                });
-
-                pendingChanges.renames.clear();
-                pendingChanges.removals.clear();
-                pendingChanges.additions.clear();
-            }
-
-            if (rootFolderOrderRef.current.length === 0) {
-                const alphabeticalChildren = rootChildren.slice().sort((a, b) => naturalCompare(a.name, b.name));
-
-                pendingChanges.renames.clear();
-                pendingChanges.removals.clear();
-                pendingChanges.additions.clear();
-
-                setRootLevelFolders(alphabeticalChildren);
-
-                if (settings.showRootFolder) {
-                    setRootFolders([root]);
-                } else {
-                    setRootFolders(alphabeticalChildren);
-                }
-
-                setRootFolderOrderMap(new Map());
-                return;
-            }
-
-            const normalizedOrder = normalizeRootFolderOrder(workingOrder, rootChildren);
-            const orderMap = createRootOrderMap(normalizedOrder);
-            const orderedChildren = sortFoldersByOrder(rootChildren, orderMap);
-
-            if (!arraysEqual(normalizedOrder, rootFolderOrderRef.current)) {
-                rootFolderOrderRef.current = normalizedOrder;
-                void updateSettings(current => {
-                    current.rootFolderOrder = normalizedOrder;
-                });
-            }
-
-            setRootLevelFolders(orderedChildren);
-
-            if (settings.showRootFolder) {
-                setRootFolders([root]);
-            } else {
-                setRootFolders(orderedChildren);
-            }
-
-            setRootFolderOrderMap(orderMap);
-        };
-
-        buildFolders();
-
-        const rebuildFolders = debounce(buildFolders, TIMEOUTS.FILE_OPERATION_DELAY, true);
-
-        const handleFolderCreate = (file: TFolder) => {
-            const normalizedPath = stripTrailingSlash(file.path);
-            if (file.parent === app.vault.getRoot() && normalizedPath !== ROOT_PATH) {
-                pendingChanges.additions.add(normalizedPath);
-            }
-            rebuildFolders();
-        };
-
-        const handleFolderDelete = (file: TFolder) => {
-            const normalizedPath = stripTrailingSlash(file.path);
-            if (isRootLevelPath(normalizedPath)) {
-                pendingChanges.removals.add(normalizedPath);
-            }
-            rebuildFolders();
-        };
-
-        const handleFolderRename = (file: TFolder, oldPath: string) => {
-            const normalizedOldPath = stripTrailingSlash(oldPath);
-            const normalizedNewPath = stripTrailingSlash(file.path);
-            const isNowRoot = file.parent === app.vault.getRoot();
-            const wasRoot = isRootLevelPath(normalizedOldPath);
-
-            if (wasRoot && isNowRoot) {
-                if (normalizedOldPath !== normalizedNewPath) {
-                    pendingChanges.renames.set(normalizedOldPath, normalizedNewPath);
-                }
-            } else if (wasRoot && !isNowRoot) {
-                pendingChanges.removals.add(normalizedOldPath);
-            } else if (!wasRoot && isNowRoot) {
-                pendingChanges.additions.add(normalizedNewPath);
-            }
-
-            rebuildFolders();
-        };
-
-        const events = [
-            app.vault.on('create', file => {
-                if (file instanceof TFolder) {
-                    handleFolderCreate(file);
-                }
-                if (file instanceof TFile) {
-                    setFileChangeVersion(v => v + 1);
-                }
-            }),
-            app.vault.on('delete', file => {
-                if (file instanceof TFolder) {
-                    handleFolderDelete(file);
-                }
-                if (file instanceof TFile) {
-                    setFileChangeVersion(v => v + 1);
-                }
-            }),
-            app.vault.on('rename', (file, oldPath) => {
-                if (file instanceof TFolder) {
-                    handleFolderRename(file, oldPath);
-                }
-                if (file instanceof TFile) {
-                    setFileChangeVersion(v => v + 1);
-                }
-            })
-        ];
-
-        return () => {
-            events.forEach(eventRef => app.vault.offref(eventRef));
-            rebuildFolders.cancel();
-        };
-    }, [app, settings.showRootFolder, settings.rootFolderOrder, updateSettings]);
 
     // Refresh folder counts when frontmatter changes (e.g., hide/unhide via frontmatter properties)
     useEffect(() => {

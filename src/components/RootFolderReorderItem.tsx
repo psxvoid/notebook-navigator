@@ -1,12 +1,12 @@
 import React from 'react';
-import type { ShortcutDragHandlers } from '../hooks/useShortcutReorder';
+import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
 
 interface RootFolderReorderItemProps {
     icon: string;
     label: string;
     level: number;
-    dragHandlers?: ShortcutDragHandlers;
+    dragHandlers?: ListReorderHandlers;
     showDropIndicatorBefore?: boolean;
     showDropIndicatorAfter?: boolean;
     isDragSource?: boolean;

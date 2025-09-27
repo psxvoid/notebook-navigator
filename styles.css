@@ -921,8 +921,8 @@ body {
     opacity: 0.6;
 }
 
-.nn-drag-item[data-shortcut-drop-before='true'] .nn-navitem-content::before,
-.nn-drag-item[data-shortcut-drop-after='true'] .nn-navitem-content::after {
+.nn-drag-item[data-reorder-drop-before='true'] .nn-navitem-content::before,
+.nn-drag-item[data-reorder-drop-after='true'] .nn-navitem-content::after {
     content: '';
     position: absolute;
     inset-inline-start: 0;
@@ -934,16 +934,16 @@ body {
     z-index: 3;
 }
 
-.nn-drag-item[data-shortcut-drop-before='true'] .nn-navitem-content::before {
+.nn-drag-item[data-reorder-drop-before='true'] .nn-navitem-content::before {
     top: 0;
 }
 
-.nn-drag-item[data-shortcut-drop-after='true'] .nn-navitem-content::after {
+.nn-drag-item[data-reorder-drop-after='true'] .nn-navitem-content::after {
     bottom: 0;
 }
 
-.nn-desktop .nn-drag-item[data-shortcut-drop-before='true']::before,
-.nn-desktop .nn-drag-item[data-shortcut-drop-after='true']::after {
+.nn-desktop .nn-drag-item[data-reorder-drop-before='true']::before,
+.nn-desktop .nn-drag-item[data-reorder-drop-after='true']::after {
     content: '';
     position: absolute;
     inset-inline-start: 0;
@@ -955,11 +955,11 @@ body {
     z-index: 5;
 }
 
-.nn-desktop .nn-drag-item[data-shortcut-drop-before='true']::before {
+.nn-desktop .nn-drag-item[data-reorder-drop-before='true']::before {
     top: -1px;
 }
 
-.nn-desktop .nn-drag-item[data-shortcut-drop-after='true']::after {
+.nn-desktop .nn-drag-item[data-reorder-drop-after='true']::after {
     bottom: -1px;
 }
 
@@ -991,12 +991,12 @@ body {
     gap: 0.25rem;
 }
 
-.nn-drag-item[data-shortcut-draggable='true'] .nn-navitem-content {
+.nn-drag-item[data-reorder-draggable='true'] .nn-navitem-content {
     cursor: grab;
 }
 
-.nn-drag-item[data-shortcut-draggable='true'].nn-shortcut-drag-source .nn-navitem-content,
-.nn-drag-item[data-shortcut-draggable='true'] .nn-navitem-content:active {
+.nn-drag-item[data-reorder-draggable='true'].nn-shortcut-drag-source .nn-navitem-content,
+.nn-drag-item[data-reorder-draggable='true'] .nn-navitem-content:active {
     cursor: grabbing;
 }
 

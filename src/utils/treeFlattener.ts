@@ -28,7 +28,11 @@ interface FlattenFolderTreeOptions {
     rootOrderMap?: Map<string, number>;
 }
 
-function compareWithOrderMap(a: TFolder, b: TFolder, orderMap: Map<string, number>): number {
+export function compareFolderOrderWithFallback(a: TFolder, b: TFolder, orderMap?: Map<string, number>): number {
+    if (!orderMap || orderMap.size === 0) {
+        return naturalCompare(a.name, b.name);
+    }
+
     const orderA = orderMap.get(a.path);
     const orderB = orderMap.get(b.path);
 
@@ -65,10 +69,7 @@ export function flattenFolderTree(
     const items: FolderTreeItem[] = [];
     const { rootOrderMap } = options;
 
-    const foldersToProcess =
-        level === 0 && rootOrderMap && rootOrderMap.size > 0
-            ? folders.slice().sort((a, b) => compareWithOrderMap(a, b, rootOrderMap))
-            : folders;
+    const foldersToProcess = level === 0 ? folders.slice().sort((a, b) => compareFolderOrderWithFallback(a, b, rootOrderMap)) : folders;
 
     foldersToProcess.forEach(folder => {
         // Skip folders already visited to prevent infinite loops
@@ -99,8 +100,8 @@ export function flattenFolderTree(
         if (expandedFolders.has(folder.path) && folder.children && folder.children.length > 0) {
             const childFolders = folder.children.filter((child): child is TFolder => child instanceof TFolder);
 
-            if (rootOrderMap && rootOrderMap.size > 0 && folder.path === '/') {
-                childFolders.sort((a, b) => compareWithOrderMap(a, b, rootOrderMap));
+            if (folder.path === '/') {
+                childFolders.sort((a, b) => compareFolderOrderWithFallback(a, b, rootOrderMap));
             } else {
                 childFolders.sort((a, b) => naturalCompare(a.name, b.name));
             }

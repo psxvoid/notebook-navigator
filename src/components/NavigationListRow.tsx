@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useRef } from 'react';
 import type { CSSProperties, DragEvent } from 'react';
 import { useSettingsState } from '../context/SettingsContext';
 import { getIconService, useIconServiceVersion } from '../services/icons';
-import type { ShortcutDragHandlers } from '../hooks/useShortcutReorder';
+import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { ObsidianIcon } from './ObsidianIcon';
 
 export interface DragHandleConfig {
@@ -27,7 +27,7 @@ interface NavigationListRowProps {
     isExcluded?: boolean;
     onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
     onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
-    dragHandlers?: ShortcutDragHandlers;
+    dragHandlers?: ListReorderHandlers;
     showDropIndicatorBefore?: boolean;
     showDropIndicatorAfter?: boolean;
     isDragSource?: boolean;
@@ -139,14 +139,14 @@ export function NavigationListRow({
             tabIndex={tabIndex}
             aria-disabled={ariaDisabled || undefined}
             aria-grabbed={ariaGrabbed ? true : undefined}
-            data-shortcut-type={itemType}
-            data-shortcut-disabled={isDisabled ? 'true' : undefined}
-            data-shortcut-excluded={isExcluded ? 'true' : undefined}
-            data-shortcut-level={level}
+            data-nav-item-type={itemType}
+            data-nav-item-disabled={isDisabled ? 'true' : undefined}
+            data-nav-item-excluded={isExcluded ? 'true' : undefined}
+            data-nav-item-level={level}
             data-level={level}
-            data-shortcut-draggable={rowDraggable ? 'true' : undefined}
-            data-shortcut-drop-before={showDropIndicatorBefore ? 'true' : undefined}
-            data-shortcut-drop-after={showDropIndicatorAfter ? 'true' : undefined}
+            data-reorder-draggable={rowDraggable ? 'true' : undefined}
+            data-reorder-drop-before={showDropIndicatorBefore ? 'true' : undefined}
+            data-reorder-drop-after={showDropIndicatorAfter ? 'true' : undefined}
             aria-level={level + 1}
             draggable={rowDraggable}
             onClick={onClick}
@@ -176,7 +176,7 @@ export function NavigationListRow({
                         role="button"
                         tabIndex={-1}
                         aria-label={dragHandleConfig?.label}
-                        data-shortcut-handle-draggable={handleInteractive ? 'true' : undefined}
+                        data-reorder-handle-draggable={handleInteractive ? 'true' : undefined}
                         draggable={handleInteractive}
                         onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}

@@ -20,11 +20,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DragEvent } from 'react';
 import { SHORTCUT_DRAG_MIME } from '../types/shortcuts';
 
-interface ShortcutDescriptor {
+interface ReorderItemDescriptor {
     key: string;
 }
 
-export interface ShortcutDragHandlers {
+export interface ListReorderHandlers {
     draggable: boolean;
     onDragStart: (event: DragEvent<HTMLElement>) => void;
     onDragOver: (event: DragEvent<HTMLElement>) => void;
@@ -33,14 +33,14 @@ export interface ShortcutDragHandlers {
     onDragEnd: (event: DragEvent<HTMLElement>) => void;
 }
 
-interface UseShortcutReorderParams<T extends ShortcutDescriptor> {
-    shortcuts: T[];
+interface UseListReorderParams<T extends ReorderItemDescriptor> {
+    items: T[];
     isEnabled: boolean;
-    reorderShortcuts: (orderedKeys: string[]) => Promise<boolean>;
+    reorderItems: (orderedKeys: string[]) => Promise<boolean>;
 }
 
-interface UseShortcutReorderResult {
-    getDragHandlers: (key: string) => ShortcutDragHandlers;
+interface UseListReorderResult {
+    getDragHandlers: (key: string) => ListReorderHandlers;
     dropIndex: number | null;
     draggingKey: string | null;
 }
@@ -50,14 +50,14 @@ function noopHandler() {
 }
 
 /**
- * Hook that manages drag and drop reordering of shortcuts in the navigation pane.
+ * Hook that manages drag and drop reordering of navigation lists.
  * Returns drag handlers and current drag state for visual feedback.
  */
-export function useShortcutReorder<T extends ShortcutDescriptor>({
-    shortcuts,
+export function useListReorder<T extends ReorderItemDescriptor>({
+    items,
     isEnabled,
-    reorderShortcuts
-}: UseShortcutReorderParams<T>): UseShortcutReorderResult {
+    reorderItems
+}: UseListReorderParams<T>): UseListReorderResult {
     const [draggingKey, setDraggingKey] = useState<string | null>(null);
     const [dropIndex, setDropIndex] = useState<number | null>(null);
     // Timeout reference for deferred drop index clearing
@@ -81,16 +81,16 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
     }, [clearDeferredDropIndex]);
 
     // Extract ordered list of shortcut keys from the shortcuts array
-    const shortcutOrder = useMemo(() => shortcuts.map(shortcut => shortcut.key), [shortcuts]);
+    const itemOrder = useMemo(() => items.map(item => item.key), [items]);
 
     // Build a map of shortcut keys to their current index for fast lookup
     const keyToIndex = useMemo(() => {
         const indexMap = new Map<string, number>();
-        shortcutOrder.forEach((key, index) => {
+        itemOrder.forEach((key, index) => {
             indexMap.set(key, index);
         });
         return indexMap;
-    }, [shortcutOrder]);
+    }, [itemOrder]);
 
     // Reset all drag-related state to initial values
     const resetDragState = useCallback(() => {
@@ -125,10 +125,10 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
 
     // Disable drag and drop when there are fewer than 2 shortcuts
     useEffect(() => {
-        if (shortcuts.length < 2) {
+        if (items.length < 2) {
             resetDragState();
         }
-    }, [shortcuts.length, resetDragState]);
+    }, [items.length, resetDragState]);
 
     // Calculate where to insert the dragged item based on mouse position
     const computeInsertIndex = useCallback(
@@ -149,9 +149,9 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
             const shouldInsertBefore = offset < bounds.height / 2;
 
             const proposedIndex = shouldInsertBefore ? targetIndex : targetIndex + 1;
-            return Math.max(0, Math.min(proposedIndex, shortcutOrder.length));
+            return Math.max(0, Math.min(proposedIndex, itemOrder.length));
         },
-        [draggingKey, keyToIndex, shortcutOrder.length]
+        [draggingKey, keyToIndex, itemOrder.length]
     );
 
     // Apply the reorder operation and update settings
@@ -169,7 +169,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
                 return;
             }
 
-            let insertIndex = Math.max(0, Math.min(targetIndex, shortcutOrder.length));
+            let insertIndex = Math.max(0, Math.min(targetIndex, itemOrder.length));
 
             // Skip reorder if item would end up in the same position
             if (fromIndex === insertIndex || fromIndex + 1 === insertIndex) {
@@ -177,7 +177,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
             }
 
             // Build new order array with the moved item in its new position
-            const nextOrder = [...shortcutOrder];
+            const nextOrder = [...itemOrder];
             const [moved] = nextOrder.splice(fromIndex, 1);
             if (fromIndex < insertIndex) {
                 insertIndex -= 1;
@@ -187,7 +187,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
             // Check if the order actually changed
             let changed = false;
             for (let index = 0; index < nextOrder.length; index += 1) {
-                if (nextOrder[index] !== shortcutOrder[index]) {
+                if (nextOrder[index] !== itemOrder[index]) {
                     changed = true;
                     break;
                 }
@@ -198,15 +198,15 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
             }
 
             try {
-                const success = await reorderShortcuts(nextOrder);
+                const success = await reorderItems(nextOrder);
                 if (!success) {
-                    console.warn('Shortcut reorder returned false, no changes applied');
+                    console.warn('List reorder returned false, no changes applied');
                 }
             } catch (error) {
-                console.error('Failed to reorder shortcuts', error);
+                console.error('Failed to reorder list', error);
             }
         },
-        [draggingKey, keyToIndex, reorderShortcuts, shortcutOrder]
+        [draggingKey, keyToIndex, reorderItems, itemOrder]
     );
 
     // Initialize drag operation and set dragging state
@@ -287,7 +287,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
                 return;
             }
 
-            if (relatedTarget.closest('[data-shortcut-draggable="true"]')) {
+            if (relatedTarget.closest('[data-reorder-draggable="true"]')) {
                 return;
             }
 
@@ -305,7 +305,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
     }, [draggingKey, resetDragState]);
 
     // No-op handlers used when drag and drop is disabled
-    const disabledHandlers = useMemo<ShortcutDragHandlers>(
+    const disabledHandlers = useMemo<ListReorderHandlers>(
         () => ({
             draggable: false,
             onDragStart: noopHandler,
@@ -319,7 +319,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
 
     // Factory function to create drag handlers for a specific shortcut
     const getDragHandlers = useCallback(
-        (key: string): ShortcutDragHandlers => {
+        (key: string): ListReorderHandlers => {
             if (!isEnabled) {
                 return disabledHandlers;
             }

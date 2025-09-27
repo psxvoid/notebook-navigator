@@ -66,8 +66,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useNavigationPaneKeyboard } from '../hooks/useNavigationPaneKeyboard';
 import { useNavigationPaneData } from '../hooks/useNavigationPaneData';
 import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
-import { useShortcutReorder } from '../hooks/useShortcutReorder';
-import type { ShortcutDragHandlers } from '../hooks/useShortcutReorder';
+import { useListReorder } from '../hooks/useListReorder';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { NavigationPaneItemType, ItemType } from '../types';
 import { getSelectedPath } from '../utils/selectionUtils';
@@ -167,22 +166,11 @@ export const NavigationPane = React.memo(
             return map;
         }, [hydratedShortcuts]);
 
-        const { getDragHandlers, dropIndex, draggingKey } = useShortcutReorder({
-            shortcuts: hydratedShortcuts,
+        const { getDragHandlers, dropIndex, draggingKey } = useListReorder({
+            items: hydratedShortcuts,
             isEnabled: isShortcutDnDEnabled,
-            reorderShortcuts
+            reorderItems: reorderShortcuts
         });
-
-        const getShortcutDragHandleConfig = useCallback((handlers: ShortcutDragHandlers) => {
-            if (!handlers.draggable) {
-                return undefined;
-            }
-            return {
-                label: strings.navigationPane.dragHandleLabel,
-                visible: true,
-                icon: 'lucide-grip'
-            } as const;
-        }, []);
 
         // Get visual state for a shortcut item (drag state, drop indicators)
         const getShortcutVisualState = useCallback(
@@ -301,10 +289,10 @@ export const NavigationPane = React.memo(
             getDragHandlers: getRootDragHandlers,
             dropIndex: rootReorderDropIndex,
             draggingKey: rootReorderDraggingKey
-        } = useShortcutReorder({
-            shortcuts: reorderableRootFolders,
+        } = useListReorder({
+            items: reorderableRootFolders,
             isEnabled: isRootReorderDnDEnabled,
-            reorderShortcuts: async orderedKeys => {
+            reorderItems: async orderedKeys => {
                 await handleRootOrderChange(orderedKeys);
                 return true;
             }
@@ -913,7 +901,6 @@ export const NavigationPane = React.memo(
 
                         const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
                         const folderCount = getFolderShortcutCount(folder);
-                        const dragHandleConfig = getShortcutDragHandleConfig(dragHandlers);
 
                         return (
                             <ShortcutItem
@@ -929,7 +916,6 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
-                                dragHandleConfig={dragHandleConfig}
                             />
                         );
                     }
@@ -941,7 +927,6 @@ export const NavigationPane = React.memo(
                         }
 
                         const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
-                        const dragHandleConfig = getShortcutDragHandleConfig(dragHandlers);
 
                         return (
                             <ShortcutItem
@@ -955,7 +940,6 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
-                                dragHandleConfig={dragHandleConfig}
                             />
                         );
                     }
@@ -964,7 +948,6 @@ export const NavigationPane = React.memo(
                         const searchShortcut = item.searchShortcut;
 
                         const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
-                        const dragHandleConfig = getShortcutDragHandleConfig(dragHandlers);
 
                         return (
                             <ShortcutItem
@@ -978,7 +961,6 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
-                                dragHandleConfig={dragHandleConfig}
                             />
                         );
                     }
@@ -986,7 +968,6 @@ export const NavigationPane = React.memo(
                     case NavigationPaneItemType.SHORTCUT_TAG: {
                         const tagCount = getTagShortcutCount(item.tagPath);
                         const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
-                        const dragHandleConfig = getShortcutDragHandleConfig(dragHandlers);
                         return (
                             <ShortcutItem
                                 icon={item.icon ?? 'lucide-tags'}
@@ -1000,7 +981,6 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
-                                dragHandleConfig={dragHandleConfig}
                             />
                         );
                     }
@@ -1179,7 +1159,6 @@ export const NavigationPane = React.memo(
                 handleShortcutTagActivate,
                 handleRecentNoteActivate,
                 handleShortcutContextMenu,
-                getShortcutDragHandleConfig,
                 getShortcutVisualState,
                 hydratedShortcuts,
                 shortcutsExpanded,
