@@ -51,6 +51,8 @@ export class IconPickerModal extends Modal {
     private tabContainer: HTMLDivElement;
     private domDisposers: (() => void)[] = [];
     private providerTabs: HTMLElement[] = [];
+    private currentIcon: string | undefined;
+    private removeButton: HTMLButtonElement | null = null;
 
     public static getLastUsedProvider(): string | null {
         return IconPickerModal.lastUsedProvider;
@@ -81,6 +83,7 @@ export class IconPickerModal extends Modal {
         this.settingsProvider = metadataService.getSettingsProvider();
         this.itemPath = itemPath;
         this.itemType = itemType;
+        this.currentIcon = this.getCurrentIconForItem();
     }
 
     onOpen() {
@@ -106,6 +109,25 @@ export class IconPickerModal extends Modal {
 
         // Create results container
         this.resultsContainer = contentEl.createDiv('nn-icon-results-container');
+
+        const buttonContainer = contentEl.createDiv('nn-icon-button-container');
+        const removeButton = buttonContainer.createEl('button');
+        const removeButtonLabel =
+            this.itemType === ItemType.TAG
+                ? strings.contextMenu.tag.removeIcon
+                : this.itemType === ItemType.FILE
+                  ? strings.contextMenu.file.removeIcon
+                  : strings.contextMenu.folder.removeIcon;
+        removeButton.setText(removeButtonLabel);
+        if (removeButton instanceof HTMLButtonElement) {
+            this.removeButton = removeButton;
+            if (!this.currentIcon) {
+                removeButton.disabled = true;
+            }
+        }
+        this.addDomListener(removeButton, 'click', async () => {
+            await this.removeIcon();
+        });
 
         // Set up search functionality with debouncing
         this.addDomListener(this.searchInput, 'input', () => {
@@ -419,6 +441,40 @@ export class IconPickerModal extends Modal {
 
         // Notify callback and close
         this.onChooseIcon?.(iconId);
+        this.currentIcon = iconId;
+        this.close();
+    }
+
+    private getCurrentIconForItem(): string | undefined {
+        if (this.itemType === ItemType.TAG) {
+            return this.metadataService.getTagIcon(this.itemPath);
+        }
+        if (this.itemType === ItemType.FILE) {
+            return this.metadataService.getFileIcon(this.itemPath);
+        }
+        return this.metadataService.getFolderIcon(this.itemPath);
+    }
+
+    private async removeIcon(): Promise<void> {
+        const existingIcon = this.getCurrentIconForItem();
+        if (!existingIcon) {
+            this.close();
+            return;
+        }
+
+        if (this.itemType === ItemType.TAG) {
+            await this.metadataService.removeTagIcon(this.itemPath);
+        } else if (this.itemType === ItemType.FILE) {
+            await this.metadataService.removeFileIcon(this.itemPath);
+        } else {
+            await this.metadataService.removeFolderIcon(this.itemPath);
+        }
+
+        this.onChooseIcon?.(null);
+        this.currentIcon = undefined;
+        if (this.removeButton) {
+            this.removeButton.disabled = true;
+        }
         this.close();
     }
 
@@ -601,6 +657,7 @@ export class IconPickerModal extends Modal {
 
         const { contentEl } = this;
         contentEl.empty();
+        this.removeButton = null;
         // Cleanup DOM listeners
         if (this.domDisposers.length) {
             this.domDisposers.forEach(dispose => {

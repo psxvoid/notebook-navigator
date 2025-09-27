@@ -217,6 +217,7 @@ export const STRINGS_DE = {
             presetColors: 'Vordefinierte Farben',
             recentColors: 'Zuletzt verwendete Farben',
             clearRecentColors: 'Zuletzt verwendete Farben löschen',
+            removeRecentColor: 'Farbe entfernen',
             apply: 'Anwenden',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',

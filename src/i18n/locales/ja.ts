@@ -217,6 +217,7 @@ export const STRINGS_JA = {
             presetColors: 'プリセット色',
             recentColors: '最近使用した色',
             clearRecentColors: '最近使用した色をクリア',
+            removeRecentColor: '色を削除',
             apply: '適用',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',

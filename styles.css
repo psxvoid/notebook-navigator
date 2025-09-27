@@ -2285,6 +2285,15 @@ body.nn-resizing {
     flex: 0 0 auto;
 }
 
+.nn-icon-button-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--background-modifier-border);
+}
+
 /* Icon category headers */
 .nn-icon-section-header {
     font-size: 13px;
@@ -3093,6 +3102,40 @@ body.nn-resizing {
     border: 1px solid var(--background-modifier-border);
     transition: transform 0.1s ease;
     position: relative;
+}
+
+.nn-recent-remove-button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid var(--background-modifier-border);
+    background: var(--background-primary);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.nn-recent-remove-button:hover {
+    color: var(--text-normal);
+    border-color: var(--interactive-accent);
+}
+
+.nn-recent-remove-button:focus-visible {
+    outline: 2px solid var(--interactive-accent);
+    outline-offset: 1px;
+}
+
+.nn-recent-remove-glyph {
+    font-size: 11px;
+    line-height: 1;
+    transform: translateY(-1px);
+    pointer-events: none;
 }
 
 /* Touch target enhancement for mobile */

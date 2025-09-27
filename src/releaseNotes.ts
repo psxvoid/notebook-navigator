@@ -78,12 +78,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==Shortcuts==. Amazing new feature where you can add **folders**, **tags**, **notes** and **saved searches** to a new area in the navigation pane! You can disable this in settings, and a new toolbar button scrolls to the top of navigation pane when enabled.',
             '==Recent notes==. New section showing recently opened files in the navigation pane. You can disable this in settings.',
             '==Keyboard shortcuts==. You can now customize all keyboard shortcuts in settings using Mod, Ctrl, Shift, and Alt modifiers.',
-            '==Transparent colors==. The color picker now has an alpha slider to set transparency. This works for files, folders and tags.'
+            '==Transparent colors==. The color picker now has an alpha slider to set transparency. This works for files, folders and tags. You can now also remove individual colors from the recently used color list.'
         ],
         changed: [
             'Auto reveal file now selects the nearest expanded ancestor when descendant notes are enabled.',
             'Favorite tags section is now hidden if there are no favorite tags matching.',
-            'Removed Remove color and Remove icon buttons from context menu, you now remove icons or colors for files, folders and tags using the change dialogs.'
+            'Remove color and Remove icon options were removed from the context menu, you now remove icons or colors with the "change" dialogs.'
         ],
         fixed: [
             'Moving notes with tags previously removed them from the tag tree, meaning it looked like they no longer had any tags. This has been fixed.'

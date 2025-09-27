@@ -366,12 +366,27 @@ export class ColorPickerModal extends Modal {
         const recentColors = this.settingsProvider.settings.recentColors || [];
         this.recentColorsContainer.empty();
 
-        recentColors.forEach(color => {
+        recentColors.forEach((color, index) => {
             const dot = this.recentColorsContainer.createDiv('nn-color-dot nn-recent-color nn-show-checkerboard');
             this.applySwatchColor(dot, color);
             dot.setAttribute('data-color', color);
             this.addDomListener(dot, 'click', () => {
                 this.applyColorAndClose(color, false);
+            });
+
+            const removeButton = dot.createEl('button', {
+                cls: 'nn-recent-remove-button',
+                attr: {
+                    type: 'button',
+                    'aria-label': strings.modals.colorPicker.removeRecentColor,
+                    title: strings.modals.colorPicker.removeRecentColor
+                }
+            });
+            removeButton.createSpan({ text: '×', cls: 'nn-recent-remove-glyph', attr: { 'aria-hidden': 'true' } });
+            this.addDomListener(removeButton, 'click', event => {
+                event.stopPropagation();
+                event.preventDefault();
+                this.removeRecentColor(index);
             });
         });
 
@@ -386,6 +401,20 @@ export class ColorPickerModal extends Modal {
      */
     private clearRecentColors() {
         this.settingsProvider.settings.recentColors = [];
+        this.settingsProvider.saveSettingsAndUpdate();
+        this.loadRecentColors();
+    }
+
+    /**
+     * Remove a single recently used color by index
+     */
+    private removeRecentColor(index: number) {
+        const recentColors = this.settingsProvider.settings.recentColors;
+        if (!recentColors || index < 0 || index >= recentColors.length) {
+            return;
+        }
+
+        recentColors.splice(index, 1);
         this.settingsProvider.saveSettingsAndUpdate();
         this.loadRecentColors();
     }

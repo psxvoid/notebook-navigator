@@ -217,6 +217,7 @@ export const STRINGS_ZH = {
             presetColors: '预设颜色',
             recentColors: '最近使用的颜色',
             clearRecentColors: '清除最近使用的颜色',
+            removeRecentColor: '移除颜色',
             apply: '应用',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',

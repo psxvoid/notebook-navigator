@@ -216,6 +216,7 @@ export const STRINGS_KO = {
             presetColors: '프리셋 색상',
             recentColors: '최근 색상',
             clearRecentColors: '최근 색상 지우기',
+            removeRecentColor: '색상 제거',
             apply: '적용',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',
