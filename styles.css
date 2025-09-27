@@ -1221,8 +1221,12 @@ body {
 
 .nn-file-name-wrapper {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 6px;
+}
+
+.nn-file-name-wrapper[data-multiline='true'] {
+    align-items: flex-start;
 }
 
 .nn-file-name-content {
@@ -1233,12 +1237,15 @@ body {
 .nn-file-icon {
     width: var(--nn-nav-icon-size);
     height: var(--nn-nav-icon-size);
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     color: var(--nn-theme-file-name-color);
-    margin-top: 2px;
+}
+
+.nn-file-name-wrapper[data-multiline='true'] .nn-file-icon {
+    align-self: flex-start;
 }
 
 .nn-file-icon svg {

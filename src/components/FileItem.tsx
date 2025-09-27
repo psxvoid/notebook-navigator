@@ -284,9 +284,15 @@ export const FileItem = React.memo(function FileItem({
 
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
+    const isMultiRowTitle = appearanceSettings.titleRows > 1;
+
     const fileTitleElement = useMemo(() => {
         return (
-            <div className="nn-file-name-wrapper">
+            <div
+                className="nn-file-name-wrapper"
+                data-title-rows={appearanceSettings.titleRows}
+                data-multiline={isMultiRowTitle ? 'true' : 'false'}
+            >
                 {settings.showIcons && fileIconId ? (
                     <span
                         ref={fileIconRef}
@@ -303,7 +309,16 @@ export const FileItem = React.memo(function FileItem({
                 </div>
             </div>
         );
-    }, [appearanceSettings.titleRows, extensionSuffix, fileColor, fileIconId, highlightedName, settings.showIcons, showExtensionSuffix]);
+    }, [
+        appearanceSettings.titleRows,
+        extensionSuffix,
+        fileColor,
+        fileIconId,
+        highlightedName,
+        isMultiRowTitle,
+        settings.showIcons,
+        showExtensionSuffix
+    ]);
 
     // === Callbacks ===
 

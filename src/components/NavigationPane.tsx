@@ -1065,7 +1065,8 @@ export const NavigationPane = React.memo(
                         const note = item.note;
                         return (
                             <ShortcutItem
-                                icon="lucide-file-text"
+                                icon={item.icon ?? 'lucide-file-text'}
+                                color={item.color}
                                 label={note.basename}
                                 level={item.level}
                                 type="note"

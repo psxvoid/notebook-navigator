@@ -116,6 +116,8 @@ export interface RecentNoteNavItem {
     note: TFile;
     level: number;
     key: string;
+    icon?: string;
+    color?: string;
 }
 
 export interface ShortcutSearchNavItem extends ShortcutNavigationBase {

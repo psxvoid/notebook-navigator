@@ -605,6 +605,14 @@ export function useNavigationPaneData({
                     icon: customIcon ?? item.icon,
                     color
                 };
+            } else if (item.type === NavigationPaneItemType.RECENT_NOTE) {
+                const customIcon = metadataService.getFileIcon(item.note.path);
+                const color = metadataService.getFileColor(item.note.path);
+                return {
+                    ...item,
+                    icon: customIcon ?? item.icon,
+                    color
+                };
             }
             return item;
         });
