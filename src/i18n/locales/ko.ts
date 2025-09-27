@@ -218,7 +218,7 @@ export const STRINGS_KO = {
             clearRecentColors: '최근 색상 지우기',
             apply: '적용',
             hexLabel: 'HEX',
-            rgbLabel: 'RGB',
+            rgbLabel: 'RGBA',
             colors: {
                 red: '빨강',
                 orange: '주황',

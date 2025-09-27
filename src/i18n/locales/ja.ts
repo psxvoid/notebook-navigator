@@ -219,7 +219,7 @@ export const STRINGS_JA = {
             clearRecentColors: '最近使用した色をクリア',
             apply: '適用',
             hexLabel: 'HEX',
-            rgbLabel: 'RGB',
+            rgbLabel: 'RGBA',
             colors: {
                 red: '赤',
                 orange: 'オレンジ',

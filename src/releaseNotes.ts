@@ -74,10 +74,11 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.5.0',
         date: '2025-09-22',
         new: [
-            '==Manual folder sort order==. You can now manually sort folders in the navigation pane using the new toolbar button. Sort order is synced between devices, and you can easily go back to alphabetical order.',
+            '==Manual folder sort order==. You can now manually sort root folders in the navigation pane using the new toolbar button. Sort order is synced between devices, and you can easily go back to alphabetical order.',
             '==Shortcuts==. Amazing new feature where you can add **folders**, **tags**, **notes** and **saved searches** to a new area in the navigation pane! You can disable this in settings, and a new toolbar button scrolls to the top of navigation pane when enabled.',
-            '==Recent Notes==. New section showing recently opened files in the navigation pane. You can disable this in settings.',
-            '==Keyboard Shortcuts==. You can now customize all keyboard shortcuts in settings using Mod, Ctrl, Shift, and Alt modifiers.'
+            '==Recent notes==. New section showing recently opened files in the navigation pane. You can disable this in settings.',
+            '==Keyboard shortcuts==. You can now customize all keyboard shortcuts in settings using Mod, Ctrl, Shift, and Alt modifiers.',
+            '==Transparent colors==. The color picker now has an alpha slider to set transparency. This works for files, folders and tags.'
         ],
         changed: [
             'Auto reveal file now selects the nearest expanded ancestor when descendant notes are enabled.',

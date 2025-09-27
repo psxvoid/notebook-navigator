@@ -219,7 +219,7 @@ export const STRINGS_ZH = {
             clearRecentColors: '清除最近使用的颜色',
             apply: '应用',
             hexLabel: 'HEX',
-            rgbLabel: 'RGB',
+            rgbLabel: 'RGBA',
             colors: {
                 red: '红色',
                 orange: '橙色',

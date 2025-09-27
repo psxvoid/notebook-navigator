@@ -219,7 +219,7 @@ export const STRINGS_DE = {
             clearRecentColors: 'Zuletzt verwendete Farben löschen',
             apply: 'Anwenden',
             hexLabel: 'HEX',
-            rgbLabel: 'RGB',
+            rgbLabel: 'RGBA',
             colors: {
                 red: 'Rot',
                 orange: 'Orange',

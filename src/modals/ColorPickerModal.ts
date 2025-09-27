@@ -51,7 +51,9 @@ const COLOR_PALETTE = [
 const MAX_RECENT_COLORS = 10;
 const DEFAULT_COLOR = '#3b82f6';
 
-type RGBChannel = 'r' | 'g' | 'b';
+type ColorChannel = 'r' | 'g' | 'b' | 'a';
+
+type RGBAValues = { r: number; g: number; b: number; a: number };
 
 type ColorPickerMode = 'foreground' | 'background';
 
@@ -91,8 +93,8 @@ export class ColorPickerModal extends Modal {
     private hexInput: HTMLInputElement;
     private previewCurrent: HTMLDivElement;
     private previewNew: HTMLDivElement;
-    private rgbSliders: { r: HTMLInputElement; g: HTMLInputElement; b: HTMLInputElement };
-    private rgbValues: { r: HTMLSpanElement; g: HTMLSpanElement; b: HTMLSpanElement };
+    private channelSliders: Record<ColorChannel, HTMLInputElement>;
+    private channelValues: Record<ColorChannel, HTMLSpanElement>;
     private recentColorsContainer: HTMLDivElement;
     private presetColorsContainer: HTMLDivElement;
     private isUpdating = false;
@@ -149,7 +151,12 @@ export class ColorPickerModal extends Modal {
         const initialColor = currentColors?.[lookupKey];
         if (initialColor) {
             this.currentColor = initialColor;
-            this.selectedColor = initialColor;
+            const parsedInitial = this.parseColorString(initialColor);
+            if (parsedInitial) {
+                this.selectedColor = this.rgbaToHex(parsedInitial);
+            } else {
+                this.selectedColor = DEFAULT_COLOR;
+            }
         } else {
             // Default starting color
             this.selectedColor = DEFAULT_COLOR;
@@ -183,7 +190,7 @@ export class ColorPickerModal extends Modal {
         currentSection.createEl('span', { text: strings.modals.colorPicker.currentColor, cls: 'nn-preview-label' });
         this.previewCurrent = currentSection.createDiv('nn-preview-color');
         if (this.currentColor) {
-            this.previewCurrent.style.backgroundColor = this.currentColor;
+            this.applySwatchColor(this.previewCurrent, this.currentColor);
         } else {
             this.previewCurrent.addClass('nn-no-color');
         }
@@ -193,8 +200,8 @@ export class ColorPickerModal extends Modal {
 
         const newSection = previewContainer.createDiv('nn-preview-new');
         newSection.createEl('span', { text: strings.modals.colorPicker.newColor, cls: 'nn-preview-label' });
-        this.previewNew = newSection.createDiv('nn-preview-color');
-        this.previewNew.style.backgroundColor = this.selectedColor;
+        this.previewNew = newSection.createDiv('nn-preview-color nn-show-checkerboard');
+        this.applySwatchColor(this.previewNew, this.selectedColor);
 
         // Preset colors section
         const presetSection = leftColumn.createDiv('nn-preset-section');
@@ -215,18 +222,18 @@ export class ColorPickerModal extends Modal {
             value: this.selectedColor.substring(1),
             attr: {
                 'aria-label': 'Hex color value',
-                maxlength: '6',
-                placeholder: 'RRGGBB'
+                maxlength: '8',
+                placeholder: 'RRGGBB or RRGGBBAA'
             }
         });
 
         // RGB sliders section
         const rgbSection = rightColumn.createDiv('nn-rgb-section');
         rgbSection.createEl('div', { text: strings.modals.colorPicker.rgbLabel, cls: 'nn-rgb-title' });
-        this.rgbSliders = {} as Record<RGBChannel, HTMLInputElement>;
-        this.rgbValues = {} as Record<RGBChannel, HTMLSpanElement>;
+        this.channelSliders = {} as Record<ColorChannel, HTMLInputElement>;
+        this.channelValues = {} as Record<ColorChannel, HTMLSpanElement>;
 
-        (['r', 'g', 'b'] as const).forEach(channel => {
+        (['r', 'g', 'b', 'a'] as const).forEach(channel => {
             const sliderRow = rgbSection.createDiv('nn-rgb-row');
             sliderRow.createEl('span', {
                 text: channel.toUpperCase(),
@@ -249,8 +256,8 @@ export class ColorPickerModal extends Modal {
                 text: '0'
             });
 
-            this.rgbSliders[channel as RGBChannel] = slider;
-            this.rgbValues[channel as RGBChannel] = value;
+            this.channelSliders[channel] = slider;
+            this.channelValues[channel] = value;
         });
 
         // Recent colors section
@@ -307,9 +314,13 @@ export class ColorPickerModal extends Modal {
 
         // Hex input real-time update
         this.addDomListener(this.hexInput, 'input', () => {
-            const hex = this.validateAndFormatHex(this.hexInput.value);
-            if (hex) {
-                this.updateFromHex(hex);
+            const sanitized = this.sanitizeHexInput(this.hexInput.value);
+            if (sanitized !== this.hexInput.value) {
+                this.hexInput.value = sanitized;
+            }
+
+            if (sanitized.length === 6 || sanitized.length === 8) {
+                this.updateFromHex(`#${sanitized.toLowerCase()}`, { syncInput: false });
             }
         });
     }
@@ -338,8 +349,8 @@ export class ColorPickerModal extends Modal {
      */
     private setupEventHandlers() {
         // RGB slider handlers
-        (Object.keys(this.rgbSliders) as RGBChannel[]).forEach(channel => {
-            const slider = this.rgbSliders[channel];
+        (Object.keys(this.channelSliders) as ColorChannel[]).forEach(channel => {
+            const slider = this.channelSliders[channel];
             this.addDomListener(slider, 'input', () => {
                 if (!this.isUpdating) {
                     this.updateFromRGB();
@@ -356,8 +367,8 @@ export class ColorPickerModal extends Modal {
         this.recentColorsContainer.empty();
 
         recentColors.forEach(color => {
-            const dot = this.recentColorsContainer.createDiv('nn-color-dot');
-            dot.style.backgroundColor = color;
+            const dot = this.recentColorsContainer.createDiv('nn-color-dot nn-recent-color nn-show-checkerboard');
+            this.applySwatchColor(dot, color);
             dot.setAttribute('data-color', color);
             this.addDomListener(dot, 'click', () => {
                 this.applyColorAndClose(color, false);
@@ -387,7 +398,7 @@ export class ColorPickerModal extends Modal {
 
         COLOR_PALETTE.forEach(color => {
             const dot = this.presetColorsContainer.createDiv('nn-color-dot');
-            dot.style.backgroundColor = color.value;
+            this.applySwatchColor(dot, color.value);
             dot.setAttribute('data-color', color.value);
             dot.setAttribute('title', color.name);
             this.addDomListener(dot, 'click', () => {
@@ -397,27 +408,44 @@ export class ColorPickerModal extends Modal {
     }
 
     /**
+     * Apply swatch background and transparency indicator
+     */
+    private applySwatchColor(element: HTMLElement, color: string): void {
+        element.classList.remove('nn-no-color');
+        const wantsCheckerboard = element.hasClass('nn-show-checkerboard');
+
+        element.addClass('nn-color-swatch');
+        element.style.setProperty('--nn-color-swatch-color', color);
+
+        if (wantsCheckerboard) {
+            element.addClass('nn-checkerboard');
+        } else {
+            element.removeClass('nn-checkerboard');
+        }
+    }
+
+    /**
      * Update all controls from hex value
      */
-    private updateFromHex(hex: string) {
+    private updateFromHex(hex: string, { syncInput = true }: { syncInput?: boolean } = {}) {
         this.isUpdating = true;
-        this.selectedColor = hex;
+        const rgba = this.hexToRgba(hex);
+        if (rgba) {
+            const normalizedHex = this.rgbaToHex(rgba);
+            this.selectedColor = normalizedHex;
+            this.applySwatchColor(this.previewNew, normalizedHex);
+            if (syncInput) {
+                this.hexInput.value = normalizedHex.substring(1);
+            }
 
-        // Update preview
-        this.previewNew.style.backgroundColor = hex;
-
-        // Update hex input
-        this.hexInput.value = hex.substring(1);
-
-        // Convert to RGB and update sliders
-        const rgb = this.hexToRgb(hex);
-        if (rgb) {
-            this.rgbSliders.r.value = rgb.r.toString();
-            this.rgbSliders.g.value = rgb.g.toString();
-            this.rgbSliders.b.value = rgb.b.toString();
-            this.rgbValues.r.setText(rgb.r.toString());
-            this.rgbValues.g.setText(rgb.g.toString());
-            this.rgbValues.b.setText(rgb.b.toString());
+            this.channelSliders.r.value = rgba.r.toString();
+            this.channelSliders.g.value = rgba.g.toString();
+            this.channelSliders.b.value = rgba.b.toString();
+            this.channelSliders.a.value = rgba.a.toString();
+            this.channelValues.r.setText(rgba.r.toString());
+            this.channelValues.g.setText(rgba.g.toString());
+            this.channelValues.b.setText(rgba.b.toString());
+            this.channelValues.a.setText(rgba.a.toString());
         }
 
         this.isUpdating = false;
@@ -427,58 +455,125 @@ export class ColorPickerModal extends Modal {
      * Update from RGB slider values
      */
     private updateFromRGB() {
-        const r = parseInt(this.rgbSliders.r.value);
-        const g = parseInt(this.rgbSliders.g.value);
-        const b = parseInt(this.rgbSliders.b.value);
+        const r = parseInt(this.channelSliders.r.value, 10) || 0;
+        const g = parseInt(this.channelSliders.g.value, 10) || 0;
+        const b = parseInt(this.channelSliders.b.value, 10) || 0;
+        const a = parseInt(this.channelSliders.a.value, 10) || 0;
 
         // Update value displays
-        this.rgbValues.r.setText(r.toString());
-        this.rgbValues.g.setText(g.toString());
-        this.rgbValues.b.setText(b.toString());
+        this.channelValues.r.setText(r.toString());
+        this.channelValues.g.setText(g.toString());
+        this.channelValues.b.setText(b.toString());
+        this.channelValues.a.setText(a.toString());
 
-        // Convert to hex
-        const hex = this.rgbToHex(r, g, b);
+        const rgba: RGBAValues = { r, g, b, a };
+        const hex = this.rgbaToHex(rgba);
         this.selectedColor = hex;
 
         // Update preview and hex input
-        this.previewNew.style.backgroundColor = hex;
+        this.applySwatchColor(this.previewNew, hex);
         this.hexInput.value = hex.substring(1);
     }
 
     /**
-     * Convert hex to RGB
+     * Convert hex to RGBA
      */
-    private hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result
-            ? {
-                  r: parseInt(result[1], 16),
-                  g: parseInt(result[2], 16),
-                  b: parseInt(result[3], 16)
-              }
-            : null;
+    private hexToRgba(hex: string): RGBAValues | null {
+        const normalized = hex.startsWith('#') ? hex.slice(1) : hex;
+
+        if (normalized.length !== 3 && normalized.length !== 4 && normalized.length !== 6 && normalized.length !== 8) {
+            return null;
+        }
+
+        if (normalized.length === 3 || normalized.length === 4) {
+            const [rChar, gChar, bChar, aChar] = normalized.split('');
+            const rHex = (rChar ?? '0').repeat(2);
+            const gHex = (gChar ?? '0').repeat(2);
+            const bHex = (bChar ?? '0').repeat(2);
+            const aHex = normalized.length === 4 ? (aChar ?? 'f').repeat(2) : 'ff';
+
+            const r = parseInt(rHex, 16);
+            const g = parseInt(gHex, 16);
+            const b = parseInt(bHex, 16);
+            const a = parseInt(aHex, 16);
+
+            if ([r, g, b, a].some(value => Number.isNaN(value))) {
+                return null;
+            }
+
+            return { r, g, b, a };
+        }
+
+        const r = parseInt(normalized.slice(0, 2), 16);
+        const g = parseInt(normalized.slice(2, 4), 16);
+        const b = parseInt(normalized.slice(4, 6), 16);
+        const a = normalized.length === 8 ? parseInt(normalized.slice(6, 8), 16) : 255;
+
+        if ([r, g, b, a].some(value => Number.isNaN(value))) {
+            return null;
+        }
+
+        return { r, g, b, a };
     }
 
     /**
-     * Convert RGB to hex
+     * Convert RGBA to hex, collapsing alpha when fully opaque
      */
-    private rgbToHex(r: number, g: number, b: number): string {
-        return `#${[r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')}`;
+    private rgbaToHex({ r, g, b, a }: RGBAValues): string {
+        const base = [r, g, b].map(value => value.toString(16).padStart(2, '0')).join('');
+        if (a >= 255) {
+            return `#${base}`;
+        }
+
+        const alpha = a.toString(16).padStart(2, '0');
+        return `#${base}${alpha}`;
+    }
+
+    /**
+     * Parses common CSS color formats into RGBA values
+     */
+    private parseColorString(color: string): RGBAValues | null {
+        if (!color) {
+            return null;
+        }
+
+        const hex = this.hexToRgba(color);
+        if (hex) {
+            return hex;
+        }
+
+        const rgbMatch = color.match(/^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i);
+        if (rgbMatch) {
+            const [r, g, b] = rgbMatch.slice(1, 4).map(value => this.clampColorComponent(parseInt(value, 10)));
+            return { r, g, b, a: 255 };
+        }
+
+        const rgbaMatch = color.match(/^rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*([0-9]*\.?[0-9]+)\s*\)$/i);
+        if (rgbaMatch) {
+            const [r, g, b] = rgbaMatch.slice(1, 4).map(value => this.clampColorComponent(parseInt(value, 10)));
+            const alphaFloat = parseFloat(rgbaMatch[4]);
+            if (Number.isNaN(alphaFloat)) {
+                return null;
+            }
+            const clampedAlpha = Math.max(0, Math.min(1, alphaFloat));
+            return { r, g, b, a: Math.round(clampedAlpha * 255) };
+        }
+
+        return null;
+    }
+
+    private clampColorComponent(value: number): number {
+        if (Number.isNaN(value)) {
+            return 0;
+        }
+        return Math.max(0, Math.min(255, value));
     }
 
     /**
      * Validate and format hex input
      */
-    private validateAndFormatHex(input: string): string | null {
-        // Remove # if present and spaces
-        const hex = input.replace('#', '').trim();
-
-        // Validate 6-digit hex
-        if (!/^[0-9A-Fa-f]{6}$/.test(hex)) {
-            return null;
-        }
-
-        return `#${hex.toLowerCase()}`;
+    private sanitizeHexInput(input: string): string {
+        return input.replace(/[^0-9A-Fa-f]/g, '').slice(0, 8);
     }
 
     /**
@@ -563,14 +658,16 @@ export class ColorPickerModal extends Modal {
         this.updateFromHex(color);
 
         // Save to recent if requested
+        const normalized = this.selectedColor;
+
         if (saveToRecent) {
-            await this.saveToRecentColors(color);
+            await this.saveToRecentColors(normalized);
         }
 
-        await this.updateMetadataColor(color);
+        await this.updateMetadataColor(normalized);
 
         // Notify callback
-        this.onChooseColor?.(color);
+        this.onChooseColor?.(normalized);
 
         // Close the modal
         this.close();

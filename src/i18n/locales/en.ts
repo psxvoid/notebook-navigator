@@ -219,7 +219,7 @@ export const STRINGS_EN = {
             clearRecentColors: 'Clear recent colors',
             apply: 'Apply',
             hexLabel: 'HEX',
-            rgbLabel: 'RGB',
+            rgbLabel: 'RGBA',
             colors: {
                 red: 'Red',
                 orange: 'Orange',
