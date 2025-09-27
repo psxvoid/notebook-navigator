@@ -1037,7 +1037,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    padding: 0.5rem 0;
+    padding: 0.75rem 0;
 }
 
 .nn-root-reorder-header {
@@ -1051,9 +1051,17 @@ body {
     font-weight: 600;
 }
 
+.is-mobile .nn-root-reorder-title {
+    font-size: var(--font-normal);
+}
+
 .nn-root-reorder-hint {
     font-size: var(--font-smaller);
     color: var(--text-muted);
+}
+
+.is-mobile .nn-root-reorder-hint {
+    font-size: var(--font-small);
 }
 
 .nn-root-reorder-list {
@@ -1067,19 +1075,26 @@ body {
     cursor: default;
 }
 
+.nn-root-reorder-actions {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
 .nn-root-reorder-reset {
-    margin-top: 0.75rem;
-    align-self: flex-start;
-    background: transparent;
-    border: none;
-    color: var(--text-accent);
-    font-size: var(--font-small);
-    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 1rem;
     cursor: pointer;
 }
 
-.nn-root-reorder-reset:hover {
-    text-decoration: underline;
+.nn-root-reorder-reset-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
 }
 
 .nn-shortcut-disabled {

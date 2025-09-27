@@ -1338,19 +1338,26 @@ export const NavigationPane = React.memo(
                                     );
                                 })}
                                 {settings.rootFolderOrder.length > 0 ? (
-                                    <button
-                                        type="button"
-                                        className="nn-root-reorder-reset"
-                                        onClick={event => {
-                                            event.preventDefault();
-                                            event.stopPropagation();
-                                            void updateSettings(current => {
-                                                current.rootFolderOrder = [];
-                                            });
-                                        }}
-                                    >
-                                        {strings.navigationPane.resetRootFolderOrder}
-                                    </button>
+                                    // Display reset button when custom folder ordering is active
+                                    <div className="nn-root-reorder-actions">
+                                        <button
+                                            type="button"
+                                            className="nn-root-reorder-reset nn-support-button"
+                                            onClick={event => {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+                                                // Clear custom folder order to restore alphabetical sorting
+                                                void updateSettings(current => {
+                                                    current.rootFolderOrder = [];
+                                                });
+                                            }}
+                                        >
+                                            <span className="nn-root-reorder-reset-icon" aria-hidden="true">
+                                                Aa
+                                            </span>
+                                            <span>{strings.navigationPane.resetRootFolderOrder}</span>
+                                        </button>
+                                    </div>
                                 ) : null}
                             </div>
                         </div>

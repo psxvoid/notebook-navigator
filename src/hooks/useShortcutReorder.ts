@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DragEvent } from 'react';
 import { SHORTCUT_DRAG_MIME } from '../types/shortcuts';
 
@@ -60,6 +60,25 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
 }: UseShortcutReorderParams<T>): UseShortcutReorderResult {
     const [draggingKey, setDraggingKey] = useState<string | null>(null);
     const [dropIndex, setDropIndex] = useState<number | null>(null);
+    // Timeout reference for deferred drop index clearing
+    const dropClearTimeoutRef = useRef<number | null>(null);
+
+    // Cancel any pending drop index clear operation
+    const clearDeferredDropIndex = useCallback(() => {
+        if (dropClearTimeoutRef.current !== null) {
+            window.clearTimeout(dropClearTimeoutRef.current);
+            dropClearTimeoutRef.current = null;
+        }
+    }, []);
+
+    // Schedule a delayed clearing of drop index to avoid flicker during drag operations
+    const scheduleDropIndexClear = useCallback(() => {
+        clearDeferredDropIndex();
+        dropClearTimeoutRef.current = window.setTimeout(() => {
+            setDropIndex(null);
+            dropClearTimeoutRef.current = null;
+        }, 60);
+    }, [clearDeferredDropIndex]);
 
     // Extract ordered list of shortcut keys from the shortcuts array
     const shortcutOrder = useMemo(() => shortcuts.map(shortcut => shortcut.key), [shortcuts]);
@@ -77,7 +96,15 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
     const resetDragState = useCallback(() => {
         setDraggingKey(null);
         setDropIndex(null);
-    }, []);
+        clearDeferredDropIndex();
+    }, [clearDeferredDropIndex]);
+
+    // Clean up any pending timeouts on unmount
+    useEffect(() => {
+        return () => {
+            clearDeferredDropIndex();
+        };
+    }, [clearDeferredDropIndex]);
 
     // Clear drag state when drag and drop is disabled
     useEffect(() => {
@@ -211,18 +238,19 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
 
             const nextIndex = computeInsertIndex(event, key);
             if (nextIndex === null) {
-                setDropIndex(null);
+                scheduleDropIndexClear();
                 return;
             }
 
             event.preventDefault();
             event.dataTransfer.dropEffect = 'move';
 
+            clearDeferredDropIndex();
             if (dropIndex !== nextIndex) {
                 setDropIndex(nextIndex);
             }
         },
-        [computeInsertIndex, dropIndex, draggingKey, isEnabled]
+        [clearDeferredDropIndex, computeInsertIndex, dropIndex, draggingKey, isEnabled, scheduleDropIndexClear]
     );
 
     // Complete the drag operation and reorder shortcuts
@@ -251,7 +279,7 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
 
             const relatedTarget = event.relatedTarget as HTMLElement | null;
             if (!relatedTarget) {
-                setDropIndex(null);
+                scheduleDropIndexClear();
                 return;
             }
 
@@ -263,9 +291,9 @@ export function useShortcutReorder<T extends ShortcutDescriptor>({
                 return;
             }
 
-            setDropIndex(null);
+            scheduleDropIndexClear();
         },
-        [draggingKey, isEnabled, setDropIndex]
+        [draggingKey, isEnabled, scheduleDropIndexClear]
     );
 
     // Clean up drag state when drag operation ends
