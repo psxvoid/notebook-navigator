@@ -22,6 +22,7 @@ import { TFile, TFolder, Notice, setIcon, normalizePath } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { strings } from '../i18n';
 import { getDBInstance } from '../storage/fileOperations';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
@@ -39,6 +40,8 @@ import { generateUniqueFilename } from '../utils/fileCreationUtils';
  * data attributes: `data-draggable`, `data-drag-type`, `data-drag-path`,
  * and drop zones with `data-drop-zone`, `data-drop-path`.
  */
+const FOLDER_AUTO_EXPAND_DELAY = 500;
+
 export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>) {
     const { app, isMobile, tagTreeService } = useServices();
     const fileSystemOps = useFileSystemOps();
@@ -46,12 +49,17 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const selectionState = useSelectionState();
     const dispatch = useSelectionDispatch();
     const settings = useSettingsState();
+    const expansionState = useExpansionState();
+    const expansionDispatch = useExpansionDispatch();
     // Uses IndexedDB lazily in drag ghost; falls back to icon
     const dragOverElement = useRef<HTMLElement | null>(null);
     const dragGhostElement = useRef<HTMLElement | null>(null);
     // Track global window listeners to ensure proper cleanup on unmount
     const windowDragEndHandlerRef = useRef<((e: DragEvent) => void) | null>(null);
     const windowDropHandlerRef = useRef<((e: DragEvent) => void) | null>(null);
+    const autoExpandTimeoutRef = useRef<number | null>(null);
+    const autoExpandTargetRef = useRef<string | null>(null);
+    const expandedFoldersRef = useRef(expansionState.expandedFolders);
 
     /**
      * Type guard to check if an element is an HTMLElement
@@ -299,59 +307,122 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         [selectionState, containerRef, app, createDragGhost]
     );
 
+    useEffect(() => {
+        expandedFoldersRef.current = expansionState.expandedFolders;
+    }, [expansionState.expandedFolders]);
+
+    const clearAutoExpandTimer = useCallback(() => {
+        if (autoExpandTimeoutRef.current !== null) {
+            window.clearTimeout(autoExpandTimeoutRef.current);
+            autoExpandTimeoutRef.current = null;
+        }
+        autoExpandTargetRef.current = null;
+    }, []);
+
+    const scheduleFolderAutoExpand = useCallback(
+        (targetPath: string) => {
+            if (autoExpandTargetRef.current === targetPath) {
+                return;
+            }
+
+            clearAutoExpandTimer();
+
+            if (expandedFoldersRef.current.has(targetPath)) {
+                return;
+            }
+
+            const targetFolder = app.vault.getFolderByPath(targetPath);
+            if (!targetFolder) {
+                return;
+            }
+
+            const hasChildFolders = targetFolder.children.some(child => child instanceof TFolder);
+            if (!hasChildFolders) {
+                return;
+            }
+
+            autoExpandTargetRef.current = targetPath;
+            autoExpandTimeoutRef.current = window.setTimeout(() => {
+                // Ensure folder still exists and is not already expanded before dispatching
+                const folder = app.vault.getFolderByPath(targetPath);
+                if (!folder) {
+                    clearAutoExpandTimer();
+                    return;
+                }
+
+                if (!expandedFoldersRef.current.has(targetPath)) {
+                    expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: [targetPath] });
+                }
+
+                clearAutoExpandTimer();
+            }, FOLDER_AUTO_EXPAND_DELAY);
+        },
+        [app, expansionDispatch, clearAutoExpandTimer]
+    );
+
     /**
      * Handles the drag over event.
      * Provides visual feedback by adding CSS classes to valid drop targets.
      *
      * @param e - The drag event
      */
-    const handleDragOver = useCallback((e: DragEvent) => {
-        if (!isHTMLElement(e.target)) return;
-        const dropZone = e.target.closest<HTMLElement>('[data-drop-zone="folder"],[data-drop-zone="tag"]');
-        const isShortcutDrag = Boolean(e.dataTransfer?.types?.includes(SHORTCUT_DRAG_MIME));
+    const handleDragOver = useCallback(
+        (e: DragEvent) => {
+            if (!isHTMLElement(e.target)) return;
+            const dropZone = e.target.closest<HTMLElement>('[data-drop-zone="folder"],[data-drop-zone="tag"]');
+            const isShortcutDrag = Boolean(e.dataTransfer?.types?.includes(SHORTCUT_DRAG_MIME));
 
-        if (dragOverElement.current && dragOverElement.current !== dropZone) {
-            dragOverElement.current.classList.remove('nn-drag-over');
-            dragOverElement.current = null;
-        }
-
-        if (!dropZone) {
-            if (isShortcutDrag && e.dataTransfer) {
-                e.dataTransfer.dropEffect = 'none';
+            if (dragOverElement.current && dragOverElement.current !== dropZone) {
+                dragOverElement.current.classList.remove('nn-drag-over');
+                dragOverElement.current = null;
+                clearAutoExpandTimer();
             }
-            return;
-        }
 
-        if (isShortcutDrag) {
-            dropZone.classList.remove('nn-drag-over');
-            dragOverElement.current = null;
+            if (!dropZone) {
+                if (isShortcutDrag && e.dataTransfer) {
+                    e.dataTransfer.dropEffect = 'none';
+                }
+                clearAutoExpandTimer();
+                return;
+            }
+
+            if (isShortcutDrag) {
+                dropZone.classList.remove('nn-drag-over');
+                dragOverElement.current = null;
+                clearAutoExpandTimer();
+                if (e.dataTransfer) {
+                    e.dataTransfer.dropEffect = 'none';
+                }
+                return;
+            }
+
+            e.preventDefault();
+
             if (e.dataTransfer) {
-                e.dataTransfer.dropEffect = 'none';
+                const dropType = dropZone.getAttribute('data-drop-zone');
+                const targetPath = dropZone.getAttribute('data-drop-path');
+
+                const typesList = e.dataTransfer.types;
+                const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
+                const isExternal = !!typesList?.includes('Files') && !hasObsidianData;
+
+                // Folder: move (internal) / copy (external); Tag: untagged = move, tag = copy
+                if (dropType === 'folder') {
+                    e.dataTransfer.dropEffect = isExternal ? 'copy' : 'move';
+                    if (targetPath) {
+                        scheduleFolderAutoExpand(targetPath);
+                    }
+                } else if (dropType === 'tag') {
+                    e.dataTransfer.dropEffect = targetPath === UNTAGGED_TAG_ID ? 'move' : 'copy';
+                    clearAutoExpandTimer();
+                }
             }
-            return;
-        }
 
-        e.preventDefault();
-
-        if (e.dataTransfer) {
-            const dropType = dropZone.getAttribute('data-drop-zone');
-            const targetPath = dropZone.getAttribute('data-drop-path');
-
-            const typesList = e.dataTransfer.types;
-            const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
-            const isExternal = !!typesList?.includes('Files') && !hasObsidianData;
-
-            // Folder: move (internal) / copy (external); Tag: untagged = move, tag = copy
-            if (dropType === 'folder') {
-                e.dataTransfer.dropEffect = isExternal ? 'copy' : 'move';
-            } else if (dropType === 'tag') {
-                e.dataTransfer.dropEffect = targetPath === UNTAGGED_TAG_ID ? 'move' : 'copy';
-            }
-        }
-
-        dropZone.classList.add('nn-drag-over');
-        dragOverElement.current = dropZone;
-    }, []);
+            dropZone.classList.add('nn-drag-over');
+            dragOverElement.current = dropZone;
+        },
+        [clearAutoExpandTimer, scheduleFolderAutoExpand]
+    );
 
     /**
      * Handles dropping files on a tag to add that tag to the files
@@ -536,10 +607,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             const isShortcutDrag = Boolean(e.dataTransfer?.types?.includes(SHORTCUT_DRAG_MIME));
             if (isShortcutDrag) {
+                clearAutoExpandTimer();
                 return;
             }
 
             if (!dropZone) {
+                clearAutoExpandTimer();
                 return;
             }
 
@@ -549,6 +622,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             const targetPath = getPathFromDataAttribute(dropZone, 'data-drop-path');
 
             if (!dropType || !targetPath) return;
+
+            clearAutoExpandTimer();
 
             // Handle tag drops
             if (dropType === 'tag') {
@@ -631,7 +706,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 }
             }
         },
-        [app, handleTagDrop, handleExternalFileDrop, moveFilesWithContext, getFilesFromPaths]
+        [app, handleTagDrop, handleExternalFileDrop, moveFilesWithContext, getFilesFromPaths, clearAutoExpandTimer]
     );
 
     /**
@@ -640,20 +715,24 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      *
      * @param e - The drag event
      */
-    const handleDragLeave = useCallback((e: DragEvent) => {
-        const target = e.target;
-        if (!(target instanceof HTMLElement)) return;
+    const handleDragLeave = useCallback(
+        (e: DragEvent) => {
+            const target = e.target;
+            if (!(target instanceof HTMLElement)) return;
 
-        const dropZone = target.closest('[data-drop-zone]');
-        if (dropZone instanceof HTMLElement && dropZone === dragOverElement.current) {
-            // Only remove if we're actually leaving the drop zone, not just moving to a child
-            const relatedTarget = e.relatedTarget;
-            if (!(relatedTarget instanceof Node) || !dropZone.contains(relatedTarget)) {
-                dropZone.classList.remove('nn-drag-over');
-                dragOverElement.current = null;
+            const dropZone = target.closest('[data-drop-zone]');
+            if (dropZone instanceof HTMLElement && dropZone === dragOverElement.current) {
+                // Only remove if we're actually leaving the drop zone, not just moving to a child
+                const relatedTarget = e.relatedTarget;
+                if (!(relatedTarget instanceof Node) || !dropZone.contains(relatedTarget)) {
+                    dropZone.classList.remove('nn-drag-over');
+                    dragOverElement.current = null;
+                    clearAutoExpandTimer();
+                }
             }
-        }
-    }, []);
+        },
+        [clearAutoExpandTimer]
+    );
 
     /**
      * Handles the drag end event.
@@ -684,8 +763,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             }
 
             cleanupDragGhost();
+            clearAutoExpandTimer();
         },
-        [selectionState, containerRef, cleanupDragGhost]
+        [selectionState, containerRef, cleanupDragGhost, clearAutoExpandTimer]
     );
 
     useEffect(() => {
@@ -716,6 +796,17 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             // Clean up any lingering ghost on unmount
             cleanupDragGhost();
+            clearAutoExpandTimer();
         };
-    }, [containerRef, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd, isMobile, cleanupDragGhost]);
+    }, [
+        containerRef,
+        handleDragStart,
+        handleDragOver,
+        handleDragLeave,
+        handleDrop,
+        handleDragEnd,
+        isMobile,
+        cleanupDragGhost,
+        clearAutoExpandTimer
+    ]);
 }
