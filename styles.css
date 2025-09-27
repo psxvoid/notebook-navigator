@@ -848,6 +848,13 @@ body {
     line-height: var(--nn-nav-icon-size);
 }
 
+.nn-navitem-icon[data-has-color='true'] svg,
+.nn-tag-icon[data-has-color='true'] svg,
+.nn-pane-header-icon[data-has-color='true'] svg,
+.nn-mobile-header-icon[data-has-color='true'] svg {
+    stroke-width: 2.4;
+}
+
 /* Folder name text - truncates with ellipsis on overflow */
 .nn-navitem-name {
     font-size: var(--nn-setting-nav-font-size);
@@ -1270,6 +1277,10 @@ body {
 
 .nn-file.nn-selected .nn-file-icon[data-has-color='false'] {
     color: var(--nn-theme-file-name-selected-color);
+}
+
+.nn-file-icon[data-has-color='true'] svg {
+    stroke-width: 2.4;
 }
 
 /* Quick actions panel - horizontal container for action icons */
