@@ -3485,7 +3485,8 @@ body.nn-resizing {
 .nn-iconfont-rpg-awesome,
 .nn-iconfont-bootstrap-icons,
 .nn-iconfont-material-icons,
-.nn-iconfont-phosphor {
+.nn-iconfont-phosphor,
+.nn-iconfont-simple-icons {
     font-style: normal;
 }
 
@@ -3497,7 +3498,8 @@ body.nn-resizing {
 .nn-iconfont-rpg-awesome,
 .nn-iconfont-bootstrap-icons,
 .nn-iconfont-material-icons,
-.nn-iconfont-phosphor {
+.nn-iconfont-phosphor,
+.nn-iconfont-simple-icons {
     font-weight: 400;
 }
 
@@ -3515,6 +3517,10 @@ body.nn-resizing {
 
 .nn-iconfont-phosphor {
     font-family: 'NotebookNavigatorPhosphorIcons', 'Phosphor', sans-serif;
+}
+
+.nn-iconfont-simple-icons {
+    font-family: 'NotebookNavigatorSimpleIcons', 'Simple Icons', sans-serif;
 }
 
 .nn-icon-provider-tabs {

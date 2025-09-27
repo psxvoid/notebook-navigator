@@ -1,4 +1,10 @@
-export type ExternalIconProviderId = 'bootstrap-icons' | 'fontawesome-regular' | 'material-icons' | 'phosphor' | 'rpg-awesome';
+export type ExternalIconProviderId =
+    | 'bootstrap-icons'
+    | 'fontawesome-regular'
+    | 'material-icons'
+    | 'phosphor'
+    | 'rpg-awesome'
+    | 'simple-icons';
 
 export interface ExternalIconManifest {
     version: string;
@@ -46,5 +52,11 @@ export const EXTERNAL_ICON_PROVIDERS: Record<ExternalIconProviderId, ExternalIco
         name: 'RPG Awesome',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/rpg-awesome/latest.json',
         fontFamily: 'NotebookNavigatorRpgAwesome'
+    },
+    'simple-icons': {
+        id: 'simple-icons',
+        name: 'Simple Icons',
+        manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/simple-icons/latest.json',
+        fontFamily: 'NotebookNavigatorSimpleIcons'
     }
 };

@@ -831,7 +831,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 'fontawesome-regular': strings.settings.items.externalIcons.providers.fontAwesomeDesc,
                 'material-icons': strings.settings.items.externalIcons.providers.materialIconsDesc,
                 phosphor: strings.settings.items.externalIcons.providers.phosphorDesc,
-                'rpg-awesome': strings.settings.items.externalIcons.providers.rpgAwesomeDesc
+                'rpg-awesome': strings.settings.items.externalIcons.providers.rpgAwesomeDesc,
+                'simple-icons': strings.settings.items.externalIcons.providers.simpleIconsDesc
             };
 
             Object.values(EXTERNAL_ICON_PROVIDERS).forEach(config => {

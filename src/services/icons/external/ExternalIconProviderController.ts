@@ -10,6 +10,7 @@ import { RpgAwesomeIconProvider } from '../providers/RpgAwesomeIconProvider';
 import { BootstrapIconProvider } from '../providers/BootstrapIconProvider';
 import { MaterialIconProvider } from '../providers/MaterialIconProvider';
 import { PhosphorIconProvider } from '../providers/PhosphorIconProvider';
+import { SimpleIconsProvider } from '../providers/SimpleIconsProvider';
 import { strings } from '../../../i18n';
 
 interface InstallOptions {
@@ -347,6 +348,11 @@ export class ExternalIconProviderController {
                 });
             case 'rpg-awesome':
                 return new RpgAwesomeIconProvider({
+                    record,
+                    fontFamily: config.fontFamily
+                });
+            case 'simple-icons':
+                return new SimpleIconsProvider({
                     record,
                     fontFamily: config.fontFamily
                 });

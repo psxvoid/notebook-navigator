@@ -78,7 +78,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==Shortcuts==. Amazing new feature where you can add **folders**, **tags**, **notes** and **saved searches** to a new area in the navigation pane! You can disable this in settings, and a new toolbar button scrolls to the top of navigation pane when enabled.',
             '==Recent notes==. New section showing recently opened files in the navigation pane. You can disable this in settings.',
             '==Keyboard shortcuts==. You can now customize all keyboard shortcuts in settings using Mod, Ctrl, Shift, and Alt modifiers.',
-            '==Transparent colors==. The color picker now has an alpha slider to set transparency. This works for files, folders and tags. You can now also remove individual colors from the recently used color list.'
+            '==Transparent colors==. The color picker now has an alpha slider to set transparency. This works for files, folders and tags. You can now also remove individual colors from the recently used color list.',
+            '==New icon pack: Simple icons==. 3364 SVG icons for popular brands and services.'
         ],
         changed: [
             'Auto reveal file now selects the nearest expanded ancestor when descendant notes are enabled.',

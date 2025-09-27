@@ -819,7 +819,8 @@ export const STRINGS_DE = {
                     fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
                     materialIconsDesc: 'https://fonts.google.com/icons',
                     phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/'
+                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
+                    simpleIconsDesc: 'https://simpleicons.org/'
                 }
             },
             useFrontmatterDates: {

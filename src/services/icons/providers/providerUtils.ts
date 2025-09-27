@@ -4,7 +4,8 @@ const ICON_FONT_CLASSES = [
     'nn-iconfont-rpg-awesome',
     'nn-iconfont-bootstrap-icons',
     'nn-iconfont-material-icons',
-    'nn-iconfont-phosphor'
+    'nn-iconfont-phosphor',
+    'nn-iconfont-simple-icons'
 ];
 
 /**
