@@ -375,7 +375,6 @@ export const STRINGS_ES = {
             failedToAddTag: 'Error al agregar la etiqueta "{tag}"',
             failedToClearTags: 'Error al eliminar las etiquetas',
             failedToMoveFolder: 'Error al mover la carpeta "{name}"',
-            foldersCannotHaveTags: 'Las carpetas no pueden tener etiquetas',
             failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {

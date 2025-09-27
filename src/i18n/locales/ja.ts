@@ -375,7 +375,6 @@ export const STRINGS_JA = {
             failedToAddTag: 'タグ "{tag}" の追加に失敗しました',
             failedToClearTags: 'タグのクリアに失敗しました',
             failedToMoveFolder: 'フォルダ「{name}」の移動に失敗しました',
-            foldersCannotHaveTags: 'フォルダにタグを付けることはできません',
             failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {

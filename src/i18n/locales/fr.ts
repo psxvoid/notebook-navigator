@@ -375,7 +375,6 @@ export const STRINGS_FR = {
             failedToAddTag: 'Échec de l\'ajout de l\'étiquette "{tag}"',
             failedToClearTags: 'Échec de la suppression des étiquettes',
             failedToMoveFolder: 'Échec du déplacement du dossier "{name}"',
-            foldersCannotHaveTags: 'Les dossiers ne peuvent pas avoir de tags',
             failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {

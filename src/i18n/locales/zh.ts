@@ -375,7 +375,6 @@ export const STRINGS_ZH = {
             failedToAddTag: '添加标签 "{tag}" 失败',
             failedToClearTags: '清除标签失败',
             failedToMoveFolder: '移动文件夹"{name}"失败',
-            foldersCannotHaveTags: '文件夹不能有标签',
             failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {

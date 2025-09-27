@@ -374,7 +374,6 @@ export const STRINGS_KO = {
             failedToAddTag: '태그 "{tag}" 추가 실패',
             failedToClearTags: '태그 지우기 실패',
             failedToMoveFolder: '폴더 "{name}" 이동 실패',
-            foldersCannotHaveTags: '폴더는 태그를 가질 수 없습니다',
             failedToImportFiles: '가져오기 실패: {names}'
         },
         notifications: {

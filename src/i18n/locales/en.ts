@@ -374,7 +374,6 @@ export const STRINGS_EN = {
             failedToAddTag: 'Failed to add tag "{tag}"',
             failedToClearTags: 'Failed to clear tags',
             failedToMoveFolder: 'Failed to move folder "{name}"',
-            foldersCannotHaveTags: 'Folders cannot have tags',
             failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {
