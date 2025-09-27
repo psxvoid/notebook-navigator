@@ -155,7 +155,20 @@ export const NavigationPane = React.memo(
 
         // Determine if drag and drop should be enabled for shortcuts
         const shortcutCount = hydratedShortcuts.length;
-        const isShortcutDnDEnabled = !isMobile && shortcutsExpanded && shortcutCount > 1 && settings.showShortcuts;
+        const isShortcutDnDEnabled = shortcutsExpanded && shortcutCount > 1 && settings.showShortcuts;
+
+        const showShortcutDragHandles = isMobile && isShortcutDnDEnabled;
+
+        const shortcutDragHandleConfig = useMemo(() => {
+            if (!showShortcutDragHandles) {
+                return undefined;
+            }
+            return {
+                label: strings.navigationPane.dragHandleLabel,
+                visible: true,
+                only: true
+            } as const;
+        }, [showShortcutDragHandles]);
 
         // Map shortcut keys to their position in the list
         const shortcutPositionMap = useMemo(() => {
@@ -695,39 +708,7 @@ export const NavigationPane = React.memo(
             [setActiveShortcut, onRevealTag, uiState.singlePane, uiDispatch, rootContainerRef, selectionDispatch, scheduleShortcutRelease]
         );
 
-        // Move a shortcut up or down in the list
-        const moveShortcut = useCallback(
-            async (shortcutKey: string, direction: 'up' | 'down') => {
-                if (!settings.showShortcuts) {
-                    return;
-                }
-                const currentIndex = shortcutPositionMap.get(shortcutKey);
-                if (currentIndex === undefined) {
-                    return;
-                }
-
-                const keys = hydratedShortcuts.map(entry => entry.key);
-                const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-                if (targetIndex < 0 || targetIndex >= keys.length) {
-                    return;
-                }
-
-                const [moved] = keys.splice(currentIndex, 1);
-                keys.splice(targetIndex, 0, moved);
-
-                try {
-                    const success = await reorderShortcuts(keys);
-                    if (!success) {
-                        console.warn('Shortcut move operation did not persist order change');
-                    }
-                } catch (error) {
-                    console.error('Failed to move shortcut', error);
-                }
-            },
-            [hydratedShortcuts, reorderShortcuts, settings.showShortcuts, shortcutPositionMap]
-        );
-
-        // Handle right-click context menu for shortcuts (move up/down, remove)
+        // Handle context menu for shortcuts (remove action)
         const handleShortcutContextMenu = useCallback(
             (event: React.MouseEvent<HTMLDivElement>, shortcutKey: string) => {
                 if (!settings.showShortcuts) {
@@ -736,37 +717,7 @@ export const NavigationPane = React.memo(
                 event.preventDefault();
                 event.stopPropagation();
 
-                const shortcutIndex = shortcutPositionMap.get(shortcutKey);
-                const canMoveUp = typeof shortcutIndex === 'number' && shortcutIndex > 0;
-                const canMoveDown = typeof shortcutIndex === 'number' && shortcutIndex < shortcutCount - 1;
-
                 const menu = new Menu();
-
-                if (isMobile) {
-                    menu.addItem(item => {
-                        item.setTitle(strings.shortcuts.moveUp)
-                            .setIcon('lucide-arrow-up')
-                            .setDisabled(!canMoveUp)
-                            .onClick(() => {
-                                if (canMoveUp) {
-                                    void moveShortcut(shortcutKey, 'up');
-                                }
-                            });
-                    });
-
-                    menu.addItem(item => {
-                        item.setTitle(strings.shortcuts.moveDown)
-                            .setIcon('lucide-arrow-down')
-                            .setDisabled(!canMoveDown)
-                            .onClick(() => {
-                                if (canMoveDown) {
-                                    void moveShortcut(shortcutKey, 'down');
-                                }
-                            });
-                    });
-
-                    menu.addSeparator();
-                }
 
                 menu.addItem(item => {
                     item.setTitle(strings.shortcuts.remove)
@@ -777,7 +728,7 @@ export const NavigationPane = React.memo(
                 });
                 menu.showAtMouseEvent(event.nativeEvent);
             },
-            [isMobile, moveShortcut, removeShortcut, settings.showShortcuts, shortcutCount, shortcutPositionMap]
+            [removeShortcut, settings.showShortcuts]
         );
 
         const getFolderShortcutCount = useCallback(
@@ -917,6 +868,7 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
+                                dragHandleConfig={shortcutDragHandleConfig}
                             />
                         );
                     }
@@ -942,6 +894,7 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
+                                dragHandleConfig={shortcutDragHandleConfig}
                             />
                         );
                     }
@@ -964,6 +917,7 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
+                                dragHandleConfig={shortcutDragHandleConfig}
                             />
                         );
                     }
@@ -985,6 +939,7 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
+                                dragHandleConfig={shortcutDragHandleConfig}
                             />
                         );
                     }
@@ -1171,7 +1126,8 @@ export const NavigationPane = React.memo(
                 hydratedShortcuts,
                 shortcutsExpanded,
                 recentNotesExpanded,
-                getFileDisplayName
+                getFileDisplayName,
+                shortcutDragHandleConfig
             ]
         );
 
