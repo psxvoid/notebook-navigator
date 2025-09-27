@@ -139,6 +139,10 @@ export const STRINGS_ES = {
             addTag: 'Añadir etiqueta',
             removeTag: 'Eliminar etiqueta',
             removeAllTags: 'Eliminar todas las etiquetas',
+            changeIcon: 'Cambiar icono',
+            removeIcon: 'Quitar icono',
+            changeColor: 'Cambiar color',
+            removeColor: 'Quitar color',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Abrir {count} archivos en nuevas pestañas',
             openMultipleFilesToRight: 'Abrir {count} archivos a la derecha',
@@ -788,7 +792,7 @@ export const STRINGS_ES = {
                 error: 'Falló la limpieza de configuración',
                 loading: 'Verificando metadatos...',
                 statusClean: 'No hay metadatos para limpiar',
-                statusCounts: 'Elementos huérfanos: {folders} carpetas, {tags} etiquetas, {pinned} fijados'
+                statusCounts: 'Elementos huérfanos: {folders} carpetas, {tags} etiquetas, {files} archivos, {pinned} fijados'
             },
             rebuildCache: {
                 name: 'Reconstruir caché',

@@ -150,7 +150,11 @@ export const STRINGS_PL = {
             moveMultipleToFolder: 'Przenieś {count} plików do...',
             addTag: 'Dodaj tag',
             removeTag: 'Usuń tag',
-            removeAllTags: 'Usuń wszystkie tagi'
+            removeAllTags: 'Usuń wszystkie tagi',
+            changeIcon: 'Zmień ikonę',
+            removeIcon: 'Usuń ikonę',
+            changeColor: 'Zmień kolor',
+            removeColor: 'Usuń kolor'
         },
         folder: {
             newNote: 'Nowa notatka',
@@ -789,7 +793,7 @@ export const STRINGS_PL = {
                 error: 'Czyszczenie ustawień nie powiodło się',
                 loading: 'Sprawdzanie metadanych...',
                 statusClean: 'Brak metadanych do wyczyszczenia',
-                statusCounts: 'Osierocone elementy: {folders} folderów, {tags} tagów, {pinned} przypiętych'
+                statusCounts: 'Osierocone elementy: {folders} folderów, {tags} tagów, {files} plików, {pinned} przypiętych'
             },
             rebuildCache: {
                 name: 'Odbuduj pamięć podręczną',

@@ -15,6 +15,7 @@ export interface DragHandleConfig {
 
 interface NavigationListRowProps {
     icon: string;
+    color?: string;
     label: string;
     description?: string;
     level: number;
@@ -40,6 +41,7 @@ interface NavigationListRowProps {
 
 export function NavigationListRow({
     icon,
+    color,
     label,
     level,
     itemType,
@@ -160,7 +162,13 @@ export function NavigationListRow({
         >
             <div className="nn-navitem-content">
                 <span className="nn-navitem-chevron nn-navitem-chevron--no-children" aria-hidden="true" />
-                <span ref={iconRef} className="nn-navitem-icon" aria-hidden="true" />
+                <span
+                    ref={iconRef}
+                    className="nn-navitem-icon"
+                    aria-hidden="true"
+                    data-has-color={color ? 'true' : 'false'}
+                    style={color ? { color } : undefined}
+                />
                 <span className="nn-navitem-name">
                     <span className="nn-shortcut-label">{label}</span>
                     {description ? <span className="nn-shortcut-description">{description}</span> : null}

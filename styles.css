@@ -1219,6 +1219,52 @@ body {
     height: calc(var(--nn-file-title-line-height) * var(--filename-rows, 1));
 }
 
+.nn-file-name-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.nn-file-name-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.nn-file-icon {
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--nn-theme-file-name-color);
+    margin-top: 2px;
+}
+
+.nn-file-icon svg {
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
+}
+
+.nn-file-icon.nn-emoji-icon,
+.nn-file-icon .nn-emoji-icon {
+    font-size: var(--nn-nav-icon-size);
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
+    line-height: var(--nn-nav-icon-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nn-file-icon[data-has-color='false'] {
+    color: var(--nn-theme-file-name-color);
+}
+
+.nn-file.nn-selected .nn-file-icon[data-has-color='false'] {
+    color: var(--nn-theme-file-name-selected-color);
+}
+
 /* Quick actions panel - horizontal container for action icons */
 .nn-quick-actions-panel {
     position: absolute;

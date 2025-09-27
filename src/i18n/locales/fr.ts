@@ -139,6 +139,10 @@ export const STRINGS_FR = {
             addTag: 'Ajouter une étiquette',
             removeTag: 'Supprimer l’étiquette',
             removeAllTags: 'Supprimer toutes les étiquettes',
+            changeIcon: "Changer l'icône",
+            removeIcon: "Supprimer l'icône",
+            changeColor: 'Changer la couleur',
+            removeColor: 'Supprimer la couleur',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Ouvrir {count} fichiers dans de nouveaux onglets',
             openMultipleFilesToRight: 'Ouvrir {count} fichiers à droite',
@@ -790,7 +794,7 @@ export const STRINGS_FR = {
                 error: 'Échec du nettoyage des paramètres',
                 loading: 'Vérification des métadonnées...',
                 statusClean: 'Aucune métadonnée à nettoyer',
-                statusCounts: 'Éléments orphelins: {folders} dossiers, {tags} étiquettes, {pinned} épingles'
+                statusCounts: 'Éléments orphelins: {folders} dossiers, {tags} étiquettes, {files} fichiers, {pinned} épingles'
             },
             rebuildCache: {
                 name: 'Reconstruire le cache',

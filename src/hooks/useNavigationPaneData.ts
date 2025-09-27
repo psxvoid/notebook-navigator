@@ -552,6 +552,8 @@ export function useNavigationPaneData({
             tagBackgroundColors: settings.tagBackgroundColors || {},
             folderIcons: settings.folderIcons || {},
             tagIcons: settings.tagIcons || {},
+            fileIcons: settings.fileIcons || {},
+            fileColors: settings.fileColors || {},
             inheritFolderColors: settings.inheritFolderColors
         });
     }, [settings]); // Depend on entire settings object to catch mutations
@@ -590,6 +592,18 @@ export function useNavigationPaneData({
                 return {
                     ...item,
                     icon: metadataService.getTagIcon(item.tagPath) || 'lucide-tags'
+                };
+            } else if (item.type === NavigationPaneItemType.SHORTCUT_NOTE) {
+                const note = item.note;
+                if (!note) {
+                    return item;
+                }
+                const customIcon = metadataService.getFileIcon(note.path);
+                const color = metadataService.getFileColor(note.path);
+                return {
+                    ...item,
+                    icon: customIcon ?? item.icon,
+                    color
                 };
             }
             return item;

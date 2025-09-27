@@ -139,6 +139,10 @@ export const STRINGS_JA = {
             addTag: 'タグを追加',
             removeTag: 'タグを削除',
             removeAllTags: 'すべてのタグを削除',
+            changeIcon: 'アイコンを変更',
+            removeIcon: 'アイコンを削除',
+            changeColor: '色を変更',
+            removeColor: '色を削除',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count}個のファイルを新しいタブで開く',
             openMultipleFilesToRight: '{count}個のファイルを右側で開く',
@@ -789,7 +793,7 @@ export const STRINGS_JA = {
                 error: '設定のクリーンアップに失敗しました',
                 loading: 'メタデータを確認中...',
                 statusClean: 'クリーンアップするメタデータはありません',
-                statusCounts: '孤立した項目: {folders} フォルダ, {tags} タグ, {pinned} ピン'
+                statusCounts: '孤立した項目: {folders} フォルダ, {tags} タグ, {files} ファイル, {pinned} ピン'
             },
             rebuildCache: {
                 name: 'キャッシュを再構築',

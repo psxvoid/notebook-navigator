@@ -40,6 +40,10 @@ export class MetadataAPI {
         tagBackgroundColors: {} as Record<string, string>,
         tagIcons: {} as Record<string, string>,
 
+        // File metadata
+        fileIcons: {} as Record<string, string>,
+        fileColors: {} as Record<string, string>,
+
         // Pinned files
         pinnedNotes: {} as PinnedNotes
     };
@@ -54,6 +58,8 @@ export class MetadataAPI {
         tagColors: Record<string, string>;
         tagBackgroundColors: Record<string, string>;
         tagIcons: Record<string, string>;
+        fileIcons: Record<string, string>;
+        fileColors: Record<string, string>;
         pinnedNotes: PinnedNotes;
         initialized: boolean;
     } = {
@@ -63,6 +69,8 @@ export class MetadataAPI {
         tagColors: {},
         tagBackgroundColors: {},
         tagIcons: {},
+        fileIcons: {},
+        fileColors: {},
         pinnedNotes: {},
         initialized: false
     };
@@ -153,6 +161,8 @@ export class MetadataAPI {
             tagColors: settings.tagColors || {},
             tagBackgroundColors: settings.tagBackgroundColors || {},
             tagIcons: settings.tagIcons || {},
+            fileIcons: settings.fileIcons || {},
+            fileColors: settings.fileColors || {},
             pinnedNotes: settings.pinnedNotes || {}
         };
 
@@ -164,6 +174,8 @@ export class MetadataAPI {
             tagColors: { ...current.tagColors },
             tagBackgroundColors: { ...current.tagBackgroundColors },
             tagIcons: { ...current.tagIcons },
+            fileIcons: { ...current.fileIcons },
+            fileColors: { ...current.fileColors },
             pinnedNotes: { ...current.pinnedNotes }
         };
 
@@ -176,6 +188,8 @@ export class MetadataAPI {
                 tagColors: { ...current.tagColors },
                 tagBackgroundColors: { ...current.tagBackgroundColors },
                 tagIcons: { ...current.tagIcons },
+                fileIcons: { ...current.fileIcons },
+                fileColors: { ...current.fileColors },
                 pinnedNotes: { ...current.pinnedNotes },
                 initialized: true
             };
@@ -229,6 +243,8 @@ export class MetadataAPI {
             tagColors: { ...current.tagColors },
             tagBackgroundColors: { ...current.tagBackgroundColors },
             tagIcons: { ...current.tagIcons },
+            fileIcons: { ...current.fileIcons },
+            fileColors: { ...current.fileColors },
             pinnedNotes: { ...current.pinnedNotes },
             initialized: true
         };

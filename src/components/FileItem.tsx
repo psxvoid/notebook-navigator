@@ -63,6 +63,7 @@ import { DateUtils } from '../utils/dateUtils';
 import { getExtensionSuffix, isImageFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
 import { ObsidianIcon } from './ObsidianIcon';
+import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
 
 interface FileItemProps {
@@ -250,6 +251,7 @@ export const FileItem = React.memo(function FileItem({
     const revealInFolderIconRef = useRef<HTMLDivElement>(null);
     const pinNoteIconRef = useRef<HTMLDivElement>(null);
     const openInNewTabIconRef = useRef<HTMLDivElement>(null);
+    const fileIconRef = useRef<HTMLSpanElement>(null);
 
     // === Derived State & Memoized Values ===
 
@@ -259,6 +261,7 @@ export const FileItem = React.memo(function FileItem({
     const shouldShowRevealIcon =
         settings.showQuickActions && settings.quickActionRevealInFolder && file.parent && file.parent.path !== parentFolder;
     const hasQuickActions = shouldShowOpenInNewTab || shouldShowPinNote || shouldShowRevealIcon;
+    const iconServiceVersion = useIconServiceVersion();
 
     // Get display name from RAM cache (handles frontmatter title)
     const displayName = useMemo(() => {
@@ -276,8 +279,31 @@ export const FileItem = React.memo(function FileItem({
     // Decide whether to render an inline extension suffix after the name
     const extensionSuffix = useMemo(() => getExtensionSuffix(file), [file]);
     const showExtensionSuffix = useMemo(() => shouldShowExtensionSuffix(file), [file]);
+    const fileIconId = settings.showIcons ? metadataService.getFileIcon(file.path) : undefined;
+    const fileColor = settings.showIcons ? metadataService.getFileColor(file.path) : undefined;
 
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
+
+    const fileTitleElement = useMemo(() => {
+        return (
+            <div className="nn-file-name-wrapper">
+                {settings.showIcons && fileIconId ? (
+                    <span
+                        ref={fileIconRef}
+                        className="nn-file-icon"
+                        data-has-color={fileColor ? 'true' : 'false'}
+                        style={fileColor ? { color: fileColor } : undefined}
+                    />
+                ) : null}
+                <div className="nn-file-name-content">
+                    <div className="nn-file-name" style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}>
+                        {highlightedName}
+                        {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
+                    </div>
+                </div>
+            </div>
+        );
+    }, [appearanceSettings.titleRows, extensionSuffix, fileColor, fileIconId, highlightedName, settings.showIcons, showExtensionSuffix]);
 
     // === Callbacks ===
 
@@ -597,6 +623,21 @@ export const FileItem = React.memo(function FileItem({
 
     // === Effects ===
 
+    useEffect(() => {
+        const iconContainer = fileIconRef.current;
+        if (!iconContainer) {
+            return;
+        }
+
+        iconContainer.innerHTML = '';
+        if (!settings.showIcons || !fileIconId) {
+            return;
+        }
+
+        const iconService = getIconService();
+        iconService.renderIcon(iconContainer, fileIconId);
+    }, [fileIconId, iconServiceVersion, settings.showIcons]);
+
     // Set up the icons when quick actions panel is shown
     useEffect(() => {
         if (isHovered && !isMobile) {
@@ -680,13 +721,7 @@ export const FileItem = React.memo(function FileItem({
                         // Minimal layout: only file name + tags
                         // Used when date, preview, and image are all disabled
                         <div className="nn-slim-file-text-content">
-                            <div
-                                className="nn-file-name"
-                                style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
-                            >
-                                {highlightedName}
-                                {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
-                            </div>
+                            {fileTitleElement}
                             {renderTags()}
                         </div>
                     ) : (
@@ -694,13 +729,7 @@ export const FileItem = React.memo(function FileItem({
                         // Full layout with all enabled elements
                         <>
                             <div className="nn-file-text-content">
-                                <div
-                                    className="nn-file-name"
-                                    style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
-                                >
-                                    {highlightedName}
-                                    {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
-                                </div>
+                                {fileTitleElement}
 
                                 {/* ========== SINGLE LINE MODE ========== */}
                                 {/* Conditions: pinnedItemShouldUseCompactLayout OR previewRows < 2 */}

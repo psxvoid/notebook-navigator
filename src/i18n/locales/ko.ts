@@ -150,7 +150,11 @@ export const STRINGS_KO = {
             moveMultipleToFolder: '{count}개의 파일을 이동...',
             addTag: '태그 추가',
             removeTag: '태그 제거',
-            removeAllTags: '모든 태그 제거'
+            removeAllTags: '모든 태그 제거',
+            changeIcon: '아이콘 변경',
+            removeIcon: '아이콘 제거',
+            changeColor: '색상 변경',
+            removeColor: '색상 제거'
         },
         folder: {
             newNote: '새 노트',
@@ -787,7 +791,7 @@ export const STRINGS_KO = {
                 error: '설정 정리에 실패했습니다',
                 loading: '메타데이터 확인 중...',
                 statusClean: '정리할 메타데이터가 없습니다',
-                statusCounts: '고아 항목: {folders} 폴더, {tags} 태그, {pinned} 고정'
+                statusCounts: '고아 항목: {folders} 폴더, {tags} 태그, {files} 파일, {pinned} 고정'
             },
             rebuildCache: {
                 name: '캐시 다시 빌드',

@@ -32,6 +32,8 @@ type MetadataFields = {
     folderBackgroundColors: Record<string, string>;
     folderSortOverrides: Record<string, SortOption>;
     folderAppearances: Record<string, FolderAppearance>;
+    fileIcons: Record<string, string>;
+    fileColors: Record<string, string>;
     tagColors: Record<string, string>;
     tagIcons: Record<string, string>;
     tagBackgroundColors: Record<string, string>;
@@ -39,7 +41,7 @@ type MetadataFields = {
     tagAppearances: Record<string, TagAppearance>;
 };
 
-type ColorRecordKey = 'folderColors' | 'tagColors' | 'folderBackgroundColors' | 'tagBackgroundColors';
+type ColorRecordKey = 'folderColors' | 'tagColors' | 'folderBackgroundColors' | 'tagBackgroundColors' | 'fileColors';
 type ColorVariant = 'color' | 'background';
 
 type MetadataKey = keyof MetadataFields;
@@ -47,7 +49,7 @@ type MetadataKey = keyof MetadataFields;
 /**
  * Type for entity that can have metadata (folder or tag)
  */
-export type EntityType = typeof ItemType.FOLDER | typeof ItemType.TAG;
+export type EntityType = typeof ItemType.FOLDER | typeof ItemType.TAG | typeof ItemType.FILE;
 
 /**
  * Base class for metadata services
@@ -163,7 +165,10 @@ export abstract class BaseMetadataService {
         if (entityType === ItemType.FOLDER) {
             return variant === 'color' ? 'folderColors' : 'folderBackgroundColors';
         }
-        return variant === 'color' ? 'tagColors' : 'tagBackgroundColors';
+        if (entityType === ItemType.TAG) {
+            return variant === 'color' ? 'tagColors' : 'tagBackgroundColors';
+        }
+        return 'fileColors';
     }
 
     /**
@@ -232,11 +237,16 @@ export abstract class BaseMetadataService {
                     settings.folderIcons = {};
                 }
                 settings.folderIcons[path] = iconId;
-            } else {
+            } else if (entityType === ItemType.TAG) {
                 if (!settings.tagIcons) {
                     settings.tagIcons = {};
                 }
                 settings.tagIcons[path] = iconId;
+            } else {
+                if (!settings.fileIcons) {
+                    settings.fileIcons = {};
+                }
+                settings.fileIcons[path] = iconId;
             }
         });
     }
@@ -259,6 +269,12 @@ export abstract class BaseMetadataService {
                     delete settings.tagIcons[path];
                 }
             });
+        } else if (entityType === ItemType.FILE && this.settingsProvider.settings.fileIcons?.[path]) {
+            await this.saveAndUpdate(settings => {
+                if (settings.fileIcons) {
+                    delete settings.fileIcons[path];
+                }
+            });
         }
     }
 
@@ -272,7 +288,10 @@ export abstract class BaseMetadataService {
         if (entityType === ItemType.FOLDER) {
             return this.settingsProvider.settings.folderIcons?.[path];
         }
-        return this.settingsProvider.settings.tagIcons?.[path];
+        if (entityType === ItemType.TAG) {
+            return this.settingsProvider.settings.tagIcons?.[path];
+        }
+        return this.settingsProvider.settings.fileIcons?.[path];
     }
 
     // ========== Generic Sort Override Management ==========

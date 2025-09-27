@@ -23,6 +23,7 @@ import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
 
 interface ShortcutItemProps {
     icon: string;
+    color?: string;
     label: string;
     description?: string;
     level: number;
@@ -41,6 +42,7 @@ interface ShortcutItemProps {
 
 export const ShortcutItem = React.memo(function ShortcutItem({
     icon,
+    color,
     label,
     description,
     level,
@@ -63,6 +65,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     return (
         <NavigationListRow
             icon={icon}
+            color={color}
             label={label}
             description={description}
             level={level}

@@ -39,6 +39,7 @@ export interface CleanupValidators {
 export interface MetadataCleanupSummary {
     folders: number;
     tags: number;
+    files: number;
     pinnedNotes: number;
     total: number;
 }
@@ -197,6 +198,30 @@ export class MetadataService {
         return this.fileService.getPinnedNotes(context);
     }
 
+    async setFileIcon(filePath: string, iconId: string): Promise<void> {
+        return this.fileService.setFileIcon(filePath, iconId);
+    }
+
+    async removeFileIcon(filePath: string): Promise<void> {
+        return this.fileService.removeFileIcon(filePath);
+    }
+
+    getFileIcon(filePath: string): string | undefined {
+        return this.fileService.getFileIcon(filePath);
+    }
+
+    async setFileColor(filePath: string, color: string): Promise<void> {
+        return this.fileService.setFileColor(filePath, color);
+    }
+
+    async removeFileColor(filePath: string): Promise<void> {
+        return this.fileService.removeFileColor(filePath);
+    }
+
+    getFileColor(filePath: string): string | undefined {
+        return this.fileService.getFileColor(filePath);
+    }
+
     async handleFileDelete(filePath: string): Promise<void> {
         return this.fileService.handleFileDelete(filePath);
     }
@@ -260,10 +285,11 @@ export class MetadataService {
 
         const folders = Math.max(0, before.folders - after.folders);
         const tags = Math.max(0, before.tags - after.tags);
+        const files = Math.max(0, before.files - after.files);
         const pinnedNotes = Math.max(0, before.pinnedNotes - after.pinnedNotes);
-        const total = folders + tags + pinnedNotes;
+        const total = folders + tags + files + pinnedNotes;
 
-        return { folders, tags, pinnedNotes, total };
+        return { folders, tags, files, pinnedNotes, total };
     }
 
     private static cloneSettings(settings: NotebookNavigatorSettings): NotebookNavigatorSettings {
@@ -287,11 +313,14 @@ export class MetadataService {
             settings.tagAppearances
         ]);
 
+        const fileKeys = MetadataService.collectUniqueKeys([settings.fileIcons, settings.fileColors]);
+
         const pinnedNotes = settings.pinnedNotes ? Object.keys(settings.pinnedNotes).length : 0;
 
         return {
             folders: folderKeys.size,
             tags: tagKeys.size,
+            files: fileKeys.size,
             pinnedNotes
         };
     }

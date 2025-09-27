@@ -39,7 +39,7 @@ export class IconPickerModal extends Modal {
     private static lastUsedProvider: string | null = null; // Shared session default
     private iconService = getIconService();
     private itemPath: string;
-    private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
+    private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG | typeof ItemType.FILE;
     private metadataService: MetadataService;
     private settingsProvider: ISettingsProvider;
     /** Callback function invoked when an icon is selected */
@@ -74,7 +74,7 @@ export class IconPickerModal extends Modal {
         app: App,
         metadataService: MetadataService,
         itemPath: string,
-        itemType: typeof ItemType.FOLDER | typeof ItemType.TAG = ItemType.FOLDER
+        itemType: typeof ItemType.FOLDER | typeof ItemType.TAG | typeof ItemType.FILE = ItemType.FOLDER
     ) {
         super(app);
         this.metadataService = metadataService;
@@ -411,6 +411,8 @@ export class IconPickerModal extends Modal {
         // Set the icon based on item type
         if (this.itemType === ItemType.TAG) {
             await this.metadataService.setTagIcon(this.itemPath, iconId);
+        } else if (this.itemType === ItemType.FILE) {
+            await this.metadataService.setFileIcon(this.itemPath, iconId);
         } else {
             await this.metadataService.setFolderIcon(this.itemPath, iconId);
         }

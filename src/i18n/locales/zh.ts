@@ -139,6 +139,10 @@ export const STRINGS_ZH = {
             addTag: '添加标签',
             removeTag: '移除标签',
             removeAllTags: '移除所有标签',
+            changeIcon: '更改图标',
+            removeIcon: '移除图标',
+            changeColor: '更改颜色',
+            removeColor: '移除颜色',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '在新标签页中打开 {count} 个文件',
             openMultipleFilesToRight: '在右侧打开 {count} 个文件',
@@ -788,7 +792,7 @@ export const STRINGS_ZH = {
                 error: '设置清理失败',
                 loading: '正在检查元数据...',
                 statusClean: '没有需要清理的元数据',
-                statusCounts: '孤立项目：{folders} 文件夹，{tags} 标签，{pinned} 置顶'
+                statusCounts: '孤立项目：{folders} 文件夹，{tags} 标签，{files} 文件，{pinned} 置顶'
             },
             rebuildCache: {
                 name: '重建缓存',

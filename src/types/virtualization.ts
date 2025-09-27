@@ -90,6 +90,7 @@ interface ShortcutNavigationBase {
     level: number;
     key: string;
     icon?: string;
+    color?: string;
     isExcluded?: boolean;
 }
 

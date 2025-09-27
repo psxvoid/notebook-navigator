@@ -905,6 +905,7 @@ export const NavigationPane = React.memo(
                         return (
                             <ShortcutItem
                                 icon={item.icon ?? 'lucide-folder'}
+                                color={item.color}
                                 label={folder.name}
                                 level={item.level}
                                 type="folder"
@@ -930,7 +931,8 @@ export const NavigationPane = React.memo(
 
                         return (
                             <ShortcutItem
-                                icon="lucide-file-text"
+                                icon={item.icon ?? 'lucide-file-text'}
+                                color={item.color}
                                 label={note.basename}
                                 level={item.level}
                                 type="note"
@@ -952,6 +954,7 @@ export const NavigationPane = React.memo(
                         return (
                             <ShortcutItem
                                 icon="lucide-search"
+                                color={item.color}
                                 label={searchShortcut.name}
                                 level={item.level}
                                 type="search"
@@ -971,6 +974,7 @@ export const NavigationPane = React.memo(
                         return (
                             <ShortcutItem
                                 icon={item.icon ?? 'lucide-tags'}
+                                color={item.color}
                                 label={item.displayName}
                                 level={item.level}
                                 type="tag"

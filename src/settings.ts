@@ -150,6 +150,8 @@ export interface NotebookNavigatorSettings {
     includeDescendantNotes: boolean;
     customVaultName: string;
     pinnedNotes: PinnedNotes;
+    fileIcons: Record<string, string>;
+    fileColors: Record<string, string>;
     folderIcons: Record<string, string>;
     folderColors: Record<string, string>;
     folderBackgroundColors: Record<string, string>;
@@ -257,6 +259,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     includeDescendantNotes: true,
     customVaultName: '',
     pinnedNotes: {},
+    fileIcons: {},
+    fileColors: {},
     folderIcons: {},
     folderColors: {},
     folderBackgroundColors: {},
@@ -1619,7 +1623,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             metadataCleanupButton?.setDisabled(true);
         };
 
-        const updateMetadataCleanupInfo = ({ folders, tags, pinnedNotes, total }: MetadataCleanupSummary) => {
+        const updateMetadataCleanupInfo = ({ folders, tags, files, pinnedNotes, total }: MetadataCleanupSummary) => {
             if (!metadataCleanupInfoText) {
                 return;
             }
@@ -1633,6 +1637,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             const infoText = strings.settings.items.metadataCleanup.statusCounts
                 .replace('{folders}', folders.toString())
                 .replace('{tags}', tags.toString())
+                .replace('{files}', files.toString())
                 .replace('{pinned}', pinnedNotes.toString());
             metadataCleanupInfoText.setText(infoText);
             metadataCleanupButton?.setDisabled(false);

@@ -18,7 +18,7 @@
 
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
-import { NavigatorContext } from '../../types';
+import { ItemType, NavigatorContext } from '../../types';
 import type { NotebookNavigatorSettings } from '../../settings';
 
 /**
@@ -26,6 +26,10 @@ import type { NotebookNavigatorSettings } from '../../settings';
  * Handles pinned notes and file-related cleanup operations
  */
 export class FileMetadataService extends BaseMetadataService {
+    private validateFile(filePath: string): boolean {
+        return this.app.vault.getFileByPath(filePath) !== null;
+    }
+
     /**
      * Toggles the pinned state of a note in a specific context
      * @param filePath - Path of the file to pin/unpin
@@ -98,6 +102,12 @@ export class FileMetadataService extends BaseMetadataService {
             if (settings.pinnedNotes?.[filePath]) {
                 delete settings.pinnedNotes[filePath];
             }
+            if (settings.fileIcons?.[filePath]) {
+                delete settings.fileIcons[filePath];
+            }
+            if (settings.fileColors?.[filePath]) {
+                delete settings.fileColors[filePath];
+            }
         });
     }
 
@@ -115,7 +125,40 @@ export class FileMetadataService extends BaseMetadataService {
                 // Add with new path
                 settings.pinnedNotes[newPath] = contexts;
             }
+
+            this.updateNestedPaths(settings.fileIcons, oldPath, newPath);
+            this.updateNestedPaths(settings.fileColors, oldPath, newPath);
         });
+    }
+
+    async setFileIcon(filePath: string, iconId: string): Promise<void> {
+        if (!this.validateFile(filePath)) {
+            return;
+        }
+        await this.setEntityIcon(ItemType.FILE, filePath, iconId);
+    }
+
+    async removeFileIcon(filePath: string): Promise<void> {
+        await this.removeEntityIcon(ItemType.FILE, filePath);
+    }
+
+    getFileIcon(filePath: string): string | undefined {
+        return this.getEntityIcon(ItemType.FILE, filePath);
+    }
+
+    async setFileColor(filePath: string, color: string): Promise<void> {
+        if (!this.validateFile(filePath)) {
+            return;
+        }
+        await this.setEntityColor(ItemType.FILE, filePath, color);
+    }
+
+    async removeFileColor(filePath: string): Promise<void> {
+        await this.removeEntityColor(ItemType.FILE, filePath);
+    }
+
+    getFileColor(filePath: string): string | undefined {
+        return this.getEntityColor(ItemType.FILE, filePath);
     }
 
     /**
@@ -127,35 +170,36 @@ export class FileMetadataService extends BaseMetadataService {
         validators: CleanupValidators,
         targetSettings: NotebookNavigatorSettings = this.settingsProvider.settings
     ): Promise<boolean> {
+        let hasChanges = false;
         const pinnedNotes = targetSettings.pinnedNotes;
-        if (!pinnedNotes || Object.keys(pinnedNotes).length === 0) {
-            return false;
-        }
+        if (pinnedNotes && Object.keys(pinnedNotes).length > 0) {
+            const invalidPaths = Object.keys(pinnedNotes).filter(path => !validators.vaultFiles.has(path));
 
-        const invalidPaths = Object.keys(pinnedNotes).filter(path => !validators.vaultFiles.has(path));
-
-        if (invalidPaths.length === 0) {
-            // Nothing to clean up
-            return false;
-        }
-
-        if (targetSettings === this.settingsProvider.settings) {
-            await this.saveAndUpdate(settings => {
-                invalidPaths.forEach(path => {
-                    if (settings.pinnedNotes) {
-                        delete settings.pinnedNotes[path];
-                    }
-                });
-            });
-        } else {
-            invalidPaths.forEach(path => {
-                if (targetSettings.pinnedNotes) {
-                    delete targetSettings.pinnedNotes[path];
+            if (invalidPaths.length > 0) {
+                if (targetSettings === this.settingsProvider.settings) {
+                    await this.saveAndUpdate(settings => {
+                        invalidPaths.forEach(path => {
+                            if (settings.pinnedNotes) {
+                                delete settings.pinnedNotes[path];
+                            }
+                        });
+                    });
+                } else {
+                    invalidPaths.forEach(path => {
+                        if (targetSettings.pinnedNotes) {
+                            delete targetSettings.pinnedNotes[path];
+                        }
+                    });
                 }
-            });
+
+                hasChanges = true;
+            }
         }
 
-        return true;
+        const fileIconCleanup = await this.cleanupMetadata(targetSettings, 'fileIcons', path => validators.vaultFiles.has(path));
+        const fileColorCleanup = await this.cleanupMetadata(targetSettings, 'fileColors', path => validators.vaultFiles.has(path));
+
+        return hasChanges || fileIconCleanup || fileColorCleanup;
     }
 
     /**

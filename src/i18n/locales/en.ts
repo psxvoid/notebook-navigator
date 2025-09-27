@@ -151,7 +151,11 @@ export const STRINGS_EN = {
             moveMultipleToFolder: 'Move {count} files to...',
             addTag: 'Add tag',
             removeTag: 'Remove tag',
-            removeAllTags: 'Remove all tags'
+            removeAllTags: 'Remove all tags',
+            changeIcon: 'Change icon',
+            removeIcon: 'Remove icon',
+            changeColor: 'Change color',
+            removeColor: 'Remove color'
         },
         folder: {
             newNote: 'New note',
@@ -787,7 +791,7 @@ export const STRINGS_EN = {
                 error: 'Settings cleanup failed',
                 loading: 'Checking metadata...',
                 statusClean: 'No metadata to clean',
-                statusCounts: 'Orphaned items: {folders} folders, {tags} tags, {pinned} pins'
+                statusCounts: 'Orphaned items: {folders} folders, {tags} tags, {files} files, {pinned} pins'
             },
             rebuildCache: {
                 name: 'Rebuild cache',

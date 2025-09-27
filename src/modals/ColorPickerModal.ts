@@ -61,8 +61,10 @@ type ColorPickerMode = 'foreground' | 'background';
 interface ColorMetadataService {
     setTagColor(path: string, color: string): Promise<void>;
     setFolderColor(path: string, color: string): Promise<void>;
+    setFileColor(path: string, color: string): Promise<void>;
     removeTagColor(path: string): Promise<void>;
     removeFolderColor(path: string): Promise<void>;
+    removeFileColor(path: string): Promise<void>;
     setTagBackgroundColor(path: string, color: string): Promise<void>;
     setFolderBackgroundColor(path: string, color: string): Promise<void>;
     removeTagBackgroundColor(path: string): Promise<void>;
@@ -80,7 +82,7 @@ interface ColorMetadataService {
  */
 export class ColorPickerModal extends Modal {
     private itemPath: string;
-    private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
+    private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG | typeof ItemType.FILE;
     private metadataService: ColorMetadataService;
     private settingsProvider: ISettingsProvider;
     private currentColor: string | null = null;
@@ -120,14 +122,14 @@ export class ColorPickerModal extends Modal {
         app: App,
         metadataService: ColorMetadataService,
         itemPath: string,
-        itemType: typeof ItemType.FOLDER | typeof ItemType.TAG = ItemType.FOLDER,
+        itemType: typeof ItemType.FOLDER | typeof ItemType.TAG | typeof ItemType.FILE = ItemType.FOLDER,
         colorMode: ColorPickerMode = 'foreground'
     ) {
         super(app);
         this.metadataService = metadataService;
         this.itemPath = itemPath;
         this.itemType = itemType;
-        this.isBackgroundMode = colorMode === 'background';
+        this.isBackgroundMode = itemType !== ItemType.FILE && colorMode === 'background';
 
         // Access settings through the service
         this.settingsProvider = metadataService.getSettingsProvider();
@@ -140,7 +142,9 @@ export class ColorPickerModal extends Modal {
                 : settings.folderBackgroundColors
             : itemType === ItemType.TAG
               ? settings.tagColors
-              : settings.folderColors;
+              : itemType === ItemType.FILE
+                ? settings.fileColors
+                : settings.folderColors;
         const lookupKey = itemType === ItemType.TAG ? itemPath.toLowerCase() : itemPath;
         const initialColor = currentColors?.[lookupKey];
         if (initialColor) {
@@ -270,7 +274,11 @@ export class ColorPickerModal extends Modal {
         const buttonContainer = contentEl.createDiv('nn-color-button-container');
 
         // Cancel/Remove button
-        const removeColorText = this.isTag() ? strings.contextMenu.tag.removeColor : strings.contextMenu.folder.removeColor;
+        const removeColorText = this.isTag()
+            ? strings.contextMenu.tag.removeColor
+            : this.isFile()
+              ? strings.contextMenu.file.removeColor
+              : strings.contextMenu.folder.removeColor;
         const cancelRemoveButton = buttonContainer.createEl('button', {
             text: this.currentColor ? removeColorText : strings.common.cancel
         });
@@ -543,6 +551,10 @@ export class ColorPickerModal extends Modal {
         return this.itemType === ItemType.TAG;
     }
 
+    private isFile(): boolean {
+        return this.itemType === ItemType.FILE;
+    }
+
     /**
      * Apply color and close modal
      * Used by both preset and recent color clicks
@@ -569,6 +581,7 @@ export class ColorPickerModal extends Modal {
      */
     private async updateMetadataColor(color: string | null): Promise<void> {
         const isTag = this.isTag();
+        const isFile = this.isFile();
 
         if (color === null) {
             if (isTag) {
@@ -577,6 +590,8 @@ export class ColorPickerModal extends Modal {
                 } else {
                     await this.metadataService.removeTagColor(this.itemPath);
                 }
+            } else if (isFile) {
+                await this.metadataService.removeFileColor(this.itemPath);
             } else if (this.isBackgroundMode) {
                 await this.metadataService.removeFolderBackgroundColor(this.itemPath);
             } else {
@@ -591,6 +606,8 @@ export class ColorPickerModal extends Modal {
             } else {
                 await this.metadataService.setTagColor(this.itemPath, color);
             }
+        } else if (isFile) {
+            await this.metadataService.setFileColor(this.itemPath, color);
         } else if (this.isBackgroundMode) {
             await this.metadataService.setFolderBackgroundColor(this.itemPath, color);
         } else {

@@ -139,6 +139,10 @@ export const STRINGS_DE = {
             addTag: 'Tag hinzufügen',
             removeTag: 'Tag entfernen',
             removeAllTags: 'Alle Tags entfernen',
+            changeIcon: 'Icon ändern',
+            removeIcon: 'Icon entfernen',
+            changeColor: 'Farbe ändern',
+            removeColor: 'Farbe entfernen',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count} Dateien in neuen Tabs öffnen',
             openMultipleFilesToRight: '{count} Dateien rechts öffnen',
@@ -789,7 +793,7 @@ export const STRINGS_DE = {
                 error: 'Einstellungen-Bereinigung fehlgeschlagen',
                 loading: 'Metadaten werden überprüft...',
                 statusClean: 'Keine Metadaten zu bereinigen',
-                statusCounts: 'Verwaiste Elemente: {folders} Ordner, {tags} Tags, {pinned} Pins'
+                statusCounts: 'Verwaiste Elemente: {folders} Ordner, {tags} Tags, {files} Dateien, {pinned} Pins'
             },
             rebuildCache: {
                 name: 'Cache neu aufbauen',
