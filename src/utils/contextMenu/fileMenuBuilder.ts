@@ -170,37 +170,8 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
             });
     });
 
-    const canCustomizeFileIcon = !shouldShowMultiOptions && settings.showIcons;
-    if (canCustomizeFileIcon) {
-        menu.addSeparator();
-
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.file.changeIcon)
-                .setIcon('lucide-image')
-                .onClick(async () => {
-                    const { IconPickerModal } = await import('../../modals/IconPickerModal');
-                    const modal = new IconPickerModal(app, metadataService, file.path, ItemType.FILE);
-                    modal.open();
-                });
-        });
-
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.file.changeColor)
-                .setIcon('lucide-palette')
-                .onClick(async () => {
-                    const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
-                    const modal = new ColorPickerModal(app, metadataService, file.path, ItemType.FILE, 'foreground');
-                    modal.open();
-                });
-        });
-    }
-
     // Remove tag - only show if files have tags
     if (hasTags) {
-        if (canCustomizeFileIcon) {
-            menu.addSeparator();
-        }
-
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.file.removeTag)
                 .setIcon('lucide-minus')
@@ -272,6 +243,31 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     });
             });
         }
+    }
+
+    const canCustomizeFileIcon = !shouldShowMultiOptions && settings.showIcons;
+    if (canCustomizeFileIcon) {
+        menu.addSeparator();
+
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.file.changeIcon)
+                .setIcon('lucide-image')
+                .onClick(async () => {
+                    const { IconPickerModal } = await import('../../modals/IconPickerModal');
+                    const modal = new IconPickerModal(app, metadataService, file.path, ItemType.FILE);
+                    modal.open();
+                });
+        });
+
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.file.changeColor)
+                .setIcon('lucide-palette')
+                .onClick(async () => {
+                    const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
+                    const modal = new ColorPickerModal(app, metadataService, file.path, ItemType.FILE, 'foreground');
+                    modal.open();
+                });
+        });
     }
 
     menu.addSeparator();
