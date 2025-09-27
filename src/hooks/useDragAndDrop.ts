@@ -17,20 +17,20 @@
  */
 
 // src/hooks/useDragAndDrop.ts
-import { useCallback, useEffect, useRef } from 'react';
-import { TFile, TFolder, Notice, setIcon, normalizePath } from 'obsidian';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { TFile, TFolder, Notice, normalizePath } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { strings } from '../i18n';
-import { getDBInstance } from '../storage/fileOperations';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
 import { SHORTCUT_DRAG_MIME } from '../types/shortcuts';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { getPathFromDataAttribute } from '../utils/domUtils';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { generateUniqueFilename } from '../utils/fileCreationUtils';
+import { createDragGhostManager } from '../utils/dragGhost';
 
 /**
  * Enables drag and drop for files and folders using event delegation.
@@ -62,17 +62,13 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const settings = useSettingsState();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
-    // Uses IndexedDB lazily in drag ghost; falls back to icon
     const dragOverElement = useRef<HTMLElement | null>(null);
-    const dragGhostElement = useRef<HTMLElement | null>(null);
-    // Track global window listeners to ensure proper cleanup on unmount
-    const windowDragEndHandlerRef = useRef<((e: DragEvent) => void) | null>(null);
-    const windowDropHandlerRef = useRef<((e: DragEvent) => void) | null>(null);
     const autoExpandTimeoutRef = useRef<number | null>(null);
     const autoExpandTargetRef = useRef<AutoExpandTarget | null>(null);
     const expandedFoldersRef = useRef(expansionState.expandedFolders);
     const expandedTagsRef = useRef(expansionState.expandedTags);
     const dragTypeRef = useRef<DragItemType | null>(null);
+    const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
 
     /**
      * Type guard to check if an element is an HTMLElement
@@ -92,125 +88,6 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         }
         return [];
     }, [selectionState, settings, app, tagTreeService]);
-
-    /**
-     * Updates the position of the drag ghost element to follow the mouse cursor
-     */
-    const updateDragGhostPosition = useCallback((e: MouseEvent | DragEvent) => {
-        if (dragGhostElement.current) {
-            dragGhostElement.current.style.left = `${e.clientX + 10}px`;
-            dragGhostElement.current.style.top = `${e.clientY + 10}px`;
-        }
-    }, []);
-
-    /**
-     * Cleans up the drag ghost element and removes event listeners
-     */
-    const cleanupDragGhost = useCallback(() => {
-        if (dragGhostElement.current) {
-            document.removeEventListener('mousemove', updateDragGhostPosition);
-            document.removeEventListener('dragover', updateDragGhostPosition);
-            dragGhostElement.current.remove();
-            dragGhostElement.current = null;
-        }
-        // Always remove any lingering window-level listeners
-        if (windowDragEndHandlerRef.current) {
-            window.removeEventListener('dragend', windowDragEndHandlerRef.current);
-            windowDragEndHandlerRef.current = null;
-        }
-        if (windowDropHandlerRef.current) {
-            window.removeEventListener('drop', windowDropHandlerRef.current);
-            windowDropHandlerRef.current = null;
-        }
-    }, [updateDragGhostPosition]);
-
-    /**
-     * Hides the browser's default drag preview by setting an empty element
-     */
-    const hideBrowserDragPreview = (e: DragEvent) => {
-        const emptyDiv = document.createElement('div');
-        emptyDiv.className = 'nn-drag-empty-placeholder';
-        document.body.appendChild(emptyDiv);
-        e.dataTransfer?.setDragImage(emptyDiv, 0, 0);
-        setTimeout(() => emptyDiv.remove(), 0);
-    };
-
-    /**
-     * Creates and positions a custom drag ghost element
-     */
-    const createDragGhost = useCallback(
-        (e: DragEvent, type: string | null, path: string, itemCount?: number) => {
-            const dragGhost = document.createElement('div');
-            dragGhost.className = 'nn-drag-ghost';
-
-            // Set initial position
-            dragGhost.style.left = `${e.clientX + 10}px`;
-            dragGhost.style.top = `${e.clientY + 10}px`;
-
-            if (itemCount && itemCount > 1) {
-                // Multiple items - show count badge
-                const dragInfo = document.createElement('div');
-                dragInfo.className = 'nn-drag-ghost-badge';
-                dragInfo.textContent = `${itemCount}`;
-                dragGhost.appendChild(dragInfo);
-            } else {
-                // Single item - show icon
-                const dragIcon = document.createElement('div');
-                dragIcon.className = 'nn-drag-ghost-icon';
-
-                if (type === ItemType.FILE) {
-                    // Try to use featured image for files (safe if DB not ready)
-                    let featureImagePath = '';
-                    try {
-                        featureImagePath = getDBInstance().getCachedFeatureImageUrl(path);
-                    } catch {
-                        // Skip image if cache unavailable
-                    }
-                    let imageLoaded = false;
-
-                    if (featureImagePath) {
-                        const imageFile = app.vault.getFileByPath(featureImagePath);
-                        if (imageFile) {
-                            try {
-                                const featureImageUrl = app.vault.getResourcePath(imageFile);
-                                dragIcon.className = 'nn-drag-ghost-icon nn-drag-ghost-featured-image';
-                                const img = document.createElement('img');
-                                img.src = featureImageUrl;
-                                dragIcon.appendChild(img);
-                                imageLoaded = true;
-                            } catch {
-                                // Image load failed, will use fallback
-                            }
-                        }
-                    }
-
-                    if (!imageLoaded) {
-                        setIcon(dragIcon, 'lucide-file');
-                    }
-                } else if (type === ItemType.FOLDER) {
-                    setIcon(dragIcon, 'lucide-folder-closed');
-                }
-
-                dragGhost.appendChild(dragIcon);
-            }
-
-            document.body.appendChild(dragGhost);
-            dragGhostElement.current = dragGhost;
-
-            // Start tracking mouse position
-            document.addEventListener('mousemove', updateDragGhostPosition, { passive: true });
-            document.addEventListener('dragover', updateDragGhostPosition);
-
-            // Ensure ghost is cleaned even if drag ends outside container
-            const onGlobalEnd = () => cleanupDragGhost();
-            // Track handlers so they can be removed on unmount if the drag doesn't end
-            windowDragEndHandlerRef.current = onGlobalEnd as (e: DragEvent) => void;
-            windowDropHandlerRef.current = onGlobalEnd as (e: DragEvent) => void;
-            window.addEventListener('dragend', onGlobalEnd, { once: true });
-            window.addEventListener('drop', onGlobalEnd, { once: true });
-        },
-        [app, updateDragGhostPosition, cleanupDragGhost]
-    );
 
     /**
      * Converts an array of file paths to TFile objects
@@ -264,6 +141,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             const path = getPathFromDataAttribute(draggable, 'data-drag-path');
             const type = draggable.getAttribute('data-drag-type');
+            const iconIdAttr = draggable.getAttribute('data-drag-icon');
+            const iconColorAttr = draggable.getAttribute('data-drag-icon-color');
+            const iconId = iconIdAttr && iconIdAttr.trim().length > 0 ? iconIdAttr : undefined;
+            const iconColor = iconColorAttr && iconColorAttr.trim().length > 0 ? iconColorAttr : undefined;
             if (!path || !e.dataTransfer) return;
 
             // Check if dragging a selected file with multiple selections
@@ -295,8 +176,14 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     el?.classList.add('nn-dragging');
                 });
 
-                hideBrowserDragPreview(e);
-                createDragGhost(e, type, path, selectedPaths.length);
+                dragGhostManager.hideNativePreview(e);
+                dragGhostManager.showGhost(e, {
+                    itemType: ItemType.FILE,
+                    path,
+                    itemCount: selectedPaths.length,
+                    icon: iconId,
+                    iconColor
+                });
             } else {
                 // Single item drag
                 e.dataTransfer.setData('obsidian/file', path);
@@ -319,11 +206,18 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 }
 
                 draggable.classList.add('nn-dragging');
-                hideBrowserDragPreview(e);
-                createDragGhost(e, type, path);
+                const resolvedType =
+                    type === ItemType.FILE || type === ItemType.FOLDER || type === ItemType.TAG ? (type as ItemType) : null;
+                dragGhostManager.hideNativePreview(e);
+                dragGhostManager.showGhost(e, {
+                    itemType: resolvedType,
+                    path,
+                    icon: iconId,
+                    iconColor
+                });
             }
         },
-        [selectionState, containerRef, app, createDragGhost]
+        [selectionState, containerRef, app, dragGhostManager]
     );
 
     useEffect(() => {
@@ -852,11 +746,11 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 dragOverElement.current = null;
             }
 
-            cleanupDragGhost();
+            dragGhostManager.hideGhost();
             clearAutoExpandTimer();
             dragTypeRef.current = null;
         },
-        [selectionState, containerRef, cleanupDragGhost, clearAutoExpandTimer]
+        [selectionState, containerRef, dragGhostManager, clearAutoExpandTimer]
     );
 
     useEffect(() => {
@@ -865,8 +759,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
         // Global handler for escape key to clean up ghost on cancel
         const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && dragGhostElement.current) {
-                cleanupDragGhost();
+            if (e.key === 'Escape' && dragGhostManager.hasGhost()) {
+                dragGhostManager.hideGhost();
             }
         };
 
@@ -886,7 +780,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             document.removeEventListener('keydown', handleEscape);
 
             // Clean up any lingering ghost on unmount
-            cleanupDragGhost();
+            dragGhostManager.hideGhost();
             clearAutoExpandTimer();
             dragTypeRef.current = null;
         };
@@ -898,7 +792,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         handleDrop,
         handleDragEnd,
         isMobile,
-        cleanupDragGhost,
+        dragGhostManager,
         clearAutoExpandTimer
     ]);
 }

@@ -66,7 +66,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useNavigationPaneKeyboard } from '../hooks/useNavigationPaneKeyboard';
 import { useNavigationPaneData } from '../hooks/useNavigationPaneData';
 import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
-import { useListReorder } from '../hooks/useListReorder';
+import { useListReorder, type ListReorderHandlers } from '../hooks/useListReorder';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { NavigationPaneItemType, ItemType } from '../types';
 import { getSelectedPath } from '../utils/selectionUtils';
@@ -88,6 +88,7 @@ import { ShortcutItem } from './ShortcutItem';
 import { RootFolderReorderItem } from './RootFolderReorderItem';
 import { ShortcutType, SearchShortcut } from '../types/shortcuts';
 import { strings } from '../i18n';
+import { createDragGhostManager, type DragGhostOptions } from '../utils/dragGhost';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (itemType: ItemType, path: string) => number;
@@ -133,6 +134,13 @@ export const NavigationPane = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts } = useShortcuts();
+        const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
+
+        useEffect(() => {
+            return () => {
+                dragGhostManager.hideGhost();
+            };
+        }, [dragGhostManager]);
         // Track which shortcut is currently active/selected
         const [activeShortcutKey, setActiveShortcut] = useState<string | null>(null);
         // Track expansion state of shortcuts virtual folder
@@ -185,24 +193,56 @@ export const NavigationPane = React.memo(
             reorderItems: reorderShortcuts
         });
 
+        const withDragGhost = useCallback(
+            (handlers: ListReorderHandlers, options: DragGhostOptions): ListReorderHandlers => {
+                if (!handlers.draggable) {
+                    return handlers;
+                }
+
+                const { onDragStart, onDragEnd } = handlers;
+
+                return {
+                    ...handlers,
+                    onDragStart: event => {
+                        const nativeEvent = event.nativeEvent;
+                        dragGhostManager.hideNativePreview(nativeEvent);
+                        dragGhostManager.showGhost(nativeEvent, options);
+                        onDragStart(event);
+                    },
+                    onDragEnd: event => {
+                        dragGhostManager.hideGhost();
+                        onDragEnd(event);
+                    }
+                };
+            },
+            [dragGhostManager]
+        );
+
+        const buildShortcutDragHandlers = useCallback(
+            (key: string, options: DragGhostOptions): ListReorderHandlers => {
+                const handlers = getDragHandlers(key);
+                return withDragGhost(handlers, options);
+            },
+            [getDragHandlers, withDragGhost]
+        );
+
         // Get visual state for a shortcut item (drag state, drop indicators)
         const getShortcutVisualState = useCallback(
             (key: string) => {
-                const dragHandlers = getDragHandlers(key);
                 const shortcutIndex = shortcutPositionMap.get(key);
                 const isDragSource = draggingKey === key;
 
                 if (shortcutIndex === undefined) {
-                    return { dragHandlers, showBefore: false, showAfter: false, isDragSource };
+                    return { showBefore: false, showAfter: false, isDragSource };
                 }
 
                 const isFirstShortcut = shortcutIndex === 0;
                 const showBefore = isFirstShortcut && dropIndex !== null && dropIndex === 0 && draggingKey !== key;
                 const showAfter = dropIndex !== null && dropIndex === shortcutIndex + 1 && draggingKey !== key;
 
-                return { dragHandlers, showBefore, showAfter, isDragSource };
+                return { showBefore, showAfter, isDragSource };
             },
-            [draggingKey, dropIndex, getDragHandlers, shortcutPositionMap]
+            [draggingKey, dropIndex, shortcutPositionMap]
         );
 
         // Android uses toolbar at top, iOS at bottom
@@ -265,6 +305,16 @@ export const NavigationPane = React.memo(
             return map;
         }, [items]);
 
+        const rootFolderColorMap = useMemo(() => {
+            const map = new Map<string, string | undefined>();
+            items.forEach(item => {
+                if (item.type === NavigationPaneItemType.FOLDER) {
+                    map.set(item.data.path, item.color);
+                }
+            });
+            return map;
+        }, [items]);
+
         const isRootReorderDnDEnabled = isRootReorderMode && canReorderRootFolders;
 
         useEffect(() => {
@@ -312,7 +362,8 @@ export const NavigationPane = React.memo(
         });
 
         const getRootReorderVisualState = useCallback(
-            (key: string) => {
+            (descriptor: RootFolderDescriptor) => {
+                const key = descriptor.key;
                 const index = rootFolderPositionMap.get(key);
 
                 if (index === undefined) {
@@ -324,7 +375,15 @@ export const NavigationPane = React.memo(
                     };
                 }
 
-                const dragHandlers = getRootDragHandlers(key);
+                const baseHandlers = getRootDragHandlers(key);
+                const iconName = rootFolderIconMap.get(key) ?? (descriptor.isVault ? 'vault' : 'lucide-folder');
+                const iconColor = rootFolderColorMap.get(key);
+                const dragHandlers = withDragGhost(baseHandlers, {
+                    itemType: ItemType.FOLDER,
+                    path: descriptor.folder.path,
+                    icon: iconName,
+                    iconColor
+                });
                 const isDragSource = rootReorderDraggingKey === key;
                 const isFirst = index === 0;
                 const showBefore = isFirst && rootReorderDropIndex !== null && rootReorderDropIndex === 0 && rootReorderDraggingKey !== key;
@@ -337,7 +396,15 @@ export const NavigationPane = React.memo(
                     isDragSource
                 };
             },
-            [getRootDragHandlers, rootFolderPositionMap, rootReorderDropIndex, rootReorderDraggingKey]
+            [
+                getRootDragHandlers,
+                rootFolderIconMap,
+                rootFolderColorMap,
+                rootFolderPositionMap,
+                rootReorderDropIndex,
+                rootReorderDraggingKey,
+                withDragGhost
+            ]
         );
 
         const handleToggleRootReorder = useCallback(() => {
@@ -850,7 +917,13 @@ export const NavigationPane = React.memo(
                             return null;
                         }
 
-                        const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+                        const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+                        const dragHandlers = buildShortcutDragHandlers(item.key, {
+                            itemType: ItemType.FOLDER,
+                            path: folder.path,
+                            icon: item.icon ?? 'lucide-folder',
+                            iconColor: item.color
+                        });
                         const folderCount = getFolderShortcutCount(folder);
 
                         return (
@@ -879,7 +952,13 @@ export const NavigationPane = React.memo(
                             return null;
                         }
 
-                        const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+                        const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+                        const dragHandlers = buildShortcutDragHandlers(item.key, {
+                            itemType: ItemType.FILE,
+                            path: note.path,
+                            icon: item.icon ?? 'lucide-file',
+                            iconColor: item.color
+                        });
 
                         return (
                             <ShortcutItem
@@ -902,7 +981,12 @@ export const NavigationPane = React.memo(
                     case NavigationPaneItemType.SHORTCUT_SEARCH: {
                         const searchShortcut = item.searchShortcut;
 
-                        const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+                        const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+                        const dragHandlers = buildShortcutDragHandlers(item.key, {
+                            itemType: 'search',
+                            icon: item.icon ?? 'lucide-search',
+                            iconColor: item.color
+                        });
 
                         return (
                             <ShortcutItem
@@ -924,7 +1008,13 @@ export const NavigationPane = React.memo(
 
                     case NavigationPaneItemType.SHORTCUT_TAG: {
                         const tagCount = getTagShortcutCount(item.tagPath);
-                        const { dragHandlers, showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+                        const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
+                        const dragHandlers = buildShortcutDragHandlers(item.key, {
+                            itemType: ItemType.TAG,
+                            path: item.tagPath,
+                            icon: item.icon ?? 'lucide-tags',
+                            iconColor: item.color
+                        });
                         return (
                             <ShortcutItem
                                 icon={item.icon ?? 'lucide-tags'}
@@ -1123,6 +1213,7 @@ export const NavigationPane = React.memo(
                 handleRecentNoteActivate,
                 handleShortcutContextMenu,
                 getShortcutVisualState,
+                buildShortcutDragHandlers,
                 hydratedShortcuts,
                 shortcutsExpanded,
                 recentNotesExpanded,
@@ -1260,7 +1351,7 @@ export const NavigationPane = React.memo(
                             </div>
                             <div className="nn-root-reorder-list" role="presentation">
                                 {rootFolderDescriptors.map(entry => {
-                                    const { dragHandlers, showBefore, showAfter, isDragSource } = getRootReorderVisualState(entry.key);
+                                    const { dragHandlers, showBefore, showAfter, isDragSource } = getRootReorderVisualState(entry);
                                     const iconName = rootFolderIconMap.get(entry.key);
                                     const displayLabel = entry.isVault
                                         ? settings.customVaultName || app.vault.getName()

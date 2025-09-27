@@ -171,6 +171,18 @@ export const FolderItem = React.memo(function FolderItem({
 
     // Use color from props (passed from NavigationPane)
     const customColor = color;
+    const dragIconId = useMemo(() => {
+        if (icon) {
+            return icon;
+        }
+        if (folder.path === '/') {
+            return hasChildren && isExpanded ? 'open-vault' : 'vault';
+        }
+        if (hasChildren && isExpanded) {
+            return 'lucide-folder-open';
+        }
+        return 'lucide-folder-closed';
+    }, [icon, folder.path, hasChildren, isExpanded]);
     const customBackground = backgroundColor;
 
     const hasFolderNote = useMemo(() => {
@@ -310,6 +322,8 @@ export const FolderItem = React.memo(function FolderItem({
             data-drag-path={folder.path}
             data-drag-type="folder"
             data-draggable={isDraggable ? 'true' : undefined}
+            data-drag-icon={dragIconId}
+            data-drag-icon-color={customColor || undefined}
             draggable={isDraggable}
             data-drop-zone="folder"
             data-drop-path={folder.path}

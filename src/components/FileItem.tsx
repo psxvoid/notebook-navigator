@@ -279,8 +279,23 @@ export const FileItem = React.memo(function FileItem({
     // Decide whether to render an inline extension suffix after the name
     const extensionSuffix = useMemo(() => getExtensionSuffix(file), [file]);
     const showExtensionSuffix = useMemo(() => shouldShowExtensionSuffix(file), [file]);
-    const fileIconId = settings.showIcons ? metadataService.getFileIcon(file.path) : undefined;
-    const fileColor = settings.showIcons ? metadataService.getFileColor(file.path) : undefined;
+    const fileIconId = metadataService.getFileIcon(file.path);
+    const fileColor = metadataService.getFileColor(file.path);
+    const dragIconId = useMemo(() => {
+        if (fileIconId) {
+            return fileIconId;
+        }
+        if (file.extension === 'canvas') {
+            return 'lucide-layout-grid';
+        }
+        if (file.extension === 'base') {
+            return 'lucide-database';
+        }
+        if (file.extension === 'md') {
+            return 'lucide-file-text';
+        }
+        return 'lucide-file';
+    }, [fileIconId, file.extension]);
 
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
@@ -679,6 +694,8 @@ export const FileItem = React.memo(function FileItem({
             data-drag-path={file.path}
             data-drag-type="file"
             data-draggable={!isMobile ? 'true' : undefined}
+            data-drag-icon={dragIconId}
+            data-drag-icon-color={fileColor || undefined}
             onClick={onClick}
             onMouseDown={handleMouseDown}
             draggable={!isMobile}
