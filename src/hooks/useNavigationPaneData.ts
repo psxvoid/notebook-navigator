@@ -58,6 +58,19 @@ import { setNavigationIndex } from '../utils/navigationIndex';
 import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } from '../types/shortcuts';
 import { useRootFolderOrder } from './useRootFolderOrder';
 
+const DOCUMENT_EXTENSION_ICONS: Record<string, string> = {
+    canvas: 'lucide-layout-grid',
+    base: 'lucide-database'
+};
+
+const getDocumentIcon = (file: TFile | null): string | undefined => {
+    if (!file) {
+        return undefined;
+    }
+
+    return DOCUMENT_EXTENSION_ICONS[file.extension] ?? undefined;
+};
+
 /**
  * Parameters for the useNavigationPaneData hook
  */
@@ -373,12 +386,14 @@ export function useNavigationPaneData({
                 if (!note) {
                     return;
                 }
+                const icon = getDocumentIcon(note);
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_NOTE,
                     key,
                     level: itemLevel,
                     shortcut,
-                    note
+                    note,
+                    icon
                 });
                 return;
             }
@@ -465,11 +480,13 @@ export function useNavigationPaneData({
         recentPaths.forEach(path => {
             const file = app.vault.getAbstractFileByPath(path);
             if (file instanceof TFile) {
+                const icon = getDocumentIcon(file);
                 items.push({
                     type: NavigationPaneItemType.RECENT_NOTE,
                     key: `recent-${path}`,
                     level: itemLevel,
-                    note: file
+                    note: file,
+                    icon
                 });
             }
         });
