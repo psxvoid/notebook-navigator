@@ -184,17 +184,6 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 });
         });
 
-        const currentIcon = metadataService.getFileIcon(file.path);
-        if (currentIcon) {
-            menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.file.removeIcon)
-                    .setIcon('lucide-x')
-                    .onClick(async () => {
-                        await metadataService.removeFileIcon(file.path);
-                    });
-            });
-        }
-
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.file.changeColor)
                 .setIcon('lucide-palette')
@@ -204,17 +193,6 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     modal.open();
                 });
         });
-
-        const currentColor = metadataService.getFileColor(file.path);
-        if (currentColor) {
-            menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.file.removeColor)
-                    .setIcon('lucide-x')
-                    .onClick(async () => {
-                        await metadataService.removeFileColor(file.path);
-                    });
-            });
-        }
     }
 
     // Remove tag - only show if files have tags

@@ -144,18 +144,6 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
             });
     });
 
-    // Remove icon (only show if custom icon is set)
-    const currentIcon = metadataService.getTagIcon(tagPath);
-    if (currentIcon) {
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.tag.removeIcon)
-                .setIcon('lucide-x')
-                .onClick(async () => {
-                    await metadataService.removeTagIcon(tagPath);
-                });
-        });
-    }
-
     // Change color
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.tag.changeColor)
@@ -177,20 +165,6 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                 modal.open();
             });
     });
-
-    // Remove color (only show if custom color is set directly on this tag)
-    const hasDirectColor = settings.tagColors && settings.tagColors[tagPath];
-    const hasDirectBackground = settings.tagBackgroundColors && settings.tagBackgroundColors[tagPath];
-    if (hasDirectColor || hasDirectBackground) {
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.tag.removeColor)
-                .setIcon('lucide-x')
-                .onClick(async () => {
-                    await metadataService.removeTagColor(tagPath);
-                    await metadataService.removeTagBackgroundColor(tagPath);
-                });
-        });
-    }
 
     // Don't show hide tag option for the Untagged virtual tag
     if (tagPath !== UNTAGGED_TAG_ID) {

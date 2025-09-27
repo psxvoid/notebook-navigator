@@ -209,18 +209,6 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                     modal.open();
                 });
         });
-
-        // Remove icon (only show if custom icon is set)
-        const currentIcon = metadataService.getFolderIcon(folder.path);
-        if (currentIcon) {
-            menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.folder.removeIcon)
-                    .setIcon('lucide-x')
-                    .onClick(async () => {
-                        await metadataService.removeFolderIcon(folder.path);
-                    });
-            });
-        }
     }
 
     // Change color
@@ -244,20 +232,6 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                 modal.open();
             });
     });
-
-    // Remove color (only show if custom color is set directly on this folder)
-    const hasDirectColor = settings.folderColors && settings.folderColors[folder.path];
-    const hasDirectBackground = settings.folderBackgroundColors && settings.folderBackgroundColors[folder.path];
-    if (hasDirectColor || hasDirectBackground) {
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.folder.removeColor)
-                .setIcon('lucide-x')
-                .onClick(async () => {
-                    await metadataService.removeFolderColor(folder.path);
-                    await metadataService.removeFolderBackgroundColor(folder.path);
-                });
-        });
-    }
 
     menu.addSeparator();
 
