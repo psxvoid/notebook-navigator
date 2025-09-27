@@ -190,6 +190,24 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         void this.saveSettingsAndUpdate();
     }
 
+    private removeRecentNoteEntry(path: string): boolean {
+        if (!path) {
+            return false;
+        }
+
+        if (!Array.isArray(this.settings.recentNotes) || this.settings.recentNotes.length === 0) {
+            return false;
+        }
+
+        const filtered = this.settings.recentNotes.filter(entry => entry !== path);
+        if (filtered.length === this.settings.recentNotes.length) {
+            return false;
+        }
+
+        this.settings.recentNotes = filtered;
+        return true;
+    }
+
     private isFileInRightSidebar(file: TFile): boolean {
         if (!this.settings.autoRevealIgnoreRightSidebar) {
             return false;
@@ -696,17 +714,33 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             })
         );
 
-        // Register delete event handler to clean up folder metadata
+        // Register delete event handler to clean up metadata and recent notes
         this.registerEvent(
             this.app.vault.on('delete', async file => {
-                if (!this.metadataService || this.isUnloading) return;
+                if (this.isUnloading) {
+                    return;
+                }
 
                 if (file instanceof TFolder) {
-                    await this.metadataService.handleFolderDelete(file.path);
-                } else if (file instanceof TFile) {
-                    await this.metadataService.handleFileDelete(file.path);
+                    if (this.metadataService) {
+                        await this.metadataService.handleFolderDelete(file.path);
+                    }
+                    return;
                 }
-                // The metadata service saves settings which triggers reactive updates
+
+                if (file instanceof TFile) {
+                    const removedFromRecents = this.removeRecentNoteEntry(file.path);
+
+                    if (this.metadataService) {
+                        await this.metadataService.handleFileDelete(file.path);
+                        return;
+                    }
+
+                    if (removedFromRecents) {
+                        await this.saveSettingsAndUpdate();
+                    }
+                }
+                // Saving settings (metadata service or manual) triggers reactive updates
             })
         );
 
