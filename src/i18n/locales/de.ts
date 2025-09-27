@@ -54,21 +54,21 @@ export const STRINGS_DE = {
 
     navigationPane: {
         shortcutsHeader: 'Kurzbefehle',
-        recentNotesHeader: 'Recent notes',
-        reorderRootFoldersTitle: 'Reorder root folders',
-        reorderRootFoldersHint: 'Drag folders to change order',
-        vaultRootLabel: 'Vault',
-        resetRootFolderOrder: 'Reset to alphabetical order',
-        dragHandleLabel: 'Drag to reorder'
+        recentNotesHeader: 'Neueste Notizen',
+        reorderRootFoldersTitle: 'Hauptordner neu anordnen',
+        reorderRootFoldersHint: 'Ordner ziehen, um die Reihenfolge zu ändern',
+        vaultRootLabel: 'Tresor',
+        resetRootFolderOrder: 'Auf alphabetische Reihenfolge zurücksetzen',
+        dragHandleLabel: 'Ziehen zum Neuanordnen'
     },
 
     shortcuts: {
-        folderExists: 'Folder already in shortcuts',
-        noteExists: 'Note already in shortcuts',
-        tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search shortcut already exists',
-        emptySearchQuery: 'Enter a search query before saving it',
-        emptySearchName: 'Enter a name before saving the search',
+        folderExists: 'Ordner bereits in Kurzbefehlen vorhanden',
+        noteExists: 'Notiz bereits in Kurzbefehlen vorhanden',
+        tagExists: 'Tag bereits in Kurzbefehlen vorhanden',
+        searchExists: 'Such-Kurzbefehl existiert bereits',
+        emptySearchQuery: 'Geben Sie eine Suchanfrage ein, bevor Sie sie speichern',
+        emptySearchName: 'Geben Sie einen Namen ein, bevor Sie die Suche speichern',
         add: 'Zu Shortcuts hinzufügen',
         remove: 'Aus Shortcuts entfernen',
         moveUp: 'Nach oben verschieben',
@@ -79,7 +79,7 @@ export const STRINGS_DE = {
     paneHeader: {
         collapseAllFolders: 'Elemente einklappen', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Alle Elemente ausklappen', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Scroll to shortcuts',
+        scrollToShortcuts: 'Zu Kurzbefehlen scrollen',
         newFolder: 'Neuer Ordner', // Tooltip for create new folder button (English: New folder)
         newNote: 'Neue Notiz', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Zurück zur Navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -88,8 +88,8 @@ export const STRINGS_DE = {
         customSort: 'Benutzerdefiniert', // Label for custom sorting mode (English: Custom)
         showFolders: 'Navigation anzeigen', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Navigation ausblenden', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Reorder root folders',
-        finishRootFolderReorder: 'Finish root folder reorder',
+        reorderRootFolders: 'Hauptordner neu anordnen',
+        finishRootFolderReorder: 'Neuanordnung der Hauptordner abschließen',
         toggleDescendantNotes: 'Notizen aus Nachkommen anzeigen (Ordner und Tags)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Versteckte Elemente anzeigen', // Tooltip for button to show hidden items (English: Show hidden items)
@@ -539,8 +539,8 @@ export const STRINGS_DE = {
                 desc: 'Notizen automatisch anzeigen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.'
             },
             autoRevealIgnoreRightSidebar: {
-                name: 'Rechte Seitenleiste ignorieren',
-                desc: 'Automatische Anzeige von der rechten Seitenleiste deaktivieren.'
+                name: 'Ereignisse von rechter Seitenleiste ignorieren',
+                desc: 'Aktive Notiz nicht ändern, wenn in der rechten Seitenleiste auf Notizen geklickt oder diese gewechselt werden.'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Erste Notiz automatisch auswählen (nur Desktop)',
@@ -555,12 +555,12 @@ export const STRINGS_DE = {
                 desc: 'Shortcut-Bereich im Navigationsbereich anzeigen.'
             },
             showRecentNotes: {
-                name: 'Show recent notes',
-                desc: 'Display the recent notes section in the navigation pane.'
+                name: 'Neueste Notizen anzeigen',
+                desc: 'Den Bereich für neueste Notizen im Navigationsbereich anzeigen.'
             },
             recentNotesCount: {
-                name: 'Recent notes count',
-                desc: 'Number of recent notes to display.'
+                name: 'Anzahl neuester Notizen',
+                desc: 'Anzahl der anzuzeigenden neuesten Notizen.'
             },
             showTooltips: {
                 name: 'Tooltips anzeigen (nur Desktop)',

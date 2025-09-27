@@ -54,21 +54,21 @@ export const STRINGS_JA = {
 
     navigationPane: {
         shortcutsHeader: 'ショートカット',
-        recentNotesHeader: 'Recent notes',
-        reorderRootFoldersTitle: 'Reorder root folders',
-        reorderRootFoldersHint: 'Drag folders to change order',
-        vaultRootLabel: 'Vault',
-        resetRootFolderOrder: 'Reset to alphabetical order',
-        dragHandleLabel: 'Drag to reorder'
+        recentNotesHeader: '最近のノート',
+        reorderRootFoldersTitle: 'ルートフォルダの並び替え',
+        reorderRootFoldersHint: 'フォルダをドラッグして順序を変更',
+        vaultRootLabel: 'ボールト',
+        resetRootFolderOrder: 'アルファベット順にリセット',
+        dragHandleLabel: 'ドラッグして並び替え'
     },
 
     shortcuts: {
-        folderExists: 'Folder already in shortcuts',
-        noteExists: 'Note already in shortcuts',
-        tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search shortcut already exists',
-        emptySearchQuery: 'Enter a search query before saving it',
-        emptySearchName: 'Enter a name before saving the search',
+        folderExists: 'フォルダは既にショートカットにあります',
+        noteExists: 'ノートは既にショートカットにあります',
+        tagExists: 'タグは既にショートカットにあります',
+        searchExists: '検索ショートカットは既に存在します',
+        emptySearchQuery: '保存前に検索クエリを入力してください',
+        emptySearchName: '検索を保存する前に名前を入力してください',
         add: 'ショートカットに追加',
         remove: 'ショートカットから削除',
         moveUp: '上に移動',
@@ -79,7 +79,7 @@ export const STRINGS_JA = {
     paneHeader: {
         collapseAllFolders: 'アイテムを折りたたむ', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'すべてのアイテムを展開', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Scroll to shortcuts',
+        scrollToShortcuts: 'ショートカットにスクロール',
         newFolder: '新規フォルダ', // Tooltip for create new folder button (English: New folder)
         newNote: '新規ノート', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'ナビゲーションに戻る', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -88,8 +88,8 @@ export const STRINGS_JA = {
         customSort: 'カスタム', // Label for custom sorting mode (English: Custom)
         showFolders: 'ナビゲーションを表示', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'ナビゲーションを非表示', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Reorder root folders',
-        finishRootFolderReorder: 'Finish root folder reorder',
+        reorderRootFolders: 'ルートフォルダの並び替え',
+        finishRootFolderReorder: 'ルートフォルダの並び替えを完了',
         toggleDescendantNotes: '子孫のノートを表示（フォルダとタグ）', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '非表示項目を表示', // Tooltip for button to show hidden items (English: Show hidden items)
@@ -538,8 +538,8 @@ export const STRINGS_JA = {
                 desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示します。'
             },
             autoRevealIgnoreRightSidebar: {
-                name: '右サイドバーを無視',
-                desc: '右サイドバーからの自動表示を無効化。'
+                name: '右サイドバーのイベントを無視',
+                desc: '右サイドバーでのクリックやノートの変更時にアクティブノートを変更しません。'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: '最初のノートを自動選択（デスクトップのみ）',
@@ -554,12 +554,12 @@ export const STRINGS_JA = {
                 desc: 'ナビゲーションペインにショートカットセクションを表示します。'
             },
             showRecentNotes: {
-                name: 'Show recent notes',
-                desc: 'Display the recent notes section in the navigation pane.'
+                name: '最近のノートを表示',
+                desc: 'ナビゲーションペインに最近のノートセクションを表示します。'
             },
             recentNotesCount: {
-                name: 'Recent notes count',
-                desc: 'Number of recent notes to display.'
+                name: '最近のノート数',
+                desc: '表示する最近のノートの数。'
             },
             showTooltips: {
                 name: 'ツールチップを表示（デスクトップのみ）',

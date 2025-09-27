@@ -54,21 +54,21 @@ export const STRINGS_ES = {
 
     navigationPane: {
         shortcutsHeader: 'Accesos directos',
-        recentNotesHeader: 'Recent notes',
-        reorderRootFoldersTitle: 'Reorder root folders',
-        reorderRootFoldersHint: 'Drag folders to change order',
-        vaultRootLabel: 'Vault',
-        resetRootFolderOrder: 'Reset to alphabetical order',
-        dragHandleLabel: 'Drag to reorder'
+        recentNotesHeader: 'Notas recientes',
+        reorderRootFoldersTitle: 'Reordenar carpetas principales',
+        reorderRootFoldersHint: 'Arrastra las carpetas para cambiar el orden',
+        vaultRootLabel: 'Bóveda',
+        resetRootFolderOrder: 'Restablecer orden alfabético',
+        dragHandleLabel: 'Arrastrar para reordenar'
     },
 
     shortcuts: {
-        folderExists: 'Folder already in shortcuts',
-        noteExists: 'Note already in shortcuts',
-        tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search shortcut already exists',
-        emptySearchQuery: 'Enter a search query before saving it',
-        emptySearchName: 'Enter a name before saving the search',
+        folderExists: 'La carpeta ya está en los atajos',
+        noteExists: 'La nota ya está en los atajos',
+        tagExists: 'La etiqueta ya está en los atajos',
+        searchExists: 'El atajo de búsqueda ya existe',
+        emptySearchQuery: 'Ingresa una consulta de búsqueda antes de guardarla',
+        emptySearchName: 'Ingresa un nombre antes de guardar la búsqueda',
         add: 'Agregar a accesos directos',
         remove: 'Quitar de accesos directos',
         moveUp: 'Mover arriba',
@@ -79,7 +79,7 @@ export const STRINGS_ES = {
     paneHeader: {
         collapseAllFolders: 'Contraer elementos', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Expandir todos los elementos', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Scroll to shortcuts',
+        scrollToShortcuts: 'Desplazarse a los atajos',
         newFolder: 'Nueva carpeta', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nueva nota', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Volver a navegación', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -88,8 +88,8 @@ export const STRINGS_ES = {
         customSort: 'Personalizado', // Label for custom sorting mode (English: Custom)
         showFolders: 'Mostrar navegación', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Ocultar navegación', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Reorder root folders',
-        finishRootFolderReorder: 'Finish root folder reorder',
+        reorderRootFolders: 'Reordenar carpetas principales',
+        finishRootFolderReorder: 'Finalizar reordenación de carpetas principales',
         toggleDescendantNotes: 'Mostrar notas de descendientes (carpetas y etiquetas)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: 'Expandir carpetas y etiquetas automáticamente', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Mostrar elementos ocultos', // Tooltip for button to show hidden items (English: Show hidden items)
@@ -538,8 +538,8 @@ export const STRINGS_ES = {
                 desc: 'Muestra automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.'
             },
             autoRevealIgnoreRightSidebar: {
-                name: 'Ignorar barra lateral derecha',
-                desc: 'Desactivar auto-revelado desde la barra lateral derecha.'
+                name: 'Ignorar eventos de la barra lateral derecha',
+                desc: 'No cambiar la nota activa al hacer clic o cambiar notas en la barra lateral derecha.'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Seleccionar automáticamente la primera nota (solo escritorio)',
@@ -554,12 +554,12 @@ export const STRINGS_ES = {
                 desc: 'Mostrar la sección de accesos directos en el panel de navegación.'
             },
             showRecentNotes: {
-                name: 'Show recent notes',
-                desc: 'Display the recent notes section in the navigation pane.'
+                name: 'Mostrar notas recientes',
+                desc: 'Mostrar la sección de notas recientes en el panel de navegación.'
             },
             recentNotesCount: {
-                name: 'Recent notes count',
-                desc: 'Number of recent notes to display.'
+                name: 'Cantidad de notas recientes',
+                desc: 'Número de notas recientes a mostrar.'
             },
             showTooltips: {
                 name: 'Mostrar tooltips (solo escritorio)',

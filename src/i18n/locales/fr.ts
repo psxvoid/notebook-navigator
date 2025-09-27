@@ -54,21 +54,21 @@ export const STRINGS_FR = {
 
     navigationPane: {
         shortcutsHeader: 'Raccourcis',
-        recentNotesHeader: 'Recent notes',
-        reorderRootFoldersTitle: 'Reorder root folders',
-        reorderRootFoldersHint: 'Drag folders to change order',
-        vaultRootLabel: 'Vault',
-        resetRootFolderOrder: 'Reset to alphabetical order',
-        dragHandleLabel: 'Drag to reorder'
+        recentNotesHeader: 'Notes récentes',
+        reorderRootFoldersTitle: 'Réorganiser les dossiers racine',
+        reorderRootFoldersHint: 'Faites glisser les dossiers pour modifier l'ordre',
+        vaultRootLabel: 'Coffre',
+        resetRootFolderOrder: 'Réinitialiser l'ordre alphabétique',
+        dragHandleLabel: 'Faire glisser pour réorganiser'
     },
 
     shortcuts: {
-        folderExists: 'Folder already in shortcuts',
-        noteExists: 'Note already in shortcuts',
-        tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search shortcut already exists',
-        emptySearchQuery: 'Enter a search query before saving it',
-        emptySearchName: 'Enter a name before saving the search',
+        folderExists: 'Le dossier est déjà dans les raccourcis',
+        noteExists: 'La note est déjà dans les raccourcis',
+        tagExists: 'L'étiquette est déjà dans les raccourcis',
+        searchExists: 'Le raccourci de recherche existe déjà',
+        emptySearchQuery: 'Entrez une requête de recherche avant de l'enregistrer',
+        emptySearchName: 'Entrez un nom avant d'enregistrer la recherche',
         add: 'Ajouter aux raccourcis',
         remove: 'Retirer des raccourcis',
         moveUp: 'Déplacer vers le haut',
@@ -79,7 +79,7 @@ export const STRINGS_FR = {
     paneHeader: {
         collapseAllFolders: 'Replier les éléments', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Déplier tous les éléments', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Scroll to shortcuts',
+        scrollToShortcuts: 'Défiler vers les raccourcis',
         newFolder: 'Nouveau dossier', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nouvelle note', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Retour à la navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -88,8 +88,8 @@ export const STRINGS_FR = {
         customSort: 'Personnalisé', // Label for custom sorting mode (English: Custom)
         showFolders: 'Afficher la navigation', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Masquer la navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Reorder root folders',
-        finishRootFolderReorder: 'Finish root folder reorder',
+        reorderRootFolders: 'Réorganiser les dossiers racine',
+        finishRootFolderReorder: 'Terminer la réorganisation des dossiers racine',
         toggleDescendantNotes: 'Afficher les notes des descendants (dossiers et étiquettes)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: 'Développer automatiquement les dossiers et les étiquettes', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Afficher les éléments masqués', // Tooltip for button to show hidden items (English: Show hidden items)
@@ -539,8 +539,8 @@ export const STRINGS_FR = {
                 desc: "Révéler automatiquement les notes lorsqu'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche."
             },
             autoRevealIgnoreRightSidebar: {
-                name: 'Ignorer le panneau de droite',
-                desc: 'Désactiver la révélation automatique depuis le panneau de droite.'
+                name: 'Ignorer les événements du panneau de droite',
+                desc: 'Ne pas changer la note active lors d'un clic ou du changement de notes dans le panneau de droite.'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Sélectionner automatiquement la première note (ordinateur uniquement)',
@@ -555,12 +555,12 @@ export const STRINGS_FR = {
                 desc: 'Afficher la section des raccourcis dans le panneau de navigation.'
             },
             showRecentNotes: {
-                name: 'Show recent notes',
-                desc: 'Display the recent notes section in the navigation pane.'
+                name: 'Afficher les notes récentes',
+                desc: 'Afficher la section des notes récentes dans le panneau de navigation.'
             },
             recentNotesCount: {
-                name: 'Recent notes count',
-                desc: 'Number of recent notes to display.'
+                name: 'Nombre de notes récentes',
+                desc: 'Nombre de notes récentes à afficher.'
             },
             showTooltips: {
                 name: 'Afficher les infobulles (ordinateur uniquement)',

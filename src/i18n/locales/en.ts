@@ -537,8 +537,8 @@ export const STRINGS_EN = {
                 desc: 'Automatically reveal notes when opened from Quick Switcher, links, or search.'
             },
             autoRevealIgnoreRightSidebar: {
-                name: 'Ignore right sidebar',
-                desc: 'Disable auto-reveal from right sidebar.'
+                name: 'Ignore events from right sidebar',
+                desc: 'Do not change active note when clicking or changing notes in the right sidebar.'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Auto-select first note (desktop only)',

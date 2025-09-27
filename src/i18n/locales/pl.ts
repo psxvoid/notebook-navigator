@@ -54,21 +54,21 @@ export const STRINGS_PL = {
 
     navigationPane: {
         shortcutsHeader: 'Skróty',
-        recentNotesHeader: 'Recent notes',
-        reorderRootFoldersTitle: 'Reorder root folders',
-        reorderRootFoldersHint: 'Drag folders to change order',
-        vaultRootLabel: 'Vault',
-        resetRootFolderOrder: 'Reset to alphabetical order',
-        dragHandleLabel: 'Drag to reorder'
+        recentNotesHeader: 'Ostatnie notatki',
+        reorderRootFoldersTitle: 'Zmień kolejność folderów głównych',
+        reorderRootFoldersHint: 'Przeciągnij foldery aby zmienić kolejność',
+        vaultRootLabel: 'Magazyn',
+        resetRootFolderOrder: 'Resetuj do kolejności alfabetycznej',
+        dragHandleLabel: 'Przeciągnij aby zmienić kolejność'
     },
 
     shortcuts: {
-        folderExists: 'Folder already in shortcuts',
-        noteExists: 'Note already in shortcuts',
-        tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search shortcut already exists',
-        emptySearchQuery: 'Enter a search query before saving it',
-        emptySearchName: 'Enter a name before saving the search',
+        folderExists: 'Folder już jest w skrótach',
+        noteExists: 'Notatka już jest w skrótach',
+        tagExists: 'Tag już jest w skrótach',
+        searchExists: 'Skrót wyszukiwania już istnieje',
+        emptySearchQuery: 'Wprowadź zapytanie wyszukiwania przed zapisaniem',
+        emptySearchName: 'Wprowadź nazwę przed zapisaniem wyszukiwania',
         add: 'Dodaj do skrótów',
         remove: 'Usuń ze skrótów',
         moveUp: 'Przesuń w górę',
@@ -79,7 +79,7 @@ export const STRINGS_PL = {
     paneHeader: {
         collapseAllFolders: 'Zwiń elementy', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Rozwiń wszystkie elementy', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Scroll to shortcuts',
+        scrollToShortcuts: 'Przewiń do skrótów',
         newFolder: 'Nowy folder', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nowa notatka', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Wróć do nawigacji', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -88,8 +88,8 @@ export const STRINGS_PL = {
         customSort: 'Własne', // Label for custom sorting mode (English: Custom)
         showFolders: 'Pokaż nawigację', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Ukryj nawigację', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Reorder root folders',
-        finishRootFolderReorder: 'Finish root folder reorder',
+        reorderRootFolders: 'Zmień kolejność folderów głównych',
+        finishRootFolderReorder: 'Zakończ zmianę kolejności folderów głównych',
         toggleDescendantNotes: 'Pokaż notatki z podfolderów (foldery i tagi)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Automatycznie rozwijaj foldery i tagi', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Pokaż ukryte elementy', // Tooltip for button to show hidden items (English: Show hidden items)
@@ -539,8 +539,8 @@ export const STRINGS_PL = {
                 desc: 'Automatycznie odkrywaj notatki po otwarciu z Quick Switcher, linków lub wyszukiwania.'
             },
             autoRevealIgnoreRightSidebar: {
-                name: 'Ignoruj prawy pasek boczny',
-                desc: 'Wyłącz automatyczne odkrywanie z prawego paska bocznego.'
+                name: 'Ignoruj zdarzenia z prawego paska bocznego',
+                desc: 'Nie zmieniaj aktywnej notatki przy klikaniu lub zmienianiu notatek w prawym pasku bocznym.'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Automatycznie wybierz pierwszą notatkę (tylko desktop)',
@@ -555,12 +555,12 @@ export const STRINGS_PL = {
                 desc: 'Wyświetl sekcję skrótów w panelu nawigacji.'
             },
             showRecentNotes: {
-                name: 'Show recent notes',
-                desc: 'Display the recent notes section in the navigation pane.'
+                name: 'Pokaż ostatnie notatki',
+                desc: 'Wyświetl sekcję ostatnich notatek w panelu nawigacji.'
             },
             recentNotesCount: {
-                name: 'Recent notes count',
-                desc: 'Number of recent notes to display.'
+                name: 'Liczba ostatnich notatek',
+                desc: 'Liczba ostatnich notatek do wyświetlenia.'
             },
             showTooltips: {
                 name: 'Pokaż podpowiedzi (tylko desktop)',

@@ -54,21 +54,21 @@ export const STRINGS_ZH = {
 
     navigationPane: {
         shortcutsHeader: '快捷方式',
-        recentNotesHeader: 'Recent notes',
-        reorderRootFoldersTitle: 'Reorder root folders',
-        reorderRootFoldersHint: 'Drag folders to change order',
-        vaultRootLabel: 'Vault',
-        resetRootFolderOrder: 'Reset to alphabetical order',
-        dragHandleLabel: 'Drag to reorder'
+        recentNotesHeader: '最近笔记',
+        reorderRootFoldersTitle: '重新排列根文件夹',
+        reorderRootFoldersHint: '拖拽文件夹来更改顺序',
+        vaultRootLabel: '仓库',
+        resetRootFolderOrder: '重置为字母顺序',
+        dragHandleLabel: '拖拽重新排列'
     },
 
     shortcuts: {
-        folderExists: 'Folder already in shortcuts',
-        noteExists: 'Note already in shortcuts',
-        tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search shortcut already exists',
-        emptySearchQuery: 'Enter a search query before saving it',
-        emptySearchName: 'Enter a name before saving the search',
+        folderExists: '文件夹已在快捷方式中',
+        noteExists: '笔记已在快捷方式中',
+        tagExists: '标签已在快捷方式中',
+        searchExists: '搜索快捷方式已存在',
+        emptySearchQuery: '保存前请输入搜索查询',
+        emptySearchName: '保存搜索前请输入名称',
         add: '添加到快捷方式',
         remove: '从快捷方式移除',
         moveUp: '上移',
@@ -79,7 +79,7 @@ export const STRINGS_ZH = {
     paneHeader: {
         collapseAllFolders: '折叠项目', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: '展开所有项目', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Scroll to shortcuts',
+        scrollToShortcuts: '滚动到快捷方式',
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
         newNote: '新笔记', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: '返回导航', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -88,8 +88,8 @@ export const STRINGS_ZH = {
         customSort: '自定义', // Label for custom sorting mode (English: Custom)
         showFolders: '显示导航', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: '隐藏导航', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Reorder root folders',
-        finishRootFolderReorder: 'Finish root folder reorder',
+        reorderRootFolders: '重新排列根文件夹',
+        finishRootFolderReorder: '完成根文件夹重新排列',
         toggleDescendantNotes: '显示后代笔记（文件夹和标签）', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '显示隐藏项', // Tooltip for button to show hidden items (English: Show hidden items)
@@ -537,8 +537,8 @@ export const STRINGS_ZH = {
                 desc: '从快速切换器、链接或搜索打开笔记时自动显示。'
             },
             autoRevealIgnoreRightSidebar: {
-                name: '忽略右侧边栏',
-                desc: '禁用来自右侧边栏的自动显示。'
+                name: '忽略右侧边栏事件',
+                desc: '在右侧边栏中点击或更改笔记时不更改活动笔记。'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: '自动选择第一个笔记（仅桌面端）',
@@ -553,12 +553,12 @@ export const STRINGS_ZH = {
                 desc: '在导航窗格中显示快捷方式部分。'
             },
             showRecentNotes: {
-                name: 'Show recent notes',
-                desc: 'Display the recent notes section in the navigation pane.'
+                name: '显示最近笔记',
+                desc: '在导航窗格中显示最近笔记部分。'
             },
             recentNotesCount: {
-                name: 'Recent notes count',
-                desc: 'Number of recent notes to display.'
+                name: '最近笔记数量',
+                desc: '要显示的最近笔记数量。'
             },
             showTooltips: {
                 name: '显示工具提示（仅桌面端）',

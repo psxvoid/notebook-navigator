@@ -99,27 +99,6 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     menu.addSeparator();
 
-    if (services.shortcuts) {
-        const { folderShortcutKeysByPath, addFolderShortcut, removeShortcut } = services.shortcuts;
-        const existingShortcutKey = folderShortcutKeysByPath.get(folder.path);
-
-        menu.addItem((item: MenuItem) => {
-            if (existingShortcutKey) {
-                item.setTitle(strings.shortcuts.remove)
-                    .setIcon('lucide-star-off')
-                    .onClick(() => {
-                        void removeShortcut(existingShortcutKey);
-                    });
-            } else {
-                item.setTitle(strings.shortcuts.add)
-                    .setIcon('lucide-star')
-                    .onClick(() => {
-                        void addFolderShortcut(folder.path);
-                    });
-            }
-        });
-    }
-
     // Duplicate folder
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.duplicateFolder)
@@ -155,6 +134,28 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                 .onClick(async () => {
                     await fileSystemOps.revealInSystemExplorer(folder);
                 });
+        });
+    }
+
+    // Add to shortcuts / Remove from shortcuts
+    if (services.shortcuts) {
+        const { folderShortcutKeysByPath, addFolderShortcut, removeShortcut } = services.shortcuts;
+        const existingShortcutKey = folderShortcutKeysByPath.get(folder.path);
+
+        menu.addItem((item: MenuItem) => {
+            if (existingShortcutKey) {
+                item.setTitle(strings.shortcuts.remove)
+                    .setIcon('lucide-star-off')
+                    .onClick(() => {
+                        void removeShortcut(existingShortcutKey);
+                    });
+            } else {
+                item.setTitle(strings.shortcuts.add)
+                    .setIcon('lucide-star')
+                    .onClick(() => {
+                        void addFolderShortcut(folder.path);
+                    });
+            }
         });
     }
 

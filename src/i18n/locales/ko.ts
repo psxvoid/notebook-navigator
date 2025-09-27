@@ -54,21 +54,21 @@ export const STRINGS_KO = {
 
     navigationPane: {
         shortcutsHeader: '바로가기',
-        recentNotesHeader: 'Recent notes',
-        reorderRootFoldersTitle: 'Reorder root folders',
-        reorderRootFoldersHint: 'Drag folders to change order',
-        vaultRootLabel: 'Vault',
-        resetRootFolderOrder: 'Reset to alphabetical order',
-        dragHandleLabel: 'Drag to reorder'
+        recentNotesHeader: '최근 노트',
+        reorderRootFoldersTitle: '루트 폴더 순서 변경',
+        reorderRootFoldersHint: '폴더를 드래그하여 순서 변경',
+        vaultRootLabel: '보관함',
+        resetRootFolderOrder: '알파벳 순서로 리셋',
+        dragHandleLabel: '드래그하여 순서 변경'
     },
 
     shortcuts: {
-        folderExists: 'Folder already in shortcuts',
-        noteExists: 'Note already in shortcuts',
-        tagExists: 'Tag already in shortcuts',
-        searchExists: 'Search shortcut already exists',
-        emptySearchQuery: 'Enter a search query before saving it',
-        emptySearchName: 'Enter a name before saving the search',
+        folderExists: '폴더가 이미 바로가기에 있습니다',
+        noteExists: '노트가 이미 바로가기에 있습니다',
+        tagExists: '태그가 이미 바로가기에 있습니다',
+        searchExists: '검색 바로가기가 이미 존재합니다',
+        emptySearchQuery: '저장하기 전에 검색 쿼리를 입력하세요',
+        emptySearchName: '검색을 저장하기 전에 이름을 입력하세요',
         add: '바로가기에 추가',
         remove: '바로가기에 제거',
         moveUp: '위로 이동',
@@ -79,7 +79,7 @@ export const STRINGS_KO = {
     paneHeader: {
         collapseAllFolders: '항목 접기', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: '모든 항목 펼치기', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Scroll to shortcuts',
+        scrollToShortcuts: '바로가기로 스크롤',
         newFolder: '새 폴더', // Tooltip for create new folder button (English: New folder)
         newNote: '새 노트', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: '탐색으로 돌아가기', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -88,8 +88,8 @@ export const STRINGS_KO = {
         customSort: '사용자 정의', // Label for custom sorting mode (English: Custom)
         showFolders: '탐색 표시', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: '탐색 숨기기', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Reorder root folders',
-        finishRootFolderReorder: 'Finish root folder reorder',
+        reorderRootFolders: '루트 폴더 순서 변경',
+        finishRootFolderReorder: '루트 폴더 순서 변경 완료',
         toggleDescendantNotes: '하위 항목의 노트 표시 (폴더 및 태그)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: '폴더 및 태그 자동 펼치기', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '숨겨진 항목 표시', // Tooltip for button to show hidden items (English: Show hidden items)
@@ -537,8 +537,8 @@ export const STRINGS_KO = {
                 desc: '빠른 전환기, 링크 또는 검색에서 열 때 노트를 자동으로 표시합니다.'
             },
             autoRevealIgnoreRightSidebar: {
-                name: '오른쪽 사이드바 무시',
-                desc: '오른쪽 사이드바에서 자동 표시를 비활성화합니다.'
+                name: '오른쪽 사이드바의 이벤트 무시',
+                desc: '오른쪽 사이드바에서 클릭하거나 노트를 변경할 때 활성 노트를 변경하지 않습니다.'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: '첫 번째 노트 자동 선택 (데스크톱 전용)',
@@ -553,12 +553,12 @@ export const STRINGS_KO = {
                 desc: '탐색 창에 바로가기 섹션을 표시합니다.'
             },
             showRecentNotes: {
-                name: 'Show recent notes',
-                desc: 'Display the recent notes section in the navigation pane.'
+                name: '최근 노트 표시',
+                desc: '탐색 창에 최근 노트 섹션을 표시합니다.'
             },
             recentNotesCount: {
-                name: 'Recent notes count',
-                desc: 'Number of recent notes to display.'
+                name: '최근 노트 수',
+                desc: '표시할 최근 노트의 수입니다.'
             },
             showTooltips: {
                 name: '도구 설명 표시 (데스크톱 전용)',
