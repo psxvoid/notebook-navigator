@@ -46,6 +46,7 @@ export function NavigationPaneHeader({
 
     // Hook providing shared navigation actions (expand/collapse, folder creation, toggle visibility)
     const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
+    const hasExcludedFolders = settings.excludedFolders.length > 0;
 
     if (isMobile) {
         // Mobile devices render actions in tab bar instead of header
@@ -96,23 +97,27 @@ export function NavigationPaneHeader({
                     >
                         <ObsidianIcon name={shouldCollapseItems() ? 'lucide-chevrons-down-up' : 'lucide-chevrons-up-down'} />
                     </button>
-                    <button
-                        className={`nn-icon-button ${settings.showHiddenItems ? 'nn-icon-button-active' : ''}`}
-                        aria-label={settings.showHiddenItems ? strings.paneHeader.hideExcludedItems : strings.paneHeader.showExcludedItems}
-                        onClick={async () => {
-                            await handleToggleShowExcludedFolders();
-                            if (onTreeUpdateComplete) {
-                                // Defer callback until after DOM updates complete
-                                requestAnimationFrame(() => {
-                                    onTreeUpdateComplete();
-                                });
+                    {hasExcludedFolders ? (
+                        <button
+                            className={`nn-icon-button ${settings.showHiddenItems ? 'nn-icon-button-active' : ''}`}
+                            aria-label={
+                                settings.showHiddenItems ? strings.paneHeader.hideExcludedItems : strings.paneHeader.showExcludedItems
                             }
-                        }}
-                        disabled={settings.excludedFolders.length === 0 && settings.hiddenTags.length === 0}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="lucide-eye" />
-                    </button>
+                            onClick={async () => {
+                                await handleToggleShowExcludedFolders();
+                                if (onTreeUpdateComplete) {
+                                    // Defer callback until after DOM updates complete
+                                    requestAnimationFrame(() => {
+                                        onTreeUpdateComplete();
+                                    });
+                                }
+                            }}
+                            disabled={!hasExcludedFolders}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="lucide-eye" />
+                        </button>
+                    ) : null}
                     <button
                         className={`nn-icon-button ${rootReorderActive ? 'nn-icon-button-active' : ''}`}
                         aria-label={rootReorderActive ? strings.paneHeader.finishRootFolderReorder : strings.paneHeader.reorderRootFolders}

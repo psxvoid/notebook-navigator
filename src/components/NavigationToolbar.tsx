@@ -42,6 +42,7 @@ export function NavigationToolbar({
 
     // Hook providing shared navigation actions (expand/collapse, folder creation, toggle visibility)
     const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
+    const hasExcludedFolders = settings.excludedFolders.length > 0;
 
     return (
         <div className="nn-mobile-toolbar">
@@ -75,23 +76,25 @@ export function NavigationToolbar({
             >
                 <ObsidianIcon name={shouldCollapseItems() ? 'lucide-chevrons-down-up' : 'lucide-chevrons-up-down'} />
             </button>
-            <button
-                className={`nn-mobile-toolbar-button ${settings.showHiddenItems ? 'nn-mobile-toolbar-button-active' : ''}`}
-                aria-label={settings.showHiddenItems ? strings.paneHeader.hideExcludedItems : strings.paneHeader.showExcludedItems}
-                onClick={async () => {
-                    await handleToggleShowExcludedFolders();
-                    if (onTreeUpdateComplete) {
-                        // Defer callback until after DOM updates complete
-                        requestAnimationFrame(() => {
-                            onTreeUpdateComplete();
-                        });
-                    }
-                }}
-                disabled={settings.excludedFolders.length === 0 && settings.hiddenTags.length === 0}
-                tabIndex={-1}
-            >
-                <ObsidianIcon name="lucide-eye" />
-            </button>
+            {hasExcludedFolders ? (
+                <button
+                    className={`nn-mobile-toolbar-button ${settings.showHiddenItems ? 'nn-mobile-toolbar-button-active' : ''}`}
+                    aria-label={settings.showHiddenItems ? strings.paneHeader.hideExcludedItems : strings.paneHeader.showExcludedItems}
+                    onClick={async () => {
+                        await handleToggleShowExcludedFolders();
+                        if (onTreeUpdateComplete) {
+                            // Defer callback until after DOM updates complete
+                            requestAnimationFrame(() => {
+                                onTreeUpdateComplete();
+                            });
+                        }
+                    }}
+                    disabled={!hasExcludedFolders}
+                    tabIndex={-1}
+                >
+                    <ObsidianIcon name="lucide-eye" />
+                </button>
+            ) : null}
             <button
                 className={`nn-mobile-toolbar-button ${rootReorderActive ? 'nn-mobile-toolbar-button-active' : ''}`}
                 aria-label={rootReorderActive ? strings.paneHeader.finishRootFolderReorder : strings.paneHeader.reorderRootFolders}
