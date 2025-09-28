@@ -18,6 +18,16 @@
 
 import { FileData } from './IndexedDBStorage';
 
+function cloneFileData(data: FileData): FileData {
+    return {
+        mtime: data.mtime,
+        tags: data.tags ? [...data.tags] : null,
+        preview: data.preview,
+        featureImage: data.featureImage,
+        metadata: data.metadata ? { ...data.metadata } : null
+    };
+}
+
 /**
  * In-memory file cache that mirrors the IndexedDB storage for synchronous access.
  * This cache stores all file data in RAM to enable synchronous reads during rendering,
@@ -104,6 +114,10 @@ export class MemoryFileCache {
      */
     updateFile(path: string, data: FileData): void {
         this.memoryMap.set(path, data);
+    }
+
+    setClonedFile(path: string, data: FileData): void {
+        this.memoryMap.set(path, cloneFileData(data));
     }
 
     /**

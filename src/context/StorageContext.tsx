@@ -1193,6 +1193,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     const existing = db.getFile(oldPath);
                     if (existing) {
                         pendingRenameDataRef.current.set(file.path, existing);
+                        db.seedMemoryFile(file.path, existing);
                     }
                 } catch (error) {
                     console.error('Failed to capture renamed file data:', error);

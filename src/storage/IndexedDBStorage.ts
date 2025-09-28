@@ -395,6 +395,18 @@ export class IndexedDBStorage {
     }
 
     /**
+     * Seed the in-memory cache for a path without writing to IndexedDB.
+     * Used to keep UI responsive when files are renamed and we already
+     * have complete metadata under the old path.
+     */
+    seedMemoryFile(path: string, data: FileData): void {
+        if (!this.cache.isReady()) {
+            return;
+        }
+        this.cache.setClonedFile(path, data);
+    }
+
+    /**
      * Store or update a single file in the database.
      *
      * @param path - File path (key)
