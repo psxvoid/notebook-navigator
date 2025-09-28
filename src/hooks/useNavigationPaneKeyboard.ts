@@ -194,6 +194,23 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
             const shortcuts = settings.keyboardShortcuts;
             const isRTL = helpers.isRTL();
             let targetIndex = -1;
+            let shouldScrollToTop = false;
+
+            const getFirstSelectableIndex = () => helpers.findNextIndex(-1);
+            const findSelectableBefore = (startIndex: number) => {
+                if (items.length === 0) {
+                    return -1;
+                }
+
+                for (let i = Math.min(startIndex, items.length - 1); i >= 0; i--) {
+                    const candidate = helpers.getItemAt(i);
+                    if (candidate && isSelectableNavigationItem(candidate)) {
+                        return i;
+                    }
+                }
+
+                return -1;
+            };
 
             if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_MOVE_DOWN)) {
                 e.preventDefault();
@@ -230,14 +247,29 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                 }
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_PAGE_UP)) {
                 e.preventDefault();
-                if (currentIndex !== -1) {
+                const firstSelectableIndex = getFirstSelectableIndex();
+
+                if (currentIndex === -1) {
+                    targetIndex = firstSelectableIndex;
+                    if (firstSelectableIndex >= 0) {
+                        shouldScrollToTop = true;
+                    }
+                } else {
                     const pageSize = helpers.getPageSize();
                     const newIndex = Math.max(0, currentIndex - pageSize);
-                    let newTargetIndex = helpers.findPreviousIndex(newIndex + 1);
-                    if (newTargetIndex === currentIndex && currentIndex !== 0) {
-                        newTargetIndex = helpers.findNextIndex(-1);
+                    const nearestSelectable = findSelectableBefore(newIndex);
+
+                    if (nearestSelectable >= 0) {
+                        targetIndex = nearestSelectable;
+                        if (firstSelectableIndex >= 0 && nearestSelectable === firstSelectableIndex) {
+                            shouldScrollToTop = true;
+                        }
+                    } else {
+                        targetIndex = firstSelectableIndex;
+                        if (firstSelectableIndex >= 0) {
+                            shouldScrollToTop = true;
+                        }
                     }
-                    targetIndex = newTargetIndex;
                 }
             } else if (
                 matchesShortcut(e, shortcuts, KeyboardShortcutAction.NAV_EXPAND_OR_FOCUS_LIST, {
@@ -367,7 +399,10 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                 }
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_HOME)) {
                 e.preventDefault();
-                targetIndex = helpers.findNextIndex(-1);
+                targetIndex = getFirstSelectableIndex();
+                if (targetIndex >= 0) {
+                    shouldScrollToTop = true;
+                }
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_END)) {
                 e.preventDefault();
                 for (let i = items.length - 1; i >= 0; i--) {
@@ -381,10 +416,15 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
 
             if (targetIndex >= 0 && targetIndex < items.length) {
                 const item = helpers.getItemAt(targetIndex);
-                if (item) {
+                if (item && isSelectableNavigationItem(item)) {
                     selectItemAtIndex(item);
+                    if (shouldScrollToTop) {
+                        virtualizer.scrollToIndex(0, { align: 'start' });
+                    }
                     helpers.scrollToIndex(targetIndex);
                 }
+            } else if (shouldScrollToTop) {
+                virtualizer.scrollToIndex(0, { align: 'start' });
             }
         },
         [
@@ -401,7 +441,8 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
             selectItemAtIndex,
             selectionState,
             app,
-            fileSystemOps
+            fileSystemOps,
+            virtualizer
         ]
     );
 
