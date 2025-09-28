@@ -91,6 +91,8 @@ interface UseListPaneScrollParams {
     suppressSearchTopScrollRef?: { current: boolean } | null;
     /** Height of the synthetic top spacer used ahead of file items */
     topSpacerHeight: number;
+    /** Additional scroll margin to account for sticky title overlay */
+    titleOverlayHeight: number;
 }
 
 /**
@@ -127,7 +129,8 @@ export function useListPaneScroll({
     selectionDispatch,
     searchQuery,
     suppressSearchTopScrollRef,
-    topSpacerHeight
+    topSpacerHeight,
+    titleOverlayHeight
 }: UseListPaneScrollParams): UseListPaneScrollResult {
     const { isMobile } = useServices();
     const { hasPreview, getDB, isStorageReady } = useFileCache();
@@ -179,6 +182,8 @@ export function useListPaneScroll({
             }
             return element;
         },
+        scrollMargin: titleOverlayHeight,
+        scrollPaddingStart: titleOverlayHeight,
         estimateSize: index => {
             const item = listItems[index];
             const heights = LISTPANE_MEASUREMENTS;

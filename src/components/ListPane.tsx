@@ -122,6 +122,7 @@ export const ListPane = React.memo(
         const currentSearchProvider = settings.searchProvider ?? 'internal';
         const shouldShowTitleOverlay = !isMobile;
         const topSpacerHeight = shouldShowTitleOverlay ? LISTPANE_MEASUREMENTS.titleOverlayGap : LISTPANE_MEASUREMENTS.topSpacer;
+        const titleOverlayHeight = shouldShowTitleOverlay ? LISTPANE_MEASUREMENTS.titleOverlayHeight : 0;
 
         // Search state - use directly from settings for sync across devices
         const isSearchActive = settings.searchActive;
@@ -229,7 +230,8 @@ export const ListPane = React.memo(
             // Use debounced value for scroll orchestration to align with filtering
             searchQuery: isSearchActive ? debouncedSearchQuery : undefined,
             suppressSearchTopScrollRef,
-            topSpacerHeight
+            topSpacerHeight,
+            titleOverlayHeight
         });
 
         // Check if we're in slim mode

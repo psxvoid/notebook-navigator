@@ -1127,6 +1127,7 @@ body {
     padding-bottom: var(--nn-list-title-overlay-offset);
     pointer-events: none;
     margin-inline: 0;
+    margin-bottom: calc(-1 * (var(--nn-list-title-overlay-content-height) + (var(--nn-list-title-overlay-offset) * 2)));
 }
 
 .nn-list-title-overlay::before {
