@@ -89,7 +89,7 @@ export class IconPickerModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
-        contentEl.addClass('nn-icon-picker-modal');
+        this.modalEl.addClass('nn-icon-picker-modal');
 
         // Header showing the folder/tag name
         const header = contentEl.createDiv('nn-icon-picker-header');
@@ -106,6 +106,9 @@ export class IconPickerModal extends Modal {
             placeholder: strings.modals.iconPicker.searchPlaceholder,
             cls: 'nn-icon-search-input'
         });
+        this.searchInput.setAttribute('enterkeyhint', 'done');
+
+        this.attachCloseButtonHandler();
 
         // Create results container
         this.resultsContainer = contentEl.createDiv('nn-icon-results-container');
@@ -531,11 +534,21 @@ export class IconPickerModal extends Modal {
         this.scope.register([], 'ArrowDown', evt => this.handleArrowKey(evt, 0, 1));
 
         this.scope.register([], 'Enter', evt => {
-            const currentFocused = document.activeElement as HTMLElement;
+            const currentFocused = document.activeElement as HTMLElement | null;
+            if (currentFocused === this.searchInput) {
+                evt.preventDefault();
+                window.setTimeout(() => {
+                    this.searchInput.blur();
+                });
+                return;
+            }
+
             if (currentFocused?.classList.contains('nn-icon-item')) {
                 evt.preventDefault();
                 const iconId = currentFocused.getAttribute('data-icon-id');
-                if (iconId) this.selectIcon(iconId);
+                if (iconId) {
+                    this.selectIcon(iconId);
+                }
             }
         });
     }
@@ -653,6 +666,7 @@ export class IconPickerModal extends Modal {
 
         const { contentEl } = this;
         contentEl.empty();
+        this.modalEl.removeClass('nn-icon-picker-modal');
         this.removeButton = null;
         // Cleanup DOM listeners
         if (this.domDisposers.length) {
@@ -665,5 +679,20 @@ export class IconPickerModal extends Modal {
             });
             this.domDisposers = [];
         }
+    }
+
+    private attachCloseButtonHandler() {
+        const closeButton = this.modalEl.querySelector<HTMLElement>('.modal-close-button');
+        if (!closeButton) {
+            return;
+        }
+
+        const handleClose = (event: Event) => {
+            event.preventDefault();
+            this.close();
+        };
+
+        this.addDomListener(closeButton, 'click', handleClose);
+        this.addDomListener(closeButton, 'pointerdown', handleClose);
     }
 }

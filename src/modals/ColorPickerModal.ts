@@ -169,12 +169,14 @@ export class ColorPickerModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
-        contentEl.addClass('nn-color-picker-modal');
+        this.modalEl.addClass('nn-color-picker-modal');
 
         // Header showing the folder/tag name
         const header = contentEl.createDiv('nn-color-picker-header');
         const headerText = this.isTag() ? `#${this.itemPath}` : this.itemPath.split('/').pop() || this.itemPath;
         header.createEl('h3', { text: headerText });
+
+        this.attachCloseButtonHandler();
 
         // Two-column layout
         const mainContent = contentEl.createDiv('nn-color-picker-content');
@@ -226,6 +228,7 @@ export class ColorPickerModal extends Modal {
                 placeholder: 'RRGGBB or RRGGBBAA'
             }
         });
+        this.hexInput.setAttribute('enterkeyhint', 'done');
 
         // RGB sliders section
         const rgbSection = rightColumn.createDiv('nn-rgb-section');
@@ -304,6 +307,7 @@ export class ColorPickerModal extends Modal {
 
         // Set up event handlers
         this.setupEventHandlers();
+        this.registerKeyboardShortcuts();
         this.loadRecentColors();
         this.loadPresetColors();
         this.updateFromHex(this.selectedColor);
@@ -327,6 +331,7 @@ export class ColorPickerModal extends Modal {
     onClose() {
         const { contentEl } = this;
         contentEl.empty();
+        this.modalEl.removeClass('nn-color-picker-modal');
         // Cleanup DOM listeners
         if (this.domDisposers.length) {
             this.domDisposers.forEach(dispose => {
@@ -338,6 +343,21 @@ export class ColorPickerModal extends Modal {
             });
             this.domDisposers = [];
         }
+    }
+
+    private attachCloseButtonHandler() {
+        const closeButton = this.modalEl.querySelector<HTMLElement>('.modal-close-button');
+        if (!closeButton) {
+            return;
+        }
+
+        const handleClose = (event: Event) => {
+            event.preventDefault();
+            this.close();
+        };
+
+        this.addDomListener(closeButton, 'click', handleClose);
+        this.addDomListener(closeButton, 'pointerdown', handleClose);
     }
 
     /**
@@ -352,6 +372,20 @@ export class ColorPickerModal extends Modal {
                     this.updateFromRGB();
                 }
             });
+        });
+    }
+
+    /**
+     * Register keyboard shortcuts for the modal
+     */
+    private registerKeyboardShortcuts() {
+        this.scope.register([], 'Enter', event => {
+            if (document.activeElement === this.hexInput) {
+                event.preventDefault();
+                window.setTimeout(() => {
+                    this.hexInput.blur();
+                });
+            }
         });
     }
 

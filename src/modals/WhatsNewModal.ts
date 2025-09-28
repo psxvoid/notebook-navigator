@@ -88,12 +88,14 @@ export class WhatsNewModal extends Modal {
         const { contentEl } = this;
 
         contentEl.empty();
-        contentEl.addClass('nn-whats-new-modal');
+        this.modalEl.addClass('nn-whats-new-modal');
 
         contentEl.createEl('h2', {
             text: strings.whatsNew.title,
             cls: 'nn-whats-new-header'
         });
+
+        this.attachCloseButtonHandler();
 
         const scrollContainer = contentEl.createDiv('nn-whats-new-scroll');
 
@@ -207,6 +209,7 @@ export class WhatsNewModal extends Modal {
     onClose(): void {
         const { contentEl } = this;
         contentEl.empty();
+        this.modalEl.removeClass('nn-whats-new-modal');
         if (this.domDisposers.length) {
             this.domDisposers.forEach(dispose => {
                 try {
@@ -222,5 +225,20 @@ export class WhatsNewModal extends Modal {
         if (this.onCloseCallback) {
             this.onCloseCallback();
         }
+    }
+
+    private attachCloseButtonHandler(): void {
+        const closeButton = this.modalEl.querySelector<HTMLElement>('.modal-close-button');
+        if (!closeButton) {
+            return;
+        }
+
+        const handleClose = (event: Event) => {
+            event.preventDefault();
+            this.close();
+        };
+
+        this.addDomListener(closeButton, 'click', handleClose);
+        this.addDomListener(closeButton, 'pointerdown', handleClose);
     }
 }
