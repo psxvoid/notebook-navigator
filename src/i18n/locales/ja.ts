@@ -809,8 +809,16 @@ export const STRINGS_JA = {
                 error: 'キャッシュの再構築に失敗しました'
             },
             hotkeys: {
-                infoText:
-                    'Notebook Navigatorのホットキーは.obsidian/plugins/notebook-navigator/data.jsonを編集してカスタマイズできます。テキストエディタで開いて"keyboardShortcuts"セクションを見つけてください。各コマンドはこの構造です：\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] } ]\n\n修飾キー：\n• "Mod" = Cmd (macOS) / Ctrl (Win/Linux)\n• "Alt" = Alt/Option\n• "Shift" = Shift\n• "Ctrl" = Control（クロスプラットフォームには"Mod"を推奨）\n\nコマンドごとに複数のキーを割り当て可能、例：ArrowUpとK：\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]\n\nキーボードシーケンス（VIMの"gg"や"dd"など）はサポートされていません。編集後、Obsidianを再読み込みまたはプラグインを切り替えて変更を適用してください。'
+                intro: 'Notebook Navigator のホットキーは <plugin folder>/notebook-navigator/data.json を編集してカスタマイズします。ファイルをテキストエディタで開き、"keyboardShortcuts" セクションを探してください。各エントリは次の構造です:',
+                example: '"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]',
+                modifierList: [
+                    '"Mod" = Cmd (macOS) / Ctrl (Win/Linux)',
+                    '"Alt" = Alt/Option',
+                    '"Shift" = Shift',
+                    '"Ctrl" = Control（クロスプラットフォームには "Mod" を推奨）'
+                ],
+                guidance:
+                    'ArrowUp と K のような代替キーを追加する場合は、上の例と同じように同一コマンドへ複数のマッピングを登録してください。複数のモディファイアを使う場合は "modifiers": ["Mod", "Shift"] のように並べて記述します。「gg」や「dd」などのキーシーケンスには対応していません。編集後は Obsidian を再読み込みしてください。'
             },
             externalIcons: {
                 downloadButton: 'ダウンロード',

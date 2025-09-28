@@ -810,8 +810,16 @@ export const STRINGS_FR = {
                 error: 'Échec de la reconstruction du cache'
             },
             hotkeys: {
-                infoText:
-                    'Vous pouvez personnaliser les raccourcis clavier de Notebook Navigator en éditant .obsidian/plugins/notebook-navigator/data.json. Ouvrez-le dans un éditeur de texte et trouvez la section "keyboardShortcuts". Chaque commande a cette structure :\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] } ]\n\nTouches modificatrices :\n• "Mod" = Cmd (macOS) / Ctrl (Win/Linux)\n• "Alt" = Alt/Option\n• "Shift" = Maj\n• "Ctrl" = Contrôle (préférez "Mod" pour multiplateforme)\n\nVous pouvez assigner plusieurs touches par commande, p.ex. ArrowUp et K :\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]\n\nLes séquences de clavier (comme "gg" ou "dd" dans VIM) ne sont pas supportées. Après modification, rechargez Obsidian ou basculez le plugin pour appliquer les changements.'
+                intro: 'Modifiez <plugin folder>/notebook-navigator/data.json pour personnaliser les raccourcis de Notebook Navigator. Ouvrez le fichier et repérez la section "keyboardShortcuts". Chaque entrée suit cette structure :',
+                example: '"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]',
+                modifierList: [
+                    '"Mod" = Cmd (macOS) / Ctrl (Win/Linux)',
+                    '"Alt" = Alt/Option',
+                    '"Shift" = Maj',
+                    '"Ctrl" = Contrôle (privilégiez "Mod" pour le multiplateforme)'
+                ],
+                guidance:
+                    'Ajoutez plusieurs associations pour proposer des touches alternatives comme FlècheHaut et K montrées ci-dessus. Combinez des modificateurs dans une même entrée en listant chaque valeur, par exemple "modifiers": ["Mod", "Shift"]. Les séquences clavier telles que "gg" ou "dd" ne sont pas prises en charge. Après modification, rechargez Obsidian.'
             },
             externalIcons: {
                 downloadButton: 'Télécharger',

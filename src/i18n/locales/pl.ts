@@ -809,8 +809,16 @@ export const STRINGS_PL = {
                 error: 'Nie udało się odbudować pamięci podręcznej'
             },
             hotkeys: {
-                infoText:
-                    'Możesz dostosować skróty klawiszowe Notebook Navigator edytując .obsidian/plugins/notebook-navigator/data.json. Otwórz go w edytorze tekstu i znajdź sekcję "keyboardShortcuts". Każde polecenie ma tę strukturę:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] } ]\n\nKlawisze modyfikujące:\n• "Mod" = Cmd (macOS) / Ctrl (Win/Linux)\n• "Alt" = Alt/Option\n• "Shift" = Shift\n• "Ctrl" = Control (preferuj "Mod" dla wieloplatformowości)\n\nMożesz przypisać wiele klawiszy na polecenie, np. ArrowUp i K:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]\n\nSekwencje klawiaturowe (jak "gg" czy "dd" w VIM) nie są obsługiwane. Po edycji przeładuj Obsidian lub przełącz wtyczkę, aby zastosować zmiany.'
+                intro: 'Edytuj <plugin folder>/notebook-navigator/data.json, aby dostosować skróty Notebook Navigator. Otwórz plik i znajdź sekcję "keyboardShortcuts". Każdy wpis ma następującą strukturę:',
+                example: '"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]',
+                modifierList: [
+                    '"Mod" = Cmd (macOS) / Ctrl (Win/Linux)',
+                    '"Alt" = Alt/Option',
+                    '"Shift" = Shift',
+                    '"Ctrl" = Control (preferuj "Mod" dla wielu platform)'
+                ],
+                guidance:
+                    'Dodaj wiele mapowań, aby obsłużyć alternatywne klawisze, na przykład ArrowUp i K pokazane powyżej. Aby użyć kilku modyfikatorów, wypisz je w jednej definicji, np. "modifiers": ["Mod", "Shift"]. Sekwencje klawiszy takie jak "gg" lub "dd" nie są obsługiwane. Po edycji ponownie uruchom Obsidian.'
             },
             externalIcons: {
                 downloadButton: 'Pobierz',

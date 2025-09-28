@@ -1629,29 +1629,17 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             cls: 'setting-item-description'
         });
 
-        // Split the info text into paragraphs for better formatting
-        const infoLines = strings.settings.items.hotkeys.infoText.split('\n\n');
-        infoLines.forEach((paragraph, index) => {
-            if (index === 0) {
-                // First paragraph
-                hotkeysInfo.createEl('p', { text: paragraph });
-            } else if (paragraph.includes('•')) {
-                // List items
-                const listContainer = hotkeysInfo.createEl('div', { cls: 'nn-hotkeys-list' });
-                paragraph.split('\n').forEach(line => {
-                    if (line.trim()) {
-                        listContainer.createEl('div', { text: line, cls: 'nn-hotkeys-list-item' });
-                    }
-                });
-            } else if (paragraph.includes('"up":') || paragraph.includes('"down":')) {
-                // Code examples
-                const codeBlock = hotkeysInfo.createEl('pre', { cls: 'nn-hotkeys-code' });
-                codeBlock.createEl('code', { text: paragraph });
-            } else {
-                // Regular paragraphs
-                hotkeysInfo.createEl('p', { text: paragraph });
-            }
+        hotkeysInfo.createEl('p', { text: strings.settings.items.hotkeys.intro });
+
+        const codeBlock = hotkeysInfo.createEl('pre');
+        codeBlock.createEl('code', { text: strings.settings.items.hotkeys.example });
+
+        const modifierList = hotkeysInfo.createEl('ul');
+        strings.settings.items.hotkeys.modifierList.forEach(item => {
+            modifierList.createEl('li', { text: item });
         });
+
+        hotkeysInfo.createEl('p', { text: strings.settings.items.hotkeys.guidance });
 
         // Section 9: Advanced
         new Setting(containerEl).setName(strings.settings.sections.advanced).setHeading();

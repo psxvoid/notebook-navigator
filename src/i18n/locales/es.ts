@@ -808,8 +808,16 @@ export const STRINGS_ES = {
                 error: 'Error al reconstruir caché'
             },
             hotkeys: {
-                infoText:
-                    'Puedes personalizar los atajos de teclado de Notebook Navigator editando .obsidian/plugins/notebook-navigator/data.json. Ábrelo en un editor de texto y encuentra la sección "keyboardShortcuts". Cada comando tiene esta estructura:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] } ]\n\nTeclas modificadoras:\n• "Mod" = Cmd (macOS) / Ctrl (Win/Linux)\n• "Alt" = Alt/Opción\n• "Shift" = Mayús\n• "Ctrl" = Control (prefiere "Mod" para multiplataforma)\n\nPuedes asignar múltiples teclas por comando, p.ej. ArrowUp y K:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]\n\nLas secuencias de teclado (como "gg" o "dd" en VIM) no están soportadas. Después de editar, recarga Obsidian o alterna el plugin para aplicar cambios.'
+                intro: 'Edita <plugin folder>/notebook-navigator/data.json para personalizar los atajos de Notebook Navigator. Abre el archivo y busca la sección "keyboardShortcuts". Cada entrada usa esta estructura:',
+                example: '"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]',
+                modifierList: [
+                    '"Mod" = Cmd (macOS) / Ctrl (Win/Linux)',
+                    '"Alt" = Alt/Opción',
+                    '"Shift" = Mayús',
+                    '"Ctrl" = Control (prefiere "Mod" para multiplataforma)'
+                ],
+                guidance:
+                    'Añade varias asignaciones para admitir teclas alternativas como ArrowUp y K mostradas arriba. Combina modificadores en una misma entrada indicando cada valor, por ejemplo "modifiers": ["Mod", "Shift"]. Las secuencias de teclado como "gg" o "dd" no están disponibles. Recarga Obsidian después de editar el archivo.'
             },
             externalIcons: {
                 downloadButton: 'Descargar',

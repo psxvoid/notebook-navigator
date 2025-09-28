@@ -811,8 +811,16 @@ export const STRINGS_DE = {
                 error: 'Cache-Neuaufbau fehlgeschlagen'
             },
             hotkeys: {
-                infoText:
-                    'Sie können Notebook Navigator-Tastenkürzel anpassen, indem Sie .obsidian/plugins/notebook-navigator/data.json bearbeiten. Öffnen Sie es in einem Texteditor und suchen Sie den Abschnitt "keyboardShortcuts". Jeder Befehl hat diese Struktur:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] } ]\n\nModifikatortasten:\n• "Mod" = Cmd (macOS) / Strg (Win/Linux)\n• "Alt" = Alt/Option\n• "Shift" = Umschalt\n• "Ctrl" = Steuerung ("Mod" für plattformübergreifend bevorzugen)\n\nSie können mehrere Tasten pro Befehl zuweisen, z.B. ArrowUp und K:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]\n\nTastatursequenzen (wie "gg" oder "dd" in VIM) werden nicht unterstützt. Nach der Bearbeitung Obsidian neu laden oder das Plugin umschalten, um Änderungen anzuwenden.'
+                intro: 'Bearbeite <plugin folder>/notebook-navigator/data.json, um Notebook Navigator-Tastenkürzel anzupassen. Öffne die Datei in einem Texteditor und suche den Abschnitt "keyboardShortcuts". Jede Zuordnung nutzt diese Struktur:',
+                example: '"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]',
+                modifierList: [
+                    '"Mod" = Cmd (macOS) / Strg (Win/Linux)',
+                    '"Alt" = Alt/Option',
+                    '"Shift" = Umschalt',
+                    '"Ctrl" = Steuerung ("Mod" für plattformübergreifend bevorzugen)'
+                ],
+                guidance:
+                    'Füge mehrere Zuordnungen hinzu, um alternative Tasten wie im obigen ArrowUp- und K-Beispiel zu unterstützen. Kombiniere Modifikatortasten, indem du sie gemeinsam angibst, zum Beispiel "modifiers": ["Mod", "Shift"]. Tastatursequenzen wie "gg" oder "dd" werden nicht unterstützt. Lade Obsidian nach dem Bearbeiten der Datei neu.'
             },
             externalIcons: {
                 downloadButton: 'Herunterladen',

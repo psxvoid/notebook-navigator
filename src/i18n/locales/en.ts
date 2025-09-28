@@ -807,8 +807,16 @@ export const STRINGS_EN = {
                 error: 'Failed to rebuild cache'
             },
             hotkeys: {
-                infoText:
-                    'You can customize Notebook Navigator hotkeys by editing .obsidian/plugins/notebook-navigator/data.json. Open it in a text editor and find the "keyboardShortcuts" section. Each command has this structure:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] } ]\n\nModifier keys:\n• "Mod" = Cmd (macOS) / Ctrl (Win/Linux)\n• "Alt" = Alt/Option\n• "Shift" = Shift\n• "Ctrl" = Control (prefer "Mod" for cross-platform)\n\nYou can assign multiple keys per command, e.g. ArrowUp and K:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]\n\nKeyboard sequences (like "gg" or "dd" in VIM) are not supported. After editing, reload Obsidian or toggle the plugin to apply changes.'
+                intro: 'Edit <plugin folder>/notebook-navigator/data.json to customize Notebook Navigator hotkeys. Open the file and locate the "keyboardShortcuts" section. Each entry uses this structure:',
+                example: '"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]',
+                modifierList: [
+                    '"Mod" = Cmd (macOS) / Ctrl (Win/Linux)',
+                    '"Alt" = Alt/Option',
+                    '"Shift" = Shift',
+                    '"Ctrl" = Control (prefer "Mod" for cross-platform)'
+                ],
+                guidance:
+                    'Add multiple mappings to support alternate keys, like the ArrowUp and K bindings shown above. Combine modifiers in one entry by listing each value, for example "modifiers": ["Mod", "Shift"]. Keyboard sequences such as "gg" or "dd" are not supported. Reload Obsidian after editing the file.'
             },
             externalIcons: {
                 downloadButton: 'Download',

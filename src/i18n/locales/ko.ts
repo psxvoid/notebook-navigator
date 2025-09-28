@@ -807,8 +807,16 @@ export const STRINGS_KO = {
                 error: '캐시 다시 빌드 실패'
             },
             hotkeys: {
-                infoText:
-                    'Notebook Navigator 단축키는 .obsidian/plugins/notebook-navigator/data.json을 편집하여 사용자 지정할 수 있습니다. 텍스트 편집기로 열고 "keyboardShortcuts" 섹션을 찾으세요. 각 명령은 이 구조를 가집니다:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] } ]\n\n수정자 키:\n• "Mod" = Cmd (macOS) / Ctrl (Win/Linux)\n• "Alt" = Alt/Option\n• "Shift" = Shift\n• "Ctrl" = Control (크로스 플랫폼에는 "Mod" 권장)\n\n명령당 여러 키를 할당할 수 있습니다. 예: ArrowUp과 K:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]\n\n키보드 시퀀스(VIM의 "gg" 또는 "dd" 같은)는 지원되지 않습니다. 편집 후, Obsidian을 다시 로드하거나 플러그인을 토글하여 변경 사항을 적용하세요.'
+                intro: 'Notebook Navigator 단축키는 <plugin folder>/notebook-navigator/data.json을 편집하여 구성합니다. 파일을 텍스트 편집기로 열고 "keyboardShortcuts" 섹션을 확인하세요. 각 항목은 다음 구조를 사용합니다:',
+                example: '"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]',
+                modifierList: [
+                    '"Mod" = Cmd (macOS) / Ctrl (Win/Linux)',
+                    '"Alt" = Alt/Option',
+                    '"Shift" = Shift',
+                    '"Ctrl" = Control (크로스 플랫폼에서는 "Mod" 권장)'
+                ],
+                guidance:
+                    '위 예제처럼 ArrowUp과 K를 함께 허용하려면 동일한 명령에 여러 매핑을 추가하세요. 여러 수정 키를 사용하려면 "modifiers": ["Mod", "Shift"]처럼 모두 나열합니다. "gg" 또는 "dd"와 같은 키 시퀀스는 지원되지 않습니다. 파일을 수정한 후 Obsidian을 다시 로드하세요.'
             },
             externalIcons: {
                 downloadButton: '다운로드',

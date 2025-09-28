@@ -808,8 +808,16 @@ export const STRINGS_ZH = {
                 error: '重建缓存失败'
             },
             hotkeys: {
-                infoText:
-                    '您可以通过编辑 .obsidian/plugins/notebook-navigator/data.json 来自定义 Notebook Navigator 快捷键。用文本编辑器打开它并找到 "keyboardShortcuts" 部分。每个命令有这个结构：\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] } ]\n\n修饰键：\n• "Mod" = Cmd (macOS) / Ctrl (Win/Linux)\n• "Alt" = Alt/Option\n• "Shift" = Shift\n• "Ctrl" = Control（跨平台推荐用 "Mod"）\n\n可以为每个命令分配多个键，例如 ArrowUp 和 K：\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]\n\n不支持键盘序列（如 VIM 中的 "gg" 或 "dd"）。编辑后，重新加载 Obsidian 或切换插件以应用更改。'
+                intro: '通过编辑 <plugin folder>/notebook-navigator/data.json 来自定义 Notebook Navigator 快捷键。用文本编辑器打开文件并找到 "keyboardShortcuts" 部分。每个条目都使用以下结构：',
+                example: '"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]',
+                modifierList: [
+                    '"Mod" = Cmd (macOS) / Ctrl (Win/Linux)',
+                    '"Alt" = Alt/Option',
+                    '"Shift" = Shift',
+                    '"Ctrl" = Control（跨平台推荐使用 "Mod"）'
+                ],
+                guidance:
+                    '如上方示例所示，需要额外按键时可为同一命令添加多条映射。若需组合多个修饰键，请在同一条目中列出所有值，例如 "modifiers": ["Mod", "Shift" ]。不支持 "gg" 或 "dd" 这类按键序列。编辑完成后，请重新加载 Obsidian。'
             },
             externalIcons: {
                 downloadButton: '下载',
