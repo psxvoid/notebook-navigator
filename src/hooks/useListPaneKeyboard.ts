@@ -158,6 +158,23 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
             const shortcuts = settings.keyboardShortcuts;
             const isRTL = helpers.isRTL();
             let targetIndex = -1;
+            let shouldScrollToTop = false;
+
+            const getFirstSelectableIndex = () => helpers.findNextIndex(-1);
+            const findSelectableBefore = (startIndex: number) => {
+                if (items.length === 0) {
+                    return -1;
+                }
+
+                for (let i = Math.min(startIndex, items.length - 1); i >= 0; i--) {
+                    const candidate = helpers.getItemAt(i);
+                    if (candidate && isSelectableListItem(candidate)) {
+                        return i;
+                    }
+                }
+
+                return -1;
+            };
 
             if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.LIST_EXTEND_SELECTION_DOWN)) {
                 e.preventDefault();
@@ -230,14 +247,29 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
                 }
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_PAGE_UP)) {
                 e.preventDefault();
-                if (currentIndex !== -1) {
+                const firstSelectableIndex = getFirstSelectableIndex();
+
+                if (currentIndex === -1) {
+                    targetIndex = firstSelectableIndex;
+                    if (firstSelectableIndex >= 0) {
+                        shouldScrollToTop = true;
+                    }
+                } else {
                     const pageSize = helpers.getPageSize();
                     const newIndex = Math.max(0, currentIndex - pageSize);
-                    let newTargetIndex = helpers.findPreviousIndex(newIndex + 1);
-                    if (newTargetIndex === currentIndex && currentIndex !== 0) {
-                        newTargetIndex = helpers.findNextIndex(-1);
+                    const nearestSelectable = findSelectableBefore(newIndex);
+
+                    if (nearestSelectable >= 0) {
+                        targetIndex = nearestSelectable;
+                        if (firstSelectableIndex >= 0 && nearestSelectable === firstSelectableIndex) {
+                            shouldScrollToTop = true;
+                        }
+                    } else {
+                        targetIndex = firstSelectableIndex;
+                        if (firstSelectableIndex >= 0) {
+                            shouldScrollToTop = true;
+                        }
                     }
-                    targetIndex = newTargetIndex;
                 }
             } else if (
                 matchesShortcut(e, shortcuts, KeyboardShortcutAction.LIST_FOCUS_EDITOR, {
@@ -312,7 +344,11 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
                 return;
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_HOME)) {
                 e.preventDefault();
-                targetIndex = helpers.findNextIndex(-1);
+                const firstSelectableIndex = getFirstSelectableIndex();
+                targetIndex = firstSelectableIndex;
+                if (firstSelectableIndex >= 0) {
+                    shouldScrollToTop = true;
+                }
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_END)) {
                 e.preventDefault();
                 for (let i = items.length - 1; i >= 0; i--) {
@@ -326,10 +362,15 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
 
             if (targetIndex >= 0 && targetIndex < items.length) {
                 const item = helpers.getItemAt(targetIndex);
-                if (item) {
+                if (item && isSelectableListItem(item)) {
                     selectItemAtIndex(item);
+                    if (shouldScrollToTop) {
+                        virtualizer.scrollToIndex(0, { align: 'start' });
+                    }
                     helpers.scrollToIndex(targetIndex);
                 }
+            } else if (shouldScrollToTop) {
+                virtualizer.scrollToIndex(0, { align: 'start' });
             }
         },
         [
@@ -349,7 +390,8 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
             selectionDispatch,
             selectItemAtIndex,
             handleRangeSelection,
-            items
+            items,
+            virtualizer
         ]
     );
 
