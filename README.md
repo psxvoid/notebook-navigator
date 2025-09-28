@@ -50,6 +50,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 - **Dual-pane layout** - Navigation pane on the left (folders and tags), list pane on right (files)
 - **Single-pane layout** - Default on mobile, optional on desktop. Switch between navigation and file list
+- **Customizable startup view** - Choose between Navigation view (shortcuts, recent notes, folders) or Notes list view as default
 - **Mobile optimized** - Touch-friendly interface with properly sized buttons for Android, iOS and iPadOS
 - **Multi-language support** - English, Deutsch, Español, Français, Polski, 日本語, 中文, 한국어
 - **RTL language support** - Right-to-left languages with proper layout mirroring (e.g., العربية)
@@ -57,19 +58,25 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 ### Navigation
 
+- **Shortcuts** - Pin frequently used notes, folders, tags, and saved searches for quick access
+- **Recent notes** - Track and display recently opened notes (configurable 1-10)
 - **Hierarchical folder tree** - Browse nested folders with expand/collapse controls
 - **Hierarchical tag tree** - Browse nested tags with parent/child relationships (e.g., `projects/work/urgent`)
 - **Auto-reveal active file** - Automatically expand folders and scroll to current file
+- **Auto-expand on drag** - Folders and tags automatically expand when dragging files over them
 - **Breadcrumb navigation** - Click any segment in the header path to jump to parent folders or tags
 - **Keyboard navigation** - Full navigation with arrow keys, Tab, Page Up/Down, Home/End
+- **Customizable hotkeys** - Edit all keyboard shortcuts via data.json, including VIM-style navigation support
 - **Multi-selection** - Select multiple files with Cmd/Ctrl+Click and Shift+Click
+- **Root folder reordering** - Drag and drop to customize the order of vault root folders
 
 ### Organization
 
 - **Pin notes** - Keep important notes at the top of folders and tags
 - **Folder notes** - Turn folders into clickable links with associated notes
-- **Custom colors and backgrounds** - Set text colors and background colors for folders and tags
-- **Custom icons** - Choose Lucide icons or emojis for folders and tags
+- **Custom colors and backgrounds** - Set text colors and background colors for folders, tags, and files with opacity/transparency support
+- **Custom icons** - Choose Lucide icons, emojis, or from 8 icon packs for files, folders, and tags
+- **File customization** - Set custom icons and colors for individual files
 - **Custom sort order** - Override global sort settings per folder or tag
 - **Custom appearances** - Configure display settings per folder or tag (title rows, preview rows, slim mode)
 - **Favorite tags** - Pin frequently used tags to a dedicated section
@@ -209,6 +216,8 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 | Shift+Home/End                              | Select from current position to first/last item                                                                   |
 | Shift+↑/↓                                   | Extend selection up/down                                                                                          |
 
+**Note:** All keyboard shortcuts can be customized by editing the `keyboardShortcuts` section in `.obsidian/plugins/notebook-navigator/data.json`. You can add VIM-style navigation (h,j,k,l) or assign multiple keys to the same command.
+
 <br>
 
 ## Commands
@@ -277,6 +286,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Top level settings
 
+- **Default startup view:** Choose which view displays when opening Notebook Navigator - Navigation view (shortcuts, recent notes, folders) or Notes list view
 - **Dual pane layout (desktop only):** Show navigation and list panes side by side
 - **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
   - **Ignore right sidebar:** Disable auto-reveal from right sidebar
@@ -291,6 +301,9 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Navigation pane
 
+- **Show shortcuts:** Display the shortcuts section for quick access to pinned items
+- **Show recent notes:** Display recently opened notes in the navigation pane
+  - **Recent notes count:** Number of recent notes to display (1-10)
 - **Auto-select first note (desktop only):** Automatically open the first note when switching folders or tags
 - **Auto-expand folders and tags:** Automatically expand folders and tags when they are selected
 - **Collapse items:** What expand/collapse all button affects. `All folders and tags`, `Folders only`, `Tags only`
@@ -309,6 +322,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Material Icons:** Google's Material Design icons - [fonts.google.com/icons](https://fonts.google.com/icons)
   - **Phosphor:** Flexible icon family - [phosphoricons.com](https://phosphoricons.com/)
   - **RPG Awesome:** Fantasy and RPG-themed icons - [nagoshiashumari.github.io/Rpg-Awesome](https://nagoshiashumari.github.io/Rpg-Awesome/)
+  - **Simple Icons:** 3,364 brand icons - [simpleicons.org](https://simpleicons.org/)
 
 **How it works:** Icon packs are downloaded on-demand when you enable them in settings. Downloads occur from GitHub (`github.com/johansan/notebook-navigator`) and are cached locally for offline use. No automatic downloads or updates occur - you have full control over when icon packs are installed or removed.
 
@@ -384,7 +398,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 ### Advanced
 
 - **Confirm before deleting:** Show confirmation dialog when deleting notes or folders
-- **Clean up metadata:** Removes orphaned metadata left behind when files, folders, or tags are deleted, moved, or renamed outside of Obsidian. This only affects the Notebook Navigator settings file
+- **Clean up metadata:** Removes orphaned metadata left behind when files, folders, or tags are deleted, moved, or renamed outside of Obsidian. This includes file icons, file colors, folder customizations, tag customizations, and pinned notes
 - **Rebuild cache:** Use this if you experience missing tags, incorrect previews or missing feature images. This can happen after sync conflicts or unexpected closures
 
 _(\*) These settings store data to a local cache database. You can see the total size of the database at the bottom of the Settings pane. Uncheck each item to remove its data from the cache._
@@ -455,6 +469,42 @@ Use cases:
    - **Default**: Uses global sort setting
    - **Custom**: Specific sort order for this folder/tag
 4. Sort preference is remembered per folder and tag
+
+### Shortcuts for quick access
+
+1. Right-click any note, folder, tag, or use the search menu
+2. Select "Add to shortcuts"
+3. Access shortcuts at the top of the navigation pane
+4. Drag shortcuts to reorder them
+5. Right-click shortcuts to remove
+
+Use cases:
+
+- Daily notes and templates
+- Active project folders
+- Frequently used tags
+- Complex saved searches
+
+### Recent notes tracking
+
+- Automatically displays recently opened notes
+- Configure 1-10 notes in settings
+- Located below shortcuts in navigation pane
+- Updates as you work
+
+### Customizing file icons
+
+1. Right-click any file
+2. Select "Change icon" or "Change color"
+3. Icons and colors work just like folders
+4. Useful for marking important files or templates
+
+### Reordering root folders
+
+1. Right-click in navigation pane
+2. Select "Reorder root folders"
+3. Drag folders to desired order
+4. Click Done to save
 
 ### Custom appearances per folder/tag
 
