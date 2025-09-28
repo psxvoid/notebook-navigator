@@ -158,7 +158,15 @@ export class FileMetadataService extends BaseMetadataService {
     }
 
     getFileColor(filePath: string): string | undefined {
-        return this.getEntityColor(ItemType.FILE, filePath);
+        const color = this.getEntityColor(ItemType.FILE, filePath);
+        if (!color) {
+            return undefined;
+        }
+        const icon = this.getEntityIcon(ItemType.FILE, filePath);
+        if (!icon || icon.startsWith('emoji:')) {
+            return undefined;
+        }
+        return color;
     }
 
     /**

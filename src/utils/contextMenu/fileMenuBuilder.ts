@@ -247,6 +247,10 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
     const canCustomizeFileIcon = !shouldShowMultiOptions && settings.showIcons;
     if (canCustomizeFileIcon) {
+        const customFileIcon = metadataService.getFileIcon(file.path);
+        const isEmojiFileIcon = typeof customFileIcon === 'string' && customFileIcon.startsWith('emoji:');
+        const canChangeFileIconColor = Boolean(customFileIcon) && !isEmojiFileIcon;
+
         menu.addSeparator();
 
         menu.addItem((item: MenuItem) => {
@@ -259,15 +263,17 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 });
         });
 
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.file.changeColor)
-                .setIcon('lucide-palette')
-                .onClick(async () => {
-                    const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
-                    const modal = new ColorPickerModal(app, metadataService, file.path, ItemType.FILE, 'foreground');
-                    modal.open();
-                });
-        });
+        if (canChangeFileIconColor) {
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(strings.contextMenu.file.changeColor)
+                    .setIcon('lucide-palette')
+                    .onClick(async () => {
+                        const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
+                        const modal = new ColorPickerModal(app, metadataService, file.path, ItemType.FILE, 'foreground');
+                        modal.open();
+                    });
+            });
+        }
     }
 
     menu.addSeparator();
