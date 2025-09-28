@@ -809,7 +809,7 @@ export const STRINGS_ZH = {
             },
             hotkeys: {
                 infoText:
-                    'Notebook Navigator的快捷键可以通过编辑插件文件夹中的data.json文件来自定义。自定义快捷键的方法：\n\n1. 导航到您的仓库的.obsidian/plugins/notebook-navigator/文件夹\n2. 用文本编辑器打开data.json\n3. 找到"keyboardShortcuts"部分\n4. 修改每个命令的按键组合\n\n每个命令遵循以下JSON结构：\n"pane:move-up": [\n  {\n    "key": "ArrowUp",\n    "modifiers": []\n  }\n]\n\n修饰键（添加到"modifiers"数组）：\n• "Mod"：macOS上为Cmd，Windows/Linux上为Ctrl\n• "Alt"：Alt/Option键\n• "Shift"：Shift键\n• "Ctrl"：Control键（使用"Mod"以实现跨平台兼容）\n\n您可以为同一命令分配多个按键，这对于在箭头键旁边添加VIM风格导航很有用。例如，同时使用ArrowUp和K进行向上移动：\n"pane:move-up": [\n  { "key": "ArrowUp", "modifiers": [] },\n  { "key": "K", "modifiers": [] }\n]\n\n注意：目前不支持键盘序列（如VIM中的"gg"或"dd"）。每个快捷键必须是带有可选修饰键的单次按键。\n\n编辑data.json后，重新加载Obsidian或禁用/启用插件以使更改生效。'
+                    '您可以通过编辑 .obsidian/plugins/notebook-navigator/data.json 来自定义 Notebook Navigator 快捷键。用文本编辑器打开它并找到 "keyboardShortcuts" 部分。每个命令有这个结构：\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] } ]\n\n修饰键：\n• "Mod" = Cmd (macOS) / Ctrl (Win/Linux)\n• "Alt" = Alt/Option\n• "Shift" = Shift\n• "Ctrl" = Control（跨平台推荐用 "Mod"）\n\n可以为每个命令分配多个键，例如 ArrowUp 和 K：\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]\n\n不支持键盘序列（如 VIM 中的 "gg" 或 "dd"）。编辑后，重新加载 Obsidian 或切换插件以应用更改。'
             },
             externalIcons: {
                 downloadButton: '下载',

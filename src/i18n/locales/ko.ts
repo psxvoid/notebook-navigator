@@ -808,7 +808,7 @@ export const STRINGS_KO = {
             },
             hotkeys: {
                 infoText:
-                    'Notebook Navigator의 단축키는 플러그인 폴더의 data.json 파일을 편집하여 사용자 지정할 수 있습니다. 단축키를 사용자 지정하려면:\n\n1. 보관소의 .obsidian/plugins/notebook-navigator/ 폴더로 이동합니다\n2. 텍스트 편집기로 data.json을 엽니다\n3. "keyboardShortcuts" 섹션을 찾습니다\n4. 각 명령의 키 조합을 수정합니다\n\n각 명령은 다음 JSON 구조를 따릅니다:\n"pane:move-up": [\n  {\n    "key": "ArrowUp",\n    "modifiers": []\n  }\n]\n\n수정자 키("modifiers" 배열에 추가):\n• "Mod": macOS에서는 Cmd, Windows/Linux에서는 Ctrl\n• "Alt": Alt/Option 키\n• "Shift": Shift 키\n• "Ctrl": Control 키(크로스 플랫폼 호환성을 위해 "Mod" 사용)\n\n동일한 명령에 여러 키를 할당할 수 있으며, 이는 화살표 키와 함께 VIM 스타일 탐색을 추가하는 데 유용합니다. 예를 들어, 위로 이동하는 데 ArrowUp과 K를 모두 사용하려면:\n"pane:move-up": [\n  { "key": "ArrowUp", "modifiers": [] },\n  { "key": "K", "modifiers": [] }\n]\n\n참고: 키보드 시퀀스(VIM의 "gg" 또는 "dd"와 같은)는 현재 지원되지 않습니다. 각 단축키는 선택적 수정자가 있는 단일 키 입력이어야 합니다.\n\ndata.json을 편집한 후, 변경 사항을 적용하려면 Obsidian을 다시 로드하거나 플러그인을 비활성화/활성화하세요.'
+                    'Notebook Navigator 단축키는 .obsidian/plugins/notebook-navigator/data.json을 편집하여 사용자 지정할 수 있습니다. 텍스트 편집기로 열고 "keyboardShortcuts" 섹션을 찾으세요. 각 명령은 이 구조를 가집니다:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] } ]\n\n수정자 키:\n• "Mod" = Cmd (macOS) / Ctrl (Win/Linux)\n• "Alt" = Alt/Option\n• "Shift" = Shift\n• "Ctrl" = Control (크로스 플랫폼에는 "Mod" 권장)\n\n명령당 여러 키를 할당할 수 있습니다. 예: ArrowUp과 K:\n"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]\n\n키보드 시퀀스(VIM의 "gg" 또는 "dd" 같은)는 지원되지 않습니다. 편집 후, Obsidian을 다시 로드하거나 플러그인을 토글하여 변경 사항을 적용하세요.'
             },
             externalIcons: {
                 downloadButton: '다운로드',
