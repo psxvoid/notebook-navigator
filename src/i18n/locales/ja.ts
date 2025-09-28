@@ -605,7 +605,7 @@ export const STRINGS_JA = {
             },
             homepage: {
                 name: 'ホームページ',
-                desc: '自動で開く、ダッシュボードや日次ノートなどのファイルを選びます。',
+                desc: '自動で開く、ダッシュボードなどのファイルを選びます。',
                 current: '現在: {path}',
                 chooseButton: 'ファイルを選択',
                 clearButton: 'クリア'

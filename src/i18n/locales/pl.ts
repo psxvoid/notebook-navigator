@@ -595,7 +595,7 @@ export const STRINGS_PL = {
             },
             homepage: {
                 name: 'Strona główna',
-                desc: 'Wybierz plik, który Notebook Navigator otwiera automatycznie, np. pulpit lub dzienną notatkę.',
+                desc: 'Wybierz plik, który Notebook Navigator otwiera automatycznie, np. pulpit.',
                 current: 'Bieżący: {path}',
                 chooseButton: 'Wybierz plik',
                 clearButton: 'Wyczyść'

@@ -593,7 +593,7 @@ export const STRINGS_EN = {
             },
             homepage: {
                 name: 'Homepage',
-                desc: 'Choose the file that Notebook Navigator opens automatically, such as a dashboard or daily note.',
+                desc: 'Choose the file that Notebook Navigator opens automatically, such as a dashboard.',
                 current: 'Current: {path}',
                 chooseButton: 'Choose file',
                 clearButton: 'Clear'

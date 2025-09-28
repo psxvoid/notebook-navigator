@@ -604,7 +604,7 @@ export const STRINGS_ES = {
             },
             homepage: {
                 name: 'Página de inicio',
-                desc: 'Selecciona el archivo que Notebook Navigator abre automáticamente, como un panel o nota diaria.',
+                desc: 'Selecciona el archivo que Notebook Navigator abre automáticamente, como un panel.',
                 current: 'Actual: {path}',
                 chooseButton: 'Elegir archivo',
                 clearButton: 'Limpiar'

@@ -593,7 +593,7 @@ export const STRINGS_KO = {
             },
             homepage: {
                 name: '홈페이지',
-                desc: '자동으로 열릴 대시보드나 데일리 노트 같은 파일을 선택합니다.',
+                desc: '자동으로 열릴 대시보드 같은 파일을 선택합니다.',
                 current: '현재: {path}',
                 chooseButton: '파일 선택',
                 clearButton: '지우기'

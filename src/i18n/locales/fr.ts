@@ -606,7 +606,7 @@ export const STRINGS_FR = {
             },
             homepage: {
                 name: 'Page d’accueil',
-                desc: 'Sélectionnez le fichier que Notebook Navigator ouvre automatiquement, par exemple un tableau de bord ou une note quotidienne.',
+                desc: 'Sélectionnez le fichier que Notebook Navigator ouvre automatiquement, par exemple un tableau de bord.',
                 current: 'Actuel : {path}',
                 chooseButton: 'Choisir un fichier',
                 clearButton: 'Effacer'

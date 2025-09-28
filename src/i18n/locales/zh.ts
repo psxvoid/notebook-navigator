@@ -604,7 +604,7 @@ export const STRINGS_ZH = {
             },
             homepage: {
                 name: '主页',
-                desc: '选择自动打开的文件，例如仪表板或每日笔记。',
+                desc: '选择自动打开的文件，例如仪表板。',
                 current: '当前：{path}',
                 chooseButton: '选择文件',
                 clearButton: '清除'

@@ -607,7 +607,7 @@ export const STRINGS_DE = {
             },
             homepage: {
                 name: 'Startseite',
-                desc: 'Datei auswählen, die Notebook Navigator automatisch öffnet, z. B. ein Dashboard oder eine Tagesnotiz.',
+                desc: 'Datei auswählen, die Notebook Navigator automatisch öffnet, z. B. ein Dashboard.',
                 current: 'Aktuell: {path}',
                 chooseButton: 'Datei auswählen',
                 clearButton: 'Zurücksetzen'
