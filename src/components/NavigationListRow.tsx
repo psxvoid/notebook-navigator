@@ -189,7 +189,7 @@ export function NavigationListRow({
                         onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}
                     >
-                        <ObsidianIcon name={dragHandleConfig?.icon ?? 'lucide-grip'} />
+                        <ObsidianIcon name={dragHandleConfig?.icon ?? 'lucide-grip-horizontal'} />
                     </span>
                 ) : null}
             </div>

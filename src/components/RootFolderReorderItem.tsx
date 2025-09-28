@@ -39,7 +39,7 @@ export function RootFolderReorderItem({
         ? {
               label: dragHandleLabel,
               visible: true,
-              icon: 'lucide-grip'
+              icon: 'lucide-grip-horizontal'
           }
         : undefined;
 
