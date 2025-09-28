@@ -58,12 +58,13 @@ import { useListPaneScroll } from '../hooks/useListPaneScroll';
 import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
 import { strings } from '../i18n';
 import { TIMEOUTS } from '../types/obsidian-extended';
-import { ListPaneItemType } from '../types';
+import { ListPaneItemType, LISTPANE_MEASUREMENTS } from '../types';
 import { getEffectiveSortOption } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
 import { ListToolbar } from './ListToolbar';
 import { SearchInput } from './SearchInput';
+import { ListPaneTitleOverlay } from './ListPaneTitleOverlay';
 import { SaveSearchShortcutModal } from '../modals/SaveSearchShortcutModal';
 import { useShortcuts } from '../context/ShortcutsContext';
 import type { SearchShortcut } from '../types/shortcuts';
@@ -119,6 +120,8 @@ export const ListPane = React.memo(
         const searchShortcuts = useMemo(() => Array.from(searchShortcutsByName.values()), [searchShortcutsByName]);
         const [isSavingSearchShortcut, setIsSavingSearchShortcut] = useState(false);
         const currentSearchProvider = settings.searchProvider ?? 'internal';
+        const shouldShowTitleOverlay = !isMobile;
+        const topSpacerHeight = shouldShowTitleOverlay ? LISTPANE_MEASUREMENTS.titleOverlayGap : LISTPANE_MEASUREMENTS.topSpacer;
 
         // Search state - use directly from settings for sync across devices
         const isSearchActive = settings.searchActive;
@@ -225,7 +228,8 @@ export const ListPane = React.memo(
             selectionDispatch,
             // Use debounced value for scroll orchestration to align with filtering
             searchQuery: isSearchActive ? debouncedSearchQuery : undefined,
-            suppressSearchTopScrollRef
+            suppressSearchTopScrollRef,
+            topSpacerHeight
         });
 
         // Check if we're in slim mode
@@ -712,135 +716,138 @@ export const ListPane = React.memo(
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
                     </div>
                 ) : (
-                    <div
-                        ref={scrollContainerRefCallback}
-                        className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
-                        data-pane="files"
-                        role="list"
-                        tabIndex={-1}
-                    >
-                        {/* Virtual list */}
-                        {listItems.length > 0 && (
-                            <div
-                                className="nn-virtual-container"
-                                style={{
-                                    height: `${rowVirtualizer.getTotalSize()}px`
-                                }}
-                            >
-                                {rowVirtualizer.getVirtualItems().map(virtualItem => {
-                                    const item = safeGetItem(listItems, virtualItem.index);
-                                    if (!item) return null;
-                                    // Check if file is selected
-                                    let isSelected = false;
-                                    if (item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
-                                        isSelected = multiSelection.isFileSelected(item.data);
+                    <>
+                        <div
+                            ref={scrollContainerRefCallback}
+                            className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
+                            data-pane="files"
+                            role="list"
+                            tabIndex={-1}
+                        >
+                            <ListPaneTitleOverlay isVisible={shouldShowTitleOverlay} />
+                            {/* Virtual list */}
+                            {listItems.length > 0 && (
+                                <div
+                                    className="nn-virtual-container"
+                                    style={{
+                                        height: `${rowVirtualizer.getTotalSize()}px`
+                                    }}
+                                >
+                                    {rowVirtualizer.getVirtualItems().map(virtualItem => {
+                                        const item = safeGetItem(listItems, virtualItem.index);
+                                        if (!item) return null;
+                                        // Check if file is selected
+                                        let isSelected = false;
+                                        if (item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
+                                            isSelected = multiSelection.isFileSelected(item.data);
 
-                                        // During folder navigation transitions, if nothing is selected in the current list,
-                                        // maintain the last selected file's visual selection to prevent flicker
-                                        if (!isSelected && selectionState.isFolderNavigation && lastSelectedFilePathRef.current) {
-                                            isSelected = item.data.path === lastSelectedFilePathRef.current;
-                                        }
-                                    }
-
-                                    // Check if this is the last file item
-                                    const nextItem = safeGetItem(listItems, virtualItem.index + 1);
-                                    const isLastFile =
-                                        item.type === ListPaneItemType.FILE &&
-                                        (virtualItem.index === listItems.length - 1 ||
-                                            (nextItem &&
-                                                (nextItem.type === ListPaneItemType.HEADER ||
-                                                    nextItem.type === ListPaneItemType.TOP_SPACER ||
-                                                    nextItem.type === ListPaneItemType.BOTTOM_SPACER)));
-
-                                    // Check if adjacent items are selected (for styling purposes)
-                                    const prevItem = safeGetItem(listItems, virtualItem.index - 1);
-                                    const hasSelectedAbove =
-                                        item.type === ListPaneItemType.FILE &&
-                                        prevItem?.type === ListPaneItemType.FILE &&
-                                        prevItem.data instanceof TFile &&
-                                        multiSelection.isFileSelected(prevItem.data);
-                                    const hasSelectedBelow =
-                                        item.type === ListPaneItemType.FILE &&
-                                        nextItem?.type === ListPaneItemType.FILE &&
-                                        nextItem.data instanceof TFile &&
-                                        multiSelection.isFileSelected(nextItem.data);
-
-                                    // Check if this is the first header (same logic as in estimateSize)
-                                    // Index 1 because TOP_SPACER is at index 0
-                                    const isFirstHeader = item.type === ListPaneItemType.HEADER && virtualItem.index === 1;
-
-                                    // Find current date group for file items
-                                    let dateGroup: string | null = null;
-                                    if (item.type === ListPaneItemType.FILE) {
-                                        // Look backwards to find the most recent header
-                                        for (let i = virtualItem.index - 1; i >= 0; i--) {
-                                            const prevItem = safeGetItem(listItems, i);
-                                            if (prevItem && prevItem.type === ListPaneItemType.HEADER) {
-                                                dateGroup = prevItem.data as string;
-                                                break;
+                                            // During folder navigation transitions, if nothing is selected in the current list,
+                                            // maintain the last selected file's visual selection to prevent flicker
+                                            if (!isSelected && selectionState.isFolderNavigation && lastSelectedFilePathRef.current) {
+                                                isSelected = item.data.path === lastSelectedFilePathRef.current;
                                             }
                                         }
-                                    }
 
-                                    // Compute separator visibility (class-based, not relational selectors)
-                                    // - Hide the current row's separator when this row is the last in a contiguous
-                                    //   selected block (selected && !hasSelectedBelow)
-                                    // - Also hide the current row's separator when the next row starts a selected block
-                                    //   (!selected && next is selected) to remove the line just before a selection.
-                                    const hideSeparator =
-                                        item.type === ListPaneItemType.FILE &&
-                                        ((isSelected && !hasSelectedBelow) ||
-                                            (!isSelected &&
-                                                nextItem?.type === ListPaneItemType.FILE &&
-                                                nextItem.data instanceof TFile &&
-                                                multiSelection.isFileSelected(nextItem.data)));
+                                        // Check if this is the last file item
+                                        const nextItem = safeGetItem(listItems, virtualItem.index + 1);
+                                        const isLastFile =
+                                            item.type === ListPaneItemType.FILE &&
+                                            (virtualItem.index === listItems.length - 1 ||
+                                                (nextItem &&
+                                                    (nextItem.type === ListPaneItemType.HEADER ||
+                                                        nextItem.type === ListPaneItemType.TOP_SPACER ||
+                                                        nextItem.type === ListPaneItemType.BOTTOM_SPACER)));
 
-                                    return (
-                                        <div
-                                            key={virtualItem.key}
-                                            // Apply a lightweight class to control separator visibility
-                                            className={`nn-virtual-item ${
-                                                item.type === ListPaneItemType.FILE ? 'nn-virtual-file-item' : ''
-                                            } ${isLastFile ? 'nn-last-file' : ''} ${hideSeparator ? 'nn-hide-separator-selection' : ''}`}
-                                            style={
-                                                {
-                                                    top: virtualItem.start,
-                                                    '--item-height': `${virtualItem.size}px`
-                                                } as React.CSSProperties
+                                        // Check if adjacent items are selected (for styling purposes)
+                                        const prevItem = safeGetItem(listItems, virtualItem.index - 1);
+                                        const hasSelectedAbove =
+                                            item.type === ListPaneItemType.FILE &&
+                                            prevItem?.type === ListPaneItemType.FILE &&
+                                            prevItem.data instanceof TFile &&
+                                            multiSelection.isFileSelected(prevItem.data);
+                                        const hasSelectedBelow =
+                                            item.type === ListPaneItemType.FILE &&
+                                            nextItem?.type === ListPaneItemType.FILE &&
+                                            nextItem.data instanceof TFile &&
+                                            multiSelection.isFileSelected(nextItem.data);
+
+                                        // Check if this is the first header (same logic as in estimateSize)
+                                        // Index 1 because TOP_SPACER is at index 0
+                                        const isFirstHeader = item.type === ListPaneItemType.HEADER && virtualItem.index === 1;
+
+                                        // Find current date group for file items
+                                        let dateGroup: string | null = null;
+                                        if (item.type === ListPaneItemType.FILE) {
+                                            // Look backwards to find the most recent header
+                                            for (let i = virtualItem.index - 1; i >= 0; i--) {
+                                                const prevItem = safeGetItem(listItems, i);
+                                                if (prevItem && prevItem.type === ListPaneItemType.HEADER) {
+                                                    dateGroup = prevItem.data as string;
+                                                    break;
+                                                }
                                             }
-                                            data-index={virtualItem.index}
-                                        >
-                                            {item.type === ListPaneItemType.HEADER ? (
-                                                <div className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''}`}>
-                                                    {typeof item.data === 'string' ? item.data : ''}
-                                                </div>
-                                            ) : item.type === ListPaneItemType.TOP_SPACER ? (
-                                                <div className="nn-list-top-spacer" />
-                                            ) : item.type === ListPaneItemType.BOTTOM_SPACER ? (
-                                                <div className="nn-list-bottom-spacer" />
-                                            ) : item.type === ListPaneItemType.FILE && item.data instanceof TFile ? (
-                                                <FileItem
-                                                    key={item.key} // Ensures each file gets a fresh component instance, preventing stale data from previous files
-                                                    file={item.data}
-                                                    isSelected={isSelected}
-                                                    hasSelectedAbove={hasSelectedAbove}
-                                                    hasSelectedBelow={hasSelectedBelow}
-                                                    onClick={handleFileItemClick(item.data, item.fileIndex)}
-                                                    selectionType={selectionType}
-                                                    dateGroup={dateGroup}
-                                                    sortOption={effectiveSortOption}
-                                                    parentFolder={item.parentFolder}
-                                                    isPinned={item.isPinned}
-                                                    searchQuery={isSearchActive ? searchQuery : undefined}
-                                                    searchMeta={item.searchMeta}
-                                                />
-                                            ) : null}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </div>
+                                        }
+
+                                        // Compute separator visibility (class-based, not relational selectors)
+                                        // - Hide the current row's separator when this row is the last in a contiguous
+                                        //   selected block (selected && !hasSelectedBelow)
+                                        // - Also hide the current row's separator when the next row starts a selected block
+                                        //   (!selected && next is selected) to remove the line just before a selection.
+                                        const hideSeparator =
+                                            item.type === ListPaneItemType.FILE &&
+                                            ((isSelected && !hasSelectedBelow) ||
+                                                (!isSelected &&
+                                                    nextItem?.type === ListPaneItemType.FILE &&
+                                                    nextItem.data instanceof TFile &&
+                                                    multiSelection.isFileSelected(nextItem.data)));
+
+                                        return (
+                                            <div
+                                                key={virtualItem.key}
+                                                // Apply a lightweight class to control separator visibility
+                                                className={`nn-virtual-item ${
+                                                    item.type === ListPaneItemType.FILE ? 'nn-virtual-file-item' : ''
+                                                } ${isLastFile ? 'nn-last-file' : ''} ${hideSeparator ? 'nn-hide-separator-selection' : ''}`}
+                                                style={
+                                                    {
+                                                        top: virtualItem.start,
+                                                        '--item-height': `${virtualItem.size}px`
+                                                    } as React.CSSProperties
+                                                }
+                                                data-index={virtualItem.index}
+                                            >
+                                                {item.type === ListPaneItemType.HEADER ? (
+                                                    <div className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''}`}>
+                                                        {typeof item.data === 'string' ? item.data : ''}
+                                                    </div>
+                                                ) : item.type === ListPaneItemType.TOP_SPACER ? (
+                                                    <div className="nn-list-top-spacer" style={{ height: `${topSpacerHeight}px` }} />
+                                                ) : item.type === ListPaneItemType.BOTTOM_SPACER ? (
+                                                    <div className="nn-list-bottom-spacer" />
+                                                ) : item.type === ListPaneItemType.FILE && item.data instanceof TFile ? (
+                                                    <FileItem
+                                                        key={item.key} // Ensures each file gets a fresh component instance, preventing stale data from previous files
+                                                        file={item.data}
+                                                        isSelected={isSelected}
+                                                        hasSelectedAbove={hasSelectedAbove}
+                                                        hasSelectedBelow={hasSelectedBelow}
+                                                        onClick={handleFileItemClick(item.data, item.fileIndex)}
+                                                        selectionType={selectionType}
+                                                        dateGroup={dateGroup}
+                                                        sortOption={effectiveSortOption}
+                                                        parentFolder={item.parentFolder}
+                                                        isPinned={item.isPinned}
+                                                        searchQuery={isSearchActive ? searchQuery : undefined}
+                                                        searchMeta={item.searchMeta}
+                                                    />
+                                                ) : null}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </>
                 )}
 
                 {/* iOS - toolbar at bottom */}

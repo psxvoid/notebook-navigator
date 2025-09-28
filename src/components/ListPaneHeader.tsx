@@ -16,20 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Platform } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useServices, useMetadataService } from '../context/ServicesContext';
+import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { useFileCache } from '../context/StorageContext';
-import { useExpansionState } from '../context/ExpansionContext';
 import { strings } from '../i18n';
 import { getIconService, useIconServiceVersion } from '../services/icons';
-import { UNTAGGED_TAG_ID, ItemType } from '../types';
-import { hasSubfolders } from '../utils/fileFilters';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useListActions } from '../hooks/useListActions';
+import { useListPaneTitle } from '../hooks/useListPaneTitle';
 
 interface ListPaneHeaderProps {
     onHeaderClick?: () => void;
@@ -46,197 +43,76 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
-    const metadataService = useMetadataService();
-    const { getTagDisplayPath } = useFileCache();
-    const expansionState = useExpansionState();
+    const { desktopTitle, breadcrumbSegments, iconName, showIcon } = useListPaneTitle();
     const iconVersion = useIconServiceVersion();
 
     // Use the shared actions hook
     const { handleNewFile, handleAppearanceMenu, handleSortMenu, handleToggleDescendants, getSortIcon, isCustomSort, hasCustomAppearance } =
         useListActions();
 
-    // Function to render clickable path segments
-    const renderPathSegments = (): React.ReactNode => {
-        // In dual pane mode on desktop, only show the current folder/tag name
-        if (!uiState.singlePane && !isMobile) {
-            // Handle folders
-            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                const folder = selectionState.selectedFolder;
-                // Root folder - show vault name
-                if (folder.path === '/') {
-                    return settings.customVaultName || app.vault.getName();
-                }
-                // Show just the folder name
-                return folder.name;
-            }
+    const shouldRenderTitleContent = isMobile;
 
-            // Handle tags
-            if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                const tag = selectionState.selectedTag;
-                // Special case for untagged
-                if (tag === UNTAGGED_TAG_ID) {
-                    return strings.common.untagged;
-                }
-                // Get display path for tag
-                const displayPath = getTagDisplayPath(tag);
-                // Return just the last segment (current tag name)
-                const segments = displayPath.split('/').filter(s => s);
-                return segments[segments.length - 1] || displayPath;
-            }
-
-            // Fallback for no selection
-            return strings.common.noSelection;
+    const breadcrumbContent = useMemo((): React.ReactNode => {
+        if (!shouldRenderTitleContent) {
+            return desktopTitle;
         }
 
-        // For single pane mode and mobile, show the full breadcrumb
-        // Handle folders
-        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            const folder = selectionState.selectedFolder;
+        const parts: React.ReactNode[] = [];
+        breadcrumbSegments.forEach((segment, index) => {
+            const key = `${segment.label}-${index}`;
 
-            // Root folder - just show vault name, not clickable
-            if (folder.path === '/') {
-                return settings.customVaultName || app.vault.getName();
-            }
-
-            // Split path into segments
-            const segments = folder.path.split('/').filter(s => s);
-
-            // Single segment - no parent to click
-            if (segments.length === 1) {
-                return folder.name;
-            }
-
-            // Multiple segments - make all but last clickable
-            return (
-                <>
-                    {segments.map((segment, index) => {
-                        const isLast = index === segments.length - 1;
-
-                        if (isLast) {
-                            return (
-                                <span key={index} className="nn-path-current">
-                                    {segment}
-                                </span>
-                            );
-                        }
-
-                        const pathToSegment = segments.slice(0, index + 1).join('/');
-                        return (
-                            <React.Fragment key={pathToSegment}>
-                                <span
-                                    className="nn-path-segment"
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        const targetFolder = app.vault.getFolderByPath(pathToSegment);
-                                        if (targetFolder) {
-                                            selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: targetFolder });
-                                        }
-                                    }}
-                                >
-                                    {segment}
-                                </span>
-                                <span className="nn-path-separator"> / </span>
-                            </React.Fragment>
-                        );
-                    })}
-                </>
-            );
-        }
-
-        // Handle tags
-        if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            const tag = selectionState.selectedTag;
-
-            // Special case for untagged
-            if (tag === UNTAGGED_TAG_ID) {
-                return strings.common.untagged;
-            }
-
-            // Get display path for tag
-            const displayPath = getTagDisplayPath(tag);
-            const segments = displayPath.split('/').filter(s => s);
-
-            // Single segment tag - no parent to click
-            if (segments.length === 1) {
-                return displayPath;
-            }
-
-            // Multiple segments - make all but last clickable
-            return (
-                <>
-                    {segments.map((segment, index) => {
-                        const isLast = index === segments.length - 1;
-
-                        if (isLast) {
-                            return (
-                                <span key={index} className="nn-path-current">
-                                    {segment}
-                                </span>
-                            );
-                        }
-
-                        const pathToSegment = segments.slice(0, index + 1).join('/');
-                        return (
-                            <React.Fragment key={pathToSegment}>
-                                <span
-                                    className="nn-path-segment"
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        selectionDispatch({ type: 'SET_SELECTED_TAG', tag: pathToSegment });
-                                    }}
-                                >
-                                    {segment}
-                                </span>
-                                <span className="nn-path-separator"> / </span>
-                            </React.Fragment>
-                        );
-                    })}
-                </>
-            );
-        }
-
-        // Fallback for no selection
-        return strings.common.noSelection;
-    };
-
-    // Determine the icon to display based on current selection
-    let folderIcon = '';
-    if (settings.showIcons) {
-        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            const customIcon = metadataService.getFolderIcon(selectionState.selectedFolder.path);
-            if (customIcon) {
-                folderIcon = customIcon;
+            if (segment.isLast || segment.targetType === 'none' || !segment.targetPath) {
+                parts.push(
+                    <span key={key} className="nn-path-current">
+                        {segment.label}
+                    </span>
+                );
             } else {
-                // Use open/closed folder icon based on expansion state and visible children
-                const excludedFolders = settings.excludedFolders;
-                const showHiddenFolders = settings.showHiddenItems;
-                const hasChildren = hasSubfolders(selectionState.selectedFolder, excludedFolders, showHiddenFolders);
-                const isExpanded = expansionState.expandedFolders.has(selectionState.selectedFolder.path);
-                folderIcon = hasChildren && isExpanded ? 'lucide-folder-open' : 'lucide-folder-closed';
+                const handleClick = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    if (segment.targetType === 'folder') {
+                        const targetPath = segment.targetPath;
+                        const targetFolder = targetPath ? app.vault.getFolderByPath(targetPath) : null;
+                        if (targetFolder) {
+                            selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: targetFolder });
+                        }
+                    } else if (segment.targetType === 'tag' && segment.targetPath) {
+                        selectionDispatch({ type: 'SET_SELECTED_TAG', tag: segment.targetPath });
+                    }
+                };
+
+                parts.push(
+                    <span key={key} className="nn-path-segment" onClick={handleClick}>
+                        {segment.label}
+                    </span>
+                );
             }
-        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            folderIcon = metadataService.getTagIcon(selectionState.selectedTag) || 'lucide-tags';
-        }
-    }
+
+            if (!segment.isLast) {
+                parts.push(
+                    <span key={`${key}-separator`} className="nn-path-separator">
+                        {' / '}
+                    </span>
+                );
+            }
+        });
+
+        return parts;
+    }, [app.vault, breadcrumbSegments, desktopTitle, selectionDispatch, shouldRenderTitleContent]);
 
     useEffect(() => {
-        // Always render icon when available
+        if (!showIcon) {
+            return;
+        }
+
         const iconService = getIconService();
-        if (iconRef.current && folderIcon && settings.showIcons) {
-            iconService.renderIcon(iconRef.current, folderIcon);
+        if (iconRef.current && shouldRenderTitleContent) {
+            iconService.renderIcon(iconRef.current, iconName);
         }
-        if (mobileIconRef.current && folderIcon && settings.showIcons) {
-            iconService.renderIcon(mobileIconRef.current, folderIcon);
+        if (mobileIconRef.current) {
+            iconService.renderIcon(mobileIconRef.current, iconName);
         }
-    }, [
-        folderIcon,
-        settings.showIcons,
-        selectionState.selectedFolder,
-        selectionState.selectedTag,
-        selectionState.selectionType,
-        expansionState.expandedFolders,
-        iconVersion
-    ]);
+    }, [iconName, iconVersion, showIcon, shouldRenderTitleContent]);
 
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
     const [showFade, setShowFade] = React.useState(false);
@@ -269,7 +145,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
         // On mobile, show simplified header with back button and path - actions moved to tab bar
         return (
             <div className="nn-pane-header nn-pane-header-simple" onClick={onHeaderClick}>
-                <div className={`nn-mobile-header ${!folderIcon || !settings.showIcons ? 'nn-mobile-header-no-icon' : ''}`}>
+                <div className={`nn-mobile-header ${!showIcon ? 'nn-mobile-header-no-icon' : ''}`}>
                     <button
                         className="nn-icon-button nn-back-button"
                         aria-label={strings.paneHeader.mobileBackToNavigation}
@@ -283,9 +159,9 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                     </button>
                     {showFade && <div className="nn-breadcrumb-fade" />}
                     <div ref={scrollContainerRef} className="nn-breadcrumb-scroll" onScroll={handleScroll}>
-                        <span className="nn-mobile-title">{renderPathSegments()}</span>
+                        <span className="nn-mobile-title">{breadcrumbContent}</span>
                     </div>
-                    {folderIcon && settings.showIcons && <span ref={mobileIconRef} className="nn-mobile-header-icon" />}
+                    {showIcon && <span ref={mobileIconRef} className="nn-mobile-header-icon" />}
                 </div>
             </div>
         );
@@ -308,8 +184,8 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                     </button>
                 )}
                 <span className="nn-pane-header-title">
-                    {folderIcon && <span ref={iconRef} className="nn-pane-header-icon" />}
-                    <span className="nn-pane-header-text">{renderPathSegments()}</span>
+                    {shouldRenderTitleContent && showIcon && <span ref={iconRef} className="nn-pane-header-icon" />}
+                    {shouldRenderTitleContent && <span className="nn-pane-header-text">{breadcrumbContent}</span>}
                 </span>
                 <div className="nn-header-actions">
                     <button

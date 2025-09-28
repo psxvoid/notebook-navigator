@@ -89,6 +89,8 @@ interface UseListPaneScrollParams {
     searchQuery?: string;
     /** Suppress scroll-to-top behavior after search filtering (used for mobile shortcuts) */
     suppressSearchTopScrollRef?: { current: boolean } | null;
+    /** Height of the synthetic top spacer used ahead of file items */
+    topSpacerHeight: number;
 }
 
 /**
@@ -124,7 +126,8 @@ export function useListPaneScroll({
     selectionState,
     selectionDispatch,
     searchQuery,
-    suppressSearchTopScrollRef
+    suppressSearchTopScrollRef,
+    topSpacerHeight
 }: UseListPaneScrollParams): UseListPaneScrollResult {
     const { isMobile } = useServices();
     const { hasPreview, getDB, isStorageReady } = useFileCache();
@@ -191,7 +194,7 @@ export function useListPaneScroll({
             }
 
             if (item.type === ListPaneItemType.TOP_SPACER) {
-                return heights.topSpacer;
+                return topSpacerHeight;
             }
             if (item.type === ListPaneItemType.BOTTOM_SPACER) {
                 return heights.bottomSpacer;
@@ -318,7 +321,6 @@ export function useListPaneScroll({
             return padding + textContentHeight;
         },
         overscan: OVERSCAN,
-        scrollPaddingStart: 0,
         scrollPaddingEnd: 0
     });
 
