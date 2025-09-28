@@ -535,11 +535,11 @@ export const STRINGS_ES = {
                 desc: 'Mostrar panel de navegación y panel de lista lado a lado en escritorio.'
             },
             singlePaneStartView: {
-                name: 'Startup pane focus',
-                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                name: 'Vista de inicio predeterminada',
+                desc: 'Elige qué vista mostrar al abrir Notebook Navigator. La vista de navegación proporciona acceso rápido a accesos directos, notas recientes y estructura de carpetas. La vista de lista de notas muestra los archivos directamente para acceso inmediato.',
                 options: {
-                    navigation: 'Navigation pane',
-                    files: 'Notes list'
+                    navigation: 'Navegación (accesos directos y carpetas)',
+                    files: 'Lista de notas (acceso directo a archivos)'
                 }
             },
             autoRevealActiveNote: {

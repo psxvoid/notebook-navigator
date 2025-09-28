@@ -536,11 +536,11 @@ export const STRINGS_PL = {
                 desc: 'Pokaż panel nawigacji i panel listy obok siebie na komputerze.'
             },
             singlePaneStartView: {
-                name: 'Startup pane focus',
-                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                name: 'Domyślny widok startowy',
+                desc: 'Wybierz widok wyświetlany przy otwieraniu Notebook Navigator. Widok nawigacji zapewnia szybki dostęp do skrótów, ostatnich notatek i struktury folderów. Widok listy notatek pokazuje pliki bezpośrednio do natychmiastowego dostępu.',
                 options: {
-                    navigation: 'Navigation pane',
-                    files: 'Notes list'
+                    navigation: 'Nawigacja (skróty i foldery)',
+                    files: 'Lista notatek (bezpośredni dostęp)'
                 }
             },
             autoRevealActiveNote: {

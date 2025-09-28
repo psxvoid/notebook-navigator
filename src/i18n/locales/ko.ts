@@ -534,11 +534,11 @@ export const STRINGS_KO = {
                 desc: '데스크톱에서 탐색 창과 목록 창을 나란히 표시합니다.'
             },
             singlePaneStartView: {
-                name: 'Startup pane focus',
-                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                name: '기본 시작 보기',
+                desc: 'Notebook Navigator를 열 때 표시할 보기를 선택하세요. 탐색 보기는 바로가기, 최근 노트 및 폴더 구조에 빠르게 액세스할 수 있습니다. 노트 목록 보기는 파일을 바로 표시하여 즉시 액세스할 수 있습니다.',
                 options: {
-                    navigation: 'Navigation pane',
-                    files: 'Notes list'
+                    navigation: '탐색 (바로가기 및 폴더)',
+                    files: '노트 목록 (직접 파일 액세스)'
                 }
             },
             autoRevealActiveNote: {

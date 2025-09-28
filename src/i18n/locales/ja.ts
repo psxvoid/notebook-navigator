@@ -535,11 +535,11 @@ export const STRINGS_JA = {
                 desc: 'デスクトップでナビゲーションペインとリストペインを並べて表示します。'
             },
             singlePaneStartView: {
-                name: 'Startup pane focus',
-                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                name: 'デフォルト起動ビュー',
+                desc: 'Notebook Navigator を開いたときに表示するビューを選択します。ナビゲーションビューはショートカット、最近のノート、フォルダ構造への素早いアクセスを提供します。ノートリストビューはファイルを直接表示して即座にアクセスできます。',
                 options: {
-                    navigation: 'Navigation pane',
-                    files: 'Notes list'
+                    navigation: 'ナビゲーション（ショートカットとフォルダ）',
+                    files: 'ノートリスト（直接ファイルアクセス）'
                 }
             },
             autoRevealActiveNote: {

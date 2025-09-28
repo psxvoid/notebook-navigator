@@ -538,11 +538,11 @@ export const STRINGS_DE = {
                 desc: 'Navigationsbereich und Listenbereich nebeneinander auf dem Desktop anzeigen.'
             },
             singlePaneStartView: {
-                name: 'Startup pane focus',
-                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                name: 'Standard-Startansicht',
+                desc: 'Wählen Sie die Ansicht, die beim Öffnen von Notebook Navigator angezeigt wird. Die Navigationsansicht bietet schnellen Zugriff auf Verknüpfungen, aktuelle Notizen und Ordnerstruktur. Die Notizlistenansicht zeigt Dateien direkt für sofortigen Zugriff.',
                 options: {
-                    navigation: 'Navigation pane',
-                    files: 'Notes list'
+                    navigation: 'Navigation (Verknüpfungen und Ordner)',
+                    files: 'Notizliste (direkter Dateizugriff)'
                 }
             },
             autoRevealActiveNote: {

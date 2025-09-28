@@ -534,11 +534,11 @@ export const STRINGS_EN = {
                 desc: 'Show navigation pane and list pane side by side on desktop.'
             },
             singlePaneStartView: {
-                name: 'Startup pane focus',
-                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                name: 'Default startup view',
+                desc: 'Choose which view to display when opening Notebook Navigator. Navigation view provides quick access to shortcuts, recent notes, and your folder structure. Notes list view shows your files immediately for direct access.',
                 options: {
-                    navigation: 'Navigation pane',
-                    files: 'Notes list'
+                    navigation: 'Navigation (shortcuts & folders)',
+                    files: 'Notes list (direct file access)'
                 }
             },
             autoRevealActiveNote: {

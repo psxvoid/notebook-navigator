@@ -536,11 +536,11 @@ export const STRINGS_FR = {
                 desc: 'Afficher le panneau de navigation et le panneau de liste côte à côte sur ordinateur.'
             },
             singlePaneStartView: {
-                name: 'Startup pane focus',
-                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                name: 'Vue de démarrage par défaut',
+                desc: 'Choisissez la vue à afficher lors de l\'ouverture de Notebook Navigator. La vue navigation offre un accès rapide aux raccourcis, notes récentes et structure de dossiers. La vue liste de notes affiche directement les fichiers pour un accès immédiat.',
                 options: {
-                    navigation: 'Navigation pane',
-                    files: 'Notes list'
+                    navigation: 'Navigation (raccourcis et dossiers)',
+                    files: 'Liste de notes (accès direct aux fichiers)'
                 }
             },
             autoRevealActiveNote: {

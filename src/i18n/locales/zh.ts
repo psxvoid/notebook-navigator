@@ -534,11 +534,11 @@ export const STRINGS_ZH = {
                 desc: '在桌面端并排显示导航窗格和列表窗格。'
             },
             singlePaneStartView: {
-                name: 'Startup pane focus',
-                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                name: '默认启动视图',
+                desc: '选择打开 Notebook Navigator 时显示的视图。导航视图提供快速访问快捷方式、最近笔记和文件夹结构。笔记列表视图直接显示文件以便立即访问。',
                 options: {
-                    navigation: 'Navigation pane',
-                    files: 'Notes list'
+                    navigation: '导航（快捷方式和文件夹）',
+                    files: '笔记列表（直接文件访问）'
                 }
             },
             autoRevealActiveNote: {
