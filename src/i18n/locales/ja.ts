@@ -538,6 +538,14 @@ export const STRINGS_JA = {
                 name: 'デュアルペインレイアウト（デスクトップのみ、同期されません）',
                 desc: 'デスクトップでナビゲーションペインとリストペインを並べて表示します。'
             },
+            singlePaneStartView: {
+                name: 'Startup pane focus',
+                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                options: {
+                    navigation: 'Navigation pane',
+                    files: 'Notes list'
+                }
+            },
             autoRevealActiveNote: {
                 name: 'アクティブなノートを自動表示',
                 desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示します。'

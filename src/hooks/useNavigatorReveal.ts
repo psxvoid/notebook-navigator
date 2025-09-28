@@ -33,6 +33,7 @@ import { ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { matchesAnyPrefix } from '../utils/tagPrefixMatcher';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
+import type { Align } from '../types/scroll';
 
 interface UseNavigatorRevealOptions {
     app: App;
@@ -42,6 +43,7 @@ interface UseNavigatorRevealOptions {
 
 interface RevealFileOptions {
     source?: SelectionRevealSource;
+    isStartupReveal?: boolean;
 }
 
 /**
@@ -311,7 +313,9 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             let targetTag: string | null | undefined = undefined;
             let targetFolderOverride: TFolder | null = null;
             let preserveFolder = false;
-            const revealSource = options?.source;
+            const revealSource: SelectionRevealSource | undefined = options?.isStartupReveal ? 'startup' : options?.source;
+            const shouldCenterNavigation = Boolean(options?.isStartupReveal && settings.singlePaneStartView === 'navigation');
+            const navigationAlign: Align = shouldCenterNavigation ? 'center' : 'auto';
             if (selectionState.selectionType === 'tag') {
                 targetTag = determineTagToReveal(file, selectionState.selectedTag, settings, getDB());
 
@@ -379,7 +383,9 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             });
 
             // In single pane mode, switch to list pane view
-            if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
+            const shouldSkipSinglePaneSwitch = Boolean(options?.isStartupReveal && settings.singlePaneStartView === 'navigation');
+
+            if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation' && !shouldSkipSinglePaneSwitch) {
                 uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
             }
 
@@ -390,7 +396,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                     targetFolderOverride ??
                     (preserveFolder && selectionState.selectedFolder ? selectionState.selectedFolder : (resolvedFolder ?? file.parent));
                 if (scrollFolder) {
-                    navigationPaneRef.current.requestScroll(scrollFolder.path, { align: 'auto', itemType: ItemType.FOLDER });
+                    navigationPaneRef.current.requestScroll(scrollFolder.path, { align: navigationAlign, itemType: ItemType.FOLDER });
                 }
             }
         },
@@ -569,7 +575,14 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             app.workspace.offref(activeLeafEventRef);
             app.workspace.offref(fileOpenEventRef);
         };
-    }, [app, app.workspace, settings.autoRevealActiveFile, settings.autoRevealIgnoreRightSidebar, commandQueue]);
+    }, [
+        app,
+        app.workspace,
+        settings.autoRevealActiveFile,
+        settings.autoRevealIgnoreRightSidebar,
+        settings.singlePaneStartView,
+        commandQueue
+    ]);
 
     // Handle revealing the file when detected
     useEffect(() => {
@@ -596,9 +609,9 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 }
                 // Use nearest folder for startup - this respects includeDescendantNotes
                 // and preserves the current folder selection when possible
-                revealFileInNearestFolder(fileToReveal);
+                revealFileInNearestFolder(fileToReveal, { source: 'auto', isStartupReveal: true });
             } else {
-                revealFileInNearestFolder(fileToReveal); // Use nearest folder for sidebar clicks
+                revealFileInNearestFolder(fileToReveal, { source: 'auto' }); // Use nearest folder for sidebar clicks
             }
         }
     }, [
@@ -610,7 +623,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
         selectionState.selectedTag,
         selectionState.selectedFile,
         revealTag,
-        selectionDispatch
+        selectionDispatch,
+        settings.singlePaneStartView
     ]);
 
     /**

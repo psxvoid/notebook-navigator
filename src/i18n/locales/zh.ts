@@ -537,6 +537,14 @@ export const STRINGS_ZH = {
                 name: '双窗格布局（仅桌面端，不同步）',
                 desc: '在桌面端并排显示导航窗格和列表窗格。'
             },
+            singlePaneStartView: {
+                name: 'Startup pane focus',
+                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                options: {
+                    navigation: 'Navigation pane',
+                    files: 'Notes list'
+                }
+            },
             autoRevealActiveNote: {
                 name: '自动定位活动笔记',
                 desc: '从快速切换器、链接或搜索打开笔记时自动显示。'

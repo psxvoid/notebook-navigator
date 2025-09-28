@@ -539,6 +539,14 @@ export const STRINGS_FR = {
                 name: 'Disposition à double panneau (ordinateur uniquement, non synchronisé)',
                 desc: 'Afficher le panneau de navigation et le panneau de liste côte à côte sur ordinateur.'
             },
+            singlePaneStartView: {
+                name: 'Startup pane focus',
+                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                options: {
+                    navigation: 'Navigation pane',
+                    files: 'Notes list'
+                }
+            },
             autoRevealActiveNote: {
                 name: 'Révéler automatiquement la note active',
                 desc: "Révéler automatiquement les notes lorsqu'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche."

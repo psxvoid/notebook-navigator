@@ -538,6 +538,14 @@ export const STRINGS_ES = {
                 name: 'Diseño de doble panel (solo escritorio, no sincronizado)',
                 desc: 'Mostrar panel de navegación y panel de lista lado a lado en escritorio.'
             },
+            singlePaneStartView: {
+                name: 'Startup pane focus',
+                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                options: {
+                    navigation: 'Navigation pane',
+                    files: 'Notes list'
+                }
+            },
             autoRevealActiveNote: {
                 name: 'Mostrar automáticamente la nota activa',
                 desc: 'Muestra automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.'

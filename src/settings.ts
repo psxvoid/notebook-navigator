@@ -71,6 +71,7 @@ export interface NotebookNavigatorSettings {
     autoRevealIgnoreRightSidebar: boolean;
     showTooltips: boolean;
     homepage: string | null;
+    singlePaneStartView: 'navigation' | 'files';
     fileVisibility: FileVisibility;
     excludedFolders: string[];
     excludedFiles: string[];
@@ -181,6 +182,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     autoRevealIgnoreRightSidebar: true,
     showTooltips: false,
     homepage: null,
+    singlePaneStartView: 'files',
     fileVisibility: FILE_VISIBILITY.DOCUMENTS,
     excludedFolders: [],
     excludedFiles: [],
@@ -482,7 +484,22 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        // Top level settings (no category header)
+        new Setting(containerEl)
+            .setName(strings.settings.items.singlePaneStartView.name)
+            .setDesc(strings.settings.items.singlePaneStartView.desc)
+            .addDropdown(dropdown => {
+                dropdown
+                    .addOptions({
+                        navigation: strings.settings.items.singlePaneStartView.options.navigation,
+                        files: strings.settings.items.singlePaneStartView.options.files
+                    })
+                    .setValue(this.plugin.settings.singlePaneStartView)
+                    .onChange(async value => {
+                        const nextView = value === 'navigation' ? 'navigation' : 'files';
+                        this.plugin.settings.singlePaneStartView = nextView;
+                        await this.plugin.saveSettingsAndUpdate();
+                    });
+            });
 
         if (!Platform.isMobile) {
             new Setting(containerEl)

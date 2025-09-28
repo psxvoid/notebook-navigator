@@ -537,6 +537,14 @@ export const STRINGS_KO = {
                 name: '이중 창 레이아웃 (데스크톱 전용, 동기화되지 않음)',
                 desc: '데스크톱에서 탐색 창과 목록 창을 나란히 표시합니다.'
             },
+            singlePaneStartView: {
+                name: 'Startup pane focus',
+                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                options: {
+                    navigation: 'Navigation pane',
+                    files: 'Notes list'
+                }
+            },
             autoRevealActiveNote: {
                 name: '활성 노트 자동 표시',
                 desc: '빠른 전환기, 링크 또는 검색에서 열 때 노트를 자동으로 표시합니다.'

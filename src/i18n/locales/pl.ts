@@ -539,6 +539,14 @@ export const STRINGS_PL = {
                 name: 'Układ podwójnego panelu (tylko desktop, nie synchronizowany)',
                 desc: 'Pokaż panel nawigacji i panel listy obok siebie na komputerze.'
             },
+            singlePaneStartView: {
+                name: 'Startup pane focus',
+                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                options: {
+                    navigation: 'Navigation pane',
+                    files: 'Notes list'
+                }
+            },
             autoRevealActiveNote: {
                 name: 'Automatycznie odkryj aktywną notatkę',
                 desc: 'Automatycznie odkrywaj notatki po otwarciu z Quick Switcher, linków lub wyszukiwania.'

@@ -539,6 +539,14 @@ export const STRINGS_DE = {
                 name: 'Doppelbereichslayout (nur Desktop, nicht synchronisiert)',
                 desc: 'Navigationsbereich und Listenbereich nebeneinander auf dem Desktop anzeigen.'
             },
+            singlePaneStartView: {
+                name: 'Startup pane focus',
+                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                options: {
+                    navigation: 'Navigation pane',
+                    files: 'Notes list'
+                }
+            },
             autoRevealActiveNote: {
                 name: 'Aktive Notiz automatisch anzeigen',
                 desc: 'Notizen automatisch anzeigen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.'

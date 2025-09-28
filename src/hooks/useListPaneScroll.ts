@@ -441,7 +441,10 @@ export function useListPaneScroll({
         if (pending.type === 'file' && pending.filePath) {
             const index = getSelectionIndex(pending.filePath);
             if (index >= 0) {
-                const alignment: Align = getListAlign(pending.reason);
+                let alignment: Align = getListAlign(pending.reason);
+                if (pending.reason === 'reveal' && selectionState.revealSource === 'startup') {
+                    alignment = 'center';
+                }
                 rowVirtualizer.scrollToIndex(index, { align: alignment });
 
                 // Stabilization mechanism: Handle rapid consecutive rebuilds
@@ -476,7 +479,16 @@ export function useListPaneScroll({
         if (shouldClearPending) {
             pendingScrollRef.current = null;
         }
-    }, [rowVirtualizer, filePathToIndex, isVisible, pendingScrollVersion, getSelectionIndex, isMobile, setPending]);
+    }, [
+        rowVirtualizer,
+        filePathToIndex,
+        isVisible,
+        pendingScrollVersion,
+        getSelectionIndex,
+        isMobile,
+        setPending,
+        selectionState.revealSource
+    ]);
 
     /**
      * Subscribe to database content changes and re-measure virtualizer when needed.

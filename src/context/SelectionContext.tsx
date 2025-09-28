@@ -25,7 +25,7 @@ import { localStorage } from '../utils/localStorage';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { TagTreeService } from '../services/TagTreeService';
 
-export type SelectionRevealSource = 'auto' | 'manual' | 'shortcut';
+export type SelectionRevealSource = 'auto' | 'manual' | 'shortcut' | 'startup';
 
 // State interface
 export interface SelectionState {

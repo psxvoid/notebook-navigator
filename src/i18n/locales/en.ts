@@ -537,6 +537,14 @@ export const STRINGS_EN = {
                 name: 'Dual pane layout (desktop only, not synced)',
                 desc: 'Show navigation pane and list pane side by side on desktop.'
             },
+            singlePaneStartView: {
+                name: 'Startup pane focus',
+                desc: 'Choose whether the navigation pane or notes list is focused at startup in single and dual pane modes.',
+                options: {
+                    navigation: 'Navigation pane',
+                    files: 'Notes list'
+                }
+            },
             autoRevealActiveNote: {
                 name: 'Auto-reveal active note',
                 desc: 'Automatically reveal notes when opened from Quick Switcher, links, or search.'
