@@ -31,7 +31,7 @@ Choose your preferred language below to view the documentation on our website:
 
 <!-- DOCUMENTATION_START -->
 
-## Getting started
+## Installation
 
 1. **Install Obsidian** - Download and install from [obsidian.md](https://obsidian.md/)
 2. **Enable community plugins** - Go to Settings → Community plugins → Turn on community plugins
@@ -163,36 +163,75 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 <br>
 
-## How to use
+### Getting started
 
-1. Install the plugin from Obsidian's Community Plugins
-2. The navigator will replace your default file explorer
-3. Navigate using:
-   - **Click** to select folders, tags, and notes
-   - **Cmd/Ctrl+Click** to add notes to selection
-   - **Shift+Click** to select a range of notes
-   - **Double-click** folders and tags to expand/collapse
-   - **Option/Alt+Click** on chevrons to expand/collapse all descendants (desktop)
-   - **Arrow keys** for navigation
-   - **Tab** to switch between navigation pane and list pane
-   - **Delete/Backspace** to delete (with optional confirmation)
-4. Right-click for context menus:
-   - Pin/unpin notes
-   - Create new notes, folders, canvas, or drawings
-   - Open notes in new tabs or windows
-   - Rename, delete, or duplicate items
-   - Move files to another folder
-   - Add tag - Add tags to selected files
-   - Remove tag - Remove specific tags from selected files
-   - Remove all tags - Clear all tags from selected files
-   - Change or remove folder/tag colors and icons
-   - Create or delete folder notes
-   - Open version history or reveal in system explorer
-   - Reveal in folder - switches to the file's containing folder (useful when viewing notes from descendants or tags)
-5. Drag and drop notes between folders to organize, drag to tags to add tags, or drag to Untagged to remove all tags.
-   For more precise tag management, use the right-click context menu options
+**Can't see your files?** If you've enabled dual-pane layout but don't see any files, you may need to resize the navigation pane. Drag the divider between the left pane and editor to reveal the file list.
 
-**Note:** Use the ribbon icon (folder tree icon) in the left sidebar to reopen Notebook Navigator if closed, or use the command `Notebook Navigator: Open`.
+### Navigation pane toolbar
+
+![Navigation Pane Toolbar](path-to-navigation-toolbar-image)
+
+1. **Shortcuts** - Jump to shortcuts section at the top of the navigation pane
+2. **Collapse/Expand all** - Collapse or expand all folders and tags (keeps selected item expanded by default)
+3. **Show hidden** - Toggle visibility of excluded folders and hidden tags
+4. **Reorder root folders** - Open drag-and-drop interface to customize root folder order
+5. **New folder** - Create a new folder in the currently selected location
+
+### List pane toolbar
+
+![List Pane Toolbar](path-to-list-pane-toolbar-image)
+
+1. **Search** - Filter files by name or search full-text with Omnisearch (if installed)
+2. **Show descendants** - Toggle display of notes from subfolders and subtags
+3. **Sort** - Change sort order (date modified, date created, or title)
+4. **Appearance** - Customize display settings for current folder/tag (preview rows, title rows, slim mode)
+5. **New note** - Create a new note in the currently selected folder
+
+### Basic navigation
+
+- **Click** to select folders, tags, and notes
+- **Double-click** folders and tags to expand/collapse
+- **Cmd/Ctrl+Click** to add notes to selection
+- **Shift+Click** to select a range of notes
+- **Option/Alt+Click** on chevrons to expand/collapse all descendants (desktop)
+- **Arrow keys** for keyboard navigation
+- **Tab** to switch between navigation pane and list pane
+- **Delete/Backspace** to delete selected items
+
+### Context menus
+
+Right-click any item for contextual actions:
+
+**Files:**
+- Pin/unpin notes
+- Open in new tab or window
+- Rename, delete, duplicate, or move
+- Add to shortcuts
+- Change icon or color
+- Add, remove, or clear tags
+- Reveal in folder or system explorer
+- View version history
+
+**Folders:**
+- Create new note, folder, canvas, or drawing
+- Add to shortcuts
+- Change color, icon, or background
+- Create or delete folder note
+- Reorder subfolders
+- Set custom sort order or appearance
+
+**Tags:**
+- Add to shortcuts or favorites
+- Change color or icon
+- Set custom sort order or appearance
+
+### Drag and drop
+
+- Drag files between folders to move them
+- Drag files to tags to add tags
+- Drag files to "Untagged" to remove all tags
+- Drag shortcuts to reorder them
+- Drag root folders when in reorder mode
 
 <br>
 
