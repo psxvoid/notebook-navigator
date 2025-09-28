@@ -998,15 +998,6 @@ body {
     gap: 0.25rem;
 }
 
-.nn-drag-item[data-reorder-draggable='true'] .nn-navitem-content {
-    cursor: grab;
-}
-
-.nn-drag-item[data-reorder-draggable='true'].nn-shortcut-drag-source .nn-navitem-content,
-.nn-drag-item[data-reorder-draggable='true'] .nn-navitem-content:active {
-    cursor: grabbing;
-}
-
 .nn-drag-handle {
     width: 28px;
     height: calc(var(--nn-setting-nav-item-height) - 4px);
