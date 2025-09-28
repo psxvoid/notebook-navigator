@@ -169,20 +169,20 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 ### Navigation pane toolbar
 
-![Navigation Pane Toolbar](path-to-navigation-toolbar-image)
+![Navigation Pane Toolbar](https://github.com/johansan/notebook-navigator/blob/main/images/navpane.png?raw=true)
 
-1. **Shortcuts** - Jump to shortcuts section at the top of the navigation pane
-2. **Collapse/Expand all** - Collapse or expand all folders and tags (keeps selected item expanded by default)
-3. **Show hidden** - Toggle visibility of excluded folders and hidden tags
+1. **Shortcuts** - Jump to shortcuts section at the top of the navigation pane. This button is not visible if you have disabled shortcuts
+2. **Collapse/Expand all** - Collapse or expand folders and tags (keeps selected item expanded by default). Configurable in settings if you want the button to affect folders, tags or both
+3. **Show hidden** - Toggle visibility of excluded folders and hidden tags. This button is not visible if you have do not have any hidden items.
 4. **Reorder root folders** - Open drag-and-drop interface to customize root folder order
 5. **New folder** - Create a new folder in the currently selected location
 
 ### List pane toolbar
 
-![List Pane Toolbar](path-to-list-pane-toolbar-image)
+![List Pane Toolbar](https://github.com/johansan/notebook-navigator/blob/main/images/listpane.png?raw=true)
 
-1. **Search** - Filter files by name or search full-text with Omnisearch (if installed)
-2. **Show descendants** - Toggle display of notes from subfolders and subtags
+1. **Search** - Filter files by name or tag or search full-text with Omnisearch (if installed). Check plugin settings for details how to use search
+2. **Show descendants** - Toggle display of notes from subfolders and subtags. Disable this to only see notes and files in the current folder or tag
 3. **Sort** - Change sort order (date modified, date created, or title)
 4. **Appearance** - Customize display settings for current folder/tag (preview rows, title rows, slim mode)
 5. **New note** - Create a new note in the currently selected folder
@@ -197,33 +197,6 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Arrow keys** for keyboard navigation
 - **Tab** to switch between navigation pane and list pane
 - **Delete/Backspace** to delete selected items
-
-### Context menus
-
-Right-click any item for contextual actions:
-
-**Files:**
-- Pin/unpin notes
-- Open in new tab or window
-- Rename, delete, duplicate, or move
-- Add to shortcuts
-- Change icon or color
-- Add, remove, or clear tags
-- Reveal in folder or system explorer
-- View version history
-
-**Folders:**
-- Create new note, folder, canvas, or drawing
-- Add to shortcuts
-- Change color, icon, or background
-- Create or delete folder note
-- Reorder subfolders
-- Set custom sort order or appearance
-
-**Tags:**
-- Add to shortcuts or favorites
-- Change color or icon
-- Set custom sort order or appearance
 
 ### Drag and drop
 
