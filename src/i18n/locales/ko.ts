@@ -166,7 +166,7 @@ export const STRINGS_KO = {
             createFolderNote: '폴더 노트 만들기',
             deleteFolderNote: '폴더 노트 삭제',
             changeIcon: '아이콘 변경',
-            changeColor: '색상 변경',
+            changeColor: '아이콘 색상 변경',
             changeBackground: '배경색 변경',
             excludeFolder: '폴더 숨기기',
             renameFolder: '폴더 이름 변경',
@@ -536,10 +536,10 @@ export const STRINGS_KO = {
             },
             singlePaneStartView: {
                 name: '기본 시작 보기',
-                desc: 'Notebook Navigator를 열 때 표시할 보기를 선택하세요. 탐색 보기는 바로가기, 최근 노트 및 폴더 구조에 빠르게 액세스할 수 있습니다. 노트 목록 보기는 파일을 바로 표시하여 즉시 액세스할 수 있습니다.',
+                desc: 'Notebook Navigator를 열 때 표시할 창을 선택하세요. 탐색 창은 바로가기, 최근 노트, 폴더 구조를 표시합니다. 목록 창은 노트 목록을 표시합니다.',
                 options: {
-                    navigation: '탐색 (바로가기 및 폴더)',
-                    files: '노트 목록 (직접 파일 액세스)'
+                    navigation: '탐색 창',
+                    files: '목록 창'
                 }
             },
             autoRevealActiveNote: {

@@ -351,8 +351,8 @@ To support both light and dark modes, define your variables under `.theme-light`
 
 ### User Custom Colors Override
 
-When users set custom colors (right-click → "Change color"), their choices automatically override your theme through
-inline styles.
+When users set custom colors (right-click → "Change color" or "Change icon color"), their choices automatically override
+your theme through inline styles.
 
 ## Style Settings Support
 

@@ -141,7 +141,7 @@ export const STRINGS_JA = {
             removeTag: 'タグを削除',
             removeAllTags: 'すべてのタグを削除',
             changeIcon: 'アイコンを変更',
-            changeColor: '色を変更',
+            changeColor: 'アイコンの色を変更',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count}個のファイルを新しいタブで開く',
             openMultipleFilesToRight: '{count}個のファイルを右側で開く',
@@ -537,10 +537,10 @@ export const STRINGS_JA = {
             },
             singlePaneStartView: {
                 name: 'デフォルト起動ビュー',
-                desc: 'Notebook Navigator を開いたときに表示するビューを選択します。ナビゲーションビューはショートカット、最近のノート、フォルダ構造への素早いアクセスを提供します。ノートリストビューはファイルを直接表示して即座にアクセスできます。',
+                desc: 'Notebook Navigator を開いたときに表示するペインを選択します。ナビゲーションペインはショートカット、最近のノート、フォルダ構造を表示します。リストペインはノート一覧を表示します。',
                 options: {
-                    navigation: 'ナビゲーション（ショートカットとフォルダ）',
-                    files: 'ノートリスト（直接ファイルアクセス）'
+                    navigation: 'ナビゲーションペイン',
+                    files: 'リストペイン'
                 }
             },
             autoRevealActiveNote: {

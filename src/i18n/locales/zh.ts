@@ -141,7 +141,7 @@ export const STRINGS_ZH = {
             removeTag: '移除标签',
             removeAllTags: '移除所有标签',
             changeIcon: '更改图标',
-            changeColor: '更改颜色',
+            changeColor: '更改图标颜色',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '在新标签页中打开 {count} 个文件',
             openMultipleFilesToRight: '在右侧打开 {count} 个文件',
@@ -536,10 +536,10 @@ export const STRINGS_ZH = {
             },
             singlePaneStartView: {
                 name: '默认启动视图',
-                desc: '选择打开 Notebook Navigator 时显示的视图。导航视图提供快速访问快捷方式、最近笔记和文件夹结构。笔记列表视图直接显示文件以便立即访问。',
+                desc: '选择打开 Notebook Navigator 时显示的窗格。导航窗格显示快捷方式、最近笔记和文件夹结构。列表窗格显示笔记列表。',
                 options: {
-                    navigation: '导航（快捷方式和文件夹）',
-                    files: '笔记列表（直接文件访问）'
+                    navigation: '导航窗格',
+                    files: '列表窗格'
                 }
             },
             autoRevealActiveNote: {

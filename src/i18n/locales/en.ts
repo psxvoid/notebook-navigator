@@ -154,7 +154,7 @@ export const STRINGS_EN = {
             removeTag: 'Remove tag',
             removeAllTags: 'Remove all tags',
             changeIcon: 'Change icon',
-            changeColor: 'Change color'
+            changeColor: 'Change icon color'
         },
         folder: {
             newNote: 'New note',
@@ -536,10 +536,10 @@ export const STRINGS_EN = {
             },
             singlePaneStartView: {
                 name: 'Default startup view',
-                desc: 'Choose which view to display when opening Notebook Navigator. Navigation view provides quick access to shortcuts, recent notes, and your folder structure. Notes list view shows your files immediately for direct access.',
+                desc: 'Choose which pane to display when opening Notebook Navigator. Navigation pane shows shortcuts, recent notes, and folder tree. List pane shows note list immediately.',
                 options: {
-                    navigation: 'Navigation (shortcuts & folders)',
-                    files: 'Notes list (direct file access)'
+                    navigation: 'Navigation pane',
+                    files: 'List pane'
                 }
             },
             autoRevealActiveNote: {

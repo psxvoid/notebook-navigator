@@ -141,7 +141,7 @@ export const STRINGS_FR = {
             removeTag: 'Supprimer l’étiquette',
             removeAllTags: 'Supprimer toutes les étiquettes',
             changeIcon: "Changer l'icône",
-            changeColor: 'Changer la couleur',
+            changeColor: "Changer la couleur de l'icône",
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Ouvrir {count} fichiers dans de nouveaux onglets',
             openMultipleFilesToRight: 'Ouvrir {count} fichiers à droite',
@@ -538,10 +538,10 @@ export const STRINGS_FR = {
             },
             singlePaneStartView: {
                 name: 'Vue de démarrage par défaut',
-                desc: "Choisissez la vue à afficher lors de l'ouverture de Notebook Navigator. La vue navigation offre un accès rapide aux raccourcis, notes récentes et structure de dossiers. La vue liste de notes affiche directement les fichiers pour un accès immédiat.",
+                desc: "Choisissez le panneau affiché lors de l'ouverture de Notebook Navigator. Le panneau de navigation montre les raccourcis, les notes récentes et la structure des dossiers. Le panneau de liste affiche immédiatement la liste des notes.",
                 options: {
-                    navigation: 'Navigation (raccourcis et dossiers)',
-                    files: 'Liste de notes (accès direct aux fichiers)'
+                    navigation: 'Panneau de navigation',
+                    files: 'Panneau de liste'
                 }
             },
             autoRevealActiveNote: {

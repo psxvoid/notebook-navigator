@@ -166,7 +166,7 @@ export const STRINGS_PL = {
             createFolderNote: 'Utwórz notatkę folderu',
             deleteFolderNote: 'Usuń notatkę folderu',
             changeIcon: 'Zmień ikonę',
-            changeColor: 'Zmień kolor',
+            changeColor: 'Zmień kolor ikony',
             changeBackground: 'Zmień tło',
             excludeFolder: 'Ukryj folder',
             renameFolder: 'Zmień nazwę folderu',
@@ -538,10 +538,10 @@ export const STRINGS_PL = {
             },
             singlePaneStartView: {
                 name: 'Domyślny widok startowy',
-                desc: 'Wybierz widok wyświetlany przy otwieraniu Notebook Navigator. Widok nawigacji zapewnia szybki dostęp do skrótów, ostatnich notatek i struktury folderów. Widok listy notatek pokazuje pliki bezpośrednio do natychmiastowego dostępu.',
+                desc: 'Wybierz panel wyświetlany przy otwieraniu Notebook Navigator. Panel nawigacji pokazuje skróty, ostatnie notatki oraz strukturę folderów. Panel listy pokazuje listę notatek.',
                 options: {
-                    navigation: 'Nawigacja (skróty i foldery)',
-                    files: 'Lista notatek (bezpośredni dostęp)'
+                    navigation: 'Panel nawigacji',
+                    files: 'Panel listy'
                 }
             },
             autoRevealActiveNote: {

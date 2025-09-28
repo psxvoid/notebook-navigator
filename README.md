@@ -298,7 +298,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Top level settings
 
-- **Default startup view:** Choose which view displays when opening Notebook Navigator - Navigation view (shortcuts, recent notes, folders) or Notes list view
+- **Default startup view:** Choose which pane displays when opening Notebook Navigator - Navigation pane (shortcuts, recent notes, folders) or List pane (note list)
 - **Dual pane layout (desktop only):** Show navigation and list panes side by side
 - **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
   - **Ignore right sidebar:** Disable auto-reveal from right sidebar
@@ -526,7 +526,7 @@ Use cases:
 ### Customizing file icons
 
 1. Right-click any file
-2. Select "Change icon" or "Change color"
+2. Select "Change icon" or "Change icon color"
 3. Icons and colors work just like folders
 4. Useful for marking important files or templates
 

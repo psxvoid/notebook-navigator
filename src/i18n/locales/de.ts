@@ -142,7 +142,7 @@ export const STRINGS_DE = {
             removeAllTags: 'Alle Tags entfernen',
             changeIcon: 'Icon ändern',
             removeIcon: 'Icon entfernen',
-            changeColor: 'Farbe ändern',
+            changeColor: 'Symbolfarbe ändern',
             removeColor: 'Farbe entfernen',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count} Dateien in neuen Tabs öffnen',
@@ -540,10 +540,10 @@ export const STRINGS_DE = {
             },
             singlePaneStartView: {
                 name: 'Standard-Startansicht',
-                desc: 'Wählen Sie die Ansicht, die beim Öffnen von Notebook Navigator angezeigt wird. Die Navigationsansicht bietet schnellen Zugriff auf Verknüpfungen, aktuelle Notizen und Ordnerstruktur. Die Notizlistenansicht zeigt Dateien direkt für sofortigen Zugriff.',
+                desc: 'Wählen Sie den Bereich, der beim Öffnen von Notebook Navigator angezeigt wird. Der Navigationsbereich zeigt Verknüpfungen, aktuelle Notizen und die Ordnerstruktur. Der Listenbereich zeigt die Notizliste.',
                 options: {
-                    navigation: 'Navigation (Verknüpfungen und Ordner)',
-                    files: 'Notizliste (direkter Dateizugriff)'
+                    navigation: 'Navigationsbereich',
+                    files: 'Listenbereich'
                 }
             },
             autoRevealActiveNote: {

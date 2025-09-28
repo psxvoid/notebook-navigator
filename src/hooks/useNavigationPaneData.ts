@@ -612,15 +612,19 @@ export function useNavigationPaneData({
             } else if (item.type === NavigationPaneItemType.SHORTCUT_FOLDER) {
                 // Apply custom folder icon to shortcut if available
                 const folderPath = item.folder?.path;
+                const folderColor = folderPath ? metadataService.getFolderColor(folderPath) : undefined;
                 return {
                     ...item,
-                    icon: (folderPath && metadataService.getFolderIcon(folderPath)) || 'lucide-folder'
+                    icon: (folderPath && metadataService.getFolderIcon(folderPath)) || 'lucide-folder',
+                    color: folderColor
                 };
             } else if (item.type === NavigationPaneItemType.SHORTCUT_TAG) {
                 // Apply custom tag icon to shortcut if available
+                const tagColor = metadataService.getTagColor(item.tagPath);
                 return {
                     ...item,
-                    icon: metadataService.getTagIcon(item.tagPath) || 'lucide-tags'
+                    icon: metadataService.getTagIcon(item.tagPath) || 'lucide-tags',
+                    color: tagColor
                 };
             } else if (item.type === NavigationPaneItemType.SHORTCUT_NOTE) {
                 const note = item.note;
