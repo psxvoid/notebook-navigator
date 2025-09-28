@@ -1574,7 +1574,8 @@ export const NavigationPane = React.memo(
                                     const displayLabel = entry.isVault
                                         ? settings.customVaultName || app.vault.getName()
                                         : entry.folder.name;
-                                    const displayIcon = entry.isVault ? (iconName ?? 'vault') : (iconName ?? 'lucide-folder');
+                                    const displayIcon = entry.isVault ? (iconName ?? 'open-vault') : (iconName ?? 'lucide-folder');
+                                    const chevronIcon = entry.isVault ? 'lucide-chevron-down' : undefined;
 
                                     return (
                                         <RootFolderReorderItem
@@ -1587,6 +1588,7 @@ export const NavigationPane = React.memo(
                                             showDropIndicatorAfter={showAfter}
                                             isDragSource={entry.isVault ? false : isDragSource}
                                             dragHandleLabel={strings.navigationPane.dragHandleLabel}
+                                            chevronIcon={chevronIcon}
                                         />
                                     );
                                 })}

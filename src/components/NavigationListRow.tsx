@@ -4,6 +4,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { ObsidianIcon } from './ObsidianIcon';
+import { setIcon } from 'obsidian';
 
 /**
  * Configuration for the drag handle element that appears in reorderable rows
@@ -43,6 +44,7 @@ interface NavigationListRowProps {
     actions?: React.ReactNode;
     dragHandleConfig?: DragHandleConfig;
     className?: string;
+    chevronIcon?: string;
 }
 
 /**
@@ -69,12 +71,14 @@ export function NavigationListRow({
     actions,
     dragHandleConfig,
     className,
+    chevronIcon,
     role = 'treeitem',
     tabIndex,
     ariaDisabled,
     ariaGrabbed
 }: NavigationListRowProps) {
     const settings = useSettingsState();
+    const chevronRef = useRef<HTMLSpanElement>(null);
     const iconRef = useRef<HTMLSpanElement>(null);
     const iconVersion = useIconServiceVersion();
 
@@ -98,6 +102,21 @@ export function NavigationListRow({
         }
         return classList.join(' ');
     }, [className, dragHandleConfig?.visible, isDisabled, isDragSource, isExcluded]);
+
+    // Renders chevron icon when provided, clearing it for rows without chevrons
+    useEffect(() => {
+        if (!chevronRef.current) {
+            return;
+        }
+
+        if (!chevronIcon) {
+            chevronRef.current.empty();
+            return;
+        }
+
+        chevronRef.current.empty();
+        setIcon(chevronRef.current, chevronIcon);
+    }, [chevronIcon]);
 
     // Renders icon using Obsidian's icon service, clearing it if icons are disabled in settings
     useEffect(() => {
@@ -173,7 +192,11 @@ export function NavigationListRow({
             style={{ '--level': level } as CSSProperties}
         >
             <div className="nn-navitem-content">
-                <span className="nn-navitem-chevron nn-navitem-chevron--no-children" aria-hidden="true" />
+                <span
+                    ref={chevronRef}
+                    className={`nn-navitem-chevron${chevronIcon ? '' : ' nn-navitem-chevron--no-children'}`}
+                    aria-hidden="true"
+                />
                 <span
                     ref={iconRef}
                     className="nn-navitem-icon"

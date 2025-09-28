@@ -1058,6 +1058,13 @@ body {
     font-size: var(--font-normal);
 }
 
+.nn-root-reorder-title,
+.nn-root-reorder-hint {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .nn-root-reorder-hint {
     font-size: var(--font-smaller);
     color: var(--text-muted);

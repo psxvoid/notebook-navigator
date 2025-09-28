@@ -15,6 +15,7 @@ interface RootFolderReorderItemProps {
     isDragSource?: boolean;
     dragHandleLabel: string;
     onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+    chevronIcon?: string;
 }
 
 /**
@@ -30,7 +31,8 @@ export function RootFolderReorderItem({
     showDropIndicatorAfter,
     isDragSource,
     dragHandleLabel,
-    onClick
+    onClick,
+    chevronIcon
 }: RootFolderReorderItemProps) {
     // Prevents event bubbling for reorder item clicks to avoid triggering parent handlers
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -68,6 +70,7 @@ export function RootFolderReorderItem({
             tabIndex={-1}
             ariaGrabbed={isDragSource}
             dragHandleConfig={handleConfig}
+            chevronIcon={chevronIcon}
         />
     );
 }
