@@ -16,14 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Platform } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { strings } from '../i18n';
-import { getIconService, useIconServiceVersion } from '../services/icons';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useListActions } from '../hooks/useListActions';
 import { useListPaneTitle } from '../hooks/useListPaneTitle';
@@ -35,16 +34,13 @@ interface ListPaneHeaderProps {
 }
 
 export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }: ListPaneHeaderProps) {
-    const iconRef = React.useRef<HTMLSpanElement>(null);
-    const mobileIconRef = React.useRef<HTMLSpanElement>(null);
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
-    const { desktopTitle, breadcrumbSegments, iconName, showIcon } = useListPaneTitle();
-    const iconVersion = useIconServiceVersion();
+    const { desktopTitle, breadcrumbSegments } = useListPaneTitle();
 
     // Use the shared actions hook
     const { handleNewFile, handleAppearanceMenu, handleSortMenu, handleToggleDescendants, getSortIcon, isCustomSort, hasCustomAppearance } =
@@ -100,20 +96,6 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
         return parts;
     }, [app.vault, breadcrumbSegments, desktopTitle, selectionDispatch, shouldRenderTitleContent]);
 
-    useEffect(() => {
-        if (!showIcon) {
-            return;
-        }
-
-        const iconService = getIconService();
-        if (iconRef.current && shouldRenderTitleContent) {
-            iconService.renderIcon(iconRef.current, iconName);
-        }
-        if (mobileIconRef.current) {
-            iconService.renderIcon(mobileIconRef.current, iconName);
-        }
-    }, [iconName, iconVersion, showIcon, shouldRenderTitleContent]);
-
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
     const [showFade, setShowFade] = React.useState(false);
 
@@ -145,7 +127,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
         // On mobile, show simplified header with back button and path - actions moved to tab bar
         return (
             <div className="nn-pane-header nn-pane-header-simple" onClick={onHeaderClick}>
-                <div className={`nn-mobile-header ${!showIcon ? 'nn-mobile-header-no-icon' : ''}`}>
+                <div className="nn-mobile-header nn-mobile-header-no-icon">
                     <button
                         className="nn-icon-button nn-back-button"
                         aria-label={strings.paneHeader.mobileBackToNavigation}
@@ -161,7 +143,6 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                     <div ref={scrollContainerRef} className="nn-breadcrumb-scroll" onScroll={handleScroll}>
                         <span className="nn-mobile-title">{breadcrumbContent}</span>
                     </div>
-                    {showIcon && <span ref={mobileIconRef} className="nn-mobile-header-icon" />}
                 </div>
             </div>
         );
@@ -184,7 +165,6 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                     </button>
                 )}
                 <span className="nn-pane-header-title">
-                    {shouldRenderTitleContent && showIcon && <span ref={iconRef} className="nn-pane-header-icon" />}
                     {shouldRenderTitleContent && <span className="nn-pane-header-text">{breadcrumbContent}</span>}
                 </span>
                 <div className="nn-header-actions">
