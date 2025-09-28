@@ -30,18 +30,30 @@ export const ShortcutType = {
 
 export type ShortcutType = (typeof ShortcutType)[keyof typeof ShortcutType];
 
+/**
+ * MIME type for drag-and-drop operations with shortcuts
+ */
 export const SHORTCUT_DRAG_MIME = 'application/x-notebook-shortcut';
 
+/**
+ * Shortcut pointing to a folder in the vault
+ */
 export interface FolderShortcut {
     type: typeof ShortcutType.FOLDER;
     path: string;
 }
 
+/**
+ * Shortcut pointing to a note (file) in the vault
+ */
 export interface NoteShortcut {
     type: typeof ShortcutType.NOTE;
     path: string;
 }
 
+/**
+ * Shortcut for a saved search query
+ */
 export interface SearchShortcut {
     type: typeof ShortcutType.SEARCH;
     name: string;
@@ -49,11 +61,17 @@ export interface SearchShortcut {
     provider: SearchProvider;
 }
 
+/**
+ * Shortcut pointing to a tag
+ */
 export interface TagShortcut {
     type: typeof ShortcutType.TAG;
     tagPath: string;
 }
 
+/**
+ * Union type of all possible shortcut types
+ */
 export type ShortcutEntry = FolderShortcut | NoteShortcut | SearchShortcut | TagShortcut;
 
 /**

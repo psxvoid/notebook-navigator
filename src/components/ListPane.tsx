@@ -259,7 +259,10 @@ export const ListPane = React.memo(
             [selectedFile, orderedFiles, filePathToIndex, selectionDispatch, app.workspace]
         );
 
-        // Handle saving the current search query as a shortcut
+        /**
+         * Handles saving the current search query as a shortcut.
+         * Opens a modal to get the shortcut name from the user.
+         */
         const handleSaveSearchShortcut = useCallback(() => {
             const normalizedQuery = searchQuery.trim();
             if (!normalizedQuery || isSavingSearchShortcut) {
@@ -282,7 +285,10 @@ export const ListPane = React.memo(
             modal.open();
         }, [app, addSearchShortcut, currentSearchProvider, isSavingSearchShortcut, searchQuery]);
 
-        // Handle removing the currently active search shortcut
+        /**
+         * Handles removing the currently active search shortcut.
+         * Called when user clicks the remove button for a saved search.
+         */
         const handleRemoveSearchShortcut = useCallback(async () => {
             if (!activeSearchShortcut || isSavingSearchShortcut) {
                 return;
@@ -354,7 +360,10 @@ export const ListPane = React.memo(
             [app.workspace, commandQueue, isMobile, multiSelection, selectionDispatch, settings.multiSelectModifier, uiDispatch]
         );
 
-        // Utility to wait for next animation frame for UI updates
+        /**
+         * Utility to wait for next animation frame for UI updates.
+         * Ensures DOM changes are rendered before proceeding.
+         */
         const waitForNextFrame = useCallback(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())), []);
 
         // Wait for mobile pane transition animation to complete
@@ -387,7 +396,10 @@ export const ListPane = React.memo(
             }
         }, [props.rootContainerRef]);
 
-        // Execute a saved search from a shortcut
+        /**
+         * Executes a saved search from a shortcut.
+         * Switches search provider if needed and applies the saved query.
+         */
         const executeSearchShortcut = useCallback(
             async ({ searchShortcut }: ExecuteSearchShortcutParams) => {
                 const normalizedQuery = searchShortcut.query.trim();

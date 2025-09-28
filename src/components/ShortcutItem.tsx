@@ -21,6 +21,9 @@ import { useSettingsState } from '../context/SettingsContext';
 import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
 
+/**
+ * Props for a shortcut item component that can represent folders, notes, searches, or tags
+ */
 interface ShortcutItemProps {
     icon: string;
     color?: string;
@@ -40,6 +43,10 @@ interface ShortcutItemProps {
     dragHandleConfig?: DragHandleConfig;
 }
 
+/**
+ * Renders a shortcut item in the navigation pane that supports clicking, drag-and-drop, and context menus.
+ * Handles disabled states and conditionally shows item counts based on type and settings.
+ */
 export const ShortcutItem = React.memo(function ShortcutItem({
     icon,
     color,
@@ -59,7 +66,8 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     dragHandleConfig
 }: ShortcutItemProps) {
     const settings = useSettingsState();
-    // Determine whether to display count based on settings and item type
+    // Determines whether to display count based on settings and item type
+    // Only shows counts for folder and tag types when showNoteCount is enabled
     const shouldShowCount = settings.showNoteCount && typeof count === 'number' && count > 0 && (type === 'folder' || type === 'tag');
 
     return (

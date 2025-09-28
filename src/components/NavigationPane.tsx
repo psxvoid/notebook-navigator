@@ -235,6 +235,9 @@ export const NavigationPane = React.memo(
             reorderItems: reorderShortcuts
         });
 
+        /**
+         * Wraps drag handlers to add custom ghost visualization during drag operations
+         */
         const withDragGhost = useCallback(
             (handlers: ListReorderHandlers, options: DragGhostOptions): ListReorderHandlers => {
                 if (!handlers.draggable) {
@@ -260,6 +263,9 @@ export const NavigationPane = React.memo(
             [dragGhostManager]
         );
 
+        /**
+         * Creates drag handlers for a shortcut with custom ghost visualization
+         */
         const buildShortcutDragHandlers = useCallback(
             (key: string, options: DragGhostOptions): ListReorderHandlers => {
                 const handlers = getDragHandlers(key);
@@ -268,7 +274,9 @@ export const NavigationPane = React.memo(
             [getDragHandlers, withDragGhost]
         );
 
-        // Get visual state for a shortcut item (drag state, drop indicators)
+        /**
+         * Gets visual state for a shortcut item (drag state, drop indicators)
+         */
         const getShortcutVisualState = useCallback(
             (key: string) => {
                 const shortcutIndex = shortcutPositionMap.get(key);

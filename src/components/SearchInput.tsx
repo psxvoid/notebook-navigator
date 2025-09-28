@@ -80,7 +80,10 @@ export function SearchInput({
         }
     }, [shouldFocus, onFocusComplete]);
 
-    // Focuses the list pane scroll container to enable keyboard navigation
+    /**
+     * Focuses the list pane scroll container to enable keyboard navigation.
+     * Used after closing search or switching focus away from search input.
+     */
     const focusListPane = () => {
         setTimeout(() => {
             const scope = containerRef?.current ?? document;

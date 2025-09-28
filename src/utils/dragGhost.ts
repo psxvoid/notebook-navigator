@@ -3,8 +3,14 @@ import { ItemType } from '../types';
 import { getDBInstance } from '../storage/fileOperations';
 import { getIconService } from '../services/icons';
 
+/**
+ * Supported item types for drag ghost visualization
+ */
 export type DragGhostItemType = (typeof ItemType)[keyof typeof ItemType] | 'search';
 
+/**
+ * Configuration options for creating a drag ghost
+ */
 export interface DragGhostOptions {
     itemType: DragGhostItemType | null;
     path?: string;
@@ -13,6 +19,9 @@ export interface DragGhostOptions {
     iconColor?: string;
 }
 
+/**
+ * Interface for managing drag ghost display during drag operations
+ */
 export interface DragGhostManager {
     showGhost: (event: DragEvent, options: DragGhostOptions) => void;
     hideGhost: () => void;
@@ -20,11 +29,18 @@ export interface DragGhostManager {
     hasGhost: () => boolean;
 }
 
+/**
+ * Creates a drag ghost manager that displays custom drag previews.
+ * Shows icons, images, or badges depending on the dragged content.
+ */
 export function createDragGhostManager(app: App): DragGhostManager {
     let dragGhostElement: HTMLElement | null = null;
     let windowDragEndHandler: ((event: DragEvent) => void) | null = null;
     let windowDropHandler: ((event: DragEvent) => void) | null = null;
 
+    /**
+     * Updates the ghost element position to follow the cursor
+     */
     const updateDragGhostPosition = (event: MouseEvent | DragEvent) => {
         if (!dragGhostElement) {
             return;
@@ -33,6 +49,9 @@ export function createDragGhostManager(app: App): DragGhostManager {
         dragGhostElement.style.top = `${event.clientY + 10}px`;
     };
 
+    /**
+     * Removes the ghost element and cleans up event listeners
+     */
     const hideGhost = () => {
         if (dragGhostElement) {
             document.removeEventListener('mousemove', updateDragGhostPosition);
@@ -50,6 +69,9 @@ export function createDragGhostManager(app: App): DragGhostManager {
         }
     };
 
+    /**
+     * Determines the appropriate icon based on item type
+     */
     const resolveIcon = (options: DragGhostOptions): string | null => {
         if (options.icon) {
             return options.icon;
@@ -69,6 +91,9 @@ export function createDragGhostManager(app: App): DragGhostManager {
         return 'lucide-file';
     };
 
+    /**
+     * Checks if an icon ID is an emoji and returns it
+     */
     const asEmoji = (iconId: string): string | null => {
         if (iconId.startsWith('emoji:')) {
             return iconId.slice('emoji:'.length);
@@ -77,6 +102,10 @@ export function createDragGhostManager(app: App): DragGhostManager {
         return emojiRegex.test(iconId) ? iconId : null;
     };
 
+    /**
+     * Creates and displays a custom drag ghost element.
+     * Shows either a badge for multiple items or an icon/image for single items.
+     */
     const showGhost = (event: DragEvent, options: DragGhostOptions) => {
         hideGhost();
 
@@ -128,6 +157,10 @@ export function createDragGhostManager(app: App): DragGhostManager {
                 }
 
                 if (!imageLoaded) {
+                    /**
+                     * Attempts to render an icon using various methods (icon service, emoji, or setIcon).
+                     * Returns true if successfully rendered, false otherwise.
+                     */
                     const renderIcon = (iconId: string | null | undefined): boolean => {
                         if (!iconId) {
                             return false;
@@ -161,6 +194,10 @@ export function createDragGhostManager(app: App): DragGhostManager {
                     }
                 }
             } else {
+                /**
+                 * Attempts to render an icon using various methods (icon service, emoji, or setIcon).
+                 * Returns true if successfully rendered, false otherwise.
+                 */
                 const renderIcon = (iconId: string | null | undefined): boolean => {
                     if (!iconId) {
                         return false;
@@ -210,6 +247,10 @@ export function createDragGhostManager(app: App): DragGhostManager {
         window.addEventListener('drop', onGlobalEnd, { once: true });
     };
 
+    /**
+     * Hides the native browser drag preview by setting an empty element as the drag image.
+     * This allows the custom ghost to be the only visible drag indicator.
+     */
     const hideNativePreview = (event: DragEvent) => {
         const empty = document.createElement('div');
         empty.className = 'nn-drag-empty-placeholder';

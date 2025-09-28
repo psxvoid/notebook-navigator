@@ -27,23 +27,35 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 
 const ROOT_PATH = '/';
 
+/**
+ * Tracks pending changes to root folder order that haven't been applied yet
+ */
 interface PendingRootOrderChanges {
-    renames: Map<string, string>;
-    removals: Set<string>;
-    additions: Set<string>;
+    renames: Map<string, string>;  // Maps old paths to new paths for renamed folders
+    removals: Set<string>;         // Folders that have been deleted
+    additions: Set<string>;        // Newly created folders
 }
 
+/**
+ * Parameters for the useRootFolderOrder hook
+ */
 export interface UseRootFolderOrderParams {
     settings: NotebookNavigatorSettings;
-    onFileChange?: () => void;
+    onFileChange?: () => void;  // Callback triggered when files change
 }
 
+/**
+ * State returned by the useRootFolderOrder hook
+ */
 export interface RootFolderOrderState {
-    rootFolders: TFolder[];
-    rootLevelFolders: TFolder[];
-    rootFolderOrderMap: Map<string, number>;
+    rootFolders: TFolder[];         // Folders to display as roots (may include vault root)
+    rootLevelFolders: TFolder[];    // All top-level folders in custom order
+    rootFolderOrderMap: Map<string, number>;  // Maps folder paths to their order index
 }
 
+/**
+ * Removes trailing slash from path, except for root path
+ */
 function stripTrailingSlash(path: string): string {
     if (path === ROOT_PATH) {
         return path;
@@ -51,6 +63,9 @@ function stripTrailingSlash(path: string): string {
     return path.endsWith('/') ? path.slice(0, -1) : path;
 }
 
+/**
+ * Checks if a path represents a top-level folder (direct child of vault root)
+ */
 function isRootLevelPath(path: string): boolean {
     if (!path) {
         return false;
@@ -62,6 +77,10 @@ function isRootLevelPath(path: string): boolean {
     return !normalized.includes('/');
 }
 
+/**
+ * Normalizes the folder order by removing missing folders and adding new ones.
+ * Preserves existing order and appends new folders alphabetically.
+ */
 function normalizeRootFolderOrder(existingOrder: string[], folders: TFolder[]): string[] {
     if (folders.length === 0) {
         return [];
@@ -83,6 +102,9 @@ function normalizeRootFolderOrder(existingOrder: string[], folders: TFolder[]): 
     return [...sanitizedOrder, ...missingFolders];
 }
 
+/**
+ * Creates a map from folder paths to their order index for efficient sorting
+ */
 function createRootOrderMap(order: string[]): Map<string, number> {
     const map = new Map<string, number>();
     order.forEach((path, index) => {
@@ -91,10 +113,16 @@ function createRootOrderMap(order: string[]): Map<string, number> {
     return map;
 }
 
+/**
+ * Sorts folders according to the custom order map with fallback to natural sorting
+ */
 function sortFoldersByOrder(folders: TFolder[], orderMap: Map<string, number>): TFolder[] {
     return folders.slice().sort((a, b) => compareFolderOrderWithFallback(a, b, orderMap));
 }
 
+/**
+ * Checks if two string arrays are equal in both content and order
+ */
 function arraysEqual(first: string[], second: string[]): boolean {
     if (first.length !== second.length) {
         return false;
@@ -102,6 +130,10 @@ function arraysEqual(first: string[], second: string[]): boolean {
     return first.every((value, index) => value === second[index]);
 }
 
+/**
+ * Hook that manages the custom ordering of root-level folders.
+ * Tracks folder creation, deletion, and renaming to maintain order consistency.
+ */
 export function useRootFolderOrder({ settings, onFileChange }: UseRootFolderOrderParams): RootFolderOrderState {
     const { app } = useServices();
     const updateSettings = useSettingsUpdate();
@@ -122,6 +154,7 @@ export function useRootFolderOrder({ settings, onFileChange }: UseRootFolderOrde
     useEffect(() => {
         const pendingChanges = pendingRootOrderChangesRef.current;
 
+        // Rebuilds the folder structure and applies pending changes
         const buildFolders = () => {
             const vault = app.vault;
             const root = vault.getRoot();
@@ -193,6 +226,7 @@ export function useRootFolderOrder({ settings, onFileChange }: UseRootFolderOrde
             setRootFolderOrderMap(orderMap);
         };
 
+        // Notifies parent component of file changes
         const notifyFileChange = () => {
             if (onFileChange) {
                 onFileChange();
@@ -203,6 +237,7 @@ export function useRootFolderOrder({ settings, onFileChange }: UseRootFolderOrde
 
         const rebuildFolders = debounce(buildFolders, TIMEOUTS.FILE_OPERATION_DELAY, true);
 
+        // Handles creation of new folders, adding them to pending additions if at root level
         const handleFolderCreate = (file: TFolder) => {
             const normalizedPath = stripTrailingSlash(file.path);
             if (file.parent === app.vault.getRoot() && normalizedPath !== ROOT_PATH) {
@@ -211,6 +246,7 @@ export function useRootFolderOrder({ settings, onFileChange }: UseRootFolderOrde
             rebuildFolders();
         };
 
+        // Handles folder deletion, marking root-level folders for removal
         const handleFolderDelete = (file: TFolder) => {
             const normalizedPath = stripTrailingSlash(file.path);
             if (isRootLevelPath(normalizedPath)) {
@@ -219,6 +255,7 @@ export function useRootFolderOrder({ settings, onFileChange }: UseRootFolderOrde
             rebuildFolders();
         };
 
+        // Handles folder renaming, tracking changes to maintain order across renames
         const handleFolderRename = (file: TFolder, oldPath: string) => {
             const normalizedOldPath = stripTrailingSlash(oldPath);
             const normalizedNewPath = stripTrailingSlash(file.path);

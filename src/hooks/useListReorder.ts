@@ -20,10 +20,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DragEvent } from 'react';
 import { SHORTCUT_DRAG_MIME } from '../types/shortcuts';
 
+/**
+ * Base interface for items that can be reordered.
+ * Items must have a unique key for identification.
+ */
 interface ReorderItemDescriptor {
     key: string;
 }
 
+/**
+ * Set of drag and drop event handlers for list reordering.
+ * These handlers should be spread onto draggable elements.
+ */
 export interface ListReorderHandlers {
     draggable: boolean;
     onDragStart: (event: DragEvent<HTMLElement>) => void;
@@ -33,16 +41,22 @@ export interface ListReorderHandlers {
     onDragEnd: (event: DragEvent<HTMLElement>) => void;
 }
 
+/**
+ * Parameters for the useListReorder hook
+ */
 interface UseListReorderParams<T extends ReorderItemDescriptor> {
-    items: T[];
-    isEnabled: boolean;
-    reorderItems: (orderedKeys: string[]) => Promise<boolean>;
+    items: T[];          // Array of items to be reordered
+    isEnabled: boolean;  // Whether drag and drop is currently enabled
+    reorderItems: (orderedKeys: string[]) => Promise<boolean>;  // Callback to persist the new order
 }
 
+/**
+ * Return value from the useListReorder hook
+ */
 interface UseListReorderResult {
-    getDragHandlers: (key: string) => ListReorderHandlers;
-    dropIndex: number | null;
-    draggingKey: string | null;
+    getDragHandlers: (key: string) => ListReorderHandlers;  // Factory function for drag handlers
+    dropIndex: number | null;      // Current drop position indicator
+    draggingKey: string | null;    // Key of the item being dragged
 }
 
 function noopHandler() {
@@ -80,10 +94,10 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         }, 60);
     }, [clearDeferredDropIndex]);
 
-    // Extract ordered list of shortcut keys from the shortcuts array
+    // Extracts ordered list of item keys from the items array
     const itemOrder = useMemo(() => items.map(item => item.key), [items]);
 
-    // Build a map of shortcut keys to their current index for fast lookup
+    // Builds a map of item keys to their current index for O(1) lookup
     const keyToIndex = useMemo(() => {
         const indexMap = new Map<string, number>();
         itemOrder.forEach((key, index) => {
@@ -92,7 +106,7 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         return indexMap;
     }, [itemOrder]);
 
-    // Reset all drag-related state to initial values
+    // Resets all drag-related state to initial values
     const resetDragState = useCallback(() => {
         setDraggingKey(null);
         setDropIndex(null);
@@ -106,14 +120,14 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         };
     }, [clearDeferredDropIndex]);
 
-    // Clear drag state when drag and drop is disabled
+    // Clears drag state when drag and drop is disabled
     useEffect(() => {
         if (!isEnabled) {
             resetDragState();
         }
     }, [isEnabled, resetDragState]);
 
-    // Clear drag state if the dragged shortcut is no longer in the list
+    // Clears drag state if the dragged item is no longer in the list
     useEffect(() => {
         if (!draggingKey) {
             return;
@@ -123,14 +137,15 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         }
     }, [draggingKey, keyToIndex, resetDragState]);
 
-    // Disable drag and drop when there are fewer than 2 shortcuts
+    // Disables drag and drop when there are fewer than 2 items (nothing to reorder)
     useEffect(() => {
         if (items.length < 2) {
             resetDragState();
         }
     }, [items.length, resetDragState]);
 
-    // Calculate where to insert the dragged item based on mouse position
+    // Calculates where to insert the dragged item based on mouse position
+    // Returns null if the drop position is invalid
     const computeInsertIndex = useCallback(
         (event: DragEvent<HTMLElement>, targetKey: string) => {
             if (!draggingKey) {
@@ -154,7 +169,8 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         [draggingKey, keyToIndex, itemOrder.length]
     );
 
-    // Apply the reorder operation and update settings
+    // Applies the reorder operation and updates settings
+    // Builds new order array and calls the reorderItems callback
     const finalizeReorder = useCallback(
         async (targetIndex: number | null) => {
             if (draggingKey === null) {
@@ -209,7 +225,8 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         [draggingKey, keyToIndex, reorderItems, itemOrder]
     );
 
-    // Initialize drag operation and set dragging state
+    // Initializes drag operation and sets dragging state
+    // Stores the dragged item key in dataTransfer for identification
     const handleDragStart = useCallback(
         (event: DragEvent<HTMLElement>, key: string) => {
             if (!isEnabled) {
@@ -229,7 +246,8 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         [isEnabled, keyToIndex]
     );
 
-    // Update drop indicator position as drag moves over elements
+    // Updates drop indicator position as drag moves over elements
+    // Prevents default to allow drop and updates visual feedback
     const handleDragOver = useCallback(
         (event: DragEvent<HTMLElement>, key: string) => {
             if (!isEnabled || draggingKey === null) {
@@ -253,7 +271,8 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         [clearDeferredDropIndex, computeInsertIndex, dropIndex, draggingKey, isEnabled, scheduleDropIndexClear]
     );
 
-    // Complete the drag operation and reorder shortcuts
+    // Completes the drag operation and reorders items
+    // Calculates final position and triggers the reorder
     const handleDrop = useCallback(
         async (event: DragEvent<HTMLElement>, key: string) => {
             if (!isEnabled || draggingKey === null) {
@@ -270,7 +289,8 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         [computeInsertIndex, draggingKey, finalizeReorder, isEnabled, resetDragState]
     );
 
-    // Clear drop indicator when drag leaves the valid drop zone
+    // Clears drop indicator when drag leaves the valid drop zone
+    // Uses deferred clearing to avoid flicker during drag
     const handleDragLeave = useCallback(
         (event: DragEvent<HTMLElement>) => {
             if (!isEnabled || draggingKey === null) {
@@ -296,7 +316,8 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         [draggingKey, isEnabled, scheduleDropIndexClear]
     );
 
-    // Clean up drag state when drag operation ends
+    // Cleans up drag state when drag operation ends
+    // Called regardless of whether the drop was successful
     const handleDragEnd = useCallback(() => {
         if (!draggingKey) {
             return;
@@ -317,7 +338,8 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         []
     );
 
-    // Factory function to create drag handlers for a specific shortcut
+    // Factory function to create drag handlers for a specific item
+    // Returns disabled handlers when drag and drop is not enabled
     const getDragHandlers = useCallback(
         (key: string): ListReorderHandlers => {
             if (!isEnabled) {

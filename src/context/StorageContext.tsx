@@ -1182,6 +1182,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
          * Most events use debounced processing except 'modify' which processes
          * immediately to ensure tags update quickly when editing files.
          */
+        /**
+         * Handles file rename events by preserving metadata from the old path.
+         * This ensures that file icons, colors, and other metadata survive renames.
+         */
         const handleRename = (file: TAbstractFile, oldPath: string) => {
             if (file instanceof TFile) {
                 try {

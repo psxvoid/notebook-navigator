@@ -28,6 +28,10 @@ interface FlattenFolderTreeOptions {
     rootOrderMap?: Map<string, number>;
 }
 
+/**
+ * Compares folders using custom order map with fallback to natural sorting.
+ * Returns negative if a comes before b, positive if b comes before a, 0 if equal.
+ */
 export function compareFolderOrderWithFallback(a: TFolder, b: TFolder, orderMap?: Map<string, number>): number {
     if (!orderMap || orderMap.size === 0) {
         return naturalCompare(a.name, b.name);

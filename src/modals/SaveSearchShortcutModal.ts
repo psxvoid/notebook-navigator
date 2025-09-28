@@ -19,6 +19,9 @@
 import { App, Modal, Setting, Notice } from 'obsidian';
 import { strings } from '../i18n';
 
+/**
+ * Options for initializing the SaveSearchShortcutModal
+ */
 interface SaveSearchShortcutModalOptions {
     initialName: string;
     onSubmit: (name: string) => Promise<boolean> | boolean;
@@ -81,7 +84,10 @@ export class SaveSearchShortcutModal extends Modal {
         );
     }
 
-    // Validate input and call the submit handler
+    /**
+     * Validates input and calls the submit handler.
+     * Shows an error notice if the name is empty.
+     */
     private async handleSubmit(): Promise<void> {
         const trimmedName = this.name.trim();
         if (trimmedName.length === 0) {

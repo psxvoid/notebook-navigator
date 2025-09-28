@@ -24,6 +24,10 @@ import { localStorage } from '../utils/localStorage';
 import { useServices } from './ServicesContext';
 import type { NotebookNavigatorSettings } from '../settings';
 
+/**
+ * Gets the initial view for single pane mode from settings.
+ * Defaults to 'files' if not explicitly set to 'navigation'.
+ */
 function getSinglePaneStartView(settings: NotebookNavigatorSettings): 'navigation' | 'files' {
     return settings.singlePaneStartView === 'navigation' ? 'navigation' : 'files';
 }

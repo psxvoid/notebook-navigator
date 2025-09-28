@@ -18,6 +18,9 @@
 
 import { Platform, type Hotkey, type Modifier } from 'obsidian';
 
+/**
+ * Enum-like object defining all keyboard shortcut actions
+ */
 export const KeyboardShortcutAction = {
     PANE_MOVE_UP: 'pane:move-up',
     PANE_MOVE_DOWN: 'pane:move-down',
@@ -43,8 +46,14 @@ export const KeyboardShortcutAction = {
 
 export type KeyboardShortcutAction = (typeof KeyboardShortcutAction)[keyof typeof KeyboardShortcutAction];
 
+/**
+ * Configuration mapping actions to their keyboard shortcuts
+ */
 export type KeyboardShortcutConfig = Record<KeyboardShortcutAction, Hotkey[]>;
 
+/**
+ * Default keyboard shortcuts for all actions
+ */
 const DEFAULT_KEYBOARD_SHORTCUTS: KeyboardShortcutConfig = {
     [KeyboardShortcutAction.PANE_MOVE_UP]: [{ modifiers: [], key: 'ArrowUp' }],
     [KeyboardShortcutAction.PANE_MOVE_DOWN]: [{ modifiers: [], key: 'ArrowDown' }],
@@ -80,17 +89,23 @@ const DEFAULT_KEYBOARD_SHORTCUTS: KeyboardShortcutConfig = {
     [KeyboardShortcutAction.SEARCH_CLOSE]: [{ modifiers: [], key: 'Escape' }]
 };
 
-// Returns a deep clone of the default keyboard shortcut configuration
+/**
+ * Returns a deep clone of the default keyboard shortcut configuration
+ */
 export function getDefaultKeyboardShortcuts(): KeyboardShortcutConfig {
     return cloneKeyboardShortcutConfig(DEFAULT_KEYBOARD_SHORTCUTS);
 }
 
-// Type guard to check if a value is a plain object (not array or null)
+/**
+ * Type guard to check if a value is a plain object (not array or null)
+ */
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-// Validates modifier strings and only accepts canonical Obsidian values
+/**
+ * Validates modifier strings and only accepts canonical Obsidian values
+ */
 function normalizeModifier(value: unknown): Modifier | null {
     if (typeof value !== 'string') {
         return null;
@@ -108,7 +123,9 @@ function normalizeModifier(value: unknown): Modifier | null {
     return null;
 }
 
-// Creates a deep copy of a hotkey configuration
+/**
+ * Creates a deep copy of a hotkey configuration
+ */
 function cloneHotkey(hotkey: Hotkey): Hotkey {
     return {
         key: hotkey.key,
@@ -116,7 +133,9 @@ function cloneHotkey(hotkey: Hotkey): Hotkey {
     };
 }
 
-// Creates a deep copy of the entire keyboard shortcut configuration
+/**
+ * Creates a deep copy of the entire keyboard shortcut configuration
+ */
 function cloneKeyboardShortcutConfig(config: KeyboardShortcutConfig): KeyboardShortcutConfig {
     const clone = {} as KeyboardShortcutConfig;
     (Object.keys(config) as KeyboardShortcutAction[]).forEach(action => {
@@ -126,7 +145,9 @@ function cloneKeyboardShortcutConfig(config: KeyboardShortcutConfig): KeyboardSh
     return clone;
 }
 
-// Validates and sanitizes a single hotkey entry from user configuration
+/**
+ * Validates and sanitizes a single hotkey entry from user configuration
+ */
 function sanitizeHotkeyEntry(entry: unknown): Hotkey | null {
     if (!isRecord(entry)) {
         return null;
@@ -162,7 +183,10 @@ function sanitizeHotkeyEntry(entry: unknown): Hotkey | null {
     };
 }
 
-// Validates and sanitizes an array of hotkeys from user configuration
+/**
+ * Validates and sanitizes an array of hotkeys from user configuration.
+ * Returns null if input is invalid, otherwise returns sanitized array.
+ */
 function sanitizeHotkeyArray(value: unknown): Hotkey[] | null {
     if (!Array.isArray(value)) {
         return null;
@@ -179,8 +203,10 @@ function sanitizeHotkeyArray(value: unknown): Hotkey[] | null {
     return sanitized;
 }
 
-// Validates and sanitizes user-provided keyboard shortcut configuration
-// Falls back to defaults for any invalid entries
+/**
+ * Validates and sanitizes user-provided keyboard shortcut configuration.
+ * Falls back to defaults for any invalid entries.
+ */
 export function sanitizeKeyboardShortcuts(value: unknown): KeyboardShortcutConfig {
     const sanitized = getDefaultKeyboardShortcuts();
     if (!isRecord(value)) {
@@ -198,18 +224,25 @@ export function sanitizeKeyboardShortcuts(value: unknown): KeyboardShortcutConfi
     return sanitized;
 }
 
+/**
+ * Options for keyboard shortcut matching
+ */
 interface MatchOptions {
     isRTL?: boolean;
     directional?: 'horizontal';
 }
 
-// Normalizes key strings for comparison (lowercase for consistency)
+/**
+ * Normalizes key strings for comparison (lowercase for consistency)
+ */
 function normalizeKey(key: string): string {
     const trimmed = key.trim();
     return trimmed.length === 1 ? trimmed.toLowerCase() : trimmed.toLowerCase();
 }
 
-// Swaps left/right arrow keys for RTL language support
+/**
+ * Swaps left/right arrow keys for RTL language support
+ */
 function swapDirectionalKey(key: string): string {
     switch (key) {
         case 'ArrowLeft':
@@ -221,8 +254,10 @@ function swapDirectionalKey(key: string): string {
     }
 }
 
-// Checks if keyboard event modifiers match hotkey configuration
-// Handles platform-specific 'Mod' key (Cmd on Mac, Ctrl on Windows/Linux)
+/**
+ * Checks if keyboard event modifiers match hotkey configuration.
+ * Handles platform-specific 'Mod' key (Cmd on Mac, Ctrl on Windows/Linux).
+ */
 function modifiersMatch(event: KeyboardEvent, hotkey: Hotkey): boolean {
     const modifiers = Array.isArray(hotkey.modifiers) ? hotkey.modifiers : [];
     const required = new Set<Modifier>(modifiers);
@@ -249,8 +284,10 @@ function modifiersMatch(event: KeyboardEvent, hotkey: Hotkey): boolean {
     return true;
 }
 
-// Checks if a keyboard event matches a specific hotkey configuration
-// Handles RTL directional key swapping when specified
+/**
+ * Checks if a keyboard event matches a specific hotkey configuration.
+ * Handles RTL directional key swapping when specified.
+ */
 function hotkeyMatches(event: KeyboardEvent, hotkey: Hotkey, options?: MatchOptions): boolean {
     const configKey = options?.directional === 'horizontal' && options?.isRTL ? swapDirectionalKey(hotkey.key) : hotkey.key;
     const expectedKey = normalizeKey(configKey);
@@ -263,8 +300,10 @@ function hotkeyMatches(event: KeyboardEvent, hotkey: Hotkey, options?: MatchOpti
     return modifiersMatch(event, hotkey);
 }
 
-// Main function to check if a keyboard event matches any hotkey for a given action
-// Returns true if any of the configured hotkeys for the action match the event
+/**
+ * Main function to check if a keyboard event matches any hotkey for a given action.
+ * Returns true if any of the configured hotkeys for the action match the event.
+ */
 export function matchesShortcut(
     event: KeyboardEvent,
     config: KeyboardShortcutConfig,

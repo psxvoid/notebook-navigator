@@ -33,7 +33,10 @@ import {
 import type { SearchProvider } from '../types/search';
 import { strings } from '../i18n';
 
-// Represents a shortcut with resolved file/folder references and validation state
+/**
+ * Represents a shortcut with resolved file/folder references and validation state.
+ * Hydrated shortcuts have their paths resolved to actual Obsidian file objects.
+ */
 interface HydratedShortcut {
     key: string;
     shortcut: ShortcutEntry;
@@ -44,6 +47,9 @@ interface HydratedShortcut {
     isMissing: boolean;
 }
 
+/**
+ * Context value providing shortcut management functionality and state
+ */
 export interface ShortcutsContextValue {
     shortcuts: ShortcutEntry[];
     hydratedShortcuts: HydratedShortcut[];
@@ -79,15 +85,19 @@ interface ShortcutsProviderProps {
     children: React.ReactNode;
 }
 
+/**
+ * Provider component that manages shortcuts state and operations.
+ * Handles adding, removing, reordering shortcuts and maintains lookup maps for fast access.
+ */
 export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     const settings = useSettingsState();
     const updateSettings = useSettingsUpdate();
     const { app } = useServices();
 
-    // Extract shortcuts array from settings with fallback to empty array
+    // Extracts shortcuts array from settings with fallback to empty array
     const rawShortcuts = useMemo(() => settings.shortcuts ?? [], [settings.shortcuts]);
 
-    // Create map of shortcuts by their unique keys for fast lookup
+    // Creates map of shortcuts by their unique keys for O(1) lookup
     const shortcutMap = useMemo(() => {
         const map = new Map<string, ShortcutEntry>();
         rawShortcuts.forEach(shortcut => {
@@ -96,7 +106,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         return map;
     }, [rawShortcuts]);
 
-    // Map folder paths to their shortcut keys for duplicate detection
+    // Maps folder paths to their shortcut keys for duplicate detection
     const folderShortcutKeysByPath = useMemo(() => {
         const map = new Map<string, string>();
         rawShortcuts.forEach(shortcut => {
@@ -107,7 +117,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         return map;
     }, [rawShortcuts]);
 
-    // Map note paths to their shortcut keys for duplicate detection
+    // Maps note paths to their shortcut keys for duplicate detection
     const noteShortcutKeysByPath = useMemo(() => {
         const map = new Map<string, string>();
         rawShortcuts.forEach(shortcut => {
@@ -118,7 +128,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         return map;
     }, [rawShortcuts]);
 
-    // Map tag paths to their shortcut keys for duplicate detection
+    // Maps tag paths to their shortcut keys for duplicate detection
     const tagShortcutKeysByPath = useMemo(() => {
         const map = new Map<string, string>();
         rawShortcuts.forEach(shortcut => {
@@ -129,7 +139,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         return map;
     }, [rawShortcuts]);
 
-    // Map search shortcut names (lowercase) to shortcuts for fast lookup
+    // Maps search shortcut names (lowercase) to shortcuts for fast lookup
     const searchShortcutsByName = useMemo(() => {
         const map = new Map<string, SearchShortcut>();
         rawShortcuts.forEach(shortcut => {
@@ -140,7 +150,8 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         return map;
     }, [rawShortcuts]);
 
-    // Hydrate shortcuts by resolving file references and validating existence
+    // Hydrates shortcuts by resolving file references and validating existence
+    // Transforms shortcut entries into hydrated objects with resolved file/folder references
     const hydratedShortcuts = useMemo<HydratedShortcut[]>(() => {
         return rawShortcuts.map(shortcut => {
             const key = getShortcutKey(shortcut);
@@ -218,7 +229,8 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         });
     }, [app.vault, rawShortcuts]);
 
-    // Remove shortcuts pointing to deleted files/folders automatically
+    // Removes shortcuts pointing to deleted files/folders automatically
+    // Cleans up missing shortcuts whenever hydration detects broken references
     useEffect(() => {
         const missingKeys = hydratedShortcuts.filter(entry => entry.isMissing).map(entry => entry.key);
         if (missingKeys.length === 0) {
@@ -231,7 +243,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         });
     }, [hydratedShortcuts, updateSettings]);
 
-    // Helper to append a new shortcut to the settings
+    // Helper function to append a new shortcut to the settings
     const appendShortcut = useCallback(
         async (shortcut: ShortcutEntry) => {
             await updateSettings(current => {
@@ -334,7 +346,8 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         [removeShortcut, searchShortcutsByName]
     );
 
-    // Reorder shortcuts based on provided key order (for drag & drop)
+    // Reorders shortcuts based on provided key order (for drag & drop functionality)
+    // Validates that all keys are present before applying the new order
     const reorderShortcuts = useCallback(
         async (orderedKeys: string[]) => {
             if (orderedKeys.length !== rawShortcuts.length) {
@@ -411,6 +424,10 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     return <ShortcutsContext.Provider value={value}>{children}</ShortcutsContext.Provider>;
 }
 
+/**
+ * Hook to access the shortcuts context.
+ * Must be used within a ShortcutsProvider.
+ */
 export function useShortcuts() {
     const context = useContext(ShortcutsContext);
     if (!context) {

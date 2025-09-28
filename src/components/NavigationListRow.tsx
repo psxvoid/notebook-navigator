@@ -5,14 +5,20 @@ import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { ObsidianIcon } from './ObsidianIcon';
 
+/**
+ * Configuration for the drag handle element that appears in reorderable rows
+ */
 export interface DragHandleConfig {
-    label: string;
-    only?: boolean;
-    disabled?: boolean;
-    visible?: boolean;
-    icon?: string;
+    label: string;       // Accessibility label for the drag handle
+    only?: boolean;      // If true, only the handle is draggable, not the entire row
+    disabled?: boolean;  // Disables drag functionality
+    visible?: boolean;   // Controls visibility of the drag handle
+    icon?: string;       // Custom icon for the drag handle
 }
 
+/**
+ * Props for a navigation list row component that supports icons, counts, actions, and drag-and-drop reordering
+ */
 interface NavigationListRowProps {
     icon: string;
     color?: string;
@@ -39,6 +45,10 @@ interface NavigationListRowProps {
     className?: string;
 }
 
+/**
+ * Renders a navigation list row with support for icons, counts, actions, and drag-and-drop reordering.
+ * Used for displaying items in navigation panes like shortcuts, tags, and folders.
+ */
 export function NavigationListRow({
     icon,
     color,
@@ -68,7 +78,7 @@ export function NavigationListRow({
     const iconRef = useRef<HTMLSpanElement>(null);
     const iconVersion = useIconServiceVersion();
 
-    // Build CSS class names based on component state
+    // Builds CSS class names based on component state (disabled, excluded, dragging, etc.)
     const classes = useMemo(() => {
         const classList = ['nn-navitem', 'nn-drag-item'];
         if (className) {
@@ -89,7 +99,7 @@ export function NavigationListRow({
         return classList.join(' ');
     }, [className, dragHandleConfig?.visible, isDisabled, isDragSource, isExcluded]);
 
-    // Render icon using Obsidian's icon service
+    // Renders icon using Obsidian's icon service, clearing it if icons are disabled in settings
     useEffect(() => {
         if (!iconRef.current) {
             return;
@@ -104,7 +114,8 @@ export function NavigationListRow({
         iconService.renderIcon(iconRef.current, icon);
     }, [icon, iconVersion, settings.showIcons]);
 
-    // Determine drag and drop behavior based on handlers and configuration
+    // Determines drag and drop behavior based on handlers and configuration
+    // Supports both full-row dragging and handle-only dragging modes
     const draggable = dragHandlers?.draggable ?? false;
     const handleVisible = Boolean(dragHandleConfig?.visible);
     const handleOnly = dragHandleConfig?.only === true;
@@ -113,7 +124,8 @@ export function NavigationListRow({
     const rowDraggable = draggable && !handleOnly;
     const shouldShowCount = Boolean(showCount && typeof count === 'number' && count > 0);
 
-    // Handle drag start event - sets custom drag image from parent row
+    // Handles drag start event for the drag handle - sets custom drag image from parent row
+    // This ensures the entire row appears as the drag image, not just the handle
     const handleDragStart =
         handleInteractive && dragHandlers?.onDragStart
             ? (event: DragEvent<HTMLElement>) => {

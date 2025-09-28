@@ -1,10 +1,13 @@
 import { IconDefinition } from '../types';
 import { BaseFontIconProvider, BaseFontIconProviderOptions } from './BaseFontIconProvider';
 
+/**
+ * Structure of each icon entry in the Simple Icons metadata JSON
+ */
 interface SimpleIconsMetadataItem {
-    unicode: string;
-    label?: string;
-    search?: string[];
+    unicode: string;     // Unicode character code for the icon
+    label?: string;      // Display label for the icon
+    search?: string[];   // Additional search terms
 }
 
 /**
@@ -80,6 +83,10 @@ export class SimpleIconsProvider extends BaseFontIconProvider {
         }
     }
 
+    /**
+     * Formats an icon ID into a human-readable display name.
+     * Converts kebab-case to Title Case.
+     */
     private formatDisplayName(iconId: string): string {
         return iconId
             .split('-')
