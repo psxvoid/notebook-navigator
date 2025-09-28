@@ -407,6 +407,25 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
       - Since Omnisearch searches the entire vault and returns a limited number of results before filtering, relevant files from your current folder may not appear if too many matches exist elsewhere
       - Note previews are replaced with Omnisearch result excerpts, which may not show the actual search match highlight
 
+### Hotkeys
+
+- Edit `<vault>/.obsidian/plugins/notebook-navigator/data.json` to customize shortcuts. Locate the `keyboardShortcuts` section and define entries in this format:
+
+```json
+"pane:move-up": [
+  { "key": "ArrowUp", "modifiers": [] },
+  { "key": "K", "modifiers": [] }
+]
+```
+
+- Standard modifiers:
+  - `"Mod" = Cmd (macOS) / Ctrl (Win/Linux)`
+  - `"Alt" = Alt/Option`
+  - `"Shift" = Shift`
+  - `"Ctrl" = Control (prefer "Mod" for cross-platform)`
+
+- Add multiple mappings to support alternate keys, as shown above. Combine modifiers in one entry by listing each value, for example `"modifiers": ["Mod", "Shift"]`. Keyboard sequences (for example `"gg"` or `"dd"`) are not supported. Reload Obsidian after editing the file.
+
 ### Advanced
 
 - **Confirm before deleting:** Show confirmation dialog when deleting notes or folders
