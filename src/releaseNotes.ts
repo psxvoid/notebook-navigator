@@ -72,20 +72,22 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.5.0',
-        date: '2025-09-22',
+        date: '2025-09-29',
         new: [
-            '==Manual folder sort order==. You can now manually sort root folders in the navigation pane using the new toolbar button. Sort order is synced between devices, and you can easily go back to alphabetical order.',
             '==Shortcuts==. Amazing new feature where you can add **folders**, **tags**, **notes** and **saved searches** to a new area in the navigation pane! You can disable this in settings, and a new toolbar button scrolls to the top of navigation pane when enabled.',
             '==Recent notes==. New section showing recently opened files in the navigation pane. You can disable this in settings.',
-            '==Keyboard shortcuts==. You can now customize all keyboard shortcuts in settings using Mod, Ctrl, Shift, and Alt modifiers.',
+            '==Manual folder sort order==. You can now manually sort root folders in the navigation pane using the new toolbar button. Sort order is synced between devices, and you can easily go back to alphabetical order.',
+            '==Keyboard shortcuts==. You can now customize all keyboard shortcuts in settings using Mod, Ctrl, Shift, and Alt modifiers. VIM user? We got you covered!',
+            '==File icon customization==. You can now set custom icons and icon colors for files through the context menu.',
+            '==Default startup view==. You can now choose to start in the navigation pane (shortcuts, recent notes, folders) or list pane (notes and files). Default is now navigation pane to quickly access shortcuts and recent notes.',
             '==Transparent colors==. The color picker now has an alpha slider to set transparency. This works for files, folders and tags. You can now also remove individual colors from the recently used color list.',
             '==New icon pack: Simple icons==. 3364 SVG icons for popular brands and services.'
         ],
         changed: [
-            'Auto reveal file now selects the nearest expanded ancestor when descendant notes are enabled.',
-            'Favorite tags section is now hidden if there are no favorite tags matching.',
-            'Remove color and Remove icon options were removed from the context menu, you now remove icons or colors with the "change" dialogs.',
-            'Dragging notes to folders or tags will now auto-expand the target folder/tag after a short delay.'
+            '**Dragging notes to folders or tags** will now auto-expand the target folder or tag after a short delay.',
+            '**Auto-reveal active note** now selects the nearest visible ancestor when descendant notes are enabled. This means that your folder tree will always stay "clean" without any expanded subfolders if you have show descendants enabled.',
+            'The **favorite tags** section is now hidden if there are no favorite tags matching your filters.',
+            'Remove color and Remove icon options were removed from the context menu, you now remove icons or colors with the "change" dialogs.'
         ],
         fixed: [
             'Moving notes with tags previously removed them from the tag tree, meaning it looked like they no longer had any tags. This has been fixed.'
