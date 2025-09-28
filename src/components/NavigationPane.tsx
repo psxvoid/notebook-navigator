@@ -708,12 +708,12 @@ export const NavigationPane = React.memo(
             }
 
             if (rowVirtualizer) {
-                rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'smooth' });
+                rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
             }
 
             const container = scrollContainerRef.current;
             if (container) {
-                container.scrollTo({ top: 0, behavior: 'smooth' });
+                container.scrollTo({ top: 0, behavior: 'auto' });
             }
         }, [rowVirtualizer, scrollContainerRef, settings.showShortcuts]);
 
