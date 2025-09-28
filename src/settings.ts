@@ -830,7 +830,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
-        // Section 2: Icons
+        // Section 2: Icon packs
         new Setting(containerEl).setName(strings.settings.sections.icons).setHeading();
 
         let externalIconSettingsContainer: HTMLDivElement | null = null;
@@ -934,7 +934,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         externalIconInfo.createEl('strong', { text: 'Important!' });
         externalIconInfo.createSpan({ text: ` ${strings.settings.items.externalIcons.infoNote}` });
 
-        // Section 2: Folders
+        // Section 3: Folders
         new Setting(containerEl).setName(strings.settings.sections.folders).setHeading();
 
         new Setting(containerEl)
@@ -1029,7 +1029,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Store reference to showFileTagsSetting for later use (defined here to be available in Tags section)
         let showFileTagsSetting: Setting | null = null;
 
-        // Section 3: Tags
+        // Section 4: Tags
         new Setting(containerEl).setName(strings.settings.sections.tags).setHeading();
 
         new Setting(containerEl)
@@ -1146,7 +1146,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Add a custom class to make the input wider
         hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');
 
-        // Section 4: Search
+        // Section 5: Search
         new Setting(containerEl).setName(strings.settings.sections.search).setHeading();
 
         new Setting(containerEl)
@@ -1227,7 +1227,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         updateSearchInfo();
 
-        // Section 5: List pane
+        // Section 6: List pane
         new Setting(containerEl).setName(strings.settings.sections.listPane).setHeading();
 
         new Setting(containerEl)
@@ -1370,7 +1370,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
         );
 
-        // Section 5: Notes
+        // Section 7: Notes
         new Setting(containerEl).setName(strings.settings.sections.notes).setHeading();
 
         new Setting(containerEl)
@@ -1620,7 +1620,40 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
-        // Section 6: Advanced
+        // Section 8: Hotkeys
+        new Setting(containerEl).setName(strings.settings.sections.hotkeys).setHeading();
+
+        // Add informational text about hotkeys configuration
+        const hotkeysInfoContainer = containerEl.createDiv('nn-setting-info-container');
+        const hotkeysInfo = hotkeysInfoContainer.createEl('div', {
+            cls: 'setting-item-description'
+        });
+
+        // Split the info text into paragraphs for better formatting
+        const infoLines = strings.settings.items.hotkeys.infoText.split('\n\n');
+        infoLines.forEach((paragraph, index) => {
+            if (index === 0) {
+                // First paragraph
+                hotkeysInfo.createEl('p', { text: paragraph });
+            } else if (paragraph.includes('•')) {
+                // List items
+                const listContainer = hotkeysInfo.createEl('div', { cls: 'nn-hotkeys-list' });
+                paragraph.split('\n').forEach(line => {
+                    if (line.trim()) {
+                        listContainer.createEl('div', { text: line, cls: 'nn-hotkeys-list-item' });
+                    }
+                });
+            } else if (paragraph.includes('"up":') || paragraph.includes('"down":')) {
+                // Code examples
+                const codeBlock = hotkeysInfo.createEl('pre', { cls: 'nn-hotkeys-code' });
+                codeBlock.createEl('code', { text: paragraph });
+            } else {
+                // Regular paragraphs
+                hotkeysInfo.createEl('p', { text: paragraph });
+            }
+        });
+
+        // Section 9: Advanced
         new Setting(containerEl).setName(strings.settings.sections.advanced).setHeading();
 
         new Setting(containerEl)

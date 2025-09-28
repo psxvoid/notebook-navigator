@@ -456,6 +456,7 @@ export const STRINGS_JA = {
             folders: 'フォルダノート',
             search: '検索',
             listPane: 'リストペイン',
+            hotkeys: 'ホットキー',
             advanced: '詳細設定'
         },
         items: {
@@ -806,6 +807,9 @@ export const STRINGS_JA = {
                 buttonText: 'キャッシュを再構築',
                 success: 'キャッシュを再構築しました',
                 error: 'キャッシュの再構築に失敗しました'
+            },
+            hotkeys: {
+                infoText: 'Notebook Navigatorのホットキーは、プラグインフォルダ内のdata.jsonファイルを編集することでカスタマイズできます。ホットキーをカスタマイズする方法：\n\n1. ボルトの.obsidian/plugins/notebook-navigator/フォルダに移動します\n2. テキストエディタでdata.jsonを開きます\n3. "keyboardShortcuts"セクションを見つけます\n4. 各コマンドのキーの組み合わせを変更します\n\n各コマンドは以下のJSON構造に従います：\n"pane:move-up": [\n  {\n    "key": "ArrowUp",\n    "modifiers": []\n  }\n]\n\n修飾キー（"modifiers"配列に追加）：\n• "Mod"：macOSではCmd、Windows/LinuxではCtrl\n• "Alt"：Alt/Optionキー\n• "Shift"：Shiftキー\n• "Ctrl"：Controlキー（クロスプラットフォーム対応には"Mod"を使用）\n\n同じコマンドに複数のキーを割り当てることができ、矢印キーと共にVIMスタイルのナビゲーションを追加するのに便利です。例えば、上移動にArrowUpとKの両方を使用する場合：\n"pane:move-up": [\n  { "key": "ArrowUp", "modifiers": [] },\n  { "key": "K", "modifiers": [] }\n]\n\n注意：キーボードシーケンス（VIMの"gg"や"dd"など）は現在サポートされていません。各ホットキーは、オプションの修飾キーを持つ単一のキー押下である必要があります。\n\ndata.jsonを編集した後、変更を有効にするためにObsidianを再読み込みするか、プラグインを無効化/有効化してください。'
             },
             externalIcons: {
                 downloadButton: 'ダウンロード',

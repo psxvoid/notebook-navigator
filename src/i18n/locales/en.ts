@@ -455,6 +455,7 @@ export const STRINGS_EN = {
             search: 'Search',
             listPane: 'List pane',
             notes: 'Notes',
+            hotkeys: 'Hotkeys',
             advanced: 'Advanced'
         },
         items: {
@@ -804,6 +805,9 @@ export const STRINGS_EN = {
                 buttonText: 'Rebuild cache',
                 success: 'Cache rebuilt',
                 error: 'Failed to rebuild cache'
+            },
+            hotkeys: {
+                infoText: 'Notebook Navigator hotkeys can be customized by editing the data.json file in your plugin folder. To customize hotkeys:\n\n1. Navigate to your vault\'s .obsidian/plugins/notebook-navigator/ folder\n2. Open data.json in a text editor\n3. Find the "keyboardShortcuts" section\n4. Modify the key combinations for each command\n\nEach command follows this JSON structure:\n"pane:move-up": [\n  {\n    "key": "ArrowUp",\n    "modifiers": []\n  }\n]\n\nModifier keys (add to the "modifiers" array):\n• "Mod": Cmd on macOS, Ctrl on Windows/Linux\n• "Alt": Alt/Option key\n• "Shift": Shift key\n• "Ctrl": Control key (use "Mod" for cross-platform compatibility)\n\nYou can assign multiple keys to the same command, which is useful for adding VIM-style navigation alongside arrow keys. For example, to use both ArrowUp and K for moving up:\n"pane:move-up": [\n  { "key": "ArrowUp", "modifiers": [] },\n  { "key": "K", "modifiers": [] }\n]\n\nNote: Keyboard sequences (like "gg" or "dd" in VIM) are not currently supported. Each hotkey must be a single key press with optional modifiers.\n\nAfter editing data.json, reload Obsidian or disable/enable the plugin for changes to take effect.'
             },
             externalIcons: {
                 downloadButton: 'Download',

@@ -456,6 +456,7 @@ export const STRINGS_ZH = {
             folders: '文件夹笔记',
             search: '搜索',
             listPane: '列表窗格',
+            hotkeys: '快捷键',
             advanced: '高级'
         },
         items: {
@@ -805,6 +806,9 @@ export const STRINGS_ZH = {
                 buttonText: '重建缓存',
                 success: '缓存已重建',
                 error: '重建缓存失败'
+            },
+            hotkeys: {
+                infoText: 'Notebook Navigator的快捷键可以通过编辑插件文件夹中的data.json文件来自定义。自定义快捷键的方法：\n\n1. 导航到您的仓库的.obsidian/plugins/notebook-navigator/文件夹\n2. 用文本编辑器打开data.json\n3. 找到"keyboardShortcuts"部分\n4. 修改每个命令的按键组合\n\n每个命令遵循以下JSON结构：\n"pane:move-up": [\n  {\n    "key": "ArrowUp",\n    "modifiers": []\n  }\n]\n\n修饰键（添加到"modifiers"数组）：\n• "Mod"：macOS上为Cmd，Windows/Linux上为Ctrl\n• "Alt"：Alt/Option键\n• "Shift"：Shift键\n• "Ctrl"：Control键（使用"Mod"以实现跨平台兼容）\n\n您可以为同一命令分配多个按键，这对于在箭头键旁边添加VIM风格导航很有用。例如，同时使用ArrowUp和K进行向上移动：\n"pane:move-up": [\n  { "key": "ArrowUp", "modifiers": [] },\n  { "key": "K", "modifiers": [] }\n]\n\n注意：目前不支持键盘序列（如VIM中的"gg"或"dd"）。每个快捷键必须是带有可选修饰键的单次按键。\n\n编辑data.json后，重新加载Obsidian或禁用/启用插件以使更改生效。'
             },
             externalIcons: {
                 downloadButton: '下载',

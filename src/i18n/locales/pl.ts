@@ -457,6 +457,7 @@ export const STRINGS_PL = {
             search: 'Wyszukiwanie',
             listPane: 'Panel listy',
             notes: 'Notatki',
+            hotkeys: 'Skróty klawiszowe',
             advanced: 'Zaawansowane'
         },
         items: {
@@ -806,6 +807,9 @@ export const STRINGS_PL = {
                 buttonText: 'Odbuduj pamięć podręczną',
                 success: 'Pamięć podręczna została odbudowana',
                 error: 'Nie udało się odbudować pamięci podręcznej'
+            },
+            hotkeys: {
+                infoText: 'Skróty klawiszowe Notebook Navigator można dostosować, edytując plik data.json w folderze wtyczki. Aby dostosować skróty:\n\n1. Przejdź do folderu .obsidian/plugins/notebook-navigator/ w swoim sejfie\n2. Otwórz data.json w edytorze tekstu\n3. Znajdź sekcję "keyboardShortcuts"\n4. Zmodyfikuj kombinacje klawiszy dla każdego polecenia\n\nKażde polecenie ma następującą strukturę JSON:\n"pane:move-up": [\n  {\n    "key": "ArrowUp",\n    "modifiers": []\n  }\n]\n\nKlawisze modyfikujące (dodaj do tablicy "modifiers"):\n• "Mod": Cmd na macOS, Ctrl na Windows/Linux\n• "Alt": Klawisz Alt/Option\n• "Shift": Klawisz Shift\n• "Ctrl": Klawisz Control (użyj "Mod" dla kompatybilności międzyplatformowej)\n\nMożesz przypisać wiele klawiszy do tego samego polecenia, co jest przydatne do dodawania nawigacji w stylu VIM obok klawiszy strzałek. Na przykład, aby używać zarówno ArrowUp, jak i K do poruszania się w górę:\n"pane:move-up": [\n  { "key": "ArrowUp", "modifiers": [] },\n  { "key": "K", "modifiers": [] }\n]\n\nUwaga: Sekwencje klawiszowe (jak "gg" lub "dd" w VIM) nie są obecnie obsługiwane. Każdy skrót musi być pojedynczym naciśnięciem klawisza z opcjonalnymi modyfikatorami.\n\nPo edycji data.json, przeładuj Obsidian lub wyłącz/włącz wtyczkę, aby zmiany zostały zastosowane.'
             },
             externalIcons: {
                 downloadButton: 'Pobierz',

@@ -456,6 +456,7 @@ export const STRINGS_FR = {
             folders: 'Notes de dossier',
             search: 'Rechercher',
             listPane: 'Panneau de liste',
+            hotkeys: 'Raccourcis clavier',
             advanced: 'Avancé'
         },
         items: {
@@ -807,6 +808,9 @@ export const STRINGS_FR = {
                 buttonText: 'Reconstruire le cache',
                 success: 'Cache reconstruit',
                 error: 'Échec de la reconstruction du cache'
+            },
+            hotkeys: {
+                infoText: 'Les raccourcis clavier de Notebook Navigator peuvent être personnalisés en modifiant le fichier data.json dans le dossier du plugin. Pour personnaliser les raccourcis :\n\n1. Naviguez vers le dossier .obsidian/plugins/notebook-navigator/ de votre coffre\n2. Ouvrez data.json dans un éditeur de texte\n3. Trouvez la section "keyboardShortcuts"\n4. Modifiez les combinaisons de touches pour chaque commande\n\nChaque commande suit cette structure JSON :\n"pane:move-up": [\n  {\n    "key": "ArrowUp",\n    "modifiers": []\n  }\n]\n\nTouches modificatrices (à ajouter au tableau "modifiers") :\n• "Mod" : Cmd sur macOS, Ctrl sur Windows/Linux\n• "Alt" : Touche Alt/Option\n• "Shift" : Touche Maj\n• "Ctrl" : Touche Contrôle (utilisez "Mod" pour la compatibilité multiplateforme)\n\nVous pouvez assigner plusieurs touches à la même commande, ce qui est utile pour ajouter une navigation de style VIM aux côtés des touches fléchées. Par exemple, pour utiliser à la fois ArrowUp et K pour se déplacer vers le haut :\n"pane:move-up": [\n  { "key": "ArrowUp", "modifiers": [] },\n  { "key": "K", "modifiers": [] }\n]\n\nNote : Les séquences de touches (comme "gg" ou "dd" dans VIM) ne sont pas actuellement prises en charge. Chaque raccourci doit être une seule pression de touche avec des modificateurs optionnels.\n\nAprès avoir modifié data.json, rechargez Obsidian ou désactivez/activez le plugin pour que les changements prennent effet.'
             },
             externalIcons: {
                 downloadButton: 'Télécharger',
