@@ -42,7 +42,7 @@ export function NavigationToolbar({
 
     // Hook providing shared navigation actions (expand/collapse, folder creation, toggle visibility)
     const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
-    const hasExcludedFolders = settings.excludedFolders.length > 0;
+    const hasHiddenItems = settings.excludedFolders.length > 0 || settings.hiddenTags.length > 0;
 
     return (
         <div className="nn-mobile-toolbar">
@@ -76,7 +76,7 @@ export function NavigationToolbar({
             >
                 <ObsidianIcon name={shouldCollapseItems() ? 'lucide-chevrons-down-up' : 'lucide-chevrons-up-down'} />
             </button>
-            {hasExcludedFolders ? (
+            {hasHiddenItems ? (
                 <button
                     className={`nn-mobile-toolbar-button ${settings.showHiddenItems ? 'nn-mobile-toolbar-button-active' : ''}`}
                     aria-label={settings.showHiddenItems ? strings.paneHeader.hideExcludedItems : strings.paneHeader.showExcludedItems}
@@ -89,7 +89,7 @@ export function NavigationToolbar({
                             });
                         }
                     }}
-                    disabled={!hasExcludedFolders}
+                    disabled={!hasHiddenItems}
                     tabIndex={-1}
                 >
                     <ObsidianIcon name="lucide-eye" />

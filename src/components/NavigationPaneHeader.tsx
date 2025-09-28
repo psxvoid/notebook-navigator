@@ -46,7 +46,7 @@ export function NavigationPaneHeader({
 
     // Hook providing shared navigation actions (expand/collapse, folder creation, toggle visibility)
     const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
-    const hasExcludedFolders = settings.excludedFolders.length > 0;
+    const hasHiddenItems = settings.excludedFolders.length > 0 || settings.hiddenTags.length > 0;
 
     if (isMobile) {
         // Mobile devices render actions in tab bar instead of header
@@ -97,7 +97,7 @@ export function NavigationPaneHeader({
                     >
                         <ObsidianIcon name={shouldCollapseItems() ? 'lucide-chevrons-down-up' : 'lucide-chevrons-up-down'} />
                     </button>
-                    {hasExcludedFolders ? (
+                    {hasHiddenItems ? (
                         <button
                             className={`nn-icon-button ${settings.showHiddenItems ? 'nn-icon-button-active' : ''}`}
                             aria-label={
@@ -112,7 +112,7 @@ export function NavigationPaneHeader({
                                     });
                                 }
                             }}
-                            disabled={!hasExcludedFolders}
+                            disabled={!hasHiddenItems}
                             tabIndex={-1}
                         >
                             <ObsidianIcon name="lucide-eye" />
