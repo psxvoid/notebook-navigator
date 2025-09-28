@@ -1631,8 +1631,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         hotkeysInfo.createEl('p', { text: strings.settings.items.hotkeys.intro });
 
-        const codeBlock = hotkeysInfo.createEl('pre');
-        codeBlock.createEl('code', { text: strings.settings.items.hotkeys.example });
+        hotkeysInfo.createEl('p', { text: strings.settings.items.hotkeys.example });
 
         const modifierList = hotkeysInfo.createEl('ul');
         strings.settings.items.hotkeys.modifierList.forEach(item => {
