@@ -31,9 +31,9 @@ const ROOT_PATH = '/';
  * Tracks pending changes to root folder order that haven't been applied yet
  */
 interface PendingRootOrderChanges {
-    renames: Map<string, string>;  // Maps old paths to new paths for renamed folders
-    removals: Set<string>;         // Folders that have been deleted
-    additions: Set<string>;        // Newly created folders
+    renames: Map<string, string>; // Maps old paths to new paths for renamed folders
+    removals: Set<string>; // Folders that have been deleted
+    additions: Set<string>; // Newly created folders
 }
 
 /**
@@ -41,16 +41,16 @@ interface PendingRootOrderChanges {
  */
 export interface UseRootFolderOrderParams {
     settings: NotebookNavigatorSettings;
-    onFileChange?: () => void;  // Callback triggered when files change
+    onFileChange?: () => void; // Callback triggered when files change
 }
 
 /**
  * State returned by the useRootFolderOrder hook
  */
 export interface RootFolderOrderState {
-    rootFolders: TFolder[];         // Folders to display as roots (may include vault root)
-    rootLevelFolders: TFolder[];    // All top-level folders in custom order
-    rootFolderOrderMap: Map<string, number>;  // Maps folder paths to their order index
+    rootFolders: TFolder[]; // Folders to display as roots (may include vault root)
+    rootLevelFolders: TFolder[]; // All top-level folders in custom order
+    rootFolderOrderMap: Map<string, number>; // Maps folder paths to their order index
 }
 
 /**

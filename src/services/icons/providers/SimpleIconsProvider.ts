@@ -5,9 +5,9 @@ import { BaseFontIconProvider, BaseFontIconProviderOptions } from './BaseFontIco
  * Structure of each icon entry in the Simple Icons metadata JSON
  */
 interface SimpleIconsMetadataItem {
-    unicode: string;     // Unicode character code for the icon
-    label?: string;      // Display label for the icon
-    search?: string[];   // Additional search terms
+    unicode: string; // Unicode character code for the icon
+    label?: string; // Display label for the icon
+    search?: string[]; // Additional search terms
 }
 
 /**

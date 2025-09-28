@@ -45,18 +45,18 @@ export interface ListReorderHandlers {
  * Parameters for the useListReorder hook
  */
 interface UseListReorderParams<T extends ReorderItemDescriptor> {
-    items: T[];          // Array of items to be reordered
-    isEnabled: boolean;  // Whether drag and drop is currently enabled
-    reorderItems: (orderedKeys: string[]) => Promise<boolean>;  // Callback to persist the new order
+    items: T[]; // Array of items to be reordered
+    isEnabled: boolean; // Whether drag and drop is currently enabled
+    reorderItems: (orderedKeys: string[]) => Promise<boolean>; // Callback to persist the new order
 }
 
 /**
  * Return value from the useListReorder hook
  */
 interface UseListReorderResult {
-    getDragHandlers: (key: string) => ListReorderHandlers;  // Factory function for drag handlers
-    dropIndex: number | null;      // Current drop position indicator
-    draggingKey: string | null;    // Key of the item being dragged
+    getDragHandlers: (key: string) => ListReorderHandlers; // Factory function for drag handlers
+    dropIndex: number | null; // Current drop position indicator
+    draggingKey: string | null; // Key of the item being dragged
 }
 
 function noopHandler() {

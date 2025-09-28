@@ -470,6 +470,19 @@ export const NavigationPane = React.memo(
             activeShortcutKey
         });
 
+        useEffect(() => {
+            if (!isRootReorderMode) {
+                return;
+            }
+
+            rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
+
+            const scroller = scrollContainerRef.current;
+            if (scroller) {
+                scroller.scrollTo({ top: 0, behavior: 'auto' });
+            }
+        }, [isRootReorderMode, rowVirtualizer, scrollContainerRef]);
+
         // Callback for after expand/collapse operations
         const handleTreeUpdateComplete = useCallback(() => {
             const selectedPath = getSelectedPath(selectionState);

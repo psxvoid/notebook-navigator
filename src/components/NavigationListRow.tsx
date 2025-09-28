@@ -9,11 +9,11 @@ import { ObsidianIcon } from './ObsidianIcon';
  * Configuration for the drag handle element that appears in reorderable rows
  */
 export interface DragHandleConfig {
-    label: string;       // Accessibility label for the drag handle
-    only?: boolean;      // If true, only the handle is draggable, not the entire row
-    disabled?: boolean;  // Disables drag functionality
-    visible?: boolean;   // Controls visibility of the drag handle
-    icon?: string;       // Custom icon for the drag handle
+    label: string; // Accessibility label for the drag handle
+    only?: boolean; // If true, only the handle is draggable, not the entire row
+    disabled?: boolean; // Disables drag functionality
+    visible?: boolean; // Controls visibility of the drag handle
+    icon?: string; // Custom icon for the drag handle
 }
 
 /**
