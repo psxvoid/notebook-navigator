@@ -182,7 +182,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     autoRevealIgnoreRightSidebar: true,
     showTooltips: false,
     homepage: null,
-    singlePaneStartView: 'files',
+    singlePaneStartView: 'navigation',
     fileVisibility: FILE_VISIBILITY.DOCUMENTS,
     excludedFolders: [],
     excludedFiles: [],
