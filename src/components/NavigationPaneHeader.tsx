@@ -64,7 +64,7 @@ export function NavigationPaneHeader({
                     }}
                     tabIndex={-1}
                 >
-                    <ObsidianIcon name={uiState.dualPane ? 'lucide-panel-left-close' : 'lucide-panel-right-open'} />
+                    <ObsidianIcon name={uiState.dualPane ? 'lucide-panel-left-dashed' : 'lucide-panel-left'} />
                 </button>
                 <div className="nn-header-actions">
                     {settings.showShortcuts ? (
