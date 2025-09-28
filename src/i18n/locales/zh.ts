@@ -141,9 +141,7 @@ export const STRINGS_ZH = {
             removeTag: '移除标签',
             removeAllTags: '移除所有标签',
             changeIcon: '更改图标',
-            removeIcon: '移除图标',
             changeColor: '更改颜色',
-            removeColor: '移除颜色',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '在新标签页中打开 {count} 个文件',
             openMultipleFilesToRight: '在右侧打开 {count} 个文件',
@@ -169,20 +167,16 @@ export const STRINGS_ZH = {
             createFolderNote: '创建文件夹笔记',
             deleteFolderNote: '删除文件夹笔记',
             changeIcon: '更改图标',
-            removeIcon: '移除图标',
             changeColor: '更改颜色',
             changeBackground: '更改背景',
-            removeColor: '移除颜色',
             excludeFolder: '隐藏文件夹',
             renameFolder: '重命名文件夹',
             deleteFolder: '删除文件夹'
         },
         tag: {
             changeIcon: '更改图标',
-            removeIcon: '移除图标',
             changeColor: '更改颜色',
             changeBackground: '更改背景',
-            removeColor: '移除颜色',
             addToFavorites: '添加到收藏',
             removeFromFavorites: '从收藏中移除',
             hideTag: '隐藏标签'
@@ -210,7 +204,8 @@ export const STRINGS_ZH = {
             emptyStateSearch: '开始输入以搜索图标',
             emptyStateNoResults: '未找到图标',
             showingResultsInfo: '显示 {count} 个结果中的 50 个。输入更多内容以缩小范围。',
-            emojiInstructions: '输入或粘贴任何表情符号作为图标使用'
+            emojiInstructions: '输入或粘贴任何表情符号作为图标使用',
+            removeIcon: '移除图标'
         },
         colorPicker: {
             currentColor: '当前',
@@ -219,6 +214,7 @@ export const STRINGS_ZH = {
             recentColors: '最近使用的颜色',
             clearRecentColors: '清除最近使用的颜色',
             removeRecentColor: '移除颜色',
+            removeColor: '移除颜色',
             apply: '应用',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',

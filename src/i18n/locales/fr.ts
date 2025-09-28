@@ -141,9 +141,7 @@ export const STRINGS_FR = {
             removeTag: 'Supprimer l’étiquette',
             removeAllTags: 'Supprimer toutes les étiquettes',
             changeIcon: "Changer l'icône",
-            removeIcon: "Supprimer l'icône",
             changeColor: 'Changer la couleur',
-            removeColor: 'Supprimer la couleur',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Ouvrir {count} fichiers dans de nouveaux onglets',
             openMultipleFilesToRight: 'Ouvrir {count} fichiers à droite',
@@ -169,20 +167,16 @@ export const STRINGS_FR = {
             createFolderNote: 'Créer une note de dossier',
             deleteFolderNote: 'Supprimer la note de dossier',
             changeIcon: "Changer l'icône",
-            removeIcon: "Supprimer l'icône",
             changeColor: 'Changer la couleur',
             changeBackground: 'Changer l’arrière-plan',
-            removeColor: 'Supprimer la couleur',
             excludeFolder: 'Masquer le dossier',
             renameFolder: 'Renommer le dossier',
             deleteFolder: 'Supprimer le dossier'
         },
         tag: {
             changeIcon: "Changer l'icône",
-            removeIcon: "Supprimer l'icône",
             changeColor: 'Changer la couleur',
             changeBackground: 'Changer l’arrière-plan',
-            removeColor: 'Supprimer la couleur',
             addToFavorites: 'Ajouter aux favoris',
             removeFromFavorites: 'Retirer des favoris',
             hideTag: 'Masquer létiquette'
@@ -210,7 +204,8 @@ export const STRINGS_FR = {
             emptyStateSearch: 'Commencez à taper pour rechercher des icônes',
             emptyStateNoResults: 'Aucune icône trouvée',
             showingResultsInfo: 'Affichage de 50 résultats sur {count}. Tapez plus pour affiner.',
-            emojiInstructions: "Tapez ou collez n'importe quel emoji pour l'utiliser comme icône"
+            emojiInstructions: "Tapez ou collez n'importe quel emoji pour l'utiliser comme icône",
+            removeIcon: "Supprimer l'icône"
         },
         colorPicker: {
             currentColor: 'Actuelle',
@@ -219,6 +214,7 @@ export const STRINGS_FR = {
             recentColors: 'Couleurs récentes',
             clearRecentColors: 'Effacer les couleurs récentes',
             removeRecentColor: 'Supprimer la couleur',
+            removeColor: 'Supprimer la couleur',
             apply: 'Appliquer',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',

@@ -153,9 +153,7 @@ export const STRINGS_PL = {
             removeTag: 'Usuń tag',
             removeAllTags: 'Usuń wszystkie tagi',
             changeIcon: 'Zmień ikonę',
-            removeIcon: 'Usuń ikonę',
-            changeColor: 'Zmień kolor',
-            removeColor: 'Usuń kolor'
+            changeColor: 'Zmień kolor'
         },
         folder: {
             newNote: 'Nowa notatka',
@@ -168,20 +166,16 @@ export const STRINGS_PL = {
             createFolderNote: 'Utwórz notatkę folderu',
             deleteFolderNote: 'Usuń notatkę folderu',
             changeIcon: 'Zmień ikonę',
-            removeIcon: 'Usuń ikonę',
             changeColor: 'Zmień kolor',
             changeBackground: 'Zmień tło',
-            removeColor: 'Usuń kolor',
             excludeFolder: 'Ukryj folder',
             renameFolder: 'Zmień nazwę folderu',
             deleteFolder: 'Usuń folder'
         },
         tag: {
             changeIcon: 'Zmień ikonę',
-            removeIcon: 'Usuń ikonę',
             changeColor: 'Zmień kolor',
             changeBackground: 'Zmień tło',
-            removeColor: 'Usuń kolor',
             addToFavorites: 'Dodaj do ulubionych',
             removeFromFavorites: 'Usuń z ulubionych',
             hideTag: 'Ukryj tag'
@@ -211,7 +205,8 @@ export const STRINGS_PL = {
             emptyStateSearch: 'Zacznij pisać aby szukać ikon',
             emptyStateNoResults: 'Nie znaleziono ikon',
             showingResultsInfo: 'Pokazuję 50 z {count} wyników. Wpisz więcej aby zawęzić.',
-            emojiInstructions: 'Wpisz lub wklej dowolną emotkę aby użyć jej jako ikony'
+            emojiInstructions: 'Wpisz lub wklej dowolną emotkę aby użyć jej jako ikony',
+            removeIcon: 'Usuń ikonę'
         },
         colorPicker: {
             currentColor: 'Obecny',
@@ -220,6 +215,7 @@ export const STRINGS_PL = {
             recentColors: 'Ostatnio używane kolory',
             clearRecentColors: 'Wyczyść ostatnie kolory',
             removeRecentColor: 'Usuń kolor',
+            removeColor: 'Usuń kolor',
             apply: 'Zastosuj',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',

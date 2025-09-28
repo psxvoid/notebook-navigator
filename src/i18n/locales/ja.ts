@@ -141,9 +141,7 @@ export const STRINGS_JA = {
             removeTag: 'タグを削除',
             removeAllTags: 'すべてのタグを削除',
             changeIcon: 'アイコンを変更',
-            removeIcon: 'アイコンを削除',
             changeColor: '色を変更',
-            removeColor: '色を削除',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count}個のファイルを新しいタブで開く',
             openMultipleFilesToRight: '{count}個のファイルを右側で開く',
@@ -169,20 +167,16 @@ export const STRINGS_JA = {
             createFolderNote: 'フォルダノートを作成',
             deleteFolderNote: 'フォルダーノートを削除',
             changeIcon: 'アイコンを変更',
-            removeIcon: 'アイコンを削除',
             changeColor: '色を変更',
             changeBackground: '背景色を変更',
-            removeColor: '色を削除',
             excludeFolder: 'フォルダを非表示',
             renameFolder: 'フォルダの名前を変更',
             deleteFolder: 'フォルダを削除'
         },
         tag: {
             changeIcon: 'アイコンを変更',
-            removeIcon: 'アイコンを削除',
             changeColor: '色を変更',
             changeBackground: '背景色を変更',
-            removeColor: '色を削除',
             addToFavorites: 'お気に入りに追加',
             removeFromFavorites: 'お気に入りから削除',
             hideTag: 'タグを非表示'
@@ -210,7 +204,8 @@ export const STRINGS_JA = {
             emptyStateSearch: '入力してアイコンを検索',
             emptyStateNoResults: 'アイコンが見つかりません',
             showingResultsInfo: '{count}件中50件を表示中。絞り込むには続けて入力してください。',
-            emojiInstructions: '絵文字を入力または貼り付けてアイコンとして使用'
+            emojiInstructions: '絵文字を入力または貼り付けてアイコンとして使用',
+            removeIcon: 'アイコンを削除'
         },
         colorPicker: {
             currentColor: '現在',
@@ -219,6 +214,7 @@ export const STRINGS_JA = {
             recentColors: '最近使用した色',
             clearRecentColors: '最近使用した色をクリア',
             removeRecentColor: '色を削除',
+            removeColor: '色を削除',
             apply: '適用',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',

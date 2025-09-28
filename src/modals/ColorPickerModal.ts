@@ -281,11 +281,7 @@ export class ColorPickerModal extends Modal {
         const buttonContainer = contentEl.createDiv('nn-color-button-container');
 
         // Cancel/Remove button
-        const removeColorText = this.isTag()
-            ? strings.contextMenu.tag.removeColor
-            : this.isFile()
-              ? strings.contextMenu.file.removeColor
-              : strings.contextMenu.folder.removeColor;
+        const removeColorText = strings.modals.colorPicker.removeColor;
         const cancelRemoveButton = buttonContainer.createEl('button', {
             text: this.currentColor ? removeColorText : strings.common.cancel
         });

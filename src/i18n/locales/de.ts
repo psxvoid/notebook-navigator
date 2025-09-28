@@ -169,20 +169,16 @@ export const STRINGS_DE = {
             createFolderNote: 'Ordnernotiz erstellen',
             deleteFolderNote: 'Ordnernotiz löschen',
             changeIcon: 'Symbol ändern',
-            removeIcon: 'Symbol entfernen',
             changeColor: 'Farbe ändern',
             changeBackground: 'Hintergrund ändern',
-            removeColor: 'Farbe entfernen',
             excludeFolder: 'Ordner verstecken',
             renameFolder: 'Ordner umbenennen',
             deleteFolder: 'Ordner löschen'
         },
         tag: {
             changeIcon: 'Symbol ändern',
-            removeIcon: 'Symbol entfernen',
             changeColor: 'Farbe ändern',
             changeBackground: 'Hintergrund ändern',
-            removeColor: 'Farbe entfernen',
             addToFavorites: 'Zu Favoriten hinzufügen',
             removeFromFavorites: 'Aus Favoriten entfernen',
             hideTag: 'Tag ausblenden'
@@ -210,7 +206,8 @@ export const STRINGS_DE = {
             emptyStateSearch: 'Beginnen Sie zu tippen, um Symbole zu suchen',
             emptyStateNoResults: 'Keine Symbole gefunden',
             showingResultsInfo: 'Zeige 50 von {count} Ergebnissen. Geben Sie mehr ein, um die Suche einzugrenzen.',
-            emojiInstructions: 'Geben Sie ein Emoji ein oder fügen Sie es ein, um es als Symbol zu verwenden'
+            emojiInstructions: 'Geben Sie ein Emoji ein oder fügen Sie es ein, um es als Symbol zu verwenden',
+            removeIcon: 'Icon entfernen'
         },
         colorPicker: {
             currentColor: 'Aktuell',
@@ -219,6 +216,7 @@ export const STRINGS_DE = {
             recentColors: 'Zuletzt verwendete Farben',
             clearRecentColors: 'Zuletzt verwendete Farben löschen',
             removeRecentColor: 'Farbe entfernen',
+            removeColor: 'Farbe entfernen',
             apply: 'Anwenden',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',

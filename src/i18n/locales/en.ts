@@ -154,9 +154,7 @@ export const STRINGS_EN = {
             removeTag: 'Remove tag',
             removeAllTags: 'Remove all tags',
             changeIcon: 'Change icon',
-            removeIcon: 'Remove icon',
-            changeColor: 'Change color',
-            removeColor: 'Remove color'
+            changeColor: 'Change color'
         },
         folder: {
             newNote: 'New note',
@@ -169,20 +167,16 @@ export const STRINGS_EN = {
             createFolderNote: 'Create folder note',
             deleteFolderNote: 'Delete folder note',
             changeIcon: 'Change icon',
-            removeIcon: 'Remove icon',
             changeColor: 'Change color',
             changeBackground: 'Change background',
-            removeColor: 'Remove color',
             excludeFolder: 'Hide folder',
             renameFolder: 'Rename folder',
             deleteFolder: 'Delete folder'
         },
         tag: {
             changeIcon: 'Change icon',
-            removeIcon: 'Remove icon',
             changeColor: 'Change color',
             changeBackground: 'Change background',
-            removeColor: 'Remove color',
             addToFavorites: 'Add to favorites',
             removeFromFavorites: 'Remove from favorites',
             hideTag: 'Hide tag'
@@ -210,7 +204,8 @@ export const STRINGS_EN = {
             emptyStateSearch: 'Start typing to search icons',
             emptyStateNoResults: 'No icons found',
             showingResultsInfo: 'Showing 50 of {count} results. Type more to narrow down.',
-            emojiInstructions: 'Type or paste any emoji to use it as an icon'
+            emojiInstructions: 'Type or paste any emoji to use it as an icon',
+            removeIcon: 'Remove icon'
         },
         colorPicker: {
             currentColor: 'Current',
@@ -219,6 +214,7 @@ export const STRINGS_EN = {
             recentColors: 'Recent colors',
             clearRecentColors: 'Clear recent colors',
             removeRecentColor: 'Remove color',
+            removeColor: 'Remove color',
             apply: 'Apply',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',

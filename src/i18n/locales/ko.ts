@@ -153,9 +153,7 @@ export const STRINGS_KO = {
             removeTag: '태그 제거',
             removeAllTags: '모든 태그 제거',
             changeIcon: '아이콘 변경',
-            removeIcon: '아이콘 제거',
-            changeColor: '색상 변경',
-            removeColor: '색상 제거'
+            changeColor: '색상 변경'
         },
         folder: {
             newNote: '새 노트',
@@ -168,20 +166,16 @@ export const STRINGS_KO = {
             createFolderNote: '폴더 노트 만들기',
             deleteFolderNote: '폴더 노트 삭제',
             changeIcon: '아이콘 변경',
-            removeIcon: '아이콘 제거',
             changeColor: '색상 변경',
             changeBackground: '배경색 변경',
-            removeColor: '색상 제거',
             excludeFolder: '폴더 숨기기',
             renameFolder: '폴더 이름 변경',
             deleteFolder: '폴더 삭제'
         },
         tag: {
             changeIcon: '아이콘 변경',
-            removeIcon: '아이콘 제거',
             changeColor: '색상 변경',
             changeBackground: '배경색 변경',
-            removeColor: '색상 제거',
             addToFavorites: '즐겨찾기에 추가',
             removeFromFavorites: '즐겨찾기에서 제거',
             hideTag: '태그 숨기기'
@@ -209,7 +203,8 @@ export const STRINGS_KO = {
             emptyStateSearch: '아이콘을 검색하려면 입력하세요',
             emptyStateNoResults: '아이콘을 찾을 수 없음',
             showingResultsInfo: '{count}개 중 50개 결과 표시. 더 좁혀서 검색하세요.',
-            emojiInstructions: '이모지를 입력하거나 붙여넣어 아이콘으로 사용하세요'
+            emojiInstructions: '이모지를 입력하거나 붙여넣어 아이콘으로 사용하세요',
+            removeIcon: '아이콘 제거'
         },
         colorPicker: {
             currentColor: '현재',
@@ -218,6 +213,7 @@ export const STRINGS_KO = {
             recentColors: '최근 색상',
             clearRecentColors: '최근 색상 지우기',
             removeRecentColor: '색상 제거',
+            removeColor: '색상 제거',
             apply: '적용',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',

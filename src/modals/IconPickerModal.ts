@@ -112,12 +112,7 @@ export class IconPickerModal extends Modal {
 
         const buttonContainer = contentEl.createDiv('nn-icon-button-container');
         const removeButton = buttonContainer.createEl('button');
-        const removeButtonLabel =
-            this.itemType === ItemType.TAG
-                ? strings.contextMenu.tag.removeIcon
-                : this.itemType === ItemType.FILE
-                  ? strings.contextMenu.file.removeIcon
-                  : strings.contextMenu.folder.removeIcon;
+        const removeButtonLabel = strings.modals.iconPicker.removeIcon;
         removeButton.setText(removeButtonLabel);
         if (removeButton instanceof HTMLButtonElement) {
             this.removeButton = removeButton;

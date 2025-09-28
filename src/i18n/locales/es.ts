@@ -141,9 +141,7 @@ export const STRINGS_ES = {
             removeTag: 'Eliminar etiqueta',
             removeAllTags: 'Eliminar todas las etiquetas',
             changeIcon: 'Cambiar icono',
-            removeIcon: 'Quitar icono',
             changeColor: 'Cambiar color',
-            removeColor: 'Quitar color',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Abrir {count} archivos en nuevas pestañas',
             openMultipleFilesToRight: 'Abrir {count} archivos a la derecha',
@@ -169,20 +167,16 @@ export const STRINGS_ES = {
             createFolderNote: 'Crear nota de carpeta',
             deleteFolderNote: 'Eliminar nota de carpeta',
             changeIcon: 'Cambiar icono',
-            removeIcon: 'Quitar icono',
             changeColor: 'Cambiar color',
             changeBackground: 'Cambiar fondo',
-            removeColor: 'Quitar color',
             excludeFolder: 'Ocultar carpeta',
             renameFolder: 'Renombrar carpeta',
             deleteFolder: 'Eliminar carpeta'
         },
         tag: {
             changeIcon: 'Cambiar icono',
-            removeIcon: 'Quitar icono',
             changeColor: 'Cambiar color',
             changeBackground: 'Cambiar fondo',
-            removeColor: 'Quitar color',
             addToFavorites: 'Añadir a favoritos',
             removeFromFavorites: 'Quitar de favoritos',
             hideTag: 'Ocultar etiqueta'
@@ -210,7 +204,8 @@ export const STRINGS_ES = {
             emptyStateSearch: 'Empieza a escribir para buscar iconos',
             emptyStateNoResults: 'No se encontraron iconos',
             showingResultsInfo: 'Mostrando 50 de {count} resultados. Escribe más para filtrar.',
-            emojiInstructions: 'Escribe o pega cualquier emoji para usarlo como icono'
+            emojiInstructions: 'Escribe o pega cualquier emoji para usarlo como icono',
+            removeIcon: 'Quitar icono'
         },
         colorPicker: {
             currentColor: 'Actual',
@@ -219,6 +214,7 @@ export const STRINGS_ES = {
             recentColors: 'Colores recientes',
             clearRecentColors: 'Limpiar colores recientes',
             removeRecentColor: 'Eliminar color',
+            removeColor: 'Quitar color',
             apply: 'Aplicar',
             hexLabel: 'HEX',
             rgbLabel: 'RGBA',
