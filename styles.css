@@ -116,7 +116,8 @@ body {
     --nn-theme-list-bg: var(--background-primary);
     --nn-theme-list-header-icon-color: var(--text-muted);
     --nn-theme-list-header-breadcrumb-color: var(--text-muted);
-    --nn-theme-list-header-search-active-bg: var(--text-highlight-bg);
+    --nn-theme-list-search-active-bg: var(--text-highlight-bg);
+    --nn-theme-list-search-border-color: var(--background-modifier-border);
     --nn-theme-list-group-header-color: var(--text-muted);
     --nn-theme-list-separator-color: var(--background-modifier-border);
 
@@ -158,9 +159,6 @@ body {
     --nn-theme-quick-actions-icon-hover-color: var(--text-normal);
     --nn-theme-quick-actions-separator-color: var(--background-modifier-border);
 
-    /* -- Headers -- */
-    --nn-theme-header-border-color: var(--background-modifier-border);
-
     /* -- Header Buttons -- */
     --nn-theme-header-button-icon-color: var(--text-muted);
     --nn-theme-header-button-hover-bg: var(--background-modifier-hover);
@@ -190,7 +188,7 @@ body {
 
 /* Inline match highlight in file names while search is active */
 .nn-search-highlight {
-    background-color: var(--nn-theme-list-header-search-active-bg);
+    background-color: var(--nn-theme-list-search-active-bg);
     color: inherit;
     border-radius: 3px;
 }
@@ -304,7 +302,7 @@ body {
 
 /* Add right border to nav header in dual pane mode */
 :not(.nn-single-pane) .nn-navigation-pane .nn-pane-header {
-    border-right: 1px solid var(--nn-theme-header-border-color);
+    border-right: 1px solid var(--nn-theme-divider-border-color);
 }
 
 /* File list pane header */
@@ -365,7 +363,7 @@ body {
     font-size: 13px;
     color: var(--nn-theme-file-selected-name-color) !important;
     background: var(--nn-theme-list-bg) !important;
-    border: 1px solid var(--nn-theme-header-border-color) !important;
+    border: 1px solid var(--nn-theme-list-search-border-color) !important;
     border-radius: 5px;
     outline: none;
     box-sizing: border-box;
@@ -373,18 +371,18 @@ body {
 
 /* Active search state - when there's a search query */
 .nn-search-input.nn-search-active {
-    background: var(--nn-theme-list-header-search-active-bg) !important;
+    background: var(--nn-theme-list-search-active-bg) !important;
 }
 
 /* Maintain highlight background on hover when search is active */
 .nn-search-input.nn-search-active:hover {
-    background: var(--nn-theme-list-header-search-active-bg) !important;
+    background: var(--nn-theme-list-search-active-bg) !important;
 }
 
 /* Focus state */
 .nn-search-input:focus {
-    border-color: var(--nn-theme-header-border-color) !important;
-    box-shadow: 0 0 0 2px var(--nn-theme-header-border-color) !important;
+    border-color: var(--nn-theme-list-search-border-color) !important;
+    box-shadow: 0 0 0 2px var(--nn-theme-list-search-border-color) !important;
 }
 
 .nn-search-input::placeholder {
@@ -1694,7 +1692,7 @@ body {
 
 /* Add right border to nav header in dual pane mode */
 :not(.nn-single-pane) .nn-skeleton-nav-header {
-    border-right: 1px solid var(--nn-theme-header-border-color);
+    border-right: 1px solid var(--nn-theme-divider-border-color);
 }
 
 .nn-skeleton-list-header {
@@ -3972,9 +3970,18 @@ settings:
         default-dark: '#'
     -
     -
-        id: nn-theme-list-header-search-active-bg
+        id: nn-theme-list-search-active-bg
         title: Search field active background
         description: Background color for the search field when a search query is active (desktop only).
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-list-search-border-color
+        title: Search border color
+        description: Border and focus ring color for the search field.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -4332,16 +4339,6 @@ settings:
         type: heading
         level: 1
         collapsed: true
-    -
-    -
-        id: nn-theme-header-border-color
-        title: Header border color
-        description: Border color of pane headers.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
     -
         id: nn-header-actions-heading
         title: Header action buttons
