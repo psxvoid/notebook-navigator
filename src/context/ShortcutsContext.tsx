@@ -58,10 +58,10 @@ export interface ShortcutsContextValue {
     noteShortcutKeysByPath: Map<string, string>;
     tagShortcutKeysByPath: Map<string, string>;
     searchShortcutsByName: Map<string, SearchShortcut>;
-    addFolderShortcut: (path: string) => Promise<boolean>;
-    addNoteShortcut: (path: string) => Promise<boolean>;
-    addTagShortcut: (tagPath: string) => Promise<boolean>;
-    addSearchShortcut: (input: { name: string; query: string; provider: SearchProvider }) => Promise<boolean>;
+    addFolderShortcut: (path: string, options?: { index?: number }) => Promise<boolean>;
+    addNoteShortcut: (path: string, options?: { index?: number }) => Promise<boolean>;
+    addTagShortcut: (tagPath: string, options?: { index?: number }) => Promise<boolean>;
+    addSearchShortcut: (input: { name: string; query: string; provider: SearchProvider }, options?: { index?: number }) => Promise<boolean>;
     removeShortcut: (key: string) => Promise<boolean>;
     removeSearchShortcut: (name: string) => Promise<boolean>;
     reorderShortcuts: (orderedKeys: string[]) => Promise<boolean>;
@@ -243,12 +243,14 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         });
     }, [hydratedShortcuts, updateSettings]);
 
-    // Helper function to append a new shortcut to the settings
-    const appendShortcut = useCallback(
-        async (shortcut: ShortcutEntry) => {
+    const insertShortcut = useCallback(
+        async (shortcut: ShortcutEntry, index?: number) => {
             await updateSettings(current => {
                 const existing = current.shortcuts ?? [];
-                current.shortcuts = [...existing, shortcut];
+                const next = [...existing];
+                const insertAt = typeof index === 'number' ? Math.max(0, Math.min(index, next.length)) : next.length;
+                next.splice(insertAt, 0, shortcut);
+                current.shortcuts = next;
             });
             return true;
         },
@@ -256,40 +258,40 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     );
 
     const addFolderShortcut = useCallback(
-        async (path: string) => {
+        async (path: string, options?: { index?: number }) => {
             if (folderShortcutKeysByPath.has(path)) {
                 new Notice(strings.shortcuts.folderExists);
                 return false;
             }
-            return appendShortcut({ type: ShortcutType.FOLDER, path });
+            return insertShortcut({ type: ShortcutType.FOLDER, path }, options?.index);
         },
-        [appendShortcut, folderShortcutKeysByPath]
+        [insertShortcut, folderShortcutKeysByPath]
     );
 
     const addNoteShortcut = useCallback(
-        async (path: string) => {
+        async (path: string, options?: { index?: number }) => {
             if (noteShortcutKeysByPath.has(path)) {
                 new Notice(strings.shortcuts.noteExists);
                 return false;
             }
-            return appendShortcut({ type: ShortcutType.NOTE, path });
+            return insertShortcut({ type: ShortcutType.NOTE, path }, options?.index);
         },
-        [appendShortcut, noteShortcutKeysByPath]
+        [insertShortcut, noteShortcutKeysByPath]
     );
 
     const addTagShortcut = useCallback(
-        async (tagPath: string) => {
+        async (tagPath: string, options?: { index?: number }) => {
             if (tagShortcutKeysByPath.has(tagPath)) {
                 new Notice(strings.shortcuts.tagExists);
                 return false;
             }
-            return appendShortcut({ type: ShortcutType.TAG, tagPath });
+            return insertShortcut({ type: ShortcutType.TAG, tagPath }, options?.index);
         },
-        [appendShortcut, tagShortcutKeysByPath]
+        [insertShortcut, tagShortcutKeysByPath]
     );
 
     const addSearchShortcut = useCallback(
-        async ({ name, query, provider }: { name: string; query: string; provider: SearchProvider }) => {
+        async ({ name, query, provider }: { name: string; query: string; provider: SearchProvider }, options?: { index?: number }) => {
             const normalizedQuery = query.trim();
             if (!normalizedQuery) {
                 new Notice(strings.shortcuts.emptySearchQuery);
@@ -308,14 +310,17 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
                 return false;
             }
 
-            return appendShortcut({
-                type: ShortcutType.SEARCH,
-                name: normalizedName,
-                query: normalizedQuery,
-                provider
-            });
+            return insertShortcut(
+                {
+                    type: ShortcutType.SEARCH,
+                    name: normalizedName,
+                    query: normalizedQuery,
+                    provider
+                },
+                options?.index
+            );
         },
-        [appendShortcut, searchShortcutsByName]
+        [insertShortcut, searchShortcutsByName]
     );
 
     const removeShortcut = useCallback(

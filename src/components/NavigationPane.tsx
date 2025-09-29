@@ -87,7 +87,7 @@ import { localStorage } from '../utils/localStorage';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { ShortcutItem } from './ShortcutItem';
 import { RootFolderReorderItem } from './RootFolderReorderItem';
-import { ShortcutType, SearchShortcut } from '../types/shortcuts';
+import { ShortcutType, SearchShortcut, SHORTCUT_DRAG_MIME } from '../types/shortcuts';
 import { strings } from '../i18n';
 import { createDragGhostManager, type DragGhostOptions } from '../utils/dragGhost';
 import {
@@ -147,7 +147,15 @@ export const NavigationPane = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const shortcuts = useShortcuts();
-        const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts, noteShortcutKeysByPath } = shortcuts;
+        const {
+            shortcutMap,
+            removeShortcut,
+            hydratedShortcuts,
+            reorderShortcuts,
+            noteShortcutKeysByPath,
+            addFolderShortcut,
+            addNoteShortcut
+        } = shortcuts;
         const { fileData, getFileDisplayName, getFavoriteTree, findTagInFavoriteTree } = useFileCache();
         const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
 
@@ -204,6 +212,8 @@ export const NavigationPane = React.memo(
             return false;
         });
         const [isRootReorderMode, setRootReorderMode] = useState(false);
+        const [externalShortcutDropIndex, setExternalShortcutDropIndex] = useState<number | null>(null);
+        const draggedShortcutKeyRef = useRef<string | null>(null);
 
         // Determine if drag and drop should be enabled for shortcuts
         const shortcutCount = hydratedShortcuts.length;
@@ -265,15 +275,221 @@ export const NavigationPane = React.memo(
             [dragGhostManager]
         );
 
+        useEffect(() => {
+            if (!shortcutsExpanded) {
+                setExternalShortcutDropIndex(null);
+            }
+        }, [shortcutsExpanded]);
+
+        const computeShortcutInsertIndex = useCallback(
+            (event: React.DragEvent<HTMLElement>, key: string) => {
+                const shortcutIndex = shortcutPositionMap.get(key);
+                if (shortcutIndex === undefined) {
+                    return hydratedShortcuts.length;
+                }
+
+                const element = event.currentTarget;
+                if (!(element instanceof HTMLElement)) {
+                    return shortcutIndex;
+                }
+
+                const bounds = element.getBoundingClientRect();
+                const offset = event.clientY - bounds.top;
+                const shouldInsertBefore = offset < bounds.height / 2;
+                return shouldInsertBefore ? shortcutIndex : shortcutIndex + 1;
+            },
+            [hydratedShortcuts.length, shortcutPositionMap]
+        );
+
+        const handleShortcutDragOver = useCallback(
+            (event: React.DragEvent<HTMLElement>, key: string) => {
+                const { dataTransfer } = event;
+                if (!dataTransfer) {
+                    return false;
+                }
+
+                if (!shortcutsExpanded || !settings.showShortcuts) {
+                    setExternalShortcutDropIndex(null);
+                    return false;
+                }
+
+                const types = Array.from(dataTransfer.types ?? []);
+                if (types.includes(SHORTCUT_DRAG_MIME)) {
+                    setExternalShortcutDropIndex(null);
+                    return false;
+                }
+
+                const hasObsidianFiles = types.includes('obsidian/file') || types.includes('obsidian/files');
+                if (!hasObsidianFiles) {
+                    setExternalShortcutDropIndex(null);
+                    return false;
+                }
+
+                event.preventDefault();
+                dataTransfer.dropEffect = 'copy';
+                const insertIndex = computeShortcutInsertIndex(event, key);
+                setExternalShortcutDropIndex(current => (current === insertIndex ? current : insertIndex));
+                return true;
+            },
+            [computeShortcutInsertIndex, shortcutsExpanded, settings.showShortcuts]
+        );
+
+        const handleShortcutDrop = useCallback(
+            (event: React.DragEvent<HTMLElement>, key: string) => {
+                const { dataTransfer } = event;
+                if (!dataTransfer) {
+                    return false;
+                }
+
+                if (!shortcutsExpanded || !settings.showShortcuts) {
+                    setExternalShortcutDropIndex(null);
+                    return false;
+                }
+
+                const types = Array.from(dataTransfer.types ?? []);
+                if (types.includes(SHORTCUT_DRAG_MIME)) {
+                    setExternalShortcutDropIndex(null);
+                    return false;
+                }
+
+                const rawPaths: string[] = [];
+                const multiple = dataTransfer.getData('obsidian/files');
+                if (multiple) {
+                    try {
+                        const parsed = JSON.parse(multiple);
+                        if (Array.isArray(parsed)) {
+                            parsed.forEach(path => {
+                                if (typeof path === 'string' && path.length > 0) {
+                                    rawPaths.push(path);
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.debug('Failed to parse obsidian/files payload', error);
+                        setExternalShortcutDropIndex(null);
+                        return false;
+                    }
+                }
+
+                const single = dataTransfer.getData('obsidian/file');
+                if (single) {
+                    rawPaths.push(single);
+                }
+
+                if (rawPaths.length === 0) {
+                    setExternalShortcutDropIndex(null);
+                    return false;
+                }
+
+                const seen = new Set<string>();
+                const orderedPaths = rawPaths.filter(path => {
+                    if (seen.has(path)) {
+                        return false;
+                    }
+                    seen.add(path);
+                    return true;
+                });
+
+                if (orderedPaths.length === 0) {
+                    setExternalShortcutDropIndex(null);
+                    return false;
+                }
+
+                const additions: { type: 'folder' | 'note'; path: string }[] = [];
+                orderedPaths.forEach(path => {
+                    const target = app.vault.getAbstractFileByPath(path);
+                    if (target instanceof TFolder) {
+                        if (target.path !== '/') {
+                            additions.push({ type: 'folder', path: target.path });
+                        }
+                    } else if (target instanceof TFile) {
+                        additions.push({ type: 'note', path: target.path });
+                    }
+                });
+
+                if (additions.length === 0) {
+                    setExternalShortcutDropIndex(null);
+                    return false;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                const baseInsertIndex = computeShortcutInsertIndex(event, key);
+
+                void (async () => {
+                    let offset = 0;
+                    for (const addition of additions) {
+                        const targetIndex = Math.max(0, baseInsertIndex + offset);
+                        let success = false;
+                        if (addition.type === 'folder') {
+                            success = await addFolderShortcut(addition.path, { index: targetIndex });
+                        } else {
+                            success = await addNoteShortcut(addition.path, { index: targetIndex });
+                        }
+
+                        if (success) {
+                            offset += 1;
+                        }
+                    }
+                })();
+
+                setExternalShortcutDropIndex(null);
+                return true;
+            },
+            [addFolderShortcut, addNoteShortcut, app.vault, computeShortcutInsertIndex, shortcutsExpanded, settings.showShortcuts]
+        );
+
+        const handleShortcutDragLeave = useCallback(() => {
+            setExternalShortcutDropIndex(null);
+        }, []);
+
         /**
          * Creates drag handlers for a shortcut with custom ghost visualization
          */
         const buildShortcutDragHandlers = useCallback(
             (key: string, options: DragGhostOptions): ListReorderHandlers => {
                 const handlers = getDragHandlers(key);
-                return withDragGhost(handlers, options);
+                const handlersWithGhost = withDragGhost(handlers, options);
+
+                return {
+                    ...handlersWithGhost,
+                    onDragStart: event => {
+                        draggedShortcutKeyRef.current = key;
+                        setExternalShortcutDropIndex(null);
+                        handlersWithGhost.onDragStart(event);
+                    },
+                    onDragOver: event => {
+                        if (handleShortcutDragOver(event, key)) {
+                            return;
+                        }
+                        handlersWithGhost.onDragOver(event);
+                    },
+                    onDrop: event => {
+                        if (handleShortcutDrop(event, key)) {
+                            return;
+                        }
+                        handlersWithGhost.onDrop(event);
+                    },
+                    onDragLeave: event => {
+                        handleShortcutDragLeave();
+                        handlersWithGhost.onDragLeave(event);
+                    },
+                    onDragEnd: event => {
+                        const nativeEvent = event.nativeEvent;
+                        const dropEffect = nativeEvent?.dataTransfer?.dropEffect ?? '';
+                        handlersWithGhost.onDragEnd(event);
+                        const draggedKey = draggedShortcutKeyRef.current;
+                        draggedShortcutKeyRef.current = null;
+                        setExternalShortcutDropIndex(null);
+
+                        if (dropEffect === 'none' && draggedKey === key) {
+                            void removeShortcut(key);
+                        }
+                    }
+                };
             },
-            [getDragHandlers, withDragGhost]
+            [getDragHandlers, removeShortcut, handleShortcutDragLeave, handleShortcutDragOver, handleShortcutDrop, withDragGhost]
         );
 
         /**
@@ -288,13 +504,14 @@ export const NavigationPane = React.memo(
                     return { showBefore: false, showAfter: false, isDragSource };
                 }
 
+                const activeDropIndex = draggingKey ? dropIndex : externalShortcutDropIndex;
                 const isFirstShortcut = shortcutIndex === 0;
-                const showBefore = isFirstShortcut && dropIndex !== null && dropIndex === 0 && draggingKey !== key;
-                const showAfter = dropIndex !== null && dropIndex === shortcutIndex + 1 && draggingKey !== key;
+                const showBefore = isFirstShortcut && activeDropIndex !== null && activeDropIndex === 0 && draggingKey !== key;
+                const showAfter = activeDropIndex !== null && activeDropIndex === shortcutIndex + 1 && draggingKey !== key;
 
                 return { showBefore, showAfter, isDragSource };
             },
-            [draggingKey, dropIndex, shortcutPositionMap]
+            [draggingKey, dropIndex, externalShortcutDropIndex, shortcutPositionMap]
         );
 
         // Android uses toolbar at top, iOS at bottom
@@ -772,6 +989,7 @@ export const NavigationPane = React.memo(
                     app.workspace.leftSplit.collapse();
                 }
 
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                 scheduleShortcutRelease();
             },
             [
@@ -781,7 +999,8 @@ export const NavigationPane = React.memo(
                 onRevealShortcutFile,
                 scheduleShortcutRelease,
                 app.workspace,
-                isMobile
+                isMobile,
+                uiDispatch
             ]
         );
 
@@ -800,8 +1019,10 @@ export const NavigationPane = React.memo(
                 if (isMobile && app.workspace.leftSplit) {
                     app.workspace.leftSplit.collapse();
                 }
+
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             },
-            [selectionState.selectionType, onRevealFile, onRevealShortcutFile, app.workspace, isMobile]
+            [selectionState.selectionType, onRevealFile, onRevealShortcutFile, app.workspace, isMobile, uiDispatch]
         );
 
         // Handles search shortcut activation - executes saved search query
