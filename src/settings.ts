@@ -684,6 +684,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setDynamicTooltip()
                     .onChange(async value => {
                         this.plugin.settings.recentNotesCount = value;
+                        // Trim recent notes list to new limit
                         this.plugin.applyRecentNotesLimit();
                         await this.plugin.saveSettingsAndUpdate();
                     })

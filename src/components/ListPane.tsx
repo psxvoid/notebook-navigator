@@ -481,7 +481,7 @@ export const ListPane = React.memo(
             [handleFileClick, orderedFiles]
         );
 
-        // Helper function for safe array access
+        // Returns array element at index or undefined if out of bounds
         const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
             return index >= 0 && index < array.length ? array[index] : undefined;
         };

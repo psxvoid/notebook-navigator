@@ -131,7 +131,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         return isFirstLaunch;
     }
 
-    // Initialize or reset the recent storage service
+    /**
+     * Creates a new RecentStorageService instance and loads data from local storage
+     */
     private resetRecentStorage(): void {
         // Persist any pending changes before resetting
         this.recentStorage?.flushPendingPersists();
@@ -149,12 +151,16 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.notifyRecentDataUpdate();
     }
 
-    // Get the list of recent notes from storage
+    /**
+     * Returns the list of recent note paths from local storage
+     */
     public getRecentNotes(): string[] {
         return this.recentStorage ? this.recentStorage.getRecentNotes() : [];
     }
 
-    // Update the list of recent notes in storage
+    /**
+     * Stores the list of recent note paths to local storage
+     */
     public setRecentNotes(recentNotes: string[]): void {
         if (!this.recentStorage) {
             return;
@@ -162,7 +168,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.recentStorage.setRecentNotes(recentNotes);
     }
 
-    // Apply the configured limit to recent notes
+    /**
+     * Trims the recent notes list to the configured maximum count
+     */
     public applyRecentNotesLimit(): void {
         if (!this.recentStorage) {
             return;
@@ -170,22 +178,30 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.recentStorage.applyRecentNotesLimit();
     }
 
-    // Register a callback to be notified when recent data changes
+    /**
+     * Registers a listener to be notified when recent data changes
+     */
     public registerRecentDataListener(id: string, callback: () => void): void {
         this.recentDataListeners.set(id, callback);
     }
 
-    // Remove a registered recent data listener
+    /**
+     * Unregisters a recent data change listener
+     */
     public unregisterRecentDataListener(id: string): void {
         this.recentDataListeners.delete(id);
     }
 
-    // Get the map of recent icons per provider from storage
+    /**
+     * Returns the map of recent icon IDs per provider from local storage
+     */
     public getRecentIcons(): Record<string, string[]> {
         return this.recentStorage ? this.recentStorage.getRecentIcons() : {};
     }
 
-    // Update the map of recent icons per provider in storage
+    /**
+     * Stores the map of recent icon IDs per provider to local storage
+     */
     public setRecentIcons(recentIcons: Record<string, string[]>): void {
         if (!this.recentStorage) {
             return;
@@ -193,6 +209,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.recentStorage.setRecentIcons(recentIcons);
     }
 
+    /**
+     * Checks if the given file is open in the right sidebar
+     */
     private isFileInRightSidebar(file: TFile): boolean {
         if (!this.settings.autoRevealIgnoreRightSidebar) {
             return false;
@@ -787,10 +806,16 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.settingsUpdateListeners.set(id, callback);
     }
 
+    /**
+     * Returns whether dual-pane mode is enabled
+     */
     public useDualPane(): boolean {
         return this.dualPanePreference;
     }
 
+    /**
+     * Updates the dual-pane preference and persists to local storage
+     */
     public setDualPanePreference(enabled: boolean): void {
         if (this.dualPanePreference === enabled) {
             return;
@@ -801,10 +826,16 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.notifySettingsUpdate();
     }
 
+    /**
+     * Toggles the dual-pane preference between enabled and disabled
+     */
     public toggleDualPanePreference(): void {
         this.setDualPanePreference(!this.dualPanePreference);
     }
 
+    /**
+     * Parses dual-pane preference from local storage string value
+     */
     private parseDualPanePreference(raw: unknown): boolean | null {
         if (typeof raw === 'string') {
             return raw === '1';
@@ -1029,10 +1060,16 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.onSettingsUpdate();
     }
 
+    /**
+     * Notifies all registered listeners that settings have changed
+     */
     public notifySettingsUpdate(): void {
         this.onSettingsUpdate();
     }
 
+    /**
+     * Removes unused metadata entries from settings and saves
+     */
     public async runMetadataCleanup(): Promise<boolean> {
         if (!this.metadataService || this.isUnloading) {
             return false;
@@ -1046,6 +1083,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         return changesMade;
     }
 
+    /**
+     * Returns a summary of how many unused metadata entries exist
+     */
     public async getMetadataCleanupSummary(): Promise<MetadataCleanupSummary> {
         if (!this.metadataService || this.isUnloading) {
             return { folders: 0, tags: 0, files: 0, pinnedNotes: 0, total: 0 };
@@ -1081,7 +1121,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         void this.openHomepage('settings-change');
     }
 
-    // Notify all registered listeners about recent data updates
+    /**
+     * Notifies all registered listeners about recent data changes
+     */
     private notifyRecentDataUpdate(): void {
         if (this.isUnloading) {
             return;

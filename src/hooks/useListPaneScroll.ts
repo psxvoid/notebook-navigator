@@ -304,7 +304,7 @@ export function useListPaneScroll({
                 }
             }
 
-            // Add tag row height only when tags are visible for this layout
+            // Add space for tags if file has tags and they are visible in this mode
             const shouldShowFileTags = settings.showTags && settings.showFileTags && (!isSlimMode || settings.showFileTagsInSlimMode);
 
             if (shouldShowFileTags && item.type === ListPaneItemType.FILE && item.hasTags) {

@@ -101,10 +101,10 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
                 // Normal navigation clears multi-selection
                 selectionDispatch({ type: 'SET_SELECTED_FILE', file });
 
-                // Flag that this selection came from keyboard navigation
+                // Mark as keyboard navigation to prevent auto-scrolling on rapid navigation
                 selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
 
-                // Open the file in the editor but keep focus in file list
+                // Open the file in the editor without moving focus
                 const openFile = async () => {
                     const leaf = app.workspace.getLeaf(false);
                     if (!leaf) {
@@ -113,6 +113,7 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
                     await leaf.openFile(file, { active: false });
                 };
 
+                // Queue the file open if command queue is available
                 if (commandQueue) {
                     void commandQueue.executeOpenActiveFile(file, openFile);
                 } else {

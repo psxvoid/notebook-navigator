@@ -168,6 +168,9 @@ function renderHighlightedText(text: string, query?: string, searchMeta?: Search
     return <>{parts}</>;
 }
 
+/**
+ * Compares two string arrays for equality
+ */
 function areStringArraysEqual(a: string[], b: string[]): boolean {
     if (a === b) {
         return true;
@@ -256,6 +259,7 @@ export const FileItem = React.memo(function FileItem({
     // === State ===
     const [isHovered, setIsHovered] = React.useState(false);
 
+    // Cache initial data to avoid recomputing on every render
     const initialDataRef = useRef<ReturnType<typeof loadFileData> | null>(null);
     const initialData = initialDataRef.current ?? loadFileData();
     initialDataRef.current = initialData;
@@ -528,16 +532,19 @@ export const FileItem = React.memo(function FileItem({
     useEffect(() => {
         const { preview, tags: initialTags, imageUrl } = loadFileData();
 
+        // Only update state if values actually changed to prevent unnecessary re-renders
         setPreviewText(prev => (prev === preview ? prev : preview));
         setTags(prev => (areStringArraysEqual(prev, initialTags) ? prev : initialTags));
         setFeatureImageUrl(prev => (prev === imageUrl ? prev : imageUrl));
 
         const db = getDB();
         const unsubscribe = db.onFileContentChange(file.path, (changes: FileContentChange['changes']) => {
+            // Update preview text when it changes
             if (changes.preview !== undefined && appearanceSettings.showPreview && file.extension === 'md') {
                 const nextPreview = changes.preview || '';
                 setPreviewText(prev => (prev === nextPreview ? prev : nextPreview));
             }
+            // Update feature image when it changes
             if (changes.featureImage !== undefined && appearanceSettings.showImage) {
                 let resourceUrl: string | null = null;
                 if (changes.featureImage) {
@@ -558,10 +565,12 @@ export const FileItem = React.memo(function FileItem({
                 }
                 setFeatureImageUrl(prev => (prev === resourceUrl ? prev : resourceUrl));
             }
+            // Update tags when they change
             if (changes.tags !== undefined) {
                 const nextTags = changes.tags ?? [];
                 setTags(prev => (areStringArraysEqual(prev, nextTags) ? prev : nextTags));
             }
+            // Trigger metadata refresh when frontmatter changes
             if (changes.metadata !== undefined) {
                 setMetadataVersion(v => v + 1);
             }
@@ -706,6 +715,7 @@ export const FileItem = React.memo(function FileItem({
     // Enable context menu
     useContextMenu(fileRef, { type: ItemType.FILE, item: file });
 
+    // Wrap onFileClick to pass file and fileIndex
     const handleItemClick = useCallback(
         (event: React.MouseEvent) => {
             onFileClick(file, fileIndex, event);

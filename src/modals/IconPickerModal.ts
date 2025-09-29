@@ -390,9 +390,8 @@ export class IconPickerModal extends Modal {
     }
 
     /**
-     * Save icon to recent icons (per provider)
+     * Adds icon to the recent icons list for its provider
      */
-    // Save icon to provider's recent icons list
     private saveToRecentIcons(iconId: string) {
         // Parse icon ID to get provider
         const parsed = this.iconService.parseIconId(iconId);
@@ -403,20 +402,20 @@ export class IconPickerModal extends Modal {
         const providerIcons = [...(recentIconsMap[providerId] ?? [])];
         const index = providerIcons.indexOf(iconId);
 
-        // Remove if already exists
+        // Remove if already exists to avoid duplicates
         if (index > -1) {
             providerIcons.splice(index, 1);
         }
 
-        // Add to front
+        // Add to front of list
         providerIcons.unshift(iconId);
 
-        // Limit to RECENT_ICONS_PER_PROVIDER_LIMIT per provider
+        // Trim to maximum allowed recent icons per provider
         if (providerIcons.length > RECENT_ICONS_PER_PROVIDER_LIMIT) {
             providerIcons.length = RECENT_ICONS_PER_PROVIDER_LIMIT;
         }
 
-        // Update and persist recent icons
+        // Update and persist recent icons to local storage
         recentIconsMap[providerId] = providerIcons;
         this.settingsProvider.setRecentIcons(recentIconsMap);
     }

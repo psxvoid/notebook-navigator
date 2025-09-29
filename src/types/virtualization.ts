@@ -39,6 +39,7 @@ export interface ListPaneItem {
     // Indicates if this file is pinned
     isPinned?: boolean;
     searchMeta?: SearchResultMeta;
+    // Pre-computed flag indicating if file has tags (for height calculation optimization)
     hasTags?: boolean;
 }
 

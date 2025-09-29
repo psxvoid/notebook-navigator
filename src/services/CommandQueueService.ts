@@ -434,6 +434,7 @@ export class CommandQueueService {
         this.latestOpenActiveFileOperationId = operationId;
 
         const run = async (): Promise<CommandResult<{ skipped: boolean }>> => {
+            // Skip if a newer operation has been queued
             if (this.latestOpenActiveFileOperationId !== operationId) {
                 return { success: true, data: { skipped: true } };
             }
@@ -443,11 +444,13 @@ export class CommandQueueService {
 
             try {
                 await openFile();
+                // Clear tracking if this is still the latest
                 if (this.latestOpenActiveFileOperationId === operationId) {
                     this.latestOpenActiveFileOperationId = null;
                 }
                 return { success: true, data: { skipped: false } };
             } catch (error) {
+                // Clear tracking on error if this is still the latest
                 if (this.latestOpenActiveFileOperationId === operationId) {
                     this.latestOpenActiveFileOperationId = null;
                 }
@@ -461,6 +464,7 @@ export class CommandQueueService {
             }
         };
 
+        // Chain task to maintain execution order
         const task = this.openActiveFileQueue.then(run, run);
         this.openActiveFileQueue = task.then(
             () => undefined,

@@ -31,13 +31,18 @@ interface RecentDataProviderProps {
     children: React.ReactNode;
 }
 
+/**
+ * Provider that maintains recent notes and recent icons state from local storage
+ */
 export function RecentDataProvider({ plugin, children }: RecentDataProviderProps) {
     const [recentNotes, setRecentNotes] = useState<string[]>(() => plugin.getRecentNotes());
     const [recentIcons, setRecentIcons] = useState<Record<string, string[]>>(() => plugin.getRecentIcons());
 
     useEffect(() => {
+        // Generate unique listener ID
         const id = `recent-data-${Date.now()}`;
 
+        // Update state when recent data changes
         const handleRecentUpdate = () => {
             setRecentNotes(plugin.getRecentNotes());
             setRecentIcons(plugin.getRecentIcons());
@@ -55,6 +60,9 @@ export function RecentDataProvider({ plugin, children }: RecentDataProviderProps
     return <RecentDataContext.Provider value={value}>{children}</RecentDataContext.Provider>;
 }
 
+/**
+ * Hook to access recent notes and icons from the context
+ */
 export function useRecentData(): RecentDataState {
     const context = useContext(RecentDataContext);
     if (context === null) {

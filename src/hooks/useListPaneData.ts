@@ -370,6 +370,7 @@ export function useListPaneData({
         const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));
         const unpinnedFiles = files.filter(f => !pinnedPaths.has(f.path));
 
+        // Check if file has tags for height optimization
         const shouldDetectTags = settings.showTags && settings.showFileTags;
         const db = shouldDetectTags ? getDB() : null;
         const getHasTagsForFile = shouldDetectTags && db ? (file: TFile) => db.getCachedTags(file.path).length > 0 : () => false;
@@ -625,6 +626,7 @@ export function useListPaneData({
         // Listen for tag changes from database
         const db = getDB();
         const dbUnsubscribe = db.onContentChange(changes => {
+            // Check if any files had their tags modified
             const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
             if (!hasTagChanges) {
                 return;
@@ -635,9 +637,11 @@ export function useListPaneData({
 
             let shouldRefresh = false;
 
+            // In tag view, always refresh since files may enter or leave the view
             if (isTagView) {
                 shouldRefresh = true;
             } else if (isFolderView) {
+                // In folder view, only refresh if changed files are in current folder
                 shouldRefresh = changes.some(change => basePathSet.has(change.path));
             }
 
@@ -645,6 +649,7 @@ export function useListPaneData({
                 return;
             }
 
+            // Defer refresh if file operation is active
             if (operationActiveRef.current) {
                 pendingRefreshRef.current = true;
             } else {
