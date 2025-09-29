@@ -60,6 +60,7 @@ import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useCommandQueue, useFileSystemOps, useMetadataService, useTagOperations } from '../context/ServicesContext';
+import { useRecentData } from '../context/RecentDataContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -131,6 +132,7 @@ type RootFolderDescriptor = {
 export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
         const { app, isMobile, plugin, tagTreeService } = useServices();
+        const { recentNotes } = useRecentData();
         const { onExecuteSearchShortcut, rootContainerRef, onNavigateToFolder, onRevealTag, onRevealFile, onRevealShortcutFile } = props;
         const commandQueue = useCommandQueue();
         const fileSystemOps = useFileSystemOps();
@@ -201,8 +203,6 @@ export const NavigationPane = React.memo(
             }
             return false;
         });
-        // Retrieve recent notes from plugin
-        const recentNotes = plugin.getRecentNotes();
         const [isRootReorderMode, setRootReorderMode] = useState(false);
 
         // Determine if drag and drop should be enabled for shortcuts

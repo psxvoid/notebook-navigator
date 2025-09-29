@@ -20,14 +20,8 @@ import React, { createContext, useContext, useState, useCallback, ReactNode, use
 import NotebookNavigatorPlugin from '../main';
 import { NotebookNavigatorSettings } from '../settings';
 
-// Extended settings type that includes recent data from local storage
-type SettingsSnapshot = NotebookNavigatorSettings & {
-    recentNotes: string[];
-    recentIcons: Record<string, string[]>;
-};
-
 // Separate contexts for state and update function
-const SettingsStateContext = createContext<SettingsSnapshot | null>(null);
+const SettingsStateContext = createContext<NotebookNavigatorSettings | null>(null);
 const SettingsUpdateContext = createContext<((updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>) | null>(null);
 
 interface SettingsProviderProps {
@@ -38,7 +32,6 @@ interface SettingsProviderProps {
 export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
     // Use a version counter to force re-renders when settings change
     const [version, setVersion] = useState(0);
-    const [recentVersion, setRecentVersion] = useState(0);
 
     const updateSettings = useCallback(
         async (updater: (settings: NotebookNavigatorSettings) => void) => {
@@ -56,16 +49,9 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
 
     // Create a stable settings object that changes reference when version changes
     // This ensures components using SettingsStateContext re-render when settings change
-    const settingsValue: SettingsSnapshot = React.useMemo(() => {
-        // Track version changes to force re-computation
-        void version;
-        void recentVersion;
-        // Create snapshot with settings and recent data
-        const snapshot = { ...plugin.settings } as SettingsSnapshot;
-        snapshot.recentNotes = plugin.getRecentNotes();
-        snapshot.recentIcons = plugin.getRecentIcons();
-        return snapshot;
-    }, [plugin, version, recentVersion]);
+    // NOTE: settings are mutated in place; the version counter forces object recreation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const settingsValue = React.useMemo(() => ({ ...plugin.settings }), [version]);
 
     // Listen for settings updates from the plugin (e.g., from settings tab)
     useEffect(() => {
@@ -83,22 +69,6 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
         };
     }, [plugin]);
 
-    // Listen for recent data updates from the plugin
-    useEffect(() => {
-        const id = `settings-provider-recent-${Date.now()}`;
-
-        // Increment version counter when recent data changes
-        const handleRecentUpdate = () => {
-            setRecentVersion(v => v + 1);
-        };
-
-        plugin.registerRecentDataListener(id, handleRecentUpdate);
-
-        return () => {
-            plugin.unregisterRecentDataListener(id);
-        };
-    }, [plugin]);
-
     return (
         <SettingsStateContext.Provider value={settingsValue}>
             <SettingsUpdateContext.Provider value={updateSettings}>{children}</SettingsUpdateContext.Provider>
@@ -107,7 +77,7 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
 }
 
 // Hook to get only settings state (use this when you only need to read settings)
-export function useSettingsState(): SettingsSnapshot {
+export function useSettingsState(): NotebookNavigatorSettings {
     const context = useContext(SettingsStateContext);
     if (context === null) {
         throw new Error('useSettingsState must be used within a SettingsProvider');

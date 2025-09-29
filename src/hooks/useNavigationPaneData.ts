@@ -32,6 +32,7 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { TFile, TFolder, debounce } from 'obsidian';
 import { useServices, useMetadataService } from '../context/ServicesContext';
+import { useRecentData } from '../context/RecentDataContext';
 import { useExpansionState } from '../context/ExpansionContext';
 import { useFileCache } from '../context/StorageContext';
 import { useShortcuts } from '../context/ShortcutsContext';
@@ -116,7 +117,8 @@ export function useNavigationPaneData({
     shortcutsExpanded,
     recentNotesExpanded
 }: UseNavigationPaneDataParams): UseNavigationPaneDataResult {
-    const { app, plugin } = useServices();
+    const { app } = useServices();
+    const { recentNotes } = useRecentData();
     const metadataService = useMetadataService();
     const expansionState = useExpansionState();
     const { fileData } = useFileCache();
@@ -443,9 +445,6 @@ export function useNavigationPaneData({
     ]);
 
     // Build list of recent notes items with proper hierarchy
-    // Get recent notes from plugin storage
-    const recentNotes = plugin.getRecentNotes();
-
     const recentNotesItems = useMemo(() => {
         if (!settings.showRecentNotes) {
             return [] as CombinedNavigationItem[];

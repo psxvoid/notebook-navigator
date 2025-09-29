@@ -66,7 +66,6 @@ export class RecentStorageService {
         }
 
         this.notesCache = normalized;
-        this.notifyChange();
         this.scheduleRecentNotesPersist();
     }
 
@@ -81,7 +80,6 @@ export class RecentStorageService {
         }
 
         this.iconsCache = normalized;
-        this.notifyChange();
         this.scheduleRecentIconsPersist();
     }
 
@@ -92,7 +90,6 @@ export class RecentStorageService {
         }
 
         this.notesCache = normalized;
-        this.notifyChange();
         this.scheduleRecentNotesPersist();
     }
 
@@ -199,6 +196,7 @@ export class RecentStorageService {
         localStorage.set(this.keys.recentNotesKey, snapshot);
         console.log('Notebook Navigator: saved recent notes to local storage');
         this.lastPersistedNotes = snapshot;
+        this.notifyChange();
     }
 
     // Save recent icons to local storage immediately
@@ -213,6 +211,7 @@ export class RecentStorageService {
         localStorage.set(this.keys.recentIconsKey, snapshot);
         console.log('Notebook Navigator: saved recent icons to local storage');
         this.lastPersistedIcons = snapshot;
+        this.notifyChange();
     }
 
     // Schedule callback to run on next tick
