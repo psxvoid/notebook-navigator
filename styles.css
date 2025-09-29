@@ -114,8 +114,6 @@ body {
 
     /* -- List Pane (Files) -- */
     --nn-theme-list-bg: var(--background-primary);
-    --nn-theme-list-header-icon-color: var(--text-muted);
-    --nn-theme-list-header-breadcrumb-color: var(--text-muted);
     --nn-theme-list-search-active-bg: var(--text-highlight-bg);
     --nn-theme-list-search-border-color: var(--background-modifier-border);
     --nn-theme-list-group-header-color: var(--text-muted);
@@ -142,7 +140,6 @@ body {
     --nn-theme-file-selected-inactive-bg: var(--background-modifier-hover);
 
     /* -- File Item Text Styling -- */
-    --nn-theme-list-header-breadcrumb-font-weight: 600;
     --nn-theme-list-group-header-font-weight: 600;
     --nn-theme-file-name-font-weight: 600;
     --nn-theme-file-slim-name-font-weight: 400;
@@ -171,7 +168,6 @@ body {
     --nn-theme-mobile-list-header-link-color: var(--link-color);
     --nn-theme-mobile-list-header-breadcrumb-color: var(--text-normal);
     --nn-theme-mobile-list-header-breadcrumb-font-weight: 600;
-    --nn-theme-mobile-list-header-icon-color: var(--text-muted);
     --nn-theme-mobile-toolbar-bg: var(--background-secondary);
     --nn-theme-mobile-toolbar-border-color: var(--background-modifier-border);
     --nn-theme-mobile-toolbar-button-icon-color: var(--link-color);
@@ -351,7 +347,7 @@ body {
     top: 8px;
     width: 16px;
     height: 16px;
-    color: var(--nn-theme-list-header-icon-color);
+    color: var(--text-muted);
     pointer-events: none;
 }
 
@@ -386,7 +382,7 @@ body {
 }
 
 .nn-search-input::placeholder {
-    color: var(--nn-theme-list-header-breadcrumb-color) !important;
+    color: var(--text-muted) !important;
 }
 
 /* Clear button */
@@ -442,7 +438,7 @@ body {
     position: absolute;
     top: 8px;
     cursor: pointer;
-    color: var(--nn-theme-list-header-icon-color);
+    color: var(--text-muted);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -480,57 +476,6 @@ body {
 .notebook-navigator-mobile .nn-search-clear-button,
 .notebook-navigator-mobile .nn-search-star-button {
     top: 10px;
-}
-
-/* Desktop pane header title */
-.nn-pane-header-title {
-    font-size: var(--nn-desktop-header-font-size);
-    font-weight: var(--nn-theme-list-header-breadcrumb-font-weight);
-    color: var(--nn-theme-list-header-breadcrumb-color);
-
-    /* Match date header padding */
-    padding-left: 12px;
-
-    flex: 1; /* Take remaining space */
-    min-width: 0; /* Allow shrinking below content size */
-    display: flex;
-    align-items: center;
-}
-
-/* Remove left padding when back button is present (single pane mode) */
-.nn-single-pane .nn-list-pane .nn-pane-header-title {
-    padding-left: 2px; /* Match gap between header action buttons */
-}
-
-/* Icon in pane header */
-.nn-pane-header-icon {
-    width: var(--nn-nav-icon-size); /* Use same 16px as nav items */
-    height: var(--nn-nav-icon-size);
-    margin-inline-end: 8px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    color: var(--nn-theme-list-header-icon-color);
-    overflow: visible; /* Allow emoji to render without clipping */
-}
-
-/* Emoji icon in pane header */
-.nn-pane-header-icon.nn-emoji-icon {
-    font-size: var(--nn-nav-icon-size);
-    line-height: var(--nn-nav-icon-size);
-    text-align: center;
-    justify-content: center;
-}
-
-/* Text in pane header - matches folder name styling */
-.nn-pane-header-text {
-    line-height: var(--nn-nav-line-height);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--nn-theme-list-header-breadcrumb-color);
-    flex: 1; /* Take remaining space and allow text overflow to work */
-    min-width: 0; /* Allow flex item to shrink below content size */
 }
 
 /* Clickable path segments in header */
@@ -820,25 +765,19 @@ body {
     align-items: center;
 }
 
-.nn-navitem-icon svg,
-.nn-pane-header-icon svg,
-.nn-mobile-header-icon svg {
+.nn-navitem-icon svg {
     width: var(--nn-nav-icon-size);
     height: var(--nn-nav-icon-size);
 }
 
 .nn-navitem-icon.nn-iconfont,
-.nn-tag-icon.nn-iconfont,
-.nn-pane-header-icon.nn-iconfont,
-.nn-mobile-header-icon.nn-iconfont {
+.nn-tag-icon.nn-iconfont {
     font-size: var(--nn-nav-icon-size);
     line-height: var(--nn-nav-icon-size);
 }
 
 .nn-navitem-icon[data-has-color='true'] svg,
-.nn-tag-icon[data-has-color='true'] svg,
-.nn-pane-header-icon[data-has-color='true'] svg,
-.nn-mobile-header-icon[data-has-color='true'] svg {
+.nn-tag-icon[data-has-color='true'] svg {
     stroke-width: 2.4;
 }
 
@@ -1033,7 +972,7 @@ body {
 
 .nn-root-reorder-title {
     font-size: var(--font-small);
-    font-weight: var(--nn-theme-list-header-breadcrumb-font-weight);
+    font-weight: 600;
 }
 
 .is-mobile .nn-root-reorder-title {
@@ -1147,8 +1086,8 @@ body {
     gap: 0;
     height: var(--nn-list-title-overlay-content-height);
     font-size: var(--nn-list-title-overlay-font-size);
-    font-weight: var(--nn-theme-list-header-breadcrumb-font-weight);
-    color: var(--nn-theme-list-header-breadcrumb-color);
+    font-weight: 600;
+    color: var(--text-muted);
     width: 100%;
 }
 
@@ -2671,23 +2610,6 @@ body.nn-resizing {
     height: 100%;
 }
 
-/* Mobile header icon - positioned at right */
-.notebook-navigator-mobile .nn-mobile-header-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    color: var(--nn-theme-mobile-list-header-icon-color);
-}
-
-/* Mobile header emoji icon - match mobile navigation icon size */
-.notebook-navigator-mobile .nn-mobile-header-icon.nn-emoji-icon {
-    font-size: var(--nn-nav-icon-size);
-    line-height: var(--nn-nav-icon-size);
-}
-
 /* Scrollable breadcrumb container */
 .notebook-navigator-mobile .nn-breadcrumb-scroll {
     flex: 1;
@@ -2769,7 +2691,7 @@ body.nn-resizing {
 
 /* Breadcrumb current segment - desktop uses list header color, mobile uses navitem color */
 .nn-path-current {
-    color: var(--nn-theme-list-header-breadcrumb-color);
+    color: var(--text-muted);
 }
 
 /* Mobile breadcrumb current segment - use mobile-specific theme color */
@@ -3951,25 +3873,6 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-    -
-        id: nn-theme-list-header-icon-color
-        title: List header icon color
-        description: Folder/tag icon color shown to the left of the breadcrumb.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-    -
-        id: nn-theme-list-header-breadcrumb-color
-        title: List header breadcrumb color
-        description: Text color for the breadcrumb path in the list header.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-    -
         id: nn-theme-list-search-active-bg
         title: Search field active background
         description: Background color for the search field when a search query is active (desktop only).
@@ -4186,17 +4089,6 @@ settings:
         type: heading
         level: 2
         collapsed: false
-    -
-    -
-        id: nn-theme-list-header-breadcrumb-font-weight
-        title: List header breadcrumb font weight
-        description: Font weight for the breadcrumb in list header.
-        type: variable-number-slider
-        default: 600
-        min: 100
-        max: 900
-        step: 100
-    -
     -
         id: nn-theme-list-group-header-font-weight
         title: Group header font weight
@@ -4435,16 +4327,6 @@ settings:
         min: 100
         max: 900
         step: 100
-    -
-    -
-        id: nn-theme-mobile-list-header-icon-color
-        title: Mobile header icon color
-        description: Color for the folder/tag icon in mobile header.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
     -
         id: nn-theme-mobile-toolbar-bg
         title: Mobile toolbar background
