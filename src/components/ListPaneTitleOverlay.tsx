@@ -13,7 +13,6 @@ export function ListPaneTitleOverlay({ isVisible }: ListPaneTitleOverlayProps) {
 
     return (
         <div className="nn-list-title-overlay">
-            <div className="nn-list-title-overlay-gradient" />
             <div className="nn-list-title-overlay-content">
                 <span className="nn-list-title-overlay-text">{desktopTitle}</span>
             </div>

@@ -116,6 +116,8 @@ body {
     --nn-theme-list-bg: var(--background-primary);
     --nn-theme-list-search-active-bg: var(--text-highlight-bg);
     --nn-theme-list-search-border-color: var(--background-modifier-border);
+    --nn-theme-list-heading-color: var(--text-muted);
+    --nn-theme-list-heading-font-weight: 600;
     --nn-theme-list-group-header-color: var(--text-muted);
     --nn-theme-list-separator-color: var(--background-modifier-border);
 
@@ -1056,6 +1058,7 @@ body {
     pointer-events: none;
     margin-inline: 0;
     margin-bottom: calc(-1 * (var(--nn-list-title-overlay-content-height) + (var(--nn-list-title-overlay-offset) * 2)));
+    background-color: var(--nn-theme-list-bg);
 }
 
 .nn-list-title-overlay::before {
@@ -1065,19 +1068,8 @@ body {
     inset-inline-end: 0;
     top: 0;
     height: calc(var(--nn-list-title-overlay-offset) + var(--nn-list-title-overlay-content-height));
-    background: var(--nn-theme-list-bg);
+    background-color: var(--nn-theme-list-bg);
     z-index: -2;
-}
-
-.nn-list-title-overlay-gradient {
-    position: absolute;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
-    top: calc(var(--nn-list-title-overlay-offset) + var(--nn-list-title-overlay-content-height));
-    height: var(--nn-list-title-overlay-offset);
-    background: linear-gradient(180deg, var(--nn-theme-list-bg) 0%, transparent 100%);
-    pointer-events: none;
-    z-index: -1;
 }
 
 .nn-list-title-overlay-content {
@@ -1086,8 +1078,8 @@ body {
     gap: 0;
     height: var(--nn-list-title-overlay-content-height);
     font-size: var(--nn-list-title-overlay-font-size);
-    font-weight: 600;
-    color: var(--text-muted);
+    font-weight: var(--nn-theme-list-heading-font-weight);
+    color: var(--nn-theme-list-heading-color);
     width: 100%;
 }
 
@@ -3889,6 +3881,25 @@ settings:
         format: hex
         default-light: '#'
         default-dark: '#'
+    -
+    -
+        id: nn-theme-list-heading-color
+        title: List heading text color
+        description: Text color for the list pane overlay heading.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-list-heading-font-weight
+        title: List heading font weight
+        description: Font weight for the list pane overlay heading.
+        type: variable-number-slider
+        default: 600
+        min: 100
+        max: 900
+        step: 100
     -
     -
         id: nn-theme-list-group-header-color

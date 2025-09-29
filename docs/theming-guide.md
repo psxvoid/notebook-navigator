@@ -74,15 +74,14 @@ custom color styles, which override the default style.
 
 ### List pane (files)
 
-| Variable                                  | Default                             | Description                                                                        |
-| ----------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------- |
-| `--nn-theme-list-bg`                      | `var(--background-primary)`         | Background color of the list pane                                                  |
-| `--nn-theme-list-header-icon-color`       | `var(--text-muted)`                 | Folder/tag icon color shown to the left of the breadcrumb (desktop only)           |
-| `--nn-theme-list-header-breadcrumb-color` | `var(--text-muted)`                 | Text color for the breadcrumb path in the list header (desktop only)               |
-| `--nn-theme-list-search-active-bg`        | `var(--text-highlight-bg)`          | Background color for the search field when a search query is active (desktop only) |
-| `--nn-theme-list-search-border-color`     | `var(--background-modifier-border)` | Border and focus ring color for the search field (desktop only)                    |
-| `--nn-theme-list-group-header-color`      | `var(--text-muted)`                 | Text color for date groups and pinned section                                      |
-| `--nn-theme-list-separator-color`         | `var(--background-modifier-border)` | Divider line color between files                                                   |
+| Variable                              | Default                             | Description                                                                        |
+| ------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------- |
+| `--nn-theme-list-bg`                  | `var(--background-primary)`         | Background color of the list pane                                                  |
+| `--nn-theme-list-search-active-bg`    | `var(--text-highlight-bg)`          | Background color for the search field when a search query is active (desktop only) |
+| `--nn-theme-list-search-border-color` | `var(--background-modifier-border)` | Border and focus ring color for the search field (desktop only)                    |
+| `--nn-theme-list-heading-color`       | `var(--text-muted)`                 | Text color for the list pane overlay heading                                       |
+| `--nn-theme-list-group-header-color`  | `var(--text-muted)`                 | Text color for date groups and pinned section                                      |
+| `--nn-theme-list-separator-color`     | `var(--background-modifier-border)` | Divider line color between files                                                   |
 
 #### File items
 
@@ -109,16 +108,16 @@ custom color styles, which override the default style.
 
 #### Text styling
 
-| Variable                                        | Default | Description                                    |
-| ----------------------------------------------- | ------- | ---------------------------------------------- |
-| `--nn-theme-list-header-breadcrumb-font-weight` | `600`   | Font weight for the breadcrumb in list header  |
-| `--nn-theme-list-group-header-font-weight`      | `600`   | Font weight for date groups and pinned section |
-| `--nn-theme-file-name-font-weight`              | `600`   | Font weight for file names                     |
-| `--nn-theme-file-slim-name-font-weight`         | `400`   | Font weight for file names in slim mode        |
-| `--nn-theme-file-preview-font-weight`           | `400`   | Font weight for file preview text              |
-| `--nn-theme-file-date-font-weight`              | `400`   | Font weight for file dates                     |
-| `--nn-theme-file-parent-font-weight`            | `400`   | Font weight for parent folder path             |
-| `--nn-theme-file-tag-font-weight`               | `400`   | Font weight for tag pills                      |
+| Variable                                   | Default | Description                                    |
+| ------------------------------------------ | ------- | ---------------------------------------------- |
+| `--nn-theme-list-heading-font-weight`      | `600`   | Font weight for the list pane overlay heading  |
+| `--nn-theme-list-group-header-font-weight` | `600`   | Font weight for date groups and pinned section |
+| `--nn-theme-file-name-font-weight`         | `600`   | Font weight for file names                     |
+| `--nn-theme-file-slim-name-font-weight`    | `400`   | Font weight for file names in slim mode        |
+| `--nn-theme-file-preview-font-weight`      | `400`   | Font weight for file preview text              |
+| `--nn-theme-file-date-font-weight`         | `400`   | Font weight for file dates                     |
+| `--nn-theme-file-parent-font-weight`       | `400`   | Font weight for parent folder path             |
+| `--nn-theme-file-tag-font-weight`          | `400`   | Font weight for tag pills                      |
 
 #### Quick actions (desktop only)
 
@@ -149,7 +148,6 @@ custom color styles, which override the default style.
 | `--nn-theme-mobile-list-header-link-color`             | `var(--link-color)`                 | Color for back button and clickable breadcrumb segments on mobile            |
 | `--nn-theme-mobile-list-header-breadcrumb-color`       | `var(--text-normal)`                | Color for current folder and separators in breadcrumb on mobile              |
 | `--nn-theme-mobile-list-header-breadcrumb-font-weight` | `600`                               | Font weight for mobile breadcrumb                                            |
-| `--nn-theme-mobile-list-header-icon-color`             | `var(--text-muted)`                 | Color for the folder/tag icon in mobile header                               |
 | `--nn-theme-mobile-toolbar-bg`                         | `var(--background-secondary)`       | Background color of the mobile toolbar                                       |
 | `--nn-theme-mobile-toolbar-border-color`               | `var(--background-modifier-border)` | Border color of the mobile toolbar                                           |
 | `--nn-theme-mobile-toolbar-button-icon-color`          | `var(--link-color)`                 | Icon color for toolbar buttons                                               |
@@ -211,10 +209,9 @@ body {
 
   /* Pane background */
   --nn-theme-list-bg: #2b2b2b; /* Dark editor background - file list background */
-  --nn-theme-list-header-icon-color: #afb1b3; /* Light gray - folder/tag icon in breadcrumb */
-  --nn-theme-list-header-breadcrumb-color: #7f8b91; /* Muted gray - breadcrumb path text */
   --nn-theme-list-search-active-bg: #515336; /* Yellow tint - active search field background */
   --nn-theme-list-search-border-color: #3c3c3c; /* Subtle gray - search field border */
+  --nn-theme-list-heading-color: #d0d2d6; /* Light gray - list overlay heading */
   --nn-theme-list-separator-color: #3c3c3c; /* Very subtle - divider lines between files */
   --nn-theme-list-group-header-color: #7f8b91; /* Muted gray - date group headers */
 
@@ -239,7 +236,7 @@ body {
   --nn-theme-file-selected-tag-bg: #5a5f66; /* Medium gray - selected tag background */
 
   /* File text styling */
-  --nn-theme-list-header-breadcrumb-font-weight: 600; /* Bold weight for breadcrumb */
+  --nn-theme-list-heading-font-weight: 600; /* Bold for list overlay heading */
   --nn-theme-list-group-header-font-weight: 600; /* Bold for date groups */
   --nn-theme-file-name-font-weight: 600; /* Bold for file names */
   --nn-theme-file-slim-name-font-weight: 400; /* Regular for slim file names */
@@ -275,7 +272,6 @@ body {
   --nn-theme-mobile-list-header-link-color: #589df6; /* Bright blue - mobile back button and breadcrumb links */
   --nn-theme-mobile-list-header-breadcrumb-color: #a9b7c6; /* Soft blue-gray - current folder and separators */
   --nn-theme-mobile-list-header-breadcrumb-font-weight: 600; /* Bold weight - mobile breadcrumb */
-  --nn-theme-mobile-list-header-icon-color: #7f8b91; /* Muted gray - folder/tag icon in header */
   --nn-theme-mobile-toolbar-bg: #3c3f41; /* Dark gray sidebar - mobile toolbar background */
   --nn-theme-mobile-toolbar-border-color: #555555; /* Subtle gray - mobile toolbar border */
   --nn-theme-mobile-toolbar-button-icon-color: #a9b7c6; /* Soft blue-gray - mobile toolbar icons */
