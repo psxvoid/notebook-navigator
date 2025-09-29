@@ -72,10 +72,14 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.5.0',
-        date: '2025-09-29',
+        date: '2025-09-30',
+        info: [
+            '60 000 downloads in 3 weeks! Thank you all for your feedback and kind words, I have really put my heart into this plugin and reading about how you use it makes it all worthwile! Notebook Navigator 1.5 is a significant upgrade with tons of new productivity features. Most features are based on your feedback, so if you have any ideas please feel free to post them on our GitHub!',
+            'Have a great day and enjoy Notebook Navigator!'
+        ].join('\n\n'),
         new: [
-            '==Shortcuts==. Amazing new feature where you can add **folders**, **tags**, **notes** and **saved searches** to a new area in the navigation pane! You can disable this in settings, and a new toolbar button scrolls to the top of navigation pane when enabled.',
-            '==Recent notes==. New section showing recently opened files in the navigation pane. You can disable this in settings.',
+            '==Shortcuts==. Amazing new feature where you can add **folders**, **tags**, **notes** and **saved searches** to a new area in the navigation pane! You can disable this in settings.',
+            '==Recent notes==. A new section showing recently opened files in the navigation pane. You can disable this in settings.',
             '==Manual folder sort order==. You can now manually sort root folders in the navigation pane using the new toolbar button. Sort order is synced between devices, and you can easily go back to alphabetical order.',
             '==Keyboard shortcuts==. You can now customize all keyboard shortcuts in settings using Mod, Ctrl, Shift, and Alt modifiers. VIM user? We got you covered!',
             '==File icon customization==. You can now set custom icons and icon colors for files through the context menu.',
