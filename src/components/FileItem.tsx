@@ -71,7 +71,8 @@ interface FileItemProps {
     isSelected: boolean;
     hasSelectedAbove?: boolean;
     hasSelectedBelow?: boolean;
-    onClick: (e: React.MouseEvent) => void;
+    onFileClick: (file: TFile, fileIndex: number | undefined, event: React.MouseEvent) => void;
+    fileIndex?: number;
     dateGroup?: string | null;
     sortOption?: SortOption;
     parentFolder?: string | null;
@@ -167,6 +168,21 @@ function renderHighlightedText(text: string, query?: string, searchMeta?: Search
     return <>{parts}</>;
 }
 
+function areStringArraysEqual(a: string[], b: string[]): boolean {
+    if (a === b) {
+        return true;
+    }
+    if (a.length !== b.length) {
+        return false;
+    }
+    for (let i = 0; i < a.length; i += 1) {
+        if (a[i] !== b[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /**
  * Memoized FileItem component.
  * Renders an individual file item in the file list with preview text and metadata.
@@ -184,7 +200,8 @@ export const FileItem = React.memo(function FileItem({
     isSelected,
     hasSelectedAbove,
     hasSelectedBelow,
-    onClick,
+    onFileClick,
+    fileIndex,
     dateGroup,
     sortOption,
     parentFolder,
@@ -203,12 +220,12 @@ export const FileItem = React.memo(function FileItem({
 
     // === Helper functions ===
     // Load all file metadata from cache
-    const loadFileData = () => {
+    const loadFileData = useCallback(() => {
         const db = getDB();
 
         const preview = appearanceSettings.showPreview && file.extension === 'md' ? db.getCachedPreviewText(file.path) : '';
 
-        const tagList = db.getCachedTags(file.path);
+        const tagList = db.getCachedTags(file.path) ?? [];
 
         let imageUrl: string | null = null;
         if (appearanceSettings.showImage) {
@@ -233,16 +250,18 @@ export const FileItem = React.memo(function FileItem({
             }
         }
 
-        return { preview, tagList, imageUrl };
-    };
+        return { preview, tags: tagList, imageUrl };
+    }, [appearanceSettings.showImage, appearanceSettings.showPreview, app, file, getDB]);
 
     // === State ===
     const [isHovered, setIsHovered] = React.useState(false);
 
-    // Initialize state with cache data
-    const initialData = loadFileData();
+    const initialDataRef = useRef<ReturnType<typeof loadFileData> | null>(null);
+    const initialData = initialDataRef.current ?? loadFileData();
+    initialDataRef.current = initialData;
+
     const [previewText, setPreviewText] = useState<string>(initialData.preview);
-    const [tags, setTags] = useState<string[]>(initialData.tagList);
+    const [tags, setTags] = useState<string[]>(initialData.tags);
     const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(initialData.imageUrl);
     const [metadataVersion, setMetadataVersion] = useState(0);
 
@@ -507,38 +526,41 @@ export const FileItem = React.memo(function FileItem({
 
     // Handle file changes and subscribe to content updates
     useEffect(() => {
-        // Load current file data
-        const { preview, tagList, imageUrl } = loadFileData();
-        setPreviewText(preview);
-        setTags(tagList);
-        setFeatureImageUrl(imageUrl);
+        const { preview, tags: initialTags, imageUrl } = loadFileData();
 
-        // Subscribe to content changes
+        setPreviewText(prev => (prev === preview ? prev : preview));
+        setTags(prev => (areStringArraysEqual(prev, initialTags) ? prev : initialTags));
+        setFeatureImageUrl(prev => (prev === imageUrl ? prev : imageUrl));
+
         const db = getDB();
         const unsubscribe = db.onFileContentChange(file.path, (changes: FileContentChange['changes']) => {
             if (changes.preview !== undefined && appearanceSettings.showPreview && file.extension === 'md') {
-                setPreviewText(changes.preview || '');
+                const nextPreview = changes.preview || '';
+                setPreviewText(prev => (prev === nextPreview ? prev : nextPreview));
             }
-            if (changes.featureImage !== undefined && appearanceSettings.showImage && !isImageFile(file)) {
-                // Convert path to URL
+            if (changes.featureImage !== undefined && appearanceSettings.showImage) {
+                let resourceUrl: string | null = null;
                 if (changes.featureImage) {
                     const imageFile = app.vault.getFileByPath(changes.featureImage);
                     if (imageFile) {
                         try {
-                            const resourceUrl = app.vault.getResourcePath(imageFile);
-                            setFeatureImageUrl(resourceUrl);
+                            resourceUrl = app.vault.getResourcePath(imageFile);
                         } catch {
-                            setFeatureImageUrl(null);
+                            resourceUrl = null;
                         }
-                    } else {
-                        setFeatureImageUrl(null);
                     }
-                } else {
-                    setFeatureImageUrl(null);
+                } else if (isImageFile(file)) {
+                    try {
+                        resourceUrl = app.vault.getResourcePath(file);
+                    } catch {
+                        resourceUrl = null;
+                    }
                 }
+                setFeatureImageUrl(prev => (prev === resourceUrl ? prev : resourceUrl));
             }
             if (changes.tags !== undefined) {
-                setTags(changes.tags || []);
+                const nextTags = changes.tags ?? [];
+                setTags(prev => (areStringArraysEqual(prev, nextTags) ? prev : nextTags));
             }
             if (changes.metadata !== undefined) {
                 setMetadataVersion(v => v + 1);
@@ -548,10 +570,8 @@ export const FileItem = React.memo(function FileItem({
         return () => {
             unsubscribe();
         };
-        // NOTE TO REVIEWER: Including **file.path** to resubscribe on rename
-        // Subscription key changes with path, needs new subscription
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [file.path, appearanceSettings.showPreview, appearanceSettings.showImage, getDB, app]);
+        // NOTE: include file.path because Obsidian reuses TFile instance on rename
+    }, [file, file.path, appearanceSettings.showPreview, appearanceSettings.showImage, getDB, app, loadFileData]);
 
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {
@@ -686,6 +706,13 @@ export const FileItem = React.memo(function FileItem({
     // Enable context menu
     useContextMenu(fileRef, { type: ItemType.FILE, item: file });
 
+    const handleItemClick = useCallback(
+        (event: React.MouseEvent) => {
+            onFileClick(file, fileIndex, event);
+        },
+        [file, fileIndex, onFileClick]
+    );
+
     return (
         <div
             ref={fileRef}
@@ -696,7 +723,7 @@ export const FileItem = React.memo(function FileItem({
             data-draggable={!isMobile ? 'true' : undefined}
             data-drag-icon={dragIconId}
             data-drag-icon-color={fileColor || undefined}
-            onClick={onClick}
+            onClick={handleItemClick}
             onMouseDown={handleMouseDown}
             draggable={!isMobile}
             role="listitem"

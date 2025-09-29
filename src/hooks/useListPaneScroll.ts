@@ -307,12 +307,8 @@ export function useListPaneScroll({
             // Add tag row height only when tags are visible for this layout
             const shouldShowFileTags = settings.showTags && settings.showFileTags && (!isSlimMode || settings.showFileTagsInSlimMode);
 
-            if (shouldShowFileTags && item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
-                const db = getDB();
-                const tags = db.getCachedTags(item.data.path);
-                if (tags.length > 0) {
-                    textContentHeight += heights.tagRowHeight;
-                }
+            if (shouldShowFileTags && item.type === ListPaneItemType.FILE && item.hasTags) {
+                textContentHeight += heights.tagRowHeight;
             }
 
             // Apply min-height constraint AFTER including all content (but not in slim mode)

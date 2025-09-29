@@ -475,8 +475,8 @@ export const ListPane = React.memo(
 
         // Create a stable onClick handler for FileItem that uses pre-calculated fileIndex
         const handleFileItemClick = useCallback(
-            (file: TFile, fileIndex: number | undefined) => (e: React.MouseEvent) => {
-                handleFileClick(file, e, fileIndex, orderedFiles);
+            (file: TFile, fileIndex: number | undefined, event: React.MouseEvent) => {
+                handleFileClick(file, event, fileIndex, orderedFiles);
             },
             [handleFileClick, orderedFiles]
         );
@@ -833,7 +833,8 @@ export const ListPane = React.memo(
                                                         isSelected={isSelected}
                                                         hasSelectedAbove={hasSelectedAbove}
                                                         hasSelectedBelow={hasSelectedBelow}
-                                                        onClick={handleFileItemClick(item.data, item.fileIndex)}
+                                                        onFileClick={handleFileItemClick}
+                                                        fileIndex={item.fileIndex}
                                                         selectionType={selectionType}
                                                         dateGroup={dateGroup}
                                                         sortOption={effectiveSortOption}

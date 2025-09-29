@@ -39,6 +39,7 @@ export interface ListPaneItem {
     // Indicates if this file is pinned
     isPinned?: boolean;
     searchMeta?: SearchResultMeta;
+    hasTags?: boolean;
 }
 
 export interface FolderTreeItem {

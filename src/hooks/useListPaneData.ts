@@ -370,6 +370,10 @@ export function useListPaneData({
         const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));
         const unpinnedFiles = files.filter(f => !pinnedPaths.has(f.path));
 
+        const shouldDetectTags = settings.showTags && settings.showFileTags;
+        const db = shouldDetectTags ? getDB() : null;
+        const getHasTagsForFile = shouldDetectTags && db ? (file: TFile) => db.getCachedTags(file.path).length > 0 : () => false;
+
         // Determine which sort option to use
         // Files are already sorted in fileFinder; preserve order here
 
@@ -391,7 +395,8 @@ export function useListPaneData({
                     key: file.path,
                     fileIndex: fileIndexCounter++,
                     isPinned: true,
-                    searchMeta: searchMetaMap.get(file.path)
+                    searchMeta: searchMetaMap.get(file.path),
+                    hasTags: getHasTagsForFile(file)
                 });
             });
         }
@@ -417,7 +422,8 @@ export function useListPaneData({
                     parentFolder: selectedFolder?.path,
                     key: file.path,
                     fileIndex: fileIndexCounter++,
-                    searchMeta: searchMetaMap.get(file.path)
+                    searchMeta: searchMetaMap.get(file.path),
+                    hasTags: getHasTagsForFile(file)
                 });
             });
         } else {
@@ -444,7 +450,8 @@ export function useListPaneData({
                     parentFolder: selectedFolder?.path,
                     key: file.path,
                     fileIndex: fileIndexCounter++,
-                    searchMeta: searchMetaMap.get(file.path)
+                    searchMeta: searchMetaMap.get(file.path),
+                    hasTags: getHasTagsForFile(file)
                 });
             });
         }
@@ -457,7 +464,7 @@ export function useListPaneData({
         });
 
         return items;
-    }, [files, settings, selectionType, selectedFolder, getFileCreatedTime, getFileModifiedTime, searchMetaMap, sortOption]);
+    }, [files, settings, selectionType, selectedFolder, getFileCreatedTime, getFileModifiedTime, searchMetaMap, sortOption, getDB]);
 
     /**
      * Create a map from file paths to their index in listItems.
@@ -618,16 +625,30 @@ export function useListPaneData({
         // Listen for tag changes from database
         const db = getDB();
         const dbUnsubscribe = db.onContentChange(changes => {
-            // Check if we're in tag view and tags changed
-            if (selectionType === ItemType.TAG && selectedTag) {
-                const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
-                if (hasTagChanges) {
-                    if (operationActiveRef.current) {
-                        pendingRefreshRef.current = true;
-                    } else {
-                        scheduleRefresh();
-                    }
-                }
+            const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
+            if (!hasTagChanges) {
+                return;
+            }
+
+            const isTagView = selectionType === ItemType.TAG && selectedTag;
+            const isFolderView = selectionType === ItemType.FOLDER && selectedFolder;
+
+            let shouldRefresh = false;
+
+            if (isTagView) {
+                shouldRefresh = true;
+            } else if (isFolderView) {
+                shouldRefresh = changes.some(change => basePathSet.has(change.path));
+            }
+
+            if (!shouldRefresh) {
+                return;
+            }
+
+            if (operationActiveRef.current) {
+                pendingRefreshRef.current = true;
+            } else {
+                scheduleRefresh();
             }
         });
 
