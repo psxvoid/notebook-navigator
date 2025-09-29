@@ -19,6 +19,7 @@
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
 import { ItemType, NavigatorContext } from '../../types';
+import { ShortcutType, type ShortcutEntry } from '../../types/shortcuts';
 import type { NotebookNavigatorSettings } from '../../settings';
 
 /**
@@ -128,6 +129,33 @@ export class FileMetadataService extends BaseMetadataService {
 
             this.updateNestedPaths(settings.fileIcons, oldPath, newPath);
             this.updateNestedPaths(settings.fileColors, oldPath, newPath);
+
+            const shortcuts = settings.shortcuts;
+            if (Array.isArray(shortcuts) && shortcuts.length > 0) {
+                let updatedShortcuts: ShortcutEntry[] | null = null;
+
+                shortcuts.forEach((shortcut, index) => {
+                    if (shortcut.type !== ShortcutType.NOTE) {
+                        return;
+                    }
+                    if (shortcut.path !== oldPath) {
+                        return;
+                    }
+
+                    if (!updatedShortcuts) {
+                        updatedShortcuts = [...shortcuts];
+                    }
+
+                    updatedShortcuts[index] = {
+                        ...shortcut,
+                        path: newPath
+                    };
+                });
+
+                if (updatedShortcuts) {
+                    settings.shortcuts = updatedShortcuts;
+                }
+            }
         });
     }
 
