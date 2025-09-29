@@ -598,7 +598,7 @@ export const NotebookNavigatorComponent = React.memo(
                     onExecuteSearchShortcut={handleSearchShortcutExecution}
                     onNavigateToFolder={navigateToFolder}
                     onRevealTag={revealTag}
-                    onRevealFile={revealFileInActualFolder}
+                    onRevealFile={revealFileInNearestFolder}
                     onRevealShortcutFile={handleShortcutNoteReveal}
                 />
                 <ListPane

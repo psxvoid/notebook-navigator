@@ -134,34 +134,42 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
     );
 
     /**
-     * Reveals a file in its actual parent folder.
-     * Always navigates to the file's parent folder and expands ancestors.
-     * Used for: App startup, "Reveal file" command
+     * Handles manual file reveals triggered from commands or context menus.
+     * Selects the file, switches the view to its parent folder (always the real parent when descendant notes are shown),
+     * expands any collapsed ancestor folders, focuses the list pane, and requests navigation pane scroll to the target folder.
      *
-     * @param file - The file to reveal in its actual folder
+     * @param file - File to surface in the navigator
      */
     const revealFileInActualFolder = useCallback(
         (file: TFile) => {
             if (!file?.parent) return;
 
-            const { target, expandAncestors } = getRevealTargetFolder(file.parent);
-            const resolvedFolder = target ?? file.parent;
+            const parentFolder = file.parent;
+            // Determine which folder the navigator should display after reveal
+            const { target, expandAncestors } = getRevealTargetFolder(parentFolder);
 
-            if (expandAncestors && file.parent) {
-                const foldersToExpand: string[] = [];
-                let ancestor: TFolder | null = file.parent.parent;
+            // Always resolve to the actual parent folder for manual reveals
+            const resolvedFolder = settings.includeDescendantNotes ? parentFolder : (target ?? parentFolder);
 
-                while (ancestor) {
-                    foldersToExpand.unshift(ancestor.path);
-                    if (ancestor.path === '/') break;
-                    ancestor = ancestor.parent;
-                }
+            const foldersToExpand: string[] = [];
+            let ancestor: TFolder | null = parentFolder.parent;
 
-                if (foldersToExpand.some(path => !expansionState.expandedFolders.has(path))) {
-                    expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
-                }
+            // Collect ancestor folders so manual reveal can expand collapsed levels
+            while (ancestor) {
+                foldersToExpand.unshift(ancestor.path);
+                if (ancestor.path === '/') break;
+                ancestor = ancestor.parent;
             }
 
+            const shouldExpandFolders =
+                foldersToExpand.length > 0 && (expandAncestors || foldersToExpand.some(path => !expansionState.expandedFolders.has(path)));
+
+            if (shouldExpandFolders) {
+                // Expand collapsed ancestors to ensure the folder becomes visible in navigation pane
+                expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+            }
+
+            // Switch selection to the file and its resolved folder so the list pane updates immediately
             selectionDispatch({
                 type: 'REVEAL_FILE',
                 file,
@@ -179,6 +187,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
             if (navigationPaneRef.current && resolvedFolder) {
+                // Scroll navigation pane so the resolved folder stays in view for manual reveals
                 navigationPaneRef.current.requestScroll(resolvedFolder.path, { align: 'auto', itemType: ItemType.FOLDER });
             }
         },
@@ -189,7 +198,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             uiState,
             uiDispatch,
             navigationPaneRef,
-            getRevealTargetFolder
+            getRevealTargetFolder,
+            settings.includeDescendantNotes
         ]
     );
 
@@ -299,11 +309,11 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
     );
 
     /**
-     * Reveals a file but preserves current folder if it's an ancestor with includeDescendantNotes.
-     * Now also handles intelligent tag switching for auto-reveals.
-     * Used for: Clicking files in sidebar
+     * Handles implicit file reveals (auto-reveal, shortcuts, recent notes).
+     * Keeps the current visible context when possible by targeting the first ancestor that is currently expanded,
+     * switches tag views when needed, and only falls back to the real parent when no ancestor is visible.
      *
-     * @param file - The file to reveal in nearest appropriate folder
+     * @param file - File to surface while preserving the visible navigation context
      */
     const revealFileInNearestFolder = useCallback(
         (file: TFile, options?: RevealFileOptions) => {
