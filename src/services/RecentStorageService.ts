@@ -194,7 +194,6 @@ export class RecentStorageService {
         // Create snapshot and persist
         const snapshot = [...this.notesCache];
         localStorage.set(this.keys.recentNotesKey, snapshot);
-        console.log('Notebook Navigator: saved recent notes to local storage');
         this.lastPersistedNotes = snapshot;
         this.notifyChange();
     }
@@ -209,7 +208,6 @@ export class RecentStorageService {
         // Create snapshot and persist
         const snapshot = this.cloneIconMap(this.iconsCache);
         localStorage.set(this.keys.recentIconsKey, snapshot);
-        console.log('Notebook Navigator: saved recent icons to local storage');
         this.lastPersistedIcons = snapshot;
         this.notifyChange();
     }
