@@ -39,4 +39,26 @@ export interface ISettingsProvider {
      * Notifies listeners that settings relevant state changed without persisting
      */
     notifySettingsUpdate(): void;
+
+    /**
+     * Gets the cached list of recent notes stored outside of synced settings
+     */
+    getRecentNotes(): string[];
+
+    /**
+     * Persists the cached list of recent notes to vault-local storage
+     * @param recentNotes - Ordered array of recent note paths
+     */
+    setRecentNotes(recentNotes: string[]): void;
+
+    /**
+     * Gets the cached record of recently used icons stored outside of synced settings
+     */
+    getRecentIcons(): Record<string, string[]>;
+
+    /**
+     * Persists the cached record of recently used icons to vault-local storage
+     * @param recentIcons - Map of provider id to ordered icon id list
+     */
+    setRecentIcons(recentIcons: Record<string, string[]>): void;
 }

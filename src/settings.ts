@@ -146,7 +146,6 @@ export interface NotebookNavigatorSettings {
     // Keyboard shortcuts configuration
     keyboardShortcuts: KeyboardShortcutConfig;
     shortcuts: ShortcutEntry[];
-    recentNotes: string[];
     // Controls whether list/tag views show notes from descendant folders/tags
     includeDescendantNotes: boolean;
     customVaultName: string;
@@ -163,7 +162,6 @@ export interface NotebookNavigatorSettings {
     tagBackgroundColors: Record<string, string>;
     tagSortOverrides: Record<string, SortOption>;
     tagAppearances: Record<string, TagAppearance>;
-    recentIcons: Record<string, string[]>;
     recentColors: string[];
     lastShownVersion: string;
     settingsVersion: number;
@@ -257,7 +255,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Keyboard shortcuts
     keyboardShortcuts: getDefaultKeyboardShortcuts(),
     shortcuts: [],
-    recentNotes: [],
     includeDescendantNotes: true,
     customVaultName: '',
     pinnedNotes: {},
@@ -273,7 +270,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     tagBackgroundColors: {},
     tagSortOverrides: {},
     tagAppearances: {},
-    recentIcons: {},
     recentColors: [],
     lastShownVersion: '',
     settingsVersion: SETTINGS_VERSION,
@@ -688,9 +684,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setDynamicTooltip()
                     .onChange(async value => {
                         this.plugin.settings.recentNotesCount = value;
-                        if (this.plugin.settings.recentNotes.length > value) {
-                            this.plugin.settings.recentNotes = this.plugin.settings.recentNotes.slice(0, value);
-                        }
+                        this.plugin.applyRecentNotesLimit();
                         await this.plugin.saveSettingsAndUpdate();
                     })
             );

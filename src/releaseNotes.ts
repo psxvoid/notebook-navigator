@@ -87,7 +87,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '**Dragging notes to folders or tags** will now auto-expand the target folder or tag after a short delay.',
             '**Auto-reveal active note** now selects the nearest visible ancestor when descendant notes are enabled. This means that your folder tree will always stay "clean" without any expanded subfolders if you have show descendants enabled.',
             'The **favorite tags** section is now hidden if there are no favorite tags matching your filters.',
-            'Remove color and Remove icon options were removed from the context menu, you now remove icons or colors with the "change" dialogs.'
+            'Remove color and Remove icon options were removed from the context menu, you now remove icons or colors with the "change" dialogs.',
+            'Recent icons were moved to local storage to reduce the synced settings file size. This means that you will start with empty recent icons in this release.'
         ],
         fixed: [
             'Moving notes with tags previously removed them from the tag tree, meaning it looked like they no longer had any tags. This has been fixed.'

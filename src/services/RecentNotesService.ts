@@ -21,7 +21,7 @@ import type { ISettingsProvider } from '../interfaces/ISettingsProvider';
 import { RECENT_NOTES_DEFAULT_COUNT } from '../settings';
 
 /**
- * Manages the recent notes list stored in settings
+ * Manages the recent notes list stored in vault-local storage
  */
 export class RecentNotesService {
     constructor(private readonly settingsProvider: ISettingsProvider) {}
@@ -32,7 +32,7 @@ export class RecentNotesService {
      */
     recordFileOpen(file: TFile): boolean {
         const path = file.path;
-        const current = this.ensureRecentNotes();
+        const current = this.settingsProvider.getRecentNotes();
         const filtered = current.filter(entry => entry !== path);
         filtered.unshift(path);
 
@@ -46,7 +46,7 @@ export class RecentNotesService {
             return false;
         }
 
-        this.settingsProvider.settings.recentNotes = filtered;
+        this.settingsProvider.setRecentNotes(filtered);
         return true;
     }
 
@@ -55,7 +55,7 @@ export class RecentNotesService {
      * @returns true when the list changed
      */
     renameEntry(oldPath: string, newPath: string): boolean {
-        const current = this.ensureRecentNotes();
+        const current = this.settingsProvider.getRecentNotes();
         if (current.length === 0) {
             return false;
         }
@@ -94,7 +94,7 @@ export class RecentNotesService {
             return false;
         }
 
-        this.settingsProvider.settings.recentNotes = updated;
+        this.settingsProvider.setRecentNotes(updated);
         return true;
     }
 
@@ -107,7 +107,7 @@ export class RecentNotesService {
             return false;
         }
 
-        const current = this.ensureRecentNotes();
+        const current = this.settingsProvider.getRecentNotes();
         if (current.length === 0) {
             return false;
         }
@@ -117,16 +117,8 @@ export class RecentNotesService {
             return false;
         }
 
-        this.settingsProvider.settings.recentNotes = filtered;
+        this.settingsProvider.setRecentNotes(filtered);
         return true;
-    }
-
-    private ensureRecentNotes(): string[] {
-        if (!Array.isArray(this.settingsProvider.settings.recentNotes)) {
-            this.settingsProvider.settings.recentNotes = [];
-        }
-
-        return this.settingsProvider.settings.recentNotes;
     }
 
     private getLimit(): number {

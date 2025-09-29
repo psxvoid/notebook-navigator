@@ -19,7 +19,7 @@
 import { App, Modal } from 'obsidian';
 import * as emojilib from 'emojilib';
 import { strings } from '../i18n';
-import { getIconService, IconDefinition, IconProvider } from '../services/icons';
+import { getIconService, IconDefinition, IconProvider, RECENT_ICONS_PER_PROVIDER_LIMIT } from '../services/icons';
 import { MetadataService } from '../services/MetadataService';
 import { ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
@@ -28,7 +28,6 @@ import { ISettingsProvider } from '../interfaces/ISettingsProvider';
 // Constants
 const GRID_COLUMNS = 5;
 const MAX_SEARCH_RESULTS = 50;
-const MAX_RECENT_PER_PROVIDER = 15;
 
 /**
  * Enhanced icon picker modal that supports multiple icon providers
@@ -278,8 +277,8 @@ export class IconPickerModal extends Modal {
      * @returns true if any icons were rendered, false otherwise
      */
     private renderRecentIcons(): boolean {
-        const settings = this.settingsProvider.settings;
-        const recentIcons = settings.recentIcons?.[this.currentProvider] || [];
+        const recentIconsMap = this.settingsProvider.getRecentIcons();
+        const recentIcons = recentIconsMap[this.currentProvider] || [];
 
         if (!recentIcons.length) {
             return false;
@@ -393,19 +392,15 @@ export class IconPickerModal extends Modal {
     /**
      * Save icon to recent icons (per provider)
      */
-    private async saveToRecentIcons(iconId: string) {
+    // Save icon to provider's recent icons list
+    private saveToRecentIcons(iconId: string) {
+        // Parse icon ID to get provider
         const parsed = this.iconService.parseIconId(iconId);
         const providerId = parsed.provider;
 
-        const settings = this.settingsProvider.settings;
-        if (!settings.recentIcons) {
-            settings.recentIcons = {};
-        }
-        if (!settings.recentIcons[providerId]) {
-            settings.recentIcons[providerId] = [];
-        }
-
-        const providerIcons = settings.recentIcons[providerId];
+        // Get current recent icons and copy provider's list
+        const recentIconsMap = this.settingsProvider.getRecentIcons();
+        const providerIcons = [...(recentIconsMap[providerId] ?? [])];
         const index = providerIcons.indexOf(iconId);
 
         // Remove if already exists
@@ -416,17 +411,19 @@ export class IconPickerModal extends Modal {
         // Add to front
         providerIcons.unshift(iconId);
 
-        // Limit to MAX_RECENT_PER_PROVIDER per provider
-        if (providerIcons.length > MAX_RECENT_PER_PROVIDER) {
-            settings.recentIcons[providerId] = providerIcons.slice(0, MAX_RECENT_PER_PROVIDER);
+        // Limit to RECENT_ICONS_PER_PROVIDER_LIMIT per provider
+        if (providerIcons.length > RECENT_ICONS_PER_PROVIDER_LIMIT) {
+            providerIcons.length = RECENT_ICONS_PER_PROVIDER_LIMIT;
         }
 
-        await this.settingsProvider.saveSettingsAndUpdate();
+        // Update and persist recent icons
+        recentIconsMap[providerId] = providerIcons;
+        this.settingsProvider.setRecentIcons(recentIconsMap);
     }
 
     private async selectIcon(iconId: string) {
         // Save to recent icons
-        await this.saveToRecentIcons(iconId);
+        this.saveToRecentIcons(iconId);
 
         // Set the icon based on item type
         if (this.itemType === ItemType.TAG) {

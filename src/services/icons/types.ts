@@ -38,6 +38,11 @@ export interface IconDefinition {
 }
 
 /**
+ * Maximum number of recent icons stored per provider
+ */
+export const RECENT_ICONS_PER_PROVIDER_LIMIT = 15;
+
+/**
  * Interface that icon providers must implement.
  *
  * Icon providers are responsible for:

@@ -34,6 +34,7 @@ import { OmnisearchService } from './services/OmnisearchService';
 import { FileSystemOperations } from './services/FileSystemService';
 import { getIconService } from './services/icons';
 import { RecentNotesService } from './services/RecentNotesService';
+import { RecentStorageService } from './services/RecentStorageService';
 import { ExternalIconProviderController } from './services/icons/external/ExternalIconProviderController';
 import { ExternalIconProviderId } from './services/icons/external/providerRegistry';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
@@ -67,6 +68,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private settingsUpdateListeners = new Map<string, () => void>();
     // Map of callbacks to notify open React views when files are renamed
     private fileRenameListeners = new Map<string, (oldPath: string, newPath: string) => void>();
+    private recentDataListeners = new Map<string, () => void>();
     // Flag indicating plugin is being unloaded to prevent operations during shutdown
     private isUnloading = false;
     private isWorkspaceReady = false;
@@ -74,6 +76,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private pendingHomepageTrigger: 'settings-change' | 'command' | null = null;
     // User preference for dual-pane mode (persisted in localStorage, not settings)
     private dualPanePreference = true;
+    private recentStorage: RecentStorageService | null = null;
 
     // Keys used for persisting UI state in browser localStorage
     keys: LocalStorageKeys = STORAGE_KEYS;
@@ -86,6 +89,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     async onExternalSettingsChange() {
         if (!this.isUnloading) {
             await this.loadSettings();
+            this.resetRecentStorage();
             this.onSettingsUpdate();
         }
     }
@@ -103,16 +107,17 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Validate and normalize keyboard shortcuts to use standard modifier names
         this.settings.keyboardShortcuts = sanitizeKeyboardShortcuts(this.settings.keyboardShortcuts);
 
+        // Remove deprecated fields from settings object
+        const mutableSettings = this.settings as unknown as Record<string, unknown>;
+        delete mutableSettings.recentNotes;
+        delete mutableSettings.recentIcons;
+
         // Set language-specific date/time formats if not already set
         if (!this.settings.dateFormat) {
             this.settings.dateFormat = getDefaultDateFormat();
         }
         if (!this.settings.timeFormat) {
             this.settings.timeFormat = getDefaultTimeFormat();
-        }
-
-        if (!Array.isArray(this.settings.recentNotes)) {
-            this.settings.recentNotes = [];
         }
 
         if (typeof this.settings.recentNotesCount !== 'number' || this.settings.recentNotesCount <= 0) {
@@ -124,6 +129,68 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         return isFirstLaunch;
+    }
+
+    // Initialize or reset the recent storage service
+    private resetRecentStorage(): void {
+        // Persist any pending changes before resetting
+        this.recentStorage?.flushPendingPersists();
+
+        // Create new storage service instance
+        this.recentStorage = new RecentStorageService({
+            settings: this.settings,
+            keys: this.keys,
+            notifyChange: () => {
+                this.notifyRecentDataUpdate();
+            }
+        });
+        // Load data from local storage
+        this.recentStorage.hydrate();
+        this.notifyRecentDataUpdate();
+    }
+
+    // Get the list of recent notes from storage
+    public getRecentNotes(): string[] {
+        return this.recentStorage ? this.recentStorage.getRecentNotes() : [];
+    }
+
+    // Update the list of recent notes in storage
+    public setRecentNotes(recentNotes: string[]): void {
+        if (!this.recentStorage) {
+            return;
+        }
+        this.recentStorage.setRecentNotes(recentNotes);
+    }
+
+    // Apply the configured limit to recent notes
+    public applyRecentNotesLimit(): void {
+        if (!this.recentStorage) {
+            return;
+        }
+        this.recentStorage.applyRecentNotesLimit();
+    }
+
+    // Register a callback to be notified when recent data changes
+    public registerRecentDataListener(id: string, callback: () => void): void {
+        this.recentDataListeners.set(id, callback);
+    }
+
+    // Remove a registered recent data listener
+    public unregisterRecentDataListener(id: string): void {
+        this.recentDataListeners.delete(id);
+    }
+
+    // Get the map of recent icons per provider from storage
+    public getRecentIcons(): Record<string, string[]> {
+        return this.recentStorage ? this.recentStorage.getRecentIcons() : {};
+    }
+
+    // Update the map of recent icons per provider in storage
+    public setRecentIcons(recentIcons: Record<string, string[]>): void {
+        if (!this.recentStorage) {
+            return;
+        }
+        this.recentStorage.setRecentIcons(recentIcons);
     }
 
     private isFileInRightSidebar(file: TFile): boolean {
@@ -201,6 +268,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.saveData(this.settings);
             }
         }
+
+        this.resetRecentStorage();
 
         this.recentNotesService = new RecentNotesService(this);
 
@@ -573,17 +642,15 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                     return;
                 }
 
-                if (service.recordFileOpen(file)) {
-                    void this.saveSettingsAndUpdate();
-                }
+                void service.recordFileOpen(file);
             })
         );
 
         const initialActiveFile = this.app.workspace.getActiveFile();
         if (initialActiveFile instanceof TFile && !this.isFileInRightSidebar(initialActiveFile)) {
             const service = this.recentNotesService;
-            if (service && service.recordFileOpen(initialActiveFile)) {
-                void this.saveSettingsAndUpdate();
+            if (service) {
+                void service.recordFileOpen(initialActiveFile);
             }
         }
 
@@ -620,12 +687,10 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 }
 
                 const recentService = this.recentNotesService;
-                const recentsChanged = recentService?.renameEntry(oldPath, file.path) ?? false;
+                void recentService?.renameEntry(oldPath, file.path);
 
                 if (this.metadataService) {
                     await this.metadataService.handleFileRename(oldPath, file.path);
-                } else if (recentsChanged) {
-                    await this.saveSettingsAndUpdate();
                 }
 
                 const getParentPath = (path: string): string => {
@@ -675,17 +740,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 }
 
                 const recentService = this.recentNotesService;
-                const recentsChanged = recentService?.removeEntry(file.path) ?? false;
+                void recentService?.removeEntry(file.path);
 
                 if (this.metadataService) {
                     await this.metadataService.handleFileDelete(file.path);
                     return;
                 }
-
-                if (recentsChanged) {
-                    await this.saveSettingsAndUpdate();
-                }
-                // Saving settings (metadata service or manual) triggers reactive updates
             })
         );
 
@@ -841,9 +901,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Set unloading flag to prevent any new operations
         this.isUnloading = true;
 
+        this.recentStorage?.flushPendingPersists();
+
         // Clear all listeners first to prevent any callbacks during cleanup
         this.settingsUpdateListeners.clear();
         this.fileRenameListeners.clear();
+        this.recentDataListeners.clear();
 
         if (this.externalIconController) {
             this.externalIconController.dispose();
@@ -885,6 +948,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.ribbonIconEl = undefined;
 
         this.omnisearchService = null;
+        this.recentStorage = null;
 
         // Shutdown database after all processing is stopped
         shutdownDatabase();
@@ -1015,6 +1079,23 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
 
         void this.openHomepage('settings-change');
+    }
+
+    // Notify all registered listeners about recent data updates
+    private notifyRecentDataUpdate(): void {
+        if (this.isUnloading) {
+            return;
+        }
+
+        // Call each registered listener callback
+        const listeners = Array.from(this.recentDataListeners.values());
+        listeners.forEach(callback => {
+            try {
+                callback();
+            } catch {
+                // Silently ignore errors from recent data callbacks
+            }
+        });
     }
 
     /**

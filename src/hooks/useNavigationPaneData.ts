@@ -116,7 +116,7 @@ export function useNavigationPaneData({
     shortcutsExpanded,
     recentNotesExpanded
 }: UseNavigationPaneDataParams): UseNavigationPaneDataResult {
-    const { app } = useServices();
+    const { app, plugin } = useServices();
     const metadataService = useMetadataService();
     const expansionState = useExpansionState();
     const { fileData } = useFileCache();
@@ -443,6 +443,9 @@ export function useNavigationPaneData({
     ]);
 
     // Build list of recent notes items with proper hierarchy
+    // Get recent notes from plugin storage
+    const recentNotes = plugin.getRecentNotes();
+
     const recentNotesItems = useMemo(() => {
         if (!settings.showRecentNotes) {
             return [] as CombinedNavigationItem[];
@@ -475,7 +478,7 @@ export function useNavigationPaneData({
         }
 
         const limit = Math.max(1, settings.recentNotesCount ?? 1);
-        const recentPaths = Array.isArray(settings.recentNotes) ? settings.recentNotes.slice(0, limit) : [];
+        const recentPaths = recentNotes.slice(0, limit);
 
         recentPaths.forEach(path => {
             const file = app.vault.getAbstractFileByPath(path);
@@ -492,14 +495,7 @@ export function useNavigationPaneData({
         });
 
         return items;
-    }, [
-        settings.showRecentNotes,
-        settings.recentNotes,
-        settings.recentNotesCount,
-        settings.fileVisibility,
-        recentNotesExpanded,
-        app.vault
-    ]);
+    }, [settings.showRecentNotes, recentNotes, settings.recentNotesCount, settings.fileVisibility, recentNotesExpanded, app.vault]);
 
     /**
      * Combine shortcut, folder, and tag items based on display order settings

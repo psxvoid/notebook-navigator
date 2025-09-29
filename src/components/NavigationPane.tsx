@@ -201,6 +201,8 @@ export const NavigationPane = React.memo(
             }
             return false;
         });
+        // Retrieve recent notes from plugin
+        const recentNotes = plugin.getRecentNotes();
         const [isRootReorderMode, setRootReorderMode] = useState(false);
 
         // Determine if drag and drop should be enabled for shortcuts
@@ -1300,7 +1302,7 @@ export const NavigationPane = React.memo(
                         const hasChildren = isShortcutsGroup
                             ? hydratedShortcuts.length > 0
                             : isRecentNotesGroup
-                              ? settings.recentNotes.length > 0
+                              ? recentNotes.length > 0
                               : virtualFolder.id === 'tags-root' ||
                                 virtualFolder.id === 'all-tags-root' ||
                                 virtualFolder.id === 'favorite-tags-root';
@@ -1415,6 +1417,7 @@ export const NavigationPane = React.memo(
                 handleTagToggle,
                 handleTagClick,
                 handleVirtualFolderToggle,
+                recentNotes.length,
                 getAllDescendantFolders,
                 getAllDescendantTags,
                 expansionDispatch,

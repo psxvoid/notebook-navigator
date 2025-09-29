@@ -204,6 +204,8 @@ export interface LocalStorageKeys {
     dualPaneKey: string;
     shortcutsExpandedKey: string;
     recentNotesExpandedKey: string;
+    recentNotesKey: string;
+    recentIconsKey: string;
     fileCacheKey: string;
     databaseSchemaVersionKey: string;
     databaseContentVersionKey: string;
@@ -227,6 +229,8 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     dualPaneKey: 'notebook-navigator-dual-pane',
     shortcutsExpandedKey: 'notebook-navigator-shortcuts-expanded',
     recentNotesExpandedKey: 'notebook-navigator-recent-notes-expanded',
+    recentNotesKey: 'notebook-navigator-recent-notes',
+    recentIconsKey: 'notebook-navigator-recent-icons',
     fileCacheKey: 'notebook-navigator-file-cache',
     databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
     databaseContentVersionKey: 'notebook-navigator-db-content-version',
