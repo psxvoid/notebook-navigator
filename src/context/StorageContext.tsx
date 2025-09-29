@@ -1193,6 +1193,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     const existing = db.getFile(oldPath);
                     if (existing) {
                         pendingRenameDataRef.current.set(file.path, existing);
+                        // Preload memory cache with existing data to avoid re-fetching after rename
                         db.seedMemoryFile(file.path, existing);
                     }
                 } catch (error) {

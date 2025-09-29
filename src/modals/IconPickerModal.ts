@@ -681,6 +681,7 @@ export class IconPickerModal extends Modal {
         }
     }
 
+    // Attaches event handlers to the modal close button to ensure proper modal closure
     private attachCloseButtonHandler() {
         const closeButton = this.modalEl.querySelector<HTMLElement>('.modal-close-button');
         if (!closeButton) {

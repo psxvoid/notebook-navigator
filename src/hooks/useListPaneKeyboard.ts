@@ -158,9 +158,12 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
             const shortcuts = settings.keyboardShortcuts;
             const isRTL = helpers.isRTL();
             let targetIndex = -1;
+            // Tracks whether to scroll to the top of the list after selection
             let shouldScrollToTop = false;
 
+            // Returns the index of the first selectable item in the list
             const getFirstSelectableIndex = () => helpers.findNextIndex(-1);
+            // Finds the nearest selectable item before the given index
             const findSelectableBefore = (startIndex: number) => {
                 if (items.length === 0) {
                     return -1;

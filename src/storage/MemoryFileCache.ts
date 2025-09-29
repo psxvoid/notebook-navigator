@@ -18,6 +18,7 @@
 
 import { FileData } from './IndexedDBStorage';
 
+// Creates a deep clone of FileData to prevent mutations from affecting the original
 function cloneFileData(data: FileData): FileData {
     return {
         mtime: data.mtime,
@@ -116,6 +117,7 @@ export class MemoryFileCache {
         this.memoryMap.set(path, data);
     }
 
+    // Sets a cloned copy of file data to prevent external modifications
     setClonedFile(path: string, data: FileData): void {
         this.memoryMap.set(path, cloneFileData(data));
     }
