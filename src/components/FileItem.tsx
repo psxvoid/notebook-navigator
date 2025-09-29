@@ -228,7 +228,7 @@ export const FileItem = React.memo(function FileItem({
 
         const preview = appearanceSettings.showPreview && file.extension === 'md' ? db.getCachedPreviewText(file.path) : '';
 
-        const tagList = db.getCachedTags(file.path) ?? [];
+        const tagList = [...(db.getCachedTags(file.path) ?? [])];
 
         let imageUrl: string | null = null;
         if (appearanceSettings.showImage) {
@@ -567,7 +567,7 @@ export const FileItem = React.memo(function FileItem({
             }
             // Update tags when they change
             if (changes.tags !== undefined) {
-                const nextTags = changes.tags ?? [];
+                const nextTags = [...(changes.tags ?? [])];
                 setTags(prev => (areStringArraysEqual(prev, nextTags) ? prev : nextTags));
             }
             // Trigger metadata refresh when frontmatter changes
