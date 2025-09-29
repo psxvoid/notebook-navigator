@@ -28,10 +28,9 @@ All variables start with `--nn-theme-` and should be defined at the `body` level
 
 ### Navigation pane
 
-| Variable                   | Default                       | Description                                                  |
-| -------------------------- | ----------------------------- | ------------------------------------------------------------ |
-| `--nn-theme-nav-bg`        | `var(--background-secondary)` | Navigation pane background (desktop only, see mobile styles) |
-| `--nn-theme-nav-header-bg` | `var(--background-secondary)` | Navigation header background (desktop only)                  |
+| Variable            | Default                       | Description                                                  |
+| ------------------- | ----------------------------- | ------------------------------------------------------------ |
+| `--nn-theme-nav-bg` | `var(--background-secondary)` | Navigation pane background (desktop only, see mobile styles) |
 
 #### Folder & tag items
 
@@ -78,7 +77,6 @@ custom color styles, which override the default style.
 | Variable                                  | Default                             | Description                                                                        |
 | ----------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------- |
 | `--nn-theme-list-bg`                      | `var(--background-primary)`         | Background color of the list pane                                                  |
-| `--nn-theme-list-header-bg`               | `var(--background-primary)`         | Background color of the list pane header (desktop only)                            |
 | `--nn-theme-list-header-icon-color`       | `var(--text-muted)`                 | Folder/tag icon color shown to the left of the breadcrumb (desktop only)           |
 | `--nn-theme-list-header-breadcrumb-color` | `var(--text-muted)`                 | Text color for the breadcrumb path in the list header (desktop only)               |
 | `--nn-theme-list-header-search-active-bg` | `var(--text-highlight-bg)`          | Background color for the search field when a search query is active (desktop only) |
@@ -153,7 +151,6 @@ custom color styles, which override the default style.
 | Variable                                               | Default                             | Description                                                                  |
 | ------------------------------------------------------ | ----------------------------------- | ---------------------------------------------------------------------------- |
 | `--nn-theme-mobile-nav-bg`                             | `var(--background-primary)`         | Background color of navigation pane on mobile (by default, both panes match) |
-| `--nn-theme-mobile-list-header-bg`                     | `var(--background-primary)`         | Background color of the list header on mobile                                |
 | `--nn-theme-mobile-list-header-link-color`             | `var(--link-color)`                 | Color for back button and clickable breadcrumb segments on mobile            |
 | `--nn-theme-mobile-list-header-breadcrumb-color`       | `var(--text-normal)`                | Color for current folder and separators in breadcrumb on mobile              |
 | `--nn-theme-mobile-list-header-breadcrumb-font-weight` | `600`                               | Font weight for mobile breadcrumb                                            |
@@ -181,7 +178,6 @@ body {
 
   /* Pane background */
   --nn-theme-nav-bg: #3c3f41; /* Dark gray sidebar - navigation pane background */
-  --nn-theme-nav-header-bg: #3c3f41; /* Dark gray - navigation header background */
 
   /* Folder & tag items */
   --nn-theme-navitem-chevron-color: #6e6e6e; /* Muted gray - expand/collapse arrows */
@@ -220,7 +216,6 @@ body {
 
   /* Pane background */
   --nn-theme-list-bg: #2b2b2b; /* Dark editor background - file list background */
-  --nn-theme-list-header-bg: #2b2b2b; /* Dark editor background - file list header background */
   --nn-theme-list-header-icon-color: #afb1b3; /* Light gray - folder/tag icon in breadcrumb */
   --nn-theme-list-header-breadcrumb-color: #7f8b91; /* Muted gray - breadcrumb path text */
   --nn-theme-list-header-search-active-bg: #515336; /* Yellow tint - active search field background */
@@ -284,7 +279,6 @@ body {
      ======================================== */
 
   --nn-theme-mobile-nav-bg: #2b2b2b; /* Dark editor background - mobile navigation background */
-  --nn-theme-mobile-list-header-bg: #3c3f41; /* Dark gray sidebar - mobile list header background */
   --nn-theme-mobile-list-header-link-color: #589df6; /* Bright blue - mobile back button and breadcrumb links */
   --nn-theme-mobile-list-header-breadcrumb-color: #a9b7c6; /* Soft blue-gray - current folder and separators */
   --nn-theme-mobile-list-header-breadcrumb-font-weight: 600; /* Bold weight - mobile breadcrumb */

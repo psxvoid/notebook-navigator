@@ -83,7 +83,6 @@ body {
 
     /* -- Navigation Pane -- */
     --nn-theme-nav-bg: var(--background-secondary);
-    --nn-theme-nav-header-bg: var(--background-secondary);
 
     /* -- Folder & Tag Items -- */
     --nn-theme-navitem-chevron-color: var(--text-muted);
@@ -115,7 +114,6 @@ body {
 
     /* -- List Pane (Files) -- */
     --nn-theme-list-bg: var(--background-primary);
-    --nn-theme-list-header-bg: var(--background-primary);
     --nn-theme-list-header-icon-color: var(--text-muted);
     --nn-theme-list-header-breadcrumb-color: var(--text-muted);
     --nn-theme-list-header-search-active-bg: var(--text-highlight-bg);
@@ -172,7 +170,6 @@ body {
 
     /* -- Mobile Styles -- */
     --nn-theme-mobile-nav-bg: var(--background-primary);
-    --nn-theme-mobile-list-header-bg: var(--background-primary);
     --nn-theme-mobile-list-header-link-color: var(--link-color);
     --nn-theme-mobile-list-header-breadcrumb-color: var(--text-normal);
     --nn-theme-mobile-list-header-breadcrumb-font-weight: 600;
@@ -285,7 +282,6 @@ body {
 /* Pane headers - consistent header styling for both panes */
 .nn-pane-header {
     padding: 8px 8px;
-    border-bottom: 1px solid var(--nn-theme-header-border-color);
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -303,7 +299,7 @@ body {
 
 /* Navigation pane header - matches folder tree background for visual consistency */
 .nn-navigation-pane .nn-pane-header {
-    background-color: var(--nn-theme-nav-header-bg);
+    background-color: var(--nn-theme-nav-bg);
 }
 
 /* Add right border to nav header in dual pane mode */
@@ -313,12 +309,7 @@ body {
 
 /* File list pane header */
 .nn-list-pane .nn-pane-header {
-    background-color: var(--nn-theme-list-header-bg);
-}
-
-/* Hide header border when search is active by matching background color */
-.nn-list-pane.nn-search-active .nn-pane-header {
-    border-bottom-color: var(--nn-theme-list-header-bg);
+    background-color: var(--nn-theme-list-bg);
 }
 
 /* Header actions container - groups action buttons in headers */
@@ -332,12 +323,11 @@ body {
 .nn-search-bar-container {
     height: 0;
     overflow: hidden;
-    background-color: var(--nn-theme-list-header-bg);
+    background-color: var(--nn-theme-list-bg);
 }
 
 .nn-search-bar-container.nn-search-bar-visible {
     height: 44px;
-    border-bottom: 1px solid var(--nn-theme-header-border-color);
 }
 
 /* Search input wrapper */
@@ -346,7 +336,7 @@ body {
     align-items: center;
     height: 44px;
     padding: 0 10px 6px 10px;
-    background-color: var(--nn-theme-list-header-bg);
+    background-color: var(--nn-theme-list-bg);
 }
 
 /* Search input container */
@@ -414,17 +404,16 @@ body {
 /* Mobile search input wrapper - inherits padding from base styles */
 .notebook-navigator-mobile .nn-search-input-wrapper {
     height: 48px;
-    background-color: var(--nn-theme-mobile-list-header-bg);
+    background-color: var(--nn-theme-list-bg);
 }
 
 /* Mobile search bar container */
 .notebook-navigator-mobile .nn-search-bar-container {
-    background-color: var(--nn-theme-mobile-list-header-bg);
+    background-color: var(--nn-theme-list-bg);
 }
 
 .notebook-navigator-mobile .nn-search-bar-container.nn-search-bar-visible {
     height: 48px;
-    border-bottom: 1px solid var(--nn-theme-mobile-toolbar-border-color);
 }
 
 /* Mobile search input container */
@@ -493,11 +482,6 @@ body {
 .notebook-navigator-mobile .nn-search-clear-button,
 .notebook-navigator-mobile .nn-search-star-button {
     top: 10px;
-}
-
-/* Hide mobile header border when search is active */
-.notebook-navigator-mobile .nn-list-pane.nn-search-active .nn-pane-header {
-    border-bottom-color: var(--nn-theme-mobile-list-header-bg);
 }
 
 /* Desktop pane header title */
@@ -1704,8 +1688,7 @@ body {
 
 .nn-skeleton-nav-header {
     height: 32px;
-    background-color: var(--nn-theme-nav-header-bg);
-    border-bottom: 1px solid var(--nn-theme-header-border-color);
+    background-color: var(--nn-theme-nav-bg);
     flex-shrink: 0;
 }
 
@@ -1716,8 +1699,7 @@ body {
 
 .nn-skeleton-list-header {
     height: 32px;
-    background-color: var(--nn-theme-list-header-bg);
-    border-bottom: 1px solid var(--nn-theme-header-border-color);
+    background-color: var(--nn-theme-list-bg);
     flex-shrink: 0;
 }
 
@@ -1729,14 +1711,8 @@ body {
 
 .nn-skeleton-search-bar {
     height: 40px;
-    background-color: var(--nn-theme-list-header-bg);
-    border-bottom: 1px solid var(--nn-theme-header-border-color);
+    background-color: var(--nn-theme-list-bg);
     flex-shrink: 0;
-}
-
-/* Hide skeleton header border when search is active */
-.nn-skeleton-list-pane.nn-search-active .nn-skeleton-list-header {
-    border-bottom-color: var(--nn-theme-list-header-bg);
 }
 
 /* Add right border only to nav content area in dual pane mode */
@@ -2667,11 +2643,11 @@ body.nn-resizing {
 /* Mobile header - adjust for back button */
 .notebook-navigator-mobile .nn-pane-header {
     flex-shrink: 0;
-    border-bottom: 1px solid var(--nn-theme-header-border-color);
     min-height: 48px;
     display: flex;
     align-items: center;
     padding: 0 var(--nn-file-item-padding-horizontal);
+    background-color: var(--nn-theme-list-bg);
 }
 
 /* Simplified mobile headers */
@@ -3360,7 +3336,7 @@ body.nn-resizing {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    background-color: var(--nn-theme-mobile-toolbar-bg);
+    background-color: var(--nn-theme-list-bg);
     border-top: 1px solid var(--nn-theme-mobile-toolbar-border-color);
     flex-shrink: 0;
     padding: 0 8px;
@@ -3432,7 +3408,7 @@ body.nn-resizing {
 
 /* Android: toolbar at top with reduced height */
 .notebook-navigator-android .nn-mobile-toolbar {
-    background-color: var(--nn-theme-mobile-list-header-bg);
+    background-color: var(--nn-theme-list-bg);
     border-top: none;
     border-bottom: 1px solid var(--nn-theme-mobile-toolbar-border-color);
     padding-bottom: 0;
@@ -3724,15 +3700,6 @@ settings:
         default-dark: '#'
     -
     -
-        id: nn-theme-nav-header-bg
-        title: Navigation header background
-        description: Background color of the navigation pane header.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-    -
         id: nn-nav-pane-items-heading
         title: Folder & tag items
         type: heading
@@ -3981,15 +3948,6 @@ settings:
         id: nn-theme-list-bg
         title: List pane background
         description: Background color of the list pane.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-    -
-        id: nn-theme-list-header-bg
-        title: List header background
-        description: Background color of the list pane header.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -4448,15 +4406,6 @@ settings:
         id: nn-theme-mobile-nav-bg
         title: Mobile navigation background
         description: Background color of the navigation pane on mobile.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-    -
-        id: nn-theme-mobile-list-header-bg
-        title: Mobile list header background
-        description: Background color of the list header on mobile.
         type: variable-themed-color
         format: hex
         default-light: '#'
