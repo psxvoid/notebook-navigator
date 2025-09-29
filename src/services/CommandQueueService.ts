@@ -26,7 +26,8 @@ export enum OperationType {
     DELETE_FILES = 'delete-files',
     OPEN_FOLDER_NOTE = 'open-folder-note',
     OPEN_VERSION_HISTORY = 'open-version-history',
-    OPEN_IN_NEW_CONTEXT = 'open-in-new-context'
+    OPEN_IN_NEW_CONTEXT = 'open-in-new-context',
+    OPEN_ACTIVE_FILE = 'open-active-file'
 }
 
 /**
@@ -79,12 +80,21 @@ interface OpenInNewContextOperation extends BaseOperation {
     file: TFile;
     context: PaneType;
 }
+
+/**
+ * Operation for opening the active file in the current context
+ */
+interface OpenActiveFileOperation extends BaseOperation {
+    type: OperationType.OPEN_ACTIVE_FILE;
+    file: TFile;
+}
 type Operation =
     | MoveFileOperation
     | DeleteFilesOperation
     | OpenFolderNoteOperation
     | OpenVersionHistoryOperation
-    | OpenInNewContextOperation;
+    | OpenInNewContextOperation
+    | OpenActiveFileOperation;
 
 /**
  * Result of a command execution
@@ -106,6 +116,8 @@ export class CommandQueueService {
     private listeners = new Set<(type: OperationType, active: boolean) => void>();
     // Track active counts per operation type to handle overlapping operations
     private activeCounts = new Map<OperationType, number>();
+    private openActiveFileQueue: Promise<void> = Promise.resolve();
+    private latestOpenActiveFileOperationId: string | null = null;
 
     constructor(private app: App) {}
 
@@ -404,6 +416,58 @@ export class CommandQueueService {
                 error: error as Error
             };
         }
+    }
+
+    /**
+     * Execute opening a file in the active leaf. Ensures only the latest request runs
+     * while preserving execution order to prevent stale opens from winning the race.
+     */
+    async executeOpenActiveFile(file: TFile, openFile: () => Promise<void>): Promise<CommandResult<{ skipped: boolean }>> {
+        const operationId = this.generateOperationId();
+        const operation: OpenActiveFileOperation = {
+            id: operationId,
+            type: OperationType.OPEN_ACTIVE_FILE,
+            timestamp: Date.now(),
+            file
+        };
+
+        this.latestOpenActiveFileOperationId = operationId;
+
+        const run = async (): Promise<CommandResult<{ skipped: boolean }>> => {
+            if (this.latestOpenActiveFileOperationId !== operationId) {
+                return { success: true, data: { skipped: true } };
+            }
+
+            this.activeOperations.set(operationId, operation);
+            this.markActive(OperationType.OPEN_ACTIVE_FILE);
+
+            try {
+                await openFile();
+                if (this.latestOpenActiveFileOperationId === operationId) {
+                    this.latestOpenActiveFileOperationId = null;
+                }
+                return { success: true, data: { skipped: false } };
+            } catch (error) {
+                if (this.latestOpenActiveFileOperationId === operationId) {
+                    this.latestOpenActiveFileOperationId = null;
+                }
+                return {
+                    success: false,
+                    error: error as Error
+                };
+            } finally {
+                this.activeOperations.delete(operationId);
+                this.markInactive(OperationType.OPEN_ACTIVE_FILE);
+            }
+        };
+
+        const task = this.openActiveFileQueue.then(run, run);
+        this.openActiveFileQueue = task.then(
+            () => undefined,
+            () => undefined
+        );
+
+        return task;
     }
 
     /**

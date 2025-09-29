@@ -70,7 +70,7 @@ interface UseListPaneKeyboardProps {
  * Handles file-specific keyboard interactions and multi-selection.
  */
 export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIndex, files, fileIndexMap }: UseListPaneKeyboardProps) {
-    const { app, isMobile, tagTreeService } = useServices();
+    const { app, isMobile, tagTreeService, commandQueue } = useServices();
     const fileSystemOps = useFileSystemOps();
     const settings = useSettingsState();
     const selectionState = useSelectionState();
@@ -101,14 +101,26 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
                 // Normal navigation clears multi-selection
                 selectionDispatch({ type: 'SET_SELECTED_FILE', file });
 
+                // Flag that this selection came from keyboard navigation
+                selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+
                 // Open the file in the editor but keep focus in file list
-                const leaf = app.workspace.getLeaf(false);
-                if (leaf) {
-                    leaf.openFile(file, { active: false });
+                const openFile = async () => {
+                    const leaf = app.workspace.getLeaf(false);
+                    if (!leaf) {
+                        return;
+                    }
+                    await leaf.openFile(file, { active: false });
+                };
+
+                if (commandQueue) {
+                    void commandQueue.executeOpenActiveFile(file, openFile);
+                } else {
+                    void openFile();
                 }
             }
         },
-        [selectionDispatch, app.workspace]
+        [selectionDispatch, app.workspace, commandQueue]
     );
 
     /**
