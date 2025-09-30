@@ -54,7 +54,7 @@
  *    - Prevents unnecessary child re-renders
  */
 
-import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo, useState } from 'react';
+import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo, useState, useReducer } from 'react';
 import { TFolder, TFile, Platform, Menu } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
@@ -211,10 +211,54 @@ export const NavigationPane = React.memo(
             }
             return false;
         });
+        // Trigger for forcing a re-render when shortcut note metadata changes in frontmatter
+        const [, forceMetadataRefresh] = useReducer((value: number) => value + 1, 0);
         const [isRootReorderMode, setRootReorderMode] = useState(false);
         const [externalShortcutDropIndex, setExternalShortcutDropIndex] = useState<number | null>(null);
         const draggedShortcutKeyRef = useRef<string | null>(null);
         const draggedShortcutDropCompletedRef = useRef(false);
+
+        // Subscribe to metadata cache changes for shortcut notes when using frontmatter metadata
+        // This ensures shortcut note display names update when frontmatter changes
+        useEffect(() => {
+            if (!settings.useFrontmatterMetadata) {
+                return;
+            }
+
+            const metadataCache = app.metadataCache;
+            // Build set of paths for all notes in shortcuts
+            const relevantNotePaths = new Set(
+                hydratedShortcuts.map(entry => entry.note?.path).filter((path): path is string => Boolean(path))
+            );
+
+            if (relevantNotePaths.size === 0) {
+                return;
+            }
+
+            // Trigger refresh when metadata cache is fully resolved
+            const handleResolved = () => {
+                forceMetadataRefresh();
+            };
+
+            // Trigger refresh when a shortcut note's metadata changes
+            const handleChanged = (file: TFile) => {
+                if (relevantNotePaths.has(file.path)) {
+                    forceMetadataRefresh();
+                }
+            };
+
+            const resolvedRef = metadataCache.on('resolved', handleResolved);
+            const changedRef = metadataCache.on('changed', file => {
+                if (file instanceof TFile) {
+                    handleChanged(file);
+                }
+            });
+
+            return () => {
+                metadataCache.offref(resolvedRef);
+                metadataCache.offref(changedRef);
+            };
+        }, [app.metadataCache, hydratedShortcuts, settings.useFrontmatterMetadata, forceMetadataRefresh]);
 
         // Determine if drag and drop should be enabled for shortcuts
         const shortcutCount = hydratedShortcuts.length;
@@ -1385,11 +1429,17 @@ export const NavigationPane = React.memo(
                             iconColor: item.color
                         });
 
+                        // Get display name from frontmatter metadata or file basename
+                        const displayName = getFileDisplayName(note);
+                        // Add extension suffix for non-markdown files if configured
+                        const extensionSuffix = shouldShowExtensionSuffix(note) ? getExtensionSuffix(note) : '';
+                        const label = extensionSuffix ? `${displayName}${extensionSuffix}` : displayName;
+
                         return (
                             <ShortcutItem
                                 icon={item.icon ?? 'lucide-file-text'}
                                 color={item.color}
-                                label={note.basename}
+                                label={label}
                                 level={item.level}
                                 type="note"
                                 onClick={() => handleShortcutNoteActivate(note, item.key)}
