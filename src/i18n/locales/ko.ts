@@ -46,7 +46,7 @@ export const STRINGS_KO = {
     // Tag list
     tagList: {
         untaggedLabel: '태그 없음', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: '즐겨찾기', // Label for the favorites virtual folder (English: Favorites)
+        favoriteTags: '즐겨찾는 태그', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: '숨겨진 태그', // Label for the hidden tags virtual folder (English: Hidden tags)
         allTags: '태그', // Label for the tags virtual folder when favorites exist (English: Tags)
         tags: '태그' // Label for the tags virtual folder when no favorites exist (English: Tags)

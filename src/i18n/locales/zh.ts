@@ -46,7 +46,7 @@ export const STRINGS_ZH = {
     // Tag list
     tagList: {
         untaggedLabel: '无标签', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: '收藏', // Label for the favorites virtual folder (English: Favorites)
+        favoriteTags: '收藏标签', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: '隐藏标签', // Label for the hidden tags virtual folder (English: Hidden tags)
         allTags: '标签', // Label for the tags virtual folder when favorites exist (English: Tags)
         tags: '标签' // Label for the tags virtual folder when no favorites exist (English: Tags)

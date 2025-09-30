@@ -46,14 +46,14 @@ export const STRINGS_DE = {
     // Tag list
     tagList: {
         untaggedLabel: 'Ohne Tag', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'Favoriten', // Label for the favorites virtual folder (English: Favorites)
+        favoriteTags: 'Favoriten-Tags', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: 'Versteckte Tags', // Label for the hidden tags virtual folder (English: Hidden tags)
         allTags: 'Tags', // Label for the tags virtual folder when favorites exist (English: Tags)
         tags: 'Tags' // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     navigationPane: {
-        shortcutsHeader: 'Kurzbefehle',
+        shortcutsHeader: 'Lesezeichen',
         recentNotesHeader: 'Neueste Notizen',
         recentFilesHeader: 'Neueste Dateien',
         reorderRootFoldersTitle: 'Hauptordner neu anordnen',
@@ -64,14 +64,14 @@ export const STRINGS_DE = {
     },
 
     shortcuts: {
-        folderExists: 'Ordner bereits in Kurzbefehlen vorhanden',
-        noteExists: 'Notiz bereits in Kurzbefehlen vorhanden',
-        tagExists: 'Tag bereits in Kurzbefehlen vorhanden',
-        searchExists: 'Such-Kurzbefehl existiert bereits',
+        folderExists: 'Ordner bereits in Lesezeichen vorhanden',
+        noteExists: 'Notiz bereits in Lesezeichen vorhanden',
+        tagExists: 'Tag bereits in Lesezeichen vorhanden',
+        searchExists: 'Such-Lesezeichen existiert bereits',
         emptySearchQuery: 'Geben Sie eine Suchanfrage ein, bevor Sie sie speichern',
         emptySearchName: 'Geben Sie einen Namen ein, bevor Sie die Suche speichern',
-        add: 'Zu Shortcuts hinzufügen',
-        remove: 'Aus Shortcuts entfernen',
+        add: 'Zu Lesezeichen hinzufügen',
+        remove: 'Aus Lesezeichen entfernen',
         moveUp: 'Nach oben verschieben',
         moveDown: 'Nach unten verschieben'
     },
@@ -80,7 +80,7 @@ export const STRINGS_DE = {
     paneHeader: {
         collapseAllFolders: 'Elemente einklappen', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Alle Elemente ausklappen', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Zu Kurzbefehlen scrollen',
+        scrollToShortcuts: 'Zu Lesezeichen scrollen',
         newFolder: 'Neuer Ordner', // Tooltip for create new folder button (English: New folder)
         newNote: 'Neue Notiz', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Zurück zur Navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -105,11 +105,11 @@ export const STRINGS_DE = {
         placeholder: 'Suchen...', // Placeholder text for search input (English: Search...)
         placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
         clearSearch: 'Suche löschen', // Tooltip for clear search button (English: Clear search)
-        saveSearchShortcut: 'Suche zu Shortcuts hinzufügen',
-        removeSearchShortcut: 'Suche aus Shortcuts entfernen',
-        shortcutModalTitle: 'Suche als Shortcut speichern',
-        shortcutNameLabel: 'Shortcut-Name',
-        shortcutNamePlaceholder: 'Shortcut-Namen eingeben'
+        saveSearchShortcut: 'Such-Lesezeichen speichern',
+        removeSearchShortcut: 'Such-Lesezeichen entfernen',
+        shortcutModalTitle: 'Such-Lesezeichen speichern',
+        shortcutNameLabel: 'Lesezeichen-Name',
+        shortcutNamePlaceholder: 'Lesezeichen-Namen eingeben'
     },
 
     // Context menus
@@ -572,8 +572,8 @@ export const STRINGS_DE = {
                 desc: 'Ordner und Tags automatisch erweitern, wenn sie ausgewählt werden.'
             },
             showShortcuts: {
-                name: 'Shortcuts anzeigen',
-                desc: 'Shortcut-Bereich im Navigationsbereich anzeigen.'
+                name: 'Lesezeichen anzeigen',
+                desc: 'Lesezeichen-Bereich im Navigationsbereich anzeigen.'
             },
             showRecentNotes: {
                 name: 'Neueste Notizen anzeigen',

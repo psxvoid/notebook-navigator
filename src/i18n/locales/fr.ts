@@ -46,7 +46,7 @@ export const STRINGS_FR = {
     // Tag list
     tagList: {
         untaggedLabel: 'Sans étiquette', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'Favoris', // Label for the favorites virtual folder (English: Favorites)
+        favoriteTags: 'Étiquettes favorites', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: 'Étiquettes cachées', // Label for the hidden tags virtual folder (English: Hidden tags)
         allTags: 'Étiquettes', // Label for the tags virtual folder when favorites exist (English: Tags)
         tags: 'Étiquettes' // Label for the tags virtual folder when no favorites exist (English: Tags)
