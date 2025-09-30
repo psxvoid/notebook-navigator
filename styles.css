@@ -56,10 +56,9 @@ body {
     /* Navigation icon size */
     --nn-nav-icon-size: 16px; /* Fixed icon size */
 
-    /* List title overlay */
-    --nn-list-title-overlay-offset: 8px; /* Matches top spacer padding */
-    --nn-list-title-overlay-content-height: 26px; /* Label height */
-    --nn-list-title-overlay-font-size: 16px; /* Overlay text size */
+    /* List title area */
+    --nn-list-title-padding-block: 12px; /* Vertical padding around list title */
+    --nn-list-title-font-size: 16px; /* Desktop list title text size */
 
     /* ========================================================================
        Header Font Sizes
@@ -1048,42 +1047,21 @@ body {
     position: relative;
 }
 
-.nn-list-title-overlay {
-    position: sticky;
-    top: 0;
-    z-index: 3;
-    padding-top: var(--nn-list-title-overlay-offset);
-    padding-inline: var(--nn-file-item-padding-horizontal);
-    padding-bottom: var(--nn-list-title-overlay-offset);
-    pointer-events: none;
-    margin-inline: 0;
-    margin-bottom: calc(-1 * (var(--nn-list-title-overlay-content-height) + (var(--nn-list-title-overlay-offset) * 2)));
+.nn-list-title-area {
     background-color: var(--nn-theme-list-bg);
+    padding: var(--nn-list-title-padding-block) var(--nn-scroller-padding) 8px;
 }
 
-.nn-list-title-overlay::before {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
-    top: 0;
-    height: calc(var(--nn-list-title-overlay-offset) + var(--nn-list-title-overlay-content-height));
-    background-color: var(--nn-theme-list-bg);
-    z-index: -2;
-}
-
-.nn-list-title-overlay-content {
+.nn-list-title-content {
     display: flex;
     align-items: center;
-    gap: 0;
-    height: var(--nn-list-title-overlay-content-height);
-    font-size: var(--nn-list-title-overlay-font-size);
+    padding: 0 var(--nn-file-item-padding-horizontal);
+    font-size: var(--nn-list-title-font-size);
     font-weight: var(--nn-theme-list-heading-font-weight);
     color: var(--nn-theme-list-heading-color);
-    width: 100%;
 }
 
-.nn-list-title-overlay-text {
+.nn-list-title-text {
     line-height: 1.2;
     flex: 1;
     min-width: 0;

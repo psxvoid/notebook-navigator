@@ -64,7 +64,7 @@ import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
 import { ListToolbar } from './ListToolbar';
 import { SearchInput } from './SearchInput';
-import { ListPaneTitleOverlay } from './ListPaneTitleOverlay';
+import { ListPaneTitleArea } from './ListPaneTitleArea';
 import { SaveSearchShortcutModal } from '../modals/SaveSearchShortcutModal';
 import { useShortcuts } from '../context/ShortcutsContext';
 import type { SearchShortcut } from '../types/shortcuts';
@@ -120,9 +120,8 @@ export const ListPane = React.memo(
         const searchShortcuts = useMemo(() => Array.from(searchShortcutsByName.values()), [searchShortcutsByName]);
         const [isSavingSearchShortcut, setIsSavingSearchShortcut] = useState(false);
         const currentSearchProvider = settings.searchProvider ?? 'internal';
-        const shouldShowTitleOverlay = !isMobile;
-        const topSpacerHeight = shouldShowTitleOverlay ? LISTPANE_MEASUREMENTS.titleOverlayGap : LISTPANE_MEASUREMENTS.topSpacer;
-        const titleOverlayHeight = shouldShowTitleOverlay ? LISTPANE_MEASUREMENTS.titleOverlayHeight : 0;
+        const shouldShowDesktopTitleArea = !isMobile;
+        const topSpacerHeight = shouldShowDesktopTitleArea ? 0 : LISTPANE_MEASUREMENTS.topSpacer;
 
         // Search state - use directly from settings for sync across devices
         const isSearchActive = settings.searchActive;
@@ -230,8 +229,7 @@ export const ListPane = React.memo(
             // Use debounced value for scroll orchestration to align with filtering
             searchQuery: isSearchActive ? debouncedSearchQuery : undefined,
             suppressSearchTopScrollRef,
-            topSpacerHeight,
-            titleOverlayHeight
+            topSpacerHeight
         });
 
         // Check if we're in slim mode
@@ -719,6 +717,7 @@ export const ListPane = React.memo(
                     </div>
                 ) : (
                     <>
+                        {shouldShowDesktopTitleArea && <ListPaneTitleArea isVisible={shouldShowDesktopTitleArea} />}
                         <div
                             ref={scrollContainerRefCallback}
                             className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
@@ -726,7 +725,6 @@ export const ListPane = React.memo(
                             role="list"
                             tabIndex={-1}
                         >
-                            <ListPaneTitleOverlay isVisible={shouldShowTitleOverlay} />
                             {/* Virtual list */}
                             {listItems.length > 0 && (
                                 <div

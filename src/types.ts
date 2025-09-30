@@ -155,9 +155,7 @@ export const LISTPANE_MEASUREMENTS = {
 
     // Spacers
     bottomSpacer: 20,
-    topSpacer: 8,
-    titleOverlayGap: 0,
-    titleOverlayHeight: 42
+    topSpacer: 8
 };
 
 /**
