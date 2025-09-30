@@ -58,6 +58,8 @@ export type ItemScope =
 
 export type MultiSelectModifier = 'cmdCtrl' | 'optionAlt';
 
+export type ListPaneTitleOption = 'header' | 'list' | 'hidden';
+
 /**
  * Quick actions configuration
  */
@@ -109,6 +111,7 @@ export interface NotebookNavigatorSettings {
     hiddenTags: string[];
     // File list appearance and interaction settings
     defaultFolderSort: SortOption;
+    listPaneTitle: ListPaneTitleOption;
     multiSelectModifier: MultiSelectModifier;
     groupByDate: boolean;
     optimizeNoteHeight: boolean;
@@ -218,6 +221,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     hiddenTags: [],
     // List pane
     defaultFolderSort: 'modified-desc',
+    listPaneTitle: 'header',
     multiSelectModifier: 'cmdCtrl',
     groupByDate: true,
     optimizeNoteHeight: true,
@@ -1224,6 +1228,21 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Section 6: List pane
         new Setting(containerEl).setName(strings.settings.sections.listPane).setHeading();
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.listPaneTitle.name)
+            .setDesc(strings.settings.items.listPaneTitle.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('header', strings.settings.items.listPaneTitle.options.header)
+                    .addOption('list', strings.settings.items.listPaneTitle.options.list)
+                    .addOption('hidden', strings.settings.items.listPaneTitle.options.hidden)
+                    .setValue(this.plugin.settings.listPaneTitle)
+                    .onChange(async (value: ListPaneTitleOption) => {
+                        this.plugin.settings.listPaneTitle = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                    })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.sortNotesBy.name)

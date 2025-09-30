@@ -490,6 +490,15 @@ export const STRINGS_EN = {
                     }
                 }
             },
+            listPaneTitle: {
+                name: 'List pane title',
+                desc: 'Choose where the list pane title is shown.',
+                options: {
+                    header: 'Show in header',
+                    list: 'Show in list pane',
+                    hidden: 'Do not show'
+                }
+            },
             sortNotesBy: {
                 name: 'Sort notes by',
                 desc: 'Choose how notes are sorted in the note list.',

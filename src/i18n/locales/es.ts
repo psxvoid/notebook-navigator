@@ -491,6 +491,15 @@ export const STRINGS_ES = {
                     }
                 }
             },
+            listPaneTitle: {
+                name: 'Título del panel de lista',
+                desc: 'Elige dónde se muestra el título del panel de lista.',
+                options: {
+                    header: 'Mostrar en el encabezado',
+                    list: 'Mostrar en el panel de lista',
+                    hidden: 'No mostrar'
+                }
+            },
             sortNotesBy: {
                 name: 'Ordenar notas por',
                 desc: 'Elige cómo se ordenan las notas en la lista de notas.',

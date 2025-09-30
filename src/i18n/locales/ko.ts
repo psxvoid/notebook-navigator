@@ -490,6 +490,15 @@ export const STRINGS_KO = {
                     }
                 }
             },
+            listPaneTitle: {
+                name: '목록 창 제목',
+                desc: '목록 창 제목을 표시할 위치를 선택하세요.',
+                options: {
+                    header: '헤더에 표시',
+                    list: '목록 창에 표시',
+                    hidden: '표시하지 않음'
+                }
+            },
             sortNotesBy: {
                 name: '노트 정렬 기준',
                 desc: '노트 목록에서 노트를 정렬하는 방법을 선택하세요.',

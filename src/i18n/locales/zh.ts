@@ -490,6 +490,15 @@ export const STRINGS_ZH = {
                     }
                 }
             },
+            listPaneTitle: {
+                name: '列表窗格标题',
+                desc: '选择列表窗格标题的显示位置。',
+                options: {
+                    header: '显示在标题栏',
+                    list: '显示在列表窗格',
+                    hidden: '不显示'
+                }
+            },
             sortNotesBy: {
                 name: '笔记排序方式',
                 desc: '选择笔记列表中的笔记排序方式。',

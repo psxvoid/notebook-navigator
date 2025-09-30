@@ -113,6 +113,9 @@ body {
 
     /* -- List Pane (Files) -- */
     --nn-theme-list-bg: var(--background-primary);
+    --nn-theme-list-header-icon-color: var(--text-muted);
+    --nn-theme-list-header-breadcrumb-color: var(--text-muted);
+    --nn-theme-list-header-breadcrumb-font-weight: 600;
     --nn-theme-list-search-active-bg: var(--text-highlight-bg);
     --nn-theme-list-search-border-color: var(--background-modifier-border);
     --nn-theme-list-heading-color: var(--text-muted);
@@ -314,6 +317,63 @@ body {
     align-items: center;
 }
 
+.nn-pane-header-title {
+    font-size: var(--nn-desktop-header-font-size);
+    font-weight: var(--nn-theme-list-header-breadcrumb-font-weight);
+    color: var(--nn-theme-list-header-breadcrumb-color);
+    padding-left: 12px;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+}
+
+.nn-single-pane .nn-list-pane .nn-pane-header-title {
+    padding-left: 2px;
+}
+
+.nn-pane-header-icon {
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
+    margin-inline-end: 8px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    color: var(--nn-theme-list-header-icon-color);
+    overflow: visible;
+}
+
+.nn-pane-header-icon svg {
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
+}
+
+.nn-pane-header-icon.nn-emoji-icon {
+    font-size: var(--nn-nav-icon-size);
+    line-height: var(--nn-nav-icon-size);
+    text-align: center;
+    justify-content: center;
+}
+
+.nn-pane-header-icon.nn-iconfont {
+    font-size: var(--nn-nav-icon-size);
+    line-height: var(--nn-nav-icon-size);
+}
+
+.nn-pane-header-icon[data-has-color='true'] svg {
+    stroke-width: 2.4;
+}
+
+.nn-pane-header-text {
+    line-height: var(--nn-nav-line-height);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--nn-theme-list-header-breadcrumb-color);
+    flex: 1;
+    min-width: 0;
+}
+
 /* Search bar container */
 .nn-search-bar-container {
     height: 0;
@@ -348,7 +408,7 @@ body {
     top: 8px;
     width: 16px;
     height: 16px;
-    color: var(--text-muted);
+    color: var(--nn-theme-list-header-icon-color);
     pointer-events: none;
 }
 
@@ -383,7 +443,7 @@ body {
 }
 
 .nn-search-input::placeholder {
-    color: var(--text-muted) !important;
+    color: var(--nn-theme-list-header-breadcrumb-color) !important;
 }
 
 /* Clear button */
@@ -973,7 +1033,7 @@ body {
 
 .nn-root-reorder-title {
     font-size: var(--font-small);
-    font-weight: 600;
+    font-weight: var(--nn-theme-list-header-breadcrumb-font-weight);
 }
 
 .is-mobile .nn-root-reorder-title {
@@ -2661,7 +2721,7 @@ body.nn-resizing {
 
 /* Breadcrumb current segment - desktop uses list header color, mobile uses navitem color */
 .nn-path-current {
-    color: var(--text-muted);
+    color: var(--nn-theme-list-header-breadcrumb-color);
 }
 
 /* Mobile breadcrumb current segment - use mobile-specific theme color */
@@ -3873,6 +3933,34 @@ settings:
         id: nn-theme-list-heading-font-weight
         title: List heading font weight
         description: Font weight for the list pane overlay heading.
+        type: variable-number-slider
+        default: 600
+        min: 100
+        max: 900
+        step: 100
+    -
+    -
+        id: nn-theme-list-header-icon-color
+        title: List header icon color
+        description: Color for the folder/tag icon shown beside the desktop list header breadcrumb.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-list-header-breadcrumb-color
+        title: List header breadcrumb color
+        description: Text color for the breadcrumb path in the desktop list header.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-list-header-breadcrumb-font-weight
+        title: List header breadcrumb font weight
+        description: Font weight for breadcrumb text in the desktop list header.
         type: variable-number-slider
         default: 600
         min: 100

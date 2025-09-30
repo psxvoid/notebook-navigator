@@ -120,7 +120,8 @@ export const ListPane = React.memo(
         const searchShortcuts = useMemo(() => Array.from(searchShortcutsByName.values()), [searchShortcutsByName]);
         const [isSavingSearchShortcut, setIsSavingSearchShortcut] = useState(false);
         const currentSearchProvider = settings.searchProvider ?? 'internal';
-        const shouldShowDesktopTitleArea = !isMobile;
+        const listPaneTitle = settings.listPaneTitle ?? 'header';
+        const shouldShowDesktopTitleArea = !isMobile && listPaneTitle === 'list';
         const topSpacerHeight = shouldShowDesktopTitleArea ? 0 : LISTPANE_MEASUREMENTS.topSpacer;
 
         // Search state - use directly from settings for sync across devices

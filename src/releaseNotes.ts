@@ -73,6 +73,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.5.1',
         date: '2025-10-01',
+        changed: [
+            'Some users did not like the new list pane title introduced in 1.5, so default is now back to showing list pane title in header area. You can now change between header, list pane and none.'
+        ],
         fixed: [
             'Fixed an issue where the navigation pane would not be shown on startup when a homepage was configured and the default startup view was set to navigation pane in single-pane mode.'
         ]

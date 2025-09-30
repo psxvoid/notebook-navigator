@@ -492,6 +492,15 @@ export const STRINGS_PL = {
                     }
                 }
             },
+            listPaneTitle: {
+                name: 'Tytuł panelu listy',
+                desc: 'Wybierz, gdzie ma być wyświetlany tytuł panelu listy.',
+                options: {
+                    header: 'Wyświetlaj w nagłówku',
+                    list: 'Wyświetlaj w panelu listy',
+                    hidden: 'Nie wyświetlaj'
+                }
+            },
             sortNotesBy: {
                 name: 'Sortuj notatki według',
                 desc: 'Wybierz sposób sortowania notatek na liście.',

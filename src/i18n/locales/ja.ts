@@ -491,6 +491,15 @@ export const STRINGS_JA = {
                     }
                 }
             },
+            listPaneTitle: {
+                name: 'リストペインのタイトル',
+                desc: 'リストペインのタイトルを表示する場所を選択します。',
+                options: {
+                    header: 'ヘッダーに表示',
+                    list: 'リストペインに表示',
+                    hidden: '表示しない'
+                }
+            },
             sortNotesBy: {
                 name: 'ノートの並び順',
                 desc: 'ノートリストでのノートの並び順を選択します。',

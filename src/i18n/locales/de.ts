@@ -494,6 +494,15 @@ export const STRINGS_DE = {
                     }
                 }
             },
+            listPaneTitle: {
+                name: 'Titel des Listenbereichs',
+                desc: 'Wählen Sie, wo der Titel des Listenbereichs angezeigt wird.',
+                options: {
+                    header: 'Im Kopfbereich anzeigen',
+                    list: 'Im Listenbereich anzeigen',
+                    hidden: 'Nicht anzeigen'
+                }
+            },
             sortNotesBy: {
                 name: 'Notizen sortieren nach',
                 desc: 'Wählen Sie, wie Notizen in der Notizenliste sortiert werden.',

@@ -74,14 +74,16 @@ custom color styles, which override the default style.
 
 ### List pane (files)
 
-| Variable                              | Default                             | Description                                                                        |
-| ------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------- |
-| `--nn-theme-list-bg`                  | `var(--background-primary)`         | Background color of the list pane                                                  |
-| `--nn-theme-list-search-active-bg`    | `var(--text-highlight-bg)`          | Background color for the search field when a search query is active (desktop only) |
-| `--nn-theme-list-search-border-color` | `var(--background-modifier-border)` | Border and focus ring color for the search field (desktop only)                    |
-| `--nn-theme-list-heading-color`       | `var(--text-muted)`                 | Text color for the list pane overlay heading                                       |
-| `--nn-theme-list-group-header-color`  | `var(--text-muted)`                 | Text color for date groups and pinned section                                      |
-| `--nn-theme-list-separator-color`     | `var(--background-modifier-border)` | Divider line color between files                                                   |
+| Variable                                  | Default                             | Description                                                                        |
+| ----------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------- |
+| `--nn-theme-list-bg`                      | `var(--background-primary)`         | Background color of the list pane                                                  |
+| `--nn-theme-list-header-icon-color`       | `var(--text-muted)`                 | Folder/tag icon color shown beside the breadcrumb in the desktop header            |
+| `--nn-theme-list-header-breadcrumb-color` | `var(--text-muted)`                 | Text color for the breadcrumb path in the desktop header                           |
+| `--nn-theme-list-search-active-bg`        | `var(--text-highlight-bg)`          | Background color for the search field when a search query is active (desktop only) |
+| `--nn-theme-list-search-border-color`     | `var(--background-modifier-border)` | Border and focus ring color for the search field (desktop only)                    |
+| `--nn-theme-list-heading-color`           | `var(--text-muted)`                 | Text color for the list pane overlay heading                                       |
+| `--nn-theme-list-group-header-color`      | `var(--text-muted)`                 | Text color for date groups and pinned section                                      |
+| `--nn-theme-list-separator-color`         | `var(--background-modifier-border)` | Divider line color between files                                                   |
 
 #### File items
 
@@ -108,16 +110,17 @@ custom color styles, which override the default style.
 
 #### Text styling
 
-| Variable                                   | Default | Description                                    |
-| ------------------------------------------ | ------- | ---------------------------------------------- |
-| `--nn-theme-list-heading-font-weight`      | `600`   | Font weight for the list pane overlay heading  |
-| `--nn-theme-list-group-header-font-weight` | `600`   | Font weight for date groups and pinned section |
-| `--nn-theme-file-name-font-weight`         | `600`   | Font weight for file names                     |
-| `--nn-theme-file-slim-name-font-weight`    | `400`   | Font weight for file names in slim mode        |
-| `--nn-theme-file-preview-font-weight`      | `400`   | Font weight for file preview text              |
-| `--nn-theme-file-date-font-weight`         | `400`   | Font weight for file dates                     |
-| `--nn-theme-file-parent-font-weight`       | `400`   | Font weight for parent folder path             |
-| `--nn-theme-file-tag-font-weight`          | `400`   | Font weight for tag pills                      |
+| Variable                                        | Default | Description                                          |
+| ----------------------------------------------- | ------- | ---------------------------------------------------- |
+| `--nn-theme-list-header-breadcrumb-font-weight` | `600`   | Font weight for the breadcrumb in the desktop header |
+| `--nn-theme-list-heading-font-weight`           | `600`   | Font weight for the list pane overlay heading        |
+| `--nn-theme-list-group-header-font-weight`      | `600`   | Font weight for date groups and pinned section       |
+| `--nn-theme-file-name-font-weight`              | `600`   | Font weight for file names                           |
+| `--nn-theme-file-slim-name-font-weight`         | `400`   | Font weight for file names in slim mode              |
+| `--nn-theme-file-preview-font-weight`           | `400`   | Font weight for file preview text                    |
+| `--nn-theme-file-date-font-weight`              | `400`   | Font weight for file dates                           |
+| `--nn-theme-file-parent-font-weight`            | `400`   | Font weight for parent folder path                   |
+| `--nn-theme-file-tag-font-weight`               | `400`   | Font weight for tag pills                            |
 
 #### Quick actions (desktop only)
 

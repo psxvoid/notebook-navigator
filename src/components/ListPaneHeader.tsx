@@ -16,13 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Platform } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { strings } from '../i18n';
+import { getIconService, useIconServiceVersion } from '../services/icons';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useListActions } from '../hooks/useListActions';
 import { useListPaneTitle } from '../hooks/useListPaneTitle';
@@ -34,22 +35,27 @@ interface ListPaneHeaderProps {
 }
 
 export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }: ListPaneHeaderProps) {
+    const iconRef = React.useRef<HTMLSpanElement>(null);
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
-    const { desktopTitle, breadcrumbSegments } = useListPaneTitle();
+    const { desktopTitle, breadcrumbSegments, iconName, showIcon } = useListPaneTitle();
+    const listPaneTitlePreference = settings.listPaneTitle ?? 'header';
+    const iconVersion = useIconServiceVersion();
 
     // Use the shared actions hook
     const { handleNewFile, handleAppearanceMenu, handleSortMenu, handleToggleDescendants, getSortIcon, isCustomSort, hasCustomAppearance } =
         useListActions();
 
-    const shouldRenderTitleContent = isMobile;
+    const shouldRenderBreadcrumbSegments = isMobile;
+    const shouldShowHeaderTitle = !isMobile && listPaneTitlePreference === 'header';
+    const shouldShowHeaderIcon = shouldShowHeaderTitle && showIcon;
 
     const breadcrumbContent = useMemo((): React.ReactNode => {
-        if (!shouldRenderTitleContent) {
+        if (!shouldRenderBreadcrumbSegments) {
             return desktopTitle;
         }
 
@@ -94,34 +100,51 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
         });
 
         return parts;
-    }, [app.vault, breadcrumbSegments, desktopTitle, selectionDispatch, shouldRenderTitleContent]);
+    }, [app.vault, breadcrumbSegments, desktopTitle, selectionDispatch, shouldRenderBreadcrumbSegments]);
 
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
     const [showFade, setShowFade] = React.useState(false);
 
-    // Auto-scroll to end when selection changes
-    React.useEffect(() => {
-        if (isMobile && scrollContainerRef.current) {
-            // Use setTimeout to ensure the DOM has updated with new content
-            const timeoutId = window.setTimeout(() => {
-                if (scrollContainerRef.current) {
-                    // Use scrollTo with behavior: 'instant' for immediate scroll
-                    scrollContainerRef.current.scrollTo({
-                        left: scrollContainerRef.current.scrollWidth,
-                        behavior: 'instant'
-                    });
-                }
-            }, 0);
-            return () => window.clearTimeout(timeoutId);
+    useEffect(() => {
+        if (!shouldShowHeaderIcon || !iconRef.current) {
+            return;
         }
+
+        const iconService = getIconService();
+        iconService.renderIcon(iconRef.current, iconName);
+    }, [iconName, iconVersion, shouldShowHeaderIcon]);
+
+    // Auto-scroll to end when selection changes
+    useEffect(() => {
+        if (!isMobile) {
+            setShowFade(false);
+            return;
+        }
+        if (!scrollContainerRef.current) {
+            return;
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            if (scrollContainerRef.current) {
+                scrollContainerRef.current.scrollTo({
+                    left: scrollContainerRef.current.scrollWidth,
+                    behavior: 'instant'
+                });
+            }
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
     }, [selectionState.selectedFolder, selectionState.selectedTag, isMobile]);
 
     // Check scroll position to show/hide fade
     const handleScroll = React.useCallback(() => {
+        if (!isMobile) {
+            return;
+        }
         if (scrollContainerRef.current) {
             setShowFade(scrollContainerRef.current.scrollLeft > 0);
         }
-    }, []);
+    }, [isMobile]);
 
     if (isMobile) {
         // On mobile, show simplified header with back button and path - actions moved to tab bar
@@ -165,7 +188,8 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                     </button>
                 )}
                 <span className="nn-pane-header-title">
-                    {shouldRenderTitleContent && <span className="nn-pane-header-text">{breadcrumbContent}</span>}
+                    {shouldShowHeaderIcon && <span ref={iconRef} className="nn-pane-header-icon" />}
+                    {shouldShowHeaderTitle && <span className="nn-pane-header-text">{breadcrumbContent}</span>}
                 </span>
                 <div className="nn-header-actions">
                     <button
