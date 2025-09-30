@@ -43,9 +43,11 @@ export default class WorkspaceCoordinator {
         const leaves = workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
 
         if (leaves.length > 0) {
+            // Navigator exists, reveal the first instance
             leaf = leaves[0];
             workspace.revealLeaf(leaf);
         } else {
+            // Create navigator in left sidebar
             leaf = workspace.getLeftLeaf(false);
             if (leaf) {
                 await leaf.setViewState({ type: NOTEBOOK_NAVIGATOR_VIEW, active: true });
@@ -64,7 +66,8 @@ export default class WorkspaceCoordinator {
     }
 
     /**
-     * Forwards a "manual" reveal to every navigator view.
+     * Reveals a file in its actual parent folder across all navigator views.
+     * This is a "manual" reveal that always navigates to the file's true location.
      */
     revealFileInActualFolder(file: TFile, options?: RevealFileOptions): void {
         this.getNavigatorLeaves().forEach(leaf => {
@@ -76,7 +79,8 @@ export default class WorkspaceCoordinator {
     }
 
     /**
-     * Forwards an auto reveal that preserves the current navigation context when possible.
+     * Reveals a file while attempting to preserve the current navigation context.
+     * This is an "auto" reveal used during file opens and homepage loading.
      */
     revealFileInNearestFolder(file: TFile, options?: RevealFileOptions): void {
         this.getNavigatorLeaves().forEach(leaf => {
@@ -91,6 +95,7 @@ export default class WorkspaceCoordinator {
      * Focuses the navigator's file pane if the target leaf is available.
      */
     focusFilePane(targetLeaf: WorkspaceLeaf | null): void {
+        // Use provided leaf or fall back to first available navigator leaf
         const leaf = targetLeaf ?? this.getNavigatorLeaves()[0] ?? null;
         if (!leaf) {
             return;

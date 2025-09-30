@@ -77,8 +77,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private isUnloading = false;
     // User preference for dual-pane mode (persisted in localStorage, not settings)
     private dualPanePreference = true;
+    // Manages recent notes and icons data persistence
     private recentDataManager: RecentDataManager | null = null;
+    // Coordinates workspace interactions with the navigator view
     private workspaceCoordinator: WorkspaceCoordinator | null = null;
+    // Handles homepage file opening and startup behavior
     private homepageController: HomepageController | null = null;
 
     // Keys used for persisting UI state in browser localStorage
@@ -135,9 +138,10 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
-     * Sets up the recent data manager and hydrates cached values.
+     * Sets up the recent data manager and loads persisted data.
      */
     private initializeRecentDataManager(): void {
+        // Create manager instance on first call
         if (!this.recentDataManager) {
             this.recentDataManager = new RecentDataManager({
                 settings: this.settings,
@@ -146,6 +150,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             });
         }
 
+        // Load recent notes and icons from local storage
         this.recentDataManager.initialize();
     }
 
@@ -277,10 +282,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
         }
 
+        // Initialize recent data management
         this.initializeRecentDataManager();
 
         this.recentNotesService = new RecentNotesService(this);
 
+        // Initialize workspace and homepage coordination
         this.workspaceCoordinator = new WorkspaceCoordinator(this);
         this.homepageController = new HomepageController(this, this.workspaceCoordinator);
 

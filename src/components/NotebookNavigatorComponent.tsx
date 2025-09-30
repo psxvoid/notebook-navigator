@@ -48,7 +48,9 @@ import type { NavigationPaneHandle } from './NavigationPane';
 import type { SearchShortcut } from '../types/shortcuts';
 
 export interface NotebookNavigatorHandle {
+    // Navigates to a file by revealing it in its actual parent folder
     navigateToFile: (file: TFile, options?: RevealFileOptions) => void;
+    // Reveals a file while preserving the current navigation context when possible
     revealFileInNearestFolder: (file: TFile, options?: RevealFileOptions) => void;
     focusFilePane: () => void;
     refresh: () => void;
@@ -246,9 +248,11 @@ export const NotebookNavigatorComponent = React.memo(
             };
 
             return {
+                // Forward to the manual reveal implementation
                 navigateToFile: (file: TFile, options?: RevealFileOptions) => {
                     revealFileInActualFolder(file, options);
                 },
+                // Forward to the auto reveal implementation
                 revealFileInNearestFolder: (file: TFile, options?: RevealFileOptions) => {
                     revealFileInNearestFolder(file, options);
                 },

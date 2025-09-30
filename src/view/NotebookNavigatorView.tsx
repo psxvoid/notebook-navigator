@@ -173,14 +173,14 @@ export class NotebookNavigatorView extends ItemView {
     }
 
     /**
-     * Navigates to a file in the navigator by selecting it and its parent folder
+     * Navigates to a file by revealing it in its actual parent folder
      */
     navigateToFile(file: TFile, options?: RevealFileOptions) {
         this.componentRef.current?.navigateToFile(file, options);
     }
 
     /**
-     * Performs an automatic reveal that keeps existing navigation context when possible
+     * Reveals a file while attempting to preserve the current navigation context
      */
     revealFileInNearestFolder(file: TFile, options?: RevealFileOptions) {
         this.componentRef.current?.revealFileInNearestFolder(file, options);

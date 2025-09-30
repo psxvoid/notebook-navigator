@@ -42,8 +42,11 @@ interface UseNavigatorRevealOptions {
 }
 
 export interface RevealFileOptions {
+    // Indicates the source of the reveal action
     source?: SelectionRevealSource;
+    // True if this reveal happens during plugin startup
     isStartupReveal?: boolean;
+    // Prevents switching focus away from the navigation pane
     preserveNavigationFocus?: boolean;
 }
 
@@ -185,7 +188,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
             }
 
-            // Always shift focus to list pane
+            // Shift focus to list pane unless already there
             if (uiState.focusedPane !== 'files') {
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             }
@@ -383,7 +386,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 source: revealSource
             });
 
-            // In single pane mode, switch to list pane view
+            // Determine whether to switch to files view in single pane mode
             const shouldSkipSinglePaneSwitch = Boolean(
                 (options?.isStartupReveal && settings.startView === 'navigation') || options?.preserveNavigationFocus
             );

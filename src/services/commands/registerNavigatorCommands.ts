@@ -7,6 +7,9 @@ import { NOTEBOOK_NAVIGATOR_VIEW } from '../../types';
 import { strings } from '../../i18n';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 
+/**
+ * Reveals and focuses the file pane in the navigator view if it exists
+ */
 function focusNavigatorFilePane(plugin: NotebookNavigatorPlugin) {
     const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
     if (navigatorLeaves.length > 0) {
@@ -19,6 +22,9 @@ function focusNavigatorFilePane(plugin: NotebookNavigatorPlugin) {
     }
 }
 
+/**
+ * Opens the navigator view if not already open, otherwise reveals the existing view
+ */
 async function ensureNavigatorOpen(plugin: NotebookNavigatorPlugin) {
     const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
     if (navigatorLeaves.length > 0) {
@@ -29,7 +35,11 @@ async function ensureNavigatorOpen(plugin: NotebookNavigatorPlugin) {
     return plugin.activateView();
 }
 
+/**
+ * Registers all navigator commands with the plugin
+ */
 export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugin): void {
+    // Command to open the navigator or focus it if already open
     plugin.addCommand({
         id: 'open',
         name: strings.commands.open,
@@ -44,6 +54,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to open the configured homepage file
     plugin.addCommand({
         id: 'open-homepage',
         name: strings.commands.openHomepage,
@@ -61,6 +72,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to reveal the currently active file in the navigator
     plugin.addCommand({
         id: 'reveal-file',
         name: strings.commands.revealFile,
@@ -79,6 +91,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to toggle showing descendant files in folders
     plugin.addCommand({
         id: 'toggle-descendants',
         name: strings.commands.toggleDescendants,
@@ -89,6 +102,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to toggle showing hidden files and folders
     plugin.addCommand({
         id: 'toggle-hidden',
         name: strings.commands.toggleHidden,
@@ -99,6 +113,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to toggle between single and dual pane layouts
     plugin.addCommand({
         id: 'toggle-dual-pane',
         name: strings.commands.toggleDualPane,
@@ -108,6 +123,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to collapse or expand all folders in the navigation pane
     plugin.addCommand({
         id: 'collapse-expand',
         name: strings.commands.collapseExpand,
@@ -125,6 +141,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to create a new note in the currently selected folder
     plugin.addCommand({
         id: 'new-note',
         name: strings.commands.createNewNote,
@@ -142,6 +159,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to move selected files to a different folder
     plugin.addCommand({
         id: 'move-files',
         name: strings.commands.moveFiles,
@@ -159,6 +177,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to delete the currently active file
     plugin.addCommand({
         id: 'delete-files',
         name: strings.commands.deleteFile,
@@ -175,6 +194,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to clear and rebuild the entire local cache database
     plugin.addCommand({
         id: 'rebuild-cache',
         name: strings.commands.rebuildCache,
@@ -187,6 +207,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to add a tag to selected files
     plugin.addCommand({
         id: 'add-tag',
         name: strings.commands.addTag,
@@ -204,6 +225,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to remove a tag from selected files
     plugin.addCommand({
         id: 'remove-tag',
         name: strings.commands.removeTag,
@@ -221,6 +243,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to remove all tags from selected files
     plugin.addCommand({
         id: 'remove-all-tags',
         name: strings.commands.removeAllTags,
@@ -238,6 +261,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to show a modal for navigating to any folder
     plugin.addCommand({
         id: 'navigate-to-folder',
         name: strings.commands.navigateToFolder,
@@ -255,6 +279,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to show a modal for navigating to any tag
     plugin.addCommand({
         id: 'navigate-to-tag',
         name: strings.commands.navigateToTag,
@@ -272,6 +297,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to open or focus the search input
     plugin.addCommand({
         id: 'search',
         name: strings.commands.search,
