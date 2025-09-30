@@ -679,9 +679,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 // Silently ignore errors from settings update callbacks
             }
         });
-
-        this.homepageController?.resetCachedHomepage();
-        void this.openHomepage('settings-change');
     }
 
     /**
@@ -745,8 +742,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         return this.homepageController?.resolveHomepageFile() ?? null;
     }
 
-    public async openHomepage(trigger: 'startup' | 'settings-change' | 'command', force = false): Promise<boolean> {
-        return this.homepageController?.open(trigger, force) ?? false;
+    public async openHomepage(trigger: 'startup' | 'command'): Promise<boolean> {
+        return this.homepageController?.open(trigger) ?? false;
     }
 
     /**

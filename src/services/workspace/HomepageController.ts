@@ -23,7 +23,7 @@ import type { RevealFileOptions } from '../../hooks/useNavigatorReveal';
 import WorkspaceCoordinator from './WorkspaceCoordinator';
 
 // Indicates what triggered the homepage opening
-type HomepageTrigger = 'startup' | 'settings-change' | 'command';
+type HomepageTrigger = 'startup' | 'command';
 
 interface WorkspaceReadyOptions {
     // Whether to activate the navigator view during workspace initialization
@@ -41,9 +41,6 @@ export default class HomepageController {
     private isWorkspaceReady = false;
     // Stores a deferred homepage trigger to execute once workspace is ready
     private pendingTrigger: HomepageTrigger | null = null;
-    // Caches the last opened homepage path to avoid redundant opens
-    private lastHomepagePath: string | null = null;
-
     constructor(plugin: NotebookNavigatorPlugin, workspace: WorkspaceCoordinator) {
         this.plugin = plugin;
         this.workspace = workspace;
@@ -84,13 +81,13 @@ export default class HomepageController {
         // Execute any deferred homepage trigger or default to startup
         const trigger = this.pendingTrigger ?? 'startup';
         this.pendingTrigger = null;
-        await this.open(trigger, true);
+        await this.open(trigger);
     }
 
     /**
      * Opens the configured homepage file if it exists and conditions are met
      */
-    async open(trigger: HomepageTrigger, force = false): Promise<boolean> {
+    async open(trigger: HomepageTrigger): Promise<boolean> {
         if (this.plugin.isShuttingDown()) {
             return false;
         }
@@ -103,21 +100,15 @@ export default class HomepageController {
 
         const homepageFile = this.resolveHomepageFile();
         if (!homepageFile) {
-            this.lastHomepagePath = null;
-            return false;
-        }
-
-        // Skip if same homepage was already opened
-        if (!force && homepageFile.path === this.lastHomepagePath) {
             return false;
         }
 
         const leaf = await this.workspace.activateNavigatorView();
         const shouldFocusPane = trigger === 'command' || (trigger === 'startup' && this.plugin.settings.startView === 'files');
         const revealOptions: RevealFileOptions = {
-            source: trigger === 'startup' ? 'startup' : trigger === 'command' ? 'manual' : 'auto',
+            source: trigger === 'startup' ? 'startup' : 'manual',
             isStartupReveal: trigger === 'startup',
-            preserveNavigationFocus: this.plugin.settings.startView === 'navigation' && trigger !== 'command'
+            preserveNavigationFocus: this.plugin.settings.startView === 'navigation' && trigger === 'startup'
         };
 
         // Reveal homepage in navigator
@@ -129,14 +120,6 @@ export default class HomepageController {
 
         // Open homepage file in the editor
         await this.plugin.app.workspace.openLinkText(homepageFile.path, '', false);
-        this.lastHomepagePath = homepageFile.path;
         return true;
-    }
-
-    /**
-     * Clears the cached homepage path to ensure the next open re-evaluates it.
-     */
-    resetCachedHomepage(): void {
-        this.lastHomepagePath = null;
     }
 }

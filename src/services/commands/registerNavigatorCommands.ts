@@ -65,7 +65,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
             }
 
             if (!checking) {
-                void plugin.openHomepage('command', true);
+                void plugin.openHomepage('command');
             }
 
             return true;

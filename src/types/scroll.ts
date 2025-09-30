@@ -3,14 +3,7 @@
 export type Align = 'auto' | 'center' | 'start' | 'end';
 
 // Navigation pane scroll intents
-export type NavScrollIntent =
-    | 'selection'
-    | 'startup'
-    | 'reveal'
-    | 'visibilityToggle'
-    | 'external'
-    | 'mobile-visibility'
-    | 'settings-change';
+export type NavScrollIntent = 'selection' | 'startup' | 'reveal' | 'visibilityToggle' | 'external' | 'mobile-visibility';
 
 // List pane scroll intents
 export type ListScrollIntent = 'folder-navigation' | 'visibility-change' | 'reveal' | 'list-config-change';
