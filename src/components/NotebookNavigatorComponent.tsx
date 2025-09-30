@@ -52,7 +52,7 @@ export interface NotebookNavigatorHandle {
     navigateToFile: (file: TFile, options?: RevealFileOptions) => void;
     // Reveals a file while preserving the current navigation context when possible
     revealFileInNearestFolder: (file: TFile, options?: RevealFileOptions) => void;
-    focusFilePane: () => void;
+    focusVisiblePane: () => void;
     refresh: () => void;
     deleteActiveFile: () => void;
     createNoteInSelectedFolder: () => Promise<void>;
@@ -76,7 +76,7 @@ export interface NotebookNavigatorHandle {
  * and auto-reveal functionality for the active file.
  *
  * @param _ - Props (none used)
- * @param ref - Forwarded ref exposing revealFile and focusFilePane methods
+ * @param ref - Forwarded ref exposing navigation helpers and focus methods
  * @returns A split-pane container with folder tree and file list
  */
 export const NotebookNavigatorComponent = React.memo(
@@ -256,17 +256,16 @@ export const NotebookNavigatorComponent = React.memo(
                 revealFileInNearestFolder: (file: TFile, options?: RevealFileOptions) => {
                     revealFileInNearestFolder(file, options);
                 },
-                focusFilePane: () => {
-                    // In single pane mode, switch to file list view
-                    if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
-                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                    }
-
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                    // Focus the container to ensure keyboard navigation works
-                    // Don't steal focus if we're opening version history or in a new context
+                focusVisiblePane: () => {
                     const isOpeningVersionHistory = commandQueue?.isOpeningVersionHistory() || false;
                     const isOpeningInNewContext = commandQueue?.isOpeningInNewContext() || false;
+
+                    if (uiState.singlePane) {
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: uiState.currentSinglePaneView });
+                    } else {
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    }
+
                     if (!isOpeningVersionHistory && !isOpeningInNewContext) {
                         containerRef.current?.focus();
                     }

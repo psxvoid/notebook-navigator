@@ -90,20 +90,4 @@ export default class WorkspaceCoordinator {
             }
         });
     }
-
-    /**
-     * Focuses the navigator's file pane if the target leaf is available.
-     */
-    focusFilePane(targetLeaf: WorkspaceLeaf | null): void {
-        // Use provided leaf or fall back to first available navigator leaf
-        const leaf = targetLeaf ?? this.getNavigatorLeaves()[0] ?? null;
-        if (!leaf) {
-            return;
-        }
-
-        const { view } = leaf;
-        if (view instanceof NotebookNavigatorView) {
-            view.focusFilePane();
-        }
-    }
 }

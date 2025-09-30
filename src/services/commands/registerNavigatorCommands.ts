@@ -8,16 +8,16 @@ import { strings } from '../../i18n';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 
 /**
- * Reveals and focuses the file pane in the navigator view if it exists
+ * Reveals the navigator view and focuses whichever pane is currently visible
  */
-function focusNavigatorFilePane(plugin: NotebookNavigatorPlugin) {
+function focusNavigatorVisiblePane(plugin: NotebookNavigatorPlugin) {
     const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
     if (navigatorLeaves.length > 0) {
         const leaf = navigatorLeaves[0];
         plugin.app.workspace.revealLeaf(leaf);
         const view = leaf.view;
         if (view instanceof NotebookNavigatorView) {
-            view.focusFilePane();
+            view.focusVisiblePane();
         }
     }
 }
@@ -46,8 +46,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         callback: async () => {
             const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
             if (navigatorLeaves.length > 0) {
-                plugin.app.workspace.revealLeaf(navigatorLeaves[0]);
-                focusNavigatorFilePane(plugin);
+                focusNavigatorVisiblePane(plugin);
             } else {
                 await plugin.activateView();
             }

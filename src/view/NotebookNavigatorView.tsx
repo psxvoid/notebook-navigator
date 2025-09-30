@@ -187,10 +187,10 @@ export class NotebookNavigatorView extends ItemView {
     }
 
     /**
-     * Moves focus to the file pane for keyboard navigation
+     * Moves focus to the visible pane without forcing a view switch
      */
-    focusFilePane() {
-        this.componentRef.current?.focusFilePane();
+    focusVisiblePane() {
+        this.componentRef.current?.focusVisiblePane();
     }
 
     /**

@@ -103,8 +103,7 @@ export default class HomepageController {
             return false;
         }
 
-        const leaf = await this.workspace.activateNavigatorView();
-        const shouldFocusPane = trigger === 'command' || (trigger === 'startup' && this.plugin.settings.startView === 'files');
+        await this.workspace.activateNavigatorView();
         const revealOptions: RevealFileOptions = {
             source: trigger === 'startup' ? 'startup' : 'manual',
             isStartupReveal: trigger === 'startup',
@@ -113,10 +112,6 @@ export default class HomepageController {
 
         // Reveal homepage in navigator
         this.workspace.revealFileInNearestFolder(homepageFile, revealOptions);
-
-        if (shouldFocusPane) {
-            this.workspace.focusFilePane(leaf);
-        }
 
         // Open homepage file in the editor
         await this.plugin.app.workspace.openLinkText(homepageFile.path, '', false);
