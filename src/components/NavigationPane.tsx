@@ -410,7 +410,7 @@ export const NavigationPane = React.memo(
                             });
                         }
                     } catch (error) {
-                        console.debug('Failed to parse obsidian/files payload', error);
+                        console.error('Failed to parse obsidian/files payload', error);
                         setExternalShortcutDropIndex(null);
                         return false;
                     }

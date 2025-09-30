@@ -74,8 +74,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.5.1',
         date: '2025-10-01',
         new: [
-            '**New setting: List pane title**. You can now choose how to show the list pane title: in header, in list pane (default) or none. ',
-            '**New setting: Show banner image**. You can now show a banner image at the top of the navigation pane.'
+            '**New setting: List pane title**. You can now choose how to show the list pane title: in header, in list pane (default) or none.'
         ],
         changed: [
             'Renamed tag "Favorites" to "Favorite tags".',
