@@ -237,7 +237,7 @@ export function useListReorder<T extends ReorderItemDescriptor>({
                 event.dataTransfer.setData(SHORTCUT_DRAG_MIME, key);
                 event.dataTransfer.setData('text/plain', key);
             } catch (error) {
-                console.debug('Drag dataTransfer setData failed', error);
+                console.error('Drag dataTransfer setData failed', error);
             }
             event.dataTransfer.effectAllowed = 'move';
             setDraggingKey(key);
