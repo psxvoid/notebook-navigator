@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Plugin, TFile, TFolder, FileView } from 'obsidian';
+import { Plugin, TFile, FileView } from 'obsidian';
 import {
     NotebookNavigatorSettings,
     DEFAULT_SETTINGS,
@@ -34,11 +34,11 @@ import { OmnisearchService } from './services/OmnisearchService';
 import { FileSystemOperations } from './services/FileSystemService';
 import { getIconService } from './services/icons';
 import { RecentNotesService } from './services/RecentNotesService';
-import { RecentStorageService } from './services/RecentStorageService';
+import RecentDataManager from './services/recent/RecentDataManager';
 import { ExternalIconProviderController } from './services/icons/external/ExternalIconProviderController';
 import { ExternalIconProviderId } from './services/icons/external/providerRegistry';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
-import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
+import { getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
 import { initializeDatabase, shutdownDatabase } from './storage/fileOperations';
@@ -47,6 +47,8 @@ import { getLeafSplitLocation } from './utils/workspaceSplit';
 import { sanitizeKeyboardShortcuts } from './utils/keyboardShortcuts';
 import WorkspaceCoordinator from './services/workspace/WorkspaceCoordinator';
 import HomepageController from './services/workspace/HomepageController';
+import registerNavigatorCommands from './services/commands/registerNavigatorCommands';
+import registerWorkspaceEvents from './services/workspace/registerWorkspaceEvents';
 import type { RevealFileOptions } from './hooks/useNavigatorReveal';
 
 /**
@@ -75,7 +77,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private isUnloading = false;
     // User preference for dual-pane mode (persisted in localStorage, not settings)
     private dualPanePreference = true;
-    private recentStorage: RecentStorageService | null = null;
+    private recentDataManager: RecentDataManager | null = null;
     private workspaceCoordinator: WorkspaceCoordinator | null = null;
     private homepageController: HomepageController | null = null;
 
@@ -90,7 +92,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     async onExternalSettingsChange() {
         if (!this.isUnloading) {
             await this.loadSettings();
-            this.resetRecentStorage();
+            this.initializeRecentDataManager();
             this.onSettingsUpdate();
         }
     }
@@ -133,50 +135,39 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
-     * Creates a new RecentStorageService instance and loads data from local storage
+     * Sets up the recent data manager and hydrates cached values.
      */
-    private resetRecentStorage(): void {
-        // Persist any pending changes before resetting
-        this.recentStorage?.flushPendingPersists();
+    private initializeRecentDataManager(): void {
+        if (!this.recentDataManager) {
+            this.recentDataManager = new RecentDataManager({
+                settings: this.settings,
+                keys: this.keys,
+                onRecentDataChange: () => this.notifyRecentDataUpdate()
+            });
+        }
 
-        // Create new storage service instance
-        this.recentStorage = new RecentStorageService({
-            settings: this.settings,
-            keys: this.keys,
-            notifyChange: () => {
-                this.notifyRecentDataUpdate();
-            }
-        });
-        // Load data from local storage
-        this.recentStorage.hydrate();
-        this.notifyRecentDataUpdate();
+        this.recentDataManager.initialize();
     }
 
     /**
      * Returns the list of recent note paths from local storage
      */
     public getRecentNotes(): string[] {
-        return this.recentStorage ? this.recentStorage.getRecentNotes() : [];
+        return this.recentDataManager?.getRecentNotes() ?? [];
     }
 
     /**
      * Stores the list of recent note paths to local storage
      */
     public setRecentNotes(recentNotes: string[]): void {
-        if (!this.recentStorage) {
-            return;
-        }
-        this.recentStorage.setRecentNotes(recentNotes);
+        this.recentDataManager?.setRecentNotes(recentNotes);
     }
 
     /**
      * Trims the recent notes list to the configured maximum count
      */
     public applyRecentNotesLimit(): void {
-        if (!this.recentStorage) {
-            return;
-        }
-        this.recentStorage.applyRecentNotesLimit();
+        this.recentDataManager?.applyRecentNotesLimit();
     }
 
     /**
@@ -197,23 +188,20 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      * Returns the map of recent icon IDs per provider from local storage
      */
     public getRecentIcons(): Record<string, string[]> {
-        return this.recentStorage ? this.recentStorage.getRecentIcons() : {};
+        return this.recentDataManager?.getRecentIcons() ?? {};
     }
 
     /**
      * Stores the map of recent icon IDs per provider to local storage
      */
     public setRecentIcons(recentIcons: Record<string, string[]>): void {
-        if (!this.recentStorage) {
-            return;
-        }
-        this.recentStorage.setRecentIcons(recentIcons);
+        this.recentDataManager?.setRecentIcons(recentIcons);
     }
 
     /**
      * Checks if the given file is open in the right sidebar
      */
-    private isFileInRightSidebar(file: TFile): boolean {
+    public isFileInRightSidebar(file: TFile): boolean {
         if (!this.settings.autoRevealIgnoreRightSidebar) {
             return false;
         }
@@ -289,7 +277,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
         }
 
-        this.resetRecentStorage();
+        this.initializeRecentDataManager();
 
         this.recentNotesService = new RecentNotesService(this);
 
@@ -324,453 +312,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
 
         // Register commands
-        this.addCommand({
-            id: 'open',
-            name: strings.commands.open,
-            callback: async () => {
-                // Check if navigator is already open
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                if (navigatorLeaves.length > 0) {
-                    // Navigator exists - reveal it and focus the file pane
-                    const leaf = navigatorLeaves[0];
-                    this.app.workspace.revealLeaf(leaf);
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        view.focusFilePane();
-                    }
-                } else {
-                    // Navigator is not open - open it
-                    await this.activateView();
-                }
-            }
-        });
-
-        // Command: open homepage file
-        this.addCommand({
-            id: 'open-homepage',
-            name: strings.commands.openHomepage,
-            checkCallback: (checking: boolean) => {
-                const homepageFile = this.resolveHomepageFile();
-                if (!homepageFile) {
-                    return false;
-                }
-
-                if (!checking) {
-                    void this.openHomepage('command', true);
-                }
-
-                return true;
-            }
-        });
-
-        this.addCommand({
-            id: 'reveal-file',
-            name: strings.commands.revealFile,
-            checkCallback: (checking: boolean) => {
-                const activeFile = this.app.workspace.getActiveFile();
-                if (activeFile && activeFile.parent) {
-                    if (!checking) {
-                        (async () => {
-                            // Ensure navigator is open and visible
-                            await this.activateView();
-
-                            // Navigate to file
-                            await this.revealFileInActualFolder(activeFile);
-                        })();
-                    }
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        this.addCommand({
-            id: 'navigate-to-folder',
-            name: strings.commands.navigateToFolder,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                // Show folder navigation modal
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.navigateToFolderWithModal();
-                        break;
-                    }
-                }
-            }
-        });
-
-        this.addCommand({
-            id: 'navigate-to-tag',
-            name: strings.commands.navigateToTag,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                // Show tag navigation modal
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.navigateToTagWithModal();
-                        break;
-                    }
-                }
-            }
-        });
-
-        this.addCommand({
-            id: 'search',
-            name: strings.commands.search,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                // Open search or focus it if already open
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        view.toggleSearch();
-                        break;
-                    }
-                }
-            }
-        });
-
-        // Layout & Display commands
-        this.addCommand({
-            id: 'toggle-dual-pane',
-            name: strings.commands.toggleDualPane,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                this.toggleDualPanePreference();
-            }
-        });
-
-        this.addCommand({
-            id: 'toggle-descendants',
-            name: strings.commands.toggleDescendants,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                this.settings.includeDescendantNotes = !this.settings.includeDescendantNotes;
-                await this.saveSettingsAndUpdate();
-            }
-        });
-
-        this.addCommand({
-            id: 'toggle-hidden',
-            name: strings.commands.toggleHidden,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                this.settings.showHiddenItems = !this.settings.showHiddenItems;
-                await this.saveSettingsAndUpdate();
-            }
-        });
-
-        this.addCommand({
-            id: 'collapse-expand',
-            name: strings.commands.collapseExpand,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                // Trigger collapse/expand on all navigator views
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        view.triggerCollapse();
-                        break;
-                    }
-                }
-            }
-        });
-
-        // File Operations commands
-        this.addCommand({
-            id: 'new-note',
-            name: strings.commands.createNewNote,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                // Create new note in selected folder
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.createNoteInSelectedFolder();
-                        break;
-                    }
-                }
-            }
-        });
-
-        this.addCommand({
-            id: 'move-files',
-            name: strings.commands.moveFiles,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                // Move selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.moveSelectedFiles();
-                        break;
-                    }
-                }
-            }
-        });
-
-        this.addCommand({
-            id: 'delete-files',
-            name: strings.commands.deleteFile,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                // Find and trigger delete in all navigator views
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                navigatorLeaves.forEach(leaf => {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        view.deleteActiveFile();
-                    }
-                });
-            }
-        });
-
-        // Command to clear and rebuild the entire local cache database
-        this.addCommand({
-            id: 'rebuild-cache',
-            name: strings.commands.rebuildCache,
-            callback: async () => {
-                try {
-                    await this.rebuildCache();
-                } catch (error) {
-                    console.error('Failed to rebuild cache:', error);
-                }
-            }
-        });
-
-        // Tag Operations commands
-        this.addCommand({
-            id: 'add-tag',
-            name: strings.commands.addTag,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                // Add tag to selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.addTagToSelectedFiles();
-                        break;
-                    }
-                }
-            }
-        });
-
-        this.addCommand({
-            id: 'remove-tag',
-            name: strings.commands.removeTag,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                // Remove tag from selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.removeTagFromSelectedFiles();
-                        break;
-                    }
-                }
-            }
-        });
-
-        this.addCommand({
-            id: 'remove-all-tags',
-            name: strings.commands.removeAllTags,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                // Remove all tags from selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.removeAllTagsFromSelectedFiles();
-                        break;
-                    }
-                }
-            }
-        });
+        registerNavigatorCommands(this);
 
         // ==== Settings tab ====
         this.addSettingTab(new NotebookNavigatorSettingTab(this.app, this));
 
         // Register editor context menu
-        this.registerEvent(
-            this.app.workspace.on('editor-menu', (menu, _, view) => {
-                const file = view.file;
-                if (file) {
-                    menu.addSeparator();
-                    menu.addItem(item => {
-                        item.setTitle(strings.plugin.revealInNavigator)
-                            .setIcon('lucide-folder-open')
-                            .onClick(async () => {
-                                // Ensure navigator is open and visible
-                                await this.activateView();
-
-                                // Navigate to file
-                                await this.revealFileInActualFolder(file);
-                            });
-                    });
-                }
-            })
-        );
-
-        // ==== Ribbon ====
-        this.ribbonIconEl = this.addRibbonIcon('lucide-notebook', strings.plugin.ribbonTooltip, async () => {
-            await this.activateView();
-        });
-
-        // ==== Vault events ====
-        this.registerEvent(
-            this.app.workspace.on('file-open', file => {
-                if (!(file instanceof TFile) || this.isFileInRightSidebar(file)) {
-                    return;
-                }
-
-                const service = this.recentNotesService;
-                if (!service) {
-                    return;
-                }
-
-                void service.recordFileOpen(file);
-            })
-        );
-
-        const initialActiveFile = this.app.workspace.getActiveFile();
-        if (initialActiveFile instanceof TFile && !this.isFileInRightSidebar(initialActiveFile)) {
-            const service = this.recentNotesService;
-            if (service) {
-                void service.recordFileOpen(initialActiveFile);
-            }
-        }
-
-        // Register rename event handler to update folder metadata and notify file renames
-        //
-        // ARCHITECTURAL NOTE: Why folders and files are handled differently
-        //
-        // FOLDERS: Don't need a listener system because:
-        // 1. React components hold references to Obsidian's TFolder objects
-        // 2. When renamed, Obsidian automatically updates the TFolder's properties
-        // 3. handleFolderRename updates settings (colors, icons, etc.) to the new path
-        // 4. Settings update triggers re-render via SettingsContext version increment
-        // 5. During re-render, components get fresh TFolder objects with updated names
-        //
-        // FILES: Need a listener system because:
-        // 1. SelectionContext stores file paths in state (selectedFiles Set, selectedFile)
-        // 2. These paths become stale after rename and must be manually updated
-        // 3. Without updating, the selection would reference non-existent files
-        // 4. The listener notifies SelectionContext to update stored paths
-        //
-        this.registerEvent(
-            this.app.vault.on('rename', async (file, oldPath) => {
-                if (this.isUnloading) return;
-
-                if (file instanceof TFolder) {
-                    if (this.metadataService) {
-                        await this.metadataService.handleFolderRename(oldPath, file.path);
-                    }
-                    return;
-                }
-
-                if (!(file instanceof TFile)) {
-                    return;
-                }
-
-                const recentService = this.recentNotesService;
-                void recentService?.renameEntry(oldPath, file.path);
-
-                if (this.metadataService) {
-                    await this.metadataService.handleFileRename(oldPath, file.path);
-                }
-
-                const getParentPath = (path: string): string => {
-                    const lastSlash = path.lastIndexOf('/');
-                    return lastSlash > 0 ? path.substring(0, lastSlash) : '/';
-                };
-
-                const oldParent = getParentPath(oldPath);
-                const newParent = getParentPath(file.path);
-                const movedToDifferentFolder = oldParent !== newParent;
-
-                // If the active file moved to a different folder, reveal it
-                // UNLESS it was moved from within the Navigator (drag-drop or context menu)
-                if (movedToDifferentFolder && file === this.app.workspace.getActiveFile()) {
-                    if (this.commandQueue && !this.commandQueue.isMovingFile()) {
-                        await this.revealFileInActualFolder(file);
-                    }
-                }
-
-                // Notify all listeners about the file rename
-                this.fileRenameListeners.forEach(callback => {
-                    try {
-                        callback(oldPath, file.path);
-                    } catch (error) {
-                        console.error('Error in file rename listener:', error);
-                    }
-                });
-            })
-        );
-
-        // Register delete event handler to clean up metadata and recent notes
-        this.registerEvent(
-            this.app.vault.on('delete', async file => {
-                if (this.isUnloading) {
-                    return;
-                }
-
-                if (file instanceof TFolder) {
-                    if (this.metadataService) {
-                        await this.metadataService.handleFolderDelete(file.path);
-                    }
-                    return;
-                }
-
-                if (!(file instanceof TFile)) {
-                    return;
-                }
-
-                const recentService = this.recentNotesService;
-                void recentService?.removeEntry(file.path);
-
-                if (this.metadataService) {
-                    await this.metadataService.handleFileDelete(file.path);
-                    return;
-                }
-            })
-        );
+        registerWorkspaceEvents(this);
 
         // Post-layout initialization
         // Only auto-create the navigator view on first launch; upgrades restore existing leaves themselves
@@ -920,6 +468,16 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.fileRenameListeners.delete(id);
     }
 
+    public notifyFileRenameListeners(oldPath: string, newPath: string): void {
+        this.fileRenameListeners.forEach(callback => {
+            try {
+                callback(oldPath, newPath);
+            } catch (error) {
+                console.error('Error in file rename listener:', error);
+            }
+        });
+    }
+
     /**
      * Plugin cleanup - called when plugin is disabled or updated
      * Removes ribbon icon but preserves open views to maintain user workspace
@@ -929,7 +487,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Set unloading flag to prevent any new operations
         this.isUnloading = true;
 
-        this.recentStorage?.flushPendingPersists();
+        this.recentDataManager?.dispose();
 
         // Clear all listeners first to prevent any callbacks during cleanup
         this.settingsUpdateListeners.clear();
@@ -976,7 +534,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.ribbonIconEl = undefined;
 
         this.omnisearchService = null;
-        this.recentStorage = null;
+        this.recentDataManager = null;
 
         // Shutdown database after all processing is stopped
         shutdownDatabase();
@@ -1176,11 +734,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.workspaceCoordinator?.revealFileInNearestFolder(file, options);
     }
 
-    private resolveHomepageFile(): TFile | null {
+    public resolveHomepageFile(): TFile | null {
         return this.homepageController?.resolveHomepageFile() ?? null;
     }
 
-    private async openHomepage(trigger: 'startup' | 'settings-change' | 'command', force = false): Promise<boolean> {
+    public async openHomepage(trigger: 'startup' | 'settings-change' | 'command', force = false): Promise<boolean> {
         return this.homepageController?.open(trigger, force) ?? false;
     }
 
