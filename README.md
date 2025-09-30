@@ -1,6 +1,6 @@
 ![Notebook Navigator Banner](https://github.com/johansan/notebook-navigator/blob/main/images/banner.gif?raw=true)
 
-Available in: English • Deutsch • Español • Français • Polski • 日本語 • 中文 • 한국어
+Read in your language: [English](https://notebooknavigator.com/docs.html) • [Deutsch](https://notebooknavigator.com/de/docs.html) • [Español](https://notebooknavigator.com/es/docs.html) • [Français](https://notebooknavigator.com/fr/docs.html) • [Polski](https://notebooknavigator.com/pl/docs.html) • [日本語](https://notebooknavigator.com/ja/docs.html) • [中文](https://notebooknavigator.com/zh/docs.html) • [한국어](https://notebooknavigator.com/ko/docs.html)
 
 ![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=Downloads&query=%24%5B%22notebook-navigator%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
 ![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square)
@@ -14,21 +14,6 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 
 <br>
 
-## Read in Your Language
-
-Choose your preferred language below to view the documentation on our website:
-
-🇺🇸 [English](https://notebooknavigator.com/docs.html) •
-🇩🇪 [Deutsch](https://notebooknavigator.com/de/docs.html) •
-🇪🇸 [Español](https://notebooknavigator.com/es/docs.html) •
-🇫🇷 [Français](https://notebooknavigator.com/fr/docs.html) •
-🇵🇱 [Polski](https://notebooknavigator.com/pl/docs.html) •
-🇯🇵 [日本語](https://notebooknavigator.com/ja/docs.html) •
-🇨🇳 [中文](https://notebooknavigator.com/zh/docs.html) •
-🇰🇷 [한국어](https://notebooknavigator.com/ko/docs.html)
-
-<br>
-
 <!-- DOCUMENTATION_START -->
 
 ## Installation
@@ -39,6 +24,64 @@ Choose your preferred language below to view the documentation on our website:
 4. **Install Featured Image** - For automatic thumbnail generation, install [Featured Image](https://github.com/johansan/obsidian-featured-image) plugin to create optimized thumbnails for all your documents
 
 For precise image management, consider also installing [Pixel Perfect Image](https://github.com/johansan/pixel-perfect-image) which lets you resize images to exact pixel dimensions and perform advanced image operations.
+
+<br>
+
+## Getting started
+
+**Can't see your files?** If you've enabled dual-pane layout but don't see any files, you may need to resize the navigation pane. Drag the divider between the left pane and editor to reveal the file list.
+
+### Navigation pane toolbar
+
+<img src="https://github.com/johansan/notebook-navigator/blob/main/images/navpane.png?raw=true" alt="Navigation Pane Toolbar" width="50%">
+
+1. **Shortcuts** - Jump to shortcuts section at the top of the navigation pane. This button is not visible if you have disabled shortcuts
+2. **Collapse/Expand all** - Collapse or expand folders and tags (keeps selected item expanded by default). Configurable in settings if you want the button to affect folders, tags or both
+3. **Show hidden** - Toggle visibility of excluded folders and hidden tags. This button is not visible if you have do not have any hidden items.
+4. **Reorder root folders** - Open drag-and-drop interface to customize root folder order
+5. **New folder** - Create a new folder in the currently selected location
+
+### List pane toolbar
+
+<img src="https://github.com/johansan/notebook-navigator/blob/main/images/listpane.png?raw=true" alt="List Pane Toolbar" width="50%">
+
+1. **Search** - Filter files by name or tag or search full-text with Omnisearch (if installed). Check plugin settings for details how to use search
+2. **Show descendants** - Toggle display of notes from subfolders and subtags. Disable this to only see notes and files in the current folder or tag
+3. **Sort** - Change sort order (date modified, date created, or title)
+4. **Appearance** - Customize display settings for current folder/tag (preview rows, title rows, slim mode)
+5. **New note** - Create a new note in the currently selected folder
+
+### Drag and drop
+
+- Drag files between folders to move them
+- Drag files to tags to add tags
+- Drag files to "Untagged" to remove all tags
+- Drag files to shortcuts to add them to shortcuts
+- Drag files from shortcuts to remove from shortcuts
+- Drag shortcuts to reorder them
+- Drag root folders when in reorder mode
+
+## Keyboard shortcuts
+
+| Key                                         | Action                                                                                                            |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| ↑/↓                                         | Navigate up/down in current pane                                                                                  |
+| ←                                           | In navigation pane: collapse or go to parent<br>In list pane: switch to navigation pane                           |
+| →                                           | In navigation pane: expand or switch to list pane<br>In list pane: switch to editor                               |
+| Tab                                         | In navigation pane: switch to list pane<br>In list pane: switch to editor<br>In search field: switch to list pane |
+| Shift+Tab                                   | In list pane: switch to navigation pane<br>In search field: switch to navigation pane                             |
+| Enter                                       | In search field: switch to list pane                                                                              |
+| Escape                                      | In search field: close search and focus list pane                                                                 |
+| PageUp/PageDown                             | Scroll up/down in navigation pane and list pane                                                                   |
+| Home/End                                    | Jump to first/last item in current pane                                                                           |
+| Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item                                                                                              |
+| Cmd/Ctrl+A                                  | Select all notes in current folder                                                                                |
+| Cmd/Ctrl+Click                              | Toggle notes selection                                                                                            |
+| Shift+Click                                 | Select a range of notes                                                                                           |
+| Shift+Home/End                              | Select from current position to first/last item                                                                   |
+| Shift+↑/↓                                   | Extend selection up/down                                                                                          |
+
+**Note:** All keyboard shortcuts can be customized by editing the `keyboardShortcuts` section in `.obsidian/plugins/notebook-navigator/data.json`. You can add VIM-style navigation (h,j,k,l) or assign multiple keys to the same command.
 
 <br>
 
@@ -160,75 +203,6 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - [**Scroll Orchestration**](docs/scroll-orchestration.md) - How the plugin ensures accurate scrolling when tree structures change (tag visibility, settings, etc.)
 
 - [**Service Architecture**](docs/service-architecture.md) - Business logic layer: MetadataService, FileSystemOperations, ContentProviderRegistry. Dependency injection patterns and service data flow.
-
-<br>
-
-### Getting started
-
-**Can't see your files?** If you've enabled dual-pane layout but don't see any files, you may need to resize the navigation pane. Drag the divider between the left pane and editor to reveal the file list.
-
-### Navigation pane toolbar
-
-![Navigation Pane Toolbar](https://github.com/johansan/notebook-navigator/blob/main/images/navpane.png?raw=true)
-
-1. **Shortcuts** - Jump to shortcuts section at the top of the navigation pane. This button is not visible if you have disabled shortcuts
-2. **Collapse/Expand all** - Collapse or expand folders and tags (keeps selected item expanded by default). Configurable in settings if you want the button to affect folders, tags or both
-3. **Show hidden** - Toggle visibility of excluded folders and hidden tags. This button is not visible if you have do not have any hidden items.
-4. **Reorder root folders** - Open drag-and-drop interface to customize root folder order
-5. **New folder** - Create a new folder in the currently selected location
-
-### List pane toolbar
-
-![List Pane Toolbar](https://github.com/johansan/notebook-navigator/blob/main/images/listpane.png?raw=true)
-
-1. **Search** - Filter files by name or tag or search full-text with Omnisearch (if installed). Check plugin settings for details how to use search
-2. **Show descendants** - Toggle display of notes from subfolders and subtags. Disable this to only see notes and files in the current folder or tag
-3. **Sort** - Change sort order (date modified, date created, or title)
-4. **Appearance** - Customize display settings for current folder/tag (preview rows, title rows, slim mode)
-5. **New note** - Create a new note in the currently selected folder
-
-### Basic navigation
-
-- **Click** to select folders, tags, and notes
-- **Double-click** folders and tags to expand/collapse
-- **Cmd/Ctrl+Click** to add notes to selection
-- **Shift+Click** to select a range of notes
-- **Option/Alt+Click** on chevrons to expand/collapse all descendants (desktop)
-- **Arrow keys** for keyboard navigation
-- **Tab** to switch between navigation pane and list pane
-- **Delete/Backspace** to delete selected items
-
-### Drag and drop
-
-- Drag files between folders to move them
-- Drag files to tags to add tags
-- Drag files to "Untagged" to remove all tags
-- Drag shortcuts to reorder them
-- Drag root folders when in reorder mode
-
-<br>
-
-## Keyboard shortcuts
-
-| Key                                         | Action                                                                                                            |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| ↑/↓                                         | Navigate up/down in current pane                                                                                  |
-| ←                                           | In navigation pane: collapse or go to parent<br>In list pane: switch to navigation pane                           |
-| →                                           | In navigation pane: expand or switch to list pane<br>In list pane: switch to editor                               |
-| Tab                                         | In navigation pane: switch to list pane<br>In list pane: switch to editor<br>In search field: switch to list pane |
-| Shift+Tab                                   | In list pane: switch to navigation pane<br>In search field: switch to navigation pane                             |
-| Enter                                       | In search field: switch to list pane                                                                              |
-| Escape                                      | In search field: close search and focus list pane                                                                 |
-| PageUp/PageDown                             | Scroll up/down in navigation pane and list pane                                                                   |
-| Home/End                                    | Jump to first/last item in current pane                                                                           |
-| Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item                                                                                              |
-| Cmd/Ctrl+A                                  | Select all notes in current folder                                                                                |
-| Cmd/Ctrl+Click                              | Toggle notes selection                                                                                            |
-| Shift+Click                                 | Select a range of notes                                                                                           |
-| Shift+Home/End                              | Select from current position to first/last item                                                                   |
-| Shift+↑/↓                                   | Extend selection up/down                                                                                          |
-
-**Note:** All keyboard shortcuts can be customized by editing the `keyboardShortcuts` section in `.obsidian/plugins/notebook-navigator/data.json`. You can add VIM-style navigation (h,j,k,l) or assign multiple keys to the same command.
 
 <br>
 
