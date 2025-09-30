@@ -334,6 +334,17 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Favorite tags:** Comma-separated list of tag prefixes. Adding a tag includes all its sub-tags (e.g., "photo" includes "photo/camera/fuji")
   - **Hidden tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs")
 
+### Search
+
+- **Search provider:** Choose between quick file name search or full-text search with Omnisearch plugin
+  - **Filter search (default):** Fast, lightweight search that filters files by name and tags within the current folder and subfolders. Supports tag filtering with # prefix (e.g., #project), exclusion with ! prefix (e.g., !draft, !#archived), and finding untagged notes with !#. Ideal for quick navigation within your current context
+  - **Omnisearch:** Full-text search that searches your entire vault, then filters the results to show only files from the current folder, subfolders, or selected tags. Requires the [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin to be installed - if not available, search will automatically fall back to Filter search
+    - **Known limitations:**
+      - Performance can be slow, especially when searching for less than 3 characters in large vaults
+      - Cannot search in paths with non-ASCII characters and does not search subpaths correctly
+      - Since Omnisearch searches the entire vault and returns a limited number of results before filtering, relevant files from your current folder may not appear if too many matches exist elsewhere
+      - Note previews are replaced with Omnisearch result excerpts, which may not show the actual search match highlight
+
 ### List pane
 
 - **Sort notes by:** Choose how notes are sorted in the note list. `Date edited (newest/oldest first)`, `Date created (newest/oldest first)`, `Title (A-Z first)`
@@ -369,17 +380,6 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Use embedded image fallback:** Use the first embedded image in the document as a fallback when no thumbnail is found in frontmatter properties (requires Obsidian 1.9.4+). Disable this to verify that thumbnails are properly configured
 
 **Note:** When date, preview, and feature image are disabled, list pane displays in compact "slim mode" with only note names.
-
-### Search
-
-- **Search provider:** Choose between quick file name search or full-text search with Omnisearch plugin
-  - **Filter search (default):** Fast, lightweight search that filters files by name and tags within the current folder and subfolders. Supports tag filtering with # prefix (e.g., #project), exclusion with ! prefix (e.g., !draft, !#archived), and finding untagged notes with !#. Ideal for quick navigation within your current context
-  - **Omnisearch:** Full-text search that searches your entire vault, then filters the results to show only files from the current folder, subfolders, or selected tags. Requires the [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin to be installed - if not available, search will automatically fall back to Filter search
-    - **Known limitations:**
-      - Performance can be slow, especially when searching for less than 3 characters in large vaults
-      - Cannot search in paths with non-ASCII characters and does not search subpaths correctly
-      - Since Omnisearch searches the entire vault and returns a limited number of results before filtering, relevant files from your current folder may not appear if too many matches exist elsewhere
-      - Note previews are replaced with Omnisearch result excerpts, which may not show the actual search match highlight
 
 ### Hotkeys
 
