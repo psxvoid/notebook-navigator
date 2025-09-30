@@ -76,7 +76,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: [
             '**New setting: List pane title**. You can now choose how to show the list pane title: in header (default), in list pane or none. '
         ],
-        changed: ['Renamed tag "Favorites" to "Favorite tags".'],
+        changed: [
+            'Renamed tag "Favorites" to "Favorite tags".',
+            'Using the **Open** command to shift focus to Notebook Navigator will now focus navigation pane in single pane mode if navigation pane is visible.'
+        ],
         fixed: [
             'Fixed an issue where the navigation pane would not be shown on startup when a homepage was configured and the default startup view was set to navigation pane in single-pane mode.',
             'Fixed an issue where clicking on a tag that is favorite in shortcuts would not open the tag.',
