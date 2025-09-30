@@ -536,7 +536,7 @@ export const STRINGS_FR = {
                 name: 'Disposition à double panneau (ordinateur uniquement, non synchronisé)',
                 desc: 'Afficher le panneau de navigation et le panneau de liste côte à côte sur ordinateur.'
             },
-            singlePaneStartView: {
+            startView: {
                 name: 'Vue de démarrage par défaut',
                 desc: "Choisissez le panneau affiché lors de l'ouverture de Notebook Navigator. Le panneau de navigation montre les raccourcis, les notes récentes et la structure des dossiers. Le panneau de liste affiche immédiatement la liste des notes.",
                 options: {

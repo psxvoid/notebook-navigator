@@ -182,7 +182,7 @@ export const NotebookNavigatorComponent = React.memo(
         const containerClasses = ['nn-split-container'];
 
         const hasInitializedSinglePane = useRef(false);
-        const lastAppliedPreference = useRef(settings.singlePaneStartView);
+        const lastAppliedPreference = useRef(settings.startView);
 
         // Switch to preferred view when entering single pane (desktop only)
         useEffect(() => {
@@ -195,19 +195,19 @@ export const NotebookNavigatorComponent = React.memo(
                 return;
             }
 
-            const preferredView = settings.singlePaneStartView === 'navigation' ? 'navigation' : 'files';
-            const shouldApply = !hasInitializedSinglePane.current || lastAppliedPreference.current !== settings.singlePaneStartView;
+            const preferredView = settings.startView === 'navigation' ? 'navigation' : 'files';
+            const shouldApply = !hasInitializedSinglePane.current || lastAppliedPreference.current !== settings.startView;
 
             if (!shouldApply) {
                 return;
             }
 
             hasInitializedSinglePane.current = true;
-            lastAppliedPreference.current = settings.singlePaneStartView;
+            lastAppliedPreference.current = settings.startView;
 
             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: preferredView });
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: preferredView });
-        }, [isMobile, settings.singlePaneStartView, uiDispatch, uiState.dualPane]);
+        }, [isMobile, settings.startView, uiDispatch, uiState.dualPane]);
 
         // Enable drag and drop only on desktop
         useDragAndDrop(containerRef);

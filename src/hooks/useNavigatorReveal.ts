@@ -324,7 +324,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             let targetFolderOverride: TFolder | null = null;
             let preserveFolder = false;
             const revealSource: SelectionRevealSource | undefined = options?.isStartupReveal ? 'startup' : options?.source;
-            const shouldCenterNavigation = Boolean(options?.isStartupReveal && settings.singlePaneStartView === 'navigation');
+            const shouldCenterNavigation = Boolean(options?.isStartupReveal && settings.startView === 'navigation');
             const navigationAlign: Align = shouldCenterNavigation ? 'center' : 'auto';
             if (selectionState.selectionType === 'tag') {
                 targetTag = determineTagToReveal(file, selectionState.selectedTag, settings, getDB());
@@ -380,7 +380,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             });
 
             // In single pane mode, switch to list pane view
-            const shouldSkipSinglePaneSwitch = Boolean(options?.isStartupReveal && settings.singlePaneStartView === 'navigation');
+            const shouldSkipSinglePaneSwitch = Boolean(options?.isStartupReveal && settings.startView === 'navigation');
 
             if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation' && !shouldSkipSinglePaneSwitch) {
                 uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
@@ -572,14 +572,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             app.workspace.offref(activeLeafEventRef);
             app.workspace.offref(fileOpenEventRef);
         };
-    }, [
-        app,
-        app.workspace,
-        settings.autoRevealActiveFile,
-        settings.autoRevealIgnoreRightSidebar,
-        settings.singlePaneStartView,
-        commandQueue
-    ]);
+    }, [app, app.workspace, settings.autoRevealActiveFile, settings.autoRevealIgnoreRightSidebar, settings.startView, commandQueue]);
 
     // Handle revealing the file when detected
     useEffect(() => {
@@ -621,7 +614,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
         selectionState.selectedFile,
         revealTag,
         selectionDispatch,
-        settings.singlePaneStartView
+        settings.startView
     ]);
 
     /**

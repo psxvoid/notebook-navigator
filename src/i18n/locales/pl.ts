@@ -536,7 +536,7 @@ export const STRINGS_PL = {
                 name: 'Układ podwójnego panelu (tylko desktop, nie synchronizowany)',
                 desc: 'Pokaż panel nawigacji i panel listy obok siebie na komputerze.'
             },
-            singlePaneStartView: {
+            startView: {
                 name: 'Domyślny widok startowy',
                 desc: 'Wybierz panel wyświetlany przy otwieraniu Notebook Navigator. Panel nawigacji pokazuje skróty, ostatnie notatki oraz strukturę folderów. Panel listy pokazuje listę notatek.',
                 options: {

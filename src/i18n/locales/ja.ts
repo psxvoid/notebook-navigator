@@ -535,7 +535,7 @@ export const STRINGS_JA = {
                 name: 'デュアルペインレイアウト（デスクトップのみ、同期されません）',
                 desc: 'デスクトップでナビゲーションペインとリストペインを並べて表示します。'
             },
-            singlePaneStartView: {
+            startView: {
                 name: 'デフォルト起動ビュー',
                 desc: 'Notebook Navigator を開いたときに表示するペインを選択します。ナビゲーションペインはショートカット、最近のノート、フォルダ構造を表示します。リストペインはノート一覧を表示します。',
                 options: {

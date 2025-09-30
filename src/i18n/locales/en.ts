@@ -534,7 +534,7 @@ export const STRINGS_EN = {
                 name: 'Dual pane layout (desktop only, not synced)',
                 desc: 'Show navigation pane and list pane side by side on desktop.'
             },
-            singlePaneStartView: {
+            startView: {
                 name: 'Default startup view',
                 desc: 'Choose which pane to display when opening Notebook Navigator. Navigation pane shows shortcuts, recent notes, and folder tree. List pane shows note list immediately.',
                 options: {

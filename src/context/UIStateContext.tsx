@@ -25,11 +25,11 @@ import { useServices } from './ServicesContext';
 import type { NotebookNavigatorSettings } from '../settings';
 
 /**
- * Gets the initial view for single pane mode from settings.
+ * Gets the initial view preference for single pane mode.
  * Defaults to 'files' if not explicitly set to 'navigation'.
  */
-function getSinglePaneStartView(settings: NotebookNavigatorSettings): 'navigation' | 'files' {
-    return settings.singlePaneStartView === 'navigation' ? 'navigation' : 'files';
+function getStartView(settings: NotebookNavigatorSettings): 'navigation' | 'files' {
+    return settings.startView === 'navigation' ? 'navigation' : 'files';
 }
 
 // State interface
@@ -86,7 +86,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
 
         const paneWidth = savedWidth ?? NAVIGATION_PANE_DIMENSIONS.defaultWidth;
-        const startView = getSinglePaneStartView(plugin.settings);
+        const startView = getStartView(plugin.settings);
 
         const initialState = {
             focusedPane: startView,
@@ -101,7 +101,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     };
 
     const [state, dispatch] = useReducer(uiStateReducer, undefined, loadInitialState);
-    const startViewRef = useRef<'navigation' | 'files'>(getSinglePaneStartView(plugin.settings));
+    const startViewRef = useRef<'navigation' | 'files'>(getStartView(plugin.settings));
 
     // Compute dualPane and singlePane based on isMobile and settings
     const stateWithPaneMode = useMemo(() => {
@@ -118,7 +118,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         const handleUpdate = () => {
             dispatch({ type: 'SET_DUAL_PANE', value: plugin.useDualPane() });
 
-            const nextStartView = getSinglePaneStartView(plugin.settings);
+            const nextStartView = getStartView(plugin.settings);
             if (startViewRef.current !== nextStartView) {
                 startViewRef.current = nextStartView;
                 dispatch({ type: 'SET_SINGLE_PANE_VIEW', view: nextStartView });
