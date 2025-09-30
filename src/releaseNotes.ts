@@ -71,6 +71,13 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.5.1',
+        date: '2025-10-01',
+        fixed: [
+            'Fixed an issue where the navigation pane would not be shown on startup when a homepage was configured and the default startup view was set to navigation pane in single-pane mode.'
+        ]
+    },
+    {
         version: '1.5.0',
         date: '2025-09-30',
         info: [
