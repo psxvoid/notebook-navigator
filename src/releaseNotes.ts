@@ -77,7 +77,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Some users did not like the new list pane title introduced in 1.5, so default is now back to showing list pane title in header area. You can now change between header, list pane and none.'
         ],
         fixed: [
-            'Fixed an issue where the navigation pane would not be shown on startup when a homepage was configured and the default startup view was set to navigation pane in single-pane mode.'
+            'Fixed an issue where the navigation pane would not be shown on startup when a homepage was configured and the default startup view was set to navigation pane in single-pane mode.',
+            'Fixed an issue where clicking on a favorite tag in shortcuts would not open the tag.'
         ]
     },
     {

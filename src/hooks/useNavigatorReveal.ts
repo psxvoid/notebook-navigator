@@ -220,7 +220,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             if (!tagPath) return;
 
             // Get tag node from StorageContext
-            const tagNode = findTagInTree(tagPath);
+            const tagNode = findTagInTree(tagPath) ?? findTagInFavoriteTree(tagPath);
 
             if (!tagNode) return;
 
