@@ -22,6 +22,7 @@ import { Root, createRoot } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf, TFile, Platform } from 'obsidian';
 import { NotebookNavigatorContainer } from '../components/NotebookNavigatorContainer';
 import type { NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
+import type { RevealFileOptions } from '../hooks/useNavigatorReveal';
 import { ExpansionProvider } from '../context/ExpansionContext';
 import { SelectionProvider } from '../context/SelectionContext';
 import { ServicesProvider } from '../context/ServicesContext';
@@ -174,8 +175,15 @@ export class NotebookNavigatorView extends ItemView {
     /**
      * Navigates to a file in the navigator by selecting it and its parent folder
      */
-    navigateToFile(file: TFile) {
-        this.componentRef.current?.navigateToFile(file);
+    navigateToFile(file: TFile, options?: RevealFileOptions) {
+        this.componentRef.current?.navigateToFile(file, options);
+    }
+
+    /**
+     * Performs an automatic reveal that keeps existing navigation context when possible
+     */
+    revealFileInNearestFolder(file: TFile, options?: RevealFileOptions) {
+        this.componentRef.current?.revealFileInNearestFolder(file, options);
     }
 
     /**

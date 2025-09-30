@@ -41,9 +41,10 @@ interface UseNavigatorRevealOptions {
     listPaneRef: RefObject<ListPaneHandle | null>;
 }
 
-interface RevealFileOptions {
+export interface RevealFileOptions {
     source?: SelectionRevealSource;
     isStartupReveal?: boolean;
+    preserveNavigationFocus?: boolean;
 }
 
 /**
@@ -141,7 +142,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
      * @param file - File to surface in the navigator
      */
     const revealFileInActualFolder = useCallback(
-        (file: TFile) => {
+        (file: TFile, options?: RevealFileOptions) => {
             if (!file?.parent) return;
 
             const parentFolder = file.parent;
@@ -175,7 +176,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 file,
                 preserveFolder: false,
                 isManualReveal: true,
-                targetFolder: resolvedFolder ?? undefined
+                targetFolder: resolvedFolder ?? undefined,
+                source: options?.source
             });
 
             // In single pane mode, switch to list pane view
@@ -184,7 +186,9 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             }
 
             // Always shift focus to list pane
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            if (uiState.focusedPane !== 'files') {
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            }
 
             if (navigationPaneRef.current && resolvedFolder) {
                 // Scroll navigation pane so the resolved folder stays in view for manual reveals
@@ -380,7 +384,9 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             });
 
             // In single pane mode, switch to list pane view
-            const shouldSkipSinglePaneSwitch = Boolean(options?.isStartupReveal && settings.startView === 'navigation');
+            const shouldSkipSinglePaneSwitch = Boolean(
+                (options?.isStartupReveal && settings.startView === 'navigation') || options?.preserveNavigationFocus
+            );
 
             if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation' && !shouldSkipSinglePaneSwitch) {
                 uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });

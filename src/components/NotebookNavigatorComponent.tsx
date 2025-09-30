@@ -24,7 +24,7 @@ import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
-import { useNavigatorReveal } from '../hooks/useNavigatorReveal';
+import { useNavigatorReveal, type RevealFileOptions } from '../hooks/useNavigatorReveal';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useNavigationActions } from '../hooks/useNavigationActions';
@@ -48,7 +48,8 @@ import type { NavigationPaneHandle } from './NavigationPane';
 import type { SearchShortcut } from '../types/shortcuts';
 
 export interface NotebookNavigatorHandle {
-    navigateToFile: (file: TFile) => void;
+    navigateToFile: (file: TFile, options?: RevealFileOptions) => void;
+    revealFileInNearestFolder: (file: TFile, options?: RevealFileOptions) => void;
     focusFilePane: () => void;
     refresh: () => void;
     deleteActiveFile: () => void;
@@ -245,7 +246,12 @@ export const NotebookNavigatorComponent = React.memo(
             };
 
             return {
-                navigateToFile: revealFileInActualFolder,
+                navigateToFile: (file: TFile, options?: RevealFileOptions) => {
+                    revealFileInActualFolder(file, options);
+                },
+                revealFileInNearestFolder: (file: TFile, options?: RevealFileOptions) => {
+                    revealFileInNearestFolder(file, options);
+                },
                 focusFilePane: () => {
                     // In single pane mode, switch to file list view
                     if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
@@ -492,6 +498,7 @@ export const NotebookNavigatorComponent = React.memo(
             };
         }, [
             revealFileInActualFolder,
+            revealFileInNearestFolder,
             uiDispatch,
             updateSettings,
             selectionState,

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Plugin, WorkspaceLeaf, TFile, TFolder, FileView } from 'obsidian';
+import { Plugin, TFile, TFolder, FileView } from 'obsidian';
 import {
     NotebookNavigatorSettings,
     DEFAULT_SETTINGS,
@@ -44,8 +44,10 @@ import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
 import { initializeDatabase, shutdownDatabase } from './storage/fileOperations';
 import { ExtendedApp } from './types/obsidian-extended';
 import { getLeafSplitLocation } from './utils/workspaceSplit';
-import { isSupportedHomepageFile } from './utils/homepageUtils';
 import { sanitizeKeyboardShortcuts } from './utils/keyboardShortcuts';
+import WorkspaceCoordinator from './services/workspace/WorkspaceCoordinator';
+import HomepageController from './services/workspace/HomepageController';
+import type { RevealFileOptions } from './hooks/useNavigatorReveal';
 
 /**
  * Main plugin class for Notebook Navigator
@@ -71,12 +73,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private recentDataListeners = new Map<string, () => void>();
     // Flag indicating plugin is being unloaded to prevent operations during shutdown
     private isUnloading = false;
-    private isWorkspaceReady = false;
-    private lastHomepagePath: string | null = null;
-    private pendingHomepageTrigger: 'settings-change' | 'command' | null = null;
     // User preference for dual-pane mode (persisted in localStorage, not settings)
     private dualPanePreference = true;
     private recentStorage: RecentStorageService | null = null;
+    private workspaceCoordinator: WorkspaceCoordinator | null = null;
+    private homepageController: HomepageController | null = null;
 
     // Keys used for persisting UI state in browser localStorage
     keys: LocalStorageKeys = STORAGE_KEYS;
@@ -291,6 +292,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.resetRecentStorage();
 
         this.recentNotesService = new RecentNotesService(this);
+
+        this.workspaceCoordinator = new WorkspaceCoordinator(this);
+        this.homepageController = new HomepageController(this, this.workspaceCoordinator);
 
         // Initialize services
         this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
@@ -773,22 +777,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const shouldActivateOnStartup = isFirstLaunch;
 
         this.app.workspace.onLayoutReady(async () => {
-            this.isWorkspaceReady = true;
-
-            if (!this.isUnloading && shouldActivateOnStartup) {
-                const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                if (leaves.length === 0) {
-                    await this.activateView();
-                }
+            if (this.isUnloading) {
+                return;
             }
 
-            const pendingHomepageTrigger = this.pendingHomepageTrigger;
-            this.pendingHomepageTrigger = null;
-
-            if (!this.isUnloading) {
-                const trigger = pendingHomepageTrigger ?? 'startup';
-                await this.openHomepage(trigger, true);
-            }
+            await this.homepageController?.handleWorkspaceReady({ shouldActivateOnStartup });
 
             // Check for version updates
             await this.checkForVersionUpdate();
@@ -811,6 +804,10 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     public useDualPane(): boolean {
         return this.dualPanePreference;
+    }
+
+    public isShuttingDown(): boolean {
+        return this.isUnloading;
     }
 
     /**
@@ -1118,6 +1115,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
         });
 
+        this.homepageController?.resetCachedHomepage();
         void this.openHomepage('settings-change');
     }
 
@@ -1156,25 +1154,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      * @returns The workspace leaf containing the view, or null if creation failed
      */
     async activateView() {
-        const { workspace } = this.app;
-
-        let leaf: WorkspaceLeaf | null = null;
-        const leaves = workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-
-        if (leaves.length > 0) {
-            // View already exists - just reveal it
-            leaf = leaves[0];
-            workspace.revealLeaf(leaf);
-        } else {
-            // Create new leaf only if none exists
-            leaf = workspace.getLeftLeaf(false);
-            if (leaf) {
-                await leaf.setViewState({ type: NOTEBOOK_NAVIGATOR_VIEW, active: true });
-                workspace.revealLeaf(leaf);
-            }
-        }
-
-        return leaf;
+        return this.workspaceCoordinator?.activateNavigatorView() ?? null;
     }
 
     /**
@@ -1183,88 +1163,25 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      * Note: This does NOT activate/show the view - callers must do that if needed
      * @param file - The file to navigate to in the navigator
      */
-    async revealFileInActualFolder(file: TFile) {
-        // Find all navigator views and reveal the file
-        const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-        navigatorLeaves.forEach(leaf => {
-            const view = leaf.view;
-            if (view instanceof NotebookNavigatorView) {
-                view.navigateToFile(file);
-            }
-        });
+    async revealFileInActualFolder(file: TFile, options?: RevealFileOptions) {
+        this.workspaceCoordinator?.revealFileInActualFolder(file, options);
     }
 
     /**
-     * Resolves the configured homepage file
-     * @returns The homepage file if it exists and is supported, null otherwise
+     * Reveals a file while preserving the nearest visible folder/tag context
+     * @param file - File to surface in the navigator
+     * @param options - Reveal behavior options
      */
+    async revealFileInNearestFolder(file: TFile, options?: RevealFileOptions) {
+        this.workspaceCoordinator?.revealFileInNearestFolder(file, options);
+    }
+
     private resolveHomepageFile(): TFile | null {
-        const { homepage } = this.settings;
-        if (!homepage) {
-            return null;
-        }
-
-        const candidate = this.app.vault.getAbstractFileByPath(homepage);
-        if (!isSupportedHomepageFile(candidate)) {
-            return null;
-        }
-
-        return candidate;
+        return this.homepageController?.resolveHomepageFile() ?? null;
     }
 
-    /**
-     * Opens the configured homepage file in the navigator and workspace
-     * @param trigger - What triggered the homepage open (startup, settings change, or command)
-     * @param force - Whether to force opening even if already on the homepage
-     * @returns True if the homepage was opened, false otherwise
-     */
     private async openHomepage(trigger: 'startup' | 'settings-change' | 'command', force = false): Promise<boolean> {
-        // Defer opening if workspace isn't ready yet (except on startup)
-        if (!this.isWorkspaceReady && trigger !== 'startup') {
-            this.pendingHomepageTrigger = trigger;
-            return false;
-        }
-
-        const homepagePath = this.settings.homepage;
-        if (!homepagePath) {
-            this.lastHomepagePath = null;
-            return false;
-        }
-
-        // Skip if we're already on this homepage (unless forced)
-        if (!force && homepagePath === this.lastHomepagePath) {
-            return false;
-        }
-
-        const homepageFile = this.resolveHomepageFile();
-        if (!homepageFile) {
-            this.lastHomepagePath = null;
-            return false;
-        }
-
-        // Open the navigator view
-        const leaf = await this.activateView();
-        const shouldFocusPane = trigger !== 'settings-change';
-
-        // Navigate to the homepage file in the navigator
-        const navigatorLeaves = leaf ? [leaf] : this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-        for (const navigatorLeaf of navigatorLeaves) {
-            const view = navigatorLeaf.view;
-            if (view instanceof NotebookNavigatorView) {
-                view.navigateToFile(homepageFile);
-                if (shouldFocusPane) {
-                    view.focusFilePane();
-                }
-                break;
-            }
-        }
-
-        // Reveal the file in the navigator and open it in the workspace
-        await this.revealFileInActualFolder(homepageFile);
-        await this.app.workspace.openLinkText(homepageFile.path, '', false);
-
-        this.lastHomepagePath = homepageFile.path;
-        return true;
+        return this.homepageController?.open(trigger, force) ?? false;
     }
 
     /**
