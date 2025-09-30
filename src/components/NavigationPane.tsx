@@ -214,6 +214,7 @@ export const NavigationPane = React.memo(
         const [isRootReorderMode, setRootReorderMode] = useState(false);
         const [externalShortcutDropIndex, setExternalShortcutDropIndex] = useState<number | null>(null);
         const draggedShortcutKeyRef = useRef<string | null>(null);
+        const draggedShortcutDropCompletedRef = useRef(false);
 
         // Determine if drag and drop should be enabled for shortcuts
         const shortcutCount = hydratedShortcuts.length;
@@ -456,6 +457,7 @@ export const NavigationPane = React.memo(
                     ...handlersWithGhost,
                     onDragStart: event => {
                         draggedShortcutKeyRef.current = key;
+                        draggedShortcutDropCompletedRef.current = false;
                         setExternalShortcutDropIndex(null);
                         handlersWithGhost.onDragStart(event);
                     },
@@ -467,25 +469,26 @@ export const NavigationPane = React.memo(
                     },
                     onDrop: event => {
                         if (handleShortcutDrop(event, key)) {
+                            draggedShortcutDropCompletedRef.current = true;
                             return;
                         }
                         handlersWithGhost.onDrop(event);
+                        draggedShortcutDropCompletedRef.current = true;
                     },
                     onDragLeave: event => {
                         handleShortcutDragLeave();
                         handlersWithGhost.onDragLeave(event);
                     },
                     onDragEnd: event => {
-                        const nativeEvent = event.nativeEvent;
-                        const dropEffect = nativeEvent?.dataTransfer?.dropEffect ?? '';
                         handlersWithGhost.onDragEnd(event);
                         const draggedKey = draggedShortcutKeyRef.current;
                         draggedShortcutKeyRef.current = null;
                         setExternalShortcutDropIndex(null);
 
-                        if (dropEffect === 'none' && draggedKey === key) {
+                        if (!draggedShortcutDropCompletedRef.current && draggedKey === key) {
                             void removeShortcut(key);
                         }
+                        draggedShortcutDropCompletedRef.current = false;
                     }
                 };
             },

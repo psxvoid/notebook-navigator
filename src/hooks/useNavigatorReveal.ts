@@ -28,7 +28,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { useCommandQueue } from '../context/ServicesContext';
-import { determineTagToReveal } from '../utils/tagUtils';
+import { determineTagToReveal, findNearestVisibleTagAncestor } from '../utils/tagUtils';
 import { ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { matchesAnyPrefix } from '../utils/tagPrefixMatcher';
@@ -329,22 +329,9 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             if (selectionState.selectionType === 'tag') {
                 targetTag = determineTagToReveal(file, selectionState.selectedTag, settings, getDB());
 
-                // If we have a target tag, expand parent tags
                 if (targetTag) {
-                    const parts = targetTag.split('/');
-                    const tagsToExpand: string[] = [];
-
-                    // Build parent paths
-                    for (let i = 1; i < parts.length; i++) {
-                        const parentPath = parts.slice(0, i).join('/');
-                        tagsToExpand.push(parentPath);
-                    }
-
-                    // Expand tags if needed
-                    const needsExpansion = tagsToExpand.some(path => !expansionState.expandedTags.has(path));
-                    if (needsExpansion) {
-                        expansionDispatch({ type: 'EXPAND_TAGS', tagPaths: tagsToExpand });
-                    }
+                    const visibleTag = findNearestVisibleTagAncestor(targetTag, expansionState.expandedTags);
+                    targetTag = visibleTag;
                 }
             }
 

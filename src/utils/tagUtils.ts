@@ -135,3 +135,38 @@ export function determineTagToReveal(
 
     return null;
 }
+
+function isTagVisible(tagPath: string, expandedTags: Set<string>): boolean {
+    if (!tagPath || tagPath === UNTAGGED_TAG_ID) {
+        return true;
+    }
+
+    const parts = tagPath.split('/');
+    let currentPath = '';
+
+    for (let index = 0; index < parts.length - 1; index++) {
+        currentPath = currentPath ? `${currentPath}/${parts[index]}` : parts[index];
+        if (!expandedTags.has(currentPath)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+export function findNearestVisibleTagAncestor(tagPath: string, expandedTags: Set<string>): string {
+    if (!tagPath || tagPath === UNTAGGED_TAG_ID) {
+        return tagPath;
+    }
+
+    const segments = tagPath.split('/');
+
+    for (let length = segments.length; length > 0; length--) {
+        const candidate = segments.slice(0, length).join('/');
+        if (isTagVisible(candidate, expandedTags)) {
+            return candidate;
+        }
+    }
+
+    return tagPath;
+}
