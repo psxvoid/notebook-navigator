@@ -74,8 +74,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.5.1',
         date: '2025-10-01',
         new: [
-            '**New setting: List pane title**. If you did not like the new list pane header style of 1.5 you can now revert back to the old "header" style title. Or disable it completely.',
-            '**New setting: Show notes from subfolders / descendants**. Well after way too many users did not find the toolbar button, it is now also available as a setting.'
+            '==New setting: Navigation banner==. You can now add a custom banner image at the top of the navigation pane.',
+            '==New setting: List pane title==. If you did not like the new list pane header style of 1.5 you can now revert back to the old "header" style title. Or disable it completely.',
+            '==New setting: Show notes from subfolders / descendants==. Well after way too many users did not find the toolbar button, it is now also available as a setting.'
         ],
         changed: [
             'Renamed tag "Favorites" to "Favorite tags".',
