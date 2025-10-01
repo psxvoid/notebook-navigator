@@ -84,7 +84,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Fixed an issue where the navigation pane would not be shown on startup when a homepage was configured and the default startup view was set to navigation pane in single-pane mode.',
             'Fixed an issue where clicking on a tag that is favorite in shortcuts would not open the tag.',
             'Fixed an issue where shortcuts would not show name aliases from frontmatter.',
-            'Fixed the German word for shortcuts (keyboard shortcuts) to Lesezeichen (bookmarks).'
+            'Fixed the German word for shortcuts (keyboard shortcuts) to Lesezeichen (bookmarks).',
+            'Fixed an issue where file preview would not update after renaming and then editing a file.'
         ]
     },
     {

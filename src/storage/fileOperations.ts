@@ -162,7 +162,14 @@ export async function recordFileChanges(
             };
             updates.push({ path: file.path, data: fileData });
         } else if (renamed) {
-            // Existing data already copied; ensure we clear cached rename entry
+            // File exists in DB and has pending rename data - merge them
+            // This happens when a file is renamed then modified before the rename is fully processed
+            const mergedData: FileData = {
+                ...existing,
+                ...renamed,
+                mtime: file.stat.mtime
+            };
+            updates.push({ path: file.path, data: mergedData });
             renamedData?.delete(file.path);
         }
         // If file was actually modified (existing.mtime !== file.stat.mtime),
