@@ -153,18 +153,19 @@ setTagSortOverride(tagPath: string, sortOption: SortOption): Promise<void>
 removeTagSortOverride(tagPath: string): Promise<void>
 
 // File pin operations
-togglePin(filePath: string, context: PinContext): Promise<void>
-isFilePinned(filePath: string, context?: PinContext): boolean
-getPinnedNotes(context?: PinContext): string[]
+togglePinnedNote(filePath: string, context: NavigatorContext): Promise<void>
+isFilePinned(filePath: string, context?: NavigatorContext): boolean
+getPinnedNotes(context?: NavigatorContext): string[]
 handleFileDelete(filePath: string): Promise<void>
 handleFileRename(oldPath: string, newPath: string): Promise<void>
 
 // Cleanup operations (for external file changes)
-cleanupAllMetadata(): Promise<CleanupResult>  // Manual trigger from settings
-cleanupTagMetadata(): Promise<CleanupResult>
-cleanupFolderMetadata(): Promise<CleanupResult>
-cleanupPinnedNotes(): Promise<CleanupResult>
-runUnifiedCleanup(validators: CleanupValidators): Promise<CleanupResult>
+cleanupAllMetadata(): Promise<boolean>  // Manual trigger from settings
+cleanupTagMetadata(): Promise<boolean>
+cleanupFolderMetadata(): Promise<boolean>
+cleanupPinnedNotes(): Promise<boolean>
+runUnifiedCleanup(validators: CleanupValidators): Promise<boolean>
+getCleanupSummary(): Promise<MetadataCleanupSummary>
 static prepareCleanupValidators(app: App, tagTree: Map<string, TagTreeNode>): CleanupValidators
 ```
 

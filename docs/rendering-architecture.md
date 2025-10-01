@@ -185,7 +185,7 @@ The main container managing the two-pane layout:
 - Drag-and-drop coordination
 - Focus management between panes
 - Command execution (delete, move, create)
-- Platform-specific UI rendering (headers vs tab bars)
+- Platform-specific UI rendering (headers vs toolbars)
 
 **Key Features**:
 
@@ -210,7 +210,7 @@ The main container managing the two-pane layout:
 
 **Location**: `src/components/NavigationToolbar.tsx`
 
-**Mobile only** - The bottom tab bar for the navigation pane:
+**Mobile only** - The bottom toolbar for the navigation pane:
 
 - Same toolbar buttons as NavigationPaneHeader
 - Positioned at the bottom of the pane
@@ -268,7 +268,7 @@ The header for the list pane (visible on both desktop and mobile):
 
 **Location**: `src/components/ListToolbar.tsx`
 
-**Mobile only** - The bottom tab bar for the list pane:
+**Mobile only** - The bottom toolbar for the list pane:
 
 - Toolbar buttons for common operations
 - Toggle showing notes from subfolders
