@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useContext, useReducer, ReactNode, useMemo, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useMemo, useEffect } from 'react';
 import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 // Storage keys
 import { STORAGE_KEYS } from '../types';
@@ -101,7 +101,6 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     };
 
     const [state, dispatch] = useReducer(uiStateReducer, undefined, loadInitialState);
-    const startViewRef = useRef<'navigation' | 'files'>(getStartView(plugin.settings));
 
     // Compute dualPane and singlePane based on isMobile and settings
     const stateWithPaneMode = useMemo(() => {
@@ -117,13 +116,6 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         const id = `ui-state-${Date.now()}`;
         const handleUpdate = () => {
             dispatch({ type: 'SET_DUAL_PANE', value: plugin.useDualPane() });
-
-            const nextStartView = getStartView(plugin.settings);
-            if (startViewRef.current !== nextStartView) {
-                startViewRef.current = nextStartView;
-                dispatch({ type: 'SET_SINGLE_PANE_VIEW', view: nextStartView });
-                dispatch({ type: 'SET_FOCUSED_PANE', pane: nextStartView });
-            }
         };
 
         plugin.registerSettingsUpdateListener(id, handleUpdate);
