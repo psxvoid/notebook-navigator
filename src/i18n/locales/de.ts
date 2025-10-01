@@ -351,6 +351,7 @@ export const STRINGS_DE = {
             noTagsToRemove: 'Keine Tags zum Entfernen',
             noFilesSelected: 'Keine Dateien ausgewählt',
             tagOperationsNotAvailable: 'Tag-Operationen nicht verfügbar',
+            tagsRequireMarkdown: 'Tags werden nur in Markdown-Notizen unterstützt',
             iconPackDownloaded: '{provider} heruntergeladen',
             iconPackRemoved: '{provider} entfernt',
             iconPackLoadFailed: '{provider} konnte nicht geladen werden'

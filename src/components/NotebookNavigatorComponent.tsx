@@ -378,6 +378,12 @@ export const NotebookNavigatorComponent = React.memo(
                         return;
                     }
 
+                    // Verify all selected files are markdown (tags only work with markdown)
+                    if (!selectedFiles.every(item => item.extension === 'md')) {
+                        new Notice(strings.fileSystem.notifications.tagsRequireMarkdown);
+                        return;
+                    }
+
                     // Show tag selection modal
                     const modal = new TagSuggestModal(
                         app,
@@ -406,6 +412,12 @@ export const NotebookNavigatorComponent = React.memo(
                     const selectedFiles = getSelectedFiles();
                     if (selectedFiles.length === 0) {
                         new Notice(strings.fileSystem.notifications.noFilesSelected);
+                        return;
+                    }
+
+                    // Verify all selected files are markdown (tags only work with markdown)
+                    if (!selectedFiles.every(item => item.extension === 'md')) {
+                        new Notice(strings.fileSystem.notifications.tagsRequireMarkdown);
                         return;
                     }
 
@@ -448,6 +460,12 @@ export const NotebookNavigatorComponent = React.memo(
                     const selectedFiles = getSelectedFiles();
                     if (selectedFiles.length === 0) {
                         new Notice(strings.fileSystem.notifications.noFilesSelected);
+                        return;
+                    }
+
+                    // Verify all selected files are markdown (tags only work with markdown)
+                    if (!selectedFiles.every(item => item.extension === 'md')) {
+                        new Notice(strings.fileSystem.notifications.tagsRequireMarkdown);
                         return;
                     }
 

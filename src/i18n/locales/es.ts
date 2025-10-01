@@ -349,6 +349,7 @@ export const STRINGS_ES = {
             noTagsToRemove: 'No hay etiquetas para eliminar',
             noFilesSelected: 'No hay archivos seleccionados',
             tagOperationsNotAvailable: 'Operaciones de etiquetas no disponibles',
+            tagsRequireMarkdown: 'Las etiquetas solo son compatibles con notas Markdown',
             iconPackDownloaded: '{provider} descargado',
             iconPackRemoved: '{provider} eliminado',
             iconPackLoadFailed: 'No se pudo cargar {provider}'

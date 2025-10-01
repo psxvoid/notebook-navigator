@@ -349,6 +349,7 @@ export const STRINGS_ZH = {
             noTagsToRemove: '没有可移除的标签',
             noFilesSelected: '未选择文件',
             tagOperationsNotAvailable: '标签操作不可用',
+            tagsRequireMarkdown: '标签仅支持Markdown笔记',
             iconPackDownloaded: '{provider} 已下载',
             iconPackRemoved: '{provider} 已移除',
             iconPackLoadFailed: '{provider} 加载失败'

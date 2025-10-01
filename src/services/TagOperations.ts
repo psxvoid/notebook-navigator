@@ -52,6 +52,13 @@ export class TagOperations {
     constructor(private app: App) {}
 
     /**
+     * Checks if a file is a markdown file
+     */
+    private isMarkdownFile(file: TFile): boolean {
+        return file.extension === 'md';
+    }
+
+    /**
      * Builds a regex pattern for matching a specific inline tag
      * @param tag - The tag to match (without #)
      * @returns A RegExp for matching the specific tag
@@ -91,6 +98,12 @@ export class TagOperations {
         let skipped = 0;
 
         for (const file of files) {
+            // Skip non-markdown files
+            if (!this.isMarkdownFile(file)) {
+                skipped++;
+                continue;
+            }
+
             const alreadyHasTag = await this.fileHasTagOrAncestor(file, tag);
             if (alreadyHasTag) {
                 skipped++;
@@ -115,6 +128,11 @@ export class TagOperations {
         const db = getDBInstance();
 
         for (const file of files) {
+            // Skip non-markdown files
+            if (!this.isMarkdownFile(file)) {
+                continue;
+            }
+
             const tags = db.getCachedTags(file.path);
             tags.forEach(tag => {
                 const lowerTag = tag.toLowerCase();
@@ -139,6 +157,11 @@ export class TagOperations {
         let removed = 0;
 
         for (const file of files) {
+            // Skip non-markdown files
+            if (!this.isMarkdownFile(file)) {
+                continue;
+            }
+
             const hadTag = await this.removeTagFromFile(file, tag);
             if (hadTag) {
                 removed++;
@@ -157,6 +180,11 @@ export class TagOperations {
         let cleared = 0;
 
         for (const file of files) {
+            // Skip non-markdown files
+            if (!this.isMarkdownFile(file)) {
+                continue;
+            }
+
             const hadTags = await this.clearAllTagsFromFile(file);
             if (hadTags) {
                 cleared++;
@@ -187,6 +215,11 @@ export class TagOperations {
      * Also returns true if file has an ancestor tag (e.g., won't add "project/task" if file has "project").
      */
     private async fileHasTagOrAncestor(file: TFile, tag: string): Promise<boolean> {
+        // Non-markdown files cannot have tags
+        if (!this.isMarkdownFile(file)) {
+            return false;
+        }
+
         const db = getDBInstance();
         const allTags = db.getCachedTags(file.path);
 
@@ -210,6 +243,11 @@ export class TagOperations {
      * Adds a tag to a single file's frontmatter
      */
     private async addTagToFile(file: TFile, tag: string): Promise<void> {
+        // Skip non-markdown files
+        if (!this.isMarkdownFile(file)) {
+            return;
+        }
+
         // First, remove any descendant tags of the new tag
         await this.removeDescendantTagsFromFile(file, tag);
 
@@ -243,6 +281,11 @@ export class TagOperations {
      * @returns Whether the file had the tag
      */
     private async removeTagFromFile(file: TFile, tag: string): Promise<boolean> {
+        // Non-markdown files cannot have tags
+        if (!this.isMarkdownFile(file)) {
+            return false;
+        }
+
         let hadTag = false;
 
         // Remove from frontmatter
@@ -307,6 +350,11 @@ export class TagOperations {
      * e.g., if adding "project", removes "project/example", "project/task1", etc.
      */
     private async removeDescendantTagsFromFile(file: TFile, ancestorTag: string): Promise<void> {
+        // Skip non-markdown files
+        if (!this.isMarkdownFile(file)) {
+            return;
+        }
+
         // Get all current tags from the file
         const currentTags = this.getTagsFromFiles([file]);
 
@@ -374,6 +422,11 @@ export class TagOperations {
      * @returns Whether the file had any tags to clear
      */
     private async clearAllTagsFromFile(file: TFile): Promise<boolean> {
+        // Non-markdown files cannot have tags
+        if (!this.isMarkdownFile(file)) {
+            return false;
+        }
+
         let hadTags = false;
 
         // Check if file has any tags using our memory cache

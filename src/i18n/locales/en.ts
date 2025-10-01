@@ -348,6 +348,7 @@ export const STRINGS_EN = {
             noTagsToRemove: 'No tags to remove',
             noFilesSelected: 'No files selected',
             tagOperationsNotAvailable: 'Tag operations not available',
+            tagsRequireMarkdown: 'Tags are only supported on Markdown notes',
             iconPackDownloaded: '{provider} downloaded',
             iconPackRemoved: '{provider} removed',
             iconPackLoadFailed: 'Failed to load {provider}'

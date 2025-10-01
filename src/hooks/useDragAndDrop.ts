@@ -439,6 +439,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             if (files.length === 0) return;
 
+            // Verify all files are markdown (tags only work with markdown)
+            if (files.some(file => file.extension !== 'md')) {
+                new Notice(strings.fileSystem.notifications.tagsRequireMarkdown);
+                return;
+            }
+
             // Handle special "untagged" drop zone - clear all tags
             if (targetTag === UNTAGGED_TAG_ID) {
                 try {

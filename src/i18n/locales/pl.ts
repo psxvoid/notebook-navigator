@@ -350,6 +350,7 @@ export const STRINGS_PL = {
             noTagsToRemove: 'Brak tagów do usunięcia',
             noFilesSelected: 'Nie wybrano plików',
             tagOperationsNotAvailable: 'Operacje na tagach niedostępne',
+            tagsRequireMarkdown: 'Tagi są obsługiwane tylko w notatkach Markdown',
             iconPackDownloaded: '{provider} pobrano',
             iconPackRemoved: '{provider} usunięto',
             iconPackLoadFailed: 'Nie udało się załadować {provider}'
