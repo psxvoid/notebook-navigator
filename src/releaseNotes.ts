@@ -78,7 +78,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         changed: [
             'Renamed tag "Favorites" to "Favorite tags".',
-            'Using the **Open** command to shift focus to Notebook Navigator will now focus navigation pane in single pane mode if navigation pane is visible.'
+            'Using the **Open** command to shift keyboard focus to Notebook Navigator will now focus navigation pane in single pane mode if navigation pane is visible.'
         ],
         fixed: [
             'Add to shortcuts / remove from shortcuts are now shown for all supported files, not only markdown files.',
