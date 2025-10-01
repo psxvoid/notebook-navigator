@@ -753,7 +753,11 @@ export function useNavigationPaneData({
             let count = 0;
             for (const child of folder.children) {
                 if (child instanceof TFile) {
-                    if (folderNoteSettings.enableFolderNotes && isFolderNote(child, folder, folderNoteSettings)) {
+                    if (
+                        folderNoteSettings.enableFolderNotes &&
+                        settings.hideFolderNoteInList &&
+                        isFolderNote(child, folder, folderNoteSettings)
+                    ) {
                         continue;
                     }
 
@@ -792,6 +796,7 @@ export function useNavigationPaneData({
         settings.fileVisibility,
         settings.enableFolderNotes,
         settings.folderNoteName,
+        settings.hideFolderNoteInList,
         app,
         isVisible,
         fileChangeVersion
