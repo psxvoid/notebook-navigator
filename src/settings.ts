@@ -1229,20 +1229,22 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Section 6: List pane
         new Setting(containerEl).setName(strings.settings.sections.listPane).setHeading();
 
-        new Setting(containerEl)
-            .setName(strings.settings.items.listPaneTitle.name)
-            .setDesc(strings.settings.items.listPaneTitle.desc)
-            .addDropdown(dropdown =>
-                dropdown
-                    .addOption('header', strings.settings.items.listPaneTitle.options.header)
-                    .addOption('list', strings.settings.items.listPaneTitle.options.list)
-                    .addOption('hidden', strings.settings.items.listPaneTitle.options.hidden)
-                    .setValue(this.plugin.settings.listPaneTitle)
-                    .onChange(async (value: ListPaneTitleOption) => {
-                        this.plugin.settings.listPaneTitle = value;
-                        await this.plugin.saveSettingsAndUpdate();
-                    })
-            );
+        if (!Platform.isMobile) {
+            new Setting(containerEl)
+                .setName(strings.settings.items.listPaneTitle.name)
+                .setDesc(strings.settings.items.listPaneTitle.desc)
+                .addDropdown(dropdown =>
+                    dropdown
+                        .addOption('header', strings.settings.items.listPaneTitle.options.header)
+                        .addOption('list', strings.settings.items.listPaneTitle.options.list)
+                        .addOption('hidden', strings.settings.items.listPaneTitle.options.hidden)
+                        .setValue(this.plugin.settings.listPaneTitle)
+                        .onChange(async (value: ListPaneTitleOption) => {
+                            this.plugin.settings.listPaneTitle = value;
+                            await this.plugin.saveSettingsAndUpdate();
+                        })
+                );
+        }
 
         new Setting(containerEl)
             .setName(strings.settings.items.sortNotesBy.name)
@@ -1297,56 +1299,62 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             );
 
         // Quick actions settings
-        new Setting(containerEl)
-            .setName(strings.settings.items.showQuickActions.name)
-            .setDesc(strings.settings.items.showQuickActions.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.showQuickActions).onChange(async value => {
-                    this.plugin.settings.showQuickActions = value;
-                    await this.plugin.saveSettingsAndUpdate();
-                    // Update quick actions sub-settings visibility
-                    quickActionsEl.toggle(value);
-                })
-            );
+        if (!Platform.isMobile) {
+            let quickActionsEl: HTMLDivElement | null = null;
 
-        // Container for quick actions sub-settings
-        const quickActionsEl = containerEl.createDiv('nn-sub-settings');
+            new Setting(containerEl)
+                .setName(strings.settings.items.showQuickActions.name)
+                .setDesc(strings.settings.items.showQuickActions.desc)
+                .addToggle(toggle =>
+                    toggle.setValue(this.plugin.settings.showQuickActions).onChange(async value => {
+                        this.plugin.settings.showQuickActions = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                        // Update quick actions sub-settings visibility
+                        if (quickActionsEl) {
+                            quickActionsEl.toggle(value);
+                        }
+                    })
+                );
 
-        // Reveal in folder quick action
-        new Setting(quickActionsEl)
-            .setName(strings.settings.items.quickActionsRevealInFolder.name)
-            .setDesc(strings.settings.items.quickActionsRevealInFolder.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.quickActionRevealInFolder).onChange(async value => {
-                    this.plugin.settings.quickActionRevealInFolder = value;
-                    await this.plugin.saveSettingsAndUpdate();
-                })
-            );
+            // Container for quick actions sub-settings
+            quickActionsEl = containerEl.createDiv('nn-sub-settings');
 
-        // Pin note quick action
-        new Setting(quickActionsEl)
-            .setName(strings.settings.items.quickActionsPinNote.name)
-            .setDesc(strings.settings.items.quickActionsPinNote.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.quickActionPinNote).onChange(async value => {
-                    this.plugin.settings.quickActionPinNote = value;
-                    await this.plugin.saveSettingsAndUpdate();
-                })
-            );
+            // Reveal in folder quick action
+            new Setting(quickActionsEl)
+                .setName(strings.settings.items.quickActionsRevealInFolder.name)
+                .setDesc(strings.settings.items.quickActionsRevealInFolder.desc)
+                .addToggle(toggle =>
+                    toggle.setValue(this.plugin.settings.quickActionRevealInFolder).onChange(async value => {
+                        this.plugin.settings.quickActionRevealInFolder = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                    })
+                );
 
-        // Open in new tab quick action
-        new Setting(quickActionsEl)
-            .setName(strings.settings.items.quickActionsOpenInNewTab.name)
-            .setDesc(strings.settings.items.quickActionsOpenInNewTab.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.quickActionOpenInNewTab).onChange(async value => {
-                    this.plugin.settings.quickActionOpenInNewTab = value;
-                    await this.plugin.saveSettingsAndUpdate();
-                })
-            );
+            // Pin note quick action
+            new Setting(quickActionsEl)
+                .setName(strings.settings.items.quickActionsPinNote.name)
+                .setDesc(strings.settings.items.quickActionsPinNote.desc)
+                .addToggle(toggle =>
+                    toggle.setValue(this.plugin.settings.quickActionPinNote).onChange(async value => {
+                        this.plugin.settings.quickActionPinNote = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                    })
+                );
 
-        // Set initial visibility
-        quickActionsEl.toggle(this.plugin.settings.showQuickActions);
+            // Open in new tab quick action
+            new Setting(quickActionsEl)
+                .setName(strings.settings.items.quickActionsOpenInNewTab.name)
+                .setDesc(strings.settings.items.quickActionsOpenInNewTab.desc)
+                .addToggle(toggle =>
+                    toggle.setValue(this.plugin.settings.quickActionOpenInNewTab).onChange(async value => {
+                        this.plugin.settings.quickActionOpenInNewTab = value;
+                        await this.plugin.saveSettingsAndUpdate();
+                    })
+                );
+
+            // Set initial visibility
+            quickActionsEl.toggle(this.plugin.settings.showQuickActions);
+        }
 
         this.createDebouncedTextSetting(
             containerEl,
