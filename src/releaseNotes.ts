@@ -74,7 +74,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.5.1',
         date: '2025-10-01',
         new: [
-            '**New setting: List pane title**. You can now choose how to show the list pane title: in header, in list pane (default) or none.'
+            '**New setting: List pane title**. If you did not like the new list pane header style of 1.5 you can now revert back to the old "header" style title. Or disable it completely.'
         ],
         changed: [
             'Renamed tag "Favorites" to "Favorite tags".',
@@ -83,6 +83,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         fixed: [
             'Fixed an issue where the navigation pane would not be shown on startup when a homepage was configured and the default startup view was set to navigation pane in single-pane mode.',
             'Fixed an issue where clicking on a tag that is favorite in shortcuts would not open the tag.',
+            'Fixed an issue where folder notes were added to file count even when they were hidden.',
             'Fixed an issue where shortcuts would not show name aliases from frontmatter.',
             'Fixed the German word for shortcuts (keyboard shortcuts) to Lesezeichen (bookmarks).',
             'Fixed an issue where file preview would not update after renaming and then editing a file.'
