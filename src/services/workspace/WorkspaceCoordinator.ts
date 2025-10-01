@@ -61,7 +61,7 @@ export default class WorkspaceCoordinator {
     /**
      * Retrieves all workspace leaves hosting the navigator view.
      */
-    private getNavigatorLeaves(): WorkspaceLeaf[] {
+    public getNavigatorLeaves(): WorkspaceLeaf[] {
         return this.plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
     }
 

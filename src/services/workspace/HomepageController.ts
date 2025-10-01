@@ -103,7 +103,6 @@ export default class HomepageController {
             return false;
         }
 
-        await this.workspace.activateNavigatorView();
         const revealOptions: RevealFileOptions = {
             source: trigger === 'startup' ? 'startup' : 'manual',
             isStartupReveal: trigger === 'startup',
@@ -114,6 +113,17 @@ export default class HomepageController {
         this.workspace.revealFileInNearestFolder(homepageFile, revealOptions);
 
         // Open homepage file in the editor
+        // Use command queue to track the homepage open operation if available
+        const { commandQueue } = this.plugin;
+        if (commandQueue) {
+            const result = await commandQueue.executeHomepageOpen(homepageFile, () =>
+                this.plugin.app.workspace.openLinkText(homepageFile.path, '', false)
+            );
+
+            return result.success;
+        }
+
+        // Fallback for when command queue is not available
         await this.plugin.app.workspace.openLinkText(homepageFile.path, '', false);
         return true;
     }

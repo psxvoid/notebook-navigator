@@ -387,8 +387,12 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             });
 
             // Determine whether to switch to files view in single pane mode
+            // Check if we're currently opening the homepage file
+            const isHomepageContext = Boolean(commandQueue?.isOpeningHomepage());
             const shouldSkipSinglePaneSwitch = Boolean(
-                (options?.isStartupReveal && settings.startView === 'navigation') || options?.preserveNavigationFocus
+                (options?.isStartupReveal && settings.startView === 'navigation') ||
+                    options?.preserveNavigationFocus ||
+                    (isHomepageContext && settings.startView === 'navigation')
             );
 
             if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation' && !shouldSkipSinglePaneSwitch) {
@@ -419,7 +423,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             uiDispatch,
             getDB,
             getRevealTargetFolder,
-            navigationPaneRef
+            navigationPaneRef,
+            commandQueue
         ]
     );
 
