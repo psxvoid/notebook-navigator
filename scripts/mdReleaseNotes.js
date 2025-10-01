@@ -34,35 +34,38 @@ if (!releases || releases.length === 0) {
 // Get the first (latest) release
 const release = releases[0];
 
+// Helper function to convert == to **
+const convertMarkdown = (text) => text.replace(/==/g, '**');
+
 // Output the formatted markdown
 console.log(`## Notebook Navigator ${release.version} (${release.date})\n`);
 
 // Print optional info section if present
 if (release.info) {
-    console.log(`${release.info}\n`);
+    console.log(`${convertMarkdown(release.info)}\n`);
 }
 
 // Print each section if it has content
 if (release.new && release.new.length > 0) {
     console.log('### New\n');
-    release.new.forEach(item => console.log(`- ${item}`));
+    release.new.forEach(item => console.log(`- ${convertMarkdown(item)}`));
     console.log();
 }
 
 if (release.improved && release.improved.length > 0) {
     console.log('### Improved\n');
-    release.improved.forEach(item => console.log(`- ${item}`));
+    release.improved.forEach(item => console.log(`- ${convertMarkdown(item)}`));
     console.log();
 }
 
 if (release.changed && release.changed.length > 0) {
     console.log('### Changed\n');
-    release.changed.forEach(item => console.log(`- ${item}`));
+    release.changed.forEach(item => console.log(`- ${convertMarkdown(item)}`));
     console.log();
 }
 
 if (release.fixed && release.fixed.length > 0) {
     console.log('### Fixed\n');
-    release.fixed.forEach(item => console.log(`- ${item}`));
+    release.fixed.forEach(item => console.log(`- ${convertMarkdown(item)}`));
     console.log();
 }
