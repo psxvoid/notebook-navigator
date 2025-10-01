@@ -16,6 +16,10 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 
 <!-- DOCUMENTATION_START -->
 
+## Introduction to Notebook Navigator
+
+[![Still Using Default File View in Obsidian? Watch This](https://github.com/user-attachments/assets/0d9b7947-aa1d-4f54-b704-7594fc29fd11)](https://www.youtube.com/watch?v=0lXbEHKDLp8)
+
 ## Installation
 
 1. **Install Obsidian** - Download and install from [obsidian.md](https://obsidian.md/)
