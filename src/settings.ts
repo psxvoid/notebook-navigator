@@ -1279,6 +1279,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
+            .setName(strings.settings.items.includeDescendantNotes.name)
+            .setDesc(strings.settings.items.includeDescendantNotes.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.includeDescendantNotes).onChange(async value => {
+                    this.plugin.settings.includeDescendantNotes = value;
+                    await this.plugin.saveSettingsAndUpdate();
+                })
+            );
+
+        new Setting(containerEl)
             .setName(strings.settings.items.groupByDate.name)
             .setDesc(strings.settings.items.groupByDate.desc)
             .addToggle(toggle =>

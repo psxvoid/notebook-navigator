@@ -91,7 +91,7 @@ export const STRINGS_DE = {
         hideFolders: 'Navigation ausblenden', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Hauptordner neu anordnen',
         finishRootFolderReorder: 'Neuanordnung der Hauptordner abschließen',
-        toggleDescendantNotes: 'Notizen aus Nachkommen anzeigen (Ordner und Tags)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
+        toggleDescendantNotes: 'Notizen aus Unterordnern / Nachkommen anzeigen', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Versteckte Elemente anzeigen', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Versteckte Elemente ausblenden', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -515,6 +515,10 @@ export const STRINGS_DE = {
                     'title-asc': 'Titel (A zuerst)',
                     'title-desc': 'Titel (Z zuerst)'
                 }
+            },
+            includeDescendantNotes: {
+                name: 'Notizen aus Unterordnern / Nachkommen anzeigen',
+                desc: 'Beim Anzeigen eines Ordners oder Tags Notizen aus Unterordnern und Tag-Nachkommen einbeziehen.'
             },
             groupByDate: {
                 name: 'Notizen nach Datum gruppieren',

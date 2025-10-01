@@ -91,7 +91,7 @@ export const STRINGS_JA = {
         hideFolders: 'ナビゲーションを非表示', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'ルートフォルダの並び替え',
         finishRootFolderReorder: 'ルートフォルダの並び替えを完了',
-        toggleDescendantNotes: '子孫のノートを表示（フォルダとタグ）', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
+        toggleDescendantNotes: 'サブフォルダ / 子孫のノートを表示', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '非表示項目を表示', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: '非表示項目を隠す', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -512,6 +512,10 @@ export const STRINGS_JA = {
                     'title-asc': 'タイトル（A順）',
                     'title-desc': 'タイトル（Z順）'
                 }
+            },
+            includeDescendantNotes: {
+                name: 'サブフォルダ / 子孫のノートを表示',
+                desc: 'フォルダまたはタグを表示するとき、入れ子のサブフォルダとタグの子孫にあるノートを含めます。'
             },
             groupByDate: {
                 name: '日付でノートをグループ化',

@@ -92,7 +92,7 @@ export const STRINGS_EN = {
         hideFolders: 'Hide navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Reorder root folders',
         finishRootFolderReorder: 'Finish root folder reorder',
-        toggleDescendantNotes: 'Show notes from descendants (folders and tags)', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: 'Show notes from subfolders / descendants', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Auto-expand folders and tags', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Show hidden items', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Hide hidden items', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -511,6 +511,10 @@ export const STRINGS_EN = {
                     'title-asc': 'Title (A first)',
                     'title-desc': 'Title (Z first)'
                 }
+            },
+            includeDescendantNotes: {
+                name: 'Show notes from subfolders / descendants',
+                desc: 'Include notes from nested subfolders and tag descendants when viewing a folder or tag.'
             },
             groupByDate: {
                 name: 'Group notes by date',

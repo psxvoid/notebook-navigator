@@ -91,7 +91,7 @@ export const STRINGS_PL = {
         hideFolders: 'Ukryj nawigację', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Zmień kolejność folderów głównych',
         finishRootFolderReorder: 'Zakończ zmianę kolejności folderów głównych',
-        toggleDescendantNotes: 'Pokaż notatki z podfolderów (foldery i tagi)', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: 'Pokaż notatki z podfolderów / potomnych', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Automatycznie rozwijaj foldery i tagi', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Pokaż ukryte elementy', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Ukryj ukryte elementy', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -513,6 +513,10 @@ export const STRINGS_PL = {
                     'title-asc': 'Tytuł (A najpierw)',
                     'title-desc': 'Tytuł (Z najpierw)'
                 }
+            },
+            includeDescendantNotes: {
+                name: 'Pokaż notatki z podfolderów / potomnych',
+                desc: 'Podczas przeglądania folderu lub tagu uwzględnij notatki z zagnieżdżonych podfolderów i potomnych tagów.'
             },
             groupByDate: {
                 name: 'Grupuj notatki według daty',

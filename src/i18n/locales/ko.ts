@@ -91,7 +91,7 @@ export const STRINGS_KO = {
         hideFolders: '탐색 숨기기', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: '루트 폴더 순서 변경',
         finishRootFolderReorder: '루트 폴더 순서 변경 완료',
-        toggleDescendantNotes: '하위 항목의 노트 표시 (폴더 및 태그)', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: '하위 폴더 / 하위 항목 노트 표시', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: '폴더 및 태그 자동 펼치기', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '숨겨진 항목 표시', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: '숨겨진 항목 숨기기', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -511,6 +511,10 @@ export const STRINGS_KO = {
                     'title-asc': '제목 (가나다순)',
                     'title-desc': '제목 (역순)'
                 }
+            },
+            includeDescendantNotes: {
+                name: '하위 폴더 / 하위 항목 노트 표시',
+                desc: '폴더나 태그를 볼 때 중첩된 하위 폴더와 태그 하위 항목의 노트를 포함합니다.'
             },
             groupByDate: {
                 name: '날짜별로 노트 그룹화',

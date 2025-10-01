@@ -91,7 +91,7 @@ export const STRINGS_FR = {
         hideFolders: 'Masquer la navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Réorganiser les dossiers racine',
         finishRootFolderReorder: 'Terminer la réorganisation des dossiers racine',
-        toggleDescendantNotes: 'Afficher les notes des descendants (dossiers et étiquettes)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
+        toggleDescendantNotes: 'Afficher les notes des sous-dossiers / descendants', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: 'Développer automatiquement les dossiers et les étiquettes', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Afficher les éléments masqués', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Masquer les éléments masqués', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -513,6 +513,10 @@ export const STRINGS_FR = {
                     'title-asc': 'Titre (A en premier)',
                     'title-desc': 'Titre (Z en premier)'
                 }
+            },
+            includeDescendantNotes: {
+                name: 'Afficher les notes des sous-dossiers / descendants',
+                desc: "Inclure les notes des sous-dossiers imbriqués et des descendants d'étiquettes lors de l'affichage d'un dossier ou d'une étiquette."
             },
             groupByDate: {
                 name: 'Grouper les notes par date',

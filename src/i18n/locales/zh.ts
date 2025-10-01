@@ -91,7 +91,7 @@ export const STRINGS_ZH = {
         hideFolders: '隐藏导航', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: '重新排列根文件夹',
         finishRootFolderReorder: '完成根文件夹重新排列',
-        toggleDescendantNotes: '显示后代笔记（文件夹和标签）', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
+        toggleDescendantNotes: '显示子文件夹/后代的笔记', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '显示隐藏项', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: '隐藏隐藏项', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -511,6 +511,10 @@ export const STRINGS_ZH = {
                     'title-asc': '标题（A 优先）',
                     'title-desc': '标题（Z 优先）'
                 }
+            },
+            includeDescendantNotes: {
+                name: '显示子文件夹/后代的笔记',
+                desc: '在查看文件夹或标签时包含嵌套子文件夹和标签后代中的笔记。'
             },
             groupByDate: {
                 name: '按日期分组笔记',
