@@ -304,21 +304,26 @@ export const FileItem = React.memo(function FileItem({
     const showExtensionSuffix = useMemo(() => shouldShowExtensionSuffix(file), [file]);
     const fileIconId = metadataService.getFileIcon(file.path);
     const fileColor = metadataService.getFileColor(file.path);
+    const fileExtension = file.extension;
+    const isImageDocument = isImageFile(file);
     const dragIconId = useMemo(() => {
         if (fileIconId) {
             return fileIconId;
         }
-        if (file.extension === 'canvas') {
+        if (fileExtension === 'canvas') {
             return 'lucide-layout-grid';
         }
-        if (file.extension === 'base') {
+        if (fileExtension === 'base') {
             return 'lucide-database';
         }
-        if (file.extension === 'md') {
+        if (isImageDocument) {
+            return 'lucide-image';
+        }
+        if (fileExtension === 'md') {
             return 'lucide-file-text';
         }
         return 'lucide-file';
-    }, [fileIconId, file.extension]);
+    }, [fileIconId, fileExtension, isImageDocument]);
 
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 

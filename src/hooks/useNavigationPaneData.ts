@@ -50,7 +50,7 @@ import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings } from '../settings';
 import { shouldExcludeFile, shouldExcludeFolder, isFolderInExcludedFolder } from '../utils/fileFilters';
-import { shouldDisplayFile, FILE_VISIBILITY } from '../utils/fileTypeUtils';
+import { shouldDisplayFile, FILE_VISIBILITY, isImageFile } from '../utils/fileTypeUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
@@ -70,7 +70,12 @@ const getDocumentIcon = (file: TFile | null): string | undefined => {
         return undefined;
     }
 
-    return DOCUMENT_EXTENSION_ICONS[file.extension] ?? undefined;
+    if (isImageFile(file)) {
+        return 'lucide-image';
+    }
+
+    const extension = file.extension.toLowerCase();
+    return DOCUMENT_EXTENSION_ICONS[extension] ?? undefined;
 };
 
 /**
