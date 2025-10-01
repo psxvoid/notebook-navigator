@@ -58,6 +58,7 @@ import { createHiddenTagMatcher } from '../utils/tagPrefixMatcher';
 import { setNavigationIndex } from '../utils/navigationIndex';
 import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } from '../types/shortcuts';
 import { useRootFolderOrder } from './useRootFolderOrder';
+import { isFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
 
 const DOCUMENT_EXTENSION_ICONS: Record<string, string> = {
     canvas: 'lucide-layout-grid',
@@ -743,11 +744,19 @@ export function useNavigationPaneData({
 
         const excludedProperties = settings.excludedFiles;
         const excludedFolderPatterns = settings.excludedFolders;
+        const folderNoteSettings: FolderNoteDetectionSettings = {
+            enableFolderNotes: settings.enableFolderNotes,
+            folderNoteName: settings.folderNoteName
+        };
 
         const countFiles = (folder: TFolder): number => {
             let count = 0;
             for (const child of folder.children) {
                 if (child instanceof TFile) {
+                    if (folderNoteSettings.enableFolderNotes && isFolderNote(child, folder, folderNoteSettings)) {
+                        continue;
+                    }
+
                     if (shouldDisplayFile(child, settings.fileVisibility, app)) {
                         if (!shouldExcludeFile(child, excludedProperties, app)) {
                             count++;
@@ -781,6 +790,8 @@ export function useNavigationPaneData({
         settings.excludedFolders,
         settings.showHiddenItems,
         settings.fileVisibility,
+        settings.enableFolderNotes,
+        settings.folderNoteName,
         app,
         isVisible,
         fileChangeVersion
