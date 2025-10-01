@@ -291,6 +291,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Navigation pane
 
+- **Navigation banner:** Display an image above the navigation pane
 - **Show shortcuts:** Display the shortcuts section for quick access to pinned items
 - **Show recent notes:** Display recently opened notes in the navigation pane
   - **Recent notes count:** Number of recent notes to display (1-10)
@@ -351,6 +352,8 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### List pane
 
+- **List pane title:** Choose where the list pane title is shown. `Show in header`, `Show in list pane`, `Hidden`
+- **Show notes from subfolders / descendants:** Include notes from nested subfolders and tag descendants when viewing a folder or tag
 - **Sort notes by:** Choose how notes are sorted in the note list. `Date edited (newest/oldest first)`, `Date created (newest/oldest first)`, `Title (A-Z first)`
 - **Multi-select modifier:** Choose which modifier key toggles multi-selection. When Option/Alt is selected, Cmd/Ctrl click opens notes in a new tab. `Cmd/Ctrl click`, `Option/Alt click`
 - **Group notes by date:** When sorted by date, group notes under date headers
