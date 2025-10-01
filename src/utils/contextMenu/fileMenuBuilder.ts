@@ -115,7 +115,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     }
 
     // Add to shortcuts / Remove from shortcuts
-    if (!shouldShowMultiOptions && services.shortcuts && isMarkdown) {
+    if (!shouldShowMultiOptions && services.shortcuts) {
         const { noteShortcutKeysByPath, addNoteShortcut, removeShortcut } = services.shortcuts;
         const existingShortcutKey = noteShortcutKeysByPath.get(file.path);
 

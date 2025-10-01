@@ -147,15 +147,7 @@ export const NavigationPane = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const shortcuts = useShortcuts();
-        const {
-            shortcutMap,
-            removeShortcut,
-            hydratedShortcuts,
-            reorderShortcuts,
-            noteShortcutKeysByPath,
-            addFolderShortcut,
-            addNoteShortcut
-        } = shortcuts;
+        const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts, addFolderShortcut, addNoteShortcut } = shortcuts;
         const { fileData, getFileDisplayName, getFavoriteTree, findTagInFavoriteTree } = useFileCache();
         const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
 
@@ -1231,20 +1223,6 @@ export const NavigationPane = React.memo(
                     dispatchers
                 });
 
-                if (file.extension !== 'md') {
-                    const shortcutKey = noteShortcutKeysByPath.get(file.path);
-                    if (shortcutKey) {
-                        menu.addSeparator();
-                        menu.addItem(item => {
-                            item.setTitle(strings.shortcuts.remove)
-                                .setIcon('lucide-star-off')
-                                .onClick(() => {
-                                    void removeShortcut(shortcutKey);
-                                });
-                        });
-                    }
-                }
-
                 menu.showAtMouseEvent(event.nativeEvent);
             },
             [
@@ -1255,9 +1233,7 @@ export const NavigationPane = React.memo(
                 expansionState.expandedTags,
                 selectionDispatch,
                 expansionDispatch,
-                uiDispatch,
-                noteShortcutKeysByPath,
-                removeShortcut
+                uiDispatch
             ]
         );
 

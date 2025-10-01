@@ -81,6 +81,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Using the **Open** command to shift focus to Notebook Navigator will now focus navigation pane in single pane mode if navigation pane is visible.'
         ],
         fixed: [
+            'Add to shortcuts / remove from shortcuts are now shown for all supported files, not only markdown files.',
             'Fixed an issue where the navigation pane would not be shown on startup when a homepage was configured and the default startup view was set to navigation pane in single-pane mode.',
             'Fixed an issue where clicking on a tag that is favorite in shortcuts would not open the tag.',
             'Fixed an issue where folder notes were added to file count even when they were hidden.',
