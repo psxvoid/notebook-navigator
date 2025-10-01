@@ -290,6 +290,14 @@ export const STRINGS_EN = {
                 dismiss: 'to dismiss'
             }
         },
+        navigationBanner: {
+            placeholder: 'Search images...',
+            instructions: {
+                navigate: 'to navigate',
+                select: 'to set banner',
+                dismiss: 'to dismiss'
+            }
+        },
         tagSuggest: {
             placeholder: 'Search tags...',
             navigatePlaceholder: 'Navigate to tag...',
@@ -571,6 +579,13 @@ export const STRINGS_EN = {
             autoExpandFoldersTags: {
                 name: 'Auto-expand folders and tags',
                 desc: 'Automatically expand folders and tags when they are selected.'
+            },
+            navigationBanner: {
+                name: 'Navigation banner',
+                desc: 'Display an image above the navigation pane.',
+                current: 'Current banner: {path}',
+                chooseButton: 'Choose image',
+                clearButton: 'Clear'
             },
             showShortcuts: {
                 name: 'Show shortcuts',

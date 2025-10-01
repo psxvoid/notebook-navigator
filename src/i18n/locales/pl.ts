@@ -291,6 +291,14 @@ export const STRINGS_PL = {
                 dismiss: 'aby anulować'
             }
         },
+        navigationBanner: {
+            placeholder: 'Wyszukaj obrazy...',
+            instructions: {
+                navigate: 'aby nawigować',
+                select: 'aby ustawić baner',
+                dismiss: 'aby anulować'
+            }
+        },
         tagSuggest: {
             placeholder: 'Szukaj tagów...',
             navigatePlaceholder: 'Przejdź do tagu...',
@@ -573,6 +581,13 @@ export const STRINGS_PL = {
             autoExpandFoldersTags: {
                 name: 'Automatycznie rozwijaj foldery i tagi',
                 desc: 'Automatycznie rozwijaj foldery i tagi gdy są wybrane.'
+            },
+            navigationBanner: {
+                name: 'Baner nawigacji',
+                desc: 'Wyświetl obraz nad panelem nawigacji.',
+                current: 'Aktualny baner: {path}',
+                chooseButton: 'Wybierz obraz',
+                clearButton: 'Wyczyść'
             },
             showShortcuts: {
                 name: 'Pokaż skróty',

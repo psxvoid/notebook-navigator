@@ -134,6 +134,12 @@ export interface ShortcutTagNavItem extends ShortcutNavigationBase {
     context?: 'favorites' | 'tags';
 }
 
+export interface NavigationBannerItem {
+    type: typeof NavigationPaneItemType.BANNER;
+    key: string;
+    path: string;
+}
+
 export type CombinedNavigationItem =
     | FolderTreeItem
     | VirtualFolderItem
@@ -145,6 +151,7 @@ export type CombinedNavigationItem =
     | RecentNoteNavItem
     | ShortcutSearchNavItem
     | ShortcutTagNavItem
+    | NavigationBannerItem
     | { type: typeof NavigationPaneItemType.TOP_SPACER; key: string }
     | { type: typeof NavigationPaneItemType.BOTTOM_SPACER; key: string }
     | { type: typeof NavigationPaneItemType.LIST_SPACER; key: string };

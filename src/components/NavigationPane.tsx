@@ -90,6 +90,7 @@ import { RootFolderReorderItem } from './RootFolderReorderItem';
 import { ShortcutType, SearchShortcut, SHORTCUT_DRAG_MIME } from '../types/shortcuts';
 import { strings } from '../i18n';
 import { createDragGhostManager, type DragGhostOptions } from '../utils/dragGhost';
+import { NavigationBanner } from './NavigationBanner';
 import {
     buildFolderMenu,
     buildFileMenu,
@@ -203,6 +204,8 @@ export const NavigationPane = React.memo(
             }
             return false;
         });
+        // Tracks the measured height of the navigation banner for virtualization
+        const [bannerHeight, setBannerHeight] = useState<number>(0);
         // Trigger for forcing a re-render when shortcut note metadata changes in frontmatter
         const [, forceMetadataRefresh] = useReducer((value: number) => value + 1, 0);
         const [isRootReorderMode, setRootReorderMode] = useState(false);
@@ -251,6 +254,13 @@ export const NavigationPane = React.memo(
                 metadataCache.offref(changedRef);
             };
         }, [app.metadataCache, hydratedShortcuts, settings.useFrontmatterMetadata, forceMetadataRefresh]);
+
+        // Reset banner height when banner is disabled in settings
+        useEffect(() => {
+            if (!settings.navigationBanner) {
+                setBannerHeight(0);
+            }
+        }, [settings.navigationBanner]);
 
         // Determine if drag and drop should be enabled for shortcuts
         const shortcutCount = hydratedShortcuts.length;
@@ -725,7 +735,8 @@ export const NavigationPane = React.memo(
             items,
             pathToIndex,
             isVisible,
-            activeShortcutKey
+            activeShortcutKey,
+            bannerHeight
         });
 
         useEffect(() => {
@@ -1346,7 +1357,17 @@ export const NavigationPane = React.memo(
             setActiveShortcut
         ]);
 
-        // Render individual item
+        // Updates banner height when it changes, with threshold to prevent excessive updates
+        const handleBannerHeightChange = useCallback((height: number) => {
+            setBannerHeight(previous => {
+                if (Math.abs(previous - height) < 0.5) {
+                    return previous;
+                }
+                return height;
+            });
+        }, []);
+
+        // Renders individual navigation items based on their type
         const renderItem = useCallback(
             (item: CombinedNavigationItem): React.ReactNode => {
                 switch (item.type) {
@@ -1637,6 +1658,10 @@ export const NavigationPane = React.memo(
                         );
                     }
 
+                    case NavigationPaneItemType.BANNER: {
+                        return <NavigationBanner path={item.path} onHeightChange={handleBannerHeightChange} />;
+                    }
+
                     case NavigationPaneItemType.TOP_SPACER: {
                         return <div className="nn-nav-top-spacer" />;
                     }
@@ -1689,7 +1714,8 @@ export const NavigationPane = React.memo(
                 shortcutsExpanded,
                 recentNotesExpanded,
                 getFileDisplayName,
-                shortcutDragHandleConfig
+                shortcutDragHandleConfig,
+                handleBannerHeightChange
             ]
         );
 
@@ -1883,11 +1909,22 @@ export const NavigationPane = React.memo(
                                         virtualItem.index >= 0 && virtualItem.index < items.length ? items[virtualItem.index] : null;
                                     if (!item) return null;
 
+                                    // Callback to measure dynamic-height items for virtualization
+                                    const measureRef = (element: HTMLDivElement | null) => {
+                                        if (!element) {
+                                            return;
+                                        }
+                                        if (item.type === NavigationPaneItemType.BANNER) {
+                                            rowVirtualizer.measureElement(element);
+                                        }
+                                    };
+
                                     return (
                                         <div
                                             key={virtualItem.key}
                                             data-index={virtualItem.index}
                                             className="nn-virtual-nav-item"
+                                            ref={measureRef}
                                             style={{
                                                 transform: `translateY(${virtualItem.start}px)`
                                             }}

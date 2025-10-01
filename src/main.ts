@@ -118,6 +118,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         delete mutableSettings.recentNotes;
         delete mutableSettings.recentIcons;
 
+        // Migrate legacy navigationBannerPath field to navigationBanner
+        const legacyBanner = data && typeof data === 'object' ? (data as Record<string, unknown>).navigationBannerPath : undefined;
+        if (!this.settings.navigationBanner && typeof legacyBanner === 'string' && legacyBanner.length > 0) {
+            this.settings.navigationBanner = legacyBanner;
+        }
+        delete mutableSettings.navigationBannerPath;
+
         // Set language-specific date/time formats if not already set
         if (!this.settings.dateFormat) {
             this.settings.dateFormat = getDefaultDateFormat();

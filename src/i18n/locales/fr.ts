@@ -290,6 +290,14 @@ export const STRINGS_FR = {
                 dismiss: 'pour annuler'
             }
         },
+        navigationBanner: {
+            placeholder: 'Rechercher des images...',
+            instructions: {
+                navigate: 'pour naviguer',
+                select: 'pour définir la bannière',
+                dismiss: 'pour annuler'
+            }
+        },
         tagSuggest: {
             placeholder: 'Rechercher des étiquettes...',
             navigatePlaceholder: "Naviguer vers l'étiquette...",
@@ -573,6 +581,13 @@ export const STRINGS_FR = {
             autoExpandFoldersTags: {
                 name: 'Développer automatiquement les dossiers et les étiquettes',
                 desc: "Développer automatiquement les dossiers et les étiquettes lorsqu'ils sont sélectionnés."
+            },
+            navigationBanner: {
+                name: 'Bannière de navigation',
+                desc: 'Afficher une image au-dessus du panneau de navigation.',
+                current: 'Bannière actuelle : {path}',
+                chooseButton: 'Choisir une image',
+                clearButton: 'Effacer'
             },
             showShortcuts: {
                 name: 'Afficher les raccourcis',

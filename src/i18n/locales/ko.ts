@@ -289,6 +289,14 @@ export const STRINGS_KO = {
                 dismiss: '닫기'
             }
         },
+        navigationBanner: {
+            placeholder: '이미지 검색...',
+            instructions: {
+                navigate: '이동',
+                select: '배너 설정',
+                dismiss: '닫기'
+            }
+        },
         tagSuggest: {
             placeholder: '태그 검색...',
             navigatePlaceholder: '태그로 이동...',
@@ -571,6 +579,13 @@ export const STRINGS_KO = {
             autoExpandFoldersTags: {
                 name: '폴더 및 태그 자동 펼치기',
                 desc: '폴더와 태그가 선택되면 자동으로 펼칩니다.'
+            },
+            navigationBanner: {
+                name: '탐색 배너',
+                desc: '탐색 창 상단에 이미지를 표시합니다.',
+                current: '현재 배너: {path}',
+                chooseButton: '이미지 선택',
+                clearButton: '지우기'
             },
             showShortcuts: {
                 name: '바로가기 표시',

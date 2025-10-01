@@ -290,6 +290,14 @@ export const STRINGS_ES = {
                 dismiss: 'para cancelar'
             }
         },
+        navigationBanner: {
+            placeholder: 'Buscar imágenes...',
+            instructions: {
+                navigate: 'para navegar',
+                select: 'para establecer banner',
+                dismiss: 'para cancelar'
+            }
+        },
         tagSuggest: {
             placeholder: 'Buscar etiquetas...',
             navigatePlaceholder: 'Navegar a etiqueta...',
@@ -572,6 +580,13 @@ export const STRINGS_ES = {
             autoExpandFoldersTags: {
                 name: 'Expandir carpetas y etiquetas automáticamente',
                 desc: 'Expandir automáticamente carpetas y etiquetas cuando se seleccionan.'
+            },
+            navigationBanner: {
+                name: 'Banner de navegación',
+                desc: 'Mostrar una imagen encima del panel de navegación.',
+                current: 'Banner actual: {path}',
+                chooseButton: 'Elegir imagen',
+                clearButton: 'Limpiar'
             },
             showShortcuts: {
                 name: 'Mostrar accesos directos',

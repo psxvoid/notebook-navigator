@@ -292,6 +292,14 @@ export const STRINGS_DE = {
                 dismiss: 'zum Abbrechen'
             }
         },
+        navigationBanner: {
+            placeholder: 'Bilder durchsuchen...',
+            instructions: {
+                navigate: 'zum Navigieren',
+                select: 'um Banner zu setzen',
+                dismiss: 'zum Abbrechen'
+            }
+        },
         tagSuggest: {
             placeholder: 'Tags suchen...',
             navigatePlaceholder: 'Zu Tag navigieren...',
@@ -575,6 +583,13 @@ export const STRINGS_DE = {
             autoExpandFoldersTags: {
                 name: 'Ordner und Tags automatisch erweitern',
                 desc: 'Ordner und Tags automatisch erweitern, wenn sie ausgewählt werden.'
+            },
+            navigationBanner: {
+                name: 'Navigationsbanner',
+                desc: 'Bild oberhalb des Navigationsbereichs anzeigen.',
+                current: 'Aktuelles Banner: {path}',
+                chooseButton: 'Bild auswählen',
+                clearButton: 'Zurücksetzen'
             },
             showShortcuts: {
                 name: 'Lesezeichen anzeigen',

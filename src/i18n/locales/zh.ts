@@ -290,6 +290,14 @@ export const STRINGS_ZH = {
                 dismiss: '取消'
             }
         },
+        navigationBanner: {
+            placeholder: '搜索图片...',
+            instructions: {
+                navigate: '导航',
+                select: '设为横幅',
+                dismiss: '取消'
+            }
+        },
         tagSuggest: {
             placeholder: '搜索标签...',
             navigatePlaceholder: '导航到标签...',
@@ -571,6 +579,13 @@ export const STRINGS_ZH = {
             autoExpandFoldersTags: {
                 name: '自动展开文件夹和标签',
                 desc: '选择文件夹和标签时自动展开它们。'
+            },
+            navigationBanner: {
+                name: '导航横幅',
+                desc: '在导航窗格顶部显示一张图片。',
+                current: '当前横幅：{path}',
+                chooseButton: '选择图片',
+                clearButton: '清除'
             },
             showShortcuts: {
                 name: '显示快捷方式',

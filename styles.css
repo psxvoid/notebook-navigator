@@ -705,6 +705,20 @@ body {
     position: relative;
 }
 
+/* Navigation banner displayed above tree items */
+.nn-nav-banner {
+    padding: var(--nn-nav-banner-padding-vertical, 8px) var(--nn-nav-item-padding-horizontal);
+    box-sizing: border-box;
+}
+
+.nn-nav-banner-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
+    background-color: var(--background-tertiary);
+}
+
 /* ========================================================================
    Folder Tree Styles
    ======================================================================== */

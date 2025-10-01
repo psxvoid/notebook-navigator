@@ -68,6 +68,8 @@ interface UseNavigationPaneScrollParams {
     isVisible: boolean;
     /** Currently active shortcut id (if any) */
     activeShortcutKey: string | null;
+    /** Measured height of the navigation banner (if configured) */
+    bannerHeight: number;
 }
 
 /**
@@ -97,7 +99,8 @@ export function useNavigationPaneScroll({
     items,
     pathToIndex,
     isVisible,
-    activeShortcutKey
+    activeShortcutKey,
+    bannerHeight
 }: UseNavigationPaneScrollParams): UseNavigationPaneScrollResult {
     const { isMobile } = useServices();
     const selectionState = useSelectionState();
@@ -107,6 +110,7 @@ export function useNavigationPaneScroll({
     // Reference to the scroll container DOM element
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+    // Resolves a path to its index in the navigation items array
     const resolveIndex = useCallback(
         (path: string | null | undefined, itemType?: ItemType) => {
             if (!path) {
@@ -117,6 +121,7 @@ export function useNavigationPaneScroll({
                 return getNavigationIndex(pathToIndex, itemType, path);
             }
 
+            // Try folder first, then tag if not found
             const folderIndex = getNavigationIndex(pathToIndex, ItemType.FOLDER, path);
             if (folderIndex !== undefined) {
                 return folderIndex;
@@ -192,6 +197,9 @@ export function useNavigationPaneScroll({
                     return NAVPANE_MEASUREMENTS.bottomSpacer;
                 case NavigationPaneItemType.LIST_SPACER:
                     return NAVPANE_MEASUREMENTS.listSpacer;
+                case NavigationPaneItemType.BANNER:
+                    // Fall back to a small spacer height until ResizeObserver reports the real banner height
+                    return bannerHeight > 0 ? bannerHeight : NAVPANE_MEASUREMENTS.topSpacer;
                 case NavigationPaneItemType.FOLDER:
                 case NavigationPaneItemType.VIRTUAL_FOLDER:
                     return itemHeight;
@@ -230,9 +238,7 @@ export function useNavigationPaneScroll({
         setPendingScrollVersion(v => v + 1);
     }, []);
 
-    /**
-     * Get the current selected path based on selection type
-     */
+    // Extract and normalize the currently selected path from selection state
     const selectedPath =
         selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder
             ? normalizeNavigationPath(ItemType.FOLDER, selectionState.selectedFolder.path)

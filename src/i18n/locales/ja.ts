@@ -290,6 +290,14 @@ export const STRINGS_JA = {
                 dismiss: 'でキャンセル'
             }
         },
+        navigationBanner: {
+            placeholder: '画像を検索...',
+            instructions: {
+                navigate: 'でナビゲート',
+                select: 'でバナーを設定',
+                dismiss: 'でキャンセル'
+            }
+        },
         tagSuggest: {
             placeholder: 'タグを検索...',
             navigatePlaceholder: 'タグにナビゲート...',
@@ -572,6 +580,13 @@ export const STRINGS_JA = {
             autoExpandFoldersTags: {
                 name: 'フォルダとタグを自動展開',
                 desc: 'フォルダやタグを選択した際に自動的に展開します。'
+            },
+            navigationBanner: {
+                name: 'ナビゲーションバナー',
+                desc: 'ナビゲーションペイン上部に画像を表示します。',
+                current: '現在のバナー: {path}',
+                chooseButton: '画像を選択',
+                clearButton: 'クリア'
             },
             showShortcuts: {
                 name: 'ショートカットを表示',

@@ -60,11 +60,13 @@ import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } fro
 import { useRootFolderOrder } from './useRootFolderOrder';
 import { isFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
 
+// Maps non-markdown document extensions to their icon names
 const DOCUMENT_EXTENSION_ICONS: Record<string, string> = {
     canvas: 'lucide-layout-grid',
     base: 'lucide-database'
 };
 
+// Returns the appropriate icon for a document based on its type
 const getDocumentIcon = (file: TFile | null): string | undefined => {
     if (!file) {
         return undefined;
@@ -130,25 +132,25 @@ export function useNavigationPaneData({
     const { fileData } = useFileCache();
     const { hydratedShortcuts } = useShortcuts();
 
-    // Stable folder data across re-renders
-    // Track file changes to trigger count updates for non-markdown files
+    // Version counter that increments when vault files change
     const [fileChangeVersion, setFileChangeVersion] = useState(0);
     const handleRootFileChange = useCallback(() => {
         setFileChangeVersion(value => value + 1);
     }, []);
+    // Get ordered root folders and notify on file changes
     const { rootFolders, rootLevelFolders, rootFolderOrderMap } = useRootFolderOrder({
         settings,
         onFileChange: handleRootFileChange
     });
 
-    // Get tag data from context
+    // Extract tag tree data from file cache
     const favoriteTree = fileData.favoriteTree;
     const tagTree = fileData.tagTree;
     const untaggedCount = fileData.untagged;
 
     // Create matcher for hidden tag patterns (supports "archive", "temp*", "*draft")
     const hiddenTagMatcher = useMemo(() => createHiddenTagMatcher(settings.hiddenTags), [settings.hiddenTags]);
-    // Check if any hidden tag rules exist
+    // Determine if any hidden tag rules are configured
     const hiddenMatcherHasRules =
         hiddenTagMatcher.prefixes.length > 0 || hiddenTagMatcher.startsWithNames.length > 0 || hiddenTagMatcher.endsWithNames.length > 0;
 
@@ -169,10 +171,10 @@ export function useNavigationPaneData({
 
         if (!settings.showTags) return items;
 
-        // Parse favorite tag patterns
+        // Get list of configured favorite tag patterns
         const favoritePatterns = settings.favoriteTags;
 
-        // Helper function to add untagged node
+        // Adds an untagged notes node at the specified level and context
         const addUntaggedNode = (level: number, context?: 'favorites' | 'tags') => {
             if (settings.showUntagged && untaggedCount > 0) {
                 const untaggedNode: TagTreeNode = {
@@ -193,7 +195,7 @@ export function useNavigationPaneData({
             }
         };
 
-        // Helper function to add virtual folder
+        // Creates and adds a virtual folder item to the navigation tree
         const addVirtualFolder = (id: string, name: string, icon?: string) => {
             const folder: VirtualFolder = { id, name, icon };
             items.push({
@@ -210,10 +212,10 @@ export function useNavigationPaneData({
         const visibleFavoriteTree = hasHiddenPatterns && shouldHideTags ? excludeFromTagTree(favoriteTree, hiddenTagMatcher) : favoriteTree;
         const visibleTagTree = hasHiddenPatterns && shouldHideTags ? excludeFromTagTree(tagTree, hiddenTagMatcher) : tagTree;
 
-        // Pass matcher when showing hidden items (adds eye icon)
+        // When showing all tags, pass matcher to mark hidden ones with eye icon
         const matcherForMarking = !shouldHideTags && hasHiddenPatterns ? hiddenTagMatcher : undefined;
 
-        // Helper function to add tags to list
+        // Flattens and adds tag items under a virtual folder
         const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
             if (expansionState.expandedVirtualFolders.has(folderId)) {
                 const tagItems = flattenTagTree(
@@ -240,10 +242,9 @@ export function useNavigationPaneData({
             }
         };
 
-        // Handle tag organization
+        // Organize tags into favorites and non-favorites sections
         if (favoritePatterns.length > 0) {
-            // We already have separate trees from StorageContext
-
+            // Determine if favorites section has any content
             const hasVisibleFavoriteTags = visibleFavoriteTree.size > 0;
             const hasFavoriteUntagged = settings.showUntagged && settings.showUntaggedInFavorites && untaggedCount > 0;
 
@@ -337,7 +338,6 @@ export function useNavigationPaneData({
      */
     const parsedExcludedFolders = useMemo(() => settings.excludedFolders, [settings.excludedFolders]);
 
-    // Build shortcut items for the navigation pane including header and individual shortcuts
     // Build list of shortcut items with proper hierarchy
     const shortcutItems = useMemo(() => {
         if (!settings.showShortcuts) {
@@ -347,6 +347,7 @@ export function useNavigationPaneData({
         const headerLevel = 0;
         const itemLevel = headerLevel + 1;
 
+        // Start with the shortcuts header/virtual folder
         const items: CombinedNavigationItem[] = [
             {
                 type: NavigationPaneItemType.VIRTUAL_FOLDER,
@@ -355,7 +356,7 @@ export function useNavigationPaneData({
                 data: {
                     id: SHORTCUTS_VIRTUAL_FOLDER_ID,
                     name: strings.navigationPane.shortcutsHeader,
-                    icon: 'lucide-rocket'
+                    icon: 'lucide-notebook-tabs'
                 }
             }
         ];
@@ -365,10 +366,11 @@ export function useNavigationPaneData({
             return items;
         }
 
-        // Process each shortcut based on its type
+        // Add individual shortcut items based on their type
         hydratedShortcuts.forEach(entry => {
             const { key, shortcut, folder, note, search, tagPath } = entry;
 
+            // Handle folder shortcuts
             if (isFolderShortcut(shortcut)) {
                 if (!folder) {
                     return;
@@ -390,6 +392,7 @@ export function useNavigationPaneData({
                 return;
             }
 
+            // Handle note shortcuts
             if (isNoteShortcut(shortcut)) {
                 if (!note) {
                     return;
@@ -406,6 +409,7 @@ export function useNavigationPaneData({
                 return;
             }
 
+            // Handle search shortcuts
             if (isSearchShortcut(shortcut)) {
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_SEARCH,
@@ -417,6 +421,7 @@ export function useNavigationPaneData({
                 return;
             }
 
+            // Handle tag shortcuts
             if (isTagShortcut(shortcut)) {
                 if (!tagPath) {
                     return;
@@ -459,11 +464,13 @@ export function useNavigationPaneData({
         const headerLevel = 0;
         const itemLevel = headerLevel + 1;
 
+        // Use appropriate header based on file visibility setting
         const recentHeaderName =
             settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS
                 ? strings.navigationPane.recentNotesHeader
                 : strings.navigationPane.recentFilesHeader;
 
+        // Start with the recent notes header/virtual folder
         const items: CombinedNavigationItem[] = [
             {
                 type: NavigationPaneItemType.VIRTUAL_FOLDER,
@@ -482,6 +489,7 @@ export function useNavigationPaneData({
             return items;
         }
 
+        // Add recent note items up to the configured limit
         const limit = Math.max(1, settings.recentNotesCount ?? 1);
         const recentPaths = recentNotes.slice(0, limit);
 
@@ -505,9 +513,20 @@ export function useNavigationPaneData({
     /**
      * Combine shortcut, folder, and tag items based on display order settings
      */
+    // Combine all navigation items in the correct order with spacers
     const items = useMemo(() => {
         const allItems: CombinedNavigationItem[] = [];
 
+        // Add banner item if configured
+        if (settings.navigationBanner) {
+            allItems.push({
+                type: NavigationPaneItemType.BANNER,
+                key: `banner-${settings.navigationBanner}`,
+                path: settings.navigationBanner
+            });
+        }
+
+        // Add top spacer for visual separation
         allItems.push({
             type: NavigationPaneItemType.TOP_SPACER,
             key: 'top-spacer'
@@ -565,7 +584,15 @@ export function useNavigationPaneData({
         });
 
         return allItems;
-    }, [folderItems, tagItems, shortcutItems, recentNotesItems, settings.showTags, settings.showTagsAboveFolders]);
+    }, [
+        folderItems,
+        tagItems,
+        shortcutItems,
+        recentNotesItems,
+        settings.showTags,
+        settings.showTagsAboveFolders,
+        settings.navigationBanner
+    ]);
 
     /**
      * Create a stable version key for metadata objects that gets updated when they're mutated

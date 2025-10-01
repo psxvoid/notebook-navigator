@@ -30,6 +30,7 @@ import { FolderNoteType, isFolderNoteType } from './types/folderNote';
 import { EXTERNAL_ICON_PROVIDERS, ExternalIconProviderId } from './services/icons/external/providerRegistry';
 import type { MetadataCleanupSummary } from './services/MetadataService';
 import { HomepageModal } from './modals/HomepageModal';
+import { NavigationBannerModal } from './modals/NavigationBannerModal';
 import type { ShortcutEntry } from './types/shortcuts';
 import type { SearchProvider } from './types/search';
 import { getDefaultKeyboardShortcuts, type KeyboardShortcutConfig } from './utils/keyboardShortcuts';
@@ -78,6 +79,7 @@ export interface NotebookNavigatorSettings {
     excludedFolders: string[];
     excludedFiles: string[];
     // Navigation pane appearance and behavior
+    navigationBanner: string | null;
     showShortcuts: boolean;
     showRecentNotes: boolean;
     recentNotesCount: number;
@@ -188,6 +190,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     excludedFolders: [],
     excludedFiles: [],
     // Navigation pane
+    navigationBanner: null,
     showShortcuts: true,
     showRecentNotes: true,
     recentNotesCount: RECENT_NOTES_DEFAULT_COUNT,
@@ -646,6 +649,60 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Section 1: Navigation pane
         new Setting(containerEl).setName(strings.settings.sections.navigationPane).setHeading();
+
+        // Navigation banner setting with choose/clear buttons
+        const navigationBannerSetting = new Setting(containerEl).setName(strings.settings.items.navigationBanner.name);
+        navigationBannerSetting.setDesc('');
+
+        const navigationBannerDescEl = navigationBannerSetting.descEl;
+        navigationBannerDescEl.empty();
+        navigationBannerDescEl.createDiv({ text: strings.settings.items.navigationBanner.desc });
+
+        const navigationBannerValueEl = navigationBannerDescEl.createDiv();
+        let clearNavigationBannerButton: ButtonComponent | null = null;
+
+        // Updates the displayed banner path and button state
+        const renderNavigationBannerValue = () => {
+            const { navigationBanner } = this.plugin.settings;
+            navigationBannerValueEl.setText('');
+            if (navigationBanner) {
+                navigationBannerValueEl.setText(strings.settings.items.navigationBanner.current.replace('{path}', navigationBanner));
+            }
+
+            if (clearNavigationBannerButton) {
+                clearNavigationBannerButton.setDisabled(!navigationBanner);
+            }
+        };
+
+        // Button to open image selection modal
+        navigationBannerSetting.addButton(button => {
+            button.setButtonText(strings.settings.items.navigationBanner.chooseButton);
+            button.onClick(() => {
+                new NavigationBannerModal(this.app, file => {
+                    this.plugin.settings.navigationBanner = file.path;
+                    renderNavigationBannerValue();
+                    void this.plugin.saveSettingsAndUpdate();
+                }).open();
+            });
+        });
+
+        // Button to clear the selected banner
+        navigationBannerSetting.addButton(button => {
+            button.setButtonText(strings.settings.items.navigationBanner.clearButton);
+            clearNavigationBannerButton = button;
+            button.setDisabled(!this.plugin.settings.navigationBanner);
+            button.onClick(async () => {
+                if (!this.plugin.settings.navigationBanner) {
+                    return;
+                }
+                this.plugin.settings.navigationBanner = null;
+                renderNavigationBannerValue();
+                await this.plugin.saveSettingsAndUpdate();
+            });
+        });
+
+        // Display initial banner state
+        renderNavigationBannerValue();
 
         new Setting(containerEl)
             .setName(strings.settings.items.showShortcuts.name)
