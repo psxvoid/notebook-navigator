@@ -345,7 +345,16 @@ export const FileItem = React.memo(function FileItem({
                     />
                 ) : null}
                 <div className="nn-file-name-content">
-                    <div className="nn-file-name" style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}>
+                    <div
+                        className="nn-file-name"
+                        data-has-color={fileColor ? 'true' : 'false'}
+                        style={
+                            {
+                                '--filename-rows': appearanceSettings.titleRows,
+                                ...(fileColor ? { '--nn-file-name-custom-color': fileColor } : {})
+                            } as React.CSSProperties
+                        }
+                    >
                         {highlightedName}
                         {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
                     </div>

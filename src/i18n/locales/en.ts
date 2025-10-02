@@ -154,7 +154,7 @@ export const STRINGS_EN = {
             removeTag: 'Remove tag',
             removeAllTags: 'Remove all tags',
             changeIcon: 'Change icon',
-            changeColor: 'Change icon color'
+            changeColor: 'Change color'
         },
         folder: {
             newNote: 'New note',

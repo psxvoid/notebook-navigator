@@ -142,7 +142,7 @@ export const STRINGS_DE = {
             removeAllTags: 'Alle Tags entfernen',
             changeIcon: 'Icon ändern',
             removeIcon: 'Icon entfernen',
-            changeColor: 'Symbolfarbe ändern',
+            changeColor: 'Farbe ändern',
             removeColor: 'Farbe entfernen',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count} Dateien in neuen Tabs öffnen',

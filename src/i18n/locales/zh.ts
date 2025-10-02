@@ -141,7 +141,7 @@ export const STRINGS_ZH = {
             removeTag: '移除标签',
             removeAllTags: '移除所有标签',
             changeIcon: '更改图标',
-            changeColor: '更改图标颜色',
+            changeColor: '更改颜色',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '在新标签页中打开 {count} 个文件',
             openMultipleFilesToRight: '在右侧打开 {count} 个文件',

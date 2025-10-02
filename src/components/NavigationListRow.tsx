@@ -82,6 +82,10 @@ export function NavigationListRow({
     const iconRef = useRef<HTMLSpanElement>(null);
     const iconVersion = useIconServiceVersion();
 
+    const labelStyle = useMemo(() => {
+        return color ? { color } : undefined;
+    }, [color]);
+
     // Builds CSS class names based on component state (disabled, excluded, dragging, etc.)
     const classes = useMemo(() => {
         const classList = ['nn-navitem', 'nn-drag-item'];
@@ -205,7 +209,9 @@ export function NavigationListRow({
                     style={color ? { color } : undefined}
                 />
                 <span className="nn-navitem-name">
-                    <span className="nn-shortcut-label">{label}</span>
+                    <span className="nn-shortcut-label" data-has-color={color ? 'true' : undefined} style={labelStyle}>
+                        {label}
+                    </span>
                     {description ? <span className="nn-shortcut-description">{description}</span> : null}
                 </span>
                 <span className="nn-navitem-spacer" />

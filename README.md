@@ -507,7 +507,7 @@ Use cases:
 ### Customizing file icons
 
 1. Right-click any file
-2. Select "Change icon" or "Change icon color"
+2. Select "Change icon" or "Change color"
 3. Icons and colors work just like folders
 4. Useful for marking important files or templates
 

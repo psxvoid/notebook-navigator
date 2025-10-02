@@ -141,7 +141,7 @@ export const STRINGS_FR = {
             removeTag: 'Supprimer l’étiquette',
             removeAllTags: 'Supprimer toutes les étiquettes',
             changeIcon: "Changer l'icône",
-            changeColor: "Changer la couleur de l'icône",
+            changeColor: 'Changer la couleur',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Ouvrir {count} fichiers dans de nouveaux onglets',
             openMultipleFilesToRight: 'Ouvrir {count} fichiers à droite',

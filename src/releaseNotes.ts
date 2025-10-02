@@ -71,6 +71,14 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.5.2',
+        date: '2025-10-03',
+        new: [
+            '==Two new style settings: File name font weight and Custom color file name font weight==. You can now change the font weight of files in Shortcuts and Recent files.'
+        ],
+        improved: ['File color now applies to both the file icon and file name, providing better visual consistency.']
+    },
+    {
         version: '1.5.1',
         date: '2025-10-01',
         new: [

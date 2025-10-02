@@ -141,7 +141,7 @@ export const STRINGS_JA = {
             removeTag: 'タグを削除',
             removeAllTags: 'すべてのタグを削除',
             changeIcon: 'アイコンを変更',
-            changeColor: 'アイコンの色を変更',
+            changeColor: '色を変更',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count}個のファイルを新しいタブで開く',
             openMultipleFilesToRight: '{count}個のファイルを右側で開く',
