@@ -356,7 +356,7 @@ export function useNavigationPaneData({
                 data: {
                     id: SHORTCUTS_VIRTUAL_FOLDER_ID,
                     name: strings.navigationPane.shortcutsHeader,
-                    icon: 'lucide-notebook-tabs'
+                    icon: 'lucide-bookmark'
                 }
             }
         ];

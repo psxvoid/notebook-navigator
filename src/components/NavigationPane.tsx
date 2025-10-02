@@ -1129,7 +1129,7 @@ export const NavigationPane = React.memo(
                 if (target.type === 'search') {
                     menu.addItem(item => {
                         item.setTitle(strings.shortcuts.remove)
-                            .setIcon('lucide-star-off')
+                            .setIcon('lucide-bookmark-x')
                             .onClick(() => {
                                 void removeShortcut(target.key);
                             });
@@ -1173,7 +1173,7 @@ export const NavigationPane = React.memo(
                         menu.addSeparator();
                         menu.addItem(item => {
                             item.setTitle(strings.shortcuts.remove)
-                                .setIcon('lucide-star-off')
+                                .setIcon('lucide-bookmark-x')
                                 .onClick(() => {
                                     void removeShortcut(target.key);
                                 });

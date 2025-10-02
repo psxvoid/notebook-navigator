@@ -122,13 +122,13 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         menu.addItem((item: MenuItem) => {
             if (existingShortcutKey) {
                 item.setTitle(strings.shortcuts.remove)
-                    .setIcon('lucide-star-off')
+                    .setIcon('lucide-bookmark-x')
                     .onClick(() => {
                         void removeShortcut(existingShortcutKey);
                     });
             } else {
                 item.setTitle(strings.shortcuts.add)
-                    .setIcon('lucide-star')
+                    .setIcon('lucide-bookmark')
                     .onClick(() => {
                         void addNoteShortcut(file.path);
                     });

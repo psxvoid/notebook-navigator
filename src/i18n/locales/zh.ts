@@ -80,7 +80,7 @@ export const STRINGS_ZH = {
     paneHeader: {
         collapseAllFolders: '折叠项目', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: '展开所有项目', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: '滚动到快捷方式',
+        scrollToTop: '滚动到顶部',
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
         newNote: '新笔记', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: '返回导航', // Mobile-only back button text to return to navigation pane (English: Back to navigation)

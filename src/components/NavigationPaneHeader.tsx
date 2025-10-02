@@ -70,7 +70,7 @@ export function NavigationPaneHeader({
                     {settings.showShortcuts ? (
                         <button
                             className="nn-icon-button"
-                            aria-label={strings.paneHeader.scrollToShortcuts}
+                            aria-label={strings.paneHeader.scrollToTop}
                             onClick={() => {
                                 if (onScrollToShortcuts) {
                                     onScrollToShortcuts();
@@ -78,7 +78,7 @@ export function NavigationPaneHeader({
                             }}
                             tabIndex={-1}
                         >
-                            <ObsidianIcon name="lucide-star" />
+                            <ObsidianIcon name="lucide-arrow-up-to-line" />
                         </button>
                     ) : null}
                     <button
