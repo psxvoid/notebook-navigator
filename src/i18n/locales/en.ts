@@ -624,8 +624,13 @@ export const STRINGS_EN = {
                 name: 'Homepage',
                 desc: 'Choose the file that Notebook Navigator opens automatically, such as a dashboard.',
                 current: 'Current: {path}',
+                currentMobile: 'Mobile: {path}',
                 chooseButton: 'Choose file',
-                clearButton: 'Clear'
+                clearButton: 'Clear',
+                separateMobile: {
+                    name: 'Separate mobile homepage',
+                    desc: 'Use a different homepage for mobile devices.'
+                }
             },
             excludedNotes: {
                 name: 'Hide notes',

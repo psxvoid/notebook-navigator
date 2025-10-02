@@ -635,8 +635,13 @@ export const STRINGS_ZH = {
                 name: '主页',
                 desc: '选择自动打开的文件，例如仪表板。',
                 current: '当前：{path}',
+                currentMobile: '移动端：{path}',
                 chooseButton: '选择文件',
-                clearButton: '清除'
+                clearButton: '清除',
+                separateMobile: {
+                    name: '单独的移动端主页',
+                    desc: '为移动设备使用不同的主页。'
+                }
             },
             showFileDate: {
                 name: '显示日期',

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { TFile } from 'obsidian';
+import { Platform, type TFile } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 import { isSupportedHomepageFile } from '../../utils/homepageUtils';
 import type { RevealFileOptions } from '../../hooks/useNavigatorReveal';
@@ -50,17 +50,35 @@ export default class HomepageController {
      * Resolves the configured homepage path to a file object if valid
      */
     resolveHomepageFile(): TFile | null {
-        const { homepage } = this.plugin.settings;
-        if (!homepage) {
-            return null;
+        const { homepage, mobileHomepage, useMobileHomepage } = this.plugin.settings;
+        const useMobileOverride = Platform.isMobile && useMobileHomepage;
+
+        const resolvePath = (path: string | null): TFile | null => {
+            if (!path) {
+                return null;
+            }
+
+            const candidate = this.plugin.app.vault.getAbstractFileByPath(path);
+            if (!isSupportedHomepageFile(candidate)) {
+                return null;
+            }
+
+            return candidate;
+        };
+
+        const primaryFile = resolvePath(useMobileOverride ? mobileHomepage : homepage);
+        if (primaryFile) {
+            return primaryFile;
         }
 
-        const candidate = this.plugin.app.vault.getAbstractFileByPath(homepage);
-        if (!isSupportedHomepageFile(candidate)) {
-            return null;
+        if (useMobileOverride) {
+            const fallbackFile = resolvePath(homepage);
+            if (fallbackFile) {
+                return fallbackFile;
+            }
         }
 
-        return candidate;
+        return null;
     }
 
     /**

@@ -637,8 +637,13 @@ export const STRINGS_FR = {
                 name: 'Page d’accueil',
                 desc: 'Sélectionnez le fichier que Notebook Navigator ouvre automatiquement, par exemple un tableau de bord.',
                 current: 'Actuel : {path}',
+                currentMobile: 'Mobile : {path}',
                 chooseButton: 'Choisir un fichier',
-                clearButton: 'Effacer'
+                clearButton: 'Effacer',
+                separateMobile: {
+                    name: 'Page d'accueil mobile séparée',
+                    desc: 'Utiliser une page d'accueil différente pour les appareils mobiles.'
+                }
             },
             showFileDate: {
                 name: 'Afficher la date',

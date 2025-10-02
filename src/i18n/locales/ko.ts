@@ -624,8 +624,13 @@ export const STRINGS_KO = {
                 name: '홈페이지',
                 desc: '자동으로 열릴 대시보드 같은 파일을 선택합니다.',
                 current: '현재: {path}',
+                currentMobile: '모바일: {path}',
                 chooseButton: '파일 선택',
-                clearButton: '지우기'
+                clearButton: '지우기',
+                separateMobile: {
+                    name: '별도 모바일 홈페이지',
+                    desc: '모바일 기기에서 다른 홈페이지를 사용합니다.'
+                }
             },
             excludedNotes: {
                 name: '노트 숨기기',

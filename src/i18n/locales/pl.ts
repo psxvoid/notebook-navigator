@@ -626,8 +626,13 @@ export const STRINGS_PL = {
                 name: 'Strona główna',
                 desc: 'Wybierz plik, który Notebook Navigator otwiera automatycznie, np. pulpit.',
                 current: 'Bieżący: {path}',
+                currentMobile: 'Mobilna: {path}',
                 chooseButton: 'Wybierz plik',
-                clearButton: 'Wyczyść'
+                clearButton: 'Wyczyść',
+                separateMobile: {
+                    name: 'Osobna strona główna dla urządzeń mobilnych',
+                    desc: 'Użyj innej strony głównej dla urządzeń mobilnych.'
+                }
             },
             excludedNotes: {
                 name: 'Ukryj notatki',

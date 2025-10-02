@@ -636,8 +636,13 @@ export const STRINGS_JA = {
                 name: 'ホームページ',
                 desc: '自動で開く、ダッシュボードなどのファイルを選びます。',
                 current: '現在: {path}',
+                currentMobile: 'モバイル: {path}',
                 chooseButton: 'ファイルを選択',
-                clearButton: 'クリア'
+                clearButton: 'クリア',
+                separateMobile: {
+                    name: '個別のモバイルホームページ',
+                    desc: 'モバイルデバイス用に別のホームページを使用します。'
+                }
             },
             showFileDate: {
                 name: '日付を表示',

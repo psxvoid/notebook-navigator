@@ -635,8 +635,13 @@ export const STRINGS_ES = {
                 name: 'Página de inicio',
                 desc: 'Selecciona el archivo que Notebook Navigator abre automáticamente, como un panel.',
                 current: 'Actual: {path}',
+                currentMobile: 'Móvil: {path}',
                 chooseButton: 'Elegir archivo',
-                clearButton: 'Limpiar'
+                clearButton: 'Limpiar',
+                separateMobile: {
+                    name: 'Página de inicio móvil separada',
+                    desc: 'Usar una página de inicio diferente en dispositivos móviles.'
+                }
             },
             showFileDate: {
                 name: 'Mostrar fecha',

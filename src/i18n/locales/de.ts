@@ -638,8 +638,13 @@ export const STRINGS_DE = {
                 name: 'Startseite',
                 desc: 'Datei auswählen, die Notebook Navigator automatisch öffnet, z. B. ein Dashboard.',
                 current: 'Aktuell: {path}',
+                currentMobile: 'Mobil: {path}',
                 chooseButton: 'Datei auswählen',
-                clearButton: 'Zurücksetzen'
+                clearButton: 'Zurücksetzen',
+                separateMobile: {
+                    name: 'Separate mobile Startseite',
+                    desc: 'Verwenden Sie eine andere Startseite für Mobilgeräte.'
+                }
             },
             showFileDate: {
                 name: 'Datum anzeigen',

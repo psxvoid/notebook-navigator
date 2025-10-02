@@ -74,6 +74,8 @@ export interface NotebookNavigatorSettings {
     autoRevealIgnoreRightSidebar: boolean;
     showTooltips: boolean;
     homepage: string | null;
+    mobileHomepage: string | null;
+    useMobileHomepage: boolean;
     startView: 'navigation' | 'files';
     fileVisibility: FileVisibility;
     excludedFolders: string[];
@@ -185,6 +187,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     autoRevealIgnoreRightSidebar: true,
     showTooltips: false,
     homepage: null,
+    mobileHomepage: null,
+    useMobileHomepage: false,
     startView: 'navigation',
     fileVisibility: FILE_VISIBILITY.DOCUMENTS,
     excludedFolders: [],
@@ -564,14 +568,23 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         let clearHomepageButton: ButtonComponent | null = null;
 
         const renderHomepageValue = () => {
-            const { homepage } = this.plugin.settings;
+            const { homepage, mobileHomepage, useMobileHomepage } = this.plugin.settings;
+            const isMobile = Platform.isMobile;
+
+            const activePath = isMobile && useMobileHomepage ? mobileHomepage : homepage;
+            const labelTemplate =
+                isMobile && useMobileHomepage
+                    ? (strings.settings.items.homepage.currentMobile ?? strings.settings.items.homepage.current)
+                    : strings.settings.items.homepage.current;
+
             homepageValueEl.setText('');
-            if (homepage) {
-                homepageValueEl.setText(strings.settings.items.homepage.current.replace('{path}', homepage));
+            if (activePath) {
+                homepageValueEl.setText(labelTemplate.replace('{path}', activePath));
             }
 
             if (clearHomepageButton) {
-                clearHomepageButton.setDisabled(!homepage);
+                const canClear = isMobile && useMobileHomepage ? Boolean(mobileHomepage) : Boolean(homepage);
+                clearHomepageButton.setDisabled(!canClear);
             }
         };
 
@@ -579,7 +592,11 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             button.setButtonText(strings.settings.items.homepage.chooseButton);
             button.onClick(() => {
                 new HomepageModal(this.app, file => {
-                    this.plugin.settings.homepage = file.path;
+                    if (Platform.isMobile && this.plugin.settings.useMobileHomepage) {
+                        this.plugin.settings.mobileHomepage = file.path;
+                    } else {
+                        this.plugin.settings.homepage = file.path;
+                    }
                     renderHomepageValue();
                     void this.plugin.saveSettingsAndUpdate();
                 }).open();
@@ -589,18 +606,37 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         homepageSetting.addButton(button => {
             button.setButtonText(strings.settings.items.homepage.clearButton);
             clearHomepageButton = button;
-            button.setDisabled(!this.plugin.settings.homepage);
             button.onClick(async () => {
-                if (!this.plugin.settings.homepage) {
-                    return;
+                const { useMobileHomepage } = this.plugin.settings;
+                if (Platform.isMobile && useMobileHomepage) {
+                    if (!this.plugin.settings.mobileHomepage) {
+                        return;
+                    }
+                    this.plugin.settings.mobileHomepage = null;
+                } else {
+                    if (!this.plugin.settings.homepage) {
+                        return;
+                    }
+                    this.plugin.settings.homepage = null;
                 }
-                this.plugin.settings.homepage = null;
                 renderHomepageValue();
                 await this.plugin.saveSettingsAndUpdate();
             });
         });
 
         renderHomepageValue();
+
+        const homepageSubSettingsEl = containerEl.createDiv('nn-sub-settings');
+        new Setting(homepageSubSettingsEl)
+            .setName(strings.settings.items.homepage.separateMobile.name)
+            .setDesc(strings.settings.items.homepage.separateMobile.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.useMobileHomepage).onChange(async value => {
+                    this.plugin.settings.useMobileHomepage = value;
+                    await this.plugin.saveSettingsAndUpdate();
+                    renderHomepageValue();
+                })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.fileVisibility.name)

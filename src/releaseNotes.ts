@@ -74,7 +74,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.5.2',
         date: '2025-10-03',
         new: [
-            '==Two new style settings: File name font weight and Custom color file name font weight==. You can now change the font weight of files in Shortcuts and Recent files.'
+            '==Two new style settings: File name font weight and Custom color file name font weight==. You can now change the font weight of files in Shortcuts and Recent files.',
+            '**Separate mobile homepage**: You can now configure a different homepage for mobile devices.'
         ],
         improved: [
             'File color now applies to both the file icon and file name (previously only icon). You can now also apply file color without having an icon set.'
