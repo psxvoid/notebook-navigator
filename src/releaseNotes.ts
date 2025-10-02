@@ -76,7 +76,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: [
             '==Two new style settings: File name font weight and Custom color file name font weight==. You can now change the font weight of files in Shortcuts and Recent files.'
         ],
-        improved: ['File color now applies to both the file icon and file name, providing better visual consistency.']
+        improved: [
+            'File color now applies to both the file icon and file name (previously only icon). You can now also apply file color without having an icon set.'
+        ],
+        fixed: [
+            'Fixed an issue where parent folder icon in file list only showed generic folder icon and not the actual parent folder icon.'
+        ]
     },
     {
         version: '1.5.1',
