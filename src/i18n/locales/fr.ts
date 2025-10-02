@@ -641,8 +641,8 @@ export const STRINGS_FR = {
                 chooseButton: 'Choisir un fichier',
                 clearButton: 'Effacer',
                 separateMobile: {
-                    name: 'Page d'accueil mobile séparée',
-                    desc: 'Utiliser une page d'accueil différente pour les appareils mobiles.'
+                    name: "Page d'accueil mobile séparée",
+                    desc: "Utiliser une page d'accueil différente pour les appareils mobiles."
                 }
             },
             showFileDate: {

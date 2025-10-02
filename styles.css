@@ -170,7 +170,6 @@ body {
     --nn-theme-header-button-disabled-icon-color: var(--text-muted);
 
     /* -- Mobile Styles -- */
-    --nn-theme-mobile-nav-bg: var(--background-primary);
     --nn-theme-mobile-list-header-link-color: var(--link-color);
     --nn-theme-mobile-list-header-breadcrumb-color: var(--text-normal);
     --nn-theme-mobile-list-header-breadcrumb-font-weight: 600;
@@ -220,6 +219,11 @@ body {
     display: flex;
     height: 100%;
     overflow: hidden;
+}
+
+/* Layout mode variable overrides */
+.nn-split-container.nn-single-pane {
+    --nn-theme-nav-bg: var(--nn-theme-list-bg);
 }
 
 /* ========================================================================
@@ -2608,7 +2612,7 @@ body.nn-resizing {
 /* Make navigation pane flexible on mobile to handle resize gracefully */
 .notebook-navigator-mobile .nn-navigation-pane {
     flex: 1;
-    background-color: var(--nn-theme-mobile-nav-bg) !important;
+    background-color: var(--nn-theme-nav-bg) !important;
 }
 
 /* Hide resize handle on mobile */
@@ -2777,9 +2781,7 @@ body.nn-resizing {
 /* Hide navigation pane border on mobile and use mobile background */
 .notebook-navigator-mobile .nn-navigation-pane-scroller {
     border-right: none;
-    background-color: var(
-        --nn-theme-mobile-nav-bg
-    ); /* Opaque background on scroller for GPU scroll layer (see .nn-navigation-pane-scroller) */
+    background-color: var(--nn-theme-nav-bg); /* Opaque background on scroller for GPU scroll layer (see .nn-navigation-pane-scroller) */
 }
 
 /* Note: Bottom spacing is handled by a spacer item in the virtualized list */
@@ -3423,7 +3425,7 @@ body.nn-resizing {
 
 /* Mobile list pane scroller - use mobile background */
 .notebook-navigator-mobile .nn-list-pane-scroller {
-    background-color: var(--nn-theme-mobile-nav-bg); /* Opaque background on scroller for GPU scroll layer (see .nn-list-pane-scroller) */
+    background-color: var(--nn-theme-list-bg); /* Opaque background on scroller for GPU scroll layer (see .nn-list-pane-scroller) */
 }
 
 /* Mobile slim file items - larger touch targets */
@@ -4419,17 +4421,6 @@ settings:
         type: heading
         level: 1
         collapsed: true
-    -
-    -
-        id: nn-theme-mobile-nav-bg
-        title: Mobile navigation background
-        description: Background color of the navigation pane on mobile.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-    -
         id: nn-theme-mobile-list-header-link-color
         title: Mobile header link color
         description: Color for back button and clickable breadcrumb segments on mobile.
