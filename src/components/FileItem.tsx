@@ -47,7 +47,7 @@
  */
 
 import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
-import { TFile, setTooltip, setIcon } from 'obsidian';
+import { TFile, TFolder, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import type { FileContentChange } from '../storage/IndexedDBStorage';
 import { useMetadataService } from '../context/ServicesContext';
@@ -62,7 +62,6 @@ import { ItemType } from '../types';
 import { DateUtils } from '../utils/dateUtils';
 import { getExtensionSuffix, isImageFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
-import { ObsidianIcon } from './ObsidianIcon';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
 
@@ -184,6 +183,42 @@ function areStringArraysEqual(a: string[], b: string[]): boolean {
         }
     }
     return true;
+}
+
+interface ParentFolderLabelProps {
+    iconId: string;
+    label: string;
+    iconVersion: number;
+}
+
+/**
+ * Renders a parent folder label with icon for display in file items.
+ */
+function ParentFolderLabel({ iconId, label, iconVersion }: ParentFolderLabelProps) {
+    const iconRef = useRef<HTMLSpanElement>(null);
+
+    // Render the folder icon when iconId or iconVersion changes
+    useEffect(() => {
+        const iconContainer = iconRef.current;
+        if (!iconContainer) {
+            return;
+        }
+
+        iconContainer.innerHTML = '';
+        if (!iconId) {
+            return;
+        }
+
+        const iconService = getIconService();
+        iconService.renderIcon(iconContainer, iconId);
+    }, [iconId, iconVersion]);
+
+    return (
+        <div className="nn-file-folder">
+            <span className="nn-file-folder-icon" ref={iconRef} aria-hidden="true" />
+            <span>{label}</span>
+        </div>
+    );
 }
 
 /**
@@ -525,6 +560,31 @@ export const FileItem = React.memo(function FileItem({
     const shouldCollapseEmptyPreviewSpace = heightOptimizationEnabled && !hasPreviewContent; // Optimization: compact layout for empty preview
     const shouldAlwaysReservePreviewSpace = heightOptimizationDisabled || hasPreviewContent; // Show full layout when not optimizing OR has content
 
+    // Determine parent folder display metadata
+    const parentFolderSource = file.parent;
+    let parentFolderMeta: { name: string; iconId: string } | null = null;
+    if (settings.showParentFolderNames && parentFolderSource instanceof TFolder && !pinnedItemShouldUseCompactLayout) {
+        // Show parent label in tag view or when viewing descendants
+        const shouldShowParentLabel =
+            selectionType === ItemType.TAG || (settings.includeDescendantNotes && parentFolder && parentFolderSource.path !== parentFolder);
+
+        if (shouldShowParentLabel) {
+            // Use custom icon if set, otherwise use default folder icon
+            const customParentIcon = metadataService.getFolderIcon(parentFolderSource.path);
+            const fallbackParentIcon = parentFolderSource.path === '/' ? 'vault' : 'lucide-folder-closed';
+            parentFolderMeta = {
+                name: parentFolderSource.name,
+                iconId: customParentIcon ?? fallbackParentIcon
+            };
+        }
+    }
+
+    // Render parent folder label if metadata is available
+    const renderParentFolder = () =>
+        parentFolderMeta ? (
+            <ParentFolderLabel iconId={parentFolderMeta.iconId} label={parentFolderMeta.name} iconVersion={iconServiceVersion} />
+        ) : null;
+
     // Determine if we should show the feature image area (either with an image or extension badge)
     const shouldShowFeatureImageArea =
         appearanceSettings.showImage &&
@@ -833,17 +893,7 @@ export const FileItem = React.memo(function FileItem({
                                         {renderTags()}
 
                                         {/* Parent folder - gets its own line */}
-                                        {/* Hidden when: pinnedItemShouldUseCompactLayout (pinned + optimization enabled) */}
-                                        {settings.showParentFolderNames &&
-                                            file.parent &&
-                                            !pinnedItemShouldUseCompactLayout &&
-                                            (selectionType === ItemType.TAG ||
-                                                (settings.includeDescendantNotes && parentFolder && file.parent.path !== parentFolder)) && (
-                                                <div className="nn-file-folder">
-                                                    <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
-                                                    <span>{file.parent.name}</span>
-                                                </div>
-                                            )}
+                                        {renderParentFolder()}
                                     </>
                                 )}
 
@@ -862,18 +912,7 @@ export const FileItem = React.memo(function FileItem({
                                                 {/* Date + Parent folder share the second line (compact layout) */}
                                                 <div className="nn-file-second-line">
                                                     {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
-                                                    {settings.showParentFolderNames &&
-                                                        file.parent &&
-                                                        !pinnedItemShouldUseCompactLayout &&
-                                                        (selectionType === ItemType.TAG ||
-                                                            (settings.includeDescendantNotes &&
-                                                                parentFolder &&
-                                                                file.parent.path !== parentFolder)) && (
-                                                            <div className="nn-file-folder">
-                                                                <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
-                                                                <span>{file.parent.name}</span>
-                                                            </div>
-                                                        )}
+                                                    {renderParentFolder()}
                                                 </div>
                                             </>
                                         )}
@@ -899,18 +938,7 @@ export const FileItem = React.memo(function FileItem({
                                                 {/* Date + Parent folder share the metadata line */}
                                                 <div className="nn-file-second-line">
                                                     {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
-                                                    {settings.showParentFolderNames &&
-                                                        file.parent &&
-                                                        !pinnedItemShouldUseCompactLayout &&
-                                                        (selectionType === ItemType.TAG ||
-                                                            (settings.includeDescendantNotes &&
-                                                                parentFolder &&
-                                                                file.parent.path !== parentFolder)) && (
-                                                            <div className="nn-file-folder">
-                                                                <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
-                                                                <span>{file.parent.name}</span>
-                                                            </div>
-                                                        )}
+                                                    {renderParentFolder()}
                                                 </div>
                                             </>
                                         )}
