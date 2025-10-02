@@ -29,6 +29,7 @@ import { STRINGS_JA } from './locales/ja';
 import { STRINGS_KO } from './locales/ko';
 import { STRINGS_PL } from './locales/pl';
 import { STRINGS_ZH } from './locales/zh';
+import { STRINGS_ZH_TW } from './locales/zh_tw';
 
 // Type for the translation strings structure
 type TranslationStrings = typeof STRINGS_EN;
@@ -43,7 +44,8 @@ const LANGUAGE_MAP: Record<string, TranslationStrings> = {
     ja: STRINGS_JA,
     ko: STRINGS_KO,
     pl: STRINGS_PL,
-    zh: STRINGS_ZH
+    zh: STRINGS_ZH,
+    zh_tw: STRINGS_ZH_TW
 };
 
 /**
