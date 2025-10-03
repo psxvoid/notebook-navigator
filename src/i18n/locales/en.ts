@@ -457,6 +457,7 @@ export const STRINGS_EN = {
             exportFailed: 'Failed to export metadata report'
         },
         sections: {
+            general: 'General',
             navigationPane: 'Navigation pane',
             icons: 'Icon packs',
             folders: 'Folders',

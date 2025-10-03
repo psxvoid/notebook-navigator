@@ -457,6 +457,7 @@ export const STRINGS_KO = {
             exportFailed: '메타데이터 보고서 내보내기 실패'
         },
         sections: {
+            general: '일반',
             navigationPane: '탐색 창',
             icons: '아이콘 팩',
             folders: '폴더',

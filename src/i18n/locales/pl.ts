@@ -459,6 +459,7 @@ export const STRINGS_PL = {
             exportFailed: 'Nie udało się wyeksportować raportu metadanych'
         },
         sections: {
+            general: 'Ogólne',
             navigationPane: 'Panel nawigacji',
             icons: 'Pakiety ikon',
             folders: 'Foldery',

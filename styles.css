@@ -2494,6 +2494,40 @@ body.nn-resizing {
     border-left: 2px solid var(--background-modifier-border);
 }
 
+/* Settings tabs layout and navigation */
+.nn-settings-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-4-4);
+}
+
+.nn-settings-tabs-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--size-2-3);
+}
+
+.nn-settings-tab-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    font-size: var(--font-ui-small);
+}
+
+.nn-settings-tabs-content {
+    position: relative;
+}
+
+/* Hide tabs by default, show only active tab */
+.nn-settings-tab {
+    display: none;
+}
+
+.nn-settings-tab.is-active {
+    display: block;
+}
+
 /* Settings section header spacing */
 .setting-item-heading {
     margin-top: 30px;

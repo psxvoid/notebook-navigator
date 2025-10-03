@@ -458,6 +458,7 @@ export const STRINGS_FR = {
             exportFailed: "Échec de l'exportation du rapport de métadonnées"
         },
         sections: {
+            general: 'Général',
             notes: 'Affichage des notes',
             navigationPane: 'Affichage des dossiers',
             icons: "Packs d'icônes",

@@ -460,6 +460,7 @@ export const STRINGS_DE = {
             exportFailed: 'Export des Metadaten-Berichts fehlgeschlagen'
         },
         sections: {
+            general: 'Allgemein',
             notes: 'Notizenanzeige',
             navigationPane: 'Ordneranzeige',
             icons: 'Icon-Pakete',

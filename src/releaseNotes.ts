@@ -83,6 +83,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
         improved: [
             'File color now applies to both the file icon and file name (previously only icon). You can now also apply file color without having an icon set.'
         ],
+        changed: [
+            '**Settings page reorganized into tabs**: Settings are now organized into General, Navigation pane, Folders & Tags, List pane, Notes, Icon packs, Search & Hotkeys, and Advanced tabs for easier navigation.'
+        ],
         fixed: [
             'Fixed an issue where parent folder icon in file list only showed generic folder icon and not the actual parent folder icon.'
         ]

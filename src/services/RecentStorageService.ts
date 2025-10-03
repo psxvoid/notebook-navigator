@@ -18,7 +18,7 @@
 
 import type { NotebookNavigatorSettings } from '../settings';
 import type { LocalStorageKeys } from '../types';
-import { RECENT_NOTES_DEFAULT_COUNT } from '../settings';
+import { DEFAULT_SETTINGS } from '../settings';
 import { localStorage } from '../utils/localStorage';
 import { RECENT_ICONS_PER_PROVIDER_LIMIT } from './icons/types';
 
@@ -337,7 +337,8 @@ export class RecentStorageService {
 
     // Get configured limit for recent notes with validation
     private getRecentNotesLimit(): number {
-        const limitValue = typeof this.settings.recentNotesCount === 'number' ? this.settings.recentNotesCount : RECENT_NOTES_DEFAULT_COUNT;
+        const limitValue =
+            typeof this.settings.recentNotesCount === 'number' ? this.settings.recentNotesCount : DEFAULT_SETTINGS.recentNotesCount;
         return Math.max(1, limitValue);
     }
 

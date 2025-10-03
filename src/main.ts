@@ -17,13 +17,7 @@
  */
 
 import { Plugin, TFile, FileView } from 'obsidian';
-import {
-    NotebookNavigatorSettings,
-    DEFAULT_SETTINGS,
-    NotebookNavigatorSettingTab,
-    SETTINGS_VERSION,
-    RECENT_NOTES_DEFAULT_COUNT
-} from './settings';
+import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
 import { LocalStorageKeys, NOTEBOOK_NAVIGATOR_VIEW, STORAGE_KEYS } from './types';
 import { ISettingsProvider } from './interfaces/ISettingsProvider';
 import { MetadataService, type MetadataCleanupSummary } from './services/MetadataService';
@@ -134,7 +128,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         if (typeof this.settings.recentNotesCount !== 'number' || this.settings.recentNotesCount <= 0) {
-            this.settings.recentNotesCount = RECENT_NOTES_DEFAULT_COUNT;
+            this.settings.recentNotesCount = DEFAULT_SETTINGS.recentNotesCount;
         }
 
         if (!Array.isArray(this.settings.rootFolderOrder)) {
@@ -278,14 +272,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             if (!versionNumber || versionNumber !== LOCALSTORAGE_VERSION) {
                 // Future localStorage migration logic can go here
                 localStorage.set(STORAGE_KEYS.localStorageVersionKey, LOCALSTORAGE_VERSION);
-            }
-
-            // Check settings version for potential migrations
-            if (this.settings.settingsVersion && this.settings.settingsVersion < SETTINGS_VERSION) {
-                // Future settings migration logic can go here
-                // Example: if (this.settings.settingsVersion < 2) { migrate v1 to v2 }
-                this.settings.settingsVersion = SETTINGS_VERSION;
-                await this.saveData(this.settings);
             }
         }
 

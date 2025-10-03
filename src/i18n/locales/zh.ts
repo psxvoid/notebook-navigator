@@ -458,6 +458,7 @@ export const STRINGS_ZH = {
             exportFailed: '导出元数据报告失败'
         },
         sections: {
+            general: '通用',
             notes: '笔记显示',
             navigationPane: '文件夹显示',
             icons: '图标包',

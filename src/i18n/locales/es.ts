@@ -458,6 +458,7 @@ export const STRINGS_ES = {
             exportFailed: 'Error al exportar el informe de metadatos'
         },
         sections: {
+            general: 'General',
             notes: 'Visualización de notas',
             navigationPane: 'Visualización de carpetas',
             icons: 'Paquetes de iconos',

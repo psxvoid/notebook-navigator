@@ -458,6 +458,7 @@ export const STRINGS_JA = {
             exportFailed: 'メタデータレポートのエクスポートに失敗しました'
         },
         sections: {
+            general: '一般設定',
             notes: 'ノート表示',
             navigationPane: 'フォルダ表示',
             icons: 'アイコンパック',
