@@ -875,12 +875,36 @@ export const STRINGS_ZH = {
             },
             useFrontmatterDates: {
                 name: '从前言读取元数据 (*)',
-                desc: '如果可用，从前言读取笔记名称和时间戳，否则使用文件系统值'
+                desc: '如果可用，从前言读取笔记名称、时间戳、图标和颜色，否则使用文件系统值或设置'
             },
             frontmatterNameField: {
                 name: '名称字段',
                 desc: '用作笔记显示名称的前言字段。留空使用文件名。',
                 placeholder: '标题'
+            },
+            frontmatterIconField: {
+                name: '图标字段',
+                desc: '文件图标的前言字段。留空使用存储在设置中的图标。',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: '颜色字段',
+                desc: '文件颜色的前言字段。留空使用存储在设置中的颜色。',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: '将图标和颜色保存到前言',
+                desc: '使用上面配置的字段自动将文件图标和颜色写入前言。'
+            },
+            frontmatterMigration: {
+                name: '从设置迁移图标和颜色',
+                desc: '存储在设置中：{icons} 个图标，{colors} 种颜色。',
+                button: '迁移',
+                buttonWorking: '正在迁移...',
+                noticeNone: '设置中未保存任何文件图标或颜色。',
+                noticeDone: '已迁移 {migratedIcons}/{icons} 个图标，{migratedColors}/{colors} 种颜色。',
+                noticeFailures: '失败的条目：{failures}。',
+                noticeError: '迁移失败。请检查控制台以获取详细信息。'
             },
             frontmatterCreatedField: {
                 name: '创建时间戳字段',
@@ -921,6 +945,8 @@ export const STRINGS_ZH = {
                 itemsWithName: '个带名称的项目',
                 withCreatedDate: '个带创建日期',
                 withModifiedDate: '个带修改日期',
+                withIcon: '个带图标',
+                withColor: '个带颜色',
                 failedToParse: '解析失败',
                 createdDates: '个创建日期',
                 modifiedDates: '个修改日期',

@@ -877,12 +877,36 @@ export const STRINGS_FR = {
             },
             useFrontmatterDates: {
                 name: 'Lire les métadonnées du frontmatter (*)',
-                desc: "Lire les noms de notes et horodatages du frontmatter lorsqu'ils sont disponibles, sinon utiliser les valeurs du système"
+                desc: "Lire les noms de notes, horodatages, icônes et couleurs du frontmatter lorsqu'ils sont disponibles, sinon utiliser les valeurs du système ou les paramètres"
             },
             frontmatterNameField: {
                 name: 'Champ de nom',
                 desc: "Champ frontmatter à utiliser comme nom d'affichage de la note. Laisser vide pour utiliser le nom du fichier.",
                 placeholder: 'titre'
+            },
+            frontmatterIconField: {
+                name: "Champ d'icône",
+                desc: 'Champ frontmatter pour les icônes de fichier. Laisser vide pour utiliser les icônes enregistrées dans les paramètres.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'Champ de couleur',
+                desc: 'Champ frontmatter pour les couleurs de fichier. Laisser vide pour utiliser les couleurs enregistrées dans les paramètres.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'Enregistrer les icônes et couleurs dans le frontmatter',
+                desc: 'Écrit automatiquement les icônes et couleurs de fichier dans le frontmatter via les champs configurés ci-dessus.'
+            },
+            frontmatterMigration: {
+                name: 'Migrer les icônes et couleurs depuis les paramètres',
+                desc: 'Stocké dans les paramètres : {icons} icônes, {colors} couleurs.',
+                button: 'Migrer',
+                buttonWorking: 'Migration...',
+                noticeNone: 'Aucune icône ou couleur de fichier stockée dans les paramètres.',
+                noticeDone: 'Migrées {migratedIcons}/{icons} icônes, {migratedColors}/{colors} couleurs.',
+                noticeFailures: 'Entrées en échec : {failures}.',
+                noticeError: 'Échec de la migration. Consultez la console pour plus de détails.'
             },
             frontmatterCreatedField: {
                 name: "Champ d'horodatage de création",
@@ -923,6 +947,8 @@ export const STRINGS_FR = {
                 itemsWithName: 'éléments avec nom',
                 withCreatedDate: 'avec date de création',
                 withModifiedDate: 'avec date de modification',
+                withIcon: 'avec icône',
+                withColor: 'avec couleur',
                 failedToParse: "Échec de l'analyse",
                 createdDates: 'dates de création',
                 modifiedDates: 'dates de modification',

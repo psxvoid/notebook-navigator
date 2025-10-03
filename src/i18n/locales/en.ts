@@ -874,12 +874,36 @@ export const STRINGS_EN = {
             },
             useFrontmatterDates: {
                 name: 'Read metadata from frontmatter (*)',
-                desc: 'Read note names and timestamps from frontmatter when available, falling back to file system values'
+                desc: 'Read note names, timestamps, icons, and colors from frontmatter when available, falling back to file system values or settings'
             },
             frontmatterNameField: {
                 name: 'Name field',
                 desc: 'Frontmatter field to use as the note display name. Leave empty to use the file name.',
                 placeholder: 'title'
+            },
+            frontmatterIconField: {
+                name: 'Icon field',
+                desc: 'Frontmatter field for file icons. Leave empty to use icons stored in settings.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'Color field',
+                desc: 'Frontmatter field for file colors. Leave empty to use colors stored in settings.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'Save icons and colors to frontmatter',
+                desc: 'Automatically write file icons and colors to frontmatter using the configured fields above.'
+            },
+            frontmatterMigration: {
+                name: 'Migrate icons and colors from settings',
+                desc: 'Stored in settings: {icons} icons, {colors} colors.',
+                button: 'Migrate',
+                buttonWorking: 'Migrating...',
+                noticeNone: 'No file icons or colors stored in settings.',
+                noticeDone: 'Migrated {migratedIcons}/{icons} icons, {migratedColors}/{colors} colors.',
+                noticeFailures: 'Failed entries: {failures}.',
+                noticeError: 'Migration failed. Check console for details.'
             },
             frontmatterCreatedField: {
                 name: 'Created timestamp field',
@@ -920,6 +944,8 @@ export const STRINGS_EN = {
                 itemsWithName: 'items with name',
                 withCreatedDate: 'with created date',
                 withModifiedDate: 'with modified date',
+                withIcon: 'with icon',
+                withColor: 'with color',
                 failedToParse: 'Failed to parse',
                 createdDates: 'created dates',
                 modifiedDates: 'modified dates',

@@ -878,12 +878,36 @@ export const STRINGS_DE = {
             },
             useFrontmatterDates: {
                 name: 'Metadaten aus Frontmatter lesen (*)',
-                desc: 'Notiznamen und Zeitstempel aus dem Frontmatter lesen, falls vorhanden, ansonsten Dateisystemwerte verwenden'
+                desc: 'Notiznamen, Zeitstempel, Icons und Farben aus dem Frontmatter lesen, falls vorhanden, ansonsten Dateisystemwerte oder Einstellungen verwenden'
             },
             frontmatterNameField: {
                 name: 'Namensfeld',
                 desc: 'Frontmatter-Feld für den angezeigten Notiznamen. Leer lassen, um den Dateinamen zu verwenden.',
                 placeholder: 'titel'
+            },
+            frontmatterIconField: {
+                name: 'Icon-Feld',
+                desc: 'Frontmatter-Feld für Datei-Icons. Leer lassen, um Icons aus den Einstellungen zu verwenden.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'Farbfeld',
+                desc: 'Frontmatter-Feld für Dateifarben. Leer lassen, um Farben aus den Einstellungen zu verwenden.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'Icons und Farben im Frontmatter speichern',
+                desc: 'Schreibt Datei-Icons und Farben automatisch ins Frontmatter über die oben konfigurierten Felder.'
+            },
+            frontmatterMigration: {
+                name: 'Icons und Farben aus Einstellungen migrieren',
+                desc: 'In Einstellungen gespeichert: {icons} Icons, {colors} Farben.',
+                button: 'Migrieren',
+                buttonWorking: 'Migriere...',
+                noticeNone: 'Keine Datei-Icons oder Farben in den Einstellungen gespeichert.',
+                noticeDone: '{migratedIcons}/{icons} Icons, {migratedColors}/{colors} Farben migriert.',
+                noticeFailures: 'Fehlgeschlagene Einträge: {failures}.',
+                noticeError: 'Migration fehlgeschlagen. Details in der Konsole.'
             },
             frontmatterCreatedField: {
                 name: 'Feld für Erstellungszeitstempel',
@@ -924,6 +948,8 @@ export const STRINGS_DE = {
                 itemsWithName: 'Einträge mit Name',
                 withCreatedDate: 'mit Erstellungsdatum',
                 withModifiedDate: 'mit Änderungsdatum',
+                withIcon: 'mit Icon',
+                withColor: 'mit Farbe',
                 failedToParse: 'Parsing fehlgeschlagen',
                 createdDates: 'Erstellungsdaten',
                 modifiedDates: 'Änderungsdaten',

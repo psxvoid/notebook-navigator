@@ -128,9 +128,12 @@ export interface NotebookNavigatorSettings {
     // Note display and metadata extraction settings
     useFrontmatterMetadata: boolean;
     frontmatterNameField: string;
+    frontmatterIconField: string;
+    frontmatterColorField: string;
     frontmatterCreatedField: string;
     frontmatterModifiedField: string;
     frontmatterDateFormat: string;
+    saveMetadataToFrontmatter: boolean;
     fileNameRows: number;
     showFileDate: boolean;
     showFileTags: boolean;
@@ -241,9 +244,12 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Notes
     useFrontmatterMetadata: false,
     frontmatterNameField: '',
+    frontmatterIconField: 'icon',
+    frontmatterColorField: 'color',
     frontmatterCreatedField: '',
     frontmatterModifiedField: '',
     frontmatterDateFormat: '',
+    saveMetadataToFrontmatter: false,
     fileNameRows: 1,
     showFileDate: true,
     showFileTags: true,
@@ -391,10 +397,12 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         const nameCount = stats.itemsWithMetadataName || 0;
         const createdCount = stats.itemsWithMetadataCreated || 0;
         const modifiedCount = stats.itemsWithMetadataModified || 0;
+        const iconCount = stats.itemsWithMetadataIcon || 0;
+        const colorCount = stats.itemsWithMetadataColor || 0;
         const failedCreatedCount = stats.itemsWithFailedCreatedParse || 0;
         const failedModifiedCount = stats.itemsWithFailedModifiedParse || 0;
 
-        const infoText = `${strings.settings.items.metadataInfo.successfullyParsed}: ${nameCount} ${strings.settings.items.metadataInfo.itemsWithName}, ${createdCount} ${strings.settings.items.metadataInfo.withCreatedDate}, ${modifiedCount} ${strings.settings.items.metadataInfo.withModifiedDate}.`;
+        const infoText = `${strings.settings.items.metadataInfo.successfullyParsed}: ${nameCount} ${strings.settings.items.metadataInfo.itemsWithName}, ${createdCount} ${strings.settings.items.metadataInfo.withCreatedDate}, ${modifiedCount} ${strings.settings.items.metadataInfo.withModifiedDate}, ${iconCount} ${strings.settings.items.metadataInfo.withIcon}, ${colorCount} ${strings.settings.items.metadataInfo.withColor}.`;
 
         // Calculate failure percentage
         const totalCreatedAttempts = createdCount + failedCreatedCount;
@@ -1522,6 +1530,132 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 this.plugin.settings.frontmatterNameField = value || '';
             }
         );
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterIconField.name,
+            strings.settings.items.frontmatterIconField.desc,
+            strings.settings.items.frontmatterIconField.placeholder,
+            () => this.plugin.settings.frontmatterIconField,
+            value => {
+                this.plugin.settings.frontmatterIconField = value || '';
+                updateMigrationSetting();
+            }
+        );
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterColorField.name,
+            strings.settings.items.frontmatterColorField.desc,
+            strings.settings.items.frontmatterColorField.placeholder,
+            () => this.plugin.settings.frontmatterColorField,
+            value => {
+                this.plugin.settings.frontmatterColorField = value || '';
+                updateMigrationSetting();
+            }
+        );
+
+        let migrationSetting: Setting | null = null;
+        let migrateButton: ButtonComponent | null = null;
+
+        // Updates the migration setting description and visibility based on current settings
+        const updateMigrationSetting = () => {
+            if (!migrationSetting) {
+                return;
+            }
+
+            const iconCount = Object.keys(this.plugin.settings.fileIcons || {}).length;
+            const colorCount = Object.keys(this.plugin.settings.fileColors || {}).length;
+            const total = iconCount + colorCount;
+            const iconFieldConfigured = this.plugin.settings.frontmatterIconField.trim().length > 0;
+            const colorFieldConfigured = this.plugin.settings.frontmatterColorField.trim().length > 0;
+            const hasConfiguredField = iconFieldConfigured || colorFieldConfigured;
+            const migratableTotal = (iconFieldConfigured ? iconCount : 0) + (colorFieldConfigured ? colorCount : 0);
+
+            // Update description with current counts
+            const desc = strings.settings.items.frontmatterMigration.desc
+                .replace('{icons}', iconCount.toString())
+                .replace('{colors}', colorCount.toString());
+            migrationSetting.setDesc(desc);
+
+            // Only show migration button if frontmatter save is enabled and there's data to migrate
+            const shouldShow = this.plugin.settings.saveMetadataToFrontmatter && total > 0;
+            migrationSetting.settingEl.toggle(shouldShow);
+
+            if (migrateButton) {
+                const disableButton = !shouldShow || !hasConfiguredField || migratableTotal === 0;
+                migrateButton.setDisabled(disableButton);
+                migrateButton.buttonEl.toggleClass('mod-cta', !disableButton);
+            }
+        };
+
+        new Setting(frontmatterSettingsEl)
+            .setName(strings.settings.items.frontmatterSaveMetadata.name)
+            .setDesc(strings.settings.items.frontmatterSaveMetadata.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.saveMetadataToFrontmatter).onChange(async value => {
+                    this.plugin.settings.saveMetadataToFrontmatter = value;
+                    await this.plugin.saveSettingsAndUpdate();
+                    updateMigrationSetting();
+                })
+            );
+
+        migrationSetting = new Setting(frontmatterSettingsEl).setName(strings.settings.items.frontmatterMigration.name);
+
+        migrationSetting.addButton(button => {
+            migrateButton = button;
+            button.setButtonText(strings.settings.items.frontmatterMigration.button);
+            button.setCta();
+            button.onClick(async () => {
+                if (!this.plugin.metadataService) {
+                    return;
+                }
+                const iconFieldConfigured = this.plugin.settings.frontmatterIconField.trim().length > 0;
+                const colorFieldConfigured = this.plugin.settings.frontmatterColorField.trim().length > 0;
+                if (!iconFieldConfigured && !colorFieldConfigured) {
+                    return;
+                }
+                // Disable button during migration
+                button.setDisabled(true);
+                button.setButtonText(strings.settings.items.frontmatterMigration.buttonWorking);
+                button.buttonEl.toggleClass('mod-cta', false);
+
+                try {
+                    // Run the migration
+                    const result = await this.plugin.metadataService.migrateFileMetadataToFrontmatter();
+                    updateMigrationSetting();
+
+                    const { iconsBefore, colorsBefore, migratedIcons, migratedColors, failures } = result;
+
+                    // Show appropriate notice based on results
+                    if (iconsBefore === 0 && colorsBefore === 0) {
+                        new Notice(strings.settings.items.frontmatterMigration.noticeNone);
+                    } else if (migratedIcons === 0 && migratedColors === 0) {
+                        new Notice(strings.settings.items.frontmatterMigration.noticeNone);
+                    } else {
+                        let message = strings.settings.items.frontmatterMigration.noticeDone
+                            .replace('{migratedIcons}', migratedIcons.toString())
+                            .replace('{icons}', iconsBefore.toString())
+                            .replace('{migratedColors}', migratedColors.toString())
+                            .replace('{colors}', colorsBefore.toString());
+                        if (failures > 0) {
+                            message += ` ${strings.settings.items.frontmatterMigration.noticeFailures.replace('{failures}', failures.toString())}`;
+                        }
+                        new Notice(message);
+                    }
+                } catch (error) {
+                    console.error('Failed to migrate icon/color metadata to frontmatter', error);
+                    new Notice(strings.settings.items.frontmatterMigration.noticeError, TIMEOUTS.NOTICE_ERROR);
+                } finally {
+                    // Re-enable button after migration completes
+                    button.setButtonText(strings.settings.items.frontmatterMigration.button);
+                    button.setDisabled(false);
+                    updateMigrationSetting();
+                }
+            });
+        });
+
+        updateMigrationSetting();
 
         this.createDebouncedTextSetting(
             frontmatterSettingsEl,

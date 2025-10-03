@@ -22,7 +22,7 @@ import { MemoryFileCache } from './MemoryFileCache';
 
 const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
-const DB_CONTENT_VERSION = 3; // Data format version
+const DB_CONTENT_VERSION = 4; // Data format version
 
 /**
  * Sentinel values for metadata date fields
@@ -43,6 +43,8 @@ export interface FileData {
         name?: string;
         created?: number; // Valid timestamp, 0 = field not configured, -1 = parse failed
         modified?: number; // Valid timestamp, 0 = field not configured, -1 = parse failed
+        icon?: string;
+        color?: string;
     } | null; // null = not generated yet
 }
 
@@ -842,7 +844,16 @@ export class IndexedDBStorage {
      * @param path - File path to update
      * @param metadata - Metadata fields to update
      */
-    async updateFileMetadata(path: string, metadata: { name?: string; created?: number; modified?: number }): Promise<void> {
+    async updateFileMetadata(
+        path: string,
+        metadata: {
+            name?: string;
+            created?: number;
+            modified?: number;
+            icon?: string;
+            color?: string;
+        }
+    ): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 

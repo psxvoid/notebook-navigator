@@ -874,12 +874,36 @@ export const STRINGS_KO = {
             },
             useFrontmatterDates: {
                 name: 'frontmatter에서 메타데이터 읽기 (*)',
-                desc: '사용 가능한 경우 frontmatter에서 노트 이름과 타임스탬프를 읽고, 파일 시스템 값으로 대체'
+                desc: '사용 가능한 경우 frontmatter에서 노트 이름, 타임스탬프, 아이콘, 색상을 읽고, 파일 시스템 값 또는 설정으로 대체'
             },
             frontmatterNameField: {
                 name: '이름 필드',
                 desc: '노트 표시 이름으로 사용할 frontmatter 필드입니다. 파일 이름을 사용하려면 비워 두세요.',
                 placeholder: 'title'
+            },
+            frontmatterIconField: {
+                name: '아이콘 필드',
+                desc: '파일 아이콘용 frontmatter 필드입니다. 설정에 저장된 아이콘을 사용하려면 비워 두세요.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: '색상 필드',
+                desc: '파일 색상용 frontmatter 필드입니다. 설정에 저장된 색상을 사용하려면 비워 두세요.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'frontmatter에 아이콘과 색상 저장',
+                desc: '위에서 구성한 필드를 사용하여 파일 아이콘과 색상을 frontmatter에 자동으로 기록합니다.'
+            },
+            frontmatterMigration: {
+                name: '설정에서 아이콘과 색상 이동',
+                desc: '설정에 저장됨: 아이콘 {icons}개, 색상 {colors}개.',
+                button: '이동',
+                buttonWorking: '이동 중...',
+                noticeNone: '설정에 저장된 파일 아이콘 또는 색상이 없습니다.',
+                noticeDone: '아이콘 {migratedIcons}/{icons}개, 색상 {migratedColors}/{colors}개를 이동했습니다.',
+                noticeFailures: '실패한 항목: {failures}.',
+                noticeError: '이동에 실패했습니다. 자세한 내용은 콘솔을 확인하세요.'
             },
             frontmatterCreatedField: {
                 name: '생성 타임스탬프 필드',
@@ -920,6 +944,8 @@ export const STRINGS_KO = {
                 itemsWithName: '이름이 있는 항목',
                 withCreatedDate: '생성 날짜 포함',
                 withModifiedDate: '수정 날짜 포함',
+                withIcon: '아이콘 포함',
+                withColor: '색상 포함',
                 failedToParse: '구문 분석 실패',
                 createdDates: '생성 날짜',
                 modifiedDates: '수정 날짜',

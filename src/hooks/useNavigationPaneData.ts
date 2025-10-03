@@ -59,6 +59,7 @@ import { setNavigationIndex } from '../utils/navigationIndex';
 import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } from '../types/shortcuts';
 import { useRootFolderOrder } from './useRootFolderOrder';
 import { isFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
+import { getDBInstance } from '../storage/fileOperations';
 
 // Maps non-markdown document extensions to their icon names
 const DOCUMENT_EXTENSION_ICONS: Record<string, string> = {
@@ -599,10 +600,25 @@ export function useNavigationPaneData({
      * This is needed because the settings objects are mutated in place when colors/icons change
      * We depend on the entire settings object to ensure this recalculates when settings update
      */
+    // Track frontmatter metadata changes separately since they're stored in IndexedDB
+    const [frontmatterMetadataVersion, setFrontmatterMetadataVersion] = useState(0);
+
+    // Subscribe to IndexedDB content changes to detect frontmatter metadata updates
+    useEffect(() => {
+        const db = getDBInstance();
+        const unsubscribe = db.onContentChange(changes => {
+            const hasMetadataChange = changes.some(change => change.changeType === 'metadata' || change.changeType === 'both');
+            if (hasMetadataChange) {
+                setFrontmatterMetadataVersion(version => version + 1);
+            }
+        });
+        return unsubscribe;
+    }, []);
+
     const metadataVersion = useMemo(() => {
         // Create a version string that will change when any metadata is added/removed/changed
         // We use JSON.stringify to detect any changes in the objects
-        return JSON.stringify({
+        const settingsSignature = JSON.stringify({
             folderColors: settings.folderColors || {},
             folderBackgroundColors: settings.folderBackgroundColors || {},
             tagColors: settings.tagColors || {},
@@ -613,7 +629,8 @@ export function useNavigationPaneData({
             fileColors: settings.fileColors || {},
             inheritFolderColors: settings.inheritFolderColors
         });
-    }, [settings]); // Depend on entire settings object to catch mutations
+        return `${settingsSignature}::${frontmatterMetadataVersion}`;
+    }, [settings, frontmatterMetadataVersion]); // Depend on entire settings object to catch mutations
 
     /**
      * Add metadata (colors, icons) and excluded folders to items

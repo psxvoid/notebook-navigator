@@ -875,12 +875,36 @@ export const STRINGS_ES = {
             },
             useFrontmatterDates: {
                 name: 'Leer metadatos del frontmatter (*)',
-                desc: 'Leer nombres de notas y marcas de tiempo del frontmatter cuando estén disponibles, usando valores del sistema como respaldo'
+                desc: 'Leer nombres de notas, marcas de tiempo, iconos y colores del frontmatter cuando estén disponibles, usando valores del sistema o ajustes como respaldo'
             },
             frontmatterNameField: {
                 name: 'Campo de nombre',
                 desc: 'Campo del frontmatter para usar como nombre de la nota. Dejar vacío para usar el nombre del archivo.',
                 placeholder: 'título'
+            },
+            frontmatterIconField: {
+                name: 'Campo de icono',
+                desc: 'Campo del frontmatter para iconos de archivo. Dejar vacío para usar iconos guardados en los ajustes.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'Campo de color',
+                desc: 'Campo del frontmatter para colores de archivo. Dejar vacío para usar colores guardados en los ajustes.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'Guardar iconos y colores en el frontmatter',
+                desc: 'Escribe automáticamente los iconos y colores de archivo en el frontmatter usando los campos configurados arriba.'
+            },
+            frontmatterMigration: {
+                name: 'Migrar iconos y colores desde los ajustes',
+                desc: 'Guardado en los ajustes: {icons} iconos, {colors} colores.',
+                button: 'Migrar',
+                buttonWorking: 'Migrando...',
+                noticeNone: 'No hay iconos ni colores de archivo almacenados en los ajustes.',
+                noticeDone: 'Migrados {migratedIcons}/{icons} iconos, {migratedColors}/{colors} colores.',
+                noticeFailures: 'Entradas con errores: {failures}.',
+                noticeError: 'Migración fallida. Revisa la consola para más detalles.'
             },
             frontmatterCreatedField: {
                 name: 'Campo de marca de tiempo de creación',
@@ -921,6 +945,8 @@ export const STRINGS_ES = {
                 itemsWithName: 'elementos con nombre',
                 withCreatedDate: 'con fecha de creación',
                 withModifiedDate: 'con fecha de modificación',
+                withIcon: 'con icono',
+                withColor: 'con color',
                 failedToParse: 'Error al analizar',
                 createdDates: 'fechas de creación',
                 modifiedDates: 'fechas de modificación',

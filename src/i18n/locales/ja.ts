@@ -876,12 +876,36 @@ export const STRINGS_JA = {
             },
             useFrontmatterDates: {
                 name: 'フロントマターからメタデータを読み込む (*)',
-                desc: '利用可能な場合、フロントマターからノート名とタイムスタンプを読み取り、それ以外はファイルシステムの値を使用'
+                desc: '利用可能な場合、フロントマターからノート名、タイムスタンプ、アイコン、色を読み取り、それ以外はファイルシステムの値または設定を使用'
             },
             frontmatterNameField: {
                 name: '名前フィールド',
                 desc: 'ノートの表示名として使用するフロントマターフィールド。空のままにするとファイル名を使用。',
                 placeholder: 'タイトル'
+            },
+            frontmatterIconField: {
+                name: 'アイコンフィールド',
+                desc: 'ファイルアイコン用のフロントマターフィールド。空のままにすると設定に保存されたアイコンを使用。',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'カラーフィールド',
+                desc: 'ファイルカラー用のフロントマターフィールド。空のままにすると設定に保存された色を使用。',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'フロントマターにアイコンと色を保存',
+                desc: '上記で設定したフィールドを使ってファイルのアイコンと色を自動的にフロントマターに書き込みます。'
+            },
+            frontmatterMigration: {
+                name: '設定からアイコンと色を移行',
+                desc: '設定に保存: アイコン {icons} 個、色 {colors} 個。',
+                button: '移行',
+                buttonWorking: '移行中...',
+                noticeNone: '設定に保存されたファイルアイコンまたは色がありません。',
+                noticeDone: 'アイコン {migratedIcons}/{icons}、色 {migratedColors}/{colors} を移行しました。',
+                noticeFailures: '失敗したエントリ: {failures}。',
+                noticeError: '移行に失敗しました。詳細はコンソールを確認してください。'
             },
             frontmatterCreatedField: {
                 name: '作成タイムスタンプフィールド',
@@ -922,6 +946,8 @@ export const STRINGS_JA = {
                 itemsWithName: '名前付き項目',
                 withCreatedDate: '作成日付き',
                 withModifiedDate: '変更日付き',
+                withIcon: 'アイコン付き',
+                withColor: 'カラー付き',
                 failedToParse: '解析に失敗',
                 createdDates: '作成日',
                 modifiedDates: '変更日',

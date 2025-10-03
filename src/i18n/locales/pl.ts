@@ -876,12 +876,36 @@ export const STRINGS_PL = {
             },
             useFrontmatterDates: {
                 name: 'Czytaj metadane z frontmatter (*)',
-                desc: 'Czytaj nazwy notatek i znaczniki czasu z frontmatter gdy dostępne, w przeciwnym razie używaj wartości systemu plików'
+                desc: 'Czytaj nazwy notatek, znaczniki czasu, ikony i kolory z frontmatter gdy dostępne, w przeciwnym razie używaj wartości systemu plików lub ustawień'
             },
             frontmatterNameField: {
                 name: 'Pole nazwy',
                 desc: 'Pole frontmatter do użycia jako wyświetlana nazwa notatki. Zostaw puste aby użyć nazwy pliku.',
                 placeholder: 'title'
+            },
+            frontmatterIconField: {
+                name: 'Pole ikony',
+                desc: 'Pole frontmatter dla ikon plików. Zostaw puste aby użyć ikon zapisanych w ustawieniach.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'Pole koloru',
+                desc: 'Pole frontmatter dla kolorów plików. Zostaw puste aby użyć kolorów zapisanych w ustawieniach.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'Zapisz ikony i kolory w frontmatter',
+                desc: 'Automatycznie zapisuje ikony i kolory plików w frontmatter przy użyciu skonfigurowanych powyżej pól.'
+            },
+            frontmatterMigration: {
+                name: 'Migruj ikony i kolory z ustawień',
+                desc: 'Zapisane w ustawieniach: {icons} ikon, {colors} kolorów.',
+                button: 'Migruj',
+                buttonWorking: 'Migracja...',
+                noticeNone: 'Brak ikon lub kolorów plików zapisanych w ustawieniach.',
+                noticeDone: 'Zmigrowano {migratedIcons}/{icons} ikon, {migratedColors}/{colors} kolorów.',
+                noticeFailures: 'Nieudane wpisy: {failures}.',
+                noticeError: 'Migracja nie powiodła się. Sprawdź konsolę po więcej szczegółów.'
             },
             frontmatterCreatedField: {
                 name: 'Pole znacznika czasu utworzenia',
@@ -922,6 +946,8 @@ export const STRINGS_PL = {
                 itemsWithName: 'elementów z nazwą',
                 withCreatedDate: 'z datą utworzenia',
                 withModifiedDate: 'z datą modyfikacji',
+                withIcon: 'z ikoną',
+                withColor: 'z kolorem',
                 failedToParse: 'Nie udało się sparsować',
                 createdDates: 'dat utworzenia',
                 modifiedDates: 'dat modyfikacji',
