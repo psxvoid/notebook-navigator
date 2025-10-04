@@ -48,6 +48,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
 
+    checkForUpdatesOnStart: true,
+
     // Navigation pane tab
     navigationBanner: null,
     showShortcuts: true,
@@ -144,5 +146,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     tagAppearances: {} as Record<string, TagAppearance>,
     recentColors: [],
     lastShownVersion: '',
+    latestKnownRelease: '',
+    lastAnnouncedRelease: '',
+    lastReleaseCheckAt: null,
     rootFolderOrder: []
 };

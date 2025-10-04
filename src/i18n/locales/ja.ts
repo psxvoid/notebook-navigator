@@ -31,7 +31,9 @@ export const STRINGS_JA = {
         untagged: 'タグなし', // Label for notes without any tags (English: Untagged)
         untitled: '無題', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'アイキャッチ画像', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: '不明なエラー' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: '不明なエラー', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Notebook Navigator の更新があります',
+        updateBannerInstruction: '設定 -> コミュニティプラグイン で更新'
     },
 
     // List pane
@@ -949,6 +951,10 @@ export const STRINGS_JA = {
                 desc: 'ノートブックナビゲーターを愛用していただいている場合は、継続的な開発をサポートすることをご検討ください。',
                 buttonText: '❤️ スポンサーになる',
                 coffeeButton: '☕️ コーヒーをおごる'
+            },
+            updateCheckOnStart: {
+                name: '起動時に新しいバージョンを確認',
+                desc: '起動時に新しいプラグインリリースを確認し、アップデートが利用可能な場合に通知を表示します。各バージョンは一度だけ通知され、確認は最大6時間ごとに行われます。'
             },
             whatsNew: {
                 name: '新着情報',

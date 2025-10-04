@@ -79,13 +79,14 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==Read file icon and file color from frontmatter==. File icons and colors can now be read from frontmatter metadata.',
             '**Write file icon and file color to frontmatter**: You can now save file icons and colors to frontmatter instead of settings.',
             '**Migrate from settings to frontmatter**: Migration tool to move all file colors and file icons from plugin settings to frontmatter.',
+            'Notebook Navigator now checks for new releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most every 6 hours and can be disabled in settings.',
             'Notebook Navigator is now translated to **traditional Chinese** (繁體中文) thanks to @emisjerry!'
         ],
         improved: [
             'File color now applies to both the file icon and file name (previously it only applied to the icon). You can now also apply file color without having an icon set.',
             'The parent folder icon in file list now shows the actual parent folder icon instead of a generic folder icon.',
             'Canvas and Base files are now clearly marked with icons in the slim file list style. External files are also now clearly marked with a shortcut icon.',
-            'You can now drag and drop external files from outside Obsidian directly into the file list to import them into the vault.',
+            'You can now drag and drop external files from outside Obsidian directly into the file list to import them into the vault.'
         ],
         changed: ['**Settings are now reorganized into tabs**: Settings are now organized into tabs for easier navigation.']
     },

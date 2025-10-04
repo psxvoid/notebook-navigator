@@ -310,7 +310,9 @@ export const FileItem = React.memo(function FileItem({
     const pinNoteIconRef = useRef<HTMLDivElement>(null);
     const openInNewTabIconRef = useRef<HTMLDivElement>(null);
     const fileIconRef = useRef<HTMLSpanElement>(null);
+    // Icon shown next to filename for files not natively supported by Obsidian
     const fileExternalIconRef = useRef<HTMLSpanElement>(null);
+    // Icon shown in slim mode to indicate file type (canvas, base, or external)
     const slimModeIconRef = useRef<HTMLSpanElement>(null);
 
     // === Derived State & Memoized Values ===
@@ -362,10 +364,12 @@ export const FileItem = React.memo(function FileItem({
         return 'lucide-file';
     }, [fileIconId, fileExtension, isImageDocument]);
 
+    // Check if file is not natively supported by Obsidian (e.g., Office files, archives)
     const isExternalFile = useMemo(() => {
         return !shouldDisplayFile(file, FILE_VISIBILITY.SUPPORTED, app);
     }, [app, file]);
 
+    // Determine which icon to show in slim mode based on file type
     const slimModeTypeIconId = useMemo(() => {
         if (fileExtension === 'base') {
             return 'lucide-database';
@@ -803,6 +807,7 @@ export const FileItem = React.memo(function FileItem({
         iconService.renderIcon(iconContainer, fileIconId);
     }, [fileIconId, iconServiceVersion, isSlimMode, settings.showIcons]);
 
+    // Render external file indicator icon (shown next to filename in non-slim mode)
     useEffect(() => {
         const indicator = fileExternalIconRef.current;
         if (!indicator) {
@@ -817,6 +822,7 @@ export const FileItem = React.memo(function FileItem({
         setIcon(indicator, 'lucide-external-link');
     }, [iconServiceVersion, isExternalFile, isSlimMode]);
 
+    // Render file type icon in slim mode (canvas, base, or external file indicator)
     useEffect(() => {
         const indicator = slimModeIconRef.current;
         if (!indicator) {

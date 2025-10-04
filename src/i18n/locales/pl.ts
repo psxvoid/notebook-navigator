@@ -31,7 +31,9 @@ export const STRINGS_PL = {
         untagged: 'Bez tagów', // Label for notes without any tags (English: Untagged)
         untitled: 'Bez tytułu', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'Obraz wyróżniający', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: 'Nieznany błąd' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: 'Nieznany błąd', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Aktualizacja Notebook Navigator dostępna',
+        updateBannerInstruction: 'Zaktualizuj w Ustawieniach -> Wtyczki społeczności'
     },
 
     // List pane
@@ -949,6 +951,10 @@ export const STRINGS_PL = {
                 desc: 'Jeśli uwielbiasz używać Notebook Navigator, rozważ wsparcie jego dalszego rozwoju.',
                 buttonText: '❤️ Sponsoruj',
                 coffeeButton: '☕️ Postaw kawę'
+            },
+            updateCheckOnStart: {
+                name: 'Sprawdź nową wersję przy starcie',
+                desc: 'Sprawdza nowe wersje wtyczki podczas uruchamiania i wyświetla powiadomienie, gdy dostępna jest aktualizacja. Każda wersja jest ogłaszana tylko raz, a sprawdzanie odbywa się co najwyżej co 6 godzin.'
             },
             whatsNew: {
                 name: 'Co nowego',

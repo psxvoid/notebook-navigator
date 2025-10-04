@@ -62,6 +62,8 @@ export interface NotebookNavigatorSettings {
     dateFormat: string;
     timeFormat: string;
 
+    checkForUpdatesOnStart: boolean;
+
     // Navigation pane tab
     navigationBanner: string | null;
     showShortcuts: boolean;
@@ -158,5 +160,8 @@ export interface NotebookNavigatorSettings {
     tagAppearances: Record<string, TagAppearance>;
     recentColors: string[];
     lastShownVersion: string;
+    latestKnownRelease: string;
+    lastAnnouncedRelease: string;
+    lastReleaseCheckAt: number | null;
     rootFolderOrder: string[];
 }

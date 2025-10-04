@@ -31,7 +31,9 @@ export const STRINGS_EN = {
         untagged: 'Untagged', // Label for notes without any tags (English: Untagged)
         untitled: 'Untitled', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'Feature image', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: 'Unknown error' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: 'Unknown error', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Notebook Navigator update available',
+        updateBannerInstruction: 'Update in Settings -> Community plugins'
     },
 
     // List pane
@@ -947,6 +949,10 @@ export const STRINGS_EN = {
                 desc: 'If you love using Notebook Navigator, please consider supporting its continued development.',
                 buttonText: '❤️ Sponsor',
                 coffeeButton: '☕️ Buy me a coffee'
+            },
+            updateCheckOnStart: {
+                name: 'Check for new version on start',
+                desc: 'Checks for new plugin releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most every 6 hours.'
             },
             whatsNew: {
                 name: "What's new",

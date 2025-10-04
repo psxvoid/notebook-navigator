@@ -31,7 +31,9 @@ export const STRINGS_DE = {
         untagged: 'Ohne Tag', // Label for notes without any tags (English: Untagged)
         untitled: 'Ohne Titel', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'Vorschaubild', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: 'Unbekannter Fehler' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: 'Unbekannter Fehler', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Notebook Navigator-Update verfügbar',
+        updateBannerInstruction: 'In Einstellungen -> Community-Plugins aktualisieren'
     },
 
     // List pane
@@ -951,6 +953,10 @@ export const STRINGS_DE = {
                 desc: 'Wenn Sie Notebook Navigator lieben, erwägen Sie bitte, die weitere Entwicklung zu unterstützen.',
                 buttonText: '❤️ Sponsor',
                 coffeeButton: '☕️ Spendiere mir einen Kaffee'
+            },
+            updateCheckOnStart: {
+                name: 'Beim Start nach neuer Version suchen',
+                desc: 'Prüft beim Start auf neue Plugin-Versionen und zeigt eine Benachrichtigung an, wenn ein Update verfügbar ist. Jede Version wird nur einmal angekündigt, und Überprüfungen erfolgen höchstens alle 6 Stunden.'
             },
             whatsNew: {
                 name: 'Neuigkeiten',

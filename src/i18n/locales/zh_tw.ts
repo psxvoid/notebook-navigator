@@ -31,7 +31,9 @@ export const STRINGS_ZH_TW = {
         untagged: '無標籤', // 沒有任何標籤的筆記標籤 (英文: Untagged)
         untitled: '未命名', // 沒有標題的筆記預設名稱 (英文: Untitled)
         featureImageAlt: '特色圖片', // 縮圖/預覽圖片的替代文字 (英文: Feature image)
-        unknownError: '未知錯誤' // 當錯誤沒有訊息時的通用備用文字 (英文: Unknown error)
+        unknownError: '未知錯誤', // 當錯誤沒有訊息時的通用備用文字 (英文: Unknown error)
+        updateBannerTitle: 'Notebook Navigator 有可用更新',
+        updateBannerInstruction: '在設定 -> 社群外掛中更新'
     },
 
     // 列表窗格
@@ -946,6 +948,10 @@ export const STRINGS_ZH_TW = {
                 desc: '如果您喜歡使用 Notebook Navigator，請考慮支持其持續開發。',
                 buttonText: '❤️ 在 GitHub 上贊助',
                 coffeeButton: '☕️ 請我喝杯咖啡'
+            },
+            updateCheckOnStart: {
+                name: '啟動時檢查新版本',
+                desc: '啟動時檢查新的外掛版本，當有可用更新時顯示通知。每個版本僅通知一次，檢查最多每6小時進行一次。'
             },
             whatsNew: {
                 name: '最新消息',

@@ -31,7 +31,9 @@ export const STRINGS_ZH_CN = {
         untagged: '无标签', // Label for notes without any tags (English: Untagged)
         untitled: '无标题', // Default name for notes without a title (English: Untitled)
         featureImageAlt: '特色图片', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: '未知错误' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: '未知错误', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Notebook Navigator 有可用更新',
+        updateBannerInstruction: '在设置 -> 社区插件中更新'
     },
 
     // List pane
@@ -948,6 +950,10 @@ export const STRINGS_ZH_CN = {
                 desc: '如果您喜欢使用笔记本导航器，请考虑支持其持续开发。',
                 buttonText: '❤️ 赞助',
                 coffeeButton: '☕️ 请我喝咖啡'
+            },
+            updateCheckOnStart: {
+                name: '启动时检查新版本',
+                desc: '启动时检查新的插件版本，当有可用更新时显示通知。每个版本仅通知一次，检查最多每6小时进行一次。'
             },
             whatsNew: {
                 name: '最新动态',

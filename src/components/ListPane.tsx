@@ -212,6 +212,7 @@ export const ListPane = React.memo(
             searchQuery: isSearchActive ? debouncedSearchQuery : undefined
         });
 
+        // Determine the target folder path for drag-and-drop of external files
         const activeFolderDropPath = useMemo(() => {
             if (selectionType !== 'folder' || !selectedFolder) {
                 return null;

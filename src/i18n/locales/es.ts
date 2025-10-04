@@ -31,7 +31,9 @@ export const STRINGS_ES = {
         untagged: 'Sin etiquetas', // Label for notes without any tags (English: Untagged)
         untitled: 'Sin título', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'Imagen destacada', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: 'Error desconocido' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: 'Error desconocido', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Actualización de Notebook Navigator disponible',
+        updateBannerInstruction: 'Actualiza en Ajustes -> Complementos de la comunidad'
     },
 
     // List pane
@@ -948,6 +950,10 @@ export const STRINGS_ES = {
                 desc: 'Si te encanta usar el Navegador de Cuadernos, considera apoyar su desarrollo continuo.',
                 buttonText: '❤️ Patrocinar',
                 coffeeButton: '☕️ Invítame un café'
+            },
+            updateCheckOnStart: {
+                name: 'Buscar nueva versión al iniciar',
+                desc: 'Busca nuevas versiones del complemento al iniciar y muestra una notificación cuando hay una actualización disponible. Cada versión se anuncia solo una vez, y las comprobaciones se realizan como máximo cada 6 horas.'
             },
             whatsNew: {
                 name: 'Novedades',

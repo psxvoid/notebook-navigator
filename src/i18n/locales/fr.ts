@@ -31,7 +31,9 @@ export const STRINGS_FR = {
         untagged: 'Sans étiquette', // Label for notes without any tags (English: Untagged)
         untitled: 'Sans titre', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'Image vedette', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: 'Erreur inconnue' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: 'Erreur inconnue', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Mise à jour Notebook Navigator disponible',
+        updateBannerInstruction: 'Mettre à jour dans Paramètres -> Extensions communautaires'
     },
 
     // List pane
@@ -950,6 +952,10 @@ export const STRINGS_FR = {
                 desc: 'Si vous aimez utiliser le Navigateur de Carnets, veuillez envisager de soutenir son développement continu.',
                 buttonText: '❤️ Sponsoriser',
                 coffeeButton: '☕️ Offrez-moi un café'
+            },
+            updateCheckOnStart: {
+                name: 'Vérifier les nouvelles versions au démarrage',
+                desc: 'Vérifie les nouvelles versions du plugin au démarrage et affiche une notification lorsqu\'une mise à jour est disponible. Chaque version n\'est annoncée qu\'une seule fois, et les vérifications ont lieu au maximum toutes les 6 heures.'
             },
             whatsNew: {
                 name: 'Nouveautés',

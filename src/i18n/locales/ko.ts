@@ -31,7 +31,9 @@ export const STRINGS_KO = {
         untagged: '태그 없음', // Label for notes without any tags (English: Untagged)
         untitled: '제목 없음', // Default name for notes without a title (English: Untitled)
         featureImageAlt: '대표 이미지', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: '알 수 없는 오류' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: '알 수 없는 오류', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Notebook Navigator 업데이트 사용 가능',
+        updateBannerInstruction: '설정 -> 커뮤니티 플러그인에서 업데이트'
     },
 
     // List pane
@@ -947,6 +949,10 @@ export const STRINGS_KO = {
                 desc: 'Notebook Navigator를 사용하는 것을 좋아하신다면 지속적인 개발을 지원해 주시기 바랍니다.',
                 buttonText: '❤️ 후원하기',
                 coffeeButton: '☕️ 커피 한 잔 사주기'
+            },
+            updateCheckOnStart: {
+                name: '시작 시 새 버전 확인',
+                desc: '시작 시 새로운 플러그인 릴리스를 확인하고 업데이트가 있으면 알림을 표시합니다. 각 버전은 한 번만 알림되며, 확인은 최대 6시간마다 수행됩니다.'
             },
             whatsNew: {
                 name: '새로운 기능',

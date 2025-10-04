@@ -27,6 +27,25 @@ import type { SettingsTabContext } from './SettingsTabContext';
 export function renderGeneralTab(context: SettingsTabContext): void {
     const { containerEl, plugin, createDebouncedTextSetting } = context;
 
+    // Setting to enable/disable automatic update checks on startup
+    new Setting(containerEl)
+        .setName(strings.settings.items.updateCheckOnStart.name)
+        .setDesc(strings.settings.items.updateCheckOnStart.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.checkForUpdatesOnStart).onChange(async value => {
+                plugin.settings.checkForUpdatesOnStart = value;
+                // Clear any pending update notice when disabling
+                if (!value) {
+                    plugin.dismissPendingUpdateNotice();
+                }
+                await plugin.saveSettingsAndUpdate();
+                // Immediately check for updates when enabling
+                if (value) {
+                    void plugin.runReleaseUpdateCheck(true);
+                }
+            })
+        );
+
     new Setting(containerEl)
         .setName(strings.settings.items.whatsNew.name)
         .setDesc(strings.settings.items.whatsNew.desc)
