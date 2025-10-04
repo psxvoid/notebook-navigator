@@ -952,7 +952,8 @@ export const STRINGS_KO = {
             },
             updateCheckOnStart: {
                 name: '시작 시 새 버전 확인',
-                desc: '시작 시 새로운 플러그인 릴리스를 확인하고 업데이트가 있으면 알림을 표시합니다. 각 버전은 한 번만 알림되며, 확인은 최대 6시간마다 수행됩니다.'
+                desc: '시작 시 새로운 플러그인 릴리스를 확인하고 업데이트가 있으면 알림을 표시합니다. 각 버전은 한 번만 알림되며, 확인은 최대 6시간마다 수행됩니다.',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: '새로운 기능',

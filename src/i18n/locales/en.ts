@@ -952,7 +952,8 @@ export const STRINGS_EN = {
             },
             updateCheckOnStart: {
                 name: 'Check for new version on start',
-                desc: 'Checks for new plugin releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most every 6 hours.'
+                desc: 'Checks for new plugin releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most every 6 hours.',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: "What's new",

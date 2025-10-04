@@ -272,6 +272,16 @@ body {
     opacity: 0.9;
 }
 
+.nn-update-status {
+    margin-top: 6px;
+    font-weight: 600;
+    color: var(--color-red);
+}
+
+.nn-update-status.is-hidden {
+    display: none;
+}
+
 @media (max-width: 600px) {
     .nn-update-banner {
         left: 8px;

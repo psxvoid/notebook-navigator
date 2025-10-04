@@ -951,7 +951,8 @@ export const STRINGS_ZH_TW = {
             },
             updateCheckOnStart: {
                 name: '啟動時檢查新版本',
-                desc: '啟動時檢查新的外掛版本，當有可用更新時顯示通知。每個版本僅通知一次，檢查最多每6小時進行一次。'
+                desc: '啟動時檢查新的外掛版本，當有可用更新時顯示通知。每個版本僅通知一次，檢查最多每6小時進行一次。',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: '最新消息',

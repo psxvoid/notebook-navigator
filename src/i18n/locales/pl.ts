@@ -954,7 +954,8 @@ export const STRINGS_PL = {
             },
             updateCheckOnStart: {
                 name: 'Sprawdź nową wersję przy starcie',
-                desc: 'Sprawdza nowe wersje wtyczki podczas uruchamiania i wyświetla powiadomienie, gdy dostępna jest aktualizacja. Każda wersja jest ogłaszana tylko raz, a sprawdzanie odbywa się co najwyżej co 6 godzin.'
+                desc: 'Sprawdza nowe wersje wtyczki podczas uruchamiania i wyświetla powiadomienie, gdy dostępna jest aktualizacja. Każda wersja jest ogłaszana tylko raz, a sprawdzanie odbywa się co najwyżej co 6 godzin.',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: 'Co nowego',

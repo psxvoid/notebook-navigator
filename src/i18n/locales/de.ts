@@ -956,7 +956,8 @@ export const STRINGS_DE = {
             },
             updateCheckOnStart: {
                 name: 'Beim Start nach neuer Version suchen',
-                desc: 'Prüft beim Start auf neue Plugin-Versionen und zeigt eine Benachrichtigung an, wenn ein Update verfügbar ist. Jede Version wird nur einmal angekündigt, und Überprüfungen erfolgen höchstens alle 6 Stunden.'
+                desc: 'Prüft beim Start auf neue Plugin-Versionen und zeigt eine Benachrichtigung an, wenn ein Update verfügbar ist. Jede Version wird nur einmal angekündigt, und Überprüfungen erfolgen höchstens alle 6 Stunden.',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: 'Neuigkeiten',

@@ -27,24 +27,45 @@ import type { SettingsTabContext } from './SettingsTabContext';
 export function renderGeneralTab(context: SettingsTabContext): void {
     const { containerEl, plugin, createDebouncedTextSetting } = context;
 
-    // Setting to enable/disable automatic update checks on startup
-    new Setting(containerEl)
+    const updateCheckSetting = new Setting(containerEl)
         .setName(strings.settings.items.updateCheckOnStart.name)
-        .setDesc(strings.settings.items.updateCheckOnStart.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.checkForUpdatesOnStart).onChange(async value => {
-                plugin.settings.checkForUpdatesOnStart = value;
-                // Clear any pending update notice when disabling
-                if (!value) {
-                    plugin.dismissPendingUpdateNotice();
-                }
-                await plugin.saveSettingsAndUpdate();
-                // Immediately check for updates when enabling
-                if (value) {
-                    void plugin.runReleaseUpdateCheck(true);
-                }
-            })
-        );
+        .setDesc(strings.settings.items.updateCheckOnStart.desc);
+
+    const updateStatusEl = updateCheckSetting.descEl.createDiv({ cls: 'nn-update-status is-hidden' });
+
+    const renderUpdateStatus = (version: string | null) => {
+        const hasVersion = Boolean(version);
+        updateStatusEl.setText(hasVersion ? strings.settings.items.updateCheckOnStart.status.replace('{version}', version ?? '') : '');
+        updateStatusEl.classList.toggle('is-hidden', !hasVersion);
+    };
+
+    const applyCurrentNotice = () => {
+        const notice = plugin.getPendingUpdateNotice();
+        renderUpdateStatus(notice?.version ?? null);
+    };
+
+    updateCheckSetting.addToggle(toggle =>
+        toggle.setValue(plugin.settings.checkForUpdatesOnStart).onChange(async value => {
+            plugin.settings.checkForUpdatesOnStart = value;
+            if (!value) {
+                plugin.dismissPendingUpdateNotice();
+                renderUpdateStatus(null);
+            }
+            await plugin.saveSettingsAndUpdate();
+            if (value) {
+                await plugin.runReleaseUpdateCheck(true);
+                applyCurrentNotice();
+            }
+        })
+    );
+
+    applyCurrentNotice();
+
+    const updateStatusListenerId = 'general-update-status';
+    plugin.unregisterUpdateNoticeListener(updateStatusListenerId);
+    plugin.registerUpdateNoticeListener(updateStatusListenerId, notice => {
+        renderUpdateStatus(notice?.version ?? null);
+    });
 
     new Setting(containerEl)
         .setName(strings.settings.items.whatsNew.name)

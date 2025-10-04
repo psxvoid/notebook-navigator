@@ -955,7 +955,8 @@ export const STRINGS_FR = {
             },
             updateCheckOnStart: {
                 name: 'Vérifier les nouvelles versions au démarrage',
-                desc: "Vérifie les nouvelles versions du plugin au démarrage et affiche une notification lorsqu'une mise à jour est disponible. Chaque version n'est annoncée qu'une seule fois, et les vérifications ont lieu au maximum toutes les 6 heures."
+                desc: "Vérifie les nouvelles versions du plugin au démarrage et affiche une notification lorsqu'une mise à jour est disponible. Chaque version n'est annoncée qu'une seule fois, et les vérifications ont lieu au maximum toutes les 6 heures.",
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: 'Nouveautés',
