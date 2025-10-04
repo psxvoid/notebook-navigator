@@ -81,7 +81,7 @@ export const STRINGS_ZH_TW = {
     paneHeader: {
         collapseAllFolders: '收合項目', // 收合已展開項目的按鈕工具提示 (英文: Collapse items)
         expandAllFolders: '展開所有項目', // 展開所有項目的按鈕工具提示 (英文: Expand all items)
-        scrollToShortcuts: '捲動至捷徑',
+        scrollToTop: '捲動至頂部',
         newFolder: '新資料夾', // 建立新資料夾按鈕的工具提示 (英文: New folder)
         newNote: '新筆記', // 建立新筆記按鈕的工具提示 (英文: New note)
         mobileBackToNavigation: '返回導覽', // 行動裝置專用，返回導覽窗格的返回按鈕文字 (英文: Back to navigation)
@@ -457,6 +457,7 @@ export const STRINGS_ZH_TW = {
             exportFailed: '匯出中繼資料報告失敗'
         },
         sections: {
+            general: '通用',
             navigationPane: '導覽窗格',
             icons: '圖示包',
             folders: '資料夾',
@@ -466,6 +467,26 @@ export const STRINGS_ZH_TW = {
             notes: '筆記',
             hotkeys: '快捷鍵',
             advanced: '進階'
+        },
+        groups: {
+            general: {
+                view: '檢視',
+                behavior: '行為',
+                filtering: '篩選',
+                formatting: '格式'
+            },
+            navigation: {
+                behavior: '行為',
+                appearance: '外觀'
+            },
+            list: {
+                display: '顯示與分組',
+                quickActions: '快速操作'
+            },
+            notes: {
+                frontmatter: '前置元資料',
+                display: '顯示與預覽'
+            }
         },
         items: {
             searchProvider: {
@@ -624,8 +645,13 @@ export const STRINGS_ZH_TW = {
                 name: '首頁',
                 desc: '選擇 Notebook Navigator 自動開啟的檔案，例如儀表板。',
                 current: '目前：{path}',
+                currentMobile: '行動裝置：{path}',
                 chooseButton: '選擇檔案',
-                clearButton: '清除'
+                clearButton: '清除',
+                separateMobile: {
+                    name: '獨立的行動裝置首頁',
+                    desc: '為行動裝置使用不同的首頁。'
+                }
             },
             excludedNotes: {
                 name: '隱藏筆記',
@@ -869,12 +895,36 @@ export const STRINGS_ZH_TW = {
             },
             useFrontmatterDates: {
                 name: '從 frontmatter 讀取中繼資料 (*)',
-                desc: '可用時從 frontmatter 讀取筆記名稱和時間戳，否則退回至檔案系統值'
+                desc: '可用時從 frontmatter 讀取筆記名稱、時間戳、圖示和顏色，否則退回至檔案系統值或設定'
             },
             frontmatterNameField: {
                 name: '名稱欄位',
                 desc: '用作筆記顯示名稱的 frontmatter 欄位。留空以使用檔案名稱。',
                 placeholder: 'title'
+            },
+            frontmatterIconField: {
+                name: '圖示欄位',
+                desc: '檔案圖示的 frontmatter 欄位。留空以使用儲存在設定中的圖示。',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: '顏色欄位',
+                desc: '檔案顏色的 frontmatter 欄位。留空以使用儲存在設定中的顏色。',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: '將圖示和顏色儲存至 frontmatter',
+                desc: '使用上方設定的欄位自動將檔案圖示和顏色寫入 frontmatter。'
+            },
+            frontmatterMigration: {
+                name: '從設定移轉圖示和顏色',
+                desc: '儲存在設定中：{icons} 個圖示、{colors} 種顏色。',
+                button: '移轉',
+                buttonWorking: '移轉中...',
+                noticeNone: '設定中未儲存任何檔案圖示或顏色。',
+                noticeDone: '已移轉 {migratedIcons}/{icons} 個圖示、{migratedColors}/{colors} 種顏色。',
+                noticeFailures: '失敗的項目：{failures}。',
+                noticeError: '移轉失敗。請檢查主控台以取得詳細資訊。'
             },
             frontmatterCreatedField: {
                 name: '建立時間戳欄位',
@@ -895,7 +945,8 @@ export const STRINGS_ZH_TW = {
             supportDevelopment: {
                 name: '支持開發',
                 desc: '如果您喜歡使用 Notebook Navigator，請考慮支持其持續開發。',
-                buttonText: '❤️ 在 GitHub 上贊助'
+                buttonText: '❤️ 在 GitHub 上贊助',
+                coffeeButton: '☕️ 請我喝杯咖啡'
             },
             whatsNew: {
                 name: "最新消息",
@@ -915,6 +966,8 @@ export const STRINGS_ZH_TW = {
                 itemsWithName: '帶有名稱的項目',
                 withCreatedDate: '帶有建立日期',
                 withModifiedDate: '帶有修改日期',
+                withIcon: '帶有圖示',
+                withColor: '帶有顏色',
                 failedToParse: '解析失敗',
                 createdDates: '建立日期',
                 modifiedDates: '修改日期',

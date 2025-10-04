@@ -1,6 +1,6 @@
 ![Notebook Navigator Banner](https://github.com/johansan/notebook-navigator/blob/main/images/banner.gif?raw=true)
 
-Read in your language: [English](https://notebooknavigator.com/docs.html) • [Deutsch](https://notebooknavigator.com/de/docs.html) • [Español](https://notebooknavigator.com/es/docs.html) • [Français](https://notebooknavigator.com/fr/docs.html) • [Polski](https://notebooknavigator.com/pl/docs.html) • [日本語](https://notebooknavigator.com/ja/docs.html) • [中文](https://notebooknavigator.com/zh/docs.html) • [한국어](https://notebooknavigator.com/ko/docs.html)
+Read in your language: [English](https://notebooknavigator.com/docs.html) • [Deutsch](https://notebooknavigator.com/de/docs.html) • [Español](https://notebooknavigator.com/es/docs.html) • [Français](https://notebooknavigator.com/fr/docs.html) • [Polski](https://notebooknavigator.com/pl/docs.html) • [日本語](https://notebooknavigator.com/ja/docs.html) • [中文简体](https://notebooknavigator.com/zh-cn/docs.html) • [中文繁體](https://notebooknavigator.com/zh-tw/docs.html) • [한국어](https://notebooknavigator.com/ko/docs.html)
 
 ![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=Downloads&query=%24%5B%22notebook-navigator%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
 ![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square)

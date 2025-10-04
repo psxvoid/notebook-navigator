@@ -20,7 +20,7 @@
  * English language strings for Notebook Navigator
  * Organized by feature/component for easy maintenance
  */
-export const STRINGS_ZH = {
+export const STRINGS_ZH_CN = {
     // Common UI elements
     common: {
         cancel: '取消', // Button text for canceling dialogs and operations (English: Cancel)
