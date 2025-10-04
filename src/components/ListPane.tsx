@@ -212,6 +212,13 @@ export const ListPane = React.memo(
             searchQuery: isSearchActive ? debouncedSearchQuery : undefined
         });
 
+        const activeFolderDropPath = useMemo(() => {
+            if (selectionType !== 'folder' || !selectedFolder) {
+                return null;
+            }
+            return selectedFolder.path;
+        }, [selectionType, selectedFolder]);
+
         // Flag to prevent automatic scroll to top when search is triggered from shortcut
         const suppressSearchTopScrollRef = useRef(false);
 
@@ -709,11 +716,19 @@ export const ListPane = React.memo(
 
                 {/* Conditional content rendering */}
                 {isEmptySelection ? (
-                    <div className="nn-list-pane-scroller nn-empty-state">
+                    <div
+                        className="nn-list-pane-scroller nn-empty-state"
+                        data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
+                        data-drop-path={activeFolderDropPath ?? undefined}
+                    >
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoSelection}</div>
                     </div>
                 ) : hasNoFiles ? (
-                    <div className="nn-list-pane-scroller nn-empty-state">
+                    <div
+                        className="nn-list-pane-scroller nn-empty-state"
+                        data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
+                        data-drop-path={activeFolderDropPath ?? undefined}
+                    >
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
                     </div>
                 ) : (
@@ -722,6 +737,8 @@ export const ListPane = React.memo(
                         <div
                             ref={scrollContainerRefCallback}
                             className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
+                            data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
+                            data-drop-path={activeFolderDropPath ?? undefined}
                             data-pane="files"
                             role="list"
                             tabIndex={-1}

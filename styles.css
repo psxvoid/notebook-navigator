@@ -1903,6 +1903,11 @@ body.nn-resizing {
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
+.nn-list-pane-scroller.nn-drag-over {
+    outline: 2px solid var(--text-selection);
+    outline-offset: -2px;
+}
+
 /* Special visual feedback for tag drop zones */
 [data-drop-zone='tag'].nn-drag-over {
     background-color: var(--background-modifier-success);
