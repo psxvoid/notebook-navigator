@@ -273,7 +273,7 @@ export const STRINGS_ZH_TW = {
             removeAllTagsFromNotes: '您確定要從 {count} 則筆記中移除所有標籤嗎？'
         },
         folderSuggest: {
-            placeholder: '移動至資料夾...', 
+            placeholder: '移動至資料夾...',
             navigatePlaceholder: '導覽至資料夾...',
             instructions: {
                 navigate: '導覽',
@@ -283,7 +283,7 @@ export const STRINGS_ZH_TW = {
             }
         },
         homepage: {
-            placeholder: '搜尋檔案...', 
+            placeholder: '搜尋檔案...',
             instructions: {
                 navigate: '導覽',
                 select: '設定為首頁',
@@ -291,7 +291,7 @@ export const STRINGS_ZH_TW = {
             }
         },
         navigationBanner: {
-            placeholder: '搜尋圖片...', 
+            placeholder: '搜尋圖片...',
             instructions: {
                 navigate: '導覽',
                 select: '設定橫幅',
@@ -299,10 +299,10 @@ export const STRINGS_ZH_TW = {
             }
         },
         tagSuggest: {
-            placeholder: '搜尋標籤...', 
-            navigatePlaceholder: '導覽至標籤...', 
-            addPlaceholder: '搜尋要新增的標籤...', 
-            removePlaceholder: '選取要移除的標籤...', 
+            placeholder: '搜尋標籤...',
+            navigatePlaceholder: '導覽至標籤...',
+            addPlaceholder: '搜尋要新增的標籤...',
+            removePlaceholder: '選取要移除的標籤...',
             createNewTag: '建立新標籤：#{tag}',
             instructions: {
                 navigate: '導覽',
@@ -510,8 +510,7 @@ export const STRINGS_ZH_TW = {
                         limitations: {
                             title: '已知限制：',
                             performance: '效能：在大型儲存庫中搜尋少於 3 個字元時可能會很慢',
-                            pathBug:
-                                '路徑錯誤：無法在包含非 ASCII 字元的路徑中搜尋，且無法正確搜尋子路徑，影響搜尋結果中出現的檔案',
+                            pathBug: '路徑錯誤：無法在包含非 ASCII 字元的路徑中搜尋，且無法正確搜尋子路徑，影響搜尋結果中出現的檔案',
                             limitedResults:
                                 '有限的結果：由於 Omnisearch 會搜尋整個儲存庫並在篩選前返回有限數量的結果，如果儲存庫中其他地方存在太多匹配項，您目前資料夾中的相關檔案可能不會出現',
                             previewText:
@@ -563,7 +562,7 @@ export const STRINGS_ZH_TW = {
             },
             quickActionsRevealInFolder: {
                 name: '在資料夾中顯示',
-                desc: "快速操作：在其父資料夾中顯示筆記。僅在檢視子資料夾或標籤中的筆記時可見 (在筆記的實際資料夾中不顯示)。"
+                desc: '快速操作：在其父資料夾中顯示筆記。僅在檢視子資料夾或標籤中的筆記時可見 (在筆記的實際資料夾中不顯示)。'
             },
             quickActionsPinNote: {
                 name: '釘選筆記',
@@ -839,7 +838,7 @@ export const STRINGS_ZH_TW = {
             },
             hideFolderNoteInList: {
                 name: '在清單中隱藏資料夾筆記',
-                desc: "隱藏資料夾筆記，使其不顯示在資料夾的筆記清單中。"
+                desc: '隱藏資料夾筆記，使其不顯示在資料夾的筆記清單中。'
             },
             confirmBeforeDelete: {
                 name: '刪除前確認',
@@ -850,7 +849,7 @@ export const STRINGS_ZH_TW = {
                 desc: '移除在 Obsidian 外部刪除、移動或重新命名檔案、資料夾或標籤時遺留的孤立中繼資料。這只會影響 Notebook Navigator 的設定檔。',
                 buttonText: '清理中繼資料',
                 error: '設定清理失敗',
-                loading: '正在檢查中繼資料...', 
+                loading: '正在檢查中繼資料...',
                 statusClean: '沒有要清理的中繼資料',
                 statusCounts: '孤立項目：{folders} 個資料夾、{tags} 個標籤、{files} 個檔案、{pinned} 個釘選'
             },
@@ -875,7 +874,7 @@ export const STRINGS_ZH_TW = {
             },
             externalIcons: {
                 downloadButton: '下載',
-                downloadingLabel: '下載中...', 
+                downloadingLabel: '下載中...',
                 removeButton: '移除',
                 statusInstalled: '已下載 (版本 {version})',
                 statusNotInstalled: '未下載',
@@ -949,7 +948,7 @@ export const STRINGS_ZH_TW = {
                 coffeeButton: '☕️ 請我喝杯咖啡'
             },
             whatsNew: {
-                name: "最新消息",
+                name: '最新消息',
                 desc: '查看最近的更新和改進',
                 buttonText: '查看最近更新'
             },
@@ -977,7 +976,7 @@ export const STRINGS_ZH_TW = {
         }
     },
     whatsNew: {
-        title: "Notebook Navigator 的新功能",
+        title: 'Notebook Navigator 的新功能',
         supportMessage: '如果您覺得 Notebook Navigator 有幫助，請考慮支持其開發。',
         supportButton: '請我喝杯咖啡',
         thanksButton: '謝謝！'

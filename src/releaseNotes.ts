@@ -85,9 +85,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'File color now applies to both the file icon and file name (previously it only applied to the icon). You can now also apply file color without having an icon set.',
             'The parent folder icon in file list now shows the actual parent folder icon instead of a generic folder icon.'
         ],
-        changed: [
-            '**Settings are now reorganized into tabs**: Settings are now organized into tabs for easier navigation.'
-        ]
+        changed: ['**Settings are now reorganized into tabs**: Settings are now organized into tabs for easier navigation.']
     },
     {
         version: '1.5.1',

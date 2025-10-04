@@ -28,11 +28,9 @@ All variables start with `--nn-theme-` and should be defined at the `body` level
 
 ### Navigation pane
 
-| Variable            | Default                       | Description                          |
-| ------------------- | ----------------------------- | ------------------------------------ |
-| `--nn-theme-nav-bg` | `var(--background-secondary)` | Navigation pane background (desktop) |
-
-In single pane mode the navigation pane uses `--nn-theme-list-bg` so both panes share the same background color.
+| Variable            | Default                       | Description                                                  |
+| ------------------- | ----------------------------- | ------------------------------------------------------------ |
+| `--nn-theme-nav-bg` | `var(--background-secondary)` | Navigation pane background (desktop only, see mobile styles) |
 
 #### Folder & tag items
 
@@ -149,18 +147,17 @@ Priority order: folder note styles override custom color styles, which override 
 
 ### Mobile styles
 
-| Variable                                               | Default                             | Description                                                       |
-| ------------------------------------------------------ | ----------------------------------- | ----------------------------------------------------------------- |
-| `--nn-theme-mobile-list-header-link-color`             | `var(--link-color)`                 | Color for back button and clickable breadcrumb segments on mobile |
-| `--nn-theme-mobile-list-header-breadcrumb-color`       | `var(--text-normal)`                | Color for current folder and separators in breadcrumb on mobile   |
-| `--nn-theme-mobile-list-header-breadcrumb-font-weight` | `600`                               | Font weight for mobile breadcrumb                                 |
-| `--nn-theme-mobile-toolbar-bg`                         | `var(--background-secondary)`       | Background color of the mobile toolbar                            |
-| `--nn-theme-mobile-toolbar-border-color`               | `var(--background-modifier-border)` | Border color of the mobile toolbar                                |
-| `--nn-theme-mobile-toolbar-button-icon-color`          | `var(--link-color)`                 | Icon color for toolbar buttons                                    |
-| `--nn-theme-mobile-toolbar-button-active-bg`           | `var(--background-modifier-hover)`  | Background color for active toolbar button                        |
-| `--nn-theme-mobile-toolbar-button-active-icon-color`   | `var(--link-color)`                 | Icon color for active toolbar button                              |
-
-Mobile layout always runs in single pane mode, so the navigation pane background inherits from `--nn-theme-list-bg`.
+| Variable                                               | Default                             | Description                                                                  |
+| ------------------------------------------------------ | ----------------------------------- | ---------------------------------------------------------------------------- |
+| `--nn-theme-mobile-nav-bg`                             | `var(--background-primary)`         | Background color of navigation pane on mobile (by default, both panes match) |
+| `--nn-theme-mobile-list-header-link-color`             | `var(--link-color)`                 | Color for back button and clickable breadcrumb segments on mobile            |
+| `--nn-theme-mobile-list-header-breadcrumb-color`       | `var(--text-normal)`                | Color for current folder and separators in breadcrumb on mobile              |
+| `--nn-theme-mobile-list-header-breadcrumb-font-weight` | `600`                               | Font weight for mobile breadcrumb                                            |
+| `--nn-theme-mobile-toolbar-bg`                         | `var(--background-secondary)`       | Background color of the mobile toolbar                                       |
+| `--nn-theme-mobile-toolbar-border-color`               | `var(--background-modifier-border)` | Border color of the mobile toolbar                                           |
+| `--nn-theme-mobile-toolbar-button-icon-color`          | `var(--link-color)`                 | Icon color for toolbar buttons                                               |
+| `--nn-theme-mobile-toolbar-button-active-bg`           | `var(--background-modifier-hover)`  | Background color for active toolbar button                                   |
+| `--nn-theme-mobile-toolbar-button-active-icon-color`   | `var(--link-color)`                 | Icon color for active toolbar button                                         |
 
 ## Complete Theme Example
 
