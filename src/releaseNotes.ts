@@ -72,22 +72,21 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.5.2',
-        date: '2025-10-03',
+        date: '2025-10-05',
         new: [
             '==Two new style settings: File name font weight and Custom color file name font weight==. You can now change the font weight of files in Shortcuts and Recent files.',
-            '**Separate mobile homepage**: You can now configure a different homepage for mobile devices.',
-            '**Read file icon and file color from frontmatter**: File icons and colors can now be read from frontmatter metadata.',
+            '==New setting: Separate mobile homepage==. You can now configure a different homepage for mobile devices.',
+            '==Read file icon and file color from frontmatter==. File icons and colors can now be read from frontmatter metadata.',
             '**Write file icon and file color to frontmatter**: You can now save file icons and colors to frontmatter instead of settings.',
-            '**Migrate from settings to frontmatter**: Migration tool to move all file colors and file icons from plugin settings to frontmatter.'
+            '**Migrate from settings to frontmatter**: Migration tool to move all file colors and file icons from plugin settings to frontmatter.',
+            'Notebook Navigator is now translated to **traditional Chinese** (繁體中文) thanks to @emisjerry!'
         ],
         improved: [
-            'File color now applies to both the file icon and file name (previously only icon). You can now also apply file color without having an icon set.'
+            'File color now applies to both the file icon and file name (previously it only applied to the icon). You can now also apply file color without having an icon set.',
+            'The parent folder icon in file list now shows the actual parent folder icon instead of a generic folder icon.'
         ],
         changed: [
-            '**Settings page reorganized into tabs**: Settings are now organized into General, Navigation pane, Folders & Tags, List pane, Notes, Icon packs, Search & Hotkeys, and Advanced tabs for easier navigation.'
-        ],
-        fixed: [
-            'Fixed an issue where parent folder icon in file list only showed generic folder icon and not the actual parent folder icon.'
+            '**Settings are now reorganized into tabs**: Settings are now organized into tabs for easier navigation.'
         ]
     },
     {
