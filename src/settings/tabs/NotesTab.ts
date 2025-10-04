@@ -16,15 +16,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Notice, Setting, ButtonComponent } from 'obsidian';
+import { Notice, Setting, ButtonComponent, App, TAbstractFile, TFile } from 'obsidian';
 import { strings } from '../../i18n';
 import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
 
+function isMarkdownFile(file: TAbstractFile | null): file is TFile {
+    return file instanceof TFile && file.extension === 'md';
+}
+
+function countMarkdownMetadataEntries(records: Record<string, string> | undefined, app: App): number {
+    if (!records) {
+        return 0;
+    }
+
+    let count = 0;
+    for (const path of Object.keys(records)) {
+        const file = app.vault.getAbstractFileByPath(path);
+        if (isMarkdownFile(file)) {
+            count += 1;
+        }
+    }
+    return count;
+}
+
 /** Renders the notes settings tab */
 export function renderNotesTab(context: SettingsTabContext): void {
     const {
+        app,
         containerEl,
         plugin,
         createDebouncedTextSetting,
@@ -138,8 +158,8 @@ export function renderNotesTab(context: SettingsTabContext): void {
         const descriptionEl = migrationSetting.descEl;
         descriptionEl.empty();
 
-        const iconsBefore = Object.keys(plugin.settings.fileIcons).length;
-        const colorsBefore = Object.keys(plugin.settings.fileColors).length;
+        const iconsBefore = countMarkdownMetadataEntries(plugin.settings.fileIcons, app);
+        const colorsBefore = countMarkdownMetadataEntries(plugin.settings.fileColors, app);
         const noMigrationsPending = iconsBefore === 0 && colorsBefore === 0;
 
         const descriptionText = strings.settings.items.frontmatterMigration.desc
