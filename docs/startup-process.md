@@ -78,7 +78,6 @@ Both version changes result in a cold boot to ensure data consistency.
 
 **Trigger**: Obsidian calls Plugin.onload() when enabling the plugin
 
-```
 1. Plugin.onload() called by Obsidian
 2. Initialize database early via initializeDatabase(appId)
    - Database is ready for all consumers from the start
@@ -96,13 +95,11 @@ Both version changes result in a cold boot to ensure data consistency.
 7. Add ribbon icon
 8. Wait for workspace.onLayoutReady()
    - When ready, calls activateView() if no navigator exists
-```
 
 ### Phase 2: View Creation (NotebookNavigatorView.tsx)
 
 **Trigger**: activateView() creates the view via workspace.getLeaf()
 
-```
 1. Obsidian calls onOpen() when view is created
 2. React app mounted with context providers:
    - SettingsProvider (user preferences)
@@ -119,13 +116,11 @@ Both version changes result in a cold boot to ensure data consistency.
    - Desktop: NavigationPaneHeader and ListPaneHeader at top of panes
    - Mobile: NavigationToolbar and ListToolbar at bottom of panes
    - Touch optimizations and swipe gestures enabled on mobile
-```
 
 ### Phase 3: Database Version Check and Initialization
 
 **Trigger**: Database already initialized by Plugin.onload() in Phase 1
 
-```
 1. StorageContext useEffect checks database availability
    - Calls getDBInstance() to verify database is ready
    - Sets isIndexedDBReady state based on availability
@@ -134,17 +129,15 @@ Both version changes result in a cold boot to ensure data consistency.
    - Check stored versions in localStorage
    - Compare DB_SCHEMA_VERSION and DB_CONTENT_VERSION
    - Determine boot type:
-     * No stored versions → First install → Cold boot
-     * Schema change → Delete database → Cold boot
-     * Content change → Clear data → Cold boot
-     * Versions match → Warm boot
+     - No stored versions → First install → Cold boot
+     - Schema change → Delete database → Cold boot
+     - Content change → Clear data → Cold boot
+     - Versions match → Warm boot
 4. Store current versions in localStorage
 5. Open/create database based on boot type
-```
 
 #### Cold Boot Path (database empty or cleared):
 
-```
 1. Create new database or clear existing data
 2. Initialize empty MemoryFileCache
 3. Initialize content provider registry:
@@ -153,16 +146,13 @@ Both version changes result in a cold boot to ensure data consistency.
    - MetadataContentProvider
    - TagContentProvider
 4. Continue to Phase 4 with empty database
-```
 
 #### Warm Boot Path (database has existing data):
 
-```
 1. Open existing database
 2. Load all existing data into MemoryFileCache
 3. Initialize content provider registry (same providers as cold boot)
 4. Continue to Phase 4 with cached data
-```
 
 ### Phase 4: Initial Data Load and Metadata Resolution
 
@@ -173,7 +163,6 @@ tag extraction:
 
 #### Shared Initial Steps:
 
-```
 1. StorageContext: Begin processing (processExistingCache)
    - Cold boot: isInitialLoad=true (synchronous)
    - Warm boot: isInitialLoad=false (queued via deferred scheduling)
@@ -181,11 +170,9 @@ tag extraction:
 3. Calculate diff via diffCalculator
    - Cold boot: All files appear as new (database is empty)
    - Warm boot: Compare against cached data to find changes
-```
 
 #### Cold Boot Specific:
 
-```
 4. Record all files in IndexedDB with basic metadata only
    - Store path and mtime (modification time)
    - Set content fields to null (tags, preview, featureImage, metadata)
@@ -194,11 +181,9 @@ tag extraction:
    - Updates the empty memory cache with the new file records
 6. Build empty tag tree via TagTreeBuilder
    - Creates the tree structure but with no tags since none are extracted yet
-```
 
 #### Warm Boot Specific:
 
-```
 4. Update IndexedDB based on diff results:
    - Add new files with null content fields (recordFileChanges)
    - Don't update entries for modified files (keeps old mtime in database)
@@ -208,11 +193,9 @@ tag extraction:
    - Cache already loaded in Phase 3, just sync changes
 6. Rebuild tag tree only if files were deleted
    - Otherwise use existing tree from memory cache
-```
 
 #### Shared Final Steps:
 
-```
 7. Mark storage as ready (setIsStorageReady(true))
    - Cold boot: UI can now render with files visible but no content
    - Warm boot: UI renders immediately with cached content
@@ -231,7 +214,6 @@ tag extraction:
 10. Begin background processing (see Phase 5)
     - Cold boot: All files need content generation
     - Warm boot: Only changed files and files with null content fields
-```
 
 #### Data Flow Diagram
 
@@ -382,7 +364,6 @@ across vault events and UI updates to coalesce rapid event bursts and avoid redu
 
 **Trigger**: Obsidian calls Plugin.onunload() when disabling the plugin
 
-```
 1. Set isUnloading flag to prevent new operations
 2. Clear all listener maps:
    - Settings update listeners
@@ -401,13 +382,11 @@ across vault events and UI updates to coalesce rapid event bursts and avoid redu
    - Clear memory cache
    - Reset singleton instances
    - Idempotent operation safe for multiple calls
-```
 
 ### Phase 2: View Cleanup (NotebookNavigatorView.tsx)
 
 **Trigger**: View.onClose() when view is destroyed
 
-```
 1. Remove CSS classes from container:
    - notebook-navigator
    - notebook-navigator-mobile (if applicable)
@@ -418,7 +397,6 @@ across vault events and UI updates to coalesce rapid event bursts and avoid redu
    - Stop all content processing in ContentProviderRegistry
    - Cancel any pending timers
    - Prevent setState calls after unmount
-```
 
 ### Key Principles
 
