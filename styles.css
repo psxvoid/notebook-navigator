@@ -1278,6 +1278,26 @@ body {
     min-width: 0;
 }
 
+.nn-file-name-row {
+    display: flex;
+    align-items: center;
+}
+
+.nn-file-name-row .nn-file-name {
+    flex: 1;
+    min-width: 0;
+}
+
+.nn-file-external-icon {
+    margin-inline-end: 4px;
+}
+
+.nn-file-external-icon svg,
+.nn-slim-file-type-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
 .nn-file-icon {
     width: var(--nn-nav-icon-size);
     height: var(--nn-nav-icon-size);
@@ -1562,6 +1582,17 @@ body {
     font-weight: var(--nn-theme-file-slim-name-font-weight);
     margin-bottom: 0;
     line-height: var(--nn-file-title-line-height);
+}
+
+.nn-slim-file-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nn-slim-file-header .nn-file-name-wrapper {
+    flex: 1;
+    min-width: 0;
 }
 
 /* Selected slim file - maintain selection styles */

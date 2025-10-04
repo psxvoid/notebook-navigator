@@ -60,7 +60,7 @@ import { strings } from '../i18n';
 import { SortOption } from '../settings';
 import { ItemType } from '../types';
 import { DateUtils } from '../utils/dateUtils';
-import { getExtensionSuffix, isImageFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
+import { FILE_VISIBILITY, getExtensionSuffix, isImageFile, shouldDisplayFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
@@ -310,6 +310,8 @@ export const FileItem = React.memo(function FileItem({
     const pinNoteIconRef = useRef<HTMLDivElement>(null);
     const openInNewTabIconRef = useRef<HTMLDivElement>(null);
     const fileIconRef = useRef<HTMLSpanElement>(null);
+    const fileExternalIconRef = useRef<HTMLSpanElement>(null);
+    const slimModeIconRef = useRef<HTMLSpanElement>(null);
 
     // === Derived State & Memoized Values ===
 
@@ -360,6 +362,23 @@ export const FileItem = React.memo(function FileItem({
         return 'lucide-file';
     }, [fileIconId, fileExtension, isImageDocument]);
 
+    const isExternalFile = useMemo(() => {
+        return !shouldDisplayFile(file, FILE_VISIBILITY.SUPPORTED, app);
+    }, [app, file]);
+
+    const slimModeTypeIconId = useMemo(() => {
+        if (fileExtension === 'base') {
+            return 'lucide-database';
+        }
+        if (fileExtension === 'canvas') {
+            return 'lucide-layout-grid';
+        }
+        if (isExternalFile) {
+            return 'lucide-external-link';
+        }
+        return null;
+    }, [fileExtension, isExternalFile]);
+
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
     const isMultiRowTitle = appearanceSettings.titleRows > 1;
@@ -380,18 +399,29 @@ export const FileItem = React.memo(function FileItem({
                     />
                 ) : null}
                 <div className="nn-file-name-content">
-                    <div
-                        className="nn-file-name"
-                        data-has-color={fileColor ? 'true' : 'false'}
-                        style={
-                            {
-                                '--filename-rows': appearanceSettings.titleRows,
-                                ...(fileColor ? { '--nn-file-name-custom-color': fileColor } : {})
-                            } as React.CSSProperties
-                        }
-                    >
-                        {highlightedName}
-                        {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
+                    <div className="nn-file-name-row">
+                        {!isSlimMode && isExternalFile ? (
+                            <span
+                                className="nn-file-icon nn-file-external-icon"
+                                ref={fileExternalIconRef}
+                                aria-hidden="true"
+                                data-has-color={fileColor ? 'true' : 'false'}
+                                style={fileColor ? { color: fileColor } : undefined}
+                            />
+                        ) : null}
+                        <div
+                            className="nn-file-name"
+                            data-has-color={fileColor ? 'true' : 'false'}
+                            style={
+                                {
+                                    '--filename-rows': appearanceSettings.titleRows,
+                                    ...(fileColor ? { '--nn-file-name-custom-color': fileColor } : {})
+                                } as React.CSSProperties
+                            }
+                        >
+                            {highlightedName}
+                            {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -402,6 +432,8 @@ export const FileItem = React.memo(function FileItem({
         fileColor,
         fileIconId,
         highlightedName,
+        isExternalFile,
+        isSlimMode,
         isMultiRowTitle,
         settings.showIcons,
         showExtensionSuffix
@@ -769,7 +801,35 @@ export const FileItem = React.memo(function FileItem({
 
         const iconService = getIconService();
         iconService.renderIcon(iconContainer, fileIconId);
-    }, [fileIconId, iconServiceVersion, settings.showIcons]);
+    }, [fileIconId, iconServiceVersion, isSlimMode, settings.showIcons]);
+
+    useEffect(() => {
+        const indicator = fileExternalIconRef.current;
+        if (!indicator) {
+            return;
+        }
+
+        indicator.innerHTML = '';
+        if (isSlimMode || !isExternalFile) {
+            return;
+        }
+
+        setIcon(indicator, 'lucide-external-link');
+    }, [iconServiceVersion, isExternalFile, isSlimMode]);
+
+    useEffect(() => {
+        const indicator = slimModeIconRef.current;
+        if (!indicator) {
+            return;
+        }
+
+        indicator.innerHTML = '';
+        if (!isSlimMode || !slimModeTypeIconId) {
+            return;
+        }
+
+        setIcon(indicator, slimModeTypeIconId);
+    }, [iconServiceVersion, isSlimMode, slimModeTypeIconId]);
 
     // Set up the icons when quick actions panel is shown
     useEffect(() => {
@@ -864,7 +924,17 @@ export const FileItem = React.memo(function FileItem({
                         // Minimal layout: only file name + tags
                         // Used when date, preview, and image are all disabled
                         <div className="nn-slim-file-text-content">
-                            {fileTitleElement}
+                            <div className="nn-slim-file-header">
+                                {fileTitleElement}
+                                {slimModeTypeIconId ? (
+                                    <span
+                                        ref={slimModeIconRef}
+                                        className="nn-file-icon nn-slim-file-type-icon"
+                                        aria-hidden="true"
+                                        data-has-color="false"
+                                    />
+                                ) : null}
+                            </div>
                             {renderTags()}
                         </div>
                     ) : (

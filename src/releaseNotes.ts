@@ -83,7 +83,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         improved: [
             'File color now applies to both the file icon and file name (previously it only applied to the icon). You can now also apply file color without having an icon set.',
-            'The parent folder icon in file list now shows the actual parent folder icon instead of a generic folder icon.'
+            'The parent folder icon in file list now shows the actual parent folder icon instead of a generic folder icon.',
+            'Canvas and Base files are now clearly marked with icons in the slim file list style. External files are also now clearly marked with a shortcut icon.',
         ],
         changed: ['**Settings are now reorganized into tabs**: Settings are now organized into tabs for easier navigation.']
     },
