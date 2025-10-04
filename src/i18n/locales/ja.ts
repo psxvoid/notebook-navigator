@@ -469,6 +469,26 @@ export const STRINGS_JA = {
             hotkeys: 'ホットキー',
             advanced: '詳細設定'
         },
+        groups: {
+            general: {
+                view: '表示',
+                behavior: '動作',
+                filtering: 'フィルター',
+                formatting: '書式'
+            },
+            navigation: {
+                behavior: '動作',
+                appearance: '外観'
+            },
+            list: {
+                display: '表示とグループ化',
+                quickActions: 'クイック操作'
+            },
+            notes: {
+                frontmatter: 'フロントマター',
+                display: '表示とプレビュー'
+            }
+        },
         items: {
             searchProvider: {
                 name: '検索プロバイダー',
@@ -927,7 +947,8 @@ export const STRINGS_JA = {
             supportDevelopment: {
                 name: '開発をサポート',
                 desc: 'ノートブックナビゲーターを愛用していただいている場合は、継続的な開発をサポートすることをご検討ください。',
-                buttonText: '❤️ GitHubでスポンサーになる'
+                buttonText: '❤️ スポンサーになる',
+                coffeeButton: '☕️ コーヒーをおごる'
             },
             whatsNew: {
                 name: '新着情報',

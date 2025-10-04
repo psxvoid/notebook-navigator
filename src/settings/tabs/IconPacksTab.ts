@@ -26,8 +26,6 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
     const { containerEl, plugin } = context;
     containerEl.empty();
 
-    new Setting(containerEl).setName(strings.settings.sections.icons).setHeading();
-
     const providerLinks: Record<ExternalIconProviderId, string> = {
         'bootstrap-icons': strings.settings.items.externalIcons.providers.bootstrapIconsDesc,
         'fontawesome-regular': strings.settings.items.externalIcons.providers.fontAwesomeDesc,

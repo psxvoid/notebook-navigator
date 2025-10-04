@@ -469,6 +469,26 @@ export const STRINGS_ZH = {
             hotkeys: '快捷键',
             advanced: '高级'
         },
+        groups: {
+            general: {
+                view: '视图',
+                behavior: '行为',
+                filtering: '过滤',
+                formatting: '格式'
+            },
+            navigation: {
+                behavior: '行为',
+                appearance: '外观'
+            },
+            list: {
+                display: '显示与分组',
+                quickActions: '快捷操作'
+            },
+            notes: {
+                frontmatter: '前置元数据',
+                display: '显示与预览'
+            }
+        },
         items: {
             searchProvider: {
                 name: '搜索提供器',
@@ -926,7 +946,8 @@ export const STRINGS_ZH = {
             supportDevelopment: {
                 name: '支持开发',
                 desc: '如果您喜欢使用笔记本导航器，请考虑支持其持续开发。',
-                buttonText: '❤️ 在 GitHub 上赞助'
+                buttonText: '❤️ 赞助',
+                coffeeButton: '☕️ 请我喝咖啡'
             },
             whatsNew: {
                 name: '最新动态',

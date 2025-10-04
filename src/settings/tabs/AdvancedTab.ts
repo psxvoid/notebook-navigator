@@ -25,8 +25,6 @@ import type { SettingsTabContext } from './SettingsTabContext';
 export function renderAdvancedTab(context: SettingsTabContext): void {
     const { containerEl, plugin, registerStatsTextElement, requestStatisticsRefresh, ensureStatisticsInterval } = context;
 
-    new Setting(containerEl).setName(strings.settings.sections.advanced).setHeading();
-
     new Setting(containerEl)
         .setName(strings.settings.items.confirmBeforeDelete.name)
         .setDesc(strings.settings.items.confirmBeforeDelete.desc)
@@ -124,34 +122,6 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
                 }
             })
         );
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.whatsNew.name)
-        .setDesc(strings.settings.items.whatsNew.desc)
-        .addButton(button =>
-            button.setButtonText(strings.settings.items.whatsNew.buttonText).onClick(async () => {
-                const { WhatsNewModal } = await import('../../modals/WhatsNewModal');
-                const { getLatestReleaseNotes } = await import('../../releaseNotes');
-                const latestNotes = getLatestReleaseNotes();
-                new WhatsNewModal(context.app, latestNotes, plugin.settings.dateFormat).open();
-            })
-        );
-
-    const supportSetting = new Setting(containerEl)
-        .setName(strings.settings.items.supportDevelopment.name)
-        .setDesc(strings.settings.items.supportDevelopment.desc);
-
-    supportSetting.addButton(button => {
-        button.setButtonText('☕️ Buy me a coffee').onClick(() => window.open('https://buymeacoffee.com/johansan'));
-        button.buttonEl.addClass('nn-support-button');
-    });
-
-    supportSetting.addButton(button => {
-        button
-            .setButtonText(strings.settings.items.supportDevelopment.buttonText)
-            .onClick(() => window.open('https://github.com/sponsors/johansan/'));
-        button.buttonEl.addClass('nn-support-button');
-    });
 
     const statsContainer = containerEl.createDiv('nn-database-stats');
     statsContainer.addClass('setting-item');

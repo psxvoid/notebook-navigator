@@ -469,6 +469,26 @@ export const STRINGS_ES = {
             hotkeys: 'Atajos de teclado',
             advanced: 'Avanzado'
         },
+        groups: {
+            general: {
+                view: 'Vista',
+                behavior: 'Comportamiento',
+                filtering: 'Filtrado',
+                formatting: 'Formato'
+            },
+            navigation: {
+                behavior: 'Comportamiento',
+                appearance: 'Apariencia'
+            },
+            list: {
+                display: 'Visualización y agrupación',
+                quickActions: 'Acciones rápidas'
+            },
+            notes: {
+                frontmatter: 'Frontmatter',
+                display: 'Visualización y vista previa'
+            }
+        },
         items: {
             searchProvider: {
                 name: 'Proveedor de búsqueda',
@@ -926,7 +946,8 @@ export const STRINGS_ES = {
             supportDevelopment: {
                 name: 'Apoyar el desarrollo',
                 desc: 'Si te encanta usar el Navegador de Cuadernos, considera apoyar su desarrollo continuo.',
-                buttonText: '❤️ Patrocinar en GitHub'
+                buttonText: '❤️ Patrocinar',
+                coffeeButton: '☕️ Invítame un café'
             },
             whatsNew: {
                 name: 'Novedades',

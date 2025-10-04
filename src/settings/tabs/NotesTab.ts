@@ -33,7 +33,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
         registerShowTagsListener
     } = context;
 
-    new Setting(containerEl).setName(strings.settings.sections.notes).setHeading();
+    new Setting(containerEl).setName(strings.settings.groups.notes.frontmatter).setHeading();
 
     new Setting(containerEl)
         .setName(strings.settings.items.useFrontmatterDates.name)
@@ -199,6 +199,8 @@ export function renderNotesTab(context: SettingsTabContext): void {
         cls: 'setting-item-description'
     });
     registerMetadataInfoElement(metadataInfoEl);
+
+    new Setting(containerEl).setName(strings.settings.groups.notes.display).setHeading();
 
     new Setting(containerEl)
         .setName(strings.settings.items.fileNameRows.name)

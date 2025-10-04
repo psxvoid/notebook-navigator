@@ -468,6 +468,26 @@ export const STRINGS_EN = {
             hotkeys: 'Hotkeys',
             advanced: 'Advanced'
         },
+        groups: {
+            general: {
+                view: 'View',
+                behavior: 'Behavior',
+                filtering: 'Filtering',
+                formatting: 'Formatting'
+            },
+            navigation: {
+                behavior: 'Behavior',
+                appearance: 'Appearance'
+            },
+            list: {
+                display: 'Display & grouping',
+                quickActions: 'Quick actions'
+            },
+            notes: {
+                frontmatter: 'Frontmatter',
+                display: 'Display & preview'
+            }
+        },
         items: {
             searchProvider: {
                 name: 'Search provider',
@@ -925,7 +945,8 @@ export const STRINGS_EN = {
             supportDevelopment: {
                 name: 'Support development',
                 desc: 'If you love using Notebook Navigator, please consider supporting its continued development.',
-                buttonText: '❤️ Sponsor on GitHub'
+                buttonText: '❤️ Sponsor',
+                coffeeButton: '☕️ Buy me a coffee'
             },
             whatsNew: {
                 name: "What's new",

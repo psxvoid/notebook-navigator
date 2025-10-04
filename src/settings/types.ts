@@ -41,17 +41,24 @@ export type ListPaneTitleOption = 'header' | 'list' | 'hidden';
  * Settings are organized by tab for easier maintenance
  */
 export interface NotebookNavigatorSettings {
-    // General tab
-    autoRevealActiveFile: boolean;
-    autoRevealIgnoreRightSidebar: boolean;
+    // General tab - View
+    startView: 'navigation' | 'files';
     showTooltips: boolean;
     homepage: string | null;
     mobileHomepage: string | null;
     useMobileHomepage: boolean;
-    startView: 'navigation' | 'files';
+
+    // General tab - Behavior
+    autoRevealActiveFile: boolean;
+    autoRevealIgnoreRightSidebar: boolean;
+    autoSelectFirstFileOnFocusChange: boolean;
+
+    // General tab - Filtering
     fileVisibility: FileVisibility;
     excludedFolders: string[];
     excludedFiles: string[];
+
+    // General tab - Formatting
     dateFormat: string;
     timeFormat: string;
 
@@ -60,7 +67,6 @@ export interface NotebookNavigatorSettings {
     showShortcuts: boolean;
     showRecentNotes: boolean;
     recentNotesCount: number;
-    autoSelectFirstFileOnFocusChange: boolean;
     autoExpandFoldersTags: boolean;
     collapseBehavior: ItemScope;
     smartCollapse: boolean;

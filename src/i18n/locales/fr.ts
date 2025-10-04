@@ -469,6 +469,26 @@ export const STRINGS_FR = {
             hotkeys: 'Raccourcis clavier',
             advanced: 'Avancé'
         },
+        groups: {
+            general: {
+                view: 'Vue',
+                behavior: 'Comportement',
+                filtering: 'Filtrage',
+                formatting: 'Formatage'
+            },
+            navigation: {
+                behavior: 'Comportement',
+                appearance: 'Apparence'
+            },
+            list: {
+                display: 'Affichage et regroupement',
+                quickActions: 'Actions rapides'
+            },
+            notes: {
+                frontmatter: 'Frontmatter',
+                display: 'Affichage et aperçu'
+            }
+        },
         items: {
             searchProvider: {
                 name: 'Fournisseur de recherche',
@@ -928,7 +948,8 @@ export const STRINGS_FR = {
             supportDevelopment: {
                 name: 'Soutenir le développement',
                 desc: 'Si vous aimez utiliser le Navigateur de Carnets, veuillez envisager de soutenir son développement continu.',
-                buttonText: '❤️ Sponsoriser sur GitHub'
+                buttonText: '❤️ Sponsoriser',
+                coffeeButton: '☕️ Offrez-moi un café'
             },
             whatsNew: {
                 name: 'Nouveautés',

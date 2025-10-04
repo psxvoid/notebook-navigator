@@ -468,6 +468,26 @@ export const STRINGS_KO = {
             hotkeys: '단축키',
             advanced: '고급'
         },
+        groups: {
+            general: {
+                view: '보기',
+                behavior: '동작',
+                filtering: '필터링',
+                formatting: '서식'
+            },
+            navigation: {
+                behavior: '동작',
+                appearance: '모양'
+            },
+            list: {
+                display: '표시 및 그룹화',
+                quickActions: '빠른 작업'
+            },
+            notes: {
+                frontmatter: '프런트매터',
+                display: '표시 및 미리 보기'
+            }
+        },
         items: {
             searchProvider: {
                 name: '검색 제공자',
@@ -925,7 +945,8 @@ export const STRINGS_KO = {
             supportDevelopment: {
                 name: '개발 지원',
                 desc: 'Notebook Navigator를 사용하는 것을 좋아하신다면 지속적인 개발을 지원해 주시기 바랍니다.',
-                buttonText: '❤️ GitHub에서 후원'
+                buttonText: '❤️ 후원하기',
+                coffeeButton: '☕️ 커피 한 잔 사주기'
             },
             whatsNew: {
                 name: '새로운 기능',

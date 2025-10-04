@@ -25,8 +25,6 @@ import type { SettingsTabContext } from './SettingsTabContext';
 export function renderListPaneTab(context: SettingsTabContext): void {
     const { containerEl, plugin } = context;
 
-    new Setting(containerEl).setName(strings.settings.sections.listPane).setHeading();
-
     if (!Platform.isMobile) {
         new Setting(containerEl)
             .setName(strings.settings.items.listPaneTitle.name)
@@ -76,6 +74,8 @@ export function renderListPaneTab(context: SettingsTabContext): void {
                 })
         );
 
+    new Setting(containerEl).setName(strings.settings.groups.list.display).setHeading();
+
     new Setting(containerEl)
         .setName(strings.settings.items.includeDescendantNotes.name)
         .setDesc(strings.settings.items.includeDescendantNotes.desc)
@@ -107,6 +107,8 @@ export function renderListPaneTab(context: SettingsTabContext): void {
         );
 
     if (!Platform.isMobile) {
+        new Setting(containerEl).setName(strings.settings.groups.list.quickActions).setHeading();
+
         new Setting(containerEl)
             .setName(strings.settings.items.showQuickActions.name)
             .setDesc(strings.settings.items.showQuickActions.desc)

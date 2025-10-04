@@ -470,6 +470,26 @@ export const STRINGS_PL = {
             hotkeys: 'Skróty klawiszowe',
             advanced: 'Zaawansowane'
         },
+        groups: {
+            general: {
+                view: 'Widok',
+                behavior: 'Zachowanie',
+                filtering: 'Filtrowanie',
+                formatting: 'Formatowanie'
+            },
+            navigation: {
+                behavior: 'Zachowanie',
+                appearance: 'Wygląd'
+            },
+            list: {
+                display: 'Wyświetlanie i grupowanie',
+                quickActions: 'Szybkie akcje'
+            },
+            notes: {
+                frontmatter: 'Frontmatter',
+                display: 'Wyświetlanie i podgląd'
+            }
+        },
         items: {
             searchProvider: {
                 name: 'Dostawca wyszukiwania',
@@ -927,7 +947,8 @@ export const STRINGS_PL = {
             supportDevelopment: {
                 name: 'Wspieraj rozwój',
                 desc: 'Jeśli uwielbiasz używać Notebook Navigator, rozważ wsparcie jego dalszego rozwoju.',
-                buttonText: '❤️ Sponsoruj na GitHub'
+                buttonText: '❤️ Sponsoruj',
+                coffeeButton: '☕️ Postaw kawę'
             },
             whatsNew: {
                 name: 'Co nowego',

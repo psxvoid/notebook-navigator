@@ -471,6 +471,26 @@ export const STRINGS_DE = {
             hotkeys: 'Tastenkürzel',
             advanced: 'Erweitert'
         },
+        groups: {
+            general: {
+                view: 'Ansicht',
+                behavior: 'Verhalten',
+                filtering: 'Filterung',
+                formatting: 'Formatierung'
+            },
+            navigation: {
+                behavior: 'Verhalten',
+                appearance: 'Darstellung'
+            },
+            list: {
+                display: 'Anzeige & Gruppierung',
+                quickActions: 'Schnellaktionen'
+            },
+            notes: {
+                frontmatter: 'Frontmatter',
+                display: 'Anzeige & Vorschau'
+            }
+        },
         items: {
             searchProvider: {
                 name: 'Suchanbieter',
@@ -929,7 +949,8 @@ export const STRINGS_DE = {
             supportDevelopment: {
                 name: 'Entwicklung unterstützen',
                 desc: 'Wenn Sie Notebook Navigator lieben, erwägen Sie bitte, die weitere Entwicklung zu unterstützen.',
-                buttonText: '❤️ Auf GitHub sponsern'
+                buttonText: '❤️ Sponsor',
+                coffeeButton: '☕️ Spendiere mir einen Kaffee'
             },
             whatsNew: {
                 name: 'Neuigkeiten',

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, Platform, Setting, SliderComponent } from 'obsidian';
+import { ButtonComponent, Setting, SliderComponent } from 'obsidian';
 import { strings } from '../../i18n';
 import { NavigationBannerModal } from '../../modals/NavigationBannerModal';
 import { DEFAULT_SETTINGS } from '../defaultSettings';
@@ -26,8 +26,6 @@ import type { SettingsTabContext } from './SettingsTabContext';
 /** Renders the navigation pane settings tab */
 export function renderNavigationPaneTab(context: SettingsTabContext): void {
     const { containerEl, plugin } = context;
-
-    new Setting(containerEl).setName(strings.settings.sections.navigationPane).setHeading();
 
     const navigationBannerSetting = new Setting(containerEl).setName(strings.settings.items.navigationBanner.name);
     navigationBannerSetting.setDesc('');
@@ -128,17 +126,7 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
 
     updateRecentNotesVisibility(plugin.settings.showRecentNotes);
 
-    if (!Platform.isMobile) {
-        new Setting(containerEl)
-            .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
-            .setDesc(strings.settings.items.autoSelectFirstFileOnFocusChange.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.settings.autoSelectFirstFileOnFocusChange).onChange(async value => {
-                    plugin.settings.autoSelectFirstFileOnFocusChange = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-            );
-    }
+    new Setting(containerEl).setName(strings.settings.groups.navigation.behavior).setHeading();
 
     new Setting(containerEl)
         .setName(strings.settings.items.autoExpandFoldersTags.name)
@@ -174,6 +162,8 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
                 await plugin.saveSettingsAndUpdate();
             })
         );
+
+    new Setting(containerEl).setName(strings.settings.groups.navigation.appearance).setHeading();
 
     new Setting(containerEl)
         .setName(strings.settings.items.showIcons.name)

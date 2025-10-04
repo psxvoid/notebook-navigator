@@ -27,7 +27,37 @@ import type { SettingsTabContext } from './SettingsTabContext';
 export function renderGeneralTab(context: SettingsTabContext): void {
     const { containerEl, plugin, createDebouncedTextSetting } = context;
 
-    new Setting(containerEl).setName(strings.settings.sections.general).setHeading();
+    new Setting(containerEl)
+        .setName(strings.settings.items.whatsNew.name)
+        .setDesc(strings.settings.items.whatsNew.desc)
+        .addButton(button =>
+            button.setButtonText(strings.settings.items.whatsNew.buttonText).onClick(async () => {
+                const { WhatsNewModal } = await import('../../modals/WhatsNewModal');
+                const { getLatestReleaseNotes } = await import('../../releaseNotes');
+                const latestNotes = getLatestReleaseNotes();
+                new WhatsNewModal(context.app, latestNotes, plugin.settings.dateFormat).open();
+            })
+        );
+
+    const supportSetting = new Setting(containerEl)
+        .setName(strings.settings.items.supportDevelopment.name)
+        .setDesc(strings.settings.items.supportDevelopment.desc);
+
+    supportSetting.addButton(button => {
+        button
+            .setButtonText(strings.settings.items.supportDevelopment.buttonText)
+            .onClick(() => window.open('https://github.com/sponsors/johansan/'));
+        button.buttonEl.addClass('nn-support-button');
+    });
+
+    supportSetting.addButton(button => {
+        button
+            .setButtonText(strings.settings.items.supportDevelopment.coffeeButton)
+            .onClick(() => window.open('https://buymeacoffee.com/johansan'));
+        button.buttonEl.addClass('nn-support-button');
+    });
+
+    new Setting(containerEl).setName(strings.settings.groups.general.view).setHeading();
 
     new Setting(containerEl)
         .setName(strings.settings.items.startView.name)
@@ -53,42 +83,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             .addToggle(toggle =>
                 toggle.setValue(plugin.useDualPane()).onChange(value => {
                     plugin.setDualPanePreference(value);
-                })
-            );
-    }
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.autoRevealActiveNote.name)
-        .setDesc(strings.settings.items.autoRevealActiveNote.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.autoRevealActiveFile).onChange(async value => {
-                plugin.settings.autoRevealActiveFile = value;
-                await plugin.saveSettingsAndUpdate();
-                autoRevealSettingsEl.toggle(value);
-            })
-        );
-
-    const autoRevealSettingsEl = containerEl.createDiv('nn-sub-settings');
-
-    new Setting(autoRevealSettingsEl)
-        .setName(strings.settings.items.autoRevealIgnoreRightSidebar.name)
-        .setDesc(strings.settings.items.autoRevealIgnoreRightSidebar.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.autoRevealIgnoreRightSidebar).onChange(async value => {
-                plugin.settings.autoRevealIgnoreRightSidebar = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-    autoRevealSettingsEl.toggle(plugin.settings.autoRevealActiveFile);
-
-    if (!Platform.isMobile) {
-        new Setting(containerEl)
-            .setName(strings.settings.items.showTooltips.name)
-            .setDesc(strings.settings.items.showTooltips.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.settings.showTooltips).onChange(async value => {
-                    plugin.settings.showTooltips = value;
-                    await plugin.saveSettingsAndUpdate();
                 })
             );
     }
@@ -174,6 +168,60 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             })
         );
 
+    if (!Platform.isMobile) {
+        new Setting(containerEl)
+            .setName(strings.settings.items.showTooltips.name)
+            .setDesc(strings.settings.items.showTooltips.desc)
+            .addToggle(toggle =>
+                toggle.setValue(plugin.settings.showTooltips).onChange(async value => {
+                    plugin.settings.showTooltips = value;
+                    await plugin.saveSettingsAndUpdate();
+                })
+            );
+    }
+
+    new Setting(containerEl).setName(strings.settings.groups.general.behavior).setHeading();
+
+    const autoRevealSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.autoRevealActiveNote.name)
+        .setDesc(strings.settings.items.autoRevealActiveNote.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.autoRevealActiveFile).onChange(async value => {
+                plugin.settings.autoRevealActiveFile = value;
+                await plugin.saveSettingsAndUpdate();
+                autoRevealSettingsEl.toggle(value);
+            })
+        );
+
+    containerEl.appendChild(autoRevealSettingsEl);
+
+    new Setting(autoRevealSettingsEl)
+        .setName(strings.settings.items.autoRevealIgnoreRightSidebar.name)
+        .setDesc(strings.settings.items.autoRevealIgnoreRightSidebar.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.autoRevealIgnoreRightSidebar).onChange(async value => {
+                plugin.settings.autoRevealIgnoreRightSidebar = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+    autoRevealSettingsEl.toggle(plugin.settings.autoRevealActiveFile);
+
+    if (!Platform.isMobile) {
+        new Setting(containerEl)
+            .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
+            .setDesc(strings.settings.items.autoSelectFirstFileOnFocusChange.desc)
+            .addToggle(toggle =>
+                toggle.setValue(plugin.settings.autoSelectFirstFileOnFocusChange).onChange(async value => {
+                    plugin.settings.autoSelectFirstFileOnFocusChange = value;
+                    await plugin.saveSettingsAndUpdate();
+                })
+            );
+    }
+
+    new Setting(containerEl).setName(strings.settings.groups.general.filtering).setHeading();
+
     new Setting(containerEl)
         .setName(strings.settings.items.fileVisibility.name)
         .setDesc(strings.settings.items.fileVisibility.desc)
@@ -218,6 +266,8 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         }
     );
     excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');
+
+    new Setting(containerEl).setName(strings.settings.groups.general.formatting).setHeading();
 
     const dateFormatSetting = createDebouncedTextSetting(
         containerEl,

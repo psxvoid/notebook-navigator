@@ -27,17 +27,24 @@ import type { NotebookNavigatorSettings } from './types';
  * Used when plugin is first installed or settings are reset
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
-    // General tab
-    autoRevealActiveFile: true,
-    autoRevealIgnoreRightSidebar: true,
+    // General tab - View
+    startView: 'navigation',
     showTooltips: false,
     homepage: null,
     mobileHomepage: null,
     useMobileHomepage: false,
-    startView: 'navigation',
+
+    // General tab - Behavior
+    autoRevealActiveFile: true,
+    autoRevealIgnoreRightSidebar: true,
+    autoSelectFirstFileOnFocusChange: false,
+
+    // General tab - Filtering
     fileVisibility: FILE_VISIBILITY.DOCUMENTS,
     excludedFolders: [],
     excludedFiles: [],
+
+    // General tab - Formatting
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
 
@@ -46,7 +53,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showShortcuts: true,
     showRecentNotes: true,
     recentNotesCount: 5,
-    autoSelectFirstFileOnFocusChange: false,
     autoExpandFoldersTags: false,
     collapseBehavior: 'all',
     smartCollapse: true,
