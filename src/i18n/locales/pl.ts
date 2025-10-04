@@ -793,8 +793,8 @@ export const STRINGS_PL = {
                 desc: 'Wyświetl sekcję tagów przed folderami w nawigatorze.'
             },
             showFavoriteTagsFolder: {
-                name: 'Pokaż folder ulubionych',
-                desc: 'Wyświetl "Ulubione" jako zwijalny folder gdy ulubione tagi są skonfigurowane.'
+                name: 'Pokaż folder ulubionych tagów',
+                desc: 'Wyświetl "Ulubione tagi" jako zwijalny folder gdy ulubione tagi są skonfigurowane.'
             },
             showAllTagsFolder: {
                 name: 'Pokaż folder tagów',
@@ -805,8 +805,8 @@ export const STRINGS_PL = {
                 desc: 'Wyświetl element "Bez tagów" dla notatek bez żadnych tagów.'
             },
             showUntaggedInFavorites: {
-                name: 'Pokaż notatki bez tagów w sekcji ulubionych',
-                desc: 'Wyświetl notatki bez tagów w sekcji ulubionych, wewnątrz folderu lub bezpośrednio pod ulubionymi.'
+                name: 'Pokaż notatki bez tagów w sekcji ulubionych tagów',
+                desc: 'Wyświetl notatki bez tagów w sekcji ulubionych tagów, wewnątrz folderu lub bezpośrednio pod ulubionymi tagami.'
             },
             favoriteTags: {
                 name: 'Ulubione tagi',

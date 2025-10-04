@@ -794,8 +794,8 @@ export const STRINGS_FR = {
                 desc: 'Afficher la section des étiquettes avant les dossiers dans le navigateur.'
             },
             showFavoriteTagsFolder: {
-                name: 'Afficher le dossier des favoris',
-                desc: 'Afficher "Favoris" comme un dossier repliable lorsque des étiquettes favorites sont configurées.'
+                name: 'Afficher le dossier des étiquettes favorites',
+                desc: 'Afficher "Étiquettes favorites" comme un dossier repliable lorsque des étiquettes favorites sont configurées.'
             },
             showAllTagsFolder: {
                 name: 'Afficher le dossier des étiquettes',
@@ -806,8 +806,8 @@ export const STRINGS_FR = {
                 desc: 'Afficher l\'élément "Sans étiquette" pour les notes sans aucune étiquette.'
             },
             showUntaggedInFavorites: {
-                name: 'Afficher les notes sans étiquette dans la section favoris',
-                desc: 'Afficher les notes sans étiquette dans la section favoris, soit dans le dossier, soit directement sous les favoris.'
+                name: 'Afficher les notes sans étiquette dans la section des étiquettes favorites',
+                desc: 'Afficher les notes sans étiquette dans la section des étiquettes favorites, soit dans le dossier, soit directement sous les étiquettes favorites.'
             },
             favoriteTags: {
                 name: 'Étiquettes favorites',
@@ -955,7 +955,7 @@ export const STRINGS_FR = {
             },
             updateCheckOnStart: {
                 name: 'Vérifier les nouvelles versions au démarrage',
-                desc: 'Vérifie les nouvelles versions du plugin au démarrage et affiche une notification lorsqu\'une mise à jour est disponible. Chaque version n\'est annoncée qu\'une seule fois, et les vérifications ont lieu au maximum toutes les 6 heures.'
+                desc: "Vérifie les nouvelles versions du plugin au démarrage et affiche une notification lorsqu'une mise à jour est disponible. Chaque version n'est annoncée qu'une seule fois, et les vérifications ont lieu au maximum toutes les 6 heures."
             },
             whatsNew: {
                 name: 'Nouveautés',

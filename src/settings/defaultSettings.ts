@@ -27,9 +27,12 @@ import type { NotebookNavigatorSettings } from './types';
  * Used when plugin is first installed or settings are reset
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
-    // General tab - View
+    // General tab - Startup & layout
+    checkForUpdatesOnStart: true,
     startView: 'navigation',
     showTooltips: false,
+
+    // General tab - Homepage
     homepage: null,
     mobileHomepage: null,
     useMobileHomepage: false,
@@ -47,8 +50,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Formatting
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
-
-    checkForUpdatesOnStart: true,
 
     // Navigation pane tab
     navigationBanner: null,

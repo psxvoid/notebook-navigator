@@ -791,8 +791,8 @@ export const STRINGS_EN = {
                 desc: 'Display tags section before folders in the navigator.'
             },
             showFavoriteTagsFolder: {
-                name: 'Show favorites folder',
-                desc: 'Display "Favorites" as a collapsible folder when favorite tags are configured.'
+                name: 'Show favorite tags folder',
+                desc: 'Display "Favorite tags" as a collapsible folder when favorite tags are configured.'
             },
             showAllTagsFolder: {
                 name: 'Show tags folder',
@@ -803,8 +803,8 @@ export const STRINGS_EN = {
                 desc: 'Display "Untagged" item for notes without any tags.'
             },
             showUntaggedInFavorites: {
-                name: 'Show untagged notes in favorites section',
-                desc: 'Display untagged notes in the favorites section, either inside the folder or directly below favorites.'
+                name: 'Show untagged notes in favorite tags section',
+                desc: 'Display untagged notes in the favorite tags section, either inside the folder or directly below favorite tags.'
             },
             favoriteTags: {
                 name: 'Favorite tags',

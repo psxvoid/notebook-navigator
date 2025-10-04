@@ -792,8 +792,8 @@ export const STRINGS_ES = {
                 desc: 'Muestra la sección de etiquetas antes que las carpetas en el navegador.'
             },
             showFavoriteTagsFolder: {
-                name: 'Mostrar carpeta de favoritos',
-                desc: 'Muestra "Favoritos" como una carpeta plegable cuando hay etiquetas favoritas configuradas.'
+                name: 'Mostrar carpeta de etiquetas favoritas',
+                desc: 'Muestra "Etiquetas favoritas" como una carpeta plegable cuando hay etiquetas favoritas configuradas.'
             },
             showAllTagsFolder: {
                 name: 'Mostrar carpeta de etiquetas',
@@ -804,8 +804,8 @@ export const STRINGS_ES = {
                 desc: 'Muestra el elemento "Sin etiquetas" para notas sin ninguna etiqueta.'
             },
             showUntaggedInFavorites: {
-                name: 'Mostrar notas sin etiquetas en la sección de favoritos',
-                desc: 'Mostrar notas sin etiquetas en la sección de favoritos, ya sea dentro de la carpeta o directamente debajo de los favoritos.'
+                name: 'Mostrar notas sin etiquetas en la sección de etiquetas favoritas',
+                desc: 'Mostrar notas sin etiquetas en la sección de etiquetas favoritas, ya sea dentro de la carpeta o directamente debajo de las etiquetas favoritas.'
             },
             favoriteTags: {
                 name: 'Etiquetas favoritas',

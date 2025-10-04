@@ -790,8 +790,8 @@ export const STRINGS_ZH_TW = {
                 desc: '在導覽器中資料夾之前顯示標籤區段。'
             },
             showFavoriteTagsFolder: {
-                name: '顯示最愛資料夾',
-                desc: '設定最愛標籤後，將 "最愛" 顯示為可收合的資料夾。'
+                name: '顯示最愛標籤資料夾',
+                desc: '設定最愛標籤後，將「最愛標籤」顯示為可收合的資料夾。'
             },
             showAllTagsFolder: {
                 name: '顯示標籤資料夾',
@@ -802,8 +802,8 @@ export const STRINGS_ZH_TW = {
                 desc: '為沒有任何標籤的筆記顯示 "無標籤" 項目。'
             },
             showUntaggedInFavorites: {
-                name: '在最愛區段顯示無標籤筆記',
-                desc: '在最愛區段顯示無標籤筆記，可置於資料夾內或直接在最愛下方。'
+                name: '在最愛標籤區段顯示無標籤筆記',
+                desc: '在最愛標籤區段顯示無標籤筆記，可置於資料夾內或直接在最愛標籤下方。'
             },
             favoriteTags: {
                 name: '最愛標籤',

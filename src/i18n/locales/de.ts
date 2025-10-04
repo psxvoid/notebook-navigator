@@ -795,8 +795,8 @@ export const STRINGS_DE = {
                 desc: 'Tag-Bereich vor den Ordnern im Navigator anzeigen.'
             },
             showFavoriteTagsFolder: {
-                name: 'Favoriten-Ordner anzeigen',
-                desc: '"Favoriten" als einklappbaren Ordner anzeigen, wenn Favoriten-Tags konfiguriert sind.'
+                name: 'Favoriten-Tags-Ordner anzeigen',
+                desc: '"Favoriten-Tags" als einklappbaren Ordner anzeigen, wenn Favoriten-Tags konfiguriert sind.'
             },
             showAllTagsFolder: {
                 name: 'Tags-Ordner anzeigen',
@@ -807,8 +807,8 @@ export const STRINGS_DE = {
                 desc: '"Ohne Tag" für Notizen ohne Tags anzeigen.'
             },
             showUntaggedInFavorites: {
-                name: 'Ungetaggte Notizen im Favoriten-Bereich anzeigen',
-                desc: 'Ungetaggte Notizen im Favoriten-Bereich anzeigen, entweder im Ordner oder direkt unter den Favoriten.'
+                name: 'Ungetaggte Notizen im Favoriten-Tags-Bereich anzeigen',
+                desc: 'Ungetaggte Notizen im Favoriten-Tags-Bereich anzeigen, entweder im Ordner oder direkt unter den Favoriten-Tags.'
             },
             favoriteTags: {
                 name: 'Favoriten-Tags',

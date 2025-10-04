@@ -791,8 +791,8 @@ export const STRINGS_KO = {
                 desc: '네비게이터에서 폴더 앞에 태그 섹션을 표시합니다.'
             },
             showFavoriteTagsFolder: {
-                name: '즐겨찾기 폴더 표시',
-                desc: '즐겨찾기 태그가 구성되면 "즐겨찾기"를 접을 수 있는 폴더로 표시합니다.'
+                name: '즐겨찾기 태그 폴더 표시',
+                desc: '즐겨찾기 태그가 구성되면 "즐겨찾기 태그"를 접을 수 있는 폴더로 표시합니다.'
             },
             showAllTagsFolder: {
                 name: '태그 폴더 표시',
@@ -803,8 +803,8 @@ export const STRINGS_KO = {
                 desc: '태그가 없는 노트에 대해 "태그 없음" 항목을 표시합니다.'
             },
             showUntaggedInFavorites: {
-                name: '즐겨찾기 섹션에 태그 없는 노트 표시',
-                desc: '즐겨찾기 섹션에 태그 없는 노트를 표시합니다. 폴더 안이나 즐겨찾기 바로 아래에 표시됩니다.'
+                name: '즐겨찾기 태그 섹션에 태그 없는 노트 표시',
+                desc: '즐겨찾기 태그 섹션에 태그 없는 노트를 표시합니다. 폴더 안이나 즐겨찾기 태그 바로 아래에 표시됩니다.'
             },
             favoriteTags: {
                 name: '즐겨찾기 태그',

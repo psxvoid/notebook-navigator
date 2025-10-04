@@ -41,9 +41,12 @@ export type ListPaneTitleOption = 'header' | 'list' | 'hidden';
  * Settings are organized by tab for easier maintenance
  */
 export interface NotebookNavigatorSettings {
-    // General tab - View
+    // General tab - Startup & layout
+    checkForUpdatesOnStart: boolean;
     startView: 'navigation' | 'files';
     showTooltips: boolean;
+
+    // General tab - Homepage
     homepage: string | null;
     mobileHomepage: string | null;
     useMobileHomepage: boolean;
@@ -61,8 +64,6 @@ export interface NotebookNavigatorSettings {
     // General tab - Formatting
     dateFormat: string;
     timeFormat: string;
-
-    checkForUpdatesOnStart: boolean;
 
     // Navigation pane tab
     navigationBanner: string | null;
