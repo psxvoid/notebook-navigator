@@ -540,8 +540,8 @@ export const STRINGS_JA = {
                     'modified-asc': '編集日時（古いものが上）',
                     'created-desc': '作成日時（新しいものが上）',
                     'created-asc': '作成日時（古いものが上）',
-                    'title-asc': 'タイトル（Aが上）',
-                    'title-desc': 'タイトル（Zが上）'
+                    'title-asc': 'タイトル（昇順）',
+                    'title-desc': 'タイトル（降順）'
                 }
             },
             includeDescendantNotes: {

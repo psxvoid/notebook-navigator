@@ -539,8 +539,8 @@ export const STRINGS_ZH_CN = {
                     'modified-asc': '编辑日期（最旧在顶部）',
                     'created-desc': '创建日期（最新在顶部）',
                     'created-asc': '创建日期（最旧在顶部）',
-                    'title-asc': '标题（A 在顶部）',
-                    'title-desc': '标题（Z 在顶部）'
+                    'title-asc': '标题（升序）',
+                    'title-desc': '标题（降序）'
                 }
             },
             includeDescendantNotes: {

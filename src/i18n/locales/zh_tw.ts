@@ -538,8 +538,8 @@ export const STRINGS_ZH_TW = {
                     'modified-asc': '編輯日期 (最舊在頂部)',
                     'created-desc': '建立日期 (最新在頂部)',
                     'created-asc': '建立日期 (最舊在頂部)',
-                    'title-asc': '標題 (A 在頂部)',
-                    'title-desc': '標題 (Z 在頂部)'
+                    'title-asc': '標題 (升冪)',
+                    'title-desc': '標題 (降冪)'
                 }
             },
             includeDescendantNotes: {
