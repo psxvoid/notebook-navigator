@@ -82,9 +82,12 @@ export function NavigationListRow({
     const iconRef = useRef<HTMLSpanElement>(null);
     const iconVersion = useIconServiceVersion();
 
+    // Determine whether to apply color to the label text instead of the icon
+    const applyColorToLabel = Boolean(color) && !settings.colorIconOnly;
+
     const labelStyle = useMemo(() => {
-        return color ? { color } : undefined;
-    }, [color]);
+        return applyColorToLabel && color ? { color } : undefined;
+    }, [applyColorToLabel, color]);
 
     // Builds CSS class names based on component state (disabled, excluded, dragging, etc.)
     const classes = useMemo(() => {
@@ -201,15 +204,17 @@ export function NavigationListRow({
                     className={`nn-navitem-chevron${chevronIcon ? '' : ' nn-navitem-chevron--no-children'}`}
                     aria-hidden="true"
                 />
-                <span
-                    ref={iconRef}
-                    className="nn-navitem-icon"
-                    aria-hidden="true"
-                    data-has-color={color ? 'true' : 'false'}
-                    style={color ? { color } : undefined}
-                />
+                {settings.showIcons ? (
+                    <span
+                        ref={iconRef}
+                        className="nn-navitem-icon"
+                        aria-hidden="true"
+                        data-has-color={color ? 'true' : 'false'}
+                        style={color ? { color } : undefined}
+                    />
+                ) : null}
                 <span className="nn-navitem-name">
-                    <span className="nn-shortcut-label" data-has-color={color ? 'true' : undefined} style={labelStyle}>
+                    <span className="nn-shortcut-label" data-has-color={applyColorToLabel ? 'true' : undefined} style={labelStyle}>
                         {label}
                     </span>
                     {description ? <span className="nn-shortcut-description">{description}</span> : null}

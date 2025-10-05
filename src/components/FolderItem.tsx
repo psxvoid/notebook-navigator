@@ -171,6 +171,8 @@ export const FolderItem = React.memo(function FolderItem({
 
     // Use color from props (passed from NavigationPane)
     const customColor = color;
+    // Determine whether to apply color to the folder name instead of the icon
+    const applyColorToName = Boolean(customColor) && !settings.colorIconOnly;
     const dragIconId = useMemo(() => {
         if (icon) {
             return icon;
@@ -205,9 +207,9 @@ export const FolderItem = React.memo(function FolderItem({
     const folderNameClassName = useMemo(() => {
         const classes = ['nn-navitem-name'];
         if (hasFolderNote) classes.push('nn-has-folder-note');
-        if (customColor) classes.push('nn-has-custom-color');
+        if (applyColorToName) classes.push('nn-has-custom-color');
         return classes.join(' ');
-    }, [hasFolderNote, customColor]);
+    }, [applyColorToName, hasFolderNote]);
 
     // Stable event handlers
     const handleDoubleClick = useCallback(() => {
@@ -352,7 +354,11 @@ export const FolderItem = React.memo(function FolderItem({
                 {settings.showIcons && (
                     <span className="nn-navitem-icon" ref={iconRef} style={customColor ? { color: customColor } : undefined}></span>
                 )}
-                <span className={folderNameClassName} style={customColor ? { color: customColor } : undefined} onClick={handleNameClick}>
+                <span
+                    className={folderNameClassName}
+                    style={applyColorToName ? { color: customColor } : undefined}
+                    onClick={handleNameClick}
+                >
                     {folder.path === '/' ? settings.customVaultName || app.vault.getName() : folder.name}
                 </span>
                 <span className="nn-navitem-spacer" />

@@ -71,6 +71,11 @@ interface ColorMetadataService {
     setFolderBackgroundColor(path: string, color: string): Promise<void>;
     removeTagBackgroundColor(path: string): Promise<void>;
     removeFolderBackgroundColor(path: string): Promise<void>;
+    getTagColor(path: string): string | undefined;
+    getFolderColor(path: string): string | undefined;
+    getFileColor(path: string): string | undefined;
+    getTagBackgroundColor(path: string): string | undefined;
+    getFolderBackgroundColor(path: string): string | undefined;
     getSettingsProvider(): ISettingsProvider;
 }
 
@@ -133,34 +138,43 @@ export class ColorPickerModal extends Modal {
         this.itemType = itemType;
         this.isBackgroundMode = itemType !== ItemType.FILE && colorMode === 'background';
 
-        // Access settings through the service
+        // Access settings through the service (used for recent colors storage)
         this.settingsProvider = metadataService.getSettingsProvider();
 
-        // Get current color if exists
-        const settings = this.settingsProvider.settings;
-        const currentColors = this.isBackgroundMode
-            ? itemType === ItemType.TAG
-                ? settings.tagBackgroundColors
-                : settings.folderBackgroundColors
-            : itemType === ItemType.TAG
-              ? settings.tagColors
-              : itemType === ItemType.FILE
-                ? settings.fileColors
-                : settings.folderColors;
-        const lookupKey = itemType === ItemType.TAG ? itemPath.toLowerCase() : itemPath;
-        const initialColor = currentColors?.[lookupKey];
+        const initialColor = this.resolveInitialColor();
         if (initialColor) {
             this.currentColor = initialColor;
             const parsedInitial = this.parseColorString(initialColor);
             if (parsedInitial) {
                 this.selectedColor = this.rgbaToHex(parsedInitial);
-            } else {
-                this.selectedColor = DEFAULT_COLOR;
+                return;
             }
-        } else {
-            // Default starting color
-            this.selectedColor = DEFAULT_COLOR;
         }
+
+        // Default starting color when no stored value is found or parsing failed
+        this.selectedColor = DEFAULT_COLOR;
+    }
+
+    /**
+     * Retrieves the current stored color for the item based on type and mode
+     */
+    private resolveInitialColor(): string | null {
+        if (this.isBackgroundMode) {
+            if (this.isTag()) {
+                return this.metadataService.getTagBackgroundColor(this.itemPath) ?? null;
+            }
+            return this.metadataService.getFolderBackgroundColor(this.itemPath) ?? null;
+        }
+
+        if (this.isTag()) {
+            return this.metadataService.getTagColor(this.itemPath) ?? null;
+        }
+
+        if (this.isFile()) {
+            return this.metadataService.getFileColor(this.itemPath) ?? null;
+        }
+
+        return this.metadataService.getFolderColor(this.itemPath) ?? null;
     }
 
     /**

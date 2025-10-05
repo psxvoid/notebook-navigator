@@ -758,6 +758,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示图标',
                 desc: '在导航面板中的文件夹和标签旁显示图标。'
             },
+            showIconsColorOnly: {
+                name: '仅对图标应用颜色',
+                desc: '启用时，自定义颜色仅应用于图标。禁用时，颜色将同时应用于图标和文本标签。'
+            },
             collapseBehavior: {
                 name: '折叠项目',
                 desc: '选择展开/折叠全部按钮影响的内容。',

@@ -345,10 +345,8 @@ export const FileItem = React.memo(function FileItem({
     const fileColor = metadataService.getFileColor(file.path);
     const fileExtension = file.extension;
     const isImageDocument = isImageFile(file);
-    const dragIconId = useMemo(() => {
-        if (fileIconId) {
-            return fileIconId;
-        }
+    // Determine the default icon to use based on file type
+    const defaultTypeIconId = useMemo(() => {
         if (fileExtension === 'canvas') {
             return 'lucide-layout-grid';
         }
@@ -362,7 +360,27 @@ export const FileItem = React.memo(function FileItem({
             return 'lucide-file-text';
         }
         return 'lucide-file';
-    }, [fileIconId, fileExtension, isImageDocument]);
+    }, [fileExtension, isImageDocument]);
+    // Determine the actual icon to display, considering custom icon and colorIconOnly setting
+    const effectiveFileIconId = useMemo(() => {
+        if (fileIconId) {
+            return fileIconId;
+        }
+        if (settings.colorIconOnly && fileColor) {
+            return defaultTypeIconId;
+        }
+        return null;
+    }, [defaultTypeIconId, fileColor, fileIconId, settings.colorIconOnly]);
+    // Determine whether to apply color to the file name instead of the icon
+    const applyColorToName = Boolean(fileColor) && !settings.colorIconOnly;
+    // Check if using a fallback type icon because colorIconOnly is enabled
+    const usingFallbackIcon = !fileIconId && Boolean(fileColor) && settings.colorIconOnly;
+    // Icon to use when dragging the file
+    const dragIconId = useMemo(() => {
+            return effectiveFileIconId;
+        }
+        return defaultTypeIconId;
+    }, [defaultTypeIconId, effectiveFileIconId]);
 
     // Check if file is not natively supported by Obsidian (e.g., Office files, archives)
     const isExternalFile = useMemo(() => {
@@ -394,7 +412,7 @@ export const FileItem = React.memo(function FileItem({
                 data-title-rows={appearanceSettings.titleRows}
                 data-multiline={isMultiRowTitle ? 'true' : 'false'}
             >
-                {settings.showIcons && fileIconId ? (
+                {settings.showIcons && effectiveFileIconId && !(usingFallbackIcon && isExternalFile && !isSlimMode) ? (
                     <span
                         ref={fileIconRef}
                         className="nn-file-icon"
@@ -415,11 +433,11 @@ export const FileItem = React.memo(function FileItem({
                         ) : null}
                         <div
                             className="nn-file-name"
-                            data-has-color={fileColor ? 'true' : 'false'}
+                            data-has-color={applyColorToName ? 'true' : 'false'}
                             style={
                                 {
                                     '--filename-rows': appearanceSettings.titleRows,
-                                    ...(fileColor ? { '--nn-file-name-custom-color': fileColor } : {})
+                                    ...(applyColorToName ? { '--nn-file-name-custom-color': fileColor } : {})
                                 } as React.CSSProperties
                             }
                         >
@@ -434,7 +452,9 @@ export const FileItem = React.memo(function FileItem({
         appearanceSettings.titleRows,
         extensionSuffix,
         fileColor,
-        fileIconId,
+        applyColorToName,
+        effectiveFileIconId,
+        usingFallbackIcon,
         highlightedName,
         isExternalFile,
         isSlimMode,
@@ -799,13 +819,13 @@ export const FileItem = React.memo(function FileItem({
         }
 
         iconContainer.innerHTML = '';
-        if (!settings.showIcons || !fileIconId) {
+        if (!settings.showIcons || !effectiveFileIconId || (usingFallbackIcon && isExternalFile && !isSlimMode)) {
             return;
         }
 
         const iconService = getIconService();
-        iconService.renderIcon(iconContainer, fileIconId);
-    }, [fileIconId, iconServiceVersion, isSlimMode, settings.showIcons]);
+        iconService.renderIcon(iconContainer, effectiveFileIconId);
+    }, [effectiveFileIconId, iconServiceVersion, isExternalFile, isSlimMode, settings.showIcons, usingFallbackIcon]);
 
     // Render external file indicator icon (shown next to filename in non-slim mode)
     useEffect(() => {

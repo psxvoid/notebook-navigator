@@ -76,6 +76,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: [
             '==Two new style settings: File name font weight and Custom color file name font weight==. You can now change the font weight of files in Shortcuts and Recent files.',
             '==New setting: Separate mobile homepage==. You can now configure a different homepage for mobile devices.',
+            '==New setting. Apply color to icons only==. When enabled, custom colors are applied only to icons. When disabled, colors are applied to both icons and text labels.',
             '==Read file icon and file color from frontmatter==. File icons and colors can now be read from frontmatter metadata.',
             '**Write file icon and file color to frontmatter**: You can now save file icons and colors to frontmatter instead of settings.',
             '**Migrate from settings to frontmatter**: Migration tool to move all file colors and file icons from plugin settings to frontmatter.',

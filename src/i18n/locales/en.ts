@@ -757,6 +757,10 @@ export const STRINGS_EN = {
                 name: 'Show icons',
                 desc: 'Display icons next to folders and tags in the navigation pane.'
             },
+            showIconsColorOnly: {
+                name: 'Apply color to icons only',
+                desc: 'When enabled, custom colors are applied only to icons. When disabled, colors are applied to both icons and text labels.'
+            },
             collapseBehavior: {
                 name: 'Collapse items',
                 desc: 'Choose what the expand/collapse all button affects.',

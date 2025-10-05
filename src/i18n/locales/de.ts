@@ -761,6 +761,10 @@ export const STRINGS_DE = {
                 name: 'Symbole anzeigen',
                 desc: 'Symbole neben Ordnern und Tags im Navigationsbereich anzeigen.'
             },
+            showIconsColorOnly: {
+                name: 'Farbe nur auf Symbole anwenden',
+                desc: 'Wenn aktiviert, werden benutzerdefinierte Farben nur auf Symbole angewendet. Wenn deaktiviert, werden Farben sowohl auf Symbole als auch auf Textbeschriftungen angewendet.'
+            },
             collapseBehavior: {
                 name: 'Elemente einklappen',
                 desc: 'Wählen Sie, was die Schaltfläche zum Ein-/Ausklappen beeinflusst.',

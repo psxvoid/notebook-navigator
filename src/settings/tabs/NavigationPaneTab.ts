@@ -165,6 +165,16 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
 
     new Setting(containerEl).setName(strings.settings.groups.navigation.appearance).setHeading();
 
+    // Container for sub-settings that appear when showIcons is enabled
+    let showIconsSubSettings: HTMLDivElement | null = null;
+
+    // Toggle visibility of icon-related sub-settings based on showIcons value
+    const updateShowIconsSubSettings = (visible: boolean) => {
+        if (showIconsSubSettings) {
+            showIconsSubSettings.toggleClass('nn-setting-hidden', !visible);
+        }
+    };
+
     new Setting(containerEl)
         .setName(strings.settings.items.showIcons.name)
         .setDesc(strings.settings.items.showIcons.desc)
@@ -172,8 +182,23 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             toggle.setValue(plugin.settings.showIcons).onChange(async value => {
                 plugin.settings.showIcons = value;
                 await plugin.saveSettingsAndUpdate();
+                updateShowIconsSubSettings(value);
             })
         );
+
+    showIconsSubSettings = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(showIconsSubSettings)
+        .setName(strings.settings.items.showIconsColorOnly.name)
+        .setDesc(strings.settings.items.showIconsColorOnly.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.colorIconOnly).onChange(async value => {
+                plugin.settings.colorIconOnly = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    updateShowIconsSubSettings(plugin.settings.showIcons);
 
     new Setting(containerEl)
         .setName(strings.settings.items.showNoteCount.name)

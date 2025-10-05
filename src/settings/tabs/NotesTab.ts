@@ -68,6 +68,8 @@ export function renderNotesTab(context: SettingsTabContext): void {
         );
 
     const frontmatterSettingsEl = containerEl.createDiv('nn-sub-settings');
+    // Function to update visibility of frontmatter save setting based on field values
+    let updateFrontmatterSaveVisibility: (() => void) | null = null;
 
     createDebouncedTextSetting(
         frontmatterSettingsEl,
@@ -88,6 +90,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
         () => plugin.settings.frontmatterIconField,
         value => {
             plugin.settings.frontmatterIconField = value || '';
+            updateFrontmatterSaveVisibility?.();
         }
     );
     frontmatterIconSetting.controlEl.addClass('nn-setting-wide-input');
@@ -100,9 +103,31 @@ export function renderNotesTab(context: SettingsTabContext): void {
         () => plugin.settings.frontmatterColorField,
         value => {
             plugin.settings.frontmatterColorField = value || '';
+            updateFrontmatterSaveVisibility?.();
         }
     );
     frontmatterColorSetting.controlEl.addClass('nn-setting-wide-input');
+
+    // Setting to control whether metadata is saved to frontmatter
+    const frontmatterSaveSetting = new Setting(frontmatterSettingsEl)
+        .setName(strings.settings.items.frontmatterSaveMetadata.name)
+        .setDesc(strings.settings.items.frontmatterSaveMetadata.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.saveMetadataToFrontmatter).onChange(async value => {
+                plugin.settings.saveMetadataToFrontmatter = value;
+                await plugin.saveSettingsAndUpdate();
+                updateMigrationDescription();
+            })
+        );
+
+    // Show frontmatter save setting only when icon or color fields are configured
+    updateFrontmatterSaveVisibility = () => {
+        const hasIconField = plugin.settings.frontmatterIconField.trim().length > 0;
+        const hasColorField = plugin.settings.frontmatterColorField.trim().length > 0;
+        frontmatterSaveSetting.settingEl.toggle(hasIconField || hasColorField);
+    };
+
+    updateFrontmatterSaveVisibility();
 
     let migrateButton: ButtonComponent | null = null;
 
@@ -167,8 +192,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
             .replace('{colors}', colorsBefore.toString());
 
         descriptionEl.createDiv({ text: descriptionText });
-        migrateButton?.setDisabled(noMigrationsPending);
-        migrationSetting.settingEl.toggle(!noMigrationsPending);
+        const shouldShow = !noMigrationsPending && plugin.settings.saveMetadataToFrontmatter;
+        migrateButton?.setDisabled(!plugin.settings.saveMetadataToFrontmatter || noMigrationsPending);
+        migrationSetting.settingEl.toggle(shouldShow);
     };
 
     updateMigrationDescription();

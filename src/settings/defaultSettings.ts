@@ -60,6 +60,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     collapseBehavior: 'all',
     smartCollapse: true,
     showIcons: true,
+    colorIconOnly: false,
     showNoteCount: true,
     navIndent: NAVPANE_MEASUREMENTS.defaultIndent,
     navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,

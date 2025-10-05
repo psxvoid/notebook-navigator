@@ -757,6 +757,10 @@ export const STRINGS_KO = {
                 name: '아이콘 표시',
                 desc: '탐색 창에서 폴더와 태그 옆에 아이콘을 표시합니다.'
             },
+            showIconsColorOnly: {
+                name: '아이콘에만 색상 적용',
+                desc: '활성화하면 사용자 지정 색상이 아이콘에만 적용됩니다. 비활성화하면 아이콘과 텍스트 레이블 모두에 색상이 적용됩니다.'
+            },
             collapseBehavior: {
                 name: '항목 접기',
                 desc: '모두 펼치기/접기 버튼이 영향을 미치는 항목을 선택하세요.',

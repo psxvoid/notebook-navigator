@@ -756,6 +756,10 @@ export const STRINGS_ZH_TW = {
                 name: '顯示圖示',
                 desc: '在導覽窗格的資料夾和標籤旁邊顯示圖示。'
             },
+            showIconsColorOnly: {
+                name: '僅對圖示套用顏色',
+                desc: '啟用時，自訂顏色僅套用於圖示。停用時，顏色將同時套用於圖示和文字標籤。'
+            },
             collapseBehavior: {
                 name: '收合項目',
                 desc: '選擇展開/收合所有按鈕影響的對象。',

@@ -760,6 +760,10 @@ export const STRINGS_FR = {
                 name: 'Afficher les icônes',
                 desc: 'Afficher les icônes à côté des dossiers et étiquettes dans le panneau de navigation.'
             },
+            showIconsColorOnly: {
+                name: 'Appliquer la couleur uniquement aux icônes',
+                desc: 'Lorsqu\'activé, les couleurs personnalisées sont appliquées uniquement aux icônes. Lorsque désactivé, les couleurs sont appliquées aux icônes et aux étiquettes de texte.'
+            },
             collapseBehavior: {
                 name: 'Replier les éléments',
                 desc: 'Choisissez ce que le bouton déplier/replier tout affecte.',

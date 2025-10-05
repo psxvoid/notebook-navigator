@@ -758,6 +758,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar iconos',
                 desc: 'Muestra iconos junto a las carpetas y etiquetas en el panel de navegación.'
             },
+            showIconsColorOnly: {
+                name: 'Aplicar color solo a los iconos',
+                desc: 'Cuando está habilitado, los colores personalizados se aplican solo a los iconos. Cuando está deshabilitado, los colores se aplican tanto a los iconos como a las etiquetas de texto.'
+            },
             collapseBehavior: {
                 name: 'Contraer elementos',
                 desc: 'Elige qué afecta el botón de expandir/contraer todo.',

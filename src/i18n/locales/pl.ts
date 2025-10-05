@@ -759,6 +759,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż ikony',
                 desc: 'Wyświetl ikony obok folderów i tagów w panelu nawigacji.'
             },
+            showIconsColorOnly: {
+                name: 'Zastosuj kolor tylko do ikon',
+                desc: 'Gdy włączone, niestandardowe kolory są stosowane tylko do ikon. Gdy wyłączone, kolory są stosowane zarówno do ikon, jak i etykiet tekstowych.'
+            },
             collapseBehavior: {
                 name: 'Zwiń elementy',
                 desc: 'Wybierz na co wpływa przycisk rozwiń/zwiń wszystko.',

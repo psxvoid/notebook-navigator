@@ -129,6 +129,8 @@ export const TagTreeItem = React.memo(
         const tagColor = color;
         const tagBackground = backgroundColor;
         const tagIcon = icon;
+        // Determine whether to apply color to the tag name instead of the icon
+        const applyColorToName = Boolean(tagColor) && !settings.colorIconOnly;
 
         // Memoize className to avoid string concatenation on every render
         const className = useMemo(() => {
@@ -141,9 +143,9 @@ export const TagTreeItem = React.memo(
 
         const tagNameClassName = useMemo(() => {
             const classes = ['nn-navitem-name'];
-            if (tagColor) classes.push('nn-has-custom-color');
+            if (applyColorToName) classes.push('nn-has-custom-color');
             return classes.join(' ');
-        }, [tagColor]);
+        }, [applyColorToName]);
 
         // Stable event handlers
         const handleDoubleClick = useCallback(
@@ -228,7 +230,7 @@ export const TagTreeItem = React.memo(
                     {settings.showIcons && (
                         <span className="nn-navitem-icon" ref={iconRef} style={tagColor ? { color: tagColor } : undefined} />
                     )}
-                    <span className={tagNameClassName} style={tagColor ? { color: tagColor } : undefined}>
+                    <span className={tagNameClassName} style={applyColorToName ? { color: tagColor } : undefined}>
                         {tagNode.name}
                     </span>
                     <span className="nn-navitem-spacer" />

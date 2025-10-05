@@ -74,6 +74,7 @@ export interface NotebookNavigatorSettings {
     collapseBehavior: ItemScope;
     smartCollapse: boolean;
     showIcons: boolean;
+    colorIconOnly: boolean;
     showNoteCount: boolean;
     navIndent: number;
     navItemHeight: number;
