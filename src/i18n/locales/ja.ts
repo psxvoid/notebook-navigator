@@ -536,12 +536,12 @@ export const STRINGS_JA = {
                 name: 'ノートの並び順',
                 desc: 'ノートリストでのノートの並び順を選択します。',
                 options: {
-                    'modified-desc': '編集日時（新しい順）',
-                    'modified-asc': '編集日時（古い順）',
-                    'created-desc': '作成日時（新しい順）',
-                    'created-asc': '作成日時（古い順）',
-                    'title-asc': 'タイトル（A順）',
-                    'title-desc': 'タイトル（Z順）'
+                    'modified-desc': '編集日時（新しいものが上）',
+                    'modified-asc': '編集日時（古いものが上）',
+                    'created-desc': '作成日時（新しいものが上）',
+                    'created-asc': '作成日時（古いものが上）',
+                    'title-asc': 'タイトル（Aが上）',
+                    'title-desc': 'タイトル（Zが上）'
                 }
             },
             includeDescendantNotes: {

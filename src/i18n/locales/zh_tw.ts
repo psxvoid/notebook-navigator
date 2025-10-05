@@ -534,12 +534,12 @@ export const STRINGS_ZH_TW = {
                 name: '筆記排序方式',
                 desc: '選擇筆記在筆記清單中的排序方式。',
                 options: {
-                    'modified-desc': '編輯日期 (最新優先)',
-                    'modified-asc': '編輯日期 (最舊優先)',
-                    'created-desc': '建立日期 (最新優先)',
-                    'created-asc': '建立日期 (最舊優先)',
-                    'title-asc': '標題 (A 優先)',
-                    'title-desc': '標題 (Z 優先)'
+                    'modified-desc': '編輯日期 (最新在頂部)',
+                    'modified-asc': '編輯日期 (最舊在頂部)',
+                    'created-desc': '建立日期 (最新在頂部)',
+                    'created-asc': '建立日期 (最舊在頂部)',
+                    'title-asc': '標題 (A 在頂部)',
+                    'title-desc': '標題 (Z 在頂部)'
                 }
             },
             includeDescendantNotes: {

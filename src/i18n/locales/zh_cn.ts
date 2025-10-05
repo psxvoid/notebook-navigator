@@ -535,12 +535,12 @@ export const STRINGS_ZH_CN = {
                 name: '笔记排序方式',
                 desc: '选择笔记列表中的笔记排序方式。',
                 options: {
-                    'modified-desc': '编辑日期（最新优先）',
-                    'modified-asc': '编辑日期（最旧优先）',
-                    'created-desc': '创建日期（最新优先）',
-                    'created-asc': '创建日期（最旧优先）',
-                    'title-asc': '标题（A 优先）',
-                    'title-desc': '标题（Z 优先）'
+                    'modified-desc': '编辑日期（最新在顶部）',
+                    'modified-asc': '编辑日期（最旧在顶部）',
+                    'created-desc': '创建日期（最新在顶部）',
+                    'created-asc': '创建日期（最旧在顶部）',
+                    'title-asc': '标题（A 在顶部）',
+                    'title-desc': '标题（Z 在顶部）'
                 }
             },
             includeDescendantNotes: {

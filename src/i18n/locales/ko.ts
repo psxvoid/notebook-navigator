@@ -535,12 +535,12 @@ export const STRINGS_KO = {
                 name: '노트 정렬 기준',
                 desc: '노트 목록에서 노트를 정렬하는 방법을 선택하세요.',
                 options: {
-                    'modified-desc': '수정 날짜 (최신순)',
-                    'modified-asc': '수정 날짜 (오래된순)',
-                    'created-desc': '생성 날짜 (최신순)',
-                    'created-asc': '생성 날짜 (오래된순)',
-                    'title-asc': '제목 (가나다순)',
-                    'title-desc': '제목 (역순)'
+                    'modified-desc': '수정 날짜 (최신 상위)',
+                    'modified-asc': '수정 날짜 (오래된 상위)',
+                    'created-desc': '생성 날짜 (최신 상위)',
+                    'created-asc': '생성 날짜 (오래된 상위)',
+                    'title-asc': '제목 (가나다 상위)',
+                    'title-desc': '제목 (역순 상위)'
                 }
             },
             includeDescendantNotes: {

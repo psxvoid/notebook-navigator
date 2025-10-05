@@ -535,12 +535,12 @@ export const STRINGS_EN = {
                 name: 'Sort notes by',
                 desc: 'Choose how notes are sorted in the note list.',
                 options: {
-                    'modified-desc': 'Date edited (newest first)',
-                    'modified-asc': 'Date edited (oldest first)',
-                    'created-desc': 'Date created (newest first)',
-                    'created-asc': 'Date created (oldest first)',
-                    'title-asc': 'Title (A first)',
-                    'title-desc': 'Title (Z first)'
+                    'modified-desc': 'Date edited (newest on top)',
+                    'modified-asc': 'Date edited (oldest on top)',
+                    'created-desc': 'Date created (newest on top)',
+                    'created-asc': 'Date created (oldest on top)',
+                    'title-asc': 'Title (A on top)',
+                    'title-desc': 'Title (Z on top)'
                 }
             },
             includeDescendantNotes: {

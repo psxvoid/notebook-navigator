@@ -537,12 +537,12 @@ export const STRINGS_PL = {
                 name: 'Sortuj notatki według',
                 desc: 'Wybierz sposób sortowania notatek na liście.',
                 options: {
-                    'modified-desc': 'Data edycji (najnowsze najpierw)',
-                    'modified-asc': 'Data edycji (najstarsze najpierw)',
-                    'created-desc': 'Data utworzenia (najnowsze najpierw)',
-                    'created-asc': 'Data utworzenia (najstarsze najpierw)',
-                    'title-asc': 'Tytuł (A najpierw)',
-                    'title-desc': 'Tytuł (Z najpierw)'
+                    'modified-desc': 'Data edycji (najnowsze na górze)',
+                    'modified-asc': 'Data edycji (najstarsze na górze)',
+                    'created-desc': 'Data utworzenia (najnowsze na górze)',
+                    'created-asc': 'Data utworzenia (najstarsze na górze)',
+                    'title-asc': 'Tytuł (A na górze)',
+                    'title-desc': 'Tytuł (Z na górze)'
                 }
             },
             includeDescendantNotes: {

@@ -536,12 +536,12 @@ export const STRINGS_ES = {
                 name: 'Ordenar notas por',
                 desc: 'Elige cómo se ordenan las notas en la lista de notas.',
                 options: {
-                    'modified-desc': 'Fecha de edición (más reciente primero)',
-                    'modified-asc': 'Fecha de edición (más antigua primero)',
-                    'created-desc': 'Fecha de creación (más reciente primero)',
-                    'created-asc': 'Fecha de creación (más antigua primero)',
-                    'title-asc': 'Título (A primero)',
-                    'title-desc': 'Título (Z primero)'
+                    'modified-desc': 'Fecha de edición (más reciente arriba)',
+                    'modified-asc': 'Fecha de edición (más antigua arriba)',
+                    'created-desc': 'Fecha de creación (más reciente arriba)',
+                    'created-asc': 'Fecha de creación (más antigua arriba)',
+                    'title-asc': 'Título (A arriba)',
+                    'title-desc': 'Título (Z arriba)'
                 }
             },
             includeDescendantNotes: {

@@ -539,12 +539,12 @@ export const STRINGS_DE = {
                 name: 'Notizen sortieren nach',
                 desc: 'Wählen Sie, wie Notizen in der Notizenliste sortiert werden.',
                 options: {
-                    'modified-desc': 'Bearbeitungsdatum (neueste zuerst)',
-                    'modified-asc': 'Bearbeitungsdatum (älteste zuerst)',
-                    'created-desc': 'Erstellungsdatum (neueste zuerst)',
-                    'created-asc': 'Erstellungsdatum (älteste zuerst)',
-                    'title-asc': 'Titel (A zuerst)',
-                    'title-desc': 'Titel (Z zuerst)'
+                    'modified-desc': 'Bearbeitungsdatum (neueste oben)',
+                    'modified-asc': 'Bearbeitungsdatum (älteste oben)',
+                    'created-desc': 'Erstellungsdatum (neueste oben)',
+                    'created-asc': 'Erstellungsdatum (älteste oben)',
+                    'title-asc': 'Titel (A oben)',
+                    'title-desc': 'Titel (Z oben)'
                 }
             },
             includeDescendantNotes: {
