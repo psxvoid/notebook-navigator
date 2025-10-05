@@ -473,7 +473,7 @@ export const STRINGS_ZH_CN = {
         },
         groups: {
             general: {
-                view: '视图',
+                view: '外观',
                 behavior: '行为',
                 filtering: '过滤',
                 formatting: '格式'
@@ -483,12 +483,12 @@ export const STRINGS_ZH_CN = {
                 appearance: '外观'
             },
             list: {
-                display: '显示与分组',
+                display: '外观',
                 quickActions: '快捷操作'
             },
             notes: {
                 frontmatter: '前置元数据',
-                display: '显示与预览'
+                display: '外观'
             }
         },
         items: {
@@ -957,7 +957,7 @@ export const STRINGS_ZH_CN = {
             },
             updateCheckOnStart: {
                 name: '启动时检查新版本',
-                desc: '启动时检查新的插件版本，当有可用更新时显示通知。每个版本仅通知一次，检查最多每6小时进行一次。',
+                desc: '启动时检查新的插件版本，当有可用更新时显示通知。每个版本仅通知一次，检查最多每天一次。',
                 status: 'New version available: {version}'
             },
             whatsNew: {

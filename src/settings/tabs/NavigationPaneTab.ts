@@ -27,6 +27,43 @@ import type { SettingsTabContext } from './SettingsTabContext';
 export function renderNavigationPaneTab(context: SettingsTabContext): void {
     const { containerEl, plugin } = context;
 
+    new Setting(containerEl)
+        .setName(strings.settings.items.autoExpandFoldersTags.name)
+        .setDesc(strings.settings.items.autoExpandFoldersTags.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.autoExpandFoldersTags).onChange(async value => {
+                plugin.settings.autoExpandFoldersTags = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.collapseBehavior.name)
+        .setDesc(strings.settings.items.collapseBehavior.desc)
+        .addDropdown(dropdown =>
+            dropdown
+                .addOption('all', strings.settings.items.collapseBehavior.options.all)
+                .addOption('folders-only', strings.settings.items.collapseBehavior.options.foldersOnly)
+                .addOption('tags-only', strings.settings.items.collapseBehavior.options.tagsOnly)
+                .setValue(plugin.settings.collapseBehavior)
+                .onChange(async (value: ItemScope) => {
+                    plugin.settings.collapseBehavior = value;
+                    await plugin.saveSettingsAndUpdate();
+                })
+        );
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.smartCollapse.name)
+        .setDesc(strings.settings.items.smartCollapse.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.smartCollapse).onChange(async value => {
+                plugin.settings.smartCollapse = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(containerEl).setName(strings.settings.groups.navigation.appearance).setHeading();
+
     const navigationBannerSetting = new Setting(containerEl).setName(strings.settings.items.navigationBanner.name);
     navigationBannerSetting.setDesc('');
 
@@ -37,7 +74,6 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
     const navigationBannerValueEl = navigationBannerDescEl.createDiv();
     let clearNavigationBannerButton: ButtonComponent | null = null;
 
-    /** Updates the displayed banner path and button state */
     const renderNavigationBannerValue = () => {
         const { navigationBanner } = plugin.settings;
         navigationBannerValueEl.setText('');
@@ -89,7 +125,6 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
 
     let recentNotesSubSettings: HTMLDivElement | null = null;
 
-    /** Toggles visibility of recent notes sub-settings */
     const updateRecentNotesVisibility = (visible: boolean) => {
         if (recentNotesSubSettings) {
             recentNotesSubSettings.toggleClass('nn-setting-hidden', !visible);
@@ -125,80 +160,6 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
         );
 
     updateRecentNotesVisibility(plugin.settings.showRecentNotes);
-
-    new Setting(containerEl).setName(strings.settings.groups.navigation.behavior).setHeading();
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.autoExpandFoldersTags.name)
-        .setDesc(strings.settings.items.autoExpandFoldersTags.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.autoExpandFoldersTags).onChange(async value => {
-                plugin.settings.autoExpandFoldersTags = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.collapseBehavior.name)
-        .setDesc(strings.settings.items.collapseBehavior.desc)
-        .addDropdown(dropdown =>
-            dropdown
-                .addOption('all', strings.settings.items.collapseBehavior.options.all)
-                .addOption('folders-only', strings.settings.items.collapseBehavior.options.foldersOnly)
-                .addOption('tags-only', strings.settings.items.collapseBehavior.options.tagsOnly)
-                .setValue(plugin.settings.collapseBehavior)
-                .onChange(async (value: ItemScope) => {
-                    plugin.settings.collapseBehavior = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-        );
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.smartCollapse.name)
-        .setDesc(strings.settings.items.smartCollapse.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.smartCollapse).onChange(async value => {
-                plugin.settings.smartCollapse = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    new Setting(containerEl).setName(strings.settings.groups.navigation.appearance).setHeading();
-
-    // Container for sub-settings that appear when showIcons is enabled
-    let showIconsSubSettings: HTMLDivElement | null = null;
-
-    // Toggle visibility of icon-related sub-settings based on showIcons value
-    const updateShowIconsSubSettings = (visible: boolean) => {
-        if (showIconsSubSettings) {
-            showIconsSubSettings.toggleClass('nn-setting-hidden', !visible);
-        }
-    };
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.showIcons.name)
-        .setDesc(strings.settings.items.showIcons.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showIcons).onChange(async value => {
-                plugin.settings.showIcons = value;
-                await plugin.saveSettingsAndUpdate();
-                updateShowIconsSubSettings(value);
-            })
-        );
-
-    showIconsSubSettings = containerEl.createDiv('nn-sub-settings');
-
-    new Setting(showIconsSubSettings)
-        .setName(strings.settings.items.showIconsColorOnly.name)
-        .setDesc(strings.settings.items.showIconsColorOnly.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.colorIconOnly).onChange(async value => {
-                plugin.settings.colorIconOnly = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    updateShowIconsSubSettings(plugin.settings.showIcons);
 
     new Setting(containerEl)
         .setName(strings.settings.items.showNoteCount.name)

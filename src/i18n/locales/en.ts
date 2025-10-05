@@ -472,7 +472,7 @@ export const STRINGS_EN = {
         },
         groups: {
             general: {
-                view: 'View',
+                view: 'Appearance',
                 behavior: 'Behavior',
                 filtering: 'Filtering',
                 formatting: 'Formatting'
@@ -482,12 +482,12 @@ export const STRINGS_EN = {
                 appearance: 'Appearance'
             },
             list: {
-                display: 'Display & grouping',
+                display: 'Appearance',
                 quickActions: 'Quick actions'
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Display & preview'
+                display: 'Appearance'
             }
         },
         items: {
@@ -956,7 +956,7 @@ export const STRINGS_EN = {
             },
             updateCheckOnStart: {
                 name: 'Check for new version on start',
-                desc: 'Checks for new plugin releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most every 6 hours.',
+                desc: 'Checks for new plugin releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most once per day.',
                 status: 'New version available: {version}'
             },
             whatsNew: {

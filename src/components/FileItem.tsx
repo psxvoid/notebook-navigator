@@ -377,6 +377,7 @@ export const FileItem = React.memo(function FileItem({
     const usingFallbackIcon = !fileIconId && Boolean(fileColor) && settings.colorIconOnly;
     // Icon to use when dragging the file
     const dragIconId = useMemo(() => {
+        if (effectiveFileIconId) {
             return effectiveFileIconId;
         }
         return defaultTypeIconId;

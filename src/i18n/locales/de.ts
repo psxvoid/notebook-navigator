@@ -475,7 +475,7 @@ export const STRINGS_DE = {
         },
         groups: {
             general: {
-                view: 'Ansicht',
+                view: 'Darstellung',
                 behavior: 'Verhalten',
                 filtering: 'Filterung',
                 formatting: 'Formatierung'
@@ -485,12 +485,12 @@ export const STRINGS_DE = {
                 appearance: 'Darstellung'
             },
             list: {
-                display: 'Anzeige & Gruppierung',
+                display: 'Darstellung',
                 quickActions: 'Schnellaktionen'
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Anzeige & Vorschau'
+                display: 'Darstellung'
             }
         },
         items: {
@@ -960,7 +960,7 @@ export const STRINGS_DE = {
             },
             updateCheckOnStart: {
                 name: 'Beim Start nach neuer Version suchen',
-                desc: 'Prüft beim Start auf neue Plugin-Versionen und zeigt eine Benachrichtigung an, wenn ein Update verfügbar ist. Jede Version wird nur einmal angekündigt, und Überprüfungen erfolgen höchstens alle 6 Stunden.',
+                desc: 'Prüft beim Start auf neue Plugin-Versionen und zeigt eine Benachrichtigung an, wenn ein Update verfügbar ist. Jede Version wird nur einmal angekündigt, und Überprüfungen erfolgen höchstens einmal täglich.',
                 status: 'New version available: {version}'
             },
             whatsNew: {

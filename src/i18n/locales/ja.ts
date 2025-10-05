@@ -473,7 +473,7 @@ export const STRINGS_JA = {
         },
         groups: {
             general: {
-                view: '表示',
+                view: '外観',
                 behavior: '動作',
                 filtering: 'フィルター',
                 formatting: '書式'
@@ -483,12 +483,12 @@ export const STRINGS_JA = {
                 appearance: '外観'
             },
             list: {
-                display: '表示とグループ化',
+                display: '外観',
                 quickActions: 'クイック操作'
             },
             notes: {
                 frontmatter: 'フロントマター',
-                display: '表示とプレビュー'
+                display: '外観'
             }
         },
         items: {
@@ -958,7 +958,7 @@ export const STRINGS_JA = {
             },
             updateCheckOnStart: {
                 name: '起動時に新しいバージョンを確認',
-                desc: '起動時に新しいプラグインリリースを確認し、アップデートが利用可能な場合に通知を表示します。各バージョンは一度だけ通知され、確認は最大6時間ごとに行われます。',
+                desc: '起動時に新しいプラグインリリースを確認し、アップデートが利用可能な場合に通知を表示します。各バージョンは一度だけ通知され、確認は最大1日1回行われます。',
                 status: 'New version available: {version}'
             },
             whatsNew: {

@@ -473,7 +473,7 @@ export const STRINGS_FR = {
         },
         groups: {
             general: {
-                view: 'Vue',
+                view: 'Apparence',
                 behavior: 'Comportement',
                 filtering: 'Filtrage',
                 formatting: 'Formatage'
@@ -483,12 +483,12 @@ export const STRINGS_FR = {
                 appearance: 'Apparence'
             },
             list: {
-                display: 'Affichage et regroupement',
+                display: 'Apparence',
                 quickActions: 'Actions rapides'
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Affichage et aperçu'
+                display: 'Apparence'
             }
         },
         items: {
@@ -762,7 +762,7 @@ export const STRINGS_FR = {
             },
             showIconsColorOnly: {
                 name: 'Appliquer la couleur uniquement aux icônes',
-                desc: 'Lorsqu\'activé, les couleurs personnalisées sont appliquées uniquement aux icônes. Lorsque désactivé, les couleurs sont appliquées aux icônes et aux étiquettes de texte.'
+                desc: "Lorsqu'activé, les couleurs personnalisées sont appliquées uniquement aux icônes. Lorsque désactivé, les couleurs sont appliquées aux icônes et aux étiquettes de texte."
             },
             collapseBehavior: {
                 name: 'Replier les éléments',
@@ -959,7 +959,7 @@ export const STRINGS_FR = {
             },
             updateCheckOnStart: {
                 name: 'Vérifier les nouvelles versions au démarrage',
-                desc: "Vérifie les nouvelles versions du plugin au démarrage et affiche une notification lorsqu'une mise à jour est disponible. Chaque version n'est annoncée qu'une seule fois, et les vérifications ont lieu au maximum toutes les 6 heures.",
+                desc: "Vérifie les nouvelles versions du plugin au démarrage et affiche une notification lorsqu'une mise à jour est disponible. Chaque version n'est annoncée qu'une seule fois, et les vérifications ont lieu au maximum une fois par jour.",
                 status: 'New version available: {version}'
             },
             whatsNew: {

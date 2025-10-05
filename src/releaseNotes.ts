@@ -80,7 +80,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==Read file icon and file color from frontmatter==. File icons and colors can now be read from frontmatter metadata.',
             '**Write file icon and file color to frontmatter**: You can now save file icons and colors to frontmatter instead of settings.',
             '**Migrate from settings to frontmatter**: Migration tool to move all file colors and file icons from plugin settings to frontmatter.',
-            'Notebook Navigator now checks for new releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most every 6 hours and can be disabled in settings.',
+            'Notebook Navigator now checks for new releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most once per day and can be disabled in settings.',
             'Notebook Navigator is now translated to **traditional Chinese** (繁體中文) thanks to @emisjerry!'
         ],
         improved: [

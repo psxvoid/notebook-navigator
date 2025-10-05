@@ -472,7 +472,7 @@ export const STRINGS_ZH_TW = {
         },
         groups: {
             general: {
-                view: '檢視',
+                view: '外觀',
                 behavior: '行為',
                 filtering: '篩選',
                 formatting: '格式'
@@ -482,12 +482,12 @@ export const STRINGS_ZH_TW = {
                 appearance: '外觀'
             },
             list: {
-                display: '顯示與分組',
+                display: '外觀',
                 quickActions: '快速操作'
             },
             notes: {
                 frontmatter: '前置元資料',
-                display: '顯示與預覽'
+                display: '外觀'
             }
         },
         items: {
@@ -955,7 +955,7 @@ export const STRINGS_ZH_TW = {
             },
             updateCheckOnStart: {
                 name: '啟動時檢查新版本',
-                desc: '啟動時檢查新的外掛版本，當有可用更新時顯示通知。每個版本僅通知一次，檢查最多每6小時進行一次。',
+                desc: '啟動時檢查新的外掛版本，當有可用更新時顯示通知。每個版本僅通知一次，檢查最多每天一次。',
                 status: 'New version available: {version}'
             },
             whatsNew: {

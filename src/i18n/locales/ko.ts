@@ -472,7 +472,7 @@ export const STRINGS_KO = {
         },
         groups: {
             general: {
-                view: '보기',
+                view: '모양',
                 behavior: '동작',
                 filtering: '필터링',
                 formatting: '서식'
@@ -482,12 +482,12 @@ export const STRINGS_KO = {
                 appearance: '모양'
             },
             list: {
-                display: '표시 및 그룹화',
+                display: '모양',
                 quickActions: '빠른 작업'
             },
             notes: {
                 frontmatter: '프런트매터',
-                display: '표시 및 미리 보기'
+                display: '모양'
             }
         },
         items: {
@@ -956,7 +956,7 @@ export const STRINGS_KO = {
             },
             updateCheckOnStart: {
                 name: '시작 시 새 버전 확인',
-                desc: '시작 시 새로운 플러그인 릴리스를 확인하고 업데이트가 있으면 알림을 표시합니다. 각 버전은 한 번만 알림되며, 확인은 최대 6시간마다 수행됩니다.',
+                desc: '시작 시 새로운 플러그인 릴리스를 확인하고 업데이트가 있으면 알림을 표시합니다. 각 버전은 한 번만 알림되며, 확인은 하루에 한 번 수행됩니다.',
                 status: 'New version available: {version}'
             },
             whatsNew: {

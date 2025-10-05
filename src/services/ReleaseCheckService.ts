@@ -38,8 +38,8 @@ interface GithubReleaseResponse {
 
 /** GitHub API endpoint for fetching the latest release */
 const GITHUB_RELEASES_ENDPOINT = 'https://api.github.com/repos/johansan/notebook-navigator/releases/latest';
-/** Minimum time between release checks (6 hours) */
-const CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+/** Minimum time between release checks (24 hours) */
+const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 /**
  * Checks GitHub releases to determine if a newer plugin version exists.

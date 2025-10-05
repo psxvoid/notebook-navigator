@@ -473,7 +473,7 @@ export const STRINGS_ES = {
         },
         groups: {
             general: {
-                view: 'Vista',
+                view: 'Apariencia',
                 behavior: 'Comportamiento',
                 filtering: 'Filtrado',
                 formatting: 'Formato'
@@ -483,12 +483,12 @@ export const STRINGS_ES = {
                 appearance: 'Apariencia'
             },
             list: {
-                display: 'Visualización y agrupación',
+                display: 'Apariencia',
                 quickActions: 'Acciones rápidas'
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Visualización y vista previa'
+                display: 'Apariencia'
             }
         },
         items: {
@@ -957,7 +957,7 @@ export const STRINGS_ES = {
             },
             updateCheckOnStart: {
                 name: 'Buscar nueva versión al iniciar',
-                desc: 'Busca nuevas versiones del complemento al iniciar y muestra una notificación cuando hay una actualización disponible. Cada versión se anuncia solo una vez, y las comprobaciones se realizan como máximo cada 6 horas.',
+                desc: 'Busca nuevas versiones del complemento al iniciar y muestra una notificación cuando hay una actualización disponible. Cada versión se anuncia solo una vez, y las comprobaciones se realizan como máximo una vez al día.',
                 status: 'New version available: {version}'
             },
             whatsNew: {

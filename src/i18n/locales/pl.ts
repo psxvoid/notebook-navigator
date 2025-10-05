@@ -474,7 +474,7 @@ export const STRINGS_PL = {
         },
         groups: {
             general: {
-                view: 'Widok',
+                view: 'Wygląd',
                 behavior: 'Zachowanie',
                 filtering: 'Filtrowanie',
                 formatting: 'Formatowanie'
@@ -484,12 +484,12 @@ export const STRINGS_PL = {
                 appearance: 'Wygląd'
             },
             list: {
-                display: 'Wyświetlanie i grupowanie',
+                display: 'Wygląd',
                 quickActions: 'Szybkie akcje'
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Wyświetlanie i podgląd'
+                display: 'Wygląd'
             }
         },
         items: {
@@ -958,7 +958,7 @@ export const STRINGS_PL = {
             },
             updateCheckOnStart: {
                 name: 'Sprawdź nową wersję przy starcie',
-                desc: 'Sprawdza nowe wersje wtyczki podczas uruchamiania i wyświetla powiadomienie, gdy dostępna jest aktualizacja. Każda wersja jest ogłaszana tylko raz, a sprawdzanie odbywa się co najwyżej co 6 godzin.',
+                desc: 'Sprawdza nowe wersje wtyczki podczas uruchamiania i wyświetla powiadomienie, gdy dostępna jest aktualizacja. Każda wersja jest ogłaszana tylko raz, a sprawdzanie odbywa się co najwyżej raz dziennie.',
                 status: 'New version available: {version}'
             },
             whatsNew: {
