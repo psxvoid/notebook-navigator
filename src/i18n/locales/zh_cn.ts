@@ -756,7 +756,7 @@ export const STRINGS_ZH_CN = {
             },
             showIcons: {
                 name: '显示图标',
-                desc: '在导航面板中的文件夹和标签旁显示图标。'
+                desc: '显示文件夹、标签和笔记的图标。'
             },
             showIconsColorOnly: {
                 name: '仅对图标应用颜色',

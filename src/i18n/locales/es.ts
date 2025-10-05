@@ -756,7 +756,7 @@ export const STRINGS_ES = {
             },
             showIcons: {
                 name: 'Mostrar iconos',
-                desc: 'Muestra iconos junto a las carpetas y etiquetas en el panel de navegación.'
+                desc: 'Muestra iconos para carpetas, etiquetas y notas.'
             },
             showIconsColorOnly: {
                 name: 'Aplicar color solo a los iconos',

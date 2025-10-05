@@ -757,7 +757,7 @@ export const STRINGS_PL = {
             },
             showIcons: {
                 name: 'Pokaż ikony',
-                desc: 'Wyświetl ikony obok folderów i tagów w panelu nawigacji.'
+                desc: 'Wyświetl ikony dla folderów, tagów i notatek.'
             },
             showIconsColorOnly: {
                 name: 'Zastosuj kolor tylko do ikon',

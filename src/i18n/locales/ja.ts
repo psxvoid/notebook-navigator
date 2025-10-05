@@ -757,7 +757,7 @@ export const STRINGS_JA = {
             },
             showIcons: {
                 name: 'アイコンを表示',
-                desc: 'ナビゲーションパネルのフォルダとタグの横にアイコンを表示します。'
+                desc: 'フォルダ、タグ、ノートのアイコンを表示します。'
             },
             showIconsColorOnly: {
                 name: 'アイコンのみに色を適用',

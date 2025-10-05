@@ -755,7 +755,7 @@ export const STRINGS_EN = {
             },
             showIcons: {
                 name: 'Show icons',
-                desc: 'Display icons next to folders and tags in the navigation pane.'
+                desc: 'Display icons for folders, tags and notes.'
             },
             showIconsColorOnly: {
                 name: 'Apply color to icons only',

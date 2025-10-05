@@ -754,7 +754,7 @@ export const STRINGS_ZH_TW = {
             },
             showIcons: {
                 name: '顯示圖示',
-                desc: '在導覽窗格的資料夾和標籤旁邊顯示圖示。'
+                desc: '顯示資料夾、標籤和筆記的圖示。'
             },
             showIconsColorOnly: {
                 name: '僅對圖示套用顏色',

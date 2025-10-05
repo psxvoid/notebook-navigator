@@ -755,7 +755,7 @@ export const STRINGS_KO = {
             },
             showIcons: {
                 name: '아이콘 표시',
-                desc: '탐색 창에서 폴더와 태그 옆에 아이콘을 표시합니다.'
+                desc: '폴더, 태그 및 노트에 아이콘을 표시합니다.'
             },
             showIconsColorOnly: {
                 name: '아이콘에만 색상 적용',

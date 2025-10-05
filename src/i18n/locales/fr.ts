@@ -758,7 +758,7 @@ export const STRINGS_FR = {
             },
             showIcons: {
                 name: 'Afficher les icônes',
-                desc: 'Afficher les icônes à côté des dossiers et étiquettes dans le panneau de navigation.'
+                desc: 'Afficher les icônes pour les dossiers, étiquettes et notes.'
             },
             showIconsColorOnly: {
                 name: 'Appliquer la couleur uniquement aux icônes',

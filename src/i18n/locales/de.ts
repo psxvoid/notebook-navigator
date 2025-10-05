@@ -759,7 +759,7 @@ export const STRINGS_DE = {
             },
             showIcons: {
                 name: 'Symbole anzeigen',
-                desc: 'Symbole neben Ordnern und Tags im Navigationsbereich anzeigen.'
+                desc: 'Symbole für Ordner, Tags und Notizen anzeigen.'
             },
             showIconsColorOnly: {
                 name: 'Farbe nur auf Symbole anwenden',
