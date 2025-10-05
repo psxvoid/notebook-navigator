@@ -334,6 +334,15 @@ export const STRINGS_ES = {
             versionHistoryNotFound: 'Comando de historial de versiones no encontrado. Asegúrate de que Obsidian Sync esté habilitado.',
             revealInExplorer: 'Error al mostrar el archivo en el explorador del sistema: {error}',
             folderNoteAlreadyExists: 'La nota de carpeta ya existe',
+            folderAlreadyExists: 'La carpeta "{name}" ya existe',
+            folderNotesDisabled: 'Habilite las notas de carpeta en la configuración para convertir archivos',
+            folderNoteAlreadyLinked: 'Este archivo ya funciona como una nota de carpeta',
+            folderNoteUnsupportedExtension: 'Extensión de archivo no compatible: {extension}',
+            folderNoteMoveFailed: 'No se pudo mover el archivo durante la conversión: {error}',
+            folderNoteRenameConflict: 'Ya existe un archivo llamado "{name}" en la carpeta',
+            folderNoteConversionFailed: 'No se pudo convertir el archivo en nota de carpeta',
+            folderNoteConversionFailedWithReason: 'No se pudo convertir el archivo en nota de carpeta: {error}',
+            folderNoteOpenFailed: 'Archivo convertido pero no se pudo abrir la nota de carpeta: {error}',
             failedToDeleteFile: 'Error al eliminar {name}: {error}',
             failedToDeleteMultipleFiles: 'Error al eliminar {count} archivos',
             versionHistoryNotAvailable: 'Servicio de historial de versiones no disponible',
@@ -348,6 +357,7 @@ export const STRINGS_ES = {
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
             movedMultipleFiles: '{count} archivos movidos a {folder}',
+            folderNoteConversionSuccess: 'Archivo convertido en nota de carpeta en "{name}"',
             folderMoved: 'Carpeta "{name}" movida',
             deepLinkCopied: 'Enlace profundo copiado al portapapeles',
             tagAddedToNote: 'Etiqueta añadida a 1 nota',
@@ -425,6 +435,7 @@ export const STRINGS_ES = {
         deleteFile: 'Eliminar archivos', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Crear nueva nota', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'Convertir en nota de carpeta', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navegar a etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: 'Alternar descendientes', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)

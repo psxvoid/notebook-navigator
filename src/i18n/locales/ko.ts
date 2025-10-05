@@ -333,6 +333,15 @@ export const STRINGS_KO = {
             versionHistoryNotFound: '버전 기록 명령을 찾을 수 없습니다. Obsidian Sync가 활성화되어 있는지 확인하세요.',
             revealInExplorer: '시스템 탐색기에서 파일 표시 실패: {error}',
             folderNoteAlreadyExists: '폴더 노트가 이미 존재합니다',
+            folderAlreadyExists: '폴더 "{name}"이(가) 이미 존재합니다',
+            folderNotesDisabled: '파일을 변환하려면 설정에서 폴더 노트를 활성화하세요',
+            folderNoteAlreadyLinked: '이 파일은 이미 폴더 노트로 작동하고 있습니다',
+            folderNoteUnsupportedExtension: '지원되지 않는 파일 확장자: {extension}',
+            folderNoteMoveFailed: '변환 중 파일 이동 실패: {error}',
+            folderNoteRenameConflict: '"{name}"이라는 이름의 파일이 이미 폴더에 존재합니다',
+            folderNoteConversionFailed: '폴더 노트로 변환 실패',
+            folderNoteConversionFailedWithReason: '폴더 노트로 변환 실패: {error}',
+            folderNoteOpenFailed: '파일은 변환되었지만 폴더 노트 열기 실패: {error}',
             failedToDeleteFile: '{name} 삭제 실패: {error}',
             failedToDeleteMultipleFiles: '{count}개의 파일 삭제 실패',
             versionHistoryNotAvailable: '버전 기록 서비스를 사용할 수 없습니다',
@@ -347,6 +356,7 @@ export const STRINGS_KO = {
         notifications: {
             deletedMultipleFiles: '{count}개의 파일이 삭제됨',
             movedMultipleFiles: '{count}개의 파일이 {folder}로 이동됨',
+            folderNoteConversionSuccess: '"{name}"에서 파일을 폴더 노트로 변환함',
             folderMoved: '폴더 "{name}"이(가) 이동됨',
             deepLinkCopied: '딥 링크가 클립보드에 복사됨',
             tagAddedToNote: '1개의 노트에 태그 추가됨',
@@ -424,6 +434,7 @@ export const STRINGS_KO = {
         deleteFile: '파일 삭제', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '새 노트 만들기', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '파일 이동', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: '폴더 노트로 변환', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: '폴더로 이동', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '태그로 이동', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: '하위 항목 전환', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)

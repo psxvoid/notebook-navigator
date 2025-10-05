@@ -98,9 +98,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
 
     // Notes tab
     useFrontmatterMetadata: false,
-    frontmatterNameField: '',
     frontmatterIconField: 'icon',
     frontmatterColorField: 'color',
+    frontmatterNameField: '',
     frontmatterCreatedField: '',
     frontmatterModifiedField: '',
     frontmatterDateFormat: '',

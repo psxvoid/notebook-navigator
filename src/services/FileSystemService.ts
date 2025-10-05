@@ -26,7 +26,7 @@ import { NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, ItemType } from '../types';
 import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
-import { getFolderNote } from '../utils/folderNotes';
+import { getFolderNote, isFolderNote, isSupportedFolderNoteExtension } from '../utils/folderNotes';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 import { executeCommand } from '../utils/typeGuards';
 import { TagTreeService } from './TagTreeService';
@@ -536,6 +536,176 @@ export class FileSystemOperations {
         );
 
         modal.open();
+    }
+
+    /**
+     * Converts a single file into a folder note by creating a sibling folder and moving the file inside
+     * @param file - The file to convert
+     * @param settings - Notebook Navigator settings for folder note configuration
+     */
+    async convertFileToFolderNote(file: TFile, settings: NotebookNavigatorSettings): Promise<void> {
+        // Validate folder notes are enabled
+        if (!settings.enableFolderNotes) {
+            new Notice(strings.fileSystem.errors.folderNotesDisabled);
+            return;
+        }
+
+        // Validate file has a parent folder
+        const parent = file.parent;
+        if (!parent || !(parent instanceof TFolder)) {
+            new Notice(strings.fileSystem.errors.folderNoteConversionFailed);
+            return;
+        }
+
+        const detectionSettings = {
+            enableFolderNotes: settings.enableFolderNotes,
+            folderNoteName: settings.folderNoteName
+        };
+
+        // Check if file is already acting as a folder note
+        if (isFolderNote(file, parent, detectionSettings)) {
+            new Notice(strings.fileSystem.errors.folderNoteAlreadyLinked);
+            return;
+        }
+
+        // Validate file extension is supported for folder notes
+        if (!isSupportedFolderNoteExtension(file.extension)) {
+            new Notice(strings.fileSystem.errors.folderNoteUnsupportedExtension.replace('{extension}', file.extension));
+            return;
+        }
+
+        // Build target folder path using the file's basename
+        const parentPath = parent.path === '/' ? '' : `${parent.path}/`;
+        const folderName = file.basename;
+        const targetFolderPath = normalizePath(`${parentPath}${folderName}`);
+
+        // Check if folder already exists to avoid conflicts
+        if (this.app.vault.getAbstractFileByPath(targetFolderPath)) {
+            new Notice(strings.fileSystem.errors.folderAlreadyExists.replace('{name}', folderName));
+            return;
+        }
+
+        // Determine final filename based on folder note settings
+        const finalBaseName = settings.folderNoteName ? settings.folderNoteName : folderName;
+
+        // Create the target folder
+        try {
+            await this.app.vault.createFolder(targetFolderPath);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            new Notice(strings.fileSystem.errors.createFolder.replace('{error}', message));
+            return;
+        }
+
+        // Verify folder was created successfully
+        const targetFolder = this.app.vault.getAbstractFileByPath(targetFolderPath);
+        if (!targetFolder || !(targetFolder instanceof TFolder)) {
+            new Notice(strings.fileSystem.errors.folderNoteConversionFailed);
+            return;
+        }
+
+        try {
+            // Move file into the newly created folder
+            const moveResult = await this.moveFilesToFolder({
+                files: [file],
+                targetFolder,
+                showNotifications: false
+            });
+
+            // Handle move failure by cleaning up empty folder
+            if (moveResult.movedCount === 0) {
+                await this.removeFolderIfEmpty(targetFolder);
+                const firstError = moveResult.errors[0]?.error;
+                const message =
+                    firstError instanceof Error
+                        ? firstError.message
+                        : typeof firstError === 'string'
+                          ? firstError
+                          : strings.common.unknownError;
+                new Notice(strings.fileSystem.errors.folderNoteMoveFailed.replace('{error}', message));
+                return;
+            }
+
+            // Get reference to the moved file
+            const movedFilePath = normalizePath(`${targetFolder.path}/${file.name}`);
+            const movedFileEntry = this.app.vault.getAbstractFileByPath(movedFilePath);
+            if (!movedFileEntry || !(movedFileEntry instanceof TFile)) {
+                new Notice(strings.fileSystem.errors.folderNoteConversionFailed);
+                return;
+            }
+            let movedFile: TFile = movedFileEntry;
+
+            // Rename file if folder note name setting requires it
+            const finalFileName = `${finalBaseName}.${file.extension}`;
+            const finalPath = normalizePath(`${targetFolder.path}/${finalFileName}`);
+
+            if (movedFile.path !== finalPath) {
+                if (this.app.vault.getAbstractFileByPath(finalPath)) {
+                    new Notice(strings.fileSystem.errors.folderNoteRenameConflict.replace('{name}', finalFileName));
+                } else {
+                    await this.app.fileManager.renameFile(movedFile, finalPath);
+                    const updatedFile = this.app.vault.getAbstractFileByPath(finalPath);
+                    if (updatedFile instanceof TFile) {
+                        movedFile = updatedFile;
+                    }
+                }
+            }
+
+            // Attempt to open the folder note using command queue for proper context tracking
+            const commandQueue = this.getCommandQueue();
+            let opened = false;
+
+            if (commandQueue) {
+                const openResult = await commandQueue.executeOpenFolderNote(targetFolder.path, async () => {
+                    await this.app.workspace.getLeaf().openFile(movedFile);
+                });
+
+                if (openResult.success) {
+                    opened = true;
+                } else {
+                    console.error('Failed to open folder note via command queue', openResult.error);
+                }
+            }
+
+            // Fallback to direct file opening if command queue unavailable or failed
+            if (!opened) {
+                try {
+                    await this.app.workspace.getLeaf().openFile(movedFile);
+                    opened = true;
+                } catch (openError) {
+                    console.error('Failed to open folder note after conversion', openError);
+                    const message = openError instanceof Error ? openError.message : String(openError);
+                    new Notice(strings.fileSystem.errors.folderNoteOpenFailed.replace('{error}', message));
+                }
+            }
+
+            // Show success notification only if file was successfully opened
+            if (opened) {
+                new Notice(strings.fileSystem.notifications.folderNoteConversionSuccess.replace('{name}', targetFolder.name));
+            }
+        } catch (error) {
+            // Clean up folder on any error and show error message
+            await this.removeFolderIfEmpty(targetFolder);
+            const message = error instanceof Error ? error.message : String(error);
+            new Notice(strings.fileSystem.errors.folderNoteConversionFailedWithReason.replace('{error}', message));
+        }
+    }
+
+    /**
+     * Removes a folder if it's empty
+     * Used for cleanup after failed folder note conversion
+     * @param folder - The folder to remove if empty
+     */
+    private async removeFolderIfEmpty(folder: TFolder): Promise<void> {
+        if (folder.children.length > 0) {
+            return;
+        }
+
+        try {
+            await this.app.fileManager.trashFile(folder);
+        } catch (error) {
+            console.error('Failed to remove folder after conversion failure', error);
+        }
     }
 
     /**

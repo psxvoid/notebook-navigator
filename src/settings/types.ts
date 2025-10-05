@@ -112,9 +112,9 @@ export interface NotebookNavigatorSettings {
 
     // Notes tab
     useFrontmatterMetadata: boolean;
-    frontmatterNameField: string;
     frontmatterIconField: string;
     frontmatterColorField: string;
+    frontmatterNameField: string;
     frontmatterCreatedField: string;
     frontmatterModifiedField: string;
     frontmatterDateFormat: string;

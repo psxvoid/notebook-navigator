@@ -334,6 +334,15 @@ export const STRINGS_FR = {
             versionHistoryNotFound: "Commande d'historique des versions introuvable. Assurez-vous qu'Obsidian Sync est activé.",
             revealInExplorer: "Échec de l'affichage du fichier dans l'explorateur système : {error}",
             folderNoteAlreadyExists: 'La note de dossier existe déjà',
+            folderAlreadyExists: 'Le dossier "{name}" existe déjà',
+            folderNotesDisabled: 'Activez les notes de dossier dans les paramètres pour convertir des fichiers',
+            folderNoteAlreadyLinked: 'Ce fichier agit déjà comme une note de dossier',
+            folderNoteUnsupportedExtension: "Extension de fichier non prise en charge : {extension}",
+            folderNoteMoveFailed: 'Échec du déplacement du fichier pendant la conversion : {error}',
+            folderNoteRenameConflict: 'Un fichier nommé "{name}" existe déjà dans le dossier',
+            folderNoteConversionFailed: 'Échec de la conversion du fichier en note de dossier',
+            folderNoteConversionFailedWithReason: 'Échec de la conversion du fichier en note de dossier : {error}',
+            folderNoteOpenFailed: "Fichier converti mais échec de l'ouverture de la note de dossier : {error}",
             failedToDeleteFile: 'Échec de la suppression de {name} : {error}',
             failedToDeleteMultipleFiles: 'Échec de la suppression de {count} fichiers',
             versionHistoryNotAvailable: "Service d'historique des versions non disponible",
@@ -348,6 +357,7 @@ export const STRINGS_FR = {
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
             movedMultipleFiles: '{count} fichiers déplacés vers {folder}',
+            folderNoteConversionSuccess: 'Fichier converti en note de dossier dans "{name}"',
             folderMoved: 'Dossier "{name}" déplacé',
             deepLinkCopied: 'Lien profond copié dans le presse-papiers',
             tagAddedToNote: 'Étiquette ajoutée à 1 note',
@@ -425,6 +435,7 @@ export const STRINGS_FR = {
         deleteFile: 'Supprimer les fichiers', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Créer une nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Déplacer les fichiers', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'Convertir en note de dossier', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Naviguer vers le dossier', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: 'Basculer descendants', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)

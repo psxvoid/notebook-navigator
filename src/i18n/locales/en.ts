@@ -333,6 +333,15 @@ export const STRINGS_EN = {
             versionHistoryNotFound: 'Version history command not found. Ensure Obsidian Sync is enabled.',
             revealInExplorer: 'Failed to reveal file in system explorer: {error}',
             folderNoteAlreadyExists: 'Folder note already exists',
+            folderAlreadyExists: 'Folder "{name}" already exists',
+            folderNotesDisabled: 'Enable folder notes in settings to convert files',
+            folderNoteAlreadyLinked: 'This file already acts as a folder note',
+            folderNoteUnsupportedExtension: 'Unsupported file extension: {extension}',
+            folderNoteMoveFailed: 'Failed to move file during conversion: {error}',
+            folderNoteRenameConflict: 'A file named "{name}" already exists in the folder',
+            folderNoteConversionFailed: 'Failed to convert file to folder note',
+            folderNoteConversionFailedWithReason: 'Failed to convert file to folder note: {error}',
+            folderNoteOpenFailed: 'Converted file but failed to open folder note: {error}',
             failedToDeleteFile: 'Failed to delete {name}: {error}',
             failedToDeleteMultipleFiles: 'Failed to delete {count} files',
             versionHistoryNotAvailable: 'Version history service not available',
@@ -347,6 +356,7 @@ export const STRINGS_EN = {
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
             movedMultipleFiles: 'Moved {count} files to {folder}',
+            folderNoteConversionSuccess: 'Converted file to folder note in "{name}"',
             folderMoved: 'Moved folder "{name}"',
             deepLinkCopied: 'Deep link copied to clipboard',
             tagAddedToNote: 'Added tag to 1 note',
@@ -424,6 +434,7 @@ export const STRINGS_EN = {
         deleteFile: 'Delete files', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'Convert to folder note', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: 'Toggle descendants', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
@@ -903,11 +914,6 @@ export const STRINGS_EN = {
                 name: 'Read metadata from frontmatter (*)',
                 desc: 'Read note names, timestamps, icons, and colors from frontmatter when available, falling back to file system values or settings'
             },
-            frontmatterNameField: {
-                name: 'Name field',
-                desc: 'Frontmatter field to use as the note display name. Leave empty to use the file name.',
-                placeholder: 'title'
-            },
             frontmatterIconField: {
                 name: 'Icon field',
                 desc: 'Frontmatter field for file icons. Leave empty to use icons stored in settings.',
@@ -931,6 +937,11 @@ export const STRINGS_EN = {
                 noticeDone: 'Migrated {migratedIcons}/{icons} icons, {migratedColors}/{colors} colors.',
                 noticeFailures: 'Failed entries: {failures}.',
                 noticeError: 'Migration failed. Check console for details.'
+            },
+            frontmatterNameField: {
+                name: 'Name field',
+                desc: 'Frontmatter field to use as the note display name. Leave empty to use the file name.',
+                placeholder: 'title'
             },
             frontmatterCreatedField: {
                 name: 'Created timestamp field',

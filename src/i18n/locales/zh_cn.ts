@@ -334,6 +334,15 @@ export const STRINGS_ZH_CN = {
             versionHistoryNotFound: '未找到版本历史命令。请确保已启用 Obsidian 同步。',
             revealInExplorer: '在系统资源管理器中显示文件失败：{error}',
             folderNoteAlreadyExists: '文件夹笔记已存在',
+            folderAlreadyExists: '文件夹"{name}"已存在',
+            folderNotesDisabled: '请在设置中启用文件夹笔记以转换文件',
+            folderNoteAlreadyLinked: '此文件已作为文件夹笔记',
+            folderNoteUnsupportedExtension: '不支持的文件扩展名：{extension}',
+            folderNoteMoveFailed: '转换过程中移动文件失败：{error}',
+            folderNoteRenameConflict: '文件夹中已存在名为"{name}"的文件',
+            folderNoteConversionFailed: '转换为文件夹笔记失败',
+            folderNoteConversionFailedWithReason: '转换为文件夹笔记失败：{error}',
+            folderNoteOpenFailed: '文件已转换但打开文件夹笔记失败：{error}',
             failedToDeleteFile: '删除 {name} 失败: {error}',
             failedToDeleteMultipleFiles: '删除{count}个文件失败',
             versionHistoryNotAvailable: '版本历史服务不可用',
@@ -348,6 +357,7 @@ export const STRINGS_ZH_CN = {
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
             movedMultipleFiles: '已将{count}个文件移动到{folder}',
+            folderNoteConversionSuccess: '已在"{name}"中将文件转换为文件夹笔记',
             folderMoved: '已移动文件夹"{name}"',
             deepLinkCopied: '深层链接已复制到剪贴板',
             tagAddedToNote: '已将标签添加到 1 个笔记',
@@ -425,6 +435,7 @@ export const STRINGS_ZH_CN = {
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: '转换为文件夹笔记', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: '切换后代', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)

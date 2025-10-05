@@ -333,6 +333,15 @@ export const STRINGS_ZH_TW = {
             versionHistoryNotFound: '找不到版本歷史指令。請確保已啟用 Obsidian Sync。',
             revealInExplorer: '在系統檔案總管中顯示檔案失敗：{error}',
             folderNoteAlreadyExists: '資料夾筆記已存在',
+            folderAlreadyExists: '資料夾「{name}」已存在',
+            folderNotesDisabled: '請在設定中啟用資料夾筆記以轉換檔案',
+            folderNoteAlreadyLinked: '此檔案已作為資料夾筆記',
+            folderNoteUnsupportedExtension: '不支援的檔案副檔名：{extension}',
+            folderNoteMoveFailed: '轉換過程中移動檔案失敗：{error}',
+            folderNoteRenameConflict: '資料夾中已存在名為「{name}」的檔案',
+            folderNoteConversionFailed: '轉換為資料夾筆記失敗',
+            folderNoteConversionFailedWithReason: '轉換為資料夾筆記失敗：{error}',
+            folderNoteOpenFailed: '檔案已轉換但開啟資料夾筆記失敗：{error}',
             failedToDeleteFile: '刪除 {name} 失敗：{error}',
             failedToDeleteMultipleFiles: '刪除 {count} 個檔案失敗',
             versionHistoryNotAvailable: '版本歷史服務不可用',
@@ -347,6 +356,7 @@ export const STRINGS_ZH_TW = {
         notifications: {
             deletedMultipleFiles: '已刪除 {count} 個檔案',
             movedMultipleFiles: '已將 {count} 個檔案移動至 {folder}',
+            folderNoteConversionSuccess: '已在「{name}」中將檔案轉換為資料夾筆記',
             folderMoved: '已移動資料夾 "{name}" ',
             deepLinkCopied: '深層連結已複製到剪貼簿',
             tagAddedToNote: '已將標籤新增至 1 則筆記',
@@ -424,6 +434,7 @@ export const STRINGS_ZH_TW = {
         deleteFile: '刪除檔案', // 指令面板：刪除目前活動的檔案 (英文: Delete file)
         createNewNote: '建立新筆記', // 指令面板：在目前選取的資料夾中建立新筆記 (英文: Create new note)
         moveFiles: '移動檔案', // 指令面板：將選取的檔案移動至另一個資料夾 (英文: Move files)
+        convertToFolderNote: '轉換為資料夾筆記', // 指令面板：將活動檔案轉換為帶有新資料夾的資料夾筆記 (英文: Convert to folder note)
         navigateToFolder: '導覽至資料夾', // 指令面板：使用模糊搜尋導覽至資料夾 (英文: Navigate to folder)
         navigateToTag: '導覽至標籤', // 指令面板：使用模糊搜尋導覽至標籤 (英文: Navigate to tag)
         toggleDescendants: '切換後代項目', // 指令面板：切換顯示後代中的筆記 (英文: Toggle descendants)

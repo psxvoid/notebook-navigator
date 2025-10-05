@@ -22,10 +22,21 @@ import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
 
+/**
+ * Type guard to check if a file is a markdown file
+ * @param file - The file to check
+ * @returns True if the file is a markdown file
+ */
 function isMarkdownFile(file: TAbstractFile | null): file is TFile {
     return file instanceof TFile && file.extension === 'md';
 }
 
+/**
+ * Counts the number of markdown files with metadata entries
+ * @param records - Record of file paths to metadata values
+ * @param app - The Obsidian app instance
+ * @returns The number of markdown files with metadata entries
+ */
 function countMarkdownMetadataEntries(records: Record<string, string> | undefined, app: App): number {
     if (!records) {
         return 0;
@@ -70,17 +81,6 @@ export function renderNotesTab(context: SettingsTabContext): void {
     const frontmatterSettingsEl = containerEl.createDiv('nn-sub-settings');
     // Function to update visibility of frontmatter save setting based on field values
     let updateFrontmatterSaveVisibility: (() => void) | null = null;
-
-    createDebouncedTextSetting(
-        frontmatterSettingsEl,
-        strings.settings.items.frontmatterNameField.name,
-        strings.settings.items.frontmatterNameField.desc,
-        strings.settings.items.frontmatterNameField.placeholder,
-        () => plugin.settings.frontmatterNameField,
-        value => {
-            plugin.settings.frontmatterNameField = value || '';
-        }
-    );
 
     const frontmatterIconSetting = createDebouncedTextSetting(
         frontmatterSettingsEl,
@@ -198,6 +198,17 @@ export function renderNotesTab(context: SettingsTabContext): void {
     };
 
     updateMigrationDescription();
+
+    createDebouncedTextSetting(
+        frontmatterSettingsEl,
+        strings.settings.items.frontmatterNameField.name,
+        strings.settings.items.frontmatterNameField.desc,
+        strings.settings.items.frontmatterNameField.placeholder,
+        () => plugin.settings.frontmatterNameField,
+        value => {
+            plugin.settings.frontmatterNameField = value || '';
+        }
+    );
 
     createDebouncedTextSetting(
         frontmatterSettingsEl,

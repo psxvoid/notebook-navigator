@@ -334,6 +334,15 @@ export const STRINGS_JA = {
             versionHistoryNotFound: 'バージョン履歴コマンドが見つかりません。Obsidian Syncが有効になっていることを確認してください。',
             revealInExplorer: 'システムエクスプローラーでファイルを表示できませんでした：{error}',
             folderNoteAlreadyExists: 'フォルダノートはすでに存在します',
+            folderAlreadyExists: 'フォルダ「{name}」は既に存在します',
+            folderNotesDisabled: 'ファイルを変換するには設定でフォルダノートを有効にしてください',
+            folderNoteAlreadyLinked: 'このファイルは既にフォルダノートとして機能しています',
+            folderNoteUnsupportedExtension: 'サポートされていないファイル拡張子：{extension}',
+            folderNoteMoveFailed: '変換中のファイル移動に失敗しました：{error}',
+            folderNoteRenameConflict: '「{name}」という名前のファイルが既にフォルダ内に存在します',
+            folderNoteConversionFailed: 'フォルダノートへの変換に失敗しました',
+            folderNoteConversionFailedWithReason: 'フォルダノートへの変換に失敗しました：{error}',
+            folderNoteOpenFailed: 'ファイルは変換されましたが、フォルダノートを開くのに失敗しました：{error}',
             failedToDeleteFile: '{name}の削除に失敗しました: {error}',
             failedToDeleteMultipleFiles: '{count}個のファイルの削除に失敗しました',
             versionHistoryNotAvailable: 'バージョン履歴サービスが利用できません',
@@ -348,6 +357,7 @@ export const STRINGS_JA = {
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
             movedMultipleFiles: '{count}個のファイルを{folder}に移動しました',
+            folderNoteConversionSuccess: '「{name}」内のフォルダノートにファイルを変換しました',
             folderMoved: 'フォルダ「{name}」を移動しました',
             deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
             tagAddedToNote: '1個のノートにタグを追加しました',
@@ -425,6 +435,7 @@ export const STRINGS_JA = {
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'フォルダノートに変換', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: '子孫切り替え', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)

@@ -335,6 +335,15 @@ export const STRINGS_PL = {
             versionHistoryNotFound: 'Nie znaleziono komendy historii wersji. Upewnij się, że Obsidian Sync jest włączony.',
             revealInExplorer: 'Nie udało się pokazać pliku w eksploratorze systemowym: {error}',
             folderNoteAlreadyExists: 'Notatka folderu już istnieje',
+            folderAlreadyExists: 'Folder "{name}" już istnieje',
+            folderNotesDisabled: 'Włącz notatki folderu w ustawieniach, aby konwertować pliki',
+            folderNoteAlreadyLinked: 'Ten plik już działa jako notatka folderu',
+            folderNoteUnsupportedExtension: 'Nieobsługiwane rozszerzenie pliku: {extension}',
+            folderNoteMoveFailed: 'Nie udało się przenieść pliku podczas konwersji: {error}',
+            folderNoteRenameConflict: 'Plik o nazwie "{name}" już istnieje w folderze',
+            folderNoteConversionFailed: 'Nie udało się przekonwertować pliku na notatkę folderu',
+            folderNoteConversionFailedWithReason: 'Nie udało się przekonwertować pliku na notatkę folderu: {error}',
+            folderNoteOpenFailed: 'Przekonwertowano plik, ale nie udało się otworzyć notatki folderu: {error}',
             failedToDeleteFile: 'Nie udało się usunąć {name}: {error}',
             failedToDeleteMultipleFiles: 'Nie udało się usunąć {count} plików',
             versionHistoryNotAvailable: 'Usługa historii wersji niedostępna',
@@ -349,6 +358,7 @@ export const STRINGS_PL = {
         notifications: {
             deletedMultipleFiles: 'Usunięto {count} plików',
             movedMultipleFiles: 'Przeniesiono {count} plików do {folder}',
+            folderNoteConversionSuccess: 'Przekonwertowano plik na notatkę folderu w "{name}"',
             folderMoved: 'Przeniesiono folder "{name}"',
             deepLinkCopied: 'Głęboki link skopiowany do schowka',
             tagAddedToNote: 'Dodano tag do 1 notatki',
@@ -426,6 +436,7 @@ export const STRINGS_PL = {
         deleteFile: 'Usuń pliki', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Utwórz nową notatkę', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Przenieś pliki', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'Konwertuj na notatkę folderu', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Przejdź do folderu', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Przejdź do tagu', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: 'Przełącz podfoldery', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)

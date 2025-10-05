@@ -336,6 +336,15 @@ export const STRINGS_DE = {
             versionHistoryNotFound: 'Versionsverlauf-Befehl nicht gefunden. Stellen Sie sicher, dass Obsidian Sync aktiviert ist.',
             revealInExplorer: 'Datei konnte nicht im Explorer angezeigt werden: {error}',
             folderNoteAlreadyExists: 'Ordnernotiz existiert bereits',
+            folderAlreadyExists: 'Ordner "{name}" existiert bereits',
+            folderNotesDisabled: 'Aktivieren Sie Ordnernotizen in den Einstellungen, um Dateien zu konvertieren',
+            folderNoteAlreadyLinked: 'Diese Datei fungiert bereits als Ordnernotiz',
+            folderNoteUnsupportedExtension: 'Nicht unterstützte Dateierweiterung: {extension}',
+            folderNoteMoveFailed: 'Datei konnte während der Konvertierung nicht verschoben werden: {error}',
+            folderNoteRenameConflict: 'Eine Datei namens "{name}" existiert bereits im Ordner',
+            folderNoteConversionFailed: 'Konvertierung in Ordnernotiz fehlgeschlagen',
+            folderNoteConversionFailedWithReason: 'Konvertierung in Ordnernotiz fehlgeschlagen: {error}',
+            folderNoteOpenFailed: 'Datei konvertiert, aber Ordnernotiz konnte nicht geöffnet werden: {error}',
             failedToDeleteFile: 'Löschen von {name} fehlgeschlagen: {error}',
             failedToDeleteMultipleFiles: 'Löschen von {count} Dateien fehlgeschlagen',
             versionHistoryNotAvailable: 'Versionsverlauf-Dienst nicht verfügbar',
@@ -350,6 +359,7 @@ export const STRINGS_DE = {
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
             movedMultipleFiles: '{count} Dateien nach {folder} verschoben',
+            folderNoteConversionSuccess: 'Datei in Ordnernotiz in "{name}" konvertiert',
             folderMoved: 'Ordner "{name}" verschoben',
             deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
             tagAddedToNote: 'Tag zu 1 Notiz hinzugefügt',
@@ -427,6 +437,7 @@ export const STRINGS_DE = {
         deleteFile: 'Dateien löschen', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'In Ordnernotiz konvertieren', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: 'Nachkommen umschalten', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
