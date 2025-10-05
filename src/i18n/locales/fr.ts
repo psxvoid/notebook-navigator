@@ -337,7 +337,7 @@ export const STRINGS_FR = {
             folderAlreadyExists: 'Le dossier "{name}" existe déjà',
             folderNotesDisabled: 'Activez les notes de dossier dans les paramètres pour convertir des fichiers',
             folderNoteAlreadyLinked: 'Ce fichier agit déjà comme une note de dossier',
-            folderNoteUnsupportedExtension: "Extension de fichier non prise en charge : {extension}",
+            folderNoteUnsupportedExtension: 'Extension de fichier non prise en charge : {extension}',
             folderNoteMoveFailed: 'Échec du déplacement du fichier pendant la conversion : {error}',
             folderNoteRenameConflict: 'Un fichier nommé "{name}" existe déjà dans le dossier',
             folderNoteConversionFailed: 'Échec de la conversion du fichier en note de dossier',
