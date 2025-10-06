@@ -73,22 +73,27 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.5.2',
         date: '2025-10-05',
+        info: [
+            'In this release we have two new super great features: (1) Shortcuts can now be pinned to top of list, and (2) settings have now been reorganized into tabs. In addition to that there are tons of improvements all over the app.',
+            'Thanks a lot for all your support and feedback!'
+        ].join('\n\n'),
         new: [
-            '==Two new style settings: File name font weight and Custom color file name font weight==. You can now change the font weight of files in Shortcuts and Recent files.',
+            '==Shortcuts can now be pinned== to the top of list! Just press the new bookmark icon 🔖 in the pane header!',
             '==New setting: Separate mobile homepage==. You can now configure a different homepage for mobile devices.',
             '==New setting. Apply color to icons only==. When enabled, custom colors are applied only to icons. When disabled, colors are applied to both icons and text labels.',
-            '==Read file icon and file color from frontmatter==. File icons and colors can now be read from frontmatter metadata.',
-            '**Write file icon and file color to frontmatter**: You can now save file icons and colors to frontmatter instead of settings.',
-            '**Migrate from settings to frontmatter**: Migration tool to move all file colors and file icons from plugin settings to frontmatter.',
-            '**Convert to folder note**: New command to convert any file into a folder note by creating a matching folder and moving the file inside.',
+            '==New setting: Read file icon and file color from frontmatter==. File icons and colors can now be read from frontmatter metadata.',
+            '==New setting: Write file icon and file color to frontmatter==: You can now save file icons and colors to frontmatter instead of settings.',
+            '==New settings button: Migrate icon and color to frontmatter==: Migration tool to move all file colors and file icons from plugin settings to frontmatter.',
+            '==New command: Convert to folder note==: New command to convert any file into a folder note by creating a matching folder and moving the file inside.',
+            '==Two new style settings: File name font weight and Custom color file name font weight==. You can now change the font weight of files in Shortcuts and Recent files.',
             'Notebook Navigator now checks for new releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most once per day and can be disabled in settings.',
             'Notebook Navigator is now translated to **traditional Chinese** (繁體中文) thanks to @emisjerry!'
         ],
         improved: [
-            'File color now applies to both the file icon and file name (previously it only applied to the icon). You can now also apply file color without having an icon set.',
-            'The parent folder icon in file list now shows the actual parent folder icon instead of a generic folder icon.',
+            'File color now applies to both the file icon and file name (previously file color only applied to the icon). You can now also apply file color without having an icon set.',
             'Canvas and Base files are now clearly marked with icons in the slim file list style. External files are also now clearly marked with a shortcut icon.',
             'You can now drag and drop external files from outside Obsidian directly into the file list to import them into the vault.',
+            'The parent folder icon in file list now shows the actual parent folder icon instead of a generic folder icon.',
             'List will no longer scroll to the selected item when deleting or moving items in the list pane.'
         ],
         changed: ['**Settings are now reorganized into tabs**: Settings are now organized into tabs for easier navigation.']
