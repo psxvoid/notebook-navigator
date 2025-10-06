@@ -1446,6 +1446,7 @@ export const NavigationPane = React.memo(
                                 level={item.level}
                                 type="note"
                                 onClick={() => handleShortcutNoteActivate(note, item.key)}
+                                onMouseDown={event => handleShortcutNoteMouseDown(event, note)}
                                 onContextMenu={event =>
                                     handleShortcutContextMenu(event, {
                                         type: 'note',
@@ -1614,6 +1615,7 @@ export const NavigationPane = React.memo(
                                 level={item.level}
                                 type="note"
                                 onClick={() => handleRecentNoteActivate(note)}
+                                onMouseDown={event => handleShortcutNoteMouseDown(event, note)}
                                 onContextMenu={event => handleRecentFileContextMenu(event, note)}
                             />
                         );
@@ -1709,6 +1711,7 @@ export const NavigationPane = React.memo(
                 getTagShortcutCount,
                 handleShortcutFolderActivate,
                 handleShortcutNoteActivate,
+                handleShortcutNoteMouseDown,
                 handleShortcutSearchActivate,
                 handleShortcutTagActivate,
                 handleRecentNoteActivate,

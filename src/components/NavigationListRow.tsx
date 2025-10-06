@@ -34,6 +34,7 @@ interface NavigationListRowProps {
     isDisabled?: boolean;
     isExcluded?: boolean;
     onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+    onMouseDown?: (event: React.MouseEvent<HTMLDivElement>) => void;
     onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
     dragHandlers?: ListReorderHandlers;
     showDropIndicatorBefore?: boolean;
@@ -61,6 +62,7 @@ export function NavigationListRow({
     isDisabled,
     isExcluded,
     onClick,
+    onMouseDown,
     onContextMenu,
     dragHandlers,
     showDropIndicatorBefore,
@@ -85,6 +87,7 @@ export function NavigationListRow({
     // Determine whether to apply color to the label text instead of the icon
     const applyColorToLabel = Boolean(color) && !settings.colorIconOnly;
 
+    // Compute CSS style for label with color when colorIconOnly is disabled
     const labelStyle = useMemo(() => {
         return applyColorToLabel && color ? { color } : undefined;
     }, [applyColorToLabel, color]);
@@ -190,6 +193,7 @@ export function NavigationListRow({
             aria-level={level + 1}
             draggable={rowDraggable}
             onClick={onClick}
+            onMouseDown={onMouseDown}
             onContextMenu={onContextMenu}
             onDragStart={rowDraggable ? dragHandlers?.onDragStart : undefined}
             onDragOver={dragHandlers?.onDragOver}
