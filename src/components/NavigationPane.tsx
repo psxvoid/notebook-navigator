@@ -1060,6 +1060,29 @@ export const NavigationPane = React.memo(
             ]
         );
 
+        // Handle middle-click on note items to open in a new tab
+        const handleShortcutNoteMouseDown = useCallback(
+            (event: React.MouseEvent<HTMLDivElement>, note: TFile) => {
+                // Check if middle mouse button (button 1) was clicked
+                if (event.button !== 1) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Use command queue if available to ensure proper focus and context handling
+                if (commandQueue) {
+                    commandQueue.executeOpenInNewContext(note, 'tab', async () => {
+                        await app.workspace.getLeaf('tab').openFile(note);
+                    });
+                } else {
+                    app.workspace.getLeaf('tab').openFile(note);
+                }
+            },
+            [app.workspace, commandQueue]
+        );
+
         const handleRecentNoteActivate = useCallback(
             (note: TFile) => {
                 if (selectionState.selectionType === ItemType.TAG && onRevealShortcutFile) {
