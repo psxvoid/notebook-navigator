@@ -297,8 +297,7 @@ export function useNavigationPaneScroll({
         const index = resolveIndex(selectedPath, currentSelectionType);
 
         if (index !== undefined && index >= 0) {
-            const alignPreference = getNavAlign('selection');
-            rowVirtualizer.scrollToIndex(index, { align: alignPreference });
+            rowVirtualizer.scrollToIndex(index, { align: getNavAlign('selection') });
         }
     }, [
         selectedPath,
@@ -350,8 +349,7 @@ export function useNavigationPaneScroll({
             const tagIndex = resolveIndex(selectionState.selectedTag, ItemType.TAG);
 
             if (tagIndex !== undefined && tagIndex >= 0) {
-                const alignPreference = getNavAlign('selection');
-                rowVirtualizer.scrollToIndex(tagIndex, { align: alignPreference });
+                rowVirtualizer.scrollToIndex(tagIndex, { align: getNavAlign('selection') });
             }
         }
     }, [

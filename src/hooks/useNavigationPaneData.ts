@@ -61,6 +61,7 @@ import { useRootFolderOrder } from './useRootFolderOrder';
 import { isFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
 import { getDBInstance } from '../storage/fileOperations';
 
+// Checks if a navigation item is a shortcut-related item (virtual folder, shortcut, or header)
 const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
     if (item.type === NavigationPaneItemType.VIRTUAL_FOLDER) {
         return item.data.id === SHORTCUTS_VIRTUAL_FOLDER_ID;
@@ -717,6 +718,7 @@ export function useNavigationPaneData({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [items, parsedExcludedFolders, metadataService, metadataVersion]);
 
+    // Extract shortcut items when pinning is enabled for display in pinned area
     const shortcutItemsWithMetadata = useMemo(() => {
         if (!pinShortcuts) {
             return [] as CombinedNavigationItem[];
@@ -730,6 +732,7 @@ export function useNavigationPaneData({
      * When showHiddenItems is false, filter out folders marked as excluded
      */
     const filteredItems = useMemo(() => {
+        // When pinning shortcuts, exclude them from main tree (they're rendered separately)
         const baseItems = pinShortcuts ? itemsWithMetadata.filter(current => !isShortcutNavigationItem(current)) : itemsWithMetadata;
 
         if (settings.showHiddenItems) {

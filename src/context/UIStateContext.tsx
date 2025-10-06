@@ -40,6 +40,7 @@ interface UIState {
     dualPanePreference: boolean;
     dualPane: boolean;
     singlePane: boolean;
+    /** Whether shortcuts should be pinned at the top of the navigation pane */
     pinShortcuts: boolean;
 }
 
@@ -49,7 +50,7 @@ export type UIAction =
     | { type: 'SET_SINGLE_PANE_VIEW'; view: 'navigation' | 'files' }
     | { type: 'SET_PANE_WIDTH'; width: number }
     | { type: 'SET_DUAL_PANE'; value: boolean }
-    | { type: 'SET_PIN_SHORTCUTS'; value: boolean };
+    | { type: 'SET_PIN_SHORTCUTS'; value: boolean }; // Toggle shortcuts pinned state
 
 // Create contexts
 const UIStateContext = createContext<UIState | null>(null);
@@ -70,6 +71,7 @@ function uiStateReducer(state: UIState, action: UIAction): UIState {
         case 'SET_DUAL_PANE':
             return { ...state, dualPanePreference: action.value };
 
+        // Update shortcuts pinned state
         case 'SET_PIN_SHORTCUTS':
             return { ...state, pinShortcuts: action.value };
 
@@ -89,6 +91,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
 
     const loadInitialState = (): UIState => {
         const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
+        // Load persisted shortcuts pinned state from local storage
         const savedShortcutPin = localStorage.get<string>(STORAGE_KEYS.shortcutsPinnedKey);
 
         const paneWidth = savedWidth ?? NAVIGATION_PANE_DIMENSIONS.defaultWidth;
@@ -101,6 +104,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
             dualPanePreference: plugin.useDualPane(),
             dualPane: false, // Will be computed later
             singlePane: false, // Will be computed later
+            // Parse pinShortcuts from local storage (stored as '1' for true, '0' for false)
             pinShortcuts: savedShortcutPin === '1'
         };
 
@@ -133,6 +137,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         };
     }, [plugin]);
 
+    // Persist pinShortcuts state to local storage whenever it changes
     useEffect(() => {
         localStorage.set(STORAGE_KEYS.shortcutsPinnedKey, state.pinShortcuts ? '1' : '0');
     }, [state.pinShortcuts]);

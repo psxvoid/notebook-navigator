@@ -577,6 +577,7 @@ export const NavigationPane = React.memo(
         const tagTree = fileData.tagTree;
 
         // Use the new data hook - now returns filtered items and pathToIndex
+        // Determine if shortcuts should be pinned based on UI state and settings
         const shouldPinShortcuts = uiState.pinShortcuts && settings.showShortcuts;
 
         const { items, shortcutItems, pathToIndex, shortcutIndex, tagCounts, folderCounts, rootLevelFolders } = useNavigationPaneData({
@@ -587,6 +588,7 @@ export const NavigationPane = React.memo(
             pinShortcuts: shouldPinShortcuts
         });
 
+        // Extract shortcut items to display in pinned area when pinning is enabled
         const pinnedShortcutItems = shouldPinShortcuts ? shortcutItems : [];
 
         const vaultRootFolder = useMemo(() => app.vault.getRoot(), [app]);
@@ -972,13 +974,16 @@ export const NavigationPane = React.memo(
             ]
         );
 
-        // Scrolls a shortcut into view when activated
+        // Toggles the pinned shortcuts state between pinned and unpinned
         const handleShortcutSplitToggle = useCallback(() => {
             uiDispatch({ type: 'SET_PIN_SHORTCUTS', value: !uiState.pinShortcuts });
         }, [uiDispatch, uiState.pinShortcuts]);
 
+        // Scrolls a shortcut into view when activated
+
         const scrollShortcutIntoView = useCallback(
             (shortcutKey: string) => {
+                // When shortcuts are pinned, scroll to top to show pinned area
                 if (shouldPinShortcuts) {
                     const container = scrollContainerRef.current;
                     if (container) {

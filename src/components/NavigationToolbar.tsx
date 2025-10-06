@@ -59,7 +59,7 @@ export function NavigationToolbar({
                     }}
                     tabIndex={-1}
                 >
-                    <ObsidianIcon name={uiState.pinShortcuts ? 'lucide-pin-off' : 'lucide-pin'} />
+                    <ObsidianIcon name={uiState.pinShortcuts ? 'lucide-bookmark-minus' : 'lucide-bookmark'} />
                 </button>
             ) : null}
             <button
