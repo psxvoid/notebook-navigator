@@ -26,7 +26,7 @@ import { useNavigationActions } from '../hooks/useNavigationActions';
 
 interface NavigationPaneHeaderProps {
     onTreeUpdateComplete?: () => void;
-    onScrollToShortcuts?: () => void;
+    onTogglePinnedShortcuts?: () => void;
     onToggleRootFolderReorder?: () => void;
     rootReorderActive?: boolean;
     rootReorderDisabled?: boolean;
@@ -34,7 +34,7 @@ interface NavigationPaneHeaderProps {
 
 export function NavigationPaneHeader({
     onTreeUpdateComplete,
-    onScrollToShortcuts,
+    onTogglePinnedShortcuts,
     onToggleRootFolderReorder,
     rootReorderActive,
     rootReorderDisabled
@@ -70,15 +70,15 @@ export function NavigationPaneHeader({
                     {settings.showShortcuts ? (
                         <button
                             className="nn-icon-button"
-                            aria-label={strings.paneHeader.scrollToTop}
+                            aria-label={uiState.pinShortcuts ? strings.navigationPane.unpinShortcuts : strings.navigationPane.pinShortcuts}
                             onClick={() => {
-                                if (onScrollToShortcuts) {
-                                    onScrollToShortcuts();
+                                if (onTogglePinnedShortcuts) {
+                                    onTogglePinnedShortcuts();
                                 }
                             }}
                             tabIndex={-1}
                         >
-                            <ObsidianIcon name="lucide-arrow-up-to-line" />
+                            <ObsidianIcon name={uiState.pinShortcuts ? 'lucide-pin-off' : 'lucide-pin'} />
                         </button>
                     ) : null}
                     <button

@@ -62,7 +62,9 @@ export const STRINGS_KO = {
         reorderRootFoldersHint: '폴더를 드래그하여 순서 변경',
         vaultRootLabel: '보관함',
         resetRootFolderOrder: '알파벳 순서로 리셋',
-        dragHandleLabel: '드래그하여 순서 변경'
+        dragHandleLabel: '드래그하여 순서 변경',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {

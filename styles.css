@@ -320,6 +320,15 @@ body {
     contain: layout style;
 }
 
+.nn-navigation-pane-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--nn-theme-nav-bg);
+    border-right: 1px solid var(--nn-theme-divider-border-color);
+}
+
 /* Right pane - contains the file list */
 .nn-list-pane {
     flex: 1;
@@ -775,17 +784,29 @@ body {
    ======================================================================== */
 
 /* Scroller container for both folder tree and tag list */
+
 .nn-navigation-pane-scroller {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 0 var(--nn-scroller-padding);
     line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
-    border-right: 1px solid var(--nn-theme-divider-border-color);
-    background-color: var(--nn-theme-nav-bg); /* Opaque background for GPU scroll layer optimization */
 
     /* Ensure scroll events work properly with virtualization */
     position: relative;
+}
+
+.nn-shortcut-pinned {
+    flex-shrink: 0;
+    padding: 8px var(--nn-scroller-padding) 4px;
+    border-bottom: 1px solid var(--nn-theme-divider-border-color);
+    background-color: var(--nn-theme-nav-bg);
+}
+
+.nn-shortcut-pinned-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 
 /* Navigation banner displayed above tree items */

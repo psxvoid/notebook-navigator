@@ -62,7 +62,9 @@ export const STRINGS_DE = {
         reorderRootFoldersHint: 'Ordner ziehen, um die Reihenfolge zu ändern',
         vaultRootLabel: 'Tresor',
         resetRootFolderOrder: 'Auf alphabetische Reihenfolge zurücksetzen',
-        dragHandleLabel: 'Ziehen zum Neuanordnen'
+        dragHandleLabel: 'Ziehen zum Neuanordnen',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {

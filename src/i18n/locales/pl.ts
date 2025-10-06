@@ -62,7 +62,9 @@ export const STRINGS_PL = {
         reorderRootFoldersHint: 'Przeciągnij foldery aby zmienić kolejność',
         vaultRootLabel: 'Magazyn',
         resetRootFolderOrder: 'Resetuj do kolejności alfabetycznej',
-        dragHandleLabel: 'Przeciągnij aby zmienić kolejność'
+        dragHandleLabel: 'Przeciągnij aby zmienić kolejność',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {

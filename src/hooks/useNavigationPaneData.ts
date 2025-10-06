@@ -61,6 +61,20 @@ import { useRootFolderOrder } from './useRootFolderOrder';
 import { isFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
 import { getDBInstance } from '../storage/fileOperations';
 
+const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
+    if (item.type === NavigationPaneItemType.VIRTUAL_FOLDER) {
+        return item.data.id === SHORTCUTS_VIRTUAL_FOLDER_ID;
+    }
+
+    return (
+        item.type === NavigationPaneItemType.SHORTCUT_FOLDER ||
+        item.type === NavigationPaneItemType.SHORTCUT_NOTE ||
+        item.type === NavigationPaneItemType.SHORTCUT_SEARCH ||
+        item.type === NavigationPaneItemType.SHORTCUT_TAG ||
+        item.type === NavigationPaneItemType.SHORTCUT_HEADER
+    );
+};
+
 // Maps non-markdown document extensions to their icon names
 const DOCUMENT_EXTENSION_ICONS: Record<string, string> = {
     canvas: 'lucide-layout-grid',
@@ -93,6 +107,8 @@ interface UseNavigationPaneDataParams {
     shortcutsExpanded: boolean;
     /** Whether the recent notes virtual folder is expanded */
     recentNotesExpanded: boolean;
+    /** Whether shortcuts should be pinned at the top of the pane */
+    pinShortcuts: boolean;
 }
 
 /**
@@ -101,6 +117,8 @@ interface UseNavigationPaneDataParams {
 interface UseNavigationPaneDataResult {
     /** Combined list of navigation items (folders and tags) */
     items: CombinedNavigationItem[];
+    /** Shortcuts rendered separately when pinShortcuts is enabled */
+    shortcutItems: CombinedNavigationItem[];
     /** Map from item keys to index in items array */
     pathToIndex: Map<string, number>;
     /** Map from shortcut id to index */
@@ -124,7 +142,8 @@ export function useNavigationPaneData({
     settings,
     isVisible,
     shortcutsExpanded,
-    recentNotesExpanded
+    recentNotesExpanded,
+    pinShortcuts
 }: UseNavigationPaneDataParams): UseNavigationPaneDataResult {
     const { app } = useServices();
     const { recentNotes } = useRecentData();
@@ -698,23 +717,33 @@ export function useNavigationPaneData({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [items, parsedExcludedFolders, metadataService, metadataVersion]);
 
+    const shortcutItemsWithMetadata = useMemo(() => {
+        if (!pinShortcuts) {
+            return [] as CombinedNavigationItem[];
+        }
+
+        return itemsWithMetadata.filter(isShortcutNavigationItem);
+    }, [itemsWithMetadata, pinShortcuts]);
+
     /**
      * Filter items based on showHiddenItems setting
      * When showHiddenItems is false, filter out folders marked as excluded
      */
     const filteredItems = useMemo(() => {
+        const baseItems = pinShortcuts ? itemsWithMetadata.filter(current => !isShortcutNavigationItem(current)) : itemsWithMetadata;
+
         if (settings.showHiddenItems) {
             // Show all items including excluded ones
-            return itemsWithMetadata;
+            return baseItems;
         }
-        // Filter out excluded folders
-        return itemsWithMetadata.filter(item => {
+
+        return baseItems.filter(item => {
             if (item.type === NavigationPaneItemType.FOLDER && item.isExcluded) {
                 return false;
             }
             return true;
         });
-    }, [itemsWithMetadata, settings.showHiddenItems]);
+    }, [itemsWithMetadata, settings.showHiddenItems, pinShortcuts]);
 
     /**
      * Create a map for O(1) item lookups by path
@@ -739,7 +768,9 @@ export function useNavigationPaneData({
     const shortcutIndex = useMemo(() => {
         const indexMap = new Map<string, number>();
 
-        filteredItems.forEach((item, index) => {
+        const source = pinShortcuts ? shortcutItemsWithMetadata : filteredItems;
+
+        source.forEach((item, index) => {
             if (
                 item.type === NavigationPaneItemType.SHORTCUT_FOLDER ||
                 item.type === NavigationPaneItemType.SHORTCUT_NOTE ||
@@ -751,7 +782,7 @@ export function useNavigationPaneData({
         });
 
         return indexMap;
-    }, [filteredItems]);
+    }, [filteredItems, pinShortcuts, shortcutItemsWithMetadata]);
 
     /**
      * Pre-compute tag counts to avoid expensive calculations during render
@@ -875,6 +906,7 @@ export function useNavigationPaneData({
 
     return {
         items: filteredItems,
+        shortcutItems: shortcutItemsWithMetadata,
         pathToIndex,
         shortcutIndex,
         tagCounts,

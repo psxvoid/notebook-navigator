@@ -63,7 +63,9 @@ export const STRINGS_ZH_TW = {
         reorderRootFoldersHint: '拖曳資料夾以變更順序',
         vaultRootLabel: '儲存庫',
         resetRootFolderOrder: '重設為字母順序',
-        dragHandleLabel: '拖曳以重新排序'
+        dragHandleLabel: '拖曳以重新排序',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {

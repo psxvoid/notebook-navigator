@@ -62,7 +62,9 @@ export const STRINGS_FR = {
         reorderRootFoldersHint: "Faites glisser les dossiers pour modifier l'ordre",
         vaultRootLabel: 'Coffre',
         resetRootFolderOrder: "Réinitialiser l'ordre alphabétique",
-        dragHandleLabel: 'Faire glisser pour réorganiser'
+        dragHandleLabel: 'Faire glisser pour réorganiser',
+        pinShortcuts: 'Épingler les raccourcis',
+        unpinShortcuts: 'Détacher les raccourcis'
     },
 
     shortcuts: {

@@ -63,7 +63,9 @@ export const STRINGS_EN = {
         reorderRootFoldersHint: 'Drag folders to change order',
         vaultRootLabel: 'Vault',
         resetRootFolderOrder: 'Reset to alphabetical order',
-        dragHandleLabel: 'Drag to reorder'
+        dragHandleLabel: 'Drag to reorder',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {

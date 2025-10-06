@@ -577,12 +577,17 @@ export const NavigationPane = React.memo(
         const tagTree = fileData.tagTree;
 
         // Use the new data hook - now returns filtered items and pathToIndex
-        const { items, pathToIndex, shortcutIndex, tagCounts, folderCounts, rootLevelFolders } = useNavigationPaneData({
+        const shouldPinShortcuts = uiState.pinShortcuts && settings.showShortcuts;
+
+        const { items, shortcutItems, pathToIndex, shortcutIndex, tagCounts, folderCounts, rootLevelFolders } = useNavigationPaneData({
             settings,
             isVisible,
             shortcutsExpanded,
-            recentNotesExpanded
+            recentNotesExpanded,
+            pinShortcuts: shouldPinShortcuts
         });
+
+        const pinnedShortcutItems = shouldPinShortcuts ? shortcutItems : [];
 
         const vaultRootFolder = useMemo(() => app.vault.getRoot(), [app]);
 
@@ -968,14 +973,25 @@ export const NavigationPane = React.memo(
         );
 
         // Scrolls a shortcut into view when activated
+        const handleShortcutSplitToggle = useCallback(() => {
+            uiDispatch({ type: 'SET_PIN_SHORTCUTS', value: !uiState.pinShortcuts });
+        }, [uiDispatch, uiState.pinShortcuts]);
+
         const scrollShortcutIntoView = useCallback(
             (shortcutKey: string) => {
+                if (shouldPinShortcuts) {
+                    const container = scrollContainerRef.current;
+                    if (container) {
+                        container.scrollTo({ top: 0, behavior: 'auto' });
+                    }
+                    return;
+                }
                 const index = shortcutIndex.get(shortcutKey);
                 if (index !== undefined) {
                     rowVirtualizer.scrollToIndex(index, { align: 'auto' });
                 }
             },
-            [shortcutIndex, rowVirtualizer]
+            [shortcutIndex, rowVirtualizer, shouldPinShortcuts, scrollContainerRef]
         );
 
         // Clears active shortcut after two animation frames to allow visual feedback
@@ -991,21 +1007,6 @@ export const NavigationPane = React.memo(
 
             setTimeout(release, 0);
         }, [setActiveShortcut]);
-
-        const scrollShortcutsToTop = useCallback(() => {
-            if (!settings.showShortcuts) {
-                return;
-            }
-
-            if (rowVirtualizer) {
-                rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
-            }
-
-            const container = scrollContainerRef.current;
-            if (container) {
-                container.scrollTo({ top: 0, behavior: 'auto' });
-            }
-        }, [rowVirtualizer, scrollContainerRef, settings.showShortcuts]);
 
         // Handles folder shortcut activation - navigates to folder and provides visual feedback
         const handleShortcutFolderActivate = useCallback(
@@ -1818,7 +1819,7 @@ export const NavigationPane = React.memo(
             <div className="nn-navigation-pane" style={props.style}>
                 <NavigationPaneHeader
                     onTreeUpdateComplete={handleTreeUpdateComplete}
-                    onScrollToShortcuts={scrollShortcutsToTop}
+                    onTogglePinnedShortcuts={settings.showShortcuts ? handleShortcutSplitToggle : undefined}
                     onToggleRootFolderReorder={handleToggleRootReorder}
                     rootReorderActive={isRootReorderMode}
                     rootReorderDisabled={!canReorderRootFolders}
@@ -1827,121 +1828,132 @@ export const NavigationPane = React.memo(
                 {isMobile && isAndroid && (
                     <NavigationToolbar
                         onTreeUpdateComplete={handleTreeUpdateComplete}
-                        onScrollToShortcuts={scrollShortcutsToTop}
+                        onTogglePinnedShortcuts={settings.showShortcuts ? handleShortcutSplitToggle : undefined}
                         onToggleRootFolderReorder={handleToggleRootReorder}
                         rootReorderActive={isRootReorderMode}
                         rootReorderDisabled={!canReorderRootFolders}
                     />
                 )}
-                <div
-                    ref={scrollContainerRef}
-                    className="nn-navigation-pane-scroller"
-                    data-pane="navigation"
-                    role={isRootReorderMode ? 'list' : 'tree'}
-                    tabIndex={-1}
-                >
-                    {isRootReorderMode ? (
-                        <div className="nn-root-reorder-panel">
-                            <div className="nn-root-reorder-header">
-                                <span className="nn-root-reorder-title">{strings.navigationPane.reorderRootFoldersTitle}</span>
-                                <span className="nn-root-reorder-hint">{strings.navigationPane.reorderRootFoldersHint}</span>
-                            </div>
-                            <div className="nn-root-reorder-list" role="presentation">
-                                {rootFolderDescriptors.map(entry => {
-                                    const { dragHandlers, showBefore, showAfter, isDragSource } = getRootReorderVisualState(entry);
-                                    const iconName = rootFolderIconMap.get(entry.key);
-                                    const displayLabel = entry.isVault
-                                        ? settings.customVaultName || app.vault.getName()
-                                        : entry.folder.name;
-                                    const displayIcon = entry.isVault ? (iconName ?? 'open-vault') : (iconName ?? 'lucide-folder');
-                                    const chevronIcon = entry.isVault ? 'lucide-chevron-down' : undefined;
-
-                                    return (
-                                        <RootFolderReorderItem
-                                            key={`root-reorder-${entry.key}`}
-                                            icon={displayIcon}
-                                            label={displayLabel}
-                                            level={entry.isVault ? 0 : 1}
-                                            dragHandlers={entry.isVault ? undefined : dragHandlers}
-                                            showDropIndicatorBefore={showBefore}
-                                            showDropIndicatorAfter={showAfter}
-                                            isDragSource={entry.isVault ? false : isDragSource}
-                                            dragHandleLabel={strings.navigationPane.dragHandleLabel}
-                                            chevronIcon={chevronIcon}
-                                        />
-                                    );
-                                })}
-                                {settings.rootFolderOrder.length > 0 ? (
-                                    // Display reset button when custom folder ordering is active
-                                    <div className="nn-root-reorder-actions">
-                                        <button
-                                            type="button"
-                                            className="nn-root-reorder-reset nn-support-button"
-                                            onClick={event => {
-                                                event.preventDefault();
-                                                event.stopPropagation();
-                                                // Clear custom folder order to restore alphabetical sorting
-                                                void updateSettings(current => {
-                                                    current.rootFolderOrder = [];
-                                                });
-                                            }}
-                                        >
-                                            <span className="nn-root-reorder-reset-icon" aria-hidden="true">
-                                                Aa
-                                            </span>
-                                            <span>{strings.navigationPane.resetRootFolderOrder}</span>
-                                        </button>
-                                    </div>
-                                ) : null}
+                <div className="nn-navigation-pane-body">
+                    {pinnedShortcutItems.length > 0 && !isRootReorderMode ? (
+                        <div className="nn-shortcut-pinned" role="presentation">
+                            <div className="nn-shortcut-pinned-inner">
+                                {pinnedShortcutItems.map(shortcutItem => (
+                                    <React.Fragment key={shortcutItem.key}>{renderItem(shortcutItem)}</React.Fragment>
+                                ))}
                             </div>
                         </div>
-                    ) : (
-                        items.length > 0 && (
-                            <div
-                                className="nn-virtual-container"
-                                style={{
-                                    height: `${rowVirtualizer.getTotalSize()}px`
-                                }}
-                            >
-                                {rowVirtualizer.getVirtualItems().map(virtualItem => {
-                                    // Safe array access
-                                    const item =
-                                        virtualItem.index >= 0 && virtualItem.index < items.length ? items[virtualItem.index] : null;
-                                    if (!item) return null;
+                    ) : null}
+                    <div
+                        ref={scrollContainerRef}
+                        className="nn-navigation-pane-scroller"
+                        data-pane="navigation"
+                        role={isRootReorderMode ? 'list' : 'tree'}
+                        tabIndex={-1}
+                    >
+                        {isRootReorderMode ? (
+                            <div className="nn-root-reorder-panel">
+                                <div className="nn-root-reorder-header">
+                                    <span className="nn-root-reorder-title">{strings.navigationPane.reorderRootFoldersTitle}</span>
+                                    <span className="nn-root-reorder-hint">{strings.navigationPane.reorderRootFoldersHint}</span>
+                                </div>
+                                <div className="nn-root-reorder-list" role="presentation">
+                                    {rootFolderDescriptors.map(entry => {
+                                        const { dragHandlers, showBefore, showAfter, isDragSource } = getRootReorderVisualState(entry);
+                                        const iconName = rootFolderIconMap.get(entry.key);
+                                        const displayLabel = entry.isVault
+                                            ? settings.customVaultName || app.vault.getName()
+                                            : entry.folder.name;
+                                        const displayIcon = entry.isVault ? (iconName ?? 'open-vault') : (iconName ?? 'lucide-folder');
+                                        const chevronIcon = entry.isVault ? 'lucide-chevron-down' : undefined;
 
-                                    // Callback to measure dynamic-height items for virtualization
-                                    const measureRef = (element: HTMLDivElement | null) => {
-                                        if (!element) {
-                                            return;
-                                        }
-                                        if (item.type === NavigationPaneItemType.BANNER) {
-                                            rowVirtualizer.measureElement(element);
-                                        }
-                                    };
-
-                                    return (
-                                        <div
-                                            key={virtualItem.key}
-                                            data-index={virtualItem.index}
-                                            className="nn-virtual-nav-item"
-                                            ref={measureRef}
-                                            style={{
-                                                transform: `translateY(${virtualItem.start}px)`
-                                            }}
-                                        >
-                                            {renderItem(item)}
+                                        return (
+                                            <RootFolderReorderItem
+                                                key={`root-reorder-${entry.key}`}
+                                                icon={displayIcon}
+                                                label={displayLabel}
+                                                level={entry.isVault ? 0 : 1}
+                                                dragHandlers={entry.isVault ? undefined : dragHandlers}
+                                                showDropIndicatorBefore={showBefore}
+                                                showDropIndicatorAfter={showAfter}
+                                                isDragSource={entry.isVault ? false : isDragSource}
+                                                dragHandleLabel={strings.navigationPane.dragHandleLabel}
+                                                chevronIcon={chevronIcon}
+                                            />
+                                        );
+                                    })}
+                                    {settings.rootFolderOrder.length > 0 ? (
+                                        // Display reset button when custom folder ordering is active
+                                        <div className="nn-root-reorder-actions">
+                                            <button
+                                                type="button"
+                                                className="nn-root-reorder-reset nn-support-button"
+                                                onClick={event => {
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                    // Clear custom folder order to restore alphabetical sorting
+                                                    void updateSettings(current => {
+                                                        current.rootFolderOrder = [];
+                                                    });
+                                                }}
+                                            >
+                                                <span className="nn-root-reorder-reset-icon" aria-hidden="true">
+                                                    Aa
+                                                </span>
+                                                <span>{strings.navigationPane.resetRootFolderOrder}</span>
+                                            </button>
                                         </div>
-                                    );
-                                })}
+                                    ) : null}
+                                </div>
                             </div>
-                        )
-                    )}
+                        ) : (
+                            items.length > 0 && (
+                                <div
+                                    className="nn-virtual-container"
+                                    style={{
+                                        height: `${rowVirtualizer.getTotalSize()}px`
+                                    }}
+                                >
+                                    {rowVirtualizer.getVirtualItems().map(virtualItem => {
+                                        // Safe array access
+                                        const item =
+                                            virtualItem.index >= 0 && virtualItem.index < items.length ? items[virtualItem.index] : null;
+                                        if (!item) return null;
+
+                                        // Callback to measure dynamic-height items for virtualization
+                                        const measureRef = (element: HTMLDivElement | null) => {
+                                            if (!element) {
+                                                return;
+                                            }
+                                            if (item.type === NavigationPaneItemType.BANNER) {
+                                                rowVirtualizer.measureElement(element);
+                                            }
+                                        };
+
+                                        return (
+                                            <div
+                                                key={virtualItem.key}
+                                                data-index={virtualItem.index}
+                                                className="nn-virtual-nav-item"
+                                                ref={measureRef}
+                                                style={{
+                                                    transform: `translateY(${virtualItem.start}px)`
+                                                }}
+                                            >
+                                                {renderItem(item)}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )
+                        )}
+                    </div>
                 </div>
                 {/* iOS - toolbar at bottom */}
                 {isMobile && !isAndroid && (
                     <NavigationToolbar
                         onTreeUpdateComplete={handleTreeUpdateComplete}
-                        onScrollToShortcuts={scrollShortcutsToTop}
+                        onTogglePinnedShortcuts={settings.showShortcuts ? handleShortcutSplitToggle : undefined}
                         onToggleRootFolderReorder={handleToggleRootReorder}
                         rootReorderActive={isRootReorderMode}
                         rootReorderDisabled={!canReorderRootFolders}

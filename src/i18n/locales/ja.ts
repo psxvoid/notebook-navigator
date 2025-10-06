@@ -62,7 +62,9 @@ export const STRINGS_JA = {
         reorderRootFoldersHint: 'フォルダをドラッグして順序を変更',
         vaultRootLabel: 'ボールト',
         resetRootFolderOrder: 'アルファベット順にリセット',
-        dragHandleLabel: 'ドラッグして並び替え'
+        dragHandleLabel: 'ドラッグして並び替え',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {

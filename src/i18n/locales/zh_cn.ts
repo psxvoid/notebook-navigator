@@ -62,7 +62,9 @@ export const STRINGS_ZH_CN = {
         reorderRootFoldersHint: '拖拽文件夹来更改顺序',
         vaultRootLabel: '仓库',
         resetRootFolderOrder: '重置为字母顺序',
-        dragHandleLabel: '拖拽重新排列'
+        dragHandleLabel: '拖拽重新排列',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {

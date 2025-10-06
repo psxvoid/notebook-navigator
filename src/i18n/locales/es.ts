@@ -62,7 +62,9 @@ export const STRINGS_ES = {
         reorderRootFoldersHint: 'Arrastra las carpetas para cambiar el orden',
         vaultRootLabel: 'Bóveda',
         resetRootFolderOrder: 'Restablecer orden alfabético',
-        dragHandleLabel: 'Arrastrar para reordenar'
+        dragHandleLabel: 'Arrastrar para reordenar',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {
