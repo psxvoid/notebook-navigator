@@ -438,7 +438,11 @@ export function useListPaneScroll({
             return;
         }
 
-        if (pending.type === 'file' && pending.filePath) {
+        // Skip auto scrolling after list mutations (moves/deletes) so the viewport keeps its existing offset.
+        // Other intents still run to maintain reveal behavior and folder navigation alignment.
+        if (pending.type === 'file' && pending.reason === 'list-config-change') {
+            shouldClearPending = true;
+        } else if (pending.type === 'file' && pending.filePath) {
             const index = getSelectionIndex(pending.filePath);
             if (index >= 0) {
                 let alignment: Align = getListAlign(pending.reason);
