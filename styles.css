@@ -4633,6 +4633,8 @@ settings:
         type: heading
         level: 1
         collapsed: true
+    -
+    -
         id: nn-theme-mobile-list-header-link-color
         title: Mobile header link color
         description: Color for back button and clickable breadcrumb segments on mobile.

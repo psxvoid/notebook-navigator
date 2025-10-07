@@ -71,7 +71,7 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
-        version: '1.5.2',
+        version: '1.5.3',
         date: '2025-10-07',
         info: [
             'This release is all about ==polish and quality of life improvements== based on your feedback. I have read every single comment and suggestion posted on GitHub, and thanks to your feedback this plugin is shaping up to be something really amazing!',
