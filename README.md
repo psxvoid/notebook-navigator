@@ -279,9 +279,9 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 ### Top level settings
 
 - **Default startup view:** Choose which pane displays when opening Notebook Navigator - Navigation pane (shortcuts, recent notes, folders) or List pane (note list)
-- **Dual pane layout (desktop only):** Show navigation and list panes side by side
+- **Dual pane layout (desktop only, not synced):** Show navigation and list panes side by side
 - **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
-  - **Ignore right sidebar:** Disable auto-reveal from right sidebar
+  - **Ignore events from right sidebar:** Disable auto-reveal from right sidebar
 - **Homepage:** Set a file that opens automatically when Notebook Navigator starts
   - **Separate mobile homepage:** Use a different homepage for mobile devices
 - **Show tooltips (desktop only):** Display hover tooltips for notes and folders
@@ -338,10 +338,10 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - **Show tags (\*):** Display tags section below folders in the navigator
   - **Show tags above folders:** Display tags section before folders in the navigator
-  - **Show favorites folder:** Display "Favorites" as collapsible folder when favorite tags are configured
+  - **Show favorite tags folder:** Display "Favorites" as collapsible folder when favorite tags are configured
   - **Show tags folder:** Display "Tags" as collapsible folder
   - **Show untagged notes:** Display "Untagged" item for notes without any tags
-    - **Show untagged notes in favorites section:** Display untagged notes in the favorites section, either inside the folder or directly below favorites
+    - **Show untagged notes in favorite tags section:** Display untagged notes in the favorites section, either inside the folder or directly below favorites
   - **Favorite tags:** Comma-separated list of tag prefixes. Adding a tag includes all its sub-tags (e.g., "photo" includes "photo/camera/fuji")
   - **Hidden tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs")
 
@@ -421,7 +421,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Advanced
 
-- **Check for updates on start:** Check for new plugin releases on startup and show a notification when an update is available. Each version is announced only once, and checks occur at most once per day
+- **Check for new version on start:** Check for new plugin releases on startup and show a notification when an update is available. Each version is announced only once, and checks occur at most once per day
 - **Confirm before deleting:** Show confirmation dialog when deleting notes or folders
 - **Clean up metadata:** Removes orphaned metadata left behind when files, folders, or tags are deleted, moved, or renamed outside of Obsidian. This includes file icons, file colors, folder customizations, tag customizations, and pinned notes
 - **Rebuild cache:** Use this if you experience missing tags, incorrect previews or missing feature images. This can happen after sync conflicts or unexpected closures
