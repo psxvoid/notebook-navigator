@@ -485,6 +485,8 @@ export const FileItem = React.memo(function FileItem({
         [metadataService]
     );
 
+    const colorFileTags = settings.colorFileTags;
+
     // Categorize tags by priority: favorites first, then colored, then regular
     const categorizedTags = useMemo(() => {
         if (tags.length === 0) return tags;
@@ -500,12 +502,16 @@ export const FileItem = React.memo(function FileItem({
 
             if (isFavorite) {
                 favoriteTags.push(tag);
-            } else if (getTagColor(tag)) {
+                return;
+            }
+
+            if (colorFileTags && getTagColor(tag)) {
                 // Check if it has a custom color
                 coloredTags.push(tag);
-            } else {
-                regularTags.push(tag);
+                return;
             }
+
+            regularTags.push(tag);
         });
 
         const tagSorter = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base' });
@@ -515,7 +521,7 @@ export const FileItem = React.memo(function FileItem({
         regularTags.sort(tagSorter);
 
         return [...favoriteTags, ...coloredTags, ...regularTags];
-    }, [tags, findTagInFavoriteTree, getTagColor]);
+    }, [colorFileTags, findTagInFavoriteTree, getTagColor, tags]);
 
     const shouldShowFileTags = useMemo(() => {
         if (!settings.showTags || !settings.showFileTags) {
@@ -539,7 +545,7 @@ export const FileItem = React.memo(function FileItem({
         return (
             <div className="nn-file-tags">
                 {categorizedTags.map((tag, index) => {
-                    const tagColor = getTagColor(tag);
+                    const tagColor = colorFileTags ? getTagColor(tag) : undefined;
                     return (
                         <span
                             key={index}
@@ -555,7 +561,7 @@ export const FileItem = React.memo(function FileItem({
                 })}
             </div>
         );
-    }, [categorizedTags, getTagColor, handleTagClick, shouldShowFileTags]);
+    }, [colorFileTags, categorizedTags, getTagColor, handleTagClick, shouldShowFileTags]);
 
     // Format display date based on current sort
     const displayDate = useMemo(() => {

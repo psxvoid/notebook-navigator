@@ -686,6 +686,10 @@ export const STRINGS_KO = {
                 name: '파일 태그 표시',
                 desc: '파일 항목에 클릭 가능한 태그를 표시합니다. 태그 색상을 사용하여 다른 태그 유형을 시각적으로 구분합니다.'
             },
+            colorFileTags: {
+                name: 'Color file tags',
+                desc: 'Apply tag colors to tag badges on file items.'
+            },
             showFileTagsInSlimMode: {
                 name: '슬림 모드에서 파일 태그 표시',
                 desc: '날짜, 미리보기, 이미지가 숨겨져 있을 때 태그를 표시합니다.'

@@ -685,6 +685,10 @@ export const STRINGS_ZH_TW = {
                 name: '顯示檔案標籤',
                 desc: '在檔案項目中顯示可點擊的標籤。使用標籤顏色來視覺上區分不同類型的標籤。'
             },
+            colorFileTags: {
+                name: 'Color file tags',
+                desc: 'Apply tag colors to tag badges on file items.'
+            },
             showFileTagsInSlimMode: {
                 name: '在緊湊模式下顯示檔案標籤',
                 desc: '隱藏日期、預覽和圖片時顯示標籤。'

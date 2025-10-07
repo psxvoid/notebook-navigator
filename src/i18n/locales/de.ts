@@ -690,6 +690,10 @@ export const STRINGS_DE = {
                 name: 'Datei-Tags anzeigen',
                 desc: 'Zeigt klickbare Tags in Datei-Elementen an. Verwenden Sie Tag-Farben, um verschiedene Tag-Typen visuell zu unterscheiden.'
             },
+            colorFileTags: {
+                name: 'Color file tags',
+                desc: 'Apply tag colors to tag badges on file items.'
+            },
             showFileTagsInSlimMode: {
                 name: 'Datei-Tags im schlanken Modus anzeigen',
                 desc: 'Tags anzeigen, wenn Datum, Vorschau und Bild ausgeblendet sind.'

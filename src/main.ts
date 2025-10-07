@@ -116,6 +116,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         delete mutableSettings.recentNotes;
         delete mutableSettings.recentIcons;
 
+        const legacyColorFileTags = mutableSettings['applyTagColorsToFileTags'];
+        if (typeof legacyColorFileTags === 'boolean') {
+            this.settings.colorFileTags = legacyColorFileTags;
+        }
+        delete mutableSettings['applyTagColorsToFileTags'];
+
         // Migrate legacy navigationBannerPath field to navigationBanner
         const legacyBanner = data && typeof data === 'object' ? (data as Record<string, unknown>).navigationBannerPath : undefined;
         if (!this.settings.navigationBanner && typeof legacyBanner === 'string' && legacyBanner.length > 0) {

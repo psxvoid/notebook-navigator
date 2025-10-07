@@ -687,6 +687,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示文件标签',
                 desc: '在文件项中显示可点击的标签。使用标签颜色来直观区分不同的标签类型。'
             },
+            colorFileTags: {
+                name: 'Color file tags',
+                desc: 'Apply tag colors to tag badges on file items.'
+            },
             showFileTagsInSlimMode: {
                 name: '在精简模式中显示文件标签',
                 desc: '当日期、预览和图像被隐藏时显示标签。'

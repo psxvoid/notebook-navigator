@@ -688,6 +688,10 @@ export const STRINGS_JA = {
                 name: 'ファイルタグを表示',
                 desc: 'ファイルアイテムにクリック可能なタグを表示します。タグの色を使用して、異なるタグタイプを視覚的に区別できます。'
             },
+            colorFileTags: {
+                name: 'Color file tags',
+                desc: 'Apply tag colors to tag badges on file items.'
+            },
             showFileTagsInSlimMode: {
                 name: 'スリムモードでファイルタグを表示',
                 desc: '日付、プレビュー、画像が非表示のときにタグを表示します。'

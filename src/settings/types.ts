@@ -121,6 +121,7 @@ export interface NotebookNavigatorSettings {
     fileNameRows: number;
     showFileDate: boolean;
     showFileTags: boolean;
+    colorFileTags: boolean;
     showFileTagsInSlimMode: boolean;
     showParentFolderNames: boolean;
     showFilePreview: boolean;

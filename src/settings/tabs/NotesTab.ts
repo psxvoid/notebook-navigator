@@ -297,6 +297,16 @@ export function renderNotesTab(context: SettingsTabContext): void {
     const fileTagsSubSettingsEl = containerEl.createDiv('nn-sub-settings');
 
     new Setting(fileTagsSubSettingsEl)
+        .setName(strings.settings.items.colorFileTags.name)
+        .setDesc(strings.settings.items.colorFileTags.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.colorFileTags).onChange(async value => {
+                plugin.settings.colorFileTags = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(fileTagsSubSettingsEl)
         .setName(strings.settings.items.showFileTagsInSlimMode.name)
         .setDesc(strings.settings.items.showFileTagsInSlimMode.desc)
         .addToggle(toggle =>

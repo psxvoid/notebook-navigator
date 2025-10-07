@@ -86,6 +86,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==New settings button: Migrate icon and color to frontmatter==: Migration tool to move all file colors and file icons from plugin settings to frontmatter.',
             '==New command: Convert to folder note==: New command to convert any file into a folder note by creating a matching folder and moving the file inside.',
             '==Two new style settings: File name font weight and Custom color file name font weight==. You can now change the font weight of files in Shortcuts and Recent files.',
+            '==New setting: Color file tags==. You can now disable file tag colors in listpane for a cleaner look.',
             'Notebook Navigator now checks for new releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most once per day and can be disabled in settings.',
             'Notebook Navigator is now translated to **traditional Chinese** (繁體中文) thanks to @emisjerry!'
         ],

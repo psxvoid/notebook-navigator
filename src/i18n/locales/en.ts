@@ -684,7 +684,11 @@ export const STRINGS_EN = {
             },
             showFileTags: {
                 name: 'Show file tags',
-                desc: 'Display clickable tags in file items. Use tag colors to visually distinguish different tag types.'
+                desc: 'Show tags below file names.'
+            },
+            colorFileTags: {
+                name: 'Color file tags',
+                desc: 'Apply tag colors to file tags.'
             },
             showFileTagsInSlimMode: {
                 name: 'Show file tags in slim mode',

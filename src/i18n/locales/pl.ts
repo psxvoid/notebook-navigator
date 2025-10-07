@@ -688,6 +688,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż tagi plików',
                 desc: 'Wyświetl klikalne tagi w elementach plików. Użyj kolorów tagów aby wizualnie odróżnić różne typy tagów.'
             },
+            colorFileTags: {
+                name: 'Color file tags',
+                desc: 'Apply tag colors to tag badges on file items.'
+            },
             showFileTagsInSlimMode: {
                 name: 'Pokaż tagi plików w trybie kompaktowym',
                 desc: 'Wyświetl tagi, gdy data, podgląd i obraz są ukryte.'
