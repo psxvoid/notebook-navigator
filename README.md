@@ -377,6 +377,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Title rows:** Number of rows to display for note titles. `1` or `2`
 - **Show date:** Display the date below note names
 - **Show file tags:** Display clickable tags in file items. Use tag colors to visually distinguish different tag types
+  - **Show parent tags:** Display parent segments before the tag name
   - **Show file tags in slim mode:** Display tags when date, preview, and image are hidden
 - **Show parent folder names:** Display the parent folder name for notes in subfolders or tags
 - **Show note preview (\*):** Display preview text beneath note names

@@ -688,9 +688,13 @@ export const STRINGS_PL = {
                 name: 'Pokaż tagi plików',
                 desc: 'Wyświetl klikalne tagi w elementach plików. Użyj kolorów tagów aby wizualnie odróżnić różne typy tagów.'
             },
+            showFileTagAncestors: {
+                name: 'Pokaż tagi nadrzędne',
+                desc: 'Wyświetl segmenty nadrzędne przed nazwą tagu.'
+            },
             colorFileTags: {
-                name: 'Color file tags',
-                desc: 'Apply tag colors to tag badges on file items.'
+                name: 'Koloruj tagi plików',
+                desc: 'Zastosuj kolory tagów do odznak tagów w elementach plików.'
             },
             showFileTagsInSlimMode: {
                 name: 'Pokaż tagi plików w trybie kompaktowym',

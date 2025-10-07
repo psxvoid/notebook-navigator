@@ -688,9 +688,13 @@ export const STRINGS_JA = {
                 name: 'ファイルタグを表示',
                 desc: 'ファイルアイテムにクリック可能なタグを表示します。タグの色を使用して、異なるタグタイプを視覚的に区別できます。'
             },
+            showFileTagAncestors: {
+                name: '親タグを表示',
+                desc: 'タグ名の前に親セグメントを表示します。'
+            },
             colorFileTags: {
-                name: 'Color file tags',
-                desc: 'Apply tag colors to tag badges on file items.'
+                name: 'ファイルタグに色を付ける',
+                desc: 'ファイルアイテムのタグバッジにタグの色を適用します。'
             },
             showFileTagsInSlimMode: {
                 name: 'スリムモードでファイルタグを表示',

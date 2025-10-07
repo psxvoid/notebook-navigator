@@ -684,11 +684,15 @@ export const STRINGS_EN = {
             },
             showFileTags: {
                 name: 'Show file tags',
-                desc: 'Show tags below file names.'
+                desc: 'Display clickable tags in file items.'
+            },
+            showFileTagAncestors: {
+                name: 'Show parent tags',
+                desc: 'Display parent segments before the tag name.'
             },
             colorFileTags: {
                 name: 'Color file tags',
-                desc: 'Apply tag colors to file tags.'
+                desc: 'Apply tag colors to tag badges on file items.'
             },
             showFileTagsInSlimMode: {
                 name: 'Show file tags in slim mode',

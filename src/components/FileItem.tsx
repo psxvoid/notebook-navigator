@@ -536,6 +536,23 @@ export const FileItem = React.memo(function FileItem({
         return true;
     }, [categorizedTags, isSlimMode, settings.showFileTags, settings.showFileTagsInSlimMode, settings.showTags]);
 
+    const getTagDisplayName = useCallback(
+        (tag: string): string => {
+            if (settings.showFileTagAncestors) {
+                return tag;
+            }
+
+            const segments = tag.split('/').filter(segment => segment.length > 0);
+
+            if (segments.length === 0) {
+                return tag;
+            }
+
+            return segments[segments.length - 1];
+        },
+        [settings.showFileTagAncestors]
+    );
+
     // Render tags
     const renderTags = useCallback(() => {
         if (!shouldShowFileTags) {
@@ -546,6 +563,7 @@ export const FileItem = React.memo(function FileItem({
             <div className="nn-file-tags">
                 {categorizedTags.map((tag, index) => {
                     const tagColor = colorFileTags ? getTagColor(tag) : undefined;
+                    const displayTag = getTagDisplayName(tag);
                     return (
                         <span
                             key={index}
@@ -555,13 +573,13 @@ export const FileItem = React.memo(function FileItem({
                             tabIndex={0}
                             style={tagColor ? { backgroundColor: tagColor } : undefined}
                         >
-                            {tag}
+                            {displayTag}
                         </span>
                     );
                 })}
             </div>
         );
-    }, [colorFileTags, categorizedTags, getTagColor, handleTagClick, shouldShowFileTags]);
+    }, [colorFileTags, categorizedTags, getTagColor, getTagDisplayName, handleTagClick, shouldShowFileTags]);
 
     // Format display date based on current sort
     const displayDate = useMemo(() => {

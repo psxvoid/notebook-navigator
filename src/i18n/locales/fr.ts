@@ -689,9 +689,13 @@ export const STRINGS_FR = {
                 name: 'Afficher les tags de fichier',
                 desc: 'Affiche les tags cliquables dans les éléments de fichier. Utilisez les couleurs de tags pour distinguer visuellement les différents types de tags.'
             },
+            showFileTagAncestors: {
+                name: 'Afficher les tags parents',
+                desc: 'Afficher les segments parents avant le nom du tag.'
+            },
             colorFileTags: {
-                name: 'Color file tags',
-                desc: 'Apply tag colors to tag badges on file items.'
+                name: 'Colorer les tags de fichier',
+                desc: 'Appliquer les couleurs de tags aux badges de tags sur les éléments de fichier.'
             },
             showFileTagsInSlimMode: {
                 name: 'Afficher les tags de fichier en mode compact',

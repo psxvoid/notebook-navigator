@@ -687,9 +687,13 @@ export const STRINGS_ES = {
                 name: 'Mostrar etiquetas de archivo',
                 desc: 'Muestra etiquetas clicables en los elementos de archivo. Use colores de etiquetas para distinguir visualmente diferentes tipos de etiquetas.'
             },
+            showFileTagAncestors: {
+                name: 'Mostrar etiquetas padre',
+                desc: 'Mostrar segmentos padre antes del nombre de la etiqueta.'
+            },
             colorFileTags: {
-                name: 'Color file tags',
-                desc: 'Apply tag colors to tag badges on file items.'
+                name: 'Colorear etiquetas de archivo',
+                desc: 'Aplicar colores de etiquetas a las insignias de etiquetas en elementos de archivo.'
             },
             showFileTagsInSlimMode: {
                 name: 'Mostrar etiquetas de archivo en modo compacto',
