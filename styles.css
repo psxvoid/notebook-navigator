@@ -501,8 +501,16 @@ body {
     top: 8px;
     width: 16px;
     height: 16px;
+    font-size: 16px;
+    line-height: 16px;
     color: var(--nn-theme-list-header-icon-color);
     pointer-events: none;
+}
+
+.nn-search-input-icon svg {
+    width: 16px;
+    height: 16px;
+    display: block;
 }
 
 /* Search input field */
