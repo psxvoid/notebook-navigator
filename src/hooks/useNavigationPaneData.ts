@@ -541,16 +541,24 @@ export function useNavigationPaneData({
     const items = useMemo(() => {
         const allItems: CombinedNavigationItem[] = [];
 
-        // Add banner item if configured
-        if (settings.navigationBanner) {
+        // Path to the banner file configured in settings
+        const bannerPath = settings.navigationBanner;
+        // Banner appears in main list when not pinning shortcuts or when shortcuts list is empty
+        const shouldIncludeBannerInMainList = Boolean(bannerPath && (!pinShortcuts || shortcutItems.length === 0));
+
+        if (shouldIncludeBannerInMainList && bannerPath) {
+            allItems.push({
+                type: NavigationPaneItemType.TOP_SPACER,
+                key: 'banner-top-spacer'
+            });
             allItems.push({
                 type: NavigationPaneItemType.BANNER,
-                key: `banner-${settings.navigationBanner}`,
-                path: settings.navigationBanner
+                key: `banner-${bannerPath}`,
+                path: bannerPath
             });
         }
 
-        // Add top spacer for visual separation
+        // Add top spacer for visual separation between pinned content and tree items
         allItems.push({
             type: NavigationPaneItemType.TOP_SPACER,
             key: 'top-spacer'
@@ -615,7 +623,8 @@ export function useNavigationPaneData({
         recentNotesItems,
         settings.showTags,
         settings.showTagsAboveFolders,
-        settings.navigationBanner
+        settings.navigationBanner,
+        pinShortcuts
     ]);
 
     /**

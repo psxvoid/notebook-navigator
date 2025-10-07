@@ -805,6 +805,16 @@ body {
     background-color: var(--nn-theme-nav-bg);
 }
 
+/* Remove top padding when banner is present to avoid double spacing */
+.nn-shortcut-pinned[data-has-banner='true'] {
+    padding-top: 0;
+}
+
+/* Add top margin to banner inside pinned shortcuts area for consistent spacing */
+.nn-shortcut-pinned[data-has-banner='true'] .nn-nav-banner {
+    margin-top: 8px;
+}
+
 /* Inner wrapper for pinned shortcut items */
 .nn-shortcut-pinned-inner {
     display: flex;

@@ -264,7 +264,7 @@ export const NavigationPane = React.memo(
 
         // Determine if drag and drop should be enabled for shortcuts
         const shortcutCount = hydratedShortcuts.length;
-        const isShortcutDnDEnabled = shortcutsExpanded && shortcutCount > 1 && settings.showShortcuts;
+        const isShortcutDnDEnabled = shortcutsExpanded && shortcutCount > 0 && settings.showShortcuts;
 
         const showShortcutDragHandles = isMobile && isShortcutDnDEnabled;
 
@@ -347,6 +347,9 @@ export const NavigationPane = React.memo(
             },
             [hydratedShortcuts.length, shortcutPositionMap]
         );
+
+        // Unique key for the root shortcuts virtual folder to enable drop on empty shortcuts list
+        const shortcutRootDropKey = '__shortcuts-root__';
 
         const handleShortcutDragOver = useCallback(
             (event: React.DragEvent<HTMLElement>, key: string) => {
@@ -491,6 +494,39 @@ export const NavigationPane = React.memo(
             setExternalShortcutDropIndex(null);
         }, []);
 
+        // Allow dragging files/folders onto empty shortcuts list when shortcuts are shown and expanded
+        const allowEmptyShortcutDrop = shortcutsExpanded && settings.showShortcuts && hydratedShortcuts.length === 0;
+
+        // Handles drag over events on the shortcuts virtual folder root when the list is empty
+        const handleShortcutRootDragOver = useCallback(
+            (event: React.DragEvent<HTMLElement>) => {
+                if (!allowEmptyShortcutDrop) {
+                    return;
+                }
+                handleShortcutDragOver(event, shortcutRootDropKey);
+            },
+            [allowEmptyShortcutDrop, handleShortcutDragOver, shortcutRootDropKey]
+        );
+
+        // Handles drop events on the shortcuts virtual folder root when the list is empty
+        const handleShortcutRootDrop = useCallback(
+            (event: React.DragEvent<HTMLElement>) => {
+                if (!allowEmptyShortcutDrop) {
+                    return;
+                }
+                handleShortcutDrop(event, shortcutRootDropKey);
+            },
+            [allowEmptyShortcutDrop, handleShortcutDrop, shortcutRootDropKey]
+        );
+
+        // Handles drag leave events on the shortcuts virtual folder root when the list is empty
+        const handleShortcutRootDragLeave = useCallback(() => {
+            if (!allowEmptyShortcutDrop) {
+                return;
+            }
+            handleShortcutDragLeave();
+        }, [allowEmptyShortcutDrop, handleShortcutDragLeave]);
+
         /**
          * Creates drag handlers for a shortcut with custom ghost visualization
          */
@@ -590,6 +626,10 @@ export const NavigationPane = React.memo(
 
         // Extract shortcut items to display in pinned area when pinning is enabled
         const pinnedShortcutItems = shouldPinShortcuts ? shortcutItems : [];
+        // Path to the banner file to display above pinned shortcuts
+        const navigationBannerPath = settings.navigationBanner;
+        // Banner should be shown in pinned area only when shortcuts are pinned and banner is configured
+        const shouldShowPinnedBanner = Boolean(navigationBannerPath && pinnedShortcutItems.length > 0);
 
         const vaultRootFolder = useMemo(() => app.vault.getRoot(), [app]);
 
@@ -1621,6 +1661,9 @@ export const NavigationPane = React.memo(
                                 isExpanded={isExpanded}
                                 hasChildren={hasChildren}
                                 onToggle={() => handleVirtualFolderToggle(virtualFolder.id)}
+                                onDragOver={isShortcutsGroup && allowEmptyShortcutDrop ? handleShortcutRootDragOver : undefined}
+                                onDrop={isShortcutsGroup && allowEmptyShortcutDrop ? handleShortcutRootDrop : undefined}
+                                onDragLeave={isShortcutsGroup && allowEmptyShortcutDrop ? handleShortcutRootDragLeave : undefined}
                             />
                         );
                     }
@@ -1747,7 +1790,11 @@ export const NavigationPane = React.memo(
                 recentNotesExpanded,
                 getFileDisplayName,
                 shortcutDragHandleConfig,
-                handleBannerHeightChange
+                handleBannerHeightChange,
+                handleShortcutRootDragOver,
+                handleShortcutRootDrop,
+                handleShortcutRootDragLeave,
+                allowEmptyShortcutDrop
             ]
         );
 
@@ -1867,7 +1914,17 @@ export const NavigationPane = React.memo(
                 )}
                 <div className="nn-navigation-pane-body">
                     {pinnedShortcutItems.length > 0 && !isRootReorderMode ? (
-                        <div className="nn-shortcut-pinned" role="presentation">
+                        <div
+                            className="nn-shortcut-pinned"
+                            role="presentation"
+                            data-has-banner={shouldShowPinnedBanner ? 'true' : undefined}
+                            onDragOver={allowEmptyShortcutDrop ? handleShortcutRootDragOver : undefined}
+                            onDrop={allowEmptyShortcutDrop ? handleShortcutRootDrop : undefined}
+                            onDragLeave={allowEmptyShortcutDrop ? handleShortcutRootDragLeave : undefined}
+                        >
+                            {shouldShowPinnedBanner && navigationBannerPath ? (
+                                <NavigationBanner path={navigationBannerPath} onHeightChange={handleBannerHeightChange} />
+                            ) : null}
                             <div className="nn-shortcut-pinned-inner">
                                 {pinnedShortcutItems.map(shortcutItem => (
                                     <React.Fragment key={shortcutItem.key}>{renderItem(shortcutItem)}</React.Fragment>
