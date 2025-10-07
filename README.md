@@ -282,6 +282,8 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Dual pane layout (desktop only):** Show navigation and list panes side by side
 - **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
   - **Ignore right sidebar:** Disable auto-reveal from right sidebar
+- **Homepage:** Set a file that opens automatically when Notebook Navigator starts
+  - **Separate mobile homepage:** Use a different homepage for mobile devices
 - **Show tooltips (desktop only):** Display hover tooltips for notes and folders
 - **Show file types:** Choose file types to display. Non-Obsidian files open in system's default application. `Markdown only`, `Supported files`, `All files`
 - **Hide folders:** Comma-separated list of folders to hide. Pattern types:
@@ -302,6 +304,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Collapse items:** What expand/collapse all button affects. `All folders and tags`, `Folders only`, `Tags only`
 - **Keep selected item expanded:** When collapsing, keep the currently selected folder or tag and its parents expanded
 - **Show icons:** Display icons next to folders and tags
+  - **Apply color to icons only:** Limit custom colors to icons only, not text labels
 - **Show note count:** Display the number of notes next to each folder and tag
 - **Tree indentation:** Adjust the indentation width for nested folders and tags
 - **Item height:** Adjust the height of folders and tags in the navigation pane
@@ -326,6 +329,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show root folder:** Display the vault name as the root folder in the tree
 - **Inherit folder colors:** Child folders inherit color from parent folders
 - **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links
+  - **Default folder note type:** Type created from context menu. `Markdown`, `Canvas`, `Base`
   - **Folder note name:** Name of the folder note without extension. Leave empty to use the same name as the folder
   - **Folder note properties:** Frontmatter properties to add to newly created folder notes (comma-separated)
   - **Hide folder notes in list:** Hide the folder note from appearing in the folder's note list
@@ -374,10 +378,15 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Created timestamp field:** Frontmatter field name for the created timestamp. Leave empty to only use file system date
 - **Modified timestamp field:** Frontmatter field name for the modified timestamp. Leave empty to only use file system date
 - **Timestamp format:** Format used to parse timestamps in frontmatter. Leave empty to use ISO 8601 format
+- **Icon field:** Frontmatter field for file icons. Leave empty to use icons stored in settings
+- **Color field:** Frontmatter field for file colors. Leave empty to use colors stored in settings
+- **Save icons and colors to frontmatter:** Automatically write file icons and colors to frontmatter using the configured fields above
+- **Migrate icons and colors from settings:** Migration tool to move all file icons and colors from plugin settings to frontmatter
 - **Title rows:** Number of rows to display for note titles. `1` or `2`
 - **Show date:** Display the date below note names
 - **Show file tags:** Display clickable tags in file items. Use tag colors to visually distinguish different tag types
   - **Show parent tags:** Display parent segments before the tag name
+  - **Color file tags:** Apply tag colors to tag badges on file items
   - **Show file tags in slim mode:** Display tags when date, preview, and image are hidden
 - **Show parent folder names:** Display the parent folder name for notes in subfolders or tags
 - **Show note preview (\*):** Display preview text beneath note names
@@ -412,6 +421,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Advanced
 
+- **Check for updates on start:** Check for new plugin releases on startup and show a notification when an update is available. Each version is announced only once, and checks occur at most once per day
 - **Confirm before deleting:** Show confirmation dialog when deleting notes or folders
 - **Clean up metadata:** Removes orphaned metadata left behind when files, folders, or tags are deleted, moved, or renamed outside of Obsidian. This includes file icons, file colors, folder customizations, tag customizations, and pinned notes
 - **Rebuild cache:** Use this if you experience missing tags, incorrect previews or missing feature images. This can happen after sync conflicts or unexpected closures
