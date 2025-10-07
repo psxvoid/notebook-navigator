@@ -211,6 +211,21 @@ export class FileMetadataService extends BaseMetadataService {
             if (settings.fileColors?.[filePath]) {
                 delete settings.fileColors[filePath];
             }
+
+            // Remove shortcuts that reference the deleted file
+            const shortcuts = settings.shortcuts;
+            if (Array.isArray(shortcuts) && shortcuts.length > 0) {
+                const filteredShortcuts = shortcuts.filter(shortcut => {
+                    if (shortcut.type !== ShortcutType.NOTE) {
+                        return true;
+                    }
+                    return shortcut.path !== filePath;
+                });
+
+                if (filteredShortcuts.length !== shortcuts.length) {
+                    settings.shortcuts = filteredShortcuts;
+                }
+            }
         });
     }
 
@@ -232,6 +247,7 @@ export class FileMetadataService extends BaseMetadataService {
             this.updateNestedPaths(settings.fileIcons, oldPath, newPath);
             this.updateNestedPaths(settings.fileColors, oldPath, newPath);
 
+            // Update shortcuts that reference the renamed file
             const shortcuts = settings.shortcuts;
             if (Array.isArray(shortcuts) && shortcuts.length > 0) {
                 let updatedShortcuts: ShortcutEntry[] | null = null;
@@ -308,6 +324,11 @@ export class FileMetadataService extends BaseMetadataService {
         await this.removeEntityIcon(ItemType.FILE, filePath);
     }
 
+    /**
+     * Gets the icon for a file from settings storage
+     * @param filePath - Path to the file
+     * @returns Icon identifier or undefined if no icon is set
+     */
     getFileIcon(filePath: string): string | undefined {
         return this.getEntityIcon(ItemType.FILE, filePath);
     }
@@ -447,6 +468,11 @@ export class FileMetadataService extends BaseMetadataService {
         };
     }
 
+    /**
+     * Gets the color for a file from settings storage
+     * @param filePath - Path to the file
+     * @returns Color value or undefined if no color is set
+     */
     getFileColor(filePath: string): string | undefined {
         return this.getEntityColor(ItemType.FILE, filePath) ?? undefined;
     }
