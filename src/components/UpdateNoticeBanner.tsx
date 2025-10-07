@@ -26,8 +26,8 @@ interface UpdateNoticeBannerProps {
     onDismiss: (version: string) => Promise<void>;
 }
 
-/** Duration to display the banner before starting fade-out (5 seconds) */
-const DISPLAY_DURATION_MS = 5000;
+/** Duration to display the banner before starting fade-out (7 seconds) */
+const DISPLAY_DURATION_MS = 7000;
 /** Duration of the fade-out animation (0.5 seconds) */
 const FADE_DURATION_MS = 500;
 

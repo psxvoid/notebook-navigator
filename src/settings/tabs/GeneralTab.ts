@@ -27,13 +27,12 @@ import type { SettingsTabContext } from './SettingsTabContext';
 export function renderGeneralTab(context: SettingsTabContext): void {
     const { containerEl, plugin, createDebouncedTextSetting } = context;
 
-    const updateCheckSetting = new Setting(containerEl)
-        .setName(strings.settings.items.updateCheckOnStart.name)
-        .setDesc(strings.settings.items.updateCheckOnStart.desc);
-
-    const updateStatusEl = updateCheckSetting.descEl.createDiv({ cls: 'nn-update-status is-hidden' });
+    let updateStatusEl: HTMLDivElement | null = null;
 
     const renderUpdateStatus = (version: string | null) => {
+        if (!updateStatusEl) {
+            return;
+        }
         const hasVersion = Boolean(version);
         updateStatusEl.setText(hasVersion ? strings.settings.items.updateCheckOnStart.status.replace('{version}', version ?? '') : '');
         updateStatusEl.classList.toggle('is-hidden', !hasVersion);
@@ -44,30 +43,10 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         renderUpdateStatus(notice?.version ?? null);
     };
 
-    updateCheckSetting.addToggle(toggle =>
-        toggle.setValue(plugin.settings.checkForUpdatesOnStart).onChange(async value => {
-            plugin.settings.checkForUpdatesOnStart = value;
-            if (!value) {
-                plugin.dismissPendingUpdateNotice();
-                renderUpdateStatus(null);
-            }
-            await plugin.saveSettingsAndUpdate();
-            if (value) {
-                await plugin.runReleaseUpdateCheck(true);
-                applyCurrentNotice();
-            }
-        })
-    );
-
-    applyCurrentNotice();
-
     const updateStatusListenerId = 'general-update-status';
     plugin.unregisterUpdateNoticeListener(updateStatusListenerId);
-    plugin.registerUpdateNoticeListener(updateStatusListenerId, notice => {
-        renderUpdateStatus(notice?.version ?? null);
-    });
 
-    new Setting(containerEl)
+    const whatsNewSetting = new Setting(containerEl)
         .setName(strings.settings.items.whatsNew.name)
         .setDesc(strings.settings.items.whatsNew.desc)
         .addButton(button =>
@@ -78,6 +57,14 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 new WhatsNewModal(context.app, latestNotes, plugin.settings.dateFormat).open();
             })
         );
+
+    updateStatusEl = whatsNewSetting.descEl.createDiv({ cls: 'setting-item-description nn-update-status is-hidden' });
+
+    applyCurrentNotice();
+
+    plugin.registerUpdateNoticeListener(updateStatusListenerId, notice => {
+        renderUpdateStatus(notice?.version ?? null);
+    });
 
     const supportSetting = new Setting(containerEl)
         .setName(strings.settings.items.supportDevelopment.name)

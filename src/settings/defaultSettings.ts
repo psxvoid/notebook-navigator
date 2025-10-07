@@ -28,7 +28,6 @@ import type { NotebookNavigatorSettings } from './types';
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Startup & layout
-    checkForUpdatesOnStart: true,
     startView: 'navigation',
     showTooltips: false,
 
@@ -128,6 +127,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     shortcuts: [],
 
     // Advanced tab
+    checkForUpdatesOnStart: true,
     confirmBeforeDelete: true,
 
     // Runtime state and cached data

@@ -42,7 +42,6 @@ export type ListPaneTitleOption = 'header' | 'list' | 'hidden';
  */
 export interface NotebookNavigatorSettings {
     // General tab - Startup & layout
-    checkForUpdatesOnStart: boolean;
     startView: 'navigation' | 'files';
     showTooltips: boolean;
 
@@ -142,6 +141,7 @@ export interface NotebookNavigatorSettings {
     shortcuts: ShortcutEntry[];
 
     // Advanced tab
+    checkForUpdatesOnStart: boolean;
     confirmBeforeDelete: boolean;
 
     // Runtime state and cached data

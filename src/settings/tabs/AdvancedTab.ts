@@ -26,6 +26,22 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
     const { containerEl, plugin, registerStatsTextElement, requestStatisticsRefresh, ensureStatisticsInterval } = context;
 
     new Setting(containerEl)
+        .setName(strings.settings.items.updateCheckOnStart.name)
+        .setDesc(strings.settings.items.updateCheckOnStart.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.checkForUpdatesOnStart).onChange(async value => {
+                plugin.settings.checkForUpdatesOnStart = value;
+                if (!value) {
+                    plugin.dismissPendingUpdateNotice();
+                }
+                await plugin.saveSettingsAndUpdate();
+                if (value) {
+                    await plugin.runReleaseUpdateCheck(true);
+                }
+            })
+        );
+
+    new Setting(containerEl)
         .setName(strings.settings.items.confirmBeforeDelete.name)
         .setDesc(strings.settings.items.confirmBeforeDelete.desc)
         .addToggle(toggle =>
