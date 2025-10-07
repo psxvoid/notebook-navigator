@@ -418,7 +418,8 @@ export function useNavigationPaneData({
                 if (!note) {
                     return;
                 }
-                const icon = getDocumentIcon(note);
+                const isExternalFile = !shouldDisplayFile(note, FILE_VISIBILITY.SUPPORTED, app);
+                const icon = isExternalFile ? 'lucide-external-link' : getDocumentIcon(note);
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_NOTE,
                     key,
@@ -467,6 +468,7 @@ export function useNavigationPaneData({
 
         return items;
     }, [
+        app,
         hydratedShortcuts,
         favoriteTree,
         tagTree,
@@ -517,7 +519,8 @@ export function useNavigationPaneData({
         recentPaths.forEach(path => {
             const file = app.vault.getAbstractFileByPath(path);
             if (file instanceof TFile) {
-                const icon = getDocumentIcon(file);
+                const isExternalFile = !shouldDisplayFile(file, FILE_VISIBILITY.SUPPORTED, app);
+                const icon = isExternalFile ? 'lucide-external-link' : getDocumentIcon(file);
                 items.push({
                     type: NavigationPaneItemType.RECENT_NOTE,
                     key: `recent-${path}`,
@@ -529,7 +532,7 @@ export function useNavigationPaneData({
         });
 
         return items;
-    }, [settings.showRecentNotes, recentNotes, settings.recentNotesCount, settings.fileVisibility, recentNotesExpanded, app.vault]);
+    }, [app, settings.showRecentNotes, recentNotes, settings.recentNotesCount, settings.fileVisibility, recentNotesExpanded]);
 
     /**
      * Combine shortcut, folder, and tag items based on display order settings
