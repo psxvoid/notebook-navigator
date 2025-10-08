@@ -31,7 +31,9 @@ export const STRINGS_ZH_TW = {
         untagged: '無標籤', // 沒有任何標籤的筆記標籤 (英文: Untagged)
         untitled: '未命名', // 沒有標題的筆記預設名稱 (英文: Untitled)
         featureImageAlt: '特色圖片', // 縮圖/預覽圖片的替代文字 (英文: Feature image)
-        unknownError: '未知錯誤' // 當錯誤沒有訊息時的通用備用文字 (英文: Unknown error)
+        unknownError: '未知錯誤', // 當錯誤沒有訊息時的通用備用文字 (英文: Unknown error)
+        updateBannerTitle: 'Notebook Navigator 有可用更新',
+        updateBannerInstruction: '在設定 → 社群外掛中更新'
     },
 
     // 列表窗格
@@ -61,7 +63,9 @@ export const STRINGS_ZH_TW = {
         reorderRootFoldersHint: '拖曳資料夾以變更順序',
         vaultRootLabel: '儲存庫',
         resetRootFolderOrder: '重設為字母順序',
-        dragHandleLabel: '拖曳以重新排序'
+        dragHandleLabel: '拖曳以重新排序',
+        pinShortcuts: '釘選捷徑',
+        unpinShortcuts: '取消釘選捷徑'
     },
 
     shortcuts: {
@@ -81,7 +85,7 @@ export const STRINGS_ZH_TW = {
     paneHeader: {
         collapseAllFolders: '收合項目', // 收合已展開項目的按鈕工具提示 (英文: Collapse items)
         expandAllFolders: '展開所有項目', // 展開所有項目的按鈕工具提示 (英文: Expand all items)
-        scrollToShortcuts: '捲動至捷徑',
+        scrollToTop: '捲動至頂部',
         newFolder: '新資料夾', // 建立新資料夾按鈕的工具提示 (英文: New folder)
         newNote: '新筆記', // 建立新筆記按鈕的工具提示 (英文: New note)
         mobileBackToNavigation: '返回導覽', // 行動裝置專用，返回導覽窗格的返回按鈕文字 (英文: Back to navigation)
@@ -273,7 +277,7 @@ export const STRINGS_ZH_TW = {
             removeAllTagsFromNotes: '您確定要從 {count} 則筆記中移除所有標籤嗎？'
         },
         folderSuggest: {
-            placeholder: '移動至資料夾...', 
+            placeholder: '移動至資料夾...',
             navigatePlaceholder: '導覽至資料夾...',
             instructions: {
                 navigate: '導覽',
@@ -283,7 +287,7 @@ export const STRINGS_ZH_TW = {
             }
         },
         homepage: {
-            placeholder: '搜尋檔案...', 
+            placeholder: '搜尋檔案...',
             instructions: {
                 navigate: '導覽',
                 select: '設定為首頁',
@@ -291,7 +295,7 @@ export const STRINGS_ZH_TW = {
             }
         },
         navigationBanner: {
-            placeholder: '搜尋圖片...', 
+            placeholder: '搜尋圖片...',
             instructions: {
                 navigate: '導覽',
                 select: '設定橫幅',
@@ -299,10 +303,10 @@ export const STRINGS_ZH_TW = {
             }
         },
         tagSuggest: {
-            placeholder: '搜尋標籤...', 
-            navigatePlaceholder: '導覽至標籤...', 
-            addPlaceholder: '搜尋要新增的標籤...', 
-            removePlaceholder: '選取要移除的標籤...', 
+            placeholder: '搜尋標籤...',
+            navigatePlaceholder: '導覽至標籤...',
+            addPlaceholder: '搜尋要新增的標籤...',
+            removePlaceholder: '選取要移除的標籤...',
             createNewTag: '建立新標籤：#{tag}',
             instructions: {
                 navigate: '導覽',
@@ -331,6 +335,15 @@ export const STRINGS_ZH_TW = {
             versionHistoryNotFound: '找不到版本歷史指令。請確保已啟用 Obsidian Sync。',
             revealInExplorer: '在系統檔案總管中顯示檔案失敗：{error}',
             folderNoteAlreadyExists: '資料夾筆記已存在',
+            folderAlreadyExists: '資料夾「{name}」已存在',
+            folderNotesDisabled: '請在設定中啟用資料夾筆記以轉換檔案',
+            folderNoteAlreadyLinked: '此檔案已作為資料夾筆記',
+            folderNoteUnsupportedExtension: '不支援的檔案副檔名：{extension}',
+            folderNoteMoveFailed: '轉換過程中移動檔案失敗：{error}',
+            folderNoteRenameConflict: '資料夾中已存在名為「{name}」的檔案',
+            folderNoteConversionFailed: '轉換為資料夾筆記失敗',
+            folderNoteConversionFailedWithReason: '轉換為資料夾筆記失敗：{error}',
+            folderNoteOpenFailed: '檔案已轉換但開啟資料夾筆記失敗：{error}',
             failedToDeleteFile: '刪除 {name} 失敗：{error}',
             failedToDeleteMultipleFiles: '刪除 {count} 個檔案失敗',
             versionHistoryNotAvailable: '版本歷史服務不可用',
@@ -345,6 +358,7 @@ export const STRINGS_ZH_TW = {
         notifications: {
             deletedMultipleFiles: '已刪除 {count} 個檔案',
             movedMultipleFiles: '已將 {count} 個檔案移動至 {folder}',
+            folderNoteConversionSuccess: '已在「{name}」中將檔案轉換為資料夾筆記',
             folderMoved: '已移動資料夾 "{name}" ',
             deepLinkCopied: '深層連結已複製到剪貼簿',
             tagAddedToNote: '已將標籤新增至 1 則筆記',
@@ -422,6 +436,7 @@ export const STRINGS_ZH_TW = {
         deleteFile: '刪除檔案', // 指令面板：刪除目前活動的檔案 (英文: Delete file)
         createNewNote: '建立新筆記', // 指令面板：在目前選取的資料夾中建立新筆記 (英文: Create new note)
         moveFiles: '移動檔案', // 指令面板：將選取的檔案移動至另一個資料夾 (英文: Move files)
+        convertToFolderNote: '轉換為資料夾筆記', // 指令面板：將活動檔案轉換為帶有新資料夾的資料夾筆記 (英文: Convert to folder note)
         navigateToFolder: '導覽至資料夾', // 指令面板：使用模糊搜尋導覽至資料夾 (英文: Navigate to folder)
         navigateToTag: '導覽至標籤', // 指令面板：使用模糊搜尋導覽至標籤 (英文: Navigate to tag)
         toggleDescendants: '切換後代項目', // 指令面板：切換顯示後代中的筆記 (英文: Toggle descendants)
@@ -457,6 +472,7 @@ export const STRINGS_ZH_TW = {
             exportFailed: '匯出中繼資料報告失敗'
         },
         sections: {
+            general: '通用',
             navigationPane: '導覽窗格',
             icons: '圖示包',
             folders: '資料夾',
@@ -466,6 +482,26 @@ export const STRINGS_ZH_TW = {
             notes: '筆記',
             hotkeys: '快捷鍵',
             advanced: '進階'
+        },
+        groups: {
+            general: {
+                view: '外觀',
+                behavior: '行為',
+                filtering: '篩選',
+                formatting: '格式'
+            },
+            navigation: {
+                behavior: '行為',
+                appearance: '外觀'
+            },
+            list: {
+                display: '外觀',
+                quickActions: '快速操作'
+            },
+            notes: {
+                frontmatter: '前置元資料',
+                display: '外觀'
+            }
         },
         items: {
             searchProvider: {
@@ -489,8 +525,7 @@ export const STRINGS_ZH_TW = {
                         limitations: {
                             title: '已知限制：',
                             performance: '效能：在大型儲存庫中搜尋少於 3 個字元時可能會很慢',
-                            pathBug:
-                                '路徑錯誤：無法在包含非 ASCII 字元的路徑中搜尋，且無法正確搜尋子路徑，影響搜尋結果中出現的檔案',
+                            pathBug: '路徑錯誤：無法在包含非 ASCII 字元的路徑中搜尋，且無法正確搜尋子路徑，影響搜尋結果中出現的檔案',
                             limitedResults:
                                 '有限的結果：由於 Omnisearch 會搜尋整個儲存庫並在篩選前返回有限數量的結果，如果儲存庫中其他地方存在太多匹配項，您目前資料夾中的相關檔案可能不會出現',
                             previewText:
@@ -512,12 +547,12 @@ export const STRINGS_ZH_TW = {
                 name: '筆記排序方式',
                 desc: '選擇筆記在筆記清單中的排序方式。',
                 options: {
-                    'modified-desc': '編輯日期 (最新優先)',
-                    'modified-asc': '編輯日期 (最舊優先)',
-                    'created-desc': '建立日期 (最新優先)',
-                    'created-asc': '建立日期 (最舊優先)',
-                    'title-asc': '標題 (A 優先)',
-                    'title-desc': '標題 (Z 優先)'
+                    'modified-desc': '編輯日期 (最新在頂部)',
+                    'modified-asc': '編輯日期 (最舊在頂部)',
+                    'created-desc': '建立日期 (最新在頂部)',
+                    'created-asc': '建立日期 (最舊在頂部)',
+                    'title-asc': '標題 (升冪)',
+                    'title-desc': '標題 (降冪)'
                 }
             },
             includeDescendantNotes: {
@@ -542,7 +577,7 @@ export const STRINGS_ZH_TW = {
             },
             quickActionsRevealInFolder: {
                 name: '在資料夾中顯示',
-                desc: "快速操作：在其父資料夾中顯示筆記。僅在檢視子資料夾或標籤中的筆記時可見 (在筆記的實際資料夾中不顯示)。"
+                desc: '快速操作：在其父資料夾中顯示筆記。僅在檢視子資料夾或標籤中的筆記時可見 (在筆記的實際資料夾中不顯示)。'
             },
             quickActionsPinNote: {
                 name: '釘選筆記',
@@ -624,8 +659,13 @@ export const STRINGS_ZH_TW = {
                 name: '首頁',
                 desc: '選擇 Notebook Navigator 自動開啟的檔案，例如儀表板。',
                 current: '目前：{path}',
+                currentMobile: '行動裝置：{path}',
                 chooseButton: '選擇檔案',
-                clearButton: '清除'
+                clearButton: '清除',
+                separateMobile: {
+                    name: '獨立的行動裝置首頁',
+                    desc: '為行動裝置使用不同的首頁。'
+                }
             },
             excludedNotes: {
                 name: '隱藏筆記',
@@ -644,6 +684,14 @@ export const STRINGS_ZH_TW = {
             showFileTags: {
                 name: '顯示檔案標籤',
                 desc: '在檔案項目中顯示可點擊的標籤。使用標籤顏色來視覺上區分不同類型的標籤。'
+            },
+            showFileTagAncestors: {
+                name: '顯示父標籤',
+                desc: '在標籤名稱前顯示父級片段。'
+            },
+            colorFileTags: {
+                name: '為檔案標籤著色',
+                desc: '將標籤顏色套用到檔案項目的標籤徽章。'
             },
             showFileTagsInSlimMode: {
                 name: '在緊湊模式下顯示檔案標籤',
@@ -727,7 +775,11 @@ export const STRINGS_ZH_TW = {
             },
             showIcons: {
                 name: '顯示圖示',
-                desc: '在導覽窗格的資料夾和標籤旁邊顯示圖示。'
+                desc: '顯示資料夾、標籤和筆記的圖示。'
+            },
+            showIconsColorOnly: {
+                name: '僅對圖示套用顏色',
+                desc: '啟用時，自訂顏色僅套用於圖示。停用時，顏色將同時套用於圖示和文字標籤。'
             },
             collapseBehavior: {
                 name: '收合項目',
@@ -763,8 +815,8 @@ export const STRINGS_ZH_TW = {
                 desc: '在導覽器中資料夾之前顯示標籤區段。'
             },
             showFavoriteTagsFolder: {
-                name: '顯示最愛資料夾',
-                desc: '設定最愛標籤後，將 "最愛" 顯示為可收合的資料夾。'
+                name: '顯示最愛標籤資料夾',
+                desc: '設定最愛標籤後，將「最愛標籤」顯示為可收合的資料夾。'
             },
             showAllTagsFolder: {
                 name: '顯示標籤資料夾',
@@ -775,8 +827,8 @@ export const STRINGS_ZH_TW = {
                 desc: '為沒有任何標籤的筆記顯示 "無標籤" 項目。'
             },
             showUntaggedInFavorites: {
-                name: '在最愛區段顯示無標籤筆記',
-                desc: '在最愛區段顯示無標籤筆記，可置於資料夾內或直接在最愛下方。'
+                name: '在最愛標籤區段顯示無標籤筆記',
+                desc: '在最愛標籤區段顯示無標籤筆記，可置於資料夾內或直接在最愛標籤下方。'
             },
             favoriteTags: {
                 name: '最愛標籤',
@@ -813,7 +865,7 @@ export const STRINGS_ZH_TW = {
             },
             hideFolderNoteInList: {
                 name: '在清單中隱藏資料夾筆記',
-                desc: "隱藏資料夾筆記，使其不顯示在資料夾的筆記清單中。"
+                desc: '隱藏資料夾筆記，使其不顯示在資料夾的筆記清單中。'
             },
             confirmBeforeDelete: {
                 name: '刪除前確認',
@@ -824,7 +876,7 @@ export const STRINGS_ZH_TW = {
                 desc: '移除在 Obsidian 外部刪除、移動或重新命名檔案、資料夾或標籤時遺留的孤立中繼資料。這只會影響 Notebook Navigator 的設定檔。',
                 buttonText: '清理中繼資料',
                 error: '設定清理失敗',
-                loading: '正在檢查中繼資料...', 
+                loading: '正在檢查中繼資料...',
                 statusClean: '沒有要清理的中繼資料',
                 statusCounts: '孤立項目：{folders} 個資料夾、{tags} 個標籤、{files} 個檔案、{pinned} 個釘選'
             },
@@ -869,12 +921,36 @@ export const STRINGS_ZH_TW = {
             },
             useFrontmatterDates: {
                 name: '從 frontmatter 讀取中繼資料 (*)',
-                desc: '可用時從 frontmatter 讀取筆記名稱和時間戳，否則退回至檔案系統值'
+                desc: '可用時從 frontmatter 讀取筆記名稱、時間戳、圖示和顏色，否則退回至檔案系統值或設定'
             },
             frontmatterNameField: {
                 name: '名稱欄位',
                 desc: '用作筆記顯示名稱的 frontmatter 欄位。留空以使用檔案名稱。',
-                placeholder: 'title'
+                placeholder: '標題'
+            },
+            frontmatterIconField: {
+                name: '圖示欄位',
+                desc: '檔案圖示的 frontmatter 欄位。留空以使用儲存在設定中的圖示。',
+                placeholder: '圖示'
+            },
+            frontmatterColorField: {
+                name: '顏色欄位',
+                desc: '檔案顏色的 frontmatter 欄位。留空以使用儲存在設定中的顏色。',
+                placeholder: '顏色'
+            },
+            frontmatterSaveMetadata: {
+                name: '將圖示和顏色儲存至 frontmatter',
+                desc: '使用上方設定的欄位自動將檔案圖示和顏色寫入 frontmatter。'
+            },
+            frontmatterMigration: {
+                name: '從設定移轉圖示和顏色',
+                desc: '儲存在設定中：{icons} 個圖示、{colors} 種顏色。',
+                button: '移轉',
+                buttonWorking: '移轉中...',
+                noticeNone: '設定中未儲存任何檔案圖示或顏色。',
+                noticeDone: '已移轉 {migratedIcons}/{icons} 個圖示、{migratedColors}/{colors} 種顏色。',
+                noticeFailures: '失敗的項目：{failures}。',
+                noticeError: '移轉失敗。請檢查主控台以取得詳細資訊。'
             },
             frontmatterCreatedField: {
                 name: '建立時間戳欄位',
@@ -895,10 +971,16 @@ export const STRINGS_ZH_TW = {
             supportDevelopment: {
                 name: '支持開發',
                 desc: '如果您喜歡使用 Notebook Navigator，請考慮支持其持續開發。',
-                buttonText: '❤️ 在 GitHub 上贊助'
+                buttonText: '❤️ 在 GitHub 上贊助',
+                coffeeButton: '☕️ 請我喝杯咖啡'
+            },
+            updateCheckOnStart: {
+                name: '啟動時檢查新版本',
+                desc: '啟動時檢查新的外掛版本，當有可用更新時顯示通知。每個版本僅通知一次，檢查最多每天一次。',
+                status: '已有新版本: {version}'
             },
             whatsNew: {
-                name: "最新消息",
+                name: '最新消息',
                 desc: '查看最近的更新和改進',
                 buttonText: '查看最近更新'
             },
@@ -915,6 +997,8 @@ export const STRINGS_ZH_TW = {
                 itemsWithName: '帶有名稱的項目',
                 withCreatedDate: '帶有建立日期',
                 withModifiedDate: '帶有修改日期',
+                withIcon: '帶有圖示',
+                withColor: '帶有顏色',
                 failedToParse: '解析失敗',
                 createdDates: '建立日期',
                 modifiedDates: '修改日期',
@@ -924,7 +1008,7 @@ export const STRINGS_ZH_TW = {
         }
     },
     whatsNew: {
-        title: "Notebook Navigator 的新功能",
+        title: 'Notebook Navigator 的新功能',
         supportMessage: '如果您覺得 Notebook Navigator 有幫助，請考慮支持其開發。',
         supportButton: '請我喝杯咖啡',
         thanksButton: '謝謝！'
