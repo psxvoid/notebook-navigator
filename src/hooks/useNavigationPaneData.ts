@@ -82,7 +82,7 @@ const DOCUMENT_EXTENSION_ICONS: Record<string, string> = {
     base: 'lucide-database'
 };
 
-// Returns the appropriate icon for a document based on its type
+// Returns the appropriate icon for a document based on its type and extension
 const getDocumentIcon = (file: TFile | null): string | undefined => {
     if (!file) {
         return undefined;
@@ -155,6 +155,7 @@ export function useNavigationPaneData({
 
     // Version counter that increments when vault files change
     const [fileChangeVersion, setFileChangeVersion] = useState(0);
+    // Increments version counter to trigger dependent recalculations
     const handleRootFileChange = useCallback(() => {
         setFileChangeVersion(value => value + 1);
     }, []);
@@ -394,6 +395,15 @@ export function useNavigationPaneData({
             // Handle folder shortcuts
             if (isFolderShortcut(shortcut)) {
                 if (!folder) {
+                    items.push({
+                        type: NavigationPaneItemType.SHORTCUT_FOLDER,
+                        key,
+                        level: itemLevel,
+                        shortcut,
+                        folder: null,
+                        isMissing: true,
+                        missingLabel: shortcut.path
+                    });
                     return;
                 }
 
@@ -416,6 +426,15 @@ export function useNavigationPaneData({
             // Handle note shortcuts
             if (isNoteShortcut(shortcut)) {
                 if (!note) {
+                    items.push({
+                        type: NavigationPaneItemType.SHORTCUT_NOTE,
+                        key,
+                        level: itemLevel,
+                        shortcut,
+                        note: null,
+                        isMissing: true,
+                        missingLabel: shortcut.path
+                    });
                     return;
                 }
                 const isExternalFile = !shouldDisplayFile(note, FILE_VISIBILITY.SUPPORTED, app);
@@ -445,23 +464,27 @@ export function useNavigationPaneData({
 
             // Handle tag shortcuts
             if (isTagShortcut(shortcut)) {
-                if (!tagPath) {
+                const resolvedPath = tagPath ?? shortcut.tagPath;
+                if (!resolvedPath) {
                     return;
                 }
 
                 // Determine display name and context for tag shortcuts
-                const tagNode = favoriteTree.get(tagPath) ?? tagTree.get(tagPath);
-                const displayPath = tagNode?.displayPath ?? tagPath;
-                const context = favoriteTree.has(tagPath) ? ('favorites' as const) : ('tags' as const);
+                const tagNode = favoriteTree.get(resolvedPath) ?? tagTree.get(resolvedPath);
+                const displayPath = tagNode?.displayPath ?? resolvedPath;
+                const context = tagNode ? (favoriteTree.has(resolvedPath) ? ('favorites' as const) : ('tags' as const)) : undefined;
+                const isMissing = !tagNode;
 
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_TAG,
                     key,
                     level: itemLevel,
                     shortcut,
-                    tagPath,
+                    tagPath: resolvedPath,
                     displayName: displayPath,
-                    context
+                    context,
+                    isMissing,
+                    missingLabel: isMissing ? resolvedPath : undefined
                 });
             }
         });
@@ -844,6 +867,7 @@ export function useNavigationPaneData({
             folderNoteName: settings.folderNoteName
         };
 
+        // Recursively counts files in a folder, respecting exclusion rules
         const countFiles = (folder: TFolder): number => {
             let count = 0;
             for (const child of folder.children) {

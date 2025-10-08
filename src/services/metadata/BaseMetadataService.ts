@@ -21,6 +21,7 @@ import { NotebookNavigatorSettings, SortOption } from '../../settings';
 import { ItemType } from '../../types';
 import { ISettingsProvider } from '../../interfaces/ISettingsProvider';
 import { FolderAppearance, TagAppearance } from '../../hooks/useListPaneAppearance';
+import type { ShortcutEntry } from '../../types/shortcuts';
 
 /**
  * Type helper for metadata fields in settings
@@ -87,6 +88,44 @@ export abstract class BaseMetadataService {
             });
 
         return this.updateQueue;
+    }
+
+    /**
+     * Applies shortcut mutations in a single pass.
+     * @param settings - Settings object to mutate
+     * @param mutate - Returns undefined to keep, null to remove, ShortcutEntry to replace
+     * @returns True if changes were applied
+     */
+    protected updateShortcuts(
+        settings: NotebookNavigatorSettings,
+        mutate: (shortcut: ShortcutEntry) => ShortcutEntry | null | undefined
+    ): boolean {
+        const shortcuts = settings.shortcuts;
+        if (!Array.isArray(shortcuts) || shortcuts.length === 0) {
+            return false;
+        }
+
+        let changed = false;
+        const next: ShortcutEntry[] = [];
+
+        for (const shortcut of shortcuts) {
+            const result = mutate(shortcut);
+            if (result === undefined) {
+                next.push(shortcut);
+                continue;
+            }
+
+            changed = true;
+            if (result !== null) {
+                next.push(result);
+            }
+        }
+
+        if (changed) {
+            settings.shortcuts = next;
+        }
+
+        return changed;
     }
 
     /**
@@ -158,9 +197,7 @@ export abstract class BaseMetadataService {
         return this.getEntityColorVariant(entityType, path, 'background');
     }
 
-    /**
-     * Maps entity type and variant to the corresponding settings key
-     */
+    // Maps entity type and color variant to the corresponding settings key
     private getColorRecordKey(entityType: EntityType, variant: ColorVariant): ColorRecordKey {
         if (entityType === ItemType.FOLDER) {
             return variant === 'color' ? 'folderColors' : 'folderBackgroundColors';
@@ -171,9 +208,7 @@ export abstract class BaseMetadataService {
         return 'fileColors';
     }
 
-    /**
-     * Ensures a color record exists and returns it
-     */
+    // Ensures a color record exists in settings and returns it
     private ensureColorRecord(settings: NotebookNavigatorSettings, key: ColorRecordKey): Record<string, string> {
         if (!settings[key]) {
             settings[key] = {};
@@ -181,9 +216,7 @@ export abstract class BaseMetadataService {
         return settings[key];
     }
 
-    /**
-     * Shared logic for setting entity color/background values
-     */
+    // Sets a color or background color for an entity after validation
     private async setEntityColorVariant(entityType: EntityType, path: string, color: string, variant: ColorVariant): Promise<void> {
         if (!this.validateColor(color)) {
             return;
@@ -196,9 +229,7 @@ export abstract class BaseMetadataService {
         });
     }
 
-    /**
-     * Shared logic for removing entity color/background values
-     */
+    // Removes a color or background color from an entity
     private async removeEntityColorVariant(entityType: EntityType, path: string, variant: ColorVariant): Promise<void> {
         const recordKey = this.getColorRecordKey(entityType, variant);
         const record = this.settingsProvider.settings[recordKey];
@@ -214,9 +245,7 @@ export abstract class BaseMetadataService {
         });
     }
 
-    /**
-     * Shared logic for getting entity color/background values
-     */
+    // Gets a color or background color for an entity
     private getEntityColorVariant(entityType: EntityType, path: string, variant: ColorVariant): string | undefined {
         const recordKey = this.getColorRecordKey(entityType, variant);
         return this.settingsProvider.settings[recordKey]?.[path];

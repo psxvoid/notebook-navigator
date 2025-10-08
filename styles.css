@@ -1128,6 +1128,10 @@ body {
     font-weight: var(--nn-theme-navitem-custom-color-file-name-font-weight) !important;
 }
 
+.nn-shortcut-item--missing .nn-shortcut-label {
+    text-decoration: line-through;
+}
+
 .nn-drag-item .nn-shortcut-description {
     flex-shrink: 0;
 }

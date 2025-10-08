@@ -94,6 +94,8 @@ interface ShortcutNavigationBase {
     icon?: string;
     color?: string;
     isExcluded?: boolean;
+    isMissing?: boolean;
+    missingLabel?: string;
 }
 
 export interface ShortcutHeaderItem {

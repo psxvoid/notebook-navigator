@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Notice, TAbstractFile, TFile, TFolder } from 'obsidian';
 import { useSettingsState, useSettingsUpdate } from './SettingsContext';
 import { useServices } from './ServicesContext';
@@ -73,10 +73,12 @@ export interface ShortcutsContextValue {
 
 const ShortcutsContext = createContext<ShortcutsContextValue | null>(null);
 
+// Type guard to check if an abstract file is a folder
 function isFolder(file: TAbstractFile | null): file is TFolder {
     return file instanceof TFolder;
 }
 
+// Type guard to check if an abstract file is a file
 function isFile(file: TAbstractFile | null): file is TFile {
     return file instanceof TFile;
 }
@@ -93,6 +95,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     const settings = useSettingsState();
     const updateSettings = useSettingsUpdate();
     const { app } = useServices();
+    const [vaultChangeVersion, setVaultChangeVersion] = useState(0);
 
     // Extracts shortcuts array from settings with fallback to empty array
     const rawShortcuts = useMemo(() => settings.shortcuts ?? [], [settings.shortcuts]);
@@ -150,9 +153,62 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         return map;
     }, [rawShortcuts]);
 
+    // Monitors vault changes for shortcut target files to trigger re-hydration when they are created/deleted/renamed
+    useEffect(() => {
+        const folderPaths = new Map(folderShortcutKeysByPath);
+        const notePaths = new Map(noteShortcutKeysByPath);
+
+        if (folderPaths.size === 0 && notePaths.size === 0) {
+            return;
+        }
+
+        const vault = app.vault;
+
+        const handleCreate = (file: TAbstractFile) => {
+            if (!isFolder(file) && !isFile(file)) {
+                return;
+            }
+            if (folderPaths.has(file.path) || notePaths.has(file.path)) {
+                setVaultChangeVersion(value => value + 1);
+            }
+        };
+
+        const handleDelete = (file: TAbstractFile) => {
+            if (!isFolder(file) && !isFile(file)) {
+                return;
+            }
+            if (folderPaths.has(file.path) || notePaths.has(file.path)) {
+                setVaultChangeVersion(value => value + 1);
+            }
+        };
+
+        const handleRename = (file: TAbstractFile, oldPath: string) => {
+            if (!isFolder(file) && !isFile(file)) {
+                return;
+            }
+            if (folderPaths.has(oldPath) || notePaths.has(oldPath) || folderPaths.has(file.path) || notePaths.has(file.path)) {
+                setVaultChangeVersion(value => value + 1);
+            }
+        };
+
+        const createRef = vault.on('create', handleCreate);
+        const deleteRef = vault.on('delete', handleDelete);
+        const renameRef = vault.on('rename', (file, oldPath) => {
+            handleRename(file, oldPath);
+        });
+
+        return () => {
+            vault.offref(createRef);
+            vault.offref(deleteRef);
+            vault.offref(renameRef);
+        };
+    }, [app.vault, folderShortcutKeysByPath, noteShortcutKeysByPath]);
+
     // Hydrates shortcuts by resolving file references and validating existence
     // Transforms shortcut entries into hydrated objects with resolved file/folder references
     const hydratedShortcuts = useMemo<HydratedShortcut[]>(() => {
+        // Reference vaultChangeVersion to ensure memoized value updates when tracked files change
+        void vaultChangeVersion;
         return rawShortcuts.map(shortcut => {
             const key = getShortcutKey(shortcut);
 
@@ -227,22 +283,9 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
                 isMissing: false
             };
         });
-    }, [app.vault, rawShortcuts]);
+    }, [app.vault, rawShortcuts, vaultChangeVersion]);
 
-    // Removes shortcuts pointing to deleted files/folders automatically
-    // Cleans up missing shortcuts whenever hydration detects broken references
-    useEffect(() => {
-        const missingKeys = hydratedShortcuts.filter(entry => entry.isMissing).map(entry => entry.key);
-        if (missingKeys.length === 0) {
-            return;
-        }
-
-        void updateSettings(current => {
-            const existing = current.shortcuts ?? [];
-            current.shortcuts = existing.filter(shortcut => !missingKeys.includes(getShortcutKey(shortcut)));
-        });
-    }, [hydratedShortcuts, updateSettings]);
-
+    // Inserts a shortcut at the specified index or appends to the end
     const insertShortcut = useCallback(
         async (shortcut: ShortcutEntry, index?: number) => {
             await updateSettings(current => {
@@ -257,6 +300,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         [updateSettings]
     );
 
+    // Adds a folder shortcut if it doesn't already exist
     const addFolderShortcut = useCallback(
         async (path: string, options?: { index?: number }) => {
             if (folderShortcutKeysByPath.has(path)) {
@@ -268,6 +312,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         [insertShortcut, folderShortcutKeysByPath]
     );
 
+    // Adds a note shortcut if it doesn't already exist
     const addNoteShortcut = useCallback(
         async (path: string, options?: { index?: number }) => {
             if (noteShortcutKeysByPath.has(path)) {
@@ -279,6 +324,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         [insertShortcut, noteShortcutKeysByPath]
     );
 
+    // Adds a tag shortcut if it doesn't already exist
     const addTagShortcut = useCallback(
         async (tagPath: string, options?: { index?: number }) => {
             if (tagShortcutKeysByPath.has(tagPath)) {
@@ -290,6 +336,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         [insertShortcut, tagShortcutKeysByPath]
     );
 
+    // Adds a search shortcut with validation for name and query uniqueness
     const addSearchShortcut = useCallback(
         async ({ name, query, provider }: { name: string; query: string; provider: SearchProvider }, options?: { index?: number }) => {
             const normalizedQuery = query.trim();
@@ -323,6 +370,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         [insertShortcut, searchShortcutsByName]
     );
 
+    // Removes a shortcut by its unique key
     const removeShortcut = useCallback(
         async (key: string) => {
             if (!shortcutMap.has(key)) {
@@ -339,6 +387,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         [shortcutMap, updateSettings]
     );
 
+    // Removes a search shortcut by its name (case-insensitive)
     const removeSearchShortcut = useCallback(
         async (name: string) => {
             const shortcut = searchShortcutsByName.get(name.trim().toLowerCase());
@@ -377,10 +426,14 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         [rawShortcuts.length, shortcutMap, updateSettings]
     );
 
+    // Checks if a folder shortcut exists for the given path
     const hasFolderShortcut = useCallback((path: string) => folderShortcutKeysByPath.has(path), [folderShortcutKeysByPath]);
+    // Checks if a note shortcut exists for the given path
     const hasNoteShortcut = useCallback((path: string) => noteShortcutKeysByPath.has(path), [noteShortcutKeysByPath]);
+    // Checks if a tag shortcut exists for the given tag path
     const hasTagShortcut = useCallback((tagPath: string) => tagShortcutKeysByPath.has(tagPath), [tagShortcutKeysByPath]);
 
+    // Finds a search shortcut by name (case-insensitive)
     const findSearchShortcut = useCallback((name: string) => searchShortcutsByName.get(name.trim().toLowerCase()), [searchShortcutsByName]);
 
     const value: ShortcutsContextValue = useMemo(

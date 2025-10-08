@@ -87,7 +87,7 @@ import { localStorage } from '../utils/localStorage';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { ShortcutItem } from './ShortcutItem';
 import { RootFolderReorderItem } from './RootFolderReorderItem';
-import { ShortcutType, SearchShortcut, SHORTCUT_DRAG_MIME } from '../types/shortcuts';
+import { ShortcutType, SearchShortcut, SHORTCUT_DRAG_MIME, isFolderShortcut, isNoteShortcut, isTagShortcut } from '../types/shortcuts';
 import { strings } from '../i18n';
 import { createDragGhostManager, type DragGhostOptions } from '../utils/dragGhost';
 import { NavigationBanner } from './NavigationBanner';
@@ -686,6 +686,7 @@ export const NavigationPane = React.memo(
             }
         }, [isRootReorderMode, canReorderRootFolders]);
 
+        // Compares two path arrays for equality (order and content)
         const arePathArraysEqual = useCallback((first: string[], second: string[]) => {
             if (first.length !== second.length) {
                 return false;
@@ -698,6 +699,7 @@ export const NavigationPane = React.memo(
             return true;
         }, []);
 
+        // Updates the custom ordering of root-level folders in settings
         const handleRootOrderChange = useCallback(
             async (orderedPaths: string[]) => {
                 const normalizedOrder = orderedPaths.slice();
@@ -901,7 +903,7 @@ export const NavigationPane = React.memo(
             [expansionDispatch, setRecentNotesExpanded, setShortcutsExpanded]
         );
 
-        // Get all descendant folders recursively
+        // Recursively collects all descendant folder paths from a given folder
         const getAllDescendantFolders = useCallback((folder: TFolder): string[] => {
             const descendants: string[] = [];
 
@@ -918,7 +920,7 @@ export const NavigationPane = React.memo(
             return descendants;
         }, []);
 
-        // Get all descendant tags recursively
+        // Recursively collects all descendant tag paths from a given tag
         const getAllDescendantTags = useCallback(
             (tagPath: string, context?: 'favorites' | 'tags'): string[] => {
                 const descendants: string[] = [];
@@ -1014,13 +1016,12 @@ export const NavigationPane = React.memo(
             ]
         );
 
-        // Toggles the pinned shortcuts state between pinned and unpinned
+        // Toggles shortcuts between pinned (always visible) and inline (in main list) display
         const handleShortcutSplitToggle = useCallback(() => {
             uiDispatch({ type: 'SET_PIN_SHORTCUTS', value: !uiState.pinShortcuts });
         }, [uiDispatch, uiState.pinShortcuts]);
 
-        // Scrolls a shortcut into view when activated
-
+        // Scrolls shortcut into view - scrolls to top for pinned shortcuts or to item index for inline
         const scrollShortcutIntoView = useCallback(
             (shortcutKey: string) => {
                 // When shortcuts are pinned, scroll to top to show pinned area
@@ -1182,7 +1183,8 @@ export const NavigationPane = React.memo(
             | { type: 'folder'; key: string; folder: TFolder }
             | { type: 'note'; key: string; file: TFile }
             | { type: 'tag'; key: string; tagPath: string }
-            | { type: 'search'; key: string };
+            | { type: 'search'; key: string }
+            | { type: 'missing'; key: string; kind: 'folder' | 'note' | 'tag' };
 
         const handleShortcutContextMenu = useCallback(
             (event: React.MouseEvent<HTMLDivElement>, target: ShortcutContextMenuTarget) => {
@@ -1194,6 +1196,18 @@ export const NavigationPane = React.memo(
                 event.stopPropagation();
 
                 const menu = new Menu();
+
+                if (target.type === 'missing') {
+                    menu.addItem(item => {
+                        item.setTitle(strings.shortcuts.remove)
+                            .setIcon('lucide-bookmark-x')
+                            .onClick(() => {
+                                void removeShortcut(target.key);
+                            });
+                    });
+                    menu.showAtMouseEvent(event.nativeEvent);
+                    return;
+                }
 
                 if (target.type === 'search') {
                     menu.addItem(item => {
@@ -1317,6 +1331,7 @@ export const NavigationPane = React.memo(
             ]
         );
 
+        // Calculates the note count for a folder shortcut, using cache when available
         const getFolderShortcutCount = useCallback(
             (folder: TFolder): number => {
                 if (!settings.showNoteCount) {
@@ -1363,6 +1378,7 @@ export const NavigationPane = React.memo(
             ]
         );
 
+        // Calculates the note count for a tag shortcut, using cache when available
         const getTagShortcutCount = useCallback(
             (tagPath: string): number => {
                 if (!settings.showNoteCount) {
@@ -1382,6 +1398,40 @@ export const NavigationPane = React.memo(
                 return settings.includeDescendantNotes ? getTotalNoteCount(tagNode) : tagNode.notesWithTag.size;
             },
             [settings.showNoteCount, settings.includeDescendantNotes, tagCounts, favoriteTree, tagTree]
+        );
+
+        // Extracts the base file/folder name from a full path
+        const getPathBaseName = useCallback((path: string): string => {
+            if (!path) {
+                return '';
+            }
+            const trimmed = path.endsWith('/') && path !== '/' ? path.slice(0, -1) : path;
+            const segments = trimmed.split('/').filter(Boolean);
+            if (segments.length === 0) {
+                return trimmed || '/';
+            }
+            return segments[segments.length - 1];
+        }, []);
+
+        // Generates display label for missing note shortcuts, stripping .md extension
+        const getMissingNoteLabel = useCallback(
+            (path: string): string => {
+                const baseName = getPathBaseName(path);
+                if (!baseName) {
+                    return '';
+                }
+                const dotIndex = baseName.lastIndexOf('.');
+                if (dotIndex <= 0) {
+                    return baseName;
+                }
+                const namePart = baseName.substring(0, dotIndex);
+                const extension = baseName.substring(dotIndex + 1);
+                if (extension.toLowerCase() === 'md') {
+                    return namePart;
+                }
+                return baseName;
+            },
+            [getPathBaseName]
         );
 
         useEffect(() => {
@@ -1426,7 +1476,7 @@ export const NavigationPane = React.memo(
             setActiveShortcut
         ]);
 
-        // Updates banner height when it changes, with threshold to prevent excessive updates
+        // Updates banner height with threshold to prevent micro-adjustments
         const handleBannerHeightChange = useCallback((height: number) => {
             setBannerHeight(previous => {
                 if (Math.abs(previous - height) < 0.5) {
@@ -1442,36 +1492,48 @@ export const NavigationPane = React.memo(
                 switch (item.type) {
                     case NavigationPaneItemType.SHORTCUT_FOLDER: {
                         const folder = item.folder;
-                        if (!folder) {
+                        const isMissing = Boolean(item.isMissing);
+                        const canInteract = Boolean(folder) && !isMissing;
+                        if (!canInteract && !isMissing) {
                             return null;
                         }
+
+                        const folderPath = isFolderShortcut(item.shortcut) ? item.shortcut.path : '';
+                        const folderName = canInteract && folder ? folder.name : getPathBaseName(folderPath);
+                        const folderCount = canInteract && folder ? getFolderShortcutCount(folder) : 0;
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
                         const dragHandlers = buildShortcutDragHandlers(item.key, {
                             itemType: ItemType.FOLDER,
-                            path: folder.path,
+                            path: folder?.path ?? folderPath,
                             icon: item.icon ?? 'lucide-folder',
                             iconColor: item.color
                         });
-                        const folderCount = getFolderShortcutCount(folder);
+
+                        const contextTarget: ShortcutContextMenuTarget =
+                            canInteract && folder
+                                ? { type: 'folder', key: item.key, folder }
+                                : { type: 'missing', key: item.key, kind: 'folder' };
 
                         return (
                             <ShortcutItem
-                                icon={item.icon ?? 'lucide-folder'}
-                                color={item.color}
-                                label={folder.name}
+                                icon={isMissing ? 'lucide-alert-triangle' : (item.icon ?? 'lucide-folder')}
+                                color={isMissing ? undefined : item.color}
+                                label={folderName}
+                                description={undefined}
                                 level={item.level}
                                 type="folder"
-                                count={folderCount}
-                                isExcluded={item.isExcluded}
-                                onClick={() => handleShortcutFolderActivate(folder, item.key)}
-                                onContextMenu={event =>
-                                    handleShortcutContextMenu(event, {
-                                        type: 'folder',
-                                        key: item.key,
-                                        folder
-                                    })
-                                }
+                                count={!isMissing ? folderCount : undefined}
+                                isExcluded={!isMissing ? item.isExcluded : undefined}
+                                isDisabled={isMissing}
+                                isMissing={isMissing}
+                                onClick={() => {
+                                    if (!folder) {
+                                        return;
+                                    }
+                                    handleShortcutFolderActivate(folder, item.key);
+                                }}
+                                onContextMenu={event => handleShortcutContextMenu(event, contextTarget)}
                                 dragHandlers={dragHandlers}
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
@@ -1483,40 +1545,55 @@ export const NavigationPane = React.memo(
 
                     case NavigationPaneItemType.SHORTCUT_NOTE: {
                         const note = item.note;
-                        if (!note) {
-                            return null;
-                        }
+                        const isMissing = Boolean(item.isMissing);
+                        const canInteract = Boolean(note) && !isMissing;
+                        const notePath = isNoteShortcut(item.shortcut) ? item.shortcut.path : '';
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
                         const dragHandlers = buildShortcutDragHandlers(item.key, {
                             itemType: ItemType.FILE,
-                            path: note.path,
+                            path: note?.path ?? notePath,
                             icon: item.icon ?? 'lucide-file',
                             iconColor: item.color
                         });
 
-                        // Get display name from frontmatter metadata or file basename
-                        const displayName = getFileDisplayName(note);
-                        // Add extension suffix for non-markdown files if configured
-                        const extensionSuffix = shouldShowExtensionSuffix(note) ? getExtensionSuffix(note) : '';
-                        const label = extensionSuffix ? `${displayName}${extensionSuffix}` : displayName;
+                        const label = (() => {
+                            if (!note || !canInteract) {
+                                return getMissingNoteLabel(notePath);
+                            }
+                            const displayName = getFileDisplayName(note);
+                            const extensionSuffix = shouldShowExtensionSuffix(note) ? getExtensionSuffix(note) : '';
+                            return extensionSuffix ? `${displayName}${extensionSuffix}` : displayName;
+                        })();
+
+                        const contextTarget: ShortcutContextMenuTarget =
+                            canInteract && note
+                                ? { type: 'note', key: item.key, file: note }
+                                : { type: 'missing', key: item.key, kind: 'note' };
 
                         return (
                             <ShortcutItem
-                                icon={item.icon ?? 'lucide-file-text'}
-                                color={item.color}
+                                icon={isMissing ? 'lucide-alert-triangle' : (item.icon ?? 'lucide-file-text')}
+                                color={isMissing ? undefined : item.color}
                                 label={label}
+                                description={undefined}
                                 level={item.level}
                                 type="note"
-                                onClick={() => handleShortcutNoteActivate(note, item.key)}
-                                onMouseDown={event => handleShortcutNoteMouseDown(event, note)}
-                                onContextMenu={event =>
-                                    handleShortcutContextMenu(event, {
-                                        type: 'note',
-                                        key: item.key,
-                                        file: note
-                                    })
-                                }
+                                isDisabled={isMissing}
+                                isMissing={isMissing}
+                                onClick={() => {
+                                    if (!note) {
+                                        return;
+                                    }
+                                    handleShortcutNoteActivate(note, item.key);
+                                }}
+                                onMouseDown={event => {
+                                    if (!note || !canInteract) {
+                                        return;
+                                    }
+                                    handleShortcutNoteMouseDown(event, note);
+                                }}
+                                onContextMenu={event => handleShortcutContextMenu(event, contextTarget)}
                                 dragHandlers={dragHandlers}
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
@@ -1560,30 +1637,40 @@ export const NavigationPane = React.memo(
                     }
 
                     case NavigationPaneItemType.SHORTCUT_TAG: {
-                        const tagCount = getTagShortcutCount(item.tagPath);
+                        const isMissing = Boolean(item.isMissing);
+                        const tagPath = isTagShortcut(item.shortcut) ? item.shortcut.tagPath : item.tagPath;
+                        const tagCount = !isMissing ? getTagShortcutCount(tagPath) : 0;
+
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
                         const dragHandlers = buildShortcutDragHandlers(item.key, {
                             itemType: ItemType.TAG,
-                            path: item.tagPath,
+                            path: tagPath,
                             icon: item.icon ?? 'lucide-tags',
                             iconColor: item.color
                         });
+
+                        const contextTarget: ShortcutContextMenuTarget = !isMissing
+                            ? { type: 'tag', key: item.key, tagPath }
+                            : { type: 'missing', key: item.key, kind: 'tag' };
+
                         return (
                             <ShortcutItem
-                                icon={item.icon ?? 'lucide-tags'}
-                                color={item.color}
+                                icon={isMissing ? 'lucide-alert-triangle' : (item.icon ?? 'lucide-tags')}
+                                color={isMissing ? undefined : item.color}
                                 label={item.displayName}
+                                description={undefined}
                                 level={item.level}
                                 type="tag"
-                                count={tagCount}
-                                onClick={() => handleShortcutTagActivate(item.tagPath, item.key)}
-                                onContextMenu={event =>
-                                    handleShortcutContextMenu(event, {
-                                        type: 'tag',
-                                        key: item.key,
-                                        tagPath: item.tagPath
-                                    })
-                                }
+                                count={!isMissing ? tagCount : undefined}
+                                isDisabled={isMissing}
+                                isMissing={isMissing}
+                                onClick={() => {
+                                    if (isMissing) {
+                                        return;
+                                    }
+                                    handleShortcutTagActivate(tagPath, item.key);
+                                }}
+                                onContextMenu={event => handleShortcutContextMenu(event, contextTarget)}
                                 dragHandlers={dragHandlers}
                                 showDropIndicatorBefore={showBefore}
                                 showDropIndicatorAfter={showAfter}
@@ -1794,7 +1881,9 @@ export const NavigationPane = React.memo(
                 handleShortcutRootDragOver,
                 handleShortcutRootDrop,
                 handleShortcutRootDragLeave,
-                allowEmptyShortcutDrop
+                allowEmptyShortcutDrop,
+                getPathBaseName,
+                getMissingNoteLabel
             ]
         );
 

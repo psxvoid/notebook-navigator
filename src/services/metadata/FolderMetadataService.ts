@@ -18,6 +18,7 @@
 
 import { SortOption, type NotebookNavigatorSettings } from '../../settings';
 import { ItemType } from '../../types';
+import { isFolderShortcut } from '../../types/shortcuts';
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
 
@@ -188,6 +189,17 @@ export class FolderMetadataService extends BaseMetadataService {
             this.updateNestedPaths(settings.folderIcons, oldPath, newPath);
             this.updateNestedPaths(settings.folderSortOverrides, oldPath, newPath);
             this.updateNestedPaths(settings.folderAppearances, oldPath, newPath);
+
+            this.updateShortcuts(settings, shortcut => {
+                if (!isFolderShortcut(shortcut) || shortcut.path !== oldPath) {
+                    return undefined;
+                }
+
+                return {
+                    ...shortcut,
+                    path: newPath
+                };
+            });
         });
     }
 
@@ -202,6 +214,13 @@ export class FolderMetadataService extends BaseMetadataService {
             this.deleteNestedPaths(settings.folderIcons, folderPath);
             this.deleteNestedPaths(settings.folderSortOverrides, folderPath);
             this.deleteNestedPaths(settings.folderAppearances, folderPath);
+
+            this.updateShortcuts(settings, shortcut => {
+                if (!isFolderShortcut(shortcut)) {
+                    return undefined;
+                }
+                return shortcut.path === folderPath ? null : undefined;
+            });
         });
     }
 

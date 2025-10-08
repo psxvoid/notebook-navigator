@@ -20,7 +20,7 @@ import { TFile } from 'obsidian';
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
 import { ItemType, NavigatorContext } from '../../types';
-import { ShortcutType, type ShortcutEntry } from '../../types/shortcuts';
+import { isNoteShortcut } from '../../types/shortcuts';
 import type { NotebookNavigatorSettings } from '../../settings';
 import { getDBInstance } from '../../storage/fileOperations';
 
@@ -212,20 +212,12 @@ export class FileMetadataService extends BaseMetadataService {
                 delete settings.fileColors[filePath];
             }
 
-            // Remove shortcuts that reference the deleted file
-            const shortcuts = settings.shortcuts;
-            if (Array.isArray(shortcuts) && shortcuts.length > 0) {
-                const filteredShortcuts = shortcuts.filter(shortcut => {
-                    if (shortcut.type !== ShortcutType.NOTE) {
-                        return true;
-                    }
-                    return shortcut.path !== filePath;
-                });
-
-                if (filteredShortcuts.length !== shortcuts.length) {
-                    settings.shortcuts = filteredShortcuts;
+            this.updateShortcuts(settings, shortcut => {
+                if (!isNoteShortcut(shortcut)) {
+                    return undefined;
                 }
-            }
+                return shortcut.path === filePath ? null : undefined;
+            });
         });
     }
 
@@ -247,33 +239,19 @@ export class FileMetadataService extends BaseMetadataService {
             this.updateNestedPaths(settings.fileIcons, oldPath, newPath);
             this.updateNestedPaths(settings.fileColors, oldPath, newPath);
 
-            // Update shortcuts that reference the renamed file
-            const shortcuts = settings.shortcuts;
-            if (Array.isArray(shortcuts) && shortcuts.length > 0) {
-                let updatedShortcuts: ShortcutEntry[] | null = null;
-
-                shortcuts.forEach((shortcut, index) => {
-                    if (shortcut.type !== ShortcutType.NOTE) {
-                        return;
-                    }
-                    if (shortcut.path !== oldPath) {
-                        return;
-                    }
-
-                    if (!updatedShortcuts) {
-                        updatedShortcuts = [...shortcuts];
-                    }
-
-                    updatedShortcuts[index] = {
-                        ...shortcut,
-                        path: newPath
-                    };
-                });
-
-                if (updatedShortcuts) {
-                    settings.shortcuts = updatedShortcuts;
+            this.updateShortcuts(settings, shortcut => {
+                if (!isNoteShortcut(shortcut)) {
+                    return undefined;
                 }
-            }
+                if (shortcut.path !== oldPath) {
+                    return undefined;
+                }
+
+                return {
+                    ...shortcut,
+                    path: newPath
+                };
+            });
         });
     }
 

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSettingsState } from '../context/SettingsContext';
 import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
@@ -31,6 +31,7 @@ interface ShortcutItemProps {
     description?: string;
     level: number;
     isDisabled?: boolean;
+    isMissing?: boolean;
     type: 'folder' | 'note' | 'search' | 'tag';
     count?: number;
     isExcluded?: boolean;
@@ -55,6 +56,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     description,
     level,
     isDisabled,
+    isMissing,
     type,
     count,
     isExcluded,
@@ -71,6 +73,16 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     // Determines whether to display count based on settings and item type
     // Only shows counts for folder and tag types when showNoteCount is enabled
     const shouldShowCount = settings.showNoteCount && typeof count === 'number' && count > 0 && (type === 'folder' || type === 'tag');
+    // Row is disabled when item exists but is disabled (missing items are handled separately)
+    const shouldDisableRow = Boolean(isDisabled) && !isMissing;
+    // Builds CSS class names for the shortcut item with conditional missing state
+    const classNames = useMemo(() => {
+        const classes = ['nn-shortcut-item'];
+        if (isMissing) {
+            classes.push('nn-shortcut-item--missing');
+        }
+        return classes.join(' ');
+    }, [isMissing]);
 
     return (
         <NavigationListRow
@@ -80,19 +92,19 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             description={description}
             level={level}
             itemType={type}
-            isDisabled={isDisabled}
+            isDisabled={shouldDisableRow}
             isExcluded={isExcluded}
             onClick={event => {
-                // Prevent click action when item is disabled
-                if (isDisabled) {
+                // Prevent click action when item is disabled or missing
+                if (shouldDisableRow || isMissing) {
                     event.preventDefault();
                     return;
                 }
                 onClick(event);
             }}
             onMouseDown={event => {
-                // Prevent mouse down action when item is disabled
-                if (isDisabled) {
+                // Prevent mouse down action when item is disabled or missing
+                if (shouldDisableRow || isMissing) {
                     return;
                 }
                 onMouseDown?.(event);
@@ -104,9 +116,9 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             isDragSource={isDragSource}
             showCount={shouldShowCount}
             count={count}
-            className="nn-shortcut-item"
+            className={classNames}
             tabIndex={-1}
-            ariaDisabled={isDisabled}
+            ariaDisabled={shouldDisableRow || isMissing}
             ariaGrabbed={isDragSource}
             dragHandleConfig={dragHandleConfig}
         />
