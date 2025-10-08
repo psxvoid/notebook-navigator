@@ -54,16 +54,18 @@ All variables start with `--nn-theme-` and should be defined at the `body` level
 
 #### Text styling
 
-These variables control the font weight and decoration of folder/tag names. Priority order: folder note styles override
-custom color styles, which override the default style.
+These variables control the font weight and decoration of folder/tag names and file names in shortcuts and recent files.
+Priority order: folder note styles override custom color styles, which override the default style.
 
-| Variable                                           | Default     | Description                                                              |
-| -------------------------------------------------- | ----------- | ------------------------------------------------------------------------ |
-| `--nn-theme-navitem-name-font-weight`              | `400`       | Default font weight for all folder/tag names (400 = regular, 600 = bold) |
-| `--nn-theme-navitem-count-font-weight`             | `400`       | Font weight for file count badges                                        |
-| `--nn-theme-navitem-custom-color-name-font-weight` | `600`       | Font weight for items with custom colors (overrides default)             |
-| `--nn-theme-navitem-folder-note-name-font-weight`  | `600`       | Font weight for folders with notes (overrides all others)                |
-| `--nn-theme-navitem-folder-note-name-decoration`   | `underline` | Text decoration for folder notes (none, underline, underline dotted)     |
+| Variable                                                | Default     | Description                                                                   |
+| ------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------- |
+| `--nn-theme-navitem-name-font-weight`                   | `400`       | Default font weight for all folder/tag names (400 = regular, 600 = bold)      |
+| `--nn-theme-navitem-file-name-font-weight`              | `400`       | Default font weight for file names in shortcuts and recent files              |
+| `--nn-theme-navitem-count-font-weight`                  | `400`       | Font weight for file count badges                                             |
+| `--nn-theme-navitem-custom-color-name-font-weight`      | `600`       | Font weight for folders/tags with custom colors (overrides default)           |
+| `--nn-theme-navitem-custom-color-file-name-font-weight` | `600`       | Font weight for file names with custom colors (overrides default file weight) |
+| `--nn-theme-navitem-folder-note-name-font-weight`       | `600`       | Font weight for folders with notes (overrides all others)                     |
+| `--nn-theme-navitem-folder-note-name-decoration`        | `underline` | Text decoration for folder notes (none, underline, underline dotted)          |
 
 ### Pane divider (desktop only)
 
@@ -194,7 +196,9 @@ body {
 
   /* Text styling */
   --nn-theme-navitem-name-font-weight: 400; /* Regular weight for normal items */
+  --nn-theme-navitem-file-name-font-weight: 400; /* Regular weight for file names */
   --nn-theme-navitem-custom-color-name-font-weight: 500; /* Medium for custom colored items */
+  --nn-theme-navitem-custom-color-file-name-font-weight: 500; /* Medium for custom colored file names */
   --nn-theme-navitem-folder-note-name-font-weight: 500; /* Medium for folder notes */
   --nn-theme-navitem-folder-note-name-decoration: none; /* No decoration for cleaner look */
   --nn-theme-navitem-count-font-weight: 400; /* Regular for count badges */
@@ -271,7 +275,6 @@ body {
      MOBILE STYLES
      ======================================== */
 
-  --nn-theme-mobile-nav-bg: #2b2b2b; /* Dark editor background - mobile navigation background */
   --nn-theme-mobile-list-header-link-color: #589df6; /* Bright blue - mobile back button and breadcrumb links */
   --nn-theme-mobile-list-header-breadcrumb-color: #a9b7c6; /* Soft blue-gray - current folder and separators */
   --nn-theme-mobile-list-header-breadcrumb-font-weight: 600; /* Bold weight - mobile breadcrumb */
@@ -337,8 +340,8 @@ To support both light and dark modes, define your variables under `.theme-light`
 
 ### User Custom Colors Override
 
-When users set custom colors (right-click → "Change color" or "Change icon color"), their choices automatically override
-your theme through inline styles.
+When users set custom colors (right-click → "Change icon" or "Change color"), their choices automatically override your
+theme through inline styles.
 
 ## Style Settings Support
 

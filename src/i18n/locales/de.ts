@@ -31,7 +31,9 @@ export const STRINGS_DE = {
         untagged: 'Ohne Tag', // Label for notes without any tags (English: Untagged)
         untitled: 'Ohne Titel', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'Vorschaubild', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: 'Unbekannter Fehler' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: 'Unbekannter Fehler', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Notebook Navigator-Update verfügbar',
+        updateBannerInstruction: 'In Einstellungen -> Community-Plugins aktualisieren'
     },
 
     // List pane
@@ -60,7 +62,9 @@ export const STRINGS_DE = {
         reorderRootFoldersHint: 'Ordner ziehen, um die Reihenfolge zu ändern',
         vaultRootLabel: 'Tresor',
         resetRootFolderOrder: 'Auf alphabetische Reihenfolge zurücksetzen',
-        dragHandleLabel: 'Ziehen zum Neuanordnen'
+        dragHandleLabel: 'Ziehen zum Neuanordnen',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {
@@ -80,7 +84,7 @@ export const STRINGS_DE = {
     paneHeader: {
         collapseAllFolders: 'Elemente einklappen', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Alle Elemente ausklappen', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Zu Lesezeichen scrollen',
+        scrollToTop: 'Nach oben scrollen',
         newFolder: 'Neuer Ordner', // Tooltip for create new folder button (English: New folder)
         newNote: 'Neue Notiz', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Zurück zur Navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -142,7 +146,7 @@ export const STRINGS_DE = {
             removeAllTags: 'Alle Tags entfernen',
             changeIcon: 'Icon ändern',
             removeIcon: 'Icon entfernen',
-            changeColor: 'Symbolfarbe ändern',
+            changeColor: 'Farbe ändern',
             removeColor: 'Farbe entfernen',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count} Dateien in neuen Tabs öffnen',
@@ -334,6 +338,15 @@ export const STRINGS_DE = {
             versionHistoryNotFound: 'Versionsverlauf-Befehl nicht gefunden. Stellen Sie sicher, dass Obsidian Sync aktiviert ist.',
             revealInExplorer: 'Datei konnte nicht im Explorer angezeigt werden: {error}',
             folderNoteAlreadyExists: 'Ordnernotiz existiert bereits',
+            folderAlreadyExists: 'Ordner "{name}" existiert bereits',
+            folderNotesDisabled: 'Aktivieren Sie Ordnernotizen in den Einstellungen, um Dateien zu konvertieren',
+            folderNoteAlreadyLinked: 'Diese Datei fungiert bereits als Ordnernotiz',
+            folderNoteUnsupportedExtension: 'Nicht unterstützte Dateierweiterung: {extension}',
+            folderNoteMoveFailed: 'Datei konnte während der Konvertierung nicht verschoben werden: {error}',
+            folderNoteRenameConflict: 'Eine Datei namens "{name}" existiert bereits im Ordner',
+            folderNoteConversionFailed: 'Konvertierung in Ordnernotiz fehlgeschlagen',
+            folderNoteConversionFailedWithReason: 'Konvertierung in Ordnernotiz fehlgeschlagen: {error}',
+            folderNoteOpenFailed: 'Datei konvertiert, aber Ordnernotiz konnte nicht geöffnet werden: {error}',
             failedToDeleteFile: 'Löschen von {name} fehlgeschlagen: {error}',
             failedToDeleteMultipleFiles: 'Löschen von {count} Dateien fehlgeschlagen',
             versionHistoryNotAvailable: 'Versionsverlauf-Dienst nicht verfügbar',
@@ -348,6 +361,7 @@ export const STRINGS_DE = {
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
             movedMultipleFiles: '{count} Dateien nach {folder} verschoben',
+            folderNoteConversionSuccess: 'Datei in Ordnernotiz in "{name}" konvertiert',
             folderMoved: 'Ordner "{name}" verschoben',
             deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
             tagAddedToNote: 'Tag zu 1 Notiz hinzugefügt',
@@ -425,6 +439,7 @@ export const STRINGS_DE = {
         deleteFile: 'Dateien löschen', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'In Ordnernotiz konvertieren', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: 'Nachkommen umschalten', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
@@ -460,6 +475,7 @@ export const STRINGS_DE = {
             exportFailed: 'Export des Metadaten-Berichts fehlgeschlagen'
         },
         sections: {
+            general: 'Allgemein',
             notes: 'Notizenanzeige',
             navigationPane: 'Ordneranzeige',
             icons: 'Icon-Pakete',
@@ -469,6 +485,26 @@ export const STRINGS_DE = {
             listPane: 'Listenbereich',
             hotkeys: 'Tastenkürzel',
             advanced: 'Erweitert'
+        },
+        groups: {
+            general: {
+                view: 'Darstellung',
+                behavior: 'Verhalten',
+                filtering: 'Filterung',
+                formatting: 'Formatierung'
+            },
+            navigation: {
+                behavior: 'Verhalten',
+                appearance: 'Darstellung'
+            },
+            list: {
+                display: 'Darstellung',
+                quickActions: 'Schnellaktionen'
+            },
+            notes: {
+                frontmatter: 'Frontmatter',
+                display: 'Darstellung'
+            }
         },
         items: {
             searchProvider: {
@@ -516,12 +552,12 @@ export const STRINGS_DE = {
                 name: 'Notizen sortieren nach',
                 desc: 'Wählen Sie, wie Notizen in der Notizenliste sortiert werden.',
                 options: {
-                    'modified-desc': 'Bearbeitungsdatum (neueste zuerst)',
-                    'modified-asc': 'Bearbeitungsdatum (älteste zuerst)',
-                    'created-desc': 'Erstellungsdatum (neueste zuerst)',
-                    'created-asc': 'Erstellungsdatum (älteste zuerst)',
-                    'title-asc': 'Titel (A zuerst)',
-                    'title-desc': 'Titel (Z zuerst)'
+                    'modified-desc': 'Bearbeitungsdatum (neueste oben)',
+                    'modified-asc': 'Bearbeitungsdatum (älteste oben)',
+                    'created-desc': 'Erstellungsdatum (neueste oben)',
+                    'created-asc': 'Erstellungsdatum (älteste oben)',
+                    'title-asc': 'Titel (A oben)',
+                    'title-desc': 'Titel (Z oben)'
                 }
             },
             includeDescendantNotes: {
@@ -638,8 +674,13 @@ export const STRINGS_DE = {
                 name: 'Startseite',
                 desc: 'Datei auswählen, die Notebook Navigator automatisch öffnet, z. B. ein Dashboard.',
                 current: 'Aktuell: {path}',
+                currentMobile: 'Mobil: {path}',
                 chooseButton: 'Datei auswählen',
-                clearButton: 'Zurücksetzen'
+                clearButton: 'Zurücksetzen',
+                separateMobile: {
+                    name: 'Separate mobile Startseite',
+                    desc: 'Verwenden Sie eine andere Startseite für Mobilgeräte.'
+                }
             },
             showFileDate: {
                 name: 'Datum anzeigen',
@@ -648,6 +689,14 @@ export const STRINGS_DE = {
             showFileTags: {
                 name: 'Datei-Tags anzeigen',
                 desc: 'Zeigt klickbare Tags in Datei-Elementen an. Verwenden Sie Tag-Farben, um verschiedene Tag-Typen visuell zu unterscheiden.'
+            },
+            showFileTagAncestors: {
+                name: 'Übergeordnete Tags anzeigen',
+                desc: 'Übergeordnete Segmente vor dem Tag-Namen anzeigen.'
+            },
+            colorFileTags: {
+                name: 'Datei-Tags einfärben',
+                desc: 'Tag-Farben auf Tag-Abzeichen in Datei-Elementen anwenden.'
             },
             showFileTagsInSlimMode: {
                 name: 'Datei-Tags im schlanken Modus anzeigen',
@@ -731,7 +780,11 @@ export const STRINGS_DE = {
             },
             showIcons: {
                 name: 'Symbole anzeigen',
-                desc: 'Symbole neben Ordnern und Tags im Navigationsbereich anzeigen.'
+                desc: 'Symbole für Ordner, Tags und Notizen anzeigen.'
+            },
+            showIconsColorOnly: {
+                name: 'Farbe nur auf Symbole anwenden',
+                desc: 'Wenn aktiviert, werden benutzerdefinierte Farben nur auf Symbole angewendet. Wenn deaktiviert, werden Farben sowohl auf Symbole als auch auf Textbeschriftungen angewendet.'
             },
             collapseBehavior: {
                 name: 'Elemente einklappen',
@@ -767,8 +820,8 @@ export const STRINGS_DE = {
                 desc: 'Tag-Bereich vor den Ordnern im Navigator anzeigen.'
             },
             showFavoriteTagsFolder: {
-                name: 'Favoriten-Ordner anzeigen',
-                desc: '"Favoriten" als einklappbaren Ordner anzeigen, wenn Favoriten-Tags konfiguriert sind.'
+                name: 'Favoriten-Tags-Ordner anzeigen',
+                desc: '"Favoriten-Tags" als einklappbaren Ordner anzeigen, wenn Favoriten-Tags konfiguriert sind.'
             },
             showAllTagsFolder: {
                 name: 'Tags-Ordner anzeigen',
@@ -779,8 +832,8 @@ export const STRINGS_DE = {
                 desc: '"Ohne Tag" für Notizen ohne Tags anzeigen.'
             },
             showUntaggedInFavorites: {
-                name: 'Ungetaggte Notizen im Favoriten-Bereich anzeigen',
-                desc: 'Ungetaggte Notizen im Favoriten-Bereich anzeigen, entweder im Ordner oder direkt unter den Favoriten.'
+                name: 'Ungetaggte Notizen im Favoriten-Tags-Bereich anzeigen',
+                desc: 'Ungetaggte Notizen im Favoriten-Tags-Bereich anzeigen, entweder im Ordner oder direkt unter den Favoriten-Tags.'
             },
             favoriteTags: {
                 name: 'Favoriten-Tags',
@@ -873,12 +926,36 @@ export const STRINGS_DE = {
             },
             useFrontmatterDates: {
                 name: 'Metadaten aus Frontmatter lesen (*)',
-                desc: 'Notiznamen und Zeitstempel aus dem Frontmatter lesen, falls vorhanden, ansonsten Dateisystemwerte verwenden'
+                desc: 'Notiznamen, Zeitstempel, Icons und Farben aus dem Frontmatter lesen, falls vorhanden, ansonsten Dateisystemwerte oder Einstellungen verwenden'
             },
             frontmatterNameField: {
                 name: 'Namensfeld',
                 desc: 'Frontmatter-Feld für den angezeigten Notiznamen. Leer lassen, um den Dateinamen zu verwenden.',
                 placeholder: 'titel'
+            },
+            frontmatterIconField: {
+                name: 'Icon-Feld',
+                desc: 'Frontmatter-Feld für Datei-Icons. Leer lassen, um Icons aus den Einstellungen zu verwenden.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'Farbfeld',
+                desc: 'Frontmatter-Feld für Dateifarben. Leer lassen, um Farben aus den Einstellungen zu verwenden.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'Icons und Farben im Frontmatter speichern',
+                desc: 'Schreibt Datei-Icons und Farben automatisch ins Frontmatter über die oben konfigurierten Felder.'
+            },
+            frontmatterMigration: {
+                name: 'Icons und Farben aus Einstellungen migrieren',
+                desc: 'In Einstellungen gespeichert: {icons} Icons, {colors} Farben.',
+                button: 'Migrieren',
+                buttonWorking: 'Migriere...',
+                noticeNone: 'Keine Datei-Icons oder Farben in den Einstellungen gespeichert.',
+                noticeDone: '{migratedIcons}/{icons} Icons, {migratedColors}/{colors} Farben migriert.',
+                noticeFailures: 'Fehlgeschlagene Einträge: {failures}.',
+                noticeError: 'Migration fehlgeschlagen. Details in der Konsole.'
             },
             frontmatterCreatedField: {
                 name: 'Feld für Erstellungszeitstempel',
@@ -899,7 +976,13 @@ export const STRINGS_DE = {
             supportDevelopment: {
                 name: 'Entwicklung unterstützen',
                 desc: 'Wenn Sie Notebook Navigator lieben, erwägen Sie bitte, die weitere Entwicklung zu unterstützen.',
-                buttonText: '❤️ Auf GitHub sponsern'
+                buttonText: '❤️ Sponsor',
+                coffeeButton: '☕️ Spendiere mir einen Kaffee'
+            },
+            updateCheckOnStart: {
+                name: 'Beim Start nach neuer Version suchen',
+                desc: 'Prüft beim Start auf neue Plugin-Versionen und zeigt eine Benachrichtigung an, wenn ein Update verfügbar ist. Jede Version wird nur einmal angekündigt, und Überprüfungen erfolgen höchstens einmal täglich.',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: 'Neuigkeiten',
@@ -919,6 +1002,8 @@ export const STRINGS_DE = {
                 itemsWithName: 'Einträge mit Name',
                 withCreatedDate: 'mit Erstellungsdatum',
                 withModifiedDate: 'mit Änderungsdatum',
+                withIcon: 'mit Icon',
+                withColor: 'mit Farbe',
                 failedToParse: 'Parsing fehlgeschlagen',
                 createdDates: 'Erstellungsdaten',
                 modifiedDates: 'Änderungsdaten',

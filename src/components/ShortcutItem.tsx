@@ -35,6 +35,7 @@ interface ShortcutItemProps {
     count?: number;
     isExcluded?: boolean;
     onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
+    onMouseDown?: (event: React.MouseEvent<HTMLDivElement>) => void;
     onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
     dragHandlers?: ListReorderHandlers;
     showDropIndicatorBefore?: boolean;
@@ -58,6 +59,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     count,
     isExcluded,
     onClick,
+    onMouseDown,
     onContextMenu,
     dragHandlers,
     showDropIndicatorBefore,
@@ -81,11 +83,19 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             isDisabled={isDisabled}
             isExcluded={isExcluded}
             onClick={event => {
+                // Prevent click action when item is disabled
                 if (isDisabled) {
                     event.preventDefault();
                     return;
                 }
                 onClick(event);
+            }}
+            onMouseDown={event => {
+                // Prevent mouse down action when item is disabled
+                if (isDisabled) {
+                    return;
+                }
+                onMouseDown?.(event);
             }}
             onContextMenu={onContextMenu}
             dragHandlers={dragHandlers}

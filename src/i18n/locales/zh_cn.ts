@@ -20,7 +20,7 @@
  * English language strings for Notebook Navigator
  * Organized by feature/component for easy maintenance
  */
-export const STRINGS_ZH = {
+export const STRINGS_ZH_CN = {
     // Common UI elements
     common: {
         cancel: '取消', // Button text for canceling dialogs and operations (English: Cancel)
@@ -31,7 +31,9 @@ export const STRINGS_ZH = {
         untagged: '无标签', // Label for notes without any tags (English: Untagged)
         untitled: '无标题', // Default name for notes without a title (English: Untitled)
         featureImageAlt: '特色图片', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: '未知错误' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: '未知错误', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Notebook Navigator 有可用更新',
+        updateBannerInstruction: '在设置 -> 社区插件中更新'
     },
 
     // List pane
@@ -60,7 +62,9 @@ export const STRINGS_ZH = {
         reorderRootFoldersHint: '拖拽文件夹来更改顺序',
         vaultRootLabel: '仓库',
         resetRootFolderOrder: '重置为字母顺序',
-        dragHandleLabel: '拖拽重新排列'
+        dragHandleLabel: '拖拽重新排列',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {
@@ -80,7 +84,7 @@ export const STRINGS_ZH = {
     paneHeader: {
         collapseAllFolders: '折叠项目', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: '展开所有项目', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: '滚动到快捷方式',
+        scrollToTop: '滚动到顶部',
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
         newNote: '新笔记', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: '返回导航', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -141,7 +145,7 @@ export const STRINGS_ZH = {
             removeTag: '移除标签',
             removeAllTags: '移除所有标签',
             changeIcon: '更改图标',
-            changeColor: '更改图标颜色',
+            changeColor: '更改颜色',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '在新标签页中打开 {count} 个文件',
             openMultipleFilesToRight: '在右侧打开 {count} 个文件',
@@ -332,6 +336,15 @@ export const STRINGS_ZH = {
             versionHistoryNotFound: '未找到版本历史命令。请确保已启用 Obsidian 同步。',
             revealInExplorer: '在系统资源管理器中显示文件失败：{error}',
             folderNoteAlreadyExists: '文件夹笔记已存在',
+            folderAlreadyExists: '文件夹"{name}"已存在',
+            folderNotesDisabled: '请在设置中启用文件夹笔记以转换文件',
+            folderNoteAlreadyLinked: '此文件已作为文件夹笔记',
+            folderNoteUnsupportedExtension: '不支持的文件扩展名：{extension}',
+            folderNoteMoveFailed: '转换过程中移动文件失败：{error}',
+            folderNoteRenameConflict: '文件夹中已存在名为"{name}"的文件',
+            folderNoteConversionFailed: '转换为文件夹笔记失败',
+            folderNoteConversionFailedWithReason: '转换为文件夹笔记失败：{error}',
+            folderNoteOpenFailed: '文件已转换但打开文件夹笔记失败：{error}',
             failedToDeleteFile: '删除 {name} 失败: {error}',
             failedToDeleteMultipleFiles: '删除{count}个文件失败',
             versionHistoryNotAvailable: '版本历史服务不可用',
@@ -346,6 +359,7 @@ export const STRINGS_ZH = {
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
             movedMultipleFiles: '已将{count}个文件移动到{folder}',
+            folderNoteConversionSuccess: '已在"{name}"中将文件转换为文件夹笔记',
             folderMoved: '已移动文件夹"{name}"',
             deepLinkCopied: '深层链接已复制到剪贴板',
             tagAddedToNote: '已将标签添加到 1 个笔记',
@@ -423,6 +437,7 @@ export const STRINGS_ZH = {
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: '转换为文件夹笔记', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: '切换后代', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
@@ -458,6 +473,7 @@ export const STRINGS_ZH = {
             exportFailed: '导出元数据报告失败'
         },
         sections: {
+            general: '通用',
             notes: '笔记显示',
             navigationPane: '文件夹显示',
             icons: '图标包',
@@ -467,6 +483,26 @@ export const STRINGS_ZH = {
             listPane: '列表窗格',
             hotkeys: '快捷键',
             advanced: '高级'
+        },
+        groups: {
+            general: {
+                view: '外观',
+                behavior: '行为',
+                filtering: '过滤',
+                formatting: '格式'
+            },
+            navigation: {
+                behavior: '行为',
+                appearance: '外观'
+            },
+            list: {
+                display: '外观',
+                quickActions: '快捷操作'
+            },
+            notes: {
+                frontmatter: '前置元数据',
+                display: '外观'
+            }
         },
         items: {
             searchProvider: {
@@ -512,12 +548,12 @@ export const STRINGS_ZH = {
                 name: '笔记排序方式',
                 desc: '选择笔记列表中的笔记排序方式。',
                 options: {
-                    'modified-desc': '编辑日期（最新优先）',
-                    'modified-asc': '编辑日期（最旧优先）',
-                    'created-desc': '创建日期（最新优先）',
-                    'created-asc': '创建日期（最旧优先）',
-                    'title-asc': '标题（A 优先）',
-                    'title-desc': '标题（Z 优先）'
+                    'modified-desc': '编辑日期（最新在顶部）',
+                    'modified-asc': '编辑日期（最旧在顶部）',
+                    'created-desc': '创建日期（最新在顶部）',
+                    'created-asc': '创建日期（最旧在顶部）',
+                    'title-asc': '标题（升序）',
+                    'title-desc': '标题（降序）'
                 }
             },
             includeDescendantNotes: {
@@ -635,8 +671,13 @@ export const STRINGS_ZH = {
                 name: '主页',
                 desc: '选择自动打开的文件，例如仪表板。',
                 current: '当前：{path}',
+                currentMobile: '移动端：{path}',
                 chooseButton: '选择文件',
-                clearButton: '清除'
+                clearButton: '清除',
+                separateMobile: {
+                    name: '单独的移动端主页',
+                    desc: '为移动设备使用不同的主页。'
+                }
             },
             showFileDate: {
                 name: '显示日期',
@@ -645,6 +686,14 @@ export const STRINGS_ZH = {
             showFileTags: {
                 name: '显示文件标签',
                 desc: '在文件项中显示可点击的标签。使用标签颜色来直观区分不同的标签类型。'
+            },
+            showFileTagAncestors: {
+                name: '显示父标签',
+                desc: '在标签名称前显示父级片段。'
+            },
+            colorFileTags: {
+                name: '为文件标签着色',
+                desc: '将标签颜色应用于文件项中的标签徽章。'
             },
             showFileTagsInSlimMode: {
                 name: '在精简模式中显示文件标签',
@@ -728,7 +777,11 @@ export const STRINGS_ZH = {
             },
             showIcons: {
                 name: '显示图标',
-                desc: '在导航面板中的文件夹和标签旁显示图标。'
+                desc: '显示文件夹、标签和笔记的图标。'
+            },
+            showIconsColorOnly: {
+                name: '仅对图标应用颜色',
+                desc: '启用时，自定义颜色仅应用于图标。禁用时，颜色将同时应用于图标和文本标签。'
             },
             collapseBehavior: {
                 name: '折叠项目',
@@ -764,8 +817,8 @@ export const STRINGS_ZH = {
                 desc: '在导航器中的文件夹之前显示标签部分。'
             },
             showFavoriteTagsFolder: {
-                name: '显示收藏文件夹',
-                desc: '当配置了收藏标签时，将"收藏"显示为可折叠文件夹。'
+                name: '显示收藏标签文件夹',
+                desc: '当配置了收藏标签时，将"收藏标签"显示为可折叠文件夹。'
             },
             showAllTagsFolder: {
                 name: '显示标签文件夹',
@@ -776,8 +829,8 @@ export const STRINGS_ZH = {
                 desc: '为没有任何标签的笔记显示"无标签"项目。'
             },
             showUntaggedInFavorites: {
-                name: '在收藏部分显示无标签笔记',
-                desc: '在收藏部分显示无标签笔记，可以在文件夹内或直接在收藏下方显示。'
+                name: '在收藏标签部分显示无标签笔记',
+                desc: '在收藏标签部分显示无标签笔记，可以在文件夹内或直接在收藏标签下方显示。'
             },
             favoriteTags: {
                 name: '收藏标签',
@@ -870,12 +923,36 @@ export const STRINGS_ZH = {
             },
             useFrontmatterDates: {
                 name: '从前言读取元数据 (*)',
-                desc: '如果可用，从前言读取笔记名称和时间戳，否则使用文件系统值'
+                desc: '如果可用，从前言读取笔记名称、时间戳、图标和颜色，否则使用文件系统值或设置'
             },
             frontmatterNameField: {
                 name: '名称字段',
                 desc: '用作笔记显示名称的前言字段。留空使用文件名。',
                 placeholder: '标题'
+            },
+            frontmatterIconField: {
+                name: '图标字段',
+                desc: '文件图标的前言字段。留空使用存储在设置中的图标。',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: '颜色字段',
+                desc: '文件颜色的前言字段。留空使用存储在设置中的颜色。',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: '将图标和颜色保存到前言',
+                desc: '使用上面配置的字段自动将文件图标和颜色写入前言。'
+            },
+            frontmatterMigration: {
+                name: '从设置迁移图标和颜色',
+                desc: '存储在设置中：{icons} 个图标，{colors} 种颜色。',
+                button: '迁移',
+                buttonWorking: '正在迁移...',
+                noticeNone: '设置中未保存任何文件图标或颜色。',
+                noticeDone: '已迁移 {migratedIcons}/{icons} 个图标，{migratedColors}/{colors} 种颜色。',
+                noticeFailures: '失败的条目：{failures}。',
+                noticeError: '迁移失败。请检查控制台以获取详细信息。'
             },
             frontmatterCreatedField: {
                 name: '创建时间戳字段',
@@ -896,7 +973,13 @@ export const STRINGS_ZH = {
             supportDevelopment: {
                 name: '支持开发',
                 desc: '如果您喜欢使用笔记本导航器，请考虑支持其持续开发。',
-                buttonText: '❤️ 在 GitHub 上赞助'
+                buttonText: '❤️ 赞助',
+                coffeeButton: '☕️ 请我喝咖啡'
+            },
+            updateCheckOnStart: {
+                name: '启动时检查新版本',
+                desc: '启动时检查新的插件版本，当有可用更新时显示通知。每个版本仅通知一次，检查最多每天一次。',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: '最新动态',
@@ -916,6 +999,8 @@ export const STRINGS_ZH = {
                 itemsWithName: '个带名称的项目',
                 withCreatedDate: '个带创建日期',
                 withModifiedDate: '个带修改日期',
+                withIcon: '个带图标',
+                withColor: '个带颜色',
                 failedToParse: '解析失败',
                 createdDates: '个创建日期',
                 modifiedDates: '个修改日期',

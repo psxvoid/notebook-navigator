@@ -31,7 +31,9 @@ export const STRINGS_FR = {
         untagged: 'Sans étiquette', // Label for notes without any tags (English: Untagged)
         untitled: 'Sans titre', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'Image vedette', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: 'Erreur inconnue' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: 'Erreur inconnue', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Mise à jour Notebook Navigator disponible',
+        updateBannerInstruction: 'Mettre à jour dans Paramètres -> Extensions communautaires'
     },
 
     // List pane
@@ -60,7 +62,9 @@ export const STRINGS_FR = {
         reorderRootFoldersHint: "Faites glisser les dossiers pour modifier l'ordre",
         vaultRootLabel: 'Coffre',
         resetRootFolderOrder: "Réinitialiser l'ordre alphabétique",
-        dragHandleLabel: 'Faire glisser pour réorganiser'
+        dragHandleLabel: 'Faire glisser pour réorganiser',
+        pinShortcuts: 'Épingler les raccourcis',
+        unpinShortcuts: 'Détacher les raccourcis'
     },
 
     shortcuts: {
@@ -80,7 +84,7 @@ export const STRINGS_FR = {
     paneHeader: {
         collapseAllFolders: 'Replier les éléments', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Déplier tous les éléments', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Défiler vers les raccourcis',
+        scrollToTop: 'Défiler vers le haut',
         newFolder: 'Nouveau dossier', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nouvelle note', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Retour à la navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -141,7 +145,7 @@ export const STRINGS_FR = {
             removeTag: 'Supprimer l’étiquette',
             removeAllTags: 'Supprimer toutes les étiquettes',
             changeIcon: "Changer l'icône",
-            changeColor: "Changer la couleur de l'icône",
+            changeColor: 'Changer la couleur',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Ouvrir {count} fichiers dans de nouveaux onglets',
             openMultipleFilesToRight: 'Ouvrir {count} fichiers à droite',
@@ -332,6 +336,15 @@ export const STRINGS_FR = {
             versionHistoryNotFound: "Commande d'historique des versions introuvable. Assurez-vous qu'Obsidian Sync est activé.",
             revealInExplorer: "Échec de l'affichage du fichier dans l'explorateur système : {error}",
             folderNoteAlreadyExists: 'La note de dossier existe déjà',
+            folderAlreadyExists: 'Le dossier "{name}" existe déjà',
+            folderNotesDisabled: 'Activez les notes de dossier dans les paramètres pour convertir des fichiers',
+            folderNoteAlreadyLinked: 'Ce fichier agit déjà comme une note de dossier',
+            folderNoteUnsupportedExtension: 'Extension de fichier non prise en charge : {extension}',
+            folderNoteMoveFailed: 'Échec du déplacement du fichier pendant la conversion : {error}',
+            folderNoteRenameConflict: 'Un fichier nommé "{name}" existe déjà dans le dossier',
+            folderNoteConversionFailed: 'Échec de la conversion du fichier en note de dossier',
+            folderNoteConversionFailedWithReason: 'Échec de la conversion du fichier en note de dossier : {error}',
+            folderNoteOpenFailed: "Fichier converti mais échec de l'ouverture de la note de dossier : {error}",
             failedToDeleteFile: 'Échec de la suppression de {name} : {error}',
             failedToDeleteMultipleFiles: 'Échec de la suppression de {count} fichiers',
             versionHistoryNotAvailable: "Service d'historique des versions non disponible",
@@ -346,6 +359,7 @@ export const STRINGS_FR = {
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
             movedMultipleFiles: '{count} fichiers déplacés vers {folder}',
+            folderNoteConversionSuccess: 'Fichier converti en note de dossier dans "{name}"',
             folderMoved: 'Dossier "{name}" déplacé',
             deepLinkCopied: 'Lien profond copié dans le presse-papiers',
             tagAddedToNote: 'Étiquette ajoutée à 1 note',
@@ -423,6 +437,7 @@ export const STRINGS_FR = {
         deleteFile: 'Supprimer les fichiers', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Créer une nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Déplacer les fichiers', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'Convertir en note de dossier', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Naviguer vers le dossier', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: 'Basculer descendants', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
@@ -458,6 +473,7 @@ export const STRINGS_FR = {
             exportFailed: "Échec de l'exportation du rapport de métadonnées"
         },
         sections: {
+            general: 'Général',
             notes: 'Affichage des notes',
             navigationPane: 'Affichage des dossiers',
             icons: "Packs d'icônes",
@@ -467,6 +483,26 @@ export const STRINGS_FR = {
             listPane: 'Panneau de liste',
             hotkeys: 'Raccourcis clavier',
             advanced: 'Avancé'
+        },
+        groups: {
+            general: {
+                view: 'Apparence',
+                behavior: 'Comportement',
+                filtering: 'Filtrage',
+                formatting: 'Formatage'
+            },
+            navigation: {
+                behavior: 'Comportement',
+                appearance: 'Apparence'
+            },
+            list: {
+                display: 'Apparence',
+                quickActions: 'Actions rapides'
+            },
+            notes: {
+                frontmatter: 'Frontmatter',
+                display: 'Apparence'
+            }
         },
         items: {
             searchProvider: {
@@ -514,12 +550,12 @@ export const STRINGS_FR = {
                 name: 'Trier les notes par',
                 desc: 'Choisissez comment les notes sont triées dans la liste des notes.',
                 options: {
-                    'modified-desc': 'Date de modification (plus récente en premier)',
-                    'modified-asc': 'Date de modification (plus ancienne en premier)',
-                    'created-desc': 'Date de création (plus récente en premier)',
-                    'created-asc': 'Date de création (plus ancienne en premier)',
-                    'title-asc': 'Titre (A en premier)',
-                    'title-desc': 'Titre (Z en premier)'
+                    'modified-desc': 'Date de modification (plus récente en haut)',
+                    'modified-asc': 'Date de modification (plus ancienne en haut)',
+                    'created-desc': 'Date de création (plus récente en haut)',
+                    'created-asc': 'Date de création (plus ancienne en haut)',
+                    'title-asc': 'Titre (A en haut)',
+                    'title-desc': 'Titre (Z en haut)'
                 }
             },
             includeDescendantNotes: {
@@ -637,8 +673,13 @@ export const STRINGS_FR = {
                 name: 'Page d’accueil',
                 desc: 'Sélectionnez le fichier que Notebook Navigator ouvre automatiquement, par exemple un tableau de bord.',
                 current: 'Actuel : {path}',
+                currentMobile: 'Mobile : {path}',
                 chooseButton: 'Choisir un fichier',
-                clearButton: 'Effacer'
+                clearButton: 'Effacer',
+                separateMobile: {
+                    name: "Page d'accueil mobile séparée",
+                    desc: "Utiliser une page d'accueil différente pour les appareils mobiles."
+                }
             },
             showFileDate: {
                 name: 'Afficher la date',
@@ -647,6 +688,14 @@ export const STRINGS_FR = {
             showFileTags: {
                 name: 'Afficher les tags de fichier',
                 desc: 'Affiche les tags cliquables dans les éléments de fichier. Utilisez les couleurs de tags pour distinguer visuellement les différents types de tags.'
+            },
+            showFileTagAncestors: {
+                name: 'Afficher les tags parents',
+                desc: 'Afficher les segments parents avant le nom du tag.'
+            },
+            colorFileTags: {
+                name: 'Colorer les tags de fichier',
+                desc: 'Appliquer les couleurs de tags aux badges de tags sur les éléments de fichier.'
             },
             showFileTagsInSlimMode: {
                 name: 'Afficher les tags de fichier en mode compact',
@@ -730,7 +779,11 @@ export const STRINGS_FR = {
             },
             showIcons: {
                 name: 'Afficher les icônes',
-                desc: 'Afficher les icônes à côté des dossiers et étiquettes dans le panneau de navigation.'
+                desc: 'Afficher les icônes pour les dossiers, étiquettes et notes.'
+            },
+            showIconsColorOnly: {
+                name: 'Appliquer la couleur uniquement aux icônes',
+                desc: "Lorsqu'activé, les couleurs personnalisées sont appliquées uniquement aux icônes. Lorsque désactivé, les couleurs sont appliquées aux icônes et aux étiquettes de texte."
             },
             collapseBehavior: {
                 name: 'Replier les éléments',
@@ -766,8 +819,8 @@ export const STRINGS_FR = {
                 desc: 'Afficher la section des étiquettes avant les dossiers dans le navigateur.'
             },
             showFavoriteTagsFolder: {
-                name: 'Afficher le dossier des favoris',
-                desc: 'Afficher "Favoris" comme un dossier repliable lorsque des étiquettes favorites sont configurées.'
+                name: 'Afficher le dossier des étiquettes favorites',
+                desc: 'Afficher "Étiquettes favorites" comme un dossier repliable lorsque des étiquettes favorites sont configurées.'
             },
             showAllTagsFolder: {
                 name: 'Afficher le dossier des étiquettes',
@@ -778,8 +831,8 @@ export const STRINGS_FR = {
                 desc: 'Afficher l\'élément "Sans étiquette" pour les notes sans aucune étiquette.'
             },
             showUntaggedInFavorites: {
-                name: 'Afficher les notes sans étiquette dans la section favoris',
-                desc: 'Afficher les notes sans étiquette dans la section favoris, soit dans le dossier, soit directement sous les favoris.'
+                name: 'Afficher les notes sans étiquette dans la section des étiquettes favorites',
+                desc: 'Afficher les notes sans étiquette dans la section des étiquettes favorites, soit dans le dossier, soit directement sous les étiquettes favorites.'
             },
             favoriteTags: {
                 name: 'Étiquettes favorites',
@@ -872,12 +925,36 @@ export const STRINGS_FR = {
             },
             useFrontmatterDates: {
                 name: 'Lire les métadonnées du frontmatter (*)',
-                desc: "Lire les noms de notes et horodatages du frontmatter lorsqu'ils sont disponibles, sinon utiliser les valeurs du système"
+                desc: "Lire les noms de notes, horodatages, icônes et couleurs du frontmatter lorsqu'ils sont disponibles, sinon utiliser les valeurs du système ou les paramètres"
             },
             frontmatterNameField: {
                 name: 'Champ de nom',
                 desc: "Champ frontmatter à utiliser comme nom d'affichage de la note. Laisser vide pour utiliser le nom du fichier.",
                 placeholder: 'titre'
+            },
+            frontmatterIconField: {
+                name: "Champ d'icône",
+                desc: 'Champ frontmatter pour les icônes de fichier. Laisser vide pour utiliser les icônes enregistrées dans les paramètres.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'Champ de couleur',
+                desc: 'Champ frontmatter pour les couleurs de fichier. Laisser vide pour utiliser les couleurs enregistrées dans les paramètres.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'Enregistrer les icônes et couleurs dans le frontmatter',
+                desc: 'Écrit automatiquement les icônes et couleurs de fichier dans le frontmatter via les champs configurés ci-dessus.'
+            },
+            frontmatterMigration: {
+                name: 'Migrer les icônes et couleurs depuis les paramètres',
+                desc: 'Stocké dans les paramètres : {icons} icônes, {colors} couleurs.',
+                button: 'Migrer',
+                buttonWorking: 'Migration...',
+                noticeNone: 'Aucune icône ou couleur de fichier stockée dans les paramètres.',
+                noticeDone: 'Migrées {migratedIcons}/{icons} icônes, {migratedColors}/{colors} couleurs.',
+                noticeFailures: 'Entrées en échec : {failures}.',
+                noticeError: 'Échec de la migration. Consultez la console pour plus de détails.'
             },
             frontmatterCreatedField: {
                 name: "Champ d'horodatage de création",
@@ -898,7 +975,13 @@ export const STRINGS_FR = {
             supportDevelopment: {
                 name: 'Soutenir le développement',
                 desc: 'Si vous aimez utiliser le Navigateur de Carnets, veuillez envisager de soutenir son développement continu.',
-                buttonText: '❤️ Sponsoriser sur GitHub'
+                buttonText: '❤️ Sponsoriser',
+                coffeeButton: '☕️ Offrez-moi un café'
+            },
+            updateCheckOnStart: {
+                name: 'Vérifier les nouvelles versions au démarrage',
+                desc: "Vérifie les nouvelles versions du plugin au démarrage et affiche une notification lorsqu'une mise à jour est disponible. Chaque version n'est annoncée qu'une seule fois, et les vérifications ont lieu au maximum une fois par jour.",
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: 'Nouveautés',
@@ -918,6 +1001,8 @@ export const STRINGS_FR = {
                 itemsWithName: 'éléments avec nom',
                 withCreatedDate: 'avec date de création',
                 withModifiedDate: 'avec date de modification',
+                withIcon: 'avec icône',
+                withColor: 'avec couleur',
                 failedToParse: "Échec de l'analyse",
                 createdDates: 'dates de création',
                 modifiedDates: 'dates de modification',

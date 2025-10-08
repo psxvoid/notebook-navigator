@@ -31,7 +31,9 @@ export const STRINGS_ES = {
         untagged: 'Sin etiquetas', // Label for notes without any tags (English: Untagged)
         untitled: 'Sin título', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'Imagen destacada', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: 'Error desconocido' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: 'Error desconocido', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Actualización de Notebook Navigator disponible',
+        updateBannerInstruction: 'Actualiza en Ajustes -> Complementos de la comunidad'
     },
 
     // List pane
@@ -60,7 +62,9 @@ export const STRINGS_ES = {
         reorderRootFoldersHint: 'Arrastra las carpetas para cambiar el orden',
         vaultRootLabel: 'Bóveda',
         resetRootFolderOrder: 'Restablecer orden alfabético',
-        dragHandleLabel: 'Arrastrar para reordenar'
+        dragHandleLabel: 'Arrastrar para reordenar',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {
@@ -80,7 +84,7 @@ export const STRINGS_ES = {
     paneHeader: {
         collapseAllFolders: 'Contraer elementos', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Expandir todos los elementos', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Desplazarse a los atajos',
+        scrollToTop: 'Desplazarse arriba',
         newFolder: 'Nueva carpeta', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nueva nota', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Volver a navegación', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -141,7 +145,7 @@ export const STRINGS_ES = {
             removeTag: 'Eliminar etiqueta',
             removeAllTags: 'Eliminar todas las etiquetas',
             changeIcon: 'Cambiar icono',
-            changeColor: 'Cambiar color del icono',
+            changeColor: 'Cambiar color',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Abrir {count} archivos en nuevas pestañas',
             openMultipleFilesToRight: 'Abrir {count} archivos a la derecha',
@@ -332,6 +336,15 @@ export const STRINGS_ES = {
             versionHistoryNotFound: 'Comando de historial de versiones no encontrado. Asegúrate de que Obsidian Sync esté habilitado.',
             revealInExplorer: 'Error al mostrar el archivo en el explorador del sistema: {error}',
             folderNoteAlreadyExists: 'La nota de carpeta ya existe',
+            folderAlreadyExists: 'La carpeta "{name}" ya existe',
+            folderNotesDisabled: 'Habilite las notas de carpeta en la configuración para convertir archivos',
+            folderNoteAlreadyLinked: 'Este archivo ya funciona como una nota de carpeta',
+            folderNoteUnsupportedExtension: 'Extensión de archivo no compatible: {extension}',
+            folderNoteMoveFailed: 'No se pudo mover el archivo durante la conversión: {error}',
+            folderNoteRenameConflict: 'Ya existe un archivo llamado "{name}" en la carpeta',
+            folderNoteConversionFailed: 'No se pudo convertir el archivo en nota de carpeta',
+            folderNoteConversionFailedWithReason: 'No se pudo convertir el archivo en nota de carpeta: {error}',
+            folderNoteOpenFailed: 'Archivo convertido pero no se pudo abrir la nota de carpeta: {error}',
             failedToDeleteFile: 'Error al eliminar {name}: {error}',
             failedToDeleteMultipleFiles: 'Error al eliminar {count} archivos',
             versionHistoryNotAvailable: 'Servicio de historial de versiones no disponible',
@@ -346,6 +359,7 @@ export const STRINGS_ES = {
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
             movedMultipleFiles: '{count} archivos movidos a {folder}',
+            folderNoteConversionSuccess: 'Archivo convertido en nota de carpeta en "{name}"',
             folderMoved: 'Carpeta "{name}" movida',
             deepLinkCopied: 'Enlace profundo copiado al portapapeles',
             tagAddedToNote: 'Etiqueta añadida a 1 nota',
@@ -423,6 +437,7 @@ export const STRINGS_ES = {
         deleteFile: 'Eliminar archivos', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Crear nueva nota', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'Convertir en nota de carpeta', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navegar a etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: 'Alternar descendientes', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
@@ -458,6 +473,7 @@ export const STRINGS_ES = {
             exportFailed: 'Error al exportar el informe de metadatos'
         },
         sections: {
+            general: 'General',
             notes: 'Visualización de notas',
             navigationPane: 'Visualización de carpetas',
             icons: 'Paquetes de iconos',
@@ -467,6 +483,26 @@ export const STRINGS_ES = {
             listPane: 'Panel de lista',
             hotkeys: 'Atajos de teclado',
             advanced: 'Avanzado'
+        },
+        groups: {
+            general: {
+                view: 'Apariencia',
+                behavior: 'Comportamiento',
+                filtering: 'Filtrado',
+                formatting: 'Formato'
+            },
+            navigation: {
+                behavior: 'Comportamiento',
+                appearance: 'Apariencia'
+            },
+            list: {
+                display: 'Apariencia',
+                quickActions: 'Acciones rápidas'
+            },
+            notes: {
+                frontmatter: 'Frontmatter',
+                display: 'Apariencia'
+            }
         },
         items: {
             searchProvider: {
@@ -513,12 +549,12 @@ export const STRINGS_ES = {
                 name: 'Ordenar notas por',
                 desc: 'Elige cómo se ordenan las notas en la lista de notas.',
                 options: {
-                    'modified-desc': 'Fecha de edición (más reciente primero)',
-                    'modified-asc': 'Fecha de edición (más antigua primero)',
-                    'created-desc': 'Fecha de creación (más reciente primero)',
-                    'created-asc': 'Fecha de creación (más antigua primero)',
-                    'title-asc': 'Título (A primero)',
-                    'title-desc': 'Título (Z primero)'
+                    'modified-desc': 'Fecha de edición (más reciente arriba)',
+                    'modified-asc': 'Fecha de edición (más antigua arriba)',
+                    'created-desc': 'Fecha de creación (más reciente arriba)',
+                    'created-asc': 'Fecha de creación (más antigua arriba)',
+                    'title-asc': 'Título (A arriba)',
+                    'title-desc': 'Título (Z arriba)'
                 }
             },
             includeDescendantNotes: {
@@ -635,8 +671,13 @@ export const STRINGS_ES = {
                 name: 'Página de inicio',
                 desc: 'Selecciona el archivo que Notebook Navigator abre automáticamente, como un panel.',
                 current: 'Actual: {path}',
+                currentMobile: 'Móvil: {path}',
                 chooseButton: 'Elegir archivo',
-                clearButton: 'Limpiar'
+                clearButton: 'Limpiar',
+                separateMobile: {
+                    name: 'Página de inicio móvil separada',
+                    desc: 'Usar una página de inicio diferente en dispositivos móviles.'
+                }
             },
             showFileDate: {
                 name: 'Mostrar fecha',
@@ -645,6 +686,14 @@ export const STRINGS_ES = {
             showFileTags: {
                 name: 'Mostrar etiquetas de archivo',
                 desc: 'Muestra etiquetas clicables en los elementos de archivo. Use colores de etiquetas para distinguir visualmente diferentes tipos de etiquetas.'
+            },
+            showFileTagAncestors: {
+                name: 'Mostrar etiquetas padre',
+                desc: 'Mostrar segmentos padre antes del nombre de la etiqueta.'
+            },
+            colorFileTags: {
+                name: 'Colorear etiquetas de archivo',
+                desc: 'Aplicar colores de etiquetas a las insignias de etiquetas en elementos de archivo.'
             },
             showFileTagsInSlimMode: {
                 name: 'Mostrar etiquetas de archivo en modo compacto',
@@ -728,7 +777,11 @@ export const STRINGS_ES = {
             },
             showIcons: {
                 name: 'Mostrar iconos',
-                desc: 'Muestra iconos junto a las carpetas y etiquetas en el panel de navegación.'
+                desc: 'Muestra iconos para carpetas, etiquetas y notas.'
+            },
+            showIconsColorOnly: {
+                name: 'Aplicar color solo a los iconos',
+                desc: 'Cuando está habilitado, los colores personalizados se aplican solo a los iconos. Cuando está deshabilitado, los colores se aplican tanto a los iconos como a las etiquetas de texto.'
             },
             collapseBehavior: {
                 name: 'Contraer elementos',
@@ -764,8 +817,8 @@ export const STRINGS_ES = {
                 desc: 'Muestra la sección de etiquetas antes que las carpetas en el navegador.'
             },
             showFavoriteTagsFolder: {
-                name: 'Mostrar carpeta de favoritos',
-                desc: 'Muestra "Favoritos" como una carpeta plegable cuando hay etiquetas favoritas configuradas.'
+                name: 'Mostrar carpeta de etiquetas favoritas',
+                desc: 'Muestra "Etiquetas favoritas" como una carpeta plegable cuando hay etiquetas favoritas configuradas.'
             },
             showAllTagsFolder: {
                 name: 'Mostrar carpeta de etiquetas',
@@ -776,8 +829,8 @@ export const STRINGS_ES = {
                 desc: 'Muestra el elemento "Sin etiquetas" para notas sin ninguna etiqueta.'
             },
             showUntaggedInFavorites: {
-                name: 'Mostrar notas sin etiquetas en la sección de favoritos',
-                desc: 'Mostrar notas sin etiquetas en la sección de favoritos, ya sea dentro de la carpeta o directamente debajo de los favoritos.'
+                name: 'Mostrar notas sin etiquetas en la sección de etiquetas favoritas',
+                desc: 'Mostrar notas sin etiquetas en la sección de etiquetas favoritas, ya sea dentro de la carpeta o directamente debajo de las etiquetas favoritas.'
             },
             favoriteTags: {
                 name: 'Etiquetas favoritas',
@@ -870,12 +923,36 @@ export const STRINGS_ES = {
             },
             useFrontmatterDates: {
                 name: 'Leer metadatos del frontmatter (*)',
-                desc: 'Leer nombres de notas y marcas de tiempo del frontmatter cuando estén disponibles, usando valores del sistema como respaldo'
+                desc: 'Leer nombres de notas, marcas de tiempo, iconos y colores del frontmatter cuando estén disponibles, usando valores del sistema o ajustes como respaldo'
             },
             frontmatterNameField: {
                 name: 'Campo de nombre',
                 desc: 'Campo del frontmatter para usar como nombre de la nota. Dejar vacío para usar el nombre del archivo.',
                 placeholder: 'título'
+            },
+            frontmatterIconField: {
+                name: 'Campo de icono',
+                desc: 'Campo del frontmatter para iconos de archivo. Dejar vacío para usar iconos guardados en los ajustes.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'Campo de color',
+                desc: 'Campo del frontmatter para colores de archivo. Dejar vacío para usar colores guardados en los ajustes.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'Guardar iconos y colores en el frontmatter',
+                desc: 'Escribe automáticamente los iconos y colores de archivo en el frontmatter usando los campos configurados arriba.'
+            },
+            frontmatterMigration: {
+                name: 'Migrar iconos y colores desde los ajustes',
+                desc: 'Guardado en los ajustes: {icons} iconos, {colors} colores.',
+                button: 'Migrar',
+                buttonWorking: 'Migrando...',
+                noticeNone: 'No hay iconos ni colores de archivo almacenados en los ajustes.',
+                noticeDone: 'Migrados {migratedIcons}/{icons} iconos, {migratedColors}/{colors} colores.',
+                noticeFailures: 'Entradas con errores: {failures}.',
+                noticeError: 'Migración fallida. Revisa la consola para más detalles.'
             },
             frontmatterCreatedField: {
                 name: 'Campo de marca de tiempo de creación',
@@ -896,7 +973,13 @@ export const STRINGS_ES = {
             supportDevelopment: {
                 name: 'Apoyar el desarrollo',
                 desc: 'Si te encanta usar el Navegador de Cuadernos, considera apoyar su desarrollo continuo.',
-                buttonText: '❤️ Patrocinar en GitHub'
+                buttonText: '❤️ Patrocinar',
+                coffeeButton: '☕️ Invítame un café'
+            },
+            updateCheckOnStart: {
+                name: 'Buscar nueva versión al iniciar',
+                desc: 'Busca nuevas versiones del complemento al iniciar y muestra una notificación cuando hay una actualización disponible. Cada versión se anuncia solo una vez, y las comprobaciones se realizan como máximo una vez al día.',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: 'Novedades',
@@ -916,6 +999,8 @@ export const STRINGS_ES = {
                 itemsWithName: 'elementos con nombre',
                 withCreatedDate: 'con fecha de creación',
                 withModifiedDate: 'con fecha de modificación',
+                withIcon: 'con icono',
+                withColor: 'con color',
                 failedToParse: 'Error al analizar',
                 createdDates: 'fechas de creación',
                 modifiedDates: 'fechas de modificación',

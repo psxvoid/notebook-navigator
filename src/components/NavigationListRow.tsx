@@ -34,6 +34,7 @@ interface NavigationListRowProps {
     isDisabled?: boolean;
     isExcluded?: boolean;
     onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+    onMouseDown?: (event: React.MouseEvent<HTMLDivElement>) => void;
     onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
     dragHandlers?: ListReorderHandlers;
     showDropIndicatorBefore?: boolean;
@@ -61,6 +62,7 @@ export function NavigationListRow({
     isDisabled,
     isExcluded,
     onClick,
+    onMouseDown,
     onContextMenu,
     dragHandlers,
     showDropIndicatorBefore,
@@ -81,6 +83,14 @@ export function NavigationListRow({
     const chevronRef = useRef<HTMLSpanElement>(null);
     const iconRef = useRef<HTMLSpanElement>(null);
     const iconVersion = useIconServiceVersion();
+
+    // Determine whether to apply color to the label text instead of the icon
+    const applyColorToLabel = Boolean(color) && !settings.colorIconOnly;
+
+    // Compute CSS style for label with color when colorIconOnly is disabled
+    const labelStyle = useMemo(() => {
+        return applyColorToLabel && color ? { color } : undefined;
+    }, [applyColorToLabel, color]);
 
     // Builds CSS class names based on component state (disabled, excluded, dragging, etc.)
     const classes = useMemo(() => {
@@ -183,6 +193,7 @@ export function NavigationListRow({
             aria-level={level + 1}
             draggable={rowDraggable}
             onClick={onClick}
+            onMouseDown={onMouseDown}
             onContextMenu={onContextMenu}
             onDragStart={rowDraggable ? dragHandlers?.onDragStart : undefined}
             onDragOver={dragHandlers?.onDragOver}
@@ -197,15 +208,19 @@ export function NavigationListRow({
                     className={`nn-navitem-chevron${chevronIcon ? '' : ' nn-navitem-chevron--no-children'}`}
                     aria-hidden="true"
                 />
-                <span
-                    ref={iconRef}
-                    className="nn-navitem-icon"
-                    aria-hidden="true"
-                    data-has-color={color ? 'true' : 'false'}
-                    style={color ? { color } : undefined}
-                />
+                {settings.showIcons ? (
+                    <span
+                        ref={iconRef}
+                        className="nn-navitem-icon"
+                        aria-hidden="true"
+                        data-has-color={color ? 'true' : 'false'}
+                        style={color ? { color } : undefined}
+                    />
+                ) : null}
                 <span className="nn-navitem-name">
-                    <span className="nn-shortcut-label">{label}</span>
+                    <span className="nn-shortcut-label" data-has-color={applyColorToLabel ? 'true' : undefined} style={labelStyle}>
+                        {label}
+                    </span>
                     {description ? <span className="nn-shortcut-description">{description}</span> : null}
                 </span>
                 <span className="nn-navitem-spacer" />

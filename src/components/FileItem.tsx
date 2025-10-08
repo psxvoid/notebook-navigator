@@ -47,7 +47,7 @@
  */
 
 import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
-import { TFile, setTooltip, setIcon } from 'obsidian';
+import { TFile, TFolder, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import type { FileContentChange } from '../storage/IndexedDBStorage';
 import { useMetadataService } from '../context/ServicesContext';
@@ -60,9 +60,8 @@ import { strings } from '../i18n';
 import { SortOption } from '../settings';
 import { ItemType } from '../types';
 import { DateUtils } from '../utils/dateUtils';
-import { getExtensionSuffix, isImageFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
+import { FILE_VISIBILITY, getExtensionSuffix, isImageFile, shouldDisplayFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
-import { ObsidianIcon } from './ObsidianIcon';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
 
@@ -186,6 +185,42 @@ function areStringArraysEqual(a: string[], b: string[]): boolean {
     return true;
 }
 
+interface ParentFolderLabelProps {
+    iconId: string;
+    label: string;
+    iconVersion: number;
+}
+
+/**
+ * Renders a parent folder label with icon for display in file items.
+ */
+function ParentFolderLabel({ iconId, label, iconVersion }: ParentFolderLabelProps) {
+    const iconRef = useRef<HTMLSpanElement>(null);
+
+    // Render the folder icon when iconId or iconVersion changes
+    useEffect(() => {
+        const iconContainer = iconRef.current;
+        if (!iconContainer) {
+            return;
+        }
+
+        iconContainer.innerHTML = '';
+        if (!iconId) {
+            return;
+        }
+
+        const iconService = getIconService();
+        iconService.renderIcon(iconContainer, iconId);
+    }, [iconId, iconVersion]);
+
+    return (
+        <div className="nn-file-folder">
+            <span className="nn-file-folder-icon" ref={iconRef} aria-hidden="true" />
+            <span>{label}</span>
+        </div>
+    );
+}
+
 /**
  * Memoized FileItem component.
  * Renders an individual file item in the file list with preview text and metadata.
@@ -275,6 +310,10 @@ export const FileItem = React.memo(function FileItem({
     const pinNoteIconRef = useRef<HTMLDivElement>(null);
     const openInNewTabIconRef = useRef<HTMLDivElement>(null);
     const fileIconRef = useRef<HTMLSpanElement>(null);
+    // Icon shown next to filename for files not natively supported by Obsidian
+    const fileExternalIconRef = useRef<HTMLSpanElement>(null);
+    // Icon shown in slim mode to indicate file type (canvas, base, or external)
+    const slimModeIconRef = useRef<HTMLSpanElement>(null);
 
     // === Derived State & Memoized Values ===
 
@@ -306,10 +345,8 @@ export const FileItem = React.memo(function FileItem({
     const fileColor = metadataService.getFileColor(file.path);
     const fileExtension = file.extension;
     const isImageDocument = isImageFile(file);
-    const dragIconId = useMemo(() => {
-        if (fileIconId) {
-            return fileIconId;
-        }
+    // Determine the default icon to use based on file type
+    const defaultTypeIconId = useMemo(() => {
         if (fileExtension === 'canvas') {
             return 'lucide-layout-grid';
         }
@@ -323,7 +360,47 @@ export const FileItem = React.memo(function FileItem({
             return 'lucide-file-text';
         }
         return 'lucide-file';
-    }, [fileIconId, fileExtension, isImageDocument]);
+    }, [fileExtension, isImageDocument]);
+    // Determine the actual icon to display, considering custom icon and colorIconOnly setting
+    const effectiveFileIconId = useMemo(() => {
+        if (fileIconId) {
+            return fileIconId;
+        }
+        if (settings.colorIconOnly && fileColor) {
+            return defaultTypeIconId;
+        }
+        return null;
+    }, [defaultTypeIconId, fileColor, fileIconId, settings.colorIconOnly]);
+    // Determine whether to apply color to the file name instead of the icon
+    const applyColorToName = Boolean(fileColor) && !settings.colorIconOnly;
+    // Check if using a fallback type icon because colorIconOnly is enabled
+    const usingFallbackIcon = !fileIconId && Boolean(fileColor) && settings.colorIconOnly;
+    // Icon to use when dragging the file
+    const dragIconId = useMemo(() => {
+        if (effectiveFileIconId) {
+            return effectiveFileIconId;
+        }
+        return defaultTypeIconId;
+    }, [defaultTypeIconId, effectiveFileIconId]);
+
+    // Check if file is not natively supported by Obsidian (e.g., Office files, archives)
+    const isExternalFile = useMemo(() => {
+        return !shouldDisplayFile(file, FILE_VISIBILITY.SUPPORTED, app);
+    }, [app, file]);
+
+    // Determine which icon to show in slim mode based on file type
+    const slimModeTypeIconId = useMemo(() => {
+        if (fileExtension === 'base') {
+            return 'lucide-database';
+        }
+        if (fileExtension === 'canvas') {
+            return 'lucide-layout-grid';
+        }
+        if (isExternalFile) {
+            return 'lucide-external-link';
+        }
+        return null;
+    }, [fileExtension, isExternalFile]);
 
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
@@ -336,7 +413,7 @@ export const FileItem = React.memo(function FileItem({
                 data-title-rows={appearanceSettings.titleRows}
                 data-multiline={isMultiRowTitle ? 'true' : 'false'}
             >
-                {settings.showIcons && fileIconId ? (
+                {settings.showIcons && effectiveFileIconId && !(usingFallbackIcon && isExternalFile && !isSlimMode) ? (
                     <span
                         ref={fileIconRef}
                         className="nn-file-icon"
@@ -345,9 +422,29 @@ export const FileItem = React.memo(function FileItem({
                     />
                 ) : null}
                 <div className="nn-file-name-content">
-                    <div className="nn-file-name" style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}>
-                        {highlightedName}
-                        {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
+                    <div className="nn-file-name-row">
+                        {!isSlimMode && isExternalFile ? (
+                            <span
+                                className="nn-file-icon nn-file-external-icon"
+                                ref={fileExternalIconRef}
+                                aria-hidden="true"
+                                data-has-color={fileColor ? 'true' : 'false'}
+                                style={fileColor ? { color: fileColor } : undefined}
+                            />
+                        ) : null}
+                        <div
+                            className="nn-file-name"
+                            data-has-color={applyColorToName ? 'true' : 'false'}
+                            style={
+                                {
+                                    '--filename-rows': appearanceSettings.titleRows,
+                                    ...(applyColorToName ? { '--nn-file-name-custom-color': fileColor } : {})
+                                } as React.CSSProperties
+                            }
+                        >
+                            {highlightedName}
+                            {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -356,8 +453,12 @@ export const FileItem = React.memo(function FileItem({
         appearanceSettings.titleRows,
         extensionSuffix,
         fileColor,
-        fileIconId,
+        applyColorToName,
+        effectiveFileIconId,
+        usingFallbackIcon,
         highlightedName,
+        isExternalFile,
+        isSlimMode,
         isMultiRowTitle,
         settings.showIcons,
         showExtensionSuffix
@@ -384,6 +485,8 @@ export const FileItem = React.memo(function FileItem({
         [metadataService]
     );
 
+    const colorFileTags = settings.colorFileTags;
+
     // Categorize tags by priority: favorites first, then colored, then regular
     const categorizedTags = useMemo(() => {
         if (tags.length === 0) return tags;
@@ -399,12 +502,16 @@ export const FileItem = React.memo(function FileItem({
 
             if (isFavorite) {
                 favoriteTags.push(tag);
-            } else if (getTagColor(tag)) {
+                return;
+            }
+
+            if (colorFileTags && getTagColor(tag)) {
                 // Check if it has a custom color
                 coloredTags.push(tag);
-            } else {
-                regularTags.push(tag);
+                return;
             }
+
+            regularTags.push(tag);
         });
 
         const tagSorter = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base' });
@@ -414,7 +521,7 @@ export const FileItem = React.memo(function FileItem({
         regularTags.sort(tagSorter);
 
         return [...favoriteTags, ...coloredTags, ...regularTags];
-    }, [tags, findTagInFavoriteTree, getTagColor]);
+    }, [colorFileTags, findTagInFavoriteTree, getTagColor, tags]);
 
     const shouldShowFileTags = useMemo(() => {
         if (!settings.showTags || !settings.showFileTags) {
@@ -429,6 +536,23 @@ export const FileItem = React.memo(function FileItem({
         return true;
     }, [categorizedTags, isSlimMode, settings.showFileTags, settings.showFileTagsInSlimMode, settings.showTags]);
 
+    const getTagDisplayName = useCallback(
+        (tag: string): string => {
+            if (settings.showFileTagAncestors) {
+                return tag;
+            }
+
+            const segments = tag.split('/').filter(segment => segment.length > 0);
+
+            if (segments.length === 0) {
+                return tag;
+            }
+
+            return segments[segments.length - 1];
+        },
+        [settings.showFileTagAncestors]
+    );
+
     // Render tags
     const renderTags = useCallback(() => {
         if (!shouldShowFileTags) {
@@ -438,7 +562,8 @@ export const FileItem = React.memo(function FileItem({
         return (
             <div className="nn-file-tags">
                 {categorizedTags.map((tag, index) => {
-                    const tagColor = getTagColor(tag);
+                    const tagColor = colorFileTags ? getTagColor(tag) : undefined;
+                    const displayTag = getTagDisplayName(tag);
                     return (
                         <span
                             key={index}
@@ -448,13 +573,13 @@ export const FileItem = React.memo(function FileItem({
                             tabIndex={0}
                             style={tagColor ? { backgroundColor: tagColor } : undefined}
                         >
-                            {tag}
+                            {displayTag}
                         </span>
                     );
                 })}
             </div>
         );
-    }, [categorizedTags, getTagColor, handleTagClick, shouldShowFileTags]);
+    }, [colorFileTags, categorizedTags, getTagColor, getTagDisplayName, handleTagClick, shouldShowFileTags]);
 
     // Format display date based on current sort
     const displayDate = useMemo(() => {
@@ -515,6 +640,31 @@ export const FileItem = React.memo(function FileItem({
     const shouldUseMultiLinePreviewLayout = !pinnedItemShouldUseCompactLayout && appearanceSettings.previewRows >= 2;
     const shouldCollapseEmptyPreviewSpace = heightOptimizationEnabled && !hasPreviewContent; // Optimization: compact layout for empty preview
     const shouldAlwaysReservePreviewSpace = heightOptimizationDisabled || hasPreviewContent; // Show full layout when not optimizing OR has content
+
+    // Determine parent folder display metadata
+    const parentFolderSource = file.parent;
+    let parentFolderMeta: { name: string; iconId: string } | null = null;
+    if (settings.showParentFolderNames && parentFolderSource instanceof TFolder && !pinnedItemShouldUseCompactLayout) {
+        // Show parent label in tag view or when viewing descendants
+        const shouldShowParentLabel =
+            selectionType === ItemType.TAG || (settings.includeDescendantNotes && parentFolder && parentFolderSource.path !== parentFolder);
+
+        if (shouldShowParentLabel) {
+            // Use custom icon if set, otherwise use default folder icon
+            const customParentIcon = metadataService.getFolderIcon(parentFolderSource.path);
+            const fallbackParentIcon = parentFolderSource.path === '/' ? 'vault' : 'lucide-folder-closed';
+            parentFolderMeta = {
+                name: parentFolderSource.name,
+                iconId: customParentIcon ?? fallbackParentIcon
+            };
+        }
+    }
+
+    // Render parent folder label if metadata is available
+    const renderParentFolder = () =>
+        parentFolderMeta ? (
+            <ParentFolderLabel iconId={parentFolderMeta.iconId} label={parentFolderMeta.name} iconVersion={iconServiceVersion} />
+        ) : null;
 
     // Determine if we should show the feature image area (either with an image or extension badge)
     const shouldShowFeatureImageArea =
@@ -694,13 +844,43 @@ export const FileItem = React.memo(function FileItem({
         }
 
         iconContainer.innerHTML = '';
-        if (!settings.showIcons || !fileIconId) {
+        if (!settings.showIcons || !effectiveFileIconId || (usingFallbackIcon && isExternalFile && !isSlimMode)) {
             return;
         }
 
         const iconService = getIconService();
-        iconService.renderIcon(iconContainer, fileIconId);
-    }, [fileIconId, iconServiceVersion, settings.showIcons]);
+        iconService.renderIcon(iconContainer, effectiveFileIconId);
+    }, [effectiveFileIconId, iconServiceVersion, isExternalFile, isSlimMode, settings.showIcons, usingFallbackIcon]);
+
+    // Render external file indicator icon (shown next to filename in non-slim mode)
+    useEffect(() => {
+        const indicator = fileExternalIconRef.current;
+        if (!indicator) {
+            return;
+        }
+
+        indicator.innerHTML = '';
+        if (isSlimMode || !isExternalFile) {
+            return;
+        }
+
+        setIcon(indicator, 'lucide-external-link');
+    }, [iconServiceVersion, isExternalFile, isSlimMode]);
+
+    // Render file type icon in slim mode (canvas, base, or external file indicator)
+    useEffect(() => {
+        const indicator = slimModeIconRef.current;
+        if (!indicator) {
+            return;
+        }
+
+        indicator.innerHTML = '';
+        if (!isSlimMode || !slimModeTypeIconId) {
+            return;
+        }
+
+        setIcon(indicator, slimModeTypeIconId);
+    }, [iconServiceVersion, isSlimMode, slimModeTypeIconId]);
 
     // Set up the icons when quick actions panel is shown
     useEffect(() => {
@@ -795,7 +975,17 @@ export const FileItem = React.memo(function FileItem({
                         // Minimal layout: only file name + tags
                         // Used when date, preview, and image are all disabled
                         <div className="nn-slim-file-text-content">
-                            {fileTitleElement}
+                            <div className="nn-slim-file-header">
+                                {fileTitleElement}
+                                {slimModeTypeIconId ? (
+                                    <span
+                                        ref={slimModeIconRef}
+                                        className="nn-file-icon nn-slim-file-type-icon"
+                                        aria-hidden="true"
+                                        data-has-color="false"
+                                    />
+                                ) : null}
+                            </div>
                             {renderTags()}
                         </div>
                     ) : (
@@ -824,17 +1014,7 @@ export const FileItem = React.memo(function FileItem({
                                         {renderTags()}
 
                                         {/* Parent folder - gets its own line */}
-                                        {/* Hidden when: pinnedItemShouldUseCompactLayout (pinned + optimization enabled) */}
-                                        {settings.showParentFolderNames &&
-                                            file.parent &&
-                                            !pinnedItemShouldUseCompactLayout &&
-                                            (selectionType === ItemType.TAG ||
-                                                (settings.includeDescendantNotes && parentFolder && file.parent.path !== parentFolder)) && (
-                                                <div className="nn-file-folder">
-                                                    <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
-                                                    <span>{file.parent.name}</span>
-                                                </div>
-                                            )}
+                                        {renderParentFolder()}
                                     </>
                                 )}
 
@@ -853,18 +1033,7 @@ export const FileItem = React.memo(function FileItem({
                                                 {/* Date + Parent folder share the second line (compact layout) */}
                                                 <div className="nn-file-second-line">
                                                     {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
-                                                    {settings.showParentFolderNames &&
-                                                        file.parent &&
-                                                        !pinnedItemShouldUseCompactLayout &&
-                                                        (selectionType === ItemType.TAG ||
-                                                            (settings.includeDescendantNotes &&
-                                                                parentFolder &&
-                                                                file.parent.path !== parentFolder)) && (
-                                                            <div className="nn-file-folder">
-                                                                <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
-                                                                <span>{file.parent.name}</span>
-                                                            </div>
-                                                        )}
+                                                    {renderParentFolder()}
                                                 </div>
                                             </>
                                         )}
@@ -890,18 +1059,7 @@ export const FileItem = React.memo(function FileItem({
                                                 {/* Date + Parent folder share the metadata line */}
                                                 <div className="nn-file-second-line">
                                                     {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
-                                                    {settings.showParentFolderNames &&
-                                                        file.parent &&
-                                                        !pinnedItemShouldUseCompactLayout &&
-                                                        (selectionType === ItemType.TAG ||
-                                                            (settings.includeDescendantNotes &&
-                                                                parentFolder &&
-                                                                file.parent.path !== parentFolder)) && (
-                                                            <div className="nn-file-folder">
-                                                                <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
-                                                                <span>{file.parent.name}</span>
-                                                            </div>
-                                                        )}
+                                                    {renderParentFolder()}
                                                 </div>
                                             </>
                                         )}

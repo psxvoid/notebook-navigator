@@ -460,7 +460,6 @@ export class IconPickerModal extends Modal {
             await this.metadataService.removeTagIcon(this.itemPath);
         } else if (this.itemType === ItemType.FILE) {
             await this.metadataService.removeFileIcon(this.itemPath);
-            await this.metadataService.removeFileColor(this.itemPath);
         } else {
             await this.metadataService.removeFolderIcon(this.itemPath);
         }

@@ -31,7 +31,9 @@ export const STRINGS_JA = {
         untagged: 'タグなし', // Label for notes without any tags (English: Untagged)
         untitled: '無題', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'アイキャッチ画像', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: '不明なエラー' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: '不明なエラー', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Notebook Navigator の更新があります',
+        updateBannerInstruction: '設定 -> コミュニティプラグイン で更新'
     },
 
     // List pane
@@ -60,7 +62,9 @@ export const STRINGS_JA = {
         reorderRootFoldersHint: 'フォルダをドラッグして順序を変更',
         vaultRootLabel: 'ボールト',
         resetRootFolderOrder: 'アルファベット順にリセット',
-        dragHandleLabel: 'ドラッグして並び替え'
+        dragHandleLabel: 'ドラッグして並び替え',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {
@@ -80,7 +84,7 @@ export const STRINGS_JA = {
     paneHeader: {
         collapseAllFolders: 'アイテムを折りたたむ', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'すべてのアイテムを展開', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'ショートカットにスクロール',
+        scrollToTop: 'トップにスクロール',
         newFolder: '新規フォルダ', // Tooltip for create new folder button (English: New folder)
         newNote: '新規ノート', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'ナビゲーションに戻る', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -141,7 +145,7 @@ export const STRINGS_JA = {
             removeTag: 'タグを削除',
             removeAllTags: 'すべてのタグを削除',
             changeIcon: 'アイコンを変更',
-            changeColor: 'アイコンの色を変更',
+            changeColor: '色を変更',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count}個のファイルを新しいタブで開く',
             openMultipleFilesToRight: '{count}個のファイルを右側で開く',
@@ -332,6 +336,15 @@ export const STRINGS_JA = {
             versionHistoryNotFound: 'バージョン履歴コマンドが見つかりません。Obsidian Syncが有効になっていることを確認してください。',
             revealInExplorer: 'システムエクスプローラーでファイルを表示できませんでした：{error}',
             folderNoteAlreadyExists: 'フォルダノートはすでに存在します',
+            folderAlreadyExists: 'フォルダ「{name}」は既に存在します',
+            folderNotesDisabled: 'ファイルを変換するには設定でフォルダノートを有効にしてください',
+            folderNoteAlreadyLinked: 'このファイルは既にフォルダノートとして機能しています',
+            folderNoteUnsupportedExtension: 'サポートされていないファイル拡張子：{extension}',
+            folderNoteMoveFailed: '変換中のファイル移動に失敗しました：{error}',
+            folderNoteRenameConflict: '「{name}」という名前のファイルが既にフォルダ内に存在します',
+            folderNoteConversionFailed: 'フォルダノートへの変換に失敗しました',
+            folderNoteConversionFailedWithReason: 'フォルダノートへの変換に失敗しました：{error}',
+            folderNoteOpenFailed: 'ファイルは変換されましたが、フォルダノートを開くのに失敗しました：{error}',
             failedToDeleteFile: '{name}の削除に失敗しました: {error}',
             failedToDeleteMultipleFiles: '{count}個のファイルの削除に失敗しました',
             versionHistoryNotAvailable: 'バージョン履歴サービスが利用できません',
@@ -346,6 +359,7 @@ export const STRINGS_JA = {
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
             movedMultipleFiles: '{count}個のファイルを{folder}に移動しました',
+            folderNoteConversionSuccess: '「{name}」内のフォルダノートにファイルを変換しました',
             folderMoved: 'フォルダ「{name}」を移動しました',
             deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
             tagAddedToNote: '1個のノートにタグを追加しました',
@@ -423,6 +437,7 @@ export const STRINGS_JA = {
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'フォルダノートに変換', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: '子孫切り替え', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
@@ -458,6 +473,7 @@ export const STRINGS_JA = {
             exportFailed: 'メタデータレポートのエクスポートに失敗しました'
         },
         sections: {
+            general: '一般設定',
             notes: 'ノート表示',
             navigationPane: 'フォルダ表示',
             icons: 'アイコンパック',
@@ -467,6 +483,26 @@ export const STRINGS_JA = {
             listPane: 'リストペイン',
             hotkeys: 'ホットキー',
             advanced: '詳細設定'
+        },
+        groups: {
+            general: {
+                view: '外観',
+                behavior: '動作',
+                filtering: 'フィルター',
+                formatting: '書式'
+            },
+            navigation: {
+                behavior: '動作',
+                appearance: '外観'
+            },
+            list: {
+                display: '外観',
+                quickActions: 'クイック操作'
+            },
+            notes: {
+                frontmatter: 'フロントマター',
+                display: '外観'
+            }
         },
         items: {
             searchProvider: {
@@ -513,12 +549,12 @@ export const STRINGS_JA = {
                 name: 'ノートの並び順',
                 desc: 'ノートリストでのノートの並び順を選択します。',
                 options: {
-                    'modified-desc': '編集日時（新しい順）',
-                    'modified-asc': '編集日時（古い順）',
-                    'created-desc': '作成日時（新しい順）',
-                    'created-asc': '作成日時（古い順）',
-                    'title-asc': 'タイトル（A順）',
-                    'title-desc': 'タイトル（Z順）'
+                    'modified-desc': '編集日時（新しいものが上）',
+                    'modified-asc': '編集日時（古いものが上）',
+                    'created-desc': '作成日時（新しいものが上）',
+                    'created-asc': '作成日時（古いものが上）',
+                    'title-asc': 'タイトル（昇順）',
+                    'title-desc': 'タイトル（降順）'
                 }
             },
             includeDescendantNotes: {
@@ -636,8 +672,13 @@ export const STRINGS_JA = {
                 name: 'ホームページ',
                 desc: '自動で開く、ダッシュボードなどのファイルを選びます。',
                 current: '現在: {path}',
+                currentMobile: 'モバイル: {path}',
                 chooseButton: 'ファイルを選択',
-                clearButton: 'クリア'
+                clearButton: 'クリア',
+                separateMobile: {
+                    name: '個別のモバイルホームページ',
+                    desc: 'モバイルデバイス用に別のホームページを使用します。'
+                }
             },
             showFileDate: {
                 name: '日付を表示',
@@ -646,6 +687,14 @@ export const STRINGS_JA = {
             showFileTags: {
                 name: 'ファイルタグを表示',
                 desc: 'ファイルアイテムにクリック可能なタグを表示します。タグの色を使用して、異なるタグタイプを視覚的に区別できます。'
+            },
+            showFileTagAncestors: {
+                name: '親タグを表示',
+                desc: 'タグ名の前に親セグメントを表示します。'
+            },
+            colorFileTags: {
+                name: 'ファイルタグに色を付ける',
+                desc: 'ファイルアイテムのタグバッジにタグの色を適用します。'
             },
             showFileTagsInSlimMode: {
                 name: 'スリムモードでファイルタグを表示',
@@ -729,7 +778,11 @@ export const STRINGS_JA = {
             },
             showIcons: {
                 name: 'アイコンを表示',
-                desc: 'ナビゲーションパネルのフォルダとタグの横にアイコンを表示します。'
+                desc: 'フォルダ、タグ、ノートのアイコンを表示します。'
+            },
+            showIconsColorOnly: {
+                name: 'アイコンのみに色を適用',
+                desc: '有効にすると、カスタムカラーはアイコンのみに適用されます。無効にすると、アイコンとテキストラベルの両方に色が適用されます。'
             },
             collapseBehavior: {
                 name: '項目を折りたたむ',
@@ -765,8 +818,8 @@ export const STRINGS_JA = {
                 desc: 'ナビゲーターでタグセクションをフォルダの前に表示します。'
             },
             showFavoriteTagsFolder: {
-                name: 'お気に入りフォルダを表示',
-                desc: 'お気に入りタグが設定されている場合、「お気に入り」を折りたたみ可能なフォルダとして表示します。'
+                name: 'お気に入りタグフォルダを表示',
+                desc: 'お気に入りタグが設定されている場合、「お気に入りタグ」を折りたたみ可能なフォルダとして表示します。'
             },
             showAllTagsFolder: {
                 name: 'タグフォルダを表示',
@@ -777,8 +830,8 @@ export const STRINGS_JA = {
                 desc: 'タグのないノート用に「タグなし」項目を表示します。'
             },
             showUntaggedInFavorites: {
-                name: 'お気に入りセクションにタグなしノートを表示',
-                desc: 'お気に入りセクションにタグなしノートを表示します。フォルダ内またはお気に入りの直下に表示されます。'
+                name: 'お気に入りタグセクションにタグなしノートを表示',
+                desc: 'お気に入りタグセクションにタグなしノートを表示します。フォルダ内またはお気に入りタグの直下に表示されます。'
             },
             favoriteTags: {
                 name: 'お気に入りタグ',
@@ -871,12 +924,36 @@ export const STRINGS_JA = {
             },
             useFrontmatterDates: {
                 name: 'フロントマターからメタデータを読み込む (*)',
-                desc: '利用可能な場合、フロントマターからノート名とタイムスタンプを読み取り、それ以外はファイルシステムの値を使用'
+                desc: '利用可能な場合、フロントマターからノート名、タイムスタンプ、アイコン、色を読み取り、それ以外はファイルシステムの値または設定を使用'
             },
             frontmatterNameField: {
                 name: '名前フィールド',
                 desc: 'ノートの表示名として使用するフロントマターフィールド。空のままにするとファイル名を使用。',
                 placeholder: 'タイトル'
+            },
+            frontmatterIconField: {
+                name: 'アイコンフィールド',
+                desc: 'ファイルアイコン用のフロントマターフィールド。空のままにすると設定に保存されたアイコンを使用。',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'カラーフィールド',
+                desc: 'ファイルカラー用のフロントマターフィールド。空のままにすると設定に保存された色を使用。',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'フロントマターにアイコンと色を保存',
+                desc: '上記で設定したフィールドを使ってファイルのアイコンと色を自動的にフロントマターに書き込みます。'
+            },
+            frontmatterMigration: {
+                name: '設定からアイコンと色を移行',
+                desc: '設定に保存: アイコン {icons} 個、色 {colors} 個。',
+                button: '移行',
+                buttonWorking: '移行中...',
+                noticeNone: '設定に保存されたファイルアイコンまたは色がありません。',
+                noticeDone: 'アイコン {migratedIcons}/{icons}、色 {migratedColors}/{colors} を移行しました。',
+                noticeFailures: '失敗したエントリ: {failures}。',
+                noticeError: '移行に失敗しました。詳細はコンソールを確認してください。'
             },
             frontmatterCreatedField: {
                 name: '作成タイムスタンプフィールド',
@@ -897,7 +974,13 @@ export const STRINGS_JA = {
             supportDevelopment: {
                 name: '開発をサポート',
                 desc: 'ノートブックナビゲーターを愛用していただいている場合は、継続的な開発をサポートすることをご検討ください。',
-                buttonText: '❤️ GitHubでスポンサーになる'
+                buttonText: '❤️ スポンサーになる',
+                coffeeButton: '☕️ コーヒーをおごる'
+            },
+            updateCheckOnStart: {
+                name: '起動時に新しいバージョンを確認',
+                desc: '起動時に新しいプラグインリリースを確認し、アップデートが利用可能な場合に通知を表示します。各バージョンは一度だけ通知され、確認は最大1日1回行われます。',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: '新着情報',
@@ -917,6 +1000,8 @@ export const STRINGS_JA = {
                 itemsWithName: '名前付き項目',
                 withCreatedDate: '作成日付き',
                 withModifiedDate: '変更日付き',
+                withIcon: 'アイコン付き',
+                withColor: 'カラー付き',
                 failedToParse: '解析に失敗',
                 createdDates: '作成日',
                 modifiedDates: '変更日',

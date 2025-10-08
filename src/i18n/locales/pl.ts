@@ -31,7 +31,9 @@ export const STRINGS_PL = {
         untagged: 'Bez tagów', // Label for notes without any tags (English: Untagged)
         untitled: 'Bez tytułu', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'Obraz wyróżniający', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: 'Nieznany błąd' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: 'Nieznany błąd', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Aktualizacja Notebook Navigator dostępna',
+        updateBannerInstruction: 'Zaktualizuj w Ustawieniach -> Wtyczki społeczności'
     },
 
     // List pane
@@ -60,7 +62,9 @@ export const STRINGS_PL = {
         reorderRootFoldersHint: 'Przeciągnij foldery aby zmienić kolejność',
         vaultRootLabel: 'Magazyn',
         resetRootFolderOrder: 'Resetuj do kolejności alfabetycznej',
-        dragHandleLabel: 'Przeciągnij aby zmienić kolejność'
+        dragHandleLabel: 'Przeciągnij aby zmienić kolejność',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {
@@ -80,7 +84,7 @@ export const STRINGS_PL = {
     paneHeader: {
         collapseAllFolders: 'Zwiń elementy', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Rozwiń wszystkie elementy', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Przewiń do skrótów',
+        scrollToTop: 'Przewiń do góry',
         newFolder: 'Nowy folder', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nowa notatka', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Wróć do nawigacji', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -333,6 +337,15 @@ export const STRINGS_PL = {
             versionHistoryNotFound: 'Nie znaleziono komendy historii wersji. Upewnij się, że Obsidian Sync jest włączony.',
             revealInExplorer: 'Nie udało się pokazać pliku w eksploratorze systemowym: {error}',
             folderNoteAlreadyExists: 'Notatka folderu już istnieje',
+            folderAlreadyExists: 'Folder "{name}" już istnieje',
+            folderNotesDisabled: 'Włącz notatki folderu w ustawieniach, aby konwertować pliki',
+            folderNoteAlreadyLinked: 'Ten plik już działa jako notatka folderu',
+            folderNoteUnsupportedExtension: 'Nieobsługiwane rozszerzenie pliku: {extension}',
+            folderNoteMoveFailed: 'Nie udało się przenieść pliku podczas konwersji: {error}',
+            folderNoteRenameConflict: 'Plik o nazwie "{name}" już istnieje w folderze',
+            folderNoteConversionFailed: 'Nie udało się przekonwertować pliku na notatkę folderu',
+            folderNoteConversionFailedWithReason: 'Nie udało się przekonwertować pliku na notatkę folderu: {error}',
+            folderNoteOpenFailed: 'Przekonwertowano plik, ale nie udało się otworzyć notatki folderu: {error}',
             failedToDeleteFile: 'Nie udało się usunąć {name}: {error}',
             failedToDeleteMultipleFiles: 'Nie udało się usunąć {count} plików',
             versionHistoryNotAvailable: 'Usługa historii wersji niedostępna',
@@ -347,6 +360,7 @@ export const STRINGS_PL = {
         notifications: {
             deletedMultipleFiles: 'Usunięto {count} plików',
             movedMultipleFiles: 'Przeniesiono {count} plików do {folder}',
+            folderNoteConversionSuccess: 'Przekonwertowano plik na notatkę folderu w "{name}"',
             folderMoved: 'Przeniesiono folder "{name}"',
             deepLinkCopied: 'Głęboki link skopiowany do schowka',
             tagAddedToNote: 'Dodano tag do 1 notatki',
@@ -424,6 +438,7 @@ export const STRINGS_PL = {
         deleteFile: 'Usuń pliki', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Utwórz nową notatkę', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Przenieś pliki', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'Konwertuj na notatkę folderu', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Przejdź do folderu', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Przejdź do tagu', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: 'Przełącz podfoldery', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
@@ -459,6 +474,7 @@ export const STRINGS_PL = {
             exportFailed: 'Nie udało się wyeksportować raportu metadanych'
         },
         sections: {
+            general: 'Ogólne',
             navigationPane: 'Panel nawigacji',
             icons: 'Pakiety ikon',
             folders: 'Foldery',
@@ -468,6 +484,26 @@ export const STRINGS_PL = {
             notes: 'Notatki',
             hotkeys: 'Skróty klawiszowe',
             advanced: 'Zaawansowane'
+        },
+        groups: {
+            general: {
+                view: 'Wygląd',
+                behavior: 'Zachowanie',
+                filtering: 'Filtrowanie',
+                formatting: 'Formatowanie'
+            },
+            navigation: {
+                behavior: 'Zachowanie',
+                appearance: 'Wygląd'
+            },
+            list: {
+                display: 'Wygląd',
+                quickActions: 'Szybkie akcje'
+            },
+            notes: {
+                frontmatter: 'Frontmatter',
+                display: 'Wygląd'
+            }
         },
         items: {
             searchProvider: {
@@ -514,12 +550,12 @@ export const STRINGS_PL = {
                 name: 'Sortuj notatki według',
                 desc: 'Wybierz sposób sortowania notatek na liście.',
                 options: {
-                    'modified-desc': 'Data edycji (najnowsze najpierw)',
-                    'modified-asc': 'Data edycji (najstarsze najpierw)',
-                    'created-desc': 'Data utworzenia (najnowsze najpierw)',
-                    'created-asc': 'Data utworzenia (najstarsze najpierw)',
-                    'title-asc': 'Tytuł (A najpierw)',
-                    'title-desc': 'Tytuł (Z najpierw)'
+                    'modified-desc': 'Data edycji (najnowsze na górze)',
+                    'modified-asc': 'Data edycji (najstarsze na górze)',
+                    'created-desc': 'Data utworzenia (najnowsze na górze)',
+                    'created-asc': 'Data utworzenia (najstarsze na górze)',
+                    'title-asc': 'Tytuł (A na górze)',
+                    'title-desc': 'Tytuł (Z na górze)'
                 }
             },
             includeDescendantNotes: {
@@ -626,8 +662,13 @@ export const STRINGS_PL = {
                 name: 'Strona główna',
                 desc: 'Wybierz plik, który Notebook Navigator otwiera automatycznie, np. pulpit.',
                 current: 'Bieżący: {path}',
+                currentMobile: 'Mobilna: {path}',
                 chooseButton: 'Wybierz plik',
-                clearButton: 'Wyczyść'
+                clearButton: 'Wyczyść',
+                separateMobile: {
+                    name: 'Osobna strona główna dla urządzeń mobilnych',
+                    desc: 'Użyj innej strony głównej dla urządzeń mobilnych.'
+                }
             },
             excludedNotes: {
                 name: 'Ukryj notatki',
@@ -646,6 +687,14 @@ export const STRINGS_PL = {
             showFileTags: {
                 name: 'Pokaż tagi plików',
                 desc: 'Wyświetl klikalne tagi w elementach plików. Użyj kolorów tagów aby wizualnie odróżnić różne typy tagów.'
+            },
+            showFileTagAncestors: {
+                name: 'Pokaż tagi nadrzędne',
+                desc: 'Wyświetl segmenty nadrzędne przed nazwą tagu.'
+            },
+            colorFileTags: {
+                name: 'Koloruj tagi plików',
+                desc: 'Zastosuj kolory tagów do odznak tagów w elementach plików.'
             },
             showFileTagsInSlimMode: {
                 name: 'Pokaż tagi plików w trybie kompaktowym',
@@ -729,7 +778,11 @@ export const STRINGS_PL = {
             },
             showIcons: {
                 name: 'Pokaż ikony',
-                desc: 'Wyświetl ikony obok folderów i tagów w panelu nawigacji.'
+                desc: 'Wyświetl ikony dla folderów, tagów i notatek.'
+            },
+            showIconsColorOnly: {
+                name: 'Zastosuj kolor tylko do ikon',
+                desc: 'Gdy włączone, niestandardowe kolory są stosowane tylko do ikon. Gdy wyłączone, kolory są stosowane zarówno do ikon, jak i etykiet tekstowych.'
             },
             collapseBehavior: {
                 name: 'Zwiń elementy',
@@ -765,8 +818,8 @@ export const STRINGS_PL = {
                 desc: 'Wyświetl sekcję tagów przed folderami w nawigatorze.'
             },
             showFavoriteTagsFolder: {
-                name: 'Pokaż folder ulubionych',
-                desc: 'Wyświetl "Ulubione" jako zwijalny folder gdy ulubione tagi są skonfigurowane.'
+                name: 'Pokaż folder ulubionych tagów',
+                desc: 'Wyświetl "Ulubione tagi" jako zwijalny folder gdy ulubione tagi są skonfigurowane.'
             },
             showAllTagsFolder: {
                 name: 'Pokaż folder tagów',
@@ -777,8 +830,8 @@ export const STRINGS_PL = {
                 desc: 'Wyświetl element "Bez tagów" dla notatek bez żadnych tagów.'
             },
             showUntaggedInFavorites: {
-                name: 'Pokaż notatki bez tagów w sekcji ulubionych',
-                desc: 'Wyświetl notatki bez tagów w sekcji ulubionych, wewnątrz folderu lub bezpośrednio pod ulubionymi.'
+                name: 'Pokaż notatki bez tagów w sekcji ulubionych tagów',
+                desc: 'Wyświetl notatki bez tagów w sekcji ulubionych tagów, wewnątrz folderu lub bezpośrednio pod ulubionymi tagami.'
             },
             favoriteTags: {
                 name: 'Ulubione tagi',
@@ -871,12 +924,36 @@ export const STRINGS_PL = {
             },
             useFrontmatterDates: {
                 name: 'Czytaj metadane z frontmatter (*)',
-                desc: 'Czytaj nazwy notatek i znaczniki czasu z frontmatter gdy dostępne, w przeciwnym razie używaj wartości systemu plików'
+                desc: 'Czytaj nazwy notatek, znaczniki czasu, ikony i kolory z frontmatter gdy dostępne, w przeciwnym razie używaj wartości systemu plików lub ustawień'
             },
             frontmatterNameField: {
                 name: 'Pole nazwy',
                 desc: 'Pole frontmatter do użycia jako wyświetlana nazwa notatki. Zostaw puste aby użyć nazwy pliku.',
                 placeholder: 'title'
+            },
+            frontmatterIconField: {
+                name: 'Pole ikony',
+                desc: 'Pole frontmatter dla ikon plików. Zostaw puste aby użyć ikon zapisanych w ustawieniach.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'Pole koloru',
+                desc: 'Pole frontmatter dla kolorów plików. Zostaw puste aby użyć kolorów zapisanych w ustawieniach.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'Zapisz ikony i kolory w frontmatter',
+                desc: 'Automatycznie zapisuje ikony i kolory plików w frontmatter przy użyciu skonfigurowanych powyżej pól.'
+            },
+            frontmatterMigration: {
+                name: 'Migruj ikony i kolory z ustawień',
+                desc: 'Zapisane w ustawieniach: {icons} ikon, {colors} kolorów.',
+                button: 'Migruj',
+                buttonWorking: 'Migracja...',
+                noticeNone: 'Brak ikon lub kolorów plików zapisanych w ustawieniach.',
+                noticeDone: 'Zmigrowano {migratedIcons}/{icons} ikon, {migratedColors}/{colors} kolorów.',
+                noticeFailures: 'Nieudane wpisy: {failures}.',
+                noticeError: 'Migracja nie powiodła się. Sprawdź konsolę po więcej szczegółów.'
             },
             frontmatterCreatedField: {
                 name: 'Pole znacznika czasu utworzenia',
@@ -897,7 +974,13 @@ export const STRINGS_PL = {
             supportDevelopment: {
                 name: 'Wspieraj rozwój',
                 desc: 'Jeśli uwielbiasz używać Notebook Navigator, rozważ wsparcie jego dalszego rozwoju.',
-                buttonText: '❤️ Sponsoruj na GitHub'
+                buttonText: '❤️ Sponsoruj',
+                coffeeButton: '☕️ Postaw kawę'
+            },
+            updateCheckOnStart: {
+                name: 'Sprawdź nową wersję przy starcie',
+                desc: 'Sprawdza nowe wersje wtyczki podczas uruchamiania i wyświetla powiadomienie, gdy dostępna jest aktualizacja. Każda wersja jest ogłaszana tylko raz, a sprawdzanie odbywa się co najwyżej raz dziennie.',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: 'Co nowego',
@@ -917,6 +1000,8 @@ export const STRINGS_PL = {
                 itemsWithName: 'elementów z nazwą',
                 withCreatedDate: 'z datą utworzenia',
                 withModifiedDate: 'z datą modyfikacji',
+                withIcon: 'z ikoną',
+                withColor: 'z kolorem',
                 failedToParse: 'Nie udało się sparsować',
                 createdDates: 'dat utworzenia',
                 modifiedDates: 'dat modyfikacji',

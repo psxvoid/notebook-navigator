@@ -32,6 +32,7 @@ import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
 import { useTagNavigation } from '../hooks/useTagNavigation';
 import { useFileCache } from '../context/StorageContext';
 import { strings } from '../i18n';
+import { useUpdateNotice } from '../hooks/useUpdateNotice';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 import { TagSuggestModal } from '../modals/TagSuggestModal';
 import { RemoveTagModal } from '../modals/RemoveTagModal';
@@ -46,6 +47,7 @@ import type { ListPaneHandle } from './ListPane';
 import { NavigationPane } from './NavigationPane';
 import type { NavigationPaneHandle } from './NavigationPane';
 import type { SearchShortcut } from '../types/shortcuts';
+import { UpdateNoticeBanner } from './UpdateNoticeBanner';
 
 export interface NotebookNavigatorHandle {
     // Navigates to a file by revealing it in its actual parent folder
@@ -88,6 +90,7 @@ export const NotebookNavigatorComponent = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const { stopAllProcessing, rebuildCache } = useFileCache();
+        const { notice: updateNotice, markAsDisplayed } = useUpdateNotice();
         // Keep stable references to avoid stale closures in imperative handles
         const stopProcessingRef = useRef(stopAllProcessing);
         useEffect(() => {
@@ -609,6 +612,7 @@ export const NotebookNavigatorComponent = React.memo(
                     // The actual keyboard handling is done in NavigationPane and ListPane
                 }}
             >
+                <UpdateNoticeBanner notice={updateNotice} onDismiss={markAsDisplayed} />
                 {/* KEYBOARD EVENT FLOW:
                 1. Both NavigationPane and ListPane receive the same containerRef
                 2. Each pane sets up keyboard listeners on this shared container

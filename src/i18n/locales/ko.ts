@@ -31,7 +31,9 @@ export const STRINGS_KO = {
         untagged: '태그 없음', // Label for notes without any tags (English: Untagged)
         untitled: '제목 없음', // Default name for notes without a title (English: Untitled)
         featureImageAlt: '대표 이미지', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: '알 수 없는 오류' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: '알 수 없는 오류', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Notebook Navigator 업데이트 사용 가능',
+        updateBannerInstruction: '설정 -> 커뮤니티 플러그인에서 업데이트'
     },
 
     // List pane
@@ -60,7 +62,9 @@ export const STRINGS_KO = {
         reorderRootFoldersHint: '폴더를 드래그하여 순서 변경',
         vaultRootLabel: '보관함',
         resetRootFolderOrder: '알파벳 순서로 리셋',
-        dragHandleLabel: '드래그하여 순서 변경'
+        dragHandleLabel: '드래그하여 순서 변경',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {
@@ -80,7 +84,7 @@ export const STRINGS_KO = {
     paneHeader: {
         collapseAllFolders: '항목 접기', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: '모든 항목 펼치기', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: '바로가기로 스크롤',
+        scrollToTop: '맨 위로 스크롤',
         newFolder: '새 폴더', // Tooltip for create new folder button (English: New folder)
         newNote: '새 노트', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: '탐색으로 돌아가기', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -331,6 +335,15 @@ export const STRINGS_KO = {
             versionHistoryNotFound: '버전 기록 명령을 찾을 수 없습니다. Obsidian Sync가 활성화되어 있는지 확인하세요.',
             revealInExplorer: '시스템 탐색기에서 파일 표시 실패: {error}',
             folderNoteAlreadyExists: '폴더 노트가 이미 존재합니다',
+            folderAlreadyExists: '폴더 "{name}"이(가) 이미 존재합니다',
+            folderNotesDisabled: '파일을 변환하려면 설정에서 폴더 노트를 활성화하세요',
+            folderNoteAlreadyLinked: '이 파일은 이미 폴더 노트로 작동하고 있습니다',
+            folderNoteUnsupportedExtension: '지원되지 않는 파일 확장자: {extension}',
+            folderNoteMoveFailed: '변환 중 파일 이동 실패: {error}',
+            folderNoteRenameConflict: '"{name}"이라는 이름의 파일이 이미 폴더에 존재합니다',
+            folderNoteConversionFailed: '폴더 노트로 변환 실패',
+            folderNoteConversionFailedWithReason: '폴더 노트로 변환 실패: {error}',
+            folderNoteOpenFailed: '파일은 변환되었지만 폴더 노트 열기 실패: {error}',
             failedToDeleteFile: '{name} 삭제 실패: {error}',
             failedToDeleteMultipleFiles: '{count}개의 파일 삭제 실패',
             versionHistoryNotAvailable: '버전 기록 서비스를 사용할 수 없습니다',
@@ -345,6 +358,7 @@ export const STRINGS_KO = {
         notifications: {
             deletedMultipleFiles: '{count}개의 파일이 삭제됨',
             movedMultipleFiles: '{count}개의 파일이 {folder}로 이동됨',
+            folderNoteConversionSuccess: '"{name}"에서 파일을 폴더 노트로 변환함',
             folderMoved: '폴더 "{name}"이(가) 이동됨',
             deepLinkCopied: '딥 링크가 클립보드에 복사됨',
             tagAddedToNote: '1개의 노트에 태그 추가됨',
@@ -422,6 +436,7 @@ export const STRINGS_KO = {
         deleteFile: '파일 삭제', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '새 노트 만들기', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '파일 이동', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: '폴더 노트로 변환', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: '폴더로 이동', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '태그로 이동', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: '하위 항목 전환', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
@@ -457,6 +472,7 @@ export const STRINGS_KO = {
             exportFailed: '메타데이터 보고서 내보내기 실패'
         },
         sections: {
+            general: '일반',
             navigationPane: '탐색 창',
             icons: '아이콘 팩',
             folders: '폴더',
@@ -466,6 +482,26 @@ export const STRINGS_KO = {
             notes: '노트',
             hotkeys: '단축키',
             advanced: '고급'
+        },
+        groups: {
+            general: {
+                view: '모양',
+                behavior: '동작',
+                filtering: '필터링',
+                formatting: '서식'
+            },
+            navigation: {
+                behavior: '동작',
+                appearance: '모양'
+            },
+            list: {
+                display: '모양',
+                quickActions: '빠른 작업'
+            },
+            notes: {
+                frontmatter: '프런트매터',
+                display: '모양'
+            }
         },
         items: {
             searchProvider: {
@@ -512,12 +548,12 @@ export const STRINGS_KO = {
                 name: '노트 정렬 기준',
                 desc: '노트 목록에서 노트를 정렬하는 방법을 선택하세요.',
                 options: {
-                    'modified-desc': '수정 날짜 (최신순)',
-                    'modified-asc': '수정 날짜 (오래된순)',
-                    'created-desc': '생성 날짜 (최신순)',
-                    'created-asc': '생성 날짜 (오래된순)',
-                    'title-asc': '제목 (가나다순)',
-                    'title-desc': '제목 (역순)'
+                    'modified-desc': '수정 날짜 (최신 상위)',
+                    'modified-asc': '수정 날짜 (오래된 상위)',
+                    'created-desc': '생성 날짜 (최신 상위)',
+                    'created-asc': '생성 날짜 (오래된 상위)',
+                    'title-asc': '제목 (가나다 상위)',
+                    'title-desc': '제목 (역순 상위)'
                 }
             },
             includeDescendantNotes: {
@@ -624,8 +660,13 @@ export const STRINGS_KO = {
                 name: '홈페이지',
                 desc: '자동으로 열릴 대시보드 같은 파일을 선택합니다.',
                 current: '현재: {path}',
+                currentMobile: '모바일: {path}',
                 chooseButton: '파일 선택',
-                clearButton: '지우기'
+                clearButton: '지우기',
+                separateMobile: {
+                    name: '별도 모바일 홈페이지',
+                    desc: '모바일 기기에서 다른 홈페이지를 사용합니다.'
+                }
             },
             excludedNotes: {
                 name: '노트 숨기기',
@@ -644,6 +685,14 @@ export const STRINGS_KO = {
             showFileTags: {
                 name: '파일 태그 표시',
                 desc: '파일 항목에 클릭 가능한 태그를 표시합니다. 태그 색상을 사용하여 다른 태그 유형을 시각적으로 구분합니다.'
+            },
+            showFileTagAncestors: {
+                name: '상위 태그 표시',
+                desc: '태그 이름 앞에 상위 세그먼트를 표시합니다.'
+            },
+            colorFileTags: {
+                name: '파일 태그 색상 지정',
+                desc: '파일 항목의 태그 배지에 태그 색상을 적용합니다.'
             },
             showFileTagsInSlimMode: {
                 name: '슬림 모드에서 파일 태그 표시',
@@ -727,7 +776,11 @@ export const STRINGS_KO = {
             },
             showIcons: {
                 name: '아이콘 표시',
-                desc: '탐색 창에서 폴더와 태그 옆에 아이콘을 표시합니다.'
+                desc: '폴더, 태그 및 노트에 아이콘을 표시합니다.'
+            },
+            showIconsColorOnly: {
+                name: '아이콘에만 색상 적용',
+                desc: '활성화하면 사용자 지정 색상이 아이콘에만 적용됩니다. 비활성화하면 아이콘과 텍스트 레이블 모두에 색상이 적용됩니다.'
             },
             collapseBehavior: {
                 name: '항목 접기',
@@ -763,8 +816,8 @@ export const STRINGS_KO = {
                 desc: '네비게이터에서 폴더 앞에 태그 섹션을 표시합니다.'
             },
             showFavoriteTagsFolder: {
-                name: '즐겨찾기 폴더 표시',
-                desc: '즐겨찾기 태그가 구성되면 "즐겨찾기"를 접을 수 있는 폴더로 표시합니다.'
+                name: '즐겨찾기 태그 폴더 표시',
+                desc: '즐겨찾기 태그가 구성되면 "즐겨찾기 태그"를 접을 수 있는 폴더로 표시합니다.'
             },
             showAllTagsFolder: {
                 name: '태그 폴더 표시',
@@ -775,8 +828,8 @@ export const STRINGS_KO = {
                 desc: '태그가 없는 노트에 대해 "태그 없음" 항목을 표시합니다.'
             },
             showUntaggedInFavorites: {
-                name: '즐겨찾기 섹션에 태그 없는 노트 표시',
-                desc: '즐겨찾기 섹션에 태그 없는 노트를 표시합니다. 폴더 안이나 즐겨찾기 바로 아래에 표시됩니다.'
+                name: '즐겨찾기 태그 섹션에 태그 없는 노트 표시',
+                desc: '즐겨찾기 태그 섹션에 태그 없는 노트를 표시합니다. 폴더 안이나 즐겨찾기 태그 바로 아래에 표시됩니다.'
             },
             favoriteTags: {
                 name: '즐겨찾기 태그',
@@ -869,12 +922,36 @@ export const STRINGS_KO = {
             },
             useFrontmatterDates: {
                 name: 'frontmatter에서 메타데이터 읽기 (*)',
-                desc: '사용 가능한 경우 frontmatter에서 노트 이름과 타임스탬프를 읽고, 파일 시스템 값으로 대체'
+                desc: '사용 가능한 경우 frontmatter에서 노트 이름, 타임스탬프, 아이콘, 색상을 읽고, 파일 시스템 값 또는 설정으로 대체'
             },
             frontmatterNameField: {
                 name: '이름 필드',
                 desc: '노트 표시 이름으로 사용할 frontmatter 필드입니다. 파일 이름을 사용하려면 비워 두세요.',
                 placeholder: 'title'
+            },
+            frontmatterIconField: {
+                name: '아이콘 필드',
+                desc: '파일 아이콘용 frontmatter 필드입니다. 설정에 저장된 아이콘을 사용하려면 비워 두세요.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: '색상 필드',
+                desc: '파일 색상용 frontmatter 필드입니다. 설정에 저장된 색상을 사용하려면 비워 두세요.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'frontmatter에 아이콘과 색상 저장',
+                desc: '위에서 구성한 필드를 사용하여 파일 아이콘과 색상을 frontmatter에 자동으로 기록합니다.'
+            },
+            frontmatterMigration: {
+                name: '설정에서 아이콘과 색상 이동',
+                desc: '설정에 저장됨: 아이콘 {icons}개, 색상 {colors}개.',
+                button: '이동',
+                buttonWorking: '이동 중...',
+                noticeNone: '설정에 저장된 파일 아이콘 또는 색상이 없습니다.',
+                noticeDone: '아이콘 {migratedIcons}/{icons}개, 색상 {migratedColors}/{colors}개를 이동했습니다.',
+                noticeFailures: '실패한 항목: {failures}.',
+                noticeError: '이동에 실패했습니다. 자세한 내용은 콘솔을 확인하세요.'
             },
             frontmatterCreatedField: {
                 name: '생성 타임스탬프 필드',
@@ -895,7 +972,13 @@ export const STRINGS_KO = {
             supportDevelopment: {
                 name: '개발 지원',
                 desc: 'Notebook Navigator를 사용하는 것을 좋아하신다면 지속적인 개발을 지원해 주시기 바랍니다.',
-                buttonText: '❤️ GitHub에서 후원'
+                buttonText: '❤️ 후원하기',
+                coffeeButton: '☕️ 커피 한 잔 사주기'
+            },
+            updateCheckOnStart: {
+                name: '시작 시 새 버전 확인',
+                desc: '시작 시 새로운 플러그인 릴리스를 확인하고 업데이트가 있으면 알림을 표시합니다. 각 버전은 한 번만 알림되며, 확인은 하루에 한 번 수행됩니다.',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: '새로운 기능',
@@ -915,6 +998,8 @@ export const STRINGS_KO = {
                 itemsWithName: '이름이 있는 항목',
                 withCreatedDate: '생성 날짜 포함',
                 withModifiedDate: '수정 날짜 포함',
+                withIcon: '아이콘 포함',
+                withColor: '색상 포함',
                 failedToParse: '구문 분석 실패',
                 createdDates: '생성 날짜',
                 modifiedDates: '수정 날짜',

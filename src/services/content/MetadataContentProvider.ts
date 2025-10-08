@@ -36,6 +36,8 @@ export class MetadataContentProvider extends BaseContentProvider {
         return [
             'useFrontmatterMetadata',
             'frontmatterNameField',
+            'frontmatterIconField',
+            'frontmatterColorField',
             'frontmatterCreatedField',
             'frontmatterModifiedField',
             'frontmatterDateFormat'
@@ -53,6 +55,8 @@ export class MetadataContentProvider extends BaseContentProvider {
             return (
                 oldSettings.useFrontmatterMetadata !== newSettings.useFrontmatterMetadata ||
                 oldSettings.frontmatterNameField !== newSettings.frontmatterNameField ||
+                oldSettings.frontmatterIconField !== newSettings.frontmatterIconField ||
+                oldSettings.frontmatterColorField !== newSettings.frontmatterColorField ||
                 oldSettings.frontmatterCreatedField !== newSettings.frontmatterCreatedField ||
                 oldSettings.frontmatterModifiedField !== newSettings.frontmatterModifiedField ||
                 oldSettings.frontmatterDateFormat !== newSettings.frontmatterDateFormat
@@ -99,6 +103,8 @@ export class MetadataContentProvider extends BaseContentProvider {
             if (processedMetadata.fn) fileMetadata.name = processedMetadata.fn;
             if (processedMetadata.fc !== undefined) fileMetadata.created = processedMetadata.fc;
             if (processedMetadata.fm !== undefined) fileMetadata.modified = processedMetadata.fm;
+            if (processedMetadata.icon) fileMetadata.icon = processedMetadata.icon;
+            if (processedMetadata.color) fileMetadata.color = processedMetadata.color;
 
             const newMetadata = Object.keys(fileMetadata).length > 0 ? fileMetadata : {};
 

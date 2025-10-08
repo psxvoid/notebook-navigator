@@ -22,19 +22,41 @@ import { FolderNoteType, FOLDER_NOTE_TYPE_EXTENSIONS } from '../types/folderNote
 import { createDatabaseContent } from './fileCreationUtils';
 import { CommandQueueService } from '../services/CommandQueueService';
 
+/**
+ * Settings required for detecting folder notes
+ */
 export interface FolderNoteDetectionSettings {
     enableFolderNotes: boolean;
     folderNoteName: string;
 }
 
+/**
+ * Settings required for creating folder notes
+ */
 export interface FolderNoteCreationSettings {
     folderNoteType: FolderNoteType;
     folderNoteName: string;
     folderNoteProperties: string[];
 }
 
+/** Set of file extensions that are valid for folder notes */
 const SUPPORTED_FOLDER_NOTE_EXTENSIONS = new Set<string>(Object.values(FOLDER_NOTE_TYPE_EXTENSIONS));
 
+/**
+ * Checks if a file extension is supported for folder notes
+ * @param extension - The file extension to check
+ * @returns True if the extension is supported
+ */
+export function isSupportedFolderNoteExtension(extension: string): boolean {
+    return SUPPORTED_FOLDER_NOTE_EXTENSIONS.has(extension);
+}
+
+/**
+ * Gets the folder note for a folder if it exists
+ * @param folder - The folder to check for a folder note
+ * @param settings - Settings for folder note detection
+ * @returns The folder note file or null if not found
+ */
 export function getFolderNote(folder: TFolder, settings: FolderNoteDetectionSettings): TFile | null {
     if (!settings.enableFolderNotes) {
         return null;
@@ -62,6 +84,13 @@ export function getFolderNote(folder: TFolder, settings: FolderNoteDetectionSett
     return null;
 }
 
+/**
+ * Checks if a file is a folder note for a given folder
+ * @param file - The file to check
+ * @param folder - The folder to check against
+ * @param settings - Settings for folder note detection
+ * @returns True if the file is a folder note for the given folder
+ */
 export function isFolderNote(file: TFile, folder: TFolder, settings: FolderNoteDetectionSettings): boolean {
     if (!settings.enableFolderNotes) {
         return false;
@@ -79,6 +108,13 @@ export function isFolderNote(file: TFile, folder: TFolder, settings: FolderNoteD
     return file.basename === expectedName;
 }
 
+/**
+ * Creates a new folder note for a folder
+ * @param app - The Obsidian app instance
+ * @param folder - The folder to create a folder note for
+ * @param settings - Settings for folder note creation
+ * @param commandQueue - Optional command queue service for opening the note
+ */
 export async function createFolderNote(
     app: App,
     folder: TFolder,
@@ -106,6 +142,7 @@ export async function createFolderNote(
         return;
     }
 
+    // Generate content based on folder note type
     let content = '';
 
     if (settings.folderNoteType === 'markdown') {

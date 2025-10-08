@@ -1,6 +1,6 @@
 ![Notebook Navigator Banner](https://github.com/johansan/notebook-navigator/blob/main/images/banner.gif?raw=true)
 
-Read in your language: [English](https://notebooknavigator.com/docs.html) • [Deutsch](https://notebooknavigator.com/de/docs.html) • [Español](https://notebooknavigator.com/es/docs.html) • [Français](https://notebooknavigator.com/fr/docs.html) • [Polski](https://notebooknavigator.com/pl/docs.html) • [日本語](https://notebooknavigator.com/ja/docs.html) • [中文](https://notebooknavigator.com/zh/docs.html) • [한국어](https://notebooknavigator.com/ko/docs.html)
+Read in your language: [English](https://notebooknavigator.com/docs.html) • [Deutsch](https://notebooknavigator.com/de/docs.html) • [Español](https://notebooknavigator.com/es/docs.html) • [Français](https://notebooknavigator.com/fr/docs.html) • [Polski](https://notebooknavigator.com/pl/docs.html) • [日本語](https://notebooknavigator.com/ja/docs.html) • [中文简体](https://notebooknavigator.com/zh-cn/docs.html) • [中文繁體](https://notebooknavigator.com/zh-tw/docs.html) • [한국어](https://notebooknavigator.com/ko/docs.html)
 
 ![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=Downloads&query=%24%5B%22notebook-navigator%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
 ![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square)
@@ -236,6 +236,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - `Notebook Navigator: Create new note` Create note in currently selected folder. **Suggestion:** Bind `Cmd/Ctrl+N` to this command (unbind from Obsidian's default "Create new note" first)
 - `Notebook Navigator: Move files` Move selected files to another folder. Selects next file in current folder
+- `Notebook Navigator: Convert to folder note` Create a folder matching the file name and move the file inside as the folder note
 - `Notebook Navigator: Delete files` Delete selected files. Selects next file in current folder
 
 **Tag operations**
@@ -250,25 +251,26 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Command IDs
 
-| Command ID                              | Command name                                            |
-| --------------------------------------- | ------------------------------------------------------- |
-| `notebook-navigator:open`               | Notebook Navigator: Open                                |
-| `notebook-navigator:open-homepage`      | Notebook Navigator: Open homepage                       |
-| `notebook-navigator:reveal-file`        | Notebook Navigator: Reveal file                         |
-| `notebook-navigator:navigate-to-folder` | Notebook Navigator: Navigate to folder                  |
-| `notebook-navigator:navigate-to-tag`    | Notebook Navigator: Navigate to tag                     |
-| `notebook-navigator:search`             | Notebook Navigator: Search                              |
-| `notebook-navigator:toggle-dual-pane`   | Notebook Navigator: Toggle dual pane layout             |
-| `notebook-navigator:toggle-descendants` | Notebook Navigator: Toggle descendants                  |
-| `notebook-navigator:toggle-hidden`      | Notebook Navigator: Toggle hidden items                 |
-| `notebook-navigator:collapse-expand`    | Notebook Navigator: Collapse / expand all items         |
-| `notebook-navigator:new-note`           | Notebook Navigator: Create new note                     |
-| `notebook-navigator:move-files`         | Notebook Navigator: Move files                          |
-| `notebook-navigator:delete-files`       | Notebook Navigator: Delete files                        |
-| `notebook-navigator:add-tag`            | Notebook Navigator: Add tag to selected files           |
-| `notebook-navigator:remove-tag`         | Notebook Navigator: Remove tag from selected files      |
-| `notebook-navigator:remove-all-tags`    | Notebook Navigator: Remove all tags from selected files |
-| `notebook-navigator:rebuild-cache`      | Notebook Navigator: Rebuild cache                       |
+| Command ID                                  | Command name                                            |
+| ------------------------------------------- | ------------------------------------------------------- |
+| `notebook-navigator:open`                   | Notebook Navigator: Open                                |
+| `notebook-navigator:open-homepage`          | Notebook Navigator: Open homepage                       |
+| `notebook-navigator:reveal-file`            | Notebook Navigator: Reveal file                         |
+| `notebook-navigator:navigate-to-folder`     | Notebook Navigator: Navigate to folder                  |
+| `notebook-navigator:navigate-to-tag`        | Notebook Navigator: Navigate to tag                     |
+| `notebook-navigator:search`                 | Notebook Navigator: Search                              |
+| `notebook-navigator:toggle-dual-pane`       | Notebook Navigator: Toggle dual pane layout             |
+| `notebook-navigator:toggle-descendants`     | Notebook Navigator: Toggle descendants                  |
+| `notebook-navigator:toggle-hidden`          | Notebook Navigator: Toggle hidden items                 |
+| `notebook-navigator:collapse-expand`        | Notebook Navigator: Collapse / expand all items         |
+| `notebook-navigator:new-note`               | Notebook Navigator: Create new note                     |
+| `notebook-navigator:move-files`             | Notebook Navigator: Move files                          |
+| `notebook-navigator:convert-to-folder-note` | Notebook Navigator: Convert to folder note              |
+| `notebook-navigator:delete-files`           | Notebook Navigator: Delete files                        |
+| `notebook-navigator:add-tag`                | Notebook Navigator: Add tag to selected files           |
+| `notebook-navigator:remove-tag`             | Notebook Navigator: Remove tag from selected files      |
+| `notebook-navigator:remove-all-tags`        | Notebook Navigator: Remove all tags from selected files |
+| `notebook-navigator:rebuild-cache`          | Notebook Navigator: Rebuild cache                       |
 
 <br>
 
@@ -277,9 +279,11 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 ### Top level settings
 
 - **Default startup view:** Choose which pane displays when opening Notebook Navigator - Navigation pane (shortcuts, recent notes, folders) or List pane (note list)
-- **Dual pane layout (desktop only):** Show navigation and list panes side by side
+- **Dual pane layout (desktop only, not synced):** Show navigation and list panes side by side
 - **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
-  - **Ignore right sidebar:** Disable auto-reveal from right sidebar
+  - **Ignore events from right sidebar:** Disable auto-reveal from right sidebar
+- **Homepage:** Set a file that opens automatically when Notebook Navigator starts
+  - **Separate mobile homepage:** Use a different homepage for mobile devices
 - **Show tooltips (desktop only):** Display hover tooltips for notes and folders
 - **Show file types:** Choose file types to display. Non-Obsidian files open in system's default application. `Markdown only`, `Supported files`, `All files`
 - **Hide folders:** Comma-separated list of folders to hide. Pattern types:
@@ -300,6 +304,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Collapse items:** What expand/collapse all button affects. `All folders and tags`, `Folders only`, `Tags only`
 - **Keep selected item expanded:** When collapsing, keep the currently selected folder or tag and its parents expanded
 - **Show icons:** Display icons next to folders and tags
+  - **Apply color to icons only:** Limit custom colors to icons only, not text labels
 - **Show note count:** Display the number of notes next to each folder and tag
 - **Tree indentation:** Adjust the indentation width for nested folders and tags
 - **Item height:** Adjust the height of folders and tags in the navigation pane
@@ -324,6 +329,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show root folder:** Display the vault name as the root folder in the tree
 - **Inherit folder colors:** Child folders inherit color from parent folders
 - **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links
+  - **Default folder note type:** Type created from context menu. `Markdown`, `Canvas`, `Base`
   - **Folder note name:** Name of the folder note without extension. Leave empty to use the same name as the folder
   - **Folder note properties:** Frontmatter properties to add to newly created folder notes (comma-separated)
   - **Hide folder notes in list:** Hide the folder note from appearing in the folder's note list
@@ -332,10 +338,10 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - **Show tags (\*):** Display tags section below folders in the navigator
   - **Show tags above folders:** Display tags section before folders in the navigator
-  - **Show favorites folder:** Display "Favorites" as collapsible folder when favorite tags are configured
+  - **Show favorite tags folder:** Display "Favorites" as collapsible folder when favorite tags are configured
   - **Show tags folder:** Display "Tags" as collapsible folder
   - **Show untagged notes:** Display "Untagged" item for notes without any tags
-    - **Show untagged notes in favorites section:** Display untagged notes in the favorites section, either inside the folder or directly below favorites
+    - **Show untagged notes in favorite tags section:** Display untagged notes in the favorites section, either inside the folder or directly below favorites
   - **Favorite tags:** Comma-separated list of tag prefixes. Adding a tag includes all its sub-tags (e.g., "photo" includes "photo/camera/fuji")
   - **Hidden tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs")
 
@@ -372,9 +378,15 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Created timestamp field:** Frontmatter field name for the created timestamp. Leave empty to only use file system date
 - **Modified timestamp field:** Frontmatter field name for the modified timestamp. Leave empty to only use file system date
 - **Timestamp format:** Format used to parse timestamps in frontmatter. Leave empty to use ISO 8601 format
+- **Icon field:** Frontmatter field for file icons. Leave empty to use icons stored in settings
+- **Color field:** Frontmatter field for file colors. Leave empty to use colors stored in settings
+- **Save icons and colors to frontmatter:** Automatically write file icons and colors to frontmatter using the configured fields above
+- **Migrate icons and colors from settings:** Migration tool to move all file icons and colors from plugin settings to frontmatter
 - **Title rows:** Number of rows to display for note titles. `1` or `2`
 - **Show date:** Display the date below note names
 - **Show file tags:** Display clickable tags in file items. Use tag colors to visually distinguish different tag types
+  - **Show parent tags:** Display parent segments before the tag name
+  - **Color file tags:** Apply tag colors to tag badges on file items
   - **Show file tags in slim mode:** Display tags when date, preview, and image are hidden
 - **Show parent folder names:** Display the parent folder name for notes in subfolders or tags
 - **Show note preview (\*):** Display preview text beneath note names
@@ -409,6 +421,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Advanced
 
+- **Check for new version on start:** Check for new plugin releases on startup and show a notification when an update is available. Each version is announced only once, and checks occur at most once per day
 - **Confirm before deleting:** Show confirmation dialog when deleting notes or folders
 - **Clean up metadata:** Removes orphaned metadata left behind when files, folders, or tags are deleted, moved, or renamed outside of Obsidian. This includes file icons, file colors, folder customizations, tag customizations, and pinned notes
 - **Rebuild cache:** Use this if you experience missing tags, incorrect previews or missing feature images. This can happen after sync conflicts or unexpected closures
@@ -507,7 +520,7 @@ Use cases:
 ### Customizing file icons
 
 1. Right-click any file
-2. Select "Change icon" or "Change icon color"
+2. Select "Change icon" or "Change color"
 3. Icons and colors work just like folders
 4. Useful for marking important files or templates
 

@@ -40,6 +40,8 @@ interface UIState {
     dualPanePreference: boolean;
     dualPane: boolean;
     singlePane: boolean;
+    /** Whether shortcuts should be pinned at the top of the navigation pane */
+    pinShortcuts: boolean;
 }
 
 // Action types
@@ -47,7 +49,8 @@ export type UIAction =
     | { type: 'SET_FOCUSED_PANE'; pane: 'navigation' | 'files' | 'search' }
     | { type: 'SET_SINGLE_PANE_VIEW'; view: 'navigation' | 'files' }
     | { type: 'SET_PANE_WIDTH'; width: number }
-    | { type: 'SET_DUAL_PANE'; value: boolean };
+    | { type: 'SET_DUAL_PANE'; value: boolean }
+    | { type: 'SET_PIN_SHORTCUTS'; value: boolean }; // Toggle shortcuts pinned state
 
 // Create contexts
 const UIStateContext = createContext<UIState | null>(null);
@@ -68,6 +71,10 @@ function uiStateReducer(state: UIState, action: UIAction): UIState {
         case 'SET_DUAL_PANE':
             return { ...state, dualPanePreference: action.value };
 
+        // Update shortcuts pinned state
+        case 'SET_PIN_SHORTCUTS':
+            return { ...state, pinShortcuts: action.value };
+
         default:
             return state;
     }
@@ -84,6 +91,8 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
 
     const loadInitialState = (): UIState => {
         const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
+        // Load persisted shortcuts pinned state from local storage
+        const savedShortcutPin = localStorage.get<string>(STORAGE_KEYS.shortcutsPinnedKey);
 
         const paneWidth = savedWidth ?? NAVIGATION_PANE_DIMENSIONS.defaultWidth;
         const startView = getStartView(plugin.settings);
@@ -94,7 +103,9 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
             paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, paneWidth),
             dualPanePreference: plugin.useDualPane(),
             dualPane: false, // Will be computed later
-            singlePane: false // Will be computed later
+            singlePane: false, // Will be computed later
+            // Parse pinShortcuts from local storage (stored as '1' for true, '0' for false)
+            pinShortcuts: savedShortcutPin === '1'
         };
 
         return initialState;
@@ -108,7 +119,8 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         return {
             ...state,
             dualPane,
-            singlePane: !dualPane
+            singlePane: !dualPane,
+            pinShortcuts: state.pinShortcuts
         };
     }, [state, isMobile]);
 
@@ -124,6 +136,11 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
             plugin.unregisterSettingsUpdateListener(id);
         };
     }, [plugin]);
+
+    // Persist pinShortcuts state to local storage whenever it changes
+    useEffect(() => {
+        localStorage.set(STORAGE_KEYS.shortcutsPinnedKey, state.pinShortcuts ? '1' : '0');
+    }, [state.pinShortcuts]);
 
     // Note: Pane width persistence is handled by useResizablePane hook
     // to avoid duplicate writes during drag operations

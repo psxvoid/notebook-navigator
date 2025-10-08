@@ -59,6 +59,22 @@ import { setNavigationIndex } from '../utils/navigationIndex';
 import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } from '../types/shortcuts';
 import { useRootFolderOrder } from './useRootFolderOrder';
 import { isFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
+import { getDBInstance } from '../storage/fileOperations';
+
+// Checks if a navigation item is a shortcut-related item (virtual folder, shortcut, or header)
+const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
+    if (item.type === NavigationPaneItemType.VIRTUAL_FOLDER) {
+        return item.data.id === SHORTCUTS_VIRTUAL_FOLDER_ID;
+    }
+
+    return (
+        item.type === NavigationPaneItemType.SHORTCUT_FOLDER ||
+        item.type === NavigationPaneItemType.SHORTCUT_NOTE ||
+        item.type === NavigationPaneItemType.SHORTCUT_SEARCH ||
+        item.type === NavigationPaneItemType.SHORTCUT_TAG ||
+        item.type === NavigationPaneItemType.SHORTCUT_HEADER
+    );
+};
 
 // Maps non-markdown document extensions to their icon names
 const DOCUMENT_EXTENSION_ICONS: Record<string, string> = {
@@ -92,6 +108,8 @@ interface UseNavigationPaneDataParams {
     shortcutsExpanded: boolean;
     /** Whether the recent notes virtual folder is expanded */
     recentNotesExpanded: boolean;
+    /** Whether shortcuts should be pinned at the top of the pane */
+    pinShortcuts: boolean;
 }
 
 /**
@@ -100,6 +118,8 @@ interface UseNavigationPaneDataParams {
 interface UseNavigationPaneDataResult {
     /** Combined list of navigation items (folders and tags) */
     items: CombinedNavigationItem[];
+    /** Shortcuts rendered separately when pinShortcuts is enabled */
+    shortcutItems: CombinedNavigationItem[];
     /** Map from item keys to index in items array */
     pathToIndex: Map<string, number>;
     /** Map from shortcut id to index */
@@ -123,7 +143,8 @@ export function useNavigationPaneData({
     settings,
     isVisible,
     shortcutsExpanded,
-    recentNotesExpanded
+    recentNotesExpanded,
+    pinShortcuts
 }: UseNavigationPaneDataParams): UseNavigationPaneDataResult {
     const { app } = useServices();
     const { recentNotes } = useRecentData();
@@ -356,7 +377,7 @@ export function useNavigationPaneData({
                 data: {
                     id: SHORTCUTS_VIRTUAL_FOLDER_ID,
                     name: strings.navigationPane.shortcutsHeader,
-                    icon: 'lucide-notebook-tabs'
+                    icon: 'lucide-bookmark'
                 }
             }
         ];
@@ -397,7 +418,8 @@ export function useNavigationPaneData({
                 if (!note) {
                     return;
                 }
-                const icon = getDocumentIcon(note);
+                const isExternalFile = !shouldDisplayFile(note, FILE_VISIBILITY.SUPPORTED, app);
+                const icon = isExternalFile ? 'lucide-external-link' : getDocumentIcon(note);
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_NOTE,
                     key,
@@ -446,6 +468,7 @@ export function useNavigationPaneData({
 
         return items;
     }, [
+        app,
         hydratedShortcuts,
         favoriteTree,
         tagTree,
@@ -496,7 +519,8 @@ export function useNavigationPaneData({
         recentPaths.forEach(path => {
             const file = app.vault.getAbstractFileByPath(path);
             if (file instanceof TFile) {
-                const icon = getDocumentIcon(file);
+                const isExternalFile = !shouldDisplayFile(file, FILE_VISIBILITY.SUPPORTED, app);
+                const icon = isExternalFile ? 'lucide-external-link' : getDocumentIcon(file);
                 items.push({
                     type: NavigationPaneItemType.RECENT_NOTE,
                     key: `recent-${path}`,
@@ -508,7 +532,7 @@ export function useNavigationPaneData({
         });
 
         return items;
-    }, [settings.showRecentNotes, recentNotes, settings.recentNotesCount, settings.fileVisibility, recentNotesExpanded, app.vault]);
+    }, [app, settings.showRecentNotes, recentNotes, settings.recentNotesCount, settings.fileVisibility, recentNotesExpanded]);
 
     /**
      * Combine shortcut, folder, and tag items based on display order settings
@@ -517,16 +541,24 @@ export function useNavigationPaneData({
     const items = useMemo(() => {
         const allItems: CombinedNavigationItem[] = [];
 
-        // Add banner item if configured
-        if (settings.navigationBanner) {
+        // Path to the banner file configured in settings
+        const bannerPath = settings.navigationBanner;
+        // Banner appears in main list when not pinning shortcuts or when shortcuts list is empty
+        const shouldIncludeBannerInMainList = Boolean(bannerPath && (!pinShortcuts || shortcutItems.length === 0));
+
+        if (shouldIncludeBannerInMainList && bannerPath) {
+            allItems.push({
+                type: NavigationPaneItemType.TOP_SPACER,
+                key: 'banner-top-spacer'
+            });
             allItems.push({
                 type: NavigationPaneItemType.BANNER,
-                key: `banner-${settings.navigationBanner}`,
-                path: settings.navigationBanner
+                key: `banner-${bannerPath}`,
+                path: bannerPath
             });
         }
 
-        // Add top spacer for visual separation
+        // Add top spacer for visual separation between pinned content and tree items
         allItems.push({
             type: NavigationPaneItemType.TOP_SPACER,
             key: 'top-spacer'
@@ -591,7 +623,8 @@ export function useNavigationPaneData({
         recentNotesItems,
         settings.showTags,
         settings.showTagsAboveFolders,
-        settings.navigationBanner
+        settings.navigationBanner,
+        pinShortcuts
     ]);
 
     /**
@@ -599,10 +632,25 @@ export function useNavigationPaneData({
      * This is needed because the settings objects are mutated in place when colors/icons change
      * We depend on the entire settings object to ensure this recalculates when settings update
      */
+    // Track frontmatter metadata changes separately since they're stored in IndexedDB
+    const [frontmatterMetadataVersion, setFrontmatterMetadataVersion] = useState(0);
+
+    // Subscribe to IndexedDB content changes to detect frontmatter metadata updates
+    useEffect(() => {
+        const db = getDBInstance();
+        const unsubscribe = db.onContentChange(changes => {
+            const hasMetadataChange = changes.some(change => change.changeType === 'metadata' || change.changeType === 'both');
+            if (hasMetadataChange) {
+                setFrontmatterMetadataVersion(version => version + 1);
+            }
+        });
+        return unsubscribe;
+    }, []);
+
     const metadataVersion = useMemo(() => {
         // Create a version string that will change when any metadata is added/removed/changed
         // We use JSON.stringify to detect any changes in the objects
-        return JSON.stringify({
+        const settingsSignature = JSON.stringify({
             folderColors: settings.folderColors || {},
             folderBackgroundColors: settings.folderBackgroundColors || {},
             tagColors: settings.tagColors || {},
@@ -613,7 +661,8 @@ export function useNavigationPaneData({
             fileColors: settings.fileColors || {},
             inheritFolderColors: settings.inheritFolderColors
         });
-    }, [settings]); // Depend on entire settings object to catch mutations
+        return `${settingsSignature}::${frontmatterMetadataVersion}`;
+    }, [settings, frontmatterMetadataVersion]); // Depend on entire settings object to catch mutations
 
     /**
      * Add metadata (colors, icons) and excluded folders to items
@@ -681,23 +730,35 @@ export function useNavigationPaneData({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [items, parsedExcludedFolders, metadataService, metadataVersion]);
 
+    // Extract shortcut items when pinning is enabled for display in pinned area
+    const shortcutItemsWithMetadata = useMemo(() => {
+        if (!pinShortcuts) {
+            return [] as CombinedNavigationItem[];
+        }
+
+        return itemsWithMetadata.filter(isShortcutNavigationItem);
+    }, [itemsWithMetadata, pinShortcuts]);
+
     /**
      * Filter items based on showHiddenItems setting
      * When showHiddenItems is false, filter out folders marked as excluded
      */
     const filteredItems = useMemo(() => {
+        // When pinning shortcuts, exclude them from main tree (they're rendered separately)
+        const baseItems = pinShortcuts ? itemsWithMetadata.filter(current => !isShortcutNavigationItem(current)) : itemsWithMetadata;
+
         if (settings.showHiddenItems) {
             // Show all items including excluded ones
-            return itemsWithMetadata;
+            return baseItems;
         }
-        // Filter out excluded folders
-        return itemsWithMetadata.filter(item => {
+
+        return baseItems.filter(item => {
             if (item.type === NavigationPaneItemType.FOLDER && item.isExcluded) {
                 return false;
             }
             return true;
         });
-    }, [itemsWithMetadata, settings.showHiddenItems]);
+    }, [itemsWithMetadata, settings.showHiddenItems, pinShortcuts]);
 
     /**
      * Create a map for O(1) item lookups by path
@@ -722,7 +783,9 @@ export function useNavigationPaneData({
     const shortcutIndex = useMemo(() => {
         const indexMap = new Map<string, number>();
 
-        filteredItems.forEach((item, index) => {
+        const source = pinShortcuts ? shortcutItemsWithMetadata : filteredItems;
+
+        source.forEach((item, index) => {
             if (
                 item.type === NavigationPaneItemType.SHORTCUT_FOLDER ||
                 item.type === NavigationPaneItemType.SHORTCUT_NOTE ||
@@ -734,7 +797,7 @@ export function useNavigationPaneData({
         });
 
         return indexMap;
-    }, [filteredItems]);
+    }, [filteredItems, pinShortcuts, shortcutItemsWithMetadata]);
 
     /**
      * Pre-compute tag counts to avoid expensive calculations during render
@@ -858,6 +921,7 @@ export function useNavigationPaneData({
 
     return {
         items: filteredItems,
+        shortcutItems: shortcutItemsWithMetadata,
         pathToIndex,
         shortcutIndex,
         tagCounts,

@@ -20,7 +20,7 @@ import { App, TFolder } from 'obsidian';
 import { SortOption, type NotebookNavigatorSettings } from '../settings';
 import { ISettingsProvider } from '../interfaces/ISettingsProvider';
 import { ITagTreeProvider } from '../interfaces/ITagTreeProvider';
-import { FolderMetadataService, TagMetadataService, FileMetadataService } from './metadata';
+import { FolderMetadataService, TagMetadataService, FileMetadataService, type FileMetadataMigrationResult } from './metadata';
 import { TagTreeNode } from '../types/storage';
 import { FileData } from '../storage/IndexedDBStorage';
 import { getDBInstance } from '../storage/fileOperations';
@@ -206,7 +206,23 @@ export class MetadataService {
         return this.fileService.removeFileIcon(filePath);
     }
 
+    /**
+     * Gets the icon for a file, checking frontmatter first if enabled
+     * @param filePath - Path to the file
+     * @returns Icon ID if found, undefined otherwise
+     */
     getFileIcon(filePath: string): string | undefined {
+        const settings = this.settingsProvider.settings;
+        // Check frontmatter metadata first if enabled
+        if (settings.useFrontmatterMetadata) {
+            const db = getDBInstance();
+            const record = db.getFile(filePath);
+            const frontmatterIcon = record?.metadata?.icon?.trim();
+            if (frontmatterIcon) {
+                return frontmatterIcon;
+            }
+        }
+        // Fall back to settings-based storage
         return this.fileService.getFileIcon(filePath);
     }
 
@@ -218,8 +234,28 @@ export class MetadataService {
         return this.fileService.removeFileColor(filePath);
     }
 
+    /**
+     * Gets the color for a file, checking frontmatter first if enabled
+     * @param filePath - Path to the file
+     * @returns Color value if found, undefined otherwise
+     */
     getFileColor(filePath: string): string | undefined {
+        const settings = this.settingsProvider.settings;
+        // Check frontmatter metadata first if enabled
+        if (settings.useFrontmatterMetadata) {
+            const db = getDBInstance();
+            const record = db.getFile(filePath);
+            const frontmatterColor = record?.metadata?.color?.trim();
+            if (frontmatterColor) {
+                return frontmatterColor;
+            }
+        }
+        // Fall back to settings-based storage
         return this.fileService.getFileColor(filePath);
+    }
+
+    async migrateFileMetadataToFrontmatter(): Promise<FileMetadataMigrationResult> {
+        return this.fileService.migrateSettingsToFrontmatter();
     }
 
     async handleFileDelete(filePath: string): Promise<void> {

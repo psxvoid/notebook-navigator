@@ -36,14 +36,12 @@ Virtual scrolling in Notebook Navigator faces a critical synchronization challen
 
 ### Race Condition Example
 
-```
 1. User has tag "todo" selected at index 61
 2. User toggles "Show hidden items"
 3. Hidden tag "archived" becomes visible at index 40
 4. Tree rebuilds, "todo" is now at index 62
 5. WITHOUT orchestration: Scroll executes with old index 61 → lands on wrong tag
 6. WITH orchestration: Scroll waits for rebuild, uses new index 62 → correct position
-```
 
 This problem occurs in multiple scenarios:
 

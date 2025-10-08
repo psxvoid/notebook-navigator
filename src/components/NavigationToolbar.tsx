@@ -21,10 +21,11 @@ import { useSettingsState } from '../context/SettingsContext';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useNavigationActions } from '../hooks/useNavigationActions';
+import { useUIState } from '../context/UIStateContext';
 
 interface NavigationToolbarProps {
     onTreeUpdateComplete?: () => void;
-    onScrollToShortcuts?: () => void;
+    onTogglePinnedShortcuts?: () => void;
     onToggleRootFolderReorder?: () => void;
     rootReorderActive?: boolean;
     rootReorderDisabled?: boolean;
@@ -32,13 +33,14 @@ interface NavigationToolbarProps {
 
 export function NavigationToolbar({
     onTreeUpdateComplete,
-    onScrollToShortcuts,
+    onTogglePinnedShortcuts,
     onToggleRootFolderReorder,
     rootReorderActive,
     rootReorderDisabled
 }: NavigationToolbarProps) {
     const settings = useSettingsState();
     const selectionState = useSelectionState();
+    const uiState = useUIState();
 
     // Hook providing shared navigation actions (expand/collapse, folder creation, toggle visibility)
     const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
@@ -49,15 +51,15 @@ export function NavigationToolbar({
             {settings.showShortcuts ? (
                 <button
                     className="nn-mobile-toolbar-button"
-                    aria-label={strings.paneHeader.scrollToShortcuts}
+                    aria-label={uiState.pinShortcuts ? strings.navigationPane.unpinShortcuts : strings.navigationPane.pinShortcuts}
                     onClick={() => {
-                        if (onScrollToShortcuts) {
-                            onScrollToShortcuts();
+                        if (onTogglePinnedShortcuts) {
+                            onTogglePinnedShortcuts();
                         }
                     }}
                     tabIndex={-1}
                 >
-                    <ObsidianIcon name="lucide-star" />
+                    <ObsidianIcon name={uiState.pinShortcuts ? 'lucide-bookmark-minus' : 'lucide-bookmark'} />
                 </button>
             ) : null}
             <button

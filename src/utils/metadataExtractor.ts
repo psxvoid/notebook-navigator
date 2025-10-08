@@ -28,6 +28,8 @@ export interface ProcessedMetadata {
     fn?: string; // frontmatter name
     fc?: number; // frontmatter created timestamp
     fm?: number; // frontmatter modified timestamp
+    icon?: string; // frontmatter icon
+    color?: string; // frontmatter color
 }
 
 /**
@@ -78,6 +80,46 @@ export function extractMetadataFromCache(metadata: CachedMetadata | null, settin
     } else {
         // Field is empty, don't set name field (leave undefined)
         result.fn = undefined;
+    }
+
+    // Extract icon if field is specified
+    if (settings.frontmatterIconField && settings.frontmatterIconField.trim()) {
+        const iconValue = frontmatter[settings.frontmatterIconField];
+
+        if (typeof iconValue === 'string') {
+            const trimmedIcon = iconValue.trim();
+            if (trimmedIcon) {
+                result.icon = trimmedIcon;
+            }
+        } else if (Array.isArray(iconValue)) {
+            const firstValue = iconValue[0];
+            if (typeof firstValue === 'string') {
+                const trimmedIcon = firstValue.trim();
+                if (trimmedIcon) {
+                    result.icon = trimmedIcon;
+                }
+            }
+        }
+    }
+
+    // Extract color if field is specified
+    if (settings.frontmatterColorField && settings.frontmatterColorField.trim()) {
+        const colorValue = frontmatter[settings.frontmatterColorField];
+
+        if (typeof colorValue === 'string') {
+            const trimmedColor = colorValue.trim();
+            if (trimmedColor) {
+                result.color = trimmedColor;
+            }
+        } else if (Array.isArray(colorValue)) {
+            const firstValue = colorValue[0];
+            if (typeof firstValue === 'string') {
+                const trimmedColor = firstValue.trim();
+                if (trimmedColor) {
+                    result.color = trimmedColor;
+                }
+            }
+        }
     }
 
     // Extract created date if field is specified

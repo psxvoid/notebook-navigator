@@ -18,7 +18,7 @@
 
 import { TFile } from 'obsidian';
 import type { ISettingsProvider } from '../interfaces/ISettingsProvider';
-import { RECENT_NOTES_DEFAULT_COUNT } from '../settings';
+import { DEFAULT_SETTINGS } from '../settings';
 
 /**
  * Manages the recent notes list stored in vault-local storage
@@ -123,7 +123,7 @@ export class RecentNotesService {
 
     private getLimit(): number {
         const { recentNotesCount } = this.settingsProvider.settings;
-        const limit = typeof recentNotesCount === 'number' ? recentNotesCount : RECENT_NOTES_DEFAULT_COUNT;
+        const limit = typeof recentNotesCount === 'number' ? recentNotesCount : DEFAULT_SETTINGS.recentNotesCount;
         return Math.max(1, limit);
     }
 }

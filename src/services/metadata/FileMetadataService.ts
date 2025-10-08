@@ -16,19 +16,121 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { TFile } from 'obsidian';
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
 import { ItemType, NavigatorContext } from '../../types';
 import { ShortcutType, type ShortcutEntry } from '../../types/shortcuts';
 import type { NotebookNavigatorSettings } from '../../settings';
+import { getDBInstance } from '../../storage/fileOperations';
 
 /**
  * Service for managing file-specific metadata operations
  * Handles pinned notes and file-related cleanup operations
  */
+
+/**
+ * Result object returned by metadata migration operations
+ */
+export interface FileMetadataMigrationResult {
+    iconsBefore: number;
+    colorsBefore: number;
+    migratedIcons: number;
+    migratedColors: number;
+    filesUpdated: number;
+    failures: number;
+}
+
 export class FileMetadataService extends BaseMetadataService {
-    private validateFile(filePath: string): boolean {
-        return this.app.vault.getFileByPath(filePath) !== null;
+    /**
+     * Gets a TFile instance from a file path
+     * @param filePath - Path to the file
+     * @returns TFile instance or null if not found or not a file
+     */
+    private getFile(filePath: string): TFile | null {
+        const file = this.app.vault.getAbstractFileByPath(filePath);
+        return file instanceof TFile ? file : null;
+    }
+
+    /**
+     * Checks if frontmatter storage is enabled for file metadata
+     * @returns True if both frontmatter metadata reading and saving are enabled
+     */
+    private shouldUseFrontmatterForFiles(): boolean {
+        const settings = this.settingsProvider.settings;
+        return settings.useFrontmatterMetadata && settings.saveMetadataToFrontmatter;
+    }
+
+    /**
+     * Writes or deletes an icon/color value in a file's frontmatter and syncs to IndexedDB
+     * @param file - The file to update
+     * @param field - Frontmatter field name to write to
+     * @param value - Value to write, or null to delete the field
+     * @param metadataKey - Type of metadata being written ('icon' or 'color')
+     * @returns Object with success status and the normalized value that was written
+     */
+    private async writeFrontmatterValue(
+        file: TFile,
+        field: string,
+        value: string | null,
+        metadataKey: 'icon' | 'color'
+    ): Promise<{ success: boolean; normalized: string | null }> {
+        const trimmedField = field.trim();
+        if (!trimmedField) {
+            return { success: false, normalized: null };
+        }
+
+        const normalizedValue = value === null ? null : value.trim();
+
+        try {
+            // Update the frontmatter in the file
+            await this.app.fileManager.processFrontMatter(file, frontmatter => {
+                if (normalizedValue && normalizedValue.length > 0) {
+                    frontmatter[trimmedField] = normalizedValue;
+                } else {
+                    if (Object.prototype.hasOwnProperty.call(frontmatter, trimmedField)) {
+                        delete frontmatter[trimmedField];
+                    }
+                }
+            });
+            // Sync the change to IndexedDB cache
+            const db = getDBInstance();
+            const metadataUpdate: { icon?: string; color?: string } = {};
+            if (metadataKey === 'icon') {
+                metadataUpdate.icon = normalizedValue ?? undefined;
+            } else {
+                metadataUpdate.color = normalizedValue ?? undefined;
+            }
+            await db.updateFileMetadata(file.path, metadataUpdate);
+            return { success: true, normalized: normalizedValue ?? null };
+        } catch (error) {
+            console.error('Failed to update frontmatter metadata', {
+                path: file.path,
+                field: trimmedField,
+                error
+            });
+            return { success: false, normalized: null };
+        }
+    }
+
+    /**
+     * Removes an icon or color entry from settings storage for a specific file
+     * Used after successfully migrating metadata to frontmatter
+     * @param key - The settings property to clear ('fileIcons' or 'fileColors')
+     * @param filePath - Path to the file whose entry should be removed
+     */
+    private async clearSettingsEntry(key: 'fileIcons' | 'fileColors', filePath: string): Promise<void> {
+        const record = this.settingsProvider.settings[key];
+        if (!record || record[filePath] === undefined) {
+            return;
+        }
+
+        await this.saveAndUpdate(settings => {
+            const target = settings[key];
+            if (target) {
+                delete target[filePath];
+            }
+        });
     }
 
     /**
@@ -109,6 +211,21 @@ export class FileMetadataService extends BaseMetadataService {
             if (settings.fileColors?.[filePath]) {
                 delete settings.fileColors[filePath];
             }
+
+            // Remove shortcuts that reference the deleted file
+            const shortcuts = settings.shortcuts;
+            if (Array.isArray(shortcuts) && shortcuts.length > 0) {
+                const filteredShortcuts = shortcuts.filter(shortcut => {
+                    if (shortcut.type !== ShortcutType.NOTE) {
+                        return true;
+                    }
+                    return shortcut.path !== filePath;
+                });
+
+                if (filteredShortcuts.length !== shortcuts.length) {
+                    settings.shortcuts = filteredShortcuts;
+                }
+            }
         });
     }
 
@@ -130,6 +247,7 @@ export class FileMetadataService extends BaseMetadataService {
             this.updateNestedPaths(settings.fileIcons, oldPath, newPath);
             this.updateNestedPaths(settings.fileColors, oldPath, newPath);
 
+            // Update shortcuts that reference the renamed file
             const shortcuts = settings.shortcuts;
             if (Array.isArray(shortcuts) && shortcuts.length > 0) {
                 let updatedShortcuts: ShortcutEntry[] | null = null;
@@ -159,42 +277,204 @@ export class FileMetadataService extends BaseMetadataService {
         });
     }
 
+    /**
+     * Sets an icon for a file, storing in frontmatter if enabled, otherwise in settings
+     * @param filePath - Path to the file
+     * @param iconId - Icon identifier to set
+     */
     async setFileIcon(filePath: string, iconId: string): Promise<void> {
-        if (!this.validateFile(filePath)) {
+        const file = this.getFile(filePath);
+        if (!file) {
             return;
         }
+
+        // Try to save to frontmatter first if enabled and file is markdown
+        if (this.shouldUseFrontmatterForFiles() && file.extension === 'md') {
+            const field = this.settingsProvider.settings.frontmatterIconField;
+            const { success } = await this.writeFrontmatterValue(file, field, iconId, 'icon');
+            if (success) {
+                // Remove from settings to avoid duplication
+                await this.clearSettingsEntry('fileIcons', filePath);
+                return;
+            }
+        }
+
+        // Fall back to settings-based storage
         await this.setEntityIcon(ItemType.FILE, filePath, iconId);
     }
 
+    /**
+     * Removes an icon from a file, clearing from frontmatter if enabled, otherwise from settings
+     * @param filePath - Path to the file
+     */
     async removeFileIcon(filePath: string): Promise<void> {
+        const file = this.getFile(filePath);
+        // Try to remove from frontmatter first if enabled and file is markdown
+        if (file && this.shouldUseFrontmatterForFiles() && file.extension === 'md') {
+            const field = this.settingsProvider.settings.frontmatterIconField;
+            const { success } = await this.writeFrontmatterValue(file, field, null, 'icon');
+            if (success) {
+                // Also clear from settings in case it was stored there
+                await this.clearSettingsEntry('fileIcons', filePath);
+                return;
+            }
+        }
+
+        // Fall back to settings-based storage
         await this.removeEntityIcon(ItemType.FILE, filePath);
     }
 
+    /**
+     * Gets the icon for a file from settings storage
+     * @param filePath - Path to the file
+     * @returns Icon identifier or undefined if no icon is set
+     */
     getFileIcon(filePath: string): string | undefined {
         return this.getEntityIcon(ItemType.FILE, filePath);
     }
 
+    /**
+     * Sets a color for a file, storing in frontmatter if enabled, otherwise in settings
+     * @param filePath - Path to the file
+     * @param color - Color value to set
+     */
     async setFileColor(filePath: string, color: string): Promise<void> {
-        if (!this.validateFile(filePath)) {
+        if (!this.validateColor(color)) {
             return;
         }
+
+        const file = this.getFile(filePath);
+        if (!file) {
+            return;
+        }
+
+        // Try to save to frontmatter first if enabled and file is markdown
+        if (this.shouldUseFrontmatterForFiles() && file.extension === 'md') {
+            const field = this.settingsProvider.settings.frontmatterColorField;
+            const { success } = await this.writeFrontmatterValue(file, field, color, 'color');
+            if (success) {
+                // Remove from settings to avoid duplication
+                await this.clearSettingsEntry('fileColors', filePath);
+                return;
+            }
+        }
+
+        // Fall back to settings-based storage
         await this.setEntityColor(ItemType.FILE, filePath, color);
     }
 
+    /**
+     * Removes a color from a file, clearing from frontmatter if enabled, otherwise from settings
+     * @param filePath - Path to the file
+     */
     async removeFileColor(filePath: string): Promise<void> {
+        const file = this.getFile(filePath);
+        // Try to remove from frontmatter first if enabled and file is markdown
+        if (file && this.shouldUseFrontmatterForFiles() && file.extension === 'md') {
+            const field = this.settingsProvider.settings.frontmatterColorField;
+            const { success } = await this.writeFrontmatterValue(file, field, null, 'color');
+            if (success) {
+                // Also clear from settings in case it was stored there
+                await this.clearSettingsEntry('fileColors', filePath);
+                return;
+            }
+        }
+
+        // Fall back to settings-based storage
         await this.removeEntityColor(ItemType.FILE, filePath);
     }
 
+    /**
+     * Migrates all file icons and colors from settings storage to frontmatter
+     * Only processes markdown files and only when frontmatter storage is enabled
+     * @returns Statistics about the migration including successes and failures
+     */
+    async migrateSettingsToFrontmatter(): Promise<FileMetadataMigrationResult> {
+        const settings = this.settingsProvider.settings;
+        const iconsBefore = Object.keys(settings.fileIcons || {}).length;
+        const colorsBefore = Object.keys(settings.fileColors || {}).length;
+
+        // Early return if frontmatter storage is not enabled
+        if (!this.shouldUseFrontmatterForFiles()) {
+            return {
+                iconsBefore,
+                colorsBefore,
+                migratedIcons: 0,
+                migratedColors: 0,
+                filesUpdated: 0,
+                failures: 0
+            };
+        }
+
+        const iconEntries = Object.entries(settings.fileIcons || {});
+        const colorEntries = Object.entries(settings.fileColors || {});
+        const migratedFiles = new Set<string>();
+        let migratedIcons = 0;
+        let migratedColors = 0;
+        let failures = 0;
+
+        const iconField = settings.frontmatterIconField.trim();
+        const colorField = settings.frontmatterColorField.trim();
+        const canMigrateIcons = iconField.length > 0;
+        const canMigrateColors = colorField.length > 0;
+
+        // Migrate all icons
+        if (canMigrateIcons) {
+            for (const [path, iconId] of iconEntries) {
+                const file = this.getFile(path);
+                if (!file || file.extension !== 'md') {
+                    failures += 1;
+                    continue;
+                }
+
+                const { success } = await this.writeFrontmatterValue(file, iconField, iconId, 'icon');
+                if (success) {
+                    await this.clearSettingsEntry('fileIcons', path);
+                    migratedFiles.add(path);
+                    migratedIcons += 1;
+                } else {
+                    failures += 1;
+                }
+            }
+        }
+
+        // Migrate all colors
+        if (canMigrateColors) {
+            for (const [path, color] of colorEntries) {
+                const file = this.getFile(path);
+                if (!file || file.extension !== 'md') {
+                    failures += 1;
+                    continue;
+                }
+
+                const { success } = await this.writeFrontmatterValue(file, colorField, color, 'color');
+                if (success) {
+                    await this.clearSettingsEntry('fileColors', path);
+                    migratedFiles.add(path);
+                    migratedColors += 1;
+                } else {
+                    failures += 1;
+                }
+            }
+        }
+
+        return {
+            iconsBefore,
+            colorsBefore,
+            migratedIcons,
+            migratedColors,
+            filesUpdated: migratedFiles.size,
+            failures
+        };
+    }
+
+    /**
+     * Gets the color for a file from settings storage
+     * @param filePath - Path to the file
+     * @returns Color value or undefined if no color is set
+     */
     getFileColor(filePath: string): string | undefined {
-        const color = this.getEntityColor(ItemType.FILE, filePath);
-        if (!color) {
-            return undefined;
-        }
-        const icon = this.getEntityIcon(ItemType.FILE, filePath);
-        if (!icon || icon.startsWith('emoji:')) {
-            return undefined;
-        }
-        return color;
+        return this.getEntityColor(ItemType.FILE, filePath) ?? undefined;
     }
 
     /**

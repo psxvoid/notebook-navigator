@@ -40,6 +40,7 @@ export type FileVisibility = (typeof FILE_VISIBILITY)[keyof typeof FILE_VISIBILI
 const CORE_OBSIDIAN_EXTENSIONS = new Set([
     'md', // Markdown
     'canvas', // Obsidian Canvas
+    'base', // Obsidian database files
     'pdf' // PDF viewer
 ]);
 

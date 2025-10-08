@@ -2,13 +2,16 @@
  * Notebook Navigator - Plugin for Obsidian
  */
 
+import { TFolder } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 import { NOTEBOOK_NAVIGATOR_VIEW } from '../../types';
 import { strings } from '../../i18n';
+import { isFolderNote, isSupportedFolderNoteExtension } from '../../utils/folderNotes';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 
 /**
  * Reveals the navigator view and focuses whichever pane is currently visible
+ * @param plugin - The plugin instance
  */
 function focusNavigatorVisiblePane(plugin: NotebookNavigatorPlugin) {
     const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
@@ -24,6 +27,8 @@ function focusNavigatorVisiblePane(plugin: NotebookNavigatorPlugin) {
 
 /**
  * Opens the navigator view if not already open, otherwise reveals the existing view
+ * @param plugin - The plugin instance
+ * @returns The workspace leaf containing the navigator view
  */
 async function ensureNavigatorOpen(plugin: NotebookNavigatorPlugin) {
     const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
@@ -173,6 +178,52 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                     break;
                 }
             }
+        }
+    });
+
+    // Command to convert the active file into a folder note
+    plugin.addCommand({
+        id: 'convert-to-folder-note',
+        name: strings.commands.convertToFolderNote,
+        checkCallback: (checking: boolean) => {
+            const activeFile = plugin.app.workspace.getActiveFile();
+            if (!activeFile) {
+                return false;
+            }
+
+            if (!plugin.settings.enableFolderNotes) {
+                return false;
+            }
+
+            if (!isSupportedFolderNoteExtension(activeFile.extension)) {
+                return false;
+            }
+
+            const parent = activeFile.parent;
+            if (!parent || !(parent instanceof TFolder)) {
+                return false;
+            }
+
+            if (
+                isFolderNote(activeFile, parent, {
+                    enableFolderNotes: plugin.settings.enableFolderNotes,
+                    folderNoteName: plugin.settings.folderNoteName
+                })
+            ) {
+                return false;
+            }
+
+            const fileSystemOps = plugin.fileSystemOps;
+            if (!fileSystemOps) {
+                return false;
+            }
+
+            if (checking) {
+                return true;
+            }
+
+            void fileSystemOps.convertFileToFolderNote(activeFile, plugin.settings);
+            return true;
         }
     });
 

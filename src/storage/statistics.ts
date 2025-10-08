@@ -49,6 +49,8 @@ export interface CacheStatistics {
     itemsWithMetadataName: number;
     itemsWithMetadataCreated: number;
     itemsWithMetadataModified: number;
+    itemsWithMetadataIcon: number;
+    itemsWithMetadataColor: number;
     // Failed date parsing counts
     itemsWithFailedCreatedParse: number;
     itemsWithFailedModifiedParse: number;
@@ -77,6 +79,8 @@ export function calculateCacheStatistics(): CacheStatistics | null {
             itemsWithMetadataName: 0,
             itemsWithMetadataCreated: 0,
             itemsWithMetadataModified: 0,
+            itemsWithMetadataIcon: 0,
+            itemsWithMetadataColor: 0,
             itemsWithFailedCreatedParse: 0,
             itemsWithFailedModifiedParse: 0,
             failedCreatedFiles: [],
@@ -118,14 +122,24 @@ export function calculateCacheStatistics(): CacheStatistics | null {
                     fileData.metadata.modified !== undefined &&
                     fileData.metadata.modified !== METADATA_SENTINEL.PARSE_FAILED &&
                     fileData.metadata.modified !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED;
+                const hasValidIcon = typeof fileData.metadata.icon === 'string' && fileData.metadata.icon.trim().length > 0;
+                const hasValidColor = typeof fileData.metadata.color === 'string' && fileData.metadata.color.trim().length > 0;
 
-                if (hasValidName || hasValidCreated || hasValidModified) {
+                if (hasValidName || hasValidCreated || hasValidModified || hasValidIcon || hasValidColor) {
                     stats.itemsWithMetadata++;
                 }
 
                 // Count individual metadata fields
                 if (hasValidName) {
                     stats.itemsWithMetadataName++;
+                }
+
+                if (hasValidIcon) {
+                    stats.itemsWithMetadataIcon++;
+                }
+
+                if (hasValidColor) {
+                    stats.itemsWithMetadataColor++;
                 }
 
                 // Handle created date - check for specific sentinel values

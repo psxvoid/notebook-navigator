@@ -31,7 +31,9 @@ export const STRINGS_EN = {
         untagged: 'Untagged', // Label for notes without any tags (English: Untagged)
         untitled: 'Untitled', // Default name for notes without a title (English: Untitled)
         featureImageAlt: 'Feature image', // Alt text for thumbnail/preview images (English: Feature image)
-        unknownError: 'Unknown error' // Generic fallback when an error has no message (English: Unknown error)
+        unknownError: 'Unknown error', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Notebook Navigator update available',
+        updateBannerInstruction: 'Update in Settings -> Community plugins'
     },
 
     // List pane
@@ -61,7 +63,9 @@ export const STRINGS_EN = {
         reorderRootFoldersHint: 'Drag folders to change order',
         vaultRootLabel: 'Vault',
         resetRootFolderOrder: 'Reset to alphabetical order',
-        dragHandleLabel: 'Drag to reorder'
+        dragHandleLabel: 'Drag to reorder',
+        pinShortcuts: 'Pin shortcuts',
+        unpinShortcuts: 'Unpin shortcuts'
     },
 
     shortcuts: {
@@ -81,7 +85,7 @@ export const STRINGS_EN = {
     paneHeader: {
         collapseAllFolders: 'Collapse items', // Tooltip for button that collapses expanded items (English: Collapse items)
         expandAllFolders: 'Expand all items', // Tooltip for button that expands all items (English: Expand all items)
-        scrollToShortcuts: 'Scroll to shortcuts',
+        scrollToTop: 'Scroll to top',
         newFolder: 'New folder', // Tooltip for create new folder button (English: New folder)
         newNote: 'New note', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Back to navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -154,7 +158,7 @@ export const STRINGS_EN = {
             removeTag: 'Remove tag',
             removeAllTags: 'Remove all tags',
             changeIcon: 'Change icon',
-            changeColor: 'Change icon color'
+            changeColor: 'Change color'
         },
         folder: {
             newNote: 'New note',
@@ -331,6 +335,15 @@ export const STRINGS_EN = {
             versionHistoryNotFound: 'Version history command not found. Ensure Obsidian Sync is enabled.',
             revealInExplorer: 'Failed to reveal file in system explorer: {error}',
             folderNoteAlreadyExists: 'Folder note already exists',
+            folderAlreadyExists: 'Folder "{name}" already exists',
+            folderNotesDisabled: 'Enable folder notes in settings to convert files',
+            folderNoteAlreadyLinked: 'This file already acts as a folder note',
+            folderNoteUnsupportedExtension: 'Unsupported file extension: {extension}',
+            folderNoteMoveFailed: 'Failed to move file during conversion: {error}',
+            folderNoteRenameConflict: 'A file named "{name}" already exists in the folder',
+            folderNoteConversionFailed: 'Failed to convert file to folder note',
+            folderNoteConversionFailedWithReason: 'Failed to convert file to folder note: {error}',
+            folderNoteOpenFailed: 'Converted file but failed to open folder note: {error}',
             failedToDeleteFile: 'Failed to delete {name}: {error}',
             failedToDeleteMultipleFiles: 'Failed to delete {count} files',
             versionHistoryNotAvailable: 'Version history service not available',
@@ -345,6 +358,7 @@ export const STRINGS_EN = {
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
             movedMultipleFiles: 'Moved {count} files to {folder}',
+            folderNoteConversionSuccess: 'Converted file to folder note in "{name}"',
             folderMoved: 'Moved folder "{name}"',
             deepLinkCopied: 'Deep link copied to clipboard',
             tagAddedToNote: 'Added tag to 1 note',
@@ -422,6 +436,7 @@ export const STRINGS_EN = {
         deleteFile: 'Delete files', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)
+        convertToFolderNote: 'Convert to folder note', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleDescendants: 'Toggle descendants', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
@@ -457,6 +472,7 @@ export const STRINGS_EN = {
             exportFailed: 'Failed to export metadata report'
         },
         sections: {
+            general: 'General',
             navigationPane: 'Navigation pane',
             icons: 'Icon packs',
             folders: 'Folders',
@@ -466,6 +482,26 @@ export const STRINGS_EN = {
             notes: 'Notes',
             hotkeys: 'Hotkeys',
             advanced: 'Advanced'
+        },
+        groups: {
+            general: {
+                view: 'Appearance',
+                behavior: 'Behavior',
+                filtering: 'Filtering',
+                formatting: 'Formatting'
+            },
+            navigation: {
+                behavior: 'Behavior',
+                appearance: 'Appearance'
+            },
+            list: {
+                display: 'Appearance',
+                quickActions: 'Quick actions'
+            },
+            notes: {
+                frontmatter: 'Frontmatter',
+                display: 'Appearance'
+            }
         },
         items: {
             searchProvider: {
@@ -512,12 +548,12 @@ export const STRINGS_EN = {
                 name: 'Sort notes by',
                 desc: 'Choose how notes are sorted in the note list.',
                 options: {
-                    'modified-desc': 'Date edited (newest first)',
-                    'modified-asc': 'Date edited (oldest first)',
-                    'created-desc': 'Date created (newest first)',
-                    'created-asc': 'Date created (oldest first)',
-                    'title-asc': 'Title (A first)',
-                    'title-desc': 'Title (Z first)'
+                    'modified-desc': 'Date edited (newest on top)',
+                    'modified-asc': 'Date edited (oldest on top)',
+                    'created-desc': 'Date created (newest on top)',
+                    'created-asc': 'Date created (oldest on top)',
+                    'title-asc': 'Title (A on top)',
+                    'title-desc': 'Title (Z on top)'
                 }
             },
             includeDescendantNotes: {
@@ -624,8 +660,13 @@ export const STRINGS_EN = {
                 name: 'Homepage',
                 desc: 'Choose the file that Notebook Navigator opens automatically, such as a dashboard.',
                 current: 'Current: {path}',
+                currentMobile: 'Mobile: {path}',
                 chooseButton: 'Choose file',
-                clearButton: 'Clear'
+                clearButton: 'Clear',
+                separateMobile: {
+                    name: 'Separate mobile homepage',
+                    desc: 'Use a different homepage for mobile devices.'
+                }
             },
             excludedNotes: {
                 name: 'Hide notes',
@@ -643,7 +684,15 @@ export const STRINGS_EN = {
             },
             showFileTags: {
                 name: 'Show file tags',
-                desc: 'Display clickable tags in file items. Use tag colors to visually distinguish different tag types.'
+                desc: 'Display clickable tags in file items.'
+            },
+            showFileTagAncestors: {
+                name: 'Show parent tags',
+                desc: 'Display parent segments before the tag name.'
+            },
+            colorFileTags: {
+                name: 'Color file tags',
+                desc: 'Apply tag colors to tag badges on file items.'
             },
             showFileTagsInSlimMode: {
                 name: 'Show file tags in slim mode',
@@ -727,7 +776,11 @@ export const STRINGS_EN = {
             },
             showIcons: {
                 name: 'Show icons',
-                desc: 'Display icons next to folders and tags in the navigation pane.'
+                desc: 'Display icons for folders, tags and notes.'
+            },
+            showIconsColorOnly: {
+                name: 'Apply color to icons only',
+                desc: 'When enabled, custom colors are applied only to icons. When disabled, colors are applied to both icons and text labels.'
             },
             collapseBehavior: {
                 name: 'Collapse items',
@@ -763,8 +816,8 @@ export const STRINGS_EN = {
                 desc: 'Display tags section before folders in the navigator.'
             },
             showFavoriteTagsFolder: {
-                name: 'Show favorites folder',
-                desc: 'Display "Favorites" as a collapsible folder when favorite tags are configured.'
+                name: 'Show favorite tags folder',
+                desc: 'Display "Favorite tags" as a collapsible folder when favorite tags are configured.'
             },
             showAllTagsFolder: {
                 name: 'Show tags folder',
@@ -775,8 +828,8 @@ export const STRINGS_EN = {
                 desc: 'Display "Untagged" item for notes without any tags.'
             },
             showUntaggedInFavorites: {
-                name: 'Show untagged notes in favorites section',
-                desc: 'Display untagged notes in the favorites section, either inside the folder or directly below favorites.'
+                name: 'Show untagged notes in favorite tags section',
+                desc: 'Display untagged notes in the favorite tags section, either inside the folder or directly below favorite tags.'
             },
             favoriteTags: {
                 name: 'Favorite tags',
@@ -869,7 +922,31 @@ export const STRINGS_EN = {
             },
             useFrontmatterDates: {
                 name: 'Read metadata from frontmatter (*)',
-                desc: 'Read note names and timestamps from frontmatter when available, falling back to file system values'
+                desc: 'Read note names, timestamps, icons, and colors from frontmatter when available, falling back to file system values or settings'
+            },
+            frontmatterIconField: {
+                name: 'Icon field',
+                desc: 'Frontmatter field for file icons. Leave empty to use icons stored in settings.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'Color field',
+                desc: 'Frontmatter field for file colors. Leave empty to use colors stored in settings.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'Save icons and colors to frontmatter',
+                desc: 'Automatically write file icons and colors to frontmatter using the configured fields above.'
+            },
+            frontmatterMigration: {
+                name: 'Migrate icons and colors from settings',
+                desc: 'Stored in settings: {icons} icons, {colors} colors.',
+                button: 'Migrate',
+                buttonWorking: 'Migrating...',
+                noticeNone: 'No file icons or colors stored in settings.',
+                noticeDone: 'Migrated {migratedIcons}/{icons} icons, {migratedColors}/{colors} colors.',
+                noticeFailures: 'Failed entries: {failures}.',
+                noticeError: 'Migration failed. Check console for details.'
             },
             frontmatterNameField: {
                 name: 'Name field',
@@ -895,7 +972,13 @@ export const STRINGS_EN = {
             supportDevelopment: {
                 name: 'Support development',
                 desc: 'If you love using Notebook Navigator, please consider supporting its continued development.',
-                buttonText: '❤️ Sponsor on GitHub'
+                buttonText: '❤️ Sponsor',
+                coffeeButton: '☕️ Buy me a coffee'
+            },
+            updateCheckOnStart: {
+                name: 'Check for new version on start',
+                desc: 'Checks for new plugin releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most once per day.',
+                status: 'New version available: {version}'
             },
             whatsNew: {
                 name: "What's new",
@@ -915,6 +998,8 @@ export const STRINGS_EN = {
                 itemsWithName: 'items with name',
                 withCreatedDate: 'with created date',
                 withModifiedDate: 'with modified date',
+                withIcon: 'with icon',
+                withColor: 'with color',
                 failedToParse: 'Failed to parse',
                 createdDates: 'created dates',
                 modifiedDates: 'modified dates',

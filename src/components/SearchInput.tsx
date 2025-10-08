@@ -187,7 +187,7 @@ export function SearchInput({
                             }
                         }}
                     >
-                        <ObsidianIcon name="lucide-star" />
+                        <ObsidianIcon name="lucide-bookmark" />
                     </div>
                 )}
                 {hasQuery && (

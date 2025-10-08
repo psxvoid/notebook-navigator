@@ -17,13 +17,7 @@
  */
 
 import { Plugin, TFile, FileView } from 'obsidian';
-import {
-    NotebookNavigatorSettings,
-    DEFAULT_SETTINGS,
-    NotebookNavigatorSettingTab,
-    SETTINGS_VERSION,
-    RECENT_NOTES_DEFAULT_COUNT
-} from './settings';
+import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
 import { LocalStorageKeys, NOTEBOOK_NAVIGATOR_VIEW, STORAGE_KEYS } from './types';
 import { ISettingsProvider } from './interfaces/ISettingsProvider';
 import { MetadataService, type MetadataCleanupSummary } from './services/MetadataService';
@@ -37,6 +31,7 @@ import { RecentNotesService } from './services/RecentNotesService';
 import RecentDataManager from './services/recent/RecentDataManager';
 import { ExternalIconProviderController } from './services/icons/external/ExternalIconProviderController';
 import { ExternalIconProviderId } from './services/icons/external/providerRegistry';
+import ReleaseCheckService, { type ReleaseUpdateNotice } from './services/ReleaseCheckService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
@@ -68,11 +63,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     externalIconController: ExternalIconProviderController | null = null;
     api: NotebookNavigatorAPI | null = null;
     recentNotesService: RecentNotesService | null = null;
+    releaseCheckService: ReleaseCheckService | null = null;
     // Map of callbacks to notify open React views when settings change
     private settingsUpdateListeners = new Map<string, () => void>();
     // Map of callbacks to notify open React views when files are renamed
     private fileRenameListeners = new Map<string, (oldPath: string, newPath: string) => void>();
     private recentDataListeners = new Map<string, () => void>();
+    private updateNoticeListeners = new Map<string, (notice: ReleaseUpdateNotice | null) => void>();
     // Flag indicating plugin is being unloaded to prevent operations during shutdown
     private isUnloading = false;
     // User preference for dual-pane mode (persisted in localStorage, not settings)
@@ -83,6 +80,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private workspaceCoordinator: WorkspaceCoordinator | null = null;
     // Handles homepage file opening and startup behavior
     private homepageController: HomepageController | null = null;
+    private pendingUpdateNotice: ReleaseUpdateNotice | null = null;
 
     // Keys used for persisting UI state in browser localStorage
     keys: LocalStorageKeys = STORAGE_KEYS;
@@ -118,6 +116,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         delete mutableSettings.recentNotes;
         delete mutableSettings.recentIcons;
 
+        const legacyColorFileTags = mutableSettings['applyTagColorsToFileTags'];
+        if (typeof legacyColorFileTags === 'boolean') {
+            this.settings.colorFileTags = legacyColorFileTags;
+        }
+        delete mutableSettings['applyTagColorsToFileTags'];
+
         // Migrate legacy navigationBannerPath field to navigationBanner
         const legacyBanner = data && typeof data === 'object' ? (data as Record<string, unknown>).navigationBannerPath : undefined;
         if (!this.settings.navigationBanner && typeof legacyBanner === 'string' && legacyBanner.length > 0) {
@@ -134,11 +138,16 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         if (typeof this.settings.recentNotesCount !== 'number' || this.settings.recentNotesCount <= 0) {
-            this.settings.recentNotesCount = RECENT_NOTES_DEFAULT_COUNT;
+            this.settings.recentNotesCount = DEFAULT_SETTINGS.recentNotesCount;
         }
 
         if (!Array.isArray(this.settings.rootFolderOrder)) {
             this.settings.rootFolderOrder = [];
+        }
+
+        // Initialize update check setting with default value for existing users
+        if (typeof this.settings.checkForUpdatesOnStart !== 'boolean') {
+            this.settings.checkForUpdatesOnStart = true;
         }
 
         return isFirstLaunch;
@@ -194,6 +203,44 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     public unregisterRecentDataListener(id: string): void {
         this.recentDataListeners.delete(id);
+    }
+
+    /**
+     * Registers a listener that will be notified when release update notices change.
+     */
+    public registerUpdateNoticeListener(id: string, callback: (notice: ReleaseUpdateNotice | null) => void): void {
+        this.updateNoticeListeners.set(id, callback);
+    }
+
+    /**
+     * Removes an update notice listener.
+     */
+    public unregisterUpdateNoticeListener(id: string): void {
+        this.updateNoticeListeners.delete(id);
+    }
+
+    /**
+     * Returns the current pending update notice, if any.
+     */
+    public getPendingUpdateNotice(): ReleaseUpdateNotice | null {
+        return this.pendingUpdateNotice;
+    }
+
+    /**
+     * Marks the update notice as shown so it will not display again.
+     */
+    public async markUpdateNoticeAsDisplayed(version: string): Promise<void> {
+        if (this.settings.lastAnnouncedRelease === version) {
+            return;
+        }
+
+        this.settings.lastAnnouncedRelease = version;
+
+        if (this.pendingUpdateNotice && this.pendingUpdateNotice.version === version) {
+            this.setPendingUpdateNotice(null);
+        }
+
+        await this.saveSettingsAndUpdate();
     }
 
     /**
@@ -279,14 +326,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 // Future localStorage migration logic can go here
                 localStorage.set(STORAGE_KEYS.localStorageVersionKey, LOCALSTORAGE_VERSION);
             }
-
-            // Check settings version for potential migrations
-            if (this.settings.settingsVersion && this.settings.settingsVersion < SETTINGS_VERSION) {
-                // Future settings migration logic can go here
-                // Example: if (this.settings.settingsVersion < 2) { migrate v1 to v2 }
-                this.settings.settingsVersion = SETTINGS_VERSION;
-                await this.saveData(this.settings);
-            }
         }
 
         // Initialize recent data management
@@ -310,6 +349,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         );
         this.omnisearchService = new OmnisearchService(this.app);
         this.api = new NotebookNavigatorAPI(this, this.app);
+        this.releaseCheckService = new ReleaseCheckService(this);
 
         const iconService = getIconService();
         this.externalIconController = new ExternalIconProviderController(this.app, iconService, this);
@@ -350,6 +390,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
             // Trigger Style Settings plugin to parse our settings
             this.app.workspace.trigger('parse-style-settings');
+
+            // Check for new GitHub releases if enabled
+            if (this.settings.checkForUpdatesOnStart) {
+                void this.runReleaseUpdateCheck();
+            }
         });
     }
 
@@ -751,6 +796,83 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
     public async openHomepage(trigger: 'startup' | 'command'): Promise<boolean> {
         return this.homepageController?.open(trigger) ?? false;
+    }
+
+    /**
+     * Checks for new GitHub releases and updates the pending notice if a newer version is found.
+     * @param force - If true, bypasses the minimum check interval
+     */
+    public async runReleaseUpdateCheck(force = false): Promise<void> {
+        await this.evaluateReleaseUpdates(force);
+    }
+
+    /**
+     * Clears the pending update notice without marking it as displayed.
+     */
+    public dismissPendingUpdateNotice(): void {
+        this.setPendingUpdateNotice(null);
+    }
+
+    /**
+     * Performs the actual release check and updates the pending notice.
+     */
+    private async evaluateReleaseUpdates(force = false): Promise<void> {
+        if (!this.releaseCheckService || this.isUnloading) {
+            return;
+        }
+
+        if (!this.settings.checkForUpdatesOnStart && !force) {
+            return;
+        }
+
+        try {
+            const notice = await this.releaseCheckService.checkForUpdates(force);
+            this.setPendingUpdateNotice(notice ?? null);
+        } catch {
+            // Ignore release check failures silently
+        }
+    }
+
+    /**
+     * Updates the pending notice and notifies all listeners.
+     * Skips notification if the notice hasn't actually changed.
+     */
+    private setPendingUpdateNotice(notice: ReleaseUpdateNotice | null): void {
+        const currentVersion = this.pendingUpdateNotice?.version ?? null;
+        const incomingVersion = notice?.version ?? null;
+        const hasNotice = !!notice;
+        const hadNotice = !!this.pendingUpdateNotice;
+
+        // Skip if notice hasn't changed
+        if (currentVersion === incomingVersion && hasNotice === hadNotice) {
+            return;
+        }
+
+        this.pendingUpdateNotice = notice;
+
+        if (!notice) {
+            this.releaseCheckService?.clearPendingNotice();
+        }
+
+        this.notifyUpdateNoticeListeners();
+    }
+
+    /**
+     * Notifies all registered listeners about the current update notice state.
+     */
+    private notifyUpdateNoticeListeners(): void {
+        if (this.isUnloading) {
+            return;
+        }
+
+        const listeners = Array.from(this.updateNoticeListeners.values());
+        listeners.forEach(callback => {
+            try {
+                callback(this.pendingUpdateNotice);
+            } catch {
+                // Ignore listener errors to avoid breaking notification flow
+            }
+        });
     }
 
     /**

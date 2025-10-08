@@ -44,6 +44,7 @@
  */
 
 import React, { useRef, useEffect, useCallback } from 'react';
+import type { DragEvent } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
 import { getIconService, useIconServiceVersion } from '../services/icons';
@@ -55,6 +56,9 @@ interface VirtualFolderItemProps {
     isExpanded: boolean; // From ExpansionContext via NavigationPane
     hasChildren: boolean; // Computed by NavigationPane from tag tree
     onToggle: () => void; // Expansion toggle handler
+    onDragOver?: (event: DragEvent<HTMLDivElement>) => void; // Optional drag over handler for shortcuts
+    onDrop?: (event: DragEvent<HTMLDivElement>) => void; // Optional drop handler for shortcuts
+    onDragLeave?: (event: DragEvent<HTMLDivElement>) => void; // Optional drag leave handler for shortcuts
 }
 
 /**
@@ -77,7 +81,10 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
     level,
     isExpanded,
     hasChildren,
-    onToggle
+    onToggle,
+    onDragOver,
+    onDrop,
+    onDragLeave
 }: VirtualFolderItemProps) {
     const settings = useSettingsState();
     const folderRef = useRef<HTMLDivElement>(null);
@@ -126,6 +133,9 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
             role="treeitem"
             aria-expanded={hasChildren ? isExpanded : undefined}
             aria-level={level + 1}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
+            onDragLeave={onDragLeave}
         >
             <div className="nn-navitem-content" onClick={onToggle} onDoubleClick={handleDoubleClick}>
                 <div

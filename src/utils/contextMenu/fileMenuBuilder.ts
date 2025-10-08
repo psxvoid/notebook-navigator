@@ -122,13 +122,13 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         menu.addItem((item: MenuItem) => {
             if (existingShortcutKey) {
                 item.setTitle(strings.shortcuts.remove)
-                    .setIcon('lucide-star-off')
+                    .setIcon('lucide-bookmark-x')
                     .onClick(() => {
                         void removeShortcut(existingShortcutKey);
                     });
             } else {
                 item.setTitle(strings.shortcuts.add)
-                    .setIcon('lucide-star')
+                    .setIcon('lucide-bookmark')
                     .onClick(() => {
                         void addNoteShortcut(file.path);
                     });
@@ -248,24 +248,23 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     }
 
     const canCustomizeFileIcon = !shouldShowMultiOptions && settings.showIcons;
-    if (canCustomizeFileIcon) {
-        const customFileIcon = metadataService.getFileIcon(file.path);
-        const isEmojiFileIcon = typeof customFileIcon === 'string' && customFileIcon.startsWith('emoji:');
-        const canChangeFileIconColor = Boolean(customFileIcon) && !isEmojiFileIcon;
-
+    const canCustomizeFileColor = !shouldShowMultiOptions;
+    if (canCustomizeFileIcon || canCustomizeFileColor) {
         menu.addSeparator();
 
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.file.changeIcon)
-                .setIcon('lucide-image')
-                .onClick(async () => {
-                    const { IconPickerModal } = await import('../../modals/IconPickerModal');
-                    const modal = new IconPickerModal(app, metadataService, file.path, ItemType.FILE);
-                    modal.open();
-                });
-        });
+        if (canCustomizeFileIcon) {
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(strings.contextMenu.file.changeIcon)
+                    .setIcon('lucide-image')
+                    .onClick(async () => {
+                        const { IconPickerModal } = await import('../../modals/IconPickerModal');
+                        const modal = new IconPickerModal(app, metadataService, file.path, ItemType.FILE);
+                        modal.open();
+                    });
+            });
+        }
 
-        if (canChangeFileIconColor) {
+        if (canCustomizeFileColor) {
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.file.changeColor)
                     .setIcon('lucide-palette')
