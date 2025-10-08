@@ -55,6 +55,8 @@
 export interface ReleaseNote {
     version: string;
     date: string;
+    /** If false, skip automatic modal display for this version during startup */
+    showOnUpdate?: boolean;
     info?: string; // General information about the release, shown at top without bullets
     new?: string[];
     improved?: string[];
@@ -70,6 +72,12 @@ export interface ReleaseNote {
  * 2. Categorize features into: new, improved, changed, or fixed arrays
  */
 const RELEASE_NOTES: ReleaseNote[] = [
+    {
+        version: '1.5.4',
+        date: '2025-10-09',
+        showOnUpdate: false,
+        fixed: ['Improved shortcuts sync between devices.']
+    },
     {
         version: '1.5.3',
         date: '2025-10-07',
@@ -388,4 +396,15 @@ export function compareVersions(v1: string, v2: string): number {
     }
 
     return 0;
+}
+
+/**
+ * Determines whether release notes for the given version should appear automatically on update.
+ */
+export function isReleaseAutoDisplayEnabled(version: string): boolean {
+    const note = RELEASE_NOTES.find(entry => entry.version === version);
+    if (!note) {
+        return true;
+    }
+    return note.showOnUpdate !== false;
 }

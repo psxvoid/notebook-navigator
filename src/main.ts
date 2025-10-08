@@ -892,9 +892,16 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Check if version has changed
         if (lastShownVersion !== currentVersion) {
-            // Import the release notes modules dynamically
+            // Import release notes helpers dynamically
+            const { getReleaseNotesBetweenVersions, getLatestReleaseNotes, compareVersions, isReleaseAutoDisplayEnabled } = await import(
+                './releaseNotes'
+            );
+
+            if (!isReleaseAutoDisplayEnabled(currentVersion)) {
+                return;
+            }
+
             const { WhatsNewModal } = await import('./modals/WhatsNewModal');
-            const { getReleaseNotesBetweenVersions, getLatestReleaseNotes, compareVersions } = await import('./releaseNotes');
 
             // Get release notes between versions
             let releaseNotes;
