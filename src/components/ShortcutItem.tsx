@@ -43,6 +43,8 @@ interface ShortcutItemProps {
     showDropIndicatorAfter?: boolean;
     isDragSource?: boolean;
     dragHandleConfig?: DragHandleConfig;
+    hasFolderNote?: boolean;
+    onLabelClick?: (event: React.MouseEvent<HTMLSpanElement>) => void;
 }
 
 /**
@@ -67,7 +69,9 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     showDropIndicatorBefore,
     showDropIndicatorAfter,
     isDragSource,
-    dragHandleConfig
+    dragHandleConfig,
+    hasFolderNote,
+    onLabelClick
 }: ShortcutItemProps) {
     const settings = useSettingsState();
     // Determines whether to display count based on settings and item type
@@ -83,6 +87,14 @@ export const ShortcutItem = React.memo(function ShortcutItem({
         }
         return classes.join(' ');
     }, [isMissing]);
+
+    // Conditionally enables label click handler based on row state
+    const labelClickHandler = useMemo(() => {
+        if (shouldDisableRow || isMissing) {
+            return undefined;
+        }
+        return onLabelClick;
+    }, [isMissing, onLabelClick, shouldDisableRow]);
 
     return (
         <NavigationListRow
@@ -121,6 +133,8 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             ariaDisabled={shouldDisableRow || isMissing}
             ariaGrabbed={isDragSource}
             dragHandleConfig={dragHandleConfig}
+            labelClassName={hasFolderNote ? 'nn-has-folder-note' : undefined}
+            onLabelClick={labelClickHandler}
         />
     );
 });

@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useEffect, useRef, useCallback } from 'react';
 import type { CSSProperties, DragEvent } from 'react';
 import { useSettingsState } from '../context/SettingsContext';
 import { getIconService, useIconServiceVersion } from '../services/icons';
@@ -46,6 +46,8 @@ interface NavigationListRowProps {
     dragHandleConfig?: DragHandleConfig;
     className?: string;
     chevronIcon?: string;
+    labelClassName?: string;
+    onLabelClick?: (event: React.MouseEvent<HTMLSpanElement>) => void;
 }
 
 /**
@@ -77,7 +79,9 @@ export function NavigationListRow({
     role = 'treeitem',
     tabIndex,
     ariaDisabled,
-    ariaGrabbed
+    ariaGrabbed,
+    labelClassName,
+    onLabelClick
 }: NavigationListRowProps) {
     const settings = useSettingsState();
     const chevronRef = useRef<HTMLSpanElement>(null);
@@ -112,6 +116,15 @@ export function NavigationListRow({
         }
         return classList.join(' ');
     }, [className, dragHandleConfig?.visible, isDisabled, isDragSource, isExcluded]);
+
+    // Builds CSS classes for the label element, combining base class with optional custom class
+    const labelClasses = useMemo(() => {
+        const classList = ['nn-navitem-name'];
+        if (labelClassName) {
+            classList.push(labelClassName);
+        }
+        return classList.join(' ');
+    }, [labelClassName]);
 
     // Renders chevron icon when provided, clearing it for rows without chevrons
     useEffect(() => {
@@ -175,6 +188,18 @@ export function NavigationListRow({
 
     const handleDragEnd = handleInteractive ? dragHandlers?.onDragEnd : undefined;
 
+    // Handles click events on the label element, preventing event propagation to parent row
+    const handleLabelClick = useCallback(
+        (event: React.MouseEvent<HTMLSpanElement>) => {
+            if (!onLabelClick) {
+                return;
+            }
+            event.stopPropagation();
+            onLabelClick(event);
+        },
+        [onLabelClick]
+    );
+
     return (
         <div
             className={classes}
@@ -217,7 +242,7 @@ export function NavigationListRow({
                         style={color ? { color } : undefined}
                     />
                 ) : null}
-                <span className="nn-navitem-name">
+                <span className={labelClasses} onClick={onLabelClick ? handleLabelClick : undefined}>
                     <span className="nn-shortcut-label" data-has-color={applyColorToLabel ? 'true' : undefined} style={labelStyle}>
                         {label}
                     </span>

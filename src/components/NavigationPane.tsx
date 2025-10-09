@@ -1068,6 +1068,16 @@ export const NavigationPane = React.memo(
             [setActiveShortcut, onNavigateToFolder, scheduleShortcutRelease, rootContainerRef, uiState.singlePane]
         );
 
+        // Opens folder note when clicking on a shortcut label with an associated folder note
+        const handleShortcutFolderNoteClick = useCallback(
+            (folder: TFolder, shortcutKey: string) => {
+                setActiveShortcut(shortcutKey);
+                handleFolderNameClick(folder);
+                scheduleShortcutRelease();
+            },
+            [handleFolderNameClick, scheduleShortcutRelease, setActiveShortcut]
+        );
+
         // Handles note shortcut activation - reveals file in list pane
         const handleShortcutNoteActivate = useCallback(
             (note: TFile, shortcutKey: string) => {
@@ -1501,6 +1511,7 @@ export const NavigationPane = React.memo(
                         const folderPath = isFolderShortcut(item.shortcut) ? item.shortcut.path : '';
                         const folderName = canInteract && folder ? folder.name : getPathBaseName(folderPath);
                         const folderCount = canInteract && folder ? getFolderShortcutCount(folder) : 0;
+                        const folderNote = canInteract && folder && settings.enableFolderNotes ? getFolderNote(folder, settings) : null;
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
                         const dragHandlers = buildShortcutDragHandlers(item.key, {
@@ -1539,6 +1550,14 @@ export const NavigationPane = React.memo(
                                 showDropIndicatorAfter={showAfter}
                                 isDragSource={isDragSource}
                                 dragHandleConfig={shortcutDragHandleConfig}
+                                hasFolderNote={!isMissing && Boolean(folderNote)}
+                                onLabelClick={
+                                    folder && folderNote
+                                        ? () => {
+                                              handleShortcutFolderNoteClick(folder, item.key);
+                                          }
+                                        : undefined
+                                }
                             />
                         );
                     }
@@ -1883,7 +1902,8 @@ export const NavigationPane = React.memo(
                 handleShortcutRootDragLeave,
                 allowEmptyShortcutDrop,
                 getPathBaseName,
-                getMissingNoteLabel
+                getMissingNoteLabel,
+                handleShortcutFolderNoteClick
             ]
         );
 

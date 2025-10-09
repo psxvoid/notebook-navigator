@@ -1132,6 +1132,17 @@ body {
     text-decoration: line-through;
 }
 
+/* Styles for shortcut labels that have an associated folder note */
+.nn-shortcut-item .nn-navitem-name.nn-has-folder-note .nn-shortcut-label {
+    font-weight: var(--nn-theme-navitem-folder-note-name-font-weight) !important;
+    text-decoration: var(--nn-theme-navitem-folder-note-name-decoration) !important;
+}
+
+/* Pointer cursor on hover for clickable folder note shortcuts */
+.nn-shortcut-item .nn-navitem-name.nn-has-folder-note:hover .nn-shortcut-label {
+    cursor: pointer;
+}
+
 .nn-drag-item .nn-shortcut-description {
     flex-shrink: 0;
 }
