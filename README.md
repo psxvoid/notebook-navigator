@@ -602,13 +602,30 @@ Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/johansan/
 
 ## Network Usage Disclosure
 
-**Optional Network Access:** This plugin includes an **optional** feature to download additional icon packs. Network access is only used when you explicitly choose to download icon packs through the plugin settings.
+**Optional Network Access:** This plugin includes **optional** features that access the GitHub repository for enhanced functionality. All network access is optional and controlled through settings.
 
-- **What is downloaded:** Icon font files and metadata for additional icon packs (Bootstrap Icons, Font Awesome, Material Icons, Phosphor, RPG Awesome)
-- **Source:** All icon assets are downloaded from GitHub repositories (`https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/`)
-- **When it happens:** Only when you manually enable icon packs in the settings - no automatic downloads occur
+### Release Update Checks (Optional)
+
+- **Purpose:** Check for new plugin releases once per day
+- **Enabled by:** "Check for new version on start" setting (can be disabled)
+- **Source:** GitHub repository (`https://github.com/johansan/notebook-navigator`)
+- **Frequency:** Maximum once per day, only on startup
+- **Data:** Only fetches release version information
+
+### Icon Pack Downloads (Optional)
+
+- **Purpose:** Download additional icon packs for enhanced visual customization
+- **Enabled by:** Manually enabling icon packs in the Icon Packs settings tab
+- **What is downloaded:** Icon font files and metadata (Bootstrap Icons, Font Awesome, Material Icons, Phosphor, RPG Awesome, Simple Icons)
+- **Source:** GitHub repository (`https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/`)
+- **When:** Only when you explicitly enable icon packs - no automatic downloads
 - **Storage:** Downloaded icons are cached locally in your vault for offline use
-- **Privacy:** No telemetry or user data is collected or transmitted
+
+### Privacy
+
+- **No telemetry or user data is collected or transmitted**
+- **All features are opt-in and can be disabled**
+- **Network access is limited to the GitHub repository only**
 
 <br>
 
