@@ -75,7 +75,11 @@ const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.5.4',
         date: '2025-10-09',
-        showOnUpdate: false,
+        showOnUpdate: true,
+        new: [
+            'Icons read from frontmatter can now also read Iconize formatted icons, e.g. LiHome, FasUser, iGithub, etc.',
+            'New setting: Save in Iconize format. Saves icons in Iconize format in frontmatter instead of proprietary provider:icon format.'
+        ],
         improved: [
             'Folders with folder notes can now read icon and color from frontmatter if enabled in settings.',
             'You can now drag and drop interactive frames and images to Excaldraw.'
