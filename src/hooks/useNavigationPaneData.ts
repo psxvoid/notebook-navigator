@@ -31,6 +31,7 @@
 
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { TFile, TFolder, debounce } from 'obsidian';
+import type { MetadataCache } from 'obsidian';
 import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useRecentData } from '../context/RecentDataContext';
 import { useExpansionState } from '../context/ExpansionContext';
@@ -82,14 +83,28 @@ const DOCUMENT_EXTENSION_ICONS: Record<string, string> = {
     base: 'lucide-database'
 };
 
+const EXCALIDRAW_FILE_SUFFIX = '.excalidraw.md';
+
 // Returns the appropriate icon for a document based on its type and extension
-const getDocumentIcon = (file: TFile | null): string | undefined => {
+const getDocumentIcon = (file: TFile | null, metadataCache?: MetadataCache): string | undefined => {
     if (!file) {
         return undefined;
     }
 
     if (isImageFile(file)) {
         return 'lucide-image';
+    }
+
+    const lowerCaseName = file.name.toLowerCase();
+    if (lowerCaseName.endsWith(EXCALIDRAW_FILE_SUFFIX)) {
+        return 'lucide-image';
+    }
+
+    if (metadataCache) {
+        const frontmatter = metadataCache.getFileCache(file)?.frontmatter;
+        if (frontmatter?.['excalidraw-plugin']) {
+            return 'lucide-image';
+        }
     }
 
     const extension = file.extension.toLowerCase();
@@ -438,7 +453,7 @@ export function useNavigationPaneData({
                     return;
                 }
                 const isExternalFile = !shouldDisplayFile(note, FILE_VISIBILITY.SUPPORTED, app);
-                const icon = isExternalFile ? 'lucide-external-link' : getDocumentIcon(note);
+                const icon = isExternalFile ? 'lucide-external-link' : getDocumentIcon(note, app.metadataCache);
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_NOTE,
                     key,
@@ -543,7 +558,7 @@ export function useNavigationPaneData({
             const file = app.vault.getAbstractFileByPath(path);
             if (file instanceof TFile) {
                 const isExternalFile = !shouldDisplayFile(file, FILE_VISIBILITY.SUPPORTED, app);
-                const icon = isExternalFile ? 'lucide-external-link' : getDocumentIcon(file);
+                const icon = isExternalFile ? 'lucide-external-link' : getDocumentIcon(file, app.metadataCache);
                 items.push({
                     type: NavigationPaneItemType.RECENT_NOTE,
                     key: `recent-${path}`,
