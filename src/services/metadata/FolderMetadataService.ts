@@ -21,6 +21,8 @@ import { ItemType } from '../../types';
 import { isFolderShortcut } from '../../types/shortcuts';
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
+import { getFolderNote, type FolderNoteDetectionSettings } from '../../utils/folderNotes';
+import { getDBInstance } from '../../storage/fileOperations';
 
 /**
  * Service for managing folder-specific metadata operations
@@ -84,6 +86,9 @@ export class FolderMetadataService extends BaseMetadataService {
         const directColor = this.getEntityColor(ItemType.FOLDER, folderPath);
         if (directColor) return directColor;
 
+        const folderNoteColor = this.getFolderNoteMetadata(folderPath)?.color;
+        if (folderNoteColor) return folderNoteColor;
+
         // If no direct color and inheritance is enabled, check ancestors
         if (this.settingsProvider.settings.inheritFolderColors) {
             const pathParts = folderPath.split('/');
@@ -144,7 +149,12 @@ export class FolderMetadataService extends BaseMetadataService {
      * @returns The icon ID or undefined
      */
     getFolderIcon(folderPath: string): string | undefined {
-        return this.getEntityIcon(ItemType.FOLDER, folderPath);
+        const directIcon = this.getEntityIcon(ItemType.FOLDER, folderPath);
+        if (directIcon) {
+            return directIcon;
+        }
+
+        return this.getFolderNoteMetadata(folderPath)?.icon;
     }
 
     /**
@@ -279,5 +289,48 @@ export class FolderMetadataService extends BaseMetadataService {
         ]);
 
         return results.some(changed => changed);
+    }
+
+    /**
+     * Returns icon/color metadata extracted from the folder's folder note (if any)
+     */
+    private getFolderNoteMetadata(folderPath: string): { icon?: string; color?: string } | null {
+        const settings = this.settingsProvider.settings;
+        if (!settings.enableFolderNotes) {
+            return null;
+        }
+
+        const folder = this.app.vault.getFolderByPath(folderPath);
+        if (!folder) {
+            return null;
+        }
+
+        const detectionSettings: FolderNoteDetectionSettings = {
+            enableFolderNotes: settings.enableFolderNotes,
+            folderNoteName: settings.folderNoteName
+        };
+
+        const folderNote = getFolderNote(folder, detectionSettings);
+        if (!folderNote) {
+            return null;
+        }
+
+        const db = getDBInstance();
+        const fileData = db.getFile(folderNote.path);
+        if (!fileData || !fileData.metadata) {
+            return null;
+        }
+
+        const iconValue = typeof fileData.metadata.icon === 'string' ? fileData.metadata.icon.trim() : undefined;
+        const colorValue = typeof fileData.metadata.color === 'string' ? fileData.metadata.color.trim() : undefined;
+
+        if (!iconValue && !colorValue) {
+            return null;
+        }
+
+        return {
+            icon: iconValue || undefined,
+            color: colorValue || undefined
+        };
     }
 }

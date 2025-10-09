@@ -952,30 +952,6 @@ export const STRINGS_ZH_TW = {
                 noticeFailures: '失敗的項目：{failures}。',
                 noticeError: '移轉失敗。請檢查主控台以取得詳細資訊。'
             },
-            frontmatterIconField: {
-                name: '圖示欄位',
-                desc: '檔案圖示的 frontmatter 欄位。留空以使用儲存在設定中的圖示。',
-                placeholder: 'icon'
-            },
-            frontmatterColorField: {
-                name: '顏色欄位',
-                desc: '檔案顏色的 frontmatter 欄位。留空以使用儲存在設定中的顏色。',
-                placeholder: 'color'
-            },
-            frontmatterSaveMetadata: {
-                name: '將圖示和顏色儲存至 frontmatter',
-                desc: '使用上方設定的欄位自動將檔案圖示和顏色寫入 frontmatter。'
-            },
-            frontmatterMigration: {
-                name: '從設定移轉圖示和顏色',
-                desc: '儲存在設定中：{icons} 個圖示、{colors} 種顏色。',
-                button: '移轉',
-                buttonWorking: '移轉中...',
-                noticeNone: '設定中未儲存任何檔案圖示或顏色。',
-                noticeDone: '已移轉 {migratedIcons}/{icons} 個圖示、{migratedColors}/{colors} 種顏色。',
-                noticeFailures: '失敗的項目：{failures}。',
-                noticeError: '移轉失敗。請檢查主控台以取得詳細資訊。'
-            },
             frontmatterCreatedField: {
                 name: '建立時間戳欄位',
                 desc: '用於建立時間戳的 frontmatter 欄位名稱。留空以僅使用檔案系統日期。',
