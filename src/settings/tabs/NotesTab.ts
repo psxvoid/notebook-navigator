@@ -81,6 +81,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
     const frontmatterSettingsEl = containerEl.createDiv('nn-sub-settings');
     // Function to update visibility of frontmatter save setting based on field values
     let updateFrontmatterSaveVisibility: (() => void) | null = null;
+    let frontmatterIconizeSetting: Setting | null = null;
 
     const frontmatterIconSetting = createDebouncedTextSetting(
         frontmatterSettingsEl,
@@ -117,6 +118,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 plugin.settings.saveMetadataToFrontmatter = value;
                 await plugin.saveSettingsAndUpdate();
                 updateMigrationDescription();
+                updateFrontmatterSaveVisibility?.();
             })
         );
 
@@ -124,10 +126,28 @@ export function renderNotesTab(context: SettingsTabContext): void {
     updateFrontmatterSaveVisibility = () => {
         const hasIconField = plugin.settings.frontmatterIconField.trim().length > 0;
         const hasColorField = plugin.settings.frontmatterColorField.trim().length > 0;
-        frontmatterSaveSetting.settingEl.toggle(hasIconField || hasColorField);
+        const canSaveMetadata = hasIconField || hasColorField;
+        frontmatterSaveSetting.settingEl.toggle(canSaveMetadata);
+        // Show Iconize format option only when icon field is configured and saving to frontmatter is enabled
+        frontmatterIconizeSetting?.settingEl.toggle(hasIconField && plugin.settings.saveMetadataToFrontmatter);
     };
 
     updateFrontmatterSaveVisibility();
+
+    // Setting to enable Iconize format for icon values in frontmatter
+    frontmatterIconizeSetting = new Setting(frontmatterSettingsEl)
+        .setName(strings.settings.items.frontmatterIconizeFormat.name)
+        .setDesc(strings.settings.items.frontmatterIconizeFormat.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.iconizeFormat).onChange(async value => {
+                plugin.settings.iconizeFormat = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+    // Set initial visibility based on whether icon field is configured and saving is enabled
+    frontmatterIconizeSetting.settingEl.toggle(
+        plugin.settings.frontmatterIconField.trim().length > 0 && plugin.settings.saveMetadataToFrontmatter
+    );
 
     let migrateButton: ButtonComponent | null = null;
 

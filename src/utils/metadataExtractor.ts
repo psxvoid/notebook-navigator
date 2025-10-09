@@ -20,6 +20,7 @@ import { App, TFile, CachedMetadata } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { DateUtils } from './dateUtils';
+import { convertIconizeToIconId } from './iconizeFormat';
 
 /**
  * Processed metadata from frontmatter
@@ -83,20 +84,36 @@ export function extractMetadataFromCache(metadata: CachedMetadata | null, settin
     }
 
     // Extract icon if field is specified
+    // Extract icon from frontmatter field
     if (settings.frontmatterIconField && settings.frontmatterIconField.trim()) {
         const iconValue = frontmatter[settings.frontmatterIconField];
 
+        // Helper to extract and convert icon value from Iconize format to canonical format
+        const extractIconValue = (value: unknown): string | undefined => {
+            if (typeof value !== 'string') {
+                return undefined;
+            }
+            const trimmed = value.trim();
+            if (!trimmed) {
+                return undefined;
+            }
+            // Convert from Iconize format (e.g. LiHome) to canonical format (e.g. home)
+            const converted = convertIconizeToIconId(trimmed);
+            return converted ?? trimmed;
+        };
+
         if (typeof iconValue === 'string') {
-            const trimmedIcon = iconValue.trim();
-            if (trimmedIcon) {
-                result.icon = trimmedIcon;
+            const normalizedIcon = extractIconValue(iconValue);
+            if (normalizedIcon) {
+                result.icon = normalizedIcon;
             }
         } else if (Array.isArray(iconValue)) {
-            const firstValue = iconValue[0];
-            if (typeof firstValue === 'string') {
-                const trimmedIcon = firstValue.trim();
-                if (trimmedIcon) {
-                    result.icon = trimmedIcon;
+            // Handle array values - use first valid icon
+            for (const entry of iconValue) {
+                const normalizedIcon = extractIconValue(entry);
+                if (normalizedIcon) {
+                    result.icon = normalizedIcon;
+                    break;
                 }
             }
         }

@@ -23,6 +23,7 @@ import { ItemType, NavigatorContext } from '../../types';
 import { isNoteShortcut } from '../../types/shortcuts';
 import type { NotebookNavigatorSettings } from '../../settings';
 import { getDBInstance } from '../../storage/fileOperations';
+import { convertIconIdToIconize } from '../../utils/iconizeFormat';
 
 /**
  * Service for managing file-specific metadata operations
@@ -80,7 +81,22 @@ export class FileMetadataService extends BaseMetadataService {
             return { success: false, normalized: null };
         }
 
-        const normalizedValue = value === null ? null : value.trim();
+        // Store the canonical internal icon format
+        const canonicalValue = value === null ? null : value.trim();
+        const settings = this.settingsProvider.settings;
+        let frontmatterValue = canonicalValue;
+
+        // Convert icon to Iconize format if enabled for frontmatter storage
+        if (metadataKey === 'icon' && canonicalValue) {
+            if (settings.iconizeFormat) {
+                const iconizeFormat = convertIconIdToIconize(canonicalValue);
+                if (iconizeFormat) {
+                    frontmatterValue = iconizeFormat;
+                }
+            }
+        }
+
+        const normalizedValue = frontmatterValue === null ? null : frontmatterValue.trim();
 
         try {
             // Update the frontmatter in the file
@@ -93,13 +109,14 @@ export class FileMetadataService extends BaseMetadataService {
                     }
                 }
             });
-            // Sync the change to IndexedDB cache
+            // Sync the change to IndexedDB cache using canonical format
             const db = getDBInstance();
             const metadataUpdate: { icon?: string; color?: string } = {};
             if (metadataKey === 'icon') {
-                metadataUpdate.icon = normalizedValue ?? undefined;
+                // Store canonical icon format in cache for consistency
+                metadataUpdate.icon = canonicalValue && canonicalValue.length > 0 ? canonicalValue : undefined;
             } else {
-                metadataUpdate.color = normalizedValue ?? undefined;
+                metadataUpdate.color = canonicalValue && canonicalValue.length > 0 ? canonicalValue : undefined;
             }
             await db.updateFileMetadata(file.path, metadataUpdate);
             return { success: true, normalized: normalizedValue ?? null };

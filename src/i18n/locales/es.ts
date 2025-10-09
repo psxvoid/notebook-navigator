@@ -944,6 +944,10 @@ export const STRINGS_ES = {
                 name: 'Guardar iconos y colores en el frontmatter',
                 desc: 'Escribe automáticamente los iconos y colores de archivo en el frontmatter usando los campos configurados arriba.'
             },
+            frontmatterIconizeFormat: {
+                name: 'Guardar en formato Iconize',
+                desc: 'Guarda iconos usando el formato Iconize (ej. LiHome, FasUser, SiGithub) en lugar del formato del plugin (ej. home, fontawesome-solid:user, simple-icons:github).'
+            },
             frontmatterMigration: {
                 name: 'Migrar iconos y colores desde los ajustes',
                 desc: 'Guardado en los ajustes: {icons} iconos, {colors} colores.',

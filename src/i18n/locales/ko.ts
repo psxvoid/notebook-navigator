@@ -943,6 +943,10 @@ export const STRINGS_KO = {
                 name: 'frontmatter에 아이콘과 색상 저장',
                 desc: '위에서 구성한 필드를 사용하여 파일 아이콘과 색상을 frontmatter에 자동으로 기록합니다.'
             },
+            frontmatterIconizeFormat: {
+                name: 'Iconize 형식으로 저장',
+                desc: '플러그인 형식(예: home, fontawesome-solid:user, simple-icons:github) 대신 Iconize 형식(예: LiHome, FasUser, SiGithub)으로 아이콘을 저장합니다.'
+            },
             frontmatterMigration: {
                 name: '설정에서 아이콘과 색상 이동',
                 desc: '설정에 저장됨: 아이콘 {icons}개, 색상 {colors}개.',

@@ -945,6 +945,10 @@ export const STRINGS_PL = {
                 name: 'Zapisz ikony i kolory w frontmatter',
                 desc: 'Automatycznie zapisuje ikony i kolory plików w frontmatter przy użyciu skonfigurowanych powyżej pól.'
             },
+            frontmatterIconizeFormat: {
+                name: 'Zapisz w formacie Iconize',
+                desc: 'Zapisz ikony używając formatu Iconize (np. LiHome, FasUser, SiGithub) zamiast formatu wtyczki (np. home, fontawesome-solid:user, simple-icons:github).'
+            },
             frontmatterMigration: {
                 name: 'Migruj ikony i kolory z ustawień',
                 desc: 'Zapisane w ustawieniach: {icons} ikon, {colors} kolorów.',

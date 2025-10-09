@@ -945,6 +945,10 @@ export const STRINGS_JA = {
                 name: 'フロントマターにアイコンと色を保存',
                 desc: '上記で設定したフィールドを使ってファイルのアイコンと色を自動的にフロントマターに書き込みます。'
             },
+            frontmatterIconizeFormat: {
+                name: 'Iconize形式で保存',
+                desc: 'アイコンをプラグイン形式（例: home, fontawesome-solid:user, simple-icons:github）ではなく、Iconize形式（例: LiHome, FasUser, SiGithub）で保存します。'
+            },
             frontmatterMigration: {
                 name: '設定からアイコンと色を移行',
                 desc: '設定に保存: アイコン {icons} 個、色 {colors} 個。',

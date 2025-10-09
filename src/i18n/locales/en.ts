@@ -938,6 +938,10 @@ export const STRINGS_EN = {
                 name: 'Save icons and colors to frontmatter',
                 desc: 'Automatically write file icons and colors to frontmatter using the configured fields above.'
             },
+            frontmatterIconizeFormat: {
+                name: 'Save in Iconize format',
+                desc: 'Save icons using Iconize format (e.g. LiHome, FasUser, SiGithub) instead of plugin format (e.g. home, fontawesome-solid:user, simple-icons:github).'
+            },
             frontmatterMigration: {
                 name: 'Migrate icons and colors from settings',
                 desc: 'Stored in settings: {icons} icons, {colors} colors.',
