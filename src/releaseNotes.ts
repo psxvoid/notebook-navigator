@@ -76,7 +76,13 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.5.4',
         date: '2025-10-09',
         showOnUpdate: false,
-        fixed: ['Improved shortcuts sync between devices.', 'Folders with folder notes now display properly in shortcuts area.']
+        improved: [
+            'Folder notes now read icon and color from frontmatter if enabled in settings.'
+        ],
+        fixed: [
+            'Improved shortcuts sync between devices.',
+            'Folders with folder notes now display as clickable links in shortcuts area.'
+        ]
     },
     {
         version: '1.5.3',
