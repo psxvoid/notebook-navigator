@@ -33,7 +33,7 @@ export const STRINGS_ZH_TW = {
         featureImageAlt: '特色圖片', // 縮圖/預覽圖片的替代文字 (英文: Feature image)
         unknownError: '未知錯誤', // 當錯誤沒有訊息時的通用備用文字 (英文: Unknown error)
         updateBannerTitle: 'Notebook Navigator 有可用更新',
-        updateBannerInstruction: '在設定 -> 社群外掛中更新'
+        updateBannerInstruction: '在設定 → 社群外掛中更新'
     },
 
     // 列表窗格
@@ -64,8 +64,8 @@ export const STRINGS_ZH_TW = {
         vaultRootLabel: '儲存庫',
         resetRootFolderOrder: '重設為字母順序',
         dragHandleLabel: '拖曳以重新排序',
-        pinShortcuts: 'Pin shortcuts',
-        unpinShortcuts: 'Unpin shortcuts'
+        pinShortcuts: '釘選捷徑',
+        unpinShortcuts: '取消釘選捷徑'
     },
 
     shortcuts: {
@@ -926,7 +926,31 @@ export const STRINGS_ZH_TW = {
             frontmatterNameField: {
                 name: '名稱欄位',
                 desc: '用作筆記顯示名稱的 frontmatter 欄位。留空以使用檔案名稱。',
-                placeholder: 'title'
+                placeholder: '標題'
+            },
+            frontmatterIconField: {
+                name: '圖示欄位',
+                desc: '檔案圖示的 frontmatter 欄位。留空以使用儲存在設定中的圖示。',
+                placeholder: '圖示'
+            },
+            frontmatterColorField: {
+                name: '顏色欄位',
+                desc: '檔案顏色的 frontmatter 欄位。留空以使用儲存在設定中的顏色。',
+                placeholder: '顏色'
+            },
+            frontmatterSaveMetadata: {
+                name: '將圖示和顏色儲存至 frontmatter',
+                desc: '使用上方設定的欄位自動將檔案圖示和顏色寫入 frontmatter。'
+            },
+            frontmatterMigration: {
+                name: '從設定移轉圖示和顏色',
+                desc: '儲存在設定中：{icons} 個圖示、{colors} 種顏色。',
+                button: '移轉',
+                buttonWorking: '移轉中...',
+                noticeNone: '設定中未儲存任何檔案圖示或顏色。',
+                noticeDone: '已移轉 {migratedIcons}/{icons} 個圖示、{migratedColors}/{colors} 種顏色。',
+                noticeFailures: '失敗的項目：{failures}。',
+                noticeError: '移轉失敗。請檢查主控台以取得詳細資訊。'
             },
             frontmatterIconField: {
                 name: '圖示欄位',
@@ -977,7 +1001,7 @@ export const STRINGS_ZH_TW = {
             updateCheckOnStart: {
                 name: '啟動時檢查新版本',
                 desc: '啟動時檢查新的外掛版本，當有可用更新時顯示通知。每個版本僅通知一次，檢查最多每天一次。',
-                status: 'New version available: {version}'
+                status: '已有新版本: {version}'
             },
             whatsNew: {
                 name: '最新消息',
