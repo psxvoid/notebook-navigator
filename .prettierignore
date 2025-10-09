@@ -13,6 +13,7 @@ main.js
 
 # Version control
 .git/
+.github/
 
 # IDE
 .vscode/
