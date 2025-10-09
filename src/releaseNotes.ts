@@ -77,7 +77,11 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-10-09',
         showOnUpdate: false,
         improved: ['Folder notes now read icon and color from frontmatter if enabled in settings.'],
-        fixed: ['Improved shortcuts sync between devices.', 'Folders with folder notes now display as clickable links in shortcuts area.']
+        fixed: [
+            'Improved shortcuts sync between devices.',
+            'Folders with folder notes now display as clickable links in shortcuts area.',
+            'Fixed a display issue in navigation pane with some themes such as Cupertino on mobile devices.'
+        ]
     },
     {
         version: '1.5.3',

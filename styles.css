@@ -320,16 +320,6 @@ body {
     contain: layout style;
 }
 
-/* Container for both pinned shortcuts area and scrollable navigation content */
-.nn-navigation-pane-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background-color: var(--nn-theme-nav-bg);
-    border-right: 1px solid var(--nn-theme-divider-border-color);
-}
-
 /* Right pane - contains the file list */
 .nn-list-pane {
     flex: 1;
@@ -800,6 +790,8 @@ body {
     overflow-x: hidden;
     padding: 0 var(--nn-scroller-padding);
     line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
+    border-right: 1px solid var(--nn-theme-divider-border-color);
+    background-color: var(--nn-theme-nav-bg); /* Opaque background for GPU scroll layer optimization */
 
     /* Ensure scroll events work properly with virtualization */
     position: relative;
@@ -810,6 +802,7 @@ body {
     flex-shrink: 0;
     padding: 8px var(--nn-scroller-padding) 4px;
     border-bottom: 1px solid var(--nn-theme-divider-border-color);
+    border-right: 1px solid var(--nn-theme-divider-border-color);
     background-color: var(--nn-theme-nav-bg);
 }
 
@@ -830,14 +823,10 @@ body {
     gap: 0;
 }
 
-.notebook-navigator-mobile .nn-navigation-pane-body {
-    background-color: var(--nn-theme-mobile-nav-bg);
-    border-right: none;
-}
-
 .notebook-navigator-mobile .nn-shortcut-pinned {
     background-color: var(--nn-theme-mobile-nav-bg);
     border-bottom: 1px solid var(--nn-theme-divider-border-color);
+    border-right: none;
 }
 
 /* Navigation banner displayed above tree items */
