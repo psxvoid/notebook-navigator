@@ -64,6 +64,77 @@ export interface ExtendedApp extends App {
 }
 
 /**
+ * Drag payload metadata exposed by Obsidian's internal drag manager.
+ * Defines all possible value types that can be stored in the drag payload.
+ */
+type DragManagerPayloadValue =
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | TFile
+    | TFile[]
+    | DragManagerPayload
+    | DragManagerPayload[]
+    | HTMLElement
+    | (() => void);
+
+export interface DragManagerPayload {
+    type?: 'file' | 'files' | 'link'; // Type of drag operation
+    file?: TFile; // Single file being dragged
+    files?: TFile[]; // Multiple files being dragged
+    title?: string; // Display title for the drag operation
+    [key: string]: DragManagerPayloadValue; // Additional arbitrary payload data
+}
+
+/**
+ * Drag manager structure used by other plugins (e.g. Excalidraw)
+ */
+export interface DragManagerState {
+    draggable: DragManagerPayload | null;
+}
+
+/**
+ * App with internal drag manager available
+ */
+export interface AppWithDragManager extends App {
+    dragManager: DragManagerState;
+}
+
+/**
+ * Type guard that detects if the Obsidian app exposes the drag manager.
+ * Uses reflection to safely check for the presence of internal drag manager API.
+ */
+export function hasDragManager(app: App): app is AppWithDragManager {
+    // Validate app is a valid object
+    if (typeof app !== 'object' || app === null) {
+        return false;
+    }
+
+    // Check if dragManager property exists on app
+    const candidate: object = app;
+    if (!Reflect.has(candidate, 'dragManager')) {
+        return false;
+    }
+
+    // Validate dragManager is an object
+    const dragManager = Reflect.get(candidate, 'dragManager');
+    if (typeof dragManager !== 'object' || dragManager === null) {
+        return false;
+    }
+
+    // Check if draggable property exists on dragManager
+    if (!Reflect.has(dragManager, 'draggable')) {
+        return false;
+    }
+
+    // Validate draggable is null or an object (the payload)
+    const draggableValue = Reflect.get(dragManager, 'draggable');
+    return draggableValue === null || typeof draggableValue === 'object';
+}
+
+/**
  * Extended View interface with file property
  */
 export interface FileView extends View {

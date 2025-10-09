@@ -76,11 +76,13 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.5.4',
         date: '2025-10-09',
         showOnUpdate: false,
-        improved: ['Folder notes now read icon and color from frontmatter if enabled in settings.'],
+        improved: ['Folders with folder notes can now read icon and color from frontmatter if enabled in settings.',
+            'You can now drag and drop interactive frames and images to Excaldraw.'
+        ],
         fixed: [
-            'Improved shortcuts sync between devices.',
-            'Folders with folder notes now display as clickable links in shortcuts area.',
-            'Fixed a display issue in navigation pane with some themes such as Cupertino on mobile devices.'
+            'Improved shortcuts sync between devices - you should now always see the same shortcuts on all devices.',
+            'Folders with folder notes now show correctly in the shortcuts area and can be clicked to open the folder note.',
+            'Fixed a display issue on mobile devices in the navigation pane with some themes such as Cupertino.'
         ]
     },
     {

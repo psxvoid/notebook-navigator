@@ -26,7 +26,7 @@ import { useExpansionState, useExpansionDispatch } from '../context/ExpansionCon
 import { strings } from '../i18n';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
 import { SHORTCUT_DRAG_MIME } from '../types/shortcuts';
-import { TIMEOUTS } from '../types/obsidian-extended';
+import { DragManagerPayload, hasDragManager, TIMEOUTS } from '../types/obsidian-extended';
 import { getPathFromDataAttribute } from '../utils/domUtils';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { generateUniqueFilename } from '../utils/fileCreationUtils';
@@ -69,6 +69,34 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const expandedTagsRef = useRef(expansionState.expandedTags);
     const dragTypeRef = useRef<DragItemType | null>(null);
     const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
+
+    /**
+     * Sets or clears the drag payload in Obsidian's internal drag manager.
+     * This allows other plugins (like Excalidraw) to access drag metadata.
+     *
+     * @param payload - Drag metadata to set, or null to clear
+     */
+    const setDragManagerPayload = useCallback(
+        (payload: DragManagerPayload | null) => {
+            if (!hasDragManager(app)) {
+                return;
+            }
+
+            try {
+                if (!payload) {
+                    app.dragManager.draggable = null;
+                    return;
+                }
+
+                const existingPayload = app.dragManager.draggable;
+                const mergedPayload: DragManagerPayload = existingPayload ? { ...existingPayload, ...payload } : { ...payload };
+                app.dragManager.draggable = mergedPayload;
+            } catch (error) {
+                console.error('[Notebook Navigator] Failed to set drag payload', error);
+            }
+        },
+        [app]
+    );
 
     /**
      * Type guard to check if an element is an HTMLElement
@@ -135,9 +163,14 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      */
     const handleDragStart = useCallback(
         (e: DragEvent) => {
-            if (!isHTMLElement(e.target)) return;
+            if (!isHTMLElement(e.target)) {
+                return;
+            }
+
             const draggable = e.target.closest('[data-draggable="true"]');
-            if (!draggable || !(draggable instanceof HTMLElement)) return;
+            if (!draggable || !(draggable instanceof HTMLElement)) {
+                return;
+            }
 
             const path = getPathFromDataAttribute(draggable, 'data-drag-path');
             const type = draggable.getAttribute('data-drag-type');
@@ -145,17 +178,30 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             const iconColorAttr = draggable.getAttribute('data-drag-icon-color');
             const iconId = iconIdAttr && iconIdAttr.trim().length > 0 ? iconIdAttr : undefined;
             const iconColor = iconColorAttr && iconColorAttr.trim().length > 0 ? iconColorAttr : undefined;
-            if (!path || !e.dataTransfer) return;
+            if (!path || !e.dataTransfer) {
+                return;
+            }
 
-            // Check if dragging a selected file with multiple selections
+            // Clear any existing drag payload before setting new one
+            setDragManagerPayload(null);
+
+            // Handle multiple file selection drag
             if (type === ItemType.FILE && selectionState.selectedFiles.has(path) && selectionState.selectedFiles.size > 1) {
-                // Multiple file selection
                 const selectedPaths = Array.from(selectionState.selectedFiles);
                 e.dataTransfer.setData('obsidian/files', JSON.stringify(selectedPaths));
-                e.dataTransfer.effectAllowed = 'copyMove';
+                e.dataTransfer.effectAllowed = 'all';
                 dragTypeRef.current = ItemType.FILE;
 
-                // Generate markdown links for all selected files
+                // Set drag manager payload for other plugins to access
+                const draggedFiles = getFilesFromPaths(selectedPaths);
+                if (draggedFiles.length > 0) {
+                    setDragManagerPayload({
+                        type: 'files',
+                        files: draggedFiles,
+                        title: `${draggedFiles.length} files`
+                    });
+                }
+
                 const markdownLinks: string[] = [];
                 selectedPaths.forEach(selectedPath => {
                     const file = app.vault.getFileByPath(selectedPath);
@@ -170,7 +216,6 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     e.dataTransfer.setData('text/plain', markdownLinks.join('\n'));
                 }
 
-                // Add dragging class to all selected files
                 selectedPaths.forEach(selectedPath => {
                     const el = containerRef.current?.querySelector(`[data-drag-path="${selectedPath}"]`);
                     el?.classList.add('nn-dragging');
@@ -184,40 +229,44 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     icon: iconId,
                     iconColor
                 });
-            } else {
-                // Single item drag
-                e.dataTransfer.setData('obsidian/file', path);
-                if (type === ItemType.FILE || type === ItemType.FOLDER || type === ItemType.TAG) {
-                    dragTypeRef.current = type;
-                } else {
-                    dragTypeRef.current = ItemType.FILE;
-                }
-                // No custom types needed
-                e.dataTransfer.effectAllowed = 'copyMove';
-
-                // Generate markdown link for single file
-                if (type === ItemType.FILE) {
-                    const file = app.vault.getFileByPath(path);
-                    if (file) {
-                        const src = app.workspace.getActiveFile()?.path ?? '';
-                        const link = app.fileManager.generateMarkdownLink(file, src);
-                        e.dataTransfer.setData('text/plain', link);
-                    }
-                }
-
-                draggable.classList.add('nn-dragging');
-                const resolvedType =
-                    type === ItemType.FILE || type === ItemType.FOLDER || type === ItemType.TAG ? (type as ItemType) : null;
-                dragGhostManager.hideNativePreview(e);
-                dragGhostManager.showGhost(e, {
-                    itemType: resolvedType,
-                    path,
-                    icon: iconId,
-                    iconColor
-                });
+                return;
             }
+
+            e.dataTransfer.setData('obsidian/file', path);
+            if (type === ItemType.FILE || type === ItemType.FOLDER || type === ItemType.TAG) {
+                dragTypeRef.current = type;
+            } else {
+                dragTypeRef.current = ItemType.FILE;
+            }
+            e.dataTransfer.effectAllowed = 'all';
+
+            // Generate markdown link for single file drag and set drag manager payload
+            if (type === ItemType.FILE) {
+                const file = app.vault.getFileByPath(path);
+                if (file) {
+                    const src = app.workspace.getActiveFile()?.path ?? '';
+                    const link = app.fileManager.generateMarkdownLink(file, src);
+                    e.dataTransfer.setData('text/plain', link);
+                    // Set drag manager payload for other plugins to access
+                    setDragManagerPayload({
+                        type: 'file',
+                        file,
+                        title: file.basename
+                    });
+                }
+            }
+
+            draggable.classList.add('nn-dragging');
+            const resolvedType = type === ItemType.FILE || type === ItemType.FOLDER || type === ItemType.TAG ? (type as ItemType) : null;
+            dragGhostManager.hideNativePreview(e);
+            dragGhostManager.showGhost(e, {
+                itemType: resolvedType,
+                path,
+                icon: iconId,
+                iconColor
+            });
         },
-        [selectionState, containerRef, app, dragGhostManager]
+        [selectionState, containerRef, app, dragGhostManager, getFilesFromPaths, setDragManagerPayload]
     );
 
     useEffect(() => {
@@ -604,17 +653,17 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
                 const dropType = dropZone.getAttribute('data-drop-zone');
                 const targetPath = getPathFromDataAttribute(dropZone, 'data-drop-path');
-
-                if (!dropType || !targetPath) return;
+                if (!dropType || !targetPath) {
+                    return;
+                }
 
                 clearAutoExpandTimer();
 
-                // Handle tag drops
                 if (dropType === 'tag') {
                     if (dragTypeRef.current === ItemType.FOLDER) {
                         return;
                     }
-                    // If external drag, show notice and ignore
+
                     const typesList = e.dataTransfer?.types;
                     const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
                     const isExternal = !!typesList?.includes('Files') && !hasObsidianData;
@@ -627,13 +676,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     return;
                 }
 
-                // Handle folder drops
                 const targetFolder = app.vault.getFolderByPath(targetPath);
-                if (!targetFolder) return;
+                if (!targetFolder) {
+                    return;
+                }
 
-                // Check for external files from OS
                 if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
-                    // Detect internal vs external via types
                     const typesList = e.dataTransfer.types;
                     const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
                     if (!hasObsidianData) {
@@ -642,10 +690,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
                 }
 
-                // Check if dragging multiple files (never folders - folders are always single)
                 const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
                 if (multipleFilesData) {
-                    // Multiple items = always files, never folders
                     try {
                         const selectedPaths = JSON.parse(multipleFilesData);
                         if (Array.isArray(selectedPaths)) {
@@ -658,45 +704,48 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         console.error('Error parsing multiple files data:', error);
                         return;
                     }
-                } else {
-                    // Single item - could be file or folder
-                    const singleItemData = e.dataTransfer?.getData('obsidian/file');
-                    if (!singleItemData) return;
+                    return;
+                }
 
-                    const sourceItem = app.vault.getAbstractFileByPath(singleItemData);
-                    if (!sourceItem) return;
+                const singleItemData = e.dataTransfer?.getData('obsidian/file');
+                if (!singleItemData) {
+                    return;
+                }
 
-                    if (sourceItem instanceof TFile) {
-                        await moveFilesWithContext([sourceItem], targetFolder);
-                    } else if (sourceItem instanceof TFolder) {
-                        // Don't allow moving a folder into itself or its descendants
-                        if (targetFolder.path === sourceItem.path || targetFolder.path.startsWith(`${sourceItem.path}/`)) {
-                            new Notice(strings.dragDrop.errors.cannotMoveIntoSelf);
-                            return;
-                        }
+                const sourceItem = app.vault.getAbstractFileByPath(singleItemData);
+                if (!sourceItem) {
+                    return;
+                }
 
-                        // Check if folder is already in the target location (same parent)
-                        if (sourceItem.parent?.path === targetFolder.path) {
-                            // Folder is already in this location, no need to move
-                            return;
-                        }
+                if (sourceItem instanceof TFile) {
+                    await moveFilesWithContext([sourceItem], targetFolder);
+                } else if (sourceItem instanceof TFolder) {
+                    if (targetFolder.path === sourceItem.path || targetFolder.path.startsWith(`${sourceItem.path}/`)) {
+                        new Notice(strings.dragDrop.errors.cannotMoveIntoSelf);
+                        return;
+                    }
 
-                        try {
-                            const base = targetFolder.path === '/' ? '' : `${targetFolder.path}/`;
-                            const newPath = normalizePath(`${base}${sourceItem.name}`);
-                            await app.fileManager.renameFile(sourceItem, newPath);
-                            new Notice(strings.fileSystem.notifications.folderMoved.replace('{name}', sourceItem.name));
-                        } catch (error) {
-                            console.error('Error moving folder:', error);
-                            new Notice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', sourceItem.name));
-                        }
+                    if (sourceItem.parent?.path === targetFolder.path) {
+                        return;
+                    }
+
+                    try {
+                        const base = targetFolder.path === '/' ? '' : `${targetFolder.path}/`;
+                        const newPath = normalizePath(`${base}${sourceItem.name}`);
+                        await app.fileManager.renameFile(sourceItem, newPath);
+                        new Notice(strings.fileSystem.notifications.folderMoved.replace('{name}', sourceItem.name));
+                    } catch (error) {
+                        console.error('Error moving folder:', error);
+                        new Notice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', sourceItem.name));
                     }
                 }
             } finally {
+                // Clean up drag state and payload after drop completes
+                setDragManagerPayload(null);
                 dragTypeRef.current = null;
             }
         },
-        [app, handleTagDrop, handleExternalFileDrop, moveFilesWithContext, getFilesFromPaths, clearAutoExpandTimer]
+        [app, handleTagDrop, handleExternalFileDrop, moveFilesWithContext, getFilesFromPaths, clearAutoExpandTimer, setDragManagerPayload]
     );
 
     /**
@@ -753,10 +802,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             }
 
             dragGhostManager.hideGhost();
+            // Clean up drag state and payload when drag ends
+            setDragManagerPayload(null);
             clearAutoExpandTimer();
             dragTypeRef.current = null;
         },
-        [selectionState, containerRef, dragGhostManager, clearAutoExpandTimer]
+        [selectionState, containerRef, dragGhostManager, clearAutoExpandTimer, setDragManagerPayload]
     );
 
     useEffect(() => {
@@ -785,8 +836,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             container.removeEventListener('dragend', handleDragEnd);
             document.removeEventListener('keydown', handleEscape);
 
-            // Clean up any lingering ghost on unmount
+            // Clean up any lingering drag state on unmount
             dragGhostManager.hideGhost();
+            setDragManagerPayload(null);
             clearAutoExpandTimer();
             dragTypeRef.current = null;
         };
@@ -799,6 +851,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         handleDragEnd,
         isMobile,
         dragGhostManager,
-        clearAutoExpandTimer
+        clearAutoExpandTimer,
+        setDragManagerPayload
     ]);
 }
