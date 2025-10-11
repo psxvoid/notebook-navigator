@@ -82,6 +82,7 @@ body {
 
     /* -- Navigation Pane -- */
     --nn-theme-nav-bg: var(--background-secondary);
+    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.05);
 
     /* -- Folder & Tag Items -- */
     --nn-theme-navitem-chevron-color: var(--text-muted);
@@ -182,6 +183,10 @@ body {
 
     /* -- File Separator -- */
     --nn-separator-height: 1px;
+}
+
+.theme-dark {
+    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.2);
 }
 
 /* ========================================================================
@@ -813,6 +818,8 @@ body {
     border-bottom: 1px solid var(--nn-theme-divider-border-color);
     border-right: 1px solid var(--nn-theme-divider-border-color);
     background-color: var(--nn-theme-nav-bg);
+    position: relative;
+    z-index: 1;
 }
 
 /* Remove top padding when banner is present to avoid double spacing */
@@ -830,6 +837,17 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0;
+}
+
+.nn-shortcut-pinned::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 1px);
+    height: 6px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, var(--nn-theme-pinned-shortcut-shadow-color) 0%, transparent 100%);
 }
 
 .notebook-navigator-mobile .nn-shortcut-pinned {
