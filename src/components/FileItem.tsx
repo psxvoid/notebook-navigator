@@ -65,6 +65,8 @@ import { getDateField } from '../utils/sortUtils';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
 
+const FEATURE_IMAGE_MAX_ASPECT_RATIO = 16 / 9;
+
 interface FileItemProps {
     file: TFile;
     isSelected: boolean;
@@ -302,6 +304,7 @@ export const FileItem = React.memo(function FileItem({
     const [previewText, setPreviewText] = useState<string>(initialData.preview);
     const [tags, setTags] = useState<string[]>(initialData.tags);
     const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(initialData.imageUrl);
+    const [featureImageAspectRatio, setFeatureImageAspectRatio] = useState<number | null>(null);
     const [metadataVersion, setMetadataVersion] = useState(0);
 
     // === Refs ===
@@ -673,6 +676,27 @@ export const FileItem = React.memo(function FileItem({
             file.extension === 'canvas' ||
             file.extension === 'base');
 
+    const featureImageContainerClassName = useMemo(() => {
+        const classes = ['nn-feature-image'];
+        if (!featureImageUrl || settings.forceSquareFeatureImage) {
+            classes.push('nn-feature-image--square');
+        } else {
+            classes.push('nn-feature-image--natural');
+        }
+        return classes.join(' ');
+    }, [featureImageUrl, settings.forceSquareFeatureImage]);
+
+    const featureImageStyle = useMemo(() => {
+        if (!featureImageUrl || settings.forceSquareFeatureImage) {
+            return undefined;
+        }
+
+        const aspectRatio = featureImageAspectRatio ?? 1;
+        return {
+            '--nn-feature-image-aspect-ratio': aspectRatio
+        } as React.CSSProperties;
+    }, [featureImageAspectRatio, featureImageUrl, settings.forceSquareFeatureImage]);
+
     // Memoize className to avoid string concatenation on every render
     const className = useMemo(() => {
         const classes = ['nn-file'];
@@ -736,6 +760,47 @@ export const FileItem = React.memo(function FileItem({
         };
         // NOTE: include file.path because Obsidian reuses TFile instance on rename
     }, [file, file.path, appearanceSettings.showPreview, appearanceSettings.showImage, getDB, app, loadFileData]);
+
+    useEffect(() => {
+        if (!featureImageUrl || settings.forceSquareFeatureImage) {
+            setFeatureImageAspectRatio(null);
+            return;
+        }
+
+        setFeatureImageAspectRatio(null);
+
+        let isActive = true;
+        const image = new Image();
+
+        const applyAspectRatio = (width: number, height: number) => {
+            if (!isActive) {
+                return;
+            }
+            if (width <= 0 || height <= 0) {
+                setFeatureImageAspectRatio(null);
+                return;
+            }
+            const ratio = width / height;
+            const clampedRatio = Math.min(ratio, FEATURE_IMAGE_MAX_ASPECT_RATIO);
+            setFeatureImageAspectRatio(clampedRatio);
+        };
+
+        image.onload = () => applyAspectRatio(image.naturalWidth, image.naturalHeight);
+        image.onerror = () => {
+            if (isActive) {
+                setFeatureImageAspectRatio(null);
+            }
+        };
+        image.src = featureImageUrl;
+
+        if (image.complete && image.naturalWidth > 0 && image.naturalHeight > 0) {
+            applyAspectRatio(image.naturalWidth, image.naturalHeight);
+        }
+
+        return () => {
+            isActive = false;
+        };
+    }, [featureImageUrl, settings.forceSquareFeatureImage]);
 
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {
@@ -1069,7 +1134,7 @@ export const FileItem = React.memo(function FileItem({
                             {/* ========== FEATURE IMAGE AREA ========== */}
                             {/* Shows either actual image or extension badge for non-markdown files */}
                             {shouldShowFeatureImageArea && (
-                                <div className="nn-feature-image">
+                                <div className={featureImageContainerClassName} style={featureImageStyle}>
                                     {featureImageUrl ? (
                                         <img
                                             src={featureImageUrl}

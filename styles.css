@@ -1763,15 +1763,23 @@ body {
 
 /* Feature image container - right-aligned image thumbnail */
 .nn-feature-image {
-    /* Default size */
-    width: var(--nn-feature-image-min-size);
-    height: var(--nn-feature-image-min-size);
     flex-shrink: 0;
     border-radius: min(32px, var(--nn-theme-file-feature-border-radius));
     overflow: hidden;
-    background-color: var(--background-secondary-alt);
+    background-color: transparent;
     position: relative;
     order: 2; /* Ensure it appears on the right */
+}
+
+.nn-feature-image--square {
+    width: var(--nn-feature-image-min-size);
+    height: var(--nn-feature-image-min-size);
+}
+
+.nn-feature-image--natural {
+    width: auto;
+    height: var(--nn-feature-image-min-size);
+    aspect-ratio: var(--nn-feature-image-aspect-ratio, 1);
 }
 
 /* Dynamic sizing based on calculated item height */
@@ -1782,16 +1790,32 @@ body {
         calc(var(--item-height) - var(--nn-file-padding-total)),
         var(--nn-feature-image-max-size)
     );
+}
+
+.nn-virtual-file-item .nn-feature-image--square {
     width: var(--image-size);
     height: var(--image-size);
+}
+
+.nn-virtual-file-item .nn-feature-image--natural {
+    height: var(--image-size);
+    max-height: var(--image-size);
 }
 
 /* Feature image element - covers container with proper aspect ratio */
 .nn-feature-image-img {
     width: 100%;
     height: 100%;
+}
+
+.nn-feature-image--square .nn-feature-image-img {
     object-fit: cover;
     object-position: center top;
+}
+
+.nn-feature-image--natural .nn-feature-image-img {
+    object-fit: contain;
+    object-position: center;
 }
 
 /* Selected file image - slightly transparent when selected */

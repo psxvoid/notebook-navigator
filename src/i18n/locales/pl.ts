@@ -755,6 +755,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż obraz wyróżniający (*)',
                 desc: 'Wyświetl miniaturki obrazów z frontmatter. Wskazówka: Użyj pluginu "Featured Image" aby automatycznie ustawić obrazy wyróżniające dla wszystkich dokumentów.'
             },
+            forceSquareFeatureImage: {
+                name: 'Wymuś kwadratowy obraz wyróżniający',
+                desc: 'Wyświetlaj obrazy wyróżniające jako kwadratowe miniatury.'
+            },
             featureImageProperties: {
                 name: 'Właściwości obrazu',
                 desc: 'Lista właściwości frontmatter oddzielonych przecinkami do sprawdzenia dla miniaturek obrazów. Pierwsza właściwość z obrazem zostanie użyta. Jeśli puste i ustawienie awaryjne jest włączone, pierwszy osadzony obraz zostanie użyty.',

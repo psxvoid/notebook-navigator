@@ -77,7 +77,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-10-09',
         showOnUpdate: true,
         new: [
-            'Icons read from frontmatter can now also read Iconize formatted icons, e.g. LiHome, FasUser, iGithub, etc.',
+            'Icons read from frontmatter can now also read Iconize formatted icons, e.g. LiHome, FasUser, SiGithub, etc.',
             'New setting: Save in Iconize format. Saves icons in Iconize format in frontmatter instead of proprietary provider:icon format.'
         ],
         improved: [

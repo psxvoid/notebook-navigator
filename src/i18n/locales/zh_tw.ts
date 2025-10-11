@@ -752,6 +752,10 @@ export const STRINGS_ZH_TW = {
                 name: '顯示特色圖片 (*)',
                 desc: '從 frontmatter 顯示縮圖。提示：使用 "Featured Image" 外掛為您的所有文件自動設定特色圖片。'
             },
+            forceSquareFeatureImage: {
+                name: '強制正方形特色圖片',
+                desc: '將特色圖片渲染為正方形縮圖。'
+            },
             featureImageProperties: {
                 name: '圖片屬性',
                 desc: '以逗號分隔的 frontmatter 屬性清單，用於檢查縮圖。將使用第一個有圖片的屬性。如果為空且啟用備用設定，將使用第一張嵌入的圖片。',

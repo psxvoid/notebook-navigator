@@ -753,6 +753,10 @@ export const STRINGS_KO = {
                 name: '대표 이미지 표시 (*)',
                 desc: 'frontmatter에서 썸네일 이미지를 표시합니다. 팁: "Featured Image" 플러그인을 사용하여 모든 문서에 대표 이미지를 자동으로 설정하세요.'
             },
+            forceSquareFeatureImage: {
+                name: '대표 이미지를 정사각형으로 고정',
+                desc: '대표 이미지를 정사각형 썸네일로 렌더링합니다.'
+            },
             featureImageProperties: {
                 name: '이미지 속성',
                 desc: '썸네일 이미지를 확인할 frontmatter 속성의 쉼표로 구분된 목록입니다. 이미지가 있는 첫 번째 속성이 사용됩니다. 비어 있고 대체 설정이 활성화되면 첫 번째 임베디드 이미지가 사용됩니다.',

@@ -276,39 +276,37 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ## Settings
 
-### Top level settings
+### General
 
 - **Default startup view:** Choose which pane displays when opening Notebook Navigator - Navigation pane (shortcuts, recent notes, folders) or List pane (note list)
 - **Dual pane layout (desktop only, not synced):** Show navigation and list panes side by side
 - **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
-  - **Ignore events from right sidebar:** Disable auto-reveal from right sidebar
+- **Ignore events from right sidebar:** Disable auto-reveal from right sidebar
+- **Auto-select first note (desktop only):** Automatically open the first note when switching folders or tags
 - **Homepage:** Set a file that opens automatically when Notebook Navigator starts
-  - **Separate mobile homepage:** Use a different homepage for mobile devices
-- **Show tooltips (desktop only):** Display hover tooltips for notes and folders
-- **Show file types:** Choose file types to display. Non-Obsidian files open in system's default application. `Markdown only`, `Supported files`, `All files`
-- **Hide folders:** Comma-separated list of folders to hide. Pattern types:
-  - **Name patterns:** `archive` excludes all "archive" folders
-  - **Path patterns:** `/archive` excludes root archive folder, `/projects/secret` excludes specific path
-  - **Wildcards:** `temp*` (starts with), `*_old` (ends with), `/projects/*` (all descendants)
-  - Right-click folders to add to exclusion list
+- **Separate mobile homepage:** Use a different homepage for mobile devices
+- **Show tooltips (desktop only):** Display hover tooltips with additional information for notes and folders
+- **Show file types:** Filter which file types are shown. `Documents (.md, .canvas, .base)`, `Supported (opens in Obsidian)`, `All (may open externally)`
+- **Hide folders:** Comma-separated list of folders to hide. Name patterns: `assets*` (folders starting with assets), `*_temp` (ending with \_temp). Path patterns: `/archive` (root archive only), `/res*` (root folders starting with res), `/*/temp` (temp folders one level deep), `/projects/*` (all folders inside projects)
 - **Hide notes:** Comma-separated frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
+- **Date format:** Format for displaying dates (uses date-fns format)
+- **Time format:** Format for displaying times (uses date-fns format)
 
 ### Navigation pane
 
 - **Navigation banner:** Display an image above the navigation pane
 - **Show shortcuts:** Display the shortcuts section for quick access to pinned items
 - **Show recent notes:** Display recently opened notes in the navigation pane
-  - **Recent notes count:** Number of recent notes to display (1-10)
-- **Auto-select first note (desktop only):** Automatically open the first note when switching folders or tags
+- **Recent notes count:** Number of recent notes to display (1-10)
 - **Auto-expand folders and tags:** Automatically expand folders and tags when they are selected
 - **Collapse items:** What expand/collapse all button affects. `All folders and tags`, `Folders only`, `Tags only`
 - **Keep selected item expanded:** When collapsing, keep the currently selected folder or tag and its parents expanded
 - **Show icons:** Display icons next to folders and tags
-  - **Apply color to icons only:** Limit custom colors to icons only, not text labels
+- **Apply color to icons only:** Limit custom colors to icons only, not text labels
 - **Show note count:** Display the number of notes next to each folder and tag
 - **Tree indentation:** Adjust the indentation width for nested folders and tags
 - **Item height:** Adjust the height of folders and tags in the navigation pane
-  - **Scale text with item height:** Reduce navigation text when item height is decreased
+- **Scale text with item height:** Reduce navigation text when item height is decreased
 
 ### Icon packs
 
@@ -324,85 +322,80 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 **Note:** Downloaded icon packs sync installation state across devices. Icons stay in the local database on each device; sync only tracks whether to download or remove them.
 
-### Folders
+### Folders & Tags
 
 - **Show root folder:** Display the vault name as the root folder in the tree
 - **Inherit folder colors:** Child folders inherit color from parent folders
 - **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links
-  - **Default folder note type:** Type created from context menu. `Markdown`, `Canvas`, `Base`
-  - **Folder note name:** Name of the folder note without extension. Leave empty to use the same name as the folder
-  - **Folder note properties:** Frontmatter properties to add to newly created folder notes (comma-separated)
-  - **Hide folder notes in list:** Hide the folder note from appearing in the folder's note list
-
-### Tags
-
+- **Default folder note type:** Type created from context menu. `Markdown`, `Canvas`, `Base`
+- **Folder note name:** Name of the folder note without extension. Leave empty to use the same name as the folder
+- **Folder note properties:** Frontmatter properties to add to newly created folder notes (comma-separated)
+- **Hide folder notes in list:** Hide the folder note from appearing in the folder's note list
 - **Show tags (\*):** Display tags section below folders in the navigator
-  - **Show tags above folders:** Display tags section before folders in the navigator
-  - **Show favorite tags folder:** Display "Favorites" as collapsible folder when favorite tags are configured
-  - **Show tags folder:** Display "Tags" as collapsible folder
-  - **Show untagged notes:** Display "Untagged" item for notes without any tags
-    - **Show untagged notes in favorite tags section:** Display untagged notes in the favorites section, either inside the folder or directly below favorites
-  - **Favorite tags:** Comma-separated list of tag prefixes. Adding a tag includes all its sub-tags (e.g., "photo" includes "photo/camera/fuji")
-  - **Hidden tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs")
+- **Show tags above folders:** Display tags section before folders in the navigator
+- **Show favorite tags folder:** Display "Favorite tags" as collapsible folder when favorite tags are configured
+- **Show tags folder:** Display "Tags" as collapsible folder
+- **Show untagged notes:** Display "Untagged" item for notes without any tags
+- **Show untagged notes in favorite tags section:** Display untagged notes in the favorites section, either inside the folder or directly below favorites
+- **Favorite tags:** Comma-separated list of tag prefixes. Adding a tag includes all its sub-tags (e.g., "photo" includes "photo/camera/fuji")
+- **Hidden tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs")
 
-### Search
+### List pane
+
+- **List pane title:** Choose where the list pane title is shown. `Show in header`, `Show in list pane`, `Hidden`
+- **Show notes from subfolders / descendants:** Include notes from nested subfolders and tag descendants when viewing a folder or tag
+- **Sort notes by:** Choose how notes are sorted in the note list. `Date edited (newest first)`, `Date edited (oldest first)`, `Date created (newest first)`, `Date created (oldest first)`, `Title (A on top)`, `Title (Z on top)`
+- **Multi-select modifier:** Choose which modifier key toggles multi-selection. When Option/Alt is selected, Cmd/Ctrl click opens notes in a new tab. `Cmd/Ctrl click`, `Option/Alt click`
+- **Group notes by date:** When sorted by date, group notes under date headers
+- **Optimize note height:** Reduce height for pinned notes and notes without preview text
+- **Show quick actions (desktop only):** Show hover actions on file items
+- **Reveal in folder:** Quick action: Reveal note in its parent folder. Only visible when viewing notes from subfolders or in tags (not shown in the note's actual folder)
+- **Pin note:** Quick action: Pin or unpin note at top of list
+- **Open in new tab:** Quick action: Open note in new tab
+
+### Notes
+
+- **Read metadata from frontmatter (\*):** Read note names, timestamps, icons, and colors from frontmatter when available, falling back to file system values or settings
+- **Icon field:** Frontmatter field for file icons. Leave empty to use icons stored in settings
+- **Color field:** Frontmatter field for file colors. Leave empty to use colors stored in settings
+- **Save icons and colors to frontmatter:** Automatically write file icons and colors to frontmatter using the configured fields above
+- **Save in Iconize format:** Save icons using Iconize format (e.g. LiHome, FasUser, SiGithub) instead of plugin format (e.g. home, fontawesome-solid:user, simple-icons:github)
+- **Migrate icons and colors from settings:** Migration tool to move all file icons and colors from plugin settings to frontmatter
+- **Name field:** Frontmatter field to use as the note display name. Leave empty to use the file name
+- **Created timestamp field:** Frontmatter field name for the created timestamp. Leave empty to only use file system date
+- **Modified timestamp field:** Frontmatter field name for the modified timestamp. Leave empty to only use file system date
+- **Timestamp format:** Format used to parse timestamps in frontmatter. Leave empty to use ISO 8601 format
+- **Title rows:** Number of rows to display for note titles. `1 row` or `2 rows`
+- **Show date:** Display the date below note names
+- **Show file tags:** Display clickable tags in file items
+- **Show parent tags:** Display parent segments before the tag name
+- **Color file tags:** Apply tag colors to tag badges on file items
+- **Show file tags in slim mode:** Display tags when date, preview, and image are hidden
+- **Show parent folder names:** Display the parent folder name for notes in subfolders or tags
+- **Show note preview (\*):** Display preview text beneath note names
+- **Skip headings in preview:** Skip heading lines when generating preview text
+- **Skip code blocks in preview:** Skip code blocks when generating preview text
+- **Preview rows:** Number of rows to display for preview text. `1-5 rows`
+- **Preview properties:** Comma-separated list of frontmatter properties to check for preview text. The first property with text will be used
+- **Show feature image (\*):** Display thumbnail images from frontmatter. Tip: Use the Featured Image plugin to automatically set feature images
+- **Image properties:** Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. If empty and the fallback setting is enabled, the first embedded image will be used
+- **Force square feature image:** Render feature images as square thumbnails
+- **Use embedded image fallback:** Use the first embedded image in the document as a fallback when no thumbnail is found in frontmatter properties (requires Obsidian 1.9.4+). Disable this to verify that thumbnails are properly configured
+
+**Note:** When date, preview, and feature image are disabled, list pane displays in compact "slim mode" with only note names.
+
+### Search & Hotkeys
 
 - **Search provider:** Choose between quick file name search or full-text search with Omnisearch plugin
-  - **Filter search (default):** Fast, lightweight search that filters files by name and tags within the current folder and subfolders. Supports tag filtering with # prefix (e.g., #project), exclusion with ! prefix (e.g., !draft, !#archived), and finding untagged notes with !#. Ideal for quick navigation within your current context
-  - **Omnisearch:** Full-text search that searches your entire vault, then filters the results to show only files from the current folder, subfolders, or selected tags. Requires the [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin to be installed - if not available, search will automatically fall back to Filter search
+  - **Filter search (default):** Fast, lightweight search that filters files by name and tags within the current folder and subfolders. Supports tag filtering with # prefix (e.g., #project), exclusion with ! prefix (e.g., !draft, !#archived), and finding untagged notes with !#
+  - **Omnisearch:** Full-text search that searches your entire vault, then filters the results to show only files from the current folder, subfolders, or selected tags. Requires the [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin to be installed - falls back to Filter search if not available
     - **Known limitations:**
       - Performance can be slow, especially when searching for less than 3 characters in large vaults
       - Cannot search in paths with non-ASCII characters and does not search subpaths correctly
       - Since Omnisearch searches the entire vault and returns a limited number of results before filtering, relevant files from your current folder may not appear if too many matches exist elsewhere
       - Note previews are replaced with Omnisearch result excerpts, which may not show the actual search match highlight
 
-### List pane
-
-- **List pane title:** Choose where the list pane title is shown. `Show in header`, `Show in list pane`, `Hidden`
-- **Show notes from subfolders / descendants:** Include notes from nested subfolders and tag descendants when viewing a folder or tag
-- **Sort notes by:** Choose how notes are sorted in the note list. `Date edited (newest/oldest first)`, `Date created (newest/oldest first)`, `Title (A-Z first)`
-- **Multi-select modifier:** Choose which modifier key toggles multi-selection. When Option/Alt is selected, Cmd/Ctrl click opens notes in a new tab. `Cmd/Ctrl click`, `Option/Alt click`
-- **Group notes by date:** When sorted by date, group notes under date headers
-- **Optimize note height:** Reduce height for pinned notes and notes without preview text
-- **Show quick actions (desktop only):** Show hover actions on file items
-  - **Reveal in folder:** Quick action: Reveal note in its parent folder. Only visible when viewing notes from subfolders or in tags (not shown in the note's actual folder)
-  - **Pin note:** Quick action: Pin or unpin note at top of list
-  - **Open in new tab:** Quick action: Open note in new tab
-- **Date format:** Format for displaying dates (uses date-fns format)
-- **Time format:** Format for displaying times (uses date-fns format)
-
-### Notes
-
-- **Read metadata from frontmatter (\*):** Read note names and timestamps from frontmatter when available, falling back to file system values
-- **Name field:** Frontmatter field to use as the note display name. Leave empty to use the file name
-- **Created timestamp field:** Frontmatter field name for the created timestamp. Leave empty to only use file system date
-- **Modified timestamp field:** Frontmatter field name for the modified timestamp. Leave empty to only use file system date
-- **Timestamp format:** Format used to parse timestamps in frontmatter. Leave empty to use ISO 8601 format
-- **Icon field:** Frontmatter field for file icons. Leave empty to use icons stored in settings
-- **Color field:** Frontmatter field for file colors. Leave empty to use colors stored in settings
-- **Save icons and colors to frontmatter:** Automatically write file icons and colors to frontmatter using the configured fields above
-- **Migrate icons and colors from settings:** Migration tool to move all file icons and colors from plugin settings to frontmatter
-- **Title rows:** Number of rows to display for note titles. `1` or `2`
-- **Show date:** Display the date below note names
-- **Show file tags:** Display clickable tags in file items. Use tag colors to visually distinguish different tag types
-  - **Show parent tags:** Display parent segments before the tag name
-  - **Color file tags:** Apply tag colors to tag badges on file items
-  - **Show file tags in slim mode:** Display tags when date, preview, and image are hidden
-- **Show parent folder names:** Display the parent folder name for notes in subfolders or tags
-- **Show note preview (\*):** Display preview text beneath note names
-  - **Preview rows:** Number of rows to display for preview text. `1-5`
-  - **Skip headings in preview:** Skip heading lines when generating preview text
-  - **Skip code blocks in preview:** Skip code blocks when generating preview text
-  - **Preview properties:** Comma-separated list of frontmatter properties to check for preview text. The first property with text will be used
-- **Show feature image (\*):** Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents
-  - **Image properties:** Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. If empty and the fallback setting is enabled, the first embedded image will be used
-  - **Use embedded image fallback:** Use the first embedded image in the document as a fallback when no thumbnail is found in frontmatter properties (requires Obsidian 1.9.4+). Disable this to verify that thumbnails are properly configured
-
-**Note:** When date, preview, and feature image are disabled, list pane displays in compact "slim mode" with only note names.
-
-### Hotkeys
-
-- Edit `<vault>/.obsidian/plugins/notebook-navigator/data.json` to customize shortcuts. Locate the `keyboardShortcuts` section and define entries in this format:
+- **Keyboard shortcuts:** Edit `<vault>/.obsidian/plugins/notebook-navigator/data.json` to customize shortcuts. Locate the `keyboardShortcuts` section and define entries in this format:
 
 ```json
 "pane:move-up": [

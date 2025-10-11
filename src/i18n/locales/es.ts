@@ -754,6 +754,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar imagen destacada (*)',
                 desc: 'Muestra imágenes en miniatura desde el frontmatter. Consejo: Usa el plugin "Featured Image" para establecer automáticamente imágenes destacadas para todos tus documentos.'
             },
+            forceSquareFeatureImage: {
+                name: 'Forzar imagen destacada cuadrada',
+                desc: 'Renderizar imágenes destacadas como miniaturas cuadradas.'
+            },
             featureImageProperties: {
                 name: 'Propiedades de imagen',
                 desc: 'Lista separada por comas de propiedades del frontmatter para imágenes en miniatura. Se usará la primera propiedad con una imagen. Si está vacía y la configuración de respaldo está habilitada, se usará la primera imagen incrustada.',

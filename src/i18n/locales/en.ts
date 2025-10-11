@@ -753,6 +753,10 @@ export const STRINGS_EN = {
                 name: 'Show feature image (*)',
                 desc: 'Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents.'
             },
+            forceSquareFeatureImage: {
+                name: 'Force square feature image',
+                desc: 'Render feature images as square thumbnails.'
+            },
             featureImageProperties: {
                 name: 'Image properties',
                 desc: 'Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. If empty and the fallback setting is enabled, the first embedded image will be used.',

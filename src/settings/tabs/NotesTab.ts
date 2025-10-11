@@ -456,6 +456,16 @@ export function renderNotesTab(context: SettingsTabContext): void {
     featurePropertiesSetting.controlEl.addClass('nn-setting-wide-input');
 
     new Setting(featureImageSettingsEl)
+        .setName(strings.settings.items.forceSquareFeatureImage.name)
+        .setDesc(strings.settings.items.forceSquareFeatureImage.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.forceSquareFeatureImage).onChange(async value => {
+                plugin.settings.forceSquareFeatureImage = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(featureImageSettingsEl)
         .setName(strings.settings.items.useEmbeddedImageFallback.name)
         .setDesc(strings.settings.items.useEmbeddedImageFallback.desc)
         .addToggle(toggle =>

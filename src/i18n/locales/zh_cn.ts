@@ -754,6 +754,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示特色图片 (*)',
                 desc: '从前置元数据显示缩略图。提示：使用"Featured Image"插件自动为所有文档设置特色图片。'
             },
+            forceSquareFeatureImage: {
+                name: '强制正方形特色图片',
+                desc: '将特色图片渲染为正方形缩略图。'
+            },
             featureImageProperties: {
                 name: '图片属性',
                 desc: '用于缩略图的前置元数据属性的逗号分隔列表。将使用第一个包含图片的属性。如果为空且启用了后备设置，将使用第一个嵌入的图片。',

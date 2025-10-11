@@ -756,6 +756,10 @@ export const STRINGS_FR = {
                 name: "Afficher l'image vedette (*)",
                 desc: 'Afficher les images miniatures depuis les métadonnées. Conseil : Utilisez le plugin "Featured Image" pour définir automatiquement des images vedettes pour tous vos documents.'
             },
+            forceSquareFeatureImage: {
+                name: "Forcer l'image vedette carrée",
+                desc: 'Afficher les images vedettes sous forme de miniatures carrées.'
+            },
             featureImageProperties: {
                 name: "Propriétés d'image",
                 desc: 'Liste de propriétés de métadonnées séparées par des virgules pour les images miniatures. La première propriété avec une image sera utilisée. Si vide et que le paramètre de repli est activé, la première image intégrée sera utilisée.',

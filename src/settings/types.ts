@@ -133,6 +133,7 @@ export interface NotebookNavigatorSettings {
     previewRows: number;
     showFeatureImage: boolean;
     featureImageProperties: string[];
+    forceSquareFeatureImage: boolean;
     useEmbeddedImageFallback: boolean;
 
     // Icon packs tab

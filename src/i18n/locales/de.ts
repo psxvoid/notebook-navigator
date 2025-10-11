@@ -757,6 +757,10 @@ export const STRINGS_DE = {
                 name: 'Vorschaubild anzeigen (*)',
                 desc: 'Miniaturbilder aus Frontmatter anzeigen. Tipp: Verwenden Sie das "Featured Image" Plugin, um automatisch Vorschaubilder für alle Ihre Dokumente festzulegen.'
             },
+            forceSquareFeatureImage: {
+                name: 'Quadratische Vorschaubilder erzwingen',
+                desc: 'Vorschaubilder als quadratische Miniaturansichten darstellen.'
+            },
             featureImageProperties: {
                 name: 'Bildeigenschaften',
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften für Miniaturbilder. Die erste Eigenschaft mit einem Bild wird verwendet. Wenn leer und die Fallback-Einstellung aktiviert ist, wird das erste eingebettete Bild verwendet.',
