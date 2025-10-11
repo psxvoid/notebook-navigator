@@ -119,7 +119,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     previewRows: 2,
     showFeatureImage: true,
     featureImageProperties: ['thumbnail', 'featureResized', 'feature'],
-    forceSquareFeatureImage: false,
+    forceSquareFeatureImage: true,
     useEmbeddedImageFallback: true,
 
     // Icon packs tab
