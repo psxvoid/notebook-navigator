@@ -193,7 +193,7 @@ export interface GeneratePreviewResult {
 
 const EMPTY_STRING = '';
 
-async function generatePreview(excalidrawFile: TFile, loadRaw = false, app: App): Promise<GeneratePreviewResult> {
+async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, app: App): Promise<GeneratePreviewResult> {
     // eslint-disable-next-line no-undef
     const ea = ExcalidrawAutomate.getAPI();
 
