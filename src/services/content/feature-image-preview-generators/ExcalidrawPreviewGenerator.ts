@@ -219,13 +219,13 @@ async function generatePreview(excalidrawFile: TFile, loadRaw = false, app: App)
 }
 
 export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App, requestingFile: TFile): Promise<string | null> {
-    const filePath = cacheFilePath(excalidrawFile);
+    const previewFilePath = cacheFilePath(excalidrawFile);
     const dbFile = getDbFile(requestingFile.path);
 
     const hasExistingFeature = (dbFile?.featureImage ?? EMPTY_STRING).length > 0;
 
-    if (hasExistingFeature && dbFile?.featureImage === filePath) {
-        return null;
+    if (hasExistingFeature && dbFile?.featureImage === previewFilePath) {
+        return previewFilePath;
     }
 
     if (hasExistingFeature && await this.app.vault.adapter.exists(dbFile?.featureImage)) {
@@ -235,26 +235,20 @@ export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App,
         await this.app.vault.adapter.mkdir(cacheDirPath);
     }
 
-    const previewData = await generatePreview(excalidrawFile, false, app);
-    const previewFilePath = cacheFilePath(excalidrawFile)
-
-    const writeBinary = async () => {
-        await this.app.vault.createBinary(previewFilePath, await previewData.blob.arrayBuffer());
-    }
-
+    let previewData: GeneratePreviewResult | undefined
     try {
-        await writeBinary()
+        previewData = await generatePreview(excalidrawFile, false, app);
+        await this.app.vault.createBinary(previewFilePath, await previewData.blob.arrayBuffer());
     } catch(e: unknown) {
         if (e instanceof Error && e.message.indexOf("File already exists") >= 0) {
             // usually should not happen but just in case
-            await this.app.vault.delete(this.app.vault.getFileByPath(previewFilePath));
-            await writeBinary()
-        } else {
-            throw e;
+            return previewFilePath
         }
+
+        throw e;
+    } finally {
+        previewData?.dispose()
     }
 
-    previewData.dispose()
-
-    return normalizePath(previewFilePath)
+    return previewFilePath;
 }
