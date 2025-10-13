@@ -149,7 +149,7 @@ async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, e
 
     await Promise.all(outlinks.map(async (outlink: LinkCache) => {
         const fileIds = await getEmbedLinkFileId(lines, outlink);
-        const maybeFileParam = sceneImages.find(x => fileIds.indexOf((x[1] as { fileId: string }).fileId) >= 0)
+        const maybeFileParam = sceneImages.find(x => fileIds.indexOf(x[1].fileId) >= 0)
 
         // eslint-disable-next-line eqeqeq
         if (maybeFileParam == null) return
