@@ -239,6 +239,7 @@ export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App,
     try {
         previewData = await generatePreview(excalidrawFile, false, app);
         await this.app.vault.createBinary(previewFilePath, await previewData.blob.arrayBuffer());
+        return previewFilePath
     } catch(e: unknown) {
         if (e instanceof Error && e.message.indexOf("File already exists") >= 0) {
             // usually should not happen but just in case
@@ -249,6 +250,4 @@ export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App,
     } finally {
         previewData?.dispose()
     }
-
-    return previewFilePath;
 }
