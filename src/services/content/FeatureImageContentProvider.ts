@@ -21,8 +21,9 @@ import { ContentType } from '../../interfaces/IContentProvider';
 import { NotebookNavigatorSettings } from '../../settings';
 import { FileData } from '../../storage/IndexedDBStorage';
 import { getDBInstance } from '../../storage/fileOperations';
-import { isImageFile } from '../../utils/fileTypeUtils';
+import { isExcalidrawAttachment, isImageFile } from '../../utils/fileTypeUtils';
 import { BaseContentProvider } from './BaseContentProvider';
+import { generateExcalidrawPreview } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
 
 /**
  * Content provider for finding and storing feature images
@@ -85,7 +86,8 @@ export class FeatureImageContentProvider extends BaseContentProvider {
 
         try {
             const metadata = this.app.metadataCache.getFileCache(job.file);
-            const imageUrl = this.getFeatureImageUrlFromMetadata(job.file, metadata, settings);
+
+            const imageUrl = await this.getFeatureImageUrlFromMetadata(job.file, metadata, settings);
             const imageUrlStr = imageUrl || '';
 
             // Only return update if feature image changed
@@ -102,16 +104,16 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             return null;
         }
     }
-
+    
     /**
      * Extract feature image URL from file metadata
      * Checks frontmatter properties defined in settings
      */
-    private getFeatureImageUrlFromMetadata(
+    private async getFeatureImageUrlFromMetadata(
         file: TFile,
         metadata: CachedMetadata | null,
         settings: NotebookNavigatorSettings
-    ): string | null {
+    ): Promise<string | null> {
         // Only process markdown files for feature images
         if (file.extension !== 'md') {
             return null;
@@ -134,6 +136,13 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             const imageFile = this.app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
 
             if (imageFile) {
+                if (imageFile.extension === 'md') {
+                    const metadata = this.app.metadataCache.getFileCache(imageFile);
+                    if (isExcalidrawAttachment(imageFile, metadata)) {
+                        return generateExcalidrawPreview(imageFile, this.app, file);
+                    }
+                }
+
                 // Store just the path, not the full app:// URL
                 return imageFile.path;
             }
@@ -144,9 +153,20 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             for (const embed of metadata.embeds) {
                 const embedPath = embed.link;
                 const embedFile = this.app.metadataCache.getFirstLinkpathDest(embedPath, file.path);
-                if (embedFile && isImageFile(embedFile)) {
-                    // Store just the path, not the full app:// URL
-                    return embedFile.path;
+
+                if (embedFile) {
+                    if(isImageFile(embedFile)) {
+                        // Store just the path, not the full app:// URL
+                        return embedFile.path;
+                    }
+
+                    const embedMetadata = this.app.metadataCache.getFileCache(embedFile);
+
+                    if (isExcalidrawAttachment(embedFile, embedMetadata)) {
+                        return generateExcalidrawPreview(embedFile, this.app, file);
+                    }
+
+                    return null;
                 }
             }
         }

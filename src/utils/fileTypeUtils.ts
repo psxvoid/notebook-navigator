@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile } from 'obsidian';
+import { App, TFile, CachedMetadata } from 'obsidian';
 import { ExtendedApp } from '../types/obsidian-extended';
 
 /**
@@ -119,6 +119,21 @@ export function isImageFile(file: TFile): boolean {
         return false;
     }
     return IMAGE_EXTENSIONS.has(file.extension.toLowerCase());
+}
+
+export function isExcalidrawAttachment(file: TFile, metadata: CachedMetadata | null) {
+    const frontMatter = metadata?.frontmatter;
+
+    // eslint-disable-next-line eqeqeq
+    if (file == null || file.path == null && file.extension !== 'md' || frontMatter == null) {
+        return false;
+    }
+
+    function hasExcalidrawType(value: 'parsed' | 'raw') {
+        return frontMatter!['excalidraw-plugin'] === value
+    }
+
+    return hasExcalidrawType('parsed') || hasExcalidrawType('raw')
 }
 
 /**
