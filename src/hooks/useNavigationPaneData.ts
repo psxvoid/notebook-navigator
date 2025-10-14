@@ -189,6 +189,8 @@ interface UseNavigationPaneDataResult {
     folderCounts: Map<string, number>;
     /** Ordered list of root-level folders */
     rootLevelFolders: TFolder[];
+    /** Paths from settings that are not currently present in the vault */
+    missingRootFolderPaths: string[];
 }
 
 /**
@@ -219,7 +221,7 @@ export function useNavigationPaneData({
         setFileChangeVersion(value => value + 1);
     }, []);
     // Get ordered root folders and notify on file changes
-    const { rootFolders, rootLevelFolders, rootFolderOrderMap } = useRootFolderOrder({
+    const { rootFolders, rootLevelFolders, rootFolderOrderMap, missingRootFolderPaths } = useRootFolderOrder({
         settings,
         onFileChange: handleRootFileChange
     });
@@ -1028,6 +1030,7 @@ export function useNavigationPaneData({
         shortcutIndex,
         tagCounts,
         folderCounts,
-        rootLevelFolders
+        rootLevelFolders,
+        missingRootFolderPaths
     };
 }

@@ -76,12 +76,22 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.5.5',
         date: '2025-10-14',
         showOnUpdate: true,
-        new: ['==New setting: Tag sort order==. You can now sort tags alphabetically or by frequency (number of notes with tag).'],
+        info: [
+            'Thanks for all great suggestions you have for the plugin! New in this release is ==frequency based sorting for tags==, so your most used tags are shown first.',
+            'I also added ==drag and drop support for single pane mode==, so you can now drag files to the left edge of the screen to open the navigation pane to move files or add and remove tags!',
+            'Have a great day and enjoy Notebook Navigator!'
+        ].join('\n\n'),
+        new: [
+            '==New setting: Tag sort order==. You can now sort tags alphabetically or by frequency (number of notes with tag).',
+            '==Drag and drop files in single pane mode==. You can now drag and drop files in single-pane mode by dragging to the left edge of the screen to open the navigation pane temporarily.'
+        ],
         improved: [
             'Emojis can now be read from frontmatter using both "icon: emoji:🔭" and "icon: 🔭" formats.',
-            'Emojis are now saved as "icon: 🔭" in frontmatter if the setting Save in Iconize format is enabled.'
+            'Emojis are now saved as "icon: 🔭" in frontmatter if the setting Save in Iconize format is enabled.',
+            'Settings now remember the last tab you were on when reopening settings.'
         ],
         fixed: [
+            'Fixed an issue where custom folder sort order was reset if settings were synced before new folders were synced between devices. Custom folder sort order sync is now rock solid.',
             'Console will no longer show warnings about "Failed to scroll to index" when Notebook Navigator is hidden and you change file in main editor.',
             'Fixed an issue where file dates would show instead of frontmatter dates, if frontmatter dates were enabled and list was sorted by title.',
             'Read metadata from frontmatter in settings now update statistics properly, and also excludes hidden folders from statistics if "Show hidden items" is disabled.'

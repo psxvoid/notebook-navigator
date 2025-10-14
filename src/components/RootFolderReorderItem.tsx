@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
 
@@ -16,6 +16,8 @@ interface RootFolderReorderItemProps {
     dragHandleLabel: string;
     onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
     chevronIcon?: string;
+    isMissing?: boolean;
+    actions?: ReactNode;
 }
 
 /**
@@ -32,7 +34,9 @@ export function RootFolderReorderItem({
     isDragSource,
     dragHandleLabel,
     onClick,
-    chevronIcon
+    chevronIcon,
+    isMissing,
+    actions
 }: RootFolderReorderItemProps) {
     // Prevents event bubbling for reorder item clicks to avoid triggering parent handlers
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -53,6 +57,9 @@ export function RootFolderReorderItem({
           }
         : undefined;
 
+    // Apply a special class for missing folders to visually indicate they no longer exist
+    const rowClassName = isMissing ? 'nn-root-reorder-item nn-root-reorder-item--missing' : 'nn-root-reorder-item';
+
     return (
         <NavigationListRow
             icon={icon}
@@ -66,11 +73,12 @@ export function RootFolderReorderItem({
             showDropIndicatorAfter={showDropIndicatorAfter}
             isDragSource={isDragSource}
             showCount={false}
-            className="nn-root-reorder-item"
+            className={rowClassName}
             tabIndex={-1}
             ariaGrabbed={isDragSource}
             dragHandleConfig={handleConfig}
             chevronIcon={chevronIcon}
+            actions={actions}
         />
     );
 }

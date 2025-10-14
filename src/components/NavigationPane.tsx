@@ -126,8 +126,9 @@ interface NavigationPaneProps {
 
 type RootFolderDescriptor = {
     key: string;
-    folder: TFolder;
+    folder: TFolder | null;
     isVault?: boolean;
+    isMissing?: boolean;
 };
 
 export const NavigationPane = React.memo(
@@ -620,13 +621,14 @@ export const NavigationPane = React.memo(
         // Determine if shortcuts should be pinned based on UI state and settings
         const shouldPinShortcuts = uiState.pinShortcuts && settings.showShortcuts;
 
-        const { items, shortcutItems, pathToIndex, shortcutIndex, tagCounts, folderCounts, rootLevelFolders } = useNavigationPaneData({
-            settings,
-            isVisible,
-            shortcutsExpanded,
-            recentNotesExpanded,
-            pinShortcuts: shouldPinShortcuts
-        });
+        const { items, shortcutItems, pathToIndex, shortcutIndex, tagCounts, folderCounts, rootLevelFolders, missingRootFolderPaths } =
+            useNavigationPaneData({
+                settings,
+                isVisible,
+                shortcutsExpanded,
+                recentNotesExpanded,
+                pinShortcuts: shouldPinShortcuts
+            });
 
         // Extract shortcut items to display in pinned area when pinning is enabled
         const pinnedShortcutItems = shouldPinShortcuts ? shortcutItems : [];
@@ -644,11 +646,43 @@ export const NavigationPane = React.memo(
             if (settings.showRootFolder) {
                 descriptors.push({ key: vaultRootFolder.path, folder: vaultRootFolder, isVault: true });
             }
+
+            // Build a map of existing folders for quick lookup
+            const folderMap = new Map<string, TFolder>();
             rootLevelFolders.forEach(folder => {
-                descriptors.push({ key: folder.path, folder });
+                folderMap.set(folder.path, folder);
             });
+
+            // Track missing folders from settings that no longer exist in vault
+            const missingSet = new Set(missingRootFolderPaths);
+            const orderedPaths =
+                settings.rootFolderOrder.length > 0 ? settings.rootFolderOrder : rootLevelFolders.map(folder => folder.path);
+            const seen = new Set<string>();
+
+            // Process folders in the order specified by settings, including missing ones
+            orderedPaths.forEach(path => {
+                if (seen.has(path)) {
+                    return;
+                }
+                seen.add(path);
+                const existing = folderMap.get(path);
+                if (existing) {
+                    descriptors.push({ key: path, folder: existing });
+                } else if (missingSet.has(path)) {
+                    // Include missing folders so user can remove them from settings
+                    descriptors.push({ key: path, folder: null, isMissing: true });
+                }
+            });
+
+            // Append any new folders not in the ordered list
+            rootLevelFolders.forEach(folder => {
+                if (!seen.has(folder.path)) {
+                    descriptors.push({ key: folder.path, folder });
+                }
+            });
+
             return descriptors;
-        }, [rootLevelFolders, settings.showRootFolder, vaultRootFolder]);
+        }, [missingRootFolderPaths, rootLevelFolders, settings.rootFolderOrder, settings.showRootFolder, vaultRootFolder]);
 
         // Filter out vault root to get only reorderable folders
         const reorderableRootFolders = useMemo<RootFolderDescriptor[]>(() => {
@@ -726,6 +760,29 @@ export const NavigationPane = React.memo(
             [arePathArraysEqual, settings.rootFolderOrder, updateSettings]
         );
 
+        /**
+         * Removes a missing folder path from the root folder order settings.
+         * Used when a folder that was previously in custom order no longer exists in the vault.
+         */
+        const handleRemoveMissingRootFolder = useCallback(
+            async (path: string) => {
+                if (!path) {
+                    return;
+                }
+                await updateSettings(current => {
+                    if (!Array.isArray(current.rootFolderOrder)) {
+                        current.rootFolderOrder = [];
+                        return;
+                    }
+                    if (!current.rootFolderOrder.includes(path)) {
+                        return;
+                    }
+                    current.rootFolderOrder = current.rootFolderOrder.filter(entry => entry !== path);
+                });
+            },
+            [updateSettings]
+        );
+
         const {
             getDragHandlers: getRootDragHandlers,
             dropIndex: rootReorderDropIndex,
@@ -755,12 +812,14 @@ export const NavigationPane = React.memo(
                 }
 
                 const baseHandlers = getRootDragHandlers(key);
-                const iconName = rootFolderIconMap.get(key) ?? (descriptor.isVault ? 'vault' : 'lucide-folder');
+                const resolvedIcon =
+                    rootFolderIconMap.get(key) ??
+                    (descriptor.isVault ? 'vault' : descriptor.isMissing ? 'lucide-folder-off' : 'lucide-folder');
                 const iconColor = rootFolderColorMap.get(key);
                 const dragHandlers = withDragGhost(baseHandlers, {
                     itemType: ItemType.FOLDER,
-                    path: descriptor.folder.path,
-                    icon: iconName,
+                    path: descriptor.folder ? descriptor.folder.path : descriptor.key,
+                    icon: resolvedIcon,
                     iconColor
                 });
                 const isDragSource = rootReorderDraggingKey === key;
@@ -2075,9 +2134,43 @@ export const NavigationPane = React.memo(
                                     const iconName = rootFolderIconMap.get(entry.key);
                                     const displayLabel = entry.isVault
                                         ? settings.customVaultName || app.vault.getName()
-                                        : entry.folder.name;
-                                    const displayIcon = entry.isVault ? (iconName ?? 'open-vault') : (iconName ?? 'lucide-folder');
+                                        : entry.folder
+                                          ? entry.folder.name
+                                          : getPathBaseName(entry.key);
+                                    const isMissing = entry.isMissing === true;
+                                    let displayIcon = 'lucide-folder';
+                                    if (entry.isVault) {
+                                        displayIcon = iconName ?? 'open-vault';
+                                    } else if (isMissing) {
+                                        displayIcon = 'lucide-folder-off';
+                                    } else if (iconName) {
+                                        displayIcon = iconName;
+                                    }
                                     const chevronIcon = entry.isVault ? 'lucide-chevron-down' : undefined;
+                                    const actions =
+                                        !entry.isVault && isMissing ? (
+                                            <span
+                                                role="button"
+                                                tabIndex={0}
+                                                className="nn-root-reorder-remove"
+                                                onClick={event => {
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                    void handleRemoveMissingRootFolder(entry.key);
+                                                }}
+                                                onKeyDown={event => {
+                                                    if (event.key === 'Enter' || event.key === ' ') {
+                                                        event.preventDefault();
+                                                        event.stopPropagation();
+                                                        void handleRemoveMissingRootFolder(entry.key);
+                                                    }
+                                                }}
+                                            >
+                                                {strings.common.remove}
+                                            </span>
+                                        ) : undefined;
+                                    const dragHandlersForEntry = entry.isVault ? undefined : dragHandlers;
+                                    const dragSourceActive = entry.isVault ? false : isDragSource;
 
                                     return (
                                         <RootFolderReorderItem
@@ -2085,12 +2178,14 @@ export const NavigationPane = React.memo(
                                             icon={displayIcon}
                                             label={displayLabel}
                                             level={entry.isVault ? 0 : 1}
-                                            dragHandlers={entry.isVault ? undefined : dragHandlers}
+                                            dragHandlers={dragHandlersForEntry}
                                             showDropIndicatorBefore={showBefore}
                                             showDropIndicatorAfter={showAfter}
-                                            isDragSource={entry.isVault ? false : isDragSource}
+                                            isDragSource={dragSourceActive}
                                             dragHandleLabel={strings.navigationPane.dragHandleLabel}
                                             chevronIcon={chevronIcon}
+                                            isMissing={isMissing}
+                                            actions={actions}
                                         />
                                     );
                                 })}
