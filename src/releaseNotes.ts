@@ -79,7 +79,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: ['==New setting: Tag sort order==. You can now sort tags alphabetically or by frequency (number of notes with tag).'],
         improved: [],
         fixed: [
-            'Fixed an issue where file dates would show instead of frontmatter dates, if frontmatter dates were enabled and list was sorted by title.'
+            'Fixed an issue where file dates would show instead of frontmatter dates, if frontmatter dates were enabled and list was sorted by title.',
+            'Read metadata from frontmatter in settings now update statistics properly, and also excludes hidden folders from statistics if "Show hidden items" is disabled.'
         ]
     },
     {

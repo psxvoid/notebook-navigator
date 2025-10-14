@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import type { NotebookNavigatorSettings } from '../settings';
+import { isPathInExcludedFolder } from '../utils/fileFilters';
 import { getDBInstance } from './fileOperations';
 import { METADATA_SENTINEL } from './IndexedDBStorage';
 
@@ -65,9 +67,11 @@ export interface CacheStatistics {
  *
  * @returns Cache statistics or null on error
  */
-export function calculateCacheStatistics(): CacheStatistics | null {
+export function calculateCacheStatistics(settings: NotebookNavigatorSettings): CacheStatistics | null {
     try {
         const db = getDBInstance();
+
+        const excludedFolderPatterns = settings.showHiddenItems ? [] : settings.excludedFolders;
 
         const stats: CacheStatistics = {
             totalItems: 0,
@@ -93,6 +97,10 @@ export function calculateCacheStatistics(): CacheStatistics | null {
         const allFiles = db.getAllFiles();
 
         for (const { path, data: fileData } of allFiles) {
+            if (excludedFolderPatterns.length > 0 && isPathInExcludedFolder(path, excludedFolderPatterns)) {
+                continue;
+            }
+
             stats.totalItems++;
 
             // Check for tags (not null and not empty array)
