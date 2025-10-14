@@ -80,6 +80,8 @@ interface UseNavigationPaneScrollResult {
     rowVirtualizer: Virtualizer<HTMLDivElement, Element>;
     /** Reference to the scroll container element */
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
+    /** Ref callback for the scroll container element */
+    scrollContainerRefCallback: (element: HTMLDivElement | null) => void;
     /** Handler to scroll to top (mobile header tap) */
     handleScrollToTop: () => void;
     /** Request a scroll to a specific path */
@@ -109,6 +111,66 @@ export function useNavigationPaneScroll({
 
     // Reference to the scroll container DOM element
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [scrollContainerEl, setScrollContainerEl] = useState<HTMLDivElement | null>(null);
+    const [containerVisible, setContainerVisible] = useState<boolean>(false);
+
+    /**
+     * Ref callback to keep local state in sync with the rendered scroll container.
+     */
+    const scrollContainerRefCallback = useCallback((element: HTMLDivElement | null) => {
+        scrollContainerRef.current = element;
+        setScrollContainerEl(element);
+        if (!element) {
+            setContainerVisible(false);
+        }
+    }, []);
+
+    /**
+     * Track the physical visibility of the scroll container using ResizeObserver.
+     * When the element (or any parent) is hidden, TanStack Virtual scroll calls
+     * will fail. We gate scroll execution on this state instead of relying on
+     * logical pane visibility alone.
+     */
+    useEffect(() => {
+        const element = scrollContainerEl;
+        if (!element) {
+            setContainerVisible(false);
+            return;
+        }
+
+        const updateVisibility = () => {
+            const rect = element.getBoundingClientRect();
+            const isContainerVisible = rect.width > 0 && rect.height > 0;
+            setContainerVisible(prev => (prev === isContainerVisible ? prev : isContainerVisible));
+        };
+
+        updateVisibility();
+
+        if (typeof ResizeObserver === 'undefined') {
+            const handleWindowResize = () => updateVisibility();
+            window.addEventListener('resize', handleWindowResize);
+            return () => {
+                window.removeEventListener('resize', handleWindowResize);
+            };
+        }
+
+        const observer = new ResizeObserver(entries => {
+            const entry = entries[0];
+            if (!entry) {
+                return;
+            }
+            const { width, height } = entry.contentRect;
+            const isContainerVisible = width > 0 && height > 0;
+            setContainerVisible(prev => (prev === isContainerVisible ? prev : isContainerVisible));
+        });
+
+        observer.observe(element);
+
+        return () => observer.disconnect();
+    }, [scrollContainerEl]);
+
+    // Container is ready when both the navigation pane and the physical container are visible
+    const isScrollContainerReady = isVisible && containerVisible;
 
     // Resolves a path to its index in the navigation items array
     const resolveIndex = useCallback(
@@ -255,7 +317,7 @@ export function useNavigationPaneScroll({
      * NAV_SCROLL_SELECTION: Auto-scrolls to selected folder/tag
      */
     useEffect(() => {
-        if (!selectedPath || !rowVirtualizer || !isVisible) return;
+        if (!selectedPath || !rowVirtualizer || !isScrollContainerReady) return;
 
         const currentSelectionType = selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
 
@@ -263,12 +325,12 @@ export function useNavigationPaneScroll({
         const isSelectionChange = prevSelectedPathRef.current !== selectedPath;
 
         // Check if pane just became visible or gained focus
-        const justBecameVisible = !prevVisibleRef.current && isVisible;
+        const justBecameVisible = !prevVisibleRef.current && isScrollContainerReady;
         const justGainedFocus = prevFocusedPaneRef.current !== 'navigation' && uiState.focusedPane === 'navigation';
 
         // Update the refs for next comparison
         prevSelectedPathRef.current = selectedPath;
-        prevVisibleRef.current = isVisible;
+        prevVisibleRef.current = isScrollContainerReady;
         prevFocusedPaneRef.current = uiState.focusedPane;
 
         // Only scroll on actual selection changes or visibility/focus changes
@@ -302,7 +364,7 @@ export function useNavigationPaneScroll({
     }, [
         selectedPath,
         rowVirtualizer,
-        isVisible,
+        isScrollContainerReady,
         uiState.focusedPane,
         settings.showHiddenItems,
         selectionState.selectionType,
@@ -316,7 +378,7 @@ export function useNavigationPaneScroll({
      * NAV_SCROLL_STARTUP_TAG: Scrolls to selected tag after tags load
      */
     useEffect(() => {
-        if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag && rowVirtualizer && isVisible) {
+        if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag && rowVirtualizer && isScrollContainerReady) {
             // Skip tag scrolling when a shortcut is active
             if (activeShortcutKey) {
                 prevSelectedTagRef.current = selectionState.selectedTag;
@@ -357,7 +419,7 @@ export function useNavigationPaneScroll({
         selectionState.selectionType,
         selectionState.selectedTag,
         rowVirtualizer,
-        isVisible,
+        isScrollContainerReady,
         settings.showHiddenItems,
         selectedPath,
         resolveIndex,
@@ -375,7 +437,7 @@ export function useNavigationPaneScroll({
      * 4. During visibility toggles, only visibilityToggle intents execute
      */
     useEffect(() => {
-        if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) return;
+        if (!rowVirtualizer || !pendingScrollRef.current || !isScrollContainerReady) return;
 
         const { path, align, intent, minIndexVersion, itemType } = pendingScrollRef.current;
 
@@ -420,7 +482,7 @@ export function useNavigationPaneScroll({
             }
         }
         // If index not found, keep the pending scroll for next rebuild
-    }, [rowVirtualizer, isVisible, pendingScrollVersion, settings.showHiddenItems, resolveIndex]);
+    }, [rowVirtualizer, isScrollContainerReady, pendingScrollVersion, settings.showHiddenItems, resolveIndex]);
 
     /**
      * Listen for mobile drawer visibility events
@@ -435,7 +497,7 @@ export function useNavigationPaneScroll({
                 return;
             }
             // If we have a selected folder or tag, scroll to it
-            if (selectedPath && rowVirtualizer) {
+            if (selectedPath && rowVirtualizer && isScrollContainerReady) {
                 const index = resolveIndex(selectedPath, selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER);
                 if (index !== undefined && index >= 0) {
                     rowVirtualizer.scrollToIndex(index, { align: 'auto' });
@@ -445,7 +507,7 @@ export function useNavigationPaneScroll({
 
         window.addEventListener('notebook-navigator-visible', handleVisible);
         return () => window.removeEventListener('notebook-navigator-visible', handleVisible);
-    }, [isMobile, selectedPath, rowVirtualizer, selectionState.selectionType, resolveIndex, activeShortcutKey]);
+    }, [isMobile, selectedPath, rowVirtualizer, selectionState.selectionType, resolveIndex, activeShortcutKey, isScrollContainerReady]);
 
     /**
      * Re-measure all items when line height settings change
@@ -473,7 +535,7 @@ export function useNavigationPaneScroll({
         }
 
         if (settingsChanged) {
-            if (selectedPath && isVisible && rowVirtualizer) {
+            if (selectedPath && isScrollContainerReady && rowVirtualizer) {
                 const index = resolveIndex(selectedPath, selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER);
                 if (index !== undefined && index >= 0) {
                     // Use requestAnimationFrame to ensure measurements are complete
@@ -489,7 +551,7 @@ export function useNavigationPaneScroll({
         settings.navItemHeight,
         settings.navIndent,
         selectedPath,
-        isVisible,
+        isScrollContainerReady,
         rowVirtualizer,
         resolveIndex,
         selectionState.selectionType,
@@ -503,7 +565,7 @@ export function useNavigationPaneScroll({
     useEffect(() => {
         if (prevShowHiddenItemsRef.current !== settings.showHiddenItems) {
             // When showHiddenItems changes and we have a selected tag, defer scrolling until the tree rebuilds
-            if (selectedPath && selectionState.selectionType === ItemType.TAG && isVisible && rowVirtualizer) {
+            if (selectedPath && selectionState.selectionType === ItemType.TAG && isScrollContainerReady && rowVirtualizer) {
                 // Set a pending scroll to be processed after the next index rebuild
                 pendingScrollRef.current = {
                     path: selectedPath,
@@ -517,11 +579,19 @@ export function useNavigationPaneScroll({
 
             prevShowHiddenItemsRef.current = settings.showHiddenItems;
         }
-    }, [settings.showHiddenItems, selectedPath, isVisible, rowVirtualizer, selectionState.selectionType, selectionState.selectedTag]);
+    }, [
+        settings.showHiddenItems,
+        selectedPath,
+        isScrollContainerReady,
+        rowVirtualizer,
+        selectionState.selectionType,
+        selectionState.selectedTag
+    ]);
 
     return {
         rowVirtualizer,
         scrollContainerRef,
+        scrollContainerRefCallback,
         handleScrollToTop,
         requestScroll,
         pendingScrollVersion

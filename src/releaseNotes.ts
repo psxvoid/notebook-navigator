@@ -82,6 +82,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Emojis are now saved as "icon: 🔭" in frontmatter if the setting Save in Iconize format is enabled.'
         ],
         fixed: [
+            'Console will no longer show warnings about "Failed to scroll to index" when Notebook Navigator is hidden and you change file in main editor.',
             'Fixed an issue where file dates would show instead of frontmatter dates, if frontmatter dates were enabled and list was sorted by title.',
             'Read metadata from frontmatter in settings now update statistics properly, and also excludes hidden folders from statistics if "Show hidden items" is disabled.'
         ]

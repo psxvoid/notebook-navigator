@@ -134,6 +134,8 @@ export function useListPaneScroll({
 
     // Reference to the scroll container DOM element
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+    const [scrollContainerEl, setScrollContainerEl] = useState<HTMLDivElement | null>(null);
+    const [containerVisible, setContainerVisible] = useState<boolean>(false);
 
     // Track list state changes and pending scroll operations
     const prevListKeyRef = useRef<string>(''); // Previous folder/tag context to detect navigation
@@ -327,11 +329,58 @@ export function useListPaneScroll({
      * Used as a ref callback to capture the DOM element.
      */
     const scrollContainerRefCallback = useCallback((element: HTMLDivElement | null) => {
-        if (element && element !== scrollContainerRef.current) {
-            // Intentionally empty - just updating the ref
-        }
         scrollContainerRef.current = element as HTMLDivElement;
+        setScrollContainerEl(element);
+        if (!element) {
+            setContainerVisible(false);
+        }
     }, []);
+
+    /**
+     * Track the rendered visibility of the list scroll container.
+     * TanStack Virtual scroll calls should not execute while the container (or parent)
+     * is hidden because they will fail internally and emit retry errors.
+     */
+    useEffect(() => {
+        const element = scrollContainerEl;
+        if (!element) {
+            setContainerVisible(false);
+            return;
+        }
+
+        const updateVisibility = () => {
+            const rect = element.getBoundingClientRect();
+            const isContainerVisible = rect.width > 0 && rect.height > 0;
+            setContainerVisible(prev => (prev === isContainerVisible ? prev : isContainerVisible));
+        };
+
+        updateVisibility();
+
+        if (typeof ResizeObserver === 'undefined') {
+            const handleWindowResize = () => updateVisibility();
+            window.addEventListener('resize', handleWindowResize);
+            return () => {
+                window.removeEventListener('resize', handleWindowResize);
+            };
+        }
+
+        const observer = new ResizeObserver(entries => {
+            const entry = entries[0];
+            if (!entry) {
+                return;
+            }
+            const { width, height } = entry.contentRect;
+            const isContainerVisible = width > 0 && height > 0;
+            setContainerVisible(prev => (prev === isContainerVisible ? prev : isContainerVisible));
+        });
+
+        observer.observe(element);
+
+        return () => observer.disconnect();
+    }, [scrollContainerEl]);
+
+    // Container is ready when both the list pane and the physical container are visible
+    const isScrollContainerReady = isVisible && containerVisible;
 
     /**
      * Scroll to top handler for mobile header tap.
@@ -425,7 +474,7 @@ export function useListPaneScroll({
      * - list-config-change: auto (maintain position)
      */
     useEffect(() => {
-        if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) {
+        if (!rowVirtualizer || !pendingScrollRef.current || !isScrollContainerReady) {
             return;
         }
 
@@ -486,7 +535,7 @@ export function useListPaneScroll({
     }, [
         rowVirtualizer,
         filePathToIndex,
-        isVisible,
+        isScrollContainerReady,
         pendingScrollVersion,
         getSelectionIndex,
         isMobile,
@@ -596,6 +645,7 @@ export function useListPaneScroll({
      * Maintains scroll position on the selected file.
      * Effect includes all dependencies but only scrolls when config actually changes.
      */
+    // Calculate effective sort order based on folder/tag overrides or default
     const { defaultFolderSort, folderSortOverrides, tagSortOverrides } = settings;
     const effectiveSort = useMemo(() => {
         if (
@@ -612,7 +662,7 @@ export function useListPaneScroll({
         return defaultFolderSort;
     }, [defaultFolderSort, folderSortOverrides, tagSortOverrides, selectionState.selectionType, selectedFolder, selectedTag]);
     useEffect(() => {
-        if (!rowVirtualizer || !isVisible) {
+        if (!rowVirtualizer || !isScrollContainerReady) {
             return;
         }
 
@@ -650,7 +700,7 @@ export function useListPaneScroll({
             });
         }
     }, [
-        isVisible,
+        isScrollContainerReady,
         rowVirtualizer,
         selectedFile,
         settings.includeDescendantNotes,
@@ -666,7 +716,7 @@ export function useListPaneScroll({
      * Uses indexVersion changes keyed by current folder/tag context. Avoids duplicate triggers on navigation.
      */
     useEffect(() => {
-        if (!rowVirtualizer || !isVisible) return;
+        if (!rowVirtualizer || !isScrollContainerReady) return;
 
         const contextKey = `${selectedFolder?.path || ''}_${selectedTag || ''}`;
         const prev = contextIndexVersionRef.current;
@@ -692,7 +742,16 @@ export function useListPaneScroll({
                 });
             }
         }
-    }, [rowVirtualizer, isVisible, selectedFolder?.path, selectedTag, filePathToIndex, filePathToIndex.size, selectedFile, setPending]);
+    }, [
+        rowVirtualizer,
+        isScrollContainerReady,
+        selectedFolder?.path,
+        selectedTag,
+        filePathToIndex,
+        filePathToIndex.size,
+        selectedFile,
+        setPending
+    ]);
 
     /**
      * Handle scrolling when navigating between folders/tags.
@@ -729,7 +788,7 @@ export function useListPaneScroll({
 
         // For single-pane mode, always set pending scroll even if not visible
         // It will be processed when the pane becomes visible
-        if (!isVisible && (isFolderNavigation || listChanged)) {
+        if (!isScrollContainerReady && (isFolderNavigation || listChanged)) {
             // Update the ref
             if (listChanged) {
                 prevListKeyRef.current = currentListKey;
@@ -755,7 +814,7 @@ export function useListPaneScroll({
 
         // For folder navigation when visible, perform scroll immediately without RAF
         // RAF was causing issues with component re-renders cancelling the scroll
-        if (isFolderNavigation && listItems.length > 0 && isVisible) {
+        if (isFolderNavigation && listItems.length > 0 && isScrollContainerReady) {
             // Update the ref
             if (listChanged) {
                 prevListKeyRef.current = currentListKey;
@@ -795,7 +854,7 @@ export function useListPaneScroll({
             );
         }
     }, [
-        isVisible,
+        isScrollContainerReady,
         rowVirtualizer,
         selectedFolder?.path,
         selectedTag,
@@ -812,7 +871,7 @@ export function useListPaneScroll({
      * SCROLL_REVEAL_OPERATION: Sets pending scroll with 'reveal' reason
      */
     useEffect(() => {
-        if (selectionState.isRevealOperation && selectedFile && isVisible) {
+        if (selectionState.isRevealOperation && selectedFile && isScrollContainerReady) {
             // Always use pending scroll for reveal operations
             // This ensures proper timing and measurement before scrolling
             setPending({
@@ -822,7 +881,7 @@ export function useListPaneScroll({
                 minIndexVersion: indexVersionRef.current
             });
         }
-    }, [selectionState.isRevealOperation, selectedFile, isVisible, selectionDispatch, filePathToIndex, setPending]);
+    }, [selectionState.isRevealOperation, selectedFile, isScrollContainerReady, selectionDispatch, filePathToIndex, setPending]);
 
     /**
      * Handle search query changes.
@@ -836,7 +895,7 @@ export function useListPaneScroll({
             return;
         }
 
-        if (!isVisible || !rowVirtualizer) {
+        if (!isScrollContainerReady || !rowVirtualizer) {
             // Defer handling until visible/ready without consuming the query change
             return;
         }
@@ -872,7 +931,16 @@ export function useListPaneScroll({
         if (queryChanged) {
             // No-op
         }
-    }, [searchQuery, selectedFile, filePathToIndex, isVisible, rowVirtualizer, listItems.length, setPending, suppressSearchTopScrollRef]);
+    }, [
+        searchQuery,
+        selectedFile,
+        filePathToIndex,
+        isScrollContainerReady,
+        rowVirtualizer,
+        listItems.length,
+        setPending,
+        suppressSearchTopScrollRef
+    ]);
 
     return {
         rowVirtualizer,

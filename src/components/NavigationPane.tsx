@@ -266,6 +266,7 @@ export const NavigationPane = React.memo(
         const shortcutCount = hydratedShortcuts.length;
         const isShortcutDnDEnabled = shortcutsExpanded && shortcutCount > 0 && settings.showShortcuts;
 
+        // Show drag handles on mobile when drag and drop is enabled
         const showShortcutDragHandles = isMobile && isShortcutDnDEnabled;
 
         const shortcutDragHandleConfig = useMemo(() => {
@@ -279,7 +280,7 @@ export const NavigationPane = React.memo(
             } as const;
         }, [showShortcutDragHandles]);
 
-        // Map shortcut keys to their position in the list
+        // Map shortcut keys to their position in the list for efficient lookups
         const shortcutPositionMap = useMemo(() => {
             const map = new Map<string, number>();
             hydratedShortcuts.forEach((entry, index) => {
@@ -322,12 +323,14 @@ export const NavigationPane = React.memo(
             [dragGhostManager]
         );
 
+        // Reset external drop indicator when shortcuts are collapsed
         useEffect(() => {
             if (!shortcutsExpanded) {
                 setExternalShortcutDropIndex(null);
             }
         }, [shortcutsExpanded]);
 
+        // Calculates the insertion index for dropped shortcuts based on drop position
         const computeShortcutInsertIndex = useCallback(
             (event: React.DragEvent<HTMLElement>, key: string) => {
                 const shortcutIndex = shortcutPositionMap.get(key);
@@ -609,6 +612,7 @@ export const NavigationPane = React.memo(
         // Determine if navigation pane is visible early for optimization
         const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
 
+        // Get tag trees from file data cache
         const favoriteTree = fileData.favoriteTree;
         const tagTree = fileData.tagTree;
 
@@ -631,8 +635,10 @@ export const NavigationPane = React.memo(
         // Banner should be shown in pinned area only when shortcuts are pinned and banner is configured
         const shouldShowPinnedBanner = Boolean(navigationBannerPath && pinnedShortcutItems.length > 0);
 
+        // Get the vault root folder reference
         const vaultRootFolder = useMemo(() => app.vault.getRoot(), [app]);
 
+        // Build descriptors for root-level folders including optional vault root
         const rootFolderDescriptors = useMemo<RootFolderDescriptor[]>(() => {
             const descriptors: RootFolderDescriptor[] = [];
             if (settings.showRootFolder) {
@@ -644,10 +650,12 @@ export const NavigationPane = React.memo(
             return descriptors;
         }, [rootLevelFolders, settings.showRootFolder, vaultRootFolder]);
 
+        // Filter out vault root to get only reorderable folders
         const reorderableRootFolders = useMemo<RootFolderDescriptor[]>(() => {
             return rootFolderDescriptors.filter(entry => !entry.isVault);
         }, [rootFolderDescriptors]);
 
+        // Map folder keys to their position for efficient reorder tracking
         const rootFolderPositionMap = useMemo(() => {
             const map = new Map<string, number>();
             reorderableRootFolders.forEach((entry, index) => {
@@ -656,8 +664,10 @@ export const NavigationPane = React.memo(
             return map;
         }, [reorderableRootFolders]);
 
+        // Check if there are enough folders to enable reordering
         const canReorderRootFolders = reorderableRootFolders.length > 1;
 
+        // Build icon map for root folders for quick access during rendering
         const rootFolderIconMap = useMemo(() => {
             const map = new Map<string, string | undefined>();
             items.forEach(item => {
@@ -668,6 +678,7 @@ export const NavigationPane = React.memo(
             return map;
         }, [items]);
 
+        // Build color map for root folders for quick access during rendering
         const rootFolderColorMap = useMemo(() => {
             const map = new Map<string, string | undefined>();
             items.forEach(item => {
@@ -678,8 +689,10 @@ export const NavigationPane = React.memo(
             return map;
         }, [items]);
 
+        // Determine if root folder reordering drag and drop is currently enabled
         const isRootReorderDnDEnabled = isRootReorderMode && canReorderRootFolders;
 
+        // Exit root reorder mode if there are not enough folders to reorder
         useEffect(() => {
             if (isRootReorderMode && !canReorderRootFolders) {
                 setRootReorderMode(false);
@@ -726,6 +739,7 @@ export const NavigationPane = React.memo(
             }
         });
 
+        // Builds drag state and visual indicators for root folder reordering
         const getRootReorderVisualState = useCallback(
             (descriptor: RootFolderDescriptor) => {
                 const key = descriptor.key;
@@ -772,6 +786,7 @@ export const NavigationPane = React.memo(
             ]
         );
 
+        // Toggle root folder reorder mode on/off
         const handleToggleRootReorder = useCallback(() => {
             if (!canReorderRootFolders) {
                 return;
@@ -780,7 +795,7 @@ export const NavigationPane = React.memo(
         }, [canReorderRootFolders]);
 
         // Use the new scroll hook
-        const { rowVirtualizer, scrollContainerRef, requestScroll } = useNavigationPaneScroll({
+        const { rowVirtualizer, scrollContainerRef, scrollContainerRefCallback, requestScroll } = useNavigationPaneScroll({
             items,
             pathToIndex,
             isVisible,
@@ -788,6 +803,7 @@ export const NavigationPane = React.memo(
             bannerHeight
         });
 
+        // Scroll to top when entering root reorder mode for better UX
         useEffect(() => {
             if (!isRootReorderMode) {
                 return;
@@ -2041,7 +2057,7 @@ export const NavigationPane = React.memo(
                     </div>
                 ) : null}
                 <div
-                    ref={scrollContainerRef}
+                    ref={scrollContainerRefCallback}
                     className="nn-navigation-pane-scroller"
                     data-pane="navigation"
                     role={isRootReorderMode ? 'list' : 'tree'}
