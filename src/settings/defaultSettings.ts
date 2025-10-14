@@ -28,7 +28,7 @@ import type { NotebookNavigatorSettings } from './types';
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Startup & layout
-    startView: 'navigation',
+    startView: 'files',
     showTooltips: false,
 
     // General tab - Homepage
