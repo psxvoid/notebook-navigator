@@ -27,6 +27,14 @@ import type { SearchProvider } from '../types/search';
 /** Available sort options for file listing */
 export type SortOption = 'modified-desc' | 'modified-asc' | 'created-desc' | 'created-asc' | 'title-asc' | 'title-desc';
 
+/** Available orderings for tags in the navigation pane */
+export type TagSortOrder = 'alpha-asc' | 'alpha-desc' | 'frequency-asc' | 'frequency-desc';
+
+/** Type guard for validating tag sort order values */
+export function isTagSortOrder(value: string): value is TagSortOrder {
+    return value === 'alpha-asc' || value === 'alpha-desc' || value === 'frequency-asc' || value === 'frequency-desc';
+}
+
 /** Scope of items that button actions affect */
 export type ItemScope = 'all' | 'folders-only' | 'tags-only';
 
@@ -94,6 +102,7 @@ export interface NotebookNavigatorSettings {
     showAllTagsFolder: boolean;
     showUntagged: boolean;
     showUntaggedInFavorites: boolean;
+    tagSortOrder: TagSortOrder;
     favoriteTags: string[];
     hiddenTags: string[];
 

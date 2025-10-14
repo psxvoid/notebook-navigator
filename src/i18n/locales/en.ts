@@ -815,6 +815,16 @@ export const STRINGS_EN = {
                 name: 'Show tags (*)',
                 desc: 'Display tags section below folders in the navigator.'
             },
+            tagSortOrder: {
+                name: 'Tag sort order',
+                desc: 'Choose how tags are ordered in the navigation pane.',
+                options: {
+                    alphaAsc: 'A to Z',
+                    alphaDesc: 'Z to A',
+                    frequencyAsc: 'Frequency (low to high)',
+                    frequencyDesc: 'Frequency (high to low)'
+                }
+            },
             showTagsAboveFolders: {
                 name: 'Show tags above folders',
                 desc: 'Display tags section before folders in the navigator.'

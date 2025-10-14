@@ -819,6 +819,16 @@ export const STRINGS_DE = {
                 name: 'Tags anzeigen (*)',
                 desc: 'Tag-Bereich unterhalb der Ordner im Navigator anzeigen.'
             },
+            tagSortOrder: {
+                name: 'Tag-Sortierreihenfolge',
+                desc: 'Lege fest, wie Tags im Navigationsbereich sortiert werden.',
+                options: {
+                    alphaAsc: 'A bis Z',
+                    alphaDesc: 'Z bis A',
+                    frequencyAsc: 'Häufigkeit (niedrig bis hoch)',
+                    frequencyDesc: 'Häufigkeit (hoch bis niedrig)'
+                }
+            },
             showTagsAboveFolders: {
                 name: 'Tags über Ordnern anzeigen',
                 desc: 'Tag-Bereich vor den Ordnern im Navigator anzeigen.'

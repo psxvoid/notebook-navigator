@@ -73,6 +73,18 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.5.5',
+        date: '2025-10-14',
+        showOnUpdate: true,
+        new: [
+            '==New setting: Tag sort order==. You can now sort tags alphabetically or by frequency (number of notes with tag).'
+        ],
+        improved: [
+        ],
+        fixed: [
+        ]
+    },
+    {
         version: '1.5.4',
         date: '2025-10-09',
         showOnUpdate: true,

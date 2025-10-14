@@ -818,6 +818,16 @@ export const STRINGS_FR = {
                 name: 'Afficher les étiquettes (*)',
                 desc: 'Afficher la section des étiquettes sous les dossiers dans le navigateur.'
             },
+            tagSortOrder: {
+                name: 'Ordre de tri des étiquettes',
+                desc: 'Définir comment les étiquettes sont triées dans le panneau de navigation.',
+                options: {
+                    alphaAsc: 'A à Z',
+                    alphaDesc: 'Z à A',
+                    frequencyAsc: 'Fréquence (faible vers élevée)',
+                    frequencyDesc: 'Fréquence (élevée vers faible)'
+                }
+            },
             showTagsAboveFolders: {
                 name: 'Afficher les étiquettes au-dessus des dossiers',
                 desc: 'Afficher la section des étiquettes avant les dossiers dans le navigateur.'

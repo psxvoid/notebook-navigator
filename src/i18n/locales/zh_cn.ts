@@ -816,6 +816,16 @@ export const STRINGS_ZH_CN = {
                 name: '显示标签 (*)',
                 desc: '在导航器中的文件夹下方显示标签部分。'
             },
+            tagSortOrder: {
+                name: '标签排序方式',
+                desc: '选择导航窗格中的标签排序顺序。',
+                options: {
+                    alphaAsc: 'A 到 Z',
+                    alphaDesc: 'Z 到 A',
+                    frequencyAsc: '频率（从低到高）',
+                    frequencyDesc: '频率（从高到低）'
+                }
+            },
             showTagsAboveFolders: {
                 name: '在文件夹上方显示标签',
                 desc: '在导航器中的文件夹之前显示标签部分。'

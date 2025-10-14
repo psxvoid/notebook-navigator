@@ -80,6 +80,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showAllTagsFolder: true,
     showUntagged: false,
     showUntaggedInFavorites: false,
+    tagSortOrder: 'alpha-asc',
     favoriteTags: [],
     hiddenTags: [],
 

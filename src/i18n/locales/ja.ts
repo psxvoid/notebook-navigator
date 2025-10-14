@@ -817,6 +817,16 @@ export const STRINGS_JA = {
                 name: 'タグを表示 (*)',
                 desc: 'ナビゲーターのフォルダの下にタグセクションを表示します。'
             },
+            tagSortOrder: {
+                name: 'タグの並び順',
+                desc: 'ナビゲーションペインでタグを並べ替える方法を設定します。',
+                options: {
+                    alphaAsc: 'A から Z',
+                    alphaDesc: 'Z から A',
+                    frequencyAsc: '頻度（低→高）',
+                    frequencyDesc: '頻度（高→低）'
+                }
+            },
             showTagsAboveFolders: {
                 name: 'タグをフォルダの上に表示',
                 desc: 'ナビゲーターでタグセクションをフォルダの前に表示します。'
