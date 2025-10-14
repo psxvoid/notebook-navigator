@@ -51,6 +51,7 @@ export interface RootFolderOrderState {
     rootFolders: TFolder[]; // Folders to display as roots (may include vault root)
     rootLevelFolders: TFolder[]; // All top-level folders in custom order
     rootFolderOrderMap: Map<string, number>; // Maps folder paths to their order index
+    missingRootFolderPaths: string[]; // Stored paths that are not currently present in the vault
 }
 
 /**
@@ -78,28 +79,63 @@ function isRootLevelPath(path: string): boolean {
 }
 
 /**
- * Normalizes the folder order by removing missing folders and adding new ones.
- * Preserves existing order and appends new folders alphabetically.
+ * Result from normalizing root folder order data.
  */
-function normalizeRootFolderOrder(existingOrder: string[], folders: TFolder[]): string[] {
-    if (folders.length === 0) {
-        return [];
-    }
+interface NormalizedRootOrder {
+    normalizedOrder: string[];
+    missingPaths: string[];
+}
 
+/**
+ * Normalizes the folder order by deduplicating paths, retaining unresolved folders,
+ * and appending newly discovered folders in natural order.
+ */
+function normalizeRootFolderOrder(existingOrder: string[], folders: TFolder[]): NormalizedRootOrder {
     const folderMap = new Map<string, TFolder>();
     folders.forEach(folder => {
-        folderMap.set(folder.path, folder);
+        folderMap.set(stripTrailingSlash(folder.path), folder);
     });
 
-    const sanitizedOrder = existingOrder.filter(path => folderMap.has(path));
-    const existingSet = new Set(sanitizedOrder);
+    const seen = new Set<string>();
+    const normalizedOrder: string[] = [];
+    const missingPaths: string[] = [];
 
-    const missingFolders = folders
-        .filter(folder => !existingSet.has(folder.path))
+    // Process existing order, preserving paths even if folders are missing
+    existingOrder.forEach(pathValue => {
+        const normalizedPath = stripTrailingSlash(pathValue);
+        if (!normalizedPath || normalizedPath === ROOT_PATH) {
+            return;
+        }
+        // Skip duplicates
+        if (seen.has(normalizedPath)) {
+            return;
+        }
+        seen.add(normalizedPath);
+        normalizedOrder.push(normalizedPath);
+        // Track paths that exist in settings but not in vault
+        if (!folderMap.has(normalizedPath)) {
+            missingPaths.push(normalizedPath);
+        }
+    });
+
+    // Find folders that exist but aren't in the saved order
+    const appendedFolders = folders
+        .filter(folder => !seen.has(stripTrailingSlash(folder.path)))
         .sort((a, b) => naturalCompare(a.name, b.name))
-        .map(folder => folder.path);
+        .map(folder => stripTrailingSlash(folder.path));
 
-    return [...sanitizedOrder, ...missingFolders];
+    // Append new folders to the end of the order
+    appendedFolders.forEach(path => {
+        if (!seen.has(path)) {
+            seen.add(path);
+            normalizedOrder.push(path);
+        }
+    });
+
+    return {
+        normalizedOrder,
+        missingPaths
+    };
 }
 
 /**
@@ -140,6 +176,7 @@ export function useRootFolderOrder({ settings, onFileChange }: UseRootFolderOrde
     const [rootFolders, setRootFolders] = useState<TFolder[]>([]);
     const [rootLevelFolders, setRootLevelFolders] = useState<TFolder[]>([]);
     const [rootFolderOrderMap, setRootFolderOrderMap] = useState<Map<string, number>>(new Map());
+    const [missingRootFolderPaths, setMissingRootFolderPaths] = useState<string[]>([]);
     const pendingRootOrderChangesRef = useRef<PendingRootOrderChanges>({
         renames: new Map(),
         removals: new Set(),
@@ -201,10 +238,11 @@ export function useRootFolderOrder({ settings, onFileChange }: UseRootFolderOrde
                 }
 
                 setRootFolderOrderMap(new Map());
+                setMissingRootFolderPaths(prev => (prev.length === 0 ? prev : []));
                 return;
             }
 
-            const normalizedOrder = normalizeRootFolderOrder(workingOrder, rootChildren);
+            const { normalizedOrder, missingPaths } = normalizeRootFolderOrder(workingOrder, rootChildren);
             const orderMap = createRootOrderMap(normalizedOrder);
             const orderedChildren = sortFoldersByOrder(rootChildren, orderMap);
 
@@ -215,6 +253,7 @@ export function useRootFolderOrder({ settings, onFileChange }: UseRootFolderOrde
                 });
             }
 
+            setMissingRootFolderPaths(prev => (arraysEqual(prev, missingPaths) ? prev : missingPaths));
             setRootLevelFolders(orderedChildren);
 
             if (settings.showRootFolder) {
@@ -311,6 +350,7 @@ export function useRootFolderOrder({ settings, onFileChange }: UseRootFolderOrde
     return {
         rootFolders,
         rootLevelFolders,
-        rootFolderOrderMap
+        rootFolderOrderMap,
+        missingRootFolderPaths
     };
 }

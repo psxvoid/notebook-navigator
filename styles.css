@@ -1256,11 +1256,35 @@ body {
     cursor: default;
 }
 
+.nn-root-reorder-item--missing .nn-shortcut-label {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
 .nn-root-reorder-actions {
     margin-top: 1rem;
     margin-bottom: 1.5rem;
     display: flex;
     justify-content: center;
+}
+
+.nn-root-reorder-remove {
+    color: var(--text-accent);
+    font-size: var(--nn-setting-nav-font-size);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    display: inline;
+    text-decoration: underline;
+}
+
+.nn-root-reorder-remove:hover,
+.nn-root-reorder-remove:focus {
+    color: var(--text-accent);
+    text-decoration: underline;
+}
+
+.nn-root-reorder-remove:focus-visible {
+    outline: none;
 }
 
 .nn-root-reorder-reset {
@@ -3576,6 +3600,10 @@ body.nn-resizing {
     height: 100%;
     display: flex;
     align-items: center;
+}
+
+.notebook-navigator-mobile .nn-root-reorder-remove {
+    font-size: var(--nn-setting-nav-font-size-mobile);
 }
 
 /* ========================================================================
