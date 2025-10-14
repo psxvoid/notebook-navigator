@@ -24,6 +24,7 @@ import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
+import { useDragNavigationPaneActivation } from '../hooks/useDragNavigationPaneActivation';
 import { useNavigatorReveal, type RevealFileOptions } from '../hooks/useNavigatorReveal';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { useResizablePane } from '../hooks/useResizablePane';
@@ -111,7 +112,7 @@ export const NotebookNavigatorComponent = React.memo(
         const navigationPaneRef = useRef<NavigationPaneHandle>(null);
         const listPaneRef = useRef<ListPaneHandle>(null);
 
-        // Execute a search shortcut by delegating to the list pane
+        // Executes a search shortcut by delegating to the list pane component
         const handleSearchShortcutExecution = useCallback(async (_shortcutKey: string, searchShortcut: SearchShortcut) => {
             const listHandle = listPaneRef.current;
             if (!listHandle) {
@@ -137,7 +138,7 @@ export const NotebookNavigatorComponent = React.memo(
         // Use tag navigation logic
         const { navigateToTag } = useTagNavigation();
 
-        // Reveal a note when clicked from shortcuts (uses nearest folder logic)
+        // Handles file reveal from shortcuts, using nearest folder navigation
         const handleShortcutNoteReveal = useCallback(
             (file: TFile) => {
                 revealFileInNearestFolder(file, { source: 'shortcut' });
@@ -148,14 +149,15 @@ export const NotebookNavigatorComponent = React.memo(
         // Get updateSettings from SettingsContext for refresh
         const updateSettings = useSettingsUpdate();
 
-        // Track if initial visibility check has been performed
+        // Tracks whether initial dual/single pane check has been performed
         const hasCheckedInitialVisibility = useRef(false);
 
-        // Container ref callback that stores the navigator root element
+        // Ref callback that stores the navigator root element
         const containerCallbackRef = useCallback((node: HTMLDivElement | null) => {
             containerRef.current = node;
         }, []);
 
+        // Checks container width on first render to determine dual/single pane layout
         useLayoutEffect(() => {
             if (isMobile) {
                 return;
@@ -215,6 +217,38 @@ export const NotebookNavigatorComponent = React.memo(
         // Enable drag and drop only on desktop
         useDragAndDrop(containerRef);
 
+        // Switches to navigation pane when dragging starts in single pane mode
+        const handleDragActivateNavigation = useCallback(() => {
+            if (!uiState.singlePane) {
+                return;
+            }
+            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+        }, [uiDispatch, uiState.singlePane]);
+
+        // Restores file list view when drag ends in single pane mode
+        const handleDragRestoreFiles = useCallback(() => {
+            if (!uiState.singlePane) {
+                return;
+            }
+
+            if (uiState.currentSinglePaneView !== 'navigation') {
+                return;
+            }
+
+            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+        }, [uiDispatch, uiState.singlePane, uiState.currentSinglePaneView]);
+
+        useDragNavigationPaneActivation({
+            containerRef,
+            isMobile,
+            isSinglePane: uiState.singlePane,
+            isFilesView: uiState.currentSinglePaneView === 'files',
+            onActivateNavigation: handleDragActivateNavigation,
+            onRestoreFiles: handleDragRestoreFiles
+        });
+
         // Enable mobile swipe gestures
         useMobileSwipeNavigation(containerRef, isMobile);
 
@@ -230,7 +264,7 @@ export const NotebookNavigatorComponent = React.memo(
 
         // Expose methods via ref
         useImperativeHandle(ref, () => {
-            // Helper function to get selected files
+            // Retrieves currently selected files or falls back to single selected file
             const getSelectedFiles = (): TFile[] => {
                 // Get selected files
                 const selectedFiles = Array.from(selectionState.selectedFiles)

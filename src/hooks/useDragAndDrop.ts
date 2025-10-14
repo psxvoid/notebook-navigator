@@ -40,7 +40,7 @@ import { createDragGhostManager } from '../utils/dragGhost';
  * data attributes: `data-draggable`, `data-drag-type`, `data-drag-path`,
  * and drop zones with `data-drop-zone`, `data-drop-path`.
  */
-const AUTO_EXPAND_DELAY = 500;
+export const DRAG_AUTO_EXPAND_DELAY = 500;
 type DragItemType = (typeof ItemType)[keyof typeof ItemType];
 
 type AutoExpandTarget = { type: 'folder' | 'tag'; path: string };
@@ -315,7 +315,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 }
 
                 clearAutoExpandTimer();
-            }, AUTO_EXPAND_DELAY);
+            }, DRAG_AUTO_EXPAND_DELAY);
         },
         [clearAutoExpandTimer]
     );

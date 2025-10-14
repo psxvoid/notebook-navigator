@@ -76,10 +76,14 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.5.5',
         date: '2025-10-14',
         showOnUpdate: true,
-        new: ['==New setting: Tag sort order==. You can now sort tags alphabetically or by frequency (number of notes with tag).'],
+        new: [
+            '==New setting: Tag sort order==. You can now sort tags alphabetically or by frequency (number of notes with tag).',
+            '==Drag and drop files in single pane mode==. You can now drag and drop files in single-pane mode by dragging to the left edge of the screen to open the navigation pane temporarily.'
+        ],
         improved: [
             'Emojis can now be read from frontmatter using both "icon: emoji:🔭" and "icon: 🔭" formats.',
-            'Emojis are now saved as "icon: 🔭" in frontmatter if the setting Save in Iconize format is enabled.'
+            'Emojis are now saved as "icon: 🔭" in frontmatter if the setting Save in Iconize format is enabled.',
+            'Settings now remember the last tab you were on when reopening settings.'
         ],
         fixed: [
             'Console will no longer show warnings about "Failed to scroll to index" when Notebook Navigator is hidden and you change file in main editor.',

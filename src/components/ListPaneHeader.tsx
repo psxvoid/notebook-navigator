@@ -105,6 +105,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
     const [showFade, setShowFade] = React.useState(false);
 
+    // Renders the header icon when icon name or version changes
     useEffect(() => {
         if (!shouldShowHeaderIcon || !iconRef.current) {
             return;
@@ -136,7 +137,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
         return () => window.clearTimeout(timeoutId);
     }, [selectionState.selectedFolder, selectionState.selectedTag, isMobile]);
 
-    // Check scroll position to show/hide fade
+    // Updates fade gradient visibility based on scroll position
     const handleScroll = React.useCallback(() => {
         if (!isMobile) {
             return;
@@ -154,6 +155,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                     <button
                         className="nn-icon-button nn-back-button"
                         aria-label={strings.paneHeader.mobileBackToNavigation}
+                        data-pane-toggle="navigation"
                         onClick={e => {
                             e.stopPropagation();
                             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
@@ -177,6 +179,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                 {uiState.singlePane && (
                     <button
                         className="nn-icon-button"
+                        data-pane-toggle="navigation"
                         onClick={() => {
                             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
                             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });

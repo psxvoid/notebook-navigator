@@ -60,6 +60,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     private tabContentMap: Map<SettingsPaneId, HTMLElement> = new Map();
     // Map of tab IDs to their button components
     private tabButtons: Map<SettingsPaneId, ButtonComponent> = new Map();
+    // Tracks the most recently active tab during the current session
+    private lastActiveTabId: SettingsPaneId | null = null;
     // Registered listeners for show tags visibility changes
     private showTagsListeners: ((visible: boolean) => void)[] = [];
     // Current visibility state of show tags setting
@@ -316,6 +318,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Create tab navigation structure
         const tabsWrapper = containerEl.createDiv('nn-settings-tabs');
         const navEl = tabsWrapper.createDiv('nn-settings-tabs-nav');
+        navEl.setAttribute('role', 'tablist');
         const contentWrapper = tabsWrapper.createDiv('nn-settings-tabs-content');
 
         // Create navigation buttons for each tab
@@ -324,16 +327,19 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             buttonComponent.setButtonText(tab.label);
             buttonComponent.removeCta();
             buttonComponent.buttonEl.addClass('nn-settings-tab-button');
+            buttonComponent.buttonEl.setAttribute('role', 'tab');
             buttonComponent.onClick(() => {
                 this.activateTab(tab.id, tabs, contentWrapper);
             });
             this.tabButtons.set(tab.id, buttonComponent);
         });
 
-        // Activate first tab by default
-        const initialTab = tabs[0];
-        if (initialTab) {
-            this.activateTab(initialTab.id, tabs, contentWrapper);
+        // Activate previously open tab if available, otherwise default to first
+        const fallbackTabId = tabs[0]?.id ?? null;
+        const initialTabId =
+            this.lastActiveTabId && tabs.some(tab => tab.id === this.lastActiveTabId) ? this.lastActiveTabId : fallbackTabId;
+        if (initialTabId) {
+            this.activateTab(initialTabId, tabs, contentWrapper, { focus: true });
         }
     }
 
@@ -377,11 +383,17 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
      * Creates tab content if it doesn't exist yet (lazy loading)
      * Updates active state for both content and buttons
      */
-    private activateTab(id: SettingsPaneId, tabs: SettingsPaneDefinition[], contentWrapper: HTMLElement): void {
+    private activateTab(
+        id: SettingsPaneId,
+        tabs: SettingsPaneDefinition[],
+        contentWrapper: HTMLElement,
+        options?: { focus?: boolean }
+    ): void {
         const definition = tabs.find(tab => tab.id === id);
         if (!definition) {
             return;
         }
+        const shouldFocus = options?.focus ?? false;
 
         // Lazy load tab content on first access
         if (!this.tabContentMap.has(id)) {
@@ -399,12 +411,19 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.tabButtons.forEach((buttonComponent, tabId) => {
             const isActive = tabId === id;
             buttonComponent.buttonEl.toggleClass('is-active', isActive);
+            buttonComponent.buttonEl.setAttribute('aria-selected', isActive ? 'true' : 'false');
             if (isActive) {
                 buttonComponent.setCta();
             } else {
                 buttonComponent.removeCta();
             }
         });
+        this.lastActiveTabId = id;
+
+        if (shouldFocus) {
+            const activeButton = this.tabButtons.get(id);
+            activeButton?.buttonEl.focus();
+        }
     }
 
     private ensureStatisticsInterval(): void {
