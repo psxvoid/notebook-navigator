@@ -77,8 +77,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-10-14',
         showOnUpdate: true,
         new: ['==New setting: Tag sort order==. You can now sort tags alphabetically or by frequency (number of notes with tag).'],
-        improved: [],
+        improved: [
+            'Emojis can now be read from frontmatter using both "icon: emoji:🔭" and "icon: 🔭" formats.',
+            'Emojis are now saved as "icon: 🔭" in frontmatter if the setting Save in Iconize format is enabled.'
+        ],
         fixed: [
+            'Console will no longer show warnings about "Failed to scroll to index" when Notebook Navigator is hidden and you change file in main editor.',
             'Fixed an issue where file dates would show instead of frontmatter dates, if frontmatter dates were enabled and list was sorted by title.',
             'Read metadata from frontmatter in settings now update statistics properly, and also excludes hidden folders from statistics if "Show hidden items" is disabled.'
         ]
