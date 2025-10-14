@@ -332,6 +332,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Folder note properties:** Frontmatter properties to add to newly created folder notes (comma-separated)
 - **Hide folder notes in list:** Hide the folder note from appearing in the folder's note list
 - **Show tags (\*):** Display tags section below folders in the navigator
+- **Tag sort order:** Choose how tags are ordered in the navigation pane. `A to Z`, `Z to A`, `Frequency (low to high)`, `Frequency (high to low)`
 - **Show tags above folders:** Display tags section before folders in the navigator
 - **Show favorite tags folder:** Display "Favorite tags" as collapsible folder when favorite tags are configured
 - **Show tags folder:** Display "Tags" as collapsible folder
