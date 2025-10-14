@@ -21,6 +21,7 @@ import { NotebookNavigatorSettings } from '../settings';
 import { METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { DateUtils } from './dateUtils';
 import { convertIconizeToIconId } from './iconizeFormat';
+import { extractFirstEmoji } from './emojiUtils';
 
 /**
  * Processed metadata from frontmatter
@@ -99,7 +100,17 @@ export function extractMetadataFromCache(metadata: CachedMetadata | null, settin
             }
             // Convert from Iconize format (e.g. LiHome) to canonical format (e.g. home)
             const converted = convertIconizeToIconId(trimmed);
-            return converted ?? trimmed;
+            if (converted) {
+                return converted;
+            }
+
+            // Normalize plain emoji values (🔭 -> emoji:🔭)
+            const emojiOnly = extractFirstEmoji(trimmed);
+            if (emojiOnly && emojiOnly === trimmed) {
+                return `emoji:${emojiOnly}`;
+            }
+
+            return trimmed;
         };
 
         if (typeof iconValue === 'string') {

@@ -24,6 +24,7 @@ import { isNoteShortcut } from '../../types/shortcuts';
 import type { NotebookNavigatorSettings } from '../../settings';
 import { getDBInstance } from '../../storage/fileOperations';
 import { convertIconIdToIconize } from '../../utils/iconizeFormat';
+import { extractFirstEmoji } from '../../utils/emojiUtils';
 
 /**
  * Service for managing file-specific metadata operations
@@ -87,8 +88,15 @@ export class FileMetadataService extends BaseMetadataService {
         let frontmatterValue = canonicalValue;
 
         // Convert icon to Iconize format if enabled for frontmatter storage
-        if (metadataKey === 'icon' && canonicalValue) {
-            if (settings.iconizeFormat) {
+        if (metadataKey === 'icon' && canonicalValue && settings.iconizeFormat) {
+            const trimmedValue = canonicalValue.trim();
+            const emojiPrefix = 'emoji:';
+            const emojiCandidate = trimmedValue.startsWith(emojiPrefix) ? trimmedValue.substring(emojiPrefix.length).trim() : trimmedValue;
+            const emojiOnly = extractFirstEmoji(emojiCandidate);
+
+            if (emojiOnly && emojiCandidate === emojiOnly) {
+                frontmatterValue = emojiOnly;
+            } else {
                 const iconizeFormat = convertIconIdToIconize(canonicalValue);
                 if (iconizeFormat) {
                     frontmatterValue = iconizeFormat;
