@@ -3955,6 +3955,57 @@ body.nn-resizing {
     color: var(--text-error);
 }
 
+/* ========================================================================
+   Transparency Toggles
+   ======================================================================== */
+
+/* Navigation pane transparency - applied when toggle is enabled */
+body.nn-navigation-pane-transparent .notebook-navigator {
+    background-color: transparent !important;
+}
+
+body.nn-navigation-pane-transparent .nn-navigation-pane {
+    background-color: transparent !important;
+}
+
+body.nn-navigation-pane-transparent .nn-navigation-pane .nn-pane-header {
+    background-color: transparent !important;
+}
+
+body.nn-navigation-pane-transparent .nn-shortcut-pinned {
+    background-color: transparent !important;
+}
+
+body.nn-navigation-pane-transparent .nn-navigation-pane-scroller {
+    background-color: transparent !important;
+}
+
+/* List pane transparency - applied when toggle is enabled */
+body.nn-list-pane-transparent .notebook-navigator {
+    background-color: transparent !important;
+}
+
+body.nn-list-pane-transparent .nn-list-pane {
+    background-color: transparent !important;
+}
+
+body.nn-list-pane-transparent .nn-list-pane .nn-pane-header {
+    background-color: transparent !important;
+}
+
+body.nn-list-pane-transparent .nn-list-pane-scroller {
+    background-color: transparent !important;
+}
+
+body.nn-list-pane-transparent .nn-list-title-area {
+    background-color: transparent !important;
+}
+
+body.nn-list-pane-transparent .nn-search-bar-container,
+body.nn-list-pane-transparent .nn-search-input-wrapper {
+    background-color: transparent !important;
+}
+
 /* @settings
 
 name: Notebook Navigator
@@ -3977,6 +4028,12 @@ settings:
         format: hex
         default-light: '#'
         default-dark: '#'
+    -
+    -
+        id: nn-navigation-pane-transparent
+        title: Navigation pane transparency
+        description: Make the navigation pane transparent (removes background).
+        type: class-toggle
     -
     -
         id: nn-nav-pane-items-heading
@@ -4251,6 +4308,13 @@ settings:
         format: hex
         default-light: '#'
         default-dark: '#'
+    -
+    -
+        id: nn-list-pane-transparent
+        title: List pane transparency
+        description: Make the list pane transparent (removes background).
+        type: class-toggle
+    -
     -
         id: nn-theme-list-search-active-bg
         title: Search field active background
