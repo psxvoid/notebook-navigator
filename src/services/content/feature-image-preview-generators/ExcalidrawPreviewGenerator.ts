@@ -1,4 +1,4 @@
-import { LinkCache, CachedMetadata, EmbedCache, TFile, App, normalizePath } from "obsidian";
+import { LinkCache, CachedMetadata, EmbedCache, TFile, App } from "obsidian";
 import { getDBInstance } from "src/storage/fileOperations";
 
 interface SceneElements {
