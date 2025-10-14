@@ -845,7 +845,7 @@ body {
     left: 0;
     right: 0;
     top: calc(100% + 1px);
-    height: 6px;
+    height: 8px;
     pointer-events: none;
     background: linear-gradient(to bottom, var(--nn-theme-pinned-shortcut-shadow-color) 0%, transparent 100%);
 }
