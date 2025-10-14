@@ -816,6 +816,16 @@ export const STRINGS_ES = {
                 name: 'Mostrar etiquetas (*)',
                 desc: 'Muestra la sección de etiquetas debajo de las carpetas en el navegador.'
             },
+            tagSortOrder: {
+                name: 'Orden de etiquetas',
+                desc: 'Elige cómo se ordenan las etiquetas en el panel de navegación.',
+                options: {
+                    alphaAsc: 'A a Z',
+                    alphaDesc: 'Z a A',
+                    frequencyAsc: 'Frecuencia (baja a alta)',
+                    frequencyDesc: 'Frecuencia (alta a baja)'
+                }
+            },
             showTagsAboveFolders: {
                 name: 'Mostrar etiquetas encima de las carpetas',
                 desc: 'Muestra la sección de etiquetas antes que las carpetas en el navegador.'

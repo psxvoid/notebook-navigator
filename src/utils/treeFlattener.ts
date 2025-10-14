@@ -24,8 +24,20 @@ import type { FolderTreeItem, TagTreeItem } from '../types/virtualization';
 import { isFolderInExcludedFolder } from './fileFilters';
 import { matchesHiddenTagPattern, HiddenTagMatcher } from './tagPrefixMatcher';
 
+/** Options for flattenFolderTree function */
 interface FlattenFolderTreeOptions {
+    /** Map of folder paths to their custom display order */
     rootOrderMap?: Map<string, number>;
+}
+
+/** Options for flattenTagTree function */
+interface FlattenTagTreeOptions {
+    /** Context to indicate if tags are favorites or regular */
+    context?: 'favorites' | 'tags';
+    /** Matcher for determining hidden tags */
+    hiddenMatcher?: HiddenTagMatcher;
+    /** Custom comparator for sorting tag nodes */
+    comparator?: (a: TagTreeNode, b: TagTreeNode) => number;
 }
 
 /**
@@ -130,22 +142,24 @@ export function flattenFolderTree(
  * @param tagNodes - Array of root tag nodes to flatten
  * @param expandedTags - Set of expanded tag paths
  * @param level - Current nesting level (for indentation)
- * @param context - Whether these are favorite or regular tags
- * @param hiddenMatcher - Compiled matcher for tags that are normally hidden
+ * @param options - Configuration options for flattening behavior
  * @returns Array of flattened tag items
  */
 export function flattenTagTree(
     tagNodes: TagTreeNode[],
     expandedTags: Set<string>,
     level: number = 0,
-    context?: 'favorites' | 'tags',
-    hiddenMatcher?: HiddenTagMatcher
+    options: FlattenTagTreeOptions = {}
 ): TagTreeItem[] {
     const items: TagTreeItem[] = [];
+    const { context, hiddenMatcher, comparator } = options;
+    /** Use custom comparator or default to alphabetical sorting */
+    const sortFn = comparator ?? ((a: TagTreeNode, b: TagTreeNode) => naturalCompare(a.name, b.name));
 
-    // Sort tags alphabetically by name
-    const sortedNodes = tagNodes.slice().sort((a, b) => naturalCompare(a.name, b.name));
+    /** Sort tags using the selected comparator */
+    const sortedNodes = tagNodes.slice().sort(sortFn);
 
+    /** Recursively adds a tag node and its children to the items array */
     function addNode(node: TagTreeNode, currentLevel: number, parentHidden: boolean = false) {
         const matchesRule = hiddenMatcher ? matchesHiddenTagPattern(node.path, node.name, hiddenMatcher) : false;
         const isHidden = parentHidden || matchesRule;
@@ -168,7 +182,7 @@ export function flattenTagTree(
 
         // Add children if expanded and has children
         if (expandedTags.has(node.path) && node.children && node.children.size > 0) {
-            const sortedChildren = Array.from(node.children.values()).sort((a, b) => naturalCompare(a.name, b.name));
+            const sortedChildren = Array.from(node.children.values()).sort(sortFn);
 
             sortedChildren.forEach(child => addNode(child, currentLevel + 1, isHidden));
         }

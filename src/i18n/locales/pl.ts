@@ -817,6 +817,16 @@ export const STRINGS_PL = {
                 name: 'Pokaż tagi (*)',
                 desc: 'Wyświetl sekcję tagów poniżej folderów w nawigatorze.'
             },
+            tagSortOrder: {
+                name: 'Kolejność sortowania tagów',
+                desc: 'Wybierz sposób sortowania tagów w panelu nawigacji.',
+                options: {
+                    alphaAsc: 'A do Z',
+                    alphaDesc: 'Z do A',
+                    frequencyAsc: 'Częstotliwość (rosnąco)',
+                    frequencyDesc: 'Częstotliwość (malejąco)'
+                }
+            },
             showTagsAboveFolders: {
                 name: 'Pokaż tagi nad folderami',
                 desc: 'Wyświetl sekcję tagów przed folderami w nawigatorze.'

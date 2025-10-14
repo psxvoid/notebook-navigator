@@ -64,6 +64,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     private showTagsListeners: ((visible: boolean) => void)[] = [];
     // Current visibility state of show tags setting
     private currentShowTagsVisible = false;
+    // Pending deferred statistics refresh timer
+    private pendingStatisticsRefresh: number | null = null;
 
     /**
      * Creates a new settings tab
@@ -95,7 +97,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         placeholder: string,
         getValue: () => string,
         setValue: (value: string) => void,
-        validator?: (value: string) => boolean
+        validator?: (value: string) => boolean,
+        onAfterUpdate?: () => void
     ): Setting {
         return new Setting(container)
             .setName(name)
@@ -105,8 +108,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setPlaceholder(placeholder)
                     .setValue(getValue())
                     .onChange(async value => {
-                        // Clear existing timer for this setting
                         const timerId = `setting-${name}`;
+
+                        // Clear existing timer for this setting
                         const existingTimer = this.debounceTimers.get(timerId);
                         if (existingTimer !== undefined) {
                             window.clearTimeout(existingTimer);
@@ -114,13 +118,21 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
                         // Set new timer
                         const timer = window.setTimeout(async () => {
-                            // Validate if validator provided
-                            if (!validator || validator(value)) {
-                                setValue(value);
-                                await this.plugin.saveSettingsAndUpdate();
+                            const isValid = !validator || validator(value);
+                            if (!isValid) {
+                                this.debounceTimers.delete(timerId);
+                                return;
                             }
 
-                            this.debounceTimers.delete(timerId);
+                            try {
+                                setValue(value);
+                                await this.plugin.saveSettingsAndUpdate();
+                                if (onAfterUpdate) {
+                                    onAfterUpdate();
+                                }
+                            } finally {
+                                this.debounceTimers.delete(timerId);
+                            }
                         }, TIMEOUTS.DEBOUNCE_SETTINGS);
 
                         this.debounceTimers.set(timerId, timer);
@@ -184,8 +196,10 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
      * Update the statistics display
      */
     private updateStatistics(): void {
-        const stats = calculateCacheStatistics();
-        if (!stats) return;
+        const stats = calculateCacheStatistics(this.plugin.settings);
+        if (!stats) {
+            return;
+        }
 
         // Update bottom statistics
         if (this.statsTextEl) {
@@ -232,6 +246,22 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 exportButton.onclick = () => this.exportFailedMetadataReport(stats);
             }
         }
+    }
+
+    /**
+     * Schedule a deferred statistics refresh after content providers finish regeneration.
+     * This ensures we reflect fresh metadata once background processing completes.
+     */
+    private scheduleDeferredStatisticsRefresh(): void {
+        if (this.pendingStatisticsRefresh !== null) {
+            window.clearTimeout(this.pendingStatisticsRefresh);
+        }
+
+        const delay = TIMEOUTS.INTERVAL_STATISTICS * 2;
+        this.pendingStatisticsRefresh = window.setTimeout(() => {
+            this.pendingStatisticsRefresh = null;
+            this.updateStatistics();
+        }, delay);
     }
 
     /**
@@ -316,8 +346,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             app: this.app,
             plugin: this.plugin,
             containerEl: container,
-            createDebouncedTextSetting: (parent, name, desc, placeholder, getValue, setValue, validator) =>
-                this.createDebouncedTextSetting(parent, name, desc, placeholder, getValue, setValue, validator),
+            createDebouncedTextSetting: (parent, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate) =>
+                this.createDebouncedTextSetting(parent, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate),
             registerMetadataInfoElement: element => {
                 this.metadataInfoEl = element;
             },
@@ -326,6 +356,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             },
             requestStatisticsRefresh: () => {
                 this.updateStatistics();
+                this.scheduleDeferredStatisticsRefresh();
             },
             ensureStatisticsInterval: () => {
                 this.ensureStatisticsInterval();
@@ -376,10 +407,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         });
     }
 
-    /**
-     * Ensures statistics update interval is running
-     * Only creates interval if one doesn't already exist
-     */
     private ensureStatisticsInterval(): void {
         // Don't create duplicate intervals
         if (this.statsUpdateInterval !== null) {
@@ -461,6 +488,11 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         if (this.statsUpdateInterval !== null) {
             window.clearInterval(this.statsUpdateInterval);
             this.statsUpdateInterval = null;
+        }
+
+        if (this.pendingStatisticsRefresh !== null) {
+            window.clearTimeout(this.pendingStatisticsRefresh);
+            this.pendingStatisticsRefresh = null;
         }
 
         // Clear references and state

@@ -814,6 +814,16 @@ export const STRINGS_ZH_TW = {
                 name: '顯示標籤 (*)',
                 desc: '在導覽器中資料夾下方顯示標籤區段。'
             },
+            tagSortOrder: {
+                name: '標籤排序方式',
+                desc: '選擇導覽窗格中的標籤排序順序。',
+                options: {
+                    alphaAsc: 'A 到 Z',
+                    alphaDesc: 'Z 到 A',
+                    frequencyAsc: '頻率（由低至高）',
+                    frequencyDesc: '頻率（由高至低）'
+                }
+            },
             showTagsAboveFolders: {
                 name: '在資料夾上方顯示標籤',
                 desc: '在導覽器中資料夾之前顯示標籤區段。'

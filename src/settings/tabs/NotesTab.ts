@@ -92,7 +92,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
         value => {
             plugin.settings.frontmatterIconField = value || '';
             updateFrontmatterSaveVisibility?.();
-        }
+        },
+        undefined,
+        requestStatisticsRefresh
     );
     frontmatterIconSetting.controlEl.addClass('nn-setting-wide-input');
 
@@ -105,7 +107,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
         value => {
             plugin.settings.frontmatterColorField = value || '';
             updateFrontmatterSaveVisibility?.();
-        }
+        },
+        undefined,
+        requestStatisticsRefresh
     );
     frontmatterColorSetting.controlEl.addClass('nn-setting-wide-input');
 
@@ -227,7 +231,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
         () => plugin.settings.frontmatterNameField,
         value => {
             plugin.settings.frontmatterNameField = value || '';
-        }
+        },
+        undefined,
+        requestStatisticsRefresh
     );
 
     createDebouncedTextSetting(
@@ -238,7 +244,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
         () => plugin.settings.frontmatterCreatedField,
         value => {
             plugin.settings.frontmatterCreatedField = value;
-        }
+        },
+        undefined,
+        requestStatisticsRefresh
     );
 
     createDebouncedTextSetting(
@@ -249,7 +257,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
         () => plugin.settings.frontmatterModifiedField,
         value => {
             plugin.settings.frontmatterModifiedField = value;
-        }
+        },
+        undefined,
+        requestStatisticsRefresh
     );
 
     const dateFormatSetting = createDebouncedTextSetting(
@@ -260,7 +270,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
         () => plugin.settings.frontmatterDateFormat,
         value => {
             plugin.settings.frontmatterDateFormat = value;
-        }
+        },
+        undefined,
+        requestStatisticsRefresh
     ).addExtraButton(button =>
         button
             .setIcon('lucide-help-circle')

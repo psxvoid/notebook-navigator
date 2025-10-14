@@ -30,7 +30,8 @@ export type DebouncedTextSettingFactory = (
     placeholder: string,
     getValue: () => string,
     setValue: (value: string) => void,
-    validator?: (value: string) => boolean
+    validator?: (value: string) => boolean,
+    onAfterUpdate?: () => void
 ) => Setting;
 
 /**

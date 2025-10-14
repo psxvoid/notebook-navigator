@@ -17,7 +17,7 @@
  */
 
 import { TFile, TFolder, App } from 'obsidian';
-import { NotebookNavigatorSettings } from '../settings';
+import type { NotebookNavigatorSettings } from '../settings';
 import { shouldDisplayFile } from './fileTypeUtils';
 
 /**

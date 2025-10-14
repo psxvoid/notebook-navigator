@@ -49,7 +49,7 @@ import {
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
-import type { NotebookNavigatorSettings } from '../settings';
+import type { NotebookNavigatorSettings, TagSortOrder } from '../settings/types';
 import { shouldExcludeFile, shouldExcludeFolder, isFolderInExcludedFolder } from '../utils/fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY, isImageFile } from '../utils/fileTypeUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
@@ -61,6 +61,7 @@ import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } fro
 import { useRootFolderOrder } from './useRootFolderOrder';
 import { isFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
 import { getDBInstance } from '../storage/fileOperations';
+import { naturalCompare } from '../utils/sortUtils';
 
 // Checks if a navigation item is a shortcut-related item (virtual folder, shortcut, or header)
 const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
@@ -109,6 +110,49 @@ const getDocumentIcon = (file: TFile | null, metadataCache?: MetadataCache): str
 
     const extension = file.extension.toLowerCase();
     return DOCUMENT_EXTENSION_ICONS[extension] ?? undefined;
+};
+
+/** Comparator function type for sorting tag tree nodes */
+type TagComparator = (a: TagTreeNode, b: TagTreeNode) => number;
+
+/** Compares tags alphabetically by name with fallback to path */
+const compareTagAlphabetically: TagComparator = (a, b) => {
+    const nameCompare = naturalCompare(a.name, b.name);
+    if (nameCompare !== 0) {
+        return nameCompare;
+    }
+    return a.path.localeCompare(b.path);
+};
+
+// Creates comparator for tag sorting modes. Returns undefined for default alphabetical ascending order.
+const createTagComparator = (order: TagSortOrder, includeDescendantNotes: boolean): TagComparator | undefined => {
+    if (order === 'alpha-asc') {
+        return undefined;
+    }
+
+    if (order === 'alpha-desc') {
+        return (a, b) => -compareTagAlphabetically(a, b);
+    }
+
+    /** Gets note count for a tag based on descendant inclusion setting */
+    const getCount = includeDescendantNotes
+        ? (node: TagTreeNode) => getTotalNoteCount(node)
+        : (node: TagTreeNode) => node.notesWithTag.size;
+
+    /** Compares tags by frequency (note count) with alphabetical fallback */
+    const compareByFrequency: TagComparator = (a, b) => {
+        const diff = getCount(a) - getCount(b);
+        if (diff !== 0) {
+            return diff;
+        }
+        return compareTagAlphabetically(a, b);
+    };
+
+    if (order === 'frequency-asc') {
+        return compareByFrequency;
+    }
+
+    return (a, b) => -compareByFrequency(a, b);
 };
 
 /**
@@ -191,6 +235,12 @@ export function useNavigationPaneData({
     const hiddenMatcherHasRules =
         hiddenTagMatcher.prefixes.length > 0 || hiddenTagMatcher.startsWithNames.length > 0 || hiddenTagMatcher.endsWithNames.length > 0;
 
+    /** Create tag comparator based on current sort order and descendant note settings */
+    const tagComparator = useMemo(
+        () => createTagComparator(settings.tagSortOrder, settings.includeDescendantNotes),
+        [settings.tagSortOrder, settings.includeDescendantNotes]
+    );
+
     /**
      * Build folder items from vault structure
      */
@@ -259,8 +309,11 @@ export function useNavigationPaneData({
                     Array.from(tags.values()),
                     expansionState.expandedTags,
                     1, // Start at level 1 since they're inside the virtual folder
-                    folderId === 'favorite-tags-root' ? 'favorites' : 'tags',
-                    matcherForMarking
+                    {
+                        context: folderId === 'favorite-tags-root' ? 'favorites' : 'tags',
+                        hiddenMatcher: matcherForMarking,
+                        comparator: tagComparator
+                    }
                 );
                 items.push(...tagItems);
 
@@ -298,8 +351,11 @@ export function useNavigationPaneData({
                         Array.from(visibleFavoriteTree.values()),
                         expansionState.expandedTags,
                         0, // Start at level 0 since no virtual folder
-                        'favorites',
-                        matcherForMarking
+                        {
+                            context: 'favorites',
+                            hiddenMatcher: matcherForMarking,
+                            comparator: tagComparator
+                        }
                     );
                     items.push(...favoriteItems);
                 }
@@ -320,8 +376,11 @@ export function useNavigationPaneData({
                     Array.from(visibleTagTree.values()),
                     expansionState.expandedTags,
                     0, // Start at level 0 since no virtual folder
-                    'tags',
-                    matcherForMarking
+                    {
+                        context: 'tags',
+                        hiddenMatcher: matcherForMarking,
+                        comparator: tagComparator
+                    }
                 );
                 items.push(...nonFavoriteItems);
 
@@ -342,8 +401,11 @@ export function useNavigationPaneData({
                     Array.from(visibleTagTree.values()),
                     expansionState.expandedTags,
                     0, // Start at level 0 since no virtual folder
-                    'tags',
-                    matcherForMarking
+                    {
+                        context: 'tags',
+                        hiddenMatcher: matcherForMarking,
+                        comparator: tagComparator
+                    }
                 );
                 items.push(...tagTreeItems);
 
@@ -367,7 +429,8 @@ export function useNavigationPaneData({
         tagTree,
         untaggedCount,
         expansionState.expandedTags,
-        expansionState.expandedVirtualFolders
+        expansionState.expandedVirtualFolders,
+        tagComparator
     ]);
 
     /**

@@ -815,6 +815,16 @@ export const STRINGS_KO = {
                 name: '태그 표시 (*)',
                 desc: '네비게이터에서 폴더 아래에 태그 섹션을 표시합니다.'
             },
+            tagSortOrder: {
+                name: '태그 정렬 순서',
+                desc: '탐색 창에서 태그를 정렬하는 방식을 선택합니다.',
+                options: {
+                    alphaAsc: 'A부터 Z까지',
+                    alphaDesc: 'Z부터 A까지',
+                    frequencyAsc: '빈도 (낮음 → 높음)',
+                    frequencyDesc: '빈도 (높음 → 낮음)'
+                }
+            },
             showTagsAboveFolders: {
                 name: '폴더 위에 태그 표시',
                 desc: '네비게이터에서 폴더 앞에 태그 섹션을 표시합니다.'

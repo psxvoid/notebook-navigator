@@ -588,9 +588,14 @@ export const FileItem = React.memo(function FileItem({
     const displayDate = useMemo(() => {
         if (!appearanceSettings.showDate || !sortOption) return '';
 
+        const createdTimestamp = getFileCreatedTime(file);
+        const modifiedTimestamp = getFileModifiedTime(file);
+        const preferCreatedForTitleSort =
+            settings.useFrontmatterMetadata && settings.frontmatterCreatedField.trim().length > 0 && sortOption.startsWith('title');
+
         // Determine which date to show based on sort option
         const dateField = getDateField(sortOption);
-        const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
+        const timestamp = dateField === 'ctime' || preferCreatedForTitleSort ? createdTimestamp : modifiedTimestamp;
 
         // Pinned items are all grouped under "📌 Pinned" section regardless of their actual dates
         // We need to calculate the actual date group to show smart formatting
@@ -619,6 +624,8 @@ export const FileItem = React.memo(function FileItem({
         appearanceSettings.showDate,
         settings.dateFormat,
         settings.timeFormat,
+        settings.frontmatterCreatedField,
+        settings.useFrontmatterMetadata,
         getFileCreatedTime,
         getFileModifiedTime,
         metadataVersion

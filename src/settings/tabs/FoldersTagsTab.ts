@@ -19,6 +19,7 @@
 import { Setting } from 'obsidian';
 import { strings } from '../../i18n';
 import { isFolderNoteType } from '../../types/folderNote';
+import { isTagSortOrder } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 
 /** Renders the folders and tags settings tab */
@@ -129,6 +130,26 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         );
 
     const tagSubSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    /** Setting for choosing tag sort order in the navigation pane */
+    new Setting(tagSubSettingsEl)
+        .setName(strings.settings.items.tagSortOrder.name)
+        .setDesc(strings.settings.items.tagSortOrder.desc)
+        .addDropdown(dropdown => {
+            dropdown
+                .addOption('alpha-asc', strings.settings.items.tagSortOrder.options.alphaAsc)
+                .addOption('alpha-desc', strings.settings.items.tagSortOrder.options.alphaDesc)
+                .addOption('frequency-asc', strings.settings.items.tagSortOrder.options.frequencyAsc)
+                .addOption('frequency-desc', strings.settings.items.tagSortOrder.options.frequencyDesc)
+                .setValue(plugin.settings.tagSortOrder)
+                .onChange(async value => {
+                    if (!isTagSortOrder(value)) {
+                        return;
+                    }
+                    plugin.settings.tagSortOrder = value;
+                    await plugin.saveSettingsAndUpdate();
+                });
+        });
 
     new Setting(tagSubSettingsEl)
         .setName(strings.settings.items.showTagsAboveFolders.name)
