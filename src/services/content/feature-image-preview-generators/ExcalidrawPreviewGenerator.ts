@@ -232,8 +232,8 @@ export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App,
         return previewFilePath;
     }
 
-    if (hasExistingFeature && isCachePath(currentFeature) && await this.app.vault.adapter.exists(dbFile?.featureImage) ) {
-        const previewAbstractFile = this.app.vault.getFileByPath(dbFile?.featureImage)
+    if (hasExistingFeature && isCachePath(currentFeature) && await this.app.vault.adapter.exists(currentFeature) ) {
+        const previewAbstractFile = this.app.vault.getFileByPath(currentFeature)
 
         await this.app.vault.delete(previewAbstractFile);
     } else if (!(await this.app.vault.adapter.exists(cacheDirPath))) {
