@@ -33,6 +33,9 @@ declare global {
 const cacheDirPath = `thumbnails/full`
 const cacheFilePath = (excalidrawFile: TFile) => `${cacheDirPath}/${excalidrawFile.basename}_${excalidrawFile.stat.size}.png`
 const getDbFile = (path: string) => getDBInstance().getFile(path)
+const isCachePath = (path: string | unknown) => typeof path === 'string'
+    ? path.startsWith(cacheDirPath)
+    : false
 
 function getExcalidrawAttachmentType(outlink: LinkCache, metadata: CachedMetadata | null) {
     // eslint-disable-next-line eqeqeq
@@ -221,15 +224,17 @@ async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, app: App
 export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App, requestingFile: TFile): Promise<string | null> {
     const previewFilePath = cacheFilePath(excalidrawFile);
     const dbFile = getDbFile(requestingFile.path);
+    const currentFeature: string | null | undefined = dbFile?.featureImage
 
-    const hasExistingFeature = (dbFile?.featureImage ?? EMPTY_STRING).length > 0;
+    const hasExistingFeature = (currentFeature ?? EMPTY_STRING).length > 0;
 
-    if (hasExistingFeature && dbFile?.featureImage === previewFilePath) {
+    if (hasExistingFeature && currentFeature === previewFilePath) {
         return previewFilePath;
     }
 
-    if (hasExistingFeature && await this.app.vault.adapter.exists(dbFile?.featureImage)) {
+    if (hasExistingFeature && isCachePath(currentFeature) && await this.app.vault.adapter.exists(dbFile?.featureImage) ) {
         const previewAbstractFile = this.app.vault.getFileByPath(dbFile?.featureImage)
+
         await this.app.vault.delete(previewAbstractFile);
     } else if (!(await this.app.vault.adapter.exists(cacheDirPath))) {
         await this.app.vault.adapter.mkdir(cacheDirPath);
