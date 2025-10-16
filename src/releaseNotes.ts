@@ -81,7 +81,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).'
         ],
         improved: [],
-        fixed: []
+        fixed: [
+            'Fixed a rare startup crash that hid Notebook Navigator during startup after enabling the plugin.',
+            'Fixed scroll to active note in single pane mode when toggling Show notes from descendants.',
+        ]
     },
     {
         version: '1.5.5',
