@@ -84,7 +84,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         improved: [],
         fixed: [
             'Fixed a rare startup crash that hid Notebook Navigator during startup after enabling the plugin.',
-            'Fixed scroll to active note in list pane when toggling "Show notes from descendants".'
+            'Fixed scroll to active note in list pane when toggling "Show notes from descendants".',
+            'Tab buttons in settings are now rendered properly with various themes.'
         ]
     },
     {
