@@ -73,6 +73,17 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.5.6',
+        date: '2025-10-17',
+        showOnUpdate: true,
+        new: [
+            '==New command: Add to shortcuts==. Adds the current file, folder, or tag to shortcuts.',
+            'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).'
+        ],
+        improved: [],
+        fixed: []
+    },
+    {
         version: '1.5.5',
         date: '2025-10-14',
         showOnUpdate: true,

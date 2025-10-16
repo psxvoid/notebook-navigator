@@ -23,6 +23,7 @@ import { useSelectionState, useSelectionDispatch } from '../context/SelectionCon
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useShortcuts } from '../context/ShortcutsContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useDragNavigationPaneActivation } from '../hooks/useDragNavigationPaneActivation';
 import { useNavigatorReveal, type RevealFileOptions } from '../hooks/useNavigatorReveal';
@@ -60,6 +61,7 @@ export interface NotebookNavigatorHandle {
     deleteActiveFile: () => void;
     createNoteInSelectedFolder: () => Promise<void>;
     moveSelectedFiles: () => Promise<void>;
+    addShortcutForCurrentSelection: () => Promise<void>;
     navigateToFolder: (folderPath: string) => void;
     navigateToFolderWithModal: () => void;
     navigateToTagWithModal: () => void;
@@ -90,6 +92,7 @@ export const NotebookNavigatorComponent = React.memo(
         const selectionDispatch = useSelectionDispatch();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
+        const { addFolderShortcut, addNoteShortcut, addTagShortcut } = useShortcuts();
         const { stopAllProcessing, rebuildCache } = useFileCache();
         const { notice: updateNotice, markAsDisplayed } = useUpdateNotice();
         // Keep stable references to avoid stale closures in imperative handles
@@ -372,6 +375,36 @@ export const NotebookNavigatorComponent = React.memo(
                         allFiles
                     });
                 },
+                addShortcutForCurrentSelection: async () => {
+                    // Try selected files first
+                    const selectedFiles = getSelectedFiles();
+                    if (selectedFiles.length > 0) {
+                        await addNoteShortcut(selectedFiles[0].path);
+                        return;
+                    }
+
+                    // Try selected tag
+                    if (selectionState.selectedTag) {
+                        await addTagShortcut(selectionState.selectedTag);
+                        return;
+                    }
+
+                    // Try selected folder
+                    if (selectionState.selectedFolder) {
+                        await addFolderShortcut(selectionState.selectedFolder.path);
+                        return;
+                    }
+
+                    // Fall back to active file
+                    const activeFile = app.workspace.getActiveFile();
+                    if (activeFile) {
+                        await addNoteShortcut(activeFile.path);
+                        return;
+                    }
+
+                    // Show error if nothing is selected
+                    new Notice(strings.common.noSelection);
+                },
                 navigateToFolder,
                 navigateToFolderWithModal: () => {
                     // Show the folder selection modal for navigation
@@ -571,7 +604,10 @@ export const NotebookNavigatorComponent = React.memo(
             commandQueue,
             tagOperations,
             handleExpandCollapseAll,
-            navigationPaneRef
+            navigationPaneRef,
+            addFolderShortcut,
+            addNoteShortcut,
+            addTagShortcut
         ]);
 
         // Add platform class
