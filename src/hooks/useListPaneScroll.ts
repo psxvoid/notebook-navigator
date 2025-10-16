@@ -152,9 +152,12 @@ export function useListPaneScroll({
         filePath?: string; // Target file path (for type='file')
         reason?: ScrollReason; // Why this scroll was requested
         minIndexVersion?: number; // Don't execute until indexVersion >= this
+        skipScroll?: boolean; // Suppress execution while still clearing pending entry
     };
     const pendingScrollRef = useRef<PendingScroll | null>(null);
     const [pendingScrollVersion, setPendingScrollVersion] = useState(0); // Triggers effect re-run
+    // Tracks the currently selected file path to detect stale pending scrolls
+    const selectedFilePathRef = useRef<string | null>(selectedFile ? selectedFile.path : null);
 
     // ========== Index Version Tracking ==========
     // Increments when list rebuilds to ensure scrolls execute with correct indices
@@ -452,11 +455,34 @@ export function useListPaneScroll({
      */
     const setPending = useCallback((next: PendingScroll) => {
         const current = pendingScrollRef.current;
-        if (!current || rankListPending(next) >= rankListPending(current)) {
+        if (!current) {
+            pendingScrollRef.current = next;
+            setPendingScrollVersion(v => v + 1);
+            return;
+        }
+
+        const nextRank = rankListPending(next);
+        const currentRank = rankListPending(current);
+
+        // Preserve non-skip pending when competing with skip pending of same priority
+        // Ensures actual scrolls take precedence over placeholder/suppression entries
+        if (currentRank === nextRank && !current.skipScroll && next.skipScroll) {
+            return;
+        }
+
+        if (nextRank >= currentRank) {
             pendingScrollRef.current = next;
             setPendingScrollVersion(v => v + 1);
         }
     }, []);
+
+    /**
+     * Keep selectedFilePathRef in sync with the current selected file.
+     * Used to detect and skip stale pending scrolls to previous selections.
+     */
+    useEffect(() => {
+        selectedFilePathRef.current = selectedFile?.path ?? null;
+    }, [selectedFile?.path]);
 
     /**
      * Process pending scrolls when conditions are met.
@@ -487,42 +513,54 @@ export function useListPaneScroll({
             return;
         }
 
-        // Skip auto scrolling after list mutations (moves/deletes) so the viewport keeps its existing offset.
-        // Other intents still run to maintain reveal behavior and folder navigation alignment.
-        if (pending.type === 'file' && pending.reason === 'list-config-change') {
-            shouldClearPending = true;
-        } else if (pending.type === 'file' && pending.filePath) {
-            const index = getSelectionIndex(pending.filePath);
-            if (index >= 0) {
-                let alignment: Align = getListAlign(pending.reason);
-                if (pending.reason === 'reveal' && selectionState.revealSource === 'startup') {
-                    alignment = 'center';
-                }
-                rowVirtualizer.scrollToIndex(index, { align: alignment });
-
-                // Stabilization mechanism: Handle rapid consecutive rebuilds
-                // Config changes can trigger multiple rebuilds. We check if
-                // the index changed after execution and queue a follow-up if needed.
-                if (pending.reason === 'list-config-change') {
-                    const usedIndex = index;
-                    const usedPath = pending.filePath;
-                    requestAnimationFrame(() => {
-                        const newIndex = usedPath ? getSelectionIndex(usedPath) : -1;
-                        if (usedPath && newIndex >= 0 && newIndex !== usedIndex) {
-                            setPending({
-                                type: 'file',
-                                filePath: usedPath,
-                                reason: 'list-config-change',
-                                minIndexVersion: indexVersionRef.current + 1
-                            });
-                        }
-                    });
-                }
-
+        if (pending.type === 'file') {
+            const isListConfig = pending.reason === 'list-config-change';
+            // Clear pending without scrolling when explicitly suppressed
+            if (isListConfig && pending.skipScroll) {
                 shouldClearPending = true;
-            } else {
-                // Keep pending until file appears in index
-                shouldClearPending = false;
+            } else if (
+                // Skip stale list-config scrolls from previous file selections
+                // Occurs when selection changes before a pending scroll executes
+                isListConfig &&
+                pending.filePath &&
+                selectedFilePathRef.current &&
+                pending.filePath !== selectedFilePathRef.current
+            ) {
+                console.log('[ListPaneScroll] skipping stale list-config pending', pending.filePath, selectedFilePathRef.current);
+                shouldClearPending = true;
+            } else if (pending.filePath) {
+                const index = getSelectionIndex(pending.filePath);
+                if (index >= 0) {
+                    let alignment: Align = getListAlign(pending.reason);
+                    if (pending.reason === 'reveal' && selectionState.revealSource === 'startup') {
+                        alignment = 'center';
+                    }
+                    rowVirtualizer.scrollToIndex(index, { align: alignment });
+
+                    if (isListConfig) {
+                        // Stabilization mechanism: Handle rapid consecutive rebuilds
+                        // Config changes can trigger multiple rebuilds. Check if
+                        // the index changed after execution and queue a follow-up if needed.
+                        const usedIndex = index;
+                        const usedPath = pending.filePath;
+                        requestAnimationFrame(() => {
+                            const newIndex = usedPath ? getSelectionIndex(usedPath) : -1;
+                            if (usedPath && newIndex >= 0 && newIndex !== usedIndex) {
+                                setPending({
+                                    type: 'file',
+                                    filePath: usedPath,
+                                    reason: 'list-config-change',
+                                    minIndexVersion: indexVersionRef.current + 1
+                                });
+                            }
+                        });
+                    }
+
+                    shouldClearPending = true;
+                } else {
+                    // Keep pending until file appears in index
+                    shouldClearPending = false;
+                }
             }
         } else if (pending.type === 'top') {
             rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
@@ -738,7 +776,8 @@ export function useListPaneScroll({
                     type: 'file',
                     filePath: selectedFile.path,
                     reason: 'list-config-change',
-                    minIndexVersion: indexVersionRef.current
+                    minIndexVersion: indexVersionRef.current,
+                    skipScroll: true
                 });
             }
         }
