@@ -40,10 +40,12 @@ import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
 import { strings } from '../i18n';
-import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
+import { FILE_VISIBILITY, isExcalidrawAttachment } from '../utils/fileTypeUtils';
 import { parseFilterSearchTokens, fileMatchesFilterTokens } from '../utils/filterSearch';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { SearchResultMeta } from '../types/search';
+import { getDBInstance } from 'src/storage/fileOperations';
+import { FeatureImageContentProvider } from 'src/services/content/FeatureImageContentProvider';
 
 const EMPTY_SEARCH_META = new Map<string, SearchResultMeta>();
 
@@ -583,6 +585,16 @@ export function useListPaneData({
                 if (!(file instanceof TFile)) {
                     return;
                 }
+
+                if (isExcalidrawAttachment(file, app.metadataCache.getFileCache(file))) {
+                    const dbFile = getDBInstance().getFile(file.path);
+                    if ((dbFile?.featureImageConsumers?.length ?? 0) > 0) {
+                        FeatureImageContentProvider.Instance?.enqueueExcalidrawConsumers(
+                            // eslint-disable-next-line eqeqeq
+                            dbFile?.featureImageConsumers?.map(x => app.vault.getFileByPath(x)).filter(x => x != null) ?? [])
+                    }
+                }
+
                 if (!basePathSet.has(file.path)) {
                     return;
                 }

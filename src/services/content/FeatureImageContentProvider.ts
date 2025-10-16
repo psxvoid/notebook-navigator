@@ -16,19 +16,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, CachedMetadata } from 'obsidian';
+import { TFile, CachedMetadata, App } from 'obsidian';
 import { ContentType } from '../../interfaces/IContentProvider';
 import { NotebookNavigatorSettings } from '../../settings';
 import { FileData } from '../../storage/IndexedDBStorage';
 import { getDBInstance } from '../../storage/fileOperations';
 import { isExcalidrawAttachment, isImageFile } from '../../utils/fileTypeUtils';
-import { BaseContentProvider } from './BaseContentProvider';
-import { generateExcalidrawPreview } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
+import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
+import { generateExcalidrawPreview, isCachePath } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
 
 /**
  * Content provider for finding and storing feature images
  */
 export class FeatureImageContentProvider extends BaseContentProvider {
+    public static Instance?: FeatureImageContentProvider;
+    private forceUpdateSet : Set<string> = new Set();
+
+    constructor(app: App) {
+        super(app);
+
+        FeatureImageContentProvider.Instance = this;
+    }
+
+    enqueueExcalidrawConsumers(files: TFile[]): void {
+        for(const file of files) {
+            this.forceUpdateSet.add(file.path);
+        }
+
+        this.queueFiles(files);
+    }
+
     getContentType(): ContentType {
         return 'featureImage';
     }
@@ -65,7 +82,8 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             return false;
         }
 
-        const fileModified = fileData !== null && fileData.mtime !== file.stat.mtime;
+        const isForceUpdate = this.forceUpdateSet.has(file.path);
+        const fileModified = fileData !== null && (fileData.mtime !== file.stat.mtime || isForceUpdate);
         return !fileData || fileData.featureImage === null || fileModified;
     }
 
@@ -73,13 +91,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         job: { file: TFile; path: string[] },
         fileData: FileData | null,
         settings: NotebookNavigatorSettings
-    ): Promise<{
-        path: string;
-        tags?: string[] | null;
-        preview?: string;
-        featureImage?: string;
-        metadata?: FileData['metadata'];
-    } | null> {
+    ): Promise<ProcessResult | ProcessResult[] | null> {
         if (!settings.showFeatureImage) {
             return null;
         }
@@ -87,24 +99,39 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         try {
             const metadata = this.app.metadataCache.getFileCache(job.file);
 
-            const imageUrl = await this.getFeatureImageUrlFromMetadata(job.file, metadata, settings);
+            const result = await this.getFeatureImageUrlFromMetadata(job.file, metadata, settings);
+            const imageUrl = result?.featurePath;
+            const consumerTargetPath = result?.consumerTargetPath;
             const imageUrlStr = imageUrl || '';
+
+            if (this.forceUpdateSet.has(job.file.path)) {
+                this.forceUpdateSet.delete(job.file.path)
+            }
 
             // Only return update if feature image changed
             if (fileData && fileData.featureImage === imageUrlStr) {
                 return null;
             }
 
-            return {
-                path: job.file.path,
-                featureImage: imageUrlStr
-            };
+            return [
+                {
+                    path: job.file.path,
+                    featureImage: imageUrlStr,
+                },
+                isCachePath(imageUrlStr) ? {
+                    path: consumerTargetPath as string,
+                    featureImageConsumers: [
+                        ...(fileData?.featureImageConsumers ?? []).filter(x => x !== job.file.path),
+                        job.file.path, // TODO: cleanup when outdated
+                    ]
+                } : null as unknown as ProcessResult
+            ];
         } catch (error) {
             console.error(`Error finding feature image for ${job.file.path}:`, error);
             return null;
         }
     }
-    
+
     /**
      * Extract feature image URL from file metadata
      * Checks frontmatter properties defined in settings
@@ -113,7 +140,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         file: TFile,
         metadata: CachedMetadata | null,
         settings: NotebookNavigatorSettings
-    ): Promise<string | null> {
+    ): Promise<{ featurePath: string, consumerTargetPath?: string } | null> {
         // Only process markdown files for feature images
         if (file.extension !== 'md') {
             return null;
@@ -144,7 +171,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                 }
 
                 // Store just the path, not the full app:// URL
-                return imageFile.path;
+                return { featurePath: imageFile.path };
             }
         }
 
@@ -155,9 +182,9 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                 const embedFile = this.app.metadataCache.getFirstLinkpathDest(embedPath, file.path);
 
                 if (embedFile) {
-                    if(isImageFile(embedFile)) {
+                    if (isImageFile(embedFile)) {
                         // Store just the path, not the full app:// URL
-                        return embedFile.path;
+                        return { featurePath: embedFile.path };
                     }
 
                     const embedMetadata = this.app.metadataCache.getFileCache(embedFile);

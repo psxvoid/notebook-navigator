@@ -158,6 +158,7 @@ export async function recordFileChanges(
                 tags: null, // TagContentProvider will extract these
                 preview: null, // PreviewContentProvider will generate these
                 featureImage: null, // FeatureImageContentProvider will generate these
+                featureImageConsumers: null, // FeatureImageContentProvider will generate these
                 metadata: null // MetadataContentProvider will extract these
             };
             updates.push({ path: file.path, data: fileData });
@@ -215,6 +216,7 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
                     tags: null,
                     preview: null,
                     featureImage: null,
+                    featureImageConsumers: null,
                     metadata: null
                 }
             });

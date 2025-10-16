@@ -22,7 +22,7 @@ import { MemoryFileCache } from './MemoryFileCache';
 
 const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
-const DB_CONTENT_VERSION = 4; // Data format version
+const DB_CONTENT_VERSION = 4.1; // Data format version
 
 /**
  * Sentinel values for metadata date fields
@@ -39,6 +39,7 @@ export interface FileData {
     tags: string[] | null; // null = not extracted yet (e.g. when tags disabled)
     preview: string | null; // null = not generated yet
     featureImage: string | null; // null = not generated yet
+    featureImageConsumers: string[] | null; // null = this file isn't used as a featured image
     metadata: {
         name?: string;
         created?: number; // Valid timestamp, 0 = field not configured, -1 = parse failed
@@ -53,6 +54,7 @@ export interface FileContentChange {
     changes: {
         preview?: string | null;
         featureImage?: string | null;
+        featureImageConsumers?: string[] | null;
         metadata?: FileData['metadata'] | null;
         tags?: string[] | null;
     };
@@ -1373,6 +1375,7 @@ export class IndexedDBStorage {
             tags?: string[] | null;
             preview?: string;
             featureImage?: string;
+            featureImageConsumers?: string[] | null;
             metadata?: FileData['metadata'];
         }[]
     ): Promise<void> {
@@ -1412,6 +1415,11 @@ export class IndexedDBStorage {
                     if (update.featureImage !== undefined) {
                         newData.featureImage = update.featureImage;
                         changes.featureImage = update.featureImage;
+                        hasChanges = true;
+                    }
+                    if (update.featureImageConsumers !== undefined) {
+                        newData.featureImageConsumers = update.featureImageConsumers;
+                        changes.featureImageConsumers = update.featureImageConsumers;
                         hasChanges = true;
                     }
                     if (update.metadata !== undefined) {
