@@ -885,6 +885,10 @@ export const STRINGS_ES = {
                 name: 'Ocultar notas de carpeta en la lista',
                 desc: 'Ocultar la nota de carpeta para que no aparezca en la lista de notas de la carpeta.'
             },
+            pinCreatedFolderNote: {
+                name: 'Anclar notas de carpeta creadas',
+                desc: 'Anclar automáticamente las notas de carpeta cuando se crean desde el menú contextual.'
+            },
             confirmBeforeDelete: {
                 name: 'Confirmar antes de eliminar',
                 desc: 'Muestra un diálogo de confirmación al eliminar notas o carpetas'

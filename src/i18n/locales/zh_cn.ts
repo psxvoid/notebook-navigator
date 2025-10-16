@@ -885,6 +885,10 @@ export const STRINGS_ZH_CN = {
                 name: '在列表中隐藏文件夹笔记',
                 desc: '隐藏文件夹笔记，使其不出现在文件夹的笔记列表中。'
             },
+            pinCreatedFolderNote: {
+                name: '固定创建的文件夹笔记',
+                desc: '从上下文菜单创建文件夹笔记时自动固定。'
+            },
             confirmBeforeDelete: {
                 name: '删除前确认',
                 desc: '删除笔记或文件夹时显示确认对话框'

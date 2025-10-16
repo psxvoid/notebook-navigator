@@ -883,6 +883,10 @@ export const STRINGS_ZH_TW = {
                 name: '在清單中隱藏資料夾筆記',
                 desc: '隱藏資料夾筆記，使其不顯示在資料夾的筆記清單中。'
             },
+            pinCreatedFolderNote: {
+                name: '固定建立的資料夾筆記',
+                desc: '從右鍵選單建立資料夾筆記時自動固定。'
+            },
             confirmBeforeDelete: {
                 name: '刪除前確認',
                 desc: '刪除筆記或資料夾時顯示確認對話框'

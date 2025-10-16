@@ -888,6 +888,10 @@ export const STRINGS_DE = {
                 name: 'Ordnernotizen in Liste ausblenden',
                 desc: 'Die Ordnernotiz in der Notizliste des Ordners ausblenden.'
             },
+            pinCreatedFolderNote: {
+                name: 'Erstellte Ordnernotizen anheften',
+                desc: 'Automatisch Ordnernotizen anheften, wenn sie über das Kontextmenü erstellt werden.'
+            },
             confirmBeforeDelete: {
                 name: 'Vor dem Löschen bestätigen',
                 desc: 'Bestätigungsdialog beim Löschen von Notizen oder Ordnern anzeigen'

@@ -79,6 +79,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: [
             '==New command: Add to shortcuts==. Adds the current file, folder, or tag to shortcuts.',
             'New folder menu item: "Move to...". Opens a modal to move the folder to another location.',
+            'New setting: Pin created folder notes. Automatically pin folder notes when created from the context menu.',
             'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).'
         ],
         improved: [],

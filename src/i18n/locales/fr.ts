@@ -887,6 +887,10 @@ export const STRINGS_FR = {
                 name: 'Masquer les notes de dossier dans la liste',
                 desc: "Masquer la note de dossier pour qu'elle n'apparaisse pas dans la liste des notes du dossier."
             },
+            pinCreatedFolderNote: {
+                name: 'Épingler les notes de dossier créées',
+                desc: 'Épingler automatiquement les notes de dossier lors de leur création depuis le menu contextuel.'
+            },
             confirmBeforeDelete: {
                 name: 'Confirmer avant de supprimer',
                 desc: 'Afficher une boîte de dialogue de confirmation lors de la suppression de notes ou de dossiers'

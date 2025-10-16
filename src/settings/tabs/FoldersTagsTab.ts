@@ -105,6 +105,8 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
     );
     folderNotePropertiesSetting.controlEl.addClass('nn-setting-wide-input');
 
+    let pinCreatedFolderNoteSetting: Setting | null = null;
+
     new Setting(folderNotesSettingsEl)
         .setName(strings.settings.items.hideFolderNoteInList.name)
         .setDesc(strings.settings.items.hideFolderNoteInList.desc)
@@ -112,8 +114,23 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
             toggle.setValue(plugin.settings.hideFolderNoteInList).onChange(async value => {
                 plugin.settings.hideFolderNoteInList = value;
                 await plugin.saveSettingsAndUpdate();
+                if (pinCreatedFolderNoteSetting) {
+                    pinCreatedFolderNoteSetting.settingEl.toggleClass('nn-setting-hidden', value);
+                }
             })
         );
+
+    pinCreatedFolderNoteSetting = new Setting(folderNotesSettingsEl)
+        .setName(strings.settings.items.pinCreatedFolderNote.name)
+        .setDesc(strings.settings.items.pinCreatedFolderNote.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.pinCreatedFolderNote).onChange(async value => {
+                plugin.settings.pinCreatedFolderNote = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    pinCreatedFolderNoteSetting.settingEl.toggleClass('nn-setting-hidden', plugin.settings.hideFolderNoteInList);
 
     new Setting(containerEl).setName(strings.settings.sections.tags).setHeading();
 

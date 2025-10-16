@@ -886,6 +886,10 @@ export const STRINGS_PL = {
                 name: 'Ukryj notatki folderów na liście',
                 desc: 'Ukryj notatkę folderu przed pojawieniem się na liście notatek folderu.'
             },
+            pinCreatedFolderNote: {
+                name: 'Przypnij utworzone notatki folderów',
+                desc: 'Automatycznie przypinaj notatki folderów podczas tworzenia z menu kontekstowego.'
+            },
             confirmBeforeDelete: {
                 name: 'Potwierdź przed usunięciem',
                 desc: 'Pokaż dialog potwierdzenia podczas usuwania notatek lub folderów'

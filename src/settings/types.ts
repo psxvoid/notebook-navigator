@@ -96,6 +96,7 @@ export interface NotebookNavigatorSettings {
     folderNoteName: string;
     folderNoteProperties: string[];
     hideFolderNoteInList: boolean;
+    pinCreatedFolderNote: boolean;
     showTags: boolean;
     showTagsAboveFolders: boolean;
     showFavoriteTagsFolder: boolean;

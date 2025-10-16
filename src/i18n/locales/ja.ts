@@ -886,6 +886,10 @@ export const STRINGS_JA = {
                 name: 'リストでフォルダノートを非表示',
                 desc: 'フォルダのノートリストにフォルダノートが表示されないようにします。'
             },
+            pinCreatedFolderNote: {
+                name: '作成したフォルダノートをピン留め',
+                desc: 'コンテキストメニューから作成したフォルダノートを自動的にピン留めする。'
+            },
             confirmBeforeDelete: {
                 name: '削除前に確認',
                 desc: 'ノートやフォルダを削除する際に確認ダイアログを表示'

@@ -884,6 +884,10 @@ export const STRINGS_EN = {
                 name: 'Hide folder notes in list',
                 desc: "Hide the folder note from appearing in the folder's note list."
             },
+            pinCreatedFolderNote: {
+                name: 'Pin created folder notes',
+                desc: 'Automatically pin folder notes when created from the context menu.'
+            },
             confirmBeforeDelete: {
                 name: 'Confirm before deleting',
                 desc: 'Show confirmation dialog when deleting notes or folders'

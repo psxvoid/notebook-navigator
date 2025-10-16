@@ -180,7 +180,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                 item.setTitle(strings.contextMenu.folder.createFolderNote)
                     .setIcon('lucide-pen-box')
                     .onClick(async () => {
-                        await createFolderNote(
+                        const createdNote = await createFolderNote(
                             app,
                             folder,
                             {
@@ -190,6 +190,18 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                             },
                             services.commandQueue
                         );
+                        if (createdNote && settings.pinCreatedFolderNote) {
+                            try {
+                                if (!metadataService.isFilePinned(createdNote.path, 'folder')) {
+                                    await metadataService.togglePin(createdNote.path, 'folder');
+                                }
+                            } catch (error) {
+                                console.error('Failed to pin created folder note', {
+                                    path: createdNote.path,
+                                    error
+                                });
+                            }
+                        }
                     });
             });
         }

@@ -74,6 +74,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     folderNoteName: '',
     folderNoteProperties: [],
     hideFolderNoteInList: true,
+    pinCreatedFolderNote: false,
     showTags: true,
     showTagsAboveFolders: false,
     showFavoriteTagsFolder: true,

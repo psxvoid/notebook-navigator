@@ -884,6 +884,10 @@ export const STRINGS_KO = {
                 name: '목록에서 폴더 노트 숨기기',
                 desc: '폴더 노트가 폴더의 노트 목록에 나타나지 않도록 숨깁니다.'
             },
+            pinCreatedFolderNote: {
+                name: '생성된 폴더 노트 고정',
+                desc: '컨텍스트 메뉴에서 생성한 폴더 노트를 자동으로 고정합니다.'
+            },
             confirmBeforeDelete: {
                 name: '삭제 전 확인',
                 desc: '노트나 폴더를 삭제할 때 확인 대화 상자 표시'
