@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { MenuItem, Notice, Platform } from 'obsidian';
+import { MenuItem, Notice, Platform, TFolder } from 'obsidian';
 import { FolderMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin, isFolderAncestor } from '../../utils/typeGuards';
@@ -289,6 +289,65 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                 }
             });
     });
+
+    // Move folder (not available for vault root)
+    if (folder.path !== '/') {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.folder.moveFolder)
+                .setIcon('lucide-folder-input')
+                .onClick(async () => {
+                    // Open modal to select destination folder for move operation
+                    const moveResult = await fileSystemOps.moveFolderWithModal(folder);
+                    if (!moveResult) {
+                        return;
+                    }
+
+                    const { oldPath, newPath, targetFolder } = moveResult;
+                    // Verify the moved folder exists at new location
+                    const movedEntry = app.vault.getAbstractFileByPath(newPath);
+                    if (!movedEntry || !(movedEntry instanceof TFolder)) {
+                        return;
+                    }
+
+                    // Update selection if the moved folder was selected
+                    const selectedFolder = selectionState.selectedFolder;
+                    if (selectedFolder === folder) {
+                        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: movedEntry });
+                    }
+
+                    // Update expansion state for all moved folders and their descendants
+                    const updatedExpanded = new Set<string>();
+                    const oldPrefix = `${oldPath}/`;
+
+                    expandedFolders.forEach(path => {
+                        // Update path for the moved folder itself
+                        if (path === oldPath) {
+                            updatedExpanded.add(newPath);
+                            return;
+                        }
+
+                        // Update paths for descendants of the moved folder
+                        if (path.startsWith(oldPrefix)) {
+                            const suffix = path.substring(oldPrefix.length);
+                            const updatedPath = suffix.length > 0 ? `${newPath}/${suffix}` : newPath;
+                            updatedExpanded.add(updatedPath);
+                            return;
+                        }
+
+                        // Keep paths for folders not affected by the move
+                        updatedExpanded.add(path);
+                    });
+
+                    // Expand the destination folder to show the moved folder
+                    const parentPath = targetFolder.path;
+                    if (parentPath !== '/' && !updatedExpanded.has(parentPath)) {
+                        updatedExpanded.add(parentPath);
+                    }
+
+                    expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: updatedExpanded });
+                });
+        });
+    }
 
     // Delete folder (not available for vault root)
     if (folder.path !== '/') {

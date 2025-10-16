@@ -174,6 +174,7 @@ export const STRINGS_EN = {
             changeColor: 'Change color',
             changeBackground: 'Change background',
             excludeFolder: 'Hide folder',
+            moveFolder: 'Move to...',
             renameFolder: 'Rename folder',
             deleteFolder: 'Delete folder'
         },

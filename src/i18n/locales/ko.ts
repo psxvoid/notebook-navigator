@@ -173,6 +173,7 @@ export const STRINGS_KO = {
             changeColor: '아이콘 색상 변경',
             changeBackground: '배경색 변경',
             excludeFolder: '폴더 숨기기',
+            moveFolder: '이동...',
             renameFolder: '폴더 이름 변경',
             deleteFolder: '폴더 삭제'
         },

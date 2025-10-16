@@ -174,6 +174,7 @@ export const STRINGS_ZH_TW = {
             changeColor: '變更顏色',
             changeBackground: '變更背景',
             excludeFolder: '隱藏資料夾',
+            moveFolder: '移動至...',
             renameFolder: '重新命名資料夾',
             deleteFolder: '刪除資料夾'
         },

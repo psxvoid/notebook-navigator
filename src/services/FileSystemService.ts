@@ -73,6 +73,18 @@ interface MoveFilesResult {
 }
 
 /**
+ * Result of a folder move initiated from the context menu
+ */
+interface MoveFolderResult {
+    /** Original folder path before the move */
+    oldPath: string;
+    /** New folder path after the move */
+    newPath: string;
+    /** Destination folder that now contains the moved folder */
+    targetFolder: TFolder;
+}
+
+/**
  * Handles all file system operations for Notebook Navigator
  * Provides centralized methods for creating, renaming, and deleting files/folders
  * Manages user input modals and confirmation dialogs
@@ -536,6 +548,101 @@ export class FileSystemOperations {
         );
 
         modal.open();
+    }
+
+    /**
+     * Shows a folder selection modal and moves the specified folder to the chosen destination
+     * Excludes the folder itself and all descendants from the destination list to prevent recursion
+     *
+     * @param folder - Folder to move
+     * @returns Move result describing the new location, or null if the operation was cancelled or produced no change
+     */
+    async moveFolderWithModal(folder: TFolder): Promise<MoveFolderResult | null> {
+        const excludePaths = new Set<string>();
+
+        const collectPaths = (current: TFolder) => {
+            excludePaths.add(current.path);
+            current.children.forEach(child => {
+                if (child instanceof TFolder) {
+                    collectPaths(child);
+                }
+            });
+        };
+
+        collectPaths(folder);
+
+        return new Promise(resolve => {
+            let isResolved = false;
+
+            const finish = (result: MoveFolderResult | null) => {
+                if (!isResolved) {
+                    isResolved = true;
+                    resolve(result);
+                }
+            };
+
+            const modal = new FolderSuggestModal(
+                this.app,
+                async (targetFolder: TFolder) => {
+                    // Prevent selecting the folder itself or any descendant
+                    if (targetFolder.path === folder.path || targetFolder.path.startsWith(`${folder.path}/`)) {
+                        new Notice(strings.dragDrop.errors.cannotMoveIntoSelf);
+                        return;
+                    }
+
+                    const destinationBase = targetFolder.path === '/' ? '' : `${targetFolder.path}/`;
+                    const newPath = normalizePath(`${destinationBase}${folder.name}`);
+
+                    // No-op if destination equals current location
+                    if (newPath === folder.path) {
+                        modal.close();
+                        finish(null);
+                        return;
+                    }
+
+                    const existingEntry = this.app.vault.getAbstractFileByPath(newPath);
+                    if (existingEntry) {
+                        new Notice(strings.fileSystem.errors.folderAlreadyExists.replace('{name}', folder.name));
+                        return;
+                    }
+
+                    try {
+                        const oldPath = folder.path;
+                        await this.app.fileManager.renameFile(folder, newPath);
+
+                        const movedEntry = this.app.vault.getAbstractFileByPath(newPath);
+                        if (!movedEntry || !(movedEntry instanceof TFolder)) {
+                            new Notice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', folder.name));
+                            modal.close();
+                            finish(null);
+                            return;
+                        }
+
+                        new Notice(strings.fileSystem.notifications.folderMoved.replace('{name}', movedEntry.name));
+                        modal.close();
+                        finish({
+                            oldPath,
+                            newPath,
+                            targetFolder
+                        });
+                    } catch (error) {
+                        console.error('Failed to move folder via modal:', error);
+                        new Notice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', folder.name));
+                    }
+                },
+                strings.modals.folderSuggest.placeholder,
+                strings.modals.folderSuggest.instructions.move,
+                excludePaths
+            );
+
+            const originalOnClose = modal.onClose.bind(modal);
+            modal.onClose = () => {
+                originalOnClose();
+                finish(null);
+            };
+
+            modal.open();
+        });
     }
 
     /**

@@ -78,12 +78,13 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [
             '==New command: Add to shortcuts==. Adds the current file, folder, or tag to shortcuts.',
+            'New folder menu item: "Move to...". Opens a modal to move the folder to another location.',
             'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).'
         ],
         improved: [],
         fixed: [
             'Fixed a rare startup crash that hid Notebook Navigator during startup after enabling the plugin.',
-            'Fixed scroll to active note in single pane mode when toggling Show notes from descendants.',
+            'Fixed scroll to active note in list pane when toggling "Show notes from descendants".'
         ]
     },
     {

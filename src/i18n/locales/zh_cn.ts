@@ -174,6 +174,7 @@ export const STRINGS_ZH_CN = {
             changeColor: '更改颜色',
             changeBackground: '更改背景',
             excludeFolder: '隐藏文件夹',
+            moveFolder: '移动到...',
             renameFolder: '重命名文件夹',
             deleteFolder: '删除文件夹'
         },

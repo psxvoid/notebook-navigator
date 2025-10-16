@@ -174,6 +174,7 @@ export const STRINGS_JA = {
             changeColor: '色を変更',
             changeBackground: '背景色を変更',
             excludeFolder: 'フォルダを非表示',
+            moveFolder: '移動先...',
             renameFolder: 'フォルダの名前を変更',
             deleteFolder: 'フォルダを削除'
         },

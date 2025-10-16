@@ -173,6 +173,7 @@ export const STRINGS_PL = {
             changeColor: 'Zmień kolor ikony',
             changeBackground: 'Zmień tło',
             excludeFolder: 'Ukryj folder',
+            moveFolder: 'Przenieś do...',
             renameFolder: 'Zmień nazwę folderu',
             deleteFolder: 'Usuń folder'
         },

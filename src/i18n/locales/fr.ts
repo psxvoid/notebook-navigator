@@ -174,6 +174,7 @@ export const STRINGS_FR = {
             changeColor: 'Changer la couleur',
             changeBackground: 'Changer l’arrière-plan',
             excludeFolder: 'Masquer le dossier',
+            moveFolder: 'Déplacer vers...',
             renameFolder: 'Renommer le dossier',
             deleteFolder: 'Supprimer le dossier'
         },
