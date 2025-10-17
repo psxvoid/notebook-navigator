@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { MenuItem, TFile, Notice, Menu, App, Platform } from 'obsidian';
+import { MenuItem, TFile, Notice, Menu, App, Platform, FileSystemAdapter } from 'obsidian';
 import { FileMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin } from '../../utils/typeGuards';
@@ -85,6 +85,37 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
     menu.addSeparator();
 
+    // Icon and color customization options - single selection only
+    const canCustomizeFileIcon = !shouldShowMultiOptions && settings.showIcons;
+    const canCustomizeFileColor = !shouldShowMultiOptions;
+    if (canCustomizeFileIcon || canCustomizeFileColor) {
+        if (canCustomizeFileIcon) {
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(strings.contextMenu.file.changeIcon)
+                    .setIcon('lucide-image')
+                    .onClick(async () => {
+                        const { IconPickerModal } = await import('../../modals/IconPickerModal');
+                        const modal = new IconPickerModal(app, metadataService, file.path, ItemType.FILE);
+                        modal.open();
+                    });
+            });
+        }
+
+        if (canCustomizeFileColor) {
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(strings.contextMenu.file.changeColor)
+                    .setIcon('lucide-palette')
+                    .onClick(async () => {
+                        const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
+                        const modal = new ColorPickerModal(app, metadataService, file.path, ItemType.FILE, 'foreground');
+                        modal.open();
+                    });
+            });
+        }
+
+        menu.addSeparator();
+    }
+
     // Pin/Unpin note(s)
     const pinContext: NavigatorContext = selectionState.selectionType === ItemType.TAG ? 'tag' : 'folder';
     if (!shouldShowMultiOptions) {
@@ -100,18 +131,31 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         addMultipleFilesDuplicateOption(menu, selectedCount, selectionState, app, fileSystemOps);
     }
 
-    // Open version history (if Sync is enabled) - single selection only
+    // Move note(s) to folder
     if (!shouldShowMultiOptions) {
-        const syncPlugin = getInternalPlugin(app, 'sync');
-        if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
-            menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.file.openVersionHistory)
-                    .setIcon('lucide-history')
-                    .onClick(async () => {
-                        await fileSystemOps.openVersionHistory(file);
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.file.moveToFolder)
+                .setIcon('lucide-folder-input')
+                .onClick(async () => {
+                    await fileSystemOps.moveFilesWithModal([file], {
+                        selectedFile: selectionState.selectedFile,
+                        dispatch: selectionDispatch,
+                        allFiles: cachedFileList
                     });
-            });
-        }
+                });
+        });
+    } else {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.file.moveMultipleToFolder.replace('{count}', selectedCount.toString()))
+                .setIcon('lucide-folder-input')
+                .onClick(async () => {
+                    await fileSystemOps.moveFilesWithModal(cachedSelectedFiles, {
+                        selectedFile: selectionState.selectedFile,
+                        dispatch: selectionDispatch,
+                        allFiles: cachedFileList
+                    });
+                });
+        });
     }
 
     // Add to shortcuts / Remove from shortcuts
@@ -247,45 +291,83 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         }
     }
 
-    const canCustomizeFileIcon = !shouldShowMultiOptions && settings.showIcons;
-    const canCustomizeFileColor = !shouldShowMultiOptions;
-    if (canCustomizeFileIcon || canCustomizeFileColor) {
+    // Copy actions - single selection only
+    if (!shouldShowMultiOptions) {
+        const adapter = app.vault.adapter;
+
         menu.addSeparator();
 
-        if (canCustomizeFileIcon) {
+        // Copy Obsidian URL
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.file.copyDeepLink)
+                .setIcon('lucide-link')
+                .onClick(async () => {
+                    const vaultName = app.vault.getName();
+                    const encodedVault = encodeURIComponent(vaultName);
+                    const encodedFile = encodeURIComponent(file.path);
+                    // Construct Obsidian URL with encoded vault and file path
+                    const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
+
+                    await navigator.clipboard.writeText(deepLink);
+                    new Notice(strings.fileSystem.notifications.deepLinkCopied);
+                });
+        });
+
+        // Copy absolute path if available
+        if (adapter instanceof FileSystemAdapter) {
             menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.file.changeIcon)
-                    .setIcon('lucide-image')
+                item.setTitle(strings.contextMenu.file.copyPath)
+                    .setIcon('lucide-clipboard')
                     .onClick(async () => {
-                        const { IconPickerModal } = await import('../../modals/IconPickerModal');
-                        const modal = new IconPickerModal(app, metadataService, file.path, ItemType.FILE);
-                        modal.open();
+                        // Get full system path from the file system adapter
+                        const absolutePath = adapter.getFullPath(file.path);
+                        await navigator.clipboard.writeText(absolutePath);
+                        new Notice(strings.fileSystem.notifications.pathCopied);
                     });
             });
         }
 
-        if (canCustomizeFileColor) {
+        // Copy relative path
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.file.copyRelativePath)
+                .setIcon('lucide-clipboard-list')
+                .onClick(async () => {
+                    await navigator.clipboard.writeText(file.path);
+                    new Notice(strings.fileSystem.notifications.relativePathCopied);
+                });
+        });
+    }
+
+    // Open version history (if Sync is enabled) - single selection only
+    if (!shouldShowMultiOptions) {
+        const syncPlugin = getInternalPlugin(app, 'sync');
+        if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
+            menu.addSeparator();
             menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.file.changeColor)
-                    .setIcon('lucide-palette')
+                item.setTitle(strings.contextMenu.file.openVersionHistory)
+                    .setIcon('lucide-history')
                     .onClick(async () => {
-                        const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
-                        const modal = new ColorPickerModal(app, metadataService, file.path, ItemType.FILE, 'foreground');
-                        modal.open();
+                        await fileSystemOps.openVersionHistory(file);
                     });
             });
         }
     }
 
-    menu.addSeparator();
-
-    // Reveal in folder - works on all platforms, single selection only
-    // Show unless we have a selected folder and the file is directly in that folder
+    // Reveal options - single selection only
     if (!shouldShowMultiOptions) {
+        // Check if file is already visible in the current folder view
         const isFileInSelectedFolder =
             selectionState.selectedFolder && file.parent && file.parent.path === selectionState.selectedFolder.path;
+        // Only allow revealing in folder if file is not already visible
+        const canRevealInFolder = !isFileInSelectedFolder;
+        // System explorer reveal is desktop-only
+        const canRevealInSystemExplorer = !isMobile;
 
-        if (!isFileInSelectedFolder) {
+        if (canRevealInFolder || canRevealInSystemExplorer) {
+            menu.addSeparator();
+        }
+
+        if (canRevealInFolder) {
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.file.revealInFolder)
                     .setIcon('lucide-folder')
@@ -295,34 +377,16 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     });
             });
         }
-    }
 
-    // Reveal in system explorer - desktop only, single selection only
-    if (!isMobile && !shouldShowMultiOptions) {
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
-                .setIcon(Platform.isMacOS ? 'lucide-app-window-mac' : 'lucide-app-window')
-                .onClick(async () => {
-                    await fileSystemOps.revealInSystemExplorer(file);
-                });
-        });
-    }
-
-    // Copy deep link - single selection only
-    if (!shouldShowMultiOptions) {
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.file.copyDeepLink)
-                .setIcon('lucide-link')
-                .onClick(async () => {
-                    const vaultName = app.vault.getName();
-                    const encodedVault = encodeURIComponent(vaultName);
-                    const encodedFile = encodeURIComponent(file.path);
-                    const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
-
-                    await navigator.clipboard.writeText(deepLink);
-                    new Notice(strings.fileSystem.notifications.deepLinkCopied);
-                });
-        });
+        if (canRevealInSystemExplorer) {
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
+                    .setIcon(Platform.isMacOS ? 'lucide-app-window-mac' : 'lucide-app-window')
+                    .onClick(async () => {
+                        await fileSystemOps.revealInSystemExplorer(file);
+                    });
+            });
+        }
     }
 
     menu.addSeparator();
@@ -334,33 +398,6 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 .setIcon('lucide-pencil')
                 .onClick(async () => {
                     await fileSystemOps.renameFile(file);
-                });
-        });
-    }
-
-    // Move note(s) to folder
-    if (!shouldShowMultiOptions) {
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.file.moveToFolder)
-                .setIcon('lucide-folder-input')
-                .onClick(async () => {
-                    await fileSystemOps.moveFilesWithModal([file], {
-                        selectedFile: selectionState.selectedFile,
-                        dispatch: selectionDispatch,
-                        allFiles: cachedFileList
-                    });
-                });
-        });
-    } else {
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.file.moveMultipleToFolder.replace('{count}', selectedCount.toString()))
-                .setIcon('lucide-folder-input')
-                .onClick(async () => {
-                    await fileSystemOps.moveFilesWithModal(cachedSelectedFiles, {
-                        selectedFile: selectionState.selectedFile,
-                        dispatch: selectionDispatch,
-                        allFiles: cachedFileList
-                    });
                 });
         });
     }
