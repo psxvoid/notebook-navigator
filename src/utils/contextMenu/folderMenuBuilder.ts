@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { MenuItem, Notice, Platform, TFolder } from 'obsidian';
+import { MenuItem, Notice, Platform, TFolder, TFile } from 'obsidian';
 import { FolderMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin, isFolderAncestor } from '../../utils/typeGuards';
@@ -24,6 +24,99 @@ import { getFolderNote, createFolderNote } from '../../utils/folderNotes';
 import { ExtendedApp } from '../../types/obsidian-extended';
 import { cleanupExclusionPatterns, isFolderInExcludedFolder } from '../../utils/fileFilters';
 import { ItemType } from '../../types';
+
+/**
+ * Adds folder creation commands (new note/folder/canvas/base/drawing) to a menu.
+ */
+export function addFolderCreationMenuItems(params: FolderMenuBuilderParams): void {
+    const { folder, menu, services, state, dispatchers } = params;
+    const { app, fileSystemOps } = services;
+    const { selectionState, expandedFolders } = state;
+    const { selectionDispatch, expansionDispatch, uiDispatch } = dispatchers;
+
+    const ensureFolderSelected = () => {
+        if (
+            selectionState.selectionType === ItemType.FOLDER &&
+            selectionState.selectedFolder &&
+            selectionState.selectedFolder.path === folder.path
+        ) {
+            return;
+        }
+
+        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
+    };
+
+    // Selects newly created file and switches focus to files pane
+    const handleFileCreation = (file: TFile | null | undefined) => {
+        if (!file) {
+            return;
+        }
+
+        // Select the newly created file in the list
+        selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+        // Switch focus to the files pane to show the selection
+        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+    };
+
+    menu.addItem((item: MenuItem) => {
+        item.setTitle(strings.contextMenu.folder.newNote)
+            .setIcon('lucide-pen-box')
+            .onClick(async () => {
+                ensureFolderSelected();
+                const createdFile = await fileSystemOps.createNewFile(folder);
+                handleFileCreation(createdFile);
+            });
+    });
+
+    menu.addItem((item: MenuItem) => {
+        item.setTitle(strings.contextMenu.folder.newFolder)
+            .setIcon('lucide-folder-plus')
+            .onClick(async () => {
+                ensureFolderSelected();
+                await fileSystemOps.createNewFolder(folder, () => {
+                    if (!expandedFolders.has(folder.path)) {
+                        expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+                    }
+                });
+            });
+    });
+
+    menu.addItem((item: MenuItem) => {
+        item.setTitle(strings.contextMenu.folder.newCanvas)
+            .setIcon('lucide-layout-grid')
+            .onClick(async () => {
+                ensureFolderSelected();
+                const createdCanvas = await fileSystemOps.createCanvas(folder);
+                handleFileCreation(createdCanvas);
+            });
+    });
+
+    const basesPlugin = getInternalPlugin(app, 'bases');
+    if (basesPlugin?.enabled) {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.folder.newBase)
+                .setIcon('lucide-database')
+                .onClick(async () => {
+                    ensureFolderSelected();
+                    const createdBase = await fileSystemOps.createBase(folder);
+                    handleFileCreation(createdBase);
+                });
+        });
+    }
+
+    const isExcalidrawInstalled = !!(app as ExtendedApp).plugins?.plugins?.['obsidian-excalidraw-plugin'];
+    if (isExcalidrawInstalled) {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.folder.newDrawing)
+                .setIcon('lucide-pencil')
+                .onClick(async () => {
+                    ensureFolderSelected();
+                    const createdDrawing = await fileSystemOps.createNewDrawing(folder);
+                    handleFileCreation(createdDrawing);
+                });
+        });
+    }
+}
 
 /**
  * Builds the context menu for a folder
@@ -41,61 +134,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         });
     }
 
-    // New note
-    menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.newNote)
-            .setIcon('lucide-pen-box')
-            .onClick(async () => {
-                await fileSystemOps.createNewFile(folder);
-            });
-    });
-
-    // New folder
-    menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.newFolder)
-            .setIcon('lucide-folder-plus')
-            .onClick(async () => {
-                await fileSystemOps.createNewFolder(folder, () => {
-                    // Expand the parent folder to show the newly created folder
-                    if (!expandedFolders.has(folder.path)) {
-                        expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
-                    }
-                });
-            });
-    });
-
-    // New canvas
-    menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.newCanvas)
-            .setIcon('lucide-layout-grid')
-            .onClick(async () => {
-                await fileSystemOps.createCanvas(folder);
-            });
-    });
-
-    // New base (only if Bases plugin is enabled)
-    const basesPlugin = getInternalPlugin(app, 'bases');
-    if (basesPlugin?.enabled) {
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.folder.newBase)
-                .setIcon('lucide-database')
-                .onClick(async () => {
-                    await fileSystemOps.createBase(folder);
-                });
-        });
-    }
-
-    // New drawing (only if Excalidraw plugin is installed)
-    const isExcalidrawInstalled = !!(app as ExtendedApp).plugins?.plugins?.['obsidian-excalidraw-plugin'];
-    if (isExcalidrawInstalled) {
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.folder.newDrawing)
-                .setIcon('lucide-pencil')
-                .onClick(async () => {
-                    await fileSystemOps.createNewDrawing(folder);
-                });
-        });
-    }
+    addFolderCreationMenuItems(params);
 
     menu.addSeparator();
 

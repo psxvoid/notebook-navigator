@@ -78,18 +78,19 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [
             'New command: ==Add to shortcuts==. Adds the current file, folder, or tag to shortcuts.',
-            'New folder menu item: =="Move to..."==. Opens a modal to move the folder to another location.',
             'New setting: ==Pin created folder notes==. Automatically pin folder notes when created from the context menu.',
-            'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).',
             'New setting: ==Separate note counts==. Display separate counts for current folder/tag notes and descendant notes (e.g., "2 ▾ 5" instead of "7").',
-            'Two new items in file menu: ==Copy path== and ==Copy relative path==.'
+            'New folder menu item: =="Move to..."==. Opens a modal to move the folder to another location.',
+            'New file menu items: ==Copy path== and ==Copy relative path==.',
+            '==New menu== when right-clicking empty area in list pane: Create new note, folder, canvas, base or drawing.',
+            'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).'
         ],
         improved: [],
         fixed: [
             'Fixed a rare startup crash that hid Notebook Navigator during startup after enabling the plugin.',
             'Fixed scroll to active note in list pane when toggling "Show notes from descendants".',
             'Tab buttons in settings are now rendered properly with various themes.',
-            'Fixed several issues with text preview filter: italic text, inline code, quotes, footnotes, tasks are now handled properly.'
+            'Fixed issues with text preview filter: italic text, inline code, quotes, footnotes, tasks are now handled properly.'
         ]
     },
     {

@@ -29,7 +29,6 @@ import { extractMetadata } from '../utils/metadataExtractor';
 import { METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { getFileDisplayName as getDisplayName } from './fileNameUtils';
 import { isFolderNote } from './folderNotes';
-export { getFolderNote } from './folderNotes';
 
 /**
  * Collects all pinned note paths from settings

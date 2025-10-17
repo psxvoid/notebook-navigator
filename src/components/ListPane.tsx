@@ -56,6 +56,7 @@ import { useListPaneKeyboard } from '../hooks/useListPaneKeyboard';
 import { useListPaneData } from '../hooks/useListPaneData';
 import { useListPaneScroll } from '../hooks/useListPaneScroll';
 import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
+import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { ListPaneItemType, LISTPANE_MEASUREMENTS } from '../types';
@@ -68,6 +69,7 @@ import { ListPaneTitleArea } from './ListPaneTitleArea';
 import { SaveSearchShortcutModal } from '../modals/SaveSearchShortcutModal';
 import { useShortcuts } from '../context/ShortcutsContext';
 import type { SearchShortcut } from '../types/shortcuts';
+import { EMPTY_LIST_MENU_TYPE } from '../utils/contextMenu';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -240,6 +242,9 @@ export const ListPane = React.memo(
             suppressSearchTopScrollRef,
             topSpacerHeight
         });
+
+        // Attach context menu to empty areas in the list pane for file creation
+        useContextMenu(scrollContainerRef, selectedFolder ? { type: EMPTY_LIST_MENU_TYPE, item: selectedFolder } : null);
 
         // Check if we're in slim mode
         const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
@@ -718,6 +723,7 @@ export const ListPane = React.memo(
                 {/* Conditional content rendering */}
                 {isEmptySelection ? (
                     <div
+                        ref={scrollContainerRefCallback}
                         className="nn-list-pane-scroller nn-empty-state"
                         data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
                         data-drop-path={activeFolderDropPath ?? undefined}
@@ -726,6 +732,7 @@ export const ListPane = React.memo(
                     </div>
                 ) : hasNoFiles ? (
                     <div
+                        ref={scrollContainerRefCallback}
                         className="nn-list-pane-scroller nn-empty-state"
                         data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
                         data-drop-path={activeFolderDropPath ?? undefined}

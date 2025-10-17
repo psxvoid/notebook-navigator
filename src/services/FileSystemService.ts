@@ -849,8 +849,8 @@ export class FileSystemOperations {
      * Creates a new canvas file in the specified folder
      * @param parent - The parent folder
      */
-    async createCanvas(parent: TFolder): Promise<void> {
-        await createFileWithOptions(parent, this.app, {
+    async createCanvas(parent: TFolder): Promise<TFile | null> {
+        return createFileWithOptions(parent, this.app, {
             extension: 'canvas',
             content: '{}',
             errorKey: 'createCanvas'
@@ -861,8 +861,8 @@ export class FileSystemOperations {
      * Creates a new database view file in the specified folder
      * @param parent - The parent folder
      */
-    async createBase(parent: TFolder): Promise<void> {
-        await createFileWithOptions(parent, this.app, {
+    async createBase(parent: TFolder): Promise<TFile | null> {
+        return createFileWithOptions(parent, this.app, {
             extension: 'base',
             content: createDatabaseContent(),
             errorKey: 'createDatabase'

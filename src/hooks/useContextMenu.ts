@@ -17,7 +17,7 @@
  */
 
 // src/hooks/useContextMenu.ts
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { Menu } from 'obsidian';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -26,9 +26,19 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
 import { useUIDispatch } from '../context/UIStateContext';
 import { useShortcuts } from '../context/ShortcutsContext';
-import { isFileType, isFolderType, isTagType } from '../types';
-import { MenuConfig, MenuServices, MenuState, MenuDispatchers, buildFolderMenu, buildTagMenu, buildFileMenu } from '../utils/contextMenu';
-import { TFile, TFolder } from 'obsidian';
+import { ItemType } from '../types';
+import {
+    MenuConfig,
+    MenuServices,
+    MenuState,
+    MenuDispatchers,
+    buildFolderMenu,
+    buildTagMenu,
+    buildFileMenu,
+    buildEmptyListMenu,
+    EMPTY_LIST_MENU_TYPE
+} from '../utils/contextMenu';
+import { TFolder } from 'obsidian';
 
 /**
  * Custom hook that attaches a context menu to an element.
@@ -59,6 +69,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     const selectionDispatch = useSelectionDispatch();
     const expansionDispatch = useExpansionDispatch();
     const uiDispatch = useUIDispatch();
+    const [attachedElement, setAttachedElement] = useState<HTMLElement | null>(null);
 
     /**
      * Handles the context menu event.
@@ -73,6 +84,81 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Check if the click is on this element or its children
             if (!elementRef.current.contains(e.target as Node)) return;
 
+            // Get the target element if it's an HTML element
+            const targetElement = e.target instanceof HTMLElement ? e.target : null;
+
+            // Menu builder function that will be selected based on item type
+            type Builder = (menu: Menu) => void;
+            let buildMenu: Builder | null = null;
+
+            if (config.type === EMPTY_LIST_MENU_TYPE) {
+                // Handle context menu for empty areas in the list pane
+                const folder = config.item;
+                if (!(folder instanceof TFolder)) {
+                    return;
+                }
+                if (!targetElement) {
+                    return;
+                }
+
+                // Skip menu if clicking on file items or date headers
+                const isFileTarget = targetElement.closest('.nn-file') !== null;
+                const isHeaderTarget = targetElement.closest('.nn-date-group-header') !== null;
+                if (isFileTarget || isHeaderTarget) {
+                    return;
+                }
+
+                buildMenu = menuInstance => {
+                    buildEmptyListMenu({
+                        folder,
+                        menu: menuInstance,
+                        services,
+                        settings,
+                        state,
+                        dispatchers
+                    });
+                };
+            } else if (config.type === ItemType.FOLDER) {
+                buildMenu = menuInstance => {
+                    buildFolderMenu({
+                        folder: config.item,
+                        menu: menuInstance,
+                        services,
+                        settings,
+                        state,
+                        dispatchers
+                    });
+                };
+            } else if (config.type === ItemType.TAG) {
+                buildMenu = menuInstance => {
+                    const context = elementRef.current?.dataset?.tagContext as 'favorites' | 'tags' | undefined;
+                    buildTagMenu({
+                        tagPath: config.item,
+                        menu: menuInstance,
+                        services,
+                        settings,
+                        state,
+                        dispatchers,
+                        context
+                    });
+                };
+            } else if (config.type === ItemType.FILE) {
+                buildMenu = menuInstance => {
+                    buildFileMenu({
+                        file: config.item,
+                        menu: menuInstance,
+                        services,
+                        settings,
+                        state,
+                        dispatchers
+                    });
+                };
+            }
+
+            if (!buildMenu) {
+                return;
+            }
+
             e.preventDefault();
             e.stopPropagation();
 
@@ -82,7 +168,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             elementRef.current.classList.add('nn-context-menu-active');
 
             // Handle separator hiding for file items in list pane
-            if (isFileType(config.type)) {
+            if (config.type === ItemType.FILE) {
                 // Find the virtual item wrapper that contains this file item
                 const virtualItem = elementRef.current.closest('.nn-virtual-file-item');
                 if (virtualItem instanceof HTMLElement) {
@@ -125,40 +211,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             };
 
             // Call the appropriate builder based on item type
-            if (isFolderType(config.type)) {
-                if (!(config.item instanceof TFolder)) return;
-                buildFolderMenu({
-                    folder: config.item,
-                    menu,
-                    services,
-                    settings,
-                    state,
-                    dispatchers
-                });
-            } else if (isTagType(config.type)) {
-                if (typeof config.item !== 'string') return;
-                // Get context from data attribute if available
-                const context = elementRef.current.dataset?.tagContext as 'favorites' | 'tags' | undefined;
-                buildTagMenu({
-                    tagPath: config.item,
-                    menu,
-                    services,
-                    settings,
-                    state,
-                    dispatchers,
-                    context
-                });
-            } else if (isFileType(config.type)) {
-                if (!(config.item instanceof TFile)) return;
-                buildFileMenu({
-                    file: config.item,
-                    menu,
-                    services,
-                    settings,
-                    state,
-                    dispatchers
-                });
-            }
+            buildMenu(menu);
 
             // Show menu at mouse event first, then attach hide handler.
             // This avoids a race where switching from an existing menu could
@@ -172,7 +225,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     elementRef.current.classList.remove('nn-context-menu-active');
 
                     // Remove separator hiding for file items
-                    if (isFileType(config.type)) {
+                    if (config.type === ItemType.FILE) {
                         const virtualItem = elementRef.current.closest('.nn-virtual-file-item');
                         if (virtualItem instanceof HTMLElement) {
                             // Remove separator hiding from this item
@@ -213,10 +266,23 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     );
 
     useEffect(() => {
-        const element = elementRef.current;
-        if (!element || !config) return;
+        if (!config) {
+            if (attachedElement !== null) {
+                setAttachedElement(null);
+            }
+            return;
+        }
 
-        element.addEventListener('contextmenu', handleContextMenu);
+        const node = elementRef.current;
+        if (node !== attachedElement) {
+            setAttachedElement(node);
+        }
+    }, [attachedElement, config, elementRef]);
+
+    useEffect(() => {
+        if (!config || !attachedElement) return;
+
+        attachedElement.addEventListener('contextmenu', handleContextMenu);
 
         return () => {
             // Remove listener on cleanup, but do not forcibly remove the
@@ -224,7 +290,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // otherwise clear the outline before the menu appears when
             // switching targets. The class is reliably cleared via menu.onHide
             // when the context menu actually closes.
-            element.removeEventListener('contextmenu', handleContextMenu);
+            attachedElement.removeEventListener('contextmenu', handleContextMenu);
         };
-    }, [elementRef, handleContextMenu, config]);
+    }, [attachedElement, handleContextMenu, config]);
 }
