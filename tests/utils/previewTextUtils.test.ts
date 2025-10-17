@@ -46,6 +46,17 @@ describe('PreviewTextUtils.extractPreviewText', () => {
         expect(preview).toBe('');
     });
 
+    it('strips checkbox syntax while keeping list text', () => {
+        const preview = PreviewTextUtils.extractPreviewText('- [ ] Draft task\n- Note item', skipCodeSettings);
+        expect(preview).toBe('Draft task Note item');
+    });
+
+    it('strips alternate task states while keeping text', () => {
+        const content = '+ [x] Done task\n* [/] In progress task\n1. [-] Skipped task';
+        const preview = PreviewTextUtils.extractPreviewText(content, skipCodeSettings);
+        expect(preview).toBe('Done task In progress task Skipped task');
+    });
+
     it('removes inline footnotes from preview text', () => {
         const preview = PreviewTextUtils.extractPreviewText('Sentence ^[footnote content] continues', skipCodeSettings);
         expect(preview).toBe('Sentence continues');

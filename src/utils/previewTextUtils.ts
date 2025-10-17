@@ -307,8 +307,11 @@ export class PreviewTextUtils {
             settings.skipCodeBlocksInPreview
         );
 
+        // Remove leading task checkbox markers while keeping task text
+        const withoutTaskCheckboxes = stripped.replace(/^\s*\[(?: |x|X|\/|-)?\]\]?\s*/gm, '');
+
         // Remove lines that only contain dashes (like -, ---, ----- etc.)
-        const withoutDashLines = stripped.replace(/^-+$/gm, '');
+        const withoutDashLines = withoutTaskCheckboxes.replace(/^-+$/gm, '');
 
         // Clean up extra whitespace and truncate
         const preview = withoutDashLines
