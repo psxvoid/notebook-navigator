@@ -31,6 +31,7 @@ import { generateExcalidrawPreview, isCachePath } from './feature-image-preview-
 export class FeatureImageContentProvider extends BaseContentProvider {
     public static Instance?: FeatureImageContentProvider;
     private forceUpdateSet: Set<string> = new Set();
+    private deletedFeatureProviders: Map<string, string> = new Map();
 
     constructor(app: App) {
         super(app);
@@ -44,6 +45,13 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         }
 
         this.queueFiles(files);
+    }
+
+    markFeatureProviderAsDeleted(providerPath: string, consumerPaths: string[]): void {
+        for (const consumer of consumerPaths) {
+            this.forceUpdateSet.add(consumer)
+            this.deletedFeatureProviders.set(consumer, providerPath)
+        }
     }
 
     getContentType(): ContentType {
@@ -207,6 +215,11 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                     if (isImageFile(embedFile)) {
                         // Store just the path, not the full app:// URL
                         return { featurePath: embedFile.path };
+                    }
+
+                    if (this.deletedFeatureProviders.has(file.path)) {
+                        this.deletedFeatureProviders.delete(file.path)
+                        continue;
                     }
 
                     const embedMetadata = this.app.metadataCache.getFileCache(embedFile);

@@ -564,11 +564,24 @@ export function useListPaneData({
                     scheduleRefresh();
                 }
             }),
-            app.vault.on('delete', () => {
+            app.vault.on('delete', file => {
                 if (operationActiveRef.current) {
                     pendingRefreshRef.current = true;
                 } else {
                     scheduleRefresh();
+                }
+
+                if (!(file instanceof TFile) || file.extension !== 'md') {
+                    return
+                }
+      
+                const dbFile = getDBInstance().getFile(file.path);
+
+                getDBInstance().deleteFile(file.path)
+
+                // eslint-disable-next-line eqeqeq
+                if (dbFile != null && dbFile.featureImageConsumers != null && dbFile.featureImageConsumers.length > 0) {
+                    FeatureImageContentProvider.Instance?.markFeatureProviderAsDeleted(file.path, dbFile.featureImageConsumers)
                 }
             }),
             app.vault.on('rename', () => {
