@@ -564,6 +564,10 @@ export const STRINGS_FR = {
                 name: 'Afficher les notes des sous-dossiers / descendants',
                 desc: "Inclure les notes des sous-dossiers imbriqués et des descendants d'étiquettes lors de l'affichage d'un dossier ou d'une étiquette."
             },
+            separateNoteCounts: {
+                name: 'Afficher les comptes actuels et descendants séparément',
+                desc: 'Affiche le nombre de notes au format "actuel ▾ descendants" dans les dossiers et étiquettes.'
+            },
             groupByDate: {
                 name: 'Grouper les notes par date',
                 desc: 'Lorsque triées par date, grouper les notes sous des en-têtes de date.'

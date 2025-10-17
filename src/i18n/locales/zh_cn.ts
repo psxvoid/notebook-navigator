@@ -562,6 +562,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示子文件夹/后代的笔记',
                 desc: '在查看文件夹或标签时包含嵌套子文件夹和标签后代中的笔记。'
             },
+            separateNoteCounts: {
+                name: '分别显示当前和后代计数',
+                desc: '在文件夹和标签中以"当前 ▾ 后代"格式显示笔记计数。'
+            },
             groupByDate: {
                 name: '按日期分组笔记',
                 desc: '按日期排序时，在日期标题下分组笔记。'

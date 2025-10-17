@@ -41,7 +41,7 @@ interface NavigationListRowProps {
     showDropIndicatorAfter?: boolean;
     isDragSource?: boolean;
     showCount?: boolean;
-    count?: number;
+    count?: number | string;
     actions?: React.ReactNode;
     dragHandleConfig?: DragHandleConfig;
     className?: string;
@@ -164,7 +164,10 @@ export function NavigationListRow({
     const handleDisabled = dragHandleConfig?.disabled === true;
     const handleInteractive = handleVisible && draggable && !handleDisabled;
     const rowDraggable = draggable && !handleOnly;
-    const shouldShowCount = Boolean(showCount && typeof count === 'number' && count > 0);
+    // Check if count has a valid value - supports both numeric counts and string labels
+    const hasCountValue = typeof count === 'number' ? count > 0 : typeof count === 'string' ? count.length > 0 : false;
+    // Determine if count badge should be displayed based on settings and valid count value
+    const shouldShowCount = Boolean(showCount && hasCountValue);
 
     // Handles drag start event for the drag handle - sets custom drag image from parent row
     // This ensures the entire row appears as the drag image, not just the handle

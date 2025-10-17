@@ -562,6 +562,10 @@ export const STRINGS_EN = {
                 name: 'Show notes from subfolders / descendants',
                 desc: 'Include notes from nested subfolders and tag descendants when viewing a folder or tag.'
             },
+            separateNoteCounts: {
+                name: 'Show current and descendant counts separately',
+                desc: 'Display note counts as "current ▾ descendants" format in folders and tags.'
+            },
             groupByDate: {
                 name: 'Group notes by date',
                 desc: 'When sorted by date, group notes under date headers.'

@@ -566,6 +566,10 @@ export const STRINGS_DE = {
                 name: 'Notizen aus Unterordnern / Nachkommen anzeigen',
                 desc: 'Beim Anzeigen eines Ordners oder Tags Notizen aus Unterordnern und Tag-Nachkommen einbeziehen.'
             },
+            separateNoteCounts: {
+                name: 'Aktuelle und Nachkommen-Anzahl getrennt anzeigen',
+                desc: 'Zeigt Notizanzahl als "aktuell ▾ Nachkommen" Format in Ordnern und Tags.'
+            },
             groupByDate: {
                 name: 'Notizen nach Datum gruppieren',
                 desc: 'Bei Sortierung nach Datum werden Notizen unter Datumsüberschriften gruppiert.'

@@ -564,6 +564,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż notatki z podfolderów / potomnych',
                 desc: 'Podczas przeglądania folderu lub tagu uwzględnij notatki z zagnieżdżonych podfolderów i potomnych tagów.'
             },
+            separateNoteCounts: {
+                name: 'Pokaż bieżące i potomne liczniki osobno',
+                desc: 'Wyświetla liczbę notatek w formacie "bieżące ▾ potomne" w folderach i tagach.'
+            },
             groupByDate: {
                 name: 'Grupuj notatki według daty',
                 desc: 'Podczas sortowania według daty, grupuj notatki pod nagłówkami dat.'

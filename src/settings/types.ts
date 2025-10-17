@@ -112,6 +112,7 @@ export interface NotebookNavigatorSettings {
     listPaneTitle: ListPaneTitleOption;
     multiSelectModifier: MultiSelectModifier;
     includeDescendantNotes: boolean;
+    separateNoteCounts: boolean;
     groupByDate: boolean;
     optimizeNoteHeight: boolean;
     showQuickActions: boolean;

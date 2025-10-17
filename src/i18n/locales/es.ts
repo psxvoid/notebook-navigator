@@ -563,6 +563,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar notas de subcarpetas / descendientes',
                 desc: 'Incluir notas de subcarpetas y descendientes de etiquetas al ver una carpeta o etiqueta.'
             },
+            separateNoteCounts: {
+                name: 'Mostrar conteos actuales y descendientes por separado',
+                desc: 'Muestra el conteo de notas como formato "actual ▾ descendientes" en carpetas y etiquetas.'
+            },
             groupByDate: {
                 name: 'Agrupar notas por fecha',
                 desc: 'Cuando se ordena por fecha, agrupa las notas bajo encabezados de fecha.'
