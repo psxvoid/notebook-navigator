@@ -64,6 +64,7 @@ import { FILE_VISIBILITY, getExtensionSuffix, isImageFile, shouldDisplayFile, sh
 import { getDateField } from '../utils/sortUtils';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
+import { createHiddenTagMatcher, matchesHiddenTagPattern } from '../utils/tagPrefixMatcher';
 
 const FEATURE_IMAGE_MAX_ASPECT_RATIO = 16 / 9;
 
@@ -257,6 +258,7 @@ export const FileItem = React.memo(function FileItem({
     const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime, findTagInFavoriteTree } = useFileCache();
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
+    const hiddenTagMatcher = useMemo(() => createHiddenTagMatcher(settings.hiddenTags), [settings.hiddenTags]);
 
     // === Helper functions ===
     // Load all file metadata from cache
@@ -489,17 +491,34 @@ export const FileItem = React.memo(function FileItem({
     );
 
     const colorFileTags = settings.colorFileTags;
+    const hiddenMatcherHasRules =
+        hiddenTagMatcher.prefixes.length > 0 || hiddenTagMatcher.startsWithNames.length > 0 || hiddenTagMatcher.endsWithNames.length > 0;
+
+    const visibleTags = useMemo(() => {
+        if (tags.length === 0) {
+            return tags;
+        }
+        if (settings.showHiddenItems || !hiddenMatcherHasRules) {
+            return tags;
+        }
+
+        return tags.filter(tag => {
+            const segments = tag.split('/');
+            const tagName = segments[segments.length - 1] ?? tag;
+            return !matchesHiddenTagPattern(tag, tagName, hiddenTagMatcher);
+        });
+    }, [hiddenTagMatcher, hiddenMatcherHasRules, settings.showHiddenItems, tags]);
 
     // Categorize tags by priority: favorites first, then colored, then regular
     const categorizedTags = useMemo(() => {
-        if (tags.length === 0) return tags;
+        if (visibleTags.length === 0) return visibleTags;
 
         // Categorize tags
         const favoriteTags: string[] = [];
         const coloredTags: string[] = [];
         const regularTags: string[] = [];
 
-        tags.forEach(tag => {
+        visibleTags.forEach(tag => {
             // Check if it's a favorite tag by looking in the favoriteTree
             const isFavorite = findTagInFavoriteTree(tag) !== null;
 
@@ -524,7 +543,7 @@ export const FileItem = React.memo(function FileItem({
         regularTags.sort(tagSorter);
 
         return [...favoriteTags, ...coloredTags, ...regularTags];
-    }, [colorFileTags, findTagInFavoriteTree, getTagColor, tags]);
+    }, [colorFileTags, findTagInFavoriteTree, getTagColor, visibleTags]);
 
     const shouldShowFileTags = useMemo(() => {
         if (!settings.showTags || !settings.showFileTags) {
