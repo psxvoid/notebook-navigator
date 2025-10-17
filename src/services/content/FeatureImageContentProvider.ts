@@ -30,7 +30,7 @@ import { generateExcalidrawPreview, isCachePath } from './feature-image-preview-
  */
 export class FeatureImageContentProvider extends BaseContentProvider {
     public static Instance?: FeatureImageContentProvider;
-    private forceUpdateSet : Set<string> = new Set();
+    private forceUpdateSet: Set<string> = new Set();
 
     constructor(app: App) {
         super(app);
@@ -39,7 +39,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
     }
 
     enqueueExcalidrawConsumers(files: TFile[]): void {
-        for(const file of files) {
+        for (const file of files) {
             this.forceUpdateSet.add(file.path);
         }
 
@@ -91,7 +91,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         job: { file: TFile; path: string[] },
         fileData: FileData | null,
         settings: NotebookNavigatorSettings
-    ): Promise<ProcessResult | ProcessResult[] | null> {
+    ): Promise<ProcessResult | (ProcessResult | null)[] | null> {
         if (!settings.showFeatureImage) {
             return null;
         }
@@ -113,18 +113,40 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                 return null;
             }
 
+            let featureCleanupRequest: ProcessResult | null = null
+
+            const nonEmptyString = (str?: string | null): str is string => typeof str === 'string' && str.length > 0;
+
+            if (nonEmptyString(fileData?.featureImage)
+                && nonEmptyString(fileData?.featureImageProvider)
+                && fileData.featureImageProvider !== result?.featureProviderPath
+            ) {
+                const previousFeatureProvider = getDBInstance().getFile(fileData.featureImageProvider)
+
+                featureCleanupRequest = {
+                    path: fileData.featureImageProvider,
+                    featureImageConsumers: [
+                        ...(previousFeatureProvider?.featureImageConsumers ?? []).filter(x => x !== job.file.path),
+                    ]
+                }
+            }
+
             return [
                 {
                     path: job.file.path,
                     featureImage: imageUrlStr,
+                    ...nonEmptyString(result?.featureProviderPath) ? {
+                        featureImageProvider: result.featureProviderPath,
+                    } : {}
                 },
                 isCachePath(imageUrlStr) ? {
                     path: consumerTargetPath as string,
                     featureImageConsumers: [
                         ...(fileData?.featureImageConsumers ?? []).filter(x => x !== job.file.path),
-                        job.file.path, // TODO: cleanup when outdated
+                        job.file.path,
                     ]
-                } : null as unknown as ProcessResult
+                } : null,
+                featureCleanupRequest
             ];
         } catch (error) {
             console.error(`Error finding feature image for ${job.file.path}:`, error);
@@ -140,7 +162,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         file: TFile,
         metadata: CachedMetadata | null,
         settings: NotebookNavigatorSettings
-    ): Promise<{ featurePath: string, consumerTargetPath?: string } | null> {
+    ): Promise<{ featurePath: string, featureProviderPath?: string, consumerTargetPath?: string } | null> {
         // Only process markdown files for feature images
         if (file.extension !== 'md') {
             return null;

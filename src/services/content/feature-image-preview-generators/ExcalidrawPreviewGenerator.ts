@@ -221,7 +221,7 @@ async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, app: App
     return createNewBlobResult(dispose)
 }
 
-export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App, requestingFile: TFile): Promise<{ featurePath: string, consumerTargetPath?: string } | null> {
+export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App, requestingFile: TFile): Promise<{ featurePath: string, featureProviderPath?: string, consumerTargetPath?: string } | null> {
     const previewFilePath = cacheFilePath(excalidrawFile);
     const dbFile = getDbFile(requestingFile.path);
     const currentFeature: string | null | undefined = dbFile?.featureImage
@@ -244,11 +244,11 @@ export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App,
     try {
         previewData = await generatePreview(excalidrawFile, false, app);
         await this.app.vault.createBinary(previewFilePath, await previewData.blob.arrayBuffer());
-        return { featurePath: previewFilePath, consumerTargetPath: excalidrawFile.path }
+        return { featurePath: previewFilePath, featureProviderPath: excalidrawFile.path, consumerTargetPath: excalidrawFile.path }
     } catch(e: unknown) {
         if (e instanceof Error && e.message.indexOf("File already exists") >= 0) {
             // usually should not happen but just in case
-            return { featurePath: previewFilePath, consumerTargetPath: excalidrawFile.path }
+            return { featurePath: previewFilePath, featureProviderPath: excalidrawFile.path, consumerTargetPath: excalidrawFile.path }
         }
 
         throw e;

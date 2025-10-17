@@ -26,6 +26,7 @@ function cloneFileData(data: FileData): FileData {
         tags: cloneArray(data.tags),
         preview: data.preview,
         featureImage: data.featureImage,
+        featureImageProvider: data.featureImageProvider,
         featureImageConsumers: cloneArray(data.featureImageConsumers),
         metadata: data.metadata ? { ...data.metadata } : null
     };

@@ -28,11 +28,13 @@ export interface ContentJob {
     path: string[];
 }
 
+// Review: Refactoring: reuse everywhere
 export interface ProcessResult {
     path: string;
     tags?: string[] | null;
     preview?: string;
     featureImage?: string;
+    featureImageProvider?: string;
     featureImageConsumers?: string[];
     metadata?: FileData['metadata'];
 }
@@ -173,6 +175,7 @@ export abstract class BaseContentProvider implements IContentProvider {
                 tags?: string[] | null;
                 preview?: string;
                 featureImage?: string;
+                featureImageProvider?: string;
                 featureImageConsumers?: string[] | null;
                 metadata?: FileData['metadata'];
             }[] = [];
