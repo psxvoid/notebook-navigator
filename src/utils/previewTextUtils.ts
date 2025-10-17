@@ -30,8 +30,8 @@ const BASE_PATTERNS = [
     // Group 1: Obsidian comments - remove entirely (both inline and block)
     // Example: %%comment%% → (removed), %%\nmultiline\n%% → (removed)
     /%%[\s\S]*?%%/.source,
-    // Group 2: Inline code - remove entirely
-    // Example: `console.log()` → (removed)
+    // Group 2: Inline code - remove backticks but keep text
+    // Example: `console.log()` → console.log()
     /`[^`]+`/.source,
     // Group 3: Images and embeds - remove entirely
     // Example: ![alt](image.png) → (removed)
@@ -105,16 +105,28 @@ const BASE_PATTERNS = [
     // [!info]+ Optional title → (removed)
     // [!info]- Optional title → (removed)
     /\[![\w-]+\][+-]?(?:\s+[^\n]*)?/.source,
-    // Group 25: Lists and blockquotes - non-capturing group
-    // Example: - List item → (removed), * List → (removed), > Quote → (removed)
-    /^(?:[-*+]\s+|\d+\.\s+|>\s+)/.source,
-    // Group 26: Heading markers (always strip the # symbols, keep the text)
+    // Group 25: List markers - remove marker prefix while keeping text
+    // Example: - List item → List item, 1. Item → Item
+    /^(?:[-*+]\s+|\d+\.\s+)/.source,
+    // Group 26: Blockquotes - remove entire line
+    // Example: > Quote → (removed), >Quote → (removed)
+    /^>\s?.*$/m.source,
+    // Group 27: Heading markers (always strip the # symbols, keep the text)
     // Example: # Title → Title, ## Section → Section
     /^(#+)\s+(.*)$/m.source,
-    // Group 27: Markdown tables - matches table rows (lines with pipes)
+    // Group 28: Markdown tables - matches table rows (lines with pipes)
     // Example: | Header | Another | → (removed)
     // This captures lines that start with optional whitespace, then |, and contain at least one more |
-    /^\s*\|.*\|.*$/m.source
+    /^\s*\|.*\|.*$/m.source,
+    // Group 29: Inline footnotes
+    // Example: text ^[detail] → text
+    /\^\[[^\]]*?]/.source,
+    // Group 30: Footnote references
+    // Example: reference[^1] → reference
+    /\[\^[^\]]+]/.source,
+    // Group 31: Footnote definitions
+    // Example: [^1]: Footnote text → (removed)
+    /^\s*\[\^[^\]]+]:.*$/m.source
 ];
 
 // Regex without heading removal
@@ -176,7 +188,10 @@ export class PreviewTextUtils {
 
             // Inline code
             if (match.startsWith('`') && match.endsWith('`')) {
-                return '';
+                if (skipCodeBlocks) {
+                    return '';
+                }
+                return match.slice(1, -1);
             }
 
             // Images and embeds
@@ -187,6 +202,29 @@ export class PreviewTextUtils {
             // Tags
             if (match.match(/#[\w\-/]+(?=\s|$)/)) {
                 return '';
+            }
+
+            // Footnote inline syntax and references
+            const trimmedFootnoteMatch = match.trimStart();
+            if (trimmedFootnoteMatch.startsWith('^[') || trimmedFootnoteMatch.startsWith('[^')) {
+                return '';
+            }
+
+            // Blockquotes (entire line already matched)
+            if (match.startsWith('>')) {
+                return '';
+            }
+
+            // Italic with stars - preserve prefix and content
+            const italicStarMatch = match.match(/(^|[^*\d])\*([^*\n]+)\*(?![*\d])/);
+            if (italicStarMatch) {
+                return `${italicStarMatch[1]}${italicStarMatch[2]}`;
+            }
+
+            // Italic with underscores - preserve prefix and content
+            const italicUnderscoreMatch = match.match(/(^|[^_a-zA-Z0-9])_([^_\n]+)_(?![_a-zA-Z0-9])/);
+            if (italicUnderscoreMatch) {
+                return `${italicUnderscoreMatch[1]}${italicUnderscoreMatch[2]}`;
             }
 
             // Headings - always strip # symbols
@@ -201,8 +239,8 @@ export class PreviewTextUtils {
                 return groups[headingTextIndex] || '';
             }
 
-            // Lists and blockquotes
-            if (match.match(/^[-+>\d]/) || match.match(/^\*\s+/)) {
+            // List markers
+            if (match.match(/^[-+\d]/) || match.match(/^\*\s+/)) {
                 return '';
             }
 
@@ -215,21 +253,6 @@ export class PreviewTextUtils {
             for (let i = 0; i < groups.length - 2; i++) {
                 // -2 for offset and string
                 if (groups[i] !== undefined) {
-                    // Special handling for italic patterns with prefixes (groups 17 and 18)
-                    if (i === 16 && groups[17] !== undefined) {
-                        return groups[16] + groups[17];
-                    }
-                    if (i === 17 && groups[16] !== undefined) {
-                        continue;
-                    }
-
-                    if (i === 18 && groups[19] !== undefined) {
-                        return groups[18] + groups[19];
-                    }
-                    if (i === 19 && groups[18] !== undefined) {
-                        continue;
-                    }
-
                     return groups[i];
                 }
             }
