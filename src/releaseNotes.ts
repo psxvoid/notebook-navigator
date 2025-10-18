@@ -85,7 +85,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==New menu== when right-clicking empty area in list pane: Create new note, folder, canvas, base or drawing.',
             'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).'
         ],
-        changed: ['**Favorite tags section is removed**. I am sorry about this change, but having a separate favorite tags section caused an architectural nightmare that caused special wiring all over the application.'],
+        changed: [
+            '**Favorite tags section is removed**. I am sorry about this change, but having a separate favorite tags section caused an architectural nightmare that caused special wiring all over the application.'
+        ],
         improved: ['Hidden tags are now also hidden in the list pane.'],
         fixed: [
             'Fixed a rare startup crash that hid Notebook Navigator during startup after enabling the plugin.',
