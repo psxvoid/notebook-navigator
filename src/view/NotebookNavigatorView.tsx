@@ -222,6 +222,13 @@ export class NotebookNavigatorView extends ItemView {
     }
 
     /**
+     * Adds the current navigator selection or active file to shortcuts
+     */
+    async addShortcutForCurrentSelection(): Promise<void> {
+        await this.componentRef.current?.addShortcutForCurrentSelection();
+    }
+
+    /**
      * Navigate to a folder by showing the folder suggest modal
      */
     async navigateToFolderWithModal(): Promise<void> {

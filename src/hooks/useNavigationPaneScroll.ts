@@ -497,12 +497,29 @@ export function useNavigationPaneScroll({
                 return;
             }
             // If we have a selected folder or tag, scroll to it
-            if (selectedPath && rowVirtualizer && isScrollContainerReady) {
-                const index = resolveIndex(selectedPath, selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER);
+            if (!selectedPath) {
+                return;
+            }
+
+            const targetType = selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
+
+            if (rowVirtualizer && isScrollContainerReady) {
+                const index = resolveIndex(selectedPath, targetType);
                 if (index !== undefined && index >= 0) {
                     rowVirtualizer.scrollToIndex(index, { align: 'auto' });
+                    return;
                 }
             }
+
+            // Defer scroll until the pane reports as ready or indices rebuild
+            pendingScrollRef.current = {
+                path: selectedPath,
+                align: 'auto',
+                intent: 'mobile-visibility',
+                minIndexVersion: indexVersionRef.current,
+                itemType: targetType
+            };
+            setPendingScrollVersion(v => v + 1);
         };
 
         window.addEventListener('notebook-navigator-visible', handleVisible);

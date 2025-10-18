@@ -16,8 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export * from './menuTypes';
-export { buildFolderMenu } from './folderMenuBuilder';
-export { buildTagMenu } from './tagMenuBuilder';
-export { buildFileMenu } from './fileMenuBuilder';
-export { buildEmptyListMenu } from './emptyListMenuBuilder';
+import { FolderMenuBuilderParams } from './menuTypes';
+import { addFolderCreationMenuItems } from './folderMenuBuilder';
+
+/**
+ * Builds the context menu for empty space inside the list pane.
+ * Reuses folder creation commands to match the folder context menu.
+ */
+export function buildEmptyListMenu(params: FolderMenuBuilderParams): void {
+    addFolderCreationMenuItems(params);
+}

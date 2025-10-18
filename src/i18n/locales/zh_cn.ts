@@ -135,7 +135,9 @@ export const STRINGS_ZH_CN = {
             revealInFolder: '在文件夹中显示',
             revealInFinder: '在访达中显示',
             showInExplorer: '在资源管理器中显示',
-            copyDeepLink: '复制深层链接',
+            copyDeepLink: '复制 Obsidian URL',
+            copyPath: '复制路径',
+            copyRelativePath: '复制相对路径',
             renameNote: '重命名笔记',
             deleteNote: '删除笔记',
             deleteMultipleNotes: '删除 {count} 个笔记',
@@ -174,6 +176,7 @@ export const STRINGS_ZH_CN = {
             changeColor: '更改颜色',
             changeBackground: '更改背景',
             excludeFolder: '隐藏文件夹',
+            moveFolder: '移动到...',
             renameFolder: '重命名文件夹',
             deleteFolder: '删除文件夹'
         },
@@ -361,7 +364,9 @@ export const STRINGS_ZH_CN = {
             movedMultipleFiles: '已将{count}个文件移动到{folder}',
             folderNoteConversionSuccess: '已在"{name}"中将文件转换为文件夹笔记',
             folderMoved: '已移动文件夹"{name}"',
-            deepLinkCopied: '深层链接已复制到剪贴板',
+            deepLinkCopied: 'Obsidian URL 已复制到剪贴板',
+            pathCopied: '路径已复制到剪贴板',
+            relativePathCopied: '相对路径已复制到剪贴板',
             tagAddedToNote: '已将标签添加到 1 个笔记',
             tagAddedToNotes: '已将标签添加到 {count} 个笔记',
             tagRemovedFromNote: '已从 1 个笔记中移除标签',
@@ -440,6 +445,7 @@ export const STRINGS_ZH_CN = {
         convertToFolderNote: '转换为文件夹笔记', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
+        addShortcut: '添加到快捷方式', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: '切换后代', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: '切换隐藏项', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapseExpand: '折叠/展开所有项目', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
@@ -559,6 +565,10 @@ export const STRINGS_ZH_CN = {
             includeDescendantNotes: {
                 name: '显示子文件夹/后代的笔记',
                 desc: '在查看文件夹或标签时包含嵌套子文件夹和标签后代中的笔记。'
+            },
+            separateNoteCounts: {
+                name: '分别显示当前和后代计数',
+                desc: '在文件夹和标签中以"当前 ▾ 后代"格式显示笔记计数。'
             },
             groupByDate: {
                 name: '按日期分组笔记',
@@ -882,6 +892,10 @@ export const STRINGS_ZH_CN = {
             hideFolderNoteInList: {
                 name: '在列表中隐藏文件夹笔记',
                 desc: '隐藏文件夹笔记，使其不出现在文件夹的笔记列表中。'
+            },
+            pinCreatedFolderNote: {
+                name: '固定创建的文件夹笔记',
+                desc: '从上下文菜单创建文件夹笔记时自动固定。'
             },
             confirmBeforeDelete: {
                 name: '删除前确认',

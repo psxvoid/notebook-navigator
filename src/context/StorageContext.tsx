@@ -777,13 +777,23 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
      */
     const handleSettingsChanges = useCallback(
         async (oldSettings: NotebookNavigatorSettings, newSettings: NotebookNavigatorSettings) => {
-            if (!contentRegistry.current) return;
+            const registry = contentRegistry.current;
+            if (!registry) {
+                return;
+            }
 
             // Let the registry handle settings changes
-            await contentRegistry.current.handleSettingsChange(oldSettings, newSettings);
+            await registry.handleSettingsChange(oldSettings, newSettings);
+
+            if (stoppedRef.current || !contentRegistry.current) {
+                return;
+            }
 
             // Queue content generation for all files if needed
             const allFiles = getFilteredMarkdownFilesCallback();
+            if (stoppedRef.current || !contentRegistry.current) {
+                return;
+            }
             const options = newSettings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
             contentRegistry.current.queueFilesForAllProviders(allFiles, newSettings, options);
 

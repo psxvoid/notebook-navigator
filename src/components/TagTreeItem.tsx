@@ -25,7 +25,7 @@
  *    - All data comes from NavigationPane via props (no direct cache access)
  *    - color: Custom tag color from MetadataService (via NavigationPane)
  *    - icon: Custom tag icon from MetadataService (via NavigationPane)
- *    - fileCount: Pre-computed in NavigationPane from RAM cache
+ *    - countInfo: Pre-computed note counts from NavigationPane
  *    - tagNode: Tag tree structure from StorageContext (via NavigationPane)
  *
  * 3. Memoized values:
@@ -56,6 +56,9 @@ import { useContextMenu } from '../hooks/useContextMenu';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import { ItemType } from '../types';
 import { TagTreeNode } from '../types/storage';
+import type { NoteCountInfo } from '../types/noteCounts';
+import { buildNoteCountDisplay } from '../utils/noteCountFormatting';
+import { getTotalNoteCount } from '../utils/tagTree';
 
 /**
  * Props for the TagTreeItem component
@@ -75,8 +78,8 @@ interface TagTreeItemProps {
     onClick: () => void;
     /** Callback when all sibling tags should be toggled */
     onToggleAllSiblings?: () => void;
-    /** Total count of files with this tag (including children) - computed by NavigationPane from RAM cache */
-    fileCount: number;
+    /** Pre-computed note counts for this tag (current and descendants) */
+    countInfo?: NoteCountInfo;
     /** Whether to show file counts */
     showFileCount: boolean;
     /** Context indicating which section this tag is in */
@@ -107,7 +110,7 @@ export const TagTreeItem = React.memo(
             onToggle,
             onClick,
             onToggleAllSiblings,
-            fileCount,
+            countInfo,
             showFileCount,
             context,
             color,
@@ -121,6 +124,28 @@ export const TagTreeItem = React.memo(
         const iconRef = React.useRef<HTMLSpanElement>(null);
         const iconVersion = useIconServiceVersion();
         const itemRef = React.useRef<HTMLDivElement>(null);
+
+        // Compute note counts - use provided counts or calculate from tag node
+        const resolvedCounts = React.useMemo<NoteCountInfo>(() => {
+            if (countInfo) {
+                return countInfo;
+            }
+            // Calculate counts directly from tag node if not provided
+            const directCount = tagNode.notesWithTag.size;
+            if (!settings.includeDescendantNotes) {
+                return { current: directCount, descendants: 0, total: directCount };
+            }
+            const total = getTotalNoteCount(tagNode);
+            const descendants = Math.max(total - directCount, 0);
+            return { current: directCount, descendants, total };
+        }, [countInfo, tagNode, settings.includeDescendantNotes]);
+
+        // Determine if counts should be shown separately (e.g., "2 + 5") or combined
+        const useSeparateCounts = settings.includeDescendantNotes && settings.separateNoteCounts;
+        // Build formatted display object with label and visibility flags
+        const noteCountDisplay = buildNoteCountDisplay(resolvedCounts, settings.includeDescendantNotes, useSeparateCounts);
+        // Check if count badge should be displayed based on settings and count values
+        const shouldDisplayCount = showFileCount && noteCountDisplay.shouldDisplay;
 
         // Memoize computed values
         const hasChildren = useMemo(() => tagNode.children.size > 0, [tagNode.children.size]);
@@ -234,7 +259,7 @@ export const TagTreeItem = React.memo(
                         {tagNode.name}
                     </span>
                     <span className="nn-navitem-spacer" />
-                    {showFileCount && fileCount > 0 && <span className="nn-navitem-count">{fileCount}</span>}
+                    {shouldDisplayCount && <span className="nn-navitem-count">{noteCountDisplay.label}</span>}
                 </div>
             </div>
         );

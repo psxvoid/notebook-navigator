@@ -135,7 +135,9 @@ export const STRINGS_FR = {
             revealInFolder: 'Afficher dans le dossier',
             revealInFinder: 'Afficher dans le Finder',
             showInExplorer: "Afficher dans l'explorateur système",
-            copyDeepLink: 'Copier le lien profond',
+            copyDeepLink: "Copier l'URL Obsidian",
+            copyPath: 'Copier le chemin',
+            copyRelativePath: 'Copier le chemin relatif',
             renameNote: 'Renommer la note',
             deleteNote: 'Supprimer la note',
             deleteMultipleNotes: 'Supprimer {count} notes',
@@ -174,6 +176,7 @@ export const STRINGS_FR = {
             changeColor: 'Changer la couleur',
             changeBackground: 'Changer l’arrière-plan',
             excludeFolder: 'Masquer le dossier',
+            moveFolder: 'Déplacer vers...',
             renameFolder: 'Renommer le dossier',
             deleteFolder: 'Supprimer le dossier'
         },
@@ -361,7 +364,9 @@ export const STRINGS_FR = {
             movedMultipleFiles: '{count} fichiers déplacés vers {folder}',
             folderNoteConversionSuccess: 'Fichier converti en note de dossier dans "{name}"',
             folderMoved: 'Dossier "{name}" déplacé',
-            deepLinkCopied: 'Lien profond copié dans le presse-papiers',
+            deepLinkCopied: 'URL Obsidian copiée dans le presse-papiers',
+            pathCopied: 'Chemin copié dans le presse-papiers',
+            relativePathCopied: 'Chemin relatif copié dans le presse-papiers',
             tagAddedToNote: 'Étiquette ajoutée à 1 note',
             tagAddedToNotes: 'Étiquette ajoutée à {count} notes',
             tagRemovedFromNote: 'Étiquette supprimée de 1 note',
@@ -440,6 +445,7 @@ export const STRINGS_FR = {
         convertToFolderNote: 'Convertir en note de dossier', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Naviguer vers le dossier', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
+        addShortcut: 'Ajouter aux raccourcis', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Basculer descendants', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Basculer les éléments masqués', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapseExpand: 'Replier / déplier tous les éléments', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
@@ -561,6 +567,10 @@ export const STRINGS_FR = {
             includeDescendantNotes: {
                 name: 'Afficher les notes des sous-dossiers / descendants',
                 desc: "Inclure les notes des sous-dossiers imbriqués et des descendants d'étiquettes lors de l'affichage d'un dossier ou d'une étiquette."
+            },
+            separateNoteCounts: {
+                name: 'Afficher les comptes actuels et descendants séparément',
+                desc: 'Affiche le nombre de notes au format "actuel ▾ descendants" dans les dossiers et étiquettes.'
             },
             groupByDate: {
                 name: 'Grouper les notes par date',
@@ -884,6 +894,10 @@ export const STRINGS_FR = {
             hideFolderNoteInList: {
                 name: 'Masquer les notes de dossier dans la liste',
                 desc: "Masquer la note de dossier pour qu'elle n'apparaisse pas dans la liste des notes du dossier."
+            },
+            pinCreatedFolderNote: {
+                name: 'Épingler les notes de dossier créées',
+                desc: 'Épingler automatiquement les notes de dossier lors de leur création depuis le menu contextuel.'
             },
             confirmBeforeDelete: {
                 name: 'Confirmer avant de supprimer',

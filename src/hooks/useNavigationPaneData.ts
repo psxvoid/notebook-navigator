@@ -50,7 +50,7 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings, TagSortOrder } from '../settings/types';
-import { shouldExcludeFile, shouldExcludeFolder, isFolderInExcludedFolder } from '../utils/fileFilters';
+import { isFolderInExcludedFolder } from '../utils/fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY, isImageFile } from '../utils/fileTypeUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
@@ -59,9 +59,11 @@ import { createHiddenTagMatcher } from '../utils/tagPrefixMatcher';
 import { setNavigationIndex } from '../utils/navigationIndex';
 import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } from '../types/shortcuts';
 import { useRootFolderOrder } from './useRootFolderOrder';
-import { isFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
+import type { FolderNoteDetectionSettings } from '../utils/folderNotes';
 import { getDBInstance } from '../storage/fileOperations';
 import { naturalCompare } from '../utils/sortUtils';
+import type { NoteCountInfo } from '../types/noteCounts';
+import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
 
 // Checks if a navigation item is a shortcut-related item (virtual folder, shortcut, or header)
 const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
@@ -183,10 +185,10 @@ interface UseNavigationPaneDataResult {
     pathToIndex: Map<string, number>;
     /** Map from shortcut id to index */
     shortcutIndex: Map<string, number>;
-    /** Map from tag path to file count */
-    tagCounts: Map<string, number>;
-    /** Map from folder path to file count */
-    folderCounts: Map<string, number>;
+    /** Map from tag path to current/descendant note counts */
+    tagCounts: Map<string, NoteCountInfo>;
+    /** Map from folder path to current/descendant note counts */
+    folderCounts: Map<string, NoteCountInfo>;
     /** Ordered list of root-level folders */
     rootLevelFolders: TFolder[];
     /** Paths from settings that are not currently present in the vault */
@@ -906,25 +908,36 @@ export function useNavigationPaneData({
      * Pre-compute tag counts to avoid expensive calculations during render
      */
     const tagCounts = useMemo(() => {
-        const counts = new Map<string, number>();
+        const counts = new Map<string, NoteCountInfo>();
 
         // Skip computation if pane is not visible or not showing tags
         if (!isVisible || !settings.showTags) return counts;
 
         // Add untagged count
         if (settings.showUntagged) {
-            counts.set(UNTAGGED_TAG_ID, untaggedCount);
+            counts.set(UNTAGGED_TAG_ID, {
+                current: untaggedCount,
+                descendants: 0,
+                total: untaggedCount
+            });
         }
 
         // Compute counts for all tag items
         itemsWithMetadata.forEach(item => {
             if (item.type === NavigationPaneItemType.TAG) {
                 const tagNode = item.data;
-                // Respect descendants setting for tags:
-                // - When enabled: include notes from descendant tags
-                // - When disabled: count only notes directly on the tag
-                const count = settings.includeDescendantNotes ? getTotalNoteCount(tagNode) : tagNode.notesWithTag.size;
-                counts.set(tagNode.path, count);
+                const current = tagNode.notesWithTag.size;
+                if (settings.includeDescendantNotes) {
+                    const total = getTotalNoteCount(tagNode);
+                    const descendants = Math.max(total - current, 0);
+                    counts.set(tagNode.path, { current, descendants, total });
+                } else {
+                    counts.set(tagNode.path, {
+                        current,
+                        descendants: 0,
+                        total: current
+                    });
+                }
             }
         });
 
@@ -935,10 +948,12 @@ export function useNavigationPaneData({
      * Pre-compute folder file counts to avoid recursive counting during render
      */
     const folderCounts = useMemo(() => {
-        const counts = new Map<string, number>();
+        const counts = new Map<string, NoteCountInfo>();
 
         // Skip computation if pane is not visible or not showing note counts
-        if (!isVisible || !settings.showNoteCount) return counts;
+        if (!isVisible || !settings.showNoteCount) {
+            return counts;
+        }
 
         const excludedProperties = settings.excludedFiles;
         const excludedFolderPatterns = settings.excludedFolders;
@@ -946,39 +961,24 @@ export function useNavigationPaneData({
             enableFolderNotes: settings.enableFolderNotes,
             folderNoteName: settings.folderNoteName
         };
-
-        // Recursively counts files in a folder, respecting exclusion rules
-        const countFiles = (folder: TFolder): number => {
-            let count = 0;
-            for (const child of folder.children) {
-                if (child instanceof TFile) {
-                    if (
-                        folderNoteSettings.enableFolderNotes &&
-                        settings.hideFolderNoteInList &&
-                        isFolderNote(child, folder, folderNoteSettings)
-                    ) {
-                        continue;
-                    }
-
-                    if (shouldDisplayFile(child, settings.fileVisibility, app)) {
-                        if (!shouldExcludeFile(child, excludedProperties, app)) {
-                            count++;
-                        }
-                    }
-                } else if (settings.includeDescendantNotes && child instanceof TFolder) {
-                    // When showing hidden items, include files from excluded descendant folders
-                    if (settings.showHiddenItems || !shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
-                        count += countFiles(child);
-                    }
-                }
-            }
-            return count;
+        const includeDescendants = settings.includeDescendantNotes;
+        const showHiddenFolders = settings.showHiddenItems;
+        const countOptions = {
+            app,
+            fileVisibility: settings.fileVisibility,
+            excludedFiles: excludedProperties,
+            excludedFolders: excludedFolderPatterns,
+            includeDescendants,
+            showHiddenFolders,
+            hideFolderNoteInList: settings.hideFolderNoteInList,
+            folderNoteSettings,
+            cache: counts
         };
 
         // Compute counts for all folder items
         itemsWithMetadata.forEach(item => {
             if (item.type === NavigationPaneItemType.FOLDER && item.data instanceof TFolder) {
-                counts.set(item.data.path, countFiles(item.data));
+                calculateFolderNoteCounts(item.data, countOptions);
             }
         });
 

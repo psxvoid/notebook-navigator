@@ -210,8 +210,8 @@ deleteMultipleFiles(files: TAbstractFile[], confirmBeforeDelete: boolean, onSucc
 deleteFilesWithSmartSelection(files: TAbstractFile[], confirmBeforeDelete: boolean): Promise<void>
 
 // Special file types
-createCanvas(parent: TFolder): Promise<void>
-createBase(parent: TFolder): Promise<void>
+createCanvas(parent: TFolder): Promise<TFile | null>
+createBase(parent: TFolder): Promise<TFile | null>
 createNewDrawing(parent: TFolder): Promise<TFile | null>
 
 // System operations

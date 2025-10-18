@@ -72,10 +72,9 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import { NavigationPaneItemType, ItemType } from '../types';
 import { getSelectedPath } from '../utils/selectionUtils';
 import { TagTreeNode } from '../types/storage';
-import { getFolderNote } from '../utils/folderNotes';
+import { getFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
 import { findTagNode, getTotalNoteCount } from '../utils/tagTree';
-import { shouldExcludeFolder, shouldExcludeFile } from '../utils/fileFilters';
-import { shouldDisplayFile, getExtensionSuffix, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
+import { getExtensionSuffix, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';
 import { NavigationToolbar } from './NavigationToolbar';
@@ -99,6 +98,8 @@ import {
     type MenuState,
     type MenuDispatchers
 } from '../utils/contextMenu';
+import type { NoteCountInfo } from '../types/noteCounts';
+import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (itemType: ItemType, path: string) => number;
@@ -130,6 +131,9 @@ type RootFolderDescriptor = {
     isVault?: boolean;
     isMissing?: boolean;
 };
+
+// Default note count object used when counts are disabled or unavailable
+const ZERO_NOTE_COUNT: NoteCountInfo = { current: 0, descendants: 0, total: 0 };
 
 export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
@@ -1418,38 +1422,32 @@ export const NavigationPane = React.memo(
 
         // Calculates the note count for a folder shortcut, using cache when available
         const getFolderShortcutCount = useCallback(
-            (folder: TFolder): number => {
+            (folder: TFolder): NoteCountInfo => {
                 if (!settings.showNoteCount) {
-                    return 0;
+                    return ZERO_NOTE_COUNT;
                 }
 
                 const precomputed = folderCounts.get(folder.path);
-                if (typeof precomputed === 'number') {
+                if (precomputed) {
                     return precomputed;
                 }
 
-                const countFiles = (currentFolder: TFolder): number => {
-                    let total = 0;
-                    for (const child of currentFolder.children) {
-                        if (child instanceof TFile) {
-                            if (shouldDisplayFile(child, settings.fileVisibility, app)) {
-                                if (!shouldExcludeFile(child, settings.excludedFiles, app)) {
-                                    total++;
-                                }
-                            }
-                        } else if (child instanceof TFolder) {
-                            if (!settings.includeDescendantNotes) {
-                                continue;
-                            }
-                            if (settings.showHiddenItems || !shouldExcludeFolder(child.name, settings.excludedFolders, child.path)) {
-                                total += countFiles(child);
-                            }
-                        }
-                    }
-                    return total;
+                // Extract folder note settings for the note count calculation
+                const folderNoteSettings: FolderNoteDetectionSettings = {
+                    enableFolderNotes: settings.enableFolderNotes,
+                    folderNoteName: settings.folderNoteName
                 };
 
-                return countFiles(folder);
+                return calculateFolderNoteCounts(folder, {
+                    app,
+                    fileVisibility: settings.fileVisibility,
+                    excludedFiles: settings.excludedFiles,
+                    excludedFolders: settings.excludedFolders,
+                    includeDescendants: settings.includeDescendantNotes,
+                    showHiddenFolders: settings.showHiddenItems,
+                    hideFolderNoteInList: settings.hideFolderNoteInList,
+                    folderNoteSettings
+                });
             },
             [
                 app,
@@ -1457,30 +1455,52 @@ export const NavigationPane = React.memo(
                 settings.showNoteCount,
                 settings.fileVisibility,
                 settings.excludedFiles,
+                settings.excludedFolders,
                 settings.includeDescendantNotes,
                 settings.showHiddenItems,
-                settings.excludedFolders
+                settings.hideFolderNoteInList,
+                settings.enableFolderNotes,
+                settings.folderNoteName
             ]
         );
 
         // Calculates the note count for a tag shortcut, using cache when available
         const getTagShortcutCount = useCallback(
-            (tagPath: string): number => {
+            (tagPath: string): NoteCountInfo => {
                 if (!settings.showNoteCount) {
-                    return 0;
+                    return ZERO_NOTE_COUNT;
                 }
 
                 const precomputed = tagCounts.get(tagPath);
-                if (typeof precomputed === 'number') {
+                if (precomputed) {
                     return precomputed;
                 }
 
                 const tagNode = favoriteTree.get(tagPath) ?? tagTree.get(tagPath);
                 if (!tagNode) {
-                    return 0;
+                    return ZERO_NOTE_COUNT;
                 }
 
-                return settings.includeDescendantNotes ? getTotalNoteCount(tagNode) : tagNode.notesWithTag.size;
+                // Calculate note counts for the tag and its descendants
+                const current = tagNode.notesWithTag.size;
+                if (!settings.includeDescendantNotes) {
+                    // Return only current tag's note count when descendants are disabled
+                    return {
+                        current,
+                        descendants: 0,
+                        total: current
+                    };
+                }
+
+                // Calculate total notes including all descendant tags
+                const total = getTotalNoteCount(tagNode);
+                // Descendant count is the difference between total and current
+                const descendants = Math.max(total - current, 0);
+                return {
+                    current,
+                    descendants,
+                    total
+                };
             },
             [settings.showNoteCount, settings.includeDescendantNotes, tagCounts, favoriteTree, tagTree]
         );
@@ -1585,7 +1605,7 @@ export const NavigationPane = React.memo(
 
                         const folderPath = isFolderShortcut(item.shortcut) ? item.shortcut.path : '';
                         const folderName = canInteract && folder ? folder.name : getPathBaseName(folderPath);
-                        const folderCount = canInteract && folder ? getFolderShortcutCount(folder) : 0;
+                        const folderCountInfo = canInteract && folder ? getFolderShortcutCount(folder) : ZERO_NOTE_COUNT;
                         const folderNote = canInteract && folder && settings.enableFolderNotes ? getFolderNote(folder, settings) : null;
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
@@ -1609,7 +1629,7 @@ export const NavigationPane = React.memo(
                                 description={undefined}
                                 level={item.level}
                                 type="folder"
-                                count={!isMissing ? folderCount : undefined}
+                                countInfo={!isMissing ? folderCountInfo : undefined}
                                 isExcluded={!isMissing ? item.isExcluded : undefined}
                                 isDisabled={isMissing}
                                 isMissing={isMissing}
@@ -1733,7 +1753,7 @@ export const NavigationPane = React.memo(
                     case NavigationPaneItemType.SHORTCUT_TAG: {
                         const isMissing = Boolean(item.isMissing);
                         const tagPath = isTagShortcut(item.shortcut) ? item.shortcut.tagPath : item.tagPath;
-                        const tagCount = !isMissing ? getTagShortcutCount(tagPath) : 0;
+                        const tagCountInfo = !isMissing ? getTagShortcutCount(tagPath) : ZERO_NOTE_COUNT;
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
                         const dragHandlers = buildShortcutDragHandlers(item.key, {
@@ -1755,7 +1775,7 @@ export const NavigationPane = React.memo(
                                 description={undefined}
                                 level={item.level}
                                 type="tag"
-                                count={!isMissing ? tagCount : undefined}
+                                countInfo={!isMissing ? tagCountInfo : undefined}
                                 isDisabled={isMissing}
                                 isMissing={isMissing}
                                 onClick={() => {
@@ -1776,6 +1796,7 @@ export const NavigationPane = React.memo(
 
                     case NavigationPaneItemType.FOLDER: {
                         const folderPath = item.data.path;
+                        const countInfo = folderCounts.get(folderPath);
 
                         return (
                             <FolderItem
@@ -1811,7 +1832,7 @@ export const NavigationPane = React.memo(
                                 icon={item.icon}
                                 color={item.color}
                                 backgroundColor={item.backgroundColor}
-                                fileCount={folderCounts.get(item.data.path)}
+                                countInfo={countInfo}
                                 excludedFolders={item.parsedExcludedFolders || []}
                             />
                         );
@@ -1907,7 +1928,7 @@ export const NavigationPane = React.memo(
                                         }
                                     }
                                 }}
-                                fileCount={tagCounts.get(tagNode.path) || 0}
+                                countInfo={tagCounts.get(tagNode.path)}
                                 showFileCount={settings.showNoteCount}
                             />
                         );
