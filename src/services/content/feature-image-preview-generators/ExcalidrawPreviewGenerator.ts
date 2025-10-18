@@ -31,9 +31,9 @@ declare global {
 }
 
 const cacheDirPath = `thumbnails/full`
-const cacheFilePath = (excalidrawFile: TFile) => `${cacheDirPath}/${excalidrawFile.basename}_${excalidrawFile.stat.size}.png`
+export const cacheFilePath = (excalidrawFile: TFile) => `${cacheDirPath}/${excalidrawFile.basename}_${excalidrawFile.stat.size}.png`
 const getDbFile = (path: string) => getDBInstance().getFile(path)
-const isCachePath = (path: string | unknown) => typeof path === 'string'
+export const isCachePath = (path: string | unknown) => typeof path === 'string'
     ? path.startsWith(cacheDirPath)
     : false
 
@@ -221,7 +221,7 @@ async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, app: App
     return createNewBlobResult(dispose)
 }
 
-export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App, requestingFile: TFile): Promise<string | null> {
+export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App, requestingFile: TFile): Promise<{ featurePath: string, featureProviderPath?: string, consumerTargetPath?: string } | null> {
     const previewFilePath = cacheFilePath(excalidrawFile);
     const dbFile = getDbFile(requestingFile.path);
     const currentFeature: string | null | undefined = dbFile?.featureImage
@@ -229,7 +229,7 @@ export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App,
     const hasExistingFeature = (currentFeature ?? EMPTY_STRING).length > 0;
 
     if (hasExistingFeature && currentFeature === previewFilePath) {
-        return previewFilePath;
+        return { featurePath: previewFilePath, featureProviderPath: excalidrawFile.path };
     }
 
     if (hasExistingFeature && isCachePath(currentFeature) && await this.app.vault.adapter.exists(currentFeature) ) {
@@ -244,11 +244,11 @@ export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App,
     try {
         previewData = await generatePreview(excalidrawFile, false, app);
         await this.app.vault.createBinary(previewFilePath, await previewData.blob.arrayBuffer());
-        return previewFilePath
+        return { featurePath: previewFilePath, featureProviderPath: excalidrawFile.path, consumerTargetPath: excalidrawFile.path }
     } catch(e: unknown) {
         if (e instanceof Error && e.message.indexOf("File already exists") >= 0) {
             // usually should not happen but just in case
-            return previewFilePath
+            return { featurePath: previewFilePath, featureProviderPath: excalidrawFile.path, consumerTargetPath: excalidrawFile.path }
         }
 
         throw e;

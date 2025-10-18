@@ -29,7 +29,7 @@
  */
 
 import { useMemo, useState, useEffect, useRef } from 'react';
-import { TFile, TFolder, debounce } from 'obsidian';
+import { LinkCache, TFile, TFolder, debounce } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { OperationType } from '../services/CommandQueueService';
 import { useFileCache } from '../context/StorageContext';
@@ -40,10 +40,13 @@ import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
 import { strings } from '../i18n';
-import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
+import { FILE_VISIBILITY, isExcalidrawAttachment } from '../utils/fileTypeUtils';
 import { parseFilterSearchTokens, fileMatchesFilterTokens } from '../utils/filterSearch';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { SearchResultMeta } from '../types/search';
+import { getDBInstance } from 'src/storage/fileOperations';
+import { FeatureImageContentProvider } from 'src/services/content/FeatureImageContentProvider';
+import { CachedMetadata } from 'tests/stubs/obsidian';
 
 const EMPTY_SEARCH_META = new Map<string, SearchResultMeta>();
 
@@ -554,19 +557,66 @@ export function useListPaneData({
 
         const isModifiedSort = sortOption.startsWith('modified');
 
+        // Review: Refactoring: subscribe to events in a single place
+        // Review: Refactoring: extract smaller submodules
         const vaultEvents = [
-            app.vault.on('create', () => {
+            app.vault.on('create', file => {
                 if (operationActiveRef.current) {
                     pendingRefreshRef.current = true;
                 } else {
                     scheduleRefresh();
                 }
+
+                if (!(file instanceof TFile) || file.extension !== 'md') {
+                    return
+                }
+      
+                let deleteStatus: 'unknown' | 'deleted' = 'unknown'
+                const eventRef = app.metadataCache.on("changed", (metaFile: TFile, data: string, cache: CachedMetadata) => {
+                    if (metaFile.path !== file.path) {
+                        return
+                    }
+
+                    if ((metaFile as unknown as { deleted: boolean }).deleted === true && deleteStatus === 'unknown') {
+                        deleteStatus = 'deleted'
+                        return
+                    }
+
+                    app.metadataCache.offref(eventRef)
+
+                    if (!isExcalidrawAttachment(metaFile, cache)) {
+                        return
+                    }
+
+                    const backlinks = (app.metadataCache as unknown as { getBacklinksForFile(f: TFile): { data?: Map<string, LinkCache[]> } }).getBacklinksForFile(metaFile);
+
+                    // eslint-disable-next-line eqeqeq
+                    if (backlinks?.data != null) {
+                        FeatureImageContentProvider.Instance?.enqueueExcalidrawConsumers(
+                            // eslint-disable-next-line eqeqeq
+                            Array.from(backlinks.data.keys()).map(x => app.vault.getFileByPath(x)).filter(x => x != null)
+                        )
+                    }
+                })
             }),
-            app.vault.on('delete', () => {
+            app.vault.on('delete', file => {
                 if (operationActiveRef.current) {
                     pendingRefreshRef.current = true;
                 } else {
                     scheduleRefresh();
+                }
+
+                if (!(file instanceof TFile) || file.extension !== 'md') {
+                    return
+                }
+      
+                const dbFile = getDBInstance().getFile(file.path);
+
+                getDBInstance().deleteFile(file.path)
+
+                // eslint-disable-next-line eqeqeq
+                if (dbFile != null && dbFile.featureImageConsumers != null && dbFile.featureImageConsumers.length > 0) {
+                    FeatureImageContentProvider.Instance?.markFeatureProviderAsDeleted(file.path, dbFile.featureImageConsumers)
                 }
             }),
             app.vault.on('rename', () => {
@@ -583,6 +633,16 @@ export function useListPaneData({
                 if (!(file instanceof TFile)) {
                     return;
                 }
+
+                if (isExcalidrawAttachment(file, app.metadataCache.getFileCache(file))) {
+                    const dbFile = getDBInstance().getFile(file.path);
+                    if ((dbFile?.featureImageConsumers?.length ?? 0) > 0) {
+                        FeatureImageContentProvider.Instance?.enqueueExcalidrawConsumers(
+                            // eslint-disable-next-line eqeqeq
+                            dbFile?.featureImageConsumers?.map(x => app.vault.getFileByPath(x)).filter(x => x != null) ?? [])
+                    }
+                }
+
                 if (!basePathSet.has(file.path)) {
                     return;
                 }

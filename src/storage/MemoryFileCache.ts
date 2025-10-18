@@ -20,11 +20,14 @@ import { FileData } from './IndexedDBStorage';
 
 // Creates a deep clone of FileData to prevent mutations from affecting the original
 function cloneFileData(data: FileData): FileData {
+    const cloneArray = <T>(arr: null|T[]) => arr ? [...arr] : null;
     return {
         mtime: data.mtime,
-        tags: data.tags ? [...data.tags] : null,
+        tags: cloneArray(data.tags),
         preview: data.preview,
         featureImage: data.featureImage,
+        featureImageProvider: data.featureImageProvider,
+        featureImageConsumers: cloneArray(data.featureImageConsumers),
         metadata: data.metadata ? { ...data.metadata } : null
     };
 }

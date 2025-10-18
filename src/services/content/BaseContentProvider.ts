@@ -23,9 +23,20 @@ import { FileData } from '../../storage/IndexedDBStorage';
 import { getDBInstance, isShutdownInProgress } from '../../storage/fileOperations';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 
-interface ContentJob {
+export interface ContentJob {
     file: TFile;
     path: string[];
+}
+
+// Review: Refactoring: reuse everywhere
+export interface ProcessResult {
+    path: string;
+    tags?: string[] | null;
+    preview?: string;
+    featureImage?: string;
+    featureImageProvider?: string;
+    featureImageConsumers?: string[];
+    metadata?: FileData['metadata'];
 }
 
 /**
@@ -68,13 +79,7 @@ export abstract class BaseContentProvider implements IContentProvider {
         job: ContentJob,
         fileData: FileData | null,
         settings: NotebookNavigatorSettings
-    ): Promise<{
-        path: string;
-        tags?: string[] | null;
-        preview?: string;
-        featureImage?: string;
-        metadata?: FileData['metadata'];
-    } | null>;
+    ): Promise<ProcessResult | (ProcessResult | null) [] | null>;
 
     /**
      * Checks if a file needs processing
@@ -170,6 +175,8 @@ export abstract class BaseContentProvider implements IContentProvider {
                 tags?: string[] | null;
                 preview?: string;
                 featureImage?: string;
+                featureImageProvider?: string;
+                featureImageConsumers?: string[] | null;
                 metadata?: FileData['metadata'];
             }[] = [];
 
@@ -189,16 +196,10 @@ export abstract class BaseContentProvider implements IContentProvider {
                 );
 
                 updates.push(
-                    ...results.filter(
+                    ...results.flat().filter(
                         (
                             r
-                        ): r is {
-                            path: string;
-                            tags?: string[] | null;
-                            preview?: string;
-                            featureImage?: string;
-                            metadata?: FileData['metadata'];
-                        } => r !== null
+                        ): r is ProcessResult => r !== null
                     )
                 );
             }

@@ -16,19 +16,45 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, CachedMetadata } from 'obsidian';
+import { TFile, CachedMetadata, App } from 'obsidian';
 import { ContentType } from '../../interfaces/IContentProvider';
 import { NotebookNavigatorSettings } from '../../settings';
 import { FileData } from '../../storage/IndexedDBStorage';
 import { getDBInstance } from '../../storage/fileOperations';
 import { isExcalidrawAttachment, isImageFile } from '../../utils/fileTypeUtils';
-import { BaseContentProvider } from './BaseContentProvider';
-import { generateExcalidrawPreview } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
+import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
+import { cacheFilePath, generateExcalidrawPreview, isCachePath } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
 
 /**
  * Content provider for finding and storing feature images
  */
 export class FeatureImageContentProvider extends BaseContentProvider {
+    public static Instance?: FeatureImageContentProvider;
+    private forceUpdateSet: Set<string> = new Set();
+    private deletedFeatureProviders: Map<string, string> = new Map(); // (1) = consumer, (2) = provider
+
+    constructor(app: App) {
+        super(app);
+
+        // Review: Refactoring: use service provider 
+        FeatureImageContentProvider.Instance = this;
+    }
+
+    enqueueExcalidrawConsumers(files: TFile[]): void {
+        for (const file of files) {
+            this.forceUpdateSet.add(file.path);
+        }
+
+        this.queueFiles(files);
+    }
+
+    markFeatureProviderAsDeleted(providerPath: string, consumerPaths: string[]): void {
+        for (const consumer of consumerPaths) {
+            this.forceUpdateSet.add(consumer)
+            this.deletedFeatureProviders.set(consumer, providerPath)
+        }
+    }
+
     getContentType(): ContentType {
         return 'featureImage';
     }
@@ -65,7 +91,8 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             return false;
         }
 
-        const fileModified = fileData !== null && fileData.mtime !== file.stat.mtime;
+        const isForceUpdate = this.forceUpdateSet.has(file.path);
+        const fileModified = fileData !== null && (fileData.mtime !== file.stat.mtime || isForceUpdate);
         return !fileData || fileData.featureImage === null || fileModified;
     }
 
@@ -73,13 +100,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         job: { file: TFile; path: string[] },
         fileData: FileData | null,
         settings: NotebookNavigatorSettings
-    ): Promise<{
-        path: string;
-        tags?: string[] | null;
-        preview?: string;
-        featureImage?: string;
-        metadata?: FileData['metadata'];
-    } | null> {
+    ): Promise<ProcessResult | (ProcessResult | null)[] | null> {
         if (!settings.showFeatureImage) {
             return null;
         }
@@ -87,24 +108,65 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         try {
             const metadata = this.app.metadataCache.getFileCache(job.file);
 
-            const imageUrl = await this.getFeatureImageUrlFromMetadata(job.file, metadata, settings);
+            if (isExcalidrawAttachment(job.file, metadata)) {
+                return null
+            }
+
+            const result = await this.getFeatureImageUrlFromMetadata(job.file, metadata, settings);
+            const imageUrl = result?.featurePath;
+            const consumerTargetPath = result?.consumerTargetPath;
             const imageUrlStr = imageUrl || '';
+
+            if (this.forceUpdateSet.has(job.file.path)) {
+                this.forceUpdateSet.delete(job.file.path)
+            }
 
             // Only return update if feature image changed
             if (fileData && fileData.featureImage === imageUrlStr) {
                 return null;
             }
 
-            return {
-                path: job.file.path,
-                featureImage: imageUrlStr
-            };
+            let featureCleanupRequest: ProcessResult | null = null
+
+            const nonEmptyString = (str?: string | null): str is string => typeof str === 'string' && str.length > 0;
+
+            if (nonEmptyString(fileData?.featureImage)
+                && nonEmptyString(fileData?.featureImageProvider)
+                && fileData.featureImageProvider !== result?.featureProviderPath
+            ) {
+                const previousFeatureProvider = getDBInstance().getFile(fileData.featureImageProvider)
+
+                featureCleanupRequest = {
+                    path: fileData.featureImageProvider,
+                    featureImageConsumers: [
+                        ...(previousFeatureProvider?.featureImageConsumers ?? []).filter(x => x !== job.file.path),
+                    ]
+                }
+            }
+
+            return [
+                {
+                    path: job.file.path,
+                    featureImage: imageUrlStr,
+                    ...nonEmptyString(result?.featureProviderPath) ? {
+                        featureImageProvider: result.featureProviderPath,
+                    } : {}
+                },
+                isCachePath(imageUrlStr) ? {
+                    path: consumerTargetPath as string,
+                    featureImageConsumers: [
+                        ...(fileData?.featureImageConsumers ?? []).filter(x => x !== job.file.path),
+                        job.file.path,
+                    ]
+                } : null,
+                featureCleanupRequest
+            ];
         } catch (error) {
             console.error(`Error finding feature image for ${job.file.path}:`, error);
             return null;
         }
     }
-    
+
     /**
      * Extract feature image URL from file metadata
      * Checks frontmatter properties defined in settings
@@ -113,10 +175,31 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         file: TFile,
         metadata: CachedMetadata | null,
         settings: NotebookNavigatorSettings
-    ): Promise<string | null> {
+    ): Promise<{ featurePath: string, featureProviderPath?: string, consumerTargetPath?: string } | null> {
         // Only process markdown files for feature images
         if (file.extension !== 'md') {
             return null;
+        }
+
+        const cleanupFeatureProviderEmbed = async (embedFile: TFile): Promise<void> => {
+            const providerPath = this.deletedFeatureProviders.get(file.path)
+
+            if (providerPath === embedFile.path) {
+                const imagePath = cacheFilePath(embedFile)
+
+                if (isCachePath(imagePath) && await this.app.vault.adapter.exists(imagePath)) {
+                    const toDelete = this.app.vault.getFileByPath(imagePath)
+                    // eslint-disable-next-line eqeqeq
+                    if (toDelete != null) {
+                        // Review: Refactoring: now delete is also in ExcalidrawPreviewGenerator, handle deletion in a single place
+                        // Review: Resiliency: handle exception?
+                        // eslint-disable-next-line obsidianmd/prefer-file-manager-trash-file
+                        await this.app.vault.delete(toDelete)
+                    }
+                }
+
+                this.deletedFeatureProviders.delete(file.path)
+            }
         }
 
         // Try each property in order until we find an image
@@ -138,13 +221,16 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             if (imageFile) {
                 if (imageFile.extension === 'md') {
                     const metadata = this.app.metadataCache.getFileCache(imageFile);
+
+                    await cleanupFeatureProviderEmbed(imageFile)
+
                     if (isExcalidrawAttachment(imageFile, metadata)) {
                         return generateExcalidrawPreview(imageFile, this.app, file);
                     }
                 }
 
                 // Store just the path, not the full app:// URL
-                return imageFile.path;
+                return { featurePath: imageFile.path };
             }
         }
 
@@ -155,9 +241,16 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                 const embedFile = this.app.metadataCache.getFirstLinkpathDest(embedPath, file.path);
 
                 if (embedFile) {
-                    if(isImageFile(embedFile)) {
+                    if (isImageFile(embedFile)) {
                         // Store just the path, not the full app:// URL
-                        return embedFile.path;
+                        return { featurePath: embedFile.path };
+                    }
+                    
+                    const providerPath = this.deletedFeatureProviders.get(file.path)
+
+                    if (providerPath === embedFile.path) {
+                        this.deletedFeatureProviders.delete(embedFile.path)
+                        continue;
                     }
 
                     const embedMetadata = this.app.metadataCache.getFileCache(embedFile);
