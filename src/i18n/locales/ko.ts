@@ -144,7 +144,9 @@ export const STRINGS_KO = {
             revealInFolder: '폴더에서 표시',
             revealInFinder: 'Finder에서 표시',
             showInExplorer: '시스템 탐색기에서 표시',
-            copyDeepLink: '딥 링크 복사',
+            copyDeepLink: 'Obsidian URL 복사',
+            copyPath: '경로 복사',
+            copyRelativePath: '상대 경로 복사',
             renameNote: '노트 이름 변경',
             renameFile: '파일 이름 변경',
             deleteNote: '노트 삭제',
@@ -173,6 +175,7 @@ export const STRINGS_KO = {
             changeColor: '아이콘 색상 변경',
             changeBackground: '배경색 변경',
             excludeFolder: '폴더 숨기기',
+            moveFolder: '이동...',
             renameFolder: '폴더 이름 변경',
             deleteFolder: '폴더 삭제'
         },
@@ -360,7 +363,9 @@ export const STRINGS_KO = {
             movedMultipleFiles: '{count}개의 파일이 {folder}로 이동됨',
             folderNoteConversionSuccess: '"{name}"에서 파일을 폴더 노트로 변환함',
             folderMoved: '폴더 "{name}"이(가) 이동됨',
-            deepLinkCopied: '딥 링크가 클립보드에 복사됨',
+            deepLinkCopied: 'Obsidian URL이 클립보드에 복사됨',
+            pathCopied: '경로가 클립보드에 복사됨',
+            relativePathCopied: '상대 경로가 클립보드에 복사됨',
             tagAddedToNote: '1개의 노트에 태그 추가됨',
             tagAddedToNotes: '{count}개의 노트에 태그 추가됨',
             tagRemovedFromNote: '1개의 노트에서 태그 제거됨',
@@ -439,6 +444,7 @@ export const STRINGS_KO = {
         convertToFolderNote: '폴더 노트로 변환', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: '폴더로 이동', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '태그로 이동', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
+        addShortcut: '바로가기에 추가', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: '하위 항목 전환', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: '숨겨진 항목 전환', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapseExpand: '모든 항목 접기 / 펼치기', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
@@ -559,6 +565,10 @@ export const STRINGS_KO = {
             includeDescendantNotes: {
                 name: '하위 폴더 / 하위 항목 노트 표시',
                 desc: '폴더나 태그를 볼 때 중첩된 하위 폴더와 태그 하위 항목의 노트를 포함합니다.'
+            },
+            separateNoteCounts: {
+                name: '현재와 하위 항목 수를 별도로 표시',
+                desc: '폴더와 태그의 노트 수를 "현재 ▾ 하위" 형식으로 표시합니다.'
             },
             groupByDate: {
                 name: '날짜별로 노트 그룹화',
@@ -881,6 +891,10 @@ export const STRINGS_KO = {
             hideFolderNoteInList: {
                 name: '목록에서 폴더 노트 숨기기',
                 desc: '폴더 노트가 폴더의 노트 목록에 나타나지 않도록 숨깁니다.'
+            },
+            pinCreatedFolderNote: {
+                name: '생성된 폴더 노트 고정',
+                desc: '컨텍스트 메뉴에서 생성한 폴더 노트를 자동으로 고정합니다.'
             },
             confirmBeforeDelete: {
                 name: '삭제 전 확인',

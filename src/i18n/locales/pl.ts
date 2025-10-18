@@ -144,7 +144,9 @@ export const STRINGS_PL = {
             revealInFolder: 'Pokaż w folderze',
             revealInFinder: 'Pokaż w Finderze',
             showInExplorer: 'Pokaż w eksploratorze systemowym',
-            copyDeepLink: 'Kopiuj głęboki link',
+            copyDeepLink: 'Kopiuj adres URL Obsidian',
+            copyPath: 'Kopiuj ścieżkę',
+            copyRelativePath: 'Kopiuj ścieżkę względną',
             renameNote: 'Zmień nazwę notatki',
             renameFile: 'Zmień nazwę pliku',
             deleteNote: 'Usuń notatkę',
@@ -173,6 +175,7 @@ export const STRINGS_PL = {
             changeColor: 'Zmień kolor ikony',
             changeBackground: 'Zmień tło',
             excludeFolder: 'Ukryj folder',
+            moveFolder: 'Przenieś do...',
             renameFolder: 'Zmień nazwę folderu',
             deleteFolder: 'Usuń folder'
         },
@@ -362,7 +365,9 @@ export const STRINGS_PL = {
             movedMultipleFiles: 'Przeniesiono {count} plików do {folder}',
             folderNoteConversionSuccess: 'Przekonwertowano plik na notatkę folderu w "{name}"',
             folderMoved: 'Przeniesiono folder "{name}"',
-            deepLinkCopied: 'Głęboki link skopiowany do schowka',
+            deepLinkCopied: 'Adres URL Obsidian skopiowany do schowka',
+            pathCopied: 'Ścieżka skopiowana do schowka',
+            relativePathCopied: 'Ścieżka względna skopiowana do schowka',
             tagAddedToNote: 'Dodano tag do 1 notatki',
             tagAddedToNotes: 'Dodano tag do {count} notatek',
             tagRemovedFromNote: 'Usunięto tag z 1 notatki',
@@ -441,6 +446,7 @@ export const STRINGS_PL = {
         convertToFolderNote: 'Konwertuj na notatkę folderu', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Przejdź do folderu', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Przejdź do tagu', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
+        addShortcut: 'Dodaj do skrótów', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Przełącz podfoldery', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Przełącz ukryte elementy', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapseExpand: 'Zwiń / rozwiń wszystkie elementy', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
@@ -561,6 +567,10 @@ export const STRINGS_PL = {
             includeDescendantNotes: {
                 name: 'Pokaż notatki z podfolderów / potomnych',
                 desc: 'Podczas przeglądania folderu lub tagu uwzględnij notatki z zagnieżdżonych podfolderów i potomnych tagów.'
+            },
+            separateNoteCounts: {
+                name: 'Pokaż bieżące i potomne liczniki osobno',
+                desc: 'Wyświetla liczbę notatek w formacie "bieżące ▾ potomne" w folderach i tagach.'
             },
             groupByDate: {
                 name: 'Grupuj notatki według daty',
@@ -883,6 +893,10 @@ export const STRINGS_PL = {
             hideFolderNoteInList: {
                 name: 'Ukryj notatki folderów na liście',
                 desc: 'Ukryj notatkę folderu przed pojawieniem się na liście notatek folderu.'
+            },
+            pinCreatedFolderNote: {
+                name: 'Przypnij utworzone notatki folderów',
+                desc: 'Automatycznie przypinaj notatki folderów podczas tworzenia z menu kontekstowego.'
             },
             confirmBeforeDelete: {
                 name: 'Potwierdź przed usunięciem',

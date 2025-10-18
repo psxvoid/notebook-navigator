@@ -172,21 +172,6 @@ export type ItemType = (typeof ItemType)[keyof typeof ItemType];
 export type NavigationItemType = typeof ItemType.FOLDER | typeof ItemType.TAG;
 
 /**
- * Type guards for item types
- */
-export function isFileType(type: string): type is typeof ItemType.FILE {
-    return type === ItemType.FILE;
-}
-
-export function isFolderType(type: string): type is typeof ItemType.FOLDER {
-    return type === ItemType.FOLDER;
-}
-
-export function isTagType(type: string): type is typeof ItemType.TAG {
-    return type === ItemType.TAG;
-}
-
-/**
  * Keys used for persisting state in browser localStorage
  * Ensures consistent key naming across the plugin
  */

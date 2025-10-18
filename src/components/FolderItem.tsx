@@ -60,6 +60,8 @@ import { ItemType } from '../types';
 import { getFolderNote } from '../utils/folderNotes';
 import { hasSubfolders, shouldExcludeFolder, shouldExcludeFile } from '../utils/fileFilters';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
+import type { NoteCountInfo } from '../types/noteCounts';
+import { buildNoteCountDisplay } from '../utils/noteCountFormatting';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -74,7 +76,7 @@ interface FolderItemProps {
     icon?: string;
     color?: string;
     backgroundColor?: string;
-    fileCount?: number;
+    countInfo?: NoteCountInfo;
     excludedFolders: string[];
 }
 
@@ -105,7 +107,7 @@ export const FolderItem = React.memo(function FolderItem({
     icon,
     color,
     backgroundColor,
-    fileCount: precomputedFileCount,
+    countInfo,
     excludedFolders
 }: FolderItemProps) {
     const { app, isMobile } = useServices();
@@ -160,9 +162,14 @@ export const FolderItem = React.memo(function FolderItem({
         app
     ]);
 
-    // Use precomputed file count from parent component
-    // NavigationPane pre-computes all folder counts for performance
-    const fileCount = precomputedFileCount ?? 0;
+    // Merge provided count info with default values to ensure all properties are present
+    const noteCounts: NoteCountInfo = countInfo ?? { current: 0, descendants: 0, total: 0 };
+    // Determine if we should show separate counts (e.g., "2 + 5") or combined count (e.g., "7")
+    const useSeparateCounts = settings.includeDescendantNotes && settings.separateNoteCounts;
+    // Build formatted display object with label and visibility flags
+    const noteCountDisplay = buildNoteCountDisplay(noteCounts, settings.includeDescendantNotes, useSeparateCounts);
+    // Check if count should be displayed based on settings and count values
+    const shouldDisplayCount = settings.showNoteCount && noteCountDisplay.shouldDisplay;
 
     // Check if folder has children - not memoized because Obsidian mutates the children array
     // The hasSubfolders function handles the logic of whether to show all or only visible subfolders
@@ -191,9 +198,9 @@ export const FolderItem = React.memo(function FolderItem({
         if (!settings.enableFolderNotes) return false;
         const folderNote = getFolderNote(folder, settings);
         return folderNote !== null;
-        // NOTE TO REVIEWER: Including **fileCount** to detect folder content changes
+        // NOTE TO REVIEWER: Including **noteCounts.current** to detect folder content changes
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [folder, settings, fileCount]);
+    }, [folder, settings, noteCounts.current]);
 
     // Memoize className to avoid string concatenation on every render
     const className = useMemo(() => {
@@ -362,7 +369,7 @@ export const FolderItem = React.memo(function FolderItem({
                     {folder.path === '/' ? settings.customVaultName || app.vault.getName() : folder.name}
                 </span>
                 <span className="nn-navitem-spacer" />
-                {settings.showNoteCount && fileCount > 0 && <span className="nn-navitem-count">{fileCount}</span>}
+                {shouldDisplayCount && <span className="nn-navitem-count">{noteCountDisplay.label}</span>}
             </div>
         </div>
     );

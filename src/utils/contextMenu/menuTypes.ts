@@ -34,12 +34,26 @@ import type { ShortcutsContextValue } from '../../context/ShortcutsContext';
 /**
  * Configuration for the context menu
  */
-export interface MenuConfig {
-    /** The type of item this menu is for */
-    type: ItemType;
-    /** The file, folder, or tag path the menu operates on */
-    item: TFile | TFolder | string; // string for tag paths
-}
+// Special menu type for empty areas in the list pane
+export const EMPTY_LIST_MENU_TYPE = 'empty-list' as const;
+
+export type MenuConfig =
+    | {
+          type: typeof ItemType.FILE;
+          item: TFile;
+      }
+    | {
+          type: typeof ItemType.FOLDER;
+          item: TFolder;
+      }
+    | {
+          type: typeof ItemType.TAG;
+          item: string; // Tag path
+      }
+    | {
+          type: typeof EMPTY_LIST_MENU_TYPE;
+          item: TFolder | null;
+      };
 
 /**
  * Services available to menu builders

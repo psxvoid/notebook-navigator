@@ -114,13 +114,14 @@ export function isFolderNote(file: TFile, folder: TFolder, settings: FolderNoteD
  * @param folder - The folder to create a folder note for
  * @param settings - Settings for folder note creation
  * @param commandQueue - Optional command queue service for opening the note
+ * @returns The created folder note file, or null if creation failed
  */
 export async function createFolderNote(
     app: App,
     folder: TFolder,
     settings: FolderNoteCreationSettings,
     commandQueue?: CommandQueueService | null
-): Promise<void> {
+): Promise<TFile | null> {
     const extension = FOLDER_NOTE_TYPE_EXTENSIONS[settings.folderNoteType];
     const baseName = settings.folderNoteName || folder.name;
     const noteFileName = `${baseName}.${extension}`;
@@ -133,13 +134,13 @@ export async function createFolderNote(
 
     if (existingNote) {
         new Notice(strings.fileSystem.errors.folderNoteAlreadyExists);
-        return;
+        return null;
     }
 
     const conflictingItem = app.vault.getAbstractFileByPath(notePath);
     if (conflictingItem) {
         new Notice(strings.fileSystem.errors.folderNoteAlreadyExists);
-        return;
+        return null;
     }
 
     // Generate content based on folder note type
@@ -165,8 +166,10 @@ export async function createFolderNote(
         } else {
             await app.workspace.getLeaf().openFile(file);
         }
+        return file;
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         new Notice(strings.fileSystem.errors.createFile.replace('{error}', message));
     }
+    return null;
 }

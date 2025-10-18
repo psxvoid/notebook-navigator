@@ -20,6 +20,8 @@ import React, { useMemo } from 'react';
 import { useSettingsState } from '../context/SettingsContext';
 import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
+import type { NoteCountInfo } from '../types/noteCounts';
+import { buildNoteCountDisplay } from '../utils/noteCountFormatting';
 
 /**
  * Props for a shortcut item component that can represent folders, notes, searches, or tags
@@ -33,7 +35,7 @@ interface ShortcutItemProps {
     isDisabled?: boolean;
     isMissing?: boolean;
     type: 'folder' | 'note' | 'search' | 'tag';
-    count?: number;
+    countInfo?: NoteCountInfo;
     isExcluded?: boolean;
     onClick: (event: React.MouseEvent<HTMLDivElement>) => void;
     onMouseDown?: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -60,7 +62,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     isDisabled,
     isMissing,
     type,
-    count,
+    countInfo,
     isExcluded,
     onClick,
     onMouseDown,
@@ -74,9 +76,17 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     onLabelClick
 }: ShortcutItemProps) {
     const settings = useSettingsState();
+    // Build formatted display object with label based on note count settings
+    const countDisplay = buildNoteCountDisplay(
+        countInfo,
+        settings.includeDescendantNotes,
+        settings.includeDescendantNotes && settings.separateNoteCounts
+    );
+    // Check if this item type supports displaying note counts
+    const supportsCount = type === 'folder' || type === 'tag';
     // Determines whether to display count based on settings and item type
     // Only shows counts for folder and tag types when showNoteCount is enabled
-    const shouldShowCount = settings.showNoteCount && typeof count === 'number' && count > 0 && (type === 'folder' || type === 'tag');
+    const shouldShowCount = settings.showNoteCount && supportsCount && countDisplay.shouldDisplay;
     // Row is disabled when item exists but is disabled (missing items are handled separately)
     const shouldDisableRow = Boolean(isDisabled) && !isMissing;
     // Builds CSS class names for the shortcut item with conditional missing state
@@ -127,7 +137,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             showDropIndicatorAfter={showDropIndicatorAfter}
             isDragSource={isDragSource}
             showCount={shouldShowCount}
-            count={count}
+            count={countDisplay.label}
             className={classNames}
             tabIndex={-1}
             ariaDisabled={shouldDisableRow || isMissing}

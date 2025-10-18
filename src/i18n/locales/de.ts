@@ -135,7 +135,9 @@ export const STRINGS_DE = {
             revealInFolder: 'Im Ordner anzeigen',
             revealInFinder: 'Im Finder anzeigen',
             showInExplorer: 'Im Explorer anzeigen',
-            copyDeepLink: 'Deep Link kopieren',
+            copyDeepLink: 'Obsidian-URL kopieren',
+            copyPath: 'Pfad kopieren',
+            copyRelativePath: 'Relativen Pfad kopieren',
             renameNote: 'Notiz umbenennen',
             deleteNote: 'Notiz löschen',
             deleteMultipleNotes: '{count} Notizen löschen',
@@ -176,6 +178,7 @@ export const STRINGS_DE = {
             changeColor: 'Farbe ändern',
             changeBackground: 'Hintergrund ändern',
             excludeFolder: 'Ordner verstecken',
+            moveFolder: 'Verschieben nach...',
             renameFolder: 'Ordner umbenennen',
             deleteFolder: 'Ordner löschen'
         },
@@ -363,7 +366,9 @@ export const STRINGS_DE = {
             movedMultipleFiles: '{count} Dateien nach {folder} verschoben',
             folderNoteConversionSuccess: 'Datei in Ordnernotiz in "{name}" konvertiert',
             folderMoved: 'Ordner "{name}" verschoben',
-            deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
+            deepLinkCopied: 'Obsidian-URL in die Zwischenablage kopiert',
+            pathCopied: 'Pfad in die Zwischenablage kopiert',
+            relativePathCopied: 'Relativen Pfad in die Zwischenablage kopiert',
             tagAddedToNote: 'Tag zu 1 Notiz hinzugefügt',
             tagAddedToNotes: 'Tag zu {count} Notizen hinzugefügt',
             tagRemovedFromNote: 'Tag von 1 Notiz entfernt',
@@ -442,6 +447,7 @@ export const STRINGS_DE = {
         convertToFolderNote: 'In Ordnernotiz konvertieren', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
+        addShortcut: 'Zu Shortcuts hinzufügen', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Nachkommen umschalten', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Versteckte Elemente umschalten', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapseExpand: 'Alle Elemente ein-/ausklappen', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
@@ -563,6 +569,10 @@ export const STRINGS_DE = {
             includeDescendantNotes: {
                 name: 'Notizen aus Unterordnern / Nachkommen anzeigen',
                 desc: 'Beim Anzeigen eines Ordners oder Tags Notizen aus Unterordnern und Tag-Nachkommen einbeziehen.'
+            },
+            separateNoteCounts: {
+                name: 'Aktuelle und Nachkommen-Anzahl getrennt anzeigen',
+                desc: 'Zeigt Notizanzahl als "aktuell ▾ Nachkommen" Format in Ordnern und Tags.'
             },
             groupByDate: {
                 name: 'Notizen nach Datum gruppieren',
@@ -885,6 +895,10 @@ export const STRINGS_DE = {
             hideFolderNoteInList: {
                 name: 'Ordnernotizen in Liste ausblenden',
                 desc: 'Die Ordnernotiz in der Notizliste des Ordners ausblenden.'
+            },
+            pinCreatedFolderNote: {
+                name: 'Erstellte Ordnernotizen anheften',
+                desc: 'Automatisch Ordnernotizen anheften, wenn sie über das Kontextmenü erstellt werden.'
             },
             confirmBeforeDelete: {
                 name: 'Vor dem Löschen bestätigen',

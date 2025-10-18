@@ -145,7 +145,9 @@ export const STRINGS_ZH_TW = {
             revealInFolder: '在資料夾中顯示',
             revealInFinder: '在 Finder 中顯示',
             showInExplorer: '在系統檔案總管中顯示',
-            copyDeepLink: '複製深層連結',
+            copyDeepLink: '複製 Obsidian URL',
+            copyPath: '複製路徑',
+            copyRelativePath: '複製相對路徑',
             renameNote: '重新命名筆記',
             renameFile: '重新命名檔案',
             deleteNote: '刪除筆記',
@@ -174,6 +176,7 @@ export const STRINGS_ZH_TW = {
             changeColor: '變更顏色',
             changeBackground: '變更背景',
             excludeFolder: '隱藏資料夾',
+            moveFolder: '移動至...',
             renameFolder: '重新命名資料夾',
             deleteFolder: '刪除資料夾'
         },
@@ -360,7 +363,9 @@ export const STRINGS_ZH_TW = {
             movedMultipleFiles: '已將 {count} 個檔案移動至 {folder}',
             folderNoteConversionSuccess: '已在「{name}」中將檔案轉換為資料夾筆記',
             folderMoved: '已移動資料夾 "{name}" ',
-            deepLinkCopied: '深層連結已複製到剪貼簿',
+            deepLinkCopied: 'Obsidian URL 已複製到剪貼簿',
+            pathCopied: '路徑已複製到剪貼簿',
+            relativePathCopied: '相對路徑已複製到剪貼簿',
             tagAddedToNote: '已將標籤新增至 1 則筆記',
             tagAddedToNotes: '已將標籤新增至 {count} 則筆記',
             tagRemovedFromNote: '已從 1 則筆記中移除標籤',
@@ -439,6 +444,7 @@ export const STRINGS_ZH_TW = {
         convertToFolderNote: '轉換為資料夾筆記', // 指令面板：將活動檔案轉換為帶有新資料夾的資料夾筆記 (英文: Convert to folder note)
         navigateToFolder: '導覽至資料夾', // 指令面板：使用模糊搜尋導覽至資料夾 (英文: Navigate to folder)
         navigateToTag: '導覽至標籤', // 指令面板：使用模糊搜尋導覽至標籤 (英文: Navigate to tag)
+        addShortcut: '新增至捷徑', // 指令面板：將目前的檔案、資料夾或標籤加入捷徑 (英文: Add to shortcuts)
         toggleDescendants: '切換後代項目', // 指令面板：切換顯示後代中的筆記 (英文: Toggle descendants)
         toggleHidden: '切換隱藏項目', // 指令面板：切換顯示隱藏項目 (英文: Toggle hidden items)
         collapseExpand: '收合/展開所有項目', // 指令面板：收合或展開所有資料夾和標籤 (英文: Collapse / expand all items)
@@ -558,6 +564,10 @@ export const STRINGS_ZH_TW = {
             includeDescendantNotes: {
                 name: '顯示子資料夾/後代中的筆記',
                 desc: '檢視資料夾或標籤時，包含巢狀子資料夾和標籤後代的筆記。'
+            },
+            separateNoteCounts: {
+                name: '分別顯示當前和後代計數',
+                desc: '在資料夾和標籤中以「當前 ▾ 後代」格式顯示筆記計數。'
             },
             groupByDate: {
                 name: '依日期分組筆記',
@@ -880,6 +890,10 @@ export const STRINGS_ZH_TW = {
             hideFolderNoteInList: {
                 name: '在清單中隱藏資料夾筆記',
                 desc: '隱藏資料夾筆記，使其不顯示在資料夾的筆記清單中。'
+            },
+            pinCreatedFolderNote: {
+                name: '固定建立的資料夾筆記',
+                desc: '從右鍵選單建立資料夾筆記時自動固定。'
             },
             confirmBeforeDelete: {
                 name: '刪除前確認',

@@ -135,7 +135,9 @@ export const STRINGS_JA = {
             revealInFolder: 'フォルダで表示',
             revealInFinder: 'Finderで表示',
             showInExplorer: 'システムエクスプローラーで表示',
-            copyDeepLink: 'ディープリンクをコピー',
+            copyDeepLink: 'Obsidian URL をコピー',
+            copyPath: 'パスをコピー',
+            copyRelativePath: '相対パスをコピー',
             renameNote: 'ノートの名前を変更',
             deleteNote: 'ノートを削除',
             deleteMultipleNotes: '{count}個のノートを削除',
@@ -174,6 +176,7 @@ export const STRINGS_JA = {
             changeColor: '色を変更',
             changeBackground: '背景色を変更',
             excludeFolder: 'フォルダを非表示',
+            moveFolder: '移動先...',
             renameFolder: 'フォルダの名前を変更',
             deleteFolder: 'フォルダを削除'
         },
@@ -361,7 +364,9 @@ export const STRINGS_JA = {
             movedMultipleFiles: '{count}個のファイルを{folder}に移動しました',
             folderNoteConversionSuccess: '「{name}」内のフォルダノートにファイルを変換しました',
             folderMoved: 'フォルダ「{name}」を移動しました',
-            deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
+            deepLinkCopied: 'Obsidian URL をクリップボードにコピーしました',
+            pathCopied: 'パスをクリップボードにコピーしました',
+            relativePathCopied: '相対パスをクリップボードにコピーしました',
             tagAddedToNote: '1個のノートにタグを追加しました',
             tagAddedToNotes: '{count}個のノートにタグを追加しました',
             tagRemovedFromNote: '1個のノートからタグを削除しました',
@@ -440,6 +445,7 @@ export const STRINGS_JA = {
         convertToFolderNote: 'フォルダノートに変換', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
+        addShortcut: 'ショートカットに追加', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: '子孫切り替え', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: '非表示項目を切り替え', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapseExpand: 'すべての項目を折りたたむ/展開', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
@@ -560,6 +566,10 @@ export const STRINGS_JA = {
             includeDescendantNotes: {
                 name: 'サブフォルダ / 子孫のノートを表示',
                 desc: 'フォルダまたはタグを表示するとき、入れ子のサブフォルダとタグの子孫にあるノートを含めます。'
+            },
+            separateNoteCounts: {
+                name: '現在と子孫のカウントを個別に表示',
+                desc: 'フォルダとタグのノート数を「現在 ▾ 子孫」形式で表示します。'
             },
             groupByDate: {
                 name: '日付でノートをグループ化',
@@ -883,6 +893,10 @@ export const STRINGS_JA = {
             hideFolderNoteInList: {
                 name: 'リストでフォルダノートを非表示',
                 desc: 'フォルダのノートリストにフォルダノートが表示されないようにします。'
+            },
+            pinCreatedFolderNote: {
+                name: '作成したフォルダノートをピン留め',
+                desc: 'コンテキストメニューから作成したフォルダノートを自動的にピン留めする。'
             },
             confirmBeforeDelete: {
                 name: '削除前に確認',

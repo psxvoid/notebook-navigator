@@ -145,7 +145,9 @@ export const STRINGS_EN = {
             revealInFolder: 'Reveal in folder',
             revealInFinder: 'Reveal in Finder',
             showInExplorer: 'Show in system explorer',
-            copyDeepLink: 'Copy deep link',
+            copyDeepLink: 'Copy Obsidian URL',
+            copyPath: 'Copy path',
+            copyRelativePath: 'Copy relative path',
             renameNote: 'Rename note',
             renameFile: 'Rename file',
             deleteNote: 'Delete note',
@@ -174,6 +176,7 @@ export const STRINGS_EN = {
             changeColor: 'Change color',
             changeBackground: 'Change background',
             excludeFolder: 'Hide folder',
+            moveFolder: 'Move to...',
             renameFolder: 'Rename folder',
             deleteFolder: 'Delete folder'
         },
@@ -360,7 +363,9 @@ export const STRINGS_EN = {
             movedMultipleFiles: 'Moved {count} files to {folder}',
             folderNoteConversionSuccess: 'Converted file to folder note in "{name}"',
             folderMoved: 'Moved folder "{name}"',
-            deepLinkCopied: 'Deep link copied to clipboard',
+            deepLinkCopied: 'Obsidian URL copied to clipboard',
+            pathCopied: 'Path copied to clipboard',
+            relativePathCopied: 'Relative path copied to clipboard',
             tagAddedToNote: 'Added tag to 1 note',
             tagAddedToNotes: 'Added tag to {count} notes',
             tagRemovedFromNote: 'Removed tag from 1 note',
@@ -439,6 +444,7 @@ export const STRINGS_EN = {
         convertToFolderNote: 'Convert to folder note', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
+        addShortcut: 'Add to shortcuts', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Toggle descendants', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Toggle hidden items', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapseExpand: 'Collapse / expand all items', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
@@ -559,6 +565,10 @@ export const STRINGS_EN = {
             includeDescendantNotes: {
                 name: 'Show notes from subfolders / descendants',
                 desc: 'Include notes from nested subfolders and tag descendants when viewing a folder or tag.'
+            },
+            separateNoteCounts: {
+                name: 'Show current and descendant counts separately',
+                desc: 'Display note counts as "current ▾ descendants" format in folders and tags.'
             },
             groupByDate: {
                 name: 'Group notes by date',
@@ -881,6 +891,10 @@ export const STRINGS_EN = {
             hideFolderNoteInList: {
                 name: 'Hide folder notes in list',
                 desc: "Hide the folder note from appearing in the folder's note list."
+            },
+            pinCreatedFolderNote: {
+                name: 'Pin created folder notes',
+                desc: 'Automatically pin folder notes when created from the context menu.'
             },
             confirmBeforeDelete: {
                 name: 'Confirm before deleting',

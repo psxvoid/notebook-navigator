@@ -347,6 +347,24 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to add the current selection or active file to shortcuts
+    plugin.addCommand({
+        id: 'add-shortcut',
+        name: strings.commands.addShortcut,
+        callback: async () => {
+            await ensureNavigatorOpen(plugin);
+
+            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+            for (const leaf of navigatorLeaves) {
+                const view = leaf.view;
+                if (view instanceof NotebookNavigatorView) {
+                    await view.addShortcutForCurrentSelection();
+                    break;
+                }
+            }
+        }
+    });
+
     // Command to open or focus the search input
     plugin.addCommand({
         id: 'search',
