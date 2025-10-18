@@ -3,6 +3,8 @@
 >
 > This repo contains an experimental excalidraw support that does not exist in the original project.<br>
 > See: [Issue: [FR] Add Excalidraw Featured Image Support (closed as not-planned)](https://github.com/johansan/notebook-navigator/issues/384)
+>
+> ![Excalidraw File Preview Sample](./images/nn-fork-excalidraw-preview.png)
 
 ## Installation (The Forked Version)
 
