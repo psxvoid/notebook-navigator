@@ -255,7 +255,7 @@ export const FileItem = React.memo(function FileItem({
     const { app, isMobile, plugin, commandQueue } = useServices();
     const settings = useSettingsState();
     const appearanceSettings = useListPaneAppearance();
-    const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime, findTagInFavoriteTree } = useFileCache();
+    const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime } = useFileCache();
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
     const hiddenTagMatcher = useMemo(() => createHiddenTagMatcher(settings.hiddenTags), [settings.hiddenTags]);
@@ -509,41 +509,30 @@ export const FileItem = React.memo(function FileItem({
         });
     }, [hiddenTagMatcher, hiddenMatcherHasRules, settings.showHiddenItems, tags]);
 
-    // Categorize tags by priority: favorites first, then colored, then regular
+    // Categorize tags by priority: colored tags first, then regular tags
     const categorizedTags = useMemo(() => {
-        if (visibleTags.length === 0) return visibleTags;
+        if (visibleTags.length === 0) {
+            return visibleTags;
+        }
 
-        // Categorize tags
-        const favoriteTags: string[] = [];
         const coloredTags: string[] = [];
         const regularTags: string[] = [];
 
         visibleTags.forEach(tag => {
-            // Check if it's a favorite tag by looking in the favoriteTree
-            const isFavorite = findTagInFavoriteTree(tag) !== null;
-
-            if (isFavorite) {
-                favoriteTags.push(tag);
-                return;
-            }
-
             if (colorFileTags && getTagColor(tag)) {
-                // Check if it has a custom color
                 coloredTags.push(tag);
-                return;
+            } else {
+                regularTags.push(tag);
             }
-
-            regularTags.push(tag);
         });
 
         const tagSorter = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base' });
 
-        favoriteTags.sort(tagSorter);
         coloredTags.sort(tagSorter);
         regularTags.sort(tagSorter);
 
-        return [...favoriteTags, ...coloredTags, ...regularTags];
-    }, [colorFileTags, findTagInFavoriteTree, getTagColor, visibleTags]);
+        return [...coloredTags, ...regularTags];
+    }, [colorFileTags, getTagColor, visibleTags]);
 
     const shouldShowFileTags = useMemo(() => {
         if (!settings.showTags || !settings.showFileTags) {

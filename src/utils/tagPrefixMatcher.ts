@@ -19,7 +19,7 @@
 /**
  * Simple tag prefix matching utilities
  *
- * This module provides prefix-based matching for favorite and hidden tags.
+ * This module provides prefix-based matching for hidden tag rules.
  * Tags are matched from left to right only.
  *
  * Examples:
@@ -58,7 +58,7 @@ function matchesPrefix(tagPath: string, prefix: string): boolean {
  * @param prefixes - Array of prefixes to match against - must be lowercase
  * @returns true if the tag matches any prefix
  */
-export function matchesAnyPrefix(tagPath: string, prefixes: string[]): boolean {
+function matchesAnyPrefix(tagPath: string, prefixes: string[]): boolean {
     return prefixes.some(prefix => matchesPrefix(tagPath, prefix));
 }
 
@@ -94,7 +94,14 @@ const EMPTY_HIDDEN_TAG_MATCHER: HiddenTagMatcher = {
  * Removes # prefix, trims slashes, and converts to lowercase.
  */
 function sanitizePattern(pattern: string): string {
-    return cleanTagPath(pattern).toLowerCase();
+    return normalizeTagPathValue(pattern);
+}
+
+/**
+ * Normalizes a tag path or pattern by trimming slashes, removing # prefix, and lowercasing.
+ */
+export function normalizeTagPathValue(tag: string): string {
+    return cleanTagPath(tag).toLowerCase();
 }
 
 /**
@@ -191,36 +198,6 @@ export function matchesHiddenTagPattern(tagPath: string, tagName: string, matche
     }
 
     return false;
-}
-
-/**
- * Finds all prefixes that would match a given tag
- * Used for "Remove from favorites" to find which favorite entries to remove
- * Assumes lowercase inputs.
- *
- * @param tagPath - The tag path to check - must be lowercase
- * @param prefixes - Array of prefixes to check against - must be lowercase
- * @returns Array of prefixes that match this tag
- */
-export function findMatchingPrefixes(tagPath: string, prefixes: string[]): string[] {
-    const cleanedTag = cleanTagPath(tagPath);
-    const matchingPrefixes: string[] = [];
-
-    for (const prefix of prefixes) {
-        // prefixes from settings are already clean and lowercase
-
-        // Check if this prefix would match the tag
-        if (cleanedTag === prefix || cleanedTag.startsWith(`${prefix}/`)) {
-            matchingPrefixes.push(prefix);
-        }
-        // Also check if the tag is an ancestor of the prefix
-        // (e.g., clicking "photo" when "photo/camera" is favorited)
-        else if (prefix.startsWith(`${cleanedTag}/`)) {
-            matchingPrefixes.push(prefix);
-        }
-    }
-
-    return matchingPrefixes;
 }
 
 /**

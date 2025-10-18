@@ -48,10 +48,8 @@ export const STRINGS_JA = {
     // Tag list
     tagList: {
         untaggedLabel: 'タグなし', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'お気に入りタグ', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: '非表示タグ', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: 'タグ', // Label for the tags virtual folder when favorites exist (English: Tags)
-        tags: 'タグ' // Label for the tags virtual folder when no favorites exist (English: Tags)
+        tags: 'タグ' // Label for the tags virtual folder (English: Tags)
     },
 
     navigationPane: {
@@ -184,8 +182,7 @@ export const STRINGS_JA = {
             changeIcon: 'アイコンを変更',
             changeColor: '色を変更',
             changeBackground: '背景色を変更',
-            addToFavorites: 'お気に入りに追加',
-            removeFromFavorites: 'お気に入りから削除',
+            showTag: 'タグを表示',
             hideTag: 'タグを非表示'
         }
     },
@@ -841,10 +838,6 @@ export const STRINGS_JA = {
                 name: 'タグをフォルダの上に表示',
                 desc: 'ナビゲーターでタグセクションをフォルダの前に表示します。'
             },
-            showFavoriteTagsFolder: {
-                name: 'お気に入りタグフォルダを表示',
-                desc: 'お気に入りタグが設定されている場合、「お気に入りタグ」を折りたたみ可能なフォルダとして表示します。'
-            },
             showAllTagsFolder: {
                 name: 'タグフォルダを表示',
                 desc: '「タグ」を折りたたみ可能なフォルダとして表示します。'
@@ -852,15 +845,6 @@ export const STRINGS_JA = {
             showUntagged: {
                 name: 'タグなしノートを表示',
                 desc: 'タグのないノート用に「タグなし」項目を表示します。'
-            },
-            showUntaggedInFavorites: {
-                name: 'お気に入りタグセクションにタグなしノートを表示',
-                desc: 'お気に入りタグセクションにタグなしノートを表示します。フォルダ内またはお気に入りタグの直下に表示されます。'
-            },
-            favoriteTags: {
-                name: 'お気に入りタグ',
-                desc: 'タグの接頭辞のカンマ区切りリスト。タグを追加すると、すべてのサブタグが含まれます（例："photo"には"photo/camera/fuji"が含まれる）。',
-                placeholder: 'インボックス, プロジェクト/作業, 日記/2025'
             },
             hiddenTags: {
                 name: '非表示タグ',

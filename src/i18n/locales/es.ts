@@ -48,10 +48,8 @@ export const STRINGS_ES = {
     // Tag list
     tagList: {
         untaggedLabel: 'Sin etiquetas', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'Etiquetas favoritas', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: 'Etiquetas ocultas', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: 'Etiquetas', // Label for the tags virtual folder when favorites exist (English: Tags)
-        tags: 'Etiquetas' // Label for the tags virtual folder when no favorites exist (English: Tags)
+        tags: 'Etiquetas' // Label for the tags virtual folder (English: Tags)
     },
 
     navigationPane: {
@@ -184,8 +182,7 @@ export const STRINGS_ES = {
             changeIcon: 'Cambiar icono',
             changeColor: 'Cambiar color',
             changeBackground: 'Cambiar fondo',
-            addToFavorites: 'Añadir a favoritos',
-            removeFromFavorites: 'Quitar de favoritos',
+            showTag: 'Mostrar etiqueta',
             hideTag: 'Ocultar etiqueta'
         }
     },
@@ -840,10 +837,6 @@ export const STRINGS_ES = {
                 name: 'Mostrar etiquetas encima de las carpetas',
                 desc: 'Muestra la sección de etiquetas antes que las carpetas en el navegador.'
             },
-            showFavoriteTagsFolder: {
-                name: 'Mostrar carpeta de etiquetas favoritas',
-                desc: 'Muestra "Etiquetas favoritas" como una carpeta plegable cuando hay etiquetas favoritas configuradas.'
-            },
             showAllTagsFolder: {
                 name: 'Mostrar carpeta de etiquetas',
                 desc: 'Muestra "Etiquetas" como una carpeta plegable.'
@@ -851,15 +844,6 @@ export const STRINGS_ES = {
             showUntagged: {
                 name: 'Mostrar notas sin etiquetas',
                 desc: 'Muestra el elemento "Sin etiquetas" para notas sin ninguna etiqueta.'
-            },
-            showUntaggedInFavorites: {
-                name: 'Mostrar notas sin etiquetas en la sección de etiquetas favoritas',
-                desc: 'Mostrar notas sin etiquetas en la sección de etiquetas favoritas, ya sea dentro de la carpeta o directamente debajo de las etiquetas favoritas.'
-            },
-            favoriteTags: {
-                name: 'Etiquetas favoritas',
-                desc: 'Lista separada por comas de prefijos de etiquetas. Añadir una etiqueta incluye todas sus sub-etiquetas (ej. "photo" incluye "photo/camera/fuji").',
-                placeholder: 'bandeja, proyectos/trabajo, diario/2025'
             },
             hiddenTags: {
                 name: 'Etiquetas ocultas',

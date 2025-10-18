@@ -19,7 +19,7 @@
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
 import { isPathInExcludedFolder } from './fileFilters';
-import { matchesAnyPrefix, HiddenTagMatcher, matchesHiddenTagPattern } from './tagPrefixMatcher';
+import { HiddenTagMatcher, matchesHiddenTagPattern } from './tagPrefixMatcher';
 import { naturalCompare } from './sortUtils';
 
 /**
@@ -50,23 +50,18 @@ function getNoteCountCache(): WeakMap<TagTreeNode, number> {
 }
 
 /**
- * Build tag trees from database
+ * Build tag tree from database
  * @param db - IndexedDBStorage instance
  * @param excludedFolderPatterns - Optional array of folder patterns to exclude
- * @param favoritePatterns - Array of patterns for favorite tags
- * @returns Object containing favorite tree, tag tree, and untagged file count
+ * @returns Object containing tag tree and untagged file count
  */
 export function buildTagTreeFromDatabase(
     db: IndexedDBStorage,
     excludedFolderPatterns?: string[],
-    favoritePatterns: string[] = [],
     includedPaths?: Set<string>
-): { favoriteTree: Map<string, TagTreeNode>; tagTree: Map<string, TagTreeNode>; untagged: number } {
-    // Favorite prefixes will be used for simple prefix matching
-
+): { tagTree: Map<string, TagTreeNode>; untagged: number } {
     // Track all unique tags that exist in the vault
     const allTagsSet = new Set<string>();
-    const tagFavoriteSet = new Set<string>();
     let untaggedCount = 0;
 
     const caseMap = new Map<string, string>();
@@ -126,36 +121,8 @@ export function buildTagTreeFromDatabase(
         }
     }
 
-    // Second pass: determine which tags go into favorites
-    // Include any tag that matches a favorite prefix AND all its ancestors
-
-    // First, collect all tags that match favorite patterns
-    const matchingTags = new Set<string>();
-    for (const tagPath of allTagsSet) {
-        // Pass lowercase path for matching, but add canonical version to the set
-        if (matchesAnyPrefix(tagPath.toLowerCase(), favoritePatterns)) {
-            matchingTags.add(tagPath);
-        }
-    }
-
-    // Then add all matching tags and their ancestors to favorites
-    // This avoids redundant ancestor calculations
-    for (const tagPath of matchingTags) {
-        // Add this tag
-        tagFavoriteSet.add(tagPath);
-
-        // Add all its ancestors
-        const parts = tagPath.split('/');
-        let currentPath = '';
-        for (let i = 0; i < parts.length - 1; i++) {
-            currentPath = i === 0 ? parts[i] : `${currentPath}/${parts[i]}`;
-            tagFavoriteSet.add(currentPath);
-        }
-    }
-
-    // Convert to lists for building trees
-    const tagFavoriteList = Array.from(tagFavoriteSet);
-    const tagList = Array.from(allTagsSet).filter(tag => !tagFavoriteSet.has(tag));
+    // Convert to list for building tree
+    const tagList = Array.from(allTagsSet);
 
     // Helper function to build a tree from a flat list
     const buildTreeFromList = (tagPaths: string[]): Map<string, TagTreeNode> => {
@@ -214,14 +181,12 @@ export function buildTagTreeFromDatabase(
         return tree;
     };
 
-    // Build the two trees
-    const favoriteTree = buildTreeFromList(tagFavoriteList);
     const tagTree = buildTreeFromList(tagList);
 
     // Clear note count cache since tree structure has changed
     clearNoteCountCache();
 
-    return { favoriteTree, tagTree, untagged: untaggedCount };
+    return { tagTree, untagged: untaggedCount };
 }
 
 /**

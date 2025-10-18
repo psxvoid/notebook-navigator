@@ -19,14 +19,15 @@
 import { MenuItem } from 'obsidian';
 import { TagMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
-import { findMatchingPrefixes, cleanupTagPatterns, createHiddenTagMatcher, matchesHiddenTagPattern } from '../tagPrefixMatcher';
+import { cleanupTagPatterns, createHiddenTagMatcher, matchesHiddenTagPattern } from '../tagPrefixMatcher';
 import { ItemType, UNTAGGED_TAG_ID } from '../../types';
+import { normalizeTagPath } from '../tagUtils';
 
 /**
  * Builds the context menu for a tag
  */
 export function buildTagMenu(params: TagMenuBuilderParams): void {
-    const { tagPath, menu, services, settings, context } = params;
+    const { tagPath, menu, services, settings } = params;
     const { app, metadataService, plugin, isMobile } = services;
 
     // Show tag name on mobile
@@ -36,94 +37,21 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
         });
     }
 
-    // Don't show favorites options for the Untagged virtual tag
-    if (tagPath !== UNTAGGED_TAG_ID) {
-        if (context === 'favorites') {
-            // In favorites section - always show "Remove from favorites"
-            menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.tag.removeFromFavorites)
-                    .setIcon('lucide-star-off')
-                    .onClick(async () => {
-                        // Find all patterns that match this tag
-                        const matchingPatterns = findMatchingPrefixes(tagPath, settings.favoriteTags);
-
-                        // Remove all matching patterns from favorites
-                        plugin.settings.favoriteTags = settings.favoriteTags.filter(pattern => !matchingPatterns.includes(pattern));
-
-                        await plugin.saveSettingsAndUpdate();
-                    });
-            });
-        } else {
-            // In tags section - check for exact match in favorites array
-            const isExactFavorite = settings.favoriteTags.includes(tagPath);
-
-            if (!isExactFavorite) {
-                // Tag is not a favorite - show "Add to favorites"
-                menu.addItem((item: MenuItem) => {
-                    item.setTitle(strings.contextMenu.tag.addToFavorites)
-                        .setIcon('lucide-star')
-                        .onClick(async () => {
-                            // Clean up redundant entries when adding new favorite
-                            const cleanedFavorites = cleanupTagPatterns(settings.favoriteTags, tagPath);
-
-                            plugin.settings.favoriteTags = cleanedFavorites;
-                            await plugin.saveSettingsAndUpdate();
-                        });
-                });
-            } else {
-                // Tag is already a favorite - show "Remove from favorites"
-                menu.addItem((item: MenuItem) => {
-                    item.setTitle(strings.contextMenu.tag.removeFromFavorites)
-                        .setIcon('lucide-star-off')
-                        .onClick(async () => {
-                            // Find all patterns that match this tag
-                            const matchingPatterns = findMatchingPrefixes(tagPath, settings.favoriteTags);
-
-                            // Remove all matching patterns from favorites
-                            plugin.settings.favoriteTags = settings.favoriteTags.filter(pattern => !matchingPatterns.includes(pattern));
-
-                            await plugin.saveSettingsAndUpdate();
-                        });
-                });
-            }
-        }
-
-        if (services.shortcuts) {
-            const { tagShortcutKeysByPath, addTagShortcut, removeShortcut } = services.shortcuts;
-            const existingShortcutKey = tagShortcutKeysByPath.get(tagPath);
-
-            menu.addItem((item: MenuItem) => {
-                if (existingShortcutKey) {
-                    item.setTitle(strings.shortcuts.remove)
-                        .setIcon('lucide-bookmark-x')
-                        .onClick(() => {
-                            void removeShortcut(existingShortcutKey);
-                        });
-                } else {
-                    item.setTitle(strings.shortcuts.add)
-                        .setIcon('lucide-bookmark')
-                        .onClick(() => {
-                            void addTagShortcut(tagPath);
-                        });
-                }
-            });
-        }
-
-        menu.addSeparator();
-    } else if (services.shortcuts) {
+    if (services.shortcuts) {
         const { tagShortcutKeysByPath, addTagShortcut, removeShortcut } = services.shortcuts;
-        const existingShortcutKey = tagShortcutKeysByPath.get(tagPath);
+        const normalizedShortcutPath = normalizeTagPath(tagPath);
+        const existingShortcutKey = normalizedShortcutPath ? tagShortcutKeysByPath.get(normalizedShortcutPath) : undefined;
 
         menu.addItem((item: MenuItem) => {
             if (existingShortcutKey) {
                 item.setTitle(strings.shortcuts.remove)
-                    .setIcon('lucide-star-off')
+                    .setIcon('lucide-bookmark-x')
                     .onClick(() => {
                         void removeShortcut(existingShortcutKey);
                     });
             } else {
                 item.setTitle(strings.shortcuts.add)
-                    .setIcon('lucide-star')
+                    .setIcon('lucide-bookmark')
                     .onClick(() => {
                         void addTagShortcut(tagPath);
                     });
@@ -176,6 +104,14 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
         const tagName = tagPath.split('/').pop() ?? tagPath;
         const isHidden = hasHiddenRules && matchesHiddenTagPattern(tagPath, tagName, hiddenMatcher);
 
+        const normalizedTagPath = normalizeTagPath(tagPath);
+        const hasDirectHiddenEntry =
+            normalizedTagPath !== null &&
+            settings.hiddenTags.some(pattern => {
+                const normalizedPattern = normalizeTagPath(pattern);
+                return normalizedPattern !== null && !normalizedPattern.includes('*') && normalizedPattern === normalizedTagPath;
+            });
+
         if (!isHidden) {
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.tag.hideTag)
@@ -185,6 +121,19 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                         const cleanedHiddenTags = cleanupTagPatterns(settings.hiddenTags, tagPath);
 
                         plugin.settings.hiddenTags = cleanedHiddenTags;
+                        await plugin.saveSettingsAndUpdate();
+                    });
+            });
+        } else if (hasDirectHiddenEntry && normalizedTagPath) {
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(strings.contextMenu.tag.showTag)
+                    .setIcon('lucide-eye')
+                    .onClick(async () => {
+                        plugin.settings.hiddenTags = settings.hiddenTags.filter(pattern => {
+                            const normalizedPattern = normalizeTagPath(pattern);
+                            return !(normalizedPattern && !normalizedPattern.includes('*') && normalizedPattern === normalizedTagPath);
+                        });
+
                         await plugin.saveSettingsAndUpdate();
                     });
             });

@@ -143,8 +143,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                 return;
             } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
                 const tagNode = item.data;
-                const context = 'context' in item ? item.context : undefined;
-                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path, context });
+                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
 
                 // Auto-expand if enabled and tag has children
                 if (settings.autoExpandFoldersTags && tagNode.children.size > 0) {

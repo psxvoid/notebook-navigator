@@ -48,10 +48,8 @@ export const STRINGS_ZH_CN = {
     // Tag list
     tagList: {
         untaggedLabel: '无标签', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: '收藏标签', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: '隐藏标签', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: '标签', // Label for the tags virtual folder when favorites exist (English: Tags)
-        tags: '标签' // Label for the tags virtual folder when no favorites exist (English: Tags)
+        tags: '标签' // Label for the tags virtual folder (English: Tags)
     },
 
     navigationPane: {
@@ -184,8 +182,7 @@ export const STRINGS_ZH_CN = {
             changeIcon: '更改图标',
             changeColor: '更改颜色',
             changeBackground: '更改背景',
-            addToFavorites: '添加到收藏',
-            removeFromFavorites: '从收藏中移除',
+            showTag: '显示标签',
             hideTag: '隐藏标签'
         }
     },
@@ -840,10 +837,6 @@ export const STRINGS_ZH_CN = {
                 name: '在文件夹上方显示标签',
                 desc: '在导航器中的文件夹之前显示标签部分。'
             },
-            showFavoriteTagsFolder: {
-                name: '显示收藏标签文件夹',
-                desc: '当配置了收藏标签时，将"收藏标签"显示为可折叠文件夹。'
-            },
             showAllTagsFolder: {
                 name: '显示标签文件夹',
                 desc: '将"标签"显示为可折叠文件夹。'
@@ -851,15 +844,6 @@ export const STRINGS_ZH_CN = {
             showUntagged: {
                 name: '显示无标签笔记',
                 desc: '为没有任何标签的笔记显示"无标签"项目。'
-            },
-            showUntaggedInFavorites: {
-                name: '在收藏标签部分显示无标签笔记',
-                desc: '在收藏标签部分显示无标签笔记，可以在文件夹内或直接在收藏标签下方显示。'
-            },
-            favoriteTags: {
-                name: '收藏标签',
-                desc: '标签前缀的逗号分隔列表。添加标签包含所有子标签（例如："photo"包含"photo/camera/fuji"）。',
-                placeholder: '收件箱, 项目/工作, 日记/2025'
             },
             hiddenTags: {
                 name: '隐藏标签',

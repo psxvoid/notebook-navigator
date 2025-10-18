@@ -198,10 +198,6 @@ export function useNavigationActions() {
             if (shouldAffectTags) {
                 const allTagPaths = new Set<string>();
 
-                // Use the more efficient approach from NavigationPaneHeader
-                for (const tagNode of fileData.favoriteTree.values()) {
-                    collectAllTagPaths(tagNode, allTagPaths);
-                }
                 for (const tagNode of fileData.tagTree.values()) {
                     collectAllTagPaths(tagNode, allTagPaths);
                 }
@@ -217,7 +213,6 @@ export function useNavigationActions() {
         settings.smartCollapse,
         selectionState.selectedFolder,
         selectionState.selectedTag,
-        fileData.favoriteTree,
         fileData.tagTree,
         shouldCollapseItems
     ]);

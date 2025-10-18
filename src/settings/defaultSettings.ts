@@ -77,12 +77,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     pinCreatedFolderNote: false,
     showTags: true,
     showTagsAboveFolders: false,
-    showFavoriteTagsFolder: true,
     showAllTagsFolder: true,
     showUntagged: false,
-    showUntaggedInFavorites: false,
     tagSortOrder: 'alpha-asc',
-    favoriteTags: [],
     hiddenTags: [],
 
     // List pane tab

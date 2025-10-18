@@ -24,6 +24,7 @@ import { ITagTreeProvider } from '../../interfaces/ITagTreeProvider';
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
 import { TagTreeNode } from '../../types/storage';
+import { normalizeTagPath } from '../../utils/tagUtils';
 
 /**
  * Service for managing tag-specific metadata operations
@@ -43,7 +44,11 @@ export class TagMetadataService extends BaseMetadataService {
      * @param color - CSS color value
      */
     async setTagColor(tagPath: string, color: string): Promise<void> {
-        return this.setEntityColor(ItemType.TAG, tagPath.toLowerCase(), color);
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return Promise.resolve();
+        }
+        return this.setEntityColor(ItemType.TAG, normalized, color);
     }
 
     /**
@@ -52,7 +57,11 @@ export class TagMetadataService extends BaseMetadataService {
      * @param color - CSS color value
      */
     async setTagBackgroundColor(tagPath: string, color: string): Promise<void> {
-        return this.setEntityBackgroundColor(ItemType.TAG, tagPath.toLowerCase(), color);
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return Promise.resolve();
+        }
+        return this.setEntityBackgroundColor(ItemType.TAG, normalized, color);
     }
 
     /**
@@ -60,7 +69,11 @@ export class TagMetadataService extends BaseMetadataService {
      * @param tagPath - Path of the tag
      */
     async removeTagColor(tagPath: string): Promise<void> {
-        return this.removeEntityColor(ItemType.TAG, tagPath.toLowerCase());
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return Promise.resolve();
+        }
+        return this.removeEntityColor(ItemType.TAG, normalized);
     }
 
     /**
@@ -68,7 +81,11 @@ export class TagMetadataService extends BaseMetadataService {
      * @param tagPath - Path of the tag
      */
     async removeTagBackgroundColor(tagPath: string): Promise<void> {
-        return this.removeEntityBackgroundColor(ItemType.TAG, tagPath.toLowerCase());
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return Promise.resolve();
+        }
+        return this.removeEntityBackgroundColor(ItemType.TAG, normalized);
     }
 
     /**
@@ -77,15 +94,17 @@ export class TagMetadataService extends BaseMetadataService {
      * @returns The color value or undefined
      */
     getTagColor(tagPath: string): string | undefined {
-        // Normalize to lowercase for lookup (tag paths are stored as lowercase keys)
-        const lowerPath = tagPath.toLowerCase();
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return undefined;
+        }
 
         // First check if this tag has a color directly set
-        const directColor = this.getEntityColor(ItemType.TAG, lowerPath);
+        const directColor = this.getEntityColor(ItemType.TAG, normalized);
         if (directColor) return directColor;
 
         // If no direct color, check ancestors
-        const pathParts = lowerPath.split('/');
+        const pathParts = normalized.split('/');
         for (let i = pathParts.length - 1; i > 0; i--) {
             const ancestorPath = pathParts.slice(0, i).join('/');
             const ancestorColor = this.getEntityColor(ItemType.TAG, ancestorPath);
@@ -101,12 +120,15 @@ export class TagMetadataService extends BaseMetadataService {
      * @returns The background color value or undefined
      */
     getTagBackgroundColor(tagPath: string): string | undefined {
-        const lowerPath = tagPath.toLowerCase();
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return undefined;
+        }
 
-        const directBackground = this.getEntityBackgroundColor(ItemType.TAG, lowerPath);
+        const directBackground = this.getEntityBackgroundColor(ItemType.TAG, normalized);
         if (directBackground) return directBackground;
 
-        const pathParts = lowerPath.split('/');
+        const pathParts = normalized.split('/');
         for (let i = pathParts.length - 1; i > 0; i--) {
             const ancestorPath = pathParts.slice(0, i).join('/');
             const ancestorBackground = this.getEntityBackgroundColor(ItemType.TAG, ancestorPath);
@@ -122,7 +144,11 @@ export class TagMetadataService extends BaseMetadataService {
      * @param iconId - Lucide icon identifier
      */
     async setTagIcon(tagPath: string, iconId: string): Promise<void> {
-        return this.setEntityIcon(ItemType.TAG, tagPath.toLowerCase(), iconId);
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return Promise.resolve();
+        }
+        return this.setEntityIcon(ItemType.TAG, normalized, iconId);
     }
 
     /**
@@ -130,7 +156,11 @@ export class TagMetadataService extends BaseMetadataService {
      * @param tagPath - Path of the tag
      */
     async removeTagIcon(tagPath: string): Promise<void> {
-        return this.removeEntityIcon(ItemType.TAG, tagPath.toLowerCase());
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return Promise.resolve();
+        }
+        return this.removeEntityIcon(ItemType.TAG, normalized);
     }
 
     /**
@@ -139,8 +169,11 @@ export class TagMetadataService extends BaseMetadataService {
      * @returns The icon ID or undefined
      */
     getTagIcon(tagPath: string): string | undefined {
-        // Normalize to lowercase for lookup (tag paths are stored as lowercase keys)
-        return this.getEntityIcon(ItemType.TAG, tagPath.toLowerCase());
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return undefined;
+        }
+        return this.getEntityIcon(ItemType.TAG, normalized);
     }
 
     /**
@@ -149,7 +182,11 @@ export class TagMetadataService extends BaseMetadataService {
      * @param sortOption - Sort option to apply
      */
     async setTagSortOverride(tagPath: string, sortOption: SortOption): Promise<void> {
-        return this.setEntitySortOverride(ItemType.TAG, tagPath.toLowerCase(), sortOption);
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return Promise.resolve();
+        }
+        return this.setEntitySortOverride(ItemType.TAG, normalized, sortOption);
     }
 
     /**
@@ -157,7 +194,11 @@ export class TagMetadataService extends BaseMetadataService {
      * @param tagPath - Path of the tag
      */
     async removeTagSortOverride(tagPath: string): Promise<void> {
-        return this.removeEntitySortOverride(ItemType.TAG, tagPath.toLowerCase());
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return Promise.resolve();
+        }
+        return this.removeEntitySortOverride(ItemType.TAG, normalized);
     }
 
     /**
@@ -166,7 +207,11 @@ export class TagMetadataService extends BaseMetadataService {
      * @returns The sort option or undefined
      */
     getTagSortOverride(tagPath: string): SortOption | undefined {
-        return this.getEntitySortOverride(ItemType.TAG, tagPath.toLowerCase());
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return undefined;
+        }
+        return this.getEntitySortOverride(ItemType.TAG, normalized);
     }
 
     /**
@@ -178,8 +223,11 @@ export class TagMetadataService extends BaseMetadataService {
         const tagTreeProvider = this.getTagTreeProvider();
         const validTagPaths = tagTreeProvider?.getAllTagPaths() || [];
 
-        const validTagsLower = new Set(validTagPaths.map(p => p.toLowerCase()));
-        const validator = (path: string) => validTagsLower.has(path.toLowerCase());
+        const validTags = new Set(validTagPaths.map(path => normalizeTagPath(path)).filter((value): value is string => value !== null));
+        const validator = (path: string) => {
+            const normalized = normalizeTagPath(path);
+            return normalized ? validTags.has(normalized) : false;
+        };
 
         const results = await Promise.all([
             this.cleanupMetadata(targetSettings, 'tagColors', validator),
@@ -230,8 +278,11 @@ export class TagMetadataService extends BaseMetadataService {
             collectPaths(rootNode);
         }
 
-        const validTagsLower = new Set(validTagPaths.map(p => p.toLowerCase()));
-        const validator = (path: string) => validTagsLower.has(path.toLowerCase());
+        const validTags = new Set(validTagPaths.map(path => normalizeTagPath(path)).filter((value): value is string => value !== null));
+        const validator = (path: string) => {
+            const normalized = normalizeTagPath(path);
+            return normalized ? validTags.has(normalized) : false;
+        };
 
         // Clean up all tag metadata types in parallel
         const results = await Promise.all([

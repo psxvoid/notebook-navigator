@@ -63,7 +63,7 @@ interface VirtualFolderItemProps {
 
 /**
  * Renders a virtual folder item used for organizing tags in the navigation pane.
- * Virtual folders are UI-only constructs that group tags (e.g., "Favorite tags", "All tags").
+ * Virtual folders are UI-only constructs that group tags (for example, the "Tags" section).
  * They have expand/collapse functionality but no file operations or context menus.
  *
  * This is a pure presentational component - all data flows from NavigationPane via props.
