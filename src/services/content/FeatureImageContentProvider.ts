@@ -23,7 +23,7 @@ import { FileData } from '../../storage/IndexedDBStorage';
 import { getDBInstance } from '../../storage/fileOperations';
 import { isExcalidrawAttachment, isImageFile } from '../../utils/fileTypeUtils';
 import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
-import { generateExcalidrawPreview, isCachePath } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
+import { cacheFilePath, generateExcalidrawPreview, isCachePath } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
 
 /**
  * Content provider for finding and storing feature images
@@ -31,11 +31,12 @@ import { generateExcalidrawPreview, isCachePath } from './feature-image-preview-
 export class FeatureImageContentProvider extends BaseContentProvider {
     public static Instance?: FeatureImageContentProvider;
     private forceUpdateSet: Set<string> = new Set();
-    private deletedFeatureProviders: Map<string, string> = new Map();
+    private deletedFeatureProviders: Map<string, string> = new Map(); // (1) = consumer, (2) = provider
 
     constructor(app: App) {
         super(app);
 
+        // Review: Refactoring: use service provider 
         FeatureImageContentProvider.Instance = this;
     }
 
@@ -107,6 +108,10 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         try {
             const metadata = this.app.metadataCache.getFileCache(job.file);
 
+            if (isExcalidrawAttachment(job.file, metadata)) {
+                return null
+            }
+
             const result = await this.getFeatureImageUrlFromMetadata(job.file, metadata, settings);
             const imageUrl = result?.featurePath;
             const consumerTargetPath = result?.consumerTargetPath;
@@ -176,6 +181,27 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             return null;
         }
 
+        const cleanupFeatureProviderEmbed = async (embedFile: TFile): Promise<void> => {
+            const providerPath = this.deletedFeatureProviders.get(file.path)
+
+            if (providerPath === embedFile.path) {
+                const imagePath = cacheFilePath(embedFile)
+
+                if (isCachePath(imagePath) && await this.app.vault.adapter.exists(imagePath)) {
+                    const toDelete = this.app.vault.getFileByPath(imagePath)
+                    // eslint-disable-next-line eqeqeq
+                    if (toDelete != null) {
+                        // Review: Refactoring: now delete is also in ExcalidrawPreviewGenerator, handle deletion in a single place
+                        // Review: Resiliency: handle exception?
+                        // eslint-disable-next-line obsidianmd/prefer-file-manager-trash-file
+                        await this.app.vault.delete(toDelete)
+                    }
+                }
+
+                this.deletedFeatureProviders.delete(file.path)
+            }
+        }
+
         // Try each property in order until we find an image
         for (const property of settings.featureImageProperties) {
             const imagePath = metadata?.frontmatter?.[property];
@@ -195,6 +221,9 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             if (imageFile) {
                 if (imageFile.extension === 'md') {
                     const metadata = this.app.metadataCache.getFileCache(imageFile);
+
+                    await cleanupFeatureProviderEmbed(imageFile)
+
                     if (isExcalidrawAttachment(imageFile, metadata)) {
                         return generateExcalidrawPreview(imageFile, this.app, file);
                     }
@@ -216,9 +245,11 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                         // Store just the path, not the full app:// URL
                         return { featurePath: embedFile.path };
                     }
+                    
+                    const providerPath = this.deletedFeatureProviders.get(file.path)
 
-                    if (this.deletedFeatureProviders.has(file.path)) {
-                        this.deletedFeatureProviders.delete(file.path)
+                    if (providerPath === embedFile.path) {
+                        this.deletedFeatureProviders.delete(embedFile.path)
                         continue;
                     }
 

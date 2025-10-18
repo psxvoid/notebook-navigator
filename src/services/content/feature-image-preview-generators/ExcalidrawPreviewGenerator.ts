@@ -31,7 +31,7 @@ declare global {
 }
 
 const cacheDirPath = `thumbnails/full`
-const cacheFilePath = (excalidrawFile: TFile) => `${cacheDirPath}/${excalidrawFile.basename}_${excalidrawFile.stat.size}.png`
+export const cacheFilePath = (excalidrawFile: TFile) => `${cacheDirPath}/${excalidrawFile.basename}_${excalidrawFile.stat.size}.png`
 const getDbFile = (path: string) => getDBInstance().getFile(path)
 export const isCachePath = (path: string | unknown) => typeof path === 'string'
     ? path.startsWith(cacheDirPath)
@@ -229,7 +229,7 @@ export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App,
     const hasExistingFeature = (currentFeature ?? EMPTY_STRING).length > 0;
 
     if (hasExistingFeature && currentFeature === previewFilePath) {
-        return { featurePath: previewFilePath };
+        return { featurePath: previewFilePath, featureProviderPath: excalidrawFile.path };
     }
 
     if (hasExistingFeature && isCachePath(currentFeature) && await this.app.vault.adapter.exists(currentFeature) ) {
