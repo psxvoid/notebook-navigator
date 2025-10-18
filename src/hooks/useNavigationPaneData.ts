@@ -55,7 +55,7 @@ import { shouldDisplayFile, FILE_VISIBILITY, isImageFile } from '../utils/fileTy
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree, findTagNode } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
-import { createHiddenTagMatcher } from '../utils/tagPrefixMatcher';
+import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
 import { setNavigationIndex } from '../utils/navigationIndex';
 import { resolveCanonicalTagPath } from '../utils/tagUtils';
 import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } from '../types/shortcuts';
@@ -236,10 +236,12 @@ export function useNavigationPaneData({
     const untaggedCount = fileData.untagged;
 
     // Create matcher for hidden tag patterns (supports "archive", "temp*", "*draft")
-    const hiddenTagMatcher = useMemo(() => createHiddenTagMatcher(settings.hiddenTags), [settings.hiddenTags]);
-    // Determine if any hidden tag rules are configured
-    const hiddenMatcherHasRules =
-        hiddenTagMatcher.prefixes.length > 0 || hiddenTagMatcher.startsWithNames.length > 0 || hiddenTagMatcher.endsWithNames.length > 0;
+    const hiddenTagVisibility = useMemo(
+        () => createHiddenTagVisibility(settings.hiddenTags, settings.showHiddenItems),
+        [settings.hiddenTags, settings.showHiddenItems]
+    );
+    const hiddenTagMatcher = hiddenTagVisibility.matcher;
+    const hiddenMatcherHasRules = hiddenTagVisibility.hasHiddenRules;
 
     /** Create tag comparator based on current sort order and descendant note settings */
     const tagComparator = useMemo(

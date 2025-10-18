@@ -64,7 +64,7 @@ import { FILE_VISIBILITY, getExtensionSuffix, isImageFile, shouldDisplayFile, sh
 import { getDateField } from '../utils/sortUtils';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
-import { createHiddenTagMatcher, matchesHiddenTagPattern } from '../utils/tagPrefixMatcher';
+import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
 
 const FEATURE_IMAGE_MAX_ASPECT_RATIO = 16 / 9;
 
@@ -258,7 +258,10 @@ export const FileItem = React.memo(function FileItem({
     const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime } = useFileCache();
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
-    const hiddenTagMatcher = useMemo(() => createHiddenTagMatcher(settings.hiddenTags), [settings.hiddenTags]);
+    const hiddenTagVisibility = useMemo(
+        () => createHiddenTagVisibility(settings.hiddenTags, settings.showHiddenItems),
+        [settings.hiddenTags, settings.showHiddenItems]
+    );
 
     // === Helper functions ===
     // Load all file metadata from cache
@@ -491,23 +494,17 @@ export const FileItem = React.memo(function FileItem({
     );
 
     const colorFileTags = settings.colorFileTags;
-    const hiddenMatcherHasRules =
-        hiddenTagMatcher.prefixes.length > 0 || hiddenTagMatcher.startsWithNames.length > 0 || hiddenTagMatcher.endsWithNames.length > 0;
 
     const visibleTags = useMemo(() => {
         if (tags.length === 0) {
             return tags;
         }
-        if (settings.showHiddenItems || !hiddenMatcherHasRules) {
+        if (!hiddenTagVisibility.shouldFilterHiddenTags) {
             return tags;
         }
 
-        return tags.filter(tag => {
-            const segments = tag.split('/');
-            const tagName = segments[segments.length - 1] ?? tag;
-            return !matchesHiddenTagPattern(tag, tagName, hiddenTagMatcher);
-        });
-    }, [hiddenTagMatcher, hiddenMatcherHasRules, settings.showHiddenItems, tags]);
+        return tags.filter(tag => hiddenTagVisibility.isTagVisible(tag));
+    }, [hiddenTagVisibility, tags]);
 
     // Categorize tags by priority: colored tags first, then regular tags
     const categorizedTags = useMemo(() => {

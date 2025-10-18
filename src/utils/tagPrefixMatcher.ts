@@ -201,6 +201,62 @@ export function matchesHiddenTagPattern(tagPath: string, tagName: string, matche
 }
 
 /**
+ * Provides helpers for working with hidden tag rules in different contexts.
+ */
+export interface HiddenTagVisibility {
+    matcher: HiddenTagMatcher;
+    hasHiddenRules: boolean;
+    shouldFilterHiddenTags: boolean;
+    /**
+     * Returns true when the tag does not match any hidden pattern.
+     */
+    isTagVisible(tagPath: string, tagName?: string): boolean;
+    /**
+     * Returns true when the collection contains at least one visible tag.
+     */
+    hasVisibleTags(tags: readonly string[]): boolean;
+}
+
+/**
+ * Creates a visibility helper for the provided hidden tag patterns and visibility setting.
+ *
+ * @param patterns - Hidden tag patterns from settings
+ * @param showHiddenItems - Whether hidden items should be shown in the UI
+ */
+export function createHiddenTagVisibility(patterns: string[], showHiddenItems: boolean): HiddenTagVisibility {
+    const matcher = createHiddenTagMatcher(patterns);
+    const hasHiddenRules = matcher.prefixes.length > 0 || matcher.startsWithNames.length > 0 || matcher.endsWithNames.length > 0;
+    const shouldFilterHiddenTags = hasHiddenRules && !showHiddenItems;
+
+    const isTagVisible = shouldFilterHiddenTags
+        ? (tagPath: string, tagName?: string) => {
+              const normalizedPath = normalizeTagPathValue(tagPath);
+              const normalizedName = tagName !== undefined ? tagName.toLowerCase() : (normalizedPath.split('/').pop() ?? normalizedPath);
+              return !matchesHiddenTagPattern(normalizedPath, normalizedName, matcher);
+          }
+        : () => true;
+
+    const hasVisibleTags = shouldFilterHiddenTags
+        ? (tags: readonly string[]) => {
+              for (const tag of tags) {
+                  if (isTagVisible(tag)) {
+                      return true;
+                  }
+              }
+              return false;
+          }
+        : (tags: readonly string[]) => tags.length > 0;
+
+    return {
+        matcher,
+        hasHiddenRules,
+        shouldFilterHiddenTags,
+        isTagVisible,
+        hasVisibleTags
+    };
+}
+
+/**
  * Cleans up redundant tag patterns when adding a new pattern.
  * Removes existing patterns that would be covered by the new pattern.
  *

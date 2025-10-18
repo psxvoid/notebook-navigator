@@ -18,6 +18,7 @@
 
 import { App, TFile } from 'obsidian';
 import { getDBInstance } from '../storage/fileOperations';
+import { normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 
 /**
  * Service for managing tag operations.
@@ -135,10 +136,13 @@ export class TagOperations {
 
             const tags = db.getCachedTags(file.path);
             tags.forEach(tag => {
-                const lowerTag = tag.toLowerCase();
+                const normalizedTag = normalizeTagPathValue(tag);
+                if (normalizedTag.length === 0) {
+                    return;
+                }
                 // Only add if we haven't seen this tag (case-insensitive)
-                if (!canonicalTags.has(lowerTag)) {
-                    canonicalTags.set(lowerTag, tag);
+                if (!canonicalTags.has(normalizedTag)) {
+                    canonicalTags.set(normalizedTag, tag);
                 }
             });
         }
@@ -222,20 +226,24 @@ export class TagOperations {
 
         const db = getDBInstance();
         const allTags = db.getCachedTags(file.path);
-
-        // Normalize to lowercase for comparison
-        const lowerTag = tag.toLowerCase();
+        const normalizedTag = normalizeTagPathValue(tag);
+        if (normalizedTag.length === 0) {
+            return false;
+        }
 
         // Check if any existing tag is the same or an ancestor
         return allTags.some((existingTag: string) => {
-            const lowerExistingTag = existingTag.toLowerCase();
+            const normalizedExistingTag = normalizeTagPathValue(existingTag);
+            if (normalizedExistingTag.length === 0) {
+                return false;
+            }
 
             // Exact match (case-insensitive)
-            if (lowerExistingTag === lowerTag) return true;
+            if (normalizedExistingTag === normalizedTag) return true;
 
             // Check if we already have an ancestor tag
             // e.g., if we want to add "project/example" but file has "project"
-            return lowerTag.startsWith(`${lowerExistingTag}/`);
+            return normalizedTag.startsWith(`${normalizedExistingTag}/`);
         });
     }
 
@@ -293,11 +301,19 @@ export class TagOperations {
             await this.app.fileManager.processFrontMatter(file, fm => {
                 if (!fm.tags) return;
 
+                const normalizedTarget = normalizeTagPathValue(tag);
+
                 if (Array.isArray(fm.tags)) {
                     const originalLength = fm.tags.length;
                     fm.tags = fm.tags.filter((t: string) => {
-                        const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                        return cleanTag.toLowerCase() !== tag.toLowerCase();
+                        const normalizedTag = normalizeTagPathValue(t);
+                        if (normalizedTag.length === 0) {
+                            return false;
+                        }
+                        if (normalizedTarget.length === 0) {
+                            return true;
+                        }
+                        return normalizedTag !== normalizedTarget;
                     });
 
                     if (fm.tags.length < originalLength) {
@@ -310,8 +326,14 @@ export class TagOperations {
                 } else if (typeof fm.tags === 'string') {
                     const tags = fm.tags.split(',').map((t: string) => t.trim());
                     const filteredTags = tags.filter((t: string) => {
-                        const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                        return cleanTag.toLowerCase() !== tag.toLowerCase();
+                        const normalizedTag = normalizeTagPathValue(t);
+                        if (normalizedTag.length === 0) {
+                            return false;
+                        }
+                        if (normalizedTarget.length === 0) {
+                            return true;
+                        }
+                        return normalizedTag !== normalizedTarget;
                     });
 
                     if (filteredTags.length < tags.length) {
@@ -359,13 +381,24 @@ export class TagOperations {
         const currentTags = this.getTagsFromFiles([file]);
 
         // Find descendant tags to remove (case-insensitive)
-        const lowerAncestor = ancestorTag.toLowerCase();
-        const descendantTags = currentTags.filter(tag => tag.toLowerCase().startsWith(`${lowerAncestor}/`));
+        const normalizedAncestor = normalizeTagPathValue(ancestorTag);
+        if (normalizedAncestor.length === 0) {
+            return;
+        }
+        const descendantTags = currentTags.filter(tag => {
+            const normalizedTag = normalizeTagPathValue(tag);
+            return normalizedTag.startsWith(`${normalizedAncestor}/`);
+        });
 
         if (descendantTags.length === 0) return;
 
         // Create lowercase set for efficient lookup
-        const lowerDescendantSet = new Set(descendantTags.map(t => t.toLowerCase()));
+        const normalizedDescendantSet = new Set(
+            descendantTags.map(t => normalizeTagPathValue(t)).filter((value): value is string => value.length > 0)
+        );
+        if (normalizedDescendantSet.size === 0) {
+            return;
+        }
 
         // Remove descendant tags from frontmatter
         try {
@@ -374,9 +407,12 @@ export class TagOperations {
 
                 if (Array.isArray(fm.tags)) {
                     fm.tags = fm.tags.filter((tag: string) => {
-                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                        const normalizedTag = normalizeTagPathValue(tag);
+                        if (normalizedTag.length === 0) {
+                            return false;
+                        }
                         // Case-insensitive check
-                        return !lowerDescendantSet.has(cleanTag.toLowerCase());
+                        return !normalizedDescendantSet.has(normalizedTag);
                     });
 
                     if (fm.tags.length === 0) {
@@ -385,9 +421,12 @@ export class TagOperations {
                 } else if (typeof fm.tags === 'string') {
                     const tags = fm.tags.split(',').map((t: string) => t.trim());
                     const filteredTags = tags.filter((tag: string) => {
-                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                        const normalizedTag = normalizeTagPathValue(tag);
+                        if (normalizedTag.length === 0) {
+                            return false;
+                        }
                         // Case-insensitive check
-                        return !lowerDescendantSet.has(cleanTag.toLowerCase());
+                        return !normalizedDescendantSet.has(normalizedTag);
                     });
 
                     if (filteredTags.length === 0) {

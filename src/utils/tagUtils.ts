@@ -76,8 +76,8 @@ function getNormalizedTagsForFile(file: TFile, storage: IndexedDBStorage): strin
         return [];
     }
 
-    // Tags in cache are already without # prefix, just normalize to lowercase
-    return fileTags.map((tag: string) => tag.toLowerCase());
+    // Tags in cache are already without # prefix, just normalize consistently
+    return fileTags.map((tag: string) => normalizeTagPathValue(tag)).filter((value): value is string => value.length > 0);
 }
 
 /**
@@ -86,7 +86,10 @@ function getNormalizedTagsForFile(file: TFile, storage: IndexedDBStorage): strin
  */
 function fileHasExactTag(file: TFile, tag: string, storage: IndexedDBStorage): boolean {
     const normalizedTags = getNormalizedTagsForFile(file, storage);
-    const normalizedSearchTag = tag.toLowerCase();
+    const normalizedSearchTag = normalizeTagPathValue(tag);
+    if (normalizedSearchTag.length === 0) {
+        return false;
+    }
 
     return normalizedTags.some(fileTag => fileTag === normalizedSearchTag);
 }
@@ -116,13 +119,15 @@ export function determineTagToReveal(
 
         // For auto-reveals (which tag reveals always are), check if current tag is a parent
         // This is similar to how folder auto-reveals preserve parent folders with includeDescendantNotes
-        const currentTagLower = currentTag.toLowerCase();
-        const currentTagPrefix = `${currentTagLower}/`;
+        const normalizedCurrentTag = normalizeTagPathValue(currentTag);
+        if (normalizedCurrentTag.length > 0) {
+            const currentTagPrefix = `${normalizedCurrentTag}/`;
 
-        // Check if any of the file's tags are children of the current tag
-        for (const fileTag of fileTags) {
-            if (fileTag.startsWith(currentTagPrefix)) {
-                return currentTag; // Stay on parent tag (shortest path)
+            // Check if any of the file's tags are children of the current tag
+            for (const fileTag of fileTags) {
+                if (fileTag.startsWith(currentTagPrefix)) {
+                    return currentTag; // Stay on parent tag (shortest path)
+                }
             }
         }
     }

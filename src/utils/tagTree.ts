@@ -19,7 +19,7 @@
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
 import { isPathInExcludedFolder } from './fileFilters';
-import { HiddenTagMatcher, matchesHiddenTagPattern } from './tagPrefixMatcher';
+import { HiddenTagMatcher, matchesHiddenTagPattern, normalizeTagPathValue } from './tagPrefixMatcher';
 import { naturalCompare } from './sortUtils';
 
 /**
@@ -96,25 +96,26 @@ export function buildTagTreeFromDatabase(
 
         // Process each tag
         for (const tag of tags) {
-            // Remove the # prefix if present
-            const tagPath = tag.startsWith('#') ? tag.substring(1) : tag;
+            const canonicalPath = (tag.startsWith('#') ? tag.substring(1) : tag).replace(/^\/+|\/+$/g, '');
+            const normalizedPath = normalizeTagPathValue(tag);
+            if (canonicalPath.length === 0 || normalizedPath.length === 0) {
+                continue;
+            }
 
-            // Determine the canonical casing for this tag
-            const lowerPath = tagPath.toLowerCase();
-            let canonicalPath = caseMap.get(lowerPath);
-            if (!canonicalPath) {
-                canonicalPath = tagPath;
-                caseMap.set(lowerPath, canonicalPath);
+            let storedCanonical = caseMap.get(normalizedPath);
+            if (!storedCanonical) {
+                storedCanonical = canonicalPath;
+                caseMap.set(normalizedPath, storedCanonical);
             }
 
             // Add to all tags set
-            allTagsSet.add(canonicalPath);
+            allTagsSet.add(storedCanonical);
 
             // Store file association
-            if (!tagFiles.has(canonicalPath)) {
-                tagFiles.set(canonicalPath, new Set());
+            if (!tagFiles.has(storedCanonical)) {
+                tagFiles.set(storedCanonical, new Set());
             }
-            const fileSet = tagFiles.get(canonicalPath);
+            const fileSet = tagFiles.get(storedCanonical);
             if (fileSet) {
                 fileSet.add(path);
             }
@@ -139,23 +140,26 @@ export function buildTagTreeFromDatabase(
             for (let i = 0; i < parts.length; i++) {
                 const part = parts[i];
                 currentPath = i === 0 ? part : `${currentPath}/${part}`;
-                const lowerCurrentPath = currentPath.toLowerCase();
+                const normalizedCurrentPath = normalizeTagPathValue(currentPath);
+                if (normalizedCurrentPath.length === 0) {
+                    continue;
+                }
 
                 // Get or create the node
-                let node = allNodes.get(lowerCurrentPath);
+                let node = allNodes.get(normalizedCurrentPath);
                 if (!node) {
                     node = {
                         name: part,
-                        path: lowerCurrentPath,
+                        path: normalizedCurrentPath,
                         displayPath: currentPath,
                         children: new Map(),
                         notesWithTag: new Set()
                     };
-                    allNodes.set(lowerCurrentPath, node);
+                    allNodes.set(normalizedCurrentPath, node);
 
                     // Only add root-level tags to the tree Map
                     if (i === 0) {
-                        tree.set(lowerCurrentPath, node);
+                        tree.set(normalizedCurrentPath, node);
                     }
                 }
 
@@ -169,10 +173,10 @@ export function buildTagTreeFromDatabase(
 
                 // Link to parent
                 if (i > 0) {
-                    const parentPath = parts.slice(0, i).join('/').toLowerCase();
+                    const parentPath = normalizeTagPathValue(parts.slice(0, i).join('/'));
                     const parent = allNodes.get(parentPath);
-                    if (parent && !parent.children.has(lowerCurrentPath)) {
-                        parent.children.set(lowerCurrentPath, node);
+                    if (parent && !parent.children.has(normalizedCurrentPath)) {
+                        parent.children.set(normalizedCurrentPath, node);
                     }
                 }
             }
