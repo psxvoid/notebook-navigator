@@ -3,6 +3,20 @@
 >
 > This repo contains an experimental excalidraw support that does not exist in the original project.<br>
 > See: [Issue: [FR] Add Excalidraw Featured Image Support (closed as not-planned)](https://github.com/johansan/notebook-navigator/issues/384)
+>
+> ![Excalidraw File Preview Sample](./images/nn-fork-excalidraw-preview.png)
+
+## Installation (The Forked Version)
+
+1. Install [BRAT](https://obsidian.md/plugins?search=brat) obsidian plugin.
+2. Go to obsidian settings > community plugins, find BRAT plugin and press a cog icon to go to it's settings.
+3. Hit "Add beta plugin" button.
+4. In the opened popup paste `https://github.com/psxvoid/notebook-navigator.git`.
+5. Select the version you want to install (stable or pre-release).
+6. Ensure "Enable after installing the plugin" checkbox is set.
+7. Hit "Add plugin" button.
+
+##
 
 Below is the description from the original repository.
 
