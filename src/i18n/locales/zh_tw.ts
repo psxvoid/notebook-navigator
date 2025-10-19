@@ -646,6 +646,10 @@ export const STRINGS_ZH_TW = {
                 name: '顯示工具提示 (僅限桌面版)',
                 desc: '顯示懸停工具提示，提供筆記和資料夾的額外資訊。'
             },
+            showTooltipPath: {
+                name: '顯示路徑',
+                desc: '在工具提示中的筆記名稱下方顯示資料夾路徑。'
+            },
             multiSelectModifier: {
                 name: '多重選取修飾鍵',
                 desc: '選擇哪個修飾鍵切換多重選取。選擇 Option/Alt 時，Cmd/Ctrl 點擊會在一個新分頁中開啟筆記。',

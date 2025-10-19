@@ -647,6 +647,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示工具提示（仅桌面端）',
                 desc: '悬停时显示笔记和文件夹的额外信息工具提示。'
             },
+            showTooltipPath: {
+                name: '显示路径',
+                desc: '在工具提示中的笔记名称下方显示文件夹路径。'
+            },
             multiSelectModifier: {
                 name: '多选修饰键',
                 desc: '选择哪个修饰键切换多选模式。选择 Option/Alt 时，Cmd/Ctrl 点击会在新标签页中打开笔记。',

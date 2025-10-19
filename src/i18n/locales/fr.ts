@@ -649,6 +649,10 @@ export const STRINGS_FR = {
                 name: 'Afficher les infobulles (ordinateur uniquement)',
                 desc: 'Affiche des infobulles avec des informations supplémentaires pour les notes et dossiers au survol.'
             },
+            showTooltipPath: {
+                name: 'Afficher le chemin',
+                desc: 'Affiche le chemin du dossier sous le nom des notes dans les infobulles.'
+            },
             multiSelectModifier: {
                 name: 'Modificateur de sélection multiple',
                 desc: 'Choisissez quelle touche modificatrice active la sélection multiple. Quand Option/Alt est sélectionné, Cmd/Ctrl clic ouvre les notes dans un nouvel onglet.',

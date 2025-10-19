@@ -647,6 +647,10 @@ export const STRINGS_KO = {
                 name: '도구 설명 표시 (데스크톱 전용)',
                 desc: '노트와 폴더에 대한 추가 정보가 있는 호버 도구 설명을 표시합니다.'
             },
+            showTooltipPath: {
+                name: '경로 표시',
+                desc: '도구 설명에서 노트 이름 아래에 폴더 경로를 표시합니다.'
+            },
             multiSelectModifier: {
                 name: '다중 선택 수정자',
                 desc: '다중 선택을 전환하는 수정자 키를 선택하세요. Option/Alt를 선택하면 Cmd/Ctrl 클릭이 새 탭에서 노트를 엽니다.',

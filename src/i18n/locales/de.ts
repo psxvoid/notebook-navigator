@@ -651,6 +651,10 @@ export const STRINGS_DE = {
                 name: 'Tooltips anzeigen (nur Desktop)',
                 desc: 'Zeige Hover-Tooltips mit zusätzlichen Informationen für Notizen und Ordner an.'
             },
+            showTooltipPath: {
+                name: 'Pfad anzeigen',
+                desc: 'Zeigt den Ordnerpfad unter den Notiznamen in Tooltips an.'
+            },
             multiSelectModifier: {
                 name: 'Mehrfachauswahl-Modifikator',
                 desc: 'Wählen Sie, welche Modifikatortaste die Mehrfachauswahl umschaltet. Wenn Option/Alt ausgewählt ist, öffnet Cmd/Strg-Klick Notizen in einem neuen Tab.',

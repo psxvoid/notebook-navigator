@@ -74,7 +74,7 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.6.0',
-        date: '2025-10-19',
+        date: '2025-10-20',
         showOnUpdate: true,
         info: [
             'In this release I have good news and bad news. The bad news is that I had to remove the **favorite tags** section due to architectural complexity. It made the codebase hard to maintain with special cases everywhere. The good news is that you can now sort root tags manually just like folders, so you can still put your favorite tags or untagged notes at the top of the tag list.',
@@ -83,14 +83,18 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ].join('\n\n'),
         new: [
             'You can now change ==sort order for root tags==, just like folders. Just click the button "Reorder root folders and tags" in the navigation pane.',
+            'Support for ==back and forward mouse buttons==! Use them on desktop in single pane to quickly switch between navigation and list panes.',
+            'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).',
+            '**COMMANDS**',
             'New command: ==Add to shortcuts==. Adds the current file, folder, or tag to shortcuts.',
-            'New setting: ==Pin created folder notes==. Automatically pin folder notes when created from the context menu.',
-            'New setting: ==Separate note counts==. Display separate counts for current folder/tag notes and descendant notes ("2 ▾ 5" instead of "7"). This is now the default display option but can be restored to previous appearance in settings.',
+            '**SETTINGS**',
+            'New setting: ==Pin created folder notes==. Automatically pin folder notes when created from the context menu. Default disabled.',
+            'New setting: ==Separate note counts==. Display separate counts for current folder/tag notes and descendant notes ("2 ▾ 5" instead of "7"). Default enabled.',
+            'New setting: ==Show path==. Display the folder path below note names in tooltips. Default enabled.',
+            '**MENUS**',
             'New folder menu item: =="Move to..."==. Opens a modal to move the folder to another location.',
             'New file menu items: ==Copy path== and ==Copy relative path==.',
-            '==New menu== when right-clicking empty area in list pane: Create new note, folder, canvas, base or drawing.',
-            'Support for ==back and forward mouse buttons==! Use them on desktop in single pane to quickly switch between navigation and list panes.',
-            'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).'
+            '==New menu== when right-clicking empty area in list pane: Create new note, folder, canvas, base or drawing.'
         ],
         changed: [
             '**Favorite tags section is removed**. I am sorry about this change, but having a separate favorite tags section caused an architectural nightmare that caused special wiring all over the application. To get a similar experience you can sort tags by frequency, or reorder root tags manually.'

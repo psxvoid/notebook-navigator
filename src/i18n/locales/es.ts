@@ -648,6 +648,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar tooltips (solo escritorio)',
                 desc: 'Muestra tooltips con información adicional para notas y carpetas al pasar el cursor.'
             },
+            showTooltipPath: {
+                name: 'Mostrar ruta',
+                desc: 'Muestra la ruta de la carpeta debajo del nombre de las notas en los tooltips.'
+            },
             multiSelectModifier: {
                 name: 'Modificador de selección múltiple',
                 desc: 'Elige qué tecla modificadora activa la selección múltiple. Cuando se selecciona Option/Alt, Cmd/Ctrl clic abre notas en una nueva pestaña.',

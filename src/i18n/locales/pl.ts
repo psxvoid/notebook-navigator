@@ -649,6 +649,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż podpowiedzi (tylko desktop)',
                 desc: 'Wyświetl podpowiedzi przy najechaniu z dodatkowymi informacjami dla notatek i folderów.'
             },
+            showTooltipPath: {
+                name: 'Pokaż ścieżkę',
+                desc: 'Wyświetla ścieżkę folderu pod nazwami notatek w podpowiedziach.'
+            },
             multiSelectModifier: {
                 name: 'Modyfikator wielokrotnego wyboru',
                 desc: 'Wybierz, który klawisz modyfikatora przełącza wielokrotny wybór. Gdy wybrano Option/Alt, Cmd/Ctrl klik otwiera notatki w nowej karcie.',

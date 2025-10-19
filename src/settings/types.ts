@@ -52,6 +52,7 @@ export interface NotebookNavigatorSettings {
     // General tab - Startup & layout
     startView: 'navigation' | 'files';
     showTooltips: boolean;
+    showTooltipPath: boolean;
 
     // General tab - Homepage
     homepage: string | null;

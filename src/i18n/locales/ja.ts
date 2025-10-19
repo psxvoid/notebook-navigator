@@ -648,6 +648,10 @@ export const STRINGS_JA = {
                 name: 'ツールチップを表示（デスクトップのみ）',
                 desc: 'ノートとフォルダの追加情報をホバー時にツールチップで表示します。'
             },
+            showTooltipPath: {
+                name: 'パスを表示',
+                desc: 'ツールチップでノート名の下にフォルダパスを表示します。'
+            },
             multiSelectModifier: {
                 name: '複数選択モディファイア',
                 desc: '複数選択を切り替えるモディファイアキーを選択します。Option/Altが選択されている場合、Cmd/Ctrlクリックでノートを新しいタブで開きます。',

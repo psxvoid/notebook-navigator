@@ -647,6 +647,10 @@ export const STRINGS_EN = {
                 name: 'Show tooltips (desktop only)',
                 desc: 'Display hover tooltips with additional information for notes and folders.'
             },
+            showTooltipPath: {
+                name: 'Show path',
+                desc: 'Display the folder path below note names in tooltips.'
+            },
             multiSelectModifier: {
                 name: 'Multi-select modifier',
                 desc: 'Choose which modifier key toggles multi-selection. When Option/Alt is selected, Cmd/Ctrl click opens notes in a new tab.',
