@@ -48,7 +48,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         this.queueFiles(files);
     }
 
-    markFeatureProviderAsDeleted(providerPath: string, consumerPaths: string[]): void {
+    markFeatureProviderAsDeleted(providerPath: string, consumerPaths: readonly string[]): void {
         for (const consumer of consumerPaths) {
             this.forceUpdateSet.add(consumer)
             this.deletedFeatureProviders.set(consumer, providerPath)
@@ -157,7 +157,8 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                     featureImageConsumers: [
                         ...(fileData?.featureImageConsumers ?? []).filter(x => x !== job.file.path),
                         job.file.path,
-                    ]
+                    ],
+                    forceUpdate: true,
                 } : null,
                 featureCleanupRequest
             ];
@@ -249,8 +250,11 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                     const providerPath = this.deletedFeatureProviders.get(file.path)
 
                     if (providerPath === embedFile.path) {
-                        this.deletedFeatureProviders.delete(embedFile.path)
-                        continue;
+                        this.deletedFeatureProviders.delete(file.path)
+                        // continue; // do not use "continue" statement because on delete
+                        // this block wont be executed due to if(embedFile) check above
+                        // the embedFile file will be undefined (because it's deleted)
+                        // it means that this block will only be executed on restore
                     }
 
                     const embedMetadata = this.app.metadataCache.getFileCache(embedFile);

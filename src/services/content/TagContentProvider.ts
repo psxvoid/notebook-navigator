@@ -155,7 +155,7 @@ export class TagContentProvider extends BaseContentProvider {
      * @param tags2 - Second tag array (can be null)
      * @returns True if tags are equal
      */
-    private tagsEqual(tags1: string[] | null, tags2: string[] | null): boolean {
+    private tagsEqual(tags1: readonly string[] | null, tags2: readonly string[] | null): boolean {
         if (tags1 === tags2) return true; // Both null or same reference
         if (tags1 === null || tags2 === null) return false; // One is null
         if (tags1.length !== tags2.length) return false;
