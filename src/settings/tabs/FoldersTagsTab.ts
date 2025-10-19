@@ -20,6 +20,7 @@ import { Setting } from 'obsidian';
 import { strings } from '../../i18n';
 import { isFolderNoteType } from '../../types/folderNote';
 import { isTagSortOrder } from '../types';
+import { normalizeTagPath } from '../../utils/tagUtils';
 import type { SettingsTabContext } from './SettingsTabContext';
 
 /** Renders the folders and tags settings tab */
@@ -179,16 +180,6 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         );
 
     new Setting(tagSubSettingsEl)
-        .setName(strings.settings.items.showFavoriteTagsFolder.name)
-        .setDesc(strings.settings.items.showFavoriteTagsFolder.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showFavoriteTagsFolder).onChange(async value => {
-                plugin.settings.showFavoriteTagsFolder = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    new Setting(tagSubSettingsEl)
         .setName(strings.settings.items.showAllTagsFolder.name)
         .setDesc(strings.settings.items.showAllTagsFolder.desc)
         .addToggle(toggle =>
@@ -205,40 +196,8 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
             toggle.setValue(plugin.settings.showUntagged).onChange(async value => {
                 plugin.settings.showUntagged = value;
                 await plugin.saveSettingsAndUpdate();
-                untaggedInFavoritesEl.style.display = value ? 'block' : 'none';
             })
         );
-
-    const untaggedInFavoritesEl = tagSubSettingsEl.createDiv('notebook-navigator-subsetting');
-    untaggedInFavoritesEl.style.display = plugin.settings.showUntagged ? 'block' : 'none';
-
-    new Setting(untaggedInFavoritesEl)
-        .setName(strings.settings.items.showUntaggedInFavorites.name)
-        .setDesc(strings.settings.items.showUntaggedInFavorites.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showUntaggedInFavorites).onChange(async value => {
-                plugin.settings.showUntaggedInFavorites = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    const favoriteTagsSetting = createDebouncedTextSetting(
-        tagSubSettingsEl,
-        strings.settings.items.favoriteTags.name,
-        strings.settings.items.favoriteTags.desc,
-        strings.settings.items.favoriteTags.placeholder,
-        () => plugin.settings.favoriteTags.join(', '),
-        value => {
-            plugin.settings.favoriteTags = value
-                .split(',')
-                .map(tag => tag.trim())
-                .map(tag => tag.replace(/^#/, ''))
-                .map(tag => tag.replace(/^\/+|\/+$/g, ''))
-                .map(tag => tag.toLowerCase())
-                .filter(tag => tag.length > 0);
-        }
-    );
-    favoriteTagsSetting.controlEl.addClass('nn-setting-wide-input');
 
     const hiddenTagsSetting = createDebouncedTextSetting(
         tagSubSettingsEl,
@@ -247,13 +206,12 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         strings.settings.items.hiddenTags.placeholder,
         () => plugin.settings.hiddenTags.join(', '),
         value => {
-            plugin.settings.hiddenTags = value
+            const normalizedHiddenTags = value
                 .split(',')
-                .map(tag => tag.trim())
-                .map(tag => tag.replace(/^#/, ''))
-                .map(tag => tag.replace(/^\/+|\/+$/g, ''))
-                .map(tag => tag.toLowerCase())
-                .filter(tag => tag.length > 0);
+                .map(entry => normalizeTagPath(entry))
+                .filter((entry): entry is string => entry !== null);
+
+            plugin.settings.hiddenTags = Array.from(new Set(normalizedHiddenTags));
         }
     );
     hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');

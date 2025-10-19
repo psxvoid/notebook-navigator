@@ -302,7 +302,7 @@ Bridge between React components and the tag tree data structure.
 **Responsibilities:**
 
 - Tag tree data access
-- Favorite tags management
+- Tag tree snapshot caching
 - Untagged count tracking
 - Tag node lookup
 - Tag path collection
@@ -310,7 +310,7 @@ Bridge between React components and the tag tree data structure.
 **Key Methods:**
 
 ```typescript
-updateTagTree(tree: Map<string, TagTreeNode>, untagged: number, favoriteTree?: Map<string, TagTreeNode>): void
+updateTagTree(tree: Map<string, TagTreeNode>, untagged: number): void
 getTagTree(): Map<string, TagTreeNode>
 findTagNode(tagPath: string): TagTreeNode | null
 getAllTagPaths(): string[]

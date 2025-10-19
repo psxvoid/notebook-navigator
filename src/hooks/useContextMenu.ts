@@ -23,7 +23,6 @@ import { useExpansionState, useExpansionDispatch } from '../context/ExpansionCon
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useMetadataService, useTagOperations, useCommandQueue } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
-import { useFileCache } from '../context/StorageContext';
 import { useUIDispatch } from '../context/UIStateContext';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { ItemType } from '../types';
@@ -60,7 +59,6 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     const settings = useSettingsState();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
-    const { getFavoriteTree, findTagInFavoriteTree } = useFileCache();
     const tagOperations = useTagOperations();
     const commandQueue = useCommandQueue();
     const shortcuts = useShortcuts();
@@ -131,15 +129,13 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 };
             } else if (config.type === ItemType.TAG) {
                 buildMenu = menuInstance => {
-                    const context = elementRef.current?.dataset?.tagContext as 'favorites' | 'tags' | undefined;
                     buildTagMenu({
                         tagPath: config.item,
                         menu: menuInstance,
                         services,
                         settings,
                         state,
-                        dispatchers,
-                        context
+                        dispatchers
                     });
                 };
             } else if (config.type === ItemType.FILE) {
@@ -193,8 +189,6 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 tagOperations,
                 tagTreeService,
                 commandQueue,
-                getFavoriteTree,
-                findTagInFavoriteTree,
                 shortcuts
             };
 
@@ -258,8 +252,6 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             uiDispatch,
             isMobile,
             tagTreeService,
-            getFavoriteTree,
-            findTagInFavoriteTree,
             commandQueue,
             shortcuts
         ]

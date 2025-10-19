@@ -48,10 +48,8 @@ export const STRINGS_DE = {
     // Tag list
     tagList: {
         untaggedLabel: 'Ohne Tag', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'Favoriten-Tags', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: 'Versteckte Tags', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: 'Tags', // Label for the tags virtual folder when favorites exist (English: Tags)
-        tags: 'Tags' // Label for the tags virtual folder when no favorites exist (English: Tags)
+        tags: 'Tags' // Label for the tags virtual folder (English: Tags)
     },
 
     navigationPane: {
@@ -186,8 +184,7 @@ export const STRINGS_DE = {
             changeIcon: 'Symbol ändern',
             changeColor: 'Farbe ändern',
             changeBackground: 'Hintergrund ändern',
-            addToFavorites: 'Zu Favoriten hinzufügen',
-            removeFromFavorites: 'Aus Favoriten entfernen',
+            showTag: 'Tag anzeigen',
             hideTag: 'Tag ausblenden'
         }
     },
@@ -843,10 +840,6 @@ export const STRINGS_DE = {
                 name: 'Tags über Ordnern anzeigen',
                 desc: 'Tag-Bereich vor den Ordnern im Navigator anzeigen.'
             },
-            showFavoriteTagsFolder: {
-                name: 'Favoriten-Tags-Ordner anzeigen',
-                desc: '"Favoriten-Tags" als einklappbaren Ordner anzeigen, wenn Favoriten-Tags konfiguriert sind.'
-            },
             showAllTagsFolder: {
                 name: 'Tags-Ordner anzeigen',
                 desc: '"Tags" als einklappbaren Ordner anzeigen.'
@@ -854,15 +847,6 @@ export const STRINGS_DE = {
             showUntagged: {
                 name: 'Ungetaggte Notizen anzeigen',
                 desc: '"Ohne Tag" für Notizen ohne Tags anzeigen.'
-            },
-            showUntaggedInFavorites: {
-                name: 'Ungetaggte Notizen im Favoriten-Tags-Bereich anzeigen',
-                desc: 'Ungetaggte Notizen im Favoriten-Tags-Bereich anzeigen, entweder im Ordner oder direkt unter den Favoriten-Tags.'
-            },
-            favoriteTags: {
-                name: 'Favoriten-Tags',
-                desc: 'Kommagetrennte Liste von Tag-Präfixen. Ein Tag schließt alle Unter-Tags ein (z.B. "photo" schließt "photo/camera/fuji" ein).',
-                placeholder: 'inbox, projekte/arbeit, täglich/2025'
             },
             hiddenTags: {
                 name: 'Versteckte Tags',

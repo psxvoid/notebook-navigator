@@ -26,19 +26,15 @@ import { ITagTreeProvider } from '../interfaces/ITagTreeProvider';
  */
 export class TagTreeService implements ITagTreeProvider {
     private tagTree: Map<string, TagTreeNode> = new Map();
-    private favoriteTree: Map<string, TagTreeNode> = new Map();
     private untaggedCount = 0;
 
     /**
      * Updates the tag tree data from StorageContext
      * Called whenever StorageContext rebuilds the tag tree
      */
-    updateTagTree(tree: Map<string, TagTreeNode>, untagged: number, favoriteTree?: Map<string, TagTreeNode>): void {
+    updateTagTree(tree: Map<string, TagTreeNode>, untagged: number): void {
         this.tagTree = tree;
         this.untaggedCount = untagged;
-        if (favoriteTree) {
-            this.favoriteTree = favoriteTree;
-        }
     }
 
     /**
@@ -56,29 +52,17 @@ export class TagTreeService implements ITagTreeProvider {
     }
 
     /**
-     * Finds a tag node by its path, searching both favorite and regular trees
+     * Finds a tag node by its path within the tag tree
      */
     findTagNode(tagPath: string): TagTreeNode | null {
-        // First check favorite tree
-        const favoriteNode = findTagNode(this.favoriteTree, tagPath);
-        if (favoriteNode) {
-            return favoriteNode;
-        }
-        // Then check regular tree
         return findTagNode(this.tagTree, tagPath);
     }
 
     /**
-     * Gets all tag paths in both trees
+     * Gets all tag paths in the tree
      */
     getAllTagPaths(): string[] {
         const allPaths: string[] = [];
-        // Collect from favorite tree
-        for (const rootNode of this.favoriteTree.values()) {
-            const paths = collectAllTagPaths(rootNode);
-            allPaths.push(...paths);
-        }
-        // Collect from regular tree
         for (const rootNode of this.tagTree.values()) {
             const paths = collectAllTagPaths(rootNode);
             allPaths.push(...paths);

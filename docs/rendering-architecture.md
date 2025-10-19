@@ -88,7 +88,7 @@ graph TD
                 subgraph "Navigation Items"
                     FI[FolderItem<br/>• Folder display<br/>• Expand/collapse<br/>• Context menu]
                     TTI[TagTreeItem<br/>• Tag display<br/>• Hierarchical tags<br/>• File counts]
-                    VFI[VirtualFolderItem<br/>• Favorites/All Tags<br/>• Container only]
+                    VFI[VirtualFolderItem<br/>• Tags virtual folder<br/>• Container only]
                 end
             end
         end
@@ -237,7 +237,7 @@ The left pane showing folders and tags:
 const navigationItems = useMemo(() => {
   // 1. Build folder tree
   // 2. Filter by search
-  // 3. Add virtual folders (Favorites, All Tags)
+  // 3. Add virtual folders (Tags section)
   // 4. Flatten for virtualizer
   return flattenedItems;
 }, [folders, tags, search, expansionState]);
@@ -350,7 +350,7 @@ Renders hierarchical tags with:
 - Nested tag structure
 - File counts (including children)
 - Custom icons and colors
-- Favorite tag support
+- Tag shortcuts integration
 
 #### NavigationPane: VirtualFolderItem
 
@@ -358,8 +358,7 @@ Renders hierarchical tags with:
 
 Renders virtual containers:
 
-- "Favorites" for favorite tags
-- "All Tags" for the complete tag tree
+- "Tags" virtual folder when the section is collapsed
 - No file operations (purely organizational)
 
 #### ListPane: FileItem
@@ -371,7 +370,7 @@ Renders file entries with:
 - Title with custom names from frontmatter
 - Preview text (configurable rows)
 - Feature images
-- Tag pills (sorted alphabetically with priority: favorites → colored → uncolored)
+- Tag pills (sorted alphabetically with priority: colored → uncolored)
 - Date display
 - File type badges
 - Quick action buttons on hover (desktop only):

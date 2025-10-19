@@ -29,6 +29,7 @@ import { extractMetadata } from '../utils/metadataExtractor';
 import { METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { getFileDisplayName as getDisplayName } from './fileNameUtils';
 import { isFolderNote } from './folderNotes';
+import { createHiddenTagVisibility, normalizeTagPathValue } from './tagPrefixMatcher';
 
 /**
  * Collects all pinned note paths from settings
@@ -177,6 +178,8 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
 export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings, app: App, tagTreeService: TagTreeService | null): TFile[] {
     // Get all files based on visibility setting, with proper filtering
     let allFiles: TFile[] = [];
+    const hiddenTagVisibility = createHiddenTagVisibility(settings.hiddenTags, settings.showHiddenItems);
+    const shouldFilterHiddenTags = hiddenTagVisibility.shouldFilterHiddenTags;
 
     if (settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS) {
         // Only document files (markdown, canvas, base)
@@ -224,14 +227,32 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
             const tagsToInclude = settings.includeDescendantNotes
                 ? tagTreeService?.collectTagPaths(selectedNode) || new Set<string>()
                 : new Set<string>([selectedNode.path]);
+            const normalizedTagPaths = new Set(Array.from(tagsToInclude).map(path => normalizeTagPathValue(path)));
+            const filteredTagPaths = shouldFilterHiddenTags
+                ? new Set(Array.from(normalizedTagPaths).filter(tagPath => hiddenTagVisibility.isTagVisible(tagPath)))
+                : normalizedTagPaths;
 
-            // Create a lowercase set for case-insensitive comparison
-            const tagsToIncludeLower = new Set(Array.from(tagsToInclude).map((tag: string) => tag.toLowerCase()));
+            if (filteredTagPaths.size === 0) {
+                return [];
+            }
 
             // Filter files that have any of the collected tags (case-insensitive)
             filteredFiles = markdownFiles.filter(file => {
                 const fileTags = db.getCachedTags(file.path);
-                return fileTags.some(tag => tagsToIncludeLower.has(tag.toLowerCase()));
+                if (fileTags.length === 0) {
+                    return false;
+                }
+
+                return fileTags.some(tag => {
+                    const normalizedTag = normalizeTagPathValue(tag);
+                    if (!filteredTagPaths.has(normalizedTag)) {
+                        return false;
+                    }
+                    if (!shouldFilterHiddenTags) {
+                        return true;
+                    }
+                    return hiddenTagVisibility.isTagVisible(tag);
+                });
             });
         } else {
             // Fallback to empty if tag not found

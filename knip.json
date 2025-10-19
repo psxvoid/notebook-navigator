@@ -3,7 +3,7 @@
   "entry": ["src/main.ts"],
   "project": ["src/**/*.{ts,tsx}"],
   "ignore": ["src/i18n/locales/**", "scripts/release.js", "codemods/**"],
-  "ignoreDependencies": ["jscodeshift", "@types/jscodeshift", "recast"],
+  "ignoreDependencies": ["jscodeshift", "@types/jscodeshift", "recast", "obsidian"],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true,

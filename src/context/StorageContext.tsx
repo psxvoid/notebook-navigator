@@ -66,7 +66,6 @@ import type { ContentType } from '../interfaces/IContentProvider';
  * Data structure containing the hierarchical tag trees and untagged file count
  */
 interface FileData {
-    favoriteTree: Map<string, TagTreeNode>;
     tagTree: Map<string, TagTreeNode>;
     untagged: number;
 }
@@ -87,9 +86,7 @@ interface StorageContextValue {
     getFile: (path: string) => DBFileData | null;
     // Tag tree access methods
     getTagTree: () => Map<string, TagTreeNode>;
-    getFavoriteTree: () => Map<string, TagTreeNode>;
     findTagInTree: (tagPath: string) => TagTreeNode | null;
-    findTagInFavoriteTree: (tagPath: string) => TagTreeNode | null;
     getAllTagPaths: () => string[];
     getTagDisplayPath: (path: string) => string;
     getFiles: (paths: string[]) => Map<string, DBFileData>;
@@ -111,7 +108,7 @@ interface StorageProviderProps {
 export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const settings = useSettingsState();
     const { tagTreeService } = useServices();
-    const [fileData, setFileData] = useState<FileData>({ favoriteTree: new Map(), tagTree: new Map(), untagged: 0 });
+    const [fileData, setFileData] = useState<FileData>({ tagTree: new Map(), untagged: 0 });
 
     // Registry managing all content providers for generating preview text, feature images, metadata, and tags
     const contentRegistry = useRef<ContentProviderRegistry | null>(null);
@@ -141,9 +138,6 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     // Previous settings reference for detecting what changed between renders
     const prevSettings = useRef<NotebookNavigatorSettings | null>(null);
 
-    // Previous favorite tags for detecting when favorites have been added/removed
-    const prevFavoriteTags = useRef<string[]>(settings.favoriteTags);
-
     // Returns all markdown files in vault after applying exclusion filters from settings
     const getFilteredMarkdownFilesCallback = useCallback((): TFile[] => {
         return getFilteredMarkdownFiles(app, settings);
@@ -156,22 +150,18 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         const excludedFolderPatterns = settings.showHiddenItems ? [] : settings.excludedFolders;
         // Filter database results to only include files matching current visibility settings
         const includedPaths = new Set(getFilteredMarkdownFilesCallback().map(f => f.path));
-        const {
-            favoriteTree,
-            tagTree,
-            untagged: newUntagged
-        } = buildTagTreeFromDatabase(db, excludedFolderPatterns, settings.favoriteTags, includedPaths);
+        const { tagTree, untagged: newUntagged } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths);
         clearNoteCountCache();
         const untaggedCount = newUntagged;
-        setFileData({ favoriteTree, tagTree, untagged: untaggedCount });
+        setFileData({ tagTree, untagged: untaggedCount });
 
         // Propagate updated tag trees to the global TagTreeService for cross-component access
         if (tagTreeService) {
-            tagTreeService.updateTagTree(tagTree, untaggedCount, favoriteTree);
+            tagTreeService.updateTagTree(tagTree, untaggedCount);
         }
 
-        return { favoriteTree, tagTree };
-    }, [settings.excludedFolders, settings.favoriteTags, settings.showHiddenItems, tagTreeService, getFilteredMarkdownFilesCallback]);
+        return tagTree;
+    }, [settings.excludedFolders, settings.showHiddenItems, tagTreeService, getFilteredMarkdownFilesCallback]);
 
     /**
      * Effect: Rebuild tag tree when hidden items visibility changes
@@ -601,12 +591,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             throw error;
         }
 
-        // Reset all in-memory tag tree structures to empty state
-        const emptyFavoriteTree = new Map<string, TagTreeNode>();
+        // Reset in-memory tag tree structures to empty state
         const emptyTagTree = new Map<string, TagTreeNode>();
-        setFileData({ favoriteTree: emptyFavoriteTree, tagTree: emptyTagTree, untagged: 0 });
+        setFileData({ tagTree: emptyTagTree, untagged: 0 });
         if (tagTreeService) {
-            tagTreeService.updateTagTree(emptyTagTree, 0, emptyFavoriteTree);
+            tagTreeService.updateTagTree(emptyTagTree, 0);
         }
         clearNoteCountCache();
 
@@ -718,25 +707,15 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
         // Direct accessors for tag tree data structures
         const getTagTree = () => fileData.tagTree;
-        const getFavoriteTree = () => fileData.favoriteTree;
 
         // Finds a tag node by path in the main tag tree
         const findTagInTree = (tagPath: string) => {
             return findTagNode(fileData.tagTree, tagPath);
         };
 
-        // Finds a tag node by path in the favorites tree
-        const findTagInFavoriteTree = (tagPath: string) => {
-            return findTagNode(fileData.favoriteTree, tagPath);
-        };
-
-        // Collects all tag paths from both trees (favorites and main)
+        // Collects all tag paths from the tree
         const getAllTagPaths = () => {
             const allPaths: string[] = [];
-            for (const rootNode of fileData.favoriteTree.values()) {
-                const paths = collectAllTagPaths(rootNode);
-                allPaths.push(...paths);
-            }
             for (const rootNode of fileData.tagTree.values()) {
                 const paths = collectAllTagPaths(rootNode);
                 allPaths.push(...paths);
@@ -746,7 +725,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
         // Gets the display path for a tag (may differ from actual path due to display settings)
         const getTagDisplayPath = (path: string): string => {
-            const tagNode = findTagNode(fileData.favoriteTree, path) || findTagNode(fileData.tagTree, path);
+            const tagNode = findTagNode(fileData.tagTree, path);
             return tagNode?.displayPath ?? path;
         };
 
@@ -762,9 +741,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             hasPreview: (path: string) => getDBInstance().hasPreview(path),
             isStorageReady,
             getTagTree,
-            getFavoriteTree,
             findTagInTree,
-            findTagInFavoriteTree,
             getAllTagPaths,
             getTagDisplayPath,
             rebuildCache
@@ -1442,13 +1419,6 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         prevSettings.current = settings;
-
-        // Check for favoriteTags changes separately (not a content setting)
-        const favoriteTagsChanged = JSON.stringify(prevFavoriteTags.current) !== JSON.stringify(settings.favoriteTags);
-        if (favoriteTagsChanged && settings.showTags) {
-            rebuildTagTree();
-            prevFavoriteTags.current = settings.favoriteTags;
-        }
     }, [settings, handleSettingsChanges, rebuildTagTree, getFilteredMarkdownFilesCallback, queueTagsWhenMetadataReady]);
 
     /**

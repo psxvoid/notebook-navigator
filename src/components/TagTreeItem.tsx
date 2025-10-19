@@ -82,8 +82,6 @@ interface TagTreeItemProps {
     countInfo?: NoteCountInfo;
     /** Whether to show file counts */
     showFileCount: boolean;
-    /** Context indicating which section this tag is in */
-    context?: 'favorites' | 'tags';
     /** Custom color for the tag - fetched by NavigationPane from MetadataService */
     color?: string;
     /** Custom background color for the tag - fetched by NavigationPane from MetadataService */
@@ -112,7 +110,6 @@ export const TagTreeItem = React.memo(
             onToggleAllSiblings,
             countInfo,
             showFileCount,
-            context,
             color,
             backgroundColor,
             icon
@@ -232,7 +229,6 @@ export const TagTreeItem = React.memo(
                 data-tag={tagNode.path}
                 data-drop-zone="tag"
                 data-drop-path={tagNode.displayPath}
-                data-tag-context={context}
                 data-level={level}
                 style={
                     {

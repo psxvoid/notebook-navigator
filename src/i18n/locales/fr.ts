@@ -48,10 +48,8 @@ export const STRINGS_FR = {
     // Tag list
     tagList: {
         untaggedLabel: 'Sans étiquette', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'Étiquettes favorites', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: 'Étiquettes cachées', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: 'Étiquettes', // Label for the tags virtual folder when favorites exist (English: Tags)
-        tags: 'Étiquettes' // Label for the tags virtual folder when no favorites exist (English: Tags)
+        tags: 'Étiquettes' // Label for the tags virtual folder (English: Tags)
     },
 
     navigationPane: {
@@ -184,9 +182,8 @@ export const STRINGS_FR = {
             changeIcon: "Changer l'icône",
             changeColor: 'Changer la couleur',
             changeBackground: 'Changer l’arrière-plan',
-            addToFavorites: 'Ajouter aux favoris',
-            removeFromFavorites: 'Retirer des favoris',
-            hideTag: 'Masquer létiquette'
+            showTag: 'Afficher l’étiquette',
+            hideTag: 'Masquer l’étiquette'
         }
     },
 
@@ -842,10 +839,6 @@ export const STRINGS_FR = {
                 name: 'Afficher les étiquettes au-dessus des dossiers',
                 desc: 'Afficher la section des étiquettes avant les dossiers dans le navigateur.'
             },
-            showFavoriteTagsFolder: {
-                name: 'Afficher le dossier des étiquettes favorites',
-                desc: 'Afficher "Étiquettes favorites" comme un dossier repliable lorsque des étiquettes favorites sont configurées.'
-            },
             showAllTagsFolder: {
                 name: 'Afficher le dossier des étiquettes',
                 desc: 'Afficher "Étiquettes" comme un dossier repliable.'
@@ -853,15 +846,6 @@ export const STRINGS_FR = {
             showUntagged: {
                 name: 'Afficher les notes sans étiquette',
                 desc: 'Afficher l\'élément "Sans étiquette" pour les notes sans aucune étiquette.'
-            },
-            showUntaggedInFavorites: {
-                name: 'Afficher les notes sans étiquette dans la section des étiquettes favorites',
-                desc: 'Afficher les notes sans étiquette dans la section des étiquettes favorites, soit dans le dossier, soit directement sous les étiquettes favorites.'
-            },
-            favoriteTags: {
-                name: 'Étiquettes favorites',
-                desc: 'Liste séparée par des virgules de préfixes d\'étiquettes. Ajouter une étiquette inclut toutes ses sous-étiquettes (par ex. "photo" inclut "photo/camera/fuji").',
-                placeholder: 'boîte-de-réception, projets/travail, quotidien/2025'
             },
             hiddenTags: {
                 name: 'Étiquettes cachées',

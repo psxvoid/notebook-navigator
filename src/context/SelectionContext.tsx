@@ -24,6 +24,7 @@ import { useSettingsState } from './SettingsContext';
 import { localStorage } from '../utils/localStorage';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { TagTreeService } from '../services/TagTreeService';
+import { normalizeTagPath } from '../utils/tagUtils';
 
 export type SelectionRevealSource = 'auto' | 'manual' | 'shortcut' | 'startup';
 
@@ -32,7 +33,6 @@ export interface SelectionState {
     selectionType: NavigationItemType;
     selectedFolder: TFolder | null;
     selectedTag: string | null;
-    selectedTagContext?: 'favorites' | 'tags'; // Track which section the tag was selected from
     selectedFiles: Set<string>; // Changed from single file to Set of file paths
     anchorIndex: number | null; // Anchor position for multi-selection
     lastMovementDirection: 'up' | 'down' | null; // Track direction for expand/contract
@@ -48,7 +48,7 @@ export interface SelectionState {
 // Action types
 export type SelectionAction =
     | { type: 'SET_SELECTED_FOLDER'; folder: TFolder | null; autoSelectedFile?: TFile | null }
-    | { type: 'SET_SELECTED_TAG'; tag: string | null; context?: 'favorites' | 'tags'; autoSelectedFile?: TFile | null }
+    | { type: 'SET_SELECTED_TAG'; tag: string | null; autoSelectedFile?: TFile | null }
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_SELECTION_TYPE'; selectionType: NavigationItemType }
     | { type: 'CLEAR_SELECTION' }
@@ -140,10 +140,10 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             if (action.autoSelectedFile) {
                 newSelectedFiles.add(action.autoSelectedFile.path);
             }
+            const normalizedTag = normalizeTagPath(action.tag);
             return {
                 ...state,
-                selectedTag: action.tag,
-                selectedTagContext: action.context,
+                selectedTag: normalizedTag,
                 selectedFolder: null,
                 selectionType: 'tag',
                 selectedFiles: newSelectedFiles,
@@ -193,7 +193,6 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 ...state,
                 selectedFolder: null,
                 selectedTag: null,
-                selectedTagContext: undefined,
                 selectedFiles: new Set<string>(),
                 selectedFile: null,
                 anchorIndex: null,
@@ -209,6 +208,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 return state;
             }
 
+            const normalizedTargetTag = action.targetTag === undefined ? undefined : normalizeTagPath(action.targetTag);
             const newSelectedFiles = new Set<string>();
             newSelectedFiles.add(action.file.path);
 
@@ -235,13 +235,13 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             }
 
             // Auto-reveals: Check if we have a target tag
-            if (action.targetTag !== undefined) {
-                if (action.targetTag) {
+            if (normalizedTargetTag !== undefined) {
+                if (normalizedTargetTag) {
                     // Switch to or stay in tag view
                     return {
                         ...state,
                         selectionType: 'tag',
-                        selectedTag: action.targetTag,
+                        selectedTag: normalizedTargetTag,
                         selectedFolder: null,
                         selectedFiles: newSelectedFiles,
                         selectedFile: action.file,
@@ -536,14 +536,6 @@ export function SelectionProvider({
             console.error('Failed to load selected tag from localStorage:', error);
         }
 
-        // Load saved tag context with error handling
-        let savedTagContext: 'favorites' | 'tags' | null = null;
-        try {
-            savedTagContext = localStorage.get<'favorites' | 'tags'>(STORAGE_KEYS.selectedTagContextKey);
-        } catch (error) {
-            console.error('Failed to load selected tag context from localStorage:', error);
-        }
-
         // Load saved file path with error handling
         let savedFilePath: string | null = null;
         try {
@@ -588,7 +580,9 @@ export function SelectionProvider({
 
         // Determine selection type based on what was saved
         let selectionType: NavigationItemType = 'folder';
-        if (savedTag) {
+        const normalizedTag = normalizeTagPath(savedTag);
+
+        if (normalizedTag) {
             selectionType = 'tag';
             selectedFolder = null; // Clear folder if tag is selected
         } else if (!selectedFolder) {
@@ -599,8 +593,7 @@ export function SelectionProvider({
         return {
             selectionType,
             selectedFolder,
-            selectedTag: savedTag,
-            selectedTagContext: savedTagContext || undefined,
+            selectedTag: normalizedTag,
             selectedFiles,
             selectedFile,
             anchorIndex: null,
@@ -714,19 +707,6 @@ export function SelectionProvider({
             console.error('Failed to save selected tag to localStorage:', error);
         }
     }, [state.selectedTag]);
-
-    // Persist selected tag context to localStorage with error handling
-    useEffect(() => {
-        try {
-            if (state.selectedTagContext) {
-                localStorage.set(STORAGE_KEYS.selectedTagContextKey, state.selectedTagContext);
-            } else {
-                localStorage.remove(STORAGE_KEYS.selectedTagContextKey);
-            }
-        } catch (error) {
-            console.error('Failed to save selected tag context to localStorage:', error);
-        }
-    }, [state.selectedTagContext]);
 
     // Persist selected file to localStorage with error handling
     useEffect(() => {

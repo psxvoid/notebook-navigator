@@ -48,10 +48,8 @@ export const STRINGS_PL = {
     // Tag list
     tagList: {
         untaggedLabel: 'Bez tagów', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'Ulubione tagi', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: 'Ukryte tagi', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: 'Tagi', // Label for the tags virtual folder when favorites exist (English: Tags)
-        tags: 'Tagi' // Label for the tags virtual folder when no favorites exist (English: Tags)
+        tags: 'Tagi' // Label for the tags virtual folder (English: Tags)
     },
 
     navigationPane: {
@@ -183,8 +181,7 @@ export const STRINGS_PL = {
             changeIcon: 'Zmień ikonę',
             changeColor: 'Zmień kolor',
             changeBackground: 'Zmień tło',
-            addToFavorites: 'Dodaj do ulubionych',
-            removeFromFavorites: 'Usuń z ulubionych',
+            showTag: 'Pokaż tag',
             hideTag: 'Ukryj tag'
         }
     },
@@ -841,10 +838,6 @@ export const STRINGS_PL = {
                 name: 'Pokaż tagi nad folderami',
                 desc: 'Wyświetl sekcję tagów przed folderami w nawigatorze.'
             },
-            showFavoriteTagsFolder: {
-                name: 'Pokaż folder ulubionych tagów',
-                desc: 'Wyświetl "Ulubione tagi" jako zwijalny folder gdy ulubione tagi są skonfigurowane.'
-            },
             showAllTagsFolder: {
                 name: 'Pokaż folder tagów',
                 desc: 'Wyświetl "Tagi" jako zwijalny folder.'
@@ -852,15 +845,6 @@ export const STRINGS_PL = {
             showUntagged: {
                 name: 'Pokaż notatki bez tagów',
                 desc: 'Wyświetl element "Bez tagów" dla notatek bez żadnych tagów.'
-            },
-            showUntaggedInFavorites: {
-                name: 'Pokaż notatki bez tagów w sekcji ulubionych tagów',
-                desc: 'Wyświetl notatki bez tagów w sekcji ulubionych tagów, wewnątrz folderu lub bezpośrednio pod ulubionymi tagami.'
-            },
-            favoriteTags: {
-                name: 'Ulubione tagi',
-                desc: 'Lista prefiksów tagów oddzielonych przecinkami. Dodanie tagu obejmuje wszystkie jego pod-tagi (np. "photo" obejmuje "photo/camera/fuji").',
-                placeholder: 'inbox, projects/work, daily/2025'
             },
             hiddenTags: {
                 name: 'Ukryte tagi',

@@ -48,10 +48,8 @@ export const STRINGS_KO = {
     // Tag list
     tagList: {
         untaggedLabel: '태그 없음', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: '즐겨찾는 태그', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: '숨겨진 태그', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: '태그', // Label for the tags virtual folder when favorites exist (English: Tags)
-        tags: '태그' // Label for the tags virtual folder when no favorites exist (English: Tags)
+        tags: '태그' // Label for the tags virtual folder (English: Tags)
     },
 
     navigationPane: {
@@ -183,8 +181,7 @@ export const STRINGS_KO = {
             changeIcon: '아이콘 변경',
             changeColor: '색상 변경',
             changeBackground: '배경색 변경',
-            addToFavorites: '즐겨찾기에 추가',
-            removeFromFavorites: '즐겨찾기에서 제거',
+            showTag: '태그 표시',
             hideTag: '태그 숨기기'
         }
     },
@@ -839,10 +836,6 @@ export const STRINGS_KO = {
                 name: '폴더 위에 태그 표시',
                 desc: '네비게이터에서 폴더 앞에 태그 섹션을 표시합니다.'
             },
-            showFavoriteTagsFolder: {
-                name: '즐겨찾기 태그 폴더 표시',
-                desc: '즐겨찾기 태그가 구성되면 "즐겨찾기 태그"를 접을 수 있는 폴더로 표시합니다.'
-            },
             showAllTagsFolder: {
                 name: '태그 폴더 표시',
                 desc: '"태그"를 접을 수 있는 폴더로 표시합니다.'
@@ -850,15 +843,6 @@ export const STRINGS_KO = {
             showUntagged: {
                 name: '태그 없는 노트 표시',
                 desc: '태그가 없는 노트에 대해 "태그 없음" 항목을 표시합니다.'
-            },
-            showUntaggedInFavorites: {
-                name: '즐겨찾기 태그 섹션에 태그 없는 노트 표시',
-                desc: '즐겨찾기 태그 섹션에 태그 없는 노트를 표시합니다. 폴더 안이나 즐겨찾기 태그 바로 아래에 표시됩니다.'
-            },
-            favoriteTags: {
-                name: '즐겨찾기 태그',
-                desc: '쉼표로 구분된 태그 접두사 목록입니다. 태그를 추가하면 모든 하위 태그가 포함됩니다 (예: "photo"는 "photo/camera/fuji" 포함).',
-                placeholder: 'inbox, projects/work, daily/2025'
             },
             hiddenTags: {
                 name: '숨겨진 태그',

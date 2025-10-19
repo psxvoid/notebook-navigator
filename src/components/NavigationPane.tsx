@@ -31,7 +31,7 @@
  *    - useMemo rebuilds navigation items only when structure changes
  *    - Efficient tree flattening with level tracking
  *    - Virtual folders injected at correct positions
- *    - Tag contexts (favorites/all) handled separately
+ *    - Tag virtualization and hidden-tag handling
  *
  * 4. Pre-computed values:
  *    - Folder counts calculated once during tree build
@@ -75,6 +75,7 @@ import { TagTreeNode } from '../types/storage';
 import { getFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
 import { findTagNode, getTotalNoteCount } from '../utils/tagTree';
 import { getExtensionSuffix, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
+import { resolveCanonicalTagPath } from '../utils/tagUtils';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';
 import { NavigationToolbar } from './NavigationToolbar';
@@ -154,7 +155,7 @@ export const NavigationPane = React.memo(
         const uiDispatch = useUIDispatch();
         const shortcuts = useShortcuts();
         const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts, addFolderShortcut, addNoteShortcut } = shortcuts;
-        const { fileData, getFileDisplayName, getFavoriteTree, findTagInFavoriteTree } = useFileCache();
+        const { fileData, getFileDisplayName } = useFileCache();
         const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
 
         const menuServices = useMemo<MenuServices>(
@@ -167,23 +168,9 @@ export const NavigationPane = React.memo(
                 tagOperations,
                 tagTreeService,
                 commandQueue,
-                getFavoriteTree,
-                findTagInFavoriteTree,
                 shortcuts
             }),
-            [
-                app,
-                plugin,
-                isMobile,
-                fileSystemOps,
-                metadataService,
-                tagOperations,
-                tagTreeService,
-                commandQueue,
-                getFavoriteTree,
-                findTagInFavoriteTree,
-                shortcuts
-            ]
+            [app, plugin, isMobile, fileSystemOps, metadataService, tagOperations, tagTreeService, commandQueue, shortcuts]
         );
 
         useEffect(() => {
@@ -610,29 +597,35 @@ export const NavigationPane = React.memo(
         // Android uses toolbar at top, iOS at bottom
         const isAndroid = Platform.isAndroidApp;
         // Track previous settings for smart auto-expand
-        const prevShowFavoritesFolder = useRef(settings.showFavoriteTagsFolder);
         const prevShowAllTagsFolder = useRef(settings.showAllTagsFolder);
-        const prevFavoritesCount = useRef(settings.favoriteTags.length);
 
         // Determine if navigation pane is visible early for optimization
         const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
 
-        // Get tag trees from file data cache
-        const favoriteTree = fileData.favoriteTree;
+        // Get tag tree from file data cache
         const tagTree = fileData.tagTree;
 
         // Use the new data hook - now returns filtered items and pathToIndex
         // Determine if shortcuts should be pinned based on UI state and settings
         const shouldPinShortcuts = uiState.pinShortcuts && settings.showShortcuts;
 
-        const { items, shortcutItems, pathToIndex, shortcutIndex, tagCounts, folderCounts, rootLevelFolders, missingRootFolderPaths } =
-            useNavigationPaneData({
-                settings,
-                isVisible,
-                shortcutsExpanded,
-                recentNotesExpanded,
-                pinShortcuts: shouldPinShortcuts
-            });
+        const {
+            items,
+            shortcutItems,
+            tagsVirtualFolderHasChildren,
+            pathToIndex,
+            shortcutIndex,
+            tagCounts,
+            folderCounts,
+            rootLevelFolders,
+            missingRootFolderPaths
+        } = useNavigationPaneData({
+            settings,
+            isVisible,
+            shortcutsExpanded,
+            recentNotesExpanded,
+            pinShortcuts: shouldPinShortcuts
+        });
 
         // Extract shortcut items to display in pinned area when pinning is enabled
         const pinnedShortcutItems = shouldPinShortcuts ? shortcutItems : [];
@@ -1001,13 +994,13 @@ export const NavigationPane = React.memo(
 
         // Recursively collects all descendant tag paths from a given tag
         const getAllDescendantTags = useCallback(
-            (tagPath: string, context?: 'favorites' | 'tags'): string[] => {
+            (tagPath: string): string[] => {
                 const descendants: string[] = [];
-                // Use the appropriate tree based on context
-                const searchTree = context === 'favorites' ? favoriteTree : tagTree;
-                const tagNode = searchTree.get(tagPath);
+                const tagNode = findTagNode(tagTree, tagPath);
 
-                if (!tagNode) return descendants;
+                if (!tagNode) {
+                    return descendants;
+                }
 
                 const collectDescendants = (node: TagTreeNode) => {
                     node.children.forEach(child => {
@@ -1019,19 +1012,20 @@ export const NavigationPane = React.memo(
                 collectDescendants(tagNode);
                 return descendants;
             },
-            [tagTree, favoriteTree]
+            [tagTree]
         );
 
         // Handle tag click
         const handleTagClick = useCallback(
-            (tagPath: string, context?: 'favorites' | 'tags', options?: { fromShortcut?: boolean }) => {
-                // Check if clicking the same tag with same context
-                const isSameTag =
-                    selectionState.selectionType === 'tag' &&
-                    selectionState.selectedTag === tagPath &&
-                    selectionState.selectedTagContext === context;
+            (tagPath: string, options?: { fromShortcut?: boolean }) => {
+                const tagNode = findTagNode(tagTree, tagPath);
+                const canonicalPath = resolveCanonicalTagPath(tagPath, tagTree);
+                if (!canonicalPath) {
+                    return;
+                }
 
-                // If clicking the same tag, just handle view switching
+                const isSameTag = selectionState.selectionType === 'tag' && selectionState.selectedTag === canonicalPath;
+
                 if (isSameTag) {
                     if (uiState.singlePane) {
                         uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
@@ -1039,7 +1033,6 @@ export const NavigationPane = React.memo(
                     } else if (options?.fromShortcut) {
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     } else {
-                        // In dual-pane mode, still need to set focus
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                     }
 
@@ -1053,27 +1046,18 @@ export const NavigationPane = React.memo(
                     setActiveShortcut(null);
                 }
 
-                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath, context });
+                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: canonicalPath });
 
-                // Auto-expand/collapse if enabled and tag has children
-                if (settings.autoExpandFoldersTags) {
-                    // Find the tag node to check if it has children
-                    const tagNode = Array.from(tagTree.values()).find(node => node.path === tagPath);
-                    if (tagNode && tagNode.children.size > 0) {
-                        // Toggle expansion state - expand if collapsed, collapse if expanded
-                        expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath });
-                    }
+                if (settings.autoExpandFoldersTags && tagNode && tagNode.children.size > 0) {
+                    expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path });
                 }
 
-                // Switch to files view in single pane mode
                 if (uiState.singlePane) {
                     uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                    // Set focus to files pane when switching
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                 } else if (options?.fromShortcut) {
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                 } else {
-                    // In dual-pane mode, keep focus on folders
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                 }
 
@@ -1089,7 +1073,6 @@ export const NavigationPane = React.memo(
                 tagTree,
                 expansionDispatch,
                 selectionState.selectedTag,
-                selectionState.selectedTagContext,
                 selectionState.selectionType,
                 setActiveShortcut
             ]
@@ -1251,7 +1234,12 @@ export const NavigationPane = React.memo(
         const handleShortcutTagActivate = useCallback(
             (tagPath: string, shortcutKey: string) => {
                 setActiveShortcut(shortcutKey);
-                onRevealTag(tagPath);
+                const canonicalPath = resolveCanonicalTagPath(tagPath, tagTree);
+                if (!canonicalPath) {
+                    scheduleShortcutRelease();
+                    return;
+                }
+                onRevealTag(canonicalPath);
 
                 if (!uiState.singlePane) {
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
@@ -1265,7 +1253,16 @@ export const NavigationPane = React.memo(
 
                 scheduleShortcutRelease();
             },
-            [setActiveShortcut, onRevealTag, uiState.singlePane, uiDispatch, rootContainerRef, selectionDispatch, scheduleShortcutRelease]
+            [
+                setActiveShortcut,
+                onRevealTag,
+                uiState.singlePane,
+                uiDispatch,
+                rootContainerRef,
+                selectionDispatch,
+                scheduleShortcutRelease,
+                tagTree
+            ]
         );
 
         type ShortcutContextMenuTarget =
@@ -1358,8 +1355,7 @@ export const NavigationPane = React.memo(
                         services: menuServices,
                         settings,
                         state,
-                        dispatchers,
-                        context: 'tags'
+                        dispatchers
                     });
                 }
 
@@ -1467,16 +1463,20 @@ export const NavigationPane = React.memo(
         // Calculates the note count for a tag shortcut, using cache when available
         const getTagShortcutCount = useCallback(
             (tagPath: string): NoteCountInfo => {
+                const canonicalPath = resolveCanonicalTagPath(tagPath, tagTree);
+                if (!canonicalPath) {
+                    return ZERO_NOTE_COUNT;
+                }
                 if (!settings.showNoteCount) {
                     return ZERO_NOTE_COUNT;
                 }
 
-                const precomputed = tagCounts.get(tagPath);
+                const precomputed = tagCounts.get(canonicalPath);
                 if (precomputed) {
                     return precomputed;
                 }
 
-                const tagNode = favoriteTree.get(tagPath) ?? tagTree.get(tagPath);
+                const tagNode = findTagNode(tagTree, canonicalPath);
                 if (!tagNode) {
                     return ZERO_NOTE_COUNT;
                 }
@@ -1502,7 +1502,7 @@ export const NavigationPane = React.memo(
                     total
                 };
             },
-            [settings.showNoteCount, settings.includeDescendantNotes, tagCounts, favoriteTree, tagTree]
+            [settings.showNoteCount, settings.includeDescendantNotes, tagCounts, tagTree]
         );
 
         // Extracts the base file/folder name from a full path
@@ -1842,13 +1842,14 @@ export const NavigationPane = React.memo(
                         const virtualFolder = item.data;
                         const isShortcutsGroup = virtualFolder.id === SHORTCUTS_VIRTUAL_FOLDER_ID;
                         const isRecentNotesGroup = virtualFolder.id === RECENT_NOTES_VIRTUAL_FOLDER_ID;
-                        const hasChildren = isShortcutsGroup
-                            ? hydratedShortcuts.length > 0
-                            : isRecentNotesGroup
-                              ? recentNotes.length > 0
-                              : virtualFolder.id === 'tags-root' ||
-                                virtualFolder.id === 'all-tags-root' ||
-                                virtualFolder.id === 'favorite-tags-root';
+                        let hasChildren = true;
+                        if (isShortcutsGroup) {
+                            hasChildren = hydratedShortcuts.length > 0;
+                        } else if (isRecentNotesGroup) {
+                            hasChildren = recentNotes.length > 0;
+                        } else if (virtualFolder.id === 'tags-root') {
+                            hasChildren = tagsVirtualFolderHasChildren;
+                        }
 
                         const isExpanded = isShortcutsGroup
                             ? shortcutsExpanded
@@ -1897,15 +1898,10 @@ export const NavigationPane = React.memo(
                                 tagNode={tagNode}
                                 level={item.level ?? 0}
                                 isExpanded={expansionState.expandedTags.has(tagNode.path)}
-                                isSelected={
-                                    selectionState.selectionType === ItemType.TAG &&
-                                    selectionState.selectedTag === tagNode.path &&
-                                    selectionState.selectedTagContext === item.context
-                                }
+                                isSelected={selectionState.selectionType === ItemType.TAG && selectionState.selectedTag === tagNode.path}
                                 isHidden={'isHidden' in item ? item.isHidden : false}
                                 onToggle={() => handleTagToggle(tagNode.path)}
-                                onClick={() => handleTagClick(tagNode.path, item.context)}
-                                context={'context' in item ? item.context : undefined}
+                                onClick={() => handleTagClick(tagNode.path)}
                                 color={item.color}
                                 backgroundColor={item.backgroundColor}
                                 icon={item.icon}
@@ -1915,14 +1911,14 @@ export const NavigationPane = React.memo(
                                     if (isCurrentlyExpanded) {
                                         // If expanded, collapse everything (parent and all descendants)
                                         handleTagToggle(tagNode.path);
-                                        const descendantPaths = getAllDescendantTags(tagNode.path, item.context);
+                                        const descendantPaths = getAllDescendantTags(tagNode.path);
                                         if (descendantPaths.length > 0) {
                                             expansionDispatch({ type: 'TOGGLE_DESCENDANT_TAGS', descendantPaths, expand: false });
                                         }
                                     } else {
                                         // If collapsed, expand parent and all descendants
                                         handleTagToggle(tagNode.path);
-                                        const descendantPaths = getAllDescendantTags(tagNode.path, item.context);
+                                        const descendantPaths = getAllDescendantTags(tagNode.path);
                                         if (descendantPaths.length > 0) {
                                             expansionDispatch({ type: 'TOGGLE_DESCENDANT_TAGS', descendantPaths, expand: true });
                                         }
@@ -1961,7 +1957,6 @@ export const NavigationPane = React.memo(
                 selectionState.selectionType,
                 selectionState.selectedFolder?.path,
                 selectionState.selectedTag,
-                selectionState.selectedTagContext,
                 handleFolderToggle,
                 handleFolderClick,
                 handleFolderNameClick,
@@ -1999,75 +1994,22 @@ export const NavigationPane = React.memo(
                 allowEmptyShortcutDrop,
                 getPathBaseName,
                 getMissingNoteLabel,
-                handleShortcutFolderNoteClick
+                handleShortcutFolderNoteClick,
+                tagsVirtualFolderHasChildren
             ]
         );
 
-        // Smart auto-expand: Only expand virtual folders on specific setting transitions
         useEffect(() => {
-            // Auto-expand favorites folder when:
-            // 1. Setting changes from false to true
-            // 2. First favorite tag is added (0 -> 1+)
-            if (settings.showFavoriteTagsFolder) {
-                const shouldAutoExpandFavorites =
-                    (!prevShowFavoritesFolder.current && settings.showFavoriteTagsFolder) || // Setting enabled
-                    (prevFavoritesCount.current === 0 && settings.favoriteTags.length > 0); // First favorite added
-
-                if (shouldAutoExpandFavorites && !expansionState.expandedVirtualFolders.has('favorite-tags-root')) {
-                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'favorite-tags-root' });
-                }
-            }
-
-            // Auto-expand all tags folder when setting changes from false to true
             if (settings.showAllTagsFolder) {
-                const shouldAutoExpandAllTags = !prevShowAllTagsFolder.current && settings.showAllTagsFolder;
+                const shouldAutoExpandTags = !prevShowAllTagsFolder.current && settings.showAllTagsFolder;
 
-                if (shouldAutoExpandAllTags && !expansionState.expandedVirtualFolders.has('all-tags-root')) {
-                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'all-tags-root' });
+                if (shouldAutoExpandTags && !expansionState.expandedVirtualFolders.has('tags-root')) {
+                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'tags-root' });
                 }
             }
 
-            // Update refs for next comparison
-            prevShowFavoritesFolder.current = settings.showFavoriteTagsFolder;
             prevShowAllTagsFolder.current = settings.showAllTagsFolder;
-            prevFavoritesCount.current = settings.favoriteTags.length;
-        }, [
-            settings.showFavoriteTagsFolder,
-            settings.showAllTagsFolder,
-            settings.favoriteTags.length,
-            expansionState.expandedVirtualFolders,
-            expansionDispatch
-        ]);
-
-        // Update tag context when favorite tags change
-        // Memoize the expected context to avoid redundant calculations
-        const expectedTagContext = useMemo(() => {
-            if (selectionState.selectionType !== 'tag' || !selectionState.selectedTag) {
-                return null;
-            }
-
-            // Check if tag exists in favorites
-            const tagInFavorites = findTagNode(favoriteTree, selectionState.selectedTag) !== null;
-            return tagInFavorites ? 'favorites' : 'tags';
-        }, [selectionState.selectionType, selectionState.selectedTag, favoriteTree]);
-
-        useEffect(() => {
-            // Only update if there's a mismatch
-            if (expectedTagContext && selectionState.selectedTagContext !== expectedTagContext && selectionState.selectedTag) {
-                selectionDispatch({
-                    type: 'SET_SELECTED_TAG',
-                    tag: selectionState.selectedTag,
-                    context: expectedTagContext,
-                    autoSelectedFile: selectionState.selectedFile
-                });
-            }
-        }, [
-            expectedTagContext,
-            selectionState.selectedTagContext,
-            selectionState.selectedTag,
-            selectionState.selectedFile,
-            selectionDispatch
-        ]);
+        }, [settings.showAllTagsFolder, expansionState.expandedVirtualFolders, expansionDispatch]);
 
         // Expose the virtualizer instance, path lookup method, and scroll container via the ref
         useImperativeHandle(
