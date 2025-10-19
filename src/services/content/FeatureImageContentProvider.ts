@@ -251,7 +251,10 @@ export class FeatureImageContentProvider extends BaseContentProvider {
 
                     if (providerPath === embedFile.path) {
                         this.deletedFeatureProviders.delete(file.path)
-                        continue;
+                        // continue; // do not use "continue" statement because on delete
+                        // this block wont be executed due to if(embedFile) check above
+                        // the embedFile file will be undefined and embed will be skipped
+                        // it means that this block will only be executed on restore
                     }
 
                     const embedMetadata = this.app.metadataCache.getFileCache(embedFile);
