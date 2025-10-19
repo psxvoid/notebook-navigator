@@ -56,13 +56,14 @@ export const STRINGS_ES = {
         shortcutsHeader: 'Accesos directos',
         recentNotesHeader: 'Notas recientes',
         recentFilesHeader: 'Archivos recientes',
-        reorderRootFoldersTitle: 'Reordenar carpetas principales',
-        reorderRootFoldersHint: 'Arrastra las carpetas para cambiar el orden',
+        reorderRootFoldersTitle: 'Reordenar carpetas raíz y etiquetas',
+        reorderRootFoldersHint: 'Arrastra los elementos para cambiar el orden',
         vaultRootLabel: 'Bóveda',
-        resetRootFolderOrder: 'Restablecer orden alfabético',
+        resetRootToAlpha: 'Restablecer orden alfabético',
+        resetRootToFrequency: 'Restablecer al orden por frecuencia',
         dragHandleLabel: 'Arrastrar para reordenar',
-        pinShortcuts: 'Pin shortcuts',
-        unpinShortcuts: 'Unpin shortcuts'
+        pinShortcuts: 'Fijar accesos directos',
+        unpinShortcuts: 'Desfijar accesos directos'
     },
 
     shortcuts: {
@@ -91,8 +92,8 @@ export const STRINGS_ES = {
         customSort: 'Personalizado', // Label for custom sorting mode (English: Custom)
         showFolders: 'Mostrar navegación', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Ocultar navegación', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Reordenar carpetas principales',
-        finishRootFolderReorder: 'Finalizar reordenación de carpetas principales',
+        reorderRootFolders: 'Reordenar carpetas raíz y etiquetas',
+        finishRootFolderReorder: 'Finalizar reordenación',
         toggleDescendantNotes: 'Mostrar notas de subcarpetas / descendientes', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: 'Expandir carpetas y etiquetas automáticamente', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Mostrar elementos ocultos', // Tooltip for button to show hidden items (English: Show hidden items)

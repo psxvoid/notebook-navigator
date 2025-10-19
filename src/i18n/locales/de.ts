@@ -56,13 +56,14 @@ export const STRINGS_DE = {
         shortcutsHeader: 'Lesezeichen',
         recentNotesHeader: 'Neueste Notizen',
         recentFilesHeader: 'Neueste Dateien',
-        reorderRootFoldersTitle: 'Hauptordner neu anordnen',
-        reorderRootFoldersHint: 'Ordner ziehen, um die Reihenfolge zu ändern',
+        reorderRootFoldersTitle: 'Hauptordner und Tags neu anordnen',
+        reorderRootFoldersHint: 'Elemente ziehen, um die Reihenfolge zu ändern',
         vaultRootLabel: 'Tresor',
-        resetRootFolderOrder: 'Auf alphabetische Reihenfolge zurücksetzen',
+        resetRootToAlpha: 'Auf alphabetische Reihenfolge zurücksetzen',
+        resetRootToFrequency: 'Auf Häufigkeitsreihenfolge zurücksetzen',
         dragHandleLabel: 'Ziehen zum Neuanordnen',
-        pinShortcuts: 'Pin shortcuts',
-        unpinShortcuts: 'Unpin shortcuts'
+        pinShortcuts: 'Lesezeichen anheften',
+        unpinShortcuts: 'Lesezeichen lösen'
     },
 
     shortcuts: {
@@ -91,8 +92,8 @@ export const STRINGS_DE = {
         customSort: 'Benutzerdefiniert', // Label for custom sorting mode (English: Custom)
         showFolders: 'Navigation anzeigen', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Navigation ausblenden', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Hauptordner neu anordnen',
-        finishRootFolderReorder: 'Neuanordnung der Hauptordner abschließen',
+        reorderRootFolders: 'Hauptordner und Tags neu anordnen',
+        finishRootFolderReorder: 'Neuordnung beenden',
         toggleDescendantNotes: 'Notizen aus Unterordnern / Nachkommen anzeigen', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Versteckte Elemente anzeigen', // Tooltip for button to show hidden items (English: Show hidden items)

@@ -65,6 +65,7 @@ import { getDateField } from '../utils/sortUtils';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
+import { areStringArraysEqual } from '../utils/arrayUtils';
 
 const FEATURE_IMAGE_MAX_ASPECT_RATIO = 16 / 9;
 
@@ -168,24 +169,6 @@ function renderHighlightedText(text: string, query?: string, searchMeta?: Search
         parts.push(text.slice(cursor));
     }
     return <>{parts}</>;
-}
-
-/**
- * Compares two string arrays for equality
- */
-function areStringArraysEqual(a: string[], b: string[]): boolean {
-    if (a === b) {
-        return true;
-    }
-    if (a.length !== b.length) {
-        return false;
-    }
-    for (let i = 0; i < a.length; i += 1) {
-        if (a[i] !== b[i]) {
-            return false;
-        }
-    }
-    return true;
 }
 
 interface ParentFolderLabelProps {

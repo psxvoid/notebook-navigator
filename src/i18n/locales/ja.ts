@@ -56,13 +56,14 @@ export const STRINGS_JA = {
         shortcutsHeader: 'ショートカット',
         recentNotesHeader: '最近のノート',
         recentFilesHeader: '最近のファイル',
-        reorderRootFoldersTitle: 'ルートフォルダの並び替え',
-        reorderRootFoldersHint: 'フォルダをドラッグして順序を変更',
+        reorderRootFoldersTitle: 'ルートフォルダとタグを並び替え',
+        reorderRootFoldersHint: 'ドラッグして順序を変更します',
         vaultRootLabel: 'ボールト',
-        resetRootFolderOrder: 'アルファベット順にリセット',
+        resetRootToAlpha: 'アルファベット順にリセット',
+        resetRootToFrequency: '頻度順にリセット',
         dragHandleLabel: 'ドラッグして並び替え',
-        pinShortcuts: 'Pin shortcuts',
-        unpinShortcuts: 'Unpin shortcuts'
+        pinShortcuts: 'ショートカットを固定',
+        unpinShortcuts: 'ショートカットの固定を解除'
     },
 
     shortcuts: {
@@ -91,8 +92,8 @@ export const STRINGS_JA = {
         customSort: 'カスタム', // Label for custom sorting mode (English: Custom)
         showFolders: 'ナビゲーションを表示', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'ナビゲーションを非表示', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'ルートフォルダの並び替え',
-        finishRootFolderReorder: 'ルートフォルダの並び替えを完了',
+        reorderRootFolders: 'ルートフォルダとタグを並び替え',
+        finishRootFolderReorder: '並び替えを終了',
         toggleDescendantNotes: 'サブフォルダ / 子孫のノートを表示', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '非表示項目を表示', // Tooltip for button to show hidden items (English: Show hidden items)

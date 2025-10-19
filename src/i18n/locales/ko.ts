@@ -56,13 +56,14 @@ export const STRINGS_KO = {
         shortcutsHeader: '바로가기',
         recentNotesHeader: '최근 노트',
         recentFilesHeader: '최근 파일',
-        reorderRootFoldersTitle: '루트 폴더 순서 변경',
-        reorderRootFoldersHint: '폴더를 드래그하여 순서 변경',
+        reorderRootFoldersTitle: '루트 폴더와 태그 재정렬',
+        reorderRootFoldersHint: '드래그하여 순서를 변경합니다',
         vaultRootLabel: '보관함',
-        resetRootFolderOrder: '알파벳 순서로 리셋',
+        resetRootToAlpha: '알파벳 순서로 리셋',
+        resetRootToFrequency: '빈도 순으로 리셋',
         dragHandleLabel: '드래그하여 순서 변경',
-        pinShortcuts: 'Pin shortcuts',
-        unpinShortcuts: 'Unpin shortcuts'
+        pinShortcuts: '바로가기를 고정',
+        unpinShortcuts: '바로가기 고정을 해제'
     },
 
     shortcuts: {
@@ -91,8 +92,8 @@ export const STRINGS_KO = {
         customSort: '사용자 정의', // Label for custom sorting mode (English: Custom)
         showFolders: '탐색 표시', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: '탐색 숨기기', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: '루트 폴더 순서 변경',
-        finishRootFolderReorder: '루트 폴더 순서 변경 완료',
+        reorderRootFolders: '루트 폴더와 태그 재정렬',
+        finishRootFolderReorder: '재정렬 완료',
         toggleDescendantNotes: '하위 폴더 / 하위 항목 노트 표시', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: '폴더 및 태그 자동 펼치기', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '숨겨진 항목 표시', // Tooltip for button to show hidden items (English: Show hidden items)

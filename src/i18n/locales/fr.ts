@@ -56,10 +56,11 @@ export const STRINGS_FR = {
         shortcutsHeader: 'Raccourcis',
         recentNotesHeader: 'Notes récentes',
         recentFilesHeader: 'Fichiers récents',
-        reorderRootFoldersTitle: 'Réorganiser les dossiers racine',
-        reorderRootFoldersHint: "Faites glisser les dossiers pour modifier l'ordre",
+        reorderRootFoldersTitle: 'Réorganiser les dossiers racine et les étiquettes',
+        reorderRootFoldersHint: "Faites glisser les éléments pour changer l'ordre",
         vaultRootLabel: 'Coffre',
-        resetRootFolderOrder: "Réinitialiser l'ordre alphabétique",
+        resetRootToAlpha: "Réinitialiser l'ordre alphabétique",
+        resetRootToFrequency: 'Réinitialiser selon la fréquence',
         dragHandleLabel: 'Faire glisser pour réorganiser',
         pinShortcuts: 'Épingler les raccourcis',
         unpinShortcuts: 'Détacher les raccourcis'
@@ -91,8 +92,8 @@ export const STRINGS_FR = {
         customSort: 'Personnalisé', // Label for custom sorting mode (English: Custom)
         showFolders: 'Afficher la navigation', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Masquer la navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Réorganiser les dossiers racine',
-        finishRootFolderReorder: 'Terminer la réorganisation des dossiers racine',
+        reorderRootFolders: 'Réorganiser les dossiers racine et les étiquettes',
+        finishRootFolderReorder: 'Terminer la réorganisation',
         toggleDescendantNotes: 'Afficher les notes des sous-dossiers / descendants', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: 'Développer automatiquement les dossiers et les étiquettes', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Afficher les éléments masqués', // Tooltip for button to show hidden items (English: Show hidden items)

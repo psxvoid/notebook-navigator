@@ -178,4 +178,5 @@ export interface NotebookNavigatorSettings {
     lastAnnouncedRelease: string;
     lastReleaseCheckAt: number | null;
     rootFolderOrder: string[];
+    rootTagOrder: string[];
 }

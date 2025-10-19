@@ -155,5 +155,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     latestKnownRelease: '',
     lastAnnouncedRelease: '',
     lastReleaseCheckAt: null,
-    rootFolderOrder: []
+    rootFolderOrder: [],
+    rootTagOrder: []
 };

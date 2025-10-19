@@ -54,12 +54,13 @@ import { isFolderInExcludedFolder } from '../utils/fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY, isImageFile } from '../utils/fileTypeUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree, findTagNode } from '../utils/tagTree';
-import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
+import { flattenFolderTree, flattenTagTree, compareTagOrderWithFallback } from '../utils/treeFlattener';
 import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
 import { setNavigationIndex } from '../utils/navigationIndex';
 import { resolveCanonicalTagPath } from '../utils/tagUtils';
 import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } from '../types/shortcuts';
 import { useRootFolderOrder } from './useRootFolderOrder';
+import { useRootTagOrder } from './useRootTagOrder';
 import type { FolderNoteDetectionSettings } from '../utils/folderNotes';
 import { getDBInstance } from '../storage/fileOperations';
 import { naturalCompare } from '../utils/sortUtils';
@@ -196,6 +197,14 @@ interface UseNavigationPaneDataResult {
     rootLevelFolders: TFolder[];
     /** Paths from settings that are not currently present in the vault */
     missingRootFolderPaths: string[];
+    /** Final ordered keys used for rendering root-level tags in navigation */
+    resolvedRootTagKeys: string[];
+    /** Combined tag tree used for ordering (includes hidden roots) */
+    rootOrderingTagTree: Map<string, TagTreeNode>;
+    /** Map from tag path to custom order index */
+    rootTagOrderMap: Map<string, number>;
+    /** Paths for tags in custom order that are not currently present */
+    missingRootTagPaths: string[];
 }
 
 /**
@@ -232,7 +241,7 @@ export function useNavigationPaneData({
     });
 
     // Extract tag tree data from file cache
-    const tagTree = fileData.tagTree;
+    const tagTree = useMemo(() => fileData.tagTree ?? new Map<string, TagTreeNode>(), [fileData.tagTree]);
     const untaggedCount = fileData.untagged;
 
     // Create matcher for hidden tag patterns (supports "archive", "temp*", "*draft")
@@ -249,6 +258,35 @@ export function useNavigationPaneData({
         [settings.tagSortOrder, settings.includeDescendantNotes]
     );
 
+    // Retrieves hidden root tag nodes when tags are visible but hidden items are not shown
+    const hiddenRootTagNodes = useMemo(() => {
+        if (!settings.showTags || settings.showHiddenItems) {
+            return new Map<string, TagTreeNode>();
+        }
+        return fileData.hiddenRootTags ?? new Map<string, TagTreeNode>();
+    }, [fileData.hiddenRootTags, settings.showHiddenItems, settings.showTags]);
+
+    // Combines visible and hidden tag trees for root tag ordering calculations
+    const tagTreeForOrdering = useMemo(() => {
+        if (hiddenRootTagNodes.size === 0) {
+            return tagTree;
+        }
+        const combined = new Map<string, TagTreeNode>(tagTree);
+        hiddenRootTagNodes.forEach((node, path) => {
+            if (!combined.has(path)) {
+                combined.set(path, node);
+            }
+        });
+        return combined;
+    }, [hiddenRootTagNodes, tagTree]);
+
+    // Manages custom ordering for root-level tags
+    const { rootTagOrderMap, missingRootTagPaths } = useRootTagOrder({
+        settings,
+        tagTree: tagTreeForOrdering,
+        comparator: tagComparator ?? compareTagAlphabetically
+    });
+
     /**
      * Build folder items from vault structure
      */
@@ -261,9 +299,9 @@ export function useNavigationPaneData({
     /**
      * Build tag items with a single tag tree
      */
-    const { tagItems, hasTagContent } = useMemo(() => {
+    const { tagItems, hasTagContent, resolvedRootTagKeys } = useMemo(() => {
         if (!settings.showTags) {
-            return { tagItems: [] as CombinedNavigationItem[], hasTagContent: false };
+            return { tagItems: [] as CombinedNavigationItem[], hasTagContent: false, resolvedRootTagKeys: [] };
         }
 
         const items: CombinedNavigationItem[] = [];
@@ -271,25 +309,28 @@ export function useNavigationPaneData({
         const shouldHideTags = !settings.showHiddenItems;
         const hasHiddenPatterns = hiddenMatcherHasRules;
         const visibleTagTree = hasHiddenPatterns && shouldHideTags ? excludeFromTagTree(tagTree, hiddenTagMatcher) : tagTree;
+        const shouldIncludeUntagged = settings.showUntagged && untaggedCount > 0;
         const matcherForMarking = !shouldHideTags && hasHiddenPatterns ? hiddenTagMatcher : undefined;
 
-        const addUntaggedNode = (level: number) => {
-            if (settings.showUntagged && untaggedCount > 0) {
-                const untaggedNode: TagTreeNode = {
-                    path: UNTAGGED_TAG_ID,
-                    displayPath: UNTAGGED_TAG_ID,
-                    name: strings.tagList.untaggedLabel,
-                    children: new Map(),
-                    notesWithTag: new Set()
-                };
-
-                items.push({
-                    type: NavigationPaneItemType.UNTAGGED,
-                    data: untaggedNode,
-                    key: UNTAGGED_TAG_ID,
-                    level
-                });
+        // Adds the untagged node to the items list at the specified level
+        const pushUntaggedNode = (level: number) => {
+            if (!shouldIncludeUntagged) {
+                return;
             }
+            const untaggedNode: TagTreeNode = {
+                path: UNTAGGED_TAG_ID,
+                displayPath: UNTAGGED_TAG_ID,
+                name: strings.tagList.untaggedLabel,
+                children: new Map(),
+                notesWithTag: new Set()
+            };
+
+            items.push({
+                type: NavigationPaneItemType.UNTAGGED,
+                data: untaggedNode,
+                key: UNTAGGED_TAG_ID,
+                level
+            });
         };
 
         const addVirtualFolder = (id: string, name: string, icon?: string) => {
@@ -302,10 +343,89 @@ export function useNavigationPaneData({
             });
         };
 
-        const rootNodes = Array.from(visibleTagTree.values());
-        const includeUntagged = settings.showUntagged && untaggedCount > 0;
-        const hasVisibleTags = rootNodes.length > 0;
-        const hasContent = hasVisibleTags || includeUntagged;
+        if (!visibleTagTree) {
+            if (!shouldIncludeUntagged) {
+                return { tagItems: items, hasTagContent: false, resolvedRootTagKeys: [] };
+            }
+
+            if (settings.showAllTagsFolder) {
+                const folderId = 'tags-root';
+                addVirtualFolder(folderId, strings.tagList.tags, 'lucide-tags');
+
+                if (expansionState.expandedVirtualFolders.has(folderId)) {
+                    pushUntaggedNode(1);
+                }
+
+                return { tagItems: items, hasTagContent: true, resolvedRootTagKeys: [UNTAGGED_TAG_ID] };
+            }
+
+            pushUntaggedNode(0);
+            return { tagItems: items, hasTagContent: true, resolvedRootTagKeys: [UNTAGGED_TAG_ID] };
+        }
+
+        // Extract root nodes and determine effective comparator based on custom ordering
+        const visibleRootNodes = Array.from(visibleTagTree.values());
+        const baseComparator = tagComparator ?? compareTagAlphabetically;
+        const effectiveComparator: TagComparator =
+            rootTagOrderMap.size > 0 ? (a, b) => compareTagOrderWithFallback(a, b, rootTagOrderMap, baseComparator) : baseComparator;
+        const sortedRootNodes = visibleRootNodes.length > 0 ? visibleRootNodes.slice().sort(effectiveComparator) : visibleRootNodes;
+        const hasVisibleTags = sortedRootNodes.length > 0;
+        const hasContent = hasVisibleTags || shouldIncludeUntagged;
+
+        // Build map of all root nodes including visible and hidden ones
+        const rootNodeMap = new Map<string, TagTreeNode>();
+        sortedRootNodes.forEach(node => {
+            rootNodeMap.set(node.path, node);
+        });
+        hiddenRootTagNodes.forEach((node, path) => {
+            rootNodeMap.set(path, node);
+        });
+
+        // Determine default ordering and allowed keys for final tag list
+        const defaultKeyOrder = sortedRootNodes.map(node => node.path);
+        const allowedKeys = new Set(defaultKeyOrder);
+        if (shouldIncludeUntagged) {
+            allowedKeys.add(UNTAGGED_TAG_ID);
+        }
+        hiddenRootTagNodes.forEach((_, path) => {
+            allowedKeys.add(path);
+            if (!defaultKeyOrder.includes(path)) {
+                defaultKeyOrder.push(path);
+            }
+        });
+
+        // Build final ordered list of root tag keys, respecting custom order first
+        const resolvedRootTagKeys: string[] = [];
+        settings.rootTagOrder.forEach(entry => {
+            if (!allowedKeys.has(entry)) {
+                return;
+            }
+            if (resolvedRootTagKeys.includes(entry)) {
+                return;
+            }
+            resolvedRootTagKeys.push(entry);
+        });
+
+        // Add remaining keys not in custom order
+        defaultKeyOrder.forEach(key => {
+            if (!resolvedRootTagKeys.includes(key)) {
+                resolvedRootTagKeys.push(key);
+            }
+        });
+
+        // Ensure untagged is included if enabled
+        if (shouldIncludeUntagged && !resolvedRootTagKeys.includes(UNTAGGED_TAG_ID)) {
+            resolvedRootTagKeys.push(UNTAGGED_TAG_ID);
+        }
+
+        // Helper function to flatten and append a tag node with its children
+        const appendTagNode = (node: TagTreeNode, level: number) => {
+            const tagEntries = flattenTagTree([node], expansionState.expandedTags, level, {
+                hiddenMatcher: matcherForMarking,
+                comparator: effectiveComparator
+            });
+            items.push(...tagEntries);
+        };
 
         if (settings.showAllTagsFolder) {
             if (hasContent) {
@@ -313,24 +433,40 @@ export function useNavigationPaneData({
                 addVirtualFolder(folderId, strings.tagList.tags, 'lucide-tags');
 
                 if (expansionState.expandedVirtualFolders.has(folderId)) {
-                    const tagEntries = flattenTagTree(rootNodes, expansionState.expandedTags, 1, {
-                        hiddenMatcher: matcherForMarking,
-                        comparator: tagComparator
+                    resolvedRootTagKeys.forEach(key => {
+                        if (hiddenRootTagNodes.has(key) && !settings.showHiddenItems) {
+                            return;
+                        }
+                        if (key === UNTAGGED_TAG_ID) {
+                            pushUntaggedNode(1);
+                            return;
+                        }
+                        const node = rootNodeMap.get(key);
+                        if (!node) {
+                            return;
+                        }
+                        appendTagNode(node, 1);
                     });
-                    items.push(...tagEntries);
-                    addUntaggedNode(1);
                 }
             }
         } else {
-            const tagEntries = flattenTagTree(rootNodes, expansionState.expandedTags, 0, {
-                hiddenMatcher: matcherForMarking,
-                comparator: tagComparator
+            resolvedRootTagKeys.forEach(key => {
+                if (hiddenRootTagNodes.has(key) && !settings.showHiddenItems) {
+                    return;
+                }
+                if (key === UNTAGGED_TAG_ID) {
+                    pushUntaggedNode(0);
+                    return;
+                }
+                const node = rootNodeMap.get(key);
+                if (!node) {
+                    return;
+                }
+                appendTagNode(node, 0);
             });
-            items.push(...tagEntries);
-            addUntaggedNode(0);
         }
 
-        return { tagItems: items, hasTagContent: hasContent };
+        return { tagItems: items, hasTagContent: hasContent, resolvedRootTagKeys };
     }, [
         settings.showTags,
         settings.showAllTagsFolder,
@@ -340,9 +476,12 @@ export function useNavigationPaneData({
         hiddenMatcherHasRules,
         tagTree,
         untaggedCount,
+        settings.rootTagOrder,
         expansionState.expandedTags,
         expansionState.expandedVirtualFolders,
-        tagComparator
+        tagComparator,
+        rootTagOrderMap,
+        hiddenRootTagNodes
     ]);
 
     /**
@@ -933,6 +1072,10 @@ export function useNavigationPaneData({
         tagCounts,
         folderCounts,
         rootLevelFolders,
-        missingRootFolderPaths
+        missingRootFolderPaths,
+        resolvedRootTagKeys,
+        rootOrderingTagTree: tagTreeForOrdering,
+        rootTagOrderMap,
+        missingRootTagPaths
     };
 }

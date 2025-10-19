@@ -1252,6 +1252,22 @@ body {
     padding: 0;
 }
 
+.nn-root-reorder-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.nn-root-reorder-section:last-child {
+    margin-bottom: 0;
+}
+
+.nn-root-reorder-section-list {
+    display: flex;
+    flex-direction: column;
+}
+
 .nn-root-reorder-item {
     cursor: default;
 }
@@ -1262,8 +1278,7 @@ body {
 }
 
 .nn-root-reorder-actions {
-    margin-top: 1rem;
-    margin-bottom: 1.5rem;
+    margin-top: 0.75rem;
     display: flex;
     justify-content: center;
 }

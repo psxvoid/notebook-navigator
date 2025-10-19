@@ -18,6 +18,8 @@ interface RootFolderReorderItemProps {
     chevronIcon?: string;
     isMissing?: boolean;
     actions?: ReactNode;
+    color?: string;
+    itemType?: 'folder' | 'tag';
 }
 
 /**
@@ -36,7 +38,9 @@ export function RootFolderReorderItem({
     onClick,
     chevronIcon,
     isMissing,
-    actions
+    actions,
+    color,
+    itemType = 'folder'
 }: RootFolderReorderItemProps) {
     // Prevents event bubbling for reorder item clicks to avoid triggering parent handlers
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -63,9 +67,10 @@ export function RootFolderReorderItem({
     return (
         <NavigationListRow
             icon={icon}
+            color={color}
             label={label}
             level={level}
-            itemType="folder"
+            itemType={itemType}
             role="listitem"
             onClick={handleClick}
             dragHandlers={dragHandlers}
