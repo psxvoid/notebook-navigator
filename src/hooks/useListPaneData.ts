@@ -600,7 +600,7 @@ export function useListPaneData({
                     }
                 })
             }),
-            app.vault.on('delete', file => {
+            app.vault.on('delete', async file => {
                 if (operationActiveRef.current) {
                     pendingRefreshRef.current = true;
                 } else {
@@ -613,11 +613,31 @@ export function useListPaneData({
       
                 const dbFile = getDBInstance().getFile(file.path);
 
-                getDBInstance().deleteFile(file.path)
-
                 // eslint-disable-next-line eqeqeq
-                if (dbFile != null && dbFile.featureImageConsumers != null && dbFile.featureImageConsumers.length > 0) {
-                    FeatureImageContentProvider.Instance?.markFeatureProviderAsDeleted(file.path, dbFile.featureImageConsumers)
+                if (dbFile == null) {
+                    return
+                }
+
+                const provider = dbFile.featureImageProvider ?? EMPTY_STRING
+                const consumers = dbFile.featureImageConsumers ?? EMPTY_ARRAY
+
+                if (consumers.length > 0) {
+                    FeatureImageContentProvider.Instance?.markFeatureProviderAsDeleted(file.path, consumers)
+                    await getDBInstance().deleteFile(file.path)
+                }
+
+                if (provider.length > 0) {
+                    const providerFileData = getDBInstance().getFile(provider)
+
+                    // eslint-disable-next-line eqeqeq
+                    if (providerFileData != null) {
+                        await getDBInstance().updateFileContent({
+                            featureImageConsumers: [
+                                ...providerFileData.featureImageConsumers?.filter(x => x !== file.path) ?? EMPTY_ARRAY,
+                            ],
+                            path: provider,
+                        })
+                    }
                 }
             }),
             app.vault.on('rename', async (file, oldPath) => {
@@ -657,7 +677,7 @@ export function useListPaneData({
                 }
 
                 if (consumers.length > 0) {
-                    getDBInstance().deleteFile(oldPath)
+                    await getDBInstance().deleteFile(oldPath)
                 }
             }),
             app.vault.on('modify', file => {

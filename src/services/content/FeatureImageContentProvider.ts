@@ -253,7 +253,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                         this.deletedFeatureProviders.delete(file.path)
                         // continue; // do not use "continue" statement because on delete
                         // this block wont be executed due to if(embedFile) check above
-                        // the embedFile file will be undefined and embed will be skipped
+                        // the embedFile file will be undefined (because it's deleted)
                         // it means that this block will only be executed on restore
                     }
 
