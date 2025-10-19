@@ -250,7 +250,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                     const providerPath = this.deletedFeatureProviders.get(file.path)
 
                     if (providerPath === embedFile.path) {
-                        this.deletedFeatureProviders.delete(embedFile.path)
+                        this.deletedFeatureProviders.delete(file.path)
                         continue;
                     }
 
