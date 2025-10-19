@@ -48,7 +48,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         this.queueFiles(files);
     }
 
-    markFeatureProviderAsDeleted(providerPath: string, consumerPaths: string[]): void {
+    markFeatureProviderAsDeleted(providerPath: string, consumerPaths: readonly string[]): void {
         for (const consumer of consumerPaths) {
             this.forceUpdateSet.add(consumer)
             this.deletedFeatureProviders.set(consumer, providerPath)
@@ -157,7 +157,8 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                     featureImageConsumers: [
                         ...(fileData?.featureImageConsumers ?? []).filter(x => x !== job.file.path),
                         job.file.path,
-                    ]
+                    ],
+                    forceUpdate: true,
                 } : null,
                 featureCleanupRequest
             ];

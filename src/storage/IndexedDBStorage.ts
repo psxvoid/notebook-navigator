@@ -37,11 +37,11 @@ export const METADATA_SENTINEL = {
 
 export interface FileData {
     mtime: number;
-    tags: string[] | null; // null = not extracted yet (e.g. when tags disabled)
+    tags: readonly string[] | null; // null = not extracted yet (e.g. when tags disabled)
     preview: string | null; // null = not generated yet
     featureImage: string | null; // null = not generated yet
     featureImageProvider: string | null; // null = not generated yet
-    featureImageConsumers: string[] | null; // null = this file isn't used as a featured image
+    featureImageConsumers: readonly string[] | null; // null = this file isn't used as a featured image
     metadata: {
         name?: string;
         created?: number; // Valid timestamp, 0 = field not configured, -1 = parse failed
@@ -51,15 +51,27 @@ export interface FileData {
     } | null; // null = not generated yet
 }
 
+function emptyFileData(): FileData {
+    return {
+        mtime: 0,
+        tags:  null,
+        preview: null,
+        featureImage: null,
+        featureImageProvider: null,
+        featureImageConsumers: null,
+        metadata: null,
+    }
+}
+
 export interface FileContentChange {
     path: string;
     changes: {
         preview?: string | null;
         featureImage?: string | null;
         featureImageProvider?: string | null;
-        featureImageConsumers?: string[] | null;
+        featureImageConsumers?: readonly string[] | null;
         metadata?: FileData['metadata'] | null;
-        tags?: string[] | null;
+        tags?: readonly string[] | null;
     };
     changeType?: 'metadata' | 'content' | 'both';
 }
@@ -763,11 +775,11 @@ export class IndexedDBStorage {
             const getReq = store.get(path);
             getReq.onsuccess = () => {
                 const existing = (getReq.result as FileData | undefined) || null;
-                if (!existing) {
+                if (!existing && data.forceUpdate !== true) {
                     resolve();
                     return;
                 }
-                const next: FileData = { ...existing };
+                const next: FileData = { ...existing ?? emptyFileData() };
                 if (data.preview !== undefined) {
                     next.preview = data.preview;
                     changes.preview = data.preview;
@@ -779,6 +791,10 @@ export class IndexedDBStorage {
                 if (data.featureImageProvider !== undefined) {
                     next.featureImageProvider = data.featureImageProvider;
                     changes.featureImageProvider = data.featureImageProvider;
+                }
+                if (data.featureImageConsumers !== undefined) {
+                    next.featureImageConsumers = data.featureImageConsumers;
+                    changes.featureImageConsumers = data.featureImageConsumers;
                 }
                 if (data.metadata !== undefined) {
                     next.metadata = data.metadata;
@@ -841,7 +857,9 @@ export class IndexedDBStorage {
                 const hasContentChanges = changes.preview !== undefined || changes.featureImage !== undefined;
                 const hasMetadataChanges = changes.metadata !== undefined;
                 const changeType = hasContentChanges && hasMetadataChanges ? 'both' : hasContentChanges ? 'content' : 'metadata';
-                this.emitChanges([{ path, changes, changeType }]);
+                if (hasContentChanges || hasMetadataChanges) {
+                    this.emitChanges([{ path, changes, changeType }]);
+                }
             }
         }
     }
@@ -1030,7 +1048,7 @@ export class IndexedDBStorage {
      * @param path - File path to clear content for
      * @param type - Type of content to clear or 'all'
      */
-    async clearFileContent(path: string, type: 'preview' | 'featureImage' | 'metadata' | 'all'): Promise<void> {
+    async clearFileContent(path: string, type: keyof ProcessResult | 'all'): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -1054,6 +1072,18 @@ export class IndexedDBStorage {
                     if (file.preview !== null) {
                         file.preview = null;
                         changes.preview = null;
+                    }
+                }
+                if (type === 'featureImageProvider' || type === 'all') {
+                    if (file.featureImageProvider !== null) {
+                        file.featureImageProvider = null;
+                        changes.featureImageProvider = null;
+                    }
+                }
+                if (type === 'featureImageConsumers' || type === 'all') {
+                    if (file.featureImageConsumers !== null) {
+                        file.featureImageConsumers = null;
+                        changes.featureImageConsumers = null;
                     }
                 }
                 if (type === 'featureImage' || type === 'all') {
@@ -1125,7 +1155,9 @@ export class IndexedDBStorage {
                 const hasContentCleared = changes.preview === null || changes.featureImage === null;
                 const hasMetadataCleared = changes.metadata === null;
                 const changeType = hasContentCleared && hasMetadataCleared ? 'both' : hasContentCleared ? 'content' : 'metadata';
-                this.emitChanges([{ path, changes, changeType }]);
+                if (hasContentCleared || hasMetadataCleared) {
+                    this.emitChanges([{ path, changes, changeType }]);
+                }
             }
         }
     }
@@ -1138,7 +1170,7 @@ export class IndexedDBStorage {
      *
      * @param type - Type of content to clear or 'all'
      */
-    async batchClearAllFileContent(type: 'preview' | 'featureImage' | 'metadata' | 'tags' | 'all'): Promise<void> {
+    async batchClearAllFileContent(type: keyof ProcessResult | 'all'): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -1168,6 +1200,16 @@ export class IndexedDBStorage {
                     if ((type === 'featureImage' || type === 'all') && updated.featureImage !== null) {
                         updated.featureImage = null;
                         changes.featureImage = null;
+                        hasChanges = true;
+                    }
+                    if ((type === 'featureImageProvider' || type === 'all') && updated.featureImageProvider !== null) {
+                        updated.featureImageProvider = null;
+                        changes.featureImageProvider = null;
+                        hasChanges = true;
+                    }
+                    if ((type === 'featureImageConsumers' || type === 'all') && updated.featureImageConsumers !== null) {
+                        updated.featureImageConsumers = null;
+                        changes.featureImageConsumers = null;
                         hasChanges = true;
                     }
                     if ((type === 'metadata' || type === 'all') && updated.metadata !== null) {
@@ -1203,7 +1245,9 @@ export class IndexedDBStorage {
                         const hasContentCleared = changes.preview === null || changes.featureImage === null;
                         const hasMetadataCleared = changes.metadata === null || changes.tags !== undefined;
                         const clearType = hasContentCleared && hasMetadataCleared ? 'both' : hasContentCleared ? 'content' : 'metadata';
-                        changeNotifications.push({ path, changes, changeType: clearType });
+                        if (hasContentCleared || hasMetadataCleared) {
+                            changeNotifications.push({ path, changes, changeType: clearType });
+                        }
                     }
 
                     cursor.continue();
@@ -1258,7 +1302,7 @@ export class IndexedDBStorage {
      * @param paths - Array of file paths to clear content for
      * @param type - Type of content to clear or 'all'
      */
-    async batchClearFileContent(paths: string[], type: 'preview' | 'featureImage' | 'metadata' | 'tags' | 'all'): Promise<void> {
+    async batchClearFileContent(paths: string[], type: keyof ProcessResult | 'all'): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -1295,6 +1339,16 @@ export class IndexedDBStorage {
                         changes.featureImage = null;
                         hasChanges = true;
                     }
+                    if ((type === 'featureImageProvider' || type === 'all') && file.featureImageProvider !== null) {
+                        file.featureImageProvider = null;
+                        changes.featureImageProvider = null;
+                        hasChanges = true;
+                    }
+                    if ((type === 'featureImageConsumers' || type === 'all') && file.featureImageConsumers !== null) {
+                        file.featureImageConsumers = null;
+                        changes.featureImageConsumers = null;
+                        hasChanges = true;
+                    }
                     if ((type === 'metadata' || type === 'all') && file.metadata !== null) {
                         file.metadata = null;
                         changes.metadata = null;
@@ -1321,7 +1375,9 @@ export class IndexedDBStorage {
                         const hasContentCleared = changes.preview === null || changes.featureImage === null;
                         const hasMetadataCleared = changes.metadata === null || changes.tags !== undefined;
                         const clearType = hasContentCleared && hasMetadataCleared ? 'both' : hasContentCleared ? 'content' : 'metadata';
-                        changeNotifications.push({ path, changes, changeType: clearType });
+                        if (hasContentCleared || hasMetadataCleared) {
+                            changeNotifications.push({ path, changes, changeType: clearType });
+                        }
                     }
                     // noop
                 };
@@ -1380,12 +1436,13 @@ export class IndexedDBStorage {
     async batchUpdateFileContent(
         updates: {
             path: string;
-            tags?: string[] | null;
+            tags?: readonly string[] | null;
             preview?: string;
             featureImage?: string;
             featureImageProvider?: string;
-            featureImageConsumers?: string[] | null;
+            featureImageConsumers?: readonly string[] | null;
             metadata?: FileData['metadata'];
+            forceUpdate?: boolean
         }[]
     ): Promise<void> {
         await this.init();
@@ -1405,10 +1462,10 @@ export class IndexedDBStorage {
                 const getReq = store.get(update.path);
                 getReq.onsuccess = () => {
                     const existing = (getReq.result as FileData | undefined) || null;
-                    if (!existing) {
+                    if (!existing && update.forceUpdate !== true) {
                         return;
                     }
-                    const newData: FileData = { ...existing };
+                    const newData: FileData = { ...(existing ?? emptyFileData()) };
                     const changes: FileContentChange['changes'] = {};
                     let hasChanges = false;
                     if (update.tags !== undefined) {
@@ -1456,8 +1513,11 @@ export class IndexedDBStorage {
                         filesToUpdate.push({ path: update.path, data: newData });
                         const hasContentUpdates = changes.preview !== undefined || changes.featureImage !== undefined;
                         const hasMetadataUpdates = changes.metadata !== undefined || changes.tags !== undefined;
-                        const updateType = hasContentUpdates && hasMetadataUpdates ? 'both' : hasContentUpdates ? 'content' : 'metadata';
-                        changeNotifications.push({ path: update.path, changes, changeType: updateType });
+
+                        if (hasContentUpdates || hasMetadataUpdates) {
+                            const updateType = hasContentUpdates && hasMetadataUpdates ? 'both' : hasContentUpdates ? 'content' : 'metadata';
+                            changeNotifications.push({ path: update.path, changes, changeType: updateType });
+                        }
                     }
                     // noop
                 };
@@ -1580,7 +1640,7 @@ export class IndexedDBStorage {
      * @param path - File path to get tags for
      * @returns Array of tag strings
      */
-    getCachedTags(path: string): string[] {
+    getCachedTags(path: string): readonly string[] {
         const file = this.getFile(path);
         // Return empty array if file doesn't exist or tags are null/not extracted yet
         if (!file || file.tags === null) return [];

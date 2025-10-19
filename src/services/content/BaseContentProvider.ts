@@ -31,12 +31,13 @@ export interface ContentJob {
 // Review: Refactoring: reuse everywhere
 export interface ProcessResult {
     path: string;
-    tags?: string[] | null;
+    tags?: readonly string[] | null;
     preview?: string;
     featureImage?: string;
     featureImageProvider?: string;
-    featureImageConsumers?: string[];
+    featureImageConsumers?: readonly string[];
     metadata?: FileData['metadata'];
+    forceUpdate?: boolean;
 }
 
 /**
@@ -172,11 +173,11 @@ export abstract class BaseContentProvider implements IContentProvider {
             // Process files in parallel batches
             const updates: {
                 path: string;
-                tags?: string[] | null;
+                tags?: readonly string[] | null;
                 preview?: string;
                 featureImage?: string;
                 featureImageProvider?: string;
-                featureImageConsumers?: string[] | null;
+                featureImageConsumers?: readonly string[] | null;
                 metadata?: FileData['metadata'];
             }[] = [];
 
