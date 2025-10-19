@@ -89,6 +89,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New folder menu item: =="Move to..."==. Opens a modal to move the folder to another location.',
             'New file menu items: ==Copy path== and ==Copy relative path==.',
             '==New menu== when right-clicking empty area in list pane: Create new note, folder, canvas, base or drawing.',
+            'Support for ==back and forward mouse buttons==! Use them on desktop in single pane to quickly switch between navigation and list panes.',
             'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).'
         ],
         changed: [
