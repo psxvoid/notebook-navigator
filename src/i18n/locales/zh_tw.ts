@@ -57,10 +57,11 @@ export const STRINGS_ZH_TW = {
         shortcutsHeader: '捷徑', // 導覽窗格中捷徑區段的標頭標籤 (英文: Shortcuts)
         recentNotesHeader: '最近筆記', // 導覽窗格中最近筆記區段的標頭標籤 (英文: Recent notes)
         recentFilesHeader: '最近檔案', // 在導覽窗格中顯示最近非筆記檔案時的標頭標籤 (英文: Recent files)
-        reorderRootFoldersTitle: '重新排序根資料夾',
-        reorderRootFoldersHint: '拖曳資料夾以變更順序',
+        reorderRootFoldersTitle: '重新排列根資料夾和標籤',
+        reorderRootFoldersHint: '拖曳項目以變更順序',
         vaultRootLabel: '儲存庫',
-        resetRootFolderOrder: '重設為字母順序',
+        resetRootToAlpha: '重設為字母順序',
+        resetRootToFrequency: '重設為頻率排序',
         dragHandleLabel: '拖曳以重新排序',
         pinShortcuts: '釘選捷徑',
         unpinShortcuts: '取消釘選捷徑'
@@ -92,8 +93,8 @@ export const STRINGS_ZH_TW = {
         customSort: '自訂', // 自訂排序模式的標籤 (英文: Custom)
         showFolders: '顯示導覽', // 顯示導覽窗格按鈕的工具提示 (英文: Show navigation)
         hideFolders: '隱藏導覽', // 隱藏導覽窗格按鈕的工具提示 (英文: Hide navigation)
-        reorderRootFolders: '重新排序根資料夾',
-        finishRootFolderReorder: '完成根資料夾重新排序',
+        reorderRootFolders: '重新排列根資料夾和標籤',
+        finishRootFolderReorder: '完成重新排列',
         toggleDescendantNotes: '顯示子資料夾/後代中的筆記', // 工具提示：包含資料夾和標籤的後代
         autoExpandFoldersTags: '自動展開資料夾和標籤', // 選取時自動展開資料夾和標籤的切換按鈕工具提示 (英文: Auto-expand folders and tags)
         showExcludedItems: '顯示隱藏項目', // 顯示隱藏項目的按鈕工具提示 (英文: Show hidden items)
@@ -644,6 +645,10 @@ export const STRINGS_ZH_TW = {
             showTooltips: {
                 name: '顯示工具提示 (僅限桌面版)',
                 desc: '顯示懸停工具提示，提供筆記和資料夾的額外資訊。'
+            },
+            showTooltipPath: {
+                name: '顯示路徑',
+                desc: '在工具提示中的筆記名稱下方顯示資料夾路徑。'
             },
             multiSelectModifier: {
                 name: '多重選取修飾鍵',

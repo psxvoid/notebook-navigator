@@ -56,13 +56,14 @@ export const STRINGS_PL = {
         shortcutsHeader: 'Skróty',
         recentNotesHeader: 'Ostatnie notatki',
         recentFilesHeader: 'Ostatnie pliki',
-        reorderRootFoldersTitle: 'Zmień kolejność folderów głównych',
-        reorderRootFoldersHint: 'Przeciągnij foldery aby zmienić kolejność',
+        reorderRootFoldersTitle: 'Przestaw foldery główne i tagi',
+        reorderRootFoldersHint: 'Przeciągnij elementy, aby zmienić kolejność',
         vaultRootLabel: 'Magazyn',
-        resetRootFolderOrder: 'Resetuj do kolejności alfabetycznej',
+        resetRootToAlpha: 'Resetuj do kolejności alfabetycznej',
+        resetRootToFrequency: 'Przywróć sortowanie według częstotliwości',
         dragHandleLabel: 'Przeciągnij aby zmienić kolejność',
-        pinShortcuts: 'Pin shortcuts',
-        unpinShortcuts: 'Unpin shortcuts'
+        pinShortcuts: 'Przypnij skróty',
+        unpinShortcuts: 'Odepnij skróty'
     },
 
     shortcuts: {
@@ -91,8 +92,8 @@ export const STRINGS_PL = {
         customSort: 'Własne', // Label for custom sorting mode (English: Custom)
         showFolders: 'Pokaż nawigację', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Ukryj nawigację', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Zmień kolejność folderów głównych',
-        finishRootFolderReorder: 'Zakończ zmianę kolejności folderów głównych',
+        reorderRootFolders: 'Przestaw foldery główne i tagi',
+        finishRootFolderReorder: 'Zakończ przestawianie',
         toggleDescendantNotes: 'Pokaż notatki z podfolderów / potomnych', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Automatycznie rozwijaj foldery i tagi', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Pokaż ukryte elementy', // Tooltip for button to show hidden items (English: Show hidden items)
@@ -647,6 +648,10 @@ export const STRINGS_PL = {
             showTooltips: {
                 name: 'Pokaż podpowiedzi (tylko desktop)',
                 desc: 'Wyświetl podpowiedzi przy najechaniu z dodatkowymi informacjami dla notatek i folderów.'
+            },
+            showTooltipPath: {
+                name: 'Pokaż ścieżkę',
+                desc: 'Wyświetla ścieżkę folderu pod nazwami notatek w podpowiedziach.'
             },
             multiSelectModifier: {
                 name: 'Modyfikator wielokrotnego wyboru',

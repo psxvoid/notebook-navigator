@@ -57,10 +57,11 @@ export const STRINGS_EN = {
         shortcutsHeader: 'Shortcuts', // Header label for shortcuts section in navigation pane (English: Shortcuts)
         recentNotesHeader: 'Recent notes', // Header label for recent notes section in navigation pane (English: Recent notes)
         recentFilesHeader: 'Recent files', // Header label when showing recent non-note files in navigation pane (English: Recent files)
-        reorderRootFoldersTitle: 'Reorder root folders',
-        reorderRootFoldersHint: 'Drag folders to change order',
+        reorderRootFoldersTitle: 'Reorder root folders and tags',
+        reorderRootFoldersHint: 'Drag items to change order',
         vaultRootLabel: 'Vault',
-        resetRootFolderOrder: 'Reset to alphabetical order',
+        resetRootToAlpha: 'Reset to alphabetical order',
+        resetRootToFrequency: 'Reset to frequency order',
         dragHandleLabel: 'Drag to reorder',
         pinShortcuts: 'Pin shortcuts',
         unpinShortcuts: 'Unpin shortcuts'
@@ -92,8 +93,8 @@ export const STRINGS_EN = {
         customSort: 'Custom', // Label for custom sorting mode (English: Custom)
         showFolders: 'Show navigation', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Hide navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Reorder root folders',
-        finishRootFolderReorder: 'Finish root folder reorder',
+        reorderRootFolders: 'Reorder root folders and tags',
+        finishRootFolderReorder: 'Finish root reorder',
         toggleDescendantNotes: 'Show notes from subfolders / descendants', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Auto-expand folders and tags', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Show hidden items', // Tooltip for button to show hidden items (English: Show hidden items)
@@ -645,6 +646,10 @@ export const STRINGS_EN = {
             showTooltips: {
                 name: 'Show tooltips (desktop only)',
                 desc: 'Display hover tooltips with additional information for notes and folders.'
+            },
+            showTooltipPath: {
+                name: 'Show path',
+                desc: 'Display the folder path below note names in tooltips.'
             },
             multiSelectModifier: {
                 name: 'Multi-select modifier',

@@ -69,13 +69,14 @@ import { useNavigationPaneData } from '../hooks/useNavigationPaneData';
 import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
 import { useListReorder, type ListReorderHandlers } from '../hooks/useListReorder';
 import type { CombinedNavigationItem } from '../types/virtualization';
-import { NavigationPaneItemType, ItemType } from '../types';
+import { NavigationPaneItemType, ItemType, UNTAGGED_TAG_ID } from '../types';
 import { getSelectedPath } from '../utils/selectionUtils';
 import { TagTreeNode } from '../types/storage';
 import { getFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
 import { findTagNode, getTotalNoteCount } from '../utils/tagTree';
 import { getExtensionSuffix, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { resolveCanonicalTagPath } from '../utils/tagUtils';
+import { areStringArraysEqual } from '../utils/arrayUtils';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';
 import { NavigationToolbar } from './NavigationToolbar';
@@ -132,6 +133,60 @@ type RootFolderDescriptor = {
     isVault?: boolean;
     isMissing?: boolean;
 };
+
+// Descriptor for root-level tags in reorder mode
+type RootTagDescriptor = {
+    key: string;
+    tag: TagTreeNode | null;
+    isMissing?: boolean;
+    isVirtualRoot?: boolean;
+    isUntagged?: boolean;
+};
+
+// Generic render item for root reorder lists (both folders and tags)
+type RootReorderRenderItem = {
+    key: string;
+    props: React.ComponentProps<typeof RootFolderReorderItem>;
+};
+
+type ReorderVisualState = {
+    dragHandlers?: ListReorderHandlers;
+    showBefore: boolean;
+    showAfter: boolean;
+    isDragSource: boolean;
+};
+
+interface ReorderVisualContext {
+    positionMap: Map<string, number>;
+    getHandlers: (key: string) => ListReorderHandlers;
+    dropIndex: number | null;
+    draggingKey: string | null;
+}
+
+function buildReorderVisualState(
+    key: string,
+    context: ReorderVisualContext,
+    createDragHandlers?: (handlers: ListReorderHandlers) => ListReorderHandlers
+): ReorderVisualState {
+    const index = context.positionMap.get(key);
+    if (index === undefined) {
+        return { dragHandlers: undefined, showBefore: false, showAfter: false, isDragSource: false };
+    }
+
+    const baseHandlers = context.getHandlers(key);
+    const dragHandlers = createDragHandlers ? createDragHandlers(baseHandlers) : baseHandlers;
+    const isDragSource = context.draggingKey === key;
+    const isDifferentKey = context.draggingKey !== key;
+    const showBefore = Boolean(isDifferentKey && context.dropIndex !== null && context.dropIndex === 0 && index === 0);
+    const showAfter = Boolean(isDifferentKey && context.dropIndex !== null && context.dropIndex === index + 1);
+
+    return { dragHandlers, showBefore, showAfter, isDragSource };
+}
+
+// Special key for the virtual tags root section in reorder mode
+const TAGS_VIRTUAL_REORDER_KEY = '__nn-tags-root__';
+// Label for removing missing items from reorder lists
+const REMOVE_MISSING_LABEL = strings.common.remove;
 
 // Default note count object used when counts are disabled or unavailable
 const ZERO_NOTE_COUNT: NoteCountInfo = { current: 0, descendants: 0, total: 0 };
@@ -618,7 +673,10 @@ export const NavigationPane = React.memo(
             tagCounts,
             folderCounts,
             rootLevelFolders,
-            missingRootFolderPaths
+            missingRootFolderPaths,
+            resolvedRootTagKeys,
+            rootOrderingTagTree,
+            missingRootTagPaths
         } = useNavigationPaneData({
             settings,
             isVisible,
@@ -681,10 +739,81 @@ export const NavigationPane = React.memo(
             return descriptors;
         }, [missingRootFolderPaths, rootLevelFolders, settings.rootFolderOrder, settings.showRootFolder, vaultRootFolder]);
 
+        // Determines the label for the reset button based on current tag sort order
+        const resetRootTagOrderLabel = useMemo(() => {
+            if (settings.tagSortOrder === 'frequency-asc' || settings.tagSortOrder === 'frequency-desc') {
+                return strings.navigationPane.resetRootToFrequency;
+            }
+            return strings.navigationPane.resetRootToAlpha;
+        }, [settings.tagSortOrder]);
+
+        // Builds descriptors for all root-level tags including virtual root, untagged, and missing tags
+        const rootTagDescriptors = useMemo<RootTagDescriptor[]>(() => {
+            const descriptors: RootTagDescriptor[] = [];
+            const tagMap = new Map<string, TagTreeNode>();
+            rootOrderingTagTree.forEach((node, key) => {
+                tagMap.set(key, node);
+            });
+
+            const seen = new Set<string>();
+            const addDescriptor = (descriptor: RootTagDescriptor) => {
+                if (seen.has(descriptor.key)) {
+                    return;
+                }
+                seen.add(descriptor.key);
+                descriptors.push(descriptor);
+            };
+
+            if (tagMap.size > 0) {
+                addDescriptor({ key: TAGS_VIRTUAL_REORDER_KEY, tag: null, isVirtualRoot: true });
+            }
+
+            resolvedRootTagKeys.forEach(key => {
+                if (key === UNTAGGED_TAG_ID) {
+                    if (settings.showUntagged) {
+                        addDescriptor({ key: UNTAGGED_TAG_ID, tag: null, isUntagged: true });
+                    }
+                    return;
+                }
+                const node = tagMap.get(key);
+                if (node) {
+                    addDescriptor({ key: node.path, tag: node });
+                }
+            });
+
+            settings.rootTagOrder.forEach(path => {
+                if (path === UNTAGGED_TAG_ID) {
+                    return;
+                }
+                if (seen.has(path)) {
+                    return;
+                }
+                if (!tagMap.has(path)) {
+                    addDescriptor({ key: path, tag: null, isMissing: true });
+                }
+            });
+
+            missingRootTagPaths.forEach(path => {
+                if (path === UNTAGGED_TAG_ID) {
+                    return;
+                }
+                if (!seen.has(path)) {
+                    addDescriptor({ key: path, tag: null, isMissing: true });
+                }
+            });
+
+            return descriptors;
+        }, [missingRootTagPaths, resolvedRootTagKeys, rootOrderingTagTree, settings.rootTagOrder, settings.showUntagged]);
+
         // Filter out vault root to get only reorderable folders
         const reorderableRootFolders = useMemo<RootFolderDescriptor[]>(() => {
             return rootFolderDescriptors.filter(entry => !entry.isVault);
         }, [rootFolderDescriptors]);
+
+        // Filter out virtual root to get only reorderable tags
+        const reorderableRootTags = useMemo<RootTagDescriptor[]>(() => {
+            return rootTagDescriptors.filter(entry => !entry.isVirtualRoot);
+        }, [rootTagDescriptors]);
 
         // Map folder keys to their position for efficient reorder tracking
         const rootFolderPositionMap = useMemo(() => {
@@ -695,66 +824,107 @@ export const NavigationPane = React.memo(
             return map;
         }, [reorderableRootFolders]);
 
+        // Map tag keys to their position for efficient reorder tracking
+        const rootTagPositionMap = useMemo(() => {
+            const map = new Map<string, number>();
+            reorderableRootTags.forEach((entry, index) => {
+                map.set(entry.key, index);
+            });
+            return map;
+        }, [reorderableRootTags]);
+
         // Check if there are enough folders to enable reordering
         const canReorderRootFolders = reorderableRootFolders.length > 1;
+        // Check if there are enough tags to enable reordering
+        const canReorderRootTags = reorderableRootTags.length > 1;
+        // Check if any root items can be reordered (folders or tags)
+        const canReorderRootItems = canReorderRootFolders || canReorderRootTags;
+        // Determine if root folder section should be displayed
+        const showRootFolderSection = rootFolderDescriptors.length > 0;
+        // Determine if root tag section should be displayed
+        const showRootTagSection = rootTagDescriptors.length > 0;
 
-        // Build icon map for root folders for quick access during rendering
-        const rootFolderIconMap = useMemo(() => {
-            const map = new Map<string, string | undefined>();
+        // Build icon and color maps for folders and tags with a single pass
+        const rootItemMaps = useMemo(() => {
+            const folderIconMap = new Map<string, string | undefined>();
+            const folderColorMap = new Map<string, string | undefined>();
+            const tagIconMap = new Map<string, string | undefined>();
+            const tagColorMap = new Map<string, string | undefined>();
+
             items.forEach(item => {
                 if (item.type === NavigationPaneItemType.FOLDER) {
-                    map.set(item.data.path, item.icon);
+                    const path = item.data.path;
+                    folderIconMap.set(path, item.icon);
+                    folderColorMap.set(path, item.color);
+                    return;
+                }
+                if (item.type === NavigationPaneItemType.TAG) {
+                    const path = item.data.path;
+                    tagIconMap.set(path, item.icon);
+                    tagColorMap.set(path, item.color);
                 }
             });
-            return map;
-        }, [items]);
 
-        // Build color map for root folders for quick access during rendering
-        const rootFolderColorMap = useMemo(() => {
-            const map = new Map<string, string | undefined>();
-            items.forEach(item => {
-                if (item.type === NavigationPaneItemType.FOLDER) {
-                    map.set(item.data.path, item.color);
-                }
-            });
-            return map;
+            return {
+                rootFolderIconMap: folderIconMap,
+                rootFolderColorMap: folderColorMap,
+                rootTagIconMap: tagIconMap,
+                rootTagColorMap: tagColorMap
+            };
         }, [items]);
+        const { rootFolderIconMap, rootFolderColorMap, rootTagIconMap, rootTagColorMap } = rootItemMaps;
+
+        // Extracts the base name from a full path
+        const getPathBaseName = useCallback((path: string): string => {
+            if (!path) {
+                return '';
+            }
+            const trimmed = path.endsWith('/') && path !== '/' ? path.slice(0, -1) : path;
+            const segments = trimmed.split('/').filter(Boolean);
+            if (segments.length === 0) {
+                return trimmed || '/';
+            }
+            return segments[segments.length - 1];
+        }, []);
 
         // Determine if root folder reordering drag and drop is currently enabled
         const isRootReorderDnDEnabled = isRootReorderMode && canReorderRootFolders;
+        // Determine if root tag reordering drag and drop is currently enabled
+        const isRootTagReorderDnDEnabled = isRootReorderMode && canReorderRootTags;
 
-        // Exit root reorder mode if there are not enough folders to reorder
+        // Exit root reorder mode if there are not enough items to reorder
         useEffect(() => {
-            if (isRootReorderMode && !canReorderRootFolders) {
+            if (isRootReorderMode && !canReorderRootItems) {
                 setRootReorderMode(false);
             }
-        }, [isRootReorderMode, canReorderRootFolders]);
-
-        // Compares two path arrays for equality (order and content)
-        const arePathArraysEqual = useCallback((first: string[], second: string[]) => {
-            if (first.length !== second.length) {
-                return false;
-            }
-            for (let index = 0; index < first.length; index += 1) {
-                if (first[index] !== second[index]) {
-                    return false;
-                }
-            }
-            return true;
-        }, []);
+        }, [isRootReorderMode, canReorderRootItems]);
 
         // Updates the custom ordering of root-level folders in settings
         const handleRootOrderChange = useCallback(
             async (orderedPaths: string[]) => {
                 const normalizedOrder = orderedPaths.slice();
-                if (arePathArraysEqual(normalizedOrder, settings.rootFolderOrder)) {
+                if (areStringArraysEqual(normalizedOrder, settings.rootFolderOrder)) {
                     return;
                 }
                 await updateSettings(current => {
                     current.rootFolderOrder = normalizedOrder;
                 });
             },
-            [arePathArraysEqual, settings.rootFolderOrder, updateSettings]
+            [settings.rootFolderOrder, updateSettings]
+        );
+
+        // Updates the custom ordering of root-level tags in settings
+        const handleRootTagOrderChange = useCallback(
+            async (orderedPaths: string[]) => {
+                const normalizedOrder = orderedPaths.slice();
+                if (areStringArraysEqual(normalizedOrder, settings.rootTagOrder)) {
+                    return;
+                }
+                await updateSettings(current => {
+                    current.rootTagOrder = normalizedOrder;
+                });
+            },
+            [settings.rootTagOrder, updateSettings]
         );
 
         /**
@@ -780,10 +950,61 @@ export const NavigationPane = React.memo(
             [updateSettings]
         );
 
+        /**
+         * Removes a missing tag path from the root tag order settings.
+         * Used when a tag that was previously in custom order no longer exists in the vault.
+         */
+        const handleRemoveMissingRootTag = useCallback(
+            async (path: string) => {
+                if (!path) {
+                    return;
+                }
+                await updateSettings(current => {
+                    if (!Array.isArray(current.rootTagOrder)) {
+                        current.rootTagOrder = [];
+                        return;
+                    }
+                    if (!current.rootTagOrder.includes(path)) {
+                        return;
+                    }
+                    current.rootTagOrder = current.rootTagOrder.filter(entry => entry !== path);
+                });
+            },
+            [updateSettings]
+        );
+
+        // Builds a clickable remove action element for missing items in reorder lists
+        const buildRemoveMissingAction = useCallback((path: string, removeCallback: (targetPath: string) => Promise<void>) => {
+            const invokeRemoval = () => {
+                void removeCallback(path);
+            };
+            return (
+                <span
+                    role="button"
+                    tabIndex={0}
+                    className="nn-root-reorder-remove"
+                    onClick={event => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        invokeRemoval();
+                    }}
+                    onKeyDown={event => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            invokeRemoval();
+                        }
+                    }}
+                >
+                    {REMOVE_MISSING_LABEL}
+                </span>
+            );
+        }, []);
+
         const {
-            getDragHandlers: getRootDragHandlers,
-            dropIndex: rootReorderDropIndex,
-            draggingKey: rootReorderDraggingKey
+            getDragHandlers: getRootFolderDragHandlers,
+            dropIndex: rootFolderReorderDropIndex,
+            draggingKey: rootFolderReorderDraggingKey
         } = useListReorder({
             items: reorderableRootFolders,
             isEnabled: isRootReorderDnDEnabled,
@@ -793,62 +1014,280 @@ export const NavigationPane = React.memo(
             }
         });
 
+        // Hook for handling drag and drop reordering of root tags
+        const {
+            getDragHandlers: getRootTagDragHandlers,
+            dropIndex: rootTagReorderDropIndex,
+            draggingKey: rootTagReorderDraggingKey
+        } = useListReorder({
+            items: reorderableRootTags,
+            isEnabled: isRootTagReorderDnDEnabled,
+            reorderItems: async orderedKeys => {
+                await handleRootTagOrderChange(orderedKeys);
+                return true;
+            }
+        });
+
         // Builds drag state and visual indicators for root folder reordering
-        const getRootReorderVisualState = useCallback(
-            (descriptor: RootFolderDescriptor) => {
-                const key = descriptor.key;
-                const index = rootFolderPositionMap.get(key);
-
-                if (index === undefined) {
-                    return {
-                        dragHandlers: undefined,
-                        showBefore: false,
-                        showAfter: false,
-                        isDragSource: false
-                    };
-                }
-
-                const baseHandlers = getRootDragHandlers(key);
-                const resolvedIcon =
-                    rootFolderIconMap.get(key) ??
-                    (descriptor.isVault ? 'vault' : descriptor.isMissing ? 'lucide-folder-off' : 'lucide-folder');
-                const iconColor = rootFolderColorMap.get(key);
-                const dragHandlers = withDragGhost(baseHandlers, {
-                    itemType: ItemType.FOLDER,
-                    path: descriptor.folder ? descriptor.folder.path : descriptor.key,
-                    icon: resolvedIcon,
-                    iconColor
-                });
-                const isDragSource = rootReorderDraggingKey === key;
-                const isFirst = index === 0;
-                const showBefore = isFirst && rootReorderDropIndex !== null && rootReorderDropIndex === 0 && rootReorderDraggingKey !== key;
-                const showAfter = rootReorderDropIndex !== null && rootReorderDropIndex === index + 1 && rootReorderDraggingKey !== key;
-
-                return {
-                    dragHandlers,
-                    showBefore,
-                    showAfter,
-                    isDragSource
-                };
-            },
+        const getRootFolderReorderVisualState = useCallback(
+            (descriptor: RootFolderDescriptor) =>
+                buildReorderVisualState(
+                    descriptor.key,
+                    {
+                        positionMap: rootFolderPositionMap,
+                        getHandlers: getRootFolderDragHandlers,
+                        dropIndex: rootFolderReorderDropIndex,
+                        draggingKey: rootFolderReorderDraggingKey
+                    },
+                    handlers => {
+                        const icon =
+                            rootFolderIconMap.get(descriptor.key) ??
+                            (descriptor.isVault ? 'vault' : descriptor.isMissing ? 'lucide-folder-off' : 'lucide-folder');
+                        const iconColor = rootFolderColorMap.get(descriptor.key);
+                        return withDragGhost(handlers, {
+                            itemType: ItemType.FOLDER,
+                            path: descriptor.folder ? descriptor.folder.path : descriptor.key,
+                            icon,
+                            iconColor
+                        });
+                    }
+                ),
             [
-                getRootDragHandlers,
+                getRootFolderDragHandlers,
                 rootFolderIconMap,
                 rootFolderColorMap,
                 rootFolderPositionMap,
-                rootReorderDropIndex,
-                rootReorderDraggingKey,
+                rootFolderReorderDropIndex,
+                rootFolderReorderDraggingKey,
                 withDragGhost
             ]
         );
 
+        // Builds drag state and visual indicators for root tag reordering
+        const getRootTagReorderVisualState = useCallback(
+            (descriptor: RootTagDescriptor) =>
+                buildReorderVisualState(
+                    descriptor.key,
+                    {
+                        positionMap: rootTagPositionMap,
+                        getHandlers: getRootTagDragHandlers,
+                        dropIndex: rootTagReorderDropIndex,
+                        draggingKey: rootTagReorderDraggingKey
+                    },
+                    handlers => {
+                        let icon = rootTagIconMap.get(descriptor.key);
+                        if (!icon) {
+                            if (descriptor.isUntagged) {
+                                icon = metadataService.getTagIcon(descriptor.key) ?? 'lucide-tag';
+                            } else if (descriptor.isMissing) {
+                                icon = 'lucide-tag-off';
+                            } else {
+                                icon = metadataService.getTagIcon(descriptor.key) ?? 'lucide-tag';
+                            }
+                        }
+                        const metadataColor = descriptor.isUntagged ? undefined : metadataService.getTagColor(descriptor.key);
+                        const iconColor = rootTagColorMap.get(descriptor.key) ?? metadataColor;
+                        return withDragGhost(handlers, {
+                            itemType: ItemType.TAG,
+                            path: descriptor.tag ? descriptor.tag.displayPath : descriptor.key,
+                            icon,
+                            iconColor
+                        });
+                    }
+                ),
+            [
+                getRootTagDragHandlers,
+                rootTagIconMap,
+                rootTagColorMap,
+                metadataService,
+                rootTagPositionMap,
+                rootTagReorderDropIndex,
+                rootTagReorderDraggingKey,
+                withDragGhost
+            ]
+        );
+
+        // Builds render items for root folder reorder list display
+        const folderReorderItems = useMemo<RootReorderRenderItem[]>(() => {
+            return rootFolderDescriptors.map(entry => {
+                const { dragHandlers, showBefore, showAfter, isDragSource } = getRootFolderReorderVisualState(entry);
+                const iconName = rootFolderIconMap.get(entry.key);
+                const iconColor = rootFolderColorMap.get(entry.key);
+                const isMissing = entry.isMissing === true;
+                const isVaultRoot = entry.isVault === true;
+                const displayLabel = isVaultRoot
+                    ? settings.customVaultName || app.vault.getName()
+                    : entry.folder
+                      ? entry.folder.name
+                      : getPathBaseName(entry.key);
+
+                let displayIcon = 'lucide-folder';
+                if (isVaultRoot) {
+                    displayIcon = iconName ?? 'open-vault';
+                } else if (isMissing) {
+                    displayIcon = 'lucide-folder-off';
+                } else if (iconName) {
+                    displayIcon = iconName;
+                }
+
+                const actions = !isVaultRoot && isMissing ? buildRemoveMissingAction(entry.key, handleRemoveMissingRootFolder) : undefined;
+                const dragHandlersForEntry = isVaultRoot ? undefined : dragHandlers;
+                const dragSourceActive = isVaultRoot ? false : isDragSource;
+                const chevronIcon = isVaultRoot ? 'lucide-chevron-down' : undefined;
+
+                return {
+                    key: `root-folder-reorder-${entry.key}`,
+                    props: {
+                        icon: displayIcon,
+                        color: iconColor,
+                        label: displayLabel,
+                        level: isVaultRoot ? 0 : 1,
+                        dragHandlers: dragHandlersForEntry,
+                        showDropIndicatorBefore: showBefore,
+                        showDropIndicatorAfter: showAfter,
+                        isDragSource: dragSourceActive,
+                        dragHandleLabel: strings.navigationPane.dragHandleLabel,
+                        isMissing,
+                        actions,
+                        chevronIcon,
+                        itemType: 'folder'
+                    }
+                };
+            });
+        }, [
+            rootFolderDescriptors,
+            getRootFolderReorderVisualState,
+            rootFolderIconMap,
+            rootFolderColorMap,
+            settings.customVaultName,
+            app.vault,
+            buildRemoveMissingAction,
+            handleRemoveMissingRootFolder,
+            getPathBaseName
+        ]);
+
+        // Builds render items for root tag reorder list display
+        const tagReorderItems = useMemo<RootReorderRenderItem[]>(() => {
+            return rootTagDescriptors.map(entry => {
+                const { dragHandlers, showBefore, showAfter, isDragSource } = getRootTagReorderVisualState(entry);
+                const isVirtualRoot = entry.isVirtualRoot === true;
+                const isUntagged = entry.isUntagged === true;
+                const isMissing = entry.isMissing === true;
+
+                let displayIcon: string;
+                let label: string;
+                let itemType: 'folder' | 'tag' = 'tag';
+
+                if (isVirtualRoot) {
+                    displayIcon = 'lucide-tags';
+                    label = strings.tagList.tags;
+                    itemType = 'folder';
+                } else if (isUntagged) {
+                    displayIcon = metadataService.getTagIcon(entry.key) ?? 'lucide-tag';
+                    label = strings.tagList.untaggedLabel;
+                } else {
+                    const iconFromTree = rootTagIconMap.get(entry.key);
+                    const metadataIcon = metadataService.getTagIcon(entry.key);
+                    displayIcon = iconFromTree ?? metadataIcon ?? (isMissing ? 'lucide-tag-off' : 'lucide-tag');
+                    label = entry.tag ? `#${entry.tag.displayPath}` : `#${entry.key}`;
+                }
+
+                const metadataColor = isUntagged ? undefined : metadataService.getTagColor(entry.key);
+                const iconColor = rootTagColorMap.get(entry.key) ?? metadataColor;
+                const actions = isMissing ? buildRemoveMissingAction(entry.key, handleRemoveMissingRootTag) : undefined;
+                const chevronIcon = isVirtualRoot ? 'lucide-chevron-down' : undefined;
+
+                return {
+                    key: `root-tag-reorder-${entry.key}`,
+                    props: {
+                        icon: displayIcon,
+                        color: iconColor,
+                        label,
+                        level: isVirtualRoot ? 0 : 1,
+                        dragHandlers: isVirtualRoot ? undefined : dragHandlers,
+                        showDropIndicatorBefore: showBefore,
+                        showDropIndicatorAfter: showAfter,
+                        isDragSource: isVirtualRoot ? false : isDragSource,
+                        dragHandleLabel: strings.navigationPane.dragHandleLabel,
+                        isMissing,
+                        actions,
+                        itemType,
+                        chevronIcon
+                    }
+                };
+            });
+        }, [
+            rootTagDescriptors,
+            getRootTagReorderVisualState,
+            rootTagIconMap,
+            rootTagColorMap,
+            metadataService,
+            buildRemoveMissingAction,
+            handleRemoveMissingRootTag
+        ]);
+
+        // Resets custom root folder ordering to default
+        const handleResetRootFolderOrder = useCallback(async () => {
+            await updateSettings(current => {
+                current.rootFolderOrder = [];
+            });
+        }, [updateSettings]);
+
+        // Resets custom root tag ordering to default
+        const handleResetRootTagOrder = useCallback(async () => {
+            await updateSettings(current => {
+                current.rootTagOrder = [];
+            });
+        }, [updateSettings]);
+
+        // Renders a section of reorderable items with optional reset button
+        const renderRootReorderSection = useCallback(
+            (items: RootReorderRenderItem[], options?: { showReset: boolean; resetLabel: string; onReset: () => Promise<void> | void }) => {
+                if (items.length === 0) {
+                    return null;
+                }
+
+                const handleReset = (event: React.MouseEvent<HTMLButtonElement>) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (options?.onReset) {
+                        void options.onReset();
+                    }
+                };
+
+                const shouldShowReset = Boolean(options?.showReset && options?.onReset);
+                const resetLabel = options?.resetLabel ?? '';
+
+                return (
+                    <div className="nn-root-reorder-section">
+                        <div className="nn-root-reorder-section-list">
+                            {items.map(item => (
+                                <RootFolderReorderItem key={item.key} {...item.props} />
+                            ))}
+                        </div>
+                        {shouldShowReset ? (
+                            <div className="nn-root-reorder-actions">
+                                <button type="button" className="nn-root-reorder-reset nn-support-button" onClick={handleReset}>
+                                    <span className="nn-root-reorder-reset-icon" aria-hidden="true">
+                                        Aa
+                                    </span>
+                                    <span>{resetLabel}</span>
+                                </button>
+                            </div>
+                        ) : null}
+                    </div>
+                );
+            },
+            []
+        );
+
         // Toggle root folder reorder mode on/off
         const handleToggleRootReorder = useCallback(() => {
-            if (!canReorderRootFolders) {
+            if (!canReorderRootItems) {
                 return;
             }
             setRootReorderMode(prev => !prev);
-        }, [canReorderRootFolders]);
+        }, [canReorderRootItems]);
 
         // Use the new scroll hook
         const { rowVirtualizer, scrollContainerRef, scrollContainerRefCallback, requestScroll } = useNavigationPaneScroll({
@@ -1505,19 +1944,6 @@ export const NavigationPane = React.memo(
             [settings.showNoteCount, settings.includeDescendantNotes, tagCounts, tagTree]
         );
 
-        // Extracts the base file/folder name from a full path
-        const getPathBaseName = useCallback((path: string): string => {
-            if (!path) {
-                return '';
-            }
-            const trimmed = path.endsWith('/') && path !== '/' ? path.slice(0, -1) : path;
-            const segments = trimmed.split('/').filter(Boolean);
-            if (segments.length === 0) {
-                return trimmed || '/';
-            }
-            return segments[segments.length - 1];
-        }, []);
-
         // Generates display label for missing note shortcuts, stripping .md extension
         const getMissingNoteLabel = useCallback(
             (path: string): string => {
@@ -2047,7 +2473,7 @@ export const NavigationPane = React.memo(
                     onTogglePinnedShortcuts={settings.showShortcuts ? handleShortcutSplitToggle : undefined}
                     onToggleRootFolderReorder={handleToggleRootReorder}
                     rootReorderActive={isRootReorderMode}
-                    rootReorderDisabled={!canReorderRootFolders}
+                    rootReorderDisabled={!canReorderRootItems}
                 />
                 {/* Android - toolbar at top */}
                 {isMobile && isAndroid && (
@@ -2056,7 +2482,7 @@ export const NavigationPane = React.memo(
                         onTogglePinnedShortcuts={settings.showShortcuts ? handleShortcutSplitToggle : undefined}
                         onToggleRootFolderReorder={handleToggleRootReorder}
                         rootReorderActive={isRootReorderMode}
-                        rootReorderDisabled={!canReorderRootFolders}
+                        rootReorderDisabled={!canReorderRootItems}
                     />
                 )}
                 {pinnedShortcutItems.length > 0 && !isRootReorderMode ? (
@@ -2092,88 +2518,20 @@ export const NavigationPane = React.memo(
                                 <span className="nn-root-reorder-hint">{strings.navigationPane.reorderRootFoldersHint}</span>
                             </div>
                             <div className="nn-root-reorder-list" role="presentation">
-                                {rootFolderDescriptors.map(entry => {
-                                    const { dragHandlers, showBefore, showAfter, isDragSource } = getRootReorderVisualState(entry);
-                                    const iconName = rootFolderIconMap.get(entry.key);
-                                    const displayLabel = entry.isVault
-                                        ? settings.customVaultName || app.vault.getName()
-                                        : entry.folder
-                                          ? entry.folder.name
-                                          : getPathBaseName(entry.key);
-                                    const isMissing = entry.isMissing === true;
-                                    let displayIcon = 'lucide-folder';
-                                    if (entry.isVault) {
-                                        displayIcon = iconName ?? 'open-vault';
-                                    } else if (isMissing) {
-                                        displayIcon = 'lucide-folder-off';
-                                    } else if (iconName) {
-                                        displayIcon = iconName;
-                                    }
-                                    const chevronIcon = entry.isVault ? 'lucide-chevron-down' : undefined;
-                                    const actions =
-                                        !entry.isVault && isMissing ? (
-                                            <span
-                                                role="button"
-                                                tabIndex={0}
-                                                className="nn-root-reorder-remove"
-                                                onClick={event => {
-                                                    event.preventDefault();
-                                                    event.stopPropagation();
-                                                    void handleRemoveMissingRootFolder(entry.key);
-                                                }}
-                                                onKeyDown={event => {
-                                                    if (event.key === 'Enter' || event.key === ' ') {
-                                                        event.preventDefault();
-                                                        event.stopPropagation();
-                                                        void handleRemoveMissingRootFolder(entry.key);
-                                                    }
-                                                }}
-                                            >
-                                                {strings.common.remove}
-                                            </span>
-                                        ) : undefined;
-                                    const dragHandlersForEntry = entry.isVault ? undefined : dragHandlers;
-                                    const dragSourceActive = entry.isVault ? false : isDragSource;
-
-                                    return (
-                                        <RootFolderReorderItem
-                                            key={`root-reorder-${entry.key}`}
-                                            icon={displayIcon}
-                                            label={displayLabel}
-                                            level={entry.isVault ? 0 : 1}
-                                            dragHandlers={dragHandlersForEntry}
-                                            showDropIndicatorBefore={showBefore}
-                                            showDropIndicatorAfter={showAfter}
-                                            isDragSource={dragSourceActive}
-                                            dragHandleLabel={strings.navigationPane.dragHandleLabel}
-                                            chevronIcon={chevronIcon}
-                                            isMissing={isMissing}
-                                            actions={actions}
-                                        />
-                                    );
-                                })}
-                                {settings.rootFolderOrder.length > 0 ? (
-                                    // Display reset button when custom folder ordering is active
-                                    <div className="nn-root-reorder-actions">
-                                        <button
-                                            type="button"
-                                            className="nn-root-reorder-reset nn-support-button"
-                                            onClick={event => {
-                                                event.preventDefault();
-                                                event.stopPropagation();
-                                                // Clear custom folder order to restore alphabetical sorting
-                                                void updateSettings(current => {
-                                                    current.rootFolderOrder = [];
-                                                });
-                                            }}
-                                        >
-                                            <span className="nn-root-reorder-reset-icon" aria-hidden="true">
-                                                Aa
-                                            </span>
-                                            <span>{strings.navigationPane.resetRootFolderOrder}</span>
-                                        </button>
-                                    </div>
-                                ) : null}
+                                {showRootFolderSection
+                                    ? renderRootReorderSection(folderReorderItems, {
+                                          showReset: settings.rootFolderOrder.length > 0,
+                                          resetLabel: strings.navigationPane.resetRootToAlpha,
+                                          onReset: handleResetRootFolderOrder
+                                      })
+                                    : null}
+                                {showRootTagSection
+                                    ? renderRootReorderSection(tagReorderItems, {
+                                          showReset: settings.rootTagOrder.length > 0,
+                                          resetLabel: resetRootTagOrderLabel,
+                                          onReset: handleResetRootTagOrder
+                                      })
+                                    : null}
                             </div>
                         </div>
                     ) : (
@@ -2225,7 +2583,7 @@ export const NavigationPane = React.memo(
                         onTogglePinnedShortcuts={settings.showShortcuts ? handleShortcutSplitToggle : undefined}
                         onToggleRootFolderReorder={handleToggleRootReorder}
                         rootReorderActive={isRootReorderMode}
-                        rootReorderDisabled={!canReorderRootFolders}
+                        rootReorderDisabled={!canReorderRootItems}
                     />
                 )}
             </div>
