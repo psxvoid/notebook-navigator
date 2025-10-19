@@ -73,20 +73,26 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
-        version: '1.5.6',
-        date: '2025-10-17',
+        version: '1.6.0',
+        date: '2025-10-19',
         showOnUpdate: true,
+        info: [
+            'In this release I have good news and bad news. The bad news is that I had to remove the **favorite tags** section due to architectural complexity. It made the codebase hard to maintain with special cases everywhere. The good news is that you can now sort root tags manually just like folders, so you can still put your favorite tags or untagged notes at the top of the tag list.',
+            'My plan is to continue developing and improving this plugin for a long time. Years, maybe even decades. This is why some features like favorite tags might be cut in future releases, but right now I am quite happy with the internal architecture so I do not see this happening with any other features in the near future.',
+            'Thank you for using Notebook Navigator!'
+        ].join('\n\n'),
         new: [
+            'You can now change ==sort order for root tags==, just like folders. Just click the button "Reorder root folders and tags" in the navigation pane.',
             'New command: ==Add to shortcuts==. Adds the current file, folder, or tag to shortcuts.',
             'New setting: ==Pin created folder notes==. Automatically pin folder notes when created from the context menu.',
-            'New setting: ==Separate note counts==. Display separate counts for current folder/tag notes and descendant notes (e.g., "2 ▾ 5" instead of "7").',
+            'New setting: ==Separate note counts==. Display separate counts for current folder/tag notes and descendant notes ("2 ▾ 5" instead of "7"). This is now the default display option but can be restored to previous appearance in settings.',
             'New folder menu item: =="Move to..."==. Opens a modal to move the folder to another location.',
             'New file menu items: ==Copy path== and ==Copy relative path==.',
             '==New menu== when right-clicking empty area in list pane: Create new note, folder, canvas, base or drawing.',
             'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).'
         ],
         changed: [
-            '**Favorite tags section is removed**. I am sorry about this change, but having a separate favorite tags section caused an architectural nightmare that caused special wiring all over the application.'
+            '**Favorite tags section is removed**. I am sorry about this change, but having a separate favorite tags section caused an architectural nightmare that caused special wiring all over the application. To get a similar experience you can sort tags by frequency, or reorder root tags manually.'
         ],
         improved: ['Hidden tags are now also hidden in the list pane.'],
         fixed: [
