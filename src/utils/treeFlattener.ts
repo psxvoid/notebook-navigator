@@ -32,8 +32,6 @@ interface FlattenFolderTreeOptions {
 
 /** Options for flattenTagTree function */
 interface FlattenTagTreeOptions {
-    /** Context to indicate if tags are favorites or regular */
-    context?: 'favorites' | 'tags';
     /** Matcher for determining hidden tags */
     hiddenMatcher?: HiddenTagMatcher;
     /** Custom comparator for sorting tag nodes */
@@ -152,7 +150,7 @@ export function flattenTagTree(
     options: FlattenTagTreeOptions = {}
 ): TagTreeItem[] {
     const items: TagTreeItem[] = [];
-    const { context, hiddenMatcher, comparator } = options;
+    const { hiddenMatcher, comparator } = options;
     /** Use custom comparator or default to alphabetical sorting */
     const sortFn = comparator ?? ((a: TagTreeNode, b: TagTreeNode) => naturalCompare(a.name, b.name));
 
@@ -169,8 +167,7 @@ export function flattenTagTree(
             data: node,
             level: currentLevel,
             path: node.path,
-            key: node.path,
-            context
+            key: node.path
         };
 
         // Mark tags that match hidden patterns (shows eye icon when visible)

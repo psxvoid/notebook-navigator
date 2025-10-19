@@ -44,6 +44,7 @@ import { FILE_VISIBILITY, isExcalidrawAttachment } from '../utils/fileTypeUtils'
 import { parseFilterSearchTokens, fileMatchesFilterTokens } from '../utils/filterSearch';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { SearchResultMeta } from '../types/search';
+import { createHiddenTagVisibility, normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 import { getDBInstance } from 'src/storage/fileOperations';
 import { FeatureImageContentProvider } from 'src/services/content/FeatureImageContentProvider';
 import { CachedMetadata } from 'tests/stubs/obsidian';
@@ -325,7 +326,7 @@ export function useListPaneData({
                     // toLowerCase() calls when checking multiple files
                     let cached = lowercaseTagCache.get(file.path);
                     if (!cached) {
-                        cached = tags.map(tag => tag.toLowerCase());
+                        cached = tags.map(tag => normalizeTagPathValue(tag)).filter((value): value is string => value.length > 0);
                         lowercaseTagCache.set(file.path, cached);
                     }
                     lowercaseTags = cached;
@@ -376,7 +377,17 @@ export function useListPaneData({
         // Check if file has tags for height optimization
         const shouldDetectTags = settings.showTags && settings.showFileTags;
         const db = shouldDetectTags ? getDB() : null;
-        const getHasTagsForFile = shouldDetectTags && db ? (file: TFile) => db.getCachedTags(file.path).length > 0 : () => false;
+        const hiddenTagVisibility = shouldDetectTags ? createHiddenTagVisibility(settings.hiddenTags, settings.showHiddenItems) : null;
+        const fileHasTags =
+            shouldDetectTags && db
+                ? (file: TFile) => {
+                      const tags = db.getCachedTags(file.path);
+                      if (!hiddenTagVisibility) {
+                          return tags.length > 0;
+                      }
+                      return hiddenTagVisibility.hasVisibleTags(tags);
+                  }
+                : () => false;
 
         // Determine which sort option to use
         // Files are already sorted in fileFinder; preserve order here
@@ -400,7 +411,7 @@ export function useListPaneData({
                     fileIndex: fileIndexCounter++,
                     isPinned: true,
                     searchMeta: searchMetaMap.get(file.path),
-                    hasTags: getHasTagsForFile(file)
+                    hasTags: fileHasTags(file)
                 });
             });
         }
@@ -427,7 +438,7 @@ export function useListPaneData({
                     key: file.path,
                     fileIndex: fileIndexCounter++,
                     searchMeta: searchMetaMap.get(file.path),
-                    hasTags: getHasTagsForFile(file)
+                    hasTags: fileHasTags(file)
                 });
             });
         } else {
@@ -455,7 +466,7 @@ export function useListPaneData({
                     key: file.path,
                     fileIndex: fileIndexCounter++,
                     searchMeta: searchMetaMap.get(file.path),
-                    hasTags: getHasTagsForFile(file)
+                    hasTags: fileHasTags(file)
                 });
             });
         }

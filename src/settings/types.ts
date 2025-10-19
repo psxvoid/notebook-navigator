@@ -99,12 +99,9 @@ export interface NotebookNavigatorSettings {
     pinCreatedFolderNote: boolean;
     showTags: boolean;
     showTagsAboveFolders: boolean;
-    showFavoriteTagsFolder: boolean;
     showAllTagsFolder: boolean;
     showUntagged: boolean;
-    showUntaggedInFavorites: boolean;
     tagSortOrder: TagSortOrder;
-    favoriteTags: string[];
     hiddenTags: string[];
 
     // List pane tab

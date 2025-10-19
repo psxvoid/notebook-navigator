@@ -526,7 +526,6 @@ export function useListPaneScroll({
                 selectedFilePathRef.current &&
                 pending.filePath !== selectedFilePathRef.current
             ) {
-                console.log('[ListPaneScroll] skipping stale list-config pending', pending.filePath, selectedFilePathRef.current);
                 shouldClearPending = true;
             } else if (pending.filePath) {
                 const index = getSelectionIndex(pending.filePath);

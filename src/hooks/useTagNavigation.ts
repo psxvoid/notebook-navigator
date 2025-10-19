@@ -20,7 +20,8 @@ import { useCallback } from 'react';
 import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { useFileCache } from '../context/StorageContext';
+import { normalizeTagPath } from '../utils/tagUtils';
+import { UNTAGGED_TAG_ID } from '../types';
 
 /**
  * Custom hook that provides tag navigation functionality.
@@ -34,7 +35,6 @@ export function useTagNavigation() {
     const expansionDispatch = useExpansionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
-    const { findTagInFavoriteTree } = useFileCache();
 
     /**
      * Navigates to a tag, expanding parent tags if it's hierarchical.
@@ -43,10 +43,15 @@ export function useTagNavigation() {
      */
     const navigateToTag = useCallback(
         (tagPath: string) => {
+            const canonicalPath = normalizeTagPath(tagPath);
+            if (!canonicalPath) {
+                return;
+            }
+
             // For hierarchical tags, expand all parent tags
-            if (tagPath !== '__untagged__' && tagPath.includes('/')) {
+            if (canonicalPath !== UNTAGGED_TAG_ID && canonicalPath.includes('/')) {
                 const tagsToExpand: string[] = [];
-                const parts = tagPath.split('/');
+                const parts = canonicalPath.split('/');
 
                 // Build parent paths to expand
                 for (let i = 1; i <= parts.length - 1; i++) {
@@ -59,13 +64,7 @@ export function useTagNavigation() {
                 }
             }
 
-            // Determine context based on whether tag exists in favorites
-            const lowerPath = tagPath.toLowerCase();
-            const tagInFavorites = findTagInFavoriteTree(lowerPath);
-            const context: 'favorites' | 'tags' = tagInFavorites ? 'favorites' : 'tags';
-
-            // Navigate to the selected tag with context
-            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: lowerPath, context });
+            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: canonicalPath });
 
             // Switch to files view in single-pane mode
             if (uiState.singlePane) {
@@ -75,7 +74,7 @@ export function useTagNavigation() {
             // Set focus to navigation pane to show the selected tag
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
         },
-        [selectionDispatch, expansionDispatch, uiState.singlePane, uiDispatch, findTagInFavoriteTree]
+        [selectionDispatch, expansionDispatch, uiState.singlePane, uiDispatch]
     );
 
     return {

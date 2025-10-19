@@ -62,7 +62,6 @@ export interface TagTreeItem {
     level: number;
     path?: string;
     key: string;
-    context?: 'favorites' | 'tags'; // Indicates which section this tag is in
     color?: string;
     backgroundColor?: string;
     icon?: string;
@@ -74,7 +73,6 @@ export interface UntaggedItem {
     data: TagTreeNode;
     level: number;
     key: string;
-    context?: 'favorites' | 'tags'; // Indicates which section this item is in
     color?: string;
     backgroundColor?: string;
     icon?: string;
@@ -133,7 +131,6 @@ export interface ShortcutTagNavItem extends ShortcutNavigationBase {
     type: typeof NavigationPaneItemType.SHORTCUT_TAG;
     tagPath: string;
     displayName: string;
-    context?: 'favorites' | 'tags';
 }
 
 export interface NavigationBannerItem {

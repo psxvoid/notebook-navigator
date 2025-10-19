@@ -155,7 +155,7 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
             tags.push(this.untaggedNode);
         }
 
-        // Get all tag paths from the TagTreeService (includes both favorite and regular tags)
+        // Get all tag paths from the TagTreeService
         const allTagPaths = this.plugin.tagTreeService?.getAllTagPaths() || [];
 
         // Convert paths to nodes

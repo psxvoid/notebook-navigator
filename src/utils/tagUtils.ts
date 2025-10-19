@@ -20,6 +20,45 @@ import { TFile } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { UNTAGGED_TAG_ID } from '../types';
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
+import { normalizeTagPathValue } from './tagPrefixMatcher';
+import { findTagNode } from './tagTree';
+import type { TagTreeNode } from '../types/storage';
+
+/**
+ * Normalizes tag paths for internal lookups.
+ * Removes leading # when present and returns lowercase path.
+ */
+export function normalizeTagPath(tagPath: string | null | undefined): string | null {
+    if (!tagPath) {
+        return null;
+    }
+
+    const trimmed = tagPath.trim();
+    if (trimmed === '') {
+        return null;
+    }
+
+    const normalized = normalizeTagPathValue(trimmed);
+    return normalized === '' ? null : normalized;
+}
+
+/**
+ * Resolves the canonical lowercase tag path used across state stores.
+ * Returns the node path when available, otherwise the normalized string.
+ */
+export function resolveCanonicalTagPath(tagPath: string | null | undefined, tagTree?: Map<string, TagTreeNode>): string | null {
+    if (tagPath === UNTAGGED_TAG_ID) {
+        return UNTAGGED_TAG_ID;
+    }
+
+    const normalized = normalizeTagPath(tagPath);
+    if (!tagTree || !normalized) {
+        return normalized;
+    }
+
+    const node = findTagNode(tagTree, normalized);
+    return node?.path ?? normalized;
+}
 
 /**
  * Gets normalized tags for a file (without # prefix and in lowercase)
@@ -37,8 +76,8 @@ function getNormalizedTagsForFile(file: TFile, storage: IndexedDBStorage): strin
         return [];
     }
 
-    // Tags in cache are already without # prefix, just normalize to lowercase
-    return fileTags.map((tag: string) => tag.toLowerCase());
+    // Tags in cache are already without # prefix, just normalize consistently
+    return fileTags.map((tag: string) => normalizeTagPathValue(tag)).filter((value): value is string => value.length > 0);
 }
 
 /**
@@ -47,36 +86,12 @@ function getNormalizedTagsForFile(file: TFile, storage: IndexedDBStorage): strin
  */
 function fileHasExactTag(file: TFile, tag: string, storage: IndexedDBStorage): boolean {
     const normalizedTags = getNormalizedTagsForFile(file, storage);
-    const normalizedSearchTag = tag.toLowerCase();
+    const normalizedSearchTag = normalizeTagPathValue(tag);
+    if (normalizedSearchTag.length === 0) {
+        return false;
+    }
 
     return normalizedTags.some(fileTag => fileTag === normalizedSearchTag);
-}
-
-/**
- * Finds the first tag from a file that matches any tag in the given list
- * Returns the original tag path (not normalized) or null if no match
- */
-function findFirstMatchingTag(file: TFile, availableTags: string[], storage: IndexedDBStorage): string | null {
-    const fileTags = getNormalizedTagsForFile(file, storage);
-    if (fileTags.length === 0) {
-        return null;
-    }
-
-    // Create a map of normalized to original tags
-    const normalizedToOriginal = new Map<string, string>();
-    availableTags.forEach(tag => {
-        normalizedToOriginal.set(tag.toLowerCase(), tag);
-    });
-
-    // Find first matching tag
-    for (const fileTag of fileTags) {
-        const original = normalizedToOriginal.get(fileTag);
-        if (original) {
-            return original;
-        }
-    }
-
-    return null;
 }
 
 /**
@@ -104,27 +119,20 @@ export function determineTagToReveal(
 
         // For auto-reveals (which tag reveals always are), check if current tag is a parent
         // This is similar to how folder auto-reveals preserve parent folders with includeDescendantNotes
-        const currentTagLower = currentTag.toLowerCase();
-        const currentTagPrefix = `${currentTagLower}/`;
+        const normalizedCurrentTag = normalizeTagPathValue(currentTag);
+        if (normalizedCurrentTag.length > 0) {
+            const currentTagPrefix = `${normalizedCurrentTag}/`;
 
-        // Check if any of the file's tags are children of the current tag
-        for (const fileTag of fileTags) {
-            if (fileTag.startsWith(currentTagPrefix)) {
-                return currentTag; // Stay on parent tag (shortest path)
+            // Check if any of the file's tags are children of the current tag
+            for (const fileTag of fileTags) {
+                if (fileTag.startsWith(currentTagPrefix)) {
+                    return currentTag; // Stay on parent tag (shortest path)
+                }
             }
         }
     }
 
-    // File has different tags - find the first matching tag
-    // First check favorite tags if configured
-    if (settings.favoriteTags && settings.favoriteTags.length > 0) {
-        const favoriteMatch = findFirstMatchingTag(file, settings.favoriteTags, storage);
-        if (favoriteMatch) {
-            return favoriteMatch;
-        }
-    }
-
-    // If no favorite match, return the first tag of the file
+    // File has different tags - return the first tag of the file
     // Get the original tags from cache (they preserve case)
     const fileData = storage.getFile(file.path);
     const originalTags = fileData?.tags;

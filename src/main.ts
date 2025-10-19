@@ -654,10 +654,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             this.settings.tagAppearances = normalizeRecord(this.settings.tagAppearances);
         }
 
-        if (this.settings.favoriteTags) {
-            this.settings.favoriteTags = normalizeArray(this.settings.favoriteTags);
-        }
-
         if (this.settings.hiddenTags) {
             this.settings.hiddenTags = normalizeArray(this.settings.hiddenTags);
         }

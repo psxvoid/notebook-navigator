@@ -27,6 +27,7 @@ import { getIconService, useIconServiceVersion } from '../services/icons';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useListActions } from '../hooks/useListActions';
 import { useListPaneTitle } from '../hooks/useListPaneTitle';
+import { normalizeTagPath } from '../utils/tagUtils';
 
 interface ListPaneHeaderProps {
     onHeaderClick?: () => void;
@@ -79,7 +80,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                             selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: targetFolder });
                         }
                     } else if (segment.targetType === 'tag' && segment.targetPath) {
-                        selectionDispatch({ type: 'SET_SELECTED_TAG', tag: segment.targetPath });
+                        selectionDispatch({ type: 'SET_SELECTED_TAG', tag: normalizeTagPath(segment.targetPath) });
                     }
                 };
 

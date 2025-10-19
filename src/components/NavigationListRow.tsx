@@ -181,8 +181,8 @@ export function NavigationListRow({
                           const offsetX = event.clientX - rect.left;
                           const offsetY = event.clientY - rect.top;
                           event.dataTransfer.setDragImage(parentRow, offsetX, offsetY);
-                      } catch (error) {
-                          console.log('Drag handle setDragImage failed', error);
+                      } catch {
+                          // Ignore platforms that do not support custom drag images
                       }
                   }
                   dragHandlers.onDragStart(event);

@@ -183,7 +183,6 @@ export interface LocalStorageKeys {
     selectedFileKey: string;
     selectedFilesKey: string;
     selectedTagKey: string;
-    selectedTagContextKey: string;
     navigationPaneWidthKey: string;
     dualPaneKey: string;
     shortcutsExpandedKey: string;
@@ -209,7 +208,6 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     selectedFileKey: 'notebook-navigator-selected-file',
     selectedFilesKey: 'notebook-navigator-selected-files',
     selectedTagKey: 'notebook-navigator-selected-tag',
-    selectedTagContextKey: 'notebook-navigator-selected-tag-context',
     navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width',
     dualPaneKey: 'notebook-navigator-dual-pane',
     shortcutsExpandedKey: 'notebook-navigator-shortcuts-expanded',

@@ -17,6 +17,7 @@
  */
 
 import { ItemType } from '../types';
+import { normalizeTagPath } from './tagUtils';
 
 export type NavigationIndexKey = string;
 
@@ -26,7 +27,8 @@ export type NavigationIndexKey = string;
  */
 export function normalizeNavigationPath(itemType: ItemType, path: string): string {
     if (itemType === ItemType.TAG) {
-        return path.toLowerCase();
+        const normalized = normalizeTagPath(path);
+        return normalized ?? path.toLowerCase();
     }
     return path;
 }

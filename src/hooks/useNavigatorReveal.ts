@@ -28,10 +28,9 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { useCommandQueue } from '../context/ServicesContext';
-import { determineTagToReveal, findNearestVisibleTagAncestor } from '../utils/tagUtils';
-import { ItemType } from '../types';
+import { determineTagToReveal, findNearestVisibleTagAncestor, resolveCanonicalTagPath } from '../utils/tagUtils';
+import { ItemType, UNTAGGED_TAG_ID } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
-import { matchesAnyPrefix } from '../utils/tagPrefixMatcher';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
 import type { Align } from '../types/scroll';
 
@@ -68,7 +67,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
-    const { getDB, findTagInTree, findTagInFavoriteTree } = useFileCache();
+    const { getDB, findTagInTree } = useFileCache();
     const commandQueue = useCommandQueue();
 
     // Auto-reveal state
@@ -217,32 +216,28 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
      */
     const revealTag = useCallback(
         (tagPath: string) => {
-            if (!tagPath) return;
+            if (!tagPath) {
+                return;
+            }
 
-            // Get tag node from StorageContext
-            const tagNode = findTagInTree(tagPath) ?? findTagInFavoriteTree(tagPath);
+            const canonicalPath = resolveCanonicalTagPath(tagPath);
+            if (!canonicalPath) {
+                return;
+            }
 
-            if (!tagNode) return;
+            if (canonicalPath !== UNTAGGED_TAG_ID) {
+                const tagNode = findTagInTree(canonicalPath);
+                if (!tagNode) {
+                    return;
+                }
+            }
 
             // Expand virtual folders if needed
             const virtualFoldersToExpand: string[] = [];
 
             // Check if we need to expand virtual folders based on settings
-            if (settings.showTags) {
-                // Check if this tag matches any favorite prefixes
-                const isFavorite = settings.favoriteTags.length > 0 && matchesAnyPrefix(tagPath, settings.favoriteTags);
-
-                if (settings.favoriteTags.length > 0) {
-                    // We have favorites configured
-                    if (settings.showFavoriteTagsFolder && isFavorite) {
-                        virtualFoldersToExpand.push('favorite-tags-root');
-                    } else if (settings.showAllTagsFolder && !isFavorite) {
-                        virtualFoldersToExpand.push('all-tags-root');
-                    }
-                } else {
-                    // No favorites, just regular tags folder
-                    virtualFoldersToExpand.push('tags-root');
-                }
+            if (settings.showTags && settings.showAllTagsFolder) {
+                virtualFoldersToExpand.push('tags-root');
             }
 
             // Expand virtual folders if needed
@@ -253,28 +248,22 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 expansionDispatch({ type: 'SET_EXPANDED_VIRTUAL_FOLDERS', folders: newExpanded });
             }
 
-            // Expand parent tags if needed
-            const tagsToExpand: string[] = [];
-            const parts = tagPath.split('/');
+            if (canonicalPath !== UNTAGGED_TAG_ID) {
+                const tagsToExpand: string[] = [];
+                const parts = canonicalPath.split('/');
 
-            // Build parent paths
-            for (let i = 1; i < parts.length; i++) {
-                const parentPath = parts.slice(0, i).join('/');
-                tagsToExpand.push(parentPath);
+                for (let i = 1; i < parts.length; i++) {
+                    const parentPath = parts.slice(0, i).join('/');
+                    tagsToExpand.push(parentPath);
+                }
+
+                const needsExpansion = tagsToExpand.some(path => !expansionState.expandedTags.has(path));
+                if (needsExpansion) {
+                    expansionDispatch({ type: 'EXPAND_TAGS', tagPaths: tagsToExpand });
+                }
             }
 
-            // Expand tags if needed
-            const needsExpansion = tagsToExpand.some(path => !expansionState.expandedTags.has(path));
-            if (needsExpansion) {
-                expansionDispatch({ type: 'EXPAND_TAGS', tagPaths: tagsToExpand });
-            }
-
-            // Determine context based on whether tag exists in favorites
-            const tagInFavorites = findTagInFavoriteTree(tagPath);
-            const context: 'favorites' | 'tags' = tagInFavorites ? 'favorites' : 'tags';
-
-            // Select the tag with context
-            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath, context });
+            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: canonicalPath });
 
             // In single pane mode, switch to list pane view (same as revealFileInActualFolder)
             if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
@@ -285,7 +274,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
             if (navigationPaneRef.current) {
-                navigationPaneRef.current.requestScroll(tagPath, { align: 'auto', itemType: ItemType.TAG });
+                navigationPaneRef.current.requestScroll(canonicalPath, { align: 'auto', itemType: ItemType.TAG });
             }
 
             // If we have a selected file, trigger a reveal to ensure proper item visibility
@@ -296,7 +285,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                     file: selectionState.selectedFile,
                     preserveFolder: true, // We're in tag view, preserve it
                     isManualReveal: false, // This is part of auto-reveal
-                    targetTag: tagPath
+                    targetTag: canonicalPath
                 });
             }
         },
@@ -310,7 +299,6 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             settings,
             selectionState.selectedFile,
             findTagInTree,
-            findTagInFavoriteTree,
             navigationPaneRef
         ]
     );

@@ -32,6 +32,7 @@ import {
 } from '../types/shortcuts';
 import type { SearchProvider } from '../types/search';
 import { strings } from '../i18n';
+import { normalizeTagPath } from '../utils/tagUtils';
 
 /**
  * Represents a shortcut with resolved file/folder references and validation state.
@@ -100,6 +101,41 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     // Extracts shortcuts array from settings with fallback to empty array
     const rawShortcuts = useMemo(() => settings.shortcuts ?? [], [settings.shortcuts]);
 
+    // TODO: remove migration once tag shortcuts are normalized across active installs
+    // Normalize stored tag shortcut paths for consistent lookups
+    useEffect(() => {
+        const requiresNormalization = rawShortcuts.some(shortcut => {
+            if (!isTagShortcut(shortcut)) {
+                return false;
+            }
+            const normalized = normalizeTagPath(shortcut.tagPath);
+            return normalized !== null && normalized !== shortcut.tagPath;
+        });
+
+        if (!requiresNormalization) {
+            return;
+        }
+
+        void (async () => {
+            await updateSettings(current => {
+                const existing = current.shortcuts ?? [];
+                current.shortcuts = existing.map(entry => {
+                    if (isTagShortcut(entry)) {
+                        const normalized = normalizeTagPath(entry.tagPath);
+                        if (!normalized) {
+                            return entry;
+                        }
+                        return {
+                            ...entry,
+                            tagPath: normalized
+                        };
+                    }
+                    return entry;
+                });
+            });
+        })();
+    }, [rawShortcuts, updateSettings]);
+
     // Creates map of shortcuts by their unique keys for O(1) lookup
     const shortcutMap = useMemo(() => {
         const map = new Map<string, ShortcutEntry>();
@@ -136,7 +172,10 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         const map = new Map<string, string>();
         rawShortcuts.forEach(shortcut => {
             if (isTagShortcut(shortcut)) {
-                map.set(shortcut.tagPath, getShortcutKey(shortcut));
+                const normalized = normalizeTagPath(shortcut.tagPath);
+                if (normalized) {
+                    map.set(normalized, getShortcutKey(shortcut));
+                }
             }
         });
         return map;
@@ -261,14 +300,15 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
             }
 
             if (isTagShortcut(shortcut)) {
+                const normalizedTagPath = normalizeTagPath(shortcut.tagPath);
                 return {
                     key,
                     shortcut,
                     folder: null,
                     note: null,
                     search: null,
-                    tagPath: shortcut.tagPath,
-                    isMissing: false
+                    tagPath: normalizedTagPath ?? shortcut.tagPath,
+                    isMissing: !normalizedTagPath
                 };
             }
 
@@ -327,11 +367,15 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     // Adds a tag shortcut if it doesn't already exist
     const addTagShortcut = useCallback(
         async (tagPath: string, options?: { index?: number }) => {
-            if (tagShortcutKeysByPath.has(tagPath)) {
+            const normalizedPath = normalizeTagPath(tagPath);
+            if (!normalizedPath) {
+                return false;
+            }
+            if (tagShortcutKeysByPath.has(normalizedPath)) {
                 new Notice(strings.shortcuts.tagExists);
                 return false;
             }
-            return insertShortcut({ type: ShortcutType.TAG, tagPath }, options?.index);
+            return insertShortcut({ type: ShortcutType.TAG, tagPath: normalizedPath }, options?.index);
         },
         [insertShortcut, tagShortcutKeysByPath]
     );
@@ -431,7 +475,13 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     // Checks if a note shortcut exists for the given path
     const hasNoteShortcut = useCallback((path: string) => noteShortcutKeysByPath.has(path), [noteShortcutKeysByPath]);
     // Checks if a tag shortcut exists for the given tag path
-    const hasTagShortcut = useCallback((tagPath: string) => tagShortcutKeysByPath.has(tagPath), [tagShortcutKeysByPath]);
+    const hasTagShortcut = useCallback(
+        (tagPath: string) => {
+            const normalized = normalizeTagPath(tagPath);
+            return normalized ? tagShortcutKeysByPath.has(normalized) : false;
+        },
+        [tagShortcutKeysByPath]
+    );
 
     // Finds a search shortcut by name (case-insensitive)
     const findSearchShortcut = useCallback((name: string) => searchShortcutsByName.get(name.trim().toLowerCase()), [searchShortcutsByName]);

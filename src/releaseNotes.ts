@@ -85,9 +85,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==New menu== when right-clicking empty area in list pane: Create new note, folder, canvas, base or drawing.',
             'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).'
         ],
-        improved: [
-            'Hidden tags are now also hidden in the list pane.'
+        changed: [
+            '**Favorite tags section is removed**. I am sorry about this change, but having a separate favorite tags section caused an architectural nightmare that caused special wiring all over the application.'
         ],
+        improved: ['Hidden tags are now also hidden in the list pane.'],
         fixed: [
             'Fixed a rare startup crash that hid Notebook Navigator during startup after enabling the plugin.',
             'Fixed scroll to active note in list pane when toggling "Show notes from descendants".',
@@ -183,7 +184,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         fixed: [
             'Add to shortcuts / remove from shortcuts are now shown for all supported files, not only markdown files.',
             'Fixed an issue where the navigation pane would not be shown on startup when a homepage was configured and the default startup view was set to navigation pane in single-pane mode.',
-            'Fixed an issue where clicking on a tag that is favorite in shortcuts would not open the tag.',
+            'Fixed an issue where clicking a tag shortcut would not open the tag.',
             'Fixed an issue where folder notes were added to file count even when they were hidden.',
             'Fixed an issue where shortcuts would not show name aliases from frontmatter.',
             'Fixed the German word for shortcuts (keyboard shortcuts) to Lesezeichen (bookmarks).',
@@ -210,7 +211,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         changed: [
             '**Dragging notes to folders or tags** will now auto-expand the target folder or tag after a short delay.',
             '**Auto-reveal active note** now selects the nearest visible ancestor when descendant notes are enabled. This means that your folder tree will always stay "clean" without any expanded subfolders if you have show descendants enabled.',
-            'The **favorite tags** section is now hidden if there are no favorite tags matching your filters.',
+            'The tag section now hides when no tags remain after applying filters.',
             'Remove color and Remove icon options were removed from the context menu, you now remove icons or colors with the "change" dialogs.',
             'Recent icons were moved to local storage to reduce the synced settings file size. This means that you will start with empty recent icons in this release.'
         ],
@@ -262,7 +263,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==ICON PACKS!== You can now download **Bootstrap Icons**, **Font Awesome**, **Material Icons**, **Phosphor Icons** and **RPG Awesome** icon packs from within the Notebook Navigator settings! This is done using a super modular implementation where icon packs are stored locally on each device in a database, with just tiny metadata syncing between devices indicating if they should download or remove packs. Everything "just works" in the background! '
         ],
         improved: [
-            '==Tags in list pane are now sorted alphabetically==. Tags in file list are sorted as follows: first favorite tags are shown, then colored non-favorite tags, then uncolored non-favorite tags.'
+            '==Tags in list pane are now sorted alphabetically==. Tags in the file list are ordered with colored tags first, followed by uncolored tags.'
         ],
         changed: [
             'Metadata cleanup is no longer run automatically on every startup. You can now access it from Settings, and it will show you if you have any orphaned settings due to moving, deleting or renaming files outside of Obsidian.',

@@ -19,7 +19,7 @@
 /**
  * Simple tag prefix matching utilities
  *
- * This module provides prefix-based matching for favorite and hidden tags.
+ * This module provides prefix-based matching for hidden tag rules.
  * Tags are matched from left to right only.
  *
  * Examples:
@@ -58,7 +58,7 @@ function matchesPrefix(tagPath: string, prefix: string): boolean {
  * @param prefixes - Array of prefixes to match against - must be lowercase
  * @returns true if the tag matches any prefix
  */
-export function matchesAnyPrefix(tagPath: string, prefixes: string[]): boolean {
+function matchesAnyPrefix(tagPath: string, prefixes: string[]): boolean {
     return prefixes.some(prefix => matchesPrefix(tagPath, prefix));
 }
 
@@ -94,7 +94,14 @@ const EMPTY_HIDDEN_TAG_MATCHER: HiddenTagMatcher = {
  * Removes # prefix, trims slashes, and converts to lowercase.
  */
 function sanitizePattern(pattern: string): string {
-    return cleanTagPath(pattern).toLowerCase();
+    return normalizeTagPathValue(pattern);
+}
+
+/**
+ * Normalizes a tag path or pattern by trimming slashes, removing # prefix, and lowercasing.
+ */
+export function normalizeTagPathValue(tag: string): string {
+    return cleanTagPath(tag).toLowerCase();
 }
 
 /**
@@ -194,33 +201,59 @@ export function matchesHiddenTagPattern(tagPath: string, tagName: string, matche
 }
 
 /**
- * Finds all prefixes that would match a given tag
- * Used for "Remove from favorites" to find which favorite entries to remove
- * Assumes lowercase inputs.
- *
- * @param tagPath - The tag path to check - must be lowercase
- * @param prefixes - Array of prefixes to check against - must be lowercase
- * @returns Array of prefixes that match this tag
+ * Provides helpers for working with hidden tag rules in different contexts.
  */
-export function findMatchingPrefixes(tagPath: string, prefixes: string[]): string[] {
-    const cleanedTag = cleanTagPath(tagPath);
-    const matchingPrefixes: string[] = [];
+export interface HiddenTagVisibility {
+    matcher: HiddenTagMatcher;
+    hasHiddenRules: boolean;
+    shouldFilterHiddenTags: boolean;
+    /**
+     * Returns true when the tag does not match any hidden pattern.
+     */
+    isTagVisible(tagPath: string, tagName?: string): boolean;
+    /**
+     * Returns true when the collection contains at least one visible tag.
+     */
+    hasVisibleTags(tags: readonly string[]): boolean;
+}
 
-    for (const prefix of prefixes) {
-        // prefixes from settings are already clean and lowercase
+/**
+ * Creates a visibility helper for the provided hidden tag patterns and visibility setting.
+ *
+ * @param patterns - Hidden tag patterns from settings
+ * @param showHiddenItems - Whether hidden items should be shown in the UI
+ */
+export function createHiddenTagVisibility(patterns: string[], showHiddenItems: boolean): HiddenTagVisibility {
+    const matcher = createHiddenTagMatcher(patterns);
+    const hasHiddenRules = matcher.prefixes.length > 0 || matcher.startsWithNames.length > 0 || matcher.endsWithNames.length > 0;
+    const shouldFilterHiddenTags = hasHiddenRules && !showHiddenItems;
 
-        // Check if this prefix would match the tag
-        if (cleanedTag === prefix || cleanedTag.startsWith(`${prefix}/`)) {
-            matchingPrefixes.push(prefix);
-        }
-        // Also check if the tag is an ancestor of the prefix
-        // (e.g., clicking "photo" when "photo/camera" is favorited)
-        else if (prefix.startsWith(`${cleanedTag}/`)) {
-            matchingPrefixes.push(prefix);
-        }
-    }
+    const isTagVisible = shouldFilterHiddenTags
+        ? (tagPath: string, tagName?: string) => {
+              const normalizedPath = normalizeTagPathValue(tagPath);
+              const normalizedName = tagName !== undefined ? tagName.toLowerCase() : (normalizedPath.split('/').pop() ?? normalizedPath);
+              return !matchesHiddenTagPattern(normalizedPath, normalizedName, matcher);
+          }
+        : () => true;
 
-    return matchingPrefixes;
+    const hasVisibleTags = shouldFilterHiddenTags
+        ? (tags: readonly string[]) => {
+              for (const tag of tags) {
+                  if (isTagVisible(tag)) {
+                      return true;
+                  }
+              }
+              return false;
+          }
+        : (tags: readonly string[]) => tags.length > 0;
+
+    return {
+        matcher,
+        hasHiddenRules,
+        shouldFilterHiddenTags,
+        isTagVisible,
+        hasVisibleTags
+    };
 }
 
 /**

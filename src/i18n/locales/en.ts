@@ -48,10 +48,8 @@ export const STRINGS_EN = {
     // Tag list
     tagList: {
         untaggedLabel: 'Untagged', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'Favorite tags', // Label for the favorites virtual folder (English: Favorite tags)
         hiddenTags: 'Hidden tags', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: 'Tags', // Label for the tags virtual folder when favorites exist (English: Tags)
-        tags: 'Tags' // Label for the tags virtual folder when no favorites exist (English: Tags)
+        tags: 'Tags' // Label for the tags virtual folder (English: Tags)
     },
 
     // Navigation pane
@@ -184,8 +182,7 @@ export const STRINGS_EN = {
             changeIcon: 'Change icon',
             changeColor: 'Change color',
             changeBackground: 'Change background',
-            addToFavorites: 'Add to favorites',
-            removeFromFavorites: 'Remove from favorites',
+            showTag: 'Show tag',
             hideTag: 'Hide tag'
         }
     },
@@ -839,10 +836,6 @@ export const STRINGS_EN = {
                 name: 'Show tags above folders',
                 desc: 'Display tags section before folders in the navigator.'
             },
-            showFavoriteTagsFolder: {
-                name: 'Show favorite tags folder',
-                desc: 'Display "Favorite tags" as a collapsible folder when favorite tags are configured.'
-            },
             showAllTagsFolder: {
                 name: 'Show tags folder',
                 desc: 'Display "Tags" as a collapsible folder.'
@@ -850,15 +843,6 @@ export const STRINGS_EN = {
             showUntagged: {
                 name: 'Show untagged notes',
                 desc: 'Display "Untagged" item for notes without any tags.'
-            },
-            showUntaggedInFavorites: {
-                name: 'Show untagged notes in favorite tags section',
-                desc: 'Display untagged notes in the favorite tags section, either inside the folder or directly below favorite tags.'
-            },
-            favoriteTags: {
-                name: 'Favorite tags',
-                desc: 'Comma-separated list of tag prefixes. Adding a tag includes all its sub-tags (e.g., "photo" includes "photo/camera/fuji").',
-                placeholder: 'inbox, projects/work, daily/2025'
             },
             hiddenTags: {
                 name: 'Hidden tags',
