@@ -68,6 +68,7 @@ import type { ContentType } from '../interfaces/IContentProvider';
 interface FileData {
     tagTree: Map<string, TagTreeNode>;
     untagged: number;
+    hiddenRootTags: Map<string, TagTreeNode>;
 }
 
 /**
@@ -108,7 +109,7 @@ interface StorageProviderProps {
 export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const settings = useSettingsState();
     const { tagTreeService } = useServices();
-    const [fileData, setFileData] = useState<FileData>({ tagTree: new Map(), untagged: 0 });
+    const [fileData, setFileData] = useState<FileData>({ tagTree: new Map(), untagged: 0, hiddenRootTags: new Map() });
 
     // Registry managing all content providers for generating preview text, feature images, metadata, and tags
     const contentRegistry = useRef<ContentProviderRegistry | null>(null);
@@ -150,10 +151,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         const excludedFolderPatterns = settings.showHiddenItems ? [] : settings.excludedFolders;
         // Filter database results to only include files matching current visibility settings
         const includedPaths = new Set(getFilteredMarkdownFilesCallback().map(f => f.path));
-        const { tagTree, untagged: newUntagged } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths);
+        const { tagTree, untagged: newUntagged, hiddenRootTags } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths);
         clearNoteCountCache();
         const untaggedCount = newUntagged;
-        setFileData({ tagTree, untagged: untaggedCount });
+        setFileData({ tagTree, untagged: untaggedCount, hiddenRootTags });
 
         // Propagate updated tag trees to the global TagTreeService for cross-component access
         if (tagTreeService) {
@@ -593,7 +594,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
         // Reset in-memory tag tree structures to empty state
         const emptyTagTree = new Map<string, TagTreeNode>();
-        setFileData({ tagTree: emptyTagTree, untagged: 0 });
+        setFileData({ tagTree: emptyTagTree, untagged: 0, hiddenRootTags: new Map() });
         if (tagTreeService) {
             tagTreeService.updateTagTree(emptyTagTree, 0);
         }

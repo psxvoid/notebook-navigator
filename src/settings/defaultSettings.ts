@@ -30,6 +30,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Startup & layout
     startView: 'files',
     showTooltips: false,
+    showTooltipPath: true,
 
     // General tab - Homepage
     homepage: null,
@@ -155,5 +156,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     latestKnownRelease: '',
     lastAnnouncedRelease: '',
     lastReleaseCheckAt: null,
-    rootFolderOrder: []
+    rootFolderOrder: [],
+    rootTagOrder: []
 };
