@@ -77,8 +77,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-10-20',
         showOnUpdate: true,
         info: [
-            'In this release I have good news and bad news. The bad news is that I had to remove the **favorite tags** section due to architectural complexity. It made the codebase hard to maintain with special cases everywhere. The good news is that you can now sort root tags manually just like folders, so you can still put your favorite tags or untagged notes at the top of the tag list.',
-            'My plan is to continue developing and improving this plugin for a long time. Years, maybe even decades. This is why some features like favorite tags might be cut in future releases, but right now I am quite happy with the internal architecture so I do not see this happening with any other features in the near future.',
+            'In this release I have some good news and some bad news. The bad news is that I had to remove the **favorite tags** section due to architectural complexity. It made the codebase very hard to maintain with special cases everywhere. The good news is that you can now sort root tags manually just like folders, so you can still put your favorite tags or untagged notes at the top of the tag list.',
+            'My plan is to continue developing and improving this plugin for a long time. Years, maybe even decades. This is why some features might be cut in future releases, but right now I am quite happy with the internal architecture so I do not see this happening with any other features in the near future.',
             'Thank you for using Notebook Navigator!'
         ].join('\n\n'),
         new: [
