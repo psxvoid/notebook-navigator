@@ -767,6 +767,10 @@ export const STRINGS_ZH_CN = {
                 name: '使用嵌入图片作为后备',
                 desc: '当在前置元数据属性中找不到缩略图时，使用文档中的第一个嵌入图片作为后备（需要 Obsidian 1.9.4+）。禁用此选项以验证缩略图是否正确配置。'
             },
+            featureImageSize: {
+                name: '特色圖片尺寸',
+                desc: 'ノートリストで使用する注目画像のサイズを設定します。'
+            },
             showRootFolder: {
                 name: '显示根文件夹',
                 desc: '在树中显示根文件夹名称。'

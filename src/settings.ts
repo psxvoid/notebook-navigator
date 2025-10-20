@@ -523,5 +523,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     }
 }
 
+export function updateFeatureImageSize(newSize: number) {
+    // Review: Refactoring: maybe there is a better way
+    // eslint-disable-next-line obsidianmd/no-static-styles-assignment
+    document.body.style.setProperty(
+        '--nn-feature-image-max-size',
+        `${newSize}px`);
+}
+
 export type { NotebookNavigatorSettings, SortOption, ItemScope, MultiSelectModifier, ListPaneTitleOption } from './settings/types';
 export { DEFAULT_SETTINGS } from './settings/defaultSettings';

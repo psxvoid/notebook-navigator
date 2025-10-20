@@ -766,6 +766,10 @@ export const STRINGS_KO = {
                 name: '임베디드 이미지 대체 사용',
                 desc: 'frontmatter 속성에 썸네일을 찾을 수 없을 때 문서의 첫 번째 임베디드 이미지를 대체로 사용합니다 (Obsidian 1.9.4+ 필요). 썸네일이 올바르게 구성되었는지 확인하려면 이 기능을 비활성화하세요.'
             },
+            featureImageSize: {
+                name: '추천 이미지 크기',
+                desc: '메모 목록에 사용할 추천 이미지의 크기를 설정합니다.'
+            },
             showRootFolder: {
                 name: '루트 폴더 표시',
                 desc: '트리에서 보관함 이름을 루트 폴더로 표시합니다.'

@@ -769,6 +769,10 @@ export const STRINGS_FR = {
                 name: "Utiliser l'image intégrée comme solution de repli",
                 desc: "Utilise la première image intégrée dans le document comme solution de repli lorsqu'aucune miniature n'est trouvée dans les propriétés du frontmatter (nécessite Obsidian 1.9.4+). Désactivez cette option pour vérifier que les miniatures sont correctement configurées."
             },
+            featureImageSize: {
+                name: "Taille de l'image en vedette",
+                desc: "Définit la taille de l'image sélectionnée à utiliser dans la liste de notes."
+            },
             showRootFolder: {
                 name: 'Afficher le dossier racine',
                 desc: "Afficher le nom du dossier racine dans l'arborescence."

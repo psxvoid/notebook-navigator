@@ -487,6 +487,16 @@ export function renderNotesTab(context: SettingsTabContext): void {
             })
         );
 
+    new Setting(featureImageSettingsEl)
+        .setName(strings.settings.items.featureImageSize.name)
+        .setDesc(strings.settings.items.featureImageSize.desc)
+        .addSlider(slider => {
+            slider.setLimits(64, 95, 1).onChange(async value => {
+                plugin.settings.featureImageSize = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        });
+
     fileTagsSubSettingsEl.toggle(plugin.settings.showFileTags);
     previewSettingsEl.toggle(plugin.settings.showFilePreview);
     featureImageSettingsEl.toggle(plugin.settings.showFeatureImage);

@@ -767,6 +767,10 @@ export const STRINGS_ES = {
                 name: 'Usar imagen incrustada como alternativa',
                 desc: 'Usa la primera imagen incrustada en el documento como alternativa cuando no se encuentre ninguna miniatura en las propiedades del frontmatter (requiere Obsidian 1.9.4+). Desactívalo para verificar que las miniaturas estén configuradas correctamente.'
             },
+            featureImageSize: {
+                name: 'Tamaño de la imagen destacada',
+                desc: 'Establece el tamaño de la imagen destacada que se utilizará en la lista de notas.'
+            },
             showRootFolder: {
                 name: 'Mostrar carpeta raíz',
                 desc: 'Muestra el nombre de la carpeta raíz en el árbol.'
