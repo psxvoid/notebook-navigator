@@ -84,6 +84,7 @@ export interface NotebookNavigatorSettings {
     showIcons: boolean;
     colorIconOnly: boolean;
     showNoteCount: boolean;
+    separateNoteCounts: boolean;
     navIndent: number;
     navItemHeight: number;
     navItemHeightScaleText: boolean;
@@ -109,7 +110,6 @@ export interface NotebookNavigatorSettings {
     listPaneTitle: ListPaneTitleOption;
     multiSelectModifier: MultiSelectModifier;
     includeDescendantNotes: boolean;
-    separateNoteCounts: boolean;
     groupByDate: boolean;
     optimizeNoteHeight: boolean;
     showQuickActions: boolean;

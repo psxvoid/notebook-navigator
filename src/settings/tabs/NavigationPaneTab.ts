@@ -173,6 +173,14 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
 
     updateRecentNotesVisibility(plugin.settings.showRecentNotes);
 
+    let noteCountSubSettingsEl: HTMLDivElement | null = null;
+
+    const updateNoteCountSettingsVisibility = () => {
+        if (noteCountSubSettingsEl) {
+            noteCountSubSettingsEl.toggle(plugin.settings.showNoteCount && plugin.settings.includeDescendantNotes);
+        }
+    };
+
     new Setting(containerEl)
         .setName(strings.settings.items.showNoteCount.name)
         .setDesc(strings.settings.items.showNoteCount.desc)
@@ -180,8 +188,23 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             toggle.setValue(plugin.settings.showNoteCount).onChange(async value => {
                 plugin.settings.showNoteCount = value;
                 await plugin.saveSettingsAndUpdate();
+                updateNoteCountSettingsVisibility();
             })
         );
+
+    noteCountSubSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(noteCountSubSettingsEl)
+        .setName(strings.settings.items.separateNoteCounts.name)
+        .setDesc(strings.settings.items.separateNoteCounts.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.separateNoteCounts).onChange(async value => {
+                plugin.settings.separateNoteCounts = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    updateNoteCountSettingsVisibility();
 
     let indentationSlider: SliderComponent;
     new Setting(containerEl)
