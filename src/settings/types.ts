@@ -62,7 +62,6 @@ export interface NotebookNavigatorSettings {
     // General tab - Behavior
     autoRevealActiveFile: boolean;
     autoRevealIgnoreRightSidebar: boolean;
-    autoSelectFirstFileOnFocusChange: boolean;
 
     // General tab - Filtering
     fileVisibility: FileVisibility;
@@ -74,6 +73,7 @@ export interface NotebookNavigatorSettings {
     timeFormat: string;
 
     // Navigation pane tab
+    autoSelectFirstFileOnFocusChange: boolean;
     navigationBanner: string | null;
     showShortcuts: boolean;
     showRecentNotes: boolean;

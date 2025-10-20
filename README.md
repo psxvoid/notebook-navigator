@@ -281,7 +281,6 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Dual pane layout (desktop only, not synced):** Show navigation and list panes side by side
 - **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
 - **Ignore events from right sidebar:** Disable auto-reveal from right sidebar
-- **Auto-select first note (desktop only):** Automatically open the first note when switching folders or tags
 - **Homepage:** Set a file that opens automatically when Notebook Navigator starts
 - **Separate mobile homepage:** Use a different homepage for mobile devices
 - **Show tooltips (desktop only):** Display hover tooltips with additional information for notes and folders
@@ -293,6 +292,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Navigation pane
 
+- **Auto-select first note (desktop only):** Automatically open the first note when switching folders or tags
 - **Navigation banner:** Display an image above the navigation pane
 - **Show shortcuts:** Display the shortcuts section for quick access to pinned items
 - **Show recent notes:** Display recently opened notes in the navigation pane

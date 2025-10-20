@@ -40,7 +40,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Behavior
     autoRevealActiveFile: true,
     autoRevealIgnoreRightSidebar: true,
-    autoSelectFirstFileOnFocusChange: false,
 
     // General tab - Filtering
     fileVisibility: FILE_VISIBILITY.DOCUMENTS,
@@ -52,6 +51,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     timeFormat: 'h:mm a',
 
     // Navigation pane tab
+    autoSelectFirstFileOnFocusChange: false,
     navigationBanner: null,
     showShortcuts: true,
     showRecentNotes: true,
