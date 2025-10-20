@@ -572,18 +572,14 @@ export const NavigationPane = React.memo(
                     },
                     onDragEnd: event => {
                         handlersWithGhost.onDragEnd(event);
-                        const draggedKey = draggedShortcutKeyRef.current;
                         draggedShortcutKeyRef.current = null;
                         setExternalShortcutDropIndex(null);
 
-                        if (!draggedShortcutDropCompletedRef.current && draggedKey === key) {
-                            void removeShortcut(key);
-                        }
                         draggedShortcutDropCompletedRef.current = false;
                     }
                 };
             },
-            [getDragHandlers, removeShortcut, handleShortcutDragLeave, handleShortcutDragOver, handleShortcutDrop, withDragGhost]
+            [getDragHandlers, handleShortcutDragLeave, handleShortcutDragOver, handleShortcutDrop, withDragGhost]
         );
 
         /**
@@ -1131,6 +1127,14 @@ export const NavigationPane = React.memo(
         const handleShortcutContextMenu = useCallback(
             (event: React.MouseEvent<HTMLDivElement>, target: ShortcutContextMenuTarget) => {
                 if (!settings.showShortcuts) {
+                    return;
+                }
+
+                // Prevent context menu on drag handle elements
+                const targetElement = event.target;
+                if (targetElement instanceof HTMLElement && targetElement.closest('.nn-drag-handle')) {
+                    event.preventDefault();
+                    event.stopPropagation();
                     return;
                 }
 
