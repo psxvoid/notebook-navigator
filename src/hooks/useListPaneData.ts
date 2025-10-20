@@ -602,10 +602,8 @@ export function useListPaneData({
 
                     const backlinks = (app.metadataCache as unknown as { getBacklinksForFile(f: TFile): { data?: Map<string, LinkCache[]> } }).getBacklinksForFile(metaFile);
 
-                    // eslint-disable-next-line eqeqeq
                     if (backlinks?.data != null) {
                         FeatureImageContentProvider.Instance?.enqueueExcalidrawConsumers(
-                            // eslint-disable-next-line eqeqeq
                             Array.from(backlinks.data.keys()).map(x => app.vault.getFileByPath(x)).filter(x => x != null)
                         )
                     }
@@ -624,7 +622,6 @@ export function useListPaneData({
       
                 const dbFile = getDBInstance().getFile(file.path);
 
-                // eslint-disable-next-line eqeqeq
                 if (dbFile == null) {
                     return
                 }
@@ -640,7 +637,6 @@ export function useListPaneData({
                 if (provider.length > 0) {
                     const providerFileData = getDBInstance().getFile(provider)
 
-                    // eslint-disable-next-line eqeqeq
                     if (providerFileData != null) {
                         await getDBInstance().updateFileContent({
                             featureImageConsumers: [
@@ -664,7 +660,6 @@ export function useListPaneData({
 
                 const dbFile = getDBInstance().getFile(oldPath)
 
-                // eslint-disable-next-line eqeqeq
                 if (dbFile == null) {
                     return
                 }
@@ -675,7 +670,6 @@ export function useListPaneData({
                 if (provider.length > 0) {
                     const providerFileData = getDBInstance().getFile(oldPath)
 
-                    // eslint-disable-next-line eqeqeq
                     if (providerFileData != null) {
                         await getDBInstance().updateFileContent({
                             featureImageConsumers: [
@@ -703,7 +697,6 @@ export function useListPaneData({
                     const dbFile = getDBInstance().getFile(file.path);
                     if ((dbFile?.featureImageConsumers?.length ?? 0) > 0) {
                         FeatureImageContentProvider.Instance?.enqueueExcalidrawConsumers(
-                            // eslint-disable-next-line eqeqeq
                             dbFile?.featureImageConsumers?.map(x => app.vault.getFileByPath(x)).filter(x => x != null) ?? [])
                     }
                 }

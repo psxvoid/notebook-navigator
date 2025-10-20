@@ -61,7 +61,7 @@ export default tseslint.config(
             '@typescript-eslint/prefer-as-const': 'warn',
 
             // Code style
-            eqeqeq: ['error', 'always'], // Require === and !== instead of == and !=
+            eqeqeq: ['error', 'smart'], // Require === and !== instead of == and !=
             'prefer-template': 'warn', // Use template literals instead of string concatenation
             '@typescript-eslint/array-type': ['warn', { default: 'array' }], // Prefer T[] over Array<T>
             'prefer-object-spread': 'warn', // Use {...obj} instead of Object.assign()

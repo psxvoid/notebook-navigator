@@ -190,7 +190,6 @@ export class FeatureImageContentProvider extends BaseContentProvider {
 
                 if (isCachePath(imagePath) && await this.app.vault.adapter.exists(imagePath)) {
                     const toDelete = this.app.vault.getFileByPath(imagePath)
-                    // eslint-disable-next-line eqeqeq
                     if (toDelete != null) {
                         // Review: Refactoring: now delete is also in ExcalidrawPreviewGenerator, handle deletion in a single place
                         // Review: Resiliency: handle exception?
