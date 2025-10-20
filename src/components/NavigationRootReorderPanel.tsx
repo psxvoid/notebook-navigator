@@ -124,8 +124,49 @@ export function NavigationRootReorderPanel({
             const headerShowsDropAfter = Boolean(showDropIndicatorAfter && !hasExpandedContent);
             const sectionShowsDropAfter = Boolean(showDropIndicatorAfter && hasExpandedContent);
 
+            // Drag handlers for spacer elements between sections
+            let spacerDragHandlers:
+                | {
+                      onDragOver: (event: React.DragEvent<HTMLDivElement>) => void;
+                      onDragLeave: (event: React.DragEvent<HTMLDivElement>) => void;
+                      onDrop: (event: React.DragEvent<HTMLDivElement>) => void;
+                  }
+                | undefined;
+
+            // Create spacer drag handlers that stop propagation and update drop position indicators
+            if (dragHandlers) {
+                spacerDragHandlers = {
+                    onDragOver: event => {
+                        event.stopPropagation();
+                        dragHandlers.onDragOver(event);
+                        updateScrollerDropPosition(event.currentTarget, 'after');
+                    },
+                    onDragLeave: event => {
+                        event.stopPropagation();
+                        dragHandlers.onDragLeave(event);
+                        updateScrollerDropPosition(event.currentTarget, '');
+                    },
+                    onDrop: event => {
+                        event.stopPropagation();
+                        dragHandlers.onDrop(event);
+                        updateScrollerDropPosition(event.currentTarget, '');
+                    }
+                };
+            }
+
             if (index > 0) {
-                sectionContent.push(<div key={`${sectionItem.key}-spacer`} className="nn-nav-list-spacer" aria-hidden="true" />);
+                sectionContent.push(
+                    <div
+                        key={`${sectionItem.key}-spacer`}
+                        className="nn-nav-list-spacer"
+                        aria-hidden="true"
+                        data-reorder-gap="true"
+                        data-reorder-insert="before"
+                        onDragOver={spacerDragHandlers?.onDragOver}
+                        onDragLeave={spacerDragHandlers?.onDragLeave}
+                        onDrop={spacerDragHandlers?.onDrop}
+                    />
+                );
             }
 
             const headerDragHandlers = dragHandlers
