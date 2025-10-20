@@ -29,7 +29,7 @@ body {
     --nn-file-single-text-line-height: 19px; /* Height for single-line text (metadata, date, or single preview) */
     --nn-file-multiline-text-line-height: 18px; /* Height for multi-line preview text */
     --nn-feature-image-min-size: 42px; /* Minimum size for feature images */
-    --nn-feature-image-max-size: 95px; /* Maximum size for feature images */
+    --nn-feature-image-max-size: 64px; /* Maximum size for feature images */
 
     /* Font sizes - fixed pixel values to prevent scaling with Obsidian font size */
     --nn-file-name-size: 14px; /* Fixed 14px */
