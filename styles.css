@@ -1535,7 +1535,7 @@ body {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: var(--nn-theme-file-name-color);
+    color: var(--nn-theme-navitem-icon-color);
 }
 
 .nn-file-name-wrapper[data-multiline='true'] .nn-file-icon {
@@ -1559,11 +1559,11 @@ body {
 }
 
 .nn-file-icon[data-has-color='false'] {
-    color: var(--nn-theme-file-name-color);
+    color: var(--nn-theme-navitem-icon-color);
 }
 
 .nn-file.nn-selected .nn-file-icon[data-has-color='false'] {
-    color: var(--nn-theme-file-name-selected-color);
+    color: var(--nn-theme-navitem-selected-icon-color);
 }
 
 .nn-file-icon[data-has-color='true'] svg {
