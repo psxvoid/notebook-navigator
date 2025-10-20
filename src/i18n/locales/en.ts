@@ -57,8 +57,8 @@ export const STRINGS_EN = {
         shortcutsHeader: 'Shortcuts', // Header label for shortcuts section in navigation pane (English: Shortcuts)
         recentNotesHeader: 'Recent notes', // Header label for recent notes section in navigation pane (English: Recent notes)
         recentFilesHeader: 'Recent files', // Header label when showing recent non-note files in navigation pane (English: Recent files)
-        reorderRootFoldersTitle: 'Reorder root folders and tags',
-        reorderRootFoldersHint: 'Drag items to change order',
+        reorderRootFoldersTitle: 'Reorder navigation sections',
+        reorderRootFoldersHint: 'Drag headers or items to change order',
         vaultRootLabel: 'Vault',
         resetRootToAlpha: 'Reset to alphabetical order',
         resetRootToFrequency: 'Reset to frequency order',
@@ -836,10 +836,6 @@ export const STRINGS_EN = {
                     frequencyAsc: 'Frequency (low to high)',
                     frequencyDesc: 'Frequency (high to low)'
                 }
-            },
-            showTagsAboveFolders: {
-                name: 'Show tags above folders',
-                desc: 'Display tags section before folders in the navigator.'
             },
             showAllTagsFolder: {
                 name: 'Show tags folder',

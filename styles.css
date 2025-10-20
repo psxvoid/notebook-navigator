@@ -1223,6 +1223,7 @@ body {
 .nn-root-reorder-title {
     font-size: var(--font-small);
     font-weight: var(--nn-theme-list-header-breadcrumb-font-weight);
+    line-height: 1.3;
 }
 
 .is-mobile .nn-root-reorder-title {
@@ -1239,6 +1240,7 @@ body {
 .nn-root-reorder-hint {
     font-size: var(--font-smaller);
     color: var(--text-muted);
+    line-height: 1.25;
 }
 
 .is-mobile .nn-root-reorder-hint {
@@ -1255,12 +1257,26 @@ body {
 .nn-root-reorder-section {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    position: relative;
 }
 
-.nn-root-reorder-section:last-child {
-    margin-bottom: 0;
+.nn-root-reorder-section[data-reorder-drop-after='true']::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    bottom: 0;
+    height: 2px;
+    background-color: var(--interactive-accent);
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.nn-desktop .nn-root-reorder-section[data-reorder-drop-after='true']::after {
+    height: 3px;
+    bottom: -1px;
+    z-index: 5;
 }
 
 .nn-root-reorder-section-list {

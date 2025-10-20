@@ -56,8 +56,8 @@ export const STRINGS_PL = {
         shortcutsHeader: 'Skróty',
         recentNotesHeader: 'Ostatnie notatki',
         recentFilesHeader: 'Ostatnie pliki',
-        reorderRootFoldersTitle: 'Przestaw foldery główne i tagi',
-        reorderRootFoldersHint: 'Przeciągnij elementy, aby zmienić kolejność',
+        reorderRootFoldersTitle: 'Przestaw sekcje nawigacji',
+        reorderRootFoldersHint: 'Przeciągnij nagłówki lub elementy, aby zmienić kolejność',
         vaultRootLabel: 'Magazyn',
         resetRootToAlpha: 'Resetuj do kolejności alfabetycznej',
         resetRootToFrequency: 'Przywróć sortowanie według częstotliwości',
@@ -838,10 +838,6 @@ export const STRINGS_PL = {
                     frequencyAsc: 'Częstotliwość (rosnąco)',
                     frequencyDesc: 'Częstotliwość (malejąco)'
                 }
-            },
-            showTagsAboveFolders: {
-                name: 'Pokaż tagi nad folderami',
-                desc: 'Wyświetl sekcję tagów przed folderami w nawigatorze.'
             },
             showAllTagsFolder: {
                 name: 'Pokaż folder tagów',

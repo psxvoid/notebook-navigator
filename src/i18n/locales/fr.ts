@@ -56,8 +56,8 @@ export const STRINGS_FR = {
         shortcutsHeader: 'Raccourcis',
         recentNotesHeader: 'Notes récentes',
         recentFilesHeader: 'Fichiers récents',
-        reorderRootFoldersTitle: 'Réorganiser les dossiers racine et les étiquettes',
-        reorderRootFoldersHint: "Faites glisser les éléments pour changer l'ordre",
+        reorderRootFoldersTitle: 'Réorganiser les sections de navigation',
+        reorderRootFoldersHint: "Faites glisser les en-têtes ou les éléments pour changer l'ordre",
         vaultRootLabel: 'Coffre',
         resetRootToAlpha: "Réinitialiser l'ordre alphabétique",
         resetRootToFrequency: 'Réinitialiser selon la fréquence',
@@ -839,10 +839,6 @@ export const STRINGS_FR = {
                     frequencyAsc: 'Fréquence (faible vers élevée)',
                     frequencyDesc: 'Fréquence (élevée vers faible)'
                 }
-            },
-            showTagsAboveFolders: {
-                name: 'Afficher les étiquettes au-dessus des dossiers',
-                desc: 'Afficher la section des étiquettes avant les dossiers dans le navigateur.'
             },
             showAllTagsFolder: {
                 name: 'Afficher le dossier des étiquettes',

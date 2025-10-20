@@ -57,8 +57,8 @@ export const STRINGS_ZH_TW = {
         shortcutsHeader: '捷徑', // 導覽窗格中捷徑區段的標頭標籤 (英文: Shortcuts)
         recentNotesHeader: '最近筆記', // 導覽窗格中最近筆記區段的標頭標籤 (英文: Recent notes)
         recentFilesHeader: '最近檔案', // 在導覽窗格中顯示最近非筆記檔案時的標頭標籤 (英文: Recent files)
-        reorderRootFoldersTitle: '重新排列根資料夾和標籤',
-        reorderRootFoldersHint: '拖曳項目以變更順序',
+        reorderRootFoldersTitle: '重新排列導覽區段',
+        reorderRootFoldersHint: '拖曳標題或項目以調整順序',
         vaultRootLabel: '儲存庫',
         resetRootToAlpha: '重設為字母順序',
         resetRootToFrequency: '重設為頻率排序',
@@ -835,10 +835,6 @@ export const STRINGS_ZH_TW = {
                     frequencyAsc: '頻率（由低至高）',
                     frequencyDesc: '頻率（由高至低）'
                 }
-            },
-            showTagsAboveFolders: {
-                name: '在資料夾上方顯示標籤',
-                desc: '在導覽器中資料夾之前顯示標籤區段。'
             },
             showAllTagsFolder: {
                 name: '顯示標籤資料夾',

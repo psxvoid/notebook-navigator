@@ -56,8 +56,8 @@ export const STRINGS_DE = {
         shortcutsHeader: 'Lesezeichen',
         recentNotesHeader: 'Neueste Notizen',
         recentFilesHeader: 'Neueste Dateien',
-        reorderRootFoldersTitle: 'Hauptordner und Tags neu anordnen',
-        reorderRootFoldersHint: 'Elemente ziehen, um die Reihenfolge zu ändern',
+        reorderRootFoldersTitle: 'Navigationsbereiche neu anordnen',
+        reorderRootFoldersHint: 'Überschriften oder Elemente ziehen, um die Reihenfolge zu ändern',
         vaultRootLabel: 'Tresor',
         resetRootToAlpha: 'Auf alphabetische Reihenfolge zurücksetzen',
         resetRootToFrequency: 'Auf Häufigkeitsreihenfolge zurücksetzen',
@@ -840,10 +840,6 @@ export const STRINGS_DE = {
                     frequencyAsc: 'Häufigkeit (niedrig bis hoch)',
                     frequencyDesc: 'Häufigkeit (hoch bis niedrig)'
                 }
-            },
-            showTagsAboveFolders: {
-                name: 'Tags über Ordnern anzeigen',
-                desc: 'Tag-Bereich vor den Ordnern im Navigator anzeigen.'
             },
             showAllTagsFolder: {
                 name: 'Tags-Ordner anzeigen',

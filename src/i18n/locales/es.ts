@@ -56,8 +56,8 @@ export const STRINGS_ES = {
         shortcutsHeader: 'Accesos directos',
         recentNotesHeader: 'Notas recientes',
         recentFilesHeader: 'Archivos recientes',
-        reorderRootFoldersTitle: 'Reordenar carpetas raíz y etiquetas',
-        reorderRootFoldersHint: 'Arrastra los elementos para cambiar el orden',
+        reorderRootFoldersTitle: 'Reordenar secciones de navegación',
+        reorderRootFoldersHint: 'Arrastra encabezados o elementos para cambiar el orden',
         vaultRootLabel: 'Bóveda',
         resetRootToAlpha: 'Restablecer orden alfabético',
         resetRootToFrequency: 'Restablecer al orden por frecuencia',
@@ -837,10 +837,6 @@ export const STRINGS_ES = {
                     frequencyAsc: 'Frecuencia (baja a alta)',
                     frequencyDesc: 'Frecuencia (alta a baja)'
                 }
-            },
-            showTagsAboveFolders: {
-                name: 'Mostrar etiquetas encima de las carpetas',
-                desc: 'Muestra la sección de etiquetas antes que las carpetas en el navegador.'
             },
             showAllTagsFolder: {
                 name: 'Mostrar carpeta de etiquetas',

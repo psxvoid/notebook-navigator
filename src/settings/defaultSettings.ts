@@ -77,7 +77,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     hideFolderNoteInList: true,
     pinCreatedFolderNote: false,
     showTags: true,
-    showTagsAboveFolders: false,
     showAllTagsFolder: true,
     showUntagged: false,
     tagSortOrder: 'alpha-asc',

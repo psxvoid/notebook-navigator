@@ -56,8 +56,8 @@ export const STRINGS_KO = {
         shortcutsHeader: '바로가기',
         recentNotesHeader: '최근 노트',
         recentFilesHeader: '최근 파일',
-        reorderRootFoldersTitle: '루트 폴더와 태그 재정렬',
-        reorderRootFoldersHint: '드래그하여 순서를 변경합니다',
+        reorderRootFoldersTitle: '내비게이션 섹션 재정렬',
+        reorderRootFoldersHint: '헤더나 항목을 드래그하여 순서를 변경합니다',
         vaultRootLabel: '보관함',
         resetRootToAlpha: '알파벳 순서로 리셋',
         resetRootToFrequency: '빈도 순으로 리셋',
@@ -836,10 +836,6 @@ export const STRINGS_KO = {
                     frequencyAsc: '빈도 (낮음 → 높음)',
                     frequencyDesc: '빈도 (높음 → 낮음)'
                 }
-            },
-            showTagsAboveFolders: {
-                name: '폴더 위에 태그 표시',
-                desc: '네비게이터에서 폴더 앞에 태그 섹션을 표시합니다.'
             },
             showAllTagsFolder: {
                 name: '태그 폴더 표시',

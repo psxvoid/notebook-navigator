@@ -56,8 +56,8 @@ export const STRINGS_JA = {
         shortcutsHeader: 'ショートカット',
         recentNotesHeader: '最近のノート',
         recentFilesHeader: '最近のファイル',
-        reorderRootFoldersTitle: 'ルートフォルダとタグを並び替え',
-        reorderRootFoldersHint: 'ドラッグして順序を変更します',
+        reorderRootFoldersTitle: 'ナビゲーションセクションを並び替え',
+        reorderRootFoldersHint: '見出しまたは項目をドラッグして順序を変更します',
         vaultRootLabel: 'ボールト',
         resetRootToAlpha: 'アルファベット順にリセット',
         resetRootToFrequency: '頻度順にリセット',
@@ -838,10 +838,6 @@ export const STRINGS_JA = {
                     frequencyAsc: '頻度（低→高）',
                     frequencyDesc: '頻度（高→低）'
                 }
-            },
-            showTagsAboveFolders: {
-                name: 'タグをフォルダの上に表示',
-                desc: 'ナビゲーターでタグセクションをフォルダの前に表示します。'
             },
             showAllTagsFolder: {
                 name: 'タグフォルダを表示',

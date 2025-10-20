@@ -82,6 +82,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Thank you for using Notebook Navigator!'
         ].join('\n\n'),
         new: [
+            'You can now ==reorder sections== in the navigation pane. Just drag and drop the section headers in the updated "Reorder root folders and tags" mode accessible through a toolbar button in navigation pane.',
             'You can now change ==sort order for root tags==, just like folders. Just click the button "Reorder root folders and tags" in the navigation pane.',
             'Support for ==back and forward mouse buttons==! Use them on desktop in single pane to quickly switch between navigation and list panes.',
             'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).',

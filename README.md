@@ -333,7 +333,6 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Pin created folder notes:** Adds folder notes created from the context menu into pinned folders when folder notes are visible
 - **Show tags (\*):** Display tags section below folders in the navigator
 - **Tag sort order:** Choose how tags are ordered in the navigation pane. `A to Z`, `Z to A`, `Frequency (low to high)`, `Frequency (high to low)`
-- **Show tags above folders:** Display tags section before folders in the navigator
 - **Show tags folder:** Display "Tags" as collapsible folder
 - **Show untagged notes:** Display "Untagged" item for notes without any tags
 - **Hidden tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs")

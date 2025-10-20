@@ -99,7 +99,6 @@ export interface NotebookNavigatorSettings {
     hideFolderNoteInList: boolean;
     pinCreatedFolderNote: boolean;
     showTags: boolean;
-    showTagsAboveFolders: boolean;
     showAllTagsFolder: boolean;
     showUntagged: boolean;
     tagSortOrder: TagSortOrder;

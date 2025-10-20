@@ -56,8 +56,8 @@ export const STRINGS_ZH_CN = {
         shortcutsHeader: '快捷方式',
         recentNotesHeader: '最近笔记',
         recentFilesHeader: '最近文件',
-        reorderRootFoldersTitle: '重新排列根文件夹和标签',
-        reorderRootFoldersHint: '拖动项目以更改顺序',
+        reorderRootFoldersTitle: '重新排列导航分区',
+        reorderRootFoldersHint: '拖动标题或项目以调整顺序',
         vaultRootLabel: '仓库',
         resetRootToAlpha: '重置为字母顺序',
         resetRootToFrequency: '重置为频率排序',
@@ -837,10 +837,6 @@ export const STRINGS_ZH_CN = {
                     frequencyAsc: '频率（从低到高）',
                     frequencyDesc: '频率（从高到低）'
                 }
-            },
-            showTagsAboveFolders: {
-                name: '在文件夹上方显示标签',
-                desc: '在导航器中的文件夹之前显示标签部分。'
             },
             showAllTagsFolder: {
                 name: '显示标签文件夹',
