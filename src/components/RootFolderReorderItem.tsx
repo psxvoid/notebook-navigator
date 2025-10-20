@@ -66,6 +66,13 @@ export function RootFolderReorderItem({
     // Builds the CSS class names for the reorder item, combining base class with optional modifiers
     const rowClassName = (() => {
         const classes = ['nn-root-reorder-item'];
+        if (itemType === 'folder') {
+            classes.push('nn-folder');
+        } else if (itemType === 'tag') {
+            classes.push('nn-tag');
+        } else if (itemType === 'section') {
+            classes.push('nn-section');
+        }
         if (isMissing) {
             classes.push('nn-root-reorder-item--missing');
         }

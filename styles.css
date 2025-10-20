@@ -1288,6 +1288,14 @@ body {
     cursor: default;
 }
 
+.nn-root-reorder-item .nn-shortcut-label {
+    font-weight: var(--nn-theme-navitem-name-font-weight);
+}
+
+.nn-root-reorder-item .nn-shortcut-label[data-has-color='true'] {
+    font-weight: var(--nn-theme-navitem-custom-color-name-font-weight) !important;
+}
+
 .nn-root-reorder-item--missing .nn-shortcut-label {
     text-decoration: line-through;
     color: var(--text-muted);
