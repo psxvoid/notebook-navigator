@@ -7,18 +7,18 @@ export const fontAwesome: IconPackConfig = {
     githubRepo: 'FortAwesome/Font-Awesome',
 
     files: {
-        font: 'fa-solid-900.woff2',
-        metadata: 'icons-solid.json',
+        font: 'fa-regular-400.woff2',
+        metadata: 'icons-regular.json',
         mimeType: 'font/woff2'
     },
 
     urls: (version: string) => {
-        // FontAwesome 7.x uses a different CDN structure
+        // FontAwesome 7.x and later only
         const major = parseInt(version.split('.')[0]);
-        const branch = major >= 7 ? `${major}.x` : '6.x';
+        const branch = `${major}.x`;
 
         return {
-            font: `https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@${version}/webfonts/fa-solid-900.woff2`,
+            font: `https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@${version}/webfonts/fa-regular-400.woff2`,
             metadata: `https://raw.githubusercontent.com/FortAwesome/Font-Awesome/${branch}/metadata/icons.json`,
             css: `https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@${version}/css/all.min.css`
         };
@@ -54,7 +54,7 @@ export const fontAwesome: IconPackConfig = {
                 return;
             }
 
-            if (!value.styles || !value.styles.includes('solid')) {
+            if (!value.styles || !value.styles.includes('regular')) {
                 return;
             }
 

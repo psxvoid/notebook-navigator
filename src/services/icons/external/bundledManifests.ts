@@ -12,8 +12,8 @@ export const BUNDLED_ICON_MANIFESTS: Record<ExternalIconProviderId, ExternalIcon
 
     'fontawesome-regular': {
         version: '7.1.0',
-        font: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/fontawesome/fa-solid-900.woff2',
-        metadata: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/fontawesome/icons-solid.json',
+        font: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/fontawesome/fa-regular-400.woff2',
+        metadata: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/fontawesome/icons-regular.json',
         fontMimeType: 'font/woff2',
         metadataFormat: 'json'
     },

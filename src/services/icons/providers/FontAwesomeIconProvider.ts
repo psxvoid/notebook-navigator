@@ -14,7 +14,7 @@ interface FontAwesomeMetadataItem {
 }
 
 /**
- * Icon provider for Font Awesome solid icons loaded from external assets.
+ * Icon provider for Font Awesome regular icons loaded from external assets.
  */
 export class FontAwesomeIconProvider extends BaseFontIconProvider {
     readonly id = 'fontawesome-regular';
@@ -25,11 +25,11 @@ export class FontAwesomeIconProvider extends BaseFontIconProvider {
     }
 
     protected getCssClass(): string {
-        return 'nn-iconfont-fa-solid';
+        return 'nn-iconfont-fa-regular';
     }
 
     /**
-     * Parses Font Awesome metadata, filtering for solid style icons.
+     * Parses Font Awesome metadata, filtering for regular style icons.
      */
     protected parseMetadata(raw: string): void {
         try {
@@ -41,7 +41,7 @@ export class FontAwesomeIconProvider extends BaseFontIconProvider {
                 if (!data || !data.unicode) {
                     continue;
                 }
-                if (Array.isArray(data.styles) && !data.styles.includes('solid')) {
+                if (Array.isArray(data.styles) && !data.styles.includes('regular')) {
                     continue;
                 }
 

@@ -1,0 +1,2027 @@
+{
+  "address-book": {
+    "unicode": "f2b9",
+    "label": "Address Book",
+    "search": [
+      "address-book",
+      "Address Book",
+      "contact",
+      "directory",
+      "employee",
+      "index",
+      "little black book",
+      "portfolio",
+      "rolodex",
+      "uer",
+      "username",
+      "contact-book",
+      "10f2b9"
+    ]
+  },
+  "address-card": {
+    "unicode": "f2bb",
+    "label": "Address Card",
+    "search": [
+      "address-card",
+      "Address Card",
+      "about",
+      "contact",
+      "employee",
+      "id",
+      "identification",
+      "portfolio",
+      "postcard",
+      "profile",
+      "registration",
+      "uer",
+      "username",
+      "contact-card",
+      "vcard",
+      "10f2bb"
+    ]
+  },
+  "alarm-clock": {
+    "unicode": "f34e",
+    "label": "Alarm Clock",
+    "search": [
+      "alarm-clock",
+      "Alarm Clock",
+      "alarm",
+      "alarm clock",
+      "clock",
+      "date",
+      "late",
+      "pending",
+      "reminder",
+      "sleep",
+      "snooze",
+      "timer",
+      "timestamp",
+      "watch",
+      "10f34e"
+    ]
+  },
+  "bell": {
+    "unicode": "f0f3",
+    "label": "Bell",
+    "search": ["bell", "Bell", "alarm", "alert", "bel", "chime", "notification", "reminder", "request", "10f0f3"]
+  },
+  "bell-slash": {
+    "unicode": "f1f6",
+    "label": "Bell Slash",
+    "search": [
+      "bell-slash",
+      "Bell Slash",
+      "alert",
+      "bell",
+      "bell with slash",
+      "cancel",
+      "disabled",
+      "forbidden",
+      "mute",
+      "notification",
+      "off",
+      "quiet",
+      "reminder",
+      "silent",
+      "10f1f6"
+    ]
+  },
+  "bookmark": {
+    "unicode": "f02e",
+    "label": "Bookmark",
+    "search": ["bookmark", "Bookmark", "favorite", "library", "mark", "marker", "read", "remember", "research", "save", "10f02e"]
+  },
+  "building": {
+    "unicode": "f1ad",
+    "label": "Building",
+    "search": ["building", "Building", "apartment", "business", "city", "company", "office", "office building", "urban", "work", "10f1ad"]
+  },
+  "calendar": {
+    "unicode": "f133",
+    "label": "Calendar",
+    "search": [
+      "calendar",
+      "Calendar",
+      "calendar-o",
+      "date",
+      "day",
+      "event",
+      "month",
+      "schedule",
+      "tear-off calendar",
+      "time",
+      "when",
+      "year",
+      "10f133"
+    ]
+  },
+  "calendar-check": {
+    "unicode": "f274",
+    "label": "Calendar Check",
+    "search": [
+      "calendar-check",
+      "Calendar Check",
+      "accept",
+      "agree",
+      "appointment",
+      "confirm",
+      "correct",
+      "date",
+      "day",
+      "done",
+      "enable",
+      "event",
+      "month",
+      "ok",
+      "schedule",
+      "select",
+      "success",
+      "tick",
+      "time",
+      "todo",
+      "validate",
+      "warranty",
+      "when",
+      "working",
+      "year",
+      "10f274"
+    ]
+  },
+  "calendar-days": {
+    "unicode": "f073",
+    "label": "Calendar Days",
+    "search": [
+      "calendar-days",
+      "Calendar Days",
+      "calendar",
+      "date",
+      "day",
+      "event",
+      "month",
+      "schedule",
+      "time",
+      "when",
+      "year",
+      "calendar-alt",
+      "10f073"
+    ]
+  },
+  "calendar-minus": {
+    "unicode": "f272",
+    "label": "Calendar Minus",
+    "search": [
+      "calendar-minus",
+      "Calendar Minus",
+      "calendar",
+      "date",
+      "day",
+      "delete",
+      "event",
+      "month",
+      "negative",
+      "remove",
+      "schedule",
+      "time",
+      "when",
+      "year",
+      "10f272"
+    ]
+  },
+  "calendar-plus": {
+    "unicode": "f271",
+    "label": "Calendar Plus",
+    "search": [
+      "calendar-plus",
+      "Calendar Plus",
+      "add",
+      "calendar",
+      "create",
+      "date",
+      "day",
+      "event",
+      "month",
+      "new",
+      "positive",
+      "schedule",
+      "time",
+      "when",
+      "year",
+      "10f271"
+    ]
+  },
+  "calendar-xmark": {
+    "unicode": "f273",
+    "label": "Calendar Xmark",
+    "search": [
+      "calendar-xmark",
+      "Calendar Xmark",
+      "archive",
+      "calendar",
+      "date",
+      "day",
+      "delete",
+      "event",
+      "month",
+      "remove",
+      "schedule",
+      "time",
+      "uncheck",
+      "when",
+      "x",
+      "year",
+      "calendar-times",
+      "10f273"
+    ]
+  },
+  "camera": {
+    "unicode": "f030",
+    "label": "Camera",
+    "search": [
+      "camera",
+      "Camera",
+      "image",
+      "img",
+      "lens",
+      "photo",
+      "picture",
+      "record",
+      "shutter",
+      "video",
+      "camera-alt",
+      "10f030",
+      "10f332"
+    ]
+  },
+  "chart-bar": {
+    "unicode": "f080",
+    "label": "Chart Bar",
+    "search": ["chart-bar", "Chart Bar", "analytics", "bar", "chart", "graph", "performance", "statistics", "bar-chart", "10f080"]
+  },
+  "chess-bishop": {
+    "unicode": "f43a",
+    "label": "Chess Bishop",
+    "search": ["chess-bishop", "Chess Bishop", "Black Chess Bishop", "board", "checkmate", "game", "strategy", "10f43a"]
+  },
+  "chess-king": {
+    "unicode": "f43f",
+    "label": "Chess King",
+    "search": ["chess-king", "Chess King", "Black Chess King", "board", "checkmate", "game", "strategy", "10f43f"]
+  },
+  "chess-knight": {
+    "unicode": "f441",
+    "label": "Chess Knight",
+    "search": ["chess-knight", "Chess Knight", "Black Chess Knight", "board", "checkmate", "game", "horse", "strategy", "10f441"]
+  },
+  "chess-pawn": {
+    "unicode": "f443",
+    "label": "Chess Pawn",
+    "search": ["chess-pawn", "Chess Pawn", "board", "checkmate", "chess", "chess pawn", "dupe", "expendable", "game", "strategy", "10f443"]
+  },
+  "chess-queen": {
+    "unicode": "f445",
+    "label": "Chess Queen",
+    "search": ["chess-queen", "Chess Queen", "Black Chess Queen", "board", "checkmate", "game", "strategy", "10f445"]
+  },
+  "chess-rook": {
+    "unicode": "f447",
+    "label": "Chess Rook",
+    "search": ["chess-rook", "Chess Rook", "Black Chess Rook", "board", "castle", "checkmate", "game", "strategy", "10f447"]
+  },
+  "circle": {
+    "unicode": "f111",
+    "label": "Circle",
+    "search": [
+      "circle",
+      "Circle",
+      "Black Circle",
+      "Black Large Circle",
+      "black circle",
+      "blue",
+      "blue circle",
+      "brown",
+      "brown circle",
+      "chart",
+      "circle-thin",
+      "diameter",
+      "dot",
+      "ellipse",
+      "fill",
+      "geometric",
+      "green",
+      "green circle",
+      "notification",
+      "orange",
+      "orange circle",
+      "progress",
+      "purple",
+      "purple circle",
+      "red",
+      "red circle",
+      "round",
+      "white circle",
+      "yellow",
+      "yellow circle",
+      "10f111"
+    ]
+  },
+  "circle-check": {
+    "unicode": "f058",
+    "label": "Circle Check",
+    "search": [
+      "circle-check",
+      "Circle Check",
+      "accept",
+      "affected",
+      "agree",
+      "clear",
+      "confirm",
+      "correct",
+      "coupon",
+      "done",
+      "enable",
+      "ok",
+      "select",
+      "success",
+      "tick",
+      "todo",
+      "validate",
+      "working",
+      "yes",
+      "check-circle",
+      "10f058"
+    ]
+  },
+  "circle-dot": {
+    "unicode": "f192",
+    "label": "Circle Dot",
+    "search": [
+      "circle-dot",
+      "Circle Dot",
+      "bullseye",
+      "button",
+      "geometric",
+      "notification",
+      "radio",
+      "radio button",
+      "target",
+      "dot-circle",
+      "10f192"
+    ]
+  },
+  "circle-down": {
+    "unicode": "f358",
+    "label": "Circle Down",
+    "search": ["circle-down", "Circle Down", "arrow-circle-o-down", "download", "arrow-alt-circle-down", "10f358"]
+  },
+  "circle-left": {
+    "unicode": "f359",
+    "label": "Circle Left",
+    "search": ["circle-left", "Circle Left", "arrow-circle-o-left", "back", "previous", "arrow-alt-circle-left", "10f359"]
+  },
+  "circle-pause": {
+    "unicode": "f28b",
+    "label": "Circle Pause",
+    "search": ["circle-pause", "Circle Pause", "hold", "wait", "pause-circle", "10f28b"]
+  },
+  "circle-play": {
+    "unicode": "f144",
+    "label": "Circle Play",
+    "search": ["circle-play", "Circle Play", "audio", "music", "playing", "sound", "start", "video", "play-circle", "10f144"]
+  },
+  "circle-question": {
+    "unicode": "f059",
+    "label": "Circle Question",
+    "search": ["circle-question", "Circle Question", "faq", "help", "information", "support", "unknown", "question-circle", "10f059"]
+  },
+  "circle-right": {
+    "unicode": "f35a",
+    "label": "Circle Right",
+    "search": ["circle-right", "Circle Right", "arrow-circle-o-right", "forward", "next", "arrow-alt-circle-right", "10f35a"]
+  },
+  "circle-stop": {
+    "unicode": "f28d",
+    "label": "Circle Stop",
+    "search": ["circle-stop", "Circle Stop", "block", "box", "circle", "square", "stop-circle", "10f28d"]
+  },
+  "circle-up": {
+    "unicode": "f35b",
+    "label": "Circle Up",
+    "search": ["circle-up", "Circle Up", "arrow-circle-o-up", "upgrade", "arrow-alt-circle-up", "10f35b"]
+  },
+  "circle-user": {
+    "unicode": "f2bd",
+    "label": "Circle User",
+    "search": ["circle-user", "Circle User", "employee", "uer", "username", "users-people", "user-circle", "10f2bd"]
+  },
+  "circle-xmark": {
+    "unicode": "f057",
+    "label": "Circle Xmark",
+    "search": [
+      "circle-xmark",
+      "Circle Xmark",
+      "close",
+      "cross",
+      "destroy",
+      "exit",
+      "incorrect",
+      "notice",
+      "notification",
+      "notify",
+      "problem",
+      "uncheck",
+      "wrong",
+      "x",
+      "times-circle",
+      "xmark-circle",
+      "10f057"
+    ]
+  },
+  "clipboard": {
+    "unicode": "f328",
+    "label": "Clipboard",
+    "search": ["clipboard", "Clipboard", "copy", "notepad", "notes", "paste", "record", "10f328"]
+  },
+  "clock": {
+    "unicode": "f017",
+    "label": "Clock",
+    "search": [
+      "clock",
+      "Clock",
+      "00",
+      "4",
+      "4:00",
+      "date",
+      "four",
+      "four o’clock",
+      "hour",
+      "late",
+      "minute",
+      "o'clock",
+      "o’clock",
+      "pending",
+      "schedule",
+      "ticking",
+      "time",
+      "timer",
+      "timestamp",
+      "watch",
+      "clock-four",
+      "10f017"
+    ]
+  },
+  "clone": {
+    "unicode": "f24d",
+    "label": "Clone",
+    "search": ["clone", "Clone", "add", "arrange", "copy", "duplicate", "new", "paste", "10f24d"]
+  },
+  "closed-captioning": {
+    "unicode": "f20a",
+    "label": "Closed Captioning",
+    "search": ["closed-captioning", "Closed Captioning", "cc", "deaf", "hearing", "subtitle", "subtitling", "text", "video", "10f20a"]
+  },
+  "cloud": {
+    "unicode": "f0c2",
+    "label": "Cloud",
+    "search": ["cloud", "Cloud", "atmosphere", "fog", "overcast", "save", "upload", "weather", "10f0c2"]
+  },
+  "comment": {
+    "unicode": "f075",
+    "label": "Comment",
+    "search": [
+      "comment",
+      "Comment",
+      "Right Speech Bubble",
+      "answer",
+      "bubble",
+      "chat",
+      "commenting",
+      "conversation",
+      "discussion",
+      "feedback",
+      "message",
+      "note",
+      "notification",
+      "sms",
+      "speech",
+      "talk",
+      "talking",
+      "texting",
+      "10f075"
+    ]
+  },
+  "comment-dots": {
+    "unicode": "f4ad",
+    "label": "Comment Dots",
+    "search": [
+      "comment-dots",
+      "Comment Dots",
+      "answer",
+      "balloon",
+      "bubble",
+      "chat",
+      "comic",
+      "commenting",
+      "conversation",
+      "dialog",
+      "feedback",
+      "message",
+      "more",
+      "note",
+      "notification",
+      "reply",
+      "request",
+      "sms",
+      "speech",
+      "speech balloon",
+      "texting",
+      "10f4ad"
+    ]
+  },
+  "comments": {
+    "unicode": "f086",
+    "label": "Comments",
+    "search": [
+      "comments",
+      "Comments",
+      "Two Speech Bubbles",
+      "answer",
+      "bubble",
+      "chat",
+      "commenting",
+      "conversation",
+      "discussion",
+      "feedback",
+      "message",
+      "note",
+      "notification",
+      "sms",
+      "speech",
+      "talk",
+      "talking",
+      "texting",
+      "10f086"
+    ]
+  },
+  "compass": {
+    "unicode": "f14e",
+    "label": "Compass",
+    "search": [
+      "compass",
+      "Compass",
+      "directions",
+      "directory",
+      "location",
+      "magnetic",
+      "menu",
+      "navigation",
+      "orienteering",
+      "safari",
+      "travel",
+      "10f14e"
+    ]
+  },
+  "copy": {
+    "unicode": "f0c5",
+    "label": "Copy",
+    "search": ["copy", "Copy", "clone", "duplicate", "file", "files-o", "paper", "paste", "10f0c5"]
+  },
+  "copyright": {
+    "unicode": "f1f9",
+    "label": "Copyright",
+    "search": ["copyright", "Copyright", "brand", "c", "mark", "register", "trademark", "10f1f9"]
+  },
+  "credit-card": {
+    "unicode": "f09d",
+    "label": "Credit Card",
+    "search": [
+      "credit-card",
+      "Credit Card",
+      "buy",
+      "card",
+      "checkout",
+      "credit",
+      "credit card",
+      "credit-card-alt",
+      "debit",
+      "money",
+      "payment",
+      "purchase",
+      "10f09d"
+    ]
+  },
+  "envelope": {
+    "unicode": "f0e0",
+    "label": "Envelope",
+    "search": [
+      "envelope",
+      "Envelope",
+      "Back of Envelope",
+      "e-mail",
+      "email",
+      "letter",
+      "mail",
+      "message",
+      "newsletter",
+      "notification",
+      "offer",
+      "support",
+      "10f0e0"
+    ]
+  },
+  "envelope-open": {
+    "unicode": "f2b6",
+    "label": "Envelope Open",
+    "search": [
+      "envelope-open",
+      "Envelope Open",
+      "e-mail",
+      "email",
+      "letter",
+      "mail",
+      "message",
+      "newsletter",
+      "notification",
+      "offer",
+      "support",
+      "10f2b6"
+    ]
+  },
+  "eye": {
+    "unicode": "f06e",
+    "label": "Eye",
+    "search": ["eye", "Eye", "body", "look", "optic", "see", "seen", "show", "sight", "views", "visible", "10f06e"]
+  },
+  "eye-slash": {
+    "unicode": "f070",
+    "label": "Eye Slash",
+    "search": ["eye-slash", "Eye Slash", "blind", "disabled", "hide", "show", "toggle", "unseen", "views", "visible", "visiblity", "10f070"]
+  },
+  "face-angry": {
+    "unicode": "f556",
+    "label": "Face Angry",
+    "search": ["face-angry", "Face Angry", "angry", "angry face", "disapprove", "emoticon", "face", "mad", "upset", "10f556"]
+  },
+  "face-dizzy": {
+    "unicode": "f567",
+    "label": "Face Dizzy",
+    "search": ["face-dizzy", "Face Dizzy", "dazed", "dead", "disapprove", "emoticon", "face", "dizzy", "10f567"]
+  },
+  "face-flushed": {
+    "unicode": "f579",
+    "label": "Face Flushed",
+    "search": ["face-flushed", "Face Flushed", "dazed", "embarrassed", "emoticon", "face", "flushed", "flushed face", "10f579"]
+  },
+  "face-frown": {
+    "unicode": "f119",
+    "label": "Face Frown",
+    "search": ["face-frown", "Face Frown", "disapprove", "emoticon", "face", "frown", "frowning face", "rating", "sad", "uer", "10f119"]
+  },
+  "face-frown-open": {
+    "unicode": "f57a",
+    "label": "Face Frown Open",
+    "search": [
+      "face-frown-open",
+      "Face Frown Open",
+      "disapprove",
+      "emoticon",
+      "face",
+      "frown",
+      "frowning face with open mouth",
+      "mouth",
+      "open",
+      "rating",
+      "sad",
+      "frown-open",
+      "10f57a"
+    ]
+  },
+  "face-grimace": {
+    "unicode": "f57f",
+    "label": "Face Grimace",
+    "search": ["face-grimace", "Face Grimace", "cringe", "emoticon", "face", "grimace", "grimacing face", "teeth", "10f57f"]
+  },
+  "face-grin": {
+    "unicode": "f580",
+    "label": "Face Grin",
+    "search": ["face-grin", "Face Grin", "emoticon", "face", "grin", "grinning face", "laugh", "smile", "10f580"]
+  },
+  "face-grin-beam": {
+    "unicode": "f582",
+    "label": "Face Grin Beam",
+    "search": [
+      "face-grin-beam",
+      "Face Grin Beam",
+      "emoticon",
+      "eye",
+      "face",
+      "grinning face with smiling eyes",
+      "laugh",
+      "mouth",
+      "open",
+      "smile",
+      "grin-beam",
+      "10f582"
+    ]
+  },
+  "face-grin-beam-sweat": {
+    "unicode": "f583",
+    "label": "Face Grin Beam Sweat",
+    "search": [
+      "face-grin-beam-sweat",
+      "Face Grin Beam Sweat",
+      "cold",
+      "embarass",
+      "emoticon",
+      "face",
+      "grinning face with sweat",
+      "open",
+      "smile",
+      "sweat",
+      "grin-beam-sweat",
+      "10f583"
+    ]
+  },
+  "face-grin-hearts": {
+    "unicode": "f584",
+    "label": "Face Grin Hearts",
+    "search": [
+      "face-grin-hearts",
+      "Face Grin Hearts",
+      "emoticon",
+      "eye",
+      "face",
+      "love",
+      "smile",
+      "smiling face with heart-eyes",
+      "grin-hearts",
+      "10f584"
+    ]
+  },
+  "face-grin-squint": {
+    "unicode": "f585",
+    "label": "Face Grin Squint",
+    "search": [
+      "face-grin-squint",
+      "Face Grin Squint",
+      "emoticon",
+      "face",
+      "grinning squinting face",
+      "laugh",
+      "mouth",
+      "satisfied",
+      "smile",
+      "grin-squint",
+      "10f585"
+    ]
+  },
+  "face-grin-squint-tears": {
+    "unicode": "f586",
+    "label": "Face Grin Squint Tears",
+    "search": [
+      "face-grin-squint-tears",
+      "Face Grin Squint Tears",
+      "emoticon",
+      "face",
+      "floor",
+      "happy",
+      "laugh",
+      "rolling",
+      "rolling on the floor laughing",
+      "smile",
+      "grin-squint-tears",
+      "10f586"
+    ]
+  },
+  "face-grin-stars": {
+    "unicode": "f587",
+    "label": "Face Grin Stars",
+    "search": [
+      "face-grin-stars",
+      "Face Grin Stars",
+      "emoticon",
+      "eyes",
+      "face",
+      "grinning",
+      "quality",
+      "star",
+      "star-struck",
+      "starry-eyed",
+      "vip",
+      "grin-stars",
+      "10f587"
+    ]
+  },
+  "face-grin-tears": {
+    "unicode": "f588",
+    "label": "Face Grin Tears",
+    "search": [
+      "face-grin-tears",
+      "Face Grin Tears",
+      "LOL",
+      "emoticon",
+      "face",
+      "face with tears of joy",
+      "joy",
+      "laugh",
+      "tear",
+      "grin-tears",
+      "10f588"
+    ]
+  },
+  "face-grin-tongue": {
+    "unicode": "f589",
+    "label": "Face Grin Tongue",
+    "search": ["face-grin-tongue", "Face Grin Tongue", "LOL", "emoticon", "face", "face with tongue", "tongue", "grin-tongue", "10f589"]
+  },
+  "face-grin-tongue-squint": {
+    "unicode": "f58a",
+    "label": "Face Grin Tongue Squint",
+    "search": [
+      "face-grin-tongue-squint",
+      "Face Grin Tongue Squint",
+      "LOL",
+      "emoticon",
+      "eye",
+      "face",
+      "horrible",
+      "squinting face with tongue",
+      "taste",
+      "tongue",
+      "grin-tongue-squint",
+      "10f58a"
+    ]
+  },
+  "face-grin-tongue-wink": {
+    "unicode": "f58b",
+    "label": "Face Grin Tongue Wink",
+    "search": [
+      "face-grin-tongue-wink",
+      "Face Grin Tongue Wink",
+      "LOL",
+      "emoticon",
+      "eye",
+      "face",
+      "joke",
+      "tongue",
+      "wink",
+      "winking face with tongue",
+      "grin-tongue-wink",
+      "10f58b"
+    ]
+  },
+  "face-grin-wide": {
+    "unicode": "f581",
+    "label": "Face Grin Wide",
+    "search": [
+      "face-grin-wide",
+      "Face Grin Wide",
+      "emoticon",
+      "face",
+      "grinning face with big eyes",
+      "laugh",
+      "mouth",
+      "open",
+      "smile",
+      "grin-alt",
+      "10f581"
+    ]
+  },
+  "face-grin-wink": {
+    "unicode": "f58c",
+    "label": "Face Grin Wink",
+    "search": ["face-grin-wink", "Face Grin Wink", "emoticon", "face", "flirt", "laugh", "smile", "grin-wink", "10f58c"]
+  },
+  "face-kiss": {
+    "unicode": "f596",
+    "label": "Face Kiss",
+    "search": ["face-kiss", "Face Kiss", "beso", "emoticon", "face", "kiss", "kissing face", "love", "smooch", "10f596"]
+  },
+  "face-kiss-beam": {
+    "unicode": "f597",
+    "label": "Face Kiss Beam",
+    "search": [
+      "face-kiss-beam",
+      "Face Kiss Beam",
+      "beso",
+      "emoticon",
+      "eye",
+      "face",
+      "kiss",
+      "kissing face with smiling eyes",
+      "love",
+      "smile",
+      "smooch",
+      "kiss-beam",
+      "10f597"
+    ]
+  },
+  "face-kiss-wink-heart": {
+    "unicode": "f598",
+    "label": "Face Kiss Wink Heart",
+    "search": [
+      "face-kiss-wink-heart",
+      "Face Kiss Wink Heart",
+      "beso",
+      "emoticon",
+      "face",
+      "face blowing a kiss",
+      "kiss",
+      "love",
+      "smooch",
+      "kiss-wink-heart",
+      "10f598"
+    ]
+  },
+  "face-laugh": {
+    "unicode": "f599",
+    "label": "Face Laugh",
+    "search": ["face-laugh", "Face Laugh", "LOL", "emoticon", "face", "laugh", "smile", "10f599"]
+  },
+  "face-laugh-beam": {
+    "unicode": "f59a",
+    "label": "Face Laugh Beam",
+    "search": [
+      "face-laugh-beam",
+      "Face Laugh Beam",
+      "LOL",
+      "beaming face with smiling eyes",
+      "emoticon",
+      "eye",
+      "face",
+      "grin",
+      "happy",
+      "smile",
+      "laugh-beam",
+      "10f59a"
+    ]
+  },
+  "face-laugh-squint": {
+    "unicode": "f59b",
+    "label": "Face Laugh Squint",
+    "search": ["face-laugh-squint", "Face Laugh Squint", "LOL", "emoticon", "face", "happy", "smile", "laugh-squint", "10f59b"]
+  },
+  "face-laugh-wink": {
+    "unicode": "f59c",
+    "label": "Face Laugh Wink",
+    "search": ["face-laugh-wink", "Face Laugh Wink", "LOL", "emoticon", "face", "happy", "smile", "laugh-wink", "10f59c"]
+  },
+  "face-meh": {
+    "unicode": "f11a",
+    "label": "Face Meh",
+    "search": [
+      "face-meh",
+      "Face Meh",
+      "deadpan",
+      "default",
+      "emoticon",
+      "face",
+      "meh",
+      "neutral",
+      "neutral face",
+      "rating",
+      "uer",
+      "10f11a"
+    ]
+  },
+  "face-meh-blank": {
+    "unicode": "f5a4",
+    "label": "Face Meh Blank",
+    "search": [
+      "face-meh-blank",
+      "Face Meh Blank",
+      "emoticon",
+      "face",
+      "face without mouth",
+      "mouth",
+      "neutral",
+      "quiet",
+      "rating",
+      "silent",
+      "meh-blank",
+      "10f5a4"
+    ]
+  },
+  "face-rolling-eyes": {
+    "unicode": "f5a5",
+    "label": "Face Rolling Eyes",
+    "search": [
+      "face-rolling-eyes",
+      "Face Rolling Eyes",
+      "emoticon",
+      "eyeroll",
+      "eyes",
+      "face",
+      "face with rolling eyes",
+      "neutral",
+      "rating",
+      "rolling",
+      "meh-rolling-eyes",
+      "10f5a5"
+    ]
+  },
+  "face-sad-cry": {
+    "unicode": "f5b3",
+    "label": "Face Sad Cry",
+    "search": [
+      "face-sad-cry",
+      "Face Sad Cry",
+      "cry",
+      "emoticon",
+      "face",
+      "loudly crying face",
+      "sad",
+      "sob",
+      "tear",
+      "tears",
+      "sad-cry",
+      "10f5b3"
+    ]
+  },
+  "face-sad-tear": {
+    "unicode": "f5b4",
+    "label": "Face Sad Tear",
+    "search": ["face-sad-tear", "Face Sad Tear", "cry", "crying face", "emoticon", "face", "sad", "tear", "tears", "sad-tear", "10f5b4"]
+  },
+  "face-smile": {
+    "unicode": "f118",
+    "label": "Face Smile",
+    "search": [
+      "face-smile",
+      "Face Smile",
+      "approve",
+      "default",
+      "emoticon",
+      "face",
+      "happy",
+      "rating",
+      "satisfied",
+      "slightly smiling face",
+      "smile",
+      "uer",
+      "10f118"
+    ]
+  },
+  "face-smile-beam": {
+    "unicode": "f5b8",
+    "label": "Face Smile Beam",
+    "search": [
+      "face-smile-beam",
+      "Face Smile Beam",
+      "blush",
+      "emoticon",
+      "eye",
+      "face",
+      "happy",
+      "positive",
+      "smile",
+      "smiling face with smiling eyes",
+      "smile-beam",
+      "10f5b8"
+    ]
+  },
+  "face-smile-wink": {
+    "unicode": "f4da",
+    "label": "Face Smile Wink",
+    "search": [
+      "face-smile-wink",
+      "Face Smile Wink",
+      "emoticon",
+      "face",
+      "happy",
+      "hint",
+      "joke",
+      "wink",
+      "winking face",
+      "smile-wink",
+      "10f4da"
+    ]
+  },
+  "face-surprise": {
+    "unicode": "f5c2",
+    "label": "Face Surprise",
+    "search": [
+      "face-surprise",
+      "Face Surprise",
+      "emoticon",
+      "face",
+      "face with open mouth",
+      "mouth",
+      "open",
+      "shocked",
+      "sympathy",
+      "surprise",
+      "10f5c2"
+    ]
+  },
+  "face-tired": {
+    "unicode": "f5c8",
+    "label": "Face Tired",
+    "search": ["face-tired", "Face Tired", "angry", "emoticon", "face", "grumpy", "tired", "tired face", "upset", "10f5c8"]
+  },
+  "file": {
+    "unicode": "f15b",
+    "label": "File",
+    "search": ["file", "File", "Empty Document", "cv", "document", "new", "page", "page facing up", "pdf", "resume", "10f15b"]
+  },
+  "file-audio": {
+    "unicode": "f1c7",
+    "label": "File Audio",
+    "search": ["file-audio", "File Audio", "document", "mp3", "music", "page", "play", "sound", "10f1c7"]
+  },
+  "file-code": {
+    "unicode": "f1c9",
+    "label": "File Code",
+    "search": ["file-code", "File Code", "css", "development", "document", "html", "mysql", "sql", "10f1c9"]
+  },
+  "file-excel": {
+    "unicode": "f1c3",
+    "label": "File Excel",
+    "search": ["file-excel", "File Excel", "csv", "document", "numbers", "spreadsheets", "table", "10f1c3"]
+  },
+  "file-image": {
+    "unicode": "f1c5",
+    "label": "File Image",
+    "search": ["file-image", "File Image", "Document with Picture", "document", "image", "img", "jpg", "photo", "png", "10f1c5"]
+  },
+  "file-lines": {
+    "unicode": "f15c",
+    "label": "File Lines",
+    "search": [
+      "file-lines",
+      "File Lines",
+      "Document",
+      "Document with Text",
+      "document",
+      "file-text",
+      "invoice",
+      "new",
+      "page",
+      "pdf",
+      "file-alt",
+      "10f15c"
+    ]
+  },
+  "file-pdf": {
+    "unicode": "f1c1",
+    "label": "File Pdf",
+    "search": ["file-pdf", "File Pdf", "acrobat", "document", "preview", "save", "10f1c1"]
+  },
+  "file-powerpoint": {
+    "unicode": "f1c4",
+    "label": "File Powerpoint",
+    "search": ["file-powerpoint", "File Powerpoint", "display", "document", "keynote", "presentation", "10f1c4"]
+  },
+  "file-video": {
+    "unicode": "f1c8",
+    "label": "File Video",
+    "search": ["file-video", "File Video", "document", "m4v", "movie", "mp4", "play", "10f1c8"]
+  },
+  "file-word": {
+    "unicode": "f1c2",
+    "label": "File Word",
+    "search": ["file-word", "File Word", "document", "edit", "page", "text", "writing", "10f1c2"]
+  },
+  "file-zipper": {
+    "unicode": "f1c6",
+    "label": "File Zipper",
+    "search": ["file-zipper", "File Zipper", ".zip", "bundle", "compress", "compression", "download", "zip", "file-archive", "10f1c6"]
+  },
+  "flag": {
+    "unicode": "f024",
+    "label": "Flag",
+    "search": ["flag", "Flag", "black flag", "country", "notice", "notification", "notify", "pole", "report", "symbol", "waving", "10f024"]
+  },
+  "floppy-disk": {
+    "unicode": "f0c7",
+    "label": "Floppy Disk",
+    "search": [
+      "floppy-disk",
+      "Floppy Disk",
+      "Black Hard Shell Floppy Disk",
+      "computer",
+      "disk",
+      "download",
+      "floppy",
+      "floppy disk",
+      "floppy-o",
+      "save",
+      "10f0c7"
+    ]
+  },
+  "folder": {
+    "unicode": "f07b",
+    "label": "Folder",
+    "search": ["folder", "Folder", "Black Folder", "archive", "directory", "document", "file", "file folder", "folder-blank", "10f07b"]
+  },
+  "folder-closed": {
+    "unicode": "e185",
+    "label": "Folder Closed",
+    "search": ["folder-closed", "Folder Closed", "file"]
+  },
+  "folder-open": {
+    "unicode": "f07c",
+    "label": "Folder Open",
+    "search": [
+      "folder-open",
+      "Folder Open",
+      "Open Folder",
+      "archive",
+      "directory",
+      "document",
+      "empty",
+      "file",
+      "folder",
+      "new",
+      "open",
+      "open file folder",
+      "10f07c"
+    ]
+  },
+  "font-awesome": {
+    "unicode": "f2b4",
+    "label": "Font Awesome",
+    "search": [
+      "font-awesome",
+      "Font Awesome",
+      "awesome",
+      "flag",
+      "font",
+      "icons",
+      "typeface",
+      "font-awesome-flag",
+      "font-awesome-logo-full",
+      "10f2b4",
+      "10f4e6"
+    ]
+  },
+  "futbol": {
+    "unicode": "f1e3",
+    "label": "Futbol",
+    "search": ["futbol", "Futbol", "ball", "football", "mls", "soccer", "soccer ball", "futbol-ball", "soccer-ball", "10f1e3"]
+  },
+  "gem": {
+    "unicode": "f3a5",
+    "label": "Gem",
+    "search": ["gem", "Gem", "diamond", "gem stone", "jewel", "jewelry", "sapphire", "stone", "treasure", "10f3a5"]
+  },
+  "hand": {
+    "unicode": "f256",
+    "label": "Hand",
+    "search": [
+      "hand",
+      "Hand",
+      "Raised Hand",
+      "backhand",
+      "game",
+      "halt",
+      "palm",
+      "raised",
+      "raised back of hand",
+      "request",
+      "roshambo",
+      "stop",
+      "hand-paper",
+      "10f256"
+    ]
+  },
+  "hand-back-fist": {
+    "unicode": "f255",
+    "label": "Hand Back Fist",
+    "search": ["hand-back-fist", "Hand Back Fist", "fist", "game", "roshambo", "hand-rock", "10f255"]
+  },
+  "hand-lizard": {
+    "unicode": "f258",
+    "label": "Hand Lizard",
+    "search": ["hand-lizard", "Hand Lizard", "game", "roshambo", "10f258"]
+  },
+  "hand-peace": {
+    "unicode": "f25b",
+    "label": "Hand Peace",
+    "search": ["hand-peace", "Hand Peace", "hand", "rest", "truce", "v", "victory", "victory hand", "10f25b"]
+  },
+  "hand-point-down": {
+    "unicode": "f0a7",
+    "label": "Hand Point Down",
+    "search": ["hand-point-down", "Hand Point Down", "finger", "hand-o-down", "point", "10f0a7"]
+  },
+  "hand-point-left": {
+    "unicode": "f0a5",
+    "label": "Hand Point Left",
+    "search": ["hand-point-left", "Hand Point Left", "back", "finger", "hand-o-left", "left", "point", "previous", "10f0a5"]
+  },
+  "hand-point-right": {
+    "unicode": "f0a4",
+    "label": "Hand Point Right",
+    "search": ["hand-point-right", "Hand Point Right", "finger", "forward", "hand-o-right", "next", "point", "right", "10f0a4"]
+  },
+  "hand-point-up": {
+    "unicode": "f0a6",
+    "label": "Hand Point Up",
+    "search": [
+      "hand-point-up",
+      "Hand Point Up",
+      "finger",
+      "hand",
+      "hand-o-up",
+      "index",
+      "index pointing up",
+      "point",
+      "request",
+      "up",
+      "upgrade",
+      "10f0a6"
+    ]
+  },
+  "hand-pointer": {
+    "unicode": "f25a",
+    "label": "Hand Pointer",
+    "search": ["hand-pointer", "Hand Pointer", "arrow", "cursor", "select", "10f25a"]
+  },
+  "hand-scissors": {
+    "unicode": "f257",
+    "label": "Hand Scissors",
+    "search": ["hand-scissors", "Hand Scissors", "cut", "game", "roshambo", "10f257"]
+  },
+  "hand-spock": {
+    "unicode": "f259",
+    "label": "Hand Spock",
+    "search": [
+      "hand-spock",
+      "Hand Spock",
+      "finger",
+      "hand",
+      "live long",
+      "palm",
+      "prosper",
+      "salute",
+      "spock",
+      "star trek",
+      "vulcan",
+      "vulcan salute",
+      "10f259"
+    ]
+  },
+  "handshake": {
+    "unicode": "f2b5",
+    "label": "Handshake",
+    "search": [
+      "handshake",
+      "Handshake",
+      "agreement",
+      "greeting",
+      "meeting",
+      "partnership",
+      "handshake-alt",
+      "handshake-simple",
+      "10f2b5",
+      "10f4c6"
+    ]
+  },
+  "hard-drive": {
+    "unicode": "f0a0",
+    "label": "Hard Drive",
+    "search": ["hard-drive", "Hard Drive", "Hard Disk", "cpu", "hard drive", "harddrive", "machine", "save", "storage", "hdd", "10f0a0"]
+  },
+  "headphones": {
+    "unicode": "f025",
+    "label": "Headphones",
+    "search": [
+      "headphones",
+      "Headphones",
+      "audio",
+      "earbud",
+      "headphone",
+      "listen",
+      "music",
+      "sound",
+      "speaker",
+      "headphones-alt",
+      "headphones-simple",
+      "10f025",
+      "10f58f"
+    ]
+  },
+  "heart": {
+    "unicode": "f004",
+    "label": "Heart",
+    "search": [
+      "heart",
+      "Heart",
+      "ace",
+      "card",
+      "favorite",
+      "game",
+      "heart suit",
+      "like",
+      "love",
+      "relationship",
+      "valentine",
+      "wishlist",
+      "10f004"
+    ]
+  },
+  "hospital": {
+    "unicode": "f0f8",
+    "label": "Hospital",
+    "search": [
+      "hospital",
+      "Hospital",
+      "building",
+      "covid-19",
+      "doctor",
+      "emergency room",
+      "medical center",
+      "medicine",
+      "hospital-alt",
+      "hospital-wide",
+      "10f0f8",
+      "10f47d"
+    ]
+  },
+  "hourglass": {
+    "unicode": "f254",
+    "label": "Hourglass",
+    "search": [
+      "hourglass",
+      "Hourglass",
+      "hour",
+      "hourglass not done",
+      "minute",
+      "sand",
+      "stopwatch",
+      "time",
+      "timer",
+      "hourglass-empty",
+      "10f254"
+    ]
+  },
+  "hourglass-half": {
+    "unicode": "f252",
+    "label": "Hourglass Half",
+    "search": [
+      "hourglass-half",
+      "Hourglass Half",
+      "hour",
+      "minute",
+      "pending",
+      "sand",
+      "stopwatch",
+      "time",
+      "waiting",
+      "hourglass-2",
+      "10f252"
+    ]
+  },
+  "house": {
+    "unicode": "f015",
+    "label": "House",
+    "search": ["house", "House", "abode", "building", "home", "main", "residence", "home-alt", "home-lg-alt", "10f015", "10f80a", "10f80c"]
+  },
+  "id-badge": {
+    "unicode": "f2c1",
+    "label": "Id Badge",
+    "search": ["id-badge", "Id Badge", "address", "contact", "identification", "license", "profile", "uer", "username", "10f2c1"]
+  },
+  "id-card": {
+    "unicode": "f2c2",
+    "label": "Id Card",
+    "search": [
+      "id-card",
+      "Id Card",
+      "contact",
+      "demographics",
+      "document",
+      "identification",
+      "issued",
+      "profile",
+      "registration",
+      "uer",
+      "username",
+      "drivers-license",
+      "10f2c2"
+    ]
+  },
+  "image": {
+    "unicode": "f03e",
+    "label": "Image",
+    "search": ["image", "Image", "album", "img", "landscape", "photo", "picture", "10f03e"]
+  },
+  "images": {
+    "unicode": "f302",
+    "label": "Images",
+    "search": ["images", "Images", "album", "img", "landscape", "photo", "picture", "10f302"]
+  },
+  "keyboard": {
+    "unicode": "f11c",
+    "label": "Keyboard",
+    "search": ["keyboard", "Keyboard", "accessory", "computer", "edit", "input", "text", "type", "write", "10f11c"]
+  },
+  "lemon": {
+    "unicode": "f094",
+    "label": "Lemon",
+    "search": ["lemon", "Lemon", "citrus", "fruit", "lemonade", "lime", "tart", "10f094"]
+  },
+  "life-ring": {
+    "unicode": "f1cd",
+    "label": "Life Ring",
+    "search": ["life-ring", "Life Ring", "coast guard", "help", "overboard", "save", "support", "10f1cd"]
+  },
+  "lightbulb": {
+    "unicode": "f0eb",
+    "label": "Lightbulb",
+    "search": [
+      "lightbulb",
+      "Lightbulb",
+      "bulb",
+      "comic",
+      "electric",
+      "energy",
+      "idea",
+      "innovation",
+      "inspiration",
+      "light",
+      "light bulb",
+      "mechanical",
+      "10f0eb"
+    ]
+  },
+  "map": {
+    "unicode": "f279",
+    "label": "Map",
+    "search": [
+      "map",
+      "Map",
+      "address",
+      "coordinates",
+      "destination",
+      "gps",
+      "localize",
+      "location",
+      "navigation",
+      "paper",
+      "pin",
+      "place",
+      "point of interest",
+      "position",
+      "route",
+      "travel",
+      "world",
+      "world map",
+      "10f279"
+    ]
+  },
+  "message": {
+    "unicode": "f27a",
+    "label": "Message",
+    "search": [
+      "message",
+      "Message",
+      "answer",
+      "bubble",
+      "chat",
+      "commenting",
+      "conversation",
+      "discussion",
+      "feedback",
+      "note",
+      "notification",
+      "sms",
+      "speech",
+      "talk",
+      "talking",
+      "texting",
+      "comment-alt",
+      "10f27a"
+    ]
+  },
+  "money-bill-1": {
+    "unicode": "f3d1",
+    "label": "Money Bill 1",
+    "search": [
+      "money-bill-1",
+      "Money Bill 1",
+      "buy",
+      "cash",
+      "checkout",
+      "money",
+      "payment",
+      "premium",
+      "price",
+      "purchase",
+      "salary",
+      "money-bill-alt",
+      "10f3d1"
+    ]
+  },
+  "moon": {
+    "unicode": "f186",
+    "label": "Moon",
+    "search": ["moon", "Moon", "Power Sleep Symbol", "contrast", "crescent", "crescent moon", "dark", "lunar", "night", "10f186"]
+  },
+  "newspaper": {
+    "unicode": "f1ea",
+    "label": "Newspaper",
+    "search": [
+      "newspaper",
+      "Newspaper",
+      "article",
+      "editorial",
+      "headline",
+      "journal",
+      "journalism",
+      "news",
+      "newsletter",
+      "paper",
+      "press",
+      "10f1ea"
+    ]
+  },
+  "note-sticky": {
+    "unicode": "f249",
+    "label": "Note Sticky",
+    "search": ["note-sticky", "Note Sticky", "message", "note", "paper", "reminder", "sticker", "sticky-note", "10f249"]
+  },
+  "object-group": {
+    "unicode": "f247",
+    "label": "Object Group",
+    "search": ["object-group", "Object Group", "combine", "copy", "design", "merge", "select", "10f247"]
+  },
+  "object-ungroup": {
+    "unicode": "f248",
+    "label": "Object Ungroup",
+    "search": ["object-ungroup", "Object Ungroup", "copy", "design", "merge", "select", "separate", "10f248"]
+  },
+  "paper-plane": {
+    "unicode": "f1d8",
+    "label": "Paper Plane",
+    "search": ["paper-plane", "Paper Plane", "air", "float", "fold", "mail", "paper", "send", "10f1d8"]
+  },
+  "paste": {
+    "unicode": "f0ea",
+    "label": "Paste",
+    "search": ["paste", "Paste", "clipboard", "copy", "document", "paper", "file-clipboard", "10f0ea"]
+  },
+  "pen-to-square": {
+    "unicode": "f044",
+    "label": "Pen To Square",
+    "search": ["pen-to-square", "Pen To Square", "edit", "modify", "pen", "pencil", "update", "write", "10f044"]
+  },
+  "rectangle-list": {
+    "unicode": "f022",
+    "label": "Rectangle List",
+    "search": [
+      "rectangle-list",
+      "Rectangle List",
+      "cheatsheet",
+      "checklist",
+      "completed",
+      "done",
+      "finished",
+      "ol",
+      "summary",
+      "todo",
+      "ul",
+      "list-alt",
+      "10f022"
+    ]
+  },
+  "rectangle-xmark": {
+    "unicode": "f410",
+    "label": "Rectangle Xmark",
+    "search": [
+      "rectangle-xmark",
+      "Rectangle Xmark",
+      "browser",
+      "cancel",
+      "computer",
+      "development",
+      "uncheck",
+      "rectangle-times",
+      "times-rectangle",
+      "window-close",
+      "10f410"
+    ]
+  },
+  "registered": {
+    "unicode": "f25d",
+    "label": "Registered",
+    "search": ["registered", "Registered", "copyright", "mark", "r", "trademark", "10f25d"]
+  },
+  "share-from-square": {
+    "unicode": "f14d",
+    "label": "Share From Square",
+    "search": ["share-from-square", "Share From Square", "forward", "save", "send", "social", "share-square", "10f14d"]
+  },
+  "snowflake": {
+    "unicode": "f2dc",
+    "label": "Snowflake",
+    "search": ["snowflake", "Snowflake", "Heavy Chevron Snowflake", "cold", "precipitation", "rain", "snow", "snowfall", "winter", "10f2dc"]
+  },
+  "square": {
+    "unicode": "f0c8",
+    "label": "Square",
+    "search": [
+      "square",
+      "Square",
+      "Black Square",
+      "black medium square",
+      "block",
+      "box",
+      "geometric",
+      "shape",
+      "white medium square",
+      "10f0c8"
+    ]
+  },
+  "square-caret-down": {
+    "unicode": "f150",
+    "label": "Square Caret Down",
+    "search": [
+      "square-caret-down",
+      "Square Caret Down",
+      "arrow",
+      "caret-square-o-down",
+      "dropdown",
+      "expand",
+      "insert",
+      "menu",
+      "more",
+      "triangle",
+      "caret-square-down",
+      "10f150"
+    ]
+  },
+  "square-caret-left": {
+    "unicode": "f191",
+    "label": "Square Caret Left",
+    "search": [
+      "square-caret-left",
+      "Square Caret Left",
+      "arrow",
+      "back",
+      "caret-square-o-left",
+      "previous",
+      "triangle",
+      "caret-square-left",
+      "10f191"
+    ]
+  },
+  "square-caret-right": {
+    "unicode": "f152",
+    "label": "Square Caret Right",
+    "search": [
+      "square-caret-right",
+      "Square Caret Right",
+      "arrow",
+      "caret-square-o-right",
+      "forward",
+      "next",
+      "triangle",
+      "caret-square-right",
+      "10f152"
+    ]
+  },
+  "square-caret-up": {
+    "unicode": "f151",
+    "label": "Square Caret Up",
+    "search": [
+      "square-caret-up",
+      "Square Caret Up",
+      "arrow",
+      "caret-square-o-up",
+      "collapse",
+      "triangle",
+      "upgrade",
+      "upload",
+      "caret-square-up",
+      "10f151"
+    ]
+  },
+  "square-check": {
+    "unicode": "f14a",
+    "label": "Square Check",
+    "search": [
+      "square-check",
+      "Square Check",
+      "accept",
+      "agree",
+      "box",
+      "button",
+      "check",
+      "check box with check",
+      "check mark button",
+      "checkmark",
+      "confirm",
+      "correct",
+      "coupon",
+      "done",
+      "enable",
+      "mark",
+      "ok",
+      "select",
+      "success",
+      "tick",
+      "todo",
+      "validate",
+      "working",
+      "yes",
+      "✓",
+      "check-square",
+      "10f14a"
+    ]
+  },
+  "square-full": {
+    "unicode": "f45c",
+    "label": "Square Full",
+    "search": [
+      "square-full",
+      "Square Full",
+      "black large square",
+      "block",
+      "blue",
+      "blue square",
+      "box",
+      "brown",
+      "brown square",
+      "geometric",
+      "green",
+      "green square",
+      "orange",
+      "orange square",
+      "purple",
+      "purple square",
+      "red",
+      "red square",
+      "shape",
+      "square",
+      "white large square",
+      "yellow",
+      "yellow square",
+      "10f45c"
+    ]
+  },
+  "square-minus": {
+    "unicode": "f146",
+    "label": "Square Minus",
+    "search": [
+      "square-minus",
+      "Square Minus",
+      "collapse",
+      "delete",
+      "hide",
+      "minify",
+      "negative",
+      "remove",
+      "shape",
+      "trash",
+      "minus-square",
+      "10f146"
+    ]
+  },
+  "square-plus": {
+    "unicode": "f0fe",
+    "label": "Square Plus",
+    "search": ["square-plus", "Square Plus", "add", "create", "expand", "new", "positive", "shape", "plus-square", "10f0fe"]
+  },
+  "star": {
+    "unicode": "f005",
+    "label": "Star",
+    "search": ["star", "Star", "achievement", "award", "favorite", "important", "night", "quality", "rating", "score", "vip", "10f005"]
+  },
+  "star-half": {
+    "unicode": "f089",
+    "label": "Star Half",
+    "search": ["star-half", "Star Half", "achievement", "award", "rating", "score", "star-half-empty", "star-half-full", "10f089"]
+  },
+  "star-half-stroke": {
+    "unicode": "f5c0",
+    "label": "Star Half Stroke",
+    "search": [
+      "star-half-stroke",
+      "Star Half Stroke",
+      "achievement",
+      "award",
+      "rating",
+      "score",
+      "star-half-empty",
+      "star-half-full",
+      "star-half-alt",
+      "10f5c0"
+    ]
+  },
+  "sun": {
+    "unicode": "f185",
+    "label": "Sun",
+    "search": [
+      "sun",
+      "Sun",
+      "bright",
+      "brighten",
+      "contrast",
+      "day",
+      "lighter",
+      "rays",
+      "sol",
+      "solar",
+      "star",
+      "sunny",
+      "weather",
+      "10f185"
+    ]
+  },
+  "thumbs-down": {
+    "unicode": "f165",
+    "label": "Thumbs Down",
+    "search": [
+      "thumbs-down",
+      "Thumbs Down",
+      "-1",
+      "disagree",
+      "disapprove",
+      "dislike",
+      "down",
+      "hand",
+      "social",
+      "thumb",
+      "thumbs down",
+      "thumbs-o-down",
+      "10f165"
+    ]
+  },
+  "thumbs-up": {
+    "unicode": "f164",
+    "label": "Thumbs Up",
+    "search": [
+      "thumbs-up",
+      "Thumbs Up",
+      "+1",
+      "agree",
+      "approve",
+      "favorite",
+      "hand",
+      "like",
+      "ok",
+      "okay",
+      "social",
+      "success",
+      "thumb",
+      "thumbs up",
+      "thumbs-o-up",
+      "up",
+      "yes",
+      "you got it dude",
+      "10f164"
+    ]
+  },
+  "trash-can": {
+    "unicode": "f2ed",
+    "label": "Trash Can",
+    "search": ["trash-can", "Trash Can", "delete", "garbage", "hide", "remove", "trash-o", "trash-alt", "10f2ed"]
+  },
+  "truck": {
+    "unicode": "f0d1",
+    "label": "Truck",
+    "search": ["truck", "Truck", "Black Truck", "cargo", "delivery", "delivery truck", "shipping", "vehicle", "10f0d1"]
+  },
+  "user": {
+    "unicode": "f007",
+    "label": "User",
+    "search": [
+      "user",
+      "User",
+      "adult",
+      "bust",
+      "bust in silhouette",
+      "default",
+      "employee",
+      "gender-neutral",
+      "person",
+      "profile",
+      "silhouette",
+      "uer",
+      "unspecified gender",
+      "username",
+      "users-people",
+      "user-alt",
+      "user-large",
+      "10f007",
+      "10f406"
+    ]
+  },
+  "window-maximize": {
+    "unicode": "f2d0",
+    "label": "Window Maximize",
+    "search": ["window-maximize", "Window Maximize", "Maximize", "browser", "computer", "development", "expand", "10f2d0"]
+  },
+  "window-minimize": {
+    "unicode": "f2d1",
+    "label": "Window Minimize",
+    "search": ["window-minimize", "Window Minimize", "Minimize", "browser", "collapse", "computer", "development", "10f2d1"]
+  },
+  "window-restore": {
+    "unicode": "f2d2",
+    "label": "Window Restore",
+    "search": ["window-restore", "Window Restore", "browser", "computer", "development", "10f2d2"]
+  }
+}

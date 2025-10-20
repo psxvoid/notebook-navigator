@@ -51,7 +51,7 @@ export const EXTERNAL_ICON_PROVIDERS: Record<ExternalIconProviderId, ExternalIco
         id: 'fontawesome-regular',
         name: 'Font Awesome',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/fontawesome/latest.json',
-        fontFamily: 'NotebookNavigatorFontAwesomeSolid'
+        fontFamily: 'NotebookNavigatorFontAwesomeRegular'
     },
     'material-icons': {
         id: 'material-icons',

@@ -3869,7 +3869,7 @@ body.nn-resizing {
     text-rendering: optimizeLegibility;
 }
 
-.nn-iconfont-fa-solid,
+.nn-iconfont-fa-regular,
 .nn-iconfont-rpg-awesome,
 .nn-iconfont-bootstrap-icons,
 .nn-iconfont-material-icons,
@@ -3878,9 +3878,9 @@ body.nn-resizing {
     font-style: normal;
 }
 
-.nn-iconfont-fa-solid {
-    font-weight: 900;
-    font-family: 'NotebookNavigatorFontAwesomeSolid', 'Font Awesome 6 Free', sans-serif;
+.nn-iconfont-fa-regular {
+    font-weight: 400;
+    font-family: 'NotebookNavigatorFontAwesomeRegular', 'Font Awesome 7 Free', sans-serif;
 }
 
 .nn-iconfont-rpg-awesome,
