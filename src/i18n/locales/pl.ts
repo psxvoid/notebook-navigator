@@ -377,6 +377,7 @@ export const STRINGS_PL = {
             tagOperationsNotAvailable: 'Operacje na tagach niedostępne',
             tagsRequireMarkdown: 'Tagi są obsługiwane tylko w notatkach Markdown',
             iconPackDownloaded: '{provider} pobrano',
+            iconPackUpdated: '{provider} zaktualizowano ({version})',
             iconPackRemoved: '{provider} usunięto',
             iconPackLoadFailed: 'Nie udało się załadować {provider}'
         },

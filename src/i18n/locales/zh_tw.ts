@@ -375,6 +375,7 @@ export const STRINGS_ZH_TW = {
             tagOperationsNotAvailable: '標籤操作不可用',
             tagsRequireMarkdown: '僅支援 Markdown 筆記的標籤',
             iconPackDownloaded: '{provider} 已下載',
+            iconPackUpdated: '{provider} 已更新 ({version})',
             iconPackRemoved: '{provider} 已移除',
             iconPackLoadFailed: '載入 {provider} 失敗'
         },

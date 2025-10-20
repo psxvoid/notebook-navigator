@@ -375,6 +375,7 @@ export const STRINGS_KO = {
             tagOperationsNotAvailable: '태그 작업을 사용할 수 없음',
             tagsRequireMarkdown: '태그는 마크다운 노트에서만 지원됩니다',
             iconPackDownloaded: '{provider} 다운로드됨',
+            iconPackUpdated: '{provider} 업데이트됨 ({version})',
             iconPackRemoved: '{provider} 제거됨',
             iconPackLoadFailed: '{provider} 로드에 실패했습니다'
         },

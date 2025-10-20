@@ -375,6 +375,7 @@ export const STRINGS_EN = {
             tagOperationsNotAvailable: 'Tag operations not available',
             tagsRequireMarkdown: 'Tags are only supported on Markdown notes',
             iconPackDownloaded: '{provider} downloaded',
+            iconPackUpdated: '{provider} updated ({version})',
             iconPackRemoved: '{provider} removed',
             iconPackLoadFailed: 'Failed to load {provider}'
         },

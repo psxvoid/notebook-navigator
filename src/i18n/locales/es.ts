@@ -376,6 +376,7 @@ export const STRINGS_ES = {
             tagOperationsNotAvailable: 'Operaciones de etiquetas no disponibles',
             tagsRequireMarkdown: 'Las etiquetas solo son compatibles con notas Markdown',
             iconPackDownloaded: '{provider} descargado',
+            iconPackUpdated: '{provider} actualizado ({version})',
             iconPackRemoved: '{provider} eliminado',
             iconPackLoadFailed: 'No se pudo cargar {provider}'
         },

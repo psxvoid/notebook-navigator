@@ -376,6 +376,7 @@ export const STRINGS_FR = {
             tagOperationsNotAvailable: "Opérations d'étiquettes non disponibles",
             tagsRequireMarkdown: 'Les étiquettes ne sont prises en charge que sur les notes Markdown',
             iconPackDownloaded: '{provider} téléchargé',
+            iconPackUpdated: '{provider} mis à jour ({version})',
             iconPackRemoved: '{provider} supprimé',
             iconPackLoadFailed: 'Échec du chargement de {provider}'
         },

@@ -376,6 +376,7 @@ export const STRINGS_ZH_CN = {
             tagOperationsNotAvailable: '标签操作不可用',
             tagsRequireMarkdown: '标签仅支持Markdown笔记',
             iconPackDownloaded: '{provider} 已下载',
+            iconPackUpdated: '{provider} 已更新 ({version})',
             iconPackRemoved: '{provider} 已移除',
             iconPackLoadFailed: '{provider} 加载失败'
         },

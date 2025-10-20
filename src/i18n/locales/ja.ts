@@ -376,6 +376,7 @@ export const STRINGS_JA = {
             tagOperationsNotAvailable: 'タグ操作は利用できません',
             tagsRequireMarkdown: 'タグはMarkdownノートでのみサポートされています',
             iconPackDownloaded: '「{provider}」をダウンロードしました',
+            iconPackUpdated: '「{provider}」を更新しました ({version})',
             iconPackRemoved: '「{provider}」を削除しました',
             iconPackLoadFailed: '「{provider}」を読み込めませんでした'
         },
