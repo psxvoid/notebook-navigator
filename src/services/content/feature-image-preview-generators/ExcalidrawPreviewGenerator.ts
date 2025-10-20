@@ -38,7 +38,6 @@ export const isCachePath = (path: string | unknown) => typeof path === 'string'
     : false
 
 function getExcalidrawAttachmentType(outlink: LinkCache, metadata: CachedMetadata | null) {
-    // eslint-disable-next-line eqeqeq
     const frontMatter = outlink != null && outlink.link != null ? metadata?.frontmatter ?? {} : {};
 
     function hasExcalidrawType(value: 'parsed' | 'raw') {
@@ -65,7 +64,6 @@ const EMPTY_DISPOSE = function emptyDispose() {}
 const EMPTY_TO_DATA_URI_RESULT = { dispose: EMPTY_DISPOSE }
 
 async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: number, height: number }, app: App): Promise<ToDataUriResult> {
-    // eslint-disable-next-line eqeqeq
     if (tFile == null) {
         return EMPTY_TO_DATA_URI_RESULT;
     }
@@ -112,7 +110,6 @@ async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: numb
 
     const pngBlob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((blob: Blob | null) => {
-            // eslint-disable-next-line eqeqeq
             if (blob == null) {
                 reject(`Unable to create image preview for "${tFile.path}"`);
                 return;
@@ -129,7 +126,6 @@ async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: numb
 
 // defensive programming: ensure that it has the correct shape
 function isValidElementsDictEntry(value?: [id?: string, image?: ElementsDictImage]): value is [id: string, image: ElementsDictImage] {
-    // eslint-disable-next-line eqeqeq
     return value != null && value instanceof Array && typeof value[1]?.type === 'string'
 }
 
@@ -139,8 +135,7 @@ export type DisposeArray = Dispose[];
 async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, excalidrawFile: TFile, app: App): Promise<Dispose> {
     const outlinks = this.app.metadataCache.getFileCache(excalidrawFile)?.links as LinkCache[];
 
-    // eslint-disable-next-line eqeqeq
-    if (outlinks == null || outlinks.length == 0) return EMPTY_DISPOSE;
+    if (outlinks == null || outlinks.length === 0) return EMPTY_DISPOSE;
 
     const sceneImages = Object.entries(ea.elementsDict ?? []).filter(x => isValidElementsDictEntry(x) && x[1].type === 'image')
 
@@ -154,7 +149,6 @@ async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, e
         const fileIds = await getEmbedLinkFileId(lines, outlink);
         const maybeFileParam = sceneImages.find(x => fileIds.indexOf(x[1].fileId) >= 0)
 
-        // eslint-disable-next-line eqeqeq
         if (maybeFileParam == null) return
 
         const fileParams = maybeFileParam[1] as { fileId: string, width: number, height: number }

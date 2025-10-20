@@ -124,7 +124,6 @@ export function isImageFile(file: TFile): boolean {
 export function isExcalidrawAttachment(file: TFile, metadata: CachedMetadata | null) {
     const frontMatter = metadata?.frontmatter;
 
-    // eslint-disable-next-line eqeqeq
     if (file == null || file.path == null && file.extension !== 'md' || frontMatter == null) {
         return false;
     }
