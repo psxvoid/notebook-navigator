@@ -2,6 +2,9 @@
 
 This directory contains icon font files and metadata for external icon providers.
 
+- Run `./icon-assets/update-icon-packs.sh` to refresh every pack.
+- Pass pack IDs to update a subset, for example `./icon-assets/update-icon-packs.sh fontawesome simple-icons`.
+
 ## Bootstrap Icons 1.13.1
 
 **Version:** 1.13.1
@@ -23,9 +26,28 @@ This directory contains icon font files and metadata for external icon providers
 
 ### Local Files
 
-- `bootstrap-icons/1.13.1/bootstrap-icons.woff2` - Icon font file
-- `bootstrap-icons/1.13.1/bootstrap-icons.json` - Icon metadata with unicode mappings
+- `bootstrap-icons/bootstrap-icons.woff2` - Icon font file
+- `bootstrap-icons/bootstrap-icons.json` - Icon metadata with unicode mappings
 - `bootstrap-icons/latest.json` - Version and URL configuration
+
+## Simple Icons 15.16.0
+
+**Version:** 15.16.0
+**License:** [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)
+**Creator:** Simple Icons
+
+### Official Download URLs
+
+- **Font File (WOFF2):** https://cdn.jsdelivr.net/npm/simple-icons-font@15.16.0/font/SimpleIcons.woff2
+- **CSS Stylesheet:** https://cdn.jsdelivr.net/npm/simple-icons-font@15.16.0/font/simple-icons.min.css
+- **Metadata (JSON):** https://cdn.jsdelivr.net/npm/simple-icons-font@15.16.0/font/simple-icons.json
+- **GitHub Repository:** https://github.com/simple-icons/simple-icons
+
+### Local Files
+
+- `simple-icons/SimpleIcons.woff2` - Icon font file
+- `simple-icons/simple-icons.json` - Icon metadata with slug, label, and aliases
+- `simple-icons/latest.json` - Version and URL configuration
 
 ## FontAwesome 6.6.0
 
@@ -45,8 +67,8 @@ This directory contains icon font files and metadata for external icon providers
 
 ### Local Files
 
-- `fontawesome/6.6.0/fa-solid-900.woff2` - Solid icon font file
-- `fontawesome/6.6.0/icons-solid.json` - Filtered metadata for solid icons only
+- `fontawesome/fa-solid-900.woff2` - Solid icon font file
+- `fontawesome/icons-solid.json` - Filtered metadata for solid icons only
 - `fontawesome/latest.json` - Version and URL configuration
 
 ## Google Material Icons 140
@@ -69,8 +91,8 @@ This directory contains icon font files and metadata for external icon providers
 
 ### Local Files
 
-- `material-icons/140/MaterialIcons-Regular.woff2` - Regular icon font file
-- `material-icons/140/icons.json` - Generated metadata from codepoints
+- `material-icons/MaterialIcons-Regular.woff2` - Regular icon font file
+- `material-icons/icons.json` - Generated metadata from codepoints
 - `material-icons/latest.json` - Version and URL configuration
 
 ## Phosphor Icons 2.1.1
@@ -96,8 +118,8 @@ Phosphor Icons comes in 6 weights: regular, thin, light, bold, fill, and duotone
 
 ### Local Files
 
-- `phosphor/2.1.1/phosphor-regular.woff2` - Regular weight icon font file
-- `phosphor/2.1.1/icons.json` - Custom generated metadata
+- `phosphor/phosphor-regular.woff2` - Regular weight icon font file
+- `phosphor/icons.json` - Custom generated metadata
 - `phosphor/latest.json` - Version and URL configuration
 
 ## RPG-Awesome 0.2.0
@@ -120,8 +142,8 @@ Phosphor Icons comes in 6 weights: regular, thin, light, bold, fill, and duotone
 
 ### Local Files
 
-- `rpg-awesome/0.2.0/rpgawesome-webfont.woff` - Icon font file
-- `rpg-awesome/0.2.0/icons.json` - Custom generated metadata
+- `rpg-awesome/rpgawesome-webfont.woff` - Icon font file
+- `rpg-awesome/icons.json` - Custom generated metadata
 - `rpg-awesome/latest.json` - Version and URL configuration
 
 ## Notes
