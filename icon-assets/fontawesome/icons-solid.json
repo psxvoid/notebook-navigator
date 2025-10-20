@@ -95,6 +95,27 @@
       "10f2bb"
     ]
   },
+  "alarm-clock": {
+    "unicode": "f34e",
+    "label": "Alarm Clock",
+    "search": [
+      "alarm-clock",
+      "Alarm Clock",
+      "alarm",
+      "alarm clock",
+      "clock",
+      "date",
+      "late",
+      "pending",
+      "reminder",
+      "sleep",
+      "snooze",
+      "timer",
+      "timestamp",
+      "watch",
+      "10f34e"
+    ]
+  },
   "align-center": {
     "unicode": "f037",
     "label": "Align Center",
@@ -417,7 +438,6 @@
     "search": [
       "arrow-right-arrow-left",
       "Arrow Right Arrow Left",
-      "Rightwards Arrow Over Leftwards Arrow",
       "arrow",
       "arrows",
       "reciprocate",
@@ -913,6 +933,7 @@
       "abort",
       "block",
       "cancel",
+      "circle",
       "delete",
       "deny",
       "disabled",
@@ -926,6 +947,7 @@
       "prohibit",
       "prohibited",
       "remove",
+      "slash",
       "stop",
       "trash",
       "10f05e"
@@ -939,6 +961,7 @@
       "Ban Smoking",
       "ban",
       "cancel",
+      "circle",
       "deny",
       "disabled",
       "forbidden",
@@ -947,6 +970,7 @@
       "non-smoking",
       "not",
       "prohibited",
+      "slash",
       "smoking",
       "smoking-ban",
       "10f54d"
@@ -1851,6 +1875,11 @@
     "label": "Bus",
     "search": ["bus", "Bus", "oncoming", "oncoming bus", "public transportation", "transportation", "travel", "vehicle", "10f207"]
   },
+  "bus-side": {
+    "unicode": "e81d",
+    "label": "Bus Side",
+    "search": ["bus-side", "Bus Side", "bus", "public transportation", "transportation", "travel", "vehicle"]
+  },
   "bus-simple": {
     "unicode": "f55e",
     "label": "Bus Simple",
@@ -2417,7 +2446,7 @@
   "charging-station": {
     "unicode": "f5e7",
     "label": "Charging Station",
-    "search": ["charging-station", "Charging Station", "electric", "ev", "tesla", "vehicle", "10f5e7"]
+    "search": ["charging-station", "Charging Station", "car charger", "charge", "charging", "electric", "ev", "tesla", "vehicle", "10f5e7"]
   },
   "chart-area": {
     "unicode": "f1fe",
@@ -3020,7 +3049,7 @@
   "clipboard": {
     "unicode": "f328",
     "label": "Clipboard",
-    "search": ["clipboard", "Clipboard", "clipboar", "copy", "notepad", "notes", "paste", "record", "10f328"]
+    "search": ["clipboard", "Clipboard", "copy", "notepad", "notes", "paste", "record", "10f328"]
   },
   "clipboard-check": {
     "unicode": "f46c",
@@ -3127,7 +3156,7 @@
   "clone": {
     "unicode": "f24d",
     "label": "Clone",
-    "search": ["clone", "Clone", "arrange", "copy", "duplicate", "paste", "10f24d"]
+    "search": ["clone", "Clone", "add", "arrange", "copy", "duplicate", "new", "paste", "10f24d"]
   },
   "closed-captioning": {
     "unicode": "f20a",
@@ -4028,7 +4057,7 @@
   "draw-polygon": {
     "unicode": "f5ee",
     "label": "Draw Polygon",
-    "search": ["draw-polygon", "Draw Polygon", "anchors", "lines", "object", "render", "shape", "10f5ee"]
+    "search": ["draw-polygon", "Draw Polygon", "anchors", "lines", "object", "render", "shape", "vector-polygon", "10f5ee"]
   },
   "droplet": {
     "unicode": "f043",
@@ -5282,7 +5311,7 @@
   "film": {
     "unicode": "f008",
     "label": "Film",
-    "search": ["film", "Film", "cinema", "film frames", "frames", "movie", "strip", "video", "10f008"]
+    "search": ["film", "Film", "cinema", "film frames", "frames", "movie", "strip", "video", "film-alt", "film-simple", "10f008", "10f3a0"]
   },
   "filter": {
     "unicode": "f0b0",
@@ -5876,7 +5905,24 @@
   "grip": {
     "unicode": "f58d",
     "label": "Grip",
-    "search": ["grip", "Grip", "affordance", "drag", "drop", "grab", "handle", "grip-horizontal", "10f58d"]
+    "search": [
+      "grip",
+      "Grip",
+      "affordance",
+      "app",
+      "collection",
+      "dashboard",
+      "drag",
+      "drop",
+      "grab",
+      "grid",
+      "handle",
+      "launcher",
+      "square",
+      "grid-horizontal",
+      "grip-horizontal",
+      "10f58d"
+    ]
   },
   "grip-lines": {
     "unicode": "f7a4",
@@ -5891,7 +5937,7 @@
   "grip-vertical": {
     "unicode": "f58e",
     "label": "Grip Vertical",
-    "search": ["grip-vertical", "Grip Vertical", "affordance", "drag", "drop", "grab", "handle", "10f58e"]
+    "search": ["grip-vertical", "Grip Vertical", "affordance", "drag", "drop", "grab", "handle", "grid-vertical", "10f58e"]
   },
   "group-arrows-rotate": {
     "unicode": "e4f6",
@@ -6216,7 +6262,18 @@
   "handshake": {
     "unicode": "f2b5",
     "label": "Handshake",
-    "search": ["handshake", "Handshake", "agreement", "greeting", "meeting", "partnership", "10f2b5"]
+    "search": [
+      "handshake",
+      "Handshake",
+      "agreement",
+      "greeting",
+      "meeting",
+      "partnership",
+      "handshake-alt",
+      "handshake-simple",
+      "10f2b5",
+      "10f4c6"
+    ]
   },
   "handshake-angle": {
     "unicode": "f4c4",
@@ -6233,41 +6290,21 @@
       "10f4c4"
     ]
   },
-  "handshake-simple": {
-    "unicode": "f4c6",
-    "label": "Handshake Simple",
+  "handshake-slash": {
+    "unicode": "e060",
+    "label": "Handshake Slash",
     "search": [
-      "handshake-simple",
-      "Handshake Simple",
-      "agreement",
-      "greeting",
-      "hand",
-      "handshake",
-      "meeting",
-      "partnership",
-      "shake",
-      "handshake-alt",
-      "10f4c6"
-    ]
-  },
-  "handshake-simple-slash": {
-    "unicode": "e05f",
-    "label": "Handshake Simple Slash",
-    "search": [
-      "handshake-simple-slash",
-      "Handshake Simple Slash",
+      "handshake-slash",
+      "Handshake Slash",
       "broken",
       "covid-19",
       "disabled",
       "social distance",
       "handshake-alt-slash",
-      "10e05f"
+      "handshake-simple-slash",
+      "10e05f",
+      "10e060"
     ]
-  },
-  "handshake-slash": {
-    "unicode": "e060",
-    "label": "Handshake Slash",
-    "search": ["handshake-slash", "Handshake Slash", "broken", "covid-19", "disabled", "social distance", "10e060"]
   },
   "hanukiah": {
     "unicode": "f6e6",
@@ -6426,12 +6463,21 @@
   "headphones": {
     "unicode": "f025",
     "label": "Headphones",
-    "search": ["headphones", "Headphones", "audio", "earbud", "headphone", "listen", "music", "sound", "speaker", "10f025"]
-  },
-  "headphones-simple": {
-    "unicode": "f58f",
-    "label": "Headphones Simple",
-    "search": ["headphones-simple", "Headphones Simple", "audio", "listen", "music", "sound", "speaker", "headphones-alt", "10f58f"]
+    "search": [
+      "headphones",
+      "Headphones",
+      "audio",
+      "earbud",
+      "headphone",
+      "listen",
+      "music",
+      "sound",
+      "speaker",
+      "headphones-alt",
+      "headphones-simple",
+      "10f025",
+      "10f58f"
+    ]
   },
   "headset": {
     "unicode": "f590",
@@ -6459,34 +6505,15 @@
       "heart",
       "Heart",
       "ace",
-      "black",
-      "black heart",
-      "blue",
-      "blue heart",
-      "brown",
-      "brown heart",
       "card",
-      "evil",
       "favorite",
       "game",
-      "green",
-      "green heart",
       "heart suit",
       "like",
       "love",
-      "orange",
-      "orange heart",
-      "purple",
-      "purple heart",
-      "red heart",
       "relationship",
       "valentine",
-      "white",
-      "white heart",
-      "wicked",
       "wishlist",
-      "yellow",
-      "yellow heart",
       "10f004"
     ]
   },
@@ -6589,6 +6616,11 @@
     "unicode": "e503",
     "label": "Helmet Un",
     "search": ["helmet-un", "Helmet Un", "helmet", "united nations"]
+  },
+  "hexagon": {
+    "unicode": "f312",
+    "label": "Hexagon",
+    "search": ["hexagon", "Hexagon", "Horizontal Black Hexagon", "geometry", "honeycomb", "polygon", "shape", "10f312"]
   },
   "hexagon-nodes": {
     "unicode": "e699",
@@ -8400,6 +8432,28 @@
       "10f3cd"
     ]
   },
+  "mobile-vibrate": {
+    "unicode": "e816",
+    "label": "Mobile Vibrate",
+    "search": [
+      "mobile-vibrate",
+      "Mobile Vibrate",
+      "android",
+      "call",
+      "cell",
+      "cell phone",
+      "device",
+      "haptic",
+      "mobile",
+      "mobile phone",
+      "notification",
+      "number",
+      "phone",
+      "screen",
+      "telephone",
+      "text"
+    ]
+  },
   "money-bill": {
     "unicode": "f0d6",
     "label": "Money Bill",
@@ -8732,6 +8786,11 @@
       "10f1ea"
     ]
   },
+  "non-binary": {
+    "unicode": "e807",
+    "label": "Non Binary",
+    "search": ["non-binary", "Non Binary", "female", "gender", "male", "nb", "queer"]
+  },
   "not-equal": {
     "unicode": "f53e",
     "label": "Not Equal",
@@ -8766,6 +8825,11 @@
     "unicode": "f248",
     "label": "Object Ungroup",
     "search": ["object-ungroup", "Object Ungroup", "copy", "design", "merge", "select", "separate", "10f248"]
+  },
+  "octagon": {
+    "unicode": "f306",
+    "label": "Octagon",
+    "search": ["octagon", "Octagon", "octagonal", "shape", "sign", "stop", "stop sign", "10f306"]
   },
   "oil-can": {
     "unicode": "f613",
@@ -8978,6 +9042,11 @@
       "10f040",
       "10f303"
     ]
+  },
+  "pentagon": {
+    "unicode": "e790",
+    "label": "Pentagon",
+    "search": ["pentagon", "Pentagon", "5", "five", "shape"]
   },
   "people-arrows": {
     "unicode": "e068",
@@ -9216,7 +9285,7 @@
   "person-drowning": {
     "unicode": "e545",
     "label": "Person Drowning",
-    "search": ["person-drowning", "Person Drowning", "drown", "emergency", "swim", "uer"]
+    "search": ["person-drowning", "Person Drowning", "drown", "emergency", "swim"]
   },
   "person-falling": {
     "unicode": "e546",
@@ -9932,7 +10001,7 @@
   "qrcode": {
     "unicode": "f029",
     "label": "Qrcode",
-    "search": ["qrcode", "Qrcode", "barcode", "info", "information", "scan", "10f029"]
+    "search": ["qrcode", "Qrcode", "barcode", "info", "information", "qr", "qr-code", "scan", "10f029"]
   },
   "question": {
     "unicode": "3f",
@@ -10652,6 +10721,11 @@
       "10f4d8"
     ]
   },
+  "septagon": {
+    "unicode": "e820",
+    "label": "Septagon",
+    "search": ["septagon", "Septagon", "7", "heptagon", "seven", "shape"]
+  },
   "server": {
     "unicode": "f233",
     "label": "Server",
@@ -10815,19 +10889,7 @@
   "shop-slash": {
     "unicode": "e070",
     "label": "Shop Slash",
-    "search": [
-      "shop-slash",
-      "Shop Slash",
-      "building",
-      "buy",
-      "closed",
-      "covid-19",
-      "disabled",
-      "purchase",
-      "shopping",
-      "store-alt-slash",
-      "10e070"
-    ]
+    "search": ["shop-slash", "Shop Slash", "building", "buy", "closed", "disabled", "purchase", "shopping", "store-alt-slash", "10e070"]
   },
   "shower": {
     "unicode": "f2cc",
@@ -10914,6 +10976,16 @@
     "unicode": "f7c4",
     "label": "Sim Card",
     "search": ["sim-card", "Sim Card", "hard drive", "hardware", "portable", "storage", "technology", "tiny", "10f7c4"]
+  },
+  "single-quote-left": {
+    "unicode": "e81b",
+    "label": "Single Quote Left",
+    "search": ["single-quote-left", "Single Quote Left", "left single quotation mark", "mention", "note", "phrase", "text", "type"]
+  },
+  "single-quote-right": {
+    "unicode": "e81c",
+    "label": "Single Quote Right",
+    "search": ["single-quote-right", "Single Quote Right", "mention", "note", "phrase", "right single quotation mark", "text", "type"]
   },
   "sink": {
     "unicode": "e06d",
@@ -11091,6 +11163,11 @@
     "unicode": "f110",
     "label": "Spinner",
     "search": ["spinner", "Spinner", "circle", "loading", "pending", "progress", "10f110"]
+  },
+  "spiral": {
+    "unicode": "e80a",
+    "label": "Spiral",
+    "search": ["spiral", "Spiral", "design", "dizzy", "rotate", "spin", "swirl", "twist"]
   },
   "splotch": {
     "unicode": "f5bc",
@@ -11609,7 +11686,7 @@
   "store-slash": {
     "unicode": "e071",
     "label": "Store Slash",
-    "search": ["store-slash", "Store Slash", "building", "buy", "closed", "covid-19", "disabled", "purchase", "shopping", "10e071"]
+    "search": ["store-slash", "Store Slash", "building", "buy", "closed", "disabled", "purchase", "shopping", "10e071"]
   },
   "street-view": {
     "unicode": "f21d",
@@ -12294,7 +12371,10 @@
       "toilet",
       "toilet paper",
       "wipe",
-      "10f71e"
+      "toilet-paper-alt",
+      "toilet-paper-blank",
+      "10f71e",
+      "10f71f"
     ]
   },
   "toilet-paper-slash": {
@@ -12839,7 +12919,10 @@
       "unspecified gender",
       "username",
       "users-people",
-      "10f007"
+      "user-alt",
+      "user-large",
+      "10f007",
+      "10f406"
     ]
   },
   "user-astronaut": {
@@ -12911,26 +12994,6 @@
     "label": "User Injured",
     "search": ["user-injured", "User Injured", "employee", "uer", "users-people", "10f728"]
   },
-  "user-large": {
-    "unicode": "f406",
-    "label": "User Large",
-    "search": ["user-large", "User Large", "employee", "uer", "users-people", "user-alt", "10f406"]
-  },
-  "user-large-slash": {
-    "unicode": "f4fa",
-    "label": "User Large Slash",
-    "search": [
-      "user-large-slash",
-      "User Large Slash",
-      "disabled",
-      "disconnect",
-      "employee",
-      "uer",
-      "users-people",
-      "user-alt-slash",
-      "10f4fa"
-    ]
-  },
   "user-lock": {
     "unicode": "f502",
     "label": "User Lock",
@@ -12988,7 +13051,7 @@
   "user-plus": {
     "unicode": "f234",
     "label": "User Plus",
-    "search": ["user-plus", "User Plus", "add", "avatar", "employee", "follow", "positive", "sign up", "signup", "team", "uer", "10f234"]
+    "search": ["user-plus", "User Plus", "add", "avatar", "employee", "follow", "positive", "sign up", "signup", "team", "user", "10f234"]
   },
   "user-secret": {
     "unicode": "f21b",
@@ -12998,12 +13061,27 @@
   "user-shield": {
     "unicode": "f505",
     "label": "User Shield",
-    "search": ["user-shield", "User Shield", "employee", "protect", "safety", "uer", "10f505"]
+    "search": ["user-shield", "User Shield", "employee", "protect", "safety", "security", "uer", "10f505"]
   },
   "user-slash": {
     "unicode": "f506",
     "label": "User Slash",
-    "search": ["user-slash", "User Slash", "ban", "delete", "deny", "disabled", "disconnect", "employee", "remove", "uer", "10f506"]
+    "search": [
+      "user-slash",
+      "User Slash",
+      "ban",
+      "delete",
+      "deny",
+      "disabled",
+      "disconnect",
+      "employee",
+      "remove",
+      "uer",
+      "user-alt-slash",
+      "user-large-slash",
+      "10f4fa",
+      "10f506"
+    ]
   },
   "user-tag": {
     "unicode": "f507",
@@ -13107,7 +13185,6 @@
       "Van Shuttle",
       "airport",
       "bus",
-      "machine",
       "minibus",
       "public-transportation",
       "transportation",
@@ -13121,11 +13198,6 @@
     "unicode": "e2c5",
     "label": "Vault",
     "search": ["vault", "Vault", "bank", "important", "investment", "lock", "money", "premium", "privacy", "safe", "salary"]
-  },
-  "vector-square": {
-    "unicode": "f5cb",
-    "label": "Vector Square",
-    "search": ["vector-square", "Vector Square", "anchors", "lines", "object", "render", "shape", "10f5cb"]
   },
   "venus": {
     "unicode": "f221",

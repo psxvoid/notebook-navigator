@@ -102,7 +102,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         improved: [
             'Hidden tags are now also hidden in the list pane ("file tags").',
-            'Icon packs will now update automatically if version number in the plugin distribution is newer than the downloaded version.',
+            'Icon packs will now update automatically if version number in the plugin distribution is newer than the downloaded version.'
         ],
         fixed: [
             'Fixed a rare startup crash that hid Notebook Navigator during startup after enabling the plugin.',
