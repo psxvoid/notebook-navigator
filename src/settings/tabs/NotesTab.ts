@@ -491,7 +491,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
         .setName(strings.settings.items.featureImageSize.name)
         .setDesc(strings.settings.items.featureImageSize.desc)
         .addSlider(slider => {
-            slider.setLimits(64, 95, 1).onChange(async value => {
+            slider.setLimits(64, 95, 1).setValue(plugin.settings.featureImageSize).onChange(async value => {
                 plugin.settings.featureImageSize = value;
                 await plugin.saveSettingsAndUpdate();
             })
