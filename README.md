@@ -16,6 +16,17 @@
 6. Ensure "Enable after installing the plugin" checkbox is set.
 7. Hit "Add plugin" button.
 
+> [!NOTE]
+>
+> This forked version doesn't work when the original plugin is turned on.
+> To use it, disable or uninstall the original, then install/enable this one.
+
+> [!NOTE]
+>
+> To migrate settings from the original plugin, go to your vault, then into
+> `.obsidian/plugins` folder, then find `notebook-navigator`. Inside that folder
+> find and copy `data.json` into `.obsidian/plugins/notebook-navigator-ex`.
+
 ##
 
 Below is the description from the original repository.
