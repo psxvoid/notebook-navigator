@@ -41,6 +41,7 @@ Icon font files and metadata for external icon providers.
 ## Configuration
 
 Each icon pack has its own configuration file in `scripts/config/` that defines:
+
 - Current version
 - Download URLs
 - Custom metadata processing logic

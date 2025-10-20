@@ -1,12 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import {
-    IconPackConfig,
-    ProcessContext,
-    compareVersions,
-    downloadText,
-    downloadBinary
-} from './shared';
+import { IconPackConfig, ProcessContext, compareVersions, downloadText, downloadBinary } from './shared';
 
 // Import all icon pack configs
 import { bootstrapIcons } from './config/bootstrap-icons';
@@ -16,17 +10,20 @@ import { phosphor } from './config/phosphor';
 import { rpgAwesome } from './config/rpg-awesome';
 import { simpleIcons } from './config/simple-icons';
 
-const ICON_PACKS = [
-    bootstrapIcons,
-    fontAwesome,
-    materialIcons,
-    phosphor,
-    rpgAwesome,
-    simpleIcons
-];
+const ICON_PACKS = [bootstrapIcons, fontAwesome, materialIcons, phosphor, rpgAwesome, simpleIcons];
 
 const ICON_ASSETS_ROOT = path.resolve(__dirname, '..');
 const PUBLIC_BASE_URL = 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets';
+const BUNDLED_MANIFEST_OUTPUT = path.resolve(__dirname, '..', '..', 'src/services/icons/external/bundledManifests.ts');
+
+const PACK_ID_TO_PROVIDER_ID: Record<string, string> = {
+    'bootstrap-icons': 'bootstrap-icons',
+    fontawesome: 'fontawesome-regular',
+    'material-icons': 'material-icons',
+    phosphor: 'phosphor',
+    'rpg-awesome': 'rpg-awesome',
+    'simple-icons': 'simple-icons'
+};
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -36,10 +33,7 @@ const requestedIds = new Set(args.filter(arg => !arg.startsWith('--')));
 
 async function updateConfigVersion(configPath: string, newVersion: string): Promise<void> {
     const content = await fs.readFile(configPath, 'utf8');
-    const updated = content.replace(
-        /version:\s*['"][\d.]+['"]/,
-        `version: '${newVersion}'`
-    );
+    const updated = content.replace(/version:\s*['"][\d.]+['"]/, `version: '${newVersion}'`);
     await fs.writeFile(configPath, updated);
 }
 
@@ -116,10 +110,7 @@ async function processIconPack(pack: IconPackConfig): Promise<void> {
         metadataFormat: 'json'
     };
 
-    await fs.writeFile(
-        path.join(packDir, 'latest.json'),
-        `${JSON.stringify(latestManifest, null, 2)}\n`
-    );
+    await fs.writeFile(path.join(packDir, 'latest.json'), `${JSON.stringify(latestManifest, null, 2)}\n`);
 
     if (needsUpdate) {
         console.log(`[${pack.id}] Successfully updated from ${pack.version} to ${latestVersion}`);
@@ -128,10 +119,56 @@ async function processIconPack(pack: IconPackConfig): Promise<void> {
     }
 }
 
+async function writeBundledManifest(): Promise<void> {
+    const entries: Array<{ providerId: string; manifest: Record<string, unknown> }> = [];
+
+    for (const pack of ICON_PACKS) {
+        const providerId = PACK_ID_TO_PROVIDER_ID[pack.id];
+        if (!providerId) {
+            continue;
+        }
+
+        const manifestPath = path.join(ICON_ASSETS_ROOT, pack.id, 'latest.json');
+        try {
+            const raw = await fs.readFile(manifestPath, 'utf8');
+            const manifest = JSON.parse(raw) as Record<string, unknown>;
+            entries.push({ providerId, manifest });
+        } catch (error) {
+            console.error(`[${pack.id}] Failed to read latest.json:`, error);
+            throw error;
+        }
+    }
+
+    if (entries.length === 0) {
+        return;
+    }
+
+    entries.sort((a, b) => a.providerId.localeCompare(b.providerId));
+
+    const lines = entries.map(entry => {
+        const manifestString = JSON.stringify(entry.manifest, null, 4)
+            .split('\n')
+            .map((line, index) => (index === 0 ? line : `        ${line}`))
+            .join('\n');
+        return `    '${entry.providerId}': ${manifestString}`;
+    });
+
+    const contents = [
+        "import { ExternalIconManifest, ExternalIconProviderId } from './providerRegistry';",
+        '',
+        '// Bundled icon manifests keyed by provider id',
+        'export const BUNDLED_ICON_MANIFESTS: Record<ExternalIconProviderId, ExternalIconManifest> = {',
+        lines.join(',\n\n'),
+        '};',
+        ''
+    ].join('\n');
+
+    await fs.mkdir(path.dirname(BUNDLED_MANIFEST_OUTPUT), { recursive: true });
+    await fs.writeFile(BUNDLED_MANIFEST_OUTPUT, contents);
+}
+
 async function main(): Promise<void> {
-    const packs = ICON_PACKS.filter(pack =>
-        requestedIds.size === 0 || requestedIds.has(pack.id)
-    );
+    const packs = ICON_PACKS.filter(pack => requestedIds.size === 0 || requestedIds.has(pack.id));
 
     if (packs.length === 0) {
         const available = ICON_PACKS.map(pack => pack.id).join(', ');
@@ -151,7 +188,10 @@ async function main(): Promise<void> {
 
     if (checkOnly) {
         console.log('\n💡 Run without --check-only to apply updates');
+        return;
     }
+
+    await writeBundledManifest();
 }
 
 main().catch(error => {

@@ -100,7 +100,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
         changed: [
             '**Favorite tags section is removed**. I am sorry about this change, but having a separate favorite tags section caused an architectural nightmare that caused special wiring all over the application. To get a similar experience you can sort tags by frequency, or reorder root tags manually.'
         ],
-        improved: ['Hidden tags are now also hidden in the list pane.'],
+        improved: [
+            'Hidden tags are now also hidden in the list pane ("file tags").',
+            'Icon packs will now update automatically if version number in the plugin distribution is newer than the downloaded version.',
+        ],
         fixed: [
             'Fixed a rare startup crash that hid Notebook Navigator during startup after enabling the plugin.',
             'Fixed an issue where shortcuts could not be reordered on Android devices.',

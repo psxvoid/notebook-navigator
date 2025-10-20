@@ -57,7 +57,7 @@ export async function checkGitHubVersion(repo: string): Promise<string> {
         throw new Error(`Failed to fetch GitHub release for ${repo}: ${response.status}`);
     }
 
-    const data = await response.json() as { tag_name: string };
+    const data = (await response.json()) as { tag_name: string };
     // Remove 'v' prefix if present
     return data.tag_name.replace(/^v/, '');
 }

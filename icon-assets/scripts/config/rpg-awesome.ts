@@ -11,7 +11,7 @@ export const rpgAwesome: IconPackConfig = {
         mimeType: 'font/woff'
     },
 
-    urls: (version: string) => ({
+    urls: (_version: string) => ({
         // RPG-Awesome is stuck at 0.2.0 on cdnjs despite newer GitHub releases
         font: `https://cdnjs.cloudflare.com/ajax/libs/rpg-awesome/0.2.0/fonts/rpgawesome-webfont.woff`,
         css: `https://cdnjs.cloudflare.com/ajax/libs/rpg-awesome/0.2.0/css/rpg-awesome.min.css`
