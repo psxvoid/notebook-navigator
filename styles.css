@@ -1218,33 +1218,35 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    align-items: center;
 }
 
 .nn-root-reorder-title {
-    font-size: var(--font-small);
+    font-size: var(--nn-desktop-header-font-size);
     font-weight: var(--nn-theme-list-header-breadcrumb-font-weight);
     line-height: 1.3;
 }
 
-.is-mobile .nn-root-reorder-title {
-    font-size: var(--font-normal);
+.notebook-navigator-mobile .nn-root-reorder-title {
+    font-size: var(--nn-mobile-header-font-size);
 }
 
 .nn-root-reorder-title,
 .nn-root-reorder-hint {
+    text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .nn-root-reorder-hint {
-    font-size: var(--font-smaller);
+    font-size: var(--font-ui-smaller);
     color: var(--text-muted);
     line-height: 1.25;
 }
 
-.is-mobile .nn-root-reorder-hint {
-    font-size: var(--font-small);
+.notebook-navigator-mobile .nn-root-reorder-hint {
+    font-size: var(--font-ui-small);
 }
 
 .nn-root-reorder-list {
