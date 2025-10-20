@@ -311,7 +311,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - **External icon providers:** Optional feature to download additional icon packs to expand available icons
   - **Bootstrap Icons:** Over 2,000 icons - [icons.getbootstrap.com](https://icons.getbootstrap.com/)
-  - **Font Awesome (Regular):** Classic icon set - [fontawesome.com](https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r)
+  - **Font Awesome (Regular):** Classic icon set - [fontawesome.com](https://fontawesome.com/)
   - **Material Icons:** Google's Material Design icons - [fonts.google.com/icons](https://fonts.google.com/icons)
   - **Phosphor:** Flexible icon family - [phosphoricons.com](https://phosphoricons.com/)
   - **RPG Awesome:** Fantasy and RPG-themed icons - [nagoshiashumari.github.io/Rpg-Awesome](https://nagoshiashumari.github.io/Rpg-Awesome/)
