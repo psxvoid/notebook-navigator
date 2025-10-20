@@ -777,6 +777,10 @@ export const STRINGS_ZH_TW = {
                 name: '使用嵌入圖片備用',
                 desc: '當在 frontmatter 屬性中找不到縮圖時，使用文件中的第一張嵌入圖片作為備用 (需要 Obsidian 1.9.4+)。停用此項以驗證縮圖是否已正確設定。'
             },
+            featureImageSize: {
+                name: '特色圖片尺寸',
+                desc: 'ノートリストで使用する注目画像のサイズを設定します。'
+            },
             showRootFolder: {
                 name: '顯示根資料夾',
                 desc: '在樹狀結構中將儲存庫名稱顯示為根資料夾。'

@@ -778,6 +778,10 @@ export const STRINGS_EN = {
                 name: 'Use embedded image fallback',
                 desc: 'Use the first embedded image in the document as a fallback when no thumbnail is found in frontmatter properties (requires Obsidian 1.9.4+). Disable this to verify that thumbnails are properly configured.'
             },
+            featureImageSize: {
+                name: 'Featured image size',
+                desc: 'Sets the size of the featured image to be used in the note list.'
+            },
             showRootFolder: {
                 name: 'Show root folder',
                 desc: 'Display the vault name as the root folder in the tree.'

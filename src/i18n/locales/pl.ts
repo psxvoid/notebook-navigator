@@ -780,6 +780,10 @@ export const STRINGS_PL = {
                 name: 'Użyj awaryjnego obrazu osadzonego',
                 desc: 'Użyj pierwszego osadzonego obrazu w dokumencie jako awaryjny gdy nie znaleziono miniatury we właściwościach frontmatter (wymaga Obsidian 1.9.4+). Wyłącz to aby sprawdzić czy miniatury są poprawnie skonfigurowane.'
             },
+            featureImageSize: {
+                name: 'Rozmiar wyróżnionego obrazu',
+                desc: 'Ustawia rozmiar wyróżnionego obrazu, który będzie używany na liście notatek.'
+            },
             showRootFolder: {
                 name: 'Pokaż folder główny',
                 desc: 'Wyświetl nazwę magazynu jako folder główny w drzewie.'

@@ -782,6 +782,10 @@ export const STRINGS_DE = {
                 name: 'Eingebettetes Bild als Fallback verwenden',
                 desc: 'Verwende das erste eingebettete Bild im Dokument als Fallback, wenn kein Miniaturbild in den Frontmatter-Eigenschaften gefunden wird (erfordert Obsidian 1.9.4+). Deaktivieren Sie dies, um zu überprüfen, ob Miniaturbilder richtig konfiguriert sind.'
             },
+            featureImageSize: {
+                name: 'Größe des vorgestellten Bildes',
+                desc: 'Legt die Größe des in der Notizliste zu verwendenden Bildes fest.'
+            },
             showRootFolder: {
                 name: 'Wurzelordner anzeigen',
                 desc: 'Den Namen des Wurzelordners im Baum anzeigen.'

@@ -17,7 +17,7 @@
  */
 
 import { Plugin, TFile, FileView } from 'obsidian';
-import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
+import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab, updateFeatureImageSize } from './settings';
 import { LocalStorageKeys, NOTEBOOK_NAVIGATOR_VIEW, STORAGE_KEYS } from './types';
 import { ISettingsProvider } from './interfaces/ISettingsProvider';
 import { MetadataService, type MetadataCleanupSummary } from './services/MetadataService';
@@ -153,6 +153,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         if (typeof this.settings.checkForUpdatesOnStart !== 'boolean') {
             this.settings.checkForUpdatesOnStart = true;
         }
+
+        updateFeatureImageSize(this.settings.featureImageSize)
+
+        this.registerSettingsUpdateListener('featured-image-size', () => {
+            updateFeatureImageSize(this.settings.featureImageSize)
+        })
 
         return isFirstLaunch;
     }
