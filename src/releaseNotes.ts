@@ -78,7 +78,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: false,
         fixed: [
             'Fixed an issue where some icons in Font awesome were missing.',
-            'Fixed an issue where startup on mobile devices and default pane was set to navigation could cause startup to fail.'
+            'Fixed a startup issue on mobile devices if default pane was set to navigation and a tag was selected, it would always try to switch to list pane.'
         ]
     },
     {
