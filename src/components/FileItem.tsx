@@ -548,14 +548,17 @@ export const FileItem = React.memo(function FileItem({
 
             const selectedTag = selectionState.selectedTag ?? EMPTY_STRING;
 
-            if (selectedTag.length === 0 || selectionState.selectionType !== 'tag' ||
-                    (selectedTag.length === tag.length && selectedTag === tag)) {
+            if (selectedTag.length === 0 || selectionState.selectionType !== 'tag') {
                 return tag
+            }
+
+            if (selectedTag.length === tag.length && selectedTag === tag) {
+                return EMPTY_STRING
             }
 
             const selectedTagSegments = selectedTag.split('/').filter(segment => segment.length > 0);
 
-            while(selectedTagSegments.length > 0 && segments.length > 1 && selectedTagSegments[0] === segments[0]) {
+            while(selectedTagSegments.length > 0 && segments.length > 0 && selectedTagSegments[0] === segments[0]) {
                 segments.shift()
                 selectedTagSegments.shift()
             }
@@ -576,7 +579,7 @@ export const FileItem = React.memo(function FileItem({
                 {categorizedTags.map((tag, index) => {
                     const tagColor = colorFileTags ? getTagColor(tag) : undefined;
                     const displayTag = getTagDisplayName(tag);
-                    return (
+                    return displayTag === EMPTY_STRING ? null : (
                         <span
                             key={index}
                             className="nn-file-tag nn-clickable-tag"
@@ -588,7 +591,7 @@ export const FileItem = React.memo(function FileItem({
                             {displayTag}
                         </span>
                     );
-                })}
+                }).filter(x => x != null)}
             </div>
         );
     }, [colorFileTags, categorizedTags, getTagColor, getTagDisplayName, handleTagClick, shouldShowFileTags]);
