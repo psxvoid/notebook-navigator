@@ -18,7 +18,7 @@
 
 export type ExternalIconProviderId =
     | 'bootstrap-icons'
-    | 'fontawesome-regular'
+    | 'fontawesome-solid'
     | 'material-icons'
     | 'phosphor'
     | 'rpg-awesome'
@@ -47,11 +47,11 @@ export const EXTERNAL_ICON_PROVIDERS: Record<ExternalIconProviderId, ExternalIco
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/bootstrap-icons/latest.json',
         fontFamily: 'NotebookNavigatorBootstrapIcons'
     },
-    'fontawesome-regular': {
-        id: 'fontawesome-regular',
+    'fontawesome-solid': {
+        id: 'fontawesome-solid',
         name: 'Font Awesome',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/fontawesome/latest.json',
-        fontFamily: 'NotebookNavigatorFontAwesomeRegular'
+        fontFamily: 'NotebookNavigatorFontAwesomeSolid'
     },
     'material-icons': {
         id: 'material-icons',

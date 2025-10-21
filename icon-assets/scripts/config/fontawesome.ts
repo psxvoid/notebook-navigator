@@ -7,8 +7,8 @@ export const fontAwesome: IconPackConfig = {
     githubRepo: 'FortAwesome/Font-Awesome',
 
     files: {
-        font: 'fa-regular-400.woff2',
-        metadata: 'icons-regular.json',
+        font: 'fa-solid-900.woff2',
+        metadata: 'icons-solid.json',
         mimeType: 'font/woff2'
     },
 
@@ -18,7 +18,7 @@ export const fontAwesome: IconPackConfig = {
         const branch = `${major}.x`;
 
         return {
-            font: `https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@${version}/webfonts/fa-regular-400.woff2`,
+            font: `https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@${version}/webfonts/fa-solid-900.woff2`,
             metadata: `https://raw.githubusercontent.com/FortAwesome/Font-Awesome/${branch}/metadata/icons.json`,
             css: `https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@${version}/css/all.min.css`
         };
@@ -54,7 +54,7 @@ export const fontAwesome: IconPackConfig = {
                 return;
             }
 
-            if (!value.styles || !value.styles.includes('regular')) {
+            if (!value.styles || !value.styles.includes('solid')) {
                 return;
             }
 

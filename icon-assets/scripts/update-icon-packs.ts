@@ -18,7 +18,7 @@ const BUNDLED_MANIFEST_OUTPUT = path.resolve(__dirname, '..', '..', 'src/service
 
 const PACK_ID_TO_PROVIDER_ID: Record<string, string> = {
     'bootstrap-icons': 'bootstrap-icons',
-    fontawesome: 'fontawesome-regular',
+    fontawesome: 'fontawesome-solid',
     'material-icons': 'material-icons',
     phosphor: 'phosphor',
     'rpg-awesome': 'rpg-awesome',

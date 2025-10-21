@@ -409,7 +409,7 @@ export class ExternalIconProviderController {
                     record,
                     fontFamily: config.fontFamily
                 });
-            case 'fontawesome-regular':
+            case 'fontawesome-solid':
                 return new FontAwesomeIconProvider({
                     record,
                     fontFamily: config.fontFamily
