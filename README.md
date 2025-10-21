@@ -6,6 +6,10 @@
 >
 > ![Excalidraw File Preview Sample](./images/nn-fork-excalidraw-preview.png)
 
+> [!NOTE]
+>
+> For the full changelog including available features in the fork, see [releases](https://github.com/psxvoid/notebook-navigator/releases).
+
 ## Installation (The Forked Version)
 
 1. Install [BRAT](https://obsidian.md/plugins?search=brat) obsidian plugin.
