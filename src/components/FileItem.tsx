@@ -548,7 +548,8 @@ export const FileItem = React.memo(function FileItem({
 
             const selectedTag = selectionState.selectedTag ?? EMPTY_STRING;
 
-            if (selectedTag.length === tag.length && selectedTag === tag) {
+            if (selectedTag.length > tag.length ||
+                    (selectedTag.length === tag.length && selectedTag === tag)) {
                 return tag
             }
 
