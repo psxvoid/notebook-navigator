@@ -73,6 +73,15 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.6.2',
+        date: '2025-10-21',
+        showOnUpdate: false,
+        fixed: [
+            'Fixed an issue where some icons in Font awesome were missing.',
+            'Fixed an issue where startup on mobile devices and default pane was set to navigation could cause startup to fail.'
+        ]
+    },
+    {
         version: '1.6.1',
         date: '2025-10-20',
         showOnUpdate: true,
