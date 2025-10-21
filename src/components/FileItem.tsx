@@ -548,26 +548,19 @@ export const FileItem = React.memo(function FileItem({
 
             const selectedTag = selectionState.selectedTag ?? EMPTY_STRING;
 
-            if (selectedTag.length === 0 || selectedTag.length > tag.length ||
-                    selectionState.selectionType !== 'tag' ||
+            if (selectedTag.length === 0 || selectionState.selectionType !== 'tag' ||
                     (selectedTag.length === tag.length && selectedTag === tag)) {
                 return tag
             }
 
-            if (tag.startsWith(selectedTag)) {
-                const selectedTagSegments = selectedTag.split('/')
-                    .filter(segment => segment.length > 0);
+            const selectedTagSegments = selectedTag.split('/').filter(segment => segment.length > 0);
 
-                while(selectedTagSegments.length > 0 && selectedTagSegments[0] === segments[0]) {
-                    segments.shift()
-                    selectedTagSegments.shift()
-                }
-
-                return segments.join('/')
+            while(selectedTagSegments.length > 0 && segments.length > 1 && selectedTagSegments[0] === segments[0]) {
+                segments.shift()
+                selectedTagSegments.shift()
             }
 
-            return tag;
-
+            return segments.join('/')
         },
         [settings.showFileTagAncestors, settings.collapseFileTagsToSelectedTag, selectionState]
     );
