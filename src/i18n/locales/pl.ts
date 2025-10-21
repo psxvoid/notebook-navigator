@@ -56,8 +56,8 @@ export const STRINGS_PL = {
         shortcutsHeader: 'Skróty',
         recentNotesHeader: 'Ostatnie notatki',
         recentFilesHeader: 'Ostatnie pliki',
-        reorderRootFoldersTitle: 'Przestaw foldery główne i tagi',
-        reorderRootFoldersHint: 'Przeciągnij elementy, aby zmienić kolejność',
+        reorderRootFoldersTitle: 'Przestaw sekcje nawigacji',
+        reorderRootFoldersHint: 'Przeciągnij nagłówki lub elementy, aby zmienić kolejność',
         vaultRootLabel: 'Magazyn',
         resetRootToAlpha: 'Resetuj do kolejności alfabetycznej',
         resetRootToFrequency: 'Przywróć sortowanie według częstotliwości',
@@ -377,6 +377,7 @@ export const STRINGS_PL = {
             tagOperationsNotAvailable: 'Operacje na tagach niedostępne',
             tagsRequireMarkdown: 'Tagi są obsługiwane tylko w notatkach Markdown',
             iconPackDownloaded: '{provider} pobrano',
+            iconPackUpdated: '{provider} zaktualizowano ({version})',
             iconPackRemoved: '{provider} usunięto',
             iconPackLoadFailed: 'Nie udało się załadować {provider}'
         },
@@ -843,10 +844,6 @@ export const STRINGS_PL = {
                     frequencyDesc: 'Częstotliwość (malejąco)'
                 }
             },
-            showTagsAboveFolders: {
-                name: 'Pokaż tagi nad folderami',
-                desc: 'Wyświetl sekcję tagów przed folderami w nawigatorze.'
-            },
             showAllTagsFolder: {
                 name: 'Pokaż folder tagów',
                 desc: 'Wyświetl "Tagi" jako zwijalny folder.'
@@ -936,7 +933,7 @@ export const STRINGS_PL = {
                     'Pobrane pakiety ikon synchronizują stan instalacji między urządzeniami. Pakiety ikon pozostają w lokalnej bazie danych na każdym urządzeniu; synchronizacja śledzi tylko czy powinny być pobrane lub usunięte. Pakiety ikon są pobierane z repozytorium Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
                 providers: {
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
+                    fontAwesomeDesc: 'https://fontawesome.com/',
                     materialIconsDesc: 'https://fonts.google.com/icons',
                     phosphorDesc: 'https://phosphoricons.com/',
                     rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',

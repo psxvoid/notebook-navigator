@@ -56,8 +56,8 @@ export const STRINGS_FR = {
         shortcutsHeader: 'Raccourcis',
         recentNotesHeader: 'Notes récentes',
         recentFilesHeader: 'Fichiers récents',
-        reorderRootFoldersTitle: 'Réorganiser les dossiers racine et les étiquettes',
-        reorderRootFoldersHint: "Faites glisser les éléments pour changer l'ordre",
+        reorderRootFoldersTitle: 'Réorganiser les sections de navigation',
+        reorderRootFoldersHint: "Faites glisser les en-têtes ou les éléments pour changer l'ordre",
         vaultRootLabel: 'Coffre',
         resetRootToAlpha: "Réinitialiser l'ordre alphabétique",
         resetRootToFrequency: 'Réinitialiser selon la fréquence',
@@ -376,6 +376,7 @@ export const STRINGS_FR = {
             tagOperationsNotAvailable: "Opérations d'étiquettes non disponibles",
             tagsRequireMarkdown: 'Les étiquettes ne sont prises en charge que sur les notes Markdown',
             iconPackDownloaded: '{provider} téléchargé',
+            iconPackUpdated: '{provider} mis à jour ({version})',
             iconPackRemoved: '{provider} supprimé',
             iconPackLoadFailed: 'Échec du chargement de {provider}'
         },
@@ -844,10 +845,6 @@ export const STRINGS_FR = {
                     frequencyDesc: 'Fréquence (élevée vers faible)'
                 }
             },
-            showTagsAboveFolders: {
-                name: 'Afficher les étiquettes au-dessus des dossiers',
-                desc: 'Afficher la section des étiquettes avant les dossiers dans le navigateur.'
-            },
             showAllTagsFolder: {
                 name: 'Afficher le dossier des étiquettes',
                 desc: 'Afficher "Étiquettes" comme un dossier repliable.'
@@ -937,7 +934,7 @@ export const STRINGS_FR = {
                     "Les packs d'icônes téléchargés synchronisent l'état d'installation entre les appareils. Les packs d'icônes restent dans la base de données locale sur chaque appareil ; la synchronisation ne fait que suivre s'ils doivent être téléchargés ou supprimés. Les packs d'icônes sont téléchargés depuis le dépôt Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).",
                 providers: {
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
+                    fontAwesomeDesc: 'https://fontawesome.com/',
                     materialIconsDesc: 'https://fonts.google.com/icons',
                     phosphorDesc: 'https://phosphoricons.com/',
                     rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',

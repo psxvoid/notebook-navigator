@@ -298,7 +298,6 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Dual pane layout (desktop only, not synced):** Show navigation and list panes side by side
 - **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
 - **Ignore events from right sidebar:** Disable auto-reveal from right sidebar
-- **Auto-select first note (desktop only):** Automatically open the first note when switching folders or tags
 - **Homepage:** Set a file that opens automatically when Notebook Navigator starts
 - **Separate mobile homepage:** Use a different homepage for mobile devices
 - **Show tooltips (desktop only):** Display hover tooltips with additional information for notes and folders
@@ -310,6 +309,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Navigation pane
 
+- **Auto-select first note (desktop only):** Automatically open the first note when switching folders or tags
 - **Navigation banner:** Display an image above the navigation pane
 - **Show shortcuts:** Display the shortcuts section for quick access to pinned items
 - **Show recent notes:** Display recently opened notes in the navigation pane
@@ -328,7 +328,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - **External icon providers:** Optional feature to download additional icon packs to expand available icons
   - **Bootstrap Icons:** Over 2,000 icons - [icons.getbootstrap.com](https://icons.getbootstrap.com/)
-  - **Font Awesome (Regular):** Classic icon set - [fontawesome.com](https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r)
+  - **Font Awesome (Regular):** Classic icon set - [fontawesome.com](https://fontawesome.com/)
   - **Material Icons:** Google's Material Design icons - [fonts.google.com/icons](https://fonts.google.com/icons)
   - **Phosphor:** Flexible icon family - [phosphoricons.com](https://phosphoricons.com/)
   - **RPG Awesome:** Fantasy and RPG-themed icons - [nagoshiashumari.github.io/Rpg-Awesome](https://nagoshiashumari.github.io/Rpg-Awesome/)
@@ -350,7 +350,6 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Pin created folder notes:** Adds folder notes created from the context menu into pinned folders when folder notes are visible
 - **Show tags (\*):** Display tags section below folders in the navigator
 - **Tag sort order:** Choose how tags are ordered in the navigation pane. `A to Z`, `Z to A`, `Frequency (low to high)`, `Frequency (high to low)`
-- **Show tags above folders:** Display tags section before folders in the navigator
 - **Show tags folder:** Display "Tags" as collapsible folder
 - **Show untagged notes:** Display "Untagged" item for notes without any tags
 - **Hidden tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs")

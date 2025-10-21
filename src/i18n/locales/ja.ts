@@ -56,8 +56,8 @@ export const STRINGS_JA = {
         shortcutsHeader: 'ショートカット',
         recentNotesHeader: '最近のノート',
         recentFilesHeader: '最近のファイル',
-        reorderRootFoldersTitle: 'ルートフォルダとタグを並び替え',
-        reorderRootFoldersHint: 'ドラッグして順序を変更します',
+        reorderRootFoldersTitle: 'ナビゲーションセクションを並び替え',
+        reorderRootFoldersHint: '見出しまたは項目をドラッグして順序を変更します',
         vaultRootLabel: 'ボールト',
         resetRootToAlpha: 'アルファベット順にリセット',
         resetRootToFrequency: '頻度順にリセット',
@@ -376,6 +376,7 @@ export const STRINGS_JA = {
             tagOperationsNotAvailable: 'タグ操作は利用できません',
             tagsRequireMarkdown: 'タグはMarkdownノートでのみサポートされています',
             iconPackDownloaded: '「{provider}」をダウンロードしました',
+            iconPackUpdated: '「{provider}」を更新しました ({version})',
             iconPackRemoved: '「{provider}」を削除しました',
             iconPackLoadFailed: '「{provider}」を読み込めませんでした'
         },
@@ -843,10 +844,6 @@ export const STRINGS_JA = {
                     frequencyDesc: '頻度（高→低）'
                 }
             },
-            showTagsAboveFolders: {
-                name: 'タグをフォルダの上に表示',
-                desc: 'ナビゲーターでタグセクションをフォルダの前に表示します。'
-            },
             showAllTagsFolder: {
                 name: 'タグフォルダを表示',
                 desc: '「タグ」を折りたたみ可能なフォルダとして表示します。'
@@ -936,7 +933,7 @@ export const STRINGS_JA = {
                     'ダウンロードしたアイコンパックはデバイス間でインストール状態を同期します。アイコンパックは各デバイスのローカルデータベースに保存されます。同期はダウンロードまたは削除の必要性のみを追跡します。アイコンパックはNotebook Navigatorリポジトリからダウンロードされます (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)。',
                 providers: {
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
+                    fontAwesomeDesc: 'https://fontawesome.com/',
                     materialIconsDesc: 'https://fonts.google.com/icons',
                     phosphorDesc: 'https://phosphoricons.com/',
                     rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',

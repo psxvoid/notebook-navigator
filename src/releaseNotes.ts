@@ -73,15 +73,16 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
-        version: '1.6.0',
+        version: '1.6.1',
         date: '2025-10-20',
         showOnUpdate: true,
         info: [
-            'In this release I have good news and bad news. The bad news is that I had to remove the **favorite tags** section due to architectural complexity. It made the codebase hard to maintain with special cases everywhere. The good news is that you can now sort root tags manually just like folders, so you can still put your favorite tags or untagged notes at the top of the tag list.',
-            'My plan is to continue developing and improving this plugin for a long time. Years, maybe even decades. This is why some features like favorite tags might be cut in future releases, but right now I am quite happy with the internal architecture so I do not see this happening with any other features in the near future.',
+            'In this release I have some good news and some bad news. The bad news is that I had to remove the **favorite tags** section due to architectural complexity. It made the codebase very hard to maintain with special cases everywhere. The good news is that you can now sort root tags manually just like folders, so you can still put your favorite tags or untagged notes at the top of the tag list.',
+            'My plan is to continue developing and improving this plugin for a long time. Years, maybe even decades. This is why some features might be cut in future releases, but right now I am quite happy with the internal architecture so I do not see this happening with any other features in the near future.',
             'Thank you for using Notebook Navigator!'
         ].join('\n\n'),
         new: [
+            'You can now ==reorder sections== like Shortcuts, Recent files, Notes and Tags in the navigation pane. Just drag and drop the section headers in the updated "Reorder root folders and tags" mode accessible through a toolbar button in navigation pane.',
             'You can now change ==sort order for root tags==, just like folders. Just click the button "Reorder root folders and tags" in the navigation pane.',
             'Support for ==back and forward mouse buttons==! Use them on desktop in single pane to quickly switch between navigation and list panes.',
             'Two new style settings: ==Navigation pane transparency== and ==List pane transparency==. You can now make the navigation and list pane transparent (remove background).',
@@ -99,9 +100,13 @@ const RELEASE_NOTES: ReleaseNote[] = [
         changed: [
             '**Favorite tags section is removed**. I am sorry about this change, but having a separate favorite tags section caused an architectural nightmare that caused special wiring all over the application. To get a similar experience you can sort tags by frequency, or reorder root tags manually.'
         ],
-        improved: ['Hidden tags are now also hidden in the list pane.'],
+        improved: [
+            'Hidden tags are now also hidden in the list pane ("file tags").',
+            'Icon packs will now update automatically if version number in the plugin distribution is newer than the downloaded version.'
+        ],
         fixed: [
             'Fixed a rare startup crash that hid Notebook Navigator during startup after enabling the plugin.',
+            'Fixed an issue where shortcuts could not be reordered on Android devices.',
             'Fixed scroll to active note in list pane when toggling "Show notes from descendants".',
             'Tab buttons in settings are now rendered properly with various themes.',
             'Fixed issues with text preview filter: italic text, inline code, quotes, footnotes, tasks are now handled properly.'
