@@ -1,6 +1,6 @@
 const ICON_FONT_CLASSES = [
     'nn-iconfont',
-    'nn-iconfont-fa-regular',
+    'nn-iconfont-fa-solid',
     'nn-iconfont-rpg-awesome',
     'nn-iconfont-bootstrap-icons',
     'nn-iconfont-material-icons',
