@@ -548,12 +548,13 @@ export const FileItem = React.memo(function FileItem({
 
             const selectedTag = selectionState.selectedTag ?? EMPTY_STRING;
 
-            if (selectedTag.length > tag.length ||
+            if (selectedTag.length === 0 || selectedTag.length > tag.length ||
+                    selectionState.selectionType !== 'tag' ||
                     (selectedTag.length === tag.length && selectedTag === tag)) {
                 return tag
             }
 
-            if (selectionState.selectionType === 'tag' && tag.startsWith(selectedTag)) {
+            if (tag.startsWith(selectedTag)) {
                 const selectedTagSegments = selectedTag.split('/')
                     .filter(segment => segment.length > 0);
 
