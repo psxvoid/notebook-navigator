@@ -44,7 +44,8 @@ import {
     VirtualFolder,
     ItemType,
     SHORTCUTS_VIRTUAL_FOLDER_ID,
-    RECENT_NOTES_VIRTUAL_FOLDER_ID
+    RECENT_NOTES_VIRTUAL_FOLDER_ID,
+    NavigationSectionId
 } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
@@ -66,6 +67,7 @@ import { getDBInstance } from '../storage/fileOperations';
 import { naturalCompare } from '../utils/sortUtils';
 import type { NoteCountInfo } from '../types/noteCounts';
 import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
+import { sanitizeNavigationSectionOrder } from '../utils/navigationSections';
 
 // Checks if a navigation item is a shortcut-related item (virtual folder, shortcut, or header)
 const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
@@ -173,6 +175,8 @@ interface UseNavigationPaneDataParams {
     recentNotesExpanded: boolean;
     /** Whether shortcuts should be pinned at the top of the pane */
     pinShortcuts: boolean;
+    /** Preferred ordering of navigation sections */
+    sectionOrder: NavigationSectionId[];
 }
 
 /**
@@ -219,7 +223,8 @@ export function useNavigationPaneData({
     isVisible,
     shortcutsExpanded,
     recentNotesExpanded,
-    pinShortcuts
+    pinShortcuts,
+    sectionOrder
 }: UseNavigationPaneDataParams): UseNavigationPaneDataResult {
     const { app } = useServices();
     const { recentNotes } = useRecentData();
@@ -679,6 +684,9 @@ export function useNavigationPaneData({
         return items;
     }, [app, settings.showRecentNotes, recentNotes, settings.recentNotesCount, settings.fileVisibility, recentNotesExpanded]);
 
+    // Sanitize section order from local storage and ensure defaults are present
+    const normalizedSectionOrder = useMemo(() => sanitizeNavigationSectionOrder(sectionOrder), [sectionOrder]);
+
     /**
      * Combine shortcut, folder, and tag items based on display order settings
      */
@@ -709,45 +717,50 @@ export function useNavigationPaneData({
             key: 'top-spacer'
         });
 
-        const sections: CombinedNavigationItem[][] = [];
+        // Determines which sections should be displayed based on settings and available items
+        const shouldIncludeShortcutsSection = settings.showShortcuts && shortcutItems.length > 0;
+        const shouldIncludeRecentSection = settings.showRecentNotes && recentNotesItems.length > 0;
+        const shouldIncludeNotesSection = folderItems.length > 0;
+        const shouldIncludeTagsSection = settings.showTags && tagItems.length > 0;
 
-        if (shortcutItems.length > 0) {
-            sections.push(shortcutItems);
-        }
+        // Builds sections in the user-specified order
+        const orderedSections: CombinedNavigationItem[][] = [];
 
-        if (recentNotesItems.length > 0) {
-            sections.push(recentNotesItems);
-        }
-
-        const mainSection: CombinedNavigationItem[] = [];
-
-        if (settings.showTags && settings.showTagsAboveFolders) {
-            mainSection.push(...tagItems);
-            if (folderItems.length > 0 && tagItems.length > 0) {
-                mainSection.push({
-                    type: NavigationPaneItemType.LIST_SPACER,
-                    key: 'tags-folders-spacer'
-                });
+        // Adds sections to the display based on user-specified order and visibility conditions
+        normalizedSectionOrder.forEach(identifier => {
+            switch (identifier) {
+                case NavigationSectionId.SHORTCUTS:
+                    if (shouldIncludeShortcutsSection) {
+                        orderedSections.push(shortcutItems);
+                    }
+                    break;
+                case NavigationSectionId.RECENT:
+                    if (shouldIncludeRecentSection) {
+                        orderedSections.push(recentNotesItems);
+                    }
+                    break;
+                case NavigationSectionId.NOTES:
+                    if (shouldIncludeNotesSection) {
+                        orderedSections.push(folderItems);
+                    }
+                    break;
+                case NavigationSectionId.TAGS:
+                    if (shouldIncludeTagsSection) {
+                        orderedSections.push(tagItems);
+                    }
+                    break;
+                default:
+                    break;
             }
-            mainSection.push(...folderItems);
-        } else {
-            mainSection.push(...folderItems);
-            if (settings.showTags && tagItems.length > 0) {
-                mainSection.push({
-                    type: NavigationPaneItemType.LIST_SPACER,
-                    key: 'folders-tags-spacer'
-                });
-                mainSection.push(...tagItems);
-            }
-        }
+        });
 
-        if (mainSection.length > 0) {
-            sections.push(mainSection);
-        }
+        // Filters out empty sections that have no items to display
+        const visibleSections = orderedSections.filter(section => section.length > 0);
 
-        sections.forEach((section, index) => {
+        // Assembles final item list with spacers between sections
+        visibleSections.forEach((section, index) => {
             allItems.push(...section);
-            if (index < sections.length - 1) {
+            if (index < visibleSections.length - 1) {
                 allItems.push({
                     type: NavigationPaneItemType.LIST_SPACER,
                     key: `section-spacer-${index}`
@@ -766,8 +779,10 @@ export function useNavigationPaneData({
         tagItems,
         shortcutItems,
         recentNotesItems,
+        normalizedSectionOrder,
+        settings.showShortcuts,
+        settings.showRecentNotes,
         settings.showTags,
-        settings.showTagsAboveFolders,
         settings.navigationBanner,
         pinShortcuts
     ]);

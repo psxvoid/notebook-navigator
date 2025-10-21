@@ -25,6 +25,7 @@ import { naturalCompare } from '../utils/sortUtils';
 import { areStringArraysEqual, createIndexMap } from '../utils/arrayUtils';
 import { compareFolderOrderWithFallback } from '../utils/treeFlattener';
 import { TIMEOUTS } from '../types/obsidian-extended';
+import { stripTrailingSlash } from '../utils/pathUtils';
 
 const ROOT_PATH = '/';
 
@@ -53,16 +54,6 @@ export interface RootFolderOrderState {
     rootLevelFolders: TFolder[]; // All top-level folders in custom order
     rootFolderOrderMap: Map<string, number>; // Maps folder paths to their order index
     missingRootFolderPaths: string[]; // Stored paths that are not currently present in the vault
-}
-
-/**
- * Removes trailing slash from path, except for root path
- */
-function stripTrailingSlash(path: string): string {
-    if (path === ROOT_PATH) {
-        return path;
-    }
-    return path.endsWith('/') ? path.slice(0, -1) : path;
 }
 
 /**

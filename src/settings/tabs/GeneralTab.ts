@@ -291,18 +291,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         );
     autoRevealSettingsEl.toggle(plugin.settings.autoRevealActiveFile);
 
-    if (!Platform.isMobile) {
-        new Setting(containerEl)
-            .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
-            .setDesc(strings.settings.items.autoSelectFirstFileOnFocusChange.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.settings.autoSelectFirstFileOnFocusChange).onChange(async value => {
-                    plugin.settings.autoSelectFirstFileOnFocusChange = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-            );
-    }
-
     new Setting(containerEl).setName(strings.settings.groups.general.filtering).setHeading();
 
     new Setting(containerEl)

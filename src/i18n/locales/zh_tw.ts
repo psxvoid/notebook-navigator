@@ -57,8 +57,8 @@ export const STRINGS_ZH_TW = {
         shortcutsHeader: '捷徑', // 導覽窗格中捷徑區段的標頭標籤 (英文: Shortcuts)
         recentNotesHeader: '最近筆記', // 導覽窗格中最近筆記區段的標頭標籤 (英文: Recent notes)
         recentFilesHeader: '最近檔案', // 在導覽窗格中顯示最近非筆記檔案時的標頭標籤 (英文: Recent files)
-        reorderRootFoldersTitle: '重新排列根資料夾和標籤',
-        reorderRootFoldersHint: '拖曳項目以變更順序',
+        reorderRootFoldersTitle: '重新排列導覽區段',
+        reorderRootFoldersHint: '拖曳標題或項目以調整順序',
         vaultRootLabel: '儲存庫',
         resetRootToAlpha: '重設為字母順序',
         resetRootToFrequency: '重設為頻率排序',
@@ -375,6 +375,7 @@ export const STRINGS_ZH_TW = {
             tagOperationsNotAvailable: '標籤操作不可用',
             tagsRequireMarkdown: '僅支援 Markdown 筆記的標籤',
             iconPackDownloaded: '{provider} 已下載',
+            iconPackUpdated: '{provider} 已更新 ({version})',
             iconPackRemoved: '{provider} 已移除',
             iconPackLoadFailed: '載入 {provider} 失敗'
         },
@@ -840,10 +841,6 @@ export const STRINGS_ZH_TW = {
                     frequencyDesc: '頻率（由高至低）'
                 }
             },
-            showTagsAboveFolders: {
-                name: '在資料夾上方顯示標籤',
-                desc: '在導覽器中資料夾之前顯示標籤區段。'
-            },
             showAllTagsFolder: {
                 name: '顯示標籤資料夾',
                 desc: '將 "標籤" 顯示為可收合的資料夾。'
@@ -933,7 +930,7 @@ export const STRINGS_ZH_TW = {
                     '下載的圖示包會在裝置間同步安裝狀態。圖示包保留在每個裝置的本地資料庫中；同步僅追蹤是下載還是移除它們。圖示包從 Notebook Navigator 儲存庫下載 (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)。',
                 providers: {
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
+                    fontAwesomeDesc: 'https://fontawesome.com/',
                     materialIconsDesc: 'https://fonts.google.com/icons',
                     phosphorDesc: 'https://phosphoricons.com/',
                     rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',

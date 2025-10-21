@@ -56,8 +56,8 @@ export const STRINGS_ZH_CN = {
         shortcutsHeader: '快捷方式',
         recentNotesHeader: '最近笔记',
         recentFilesHeader: '最近文件',
-        reorderRootFoldersTitle: '重新排列根文件夹和标签',
-        reorderRootFoldersHint: '拖动项目以更改顺序',
+        reorderRootFoldersTitle: '重新排列导航分区',
+        reorderRootFoldersHint: '拖动标题或项目以调整顺序',
         vaultRootLabel: '仓库',
         resetRootToAlpha: '重置为字母顺序',
         resetRootToFrequency: '重置为频率排序',
@@ -376,6 +376,7 @@ export const STRINGS_ZH_CN = {
             tagOperationsNotAvailable: '标签操作不可用',
             tagsRequireMarkdown: '标签仅支持Markdown笔记',
             iconPackDownloaded: '{provider} 已下载',
+            iconPackUpdated: '{provider} 已更新 ({version})',
             iconPackRemoved: '{provider} 已移除',
             iconPackLoadFailed: '{provider} 加载失败'
         },
@@ -842,10 +843,6 @@ export const STRINGS_ZH_CN = {
                     frequencyDesc: '频率（从高到低）'
                 }
             },
-            showTagsAboveFolders: {
-                name: '在文件夹上方显示标签',
-                desc: '在导航器中的文件夹之前显示标签部分。'
-            },
             showAllTagsFolder: {
                 name: '显示标签文件夹',
                 desc: '将"标签"显示为可折叠文件夹。'
@@ -935,7 +932,7 @@ export const STRINGS_ZH_CN = {
                     '下载的图标包会在设备之间同步安装状态。图标包保存在每个设备的本地数据库中；同步仅跟踪它们是否应该被下载或移除。图标包从Notebook Navigator仓库下载 (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)。',
                 providers: {
                     bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/v6/search?f=classic&s=solid&ic=free&o=r',
+                    fontAwesomeDesc: 'https://fontawesome.com/',
                     materialIconsDesc: 'https://fonts.google.com/icons',
                     phosphorDesc: 'https://phosphoricons.com/',
                     rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
