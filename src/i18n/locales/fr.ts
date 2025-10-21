@@ -706,6 +706,10 @@ export const STRINGS_FR = {
                 name: 'Afficher les tags parents',
                 desc: 'Afficher les segments parents avant le nom du tag.'
             },
+            collapseFileTagsToSelectedTag: {
+                name: 'Réduire les balises à une balise sélectionnée',
+                desc: "Masquer les segments parents qui font partie d'une vue de balise sélectionnée."
+            },
             colorFileTags: {
                 name: 'Colorer les tags de fichier',
                 desc: 'Appliquer les couleurs de tags aux badges de tags sur les éléments de fichier.'

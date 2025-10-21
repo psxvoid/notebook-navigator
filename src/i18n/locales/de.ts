@@ -707,6 +707,10 @@ export const STRINGS_DE = {
                 name: 'Übergeordnete Tags anzeigen',
                 desc: 'Übergeordnete Segmente vor dem Tag-Namen anzeigen.'
             },
+            collapseFileTagsToSelectedTag: {
+                name: 'Tags auf ein ausgewähltes Tag reduzieren',
+                desc: 'Blenden Sie übergeordnete Segmente aus, die Teil einer ausgewählten Tag-Ansicht sind.'
+            },
             colorFileTags: {
                 name: 'Datei-Tags einfärben',
                 desc: 'Tag-Farben auf Tag-Abzeichen in Datei-Elementen anwenden.'

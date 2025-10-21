@@ -532,6 +532,9 @@ export const FileItem = React.memo(function FileItem({
 
     const getTagDisplayName = useCallback(
         (tag: string): string => {
+            if (settings.showFileTagAncestors && !settings.collapseFileTagsToSelectedTag) {
+                return tag;
+            }
 
             const segments = tag.split('/').filter(segment => segment.length > 0);
 
@@ -539,8 +542,16 @@ export const FileItem = React.memo(function FileItem({
                 return tag;
             }
 
-            // TODO: add settings
+            if (!settings.showFileTagAncestors) {
+                return segments[segments.length - 1];
+            }
+
             const selectedTag = selectionState.selectedTag ?? EMPTY_STRING;
+
+            if (selectedTag === tag) {
+                return tag
+            }
+
             if (selectionState.selectionType === 'tag' && tag.startsWith(selectedTag)) {
                 const selectedTagSegments = selectedTag.split('/')
                     .filter(segment => segment.length > 0);
@@ -553,13 +564,10 @@ export const FileItem = React.memo(function FileItem({
                 return segments.join('/')
             }
 
-            if (settings.showFileTagAncestors) {
-                return tag;
-            }
+            return tag;
 
-            return segments[segments.length - 1];
         },
-        [settings.showFileTagAncestors, selectionState]
+        [settings.showFileTagAncestors, settings.collapseFileTagsToSelectedTag, selectionState]
     );
 
     // Render tags

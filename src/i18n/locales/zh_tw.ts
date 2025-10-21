@@ -702,6 +702,10 @@ export const STRINGS_ZH_TW = {
                 name: '顯示父標籤',
                 desc: '在標籤名稱前顯示父級片段。'
             },
+            collapseFileTagsToSelectedTag: {
+                name: '將標籤折疊到選定的標籤',
+                desc: '隱藏選取標籤視圖的父段。'
+            },
             colorFileTags: {
                 name: '為檔案標籤著色',
                 desc: '將標籤顏色套用到檔案項目的標籤徽章。'
