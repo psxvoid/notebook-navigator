@@ -705,6 +705,10 @@ export const STRINGS_JA = {
                 name: '親タグを表示',
                 desc: 'タグ名の前に親セグメントを表示します。'
             },
+            collapseFileTagsToSelectedTag: {
+                name: '選択したタグにタグを折りたたむ',
+                desc: '選択したタグ ビューの一部である親セグメントを非表示にします。'
+            },
             colorFileTags: {
                 name: 'ファイルタグに色を付ける',
                 desc: 'ファイルアイテムのタグバッジにタグの色を適用します。'

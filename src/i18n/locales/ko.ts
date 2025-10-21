@@ -703,6 +703,10 @@ export const STRINGS_KO = {
                 name: '상위 태그 표시',
                 desc: '태그 이름 앞에 상위 세그먼트를 표시합니다.'
             },
+            collapseFileTagsToSelectedTag: {
+                name: '선택한 태그로 태그 축소',
+                desc: '선택한 태그 보기에 속하는 상위 세그먼트를 숨깁니다.'
+            },
             colorFileTags: {
                 name: '파일 태그 색상 지정',
                 desc: '파일 항목의 태그 배지에 태그 색상을 적용합니다.'

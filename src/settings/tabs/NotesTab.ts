@@ -335,6 +335,19 @@ export function renderNotesTab(context: SettingsTabContext): void {
             toggle.setValue(plugin.settings.showFileTagAncestors).onChange(async value => {
                 plugin.settings.showFileTagAncestors = value;
                 await plugin.saveSettingsAndUpdate();
+                fileTagsAncestorsEl.toggle(value)
+            })
+        );
+
+    const fileTagsAncestorsEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(fileTagsAncestorsEl)
+        .setName(strings.settings.items.collapseFileTagsToSelectedTag.name)
+        .setDesc(strings.settings.items.collapseFileTagsToSelectedTag.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.collapseFileTagsToSelectedTag).onChange(async value => {
+                plugin.settings.collapseFileTagsToSelectedTag = value;
+                await plugin.saveSettingsAndUpdate();
             })
         );
 

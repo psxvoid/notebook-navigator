@@ -66,6 +66,8 @@ import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
 import { areStringArraysEqual } from '../utils/arrayUtils';
+import { useSelectionState } from 'src/context/SelectionContext';
+import { EMPTY_STRING } from 'src/utils/empty';
 
 const FEATURE_IMAGE_MAX_ASPECT_RATIO = 16 / 9;
 
@@ -245,6 +247,7 @@ export const FileItem = React.memo(function FileItem({
         () => createHiddenTagVisibility(settings.hiddenTags, settings.showHiddenItems),
         [settings.hiddenTags, settings.showHiddenItems]
     );
+    const selectionState = useSelectionState();
 
     // === Helper functions ===
     // Load all file metadata from cache
@@ -529,7 +532,7 @@ export const FileItem = React.memo(function FileItem({
 
     const getTagDisplayName = useCallback(
         (tag: string): string => {
-            if (settings.showFileTagAncestors) {
+            if (settings.showFileTagAncestors && !settings.collapseFileTagsToSelectedTag) {
                 return tag;
             }
 
@@ -539,9 +542,30 @@ export const FileItem = React.memo(function FileItem({
                 return tag;
             }
 
-            return segments[segments.length - 1];
+            if (!settings.showFileTagAncestors) {
+                return segments[segments.length - 1];
+            }
+
+            const selectedTag = selectionState.selectedTag ?? EMPTY_STRING;
+
+            if (selectedTag.length === 0 || selectionState.selectionType !== 'tag') {
+                return tag
+            }
+
+            if (selectedTag.length === tag.length && selectedTag === tag) {
+                return EMPTY_STRING
+            }
+
+            const selectedTagSegments = selectedTag.split('/').filter(segment => segment.length > 0);
+
+            while(selectedTagSegments.length > 0 && segments.length > 0 && selectedTagSegments[0] === segments[0]) {
+                segments.shift()
+                selectedTagSegments.shift()
+            }
+
+            return segments.join('/')
         },
-        [settings.showFileTagAncestors]
+        [settings.showFileTagAncestors, settings.collapseFileTagsToSelectedTag, selectionState]
     );
 
     // Render tags
@@ -555,7 +579,7 @@ export const FileItem = React.memo(function FileItem({
                 {categorizedTags.map((tag, index) => {
                     const tagColor = colorFileTags ? getTagColor(tag) : undefined;
                     const displayTag = getTagDisplayName(tag);
-                    return (
+                    return displayTag === EMPTY_STRING ? null : (
                         <span
                             key={index}
                             className="nn-file-tag nn-clickable-tag"
@@ -567,7 +591,7 @@ export const FileItem = React.memo(function FileItem({
                             {displayTag}
                         </span>
                     );
-                })}
+                }).filter(x => x != null)}
             </div>
         );
     }, [colorFileTags, categorizedTags, getTagColor, getTagDisplayName, handleTagClick, shouldShowFileTags]);

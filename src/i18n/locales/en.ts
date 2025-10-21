@@ -703,6 +703,10 @@ export const STRINGS_EN = {
                 name: 'Show parent tags',
                 desc: 'Display parent segments before the tag name.'
             },
+            collapseFileTagsToSelectedTag: {
+                name: 'Collapse tags to a selected tag',
+                desc: 'Hide parent segments that are part of a selected tag view.'
+            },
             colorFileTags: {
                 name: 'Color file tags',
                 desc: 'Apply tag colors to tag badges on file items.'

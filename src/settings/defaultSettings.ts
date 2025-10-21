@@ -109,6 +109,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFileDate: true,
     showFileTags: true,
     showFileTagAncestors: true,
+    collapseFileTagsToSelectedTag: true,
     colorFileTags: true,
     showFileTagsInSlimMode: false,
     showParentFolderNames: true,

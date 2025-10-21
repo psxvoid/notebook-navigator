@@ -704,6 +704,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar etiquetas padre',
                 desc: 'Mostrar segmentos padre antes del nombre de la etiqueta.'
             },
+            collapseFileTagsToSelectedTag: {
+                name: 'Contraer etiquetas a una etiqueta seleccionada',
+                desc: 'Ocultar segmentos principales que forman parte de una vista de etiqueta seleccionada.'
+            },
             colorFileTags: {
                 name: 'Colorear etiquetas de archivo',
                 desc: 'Aplicar colores de etiquetas a las insignias de etiquetas en elementos de archivo.'

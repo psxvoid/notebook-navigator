@@ -705,6 +705,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż tagi nadrzędne',
                 desc: 'Wyświetl segmenty nadrzędne przed nazwą tagu.'
             },
+            collapseFileTagsToSelectedTag: {
+                name: 'Zwiń tagi do wybranego tagu',
+                desc: 'Ukryj segmenty nadrzędne, które są częścią wybranego widoku tagu.'
+            },
             colorFileTags: {
                 name: 'Koloruj tagi plików',
                 desc: 'Zastosuj kolory tagów do odznak tagów w elementach plików.'

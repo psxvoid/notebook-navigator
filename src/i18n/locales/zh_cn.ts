@@ -704,6 +704,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示父标签',
                 desc: '在标签名称前显示父级片段。'
             },
+            collapseFileTagsToSelectedTag: {
+                name: '将标签折叠到选定的标签',
+                desc: '隐藏选定标签视图的父段。'
+            },
             colorFileTags: {
                 name: '为文件标签着色',
                 desc: '将标签颜色应用于文件项中的标签徽章。'
