@@ -727,7 +727,7 @@ export const STRINGS_ES = {
                 helpTooltip: 'Clic para referencia de formato'
             },
             showFilePreview: {
-                name: 'Mostrar vista previa de nota (*)',
+                name: 'Mostrar vista previa de nota',
                 desc: 'Muestra texto de vista previa debajo de los nombres de las notas.'
             },
             skipHeadingsInPreview: {
@@ -764,7 +764,7 @@ export const STRINGS_ES = {
                 }
             },
             showFeatureImage: {
-                name: 'Mostrar imagen destacada (*)',
+                name: 'Mostrar imagen destacada',
                 desc: 'Muestra imágenes en miniatura desde el frontmatter. Consejo: Usa el plugin "Featured Image" para establecer automáticamente imágenes destacadas para todos tus documentos.'
             },
             forceSquareFeatureImage: {
@@ -826,7 +826,7 @@ export const STRINGS_ES = {
                 desc: 'Reduce el texto de navegación cuando la altura de línea se disminuye.'
             },
             showTags: {
-                name: 'Mostrar etiquetas (*)',
+                name: 'Mostrar etiquetas',
                 desc: 'Muestra la sección de etiquetas debajo de las carpetas en el navegador.'
             },
             tagSortOrder: {
@@ -936,7 +936,7 @@ export const STRINGS_ES = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Leer metadatos del frontmatter (*)',
+                name: 'Leer metadatos del frontmatter',
                 desc: 'Leer nombres de notas, marcas de tiempo, iconos y colores del frontmatter cuando estén disponibles, usando valores del sistema o ajustes como respaldo'
             },
             frontmatterNameField: {
@@ -1005,7 +1005,7 @@ export const STRINGS_ES = {
                 buttonText: 'Ver actualizaciones recientes'
             },
             cacheStatistics: {
-                localCache: '(*) Caché local',
+                localCache: 'Caché local',
                 items: 'elementos',
                 withTags: 'con etiquetas',
                 withPreviewText: 'con texto de vista previa',

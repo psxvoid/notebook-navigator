@@ -726,7 +726,7 @@ export const STRINGS_EN = {
                 helpTooltip: 'Click for format reference'
             },
             showFilePreview: {
-                name: 'Show note preview (*)',
+                name: 'Show note preview',
                 desc: 'Display preview text beneath note names.'
             },
             skipHeadingsInPreview: {
@@ -763,7 +763,7 @@ export const STRINGS_EN = {
                 }
             },
             showFeatureImage: {
-                name: 'Show feature image (*)',
+                name: 'Show feature image',
                 desc: 'Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents.'
             },
             forceSquareFeatureImage: {
@@ -825,7 +825,7 @@ export const STRINGS_EN = {
                 desc: 'Reduce navigation text size when item height is decreased.'
             },
             showTags: {
-                name: 'Show tags (*)',
+                name: 'Show tags',
                 desc: 'Display tags section below folders in the navigator.'
             },
             tagSortOrder: {
@@ -935,7 +935,7 @@ export const STRINGS_EN = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Read metadata from frontmatter (*)',
+                name: 'Read metadata from frontmatter',
                 desc: 'Read note names, timestamps, icons, and colors from frontmatter when available, falling back to file system values or settings'
             },
             frontmatterIconField: {
@@ -1004,7 +1004,7 @@ export const STRINGS_EN = {
                 buttonText: 'View recent updates'
             },
             cacheStatistics: {
-                localCache: '(*) Local cache',
+                localCache: 'Local cache',
                 items: 'items',
                 withTags: 'with tags',
                 withPreviewText: 'with preview text',
