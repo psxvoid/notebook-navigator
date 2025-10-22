@@ -572,9 +572,14 @@ export const STRINGS_PL = {
                 name: 'Pokaż bieżące i potomne liczniki osobno',
                 desc: 'Wyświetla liczbę notatek w formacie "bieżące ▾ potomne" w folderach i tagach.'
             },
-            groupByDate: {
-                name: 'Grupuj notatki według daty',
-                desc: 'Podczas sortowania według daty, grupuj notatki pod nagłówkami dat.'
+            groupNotes: {
+                name: 'Grupuj notatki',
+                desc: 'Wyświetla nagłówki między notatkami zgrupowanymi według daty lub folderu. Widoki tagów używają grup dat, gdy grupowanie po folderach jest włączone.',
+                options: {
+                    none: 'Bez grupowania',
+                    date: 'Grupuj według daty',
+                    folder: 'Grupuj według folderu'
+                }
             },
             optimizeNoteHeight: {
                 name: 'Optymalizuj wysokość notatek',
@@ -603,6 +608,23 @@ export const STRINGS_PL = {
             dualPane: {
                 name: 'Układ podwójnego panelu (tylko desktop, nie synchronizowany)',
                 desc: 'Pokaż panel nawigacji i panel listy obok siebie na komputerze.'
+            },
+            dualPaneOrientation: {
+                name: 'Orientacja trybu podwójnego',
+                desc: 'Wybierz układ poziomy lub pionowy, gdy tryb podwójny jest włączony.',
+                options: {
+                    horizontal: 'Podział poziomy',
+                    vertical: 'Podział pionowy'
+                }
+            },
+            dualPaneBackground: {
+                name: 'Kolor tła (tylko komputer)',
+                desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy na komputerze.',
+                options: {
+                    separate: 'Oddzielne tła',
+                    primary: 'Użyj tła listy',
+                    secondary: 'Użyj tła nawigacji'
+                }
             },
             startView: {
                 name: 'Domyślny widok startowy',

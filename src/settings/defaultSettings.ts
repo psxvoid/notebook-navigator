@@ -31,6 +31,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     startView: 'files',
     showTooltips: false,
     showTooltipPath: true,
+    dualPaneBackground: 'separate',
 
     // General tab - Homepage
     homepage: null,
@@ -88,7 +89,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     listPaneTitle: 'header',
     multiSelectModifier: 'cmdCtrl',
     includeDescendantNotes: true,
-    groupByDate: true,
+    noteGrouping: 'date',
     optimizeNoteHeight: true,
     showQuickActions: true,
     quickActionRevealInFolder: true,

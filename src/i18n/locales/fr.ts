@@ -572,9 +572,14 @@ export const STRINGS_FR = {
                 name: 'Afficher les comptes actuels et descendants séparément',
                 desc: 'Affiche le nombre de notes au format "actuel ▾ descendants" dans les dossiers et étiquettes.'
             },
-            groupByDate: {
-                name: 'Grouper les notes par date',
-                desc: 'Lorsque triées par date, grouper les notes sous des en-têtes de date.'
+            groupNotes: {
+                name: 'Grouper les notes',
+                desc: 'Affiche des en-têtes entre les notes groupées par date ou par dossier. Les vues de tags utilisent des groupes de dates lorsque le regroupement par dossier est activé.',
+                options: {
+                    none: 'Ne pas grouper',
+                    date: 'Grouper par date',
+                    folder: 'Grouper par dossier'
+                }
             },
             optimizeNoteHeight: {
                 name: 'Optimiser la hauteur des notes',
@@ -603,6 +608,23 @@ export const STRINGS_FR = {
             dualPane: {
                 name: 'Disposition à double panneau (ordinateur uniquement, non synchronisé)',
                 desc: 'Afficher le panneau de navigation et le panneau de liste côte à côte sur ordinateur.'
+            },
+            dualPaneOrientation: {
+                name: 'Orientation du double panneau',
+                desc: 'Choisir une disposition horizontale ou verticale lorsque le double panneau est actif.',
+                options: {
+                    horizontal: 'Séparation horizontale',
+                    vertical: 'Séparation verticale'
+                }
+            },
+            dualPaneBackground: {
+                name: 'Couleur de fond (bureau uniquement)',
+                desc: 'Choisissez les couleurs de fond pour les volets de navigation et de liste sur bureau.',
+                options: {
+                    separate: 'Arrière-plans séparés',
+                    primary: 'Utiliser le fond de la liste',
+                    secondary: 'Utiliser le fond de navigation'
+                }
             },
             startView: {
                 name: 'Vue de démarrage par défaut',

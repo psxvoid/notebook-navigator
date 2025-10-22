@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, Notice, Platform, Setting } from 'obsidian';
+import { ButtonComponent, DropdownComponent, Notice, Platform, Setting } from 'obsidian';
 import { HomepageModal } from '../../modals/HomepageModal';
 import { strings } from '../../i18n';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
@@ -103,6 +103,16 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 });
         });
 
+    // Track orientation dropdown and container for visibility toggling
+    let orientationDropdown: DropdownComponent | null = null;
+    let orientationContainerEl: HTMLDivElement | null = null;
+
+    // Hide orientation controls when dual pane is disabled; background mode stays visible
+    const updateOrientationVisibility = (enabled: boolean) => {
+        orientationDropdown?.setDisabled(!enabled);
+        orientationContainerEl?.toggleClass('nn-setting-hidden', !enabled);
+    };
+
     if (!Platform.isMobile) {
         new Setting(containerEl)
             .setName(strings.settings.items.dualPane.name)
@@ -110,7 +120,55 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             .addToggle(toggle =>
                 toggle.setValue(plugin.useDualPane()).onChange(value => {
                     plugin.setDualPanePreference(value);
+                    updateOrientationVisibility(value);
                 })
+            );
+
+        // Create indented sub-setting for orientation
+        orientationContainerEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(orientationContainerEl)
+            .setName(strings.settings.items.dualPaneOrientation.name)
+            .setDesc(strings.settings.items.dualPaneOrientation.desc)
+            .addDropdown(dropdown => {
+                orientationDropdown = dropdown;
+                dropdown
+                    .addOptions({
+                        horizontal: strings.settings.items.dualPaneOrientation.options.horizontal,
+                        vertical: strings.settings.items.dualPaneOrientation.options.vertical
+                    })
+                    .setValue(plugin.getDualPaneOrientation())
+                    .onChange(async value => {
+                        // Normalize and persist orientation change
+                        const nextOrientation = value === 'vertical' ? 'vertical' : 'horizontal';
+                        await plugin.setDualPaneOrientation(nextOrientation);
+                    });
+
+                // Initialize visibility based on current dual-pane state
+                updateOrientationVisibility(plugin.useDualPane());
+            });
+    }
+
+    // Desktop-only setting for dual pane background color mode
+    if (!Platform.isMobile) {
+        new Setting(containerEl)
+            .setName(strings.settings.items.dualPaneBackground.name)
+            .setDesc(strings.settings.items.dualPaneBackground.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOptions({
+                        separate: strings.settings.items.dualPaneBackground.options.separate,
+                        primary: strings.settings.items.dualPaneBackground.options.primary,
+                        secondary: strings.settings.items.dualPaneBackground.options.secondary
+                    })
+                    .setValue(plugin.settings.dualPaneBackground ?? 'separate')
+                    .onChange(async value => {
+                        // Validate and constrain value to allowed options
+                        const nextValue: 'separate' | 'primary' | 'secondary' =
+                            value === 'primary' || value === 'secondary' ? value : 'separate';
+                        plugin.settings.dualPaneBackground = nextValue;
+                        await plugin.saveSettingsAndUpdate();
+                    })
             );
     }
 

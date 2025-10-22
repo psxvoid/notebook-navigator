@@ -571,9 +571,14 @@ export const STRINGS_ES = {
                 name: 'Mostrar conteos actuales y descendientes por separado',
                 desc: 'Muestra el conteo de notas como formato "actual ▾ descendientes" en carpetas y etiquetas.'
             },
-            groupByDate: {
-                name: 'Agrupar notas por fecha',
-                desc: 'Cuando se ordena por fecha, agrupa las notas bajo encabezados de fecha.'
+            groupNotes: {
+                name: 'Agrupar notas',
+                desc: 'Muestra encabezados entre notas agrupadas por fecha o carpeta. Las vistas de etiquetas usan grupos por fecha cuando la agrupación por carpeta está activada.',
+                options: {
+                    none: 'No agrupar',
+                    date: 'Agrupar por fecha',
+                    folder: 'Agrupar por carpeta'
+                }
             },
             optimizeNoteHeight: {
                 name: 'Optimizar altura de notas',
@@ -602,6 +607,23 @@ export const STRINGS_ES = {
             dualPane: {
                 name: 'Diseño de doble panel (solo escritorio, no sincronizado)',
                 desc: 'Mostrar panel de navegación y panel de lista lado a lado en escritorio.'
+            },
+            dualPaneOrientation: {
+                name: 'Orientación del panel dual',
+                desc: 'Selecciona una distribución horizontal o vertical cuando el panel dual está activo.',
+                options: {
+                    horizontal: 'División horizontal',
+                    vertical: 'División vertical'
+                }
+            },
+            dualPaneBackground: {
+                name: 'Color de fondo (solo escritorio)',
+                desc: 'Elige colores de fondo para los paneles de navegación y lista en escritorio.',
+                options: {
+                    separate: 'Fondos separados',
+                    primary: 'Usar fondo de lista',
+                    secondary: 'Usar fondo de navegación'
+                }
             },
             startView: {
                 name: 'Vista de inicio predeterminada',

@@ -570,9 +570,14 @@ export const STRINGS_ZH_CN = {
                 name: '分别显示当前和后代计数',
                 desc: '在文件夹和标签中以"当前 ▾ 后代"格式显示笔记计数。'
             },
-            groupByDate: {
-                name: '按日期分组笔记',
-                desc: '按日期排序时，在日期标题下分组笔记。'
+            groupNotes: {
+                name: '分组笔记',
+                desc: '在按日期或文件夹分组的笔记之间显示标题。启用文件夹分组时，标签视图使用日期分组。',
+                options: {
+                    none: '不分组',
+                    date: '按日期分组',
+                    folder: '按文件夹分组'
+                }
             },
             optimizeNoteHeight: {
                 name: '优化笔记高度',
@@ -601,6 +606,23 @@ export const STRINGS_ZH_CN = {
             dualPane: {
                 name: '双窗格布局（仅桌面端，不同步）',
                 desc: '在桌面端并排显示导航窗格和列表窗格。'
+            },
+            dualPaneOrientation: {
+                name: '双栏布局方向',
+                desc: '双栏启用时选择水平或垂直布局。',
+                options: {
+                    horizontal: '水平分割',
+                    vertical: '垂直分割'
+                }
+            },
+            dualPaneBackground: {
+                name: '背景色（仅桌面）',
+                desc: '在桌面上为导航窗格和列表窗格选择背景色。',
+                options: {
+                    separate: '分开背景',
+                    primary: '使用列表背景',
+                    secondary: '使用导航背景'
+                }
             },
             startView: {
                 name: '默认启动视图',

@@ -570,9 +570,14 @@ export const STRINGS_KO = {
                 name: '현재와 하위 항목 수를 별도로 표시',
                 desc: '폴더와 태그의 노트 수를 "현재 ▾ 하위" 형식으로 표시합니다.'
             },
-            groupByDate: {
-                name: '날짜별로 노트 그룹화',
-                desc: '날짜별로 정렬할 때 날짜 헤더 아래에 노트를 그룹화합니다.'
+            groupNotes: {
+                name: '노트 그룹화',
+                desc: '날짜 또는 폴더별로 그룹화된 노트 사이에 머리글을 표시합니다. 폴더 그룹화가 활성화되면 태그 보기는 날짜 그룹을 사용합니다.',
+                options: {
+                    none: '그룹화 안 함',
+                    date: '날짜별 그룹',
+                    folder: '폴더별 그룹'
+                }
             },
             optimizeNoteHeight: {
                 name: '노트 높이 최적화',
@@ -601,6 +606,23 @@ export const STRINGS_KO = {
             dualPane: {
                 name: '이중 창 레이아웃 (데스크톱 전용, 동기화되지 않음)',
                 desc: '데스크톱에서 탐색 창과 목록 창을 나란히 표시합니다.'
+            },
+            dualPaneOrientation: {
+                name: '듀얼 창 방향',
+                desc: '듀얼 창이 활성화된 경우 가로 또는 세로 레이아웃을 선택합니다.',
+                options: {
+                    horizontal: '가로 분할',
+                    vertical: '세로 분할'
+                }
+            },
+            dualPaneBackground: {
+                name: '배경색(데스크톱 전용)',
+                desc: '데스크톱에서 탐색 및 목록 패널의 배경색을 선택합니다.',
+                options: {
+                    separate: '분리된 배경',
+                    primary: '목록 배경 사용',
+                    secondary: '탐색 배경 사용'
+                }
             },
             startView: {
                 name: '기본 시작 보기',
