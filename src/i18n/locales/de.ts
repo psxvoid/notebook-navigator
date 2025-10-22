@@ -574,9 +574,14 @@ export const STRINGS_DE = {
                 name: 'Aktuelle und Nachkommen-Anzahl getrennt anzeigen',
                 desc: 'Zeigt Notizanzahl als "aktuell ▾ Nachkommen" Format in Ordnern und Tags.'
             },
-            groupByDate: {
-                name: 'Notizen nach Datum gruppieren',
-                desc: 'Bei Sortierung nach Datum werden Notizen unter Datumsüberschriften gruppiert.'
+            groupNotes: {
+                name: 'Notizen gruppieren',
+                desc: 'Zeigt Überschriften zwischen Notizen gruppiert nach Datum oder Ordner an. Tag-Ansichten verwenden Datumsgruppen, wenn Ordnergruppierung aktiviert ist.',
+                options: {
+                    none: 'Nicht gruppieren',
+                    date: 'Nach Datum gruppieren',
+                    folder: 'Nach Ordner gruppieren'
+                }
             },
             optimizeNoteHeight: {
                 name: 'Notizenhöhe optimieren',
@@ -605,6 +610,23 @@ export const STRINGS_DE = {
             dualPane: {
                 name: 'Doppelbereichslayout (nur Desktop, nicht synchronisiert)',
                 desc: 'Navigationsbereich und Listenbereich nebeneinander auf dem Desktop anzeigen.'
+            },
+            dualPaneOrientation: {
+                name: 'Ausrichtung des Doppelbereichs',
+                desc: 'Horizontalen oder vertikalen Aufbau wählen, wenn der Doppelbereich aktiv ist.',
+                options: {
+                    horizontal: 'Horizontale Aufteilung',
+                    vertical: 'Vertikale Aufteilung'
+                }
+            },
+            dualPaneBackground: {
+                name: 'Hintergrundfarbe (nur Desktop)',
+                desc: 'Wählen Sie Hintergrundfarben für Navigations- und Listenbereich auf dem Desktop.',
+                options: {
+                    separate: 'Separate Hintergründe',
+                    primary: 'Listenhintergrund verwenden',
+                    secondary: 'Navigationshintergrund verwenden'
+                }
             },
             startView: {
                 name: 'Standard-Startansicht',

@@ -569,9 +569,14 @@ export const STRINGS_ZH_TW = {
                 name: '分別顯示當前和後代計數',
                 desc: '在資料夾和標籤中以「當前 ▾ 後代」格式顯示筆記計數。'
             },
-            groupByDate: {
-                name: '依日期分組筆記',
-                desc: '依日期排序時，將筆記分組在日期標頭下。'
+            groupNotes: {
+                name: '分組筆記',
+                desc: '在依日期或資料夾分組的筆記之間顯示標題。啟用資料夾分組時，標籤檢視使用日期分組。',
+                options: {
+                    none: '不分組',
+                    date: '依日期分組',
+                    folder: '依資料夾分組'
+                }
             },
             optimizeNoteHeight: {
                 name: '最佳化筆記高度',
@@ -600,6 +605,23 @@ export const STRINGS_ZH_TW = {
             dualPane: {
                 name: '雙窗格佈局 (僅限桌面版，不同步)',
                 desc: '在桌面版並排顯示導覽窗格和列表窗格。'
+            },
+            dualPaneOrientation: {
+                name: '雙欄版面方向',
+                desc: '啟用雙欄時選擇水平或垂直版面。',
+                options: {
+                    horizontal: '水平分割',
+                    vertical: '垂直分割'
+                }
+            },
+            dualPaneBackground: {
+                name: '背景色（僅限桌面）',
+                desc: '在桌面上為導覽窗格和列表窗格選擇背景色。',
+                options: {
+                    separate: '分開背景',
+                    primary: '使用列表背景',
+                    secondary: '使用導覽背景'
+                }
             },
             startView: {
                 name: '預設啟動檢視',

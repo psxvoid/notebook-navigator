@@ -570,9 +570,14 @@ export const STRINGS_EN = {
                 name: 'Show current and descendant counts separately',
                 desc: 'Display note counts as "current ▾ descendants" format in folders and tags.'
             },
-            groupByDate: {
-                name: 'Group notes by date',
-                desc: 'When sorted by date, group notes under date headers.'
+            groupNotes: {
+                name: 'Group notes',
+                desc: 'Display headers between notes grouped by date or folder. Tag views use date groups when folder grouping is enabled.',
+                options: {
+                    none: "Don't group",
+                    date: 'Group by date',
+                    folder: 'Group by folder'
+                }
             },
             optimizeNoteHeight: {
                 name: 'Optimize note height',
@@ -601,6 +606,23 @@ export const STRINGS_EN = {
             dualPane: {
                 name: 'Dual pane layout (desktop only, not synced)',
                 desc: 'Show navigation pane and list pane side by side on desktop.'
+            },
+            dualPaneOrientation: {
+                name: 'Dual pane orientation',
+                desc: 'Choose horizontal or vertical layout when dual pane is active.',
+                options: {
+                    horizontal: 'Horizontal split',
+                    vertical: 'Vertical split'
+                }
+            },
+            dualPaneBackground: {
+                name: 'Background color (desktop only)',
+                desc: 'Choose background colors for navigation and list panes on desktop.',
+                options: {
+                    separate: 'Separate backgrounds',
+                    primary: 'Use list background',
+                    secondary: 'Use navigation background'
+                }
             },
             startView: {
                 name: 'Default startup view',

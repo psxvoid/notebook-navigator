@@ -18,7 +18,7 @@
 
 import type { FileVisibility } from '../utils/fileTypeUtils';
 import type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
-import type { PinnedNotes } from '../types';
+import type { DualPaneBackgroundMode, PinnedNotes } from '../types';
 import type { FolderNoteType } from '../types/folderNote';
 import type { KeyboardShortcutConfig } from '../utils/keyboardShortcuts';
 import type { ShortcutEntry } from '../types/shortcuts';
@@ -44,6 +44,9 @@ export type MultiSelectModifier = 'cmdCtrl' | 'optionAlt';
 /** Display options for list pane title */
 export type ListPaneTitleOption = 'header' | 'list' | 'hidden';
 
+/** Grouping options for list pane notes */
+export type ListNoteGroupingOption = 'none' | 'date' | 'folder';
+
 /**
  * Plugin settings interface defining all configurable options
  * Settings are organized by tab for easier maintenance
@@ -53,6 +56,7 @@ export interface NotebookNavigatorSettings {
     startView: 'navigation' | 'files';
     showTooltips: boolean;
     showTooltipPath: boolean;
+    dualPaneBackground: DualPaneBackgroundMode;
 
     // General tab - Homepage
     homepage: string | null;
@@ -110,7 +114,7 @@ export interface NotebookNavigatorSettings {
     listPaneTitle: ListPaneTitleOption;
     multiSelectModifier: MultiSelectModifier;
     includeDescendantNotes: boolean;
-    groupByDate: boolean;
+    noteGrouping: ListNoteGroupingOption;
     optimizeNoteHeight: boolean;
     showQuickActions: boolean;
     quickActionRevealInFolder: boolean;
