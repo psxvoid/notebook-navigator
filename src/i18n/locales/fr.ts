@@ -33,7 +33,8 @@ export const STRINGS_FR = {
         featureImageAlt: 'Image vedette', // Alt text for thumbnail/preview images (English: Feature image)
         unknownError: 'Erreur inconnue', // Generic fallback when an error has no message (English: Unknown error)
         updateBannerTitle: 'Mise à jour Notebook Navigator disponible',
-        updateBannerInstruction: 'Mettre à jour dans Paramètres -> Extensions communautaires'
+        updateBannerInstruction: 'Mettre à jour dans Paramètres -> Extensions communautaires',
+        updateIndicatorLabel: 'Nouvelle version disponible'
     },
 
     // List pane
@@ -733,7 +734,7 @@ export const STRINGS_FR = {
                 helpTooltip: 'Cliquez pour la référence du format'
             },
             showFilePreview: {
-                name: "Afficher l'aperçu de la note (*)",
+                name: "Afficher l'aperçu de la note",
                 desc: "Afficher le texte d'aperçu sous les noms des notes."
             },
             skipHeadingsInPreview: {
@@ -770,7 +771,7 @@ export const STRINGS_FR = {
                 }
             },
             showFeatureImage: {
-                name: "Afficher l'image vedette (*)",
+                name: "Afficher l'image vedette",
                 desc: 'Afficher les images miniatures depuis les métadonnées. Conseil : Utilisez le plugin "Featured Image" pour définir automatiquement des images vedettes pour tous vos documents.'
             },
             forceSquareFeatureImage: {
@@ -836,7 +837,7 @@ export const STRINGS_FR = {
                 desc: 'Réduit le texte de navigation lorsque la hauteur de ligne est diminuée.'
             },
             showTags: {
-                name: 'Afficher les étiquettes (*)',
+                name: 'Afficher les étiquettes',
                 desc: 'Afficher la section des étiquettes sous les dossiers dans le navigateur.'
             },
             tagSortOrder: {
@@ -946,7 +947,7 @@ export const STRINGS_FR = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Lire les métadonnées du frontmatter (*)',
+                name: 'Lire les métadonnées du frontmatter',
                 desc: "Lire les noms de notes, horodatages, icônes et couleurs du frontmatter lorsqu'ils sont disponibles, sinon utiliser les valeurs du système ou les paramètres"
             },
             frontmatterNameField: {
@@ -1015,7 +1016,7 @@ export const STRINGS_FR = {
                 buttonText: 'Voir les mises à jour récentes'
             },
             cacheStatistics: {
-                localCache: '(*) Cache local',
+                localCache: 'Cache local',
                 items: 'éléments',
                 withTags: 'avec étiquettes',
                 withPreviewText: 'avec texte de prévisualisation',

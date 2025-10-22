@@ -73,6 +73,20 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.6.3',
+        date: '2025-10-22',
+        showOnUpdate: false,
+        new: [
+            'If "Multi-select modifier" in List Pane Settings is set to Alt/Option, you can now use Ctrl/Cmd + click to open folder notes in a new tab.'
+        ],
+        fixed: [
+            'Fixed **drag and drop issues** on Android devices caused by a bug in Chromium 128+, see https://issues.chromium.org/issues/40820174',
+            '**Tags from notes in hidden folders** no longer hide matching tags if the tags exist in visible notes.',
+            '**Folder notes are now shown** after being created from the context menu without having to collapse or expand the parent folder.',
+            '**Preview text** now strips empty task markers, keeps blockquote text, and always keeps inline code.'
+        ]
+    },
+    {
         version: '1.6.2',
         date: '2025-10-21',
         showOnUpdate: false,
