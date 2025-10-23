@@ -78,7 +78,8 @@ export const STRINGS_ZH_TW = {
         add: '新增至捷徑',
         remove: '從捷徑移除',
         moveUp: '上移',
-        moveDown: '下移'
+        moveDown: '下移',
+        folderNotesPinned: '已釘選 {count} 個資料夾筆記'
     },
 
     // 窗格標頭
@@ -442,6 +443,7 @@ export const STRINGS_ZH_TW = {
         createNewNote: '建立新筆記', // 指令面板：在目前選取的資料夾中建立新筆記 (英文: Create new note)
         moveFiles: '移動檔案', // 指令面板：將選取的檔案移動至另一個資料夾 (英文: Move files)
         convertToFolderNote: '轉換為資料夾筆記', // 指令面板：將活動檔案轉換為帶有新資料夾的資料夾筆記 (英文: Convert to folder note)
+        pinAllFolderNotes: '固定所有資料夾筆記', // 指令面板：將所有資料夾筆記釘選到捷徑 (英文: Pin all folder notes)
         navigateToFolder: '導覽至資料夾', // 指令面板：使用模糊搜尋導覽至資料夾 (英文: Navigate to folder)
         navigateToTag: '導覽至標籤', // 指令面板：使用模糊搜尋導覽至標籤 (英文: Navigate to tag)
         addShortcut: '新增至捷徑', // 指令面板：將目前的檔案、資料夾或標籤加入捷徑 (英文: Add to shortcuts)

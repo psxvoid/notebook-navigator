@@ -77,7 +77,8 @@ export const STRINGS_DE = {
         add: 'Zu Lesezeichen hinzufügen',
         remove: 'Aus Lesezeichen entfernen',
         moveUp: 'Nach oben verschieben',
-        moveDown: 'Nach unten verschieben'
+        moveDown: 'Nach unten verschieben',
+        folderNotesPinned: '{count} Ordnernotizen angeheftet'
     },
 
     // Pane header
@@ -445,6 +446,7 @@ export const STRINGS_DE = {
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: 'In Ordnernotiz konvertieren', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: 'Alle Ordnernotizen anheften', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Zu Shortcuts hinzufügen', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)

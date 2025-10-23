@@ -77,7 +77,8 @@ export const STRINGS_PL = {
         add: 'Dodaj do skrótów',
         remove: 'Usuń ze skrótów',
         moveUp: 'Przesuń w górę',
-        moveDown: 'Przesuń w dół'
+        moveDown: 'Przesuń w dół',
+        folderNotesPinned: 'Przypięto {count} notatek folderu'
     },
 
     // Pane header
@@ -444,6 +445,7 @@ export const STRINGS_PL = {
         createNewNote: 'Utwórz nową notatkę', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Przenieś pliki', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: 'Konwertuj na notatkę folderu', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: 'Przypnij wszystkie notatki folderu', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Przejdź do folderu', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Przejdź do tagu', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Dodaj do skrótów', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)

@@ -77,7 +77,8 @@ export const STRINGS_JA = {
         add: 'ショートカットに追加',
         remove: 'ショートカットから削除',
         moveUp: '上に移動',
-        moveDown: '下に移動'
+        moveDown: '下に移動',
+        folderNotesPinned: 'フォルダノート {count} 件をピン留めしました'
     },
 
     // Pane header
@@ -443,6 +444,7 @@ export const STRINGS_JA = {
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: 'フォルダノートに変換', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: 'フォルダノートをすべてピン留め', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'ショートカットに追加', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)

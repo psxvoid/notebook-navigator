@@ -77,7 +77,8 @@ export const STRINGS_KO = {
         add: '바로가기에 추가',
         remove: '바로가기에 제거',
         moveUp: '위로 이동',
-        moveDown: '아래로 이동'
+        moveDown: '아래로 이동',
+        folderNotesPinned: '폴더 노트 {count}개를 고정했습니다'
     },
 
     // Pane header
@@ -442,6 +443,7 @@ export const STRINGS_KO = {
         createNewNote: '새 노트 만들기', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '파일 이동', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: '폴더 노트로 변환', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: '폴더 노트를 모두 고정', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: '폴더로 이동', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '태그로 이동', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: '바로가기에 추가', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)

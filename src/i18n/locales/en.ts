@@ -78,7 +78,8 @@ export const STRINGS_EN = {
         add: 'Add to shortcuts',
         remove: 'Remove from shortcuts',
         moveUp: 'Move up',
-        moveDown: 'Move down'
+        moveDown: 'Move down',
+        folderNotesPinned: 'Pinned {count} folder notes'
     },
 
     // Pane header
@@ -442,6 +443,7 @@ export const STRINGS_EN = {
         createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: 'Convert to folder note', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: 'Pin all folder notes', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Add to shortcuts', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)

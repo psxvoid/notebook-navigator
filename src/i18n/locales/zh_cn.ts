@@ -77,7 +77,8 @@ export const STRINGS_ZH_CN = {
         add: '添加到快捷方式',
         remove: '从快捷方式移除',
         moveUp: '上移',
-        moveDown: '下移'
+        moveDown: '下移',
+        folderNotesPinned: '已固定 {count} 个文件夹笔记'
     },
 
     // Pane header
@@ -443,6 +444,7 @@ export const STRINGS_ZH_CN = {
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: '转换为文件夹笔记', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: '固定所有文件夹笔记', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: '添加到快捷方式', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
