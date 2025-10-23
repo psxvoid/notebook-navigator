@@ -277,6 +277,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         expandedTagsRef.current = expansionState.expandedTags;
     }, [expansionState.expandedTags]);
 
+    /**
+     * Cancels pending auto-expand timer for folders and tags
+     */
     const clearAutoExpandTimer = useCallback(() => {
         if (autoExpandTimeoutRef.current !== null) {
             window.clearTimeout(autoExpandTimeoutRef.current);
@@ -285,18 +288,25 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         autoExpandTargetRef.current = null;
     }, []);
 
+    /**
+     * Schedules auto-expansion of a folder or tag when hovering during drag
+     * Validates the node has children before expanding after delay
+     */
     const scheduleAutoExpand = useCallback(
         (config: AutoExpandConfig) => {
+            // Skip if already scheduled for this target
             if (autoExpandTargetRef.current?.type === config.type && autoExpandTargetRef.current.path === config.path) {
                 return;
             }
 
             clearAutoExpandTimer();
 
+            // Skip if already expanded
             if (config.isAlreadyExpanded()) {
                 return;
             }
 
+            // Validate node exists and has children
             const initial = config.resolveNode();
             if (!initial.isValid || !initial.hasChildren) {
                 return;
@@ -320,6 +330,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         [clearAutoExpandTimer]
     );
 
+    /**
+     * Schedules folder auto-expansion when dragging over a collapsed folder
+     */
     const scheduleFolderAutoExpand = useCallback(
         (targetPath: string) => {
             scheduleAutoExpand({
@@ -342,6 +355,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         [app, expansionDispatch, scheduleAutoExpand]
     );
 
+    /**
+     * Schedules tag auto-expansion when dragging over a collapsed tag
+     */
     const scheduleTagAutoExpand = useCallback(
         (targetPath: string) => {
             if (!tagTreeService) {
@@ -404,14 +420,32 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 return;
             }
 
-            e.preventDefault();
-
             if (e.dataTransfer) {
                 const dropType = dropZone.getAttribute('data-drop-zone');
                 const targetPath = dropZone.getAttribute('data-drop-path');
 
+                // Check drop zone permissions
+                const allowInternalDrop = dropZone.dataset.allowInternalDrop !== 'false';
+                const allowExternalDrop = dropZone.dataset.allowExternalDrop !== 'false';
                 const typesList = e.dataTransfer.types;
                 const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
+                const hasExternalFiles = Boolean(e.dataTransfer.files && e.dataTransfer.files.length > 0);
+                const isExternalOnly = hasExternalFiles && !hasObsidianData;
+                const isInternalTransfer = hasObsidianData;
+
+                // Block drops that do not meet drop zone permissions
+                if ((isInternalTransfer && !allowInternalDrop) || (isExternalOnly && !allowExternalDrop)) {
+                    if (dragOverElement.current === dropZone) {
+                        dropZone.classList.remove('nn-drag-over');
+                        dragOverElement.current = null;
+                    }
+                    clearAutoExpandTimer();
+                    e.dataTransfer.dropEffect = 'none';
+                    return;
+                }
+
+                e.preventDefault();
+
                 const isExternal = !!typesList?.includes('Files') && !hasObsidianData;
 
                 // Folder: move (internal) / copy (external); Tag: untagged = move, tag = copy
@@ -442,6 +476,11 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         clearAutoExpandTimer();
                     }
                 }
+            }
+
+            // Skip visual feedback if drop is not allowed
+            if (!e.defaultPrevented) {
+                return;
             }
 
             dropZone.classList.add('nn-drag-over');
@@ -539,9 +578,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     );
 
     /**
-     * Handles importing external files dropped from OS file manager
-     * @param files - FileList from drag event
-     * @param targetFolder - Target folder to import files into
+     * Imports external files dropped from OS into a target folder
+     * Handles both text and binary files with unique name generation
      */
     const handleExternalFileDrop = useCallback(
         async (files: FileList, targetFolder: TFolder) => {
@@ -649,25 +687,43 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     return;
                 }
 
-                e.preventDefault();
-
                 const dropType = dropZone.getAttribute('data-drop-zone');
                 const targetPath = getPathFromDataAttribute(dropZone, 'data-drop-path');
                 if (!dropType || !targetPath) {
+                    clearAutoExpandTimer();
                     return;
                 }
 
                 clearAutoExpandTimer();
+
+                // Check drop zone permissions
+                const allowInternalDrop = dropZone.dataset.allowInternalDrop !== 'false';
+                const allowExternalDrop = dropZone.dataset.allowExternalDrop !== 'false';
+                const typesList = e.dataTransfer?.types;
+                const externalFiles = e.dataTransfer?.files ?? null;
+                const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
+                const hasExternalFiles = Boolean(externalFiles && externalFiles.length > 0);
+                const isExternalOnly = hasExternalFiles && !hasObsidianData;
+                const isInternalTransfer = hasObsidianData;
+
+                // Block internal drops if not allowed
+                if (isInternalTransfer && !allowInternalDrop) {
+                    return;
+                }
+
+                // Block external drops if not allowed
+                if (isExternalOnly && !allowExternalDrop) {
+                    return;
+                }
+
+                e.preventDefault();
 
                 if (dropType === 'tag') {
                     if (dragTypeRef.current === ItemType.FOLDER) {
                         return;
                     }
 
-                    const typesList = e.dataTransfer?.types;
-                    const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
-                    const isExternal = !!typesList?.includes('Files') && !hasObsidianData;
-                    if (isExternal) {
+                    if (isExternalOnly) {
                         new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable, TIMEOUTS.NOTICE_ERROR);
                         return;
                     }
@@ -681,13 +737,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     return;
                 }
 
-                if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
-                    const typesList = e.dataTransfer.types;
-                    const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
-                    if (!hasObsidianData) {
-                        await handleExternalFileDrop(e.dataTransfer.files, targetFolder);
-                        return;
-                    }
+                // Handle external file imports
+                if (externalFiles && externalFiles.length > 0 && !hasObsidianData) {
+                    await handleExternalFileDrop(externalFiles, targetFolder);
+                    return;
                 }
 
                 const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
@@ -774,10 +827,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     );
 
     /**
-     * Handles the drag end event.
-     * Cleans up drag-related CSS classes and removes the drag ghost.
-     *
-     * @param e - The drag event
+     * Cleans up drag state and visual feedback when drag ends
+     * Removes CSS classes, hides ghost, and clears drag payload
      */
     const handleDragEnd = useCallback(
         (e: DragEvent) => {
@@ -810,6 +861,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         [selectionState, containerRef, dragGhostManager, clearAutoExpandTimer, setDragManagerPayload]
     );
 
+    /**
+     * Attaches drag and drop event listeners to container element
+     * Skips on mobile devices where drag and drop is not supported
+     */
     useEffect(() => {
         const container = containerRef.current;
         if (!container || isMobile) return;

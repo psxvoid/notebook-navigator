@@ -728,8 +728,14 @@ export const ListPane = React.memo(
                     <div
                         ref={scrollContainerRefCallback}
                         className="nn-list-pane-scroller nn-empty-state"
+                        // Drop zone type (folder or tag)
                         data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
+                        // Target path for the drop operation
                         data-drop-path={activeFolderDropPath ?? undefined}
+                        // Block internal file moves to empty state drop zones
+                        data-allow-internal-drop={activeFolderDropPath ? 'false' : undefined}
+                        // Allow external file imports to empty state drop zones
+                        data-allow-external-drop={activeFolderDropPath ? 'true' : undefined}
                     >
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoSelection}</div>
                     </div>
@@ -737,8 +743,14 @@ export const ListPane = React.memo(
                     <div
                         ref={scrollContainerRefCallback}
                         className="nn-list-pane-scroller nn-empty-state"
+                        // Drop zone type (folder or tag)
                         data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
+                        // Target path for the drop operation
                         data-drop-path={activeFolderDropPath ?? undefined}
+                        // Block internal file moves to empty state drop zones
+                        data-allow-internal-drop={activeFolderDropPath ? 'false' : undefined}
+                        // Allow external file imports to empty state drop zones
+                        data-allow-external-drop={activeFolderDropPath ? 'true' : undefined}
                     >
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
                     </div>
@@ -748,8 +760,14 @@ export const ListPane = React.memo(
                         <div
                             ref={scrollContainerRefCallback}
                             className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
+                            // Drop zone type (folder or tag)
                             data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
+                            // Target path for the drop operation
                             data-drop-path={activeFolderDropPath ?? undefined}
+                            // Block internal file moves to non-item areas
+                            data-allow-internal-drop={activeFolderDropPath ? 'false' : undefined}
+                            // Allow external file imports to non-item areas
+                            data-allow-external-drop={activeFolderDropPath ? 'true' : undefined}
                             data-pane="files"
                             role="list"
                             tabIndex={-1}
