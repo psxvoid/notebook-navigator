@@ -1479,6 +1479,7 @@ export const NavigationPane = React.memo(
                             <ShortcutItem
                                 icon={isMissing ? 'lucide-alert-triangle' : (item.icon ?? 'lucide-folder')}
                                 color={isMissing ? undefined : item.color}
+                                backgroundColor={isMissing ? undefined : item.backgroundColor}
                                 label={folderName}
                                 description={undefined}
                                 level={item.level}
@@ -1625,6 +1626,7 @@ export const NavigationPane = React.memo(
                             <ShortcutItem
                                 icon={isMissing ? 'lucide-alert-triangle' : (item.icon ?? 'lucide-tags')}
                                 color={isMissing ? undefined : item.color}
+                                backgroundColor={isMissing ? undefined : item.backgroundColor}
                                 label={item.displayName}
                                 description={undefined}
                                 level={item.level}

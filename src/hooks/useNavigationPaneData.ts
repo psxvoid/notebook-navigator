@@ -852,20 +852,24 @@ export function useNavigationPaneData({
                 // Apply custom folder icon to shortcut if available
                 const folderPath = item.folder?.path;
                 const folderColor = folderPath ? metadataService.getFolderColor(folderPath) : undefined;
+                const folderBackground = folderPath ? metadataService.getFolderBackgroundColor(folderPath) : undefined;
                 const customIcon = folderPath ? metadataService.getFolderIcon(folderPath) : undefined;
                 const defaultIcon = folderPath === '/' ? 'vault' : 'lucide-folder';
                 return {
                     ...item,
                     icon: customIcon || defaultIcon,
-                    color: folderColor
+                    color: folderColor,
+                    backgroundColor: folderBackground
                 };
             } else if (item.type === NavigationPaneItemType.SHORTCUT_TAG) {
                 // Apply custom tag icon to shortcut if available
                 const tagColor = metadataService.getTagColor(item.tagPath);
+                const tagBackground = metadataService.getTagBackgroundColor(item.tagPath);
                 return {
                     ...item,
                     icon: metadataService.getTagIcon(item.tagPath) || 'lucide-tags',
-                    color: tagColor
+                    color: tagColor,
+                    backgroundColor: tagBackground
                 };
             } else if (item.type === NavigationPaneItemType.SHORTCUT_NOTE) {
                 const note = item.note;
