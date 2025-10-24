@@ -319,6 +319,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
             })
         );
 
+    containerEl.appendChild(fileDateSubSettingsEl);
     // Initially show or hide based on current setting value
     fileDateSubSettingsEl.toggle(plugin.settings.showFileDate);
 
