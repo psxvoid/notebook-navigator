@@ -118,6 +118,17 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to toggle between alphabetical and frequency tag sorting
+    plugin.addCommand({
+        id: 'toggle-tag-sort',
+        name: strings.commands.toggleTagSort,
+        callback: async () => {
+            await plugin.activateView();
+            plugin.settings.tagSortOrder = plugin.settings.tagSortOrder === 'frequency-desc' ? 'alpha-asc' : 'frequency-desc';
+            await plugin.saveSettingsAndUpdate();
+        }
+    });
+
     // Command to toggle between single and dual pane layouts
     plugin.addCommand({
         id: 'toggle-dual-pane',

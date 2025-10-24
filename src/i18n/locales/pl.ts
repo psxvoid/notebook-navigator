@@ -451,6 +451,7 @@ export const STRINGS_PL = {
         addShortcut: 'Dodaj do skrótów', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Przełącz podfoldery', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Przełącz ukryte elementy', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleTagSort: 'Przełącz sortowanie tagów', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'Zwiń / rozwiń wszystkie elementy', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Dodaj tag do wybranych plików', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Usuń tag z wybranych plików', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
@@ -496,6 +497,7 @@ export const STRINGS_PL = {
         groups: {
             general: {
                 view: 'Wygląd',
+                desktopAppearance: 'Wygląd na komputerze',
                 behavior: 'Zachowanie',
                 filtering: 'Filtrowanie',
                 formatting: 'Formatowanie'
@@ -608,11 +610,11 @@ export const STRINGS_PL = {
                 desc: 'Szybka akcja: Otwórz notatkę w nowej karcie.'
             },
             dualPane: {
-                name: 'Układ podwójnego panelu (tylko desktop, nie synchronizowany)',
+                name: 'Układ podwójnego panelu (nie synchronizowany)',
                 desc: 'Pokaż panel nawigacji i panel listy obok siebie na komputerze.'
             },
             dualPaneOrientation: {
-                name: 'Orientacja trybu podwójnego',
+                name: 'Orientacja trybu podwójnego (nie synchronizowany)',
                 desc: 'Wybierz układ poziomy lub pionowy, gdy tryb podwójny jest włączony.',
                 options: {
                     horizontal: 'Podział poziomy',
@@ -620,7 +622,7 @@ export const STRINGS_PL = {
                 }
             },
             dualPaneBackground: {
-                name: 'Kolor tła (tylko komputer)',
+                name: 'Kolor tła',
                 desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy na komputerze.',
                 options: {
                     separate: 'Oddzielne tła',
@@ -672,7 +674,7 @@ export const STRINGS_PL = {
                 desc: 'Liczba ostatnich notatek do wyświetlenia.'
             },
             showTooltips: {
-                name: 'Pokaż podpowiedzi (tylko desktop)',
+                name: 'Pokaż podpowiedzi',
                 desc: 'Wyświetl podpowiedzi przy najechaniu z dodatkowymi informacjami dla notatek i folderów.'
             },
             showTooltipPath: {
