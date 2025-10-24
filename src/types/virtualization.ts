@@ -91,6 +91,7 @@ interface ShortcutNavigationBase {
     key: string;
     icon?: string;
     color?: string;
+    backgroundColor?: string;
     isExcluded?: boolean;
     isMissing?: boolean;
     missingLabel?: string;

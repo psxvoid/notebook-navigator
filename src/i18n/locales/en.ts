@@ -78,7 +78,8 @@ export const STRINGS_EN = {
         add: 'Add to shortcuts',
         remove: 'Remove from shortcuts',
         moveUp: 'Move up',
-        moveDown: 'Move down'
+        moveDown: 'Move down',
+        folderNotesPinned: 'Pinned {count} folder notes'
     },
 
     // Pane header
@@ -442,11 +443,13 @@ export const STRINGS_EN = {
         createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: 'Convert to folder note', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: 'Pin all folder notes', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Add to shortcuts', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Toggle descendants', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Toggle hidden items', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleTagSort: 'Toggle tag sort order', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'Collapse / expand all items', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Add tag to selected files', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Remove tag from selected files', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
@@ -492,6 +495,7 @@ export const STRINGS_EN = {
         groups: {
             general: {
                 view: 'Appearance',
+                desktopAppearance: 'Desktop appearance',
                 behavior: 'Behavior',
                 filtering: 'Filtering',
                 formatting: 'Formatting'
@@ -604,11 +608,11 @@ export const STRINGS_EN = {
                 desc: 'Quick action: Open note in new tab.'
             },
             dualPane: {
-                name: 'Dual pane layout (desktop only, not synced)',
+                name: 'Dual pane layout (not synced)',
                 desc: 'Show navigation pane and list pane side by side on desktop.'
             },
             dualPaneOrientation: {
-                name: 'Dual pane orientation',
+                name: 'Dual pane orientation (not synced)',
                 desc: 'Choose horizontal or vertical layout when dual pane is active.',
                 options: {
                     horizontal: 'Horizontal split',
@@ -616,7 +620,7 @@ export const STRINGS_EN = {
                 }
             },
             dualPaneBackground: {
-                name: 'Background color (desktop only)',
+                name: 'Background color',
                 desc: 'Choose background colors for navigation and list panes on desktop.',
                 options: {
                     separate: 'Separate backgrounds',
@@ -668,7 +672,7 @@ export const STRINGS_EN = {
                 desc: 'Number of recent notes to display.'
             },
             showTooltips: {
-                name: 'Show tooltips (desktop only)',
+                name: 'Show tooltips',
                 desc: 'Display hover tooltips with additional information for notes and folders.'
             },
             showTooltipPath: {

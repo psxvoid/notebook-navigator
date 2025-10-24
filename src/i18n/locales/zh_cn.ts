@@ -77,7 +77,8 @@ export const STRINGS_ZH_CN = {
         add: '添加到快捷方式',
         remove: '从快捷方式移除',
         moveUp: '上移',
-        moveDown: '下移'
+        moveDown: '下移',
+        folderNotesPinned: '已固定 {count} 个文件夹笔记'
     },
 
     // Pane header
@@ -443,11 +444,13 @@ export const STRINGS_ZH_CN = {
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: '转换为文件夹笔记', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: '固定所有文件夹笔记', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: '添加到快捷方式', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: '切换后代', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: '切换隐藏项', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleTagSort: '切换标签排序', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: '折叠/展开所有项目', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '为选定文件添加标签', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '从选定文件移除标签', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
@@ -493,6 +496,7 @@ export const STRINGS_ZH_CN = {
         groups: {
             general: {
                 view: '外观',
+                desktopAppearance: '桌面外观',
                 behavior: '行为',
                 filtering: '过滤',
                 formatting: '格式'
@@ -604,11 +608,11 @@ export const STRINGS_ZH_CN = {
                 desc: '快速操作：在新标签页中打开笔记。'
             },
             dualPane: {
-                name: '双窗格布局（仅桌面端，不同步）',
+                name: '双窗格布局（不同步）',
                 desc: '在桌面端并排显示导航窗格和列表窗格。'
             },
             dualPaneOrientation: {
-                name: '双栏布局方向',
+                name: '双栏布局方向（不同步）',
                 desc: '双栏启用时选择水平或垂直布局。',
                 options: {
                     horizontal: '水平分割',
@@ -616,7 +620,7 @@ export const STRINGS_ZH_CN = {
                 }
             },
             dualPaneBackground: {
-                name: '背景色（仅桌面）',
+                name: '背景色',
                 desc: '在桌面上为导航窗格和列表窗格选择背景色。',
                 options: {
                     separate: '分开背景',
@@ -668,7 +672,7 @@ export const STRINGS_ZH_CN = {
                 desc: '要显示的最近笔记数量。'
             },
             showTooltips: {
-                name: '显示工具提示（仅桌面端）',
+                name: '显示工具提示',
                 desc: '悬停时显示笔记和文件夹的额外信息工具提示。'
             },
             showTooltipPath: {

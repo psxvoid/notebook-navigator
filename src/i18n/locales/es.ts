@@ -77,7 +77,8 @@ export const STRINGS_ES = {
         add: 'Agregar a accesos directos',
         remove: 'Quitar de accesos directos',
         moveUp: 'Mover arriba',
-        moveDown: 'Mover abajo'
+        moveDown: 'Mover abajo',
+        folderNotesPinned: 'Fijadas {count} notas de carpeta'
     },
 
     // Pane header
@@ -443,11 +444,13 @@ export const STRINGS_ES = {
         createNewNote: 'Crear nueva nota', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: 'Convertir en nota de carpeta', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: 'Fijar todas las notas de carpeta', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navegar a etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Agregar a accesos directos', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Alternar descendientes', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Alternar elementos ocultos', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleTagSort: 'Alternar orden de etiquetas', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'Contraer / expandir todos los elementos', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Añadir etiqueta a archivos seleccionados', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Eliminar etiqueta de archivos seleccionados', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
@@ -493,6 +496,7 @@ export const STRINGS_ES = {
         groups: {
             general: {
                 view: 'Apariencia',
+                desktopAppearance: 'Apariencia de escritorio',
                 behavior: 'Comportamiento',
                 filtering: 'Filtrado',
                 formatting: 'Formato'
@@ -605,11 +609,11 @@ export const STRINGS_ES = {
                 desc: 'Acción rápida: Abrir nota en nueva pestaña.'
             },
             dualPane: {
-                name: 'Diseño de doble panel (solo escritorio, no sincronizado)',
+                name: 'Diseño de doble panel (no sincronizado)',
                 desc: 'Mostrar panel de navegación y panel de lista lado a lado en escritorio.'
             },
             dualPaneOrientation: {
-                name: 'Orientación del panel dual',
+                name: 'Orientación del panel dual (no sincronizado)',
                 desc: 'Selecciona una distribución horizontal o vertical cuando el panel dual está activo.',
                 options: {
                     horizontal: 'División horizontal',
@@ -617,7 +621,7 @@ export const STRINGS_ES = {
                 }
             },
             dualPaneBackground: {
-                name: 'Color de fondo (solo escritorio)',
+                name: 'Color de fondo',
                 desc: 'Elige colores de fondo para los paneles de navegación y lista en escritorio.',
                 options: {
                     separate: 'Fondos separados',
@@ -669,7 +673,7 @@ export const STRINGS_ES = {
                 desc: 'Número de notas recientes a mostrar.'
             },
             showTooltips: {
-                name: 'Mostrar tooltips (solo escritorio)',
+                name: 'Mostrar tooltips',
                 desc: 'Muestra tooltips con información adicional para notas y carpetas al pasar el cursor.'
             },
             showTooltipPath: {

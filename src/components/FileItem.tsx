@@ -1009,10 +1009,15 @@ export const FileItem = React.memo(function FileItem({
             ref={fileRef}
             className={className}
             data-path={file.path}
+            // Path to use when this file is dragged
             data-drag-path={file.path}
+            // Type of item being dragged (folder, file, or tag)
             data-drag-type="file"
+            // Marks element as draggable for event delegation
             data-draggable={!isMobile ? 'true' : undefined}
+            // Icon to display in drag ghost
             data-drag-icon={dragIconId}
+            // Icon color to display in drag ghost
             data-drag-icon-color={fileColor || undefined}
             onClick={handleItemClick}
             onMouseDown={handleMouseDown}

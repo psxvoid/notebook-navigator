@@ -77,7 +77,8 @@ export const STRINGS_JA = {
         add: 'ショートカットに追加',
         remove: 'ショートカットから削除',
         moveUp: '上に移動',
-        moveDown: '下に移動'
+        moveDown: '下に移動',
+        folderNotesPinned: 'フォルダノート {count} 件をピン留めしました'
     },
 
     // Pane header
@@ -443,11 +444,13 @@ export const STRINGS_JA = {
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: 'フォルダノートに変換', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: 'フォルダノートをすべてピン留め', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'ショートカットに追加', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: '子孫切り替え', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: '非表示項目を切り替え', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleTagSort: 'タグの並び順を切り替え', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'すべての項目を折りたたむ/展開', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '選択したファイルにタグを追加', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '選択したファイルからタグを削除', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
@@ -493,6 +496,7 @@ export const STRINGS_JA = {
         groups: {
             general: {
                 view: '外観',
+                desktopAppearance: 'デスクトップの外観',
                 behavior: '動作',
                 filtering: 'フィルター',
                 formatting: '書式'
@@ -605,11 +609,11 @@ export const STRINGS_JA = {
                 desc: 'クイックアクション：ノートを新しいタブで開く。'
             },
             dualPane: {
-                name: 'デュアルペインレイアウト（デスクトップのみ、同期されません）',
+                name: 'デュアルペインレイアウト（同期されません）',
                 desc: 'デスクトップでナビゲーションペインとリストペインを並べて表示します。'
             },
             dualPaneOrientation: {
-                name: 'デュアルペインの向き',
+                name: 'デュアルペインの向き（同期されません）',
                 desc: 'デュアルペイン使用時の水平または垂直レイアウトを選択します。',
                 options: {
                     horizontal: '水平分割',
@@ -617,7 +621,7 @@ export const STRINGS_JA = {
                 }
             },
             dualPaneBackground: {
-                name: '背景色（デスクトップのみ）',
+                name: '背景色',
                 desc: 'デスクトップでナビゲーションペインとリストペインの背景色を選択します。',
                 options: {
                     separate: '背景を分ける',
@@ -669,7 +673,7 @@ export const STRINGS_JA = {
                 desc: '表示する最近のノートの数。'
             },
             showTooltips: {
-                name: 'ツールチップを表示（デスクトップのみ）',
+                name: 'ツールチップを表示',
                 desc: 'ノートとフォルダの追加情報をホバー時にツールチップで表示します。'
             },
             showTooltipPath: {

@@ -77,7 +77,8 @@ export const STRINGS_KO = {
         add: '바로가기에 추가',
         remove: '바로가기에 제거',
         moveUp: '위로 이동',
-        moveDown: '아래로 이동'
+        moveDown: '아래로 이동',
+        folderNotesPinned: '폴더 노트 {count}개를 고정했습니다'
     },
 
     // Pane header
@@ -442,11 +443,13 @@ export const STRINGS_KO = {
         createNewNote: '새 노트 만들기', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '파일 이동', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: '폴더 노트로 변환', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: '폴더 노트를 모두 고정', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: '폴더로 이동', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '태그로 이동', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: '바로가기에 추가', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: '하위 항목 전환', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: '숨겨진 항목 전환', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleTagSort: '태그 정렬 전환', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: '모든 항목 접기 / 펼치기', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '선택한 파일에 태그 추가', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '선택한 파일에서 태그 제거', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
@@ -492,6 +495,7 @@ export const STRINGS_KO = {
         groups: {
             general: {
                 view: '모양',
+                desktopAppearance: '데스크톱 모양새',
                 behavior: '동작',
                 filtering: '필터링',
                 formatting: '서식'
@@ -604,11 +608,11 @@ export const STRINGS_KO = {
                 desc: '빠른 작업: 새 탭에서 노트를 엽니다.'
             },
             dualPane: {
-                name: '이중 창 레이아웃 (데스크톱 전용, 동기화되지 않음)',
+                name: '이중 창 레이아웃 (동기화되지 않음)',
                 desc: '데스크톱에서 탐색 창과 목록 창을 나란히 표시합니다.'
             },
             dualPaneOrientation: {
-                name: '듀얼 창 방향',
+                name: '듀얼 창 방향 (동기화되지 않음)',
                 desc: '듀얼 창이 활성화된 경우 가로 또는 세로 레이아웃을 선택합니다.',
                 options: {
                     horizontal: '가로 분할',
@@ -616,7 +620,7 @@ export const STRINGS_KO = {
                 }
             },
             dualPaneBackground: {
-                name: '배경색(데스크톱 전용)',
+                name: '배경색',
                 desc: '데스크톱에서 탐색 및 목록 패널의 배경색을 선택합니다.',
                 options: {
                     separate: '분리된 배경',
@@ -668,7 +672,7 @@ export const STRINGS_KO = {
                 desc: '표시할 최근 노트의 수입니다.'
             },
             showTooltips: {
-                name: '도구 설명 표시 (데스크톱 전용)',
+                name: '도구 설명 표시',
                 desc: '노트와 폴더에 대한 추가 정보가 있는 호버 도구 설명을 표시합니다.'
             },
             showTooltipPath: {

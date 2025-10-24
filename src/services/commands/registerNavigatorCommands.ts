@@ -2,11 +2,12 @@
  * Notebook Navigator - Plugin for Obsidian
  */
 
-import { TFolder } from 'obsidian';
+import { Notice, TFile, TFolder } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 import { NOTEBOOK_NAVIGATOR_VIEW } from '../../types';
 import { strings } from '../../i18n';
 import { isFolderNote, isSupportedFolderNoteExtension } from '../../utils/folderNotes';
+import { isFolderInExcludedFolder, shouldExcludeFile } from '../../utils/fileFilters';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 
 /**
@@ -117,6 +118,17 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to toggle between alphabetical and frequency tag sorting
+    plugin.addCommand({
+        id: 'toggle-tag-sort',
+        name: strings.commands.toggleTagSort,
+        callback: async () => {
+            await plugin.activateView();
+            plugin.settings.tagSortOrder = plugin.settings.tagSortOrder === 'frequency-desc' ? 'alpha-asc' : 'frequency-desc';
+            await plugin.saveSettingsAndUpdate();
+        }
+    });
+
     // Command to toggle between single and dual pane layouts
     plugin.addCommand({
         id: 'toggle-dual-pane',
@@ -223,6 +235,87 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
             }
 
             void fileSystemOps.convertFileToFolderNote(activeFile, plugin.settings);
+            return true;
+        }
+    });
+
+    // Command to pin all folder notes to the shortcuts list
+    plugin.addCommand({
+        id: 'pin-all-folder-notes',
+        name: strings.commands.pinAllFolderNotes,
+        checkCallback: (checking: boolean) => {
+            // Command only available when folder notes are enabled
+            if (!plugin.settings.enableFolderNotes) {
+                return false;
+            }
+
+            const metadataService = plugin.metadataService;
+            if (!metadataService) {
+                return false;
+            }
+
+            // Settings object for folder note detection
+            const folderNoteSettings = {
+                enableFolderNotes: plugin.settings.enableFolderNotes,
+                folderNoteName: plugin.settings.folderNoteName
+            };
+
+            // List of folder notes that can be pinned
+            const eligible: TFile[] = [];
+
+            // Find all eligible folder notes in vault
+            plugin.app.vault.getAllLoadedFiles().forEach(file => {
+                // Skip non-file entries
+                if (!(file instanceof TFile)) {
+                    return;
+                }
+
+                // Skip files without parent folders
+                const parent = file.parent;
+                if (!parent || !(parent instanceof TFolder)) {
+                    return;
+                }
+
+                // Skip files that are not folder notes
+                if (!isFolderNote(file, parent, folderNoteSettings)) {
+                    return;
+                }
+
+                // Skip folder notes in excluded folders when hidden items are disabled
+                if (!plugin.settings.showHiddenItems && isFolderInExcludedFolder(parent, plugin.settings.excludedFolders)) {
+                    return;
+                }
+
+                // Skip files that match exclusion patterns
+                if (shouldExcludeFile(file, plugin.settings.excludedFiles, plugin.app)) {
+                    return;
+                }
+
+                // Skip folder notes that are already pinned
+                if (metadataService.isFilePinned(file.path, 'folder')) {
+                    return;
+                }
+
+                eligible.push(file);
+            });
+
+            // Disable command if no folder notes can be pinned
+            if (eligible.length === 0) {
+                return false;
+            }
+
+            // Pin all eligible folder notes
+            if (!checking) {
+                void (async () => {
+                    for (const note of eligible) {
+                        await metadataService.togglePin(note.path, 'folder');
+                    }
+
+                    // Show notification with count of pinned folder notes
+                    new Notice(strings.shortcuts.folderNotesPinned.replace('{count}', eligible.length.toString()));
+                })();
+            }
+
             return true;
         }
     });

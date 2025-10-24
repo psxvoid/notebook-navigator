@@ -73,6 +73,24 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.6.4',
+        date: '2025-10-24',
+        showOnUpdate: true,
+        new: [
+            'You asked for it, you got it. You now have a new setting: ==Dual pane orientation== where you can choose horizontal or vertical split for the dual pane.',
+            'To match this setting you also have a new setting: ==Background color== where you can choose to use separate background colors (like today) for navigation and files, make both look like navigation, or make both look like files.',
+            'You can now also group files by subfolder! The old setting "Group notes by date" is now replaced with a dropdown where you can choose no grouping, date or folder. Note that tags are always sorted by date or none.',
+            'New command: ==Pin all folder notes==. Use it to quickly pin all folder notes in the vault.',
+            'New command: ==Toggle tag sort order==. Use it to quickly switch between alphabetical and frequency based sorting for tags.'
+        ],
+        fixed: [
+            'Fixed an issue where root folder added to shortcuts would show without name and with the wrong icon.',
+            'Fixed two drag and drop issues: Dragging a file from a subfolder to the list pane would cause it to move to the current folder, and dragging and holding in listpane would incorrectly cause the current folder to expand in navigation pane.',
+            'Files and tags in shortcuts area now properly show background color.',
+            'Excalidraw files now display with clean names (without .excalidraw suffix) and maintain correct list item height when renamed.'
+        ]
+    },
+    {
         version: '1.6.3',
         date: '2025-10-22',
         showOnUpdate: false,

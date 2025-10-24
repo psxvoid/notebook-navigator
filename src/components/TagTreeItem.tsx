@@ -227,7 +227,9 @@ export const TagTreeItem = React.memo(
                 ref={itemRef}
                 className={className}
                 data-tag={tagNode.path}
+                // Drop zone type (folder or tag)
                 data-drop-zone="tag"
+                // Target path for drop operations on this tag
                 data-drop-path={tagNode.displayPath}
                 data-level={level}
                 style={

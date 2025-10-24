@@ -28,7 +28,7 @@ import { ItemType } from '../../types';
 /**
  * Adds folder creation commands (new note/folder/canvas/base/drawing) to a menu.
  */
-export function addFolderCreationMenuItems(params: FolderMenuBuilderParams): void {
+export function buildFolderCreationMenu(params: FolderMenuBuilderParams): void {
     const { folder, menu, services, state, dispatchers } = params;
     const { app, fileSystemOps } = services;
     const { selectionState, expandedFolders } = state;
@@ -134,7 +134,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         });
     }
 
-    addFolderCreationMenuItems(params);
+    buildFolderCreationMenu(params);
 
     menu.addSeparator();
 

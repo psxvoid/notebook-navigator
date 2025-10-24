@@ -87,7 +87,7 @@ import { STORAGE_KEYS, SHORTCUTS_VIRTUAL_FOLDER_ID, RECENT_NOTES_VIRTUAL_FOLDER_
 import { localStorage } from '../utils/localStorage';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { ShortcutItem } from './ShortcutItem';
-import { ShortcutType, SearchShortcut, isFolderShortcut, isNoteShortcut, isTagShortcut } from '../types/shortcuts';
+import { ShortcutType, SearchShortcut, SHORTCUT_DRAG_MIME, isFolderShortcut, isNoteShortcut, isTagShortcut } from '../types/shortcuts';
 import { strings } from '../i18n';
 import { createDragGhostManager, type DragGhostOptions } from '../utils/dragGhost';
 import { NavigationBanner } from './NavigationBanner';
@@ -104,7 +104,6 @@ import type { NoteCountInfo } from '../types/noteCounts';
 import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
 import { normalizeNavigationSectionOrderInput } from '../utils/navigationSections';
 import { getPathBaseName } from '../utils/pathUtils';
-import { beginInternalDrag, endInternalDrag, isInternalDragActive } from '../utils/internalDragState';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (itemType: ItemType, path: string) => number;
@@ -373,14 +372,12 @@ export const NavigationPane = React.memo(
                     return false;
                 }
 
-                // Check if this is an internal shortcut drag using module-level state
-                // instead of custom MIME types (Chrome 128+ Android bug workaround)
-                if (isInternalDragActive('shortcut')) {
+                const types = Array.from(dataTransfer.types ?? []);
+                if (types.includes(SHORTCUT_DRAG_MIME)) {
                     setExternalShortcutDropIndex(null);
                     return false;
                 }
 
-                const types = Array.from(dataTransfer.types ?? []);
                 const hasObsidianFiles = types.includes('obsidian/file') || types.includes('obsidian/files');
                 if (!hasObsidianFiles) {
                     setExternalShortcutDropIndex(null);
@@ -408,9 +405,8 @@ export const NavigationPane = React.memo(
                     return false;
                 }
 
-                // Check if this is an internal shortcut drag using module-level state
-                // instead of custom MIME types (Chrome 128+ Android bug workaround)
-                if (isInternalDragActive('shortcut')) {
+                const types = Array.from(dataTransfer.types ?? []);
+                if (types.includes(SHORTCUT_DRAG_MIME)) {
                     setExternalShortcutDropIndex(null);
                     return false;
                 }
@@ -546,30 +542,15 @@ export const NavigationPane = React.memo(
         const buildShortcutDragHandlers = useCallback(
             (key: string, options: DragGhostOptions): ListReorderHandlers => {
                 const handlers = getDragHandlers(key);
-                if (!handlers.draggable) {
-                    return handlers;
-                }
-
                 const handlersWithGhost = withDragGhost(handlers, options);
 
                 return {
                     ...handlersWithGhost,
                     onDragStart: event => {
-                        // Track drag state in module variable instead of custom MIME type
-                        beginInternalDrag('shortcut');
                         draggedShortcutKeyRef.current = key;
                         draggedShortcutDropCompletedRef.current = false;
                         setExternalShortcutDropIndex(null);
-                        try {
-                            handlersWithGhost.onDragStart(event);
-                        } catch (error) {
-                            // Ensure drag state clears when drag start fails
-                            endInternalDrag('shortcut');
-                            draggedShortcutKeyRef.current = null;
-                            draggedShortcutDropCompletedRef.current = false;
-                            setExternalShortcutDropIndex(null);
-                            throw error;
-                        }
+                        handlersWithGhost.onDragStart(event);
                     },
                     onDragOver: event => {
                         if (handleShortcutDragOver(event, key)) {
@@ -578,32 +559,23 @@ export const NavigationPane = React.memo(
                         handlersWithGhost.onDragOver(event);
                     },
                     onDrop: event => {
-                        try {
-                            if (handleShortcutDrop(event, key)) {
-                                draggedShortcutDropCompletedRef.current = true;
-                                return;
-                            }
-                            handlersWithGhost.onDrop(event);
+                        if (handleShortcutDrop(event, key)) {
                             draggedShortcutDropCompletedRef.current = true;
-                        } finally {
-                            // Clear internal drag state after drop
-                            endInternalDrag('shortcut');
+                            return;
                         }
+                        handlersWithGhost.onDrop(event);
+                        draggedShortcutDropCompletedRef.current = true;
                     },
                     onDragLeave: event => {
                         handleShortcutDragLeave();
                         handlersWithGhost.onDragLeave(event);
                     },
                     onDragEnd: event => {
-                        try {
-                            handlersWithGhost.onDragEnd(event);
-                        } finally {
-                            draggedShortcutKeyRef.current = null;
-                            setExternalShortcutDropIndex(null);
-                            draggedShortcutDropCompletedRef.current = false;
-                            // Always clear internal drag state when drag ends
-                            endInternalDrag('shortcut');
-                        }
+                        handlersWithGhost.onDragEnd(event);
+                        draggedShortcutKeyRef.current = null;
+                        setExternalShortcutDropIndex(null);
+
+                        draggedShortcutDropCompletedRef.current = false;
                     }
                 };
             },
@@ -801,7 +773,7 @@ export const NavigationPane = React.memo(
 
         // Handle folder name click (for folder notes)
         const handleFolderNameClick = useCallback(
-            (folder: TFolder, event?: React.MouseEvent) => {
+            (folder: TFolder) => {
                 // Check if we should open a folder note instead
                 if (settings.enableFolderNotes) {
                     const folderNote = getFolderNote(folder, settings);
@@ -810,14 +782,7 @@ export const NavigationPane = React.memo(
                         // Set folder as selected without auto-selecting first file
                         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, autoSelectedFile: null });
 
-                        const isCmdCtrlClick = Boolean(event && (event.metaKey || event.ctrlKey));
-                        const shouldOpenInNewTab = !isMobile && settings.multiSelectModifier === 'optionAlt' && isCmdCtrlClick;
-
                         commandQueue.executeOpenFolderNote(folder.path, async () => {
-                            if (shouldOpenInNewTab) {
-                                await app.workspace.getLeaf('tab').openFile(folderNote);
-                                return;
-                            }
                             await app.workspace.getLeaf().openFile(folderNote);
                         });
 
@@ -828,7 +793,7 @@ export const NavigationPane = React.memo(
                 // If no folder note, fall back to normal folder click behavior
                 handleFolderClick(folder);
             },
-            [settings, app, isMobile, selectionDispatch, handleFolderClick, commandQueue]
+            [settings, app, selectionDispatch, handleFolderClick, commandQueue]
         );
 
         // Handle tag toggle
@@ -1484,7 +1449,16 @@ export const NavigationPane = React.memo(
                         }
 
                         const folderPath = isFolderShortcut(item.shortcut) ? item.shortcut.path : '';
-                        const folderName = canInteract && folder ? folder.name : getPathBaseName(folderPath);
+                        const isRootShortcut = folderPath === '/';
+                        const folderName = (() => {
+                            if (isRootShortcut) {
+                                return settings.customVaultName || app.vault.getName();
+                            }
+                            if (canInteract && folder) {
+                                return folder.name;
+                            }
+                            return getPathBaseName(folderPath);
+                        })();
                         const folderCountInfo = canInteract && folder ? getFolderShortcutCount(folder) : ZERO_NOTE_COUNT;
                         const folderNote = canInteract && folder && settings.enableFolderNotes ? getFolderNote(folder, settings) : null;
 
@@ -1505,6 +1479,7 @@ export const NavigationPane = React.memo(
                             <ShortcutItem
                                 icon={isMissing ? 'lucide-alert-triangle' : (item.icon ?? 'lucide-folder')}
                                 color={isMissing ? undefined : item.color}
+                                backgroundColor={isMissing ? undefined : item.backgroundColor}
                                 label={folderName}
                                 description={undefined}
                                 level={item.level}
@@ -1651,6 +1626,7 @@ export const NavigationPane = React.memo(
                             <ShortcutItem
                                 icon={isMissing ? 'lucide-alert-triangle' : (item.icon ?? 'lucide-tags')}
                                 color={isMissing ? undefined : item.color}
+                                backgroundColor={isMissing ? undefined : item.backgroundColor}
                                 label={item.displayName}
                                 description={undefined}
                                 level={item.level}
@@ -1689,7 +1665,7 @@ export const NavigationPane = React.memo(
                                 isExcluded={item.isExcluded}
                                 onToggle={() => handleFolderToggle(item.data.path)}
                                 onClick={() => handleFolderClick(item.data)}
-                                onNameClick={event => handleFolderNameClick(item.data, event)}
+                                onNameClick={() => handleFolderNameClick(item.data)}
                                 onToggleAllSiblings={() => {
                                     const isCurrentlyExpanded = expansionState.expandedFolders.has(item.data.path);
 
@@ -1848,6 +1824,7 @@ export const NavigationPane = React.memo(
                 getAllDescendantFolders,
                 getAllDescendantTags,
                 expansionDispatch,
+                app.vault,
                 settings,
                 folderCounts,
                 tagCounts,

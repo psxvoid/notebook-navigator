@@ -17,12 +17,12 @@
  */
 
 import { FolderMenuBuilderParams } from './menuTypes';
-import { addFolderCreationMenuItems } from './folderMenuBuilder';
+import { buildFolderCreationMenu } from './folderMenuBuilder';
 
 /**
  * Builds the context menu for empty space inside the list pane.
- * Reuses folder creation commands to match the folder context menu.
+ * Reuses the folder creation builder so options stay in sync with folder context menus.
  */
 export function buildEmptyListMenu(params: FolderMenuBuilderParams): void {
-    addFolderCreationMenuItems(params);
+    buildFolderCreationMenu(params);
 }
