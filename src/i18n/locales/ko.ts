@@ -723,8 +723,8 @@ export const STRINGS_KO = {
                 desc: '노트 이름 아래에 날짜를 표시합니다.'
             },
             alphabeticalDateMode: {
-                name: '이름 정렬 날짜 표시',
-                desc: '노트를 이름으로 정렬할 때 표시할 날짜.',
+                name: '이름 정렬 시',
+                desc: '노트가 이름순으로 정렬될 때 표시할 날짜.',
                 options: {
                     created: '생성일',
                     modified: '수정일'

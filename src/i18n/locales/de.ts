@@ -727,11 +727,11 @@ export const STRINGS_DE = {
                 desc: 'Das Datum unter Notizennamen anzeigen.'
             },
             alphabeticalDateMode: {
-                name: 'Datumsanzeige für Namenssortierung',
-                desc: 'Welches Datum bei Sortierung nach Namen angezeigt wird.',
+                name: 'Bei Sortierung nach Name',
+                desc: 'Datum, das angezeigt wird, wenn Notizen alphabetisch sortiert sind.',
                 options: {
-                    created: 'Erstellt',
-                    modified: 'Geändert'
+                    created: 'Erstelldatum',
+                    modified: 'Änderungsdatum'
                 }
             },
             showFileTags: {

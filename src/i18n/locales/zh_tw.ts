@@ -722,11 +722,11 @@ export const STRINGS_ZH_TW = {
                 desc: '在筆記名稱下方顯示日期。'
             },
             alphabeticalDateMode: {
-                name: '按名稱排序時的日期顯示',
-                desc: '按名稱排序筆記時顯示的日期。',
+                name: '按名稱排序時',
+                desc: '筆記按字母順序排序時顯示的日期。',
                 options: {
-                    created: '建立',
-                    modified: '修改'
+                    created: '建立日期',
+                    modified: '修改日期'
                 }
             },
             showFileTags: {

@@ -724,11 +724,11 @@ export const STRINGS_ZH_CN = {
                 desc: '在笔记名称下方显示日期。'
             },
             alphabeticalDateMode: {
-                name: '按名称排序时的日期显示',
-                desc: '按名称排序笔记时显示的日期。',
+                name: '按名称排序时',
+                desc: '笔记按字母顺序排序时显示的日期。',
                 options: {
-                    created: '创建',
-                    modified: '修改'
+                    created: '创建日期',
+                    modified: '修改日期'
                 }
             },
             showFileTags: {

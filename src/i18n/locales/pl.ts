@@ -725,11 +725,11 @@ export const STRINGS_PL = {
                 desc: 'Wyświetl datę pod nazwami notatek.'
             },
             alphabeticalDateMode: {
-                name: 'Wyświetlanie daty przy sortowaniu po nazwie',
-                desc: 'Która data ma być wyświetlana przy sortowaniu notatek po nazwie.',
+                name: 'Przy sortowaniu po nazwie',
+                desc: 'Data wyświetlana, gdy notatki są sortowane alfabetycznie.',
                 options: {
-                    created: 'Utworzenie',
-                    modified: 'Modyfikacja'
+                    created: 'Data utworzenia',
+                    modified: 'Data modyfikacji'
                 }
             },
             showFileTags: {

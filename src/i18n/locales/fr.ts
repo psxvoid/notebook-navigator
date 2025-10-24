@@ -726,11 +726,11 @@ export const STRINGS_FR = {
                 desc: 'Afficher la date sous les noms des notes.'
             },
             alphabeticalDateMode: {
-                name: 'Affichage de date pour tri par nom',
-                desc: 'Quelle date afficher lors du tri des notes par nom.',
+                name: 'Lors du tri par nom',
+                desc: 'Date affichée lorsque les notes sont triées alphabétiquement.',
                 options: {
-                    created: 'Création',
-                    modified: 'Modification'
+                    created: 'Date de création',
+                    modified: 'Date de modification'
                 }
             },
             showFileTags: {

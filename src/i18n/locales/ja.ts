@@ -725,8 +725,8 @@ export const STRINGS_JA = {
                 desc: 'ノート名の下に日付を表示します。'
             },
             alphabeticalDateMode: {
-                name: '名前ソート時の日付表示',
-                desc: 'ノートを名前でソートする際に表示する日付。',
+                name: '名前でソート時',
+                desc: 'ノートが名前でソートされている場合に表示する日付。',
                 options: {
                     created: '作成日',
                     modified: '更新日'
