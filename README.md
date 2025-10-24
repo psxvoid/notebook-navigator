@@ -228,6 +228,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Toggle dual pane layout` Toggle single/dual-pane layout (desktop)
 - `Notebook Navigator: Toggle descendants` Toggle descendants notes display for both folders and tags. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+S` to quickly toggle display of notes from descendants
 - `Notebook Navigator: Toggle hidden items` Show or hide excluded folders and hidden tags
+- `Notebook Navigator: Toggle tag sort` Toggle between alphabetical and frequency-based tag sorting
 - `Notebook Navigator: Collapse / expand all items` Collapse or expand all items based on the current state. When `Keep selected item expanded` is enabled (default on), all folders except the current one will be collapsed. This is super handy to keep the navigation tree tidy when searching for documents. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+C` to quickly collapse non-selected items
 
 **File operations**
@@ -237,6 +238,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Create new note` Create note in currently selected folder. **Suggestion:** Bind `Cmd/Ctrl+N` to this command (unbind from Obsidian's default "Create new note" first)
 - `Notebook Navigator: Move files` Move selected files to another folder. Selects next file in current folder
 - `Notebook Navigator: Convert to folder note` Create a folder matching the file name and move the file inside as the folder note
+- `Notebook Navigator: Pin all folder notes` Add all folder notes to shortcuts. Only available when folder notes are enabled
 - `Notebook Navigator: Delete files` Delete selected files. Selects next file in current folder
 
 **Tag operations**
@@ -263,10 +265,12 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 | `notebook-navigator:toggle-dual-pane`       | Notebook Navigator: Toggle dual pane layout             |
 | `notebook-navigator:toggle-descendants`     | Notebook Navigator: Toggle descendants                  |
 | `notebook-navigator:toggle-hidden`          | Notebook Navigator: Toggle hidden items                 |
+| `notebook-navigator:toggle-tag-sort`        | Notebook Navigator: Toggle tag sort                     |
 | `notebook-navigator:collapse-expand`        | Notebook Navigator: Collapse / expand all items         |
 | `notebook-navigator:new-note`               | Notebook Navigator: Create new note                     |
 | `notebook-navigator:move-files`             | Notebook Navigator: Move files                          |
 | `notebook-navigator:convert-to-folder-note` | Notebook Navigator: Convert to folder note              |
+| `notebook-navigator:pin-all-folder-notes`   | Notebook Navigator: Pin all folder notes                |
 | `notebook-navigator:delete-files`           | Notebook Navigator: Delete files                        |
 | `notebook-navigator:add-tag`                | Notebook Navigator: Add tag to selected files           |
 | `notebook-navigator:remove-tag`             | Notebook Navigator: Remove tag from selected files      |
@@ -279,19 +283,35 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### General
 
-- **Default startup view:** Choose which pane displays when opening Notebook Navigator - Navigation pane (shortcuts, recent notes, folders) or List pane (note list)
-- **Dual pane layout (desktop only, not synced):** Show navigation and list panes side by side
-- **Homepage:** Set a file that opens automatically when Notebook Navigator starts
-  - **Separate mobile homepage:** Use a different homepage for mobile devices
-- **Show tooltips (desktop only):** Display hover tooltips with additional information for notes and folders
-  - **Show tooltips path (desktop only):** Display full file path in tooltips
-- **Show icons:** Display icons next to folders, tags, and files
-  - **Apply color to icons only:** Limit custom colors to icons only, not text labels
-- **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
-  - **Ignore events from right sidebar:** Disable auto-reveal from right sidebar
+**Filtering**
+
 - **Show file types:** Filter which file types are shown. `Documents (.md, .canvas, .base)`, `Supported (opens in Obsidian)`, `All (may open externally)`
 - **Hide folders:** Comma-separated list of folders to hide. Name patterns: `assets*` (folders starting with assets), `*_temp` (ending with \_temp). Path patterns: `/archive` (root archive only), `/res*` (root folders starting with res), `/*/temp` (temp folders one level deep), `/projects/*` (all folders inside projects)
 - **Hide notes:** Comma-separated frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
+
+**View**
+
+- **Default startup view:** Choose which pane displays when opening Notebook Navigator - Navigation pane (shortcuts, recent notes, folders) or List pane (note list)
+- **Homepage:** Set a file that opens automatically when Notebook Navigator starts
+  - **Separate mobile homepage:** Use a different homepage for mobile devices
+- **Show icons:** Display icons next to folders, tags, and files
+  - **Apply color to icons only:** Limit custom colors to icons only, not text labels
+
+**Desktop appearance (desktop only)**
+
+- **Dual pane layout (not synced):** Show navigation and list panes side by side
+  - **Dual pane orientation:** Choose between horizontal (side-by-side) or vertical (top-bottom) layout
+- **Dual pane background:** Choose background styling for dual-pane mode. `Separate backgrounds`, `Primary background only`, `Secondary background only`
+- **Show tooltips:** Display hover tooltips with additional information for notes and folders
+  - **Show tooltips path:** Display full file path in tooltips
+
+**Behavior**
+
+- **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
+  - **Ignore events from right sidebar:** Disable auto-reveal from right sidebar
+
+**Formatting**
+
 - **Date format:** Format for displaying dates (uses date-fns format)
 - **Time format:** Format for displaying times (uses date-fns format)
 
