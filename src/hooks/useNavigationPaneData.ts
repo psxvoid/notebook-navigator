@@ -53,6 +53,7 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings, TagSortOrder } from '../settings/types';
 import { isFolderInExcludedFolder } from '../utils/fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY, isImageFile } from '../utils/fileTypeUtils';
+import { isExcalidrawFile } from '../utils/fileNameUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree, findTagNode } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree, compareTagOrderWithFallback } from '../utils/treeFlattener';
@@ -90,8 +91,6 @@ const DOCUMENT_EXTENSION_ICONS: Record<string, string> = {
     base: 'lucide-database'
 };
 
-const EXCALIDRAW_FILE_SUFFIX = '.excalidraw.md';
-
 // Returns the appropriate icon for a document based on its type and extension
 const getDocumentIcon = (file: TFile | null, metadataCache?: MetadataCache): string | undefined => {
     if (!file) {
@@ -102,8 +101,7 @@ const getDocumentIcon = (file: TFile | null, metadataCache?: MetadataCache): str
         return 'lucide-image';
     }
 
-    const lowerCaseName = file.name.toLowerCase();
-    if (lowerCaseName.endsWith(EXCALIDRAW_FILE_SUFFIX)) {
+    if (isExcalidrawFile(file)) {
         return 'lucide-image';
     }
 

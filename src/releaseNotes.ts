@@ -86,7 +86,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         fixed: [
             'Fixed an issue where root folder added to shortcuts would show without name and with the wrong icon.',
             'Fixed two drag and drop issues: Dragging a file from a subfolder to the list pane would cause it to move to the current folder, and dragging and holding in listpane would incorrectly cause the current folder to expand in navigation pane.',
-            'Files and tags in shortcuts area now properly show background color.'
+            'Files and tags in shortcuts area now properly show background color.',
+            'Excalidraw files now display with clean names (without .excalidraw suffix) and maintain correct list item height when renamed.'
         ]
     },
     {

@@ -26,6 +26,7 @@ import { NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, ItemType } from '../types';
 import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
+import { EXCALIDRAW_BASENAME_SUFFIX, isExcalidrawFile, stripExcalidrawSuffix } from '../utils/fileNameUtils';
 import { getFolderNote, isFolderNote, isSupportedFolderNoteExtension } from '../utils/folderNotes';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 import { executeCommand } from '../utils/typeGuards';
@@ -209,27 +210,70 @@ export class FileSystemOperations {
      * @param file - The file to rename
      */
     async renameFile(file: TFile): Promise<void> {
+        // Check if file is Excalidraw to handle composite extension
+        const isExcalidraw = isExcalidrawFile(file);
+        const extension = file.extension;
+        const extensionSuffix = extension ? `.${extension}` : '';
+        // Strip .excalidraw suffix from default value for Excalidraw files
+        const defaultValue = isExcalidraw ? stripExcalidrawSuffix(file.basename) : file.basename;
+
         const modal = new InputModal(
             this.app,
             strings.modals.fileSystem.renameFileTitle,
             strings.modals.fileSystem.renamePrompt,
-            async newName => {
-                if (newName && newName !== file.basename) {
-                    try {
-                        // Preserve original extension if not provided
-                        if (!newName.includes('.')) {
-                            newName += `.${file.extension}`;
-                        }
-                        const parentPath = file.parent?.path ?? '/';
-                        const base = parentPath === '/' ? '' : `${parentPath}/`;
-                        const newPath = normalizePath(`${base}${newName}`);
-                        await this.app.fileManager.renameFile(file, newPath);
-                    } catch (error) {
-                        new Notice(strings.fileSystem.errors.renameFile.replace('{error}', error.message));
+            async rawInput => {
+                const trimmedInput = rawInput.trim();
+                if (!trimmedInput) {
+                    return;
+                }
+
+                let finalFileName: string;
+
+                if (isExcalidraw) {
+                    // Process Excalidraw files to ensure .excalidraw suffix is preserved
+                    let workingName = trimmedInput;
+                    const lowerWorking = workingName.toLowerCase();
+
+                    // Remove file extension if user included it
+                    if (extensionSuffix && lowerWorking.endsWith(extensionSuffix.toLowerCase())) {
+                        workingName = workingName.slice(0, -extensionSuffix.length);
                     }
+
+                    // Remove .excalidraw suffix if user included it
+                    workingName = stripExcalidrawSuffix(workingName);
+
+                    if (!workingName) {
+                        return;
+                    }
+
+                    // Reconstruct filename with .excalidraw suffix
+                    finalFileName = `${workingName}${EXCALIDRAW_BASENAME_SUFFIX}${extensionSuffix}`;
+                } else if (!extensionSuffix) {
+                    // File has no extension, use input as-is
+                    finalFileName = trimmedInput;
+                } else if (trimmedInput.includes('.')) {
+                    // User provided extension, use input as-is
+                    finalFileName = trimmedInput;
+                } else {
+                    // Append original extension to input
+                    finalFileName = `${trimmedInput}${extensionSuffix}`;
+                }
+
+                // Skip rename if name unchanged
+                if (!finalFileName || finalFileName === file.name) {
+                    return;
+                }
+
+                try {
+                    const parentPath = file.parent?.path ?? '/';
+                    const base = parentPath === '/' ? '' : `${parentPath}/`;
+                    const newPath = normalizePath(`${base}${finalFileName}`);
+                    await this.app.fileManager.renameFile(file, newPath);
+                } catch (error) {
+                    new Notice(strings.fileSystem.errors.renameFile.replace('{error}', error.message));
                 }
             },
-            file.basename
+            defaultValue
         );
         modal.open();
     }
@@ -1118,7 +1162,7 @@ export class FileSystemOperations {
         try {
             // Generate unique filename with timestamp
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-            const fileName = `Drawing ${timestamp}.excalidraw.md`;
+            const fileName = `Drawing ${timestamp}${EXCALIDRAW_BASENAME_SUFFIX}.md`;
             const base = parent.path === '/' ? '' : `${parent.path}/`;
             const filePath = normalizePath(`${base}${fileName}`);
 
