@@ -17,7 +17,7 @@
  */
 
 import { TFile } from 'obsidian';
-import { FileData } from './IndexedDBStorage';
+import { FileData, FileDataCache } from './IndexedDBStorage';
 import { getDBInstance } from './fileOperations';
 
 /**
@@ -50,12 +50,12 @@ import { getDBInstance } from './fileOperations';
  */
 export async function calculateFileDiff(
     currentFiles: TFile[],
-    cachedFiles?: Map<string, FileData>
+    cachedFiles?: Map<string, FileDataCache>
 ): Promise<{
     toAdd: TFile[];
     toUpdate: TFile[];
     toRemove: string[];
-    cachedFiles: Map<string, FileData>;
+    cachedFiles: Map<string, FileDataCache>;
 }> {
     const toAdd: TFile[] = [];
     const toUpdate: TFile[] = [];

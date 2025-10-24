@@ -22,7 +22,7 @@ import { ISettingsProvider } from '../interfaces/ISettingsProvider';
 import { ITagTreeProvider } from '../interfaces/ITagTreeProvider';
 import { FolderMetadataService, TagMetadataService, FileMetadataService, type FileMetadataMigrationResult } from './metadata';
 import { TagTreeNode } from '../types/storage';
-import { FileData } from '../storage/IndexedDBStorage';
+import {  FileDataCache } from '../storage/IndexedDBStorage';
 import { getDBInstance } from '../storage/fileOperations';
 import { NavigatorContext } from '../types';
 
@@ -30,7 +30,7 @@ import { NavigatorContext } from '../types';
  * Validators object containing all data needed for cleanup operations
  */
 export interface CleanupValidators {
-    dbFiles: { path: string; data: FileData }[];
+    dbFiles: { path: string; data: FileDataCache }[];
     tagTree: Map<string, TagTreeNode>;
     vaultFiles: Set<string>;
     vaultFolders: Set<string>; // Actual folder paths from vault

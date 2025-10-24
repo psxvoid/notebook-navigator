@@ -24,6 +24,7 @@ import { getDBInstance } from '../../storage/fileOperations';
 import { isExcalidrawAttachment, isImageFile } from '../../utils/fileTypeUtils';
 import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
 import { cacheFilePath, generateExcalidrawPreview, isCachePath } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
+import { autoCrop, blobToBase64Url, readSourceImageBlob } from './feature-image-preview-generators/ImageCropUtils';
 
 /**
  * Content provider for finding and storing feature images
@@ -126,6 +127,10 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                 return null;
             }
 
+            const maxSizeSquarePx = settings.featureImageSize;
+            const resizedBlob = await autoCrop(await readSourceImageBlob(imageUrlStr, this.app), maxSizeSquarePx)
+            const featureImageResized = await blobToBase64Url(resizedBlob)
+
             let featureCleanupRequest: ProcessResult | null = null
 
             const nonEmptyString = (str?: string | null): str is string => typeof str === 'string' && str.length > 0;
@@ -148,6 +153,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                 {
                     path: job.file.path,
                     featureImage: imageUrlStr,
+                    featureImageResized: featureImageResized,
                     ...nonEmptyString(result?.featureProviderPath) ? {
                         featureImageProvider: result.featureProviderPath,
                     } : {}

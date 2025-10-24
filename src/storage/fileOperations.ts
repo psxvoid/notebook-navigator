@@ -17,7 +17,7 @@
  */
 
 import { TFile } from 'obsidian';
-import { IndexedDBStorage, FileData } from './IndexedDBStorage';
+import { IndexedDBStorage, FileDataCache } from './IndexedDBStorage';
 
 /**
  * FileOperations - IndexedDB storage access layer and cache management
@@ -131,12 +131,12 @@ export function shutdownDatabase(): void {
  */
 export async function recordFileChanges(
     files: TFile[],
-    existingData: Map<string, FileData>,
-    renamedData?: Map<string, FileData>
+    existingData: Map<string, FileDataCache>,
+    renamedData?: Map<string, FileDataCache>
 ): Promise<void> {
     if (isShuttingDown) return;
     const db = getDBInstance();
-    const updates: { path: string; data: FileData }[] = [];
+    const updates: { path: string; data: FileDataCache }[] = [];
 
     for (const file of files) {
         const existing = existingData.get(file.path);
@@ -144,7 +144,7 @@ export async function recordFileChanges(
 
         if (!existing) {
             if (renamed) {
-                const clonedData: FileData = {
+                const clonedData: FileDataCache = {
                     ...renamed,
                     mtime: file.stat.mtime
                 };
@@ -153,7 +153,7 @@ export async function recordFileChanges(
                 continue;
             }
             // New file - initialize with null content
-            const fileData: FileData = {
+            const fileData: FileDataCache = {
                 mtime: file.stat.mtime,
                 tags: null, // TagContentProvider will extract these
                 preview: null, // PreviewContentProvider will generate these
@@ -166,7 +166,7 @@ export async function recordFileChanges(
         } else if (renamed) {
             // File exists in DB and has pending rename data - merge them
             // This happens when a file is renamed then modified before the rename is fully processed
-            const mergedData: FileData = {
+            const mergedData: FileDataCache = {
                 ...existing,
                 ...renamed,
                 mtime: file.stat.mtime
@@ -203,7 +203,7 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
     const db = getDBInstance();
     const paths = files.map(f => f.path);
     const existingData = db.getFiles(paths);
-    const updates: { path: string; data: FileData }[] = [];
+    const updates: { path: string; data: FileDataCache }[] = [];
     const mtimeOnlyUpdates: { path: string; mtime: number }[] = [];
 
     for (const file of files) {

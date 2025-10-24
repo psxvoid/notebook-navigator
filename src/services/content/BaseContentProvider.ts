@@ -19,7 +19,7 @@
 import { App, TFile } from 'obsidian';
 import { IContentProvider, ContentType } from '../../interfaces/IContentProvider';
 import { NotebookNavigatorSettings } from '../../settings';
-import { FileData } from '../../storage/IndexedDBStorage';
+import { FileData, FileDataCache } from '../../storage/IndexedDBStorage';
 import { getDBInstance, isShutdownInProgress } from '../../storage/fileOperations';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 
@@ -34,6 +34,7 @@ export interface ProcessResult {
     tags?: readonly string[] | null;
     preview?: string;
     featureImage?: string;
+    featureImageResized?: string;
     featureImageProvider?: string;
     featureImageConsumers?: readonly string[];
     metadata?: FileData['metadata'];
@@ -78,7 +79,7 @@ export abstract class BaseContentProvider implements IContentProvider {
      */
     protected abstract processFile(
         job: ContentJob,
-        fileData: FileData | null,
+        fileData: FileDataCache | null,
         settings: NotebookNavigatorSettings
     ): Promise<ProcessResult | (ProcessResult | null) [] | null>;
 
@@ -89,7 +90,7 @@ export abstract class BaseContentProvider implements IContentProvider {
      * @param settings - Current settings
      * @returns True if the file needs processing
      */
-    protected abstract needsProcessing(fileData: FileData | null, file: TFile, settings: NotebookNavigatorSettings): boolean;
+    protected abstract needsProcessing(fileData: FileDataCache | null, file: TFile, settings: NotebookNavigatorSettings): boolean;
 
     queueFiles(files: TFile[]): void {
         if (this.stopped) return;
@@ -138,7 +139,7 @@ export abstract class BaseContentProvider implements IContentProvider {
         const settings = this.currentBatchSettings;
 
         // Declare activeJobs outside try block so it's accessible in finally
-        let activeJobs: { job: ContentJob; fileData: FileData | null; needsProcessing: boolean }[] = [];
+        let activeJobs: { job: ContentJob; fileData: FileDataCache | null; needsProcessing: boolean }[] = [];
 
         try {
             const db = getDBInstance();

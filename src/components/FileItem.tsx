@@ -49,7 +49,7 @@
 import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
 import { TFile, TFolder, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
-import type { FileContentChange } from '../storage/IndexedDBStorage';
+import type { FileContentChange, IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
@@ -67,7 +67,7 @@ import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
 import { areStringArraysEqual } from '../utils/arrayUtils';
 import { useSelectionState } from 'src/context/SelectionContext';
-import { EMPTY_STRING } from 'src/utils/empty';
+import { EMPTY_ARRAY, EMPTY_STRING } from 'src/utils/empty';
 
 const FEATURE_IMAGE_MAX_ASPECT_RATIO = 16 / 9;
 
@@ -251,7 +251,7 @@ export const FileItem = React.memo(function FileItem({
 
     // === Helper functions ===
     // Load all file metadata from cache
-    const loadFileData = useCallback(() => {
+    const loadFileData = useCallback(async () => {
         const db = getDB();
 
         const preview = appearanceSettings.showPreview && file.extension === 'md' ? db.getCachedPreviewText(file.path) : '';
@@ -267,16 +267,10 @@ export const FileItem = React.memo(function FileItem({
                     imageUrl = null;
                 }
             } else {
-                const imagePath = db.getCachedFeatureImageUrl(file.path);
-                if (imagePath) {
-                    const imageFile = app.vault.getFileByPath(imagePath);
-                    if (imageFile) {
-                        try {
-                            imageUrl = app.vault.getResourcePath(imageFile);
-                        } catch {
-                            imageUrl = null;
-                        }
-                    }
+                const previewBase64 = (await db.getFileWithPreview(file.path))?.featureImageResized
+
+                if (previewBase64 != null) {
+                    imageUrl = previewBase64
                 }
             }
         }
@@ -288,13 +282,19 @@ export const FileItem = React.memo(function FileItem({
     const [isHovered, setIsHovered] = React.useState(false);
 
     // Cache initial data to avoid recomputing on every render
-    const initialDataRef = useRef<ReturnType<typeof loadFileData> | null>(null);
-    const initialData = initialDataRef.current ?? loadFileData();
-    initialDataRef.current = initialData;
+    const initialDataRef = useRef<Awaited<ReturnType<typeof loadFileData>> | null>(null);
 
-    const [previewText, setPreviewText] = useState<string>(initialData.preview);
-    const [tags, setTags] = useState<string[]>(initialData.tags);
-    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(initialData.imageUrl);
+    useEffect(() => {
+        const asyncEffect = async function() {
+            initialDataRef.current ??= await loadFileData();
+        }
+
+        asyncEffect()
+    }, [loadFileData])
+
+    const [previewText, setPreviewText] = useState<string>(initialDataRef.current?.preview ?? EMPTY_STRING);
+    const [tags, setTags] = useState<string[]>(initialDataRef.current?.tags ?? EMPTY_ARRAY);
+    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(initialDataRef.current?.imageUrl ?? null);
     const [featureImageAspectRatio, setFeatureImageAspectRatio] = useState<number | null>(null);
     const [metadataVersion, setMetadataVersion] = useState(0);
 
@@ -530,30 +530,31 @@ export const FileItem = React.memo(function FileItem({
         return true;
     }, [categorizedTags, isSlimMode, settings.showFileTags, settings.showFileTagsInSlimMode, settings.showTags]);
 
+
     const getTagDisplayName = useCallback(
-        (tag: string): string => {
+        (tag: string): { displayTag: string, tooltip?: string } => {
             if (settings.showFileTagAncestors && !settings.collapseFileTagsToSelectedTag) {
-                return tag;
+                return { displayTag: tag };
             }
 
             const segments = tag.split('/').filter(segment => segment.length > 0);
 
             if (segments.length === 0) {
-                return tag;
+                return { displayTag: tag };
             }
 
             if (!settings.showFileTagAncestors) {
-                return segments[segments.length - 1];
+                return { displayTag: segments[segments.length - 1] };
             }
 
             const selectedTag = selectionState.selectedTag ?? EMPTY_STRING;
 
             if (selectedTag.length === 0 || selectionState.selectionType !== 'tag') {
-                return tag
+                return { displayTag: tag }
             }
 
             if (selectedTag.length === tag.length && selectedTag === tag) {
-                return EMPTY_STRING
+                return { displayTag: EMPTY_STRING }
             }
 
             const selectedTagSegments = selectedTag.split('/').filter(segment => segment.length > 0);
@@ -563,10 +564,34 @@ export const FileItem = React.memo(function FileItem({
                 selectedTagSegments.shift()
             }
 
-            return segments.join('/')
+            return { displayTag: segments.join('/') }
         },
         [settings.showFileTagAncestors, settings.collapseFileTagsToSelectedTag, selectionState]
     );
+
+    const RenderTag = React.useCallback(function RenderTag(el: { tag: string, index: number }) {
+        const { tag, index } = el
+        const tagRef = useRef<HTMLDivElement>(null);
+        const tagColor = colorFileTags ? getTagColor(tag) : undefined;
+        const { displayTag, tooltip } = getTagDisplayName(tag);
+
+        useEffect(() => {
+            if (tagRef.current && tooltip != null) setTooltip(tagRef.current, tooltip);
+        }, [tooltip]);
+
+        return displayTag === EMPTY_STRING ? null : (
+            <span
+                key={index}
+                className="nn-file-tag nn-clickable-tag"
+                onClick={e => handleTagClick(e, tag)}
+                role="button"
+                tabIndex={0}
+                style={tagColor ? { backgroundColor: tagColor } : undefined}
+            >
+                {displayTag}
+            </span>
+        );
+    }, [colorFileTags, getTagColor, getTagDisplayName, handleTagClick])
 
     // Render tags
     const renderTags = useCallback(() => {
@@ -576,25 +601,10 @@ export const FileItem = React.memo(function FileItem({
 
         return (
             <div className="nn-file-tags">
-                {categorizedTags.map((tag, index) => {
-                    const tagColor = colorFileTags ? getTagColor(tag) : undefined;
-                    const displayTag = getTagDisplayName(tag);
-                    return displayTag === EMPTY_STRING ? null : (
-                        <span
-                            key={index}
-                            className="nn-file-tag nn-clickable-tag"
-                            onClick={e => handleTagClick(e, tag)}
-                            role="button"
-                            tabIndex={0}
-                            style={tagColor ? { backgroundColor: tagColor } : undefined}
-                        >
-                            {displayTag}
-                        </span>
-                    );
-                }).filter(x => x != null)}
+                {categorizedTags.map((tag, index) => <RenderTag {...{tag, index}}/>).filter(x => x != null)}
             </div>
         );
-    }, [colorFileTags, categorizedTags, getTagColor, getTagDisplayName, handleTagClick, shouldShowFileTags]);
+    }, [categorizedTags, shouldShowFileTags, RenderTag]);
 
     // Format display date based on current sort
     const displayDate = useMemo(() => {
@@ -728,54 +738,59 @@ export const FileItem = React.memo(function FileItem({
 
     // Handle file changes and subscribe to content updates
     useEffect(() => {
-        const { preview, tags: initialTags, imageUrl } = loadFileData();
+        let unsubscribe: ReturnType<typeof IndexedDBStorage.prototype.onFileContentChange>
+        const asyncFunc = async function() {
+            const { preview, tags: initialTags, imageUrl } = await loadFileData();
 
-        // Only update state if values actually changed to prevent unnecessary re-renders
-        setPreviewText(prev => (prev === preview ? prev : preview));
-        setTags(prev => (areStringArraysEqual(prev, initialTags) ? prev : initialTags));
-        setFeatureImageUrl(prev => (prev === imageUrl ? prev : imageUrl));
+            // Only update state if values actually changed to prevent unnecessary re-renders
+            setPreviewText(prev => (prev === preview ? prev : preview));
+            setTags(prev => (areStringArraysEqual(prev, initialTags) ? prev : initialTags));
+            setFeatureImageUrl(prev => (prev === imageUrl ? prev : imageUrl));
 
-        const db = getDB();
-        const unsubscribe = db.onFileContentChange(file.path, (changes: FileContentChange['changes']) => {
-            // Update preview text when it changes
-            if (changes.preview !== undefined && appearanceSettings.showPreview && file.extension === 'md') {
-                const nextPreview = changes.preview || '';
-                setPreviewText(prev => (prev === nextPreview ? prev : nextPreview));
-            }
-            // Update feature image when it changes
-            if (changes.featureImage !== undefined && appearanceSettings.showImage) {
-                let resourceUrl: string | null = null;
-                if (changes.featureImage) {
-                    const imageFile = app.vault.getFileByPath(changes.featureImage);
-                    if (imageFile) {
+            const db = getDB();
+            unsubscribe = db.onFileContentChange(file.path, (changes: FileContentChange['changes']) => {
+                // Update preview text when it changes
+                if (changes.preview !== undefined && appearanceSettings.showPreview && file.extension === 'md') {
+                    const nextPreview = changes.preview || '';
+                    setPreviewText(prev => (prev === nextPreview ? prev : nextPreview));
+                }
+                // Update feature image when it changes
+                if (changes.featureImage !== undefined && appearanceSettings.showImage) {
+                    let resourceUrl: string | null = null;
+                    if (changes.featureImage) {
+                        if (changes.featureImageResized) {
+                            try {
+                                resourceUrl = changes.featureImageResized
+                            } catch {
+                                resourceUrl = null;
+                            }
+                        }
+                    } else if (isImageFile(file)) {
                         try {
-                            resourceUrl = app.vault.getResourcePath(imageFile);
+                            resourceUrl = app.vault.getResourcePath(file);
                         } catch {
                             resourceUrl = null;
                         }
                     }
-                } else if (isImageFile(file)) {
-                    try {
-                        resourceUrl = app.vault.getResourcePath(file);
-                    } catch {
-                        resourceUrl = null;
-                    }
+                    setFeatureImageUrl(prev => (prev === resourceUrl ? prev : resourceUrl));
                 }
-                setFeatureImageUrl(prev => (prev === resourceUrl ? prev : resourceUrl));
-            }
-            // Update tags when they change
-            if (changes.tags !== undefined) {
-                const nextTags = [...(changes.tags ?? [])];
-                setTags(prev => (areStringArraysEqual(prev, nextTags) ? prev : nextTags));
-            }
-            // Trigger metadata refresh when frontmatter changes
-            if (changes.metadata !== undefined) {
-                setMetadataVersion(v => v + 1);
-            }
-        });
+                // Update tags when they change
+                if (changes.tags !== undefined) {
+                    const nextTags = [...(changes.tags ?? [])];
+                    setTags(prev => (areStringArraysEqual(prev, nextTags) ? prev : nextTags));
+                }
+                // Trigger metadata refresh when frontmatter changes
+                if (changes.metadata !== undefined) {
+                    setMetadataVersion(v => v + 1);
+                }
+            });
+        }
+
+        asyncFunc()
 
         return () => {
-            unsubscribe();
+            // Review: Refactoring: use abort controller with proper async handling
+            (unsubscribe ?? function(){})();
         };
         // NOTE: include file.path because Obsidian reuses TFile instance on rename
     }, [file, file.path, appearanceSettings.showPreview, appearanceSettings.showImage, getDB, app, loadFileData]);
