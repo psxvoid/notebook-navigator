@@ -23,6 +23,7 @@ export interface DragHandleConfig {
 interface NavigationListRowProps {
     icon: string;
     color?: string;
+    backgroundColor?: string;
     label: string;
     description?: string;
     level: number;
@@ -57,6 +58,7 @@ interface NavigationListRowProps {
 export function NavigationListRow({
     icon,
     color,
+    backgroundColor,
     label,
     level,
     itemType,
@@ -114,8 +116,11 @@ export function NavigationListRow({
         if (dragHandleConfig?.visible) {
             classList.push('nn-drag-item-has-handle');
         }
+        if (backgroundColor) {
+            classList.push('nn-has-custom-background');
+        }
         return classList.join(' ');
-    }, [className, dragHandleConfig?.visible, isDisabled, isDragSource, isExcluded]);
+    }, [backgroundColor, className, dragHandleConfig?.visible, isDisabled, isDragSource, isExcluded]);
 
     // Builds CSS classes for the label element, combining base class with optional custom class
     const labelClasses = useMemo(() => {
@@ -206,6 +211,16 @@ export function NavigationListRow({
         [onLabelClick]
     );
 
+    const rowStyle = useMemo(() => {
+        if (!backgroundColor) {
+            return { '--level': level } as CSSProperties;
+        }
+        return {
+            '--level': level,
+            '--nn-navitem-custom-bg-color': backgroundColor
+        } as CSSProperties;
+    }, [backgroundColor, level]);
+
     return (
         <div
             className={classes}
@@ -231,7 +246,7 @@ export function NavigationListRow({
             onDragLeave={dragHandlers?.onDragLeave}
             onDrop={dragHandlers?.onDrop}
             onDragEnd={rowDraggable ? dragHandlers?.onDragEnd : undefined}
-            style={{ '--level': level } as CSSProperties}
+            style={rowStyle}
         >
             <div className="nn-navitem-content">
                 <span

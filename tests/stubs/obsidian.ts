@@ -1,5 +1,7 @@
 // Minimal Obsidian API stubs for Vitest environment.
 
+import { deriveFileMetadata } from '../utils/pathMetadata';
+
 export class App {
     vault = {
         getFolderByPath: () => null,
@@ -17,10 +19,21 @@ export class App {
 
 export class TFile {
     path = '';
+    name = '';
+    basename = '';
+    extension = '';
     stat = { mtime: 0, ctime: 0 };
 
     constructor(path = '') {
+        this.setPath(path);
+    }
+
+    setPath(path: string): void {
         this.path = path;
+        const metadata = deriveFileMetadata(path);
+        this.name = metadata.name;
+        this.basename = metadata.basename;
+        this.extension = metadata.extension;
     }
 }
 

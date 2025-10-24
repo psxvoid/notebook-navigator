@@ -77,7 +77,8 @@ export const STRINGS_DE = {
         add: 'Zu Lesezeichen hinzufügen',
         remove: 'Aus Lesezeichen entfernen',
         moveUp: 'Nach oben verschieben',
-        moveDown: 'Nach unten verschieben'
+        moveDown: 'Nach unten verschieben',
+        folderNotesPinned: '{count} Ordnernotizen angeheftet'
     },
 
     // Pane header
@@ -445,11 +446,13 @@ export const STRINGS_DE = {
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: 'In Ordnernotiz konvertieren', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: 'Alle Ordnernotizen anheften', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Zu Shortcuts hinzufügen', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Nachkommen umschalten', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Versteckte Elemente umschalten', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleTagSort: 'Tag-Sortierung umschalten', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'Alle Elemente ein-/ausklappen', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Tag zu ausgewählten Dateien hinzufügen', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Tag von ausgewählten Dateien entfernen', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
@@ -495,6 +498,7 @@ export const STRINGS_DE = {
         groups: {
             general: {
                 view: 'Darstellung',
+                desktopAppearance: 'Desktop-Darstellung',
                 behavior: 'Verhalten',
                 filtering: 'Filterung',
                 formatting: 'Formatierung'
@@ -608,11 +612,11 @@ export const STRINGS_DE = {
                 desc: 'Schnellaktion: Notiz in neuem Tab öffnen.'
             },
             dualPane: {
-                name: 'Doppelbereichslayout (nur Desktop, nicht synchronisiert)',
+                name: 'Doppelbereichslayout (nicht synchronisiert)',
                 desc: 'Navigationsbereich und Listenbereich nebeneinander auf dem Desktop anzeigen.'
             },
             dualPaneOrientation: {
-                name: 'Ausrichtung des Doppelbereichs',
+                name: 'Ausrichtung des Doppelbereichs (nicht synchronisiert)',
                 desc: 'Horizontalen oder vertikalen Aufbau wählen, wenn der Doppelbereich aktiv ist.',
                 options: {
                     horizontal: 'Horizontale Aufteilung',
@@ -620,7 +624,7 @@ export const STRINGS_DE = {
                 }
             },
             dualPaneBackground: {
-                name: 'Hintergrundfarbe (nur Desktop)',
+                name: 'Hintergrundfarbe',
                 desc: 'Wählen Sie Hintergrundfarben für Navigations- und Listenbereich auf dem Desktop.',
                 options: {
                     separate: 'Separate Hintergründe',
@@ -672,7 +676,7 @@ export const STRINGS_DE = {
                 desc: 'Anzahl der anzuzeigenden neuesten Notizen.'
             },
             showTooltips: {
-                name: 'Tooltips anzeigen (nur Desktop)',
+                name: 'Tooltips anzeigen',
                 desc: 'Zeige Hover-Tooltips mit zusätzlichen Informationen für Notizen und Ordner an.'
             },
             showTooltipPath: {

@@ -53,6 +53,7 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings, TagSortOrder } from '../settings/types';
 import { isFolderInExcludedFolder } from '../utils/fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY, isImageFile } from '../utils/fileTypeUtils';
+import { isExcalidrawFile } from '../utils/fileNameUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree, findTagNode } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree, compareTagOrderWithFallback } from '../utils/treeFlattener';
@@ -90,8 +91,6 @@ const DOCUMENT_EXTENSION_ICONS: Record<string, string> = {
     base: 'lucide-database'
 };
 
-const EXCALIDRAW_FILE_SUFFIX = '.excalidraw.md';
-
 // Returns the appropriate icon for a document based on its type and extension
 const getDocumentIcon = (file: TFile | null, metadataCache?: MetadataCache): string | undefined => {
     if (!file) {
@@ -102,8 +101,7 @@ const getDocumentIcon = (file: TFile | null, metadataCache?: MetadataCache): str
         return 'lucide-image';
     }
 
-    const lowerCaseName = file.name.toLowerCase();
-    if (lowerCaseName.endsWith(EXCALIDRAW_FILE_SUFFIX)) {
+    if (isExcalidrawFile(file)) {
         return 'lucide-image';
     }
 
@@ -852,18 +850,24 @@ export function useNavigationPaneData({
                 // Apply custom folder icon to shortcut if available
                 const folderPath = item.folder?.path;
                 const folderColor = folderPath ? metadataService.getFolderColor(folderPath) : undefined;
+                const folderBackground = folderPath ? metadataService.getFolderBackgroundColor(folderPath) : undefined;
+                const customIcon = folderPath ? metadataService.getFolderIcon(folderPath) : undefined;
+                const defaultIcon = folderPath === '/' ? 'vault' : 'lucide-folder';
                 return {
                     ...item,
-                    icon: (folderPath && metadataService.getFolderIcon(folderPath)) || 'lucide-folder',
-                    color: folderColor
+                    icon: customIcon || defaultIcon,
+                    color: folderColor,
+                    backgroundColor: folderBackground
                 };
             } else if (item.type === NavigationPaneItemType.SHORTCUT_TAG) {
                 // Apply custom tag icon to shortcut if available
                 const tagColor = metadataService.getTagColor(item.tagPath);
+                const tagBackground = metadataService.getTagBackgroundColor(item.tagPath);
                 return {
                     ...item,
                     icon: metadataService.getTagIcon(item.tagPath) || 'lucide-tags',
-                    color: tagColor
+                    color: tagColor,
+                    backgroundColor: tagBackground
                 };
             } else if (item.type === NavigationPaneItemType.SHORTCUT_NOTE) {
                 const note = item.note;

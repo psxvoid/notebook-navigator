@@ -77,7 +77,8 @@ export const STRINGS_FR = {
         add: 'Ajouter aux raccourcis',
         remove: 'Retirer des raccourcis',
         moveUp: 'Déplacer vers le haut',
-        moveDown: 'Déplacer vers le bas'
+        moveDown: 'Déplacer vers le bas',
+        folderNotesPinned: '{count} notes de dossier épinglées'
     },
 
     // Pane header
@@ -443,11 +444,13 @@ export const STRINGS_FR = {
         createNewNote: 'Créer une nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Déplacer les fichiers', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: 'Convertir en note de dossier', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: 'Épingler toutes les notes de dossier', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Naviguer vers le dossier', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Ajouter aux raccourcis', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Basculer descendants', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Basculer les éléments masqués', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleTagSort: 'Basculer le tri des étiquettes', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'Replier / déplier tous les éléments', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Ajouter une étiquette aux fichiers sélectionnés', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Supprimer une étiquette des fichiers sélectionnés', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
@@ -493,6 +496,7 @@ export const STRINGS_FR = {
         groups: {
             general: {
                 view: 'Apparence',
+                desktopAppearance: 'Apparence sur ordinateur',
                 behavior: 'Comportement',
                 filtering: 'Filtrage',
                 formatting: 'Formatage'
@@ -606,11 +610,11 @@ export const STRINGS_FR = {
                 desc: 'Action rapide : Ouvrir la note dans un nouvel onglet.'
             },
             dualPane: {
-                name: 'Disposition à double panneau (ordinateur uniquement, non synchronisé)',
+                name: 'Disposition à double panneau (non synchronisé)',
                 desc: 'Afficher le panneau de navigation et le panneau de liste côte à côte sur ordinateur.'
             },
             dualPaneOrientation: {
-                name: 'Orientation du double panneau',
+                name: 'Orientation du double panneau (non synchronisé)',
                 desc: 'Choisir une disposition horizontale ou verticale lorsque le double panneau est actif.',
                 options: {
                     horizontal: 'Séparation horizontale',
@@ -618,7 +622,7 @@ export const STRINGS_FR = {
                 }
             },
             dualPaneBackground: {
-                name: 'Couleur de fond (bureau uniquement)',
+                name: 'Couleur de fond',
                 desc: 'Choisissez les couleurs de fond pour les volets de navigation et de liste sur bureau.',
                 options: {
                     separate: 'Arrière-plans séparés',
@@ -670,7 +674,7 @@ export const STRINGS_FR = {
                 desc: 'Nombre de notes récentes à afficher.'
             },
             showTooltips: {
-                name: 'Afficher les infobulles (ordinateur uniquement)',
+                name: 'Afficher les infobulles',
                 desc: 'Affiche des infobulles avec des informations supplémentaires pour les notes et dossiers au survol.'
             },
             showTooltipPath: {

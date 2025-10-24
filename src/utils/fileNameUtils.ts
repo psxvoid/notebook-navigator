@@ -19,6 +19,41 @@
 import { TFile } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 
+export const EXCALIDRAW_BASENAME_SUFFIX = '.excalidraw';
+
+/**
+ * Checks whether a filename ends with the Excalidraw composite extension (.excalidraw.md).
+ */
+export function isExcalidrawFileName(value: string): boolean {
+    if (!value) {
+        return false;
+    }
+
+    return value.toLowerCase().endsWith(`${EXCALIDRAW_BASENAME_SUFFIX}.md`);
+}
+
+/**
+ * Removes the Excalidraw basename suffix when present.
+ * Returns the original value for non-Excalidraw names.
+ */
+export function stripExcalidrawSuffix(value: string): string {
+    if (!value) {
+        return value;
+    }
+    const lower = value.toLowerCase();
+    if (lower.endsWith(EXCALIDRAW_BASENAME_SUFFIX)) {
+        return value.slice(0, -EXCALIDRAW_BASENAME_SUFFIX.length);
+    }
+    return value;
+}
+
+/**
+ * Checks whether a file uses the Excalidraw composite extension (.excalidraw.md).
+ */
+export function isExcalidrawFile(file: TFile): boolean {
+    return isExcalidrawFileName(file.name);
+}
+
 /**
  * Get the display name for a file
  * @param file - The file to get the name for
@@ -30,6 +65,11 @@ export function getFileDisplayName(file: TFile, cachedData?: { fn?: string }, se
     // If we have cached frontmatter name and feature is enabled, use it
     if (cachedData?.fn && settings?.useFrontmatterMetadata) {
         return cachedData.fn;
+    }
+
+    // Strip .excalidraw suffix from Excalidraw files for cleaner display
+    if (isExcalidrawFile(file)) {
+        return stripExcalidrawSuffix(file.basename);
     }
 
     // Fall back to file basename

@@ -29,6 +29,7 @@ import { buildNoteCountDisplay } from '../utils/noteCountFormatting';
 interface ShortcutItemProps {
     icon: string;
     color?: string;
+    backgroundColor?: string;
     label: string;
     description?: string;
     level: number;
@@ -56,6 +57,7 @@ interface ShortcutItemProps {
 export const ShortcutItem = React.memo(function ShortcutItem({
     icon,
     color,
+    backgroundColor,
     label,
     description,
     level,
@@ -106,10 +108,18 @@ export const ShortcutItem = React.memo(function ShortcutItem({
         return onLabelClick;
     }, [isMissing, onLabelClick, shouldDisableRow]);
 
+    const rowBackgroundColor = useMemo(() => {
+        if (isMissing) {
+            return undefined;
+        }
+        return backgroundColor;
+    }, [backgroundColor, isMissing]);
+
     return (
         <NavigationListRow
             icon={icon}
             color={color}
+            backgroundColor={rowBackgroundColor}
             label={label}
             description={description}
             level={level}
