@@ -108,6 +108,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     iconizeFormat: false,
     fileNameRows: 1,
     showFileDate: true,
+    // Default to showing modified date when sorting alphabetically
+    alphabeticalDateMode: 'modified',
     showFileTags: true,
     showFileTagAncestors: true,
     colorFileTags: true,

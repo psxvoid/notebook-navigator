@@ -722,6 +722,14 @@ export const STRINGS_EN = {
                 name: 'Show date',
                 desc: 'Display the date below note names.'
             },
+            alphabeticalDateMode: {
+                name: 'Date display for name sort',
+                desc: 'Which date to display when sorting notes by name.',
+                options: {
+                    created: 'Created',
+                    modified: 'Modified'
+                }
+            },
             showFileTags: {
                 name: 'Show file tags',
                 desc: 'Display clickable tags in file items.'

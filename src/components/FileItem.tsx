@@ -578,12 +578,14 @@ export const FileItem = React.memo(function FileItem({
 
         const createdTimestamp = getFileCreatedTime(file);
         const modifiedTimestamp = getFileModifiedTime(file);
-        const preferCreatedForTitleSort =
-            settings.useFrontmatterMetadata && settings.frontmatterCreatedField.trim().length > 0 && sortOption.startsWith('title');
+        const isAlphabeticalSort = sortOption.startsWith('title');
+        const alphabeticalMode = settings.alphabeticalDateMode ?? 'modified';
 
-        // Determine which date to show based on sort option
+        // Determine which date to show based on sort option and user preference
         const dateField = getDateField(sortOption);
-        const timestamp = dateField === 'ctime' || preferCreatedForTitleSort ? createdTimestamp : modifiedTimestamp;
+        // For alphabetical sort, use the alphabeticalMode setting; for date sorts, use the sort field
+        const shouldUseCreatedDate = isAlphabeticalSort ? alphabeticalMode === 'created' : dateField === 'ctime';
+        const timestamp = shouldUseCreatedDate ? createdTimestamp : modifiedTimestamp;
 
         // Pinned items are all grouped under "📌 Pinned" section regardless of their actual dates
         // We need to calculate the actual date group to show smart formatting
@@ -612,8 +614,7 @@ export const FileItem = React.memo(function FileItem({
         appearanceSettings.showDate,
         settings.dateFormat,
         settings.timeFormat,
-        settings.frontmatterCreatedField,
-        settings.useFrontmatterMetadata,
+        settings.alphabeticalDateMode,
         getFileCreatedTime,
         getFileModifiedTime,
         metadataVersion

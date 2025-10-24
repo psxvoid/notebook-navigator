@@ -722,6 +722,14 @@ export const STRINGS_KO = {
                 name: '날짜 표시',
                 desc: '노트 이름 아래에 날짜를 표시합니다.'
             },
+            alphabeticalDateMode: {
+                name: '이름 정렬 날짜 표시',
+                desc: '노트를 이름으로 정렬할 때 표시할 날짜.',
+                options: {
+                    created: '생성일',
+                    modified: '수정일'
+                }
+            },
             showFileTags: {
                 name: '파일 태그 표시',
                 desc: '파일 항목에 클릭 가능한 태그를 표시합니다. 태그 색상을 사용하여 다른 태그 유형을 시각적으로 구분합니다.'

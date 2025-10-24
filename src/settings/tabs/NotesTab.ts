@@ -305,6 +305,8 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 })
         );
 
+    // Container for settings that depend on showFileDate being enabled
+    const fileDateSubSettingsEl = containerEl.createDiv('nn-sub-settings');
     new Setting(containerEl)
         .setName(strings.settings.items.showFileDate.name)
         .setDesc(strings.settings.items.showFileDate.desc)
@@ -312,7 +314,27 @@ export function renderNotesTab(context: SettingsTabContext): void {
             toggle.setValue(plugin.settings.showFileDate).onChange(async value => {
                 plugin.settings.showFileDate = value;
                 await plugin.saveSettingsAndUpdate();
+                // Show or hide dependent settings based on toggle state
+                fileDateSubSettingsEl.toggle(value);
             })
+        );
+
+    // Initially show or hide based on current setting value
+    fileDateSubSettingsEl.toggle(plugin.settings.showFileDate);
+
+    // Dropdown to choose which date to display when sorting alphabetically
+    new Setting(fileDateSubSettingsEl)
+        .setName(strings.settings.items.alphabeticalDateMode.name)
+        .setDesc(strings.settings.items.alphabeticalDateMode.desc)
+        .addDropdown(dropdown =>
+            dropdown
+                .addOption('created', strings.settings.items.alphabeticalDateMode.options.created)
+                .addOption('modified', strings.settings.items.alphabeticalDateMode.options.modified)
+                .setValue(plugin.settings.alphabeticalDateMode)
+                .onChange(async value => {
+                    plugin.settings.alphabeticalDateMode = value === 'modified' ? 'modified' : 'created';
+                    await plugin.saveSettingsAndUpdate();
+                })
         );
 
     const showFileTagsSetting = new Setting(containerEl)

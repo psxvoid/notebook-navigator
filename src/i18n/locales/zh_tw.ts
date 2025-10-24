@@ -721,6 +721,14 @@ export const STRINGS_ZH_TW = {
                 name: '顯示日期',
                 desc: '在筆記名稱下方顯示日期。'
             },
+            alphabeticalDateMode: {
+                name: '按名稱排序時的日期顯示',
+                desc: '按名稱排序筆記時顯示的日期。',
+                options: {
+                    created: '建立',
+                    modified: '修改'
+                }
+            },
             showFileTags: {
                 name: '顯示檔案標籤',
                 desc: '在檔案項目中顯示可點擊的標籤。使用標籤顏色來視覺上區分不同類型的標籤。'

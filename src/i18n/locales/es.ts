@@ -723,6 +723,14 @@ export const STRINGS_ES = {
                 name: 'Mostrar fecha',
                 desc: 'Muestra la fecha debajo de los nombres de las notas.'
             },
+            alphabeticalDateMode: {
+                name: 'Visualización de fecha para orden por nombre',
+                desc: 'Qué fecha mostrar al ordenar notas por nombre.',
+                options: {
+                    created: 'Creación',
+                    modified: 'Modificación'
+                }
+            },
             showFileTags: {
                 name: 'Mostrar etiquetas de archivo',
                 desc: 'Muestra etiquetas clicables en los elementos de archivo. Use colores de etiquetas para distinguir visualmente diferentes tipos de etiquetas.'

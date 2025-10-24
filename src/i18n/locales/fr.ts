@@ -725,6 +725,14 @@ export const STRINGS_FR = {
                 name: 'Afficher la date',
                 desc: 'Afficher la date sous les noms des notes.'
             },
+            alphabeticalDateMode: {
+                name: 'Affichage de date pour tri par nom',
+                desc: 'Quelle date afficher lors du tri des notes par nom.',
+                options: {
+                    created: 'Création',
+                    modified: 'Modification'
+                }
+            },
             showFileTags: {
                 name: 'Afficher les tags de fichier',
                 desc: 'Affiche les tags cliquables dans les éléments de fichier. Utilisez les couleurs de tags pour distinguer visuellement les différents types de tags.'

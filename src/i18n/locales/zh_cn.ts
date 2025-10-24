@@ -723,6 +723,14 @@ export const STRINGS_ZH_CN = {
                 name: '显示日期',
                 desc: '在笔记名称下方显示日期。'
             },
+            alphabeticalDateMode: {
+                name: '按名称排序时的日期显示',
+                desc: '按名称排序笔记时显示的日期。',
+                options: {
+                    created: '创建',
+                    modified: '修改'
+                }
+            },
             showFileTags: {
                 name: '显示文件标签',
                 desc: '在文件项中显示可点击的标签。使用标签颜色来直观区分不同的标签类型。'

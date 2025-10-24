@@ -724,6 +724,14 @@ export const STRINGS_JA = {
                 name: '日付を表示',
                 desc: 'ノート名の下に日付を表示します。'
             },
+            alphabeticalDateMode: {
+                name: '名前ソート時の日付表示',
+                desc: 'ノートを名前でソートする際に表示する日付。',
+                options: {
+                    created: '作成日',
+                    modified: '更新日'
+                }
+            },
             showFileTags: {
                 name: 'ファイルタグを表示',
                 desc: 'ファイルアイテムにクリック可能なタグを表示します。タグの色を使用して、異なるタグタイプを視覚的に区別できます。'

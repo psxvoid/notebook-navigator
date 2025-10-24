@@ -524,5 +524,12 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     }
 }
 
-export type { NotebookNavigatorSettings, SortOption, ItemScope, MultiSelectModifier, ListPaneTitleOption } from './settings/types';
+export type {
+    NotebookNavigatorSettings,
+    SortOption,
+    ItemScope,
+    MultiSelectModifier,
+    ListPaneTitleOption,
+    AlphabeticalDateMode
+} from './settings/types';
 export { DEFAULT_SETTINGS } from './settings/defaultSettings';

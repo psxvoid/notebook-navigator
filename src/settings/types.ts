@@ -47,6 +47,9 @@ export type ListPaneTitleOption = 'header' | 'list' | 'hidden';
 /** Grouping options for list pane notes */
 export type ListNoteGroupingOption = 'none' | 'date' | 'folder';
 
+/** Date source to display when alphabetical sorting is active */
+export type AlphabeticalDateMode = 'created' | 'modified';
+
 /**
  * Plugin settings interface defining all configurable options
  * Settings are organized by tab for easier maintenance
@@ -133,6 +136,7 @@ export interface NotebookNavigatorSettings {
     iconizeFormat: boolean;
     fileNameRows: number;
     showFileDate: boolean;
+    alphabeticalDateMode: AlphabeticalDateMode;
     showFileTags: boolean;
     showFileTagAncestors: boolean;
     colorFileTags: boolean;

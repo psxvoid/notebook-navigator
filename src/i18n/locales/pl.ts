@@ -724,6 +724,14 @@ export const STRINGS_PL = {
                 name: 'Pokaż datę',
                 desc: 'Wyświetl datę pod nazwami notatek.'
             },
+            alphabeticalDateMode: {
+                name: 'Wyświetlanie daty przy sortowaniu po nazwie',
+                desc: 'Która data ma być wyświetlana przy sortowaniu notatek po nazwie.',
+                options: {
+                    created: 'Utworzenie',
+                    modified: 'Modyfikacja'
+                }
+            },
             showFileTags: {
                 name: 'Pokaż tagi plików',
                 desc: 'Wyświetl klikalne tagi w elementach plików. Użyj kolorów tagów aby wizualnie odróżnić różne typy tagów.'

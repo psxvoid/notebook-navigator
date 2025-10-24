@@ -726,6 +726,14 @@ export const STRINGS_DE = {
                 name: 'Datum anzeigen',
                 desc: 'Das Datum unter Notizennamen anzeigen.'
             },
+            alphabeticalDateMode: {
+                name: 'Datumsanzeige für Namenssortierung',
+                desc: 'Welches Datum bei Sortierung nach Namen angezeigt wird.',
+                options: {
+                    created: 'Erstellt',
+                    modified: 'Geändert'
+                }
+            },
             showFileTags: {
                 name: 'Datei-Tags anzeigen',
                 desc: 'Zeigt klickbare Tags in Datei-Elementen an. Verwenden Sie Tag-Farben, um verschiedene Tag-Typen visuell zu unterscheiden.'
