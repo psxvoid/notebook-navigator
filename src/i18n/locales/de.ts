@@ -179,6 +179,7 @@ export const STRINGS_DE = {
             changeColor: 'Farbe ändern',
             changeBackground: 'Hintergrund ändern',
             excludeFolder: 'Ordner verstecken',
+            unhideFolder: 'Ordner einblenden',
             moveFolder: 'Verschieben nach...',
             renameFolder: 'Ordner umbenennen',
             deleteFolder: 'Ordner löschen'
@@ -359,7 +360,8 @@ export const STRINGS_DE = {
             noFileSelected: 'Keine Datei ausgewählt'
         },
         notices: {
-            excludedFolder: 'Ordner ausgeschlossen: {name}'
+            hideFolder: 'Ordner ausgeblendet: {name}',
+            showFolder: 'Ordner eingeblendet: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',

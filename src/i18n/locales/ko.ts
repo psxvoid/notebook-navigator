@@ -176,6 +176,7 @@ export const STRINGS_KO = {
             changeColor: '아이콘 색상 변경',
             changeBackground: '배경색 변경',
             excludeFolder: '폴더 숨기기',
+            unhideFolder: '폴더 표시',
             moveFolder: '이동...',
             renameFolder: '폴더 이름 변경',
             deleteFolder: '폴더 삭제'
@@ -356,7 +357,8 @@ export const STRINGS_KO = {
             noFileSelected: '선택된 파일이 없습니다'
         },
         notices: {
-            excludedFolder: '숨겨진 폴더: {name}'
+            hideFolder: '폴더 숨김: {name}',
+            showFolder: '폴더 표시: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count}개의 파일이 삭제됨',

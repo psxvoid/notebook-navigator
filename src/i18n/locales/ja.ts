@@ -177,6 +177,7 @@ export const STRINGS_JA = {
             changeColor: '色を変更',
             changeBackground: '背景色を変更',
             excludeFolder: 'フォルダを非表示',
+            unhideFolder: 'フォルダを表示',
             moveFolder: '移動先...',
             renameFolder: 'フォルダの名前を変更',
             deleteFolder: 'フォルダを削除'
@@ -357,7 +358,8 @@ export const STRINGS_JA = {
             noFileSelected: 'ファイルが選択されていません'
         },
         notices: {
-            excludedFolder: 'フォルダを除外: {name}'
+            hideFolder: 'フォルダを非表示: {name}',
+            showFolder: 'フォルダを表示: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',

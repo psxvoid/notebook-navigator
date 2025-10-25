@@ -176,6 +176,7 @@ export const STRINGS_PL = {
             changeColor: 'Zmień kolor ikony',
             changeBackground: 'Zmień tło',
             excludeFolder: 'Ukryj folder',
+            unhideFolder: 'Pokaż folder',
             moveFolder: 'Przenieś do...',
             renameFolder: 'Zmień nazwę folderu',
             deleteFolder: 'Usuń folder'
@@ -358,7 +359,8 @@ export const STRINGS_PL = {
             noFileSelected: 'Żaden plik nie jest wybrany'
         },
         notices: {
-            excludedFolder: 'Wykluczony folder: {name}'
+            hideFolder: 'Ukryty folder: {name}',
+            showFolder: 'Widoczny folder: {name}'
         },
         notifications: {
             deletedMultipleFiles: 'Usunięto {count} plików',

@@ -177,6 +177,7 @@ export const STRINGS_ZH_CN = {
             changeColor: '更改颜色',
             changeBackground: '更改背景',
             excludeFolder: '隐藏文件夹',
+            unhideFolder: '显示文件夹',
             moveFolder: '移动到...',
             renameFolder: '重命名文件夹',
             deleteFolder: '删除文件夹'
@@ -357,7 +358,8 @@ export const STRINGS_ZH_CN = {
             noFileSelected: '未选择文件'
         },
         notices: {
-            excludedFolder: '已排除文件夹：{name}'
+            hideFolder: '已隐藏文件夹：{name}',
+            showFolder: '已显示文件夹：{name}'
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',

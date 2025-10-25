@@ -177,6 +177,7 @@ export const STRINGS_ES = {
             changeColor: 'Cambiar color',
             changeBackground: 'Cambiar fondo',
             excludeFolder: 'Ocultar carpeta',
+            unhideFolder: 'Mostrar carpeta',
             moveFolder: 'Mover a...',
             renameFolder: 'Renombrar carpeta',
             deleteFolder: 'Eliminar carpeta'
@@ -357,7 +358,8 @@ export const STRINGS_ES = {
             noFileSelected: 'No hay archivo seleccionado'
         },
         notices: {
-            excludedFolder: 'Carpeta excluida: {name}'
+            hideFolder: 'Carpeta oculta: {name}',
+            showFolder: 'Carpeta mostrada: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',

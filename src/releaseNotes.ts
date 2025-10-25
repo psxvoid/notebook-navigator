@@ -85,6 +85,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: ==Date display for name sort==. Choose which date to display when sorting notes by name (modified or created).',
             'New setting: ==Reset separator position==. Use it to reset the separator between navigation and list panes back to default position.'
         ],
+        improved: [
+            'You can now right-click "visible" hidden folders and choose "Unhide" without going to settings.',
+        ],
         fixed: [
             'Fixed a startup crash issue when parsing tags with double slash in their path, like #tag//subtag. Thanks @kennethn for helping me fix this one.',
             'Fixed a crash when resizing left pane while using banner image. The scrollbar that appears triggered an infinite render loop. Thanks @muttleydosomething for all the amazing help solving this one.',

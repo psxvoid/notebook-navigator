@@ -25,6 +25,19 @@ import { ExtendedApp } from '../../types/obsidian-extended';
 import { cleanupExclusionPatterns, isFolderInExcludedFolder } from '../../utils/fileFilters';
 import { ItemType } from '../../types';
 
+const normalizeVaultPath = (value: string): string => {
+    if (!value) {
+        return value;
+    }
+
+    const withLeadingSlash = value.startsWith('/') ? value : `/${value}`;
+    if (withLeadingSlash.length > 1 && withLeadingSlash.endsWith('/')) {
+        return withLeadingSlash.slice(0, -1);
+    }
+
+    return withLeadingSlash;
+};
+
 /**
  * Adds folder creation commands (new note/folder/canvas/base/drawing) to a menu.
  */
@@ -286,14 +299,32 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     menu.addSeparator();
 
-    // Hide folder (not available for root folder or already hidden folders)
+    // Hide/Unhide folder (not available for root folder)
     if (folder.path !== '/') {
         // Check if folder is already excluded using proper wildcard pattern matching
         const excludedPatterns = services.plugin.settings.excludedFolders;
         const isExcluded = isFolderInExcludedFolder(folder, excludedPatterns);
+        const normalizedFolderPath = normalizeVaultPath(folder.path);
+        const exactPathExclusion = excludedPatterns.find(pattern => {
+            if (!pattern.startsWith('/') || pattern.includes('*')) {
+                return false;
+            }
+            return normalizeVaultPath(pattern) === normalizedFolderPath;
+        });
 
-        // Only show "Hide folder" if not already excluded
-        if (!isExcluded) {
+        if (exactPathExclusion) {
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(strings.contextMenu.folder.unhideFolder)
+                    .setIcon('lucide-eye')
+                    .onClick(async () => {
+                        const currentExcluded = services.plugin.settings.excludedFolders;
+                        services.plugin.settings.excludedFolders = currentExcluded.filter(pattern => pattern !== exactPathExclusion);
+                        await services.plugin.saveSettingsAndUpdate();
+
+                        new Notice(strings.fileSystem.notices.showFolder.replace('{name}', folder.name));
+                    });
+            });
+        } else if (!isExcluded) {
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.folder.excludeFolder)
                     .setIcon('lucide-eye-off')
@@ -309,7 +340,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                         services.plugin.settings.excludedFolders = cleanedPatterns;
                         await services.plugin.saveSettingsAndUpdate();
 
-                        new Notice(strings.fileSystem.notices.excludedFolder.replace('{name}', folder.name));
+                        new Notice(strings.fileSystem.notices.hideFolder.replace('{name}', folder.name));
                     });
             });
         }

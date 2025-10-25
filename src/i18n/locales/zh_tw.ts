@@ -177,6 +177,7 @@ export const STRINGS_ZH_TW = {
             changeColor: '變更顏色',
             changeBackground: '變更背景',
             excludeFolder: '隱藏資料夾',
+            unhideFolder: '顯示資料夾',
             moveFolder: '移動至...',
             renameFolder: '重新命名資料夾',
             deleteFolder: '刪除資料夾'
@@ -356,7 +357,8 @@ export const STRINGS_ZH_TW = {
             noFileSelected: '未選取檔案'
         },
         notices: {
-            excludedFolder: '已排除資料夾：{name}'
+            hideFolder: '已隱藏資料夾：{name}',
+            showFolder: '已顯示資料夾：{name}'
         },
         notifications: {
             deletedMultipleFiles: '已刪除 {count} 個檔案',
