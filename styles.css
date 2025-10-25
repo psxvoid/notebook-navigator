@@ -1944,7 +1944,7 @@ body {
     color: var(--nn-theme-file-selected-date-color);
 }
 
-.nn-file.nn-selected .nn-file-parent {
+.nn-file.nn-selected .nn-file-folder {
     color: var(--nn-theme-file-selected-parent-color);
 }
 

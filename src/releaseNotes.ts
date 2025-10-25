@@ -88,6 +88,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Fixed a startup crash issue when parsing tags with double slash in their path, like #tag//subtag. Thanks @kennethn for helping me fix this one.',
             'Fixed a crash when resizing left pane while using banner image. The scrollbar that appears triggered an infinite render loop. Thanks @muttleydosomething for all the amazing help solving this one.',
             'Fixed an issue where root folder added to shortcuts would show without name and with the wrong icon.',
+            'Fixed an issue where the Style & theme setting "Selected file parent folder color" did not work.',
             'Fixed two drag and drop issues: Dragging a file from a subfolder to the list pane would cause it to move to the current folder, and dragging and holding in listpane would incorrectly cause the current folder to expand in navigation pane.',
             'Files and tags in shortcuts area now properly show background color.',
             'Excalidraw files now display with clean names (without .excalidraw suffix) and maintain correct list item height when renamed.'
