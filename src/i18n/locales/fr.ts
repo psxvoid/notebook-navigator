@@ -681,6 +681,12 @@ export const STRINGS_FR = {
                 name: 'Afficher le chemin',
                 desc: 'Affiche le chemin du dossier sous le nom des notes dans les infobulles.'
             },
+            resetPaneSeparator: {
+                name: 'Réinitialiser la position du séparateur',
+                desc: 'Restaure le diviseur de navigation à la taille par défaut lorsque la poignée est hors de vue.',
+                buttonText: 'Réinitialiser la position',
+                notice: 'Séparateur du panneau de navigation réinitialisé. Redémarrez Obsidian ou rouvrez Notebook Navigator pour appliquer.'
+            },
             multiSelectModifier: {
                 name: 'Modificateur de sélection multiple',
                 desc: 'Choisissez quelle touche modificatrice active la sélection multiple. Quand Option/Alt est sélectionné, Cmd/Ctrl clic ouvre les notes dans un nouvel onglet.',

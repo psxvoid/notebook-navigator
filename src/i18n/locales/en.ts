@@ -679,6 +679,12 @@ export const STRINGS_EN = {
                 name: 'Show path',
                 desc: 'Display the folder path below note names in tooltips.'
             },
+            resetPaneSeparator: {
+                name: 'Reset separator position',
+                desc: 'Restore the navigation divider to the default size when the handle is out of view.',
+                buttonText: 'Reset position',
+                notice: 'Navigation pane separator reset. Restart Obsidian or reopen Notebook Navigator to apply.'
+            },
             multiSelectModifier: {
                 name: 'Multi-select modifier',
                 desc: 'Choose which modifier key toggles multi-selection. When Option/Alt is selected, Cmd/Ctrl click opens notes in a new tab.',

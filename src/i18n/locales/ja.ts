@@ -680,6 +680,12 @@ export const STRINGS_JA = {
                 name: 'パスを表示',
                 desc: 'ツールチップでノート名の下にフォルダパスを表示します。'
             },
+            resetPaneSeparator: {
+                name: 'セパレーターの位置をリセット',
+                desc: 'ハンドルが表示されていない場合、ナビゲーション区切り線をデフォルトのサイズに戻します。',
+                buttonText: '位置をリセット',
+                notice: 'ナビゲーションペインのセパレーターがリセットされました。Obsidianを再起動するか、Notebook Navigatorを開き直して適用してください。'
+            },
             multiSelectModifier: {
                 name: '複数選択モディファイア',
                 desc: '複数選択を切り替えるモディファイアキーを選択します。Option/Altが選択されている場合、Cmd/Ctrlクリックでノートを新しいタブで開きます。',

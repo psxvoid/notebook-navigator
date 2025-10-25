@@ -683,6 +683,12 @@ export const STRINGS_DE = {
                 name: 'Pfad anzeigen',
                 desc: 'Zeigt den Ordnerpfad unter den Notiznamen in Tooltips an.'
             },
+            resetPaneSeparator: {
+                name: 'Trennlinienposition zurücksetzen',
+                desc: 'Stellt die Navigationstrennlinie auf die Standardgröße zurück, wenn der Griff außerhalb des sichtbaren Bereichs ist.',
+                buttonText: 'Position zurücksetzen',
+                notice: 'Navigationstrennlinie zurückgesetzt. Starten Sie Obsidian neu oder öffnen Sie Notebook Navigator erneut, um die Änderungen anzuwenden.'
+            },
             multiSelectModifier: {
                 name: 'Mehrfachauswahl-Modifikator',
                 desc: 'Wählen Sie, welche Modifikatortaste die Mehrfachauswahl umschaltet. Wenn Option/Alt ausgewählt ist, öffnet Cmd/Strg-Klick Notizen in einem neuen Tab.',

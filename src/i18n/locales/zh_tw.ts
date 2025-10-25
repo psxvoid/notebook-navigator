@@ -678,6 +678,12 @@ export const STRINGS_ZH_TW = {
                 name: '顯示路徑',
                 desc: '在工具提示中的筆記名稱下方顯示資料夾路徑。'
             },
+            resetPaneSeparator: {
+                name: '重置分隔符位置',
+                desc: '當拖動手柄不可見時，將導覽分隔線恢復到預設大小。',
+                buttonText: '重置位置',
+                notice: '導覽面板分隔符已重置。重新啟動 Obsidian 或重新開啟 Notebook Navigator 以套用。'
+            },
             multiSelectModifier: {
                 name: '多重選取修飾鍵',
                 desc: '選擇哪個修飾鍵切換多重選取。選擇 Option/Alt 時，Cmd/Ctrl 點擊會在一個新分頁中開啟筆記。',

@@ -679,6 +679,12 @@ export const STRINGS_ZH_CN = {
                 name: '显示路径',
                 desc: '在工具提示中的笔记名称下方显示文件夹路径。'
             },
+            resetPaneSeparator: {
+                name: '重置分隔符位置',
+                desc: '当拖动手柄不可见时，将导航分隔线恢复到默认大小。',
+                buttonText: '重置位置',
+                notice: '导航面板分隔符已重置。重启 Obsidian 或重新打开 Notebook Navigator 以应用。'
+            },
             multiSelectModifier: {
                 name: '多选修饰键',
                 desc: '选择哪个修饰键切换多选模式。选择 Option/Alt 时，Cmd/Ctrl 点击会在新标签页中打开笔记。',

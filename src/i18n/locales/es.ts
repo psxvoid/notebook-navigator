@@ -680,6 +680,12 @@ export const STRINGS_ES = {
                 name: 'Mostrar ruta',
                 desc: 'Muestra la ruta de la carpeta debajo del nombre de las notas en los tooltips.'
             },
+            resetPaneSeparator: {
+                name: 'Restablecer posición del separador',
+                desc: 'Restaura el divisor de navegación al tamaño predeterminado cuando el control esté fuera de vista.',
+                buttonText: 'Restablecer posición',
+                notice: 'Separador del panel de navegación restablecido. Reinicia Obsidian o vuelve a abrir Notebook Navigator para aplicar.'
+            },
             multiSelectModifier: {
                 name: 'Modificador de selección múltiple',
                 desc: 'Elige qué tecla modificadora activa la selección múltiple. Cuando se selecciona Option/Alt, Cmd/Ctrl clic abre notas en una nueva pestaña.',

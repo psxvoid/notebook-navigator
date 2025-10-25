@@ -679,6 +679,12 @@ export const STRINGS_KO = {
                 name: '경로 표시',
                 desc: '도구 설명에서 노트 이름 아래에 폴더 경로를 표시합니다.'
             },
+            resetPaneSeparator: {
+                name: '구분선 위치 초기화',
+                desc: '핸들이 보이지 않을 때 탐색 구분선을 기본 크기로 복원합니다.',
+                buttonText: '위치 초기화',
+                notice: '탐색 창 구분선이 초기화되었습니다. Obsidian을 재시작하거나 Notebook Navigator를 다시 열어 적용하세요.'
+            },
             multiSelectModifier: {
                 name: '다중 선택 수정자',
                 desc: '다중 선택을 전환하는 수정자 키를 선택하세요. Option/Alt를 선택하면 Cmd/Ctrl 클릭이 새 탭에서 노트를 엽니다.',

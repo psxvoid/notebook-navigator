@@ -681,6 +681,12 @@ export const STRINGS_PL = {
                 name: 'Pokaż ścieżkę',
                 desc: 'Wyświetla ścieżkę folderu pod nazwami notatek w podpowiedziach.'
             },
+            resetPaneSeparator: {
+                name: 'Zresetuj pozycję separatora',
+                desc: 'Przywraca przegrodę nawigacji do domyślnego rozmiaru, gdy uchwyt jest poza widokiem.',
+                buttonText: 'Zresetuj pozycję',
+                notice: 'Separator panelu nawigacji został zresetowany. Uruchom ponownie Obsidian lub otwórz ponownie Notebook Navigator, aby zastosować.'
+            },
             multiSelectModifier: {
                 name: 'Modyfikator wielokrotnego wyboru',
                 desc: 'Wybierz, który klawisz modyfikatora przełącza wielokrotny wybór. Gdy wybrano Option/Alt, Cmd/Ctrl klik otwiera notatki w nowej karcie.',

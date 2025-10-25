@@ -82,7 +82,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'You can now also group files by subfolder! The old setting "Group notes by date" is now replaced with a dropdown where you can choose no grouping, date or folder. Note that tags are always sorted by date or none.',
             'New command: ==Pin all folder notes==. Use it to quickly pin all folder notes in the vault.',
             'New command: ==Toggle tag sort order==. Use it to quickly switch between alphabetical and frequency based sorting for tags.',
-            'New setting: ==Date display for name sort==. Choose which date to display when sorting notes by name (modified or created).'
+            'New setting: ==Date display for name sort==. Choose which date to display when sorting notes by name (modified or created).',
+            'New setting: ==Reset separator position==. Use it to reset the separator between navigation and list panes back to default position.'
         ],
         fixed: [
             'Fixed a startup crash issue when parsing tags with double slash in their path, like #tag//subtag. Thanks @kennethn for helping me fix this one.',
