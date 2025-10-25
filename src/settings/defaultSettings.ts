@@ -27,25 +27,27 @@ import type { NotebookNavigatorSettings } from './types';
  * Used when plugin is first installed or settings are reset
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
-    // General tab - Startup & layout
+    // General tab - Filtering
+    fileVisibility: FILE_VISIBILITY.DOCUMENTS,
+    excludedFolders: [],
+    excludedFiles: [],
+
+    // General tab - Behavior
+    autoRevealActiveFile: true,
+    autoRevealIgnoreRightSidebar: true,
+
+    // General tab - View
     startView: 'files',
-    showTooltips: false,
-    showTooltipPath: true,
-    dualPaneBackground: 'separate',
 
     // General tab - Homepage
     homepage: null,
     mobileHomepage: null,
     useMobileHomepage: false,
 
-    // General tab - Behavior
-    autoRevealActiveFile: true,
-    autoRevealIgnoreRightSidebar: true,
-
-    // General tab - Filtering
-    fileVisibility: FILE_VISIBILITY.DOCUMENTS,
-    excludedFolders: [],
-    excludedFiles: [],
+    // General tab - Desktop appearance
+    showTooltips: false,
+    showTooltipPath: true,
+    dualPaneBackground: 'separate',
 
     // General tab - Formatting
     dateFormat: 'MMM d, yyyy',

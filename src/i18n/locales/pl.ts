@@ -498,10 +498,10 @@ export const STRINGS_PL = {
         },
         groups: {
             general: {
+                filtering: 'Filtrowanie',
+                behavior: 'Zachowanie',
                 view: 'Wygląd',
                 desktopAppearance: 'Wygląd na komputerze',
-                behavior: 'Zachowanie',
-                filtering: 'Filtrowanie',
                 formatting: 'Formatowanie'
             },
             navigation: {

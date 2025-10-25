@@ -55,25 +55,27 @@ export type AlphabeticalDateMode = 'created' | 'modified';
  * Settings are organized by tab for easier maintenance
  */
 export interface NotebookNavigatorSettings {
-    // General tab - Startup & layout
+    // General tab - Filtering
+    fileVisibility: FileVisibility;
+    excludedFolders: string[];
+    excludedFiles: string[];
+
+    // General tab - Behavior
+    autoRevealActiveFile: boolean;
+    autoRevealIgnoreRightSidebar: boolean;
+
+    // General tab - View
     startView: 'navigation' | 'files';
-    showTooltips: boolean;
-    showTooltipPath: boolean;
-    dualPaneBackground: DualPaneBackgroundMode;
 
     // General tab - Homepage
     homepage: string | null;
     mobileHomepage: string | null;
     useMobileHomepage: boolean;
 
-    // General tab - Behavior
-    autoRevealActiveFile: boolean;
-    autoRevealIgnoreRightSidebar: boolean;
-
-    // General tab - Filtering
-    fileVisibility: FileVisibility;
-    excludedFolders: string[];
-    excludedFiles: string[];
+    // General tab - Desktop appearance
+    showTooltips: boolean;
+    showTooltipPath: boolean;
+    dualPaneBackground: DualPaneBackgroundMode;
 
     // General tab - Formatting
     dateFormat: string;

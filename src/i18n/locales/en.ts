@@ -496,10 +496,10 @@ export const STRINGS_EN = {
         },
         groups: {
             general: {
+                filtering: 'Filtering',
+                behavior: 'Behavior',
                 view: 'Appearance',
                 desktopAppearance: 'Desktop appearance',
-                behavior: 'Behavior',
-                filtering: 'Filtering',
                 formatting: 'Formatting'
             },
             navigation: {

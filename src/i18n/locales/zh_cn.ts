@@ -497,10 +497,10 @@ export const STRINGS_ZH_CN = {
         },
         groups: {
             general: {
+                filtering: '过滤',
+                behavior: '行为',
                 view: '外观',
                 desktopAppearance: '桌面外观',
-                behavior: '行为',
-                filtering: '过滤',
                 formatting: '格式'
             },
             navigation: {

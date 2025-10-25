@@ -499,10 +499,10 @@ export const STRINGS_DE = {
         },
         groups: {
             general: {
+                filtering: 'Filterung',
+                behavior: 'Verhalten',
                 view: 'Darstellung',
                 desktopAppearance: 'Desktop-Darstellung',
-                behavior: 'Verhalten',
-                filtering: 'Filterung',
                 formatting: 'Formatierung'
             },
             navigation: {

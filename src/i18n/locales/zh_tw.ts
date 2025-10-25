@@ -496,10 +496,10 @@ export const STRINGS_ZH_TW = {
         },
         groups: {
             general: {
+                filtering: '篩選',
+                behavior: '行為',
                 view: '外觀',
                 desktopAppearance: '桌面外觀',
-                behavior: '行為',
-                filtering: '篩選',
                 formatting: '格式'
             },
             navigation: {

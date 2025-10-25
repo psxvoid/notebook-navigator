@@ -496,10 +496,10 @@ export const STRINGS_KO = {
         },
         groups: {
             general: {
+                filtering: '필터링',
+                behavior: '동작',
                 view: '모양',
                 desktopAppearance: '데스크톱 모양새',
-                behavior: '동작',
-                filtering: '필터링',
                 formatting: '서식'
             },
             navigation: {

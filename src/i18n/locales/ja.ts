@@ -497,10 +497,10 @@ export const STRINGS_JA = {
         },
         groups: {
             general: {
+                filtering: 'フィルター',
+                behavior: '動作',
                 view: '外観',
                 desktopAppearance: 'デスクトップの外観',
-                behavior: '動作',
-                filtering: 'フィルター',
                 formatting: '書式'
             },
             navigation: {

@@ -497,10 +497,10 @@ export const STRINGS_ES = {
         },
         groups: {
             general: {
+                filtering: 'Filtrado',
+                behavior: 'Comportamiento',
                 view: 'Apariencia',
                 desktopAppearance: 'Apariencia de escritorio',
-                behavior: 'Comportamiento',
-                filtering: 'Filtrado',
                 formatting: 'Formato'
             },
             navigation: {
