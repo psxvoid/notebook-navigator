@@ -79,7 +79,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: [
             '**VERTICAL SPLIT!** You now have a new setting: ==Dual pane orientation== where you can choose horizontal or vertical split for the dual pane.',
             'To match this setting you also have a new setting: ==Background color== where you can choose to use separate background colors (like today) for navigation and files, make both look like navigation, or make both look like files.',
-            'You can now also group files by subfolder! The old setting "Group notes by date" is now replaced with a dropdown where you can choose no grouping, date or folder. Note that tags are always sorted by date or none.',
+            'You can now also ==group files by subfolder==! The old setting "Group notes by date" is now replaced with a dropdown where you can choose no grouping, date or folder. Note that tags are always sorted by date or none.',
             'New command: ==Pin all folder notes==. Use it to quickly pin all folder notes in the vault.',
             'New command: ==Toggle tag sort order==. Use it to quickly switch between alphabetical and frequency based sorting for tags.',
             'New setting: ==Date display for name sort==. Choose which date to display when sorting notes by name (modified or created).',
@@ -87,6 +87,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: ==Retain tags property after removing last tag==. When enabled, the tags property is kept in frontmatter even when the last tag is removed from a note. Default disabled.'
         ],
         improved: [
+            'Files hidden by property are now shown when "Show hidden items" is toggled with the toolbar button in navigation pane or the command "Toggle hidden items".',
             'You can now right-click "visible" hidden folders and choose "Unhide" without going to settings.',
             'If your homepage is open in another tab during startup, it will now be focused instead of opening it again in the current tab.'
         ],
