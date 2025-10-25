@@ -184,6 +184,11 @@ export function buildTagTreeFromDatabase(
             for (let i = 0; i < parts.length; i++) {
                 const part = parts[i];
                 currentPath = i === 0 ? part : `${currentPath}/${part}`;
+                if (!part) {
+                    // Inline + frontmatter mixes can emit empty fragments (e.g. #tag//child); skip them so we never
+                    // create phantom nodes while keeping currentPath aligned for the next real fragment.
+                    continue;
+                }
                 const normalizedCurrentPath = normalizeTagPathValue(currentPath);
                 if (normalizedCurrentPath.length === 0) {
                     continue;
@@ -218,8 +223,13 @@ export function buildTagTreeFromDatabase(
                 // Link to parent
                 if (i > 0) {
                     const parentPath = normalizeTagPathValue(parts.slice(0, i).join('/'));
+                    if (!parentPath || parentPath === normalizedCurrentPath) {
+                        // Empty fragments or repeated names (/#tag/#tag) can collapse to the same normalized path.
+                        // Skipping avoids wiring a node as its own child which previously created recursion loops.
+                        continue;
+                    }
                     const parent = allNodes.get(parentPath);
-                    if (parent && !parent.children.has(normalizedCurrentPath)) {
+                    if (parent && parent.children.get(normalizedCurrentPath) !== node) {
                         parent.children.set(normalizedCurrentPath, node);
                     }
                 }
@@ -303,13 +313,19 @@ export function findTagNode(tree: Map<string, TagTreeNode>, tagPath: string): Ta
     const lowerPath = cleanPath.toLowerCase();
 
     // Helper function to search recursively
-    function searchNode(nodes: Map<string, TagTreeNode>): TagTreeNode | null {
+    function searchNode(nodes: Map<string, TagTreeNode>, visited: Set<TagTreeNode>): TagTreeNode | null {
         for (const node of nodes.values()) {
+            if (visited.has(node)) {
+                // Corrupted caches (or intentionally malformed tests) can contain cycles.
+                // Tracking visited nodes keeps recursion finite even if a node reappears.
+                continue;
+            }
+            visited.add(node);
             if (node.path === lowerPath) {
                 return node;
             }
             // Search in children
-            const found = searchNode(node.children);
+            const found = searchNode(node.children, visited);
             if (found) {
                 return found;
             }
@@ -317,7 +333,7 @@ export function findTagNode(tree: Map<string, TagTreeNode>, tagPath: string): Ta
         return null;
     }
 
-    return searchNode(tree);
+    return searchNode(tree, new Set());
 }
 
 /**

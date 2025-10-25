@@ -85,6 +85,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: ==Date display for name sort==. Choose which date to display when sorting notes by name (modified or created).'
         ],
         fixed: [
+            'Fixed a startup crash issue when parsing tags with double slash in their path, like #tag//subtag. Thanks @kennethn for helping me fix this one.',
+            'Fixed a crash when resizing left pane while using banner image. The scrollbar that appears triggered an infinite render loop. Thanks @muttleydosomething for all the amazing help solving this one.',
             'Fixed an issue where root folder added to shortcuts would show without name and with the wrong icon.',
             'Fixed two drag and drop issues: Dragging a file from a subfolder to the list pane would cause it to move to the current folder, and dragging and holding in listpane would incorrectly cause the current folder to expand in navigation pane.',
             'Files and tags in shortcuts area now properly show background color.',

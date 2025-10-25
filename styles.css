@@ -955,6 +955,13 @@ body {
     position: relative;
 }
 
+.nn-navigation-pane-scroller[data-banner='true'] {
+    /* Classic Windows scrollbars consume layout width when they appear. Setting a stable gutter
+       keeps the width constant so TanStack Virtual's ResizeObserver doesn't retrigger endlessly
+       when the navigation banner forces the content to overflow during resizing. */
+    scrollbar-gutter: stable;
+}
+
 /* Container for pinned shortcuts displayed above the scrollable navigation tree */
 .nn-shortcut-pinned {
     flex-shrink: 0;
