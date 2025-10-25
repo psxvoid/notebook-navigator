@@ -19,6 +19,7 @@
 import { App, TFile } from 'obsidian';
 import { getDBInstance } from '../storage/fileOperations';
 import { normalizeTagPathValue } from '../utils/tagPrefixMatcher';
+import type { NotebookNavigatorSettings } from '../settings/types';
 
 /**
  * Service for managing tag operations.
@@ -50,13 +51,32 @@ export class TagOperations {
         'u'
     );
 
-    constructor(private app: App) {}
+    constructor(
+        private app: App,
+        private getSettings: () => NotebookNavigatorSettings
+    ) {}
 
     /**
      * Checks if a file is a markdown file
      */
     private isMarkdownFile(file: TFile): boolean {
         return file.extension === 'md';
+    }
+
+    /**
+     * Cleans up the tags property in frontmatter after edits
+     * Preserves the field as an empty array when the setting requires it
+     */
+    private cleanupFrontmatterTags(fm: { tags?: string | string[] }): void {
+        const settings = this.getSettings();
+        const keepProperty = Boolean(settings?.keepEmptyTagsProperty);
+
+        if (keepProperty) {
+            fm.tags = [];
+            return;
+        }
+
+        delete fm.tags;
     }
 
     /**
@@ -321,7 +341,7 @@ export class TagOperations {
                     }
 
                     if (fm.tags.length === 0) {
-                        delete fm.tags;
+                        this.cleanupFrontmatterTags(fm);
                     }
                 } else if (typeof fm.tags === 'string') {
                     const tags = fm.tags.split(',').map((t: string) => t.trim());
@@ -341,7 +361,7 @@ export class TagOperations {
                     }
 
                     if (filteredTags.length === 0) {
-                        delete fm.tags;
+                        this.cleanupFrontmatterTags(fm);
                     } else {
                         fm.tags = filteredTags.length === 1 ? filteredTags[0] : filteredTags;
                     }
@@ -416,7 +436,7 @@ export class TagOperations {
                     });
 
                     if (fm.tags.length === 0) {
-                        delete fm.tags;
+                        this.cleanupFrontmatterTags(fm);
                     }
                 } else if (typeof fm.tags === 'string') {
                     const tags = fm.tags.split(',').map((t: string) => t.trim());
@@ -430,7 +450,7 @@ export class TagOperations {
                     });
 
                     if (filteredTags.length === 0) {
-                        delete fm.tags;
+                        this.cleanupFrontmatterTags(fm);
                     } else {
                         fm.tags = filteredTags.length === 1 ? filteredTags[0] : filteredTags;
                     }
@@ -482,7 +502,7 @@ export class TagOperations {
             await this.app.fileManager.processFrontMatter(file, fm => {
                 if (fm.tags) {
                     hadTags = true;
-                    delete fm.tags;
+                    this.cleanupFrontmatterTags(fm);
                 }
             });
         } catch (error) {

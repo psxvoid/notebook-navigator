@@ -893,6 +893,10 @@ export const STRINGS_DE = {
                 name: 'Ungetaggte Notizen anzeigen',
                 desc: '"Ohne Tag" für Notizen ohne Tags anzeigen.'
             },
+            keepEmptyTagsProperty: {
+                name: 'Tags-Eigenschaft nach Entfernen des letzten Tags beibehalten',
+                desc: 'Behält die Tags-Frontmatter-Eigenschaft, wenn alle Tags entfernt werden. Wenn deaktiviert, wird die Tags-Eigenschaft aus dem Frontmatter gelöscht.'
+            },
             hiddenTags: {
                 name: 'Versteckte Tags',
                 desc: 'Kommagetrennte Liste von Tag-Präfixen oder Namensplatzhaltern zum Ausblenden. Verwende `tag*` oder `*tag`, um Tagnamen abzugleichen. Ein versteckter Tag blendet auch alle Unter-Tags aus (z.B. "archiv" blendet "archiv/2024/docs" aus).',

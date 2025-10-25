@@ -892,6 +892,10 @@ export const STRINGS_FR = {
                 name: 'Afficher les notes sans étiquette',
                 desc: 'Afficher l\'élément "Sans étiquette" pour les notes sans aucune étiquette.'
             },
+            keepEmptyTagsProperty: {
+                name: 'Conserver la propriété tags après suppression de la dernière étiquette',
+                desc: 'Conserve la propriété tags dans le frontmatter lorsque toutes les étiquettes sont supprimées. Si désactivé, la propriété tags est supprimée du frontmatter.'
+            },
             hiddenTags: {
                 name: 'Étiquettes cachées',
                 desc: 'Liste séparée par des virgules de préfixes ou de jokers de nom d\'étiquettes à masquer. Utilisez `tag*` ou `*tag` pour faire correspondre les noms d\'étiquette. Masquer une étiquette masque aussi toutes ses sous-étiquettes (par ex. "archive" masque "archive/2024/docs").',

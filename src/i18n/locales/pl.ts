@@ -891,6 +891,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż notatki bez tagów',
                 desc: 'Wyświetl element "Bez tagów" dla notatek bez żadnych tagów.'
             },
+            keepEmptyTagsProperty: {
+                name: 'Zachowaj właściwość tags po usunięciu ostatniego tagu',
+                desc: 'Zachowuje właściwość tags we frontmatterze, gdy wszystkie tagi są usuwane. Gdy wyłączone, właściwość tags jest usuwana z frontmattera.'
+            },
             hiddenTags: {
                 name: 'Ukryte tagi',
                 desc: 'Lista prefiksów tagów lub symboli wieloznacznych nazw oddzielonych przecinkami. Użyj `tag*` lub `*tag`, aby dopasować nazwy tagów. Ukrycie tagu ukrywa też wszystkie jego pod-tagi (np. "archive" ukrywa "archive/2024/docs").',

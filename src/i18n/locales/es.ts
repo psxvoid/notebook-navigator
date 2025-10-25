@@ -890,6 +890,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar notas sin etiquetas',
                 desc: 'Muestra el elemento "Sin etiquetas" para notas sin ninguna etiqueta.'
             },
+            keepEmptyTagsProperty: {
+                name: 'Conservar propiedad tags después de eliminar la última etiqueta',
+                desc: 'Mantiene la propiedad tags en frontmatter cuando se eliminan todas las etiquetas. Cuando está desactivado, la propiedad tags se elimina del frontmatter.'
+            },
             hiddenTags: {
                 name: 'Etiquetas ocultas',
                 desc: 'Lista separada por comas de prefijos de etiquetas o comodines de nombre. Usa `tag*` o `*tag` para coincidir con nombres de etiquetas. Ocultar una etiqueta también oculta todas sus sub-etiquetas (ej. "archivo" oculta "archivo/2024/docs").',

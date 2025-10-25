@@ -889,6 +889,10 @@ export const STRINGS_KO = {
                 name: '태그 없는 노트 표시',
                 desc: '태그가 없는 노트에 대해 "태그 없음" 항목을 표시합니다.'
             },
+            keepEmptyTagsProperty: {
+                name: '마지막 태그 제거 후 tags 속성 유지',
+                desc: '모든 태그가 제거될 때 frontmatter 의 tags 속성을 유지합니다. 비활성화하면 tags 속성이 frontmatter 에서 삭제됩니다.'
+            },
             hiddenTags: {
                 name: '숨겨진 태그',
                 desc: '숨길 태그 접두사 또는 이름 와일드카드의 쉼표로 구분된 목록입니다. `tag*` 또는 `*tag` 로 태그 이름을 일치시킵니다. 태그를 숨기면 모든 하위 태그도 숨겨집니다 (예: "archive"는 "archive/2024/docs" 숨김).',

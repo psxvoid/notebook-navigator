@@ -890,6 +890,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示无标签笔记',
                 desc: '为没有任何标签的笔记显示"无标签"项目。'
             },
+            keepEmptyTagsProperty: {
+                name: '删除最后一个标签后保留 tags 属性',
+                desc: '当所有标签被删除时保留 frontmatter 中的 tags 属性。禁用时,tags 属性将从 frontmatter 中删除。'
+            },
             hiddenTags: {
                 name: '隐藏标签',
                 desc: '要隐藏的标签前缀或名称通配符的逗号分隔列表。使用 `tag*` 或 `*tag` 匹配标签名称。隐藏标签也会隐藏所有子标签（例如："归档"隐藏"归档/2024/docs"）。',

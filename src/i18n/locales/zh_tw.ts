@@ -888,6 +888,10 @@ export const STRINGS_ZH_TW = {
                 name: '顯示無標籤筆記',
                 desc: '為沒有任何標籤的筆記顯示 "無標籤" 項目。'
             },
+            keepEmptyTagsProperty: {
+                name: '刪除最後一個標籤後保留 tags 屬性',
+                desc: '當所有標籤被刪除時保留 frontmatter 中的 tags 屬性。停用時,tags 屬性將從 frontmatter 中刪除。'
+            },
             hiddenTags: {
                 name: '隱藏標籤',
                 desc: '以逗號分隔的標籤前綴或名稱萬用字元清單。使用 tag* 或 *tag 來匹配標籤名稱。隱藏一個標籤也會隱藏其所有子標籤 (例如 "archive" 隱藏 "archive/2024/docs")。',

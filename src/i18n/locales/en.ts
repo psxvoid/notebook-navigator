@@ -889,6 +889,10 @@ export const STRINGS_EN = {
                 name: 'Show untagged notes',
                 desc: 'Display "Untagged" item for notes without any tags.'
             },
+            keepEmptyTagsProperty: {
+                name: 'Retain tags property after removing last tag',
+                desc: 'Keep the tags frontmatter property when all tags are removed. When disabled, the tags property is deleted from frontmatter.'
+            },
             hiddenTags: {
                 name: 'Hidden tags',
                 desc: 'Comma-separated list of tag prefixes or name wildcards. Use tag* or *tag to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs").',

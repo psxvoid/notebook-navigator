@@ -83,11 +83,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New command: ==Pin all folder notes==. Use it to quickly pin all folder notes in the vault.',
             'New command: ==Toggle tag sort order==. Use it to quickly switch between alphabetical and frequency based sorting for tags.',
             'New setting: ==Date display for name sort==. Choose which date to display when sorting notes by name (modified or created).',
-            'New setting: ==Reset separator position==. Use it to reset the separator between navigation and list panes back to default position.'
+            'New setting: ==Reset separator position==. Use it to reset the separator between navigation and list panes back to default position.',
+            'New setting: ==Retain tags property after removing last tag==. When enabled, the tags property is kept in frontmatter even when the last tag is removed from a note. Default disabled.'
         ],
-        improved: [
-            'You can now right-click "visible" hidden folders and choose "Unhide" without going to settings.',
-        ],
+        improved: ['You can now right-click "visible" hidden folders and choose "Unhide" without going to settings.'],
         fixed: [
             'Fixed a startup crash issue when parsing tags with double slash in their path, like #tag//subtag. Thanks @kennethn for helping me fix this one.',
             'Fixed a crash when resizing left pane while using banner image. The scrollbar that appears triggered an infinite render loop. Thanks @muttleydosomething for all the amazing help solving this one.',

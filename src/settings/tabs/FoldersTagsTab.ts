@@ -189,6 +189,16 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
             })
         );
 
+    new Setting(tagSubSettingsEl)
+        .setName(strings.settings.items.keepEmptyTagsProperty.name)
+        .setDesc(strings.settings.items.keepEmptyTagsProperty.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.keepEmptyTagsProperty).onChange(async value => {
+                plugin.settings.keepEmptyTagsProperty = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
     const hiddenTagsSetting = createDebouncedTextSetting(
         tagSubSettingsEl,
         strings.settings.items.hiddenTags.name,

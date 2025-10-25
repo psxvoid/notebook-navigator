@@ -891,6 +891,10 @@ export const STRINGS_JA = {
                 name: 'タグなしノートを表示',
                 desc: 'タグのないノート用に「タグなし」項目を表示します。'
             },
+            keepEmptyTagsProperty: {
+                name: '最後のタグを削除した後も tags プロパティを保持',
+                desc: 'すべてのタグが削除されても frontmatter の tags プロパティを保持します。無効にすると、tags プロパティは frontmatter から削除されます。'
+            },
             hiddenTags: {
                 name: '非表示タグ',
                 desc: '非表示にするタグの接頭辞または名前ワイルドカードのカンマ区切りリスト。`tag*` や `*tag` でタグ名に一致します。タグを非表示にすると、すべてのサブタグも非表示になります（例："アーカイブ"で"アーカイブ/2024/docs"も非表示）。',
