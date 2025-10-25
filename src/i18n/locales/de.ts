@@ -686,10 +686,10 @@ export const STRINGS_DE = {
                 desc: 'Zeigt den Ordnerpfad unter den Notiznamen in Tooltips an.'
             },
             resetPaneSeparator: {
-                name: 'Trennlinienposition zurücksetzen',
-                desc: 'Stellt die Navigationstrennlinie auf die Standardgröße zurück, wenn der Griff außerhalb des sichtbaren Bereichs ist.',
-                buttonText: 'Position zurücksetzen',
-                notice: 'Navigationstrennlinie zurückgesetzt. Starten Sie Obsidian neu oder öffnen Sie Notebook Navigator erneut, um die Änderungen anzuwenden.'
+                name: 'Position des Fenstertrennelements zurücksetzen',
+                desc: 'Setzt das verschiebbare Trennelement zwischen Navigationsbereich und Listenbereich auf die Standardposition zurück.',
+                buttonText: 'Trennelement zurücksetzen',
+                notice: 'Trennelementposition zurückgesetzt. Starten Sie Obsidian neu oder öffnen Sie Notebook Navigator erneut, um die Änderungen anzuwenden.'
             },
             multiSelectModifier: {
                 name: 'Mehrfachauswahl-Modifikator',

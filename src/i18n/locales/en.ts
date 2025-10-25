@@ -682,10 +682,10 @@ export const STRINGS_EN = {
                 desc: 'Display the folder path below note names in tooltips.'
             },
             resetPaneSeparator: {
-                name: 'Reset separator position',
-                desc: 'Restore the navigation divider to the default size when the handle is out of view.',
-                buttonText: 'Reset position',
-                notice: 'Navigation pane separator reset. Restart Obsidian or reopen Notebook Navigator to apply.'
+                name: 'Reset pane separator position',
+                desc: 'Reset the draggable separator between navigation pane and list pane to default position.',
+                buttonText: 'Reset separator',
+                notice: 'Separator position reset. Restart Obsidian or reopen Notebook Navigator to apply.'
             },
             multiSelectModifier: {
                 name: 'Multi-select modifier',

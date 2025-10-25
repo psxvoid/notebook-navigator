@@ -684,10 +684,10 @@ export const STRINGS_FR = {
                 desc: 'Affiche le chemin du dossier sous le nom des notes dans les infobulles.'
             },
             resetPaneSeparator: {
-                name: 'Réinitialiser la position du séparateur',
-                desc: 'Restaure le diviseur de navigation à la taille par défaut lorsque la poignée est hors de vue.',
-                buttonText: 'Réinitialiser la position',
-                notice: 'Séparateur du panneau de navigation réinitialisé. Redémarrez Obsidian ou rouvrez Notebook Navigator pour appliquer.'
+                name: 'Réinitialiser la position du séparateur de panneaux',
+                desc: 'Réinitialise le séparateur déplaçable entre le panneau de navigation et le panneau de liste à la position par défaut.',
+                buttonText: 'Réinitialiser le séparateur',
+                notice: 'Position du séparateur réinitialisée. Redémarrez Obsidian ou rouvrez Notebook Navigator pour appliquer.'
             },
             multiSelectModifier: {
                 name: 'Modificateur de sélection multiple',

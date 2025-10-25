@@ -683,10 +683,10 @@ export const STRINGS_ES = {
                 desc: 'Muestra la ruta de la carpeta debajo del nombre de las notas en los tooltips.'
             },
             resetPaneSeparator: {
-                name: 'Restablecer posición del separador',
-                desc: 'Restaura el divisor de navegación al tamaño predeterminado cuando el control esté fuera de vista.',
-                buttonText: 'Restablecer posición',
-                notice: 'Separador del panel de navegación restablecido. Reinicia Obsidian o vuelve a abrir Notebook Navigator para aplicar.'
+                name: 'Restablecer posición del separador de paneles',
+                desc: 'Restablece el separador arrastrable entre el panel de navegación y el panel de lista a la posición predeterminada.',
+                buttonText: 'Restablecer separador',
+                notice: 'Posición del separador restablecida. Reinicia Obsidian o vuelve a abrir Notebook Navigator para aplicar.'
             },
             multiSelectModifier: {
                 name: 'Modificador de selección múltiple',

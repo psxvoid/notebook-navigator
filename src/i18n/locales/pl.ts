@@ -684,10 +684,10 @@ export const STRINGS_PL = {
                 desc: 'Wyświetla ścieżkę folderu pod nazwami notatek w podpowiedziach.'
             },
             resetPaneSeparator: {
-                name: 'Zresetuj pozycję separatora',
-                desc: 'Przywraca przegrodę nawigacji do domyślnego rozmiaru, gdy uchwyt jest poza widokiem.',
-                buttonText: 'Zresetuj pozycję',
-                notice: 'Separator panelu nawigacji został zresetowany. Uruchom ponownie Obsidian lub otwórz ponownie Notebook Navigator, aby zastosować.'
+                name: 'Zresetuj pozycję separatora paneli',
+                desc: 'Resetuje przeciągalny separator między panelem nawigacji a panelem listy do pozycji domyślnej.',
+                buttonText: 'Zresetuj separator',
+                notice: 'Pozycja separatora została zresetowana. Uruchom ponownie Obsidian lub otwórz ponownie Notebook Navigator, aby zastosować.'
             },
             multiSelectModifier: {
                 name: 'Modyfikator wielokrotnego wyboru',
