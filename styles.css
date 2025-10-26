@@ -2231,7 +2231,7 @@ body {
     inset-inline-start: 0;
     inset-inline-end: 0;
     bottom: 0; /* Extend all the way down */
-    background-color: var(--nn-theme-navitem-selected-bg);
+    background-color: var(--nn-theme-file-selected-bg);
     border-radius: min(16px, var(--nn-theme-file-border-radius));
     z-index: 0; /* Below separator lines */
 }
@@ -2290,10 +2290,13 @@ body {
    2. Navigator focused but inactive pane (cross-pane dimming)
    3. Search field is focused (both panes dimmed) */
 .nn-split-container[data-navigator-focused='false'] .nn-file.nn-selected .nn-file-content::before,
-.nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file.nn-selected .nn-file-content::before,
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-file.nn-selected .nn-file-content::before {
+    background-color: var(--nn-theme-file-selected-inactive-bg);
+}
+
+.nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::before,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-file.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-navitem.nn-selected::before {
     background-color: var(--nn-theme-navitem-selected-inactive-bg);
 }
