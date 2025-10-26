@@ -177,6 +177,7 @@ export const STRINGS_FR = {
             changeColor: 'Changer la couleur',
             changeBackground: 'Changer l’arrière-plan',
             excludeFolder: 'Masquer le dossier',
+            unhideFolder: 'Afficher le dossier',
             moveFolder: 'Déplacer vers...',
             renameFolder: 'Renommer le dossier',
             deleteFolder: 'Supprimer le dossier'
@@ -357,7 +358,8 @@ export const STRINGS_FR = {
             noFileSelected: 'Aucun fichier sélectionné'
         },
         notices: {
-            excludedFolder: 'Dossier exclu : {name}'
+            hideFolder: 'Dossier masqué : {name}',
+            showFolder: 'Dossier affiché : {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
@@ -495,10 +497,10 @@ export const STRINGS_FR = {
         },
         groups: {
             general: {
+                filtering: 'Filtrage',
+                behavior: 'Comportement',
                 view: 'Apparence',
                 desktopAppearance: 'Apparence sur ordinateur',
-                behavior: 'Comportement',
-                filtering: 'Filtrage',
                 formatting: 'Formatage'
             },
             navigation: {
@@ -681,6 +683,12 @@ export const STRINGS_FR = {
                 name: 'Afficher le chemin',
                 desc: 'Affiche le chemin du dossier sous le nom des notes dans les infobulles.'
             },
+            resetPaneSeparator: {
+                name: 'Réinitialiser la position du séparateur de panneaux',
+                desc: 'Réinitialise le séparateur déplaçable entre le panneau de navigation et le panneau de liste à la position par défaut.',
+                buttonText: 'Réinitialiser le séparateur',
+                notice: 'Position du séparateur réinitialisée. Redémarrez Obsidian ou rouvrez Notebook Navigator pour appliquer.'
+            },
             multiSelectModifier: {
                 name: 'Modificateur de sélection multiple',
                 desc: 'Choisissez quelle touche modificatrice active la sélection multiple. Quand Option/Alt est sélectionné, Cmd/Ctrl clic ouvre les notes dans un nouvel onglet.',
@@ -724,6 +732,14 @@ export const STRINGS_FR = {
             showFileDate: {
                 name: 'Afficher la date',
                 desc: 'Afficher la date sous les noms des notes.'
+            },
+            alphabeticalDateMode: {
+                name: 'Lors du tri par nom',
+                desc: 'Date affichée lorsque les notes sont triées alphabétiquement.',
+                options: {
+                    created: 'Date de création',
+                    modified: 'Date de modification'
+                }
             },
             showFileTags: {
                 name: 'Afficher les tags de fichier',
@@ -883,6 +899,10 @@ export const STRINGS_FR = {
             showUntagged: {
                 name: 'Afficher les notes sans étiquette',
                 desc: 'Afficher l\'élément "Sans étiquette" pour les notes sans aucune étiquette.'
+            },
+            keepEmptyTagsProperty: {
+                name: 'Conserver la propriété tags après suppression de la dernière étiquette',
+                desc: 'Conserve la propriété tags dans le frontmatter lorsque toutes les étiquettes sont supprimées. Si désactivé, la propriété tags est supprimée du frontmatter.'
             },
             hiddenTags: {
                 name: 'Étiquettes cachées',

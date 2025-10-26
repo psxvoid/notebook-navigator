@@ -177,6 +177,7 @@ export const STRINGS_JA = {
             changeColor: '色を変更',
             changeBackground: '背景色を変更',
             excludeFolder: 'フォルダを非表示',
+            unhideFolder: 'フォルダを表示',
             moveFolder: '移動先...',
             renameFolder: 'フォルダの名前を変更',
             deleteFolder: 'フォルダを削除'
@@ -357,7 +358,8 @@ export const STRINGS_JA = {
             noFileSelected: 'ファイルが選択されていません'
         },
         notices: {
-            excludedFolder: 'フォルダを除外: {name}'
+            hideFolder: 'フォルダを非表示: {name}',
+            showFolder: 'フォルダを表示: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
@@ -495,10 +497,10 @@ export const STRINGS_JA = {
         },
         groups: {
             general: {
+                filtering: 'フィルター',
+                behavior: '動作',
                 view: '外観',
                 desktopAppearance: 'デスクトップの外観',
-                behavior: '動作',
-                filtering: 'フィルター',
                 formatting: '書式'
             },
             navigation: {
@@ -680,6 +682,12 @@ export const STRINGS_JA = {
                 name: 'パスを表示',
                 desc: 'ツールチップでノート名の下にフォルダパスを表示します。'
             },
+            resetPaneSeparator: {
+                name: 'ペインセパレーターの位置をリセット',
+                desc: 'ナビゲーションペインとリストペーンの間のドラッグ可能なセパレーターをデフォルトの位置にリセットします。',
+                buttonText: 'セパレーターをリセット',
+                notice: 'セパレーターの位置がリセットされました。Obsidianを再起動するか、Notebook Navigatorを開き直して適用してください。'
+            },
             multiSelectModifier: {
                 name: '複数選択モディファイア',
                 desc: '複数選択を切り替えるモディファイアキーを選択します。Option/Altが選択されている場合、Cmd/Ctrlクリックでノートを新しいタブで開きます。',
@@ -723,6 +731,14 @@ export const STRINGS_JA = {
             showFileDate: {
                 name: '日付を表示',
                 desc: 'ノート名の下に日付を表示します。'
+            },
+            alphabeticalDateMode: {
+                name: '名前でソート時',
+                desc: 'ノートが名前でソートされている場合に表示する日付。',
+                options: {
+                    created: '作成日',
+                    modified: '更新日'
+                }
             },
             showFileTags: {
                 name: 'ファイルタグを表示',
@@ -882,6 +898,10 @@ export const STRINGS_JA = {
             showUntagged: {
                 name: 'タグなしノートを表示',
                 desc: 'タグのないノート用に「タグなし」項目を表示します。'
+            },
+            keepEmptyTagsProperty: {
+                name: '最後のタグを削除した後も tags プロパティを保持',
+                desc: 'すべてのタグが削除されても frontmatter の tags プロパティを保持します。無効にすると、tags プロパティは frontmatter から削除されます。'
             },
             hiddenTags: {
                 name: '非表示タグ',

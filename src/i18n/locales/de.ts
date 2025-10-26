@@ -179,6 +179,7 @@ export const STRINGS_DE = {
             changeColor: 'Farbe ändern',
             changeBackground: 'Hintergrund ändern',
             excludeFolder: 'Ordner verstecken',
+            unhideFolder: 'Ordner einblenden',
             moveFolder: 'Verschieben nach...',
             renameFolder: 'Ordner umbenennen',
             deleteFolder: 'Ordner löschen'
@@ -359,7 +360,8 @@ export const STRINGS_DE = {
             noFileSelected: 'Keine Datei ausgewählt'
         },
         notices: {
-            excludedFolder: 'Ordner ausgeschlossen: {name}'
+            hideFolder: 'Ordner ausgeblendet: {name}',
+            showFolder: 'Ordner eingeblendet: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
@@ -497,10 +499,10 @@ export const STRINGS_DE = {
         },
         groups: {
             general: {
+                filtering: 'Filterung',
+                behavior: 'Verhalten',
                 view: 'Darstellung',
                 desktopAppearance: 'Desktop-Darstellung',
-                behavior: 'Verhalten',
-                filtering: 'Filterung',
                 formatting: 'Formatierung'
             },
             navigation: {
@@ -683,6 +685,12 @@ export const STRINGS_DE = {
                 name: 'Pfad anzeigen',
                 desc: 'Zeigt den Ordnerpfad unter den Notiznamen in Tooltips an.'
             },
+            resetPaneSeparator: {
+                name: 'Position des Fenstertrennelements zurücksetzen',
+                desc: 'Setzt das verschiebbare Trennelement zwischen Navigationsbereich und Listenbereich auf die Standardposition zurück.',
+                buttonText: 'Trennelement zurücksetzen',
+                notice: 'Trennelementposition zurückgesetzt. Starten Sie Obsidian neu oder öffnen Sie Notebook Navigator erneut, um die Änderungen anzuwenden.'
+            },
             multiSelectModifier: {
                 name: 'Mehrfachauswahl-Modifikator',
                 desc: 'Wählen Sie, welche Modifikatortaste die Mehrfachauswahl umschaltet. Wenn Option/Alt ausgewählt ist, öffnet Cmd/Strg-Klick Notizen in einem neuen Tab.',
@@ -725,6 +733,14 @@ export const STRINGS_DE = {
             showFileDate: {
                 name: 'Datum anzeigen',
                 desc: 'Das Datum unter Notizennamen anzeigen.'
+            },
+            alphabeticalDateMode: {
+                name: 'Bei Sortierung nach Name',
+                desc: 'Datum, das angezeigt wird, wenn Notizen alphabetisch sortiert sind.',
+                options: {
+                    created: 'Erstelldatum',
+                    modified: 'Änderungsdatum'
+                }
             },
             showFileTags: {
                 name: 'Datei-Tags anzeigen',
@@ -884,6 +900,10 @@ export const STRINGS_DE = {
             showUntagged: {
                 name: 'Ungetaggte Notizen anzeigen',
                 desc: '"Ohne Tag" für Notizen ohne Tags anzeigen.'
+            },
+            keepEmptyTagsProperty: {
+                name: 'Tags-Eigenschaft nach Entfernen des letzten Tags beibehalten',
+                desc: 'Behält die Tags-Frontmatter-Eigenschaft, wenn alle Tags entfernt werden. Wenn deaktiviert, wird die Tags-Eigenschaft aus dem Frontmatter gelöscht.'
             },
             hiddenTags: {
                 name: 'Versteckte Tags',

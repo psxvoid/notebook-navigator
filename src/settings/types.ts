@@ -47,30 +47,35 @@ export type ListPaneTitleOption = 'header' | 'list' | 'hidden';
 /** Grouping options for list pane notes */
 export type ListNoteGroupingOption = 'none' | 'date' | 'folder';
 
+/** Date source to display when alphabetical sorting is active */
+export type AlphabeticalDateMode = 'created' | 'modified';
+
 /**
  * Plugin settings interface defining all configurable options
  * Settings are organized by tab for easier maintenance
  */
 export interface NotebookNavigatorSettings {
-    // General tab - Startup & layout
+    // General tab - Filtering
+    fileVisibility: FileVisibility;
+    excludedFolders: string[];
+    excludedFiles: string[];
+
+    // General tab - Behavior
+    autoRevealActiveFile: boolean;
+    autoRevealIgnoreRightSidebar: boolean;
+
+    // General tab - View
     startView: 'navigation' | 'files';
-    showTooltips: boolean;
-    showTooltipPath: boolean;
-    dualPaneBackground: DualPaneBackgroundMode;
 
     // General tab - Homepage
     homepage: string | null;
     mobileHomepage: string | null;
     useMobileHomepage: boolean;
 
-    // General tab - Behavior
-    autoRevealActiveFile: boolean;
-    autoRevealIgnoreRightSidebar: boolean;
-
-    // General tab - Filtering
-    fileVisibility: FileVisibility;
-    excludedFolders: string[];
-    excludedFiles: string[];
+    // General tab - Desktop appearance
+    showTooltips: boolean;
+    showTooltipPath: boolean;
+    dualPaneBackground: DualPaneBackgroundMode;
 
     // General tab - Formatting
     dateFormat: string;
@@ -108,6 +113,7 @@ export interface NotebookNavigatorSettings {
     showUntagged: boolean;
     tagSortOrder: TagSortOrder;
     hiddenTags: string[];
+    keepEmptyTagsProperty: boolean;
 
     // List pane tab
     defaultFolderSort: SortOption;
@@ -133,6 +139,7 @@ export interface NotebookNavigatorSettings {
     iconizeFormat: boolean;
     fileNameRows: number;
     showFileDate: boolean;
+    alphabeticalDateMode: AlphabeticalDateMode;
     showFileTags: boolean;
     showFileTagAncestors: boolean;
     collapseFileTagsToSelectedTag: boolean;

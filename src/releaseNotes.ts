@@ -73,18 +73,31 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
-        version: '1.6.4',
-        date: '2025-10-24',
+        version: '1.7',
+        date: '2025-10-26',
         showOnUpdate: true,
         new: [
-            'You asked for it, you got it. You now have a new setting: ==Dual pane orientation== where you can choose horizontal or vertical split for the dual pane.',
+            '**VERTICAL SPLIT!** You now have a new setting: ==Dual pane orientation== where you can choose horizontal or vertical split for the dual pane.',
             'To match this setting you also have a new setting: ==Background color== where you can choose to use separate background colors (like today) for navigation and files, make both look like navigation, or make both look like files.',
-            'You can now also group files by subfolder! The old setting "Group notes by date" is now replaced with a dropdown where you can choose no grouping, date or folder. Note that tags are always sorted by date or none.',
+            'You can now also ==group files by subfolder==! The old setting "Group notes by date" is now replaced with a dropdown where you can choose no grouping, date or folder. Note that tags are always sorted by date or none.',
             'New command: ==Pin all folder notes==. Use it to quickly pin all folder notes in the vault.',
-            'New command: ==Toggle tag sort order==. Use it to quickly switch between alphabetical and frequency based sorting for tags.'
+            'New command: ==Toggle tag sort order==. Use it to quickly switch between alphabetical and frequency based sorting for tags.',
+            'New setting: ==Date display for name sort==. Choose which date to display when sorting notes by name (modified or created).',
+            'New setting: ==Reset pane separator position==. Use it to reset the separator between navigation and list panes back to default position.',
+            'New setting: ==Retain tags property after removing last tag==. When enabled, the tags property is kept in frontmatter even when the last tag is removed from a note. Default disabled.'
+        ],
+        improved: [
+            'Files hidden by property are now shown when "Show hidden items" is toggled with the toolbar button in navigation pane or the command "Toggle hidden items".',
+            'You can now right-click "visible" hidden folders and choose "Unhide" without going to settings.',
+            '"Folder Note Properties" can now be entered as a text area for full control of what is copied to frontmatter.',
+            'New option for "Default folder note type": "Ask". Will now ask you if you want to create a Markdown, Canvas or Base when creating a new folder note from the context menu. Thanks @artuncolak for the PR!',
+            'If your homepage is open in another tab during startup, it will now be focused instead of opening it again in the current tab.'
         ],
         fixed: [
+            'Fixed a startup crash issue when parsing tags with double slash in their path, like #tag//subtag. Thanks @kennethn for helping me fix this one.',
+            'Fixed a crash when resizing left pane while using banner image. The scrollbar that appears triggered an infinite render loop. Thanks @muttleydosomething for all the amazing help solving this one.',
             'Fixed an issue where root folder added to shortcuts would show without name and with the wrong icon.',
+            'Fixed an issue where the Style & theme setting "Selected file parent folder color" did not work.',
             'Fixed two drag and drop issues: Dragging a file from a subfolder to the list pane would cause it to move to the current folder, and dragging and holding in listpane would incorrectly cause the current folder to expand in navigation pane.',
             'Files and tags in shortcuts area now properly show background color.',
             'Excalidraw files now display with clean names (without .excalidraw suffix) and maintain correct list item height when renamed.'

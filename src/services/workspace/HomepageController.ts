@@ -16,11 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Platform, type TFile } from 'obsidian';
+import { FileView, Platform, type TFile, type WorkspaceLeaf } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 import { isSupportedHomepageFile } from '../../utils/homepageUtils';
 import type { RevealFileOptions } from '../../hooks/useNavigatorReveal';
 import WorkspaceCoordinator from './WorkspaceCoordinator';
+import { getSupportedLeaves } from '../../types';
 
 // Indicates what triggered the homepage opening
 type HomepageTrigger = 'startup' | 'command';
@@ -121,14 +122,30 @@ export default class HomepageController {
             return false;
         }
 
+        const shouldRevealInNavigator = trigger !== 'startup' || this.plugin.settings.autoRevealActiveFile;
         const revealOptions: RevealFileOptions = {
             source: trigger === 'startup' ? 'startup' : 'manual',
             isStartupReveal: trigger === 'startup',
             preserveNavigationFocus: this.plugin.settings.startView === 'navigation' && trigger === 'startup'
         };
 
+        if (trigger === 'startup') {
+            const existingLeaf = this.findExistingHomepageLeaf(homepageFile);
+            if (existingLeaf) {
+                const { workspace } = this.plugin.app;
+                workspace.revealLeaf(existingLeaf);
+                workspace.setActiveLeaf(existingLeaf, { focus: true });
+                if (shouldRevealInNavigator) {
+                    this.workspace.revealFileInNearestFolder(homepageFile, revealOptions);
+                }
+                return true;
+            }
+        }
+
         // Reveal homepage in navigator
-        this.workspace.revealFileInNearestFolder(homepageFile, revealOptions);
+        if (shouldRevealInNavigator) {
+            this.workspace.revealFileInNearestFolder(homepageFile, revealOptions);
+        }
 
         // Open homepage file in the editor
         // Use command queue to track the homepage open operation if available
@@ -144,5 +161,58 @@ export default class HomepageController {
         // Fallback for when command queue is not available
         await this.plugin.app.workspace.openLinkText(homepageFile.path, '', false);
         return true;
+    }
+
+    /**
+     * Finds an open workspace leaf that already hosts the configured homepage file.
+     * Restricting this check to supported file leaves avoids iterating every workspace tab.
+     */
+    private findExistingHomepageLeaf(homepageFile: TFile): WorkspaceLeaf | null {
+        const leaves = getSupportedLeaves(this.plugin.app);
+        const targetPath = homepageFile.path;
+
+        for (const leaf of leaves) {
+            const resolvedPath = this.getLeafFilePath(leaf);
+            if (resolvedPath === targetPath) {
+                return leaf;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets the file path currently associated with a workspace leaf, falling back to stored view state.
+     */
+    private getLeafFilePath(leaf: WorkspaceLeaf): string | null {
+        const { view } = leaf;
+        if (view instanceof FileView && view.file) {
+            return view.file.path;
+        }
+
+        const liveState = view?.getState?.();
+        const liveStateFile = this.extractFilePath(liveState);
+        if (liveStateFile) {
+            return liveStateFile;
+        }
+
+        const persistedState = leaf.getViewState();
+        return this.extractFilePath(persistedState.state);
+    }
+
+    /**
+     * Extracts a file path from a view state object when available.
+     */
+    private extractFilePath(state: unknown): string | null {
+        if (typeof state !== 'object' || state === null) {
+            return null;
+        }
+
+        if (!Object.prototype.hasOwnProperty.call(state, 'file')) {
+            return null;
+        }
+
+        const stateRecord = state as Record<string, unknown>;
+        const fileValue = stateRecord.file;
+        return typeof fileValue === 'string' ? fileValue : null;
     }
 }

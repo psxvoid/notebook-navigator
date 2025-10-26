@@ -176,6 +176,7 @@ export const STRINGS_PL = {
             changeColor: 'Zmień kolor ikony',
             changeBackground: 'Zmień tło',
             excludeFolder: 'Ukryj folder',
+            unhideFolder: 'Pokaż folder',
             moveFolder: 'Przenieś do...',
             renameFolder: 'Zmień nazwę folderu',
             deleteFolder: 'Usuń folder'
@@ -358,7 +359,8 @@ export const STRINGS_PL = {
             noFileSelected: 'Żaden plik nie jest wybrany'
         },
         notices: {
-            excludedFolder: 'Wykluczony folder: {name}'
+            hideFolder: 'Ukryty folder: {name}',
+            showFolder: 'Widoczny folder: {name}'
         },
         notifications: {
             deletedMultipleFiles: 'Usunięto {count} plików',
@@ -496,10 +498,10 @@ export const STRINGS_PL = {
         },
         groups: {
             general: {
+                filtering: 'Filtrowanie',
+                behavior: 'Zachowanie',
                 view: 'Wygląd',
                 desktopAppearance: 'Wygląd na komputerze',
-                behavior: 'Zachowanie',
-                filtering: 'Filtrowanie',
                 formatting: 'Formatowanie'
             },
             navigation: {
@@ -681,6 +683,12 @@ export const STRINGS_PL = {
                 name: 'Pokaż ścieżkę',
                 desc: 'Wyświetla ścieżkę folderu pod nazwami notatek w podpowiedziach.'
             },
+            resetPaneSeparator: {
+                name: 'Zresetuj pozycję separatora paneli',
+                desc: 'Resetuje przeciągalny separator między panelem nawigacji a panelem listy do pozycji domyślnej.',
+                buttonText: 'Zresetuj separator',
+                notice: 'Pozycja separatora została zresetowana. Uruchom ponownie Obsidian lub otwórz ponownie Notebook Navigator, aby zastosować.'
+            },
             multiSelectModifier: {
                 name: 'Modyfikator wielokrotnego wyboru',
                 desc: 'Wybierz, który klawisz modyfikatora przełącza wielokrotny wybór. Gdy wybrano Option/Alt, Cmd/Ctrl klik otwiera notatki w nowej karcie.',
@@ -723,6 +731,14 @@ export const STRINGS_PL = {
             showFileDate: {
                 name: 'Pokaż datę',
                 desc: 'Wyświetl datę pod nazwami notatek.'
+            },
+            alphabeticalDateMode: {
+                name: 'Przy sortowaniu po nazwie',
+                desc: 'Data wyświetlana, gdy notatki są sortowane alfabetycznie.',
+                options: {
+                    created: 'Data utworzenia',
+                    modified: 'Data modyfikacji'
+                }
             },
             showFileTags: {
                 name: 'Pokaż tagi plików',
@@ -882,6 +898,10 @@ export const STRINGS_PL = {
             showUntagged: {
                 name: 'Pokaż notatki bez tagów',
                 desc: 'Wyświetl element "Bez tagów" dla notatek bez żadnych tagów.'
+            },
+            keepEmptyTagsProperty: {
+                name: 'Zachowaj właściwość tags po usunięciu ostatniego tagu',
+                desc: 'Zachowuje właściwość tags we frontmatterze, gdy wszystkie tagi są usuwane. Gdy wyłączone, właściwość tags jest usuwana z frontmattera.'
             },
             hiddenTags: {
                 name: 'Ukryte tagi',
