@@ -1560,6 +1560,7 @@ export class IndexedDBStorage {
                     }
                     if (update.featureImageResized !== undefined) {
                         newData.featureImageResized = update.featureImageResized;
+                        changes.featureImageResized = update.featureImageResized;
                         hasChanges = true;
                     }
                     if (update.featureImageProvider !== undefined) {
