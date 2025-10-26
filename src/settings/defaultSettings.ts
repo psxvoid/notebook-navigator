@@ -47,7 +47,10 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Desktop appearance
     showTooltips: false,
     showTooltipPath: true,
-    dualPaneBackground: 'separate',
+    desktopBackground: 'separate',
+
+    // General tab - Mobile appearance
+    mobileBackground: 'primary',
 
     // General tab - Formatting
     dateFormat: 'MMM d, yyyy',

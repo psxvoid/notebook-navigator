@@ -503,6 +503,7 @@ export const STRINGS_ES = {
                 behavior: 'Comportamiento',
                 view: 'Apariencia',
                 desktopAppearance: 'Apariencia de escritorio',
+                mobileAppearance: 'Apariencia móvil',
                 formatting: 'Formato'
             },
             navigation: {
@@ -624,9 +625,18 @@ export const STRINGS_ES = {
                     vertical: 'División vertical'
                 }
             },
-            dualPaneBackground: {
+            desktopBackground: {
                 name: 'Color de fondo',
                 desc: 'Elige colores de fondo para los paneles de navegación y lista en escritorio.',
+                options: {
+                    separate: 'Fondos separados',
+                    primary: 'Usar fondo de lista',
+                    secondary: 'Usar fondo de navegación'
+                }
+            },
+            mobileBackground: {
+                name: 'Color de fondo',
+                desc: 'Elige colores de fondo para los paneles de navegación y lista en móvil.',
                 options: {
                     separate: 'Fondos separados',
                     primary: 'Usar fondo de lista',

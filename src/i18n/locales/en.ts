@@ -502,6 +502,7 @@ export const STRINGS_EN = {
                 behavior: 'Behavior',
                 view: 'Appearance',
                 desktopAppearance: 'Desktop appearance',
+                mobileAppearance: 'Mobile appearance',
                 formatting: 'Formatting'
             },
             navigation: {
@@ -623,9 +624,18 @@ export const STRINGS_EN = {
                     vertical: 'Vertical split'
                 }
             },
-            dualPaneBackground: {
+            desktopBackground: {
                 name: 'Background color',
                 desc: 'Choose background colors for navigation and list panes on desktop.',
+                options: {
+                    separate: 'Separate backgrounds',
+                    primary: 'Use list background',
+                    secondary: 'Use navigation background'
+                }
+            },
+            mobileBackground: {
+                name: 'Background color',
+                desc: 'Choose background colors for navigation and list panes on mobile.',
                 options: {
                     separate: 'Separate backgrounds',
                     primary: 'Use list background',

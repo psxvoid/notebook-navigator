@@ -503,6 +503,7 @@ export const STRINGS_JA = {
                 behavior: '動作',
                 view: '外観',
                 desktopAppearance: 'デスクトップの外観',
+                mobileAppearance: 'モバイルの外観',
                 formatting: '書式'
             },
             navigation: {
@@ -624,11 +625,20 @@ export const STRINGS_JA = {
                     vertical: '垂直分割'
                 }
             },
-            dualPaneBackground: {
+            desktopBackground: {
                 name: '背景色',
                 desc: 'デスクトップでナビゲーションペインとリストペインの背景色を選択します。',
                 options: {
                     separate: '背景を分ける',
+                    primary: 'リストの背景を使用',
+                    secondary: 'ナビゲーションの背景を使用'
+                }
+            },
+            mobileBackground: {
+                name: '背景色',
+                desc: 'モバイルでナビゲーションペインとリストペインの背景色を選択します。',
+                options: {
+                    separate: '別々の背景',
                     primary: 'リストの背景を使用',
                     secondary: 'ナビゲーションの背景を使用'
                 }

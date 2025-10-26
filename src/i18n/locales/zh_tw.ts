@@ -502,6 +502,7 @@ export const STRINGS_ZH_TW = {
                 behavior: '行為',
                 view: '外觀',
                 desktopAppearance: '桌面外觀',
+                mobileAppearance: '行動裝置外觀',
                 formatting: '格式'
             },
             navigation: {
@@ -622,9 +623,18 @@ export const STRINGS_ZH_TW = {
                     vertical: '垂直分割'
                 }
             },
-            dualPaneBackground: {
+            desktopBackground: {
                 name: '背景色',
                 desc: '在桌面上為導覽窗格和列表窗格選擇背景色。',
+                options: {
+                    separate: '分開背景',
+                    primary: '使用列表背景',
+                    secondary: '使用導覽背景'
+                }
+            },
+            mobileBackground: {
+                name: '背景色',
+                desc: '在行動裝置上為導覽窗格和列表窗格選擇背景色。',
                 options: {
                     separate: '分開背景',
                     primary: '使用列表背景',

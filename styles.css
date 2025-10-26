@@ -186,7 +186,6 @@ body {
     --nn-theme-header-button-disabled-icon-color: var(--text-muted);
 
     /* -- Mobile Styles -- */
-    --nn-theme-mobile-nav-bg: var(--background-primary);
     --nn-theme-mobile-list-header-link-color: var(--link-color);
     --nn-theme-mobile-list-header-breadcrumb-color: var(--text-normal);
     --nn-theme-mobile-list-header-breadcrumb-font-weight: 600;
@@ -450,6 +449,15 @@ body {
 
 /* Secondary mode: use navigation background for list pane */
 .nn-split-container.nn-desktop.nn-bg-secondary {
+    --nn-theme-list-bg: var(--nn-theme-nav-bg);
+}
+
+/* Apply the same background overrides on mobile single-pane layout */
+.nn-split-container.nn-mobile.nn-bg-primary {
+    --nn-theme-nav-bg: var(--nn-theme-list-bg);
+}
+
+.nn-split-container.nn-mobile.nn-bg-secondary {
     --nn-theme-list-bg: var(--nn-theme-nav-bg);
 }
 
@@ -1015,7 +1023,7 @@ body {
 }
 
 .notebook-navigator-mobile .nn-shortcut-pinned {
-    background-color: var(--nn-theme-mobile-nav-bg);
+    background-color: var(--nn-theme-nav-bg);
     border-bottom: 1px solid var(--nn-theme-divider-border-color);
     border-right: none;
 }
@@ -3136,7 +3144,7 @@ body.nn-resizing {
 /* Make navigation pane flexible on mobile to handle resize gracefully */
 .notebook-navigator-mobile .nn-navigation-pane {
     flex: 1;
-    background-color: var(--nn-theme-mobile-nav-bg) !important;
+    background-color: var(--nn-theme-nav-bg) !important;
 }
 
 /* Hide resize handle on mobile */
@@ -3302,12 +3310,10 @@ body.nn-resizing {
     -webkit-overflow-scrolling: touch;
 }
 
-/* Hide navigation pane border on mobile and use mobile background */
+/* Hide navigation pane border on mobile and apply navigation background */
 .notebook-navigator-mobile .nn-navigation-pane-scroller {
     border-right: none;
-    background-color: var(
-        --nn-theme-mobile-nav-bg
-    ); /* Opaque background on scroller for GPU scroll layer (see .nn-navigation-pane-scroller) */
+    background-color: var(--nn-theme-nav-bg); /* Opaque background on scroller for GPU scroll layer (see .nn-navigation-pane-scroller) */
 }
 
 /* Note: Bottom spacing is handled by a spacer item in the virtualized list */
@@ -4258,7 +4264,7 @@ settings:
     -
         id: nn-theme-nav-bg
         title: Navigation pane background
-        description: Background color of the navigation pane. See Mobile navigation background for mobile.
+        description: Background color of the navigation pane.
         type: variable-themed-color
         format: hex
         default-light: '#'

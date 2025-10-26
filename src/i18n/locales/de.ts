@@ -505,6 +505,7 @@ export const STRINGS_DE = {
                 behavior: 'Verhalten',
                 view: 'Darstellung',
                 desktopAppearance: 'Desktop-Darstellung',
+                mobileAppearance: 'Mobile Darstellung',
                 formatting: 'Formatierung'
             },
             navigation: {
@@ -627,9 +628,18 @@ export const STRINGS_DE = {
                     vertical: 'Vertikale Aufteilung'
                 }
             },
-            dualPaneBackground: {
+            desktopBackground: {
                 name: 'Hintergrundfarbe',
                 desc: 'Wählen Sie Hintergrundfarben für Navigations- und Listenbereich auf dem Desktop.',
+                options: {
+                    separate: 'Separate Hintergründe',
+                    primary: 'Listenhintergrund verwenden',
+                    secondary: 'Navigationshintergrund verwenden'
+                }
+            },
+            mobileBackground: {
+                name: 'Hintergrundfarbe',
+                desc: 'Wählen Sie Hintergrundfarben für Navigations- und Listenbereich auf Mobilgeräten.',
                 options: {
                     separate: 'Separate Hintergründe',
                     primary: 'Listenhintergrund verwenden',

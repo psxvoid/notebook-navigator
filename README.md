@@ -306,9 +306,13 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - **Dual pane layout (not synced):** Show navigation and list panes side by side
   - **Dual pane orientation:** Choose between horizontal (side-by-side) or vertical (top-bottom) layout
-- **Dual pane background:** Choose background styling for dual-pane mode. `Separate backgrounds`, `Primary background only`, `Secondary background only`
+- **Desktop background:** Choose background colors for navigation and list panes. `Separate backgrounds`, `Use list background`, `Use navigation background`
 - **Show tooltips:** Display hover tooltips with additional information for notes and folders
   - **Show tooltips path:** Display full file path in tooltips
+
+**Mobile appearance**
+
+- **Mobile background:** Choose background colors for navigation and list panes on mobile. `Separate backgrounds`, `Use list background`, `Use navigation background`
 
 **Formatting**
 

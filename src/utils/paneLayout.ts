@@ -16,10 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { DualPaneBackgroundMode } from '../types';
+import type { BackgroundMode } from '../types';
 
-/** Returns CSS classes for the configured dual pane background mode */
-export function getDualPaneBackgroundClasses(mode: DualPaneBackgroundMode | null | undefined): string[] {
+/** Returns CSS classes for the configured background mode */
+export function getBackgroundClasses(mode: BackgroundMode | null | undefined): string[] {
     if (mode === 'primary') {
         return ['nn-bg-primary'];
     }

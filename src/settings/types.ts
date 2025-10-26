@@ -18,7 +18,7 @@
 
 import type { FileVisibility } from '../utils/fileTypeUtils';
 import type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
-import type { DualPaneBackgroundMode, PinnedNotes } from '../types';
+import type { BackgroundMode, PinnedNotes } from '../types';
 import type { FolderNoteType } from '../types/folderNote';
 import type { KeyboardShortcutConfig } from '../utils/keyboardShortcuts';
 import type { ShortcutEntry } from '../types/shortcuts';
@@ -75,7 +75,10 @@ export interface NotebookNavigatorSettings {
     // General tab - Desktop appearance
     showTooltips: boolean;
     showTooltipPath: boolean;
-    dualPaneBackground: DualPaneBackgroundMode;
+    desktopBackground: BackgroundMode;
+
+    // General tab - Mobile appearance
+    mobileBackground: BackgroundMode;
 
     // General tab - Formatting
     dateFormat: string;

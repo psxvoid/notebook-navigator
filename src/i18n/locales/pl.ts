@@ -504,6 +504,7 @@ export const STRINGS_PL = {
                 behavior: 'Zachowanie',
                 view: 'Wygląd',
                 desktopAppearance: 'Wygląd na komputerze',
+                mobileAppearance: 'Wygląd na telefonie',
                 formatting: 'Formatowanie'
             },
             navigation: {
@@ -625,9 +626,18 @@ export const STRINGS_PL = {
                     vertical: 'Podział pionowy'
                 }
             },
-            dualPaneBackground: {
+            desktopBackground: {
                 name: 'Kolor tła',
                 desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy na komputerze.',
+                options: {
+                    separate: 'Oddzielne tła',
+                    primary: 'Użyj tła listy',
+                    secondary: 'Użyj tła nawigacji'
+                }
+            },
+            mobileBackground: {
+                name: 'Kolor tła',
+                desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy na telefonie.',
                 options: {
                     separate: 'Oddzielne tła',
                     primary: 'Użyj tła listy',

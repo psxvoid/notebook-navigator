@@ -39,13 +39,13 @@ import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 import { TagSuggestModal } from '../modals/TagSuggestModal';
 import { RemoveTagModal } from '../modals/RemoveTagModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
-import { FILE_PANE_DIMENSIONS, ItemType, NAVPANE_MEASUREMENTS, type DualPaneBackgroundMode, type DualPaneOrientation } from '../types';
+import { FILE_PANE_DIMENSIONS, ItemType, NAVPANE_MEASUREMENTS, type BackgroundMode, type DualPaneOrientation } from '../types';
 import { getSelectedPath, getFilesForSelection } from '../utils/selectionUtils';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { localStorage } from '../utils/localStorage';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
-import { getDualPaneBackgroundClasses } from '../utils/paneLayout';
+import { getBackgroundClasses } from '../utils/paneLayout';
 import { ListPane } from './ListPane';
 import type { ListPaneHandle } from './ListPane';
 import { NavigationPane } from './NavigationPane';
@@ -93,8 +93,9 @@ export const NotebookNavigatorComponent = React.memo(
         const settings = useSettingsState();
         // Get active orientation from settings
         const orientation: DualPaneOrientation = settings.dualPaneOrientation;
-        // Get background mode for dual pane layout (separate, primary, or secondary)
-        const dualPaneBackground: DualPaneBackgroundMode = settings.dualPaneBackground ?? 'separate';
+        // Get background modes for desktop and mobile layouts
+        const desktopBackground: BackgroundMode = settings.desktopBackground ?? 'separate';
+        const mobileBackground: BackgroundMode = settings.mobileBackground ?? 'primary';
         // Retrieve sizing config based on current orientation
         const {
             minSize: navigationPaneMinSize,
@@ -667,12 +668,15 @@ export const NotebookNavigatorComponent = React.memo(
             addTagShortcut
         ]);
 
-        // Add platform class
+        // Add platform class and background mode classes
         if (isMobile) {
             containerClasses.push('nn-mobile');
+            // Apply mobile background mode (separate, primary, or secondary)
+            containerClasses.push(...getBackgroundClasses(mobileBackground));
         } else {
             containerClasses.push('nn-desktop');
-            containerClasses.push(...getDualPaneBackgroundClasses(dualPaneBackground));
+            // Apply desktop background mode (separate, primary, or secondary)
+            containerClasses.push(...getBackgroundClasses(desktopBackground));
         }
 
         // Add layout mode class
