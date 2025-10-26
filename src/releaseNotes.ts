@@ -73,8 +73,8 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
-        version: '1.6.4',
-        date: '2025-10-24',
+        version: '1.7',
+        date: '2025-10-26',
         showOnUpdate: true,
         new: [
             '**VERTICAL SPLIT!** You now have a new setting: ==Dual pane orientation== where you can choose horizontal or vertical split for the dual pane.',
@@ -89,6 +89,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         improved: [
             'Files hidden by property are now shown when "Show hidden items" is toggled with the toolbar button in navigation pane or the command "Toggle hidden items".',
             'You can now right-click "visible" hidden folders and choose "Unhide" without going to settings.',
+            '"Folder Note Properties" can now be entered as a text area for full control of what is copied to frontmatter.',
+            'New option for "Default folder note type": "Ask". Will now ask you if you want to create a Markdown, Canvas or Base when creating a new folder note from the context menu. Thanks @artuncolak for the PR!',
             'If your homepage is open in another tab during startup, it will now be focused instead of opening it again in the current tab.'
         ],
         fixed: [
