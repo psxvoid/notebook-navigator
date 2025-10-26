@@ -18,6 +18,7 @@
 
 import { FrontMatterCache } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
+import { isExcalidrawFileName } from './fileNameUtils';
 
 // Maximum number of characters for preview text
 const MAX_PREVIEW_TEXT_LENGTH = 500;
@@ -144,7 +145,7 @@ export class PreviewTextUtils {
      */
     static isExcalidrawFile(fileName: string, frontmatter?: FrontMatterCache): boolean {
         // Check filename pattern
-        if (fileName.endsWith('.excalidraw.md')) {
+        if (isExcalidrawFileName(fileName)) {
             return true;
         }
 

@@ -16,13 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { FolderMenuBuilderParams } from './menuTypes';
-import { buildFolderCreationMenu } from './folderMenuBuilder';
+import type { DualPaneBackgroundMode } from '../types';
 
-/**
- * Builds the context menu for empty space inside the list pane.
- * Reuses the folder creation builder so options stay in sync with folder context menus.
- */
-export function buildEmptyListMenu(params: FolderMenuBuilderParams): void {
-    buildFolderCreationMenu(params);
+/** Returns CSS classes for the configured dual pane background mode */
+export function getDualPaneBackgroundClasses(mode: DualPaneBackgroundMode | null | undefined): string[] {
+    if (mode === 'primary') {
+        return ['nn-bg-primary'];
+    }
+    if (mode === 'secondary') {
+        return ['nn-bg-secondary'];
+    }
+    return [];
 }

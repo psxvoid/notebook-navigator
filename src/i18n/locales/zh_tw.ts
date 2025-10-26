@@ -78,7 +78,8 @@ export const STRINGS_ZH_TW = {
         add: '新增至捷徑',
         remove: '從捷徑移除',
         moveUp: '上移',
-        moveDown: '下移'
+        moveDown: '下移',
+        folderNotesPinned: '已釘選 {count} 個資料夾筆記'
     },
 
     // 窗格標頭
@@ -442,11 +443,13 @@ export const STRINGS_ZH_TW = {
         createNewNote: '建立新筆記', // 指令面板：在目前選取的資料夾中建立新筆記 (英文: Create new note)
         moveFiles: '移動檔案', // 指令面板：將選取的檔案移動至另一個資料夾 (英文: Move files)
         convertToFolderNote: '轉換為資料夾筆記', // 指令面板：將活動檔案轉換為帶有新資料夾的資料夾筆記 (英文: Convert to folder note)
+        pinAllFolderNotes: '固定所有資料夾筆記', // 指令面板：將所有資料夾筆記釘選到捷徑 (英文: Pin all folder notes)
         navigateToFolder: '導覽至資料夾', // 指令面板：使用模糊搜尋導覽至資料夾 (英文: Navigate to folder)
         navigateToTag: '導覽至標籤', // 指令面板：使用模糊搜尋導覽至標籤 (英文: Navigate to tag)
         addShortcut: '新增至捷徑', // 指令面板：將目前的檔案、資料夾或標籤加入捷徑 (英文: Add to shortcuts)
         toggleDescendants: '切換後代項目', // 指令面板：切換顯示後代中的筆記 (英文: Toggle descendants)
         toggleHidden: '切換隱藏項目', // 指令面板：切換顯示隱藏項目 (英文: Toggle hidden items)
+        toggleTagSort: '切換標籤排序', // 指令面板：在字母和頻率標籤排序之間切換 (英文: Toggle tag sort order)
         collapseExpand: '收合/展開所有項目', // 指令面板：收合或展開所有資料夾和標籤 (英文: Collapse / expand all items)
         addTag: '為選取檔案新增標籤', // 指令面板：開啟對話框為選取檔案新增標籤 (英文: Add tag to selected files)
         removeTag: '從選取檔案移除標籤', // 指令面板：開啟對話框從選取檔案移除標籤 (英文: Remove tag from selected files)
@@ -492,6 +495,7 @@ export const STRINGS_ZH_TW = {
         groups: {
             general: {
                 view: '外觀',
+                desktopAppearance: '桌面外觀',
                 behavior: '行為',
                 filtering: '篩選',
                 formatting: '格式'
@@ -569,9 +573,14 @@ export const STRINGS_ZH_TW = {
                 name: '分別顯示當前和後代計數',
                 desc: '在資料夾和標籤中以「當前 ▾ 後代」格式顯示筆記計數。'
             },
-            groupByDate: {
-                name: '依日期分組筆記',
-                desc: '依日期排序時，將筆記分組在日期標頭下。'
+            groupNotes: {
+                name: '分組筆記',
+                desc: '在依日期或資料夾分組的筆記之間顯示標題。啟用資料夾分組時，標籤檢視使用日期分組。',
+                options: {
+                    none: '不分組',
+                    date: '依日期分組',
+                    folder: '依資料夾分組'
+                }
             },
             optimizeNoteHeight: {
                 name: '最佳化筆記高度',
@@ -598,8 +607,25 @@ export const STRINGS_ZH_TW = {
                 desc: '快速操作：在新分頁中開啟筆記。'
             },
             dualPane: {
-                name: '雙窗格佈局 (僅限桌面版，不同步)',
+                name: '雙窗格佈局 (不同步)',
                 desc: '在桌面版並排顯示導覽窗格和列表窗格。'
+            },
+            dualPaneOrientation: {
+                name: '雙欄版面方向 (不同步)',
+                desc: '啟用雙欄時選擇水平或垂直版面。',
+                options: {
+                    horizontal: '水平分割',
+                    vertical: '垂直分割'
+                }
+            },
+            dualPaneBackground: {
+                name: '背景色',
+                desc: '在桌面上為導覽窗格和列表窗格選擇背景色。',
+                options: {
+                    separate: '分開背景',
+                    primary: '使用列表背景',
+                    secondary: '使用導覽背景'
+                }
             },
             startView: {
                 name: '預設啟動檢視',
@@ -645,7 +671,7 @@ export const STRINGS_ZH_TW = {
                 desc: '要顯示的最近筆記數量。'
             },
             showTooltips: {
-                name: '顯示工具提示 (僅限桌面版)',
+                name: '顯示工具提示',
                 desc: '顯示懸停工具提示，提供筆記和資料夾的額外資訊。'
             },
             showTooltipPath: {

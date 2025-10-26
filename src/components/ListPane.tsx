@@ -59,7 +59,7 @@ import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
 import { TIMEOUTS } from '../types/obsidian-extended';
-import { ListPaneItemType, LISTPANE_MEASUREMENTS } from '../types';
+import { ListPaneItemType, LISTPANE_MEASUREMENTS, type DualPaneOrientation } from '../types';
 import { getEffectiveSortOption } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
@@ -73,10 +73,10 @@ import { EMPTY_LIST_MENU_TYPE } from '../utils/contextMenu';
 
 /**
  * Renders the list pane displaying files from the selected folder.
- * Handles file sorting, grouping by date, pinned notes, and auto-selection.
+ * Handles file sorting, grouping by date or folder, pinned notes, and auto-selection.
  * Integrates with the app context to manage file selection and navigation.
  *
- * @returns A scrollable list of files grouped by date (if enabled) with empty state handling
+ * @returns A scrollable list of files grouped by date or folder with empty state handling
  */
 interface ExecuteSearchShortcutParams {
     searchShortcut: SearchShortcut;
@@ -99,9 +99,10 @@ interface ListPaneProps {
      * other Obsidian views.
      */
     rootContainerRef: React.RefObject<HTMLDivElement | null>;
+    orientation: DualPaneOrientation;
     /**
      * Optional resize handle props for dual-pane mode.
-     * When provided, renders a resize handle overlay on the left edge of the list pane.
+     * When provided, renders a resize handle overlay on the list pane boundary aligned with the active orientation.
      */
     resizeHandleProps?: {
         onMouseDown: (e: React.MouseEvent) => void;
@@ -662,7 +663,9 @@ export const ListPane = React.memo(
         // Single return with conditional content
         return (
             <div className={`nn-list-pane ${isSearchActive ? 'nn-search-active' : ''}`}>
-                {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
+                {props.resizeHandleProps && (
+                    <div className="nn-resize-handle" data-orientation={props.orientation} {...props.resizeHandleProps} />
+                )}
                 <ListPaneHeader
                     onHeaderClick={handleScrollToTop}
                     isSearchActive={isSearchActive}
@@ -725,8 +728,14 @@ export const ListPane = React.memo(
                     <div
                         ref={scrollContainerRefCallback}
                         className="nn-list-pane-scroller nn-empty-state"
+                        // Drop zone type (folder or tag)
                         data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
+                        // Target path for the drop operation
                         data-drop-path={activeFolderDropPath ?? undefined}
+                        // Block internal file moves to empty state drop zones
+                        data-allow-internal-drop={activeFolderDropPath ? 'false' : undefined}
+                        // Allow external file imports to empty state drop zones
+                        data-allow-external-drop={activeFolderDropPath ? 'true' : undefined}
                     >
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoSelection}</div>
                     </div>
@@ -734,8 +743,14 @@ export const ListPane = React.memo(
                     <div
                         ref={scrollContainerRefCallback}
                         className="nn-list-pane-scroller nn-empty-state"
+                        // Drop zone type (folder or tag)
                         data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
+                        // Target path for the drop operation
                         data-drop-path={activeFolderDropPath ?? undefined}
+                        // Block internal file moves to empty state drop zones
+                        data-allow-internal-drop={activeFolderDropPath ? 'false' : undefined}
+                        // Allow external file imports to empty state drop zones
+                        data-allow-external-drop={activeFolderDropPath ? 'true' : undefined}
                     >
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
                     </div>
@@ -745,8 +760,14 @@ export const ListPane = React.memo(
                         <div
                             ref={scrollContainerRefCallback}
                             className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
+                            // Drop zone type (folder or tag)
                             data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
+                            // Target path for the drop operation
                             data-drop-path={activeFolderDropPath ?? undefined}
+                            // Block internal file moves to non-item areas
+                            data-allow-internal-drop={activeFolderDropPath ? 'false' : undefined}
+                            // Allow external file imports to non-item areas
+                            data-allow-external-drop={activeFolderDropPath ? 'true' : undefined}
                             data-pane="files"
                             role="list"
                             tabIndex={-1}

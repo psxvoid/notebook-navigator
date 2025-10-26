@@ -77,7 +77,8 @@ export const STRINGS_PL = {
         add: 'Dodaj do skrótów',
         remove: 'Usuń ze skrótów',
         moveUp: 'Przesuń w górę',
-        moveDown: 'Przesuń w dół'
+        moveDown: 'Przesuń w dół',
+        folderNotesPinned: 'Przypięto {count} notatek folderu'
     },
 
     // Pane header
@@ -444,11 +445,13 @@ export const STRINGS_PL = {
         createNewNote: 'Utwórz nową notatkę', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Przenieś pliki', // Command palette: Move selected files to another folder (English: Move files)
         convertToFolderNote: 'Konwertuj na notatkę folderu', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: 'Przypnij wszystkie notatki folderu', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Przejdź do folderu', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Przejdź do tagu', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Dodaj do skrótów', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Przełącz podfoldery', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
         toggleHidden: 'Przełącz ukryte elementy', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleTagSort: 'Przełącz sortowanie tagów', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'Zwiń / rozwiń wszystkie elementy', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Dodaj tag do wybranych plików', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Usuń tag z wybranych plików', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
@@ -494,6 +497,7 @@ export const STRINGS_PL = {
         groups: {
             general: {
                 view: 'Wygląd',
+                desktopAppearance: 'Wygląd na komputerze',
                 behavior: 'Zachowanie',
                 filtering: 'Filtrowanie',
                 formatting: 'Formatowanie'
@@ -572,9 +576,14 @@ export const STRINGS_PL = {
                 name: 'Pokaż bieżące i potomne liczniki osobno',
                 desc: 'Wyświetla liczbę notatek w formacie "bieżące ▾ potomne" w folderach i tagach.'
             },
-            groupByDate: {
-                name: 'Grupuj notatki według daty',
-                desc: 'Podczas sortowania według daty, grupuj notatki pod nagłówkami dat.'
+            groupNotes: {
+                name: 'Grupuj notatki',
+                desc: 'Wyświetla nagłówki między notatkami zgrupowanymi według daty lub folderu. Widoki tagów używają grup dat, gdy grupowanie po folderach jest włączone.',
+                options: {
+                    none: 'Bez grupowania',
+                    date: 'Grupuj według daty',
+                    folder: 'Grupuj według folderu'
+                }
             },
             optimizeNoteHeight: {
                 name: 'Optymalizuj wysokość notatek',
@@ -601,8 +610,25 @@ export const STRINGS_PL = {
                 desc: 'Szybka akcja: Otwórz notatkę w nowej karcie.'
             },
             dualPane: {
-                name: 'Układ podwójnego panelu (tylko desktop, nie synchronizowany)',
+                name: 'Układ podwójnego panelu (nie synchronizowany)',
                 desc: 'Pokaż panel nawigacji i panel listy obok siebie na komputerze.'
+            },
+            dualPaneOrientation: {
+                name: 'Orientacja trybu podwójnego (nie synchronizowany)',
+                desc: 'Wybierz układ poziomy lub pionowy, gdy tryb podwójny jest włączony.',
+                options: {
+                    horizontal: 'Podział poziomy',
+                    vertical: 'Podział pionowy'
+                }
+            },
+            dualPaneBackground: {
+                name: 'Kolor tła',
+                desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy na komputerze.',
+                options: {
+                    separate: 'Oddzielne tła',
+                    primary: 'Użyj tła listy',
+                    secondary: 'Użyj tła nawigacji'
+                }
             },
             startView: {
                 name: 'Domyślny widok startowy',
@@ -648,7 +674,7 @@ export const STRINGS_PL = {
                 desc: 'Liczba ostatnich notatek do wyświetlenia.'
             },
             showTooltips: {
-                name: 'Pokaż podpowiedzi (tylko desktop)',
+                name: 'Pokaż podpowiedzi',
                 desc: 'Wyświetl podpowiedzi przy najechaniu z dodatkowymi informacjami dla notatek i folderów.'
             },
             showTooltipPath: {

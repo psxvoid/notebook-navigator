@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, Notice, Platform, Setting } from 'obsidian';
+import { ButtonComponent, DropdownComponent, Notice, Platform, Setting } from 'obsidian';
 import { HomepageModal } from '../../modals/HomepageModal';
 import { strings } from '../../i18n';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
@@ -66,6 +66,53 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         renderUpdateStatus(notice?.version ?? null);
     });
 
+    new Setting(containerEl).setName(strings.settings.groups.general.filtering).setHeading();
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.fileVisibility.name)
+        .setDesc(strings.settings.items.fileVisibility.desc)
+        .addDropdown(dropdown =>
+            dropdown
+                .addOption(FILE_VISIBILITY.DOCUMENTS, strings.settings.items.fileVisibility.options.documents)
+                .addOption(FILE_VISIBILITY.SUPPORTED, strings.settings.items.fileVisibility.options.supported)
+                .addOption(FILE_VISIBILITY.ALL, strings.settings.items.fileVisibility.options.all)
+                .setValue(plugin.settings.fileVisibility)
+                .onChange(async (value: FileVisibility) => {
+                    plugin.settings.fileVisibility = value;
+                    await plugin.saveSettingsAndUpdate();
+                })
+        );
+
+    const excludedFoldersSetting = createDebouncedTextSetting(
+        containerEl,
+        strings.settings.items.excludedFolders.name,
+        strings.settings.items.excludedFolders.desc,
+        strings.settings.items.excludedFolders.placeholder,
+        () => plugin.settings.excludedFolders.join(', '),
+        value => {
+            plugin.settings.excludedFolders = value
+                .split(',')
+                .map(folder => folder.trim())
+                .filter(folder => folder.length > 0);
+        }
+    );
+    excludedFoldersSetting.controlEl.addClass('nn-setting-wide-input');
+
+    const excludedFilesSetting = createDebouncedTextSetting(
+        containerEl,
+        strings.settings.items.excludedNotes.name,
+        strings.settings.items.excludedNotes.desc,
+        strings.settings.items.excludedNotes.placeholder,
+        () => plugin.settings.excludedFiles.join(', '),
+        value => {
+            plugin.settings.excludedFiles = value
+                .split(',')
+                .map(file => file.trim())
+                .filter(file => file.length > 0);
+        }
+    );
+    excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');
+
     new Setting(containerEl).setName(strings.settings.groups.general.view).setHeading();
 
     new Setting(containerEl)
@@ -85,16 +132,15 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 });
         });
 
-    if (!Platform.isMobile) {
-        new Setting(containerEl)
-            .setName(strings.settings.items.dualPane.name)
-            .setDesc(strings.settings.items.dualPane.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.useDualPane()).onChange(value => {
-                    plugin.setDualPanePreference(value);
-                })
-            );
-    }
+    // Track orientation dropdown and container for visibility toggling
+    let orientationDropdown: DropdownComponent | null = null;
+    let orientationContainerEl: HTMLDivElement | null = null;
+
+    // Hide orientation controls when dual pane is disabled; background mode stays visible
+    const updateOrientationVisibility = (enabled: boolean) => {
+        orientationDropdown?.setDisabled(!enabled);
+        orientationContainerEl?.toggleClass('nn-setting-hidden', !enabled);
+    };
 
     const homepageSetting = new Setting(containerEl).setName(strings.settings.items.homepage.name);
     homepageSetting.setDesc('');
@@ -177,7 +223,92 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             })
         );
 
+    let showIconsSubSettings: HTMLDivElement | null = null;
+
+    const updateShowIconsSubSettings = (visible: boolean) => {
+        if (showIconsSubSettings) {
+            showIconsSubSettings.toggleClass('nn-setting-hidden', !visible);
+        }
+    };
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.showIcons.name)
+        .setDesc(strings.settings.items.showIcons.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showIcons).onChange(async value => {
+                plugin.settings.showIcons = value;
+                await plugin.saveSettingsAndUpdate();
+                updateShowIconsSubSettings(value);
+            })
+        );
+
+    showIconsSubSettings = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(showIconsSubSettings)
+        .setName(strings.settings.items.showIconsColorOnly.name)
+        .setDesc(strings.settings.items.showIconsColorOnly.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.colorIconOnly).onChange(async value => {
+                plugin.settings.colorIconOnly = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    updateShowIconsSubSettings(plugin.settings.showIcons);
+
     if (!Platform.isMobile) {
+        new Setting(containerEl).setName(strings.settings.groups.general.desktopAppearance).setHeading();
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.dualPane.name)
+            .setDesc(strings.settings.items.dualPane.desc)
+            .addToggle(toggle =>
+                toggle.setValue(plugin.useDualPane()).onChange(value => {
+                    plugin.setDualPanePreference(value);
+                    updateOrientationVisibility(value);
+                })
+            );
+
+        orientationContainerEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(orientationContainerEl)
+            .setName(strings.settings.items.dualPaneOrientation.name)
+            .setDesc(strings.settings.items.dualPaneOrientation.desc)
+            .addDropdown(dropdown => {
+                orientationDropdown = dropdown;
+                dropdown
+                    .addOptions({
+                        horizontal: strings.settings.items.dualPaneOrientation.options.horizontal,
+                        vertical: strings.settings.items.dualPaneOrientation.options.vertical
+                    })
+                    .setValue(plugin.getDualPaneOrientation())
+                    .onChange(async value => {
+                        const nextOrientation = value === 'vertical' ? 'vertical' : 'horizontal';
+                        await plugin.setDualPaneOrientation(nextOrientation);
+                    });
+
+                updateOrientationVisibility(plugin.useDualPane());
+            });
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.dualPaneBackground.name)
+            .setDesc(strings.settings.items.dualPaneBackground.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOptions({
+                        separate: strings.settings.items.dualPaneBackground.options.separate,
+                        primary: strings.settings.items.dualPaneBackground.options.primary,
+                        secondary: strings.settings.items.dualPaneBackground.options.secondary
+                    })
+                    .setValue(plugin.settings.dualPaneBackground ?? 'separate')
+                    .onChange(async value => {
+                        const nextValue: 'separate' | 'primary' | 'secondary' =
+                            value === 'primary' || value === 'secondary' ? value : 'separate';
+                        plugin.settings.dualPaneBackground = nextValue;
+                        await plugin.saveSettingsAndUpdate();
+                    })
+            );
+
         let showTooltipsSubSettings: HTMLDivElement | null = null;
 
         const updateShowTooltipsSubSettings = (visible: boolean) => {
@@ -212,39 +343,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         updateShowTooltipsSubSettings(plugin.settings.showTooltips);
     }
 
-    let showIconsSubSettings: HTMLDivElement | null = null;
-
-    const updateShowIconsSubSettings = (visible: boolean) => {
-        if (showIconsSubSettings) {
-            showIconsSubSettings.toggleClass('nn-setting-hidden', !visible);
-        }
-    };
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.showIcons.name)
-        .setDesc(strings.settings.items.showIcons.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showIcons).onChange(async value => {
-                plugin.settings.showIcons = value;
-                await plugin.saveSettingsAndUpdate();
-                updateShowIconsSubSettings(value);
-            })
-        );
-
-    showIconsSubSettings = containerEl.createDiv('nn-sub-settings');
-
-    new Setting(showIconsSubSettings)
-        .setName(strings.settings.items.showIconsColorOnly.name)
-        .setDesc(strings.settings.items.showIconsColorOnly.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.colorIconOnly).onChange(async value => {
-                plugin.settings.colorIconOnly = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    updateShowIconsSubSettings(plugin.settings.showIcons);
-
     new Setting(containerEl).setName(strings.settings.groups.general.behavior).setHeading();
 
     const autoRevealSettingsEl = containerEl.createDiv('nn-sub-settings');
@@ -272,53 +370,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             })
         );
     autoRevealSettingsEl.toggle(plugin.settings.autoRevealActiveFile);
-
-    new Setting(containerEl).setName(strings.settings.groups.general.filtering).setHeading();
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.fileVisibility.name)
-        .setDesc(strings.settings.items.fileVisibility.desc)
-        .addDropdown(dropdown =>
-            dropdown
-                .addOption(FILE_VISIBILITY.DOCUMENTS, strings.settings.items.fileVisibility.options.documents)
-                .addOption(FILE_VISIBILITY.SUPPORTED, strings.settings.items.fileVisibility.options.supported)
-                .addOption(FILE_VISIBILITY.ALL, strings.settings.items.fileVisibility.options.all)
-                .setValue(plugin.settings.fileVisibility)
-                .onChange(async (value: FileVisibility) => {
-                    plugin.settings.fileVisibility = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-        );
-
-    const excludedFoldersSetting = createDebouncedTextSetting(
-        containerEl,
-        strings.settings.items.excludedFolders.name,
-        strings.settings.items.excludedFolders.desc,
-        strings.settings.items.excludedFolders.placeholder,
-        () => plugin.settings.excludedFolders.join(', '),
-        value => {
-            plugin.settings.excludedFolders = value
-                .split(',')
-                .map(folder => folder.trim())
-                .filter(folder => folder.length > 0);
-        }
-    );
-    excludedFoldersSetting.controlEl.addClass('nn-setting-wide-input');
-
-    const excludedFilesSetting = createDebouncedTextSetting(
-        containerEl,
-        strings.settings.items.excludedNotes.name,
-        strings.settings.items.excludedNotes.desc,
-        strings.settings.items.excludedNotes.placeholder,
-        () => plugin.settings.excludedFiles.join(', '),
-        value => {
-            plugin.settings.excludedFiles = value
-                .split(',')
-                .map(file => file.trim())
-                .filter(file => file.length > 0);
-        }
-    );
-    excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');
 
     new Setting(containerEl).setName(strings.settings.groups.general.formatting).setHeading();
 

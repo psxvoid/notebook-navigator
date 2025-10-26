@@ -331,13 +331,20 @@ export const FolderItem = React.memo(function FolderItem({
             ref={folderRef}
             className={className}
             data-path={folder.path}
+            // Path to use when this folder is dragged
             data-drag-path={folder.path}
+            // Type of item being dragged (folder, file, or tag)
             data-drag-type="folder"
+            // Marks element as draggable for event delegation
             data-draggable={isDraggable ? 'true' : undefined}
+            // Icon to display in drag ghost
             data-drag-icon={dragIconId}
+            // Icon color to display in drag ghost
             data-drag-icon-color={customColor || undefined}
             draggable={isDraggable}
+            // Drop zone type (folder or tag)
             data-drop-zone="folder"
+            // Target path for drop operations on this folder
             data-drop-path={folder.path}
             data-clickable="folder"
             data-level={level}
