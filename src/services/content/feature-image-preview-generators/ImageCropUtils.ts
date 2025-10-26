@@ -29,7 +29,6 @@ export function blobToBase64Url(blob: Blob): Promise<string> {
     });
 };
 
-// chatgpt generated start
 export async function blobToImage(blob: Blob): Promise<HTMLImageElement> {
     const img = new Image();
 
