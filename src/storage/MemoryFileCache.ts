@@ -32,6 +32,19 @@ function cloneFileData(data: FileDataCache): FileDataCache {
     };
 }
 
+function isFileData(data: FileDataCache | FileData): data is FileData {
+    return (data as FileData).featureImageResized !== undefined
+}
+
+function stripFileData(data: FileDataCache | FileData): data is FileDataCache {
+    if (isFileData(data)) {
+        delete data.featureImageResized
+        return true
+    }
+
+    return false
+}
+
 /**
  * In-memory file cache that mirrors the IndexedDB storage for synchronous access.
  * This cache stores all file data in RAM to enable synchronous reads during rendering,
@@ -108,6 +121,7 @@ export class MemoryFileCache {
     getAllFilesWithPaths(): { path: string; data: FileDataCache }[] {
         const result: { path: string; data: FileDataCache }[] = [];
         for (const [path, data] of this.memoryMap.entries()) {
+            stripFileData(data)
             result.push({ path, data });
         }
         return result;
@@ -117,6 +131,7 @@ export class MemoryFileCache {
      * Update or add a file in the cache.
      */
     updateFile(path: string, data: FileData): void {
+        stripFileData(data)
         this.memoryMap.set(path, data);
     }
 
@@ -166,6 +181,7 @@ export class MemoryFileCache {
      */
     batchUpdate(updates: { path: string; data: FileDataCache }[]): void {
         for (const { path, data } of updates) {
+            stripFileData(data)
             this.memoryMap.set(path, data);
         }
     }
