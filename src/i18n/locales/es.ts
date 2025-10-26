@@ -177,6 +177,7 @@ export const STRINGS_ES = {
             changeColor: 'Cambiar color',
             changeBackground: 'Cambiar fondo',
             excludeFolder: 'Ocultar carpeta',
+            unhideFolder: 'Mostrar carpeta',
             moveFolder: 'Mover a...',
             renameFolder: 'Renombrar carpeta',
             deleteFolder: 'Eliminar carpeta'
@@ -357,7 +358,8 @@ export const STRINGS_ES = {
             noFileSelected: 'No hay archivo seleccionado'
         },
         notices: {
-            excludedFolder: 'Carpeta excluida: {name}'
+            hideFolder: 'Carpeta oculta: {name}',
+            showFolder: 'Carpeta mostrada: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
@@ -495,10 +497,10 @@ export const STRINGS_ES = {
         },
         groups: {
             general: {
+                filtering: 'Filtrado',
+                behavior: 'Comportamiento',
                 view: 'Apariencia',
                 desktopAppearance: 'Apariencia de escritorio',
-                behavior: 'Comportamiento',
-                filtering: 'Filtrado',
                 formatting: 'Formato'
             },
             navigation: {
@@ -680,6 +682,12 @@ export const STRINGS_ES = {
                 name: 'Mostrar ruta',
                 desc: 'Muestra la ruta de la carpeta debajo del nombre de las notas en los tooltips.'
             },
+            resetPaneSeparator: {
+                name: 'Restablecer posición del separador de paneles',
+                desc: 'Restablece el separador arrastrable entre el panel de navegación y el panel de lista a la posición predeterminada.',
+                buttonText: 'Restablecer separador',
+                notice: 'Posición del separador restablecida. Reinicia Obsidian o vuelve a abrir Notebook Navigator para aplicar.'
+            },
             multiSelectModifier: {
                 name: 'Modificador de selección múltiple',
                 desc: 'Elige qué tecla modificadora activa la selección múltiple. Cuando se selecciona Option/Alt, Cmd/Ctrl clic abre notas en una nueva pestaña.',
@@ -722,6 +730,14 @@ export const STRINGS_ES = {
             showFileDate: {
                 name: 'Mostrar fecha',
                 desc: 'Muestra la fecha debajo de los nombres de las notas.'
+            },
+            alphabeticalDateMode: {
+                name: 'Al ordenar por nombre',
+                desc: 'Fecha que se muestra cuando las notas están ordenadas alfabéticamente.',
+                options: {
+                    created: 'Fecha de creación',
+                    modified: 'Fecha de modificación'
+                }
             },
             showFileTags: {
                 name: 'Mostrar etiquetas de archivo',
@@ -881,6 +897,10 @@ export const STRINGS_ES = {
             showUntagged: {
                 name: 'Mostrar notas sin etiquetas',
                 desc: 'Muestra el elemento "Sin etiquetas" para notas sin ninguna etiqueta.'
+            },
+            keepEmptyTagsProperty: {
+                name: 'Conservar propiedad tags después de eliminar la última etiqueta',
+                desc: 'Mantiene la propiedad tags en frontmatter cuando se eliminan todas las etiquetas. Cuando está desactivado, la propiedad tags se elimina del frontmatter.'
             },
             hiddenTags: {
                 name: 'Etiquetas ocultas',

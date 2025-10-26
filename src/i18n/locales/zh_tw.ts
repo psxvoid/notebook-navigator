@@ -177,6 +177,7 @@ export const STRINGS_ZH_TW = {
             changeColor: '變更顏色',
             changeBackground: '變更背景',
             excludeFolder: '隱藏資料夾',
+            unhideFolder: '顯示資料夾',
             moveFolder: '移動至...',
             renameFolder: '重新命名資料夾',
             deleteFolder: '刪除資料夾'
@@ -356,7 +357,8 @@ export const STRINGS_ZH_TW = {
             noFileSelected: '未選取檔案'
         },
         notices: {
-            excludedFolder: '已排除資料夾：{name}'
+            hideFolder: '已隱藏資料夾：{name}',
+            showFolder: '已顯示資料夾：{name}'
         },
         notifications: {
             deletedMultipleFiles: '已刪除 {count} 個檔案',
@@ -494,10 +496,10 @@ export const STRINGS_ZH_TW = {
         },
         groups: {
             general: {
+                filtering: '篩選',
+                behavior: '行為',
                 view: '外觀',
                 desktopAppearance: '桌面外觀',
-                behavior: '行為',
-                filtering: '篩選',
                 formatting: '格式'
             },
             navigation: {
@@ -678,6 +680,12 @@ export const STRINGS_ZH_TW = {
                 name: '顯示路徑',
                 desc: '在工具提示中的筆記名稱下方顯示資料夾路徑。'
             },
+            resetPaneSeparator: {
+                name: '重置面板分隔符位置',
+                desc: '將導覽面板與清單面板之間的可拖動分隔符重置為預設位置。',
+                buttonText: '重置分隔符',
+                notice: '分隔符位置已重置。重新啟動 Obsidian 或重新開啟 Notebook Navigator 以套用。'
+            },
             multiSelectModifier: {
                 name: '多重選取修飾鍵',
                 desc: '選擇哪個修飾鍵切換多重選取。選擇 Option/Alt 時，Cmd/Ctrl 點擊會在一個新分頁中開啟筆記。',
@@ -720,6 +728,14 @@ export const STRINGS_ZH_TW = {
             showFileDate: {
                 name: '顯示日期',
                 desc: '在筆記名稱下方顯示日期。'
+            },
+            alphabeticalDateMode: {
+                name: '按名稱排序時',
+                desc: '筆記按字母順序排序時顯示的日期。',
+                options: {
+                    created: '建立日期',
+                    modified: '修改日期'
+                }
             },
             showFileTags: {
                 name: '顯示檔案標籤',
@@ -879,6 +895,10 @@ export const STRINGS_ZH_TW = {
             showUntagged: {
                 name: '顯示無標籤筆記',
                 desc: '為沒有任何標籤的筆記顯示 "無標籤" 項目。'
+            },
+            keepEmptyTagsProperty: {
+                name: '刪除最後一個標籤後保留 tags 屬性',
+                desc: '當所有標籤被刪除時保留 frontmatter 中的 tags 屬性。停用時,tags 屬性將從 frontmatter 中刪除。'
             },
             hiddenTags: {
                 name: '隱藏標籤',

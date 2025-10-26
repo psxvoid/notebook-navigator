@@ -177,6 +177,7 @@ export const STRINGS_ZH_CN = {
             changeColor: '更改颜色',
             changeBackground: '更改背景',
             excludeFolder: '隐藏文件夹',
+            unhideFolder: '显示文件夹',
             moveFolder: '移动到...',
             renameFolder: '重命名文件夹',
             deleteFolder: '删除文件夹'
@@ -357,7 +358,8 @@ export const STRINGS_ZH_CN = {
             noFileSelected: '未选择文件'
         },
         notices: {
-            excludedFolder: '已排除文件夹：{name}'
+            hideFolder: '已隐藏文件夹：{name}',
+            showFolder: '已显示文件夹：{name}'
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
@@ -495,10 +497,10 @@ export const STRINGS_ZH_CN = {
         },
         groups: {
             general: {
+                filtering: '过滤',
+                behavior: '行为',
                 view: '外观',
                 desktopAppearance: '桌面外观',
-                behavior: '行为',
-                filtering: '过滤',
                 formatting: '格式'
             },
             navigation: {
@@ -679,6 +681,12 @@ export const STRINGS_ZH_CN = {
                 name: '显示路径',
                 desc: '在工具提示中的笔记名称下方显示文件夹路径。'
             },
+            resetPaneSeparator: {
+                name: '重置面板分隔符位置',
+                desc: '将导航面板和列表面板之间的可拖动分隔符重置为默认位置。',
+                buttonText: '重置分隔符',
+                notice: '分隔符位置已重置。重启 Obsidian 或重新打开 Notebook Navigator 以应用。'
+            },
             multiSelectModifier: {
                 name: '多选修饰键',
                 desc: '选择哪个修饰键切换多选模式。选择 Option/Alt 时，Cmd/Ctrl 点击会在新标签页中打开笔记。',
@@ -722,6 +730,14 @@ export const STRINGS_ZH_CN = {
             showFileDate: {
                 name: '显示日期',
                 desc: '在笔记名称下方显示日期。'
+            },
+            alphabeticalDateMode: {
+                name: '按名称排序时',
+                desc: '笔记按字母顺序排序时显示的日期。',
+                options: {
+                    created: '创建日期',
+                    modified: '修改日期'
+                }
             },
             showFileTags: {
                 name: '显示文件标签',
@@ -881,6 +897,10 @@ export const STRINGS_ZH_CN = {
             showUntagged: {
                 name: '显示无标签笔记',
                 desc: '为没有任何标签的笔记显示"无标签"项目。'
+            },
+            keepEmptyTagsProperty: {
+                name: '删除最后一个标签后保留 tags 属性',
+                desc: '当所有标签被删除时保留 frontmatter 中的 tags 属性。禁用时,tags 属性将从 frontmatter 中删除。'
             },
             hiddenTags: {
                 name: '隐藏标签',

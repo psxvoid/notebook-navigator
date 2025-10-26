@@ -27,25 +27,27 @@ import type { NotebookNavigatorSettings } from './types';
  * Used when plugin is first installed or settings are reset
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
-    // General tab - Startup & layout
+    // General tab - Filtering
+    fileVisibility: FILE_VISIBILITY.DOCUMENTS,
+    excludedFolders: [],
+    excludedFiles: [],
+
+    // General tab - Behavior
+    autoRevealActiveFile: true,
+    autoRevealIgnoreRightSidebar: true,
+
+    // General tab - View
     startView: 'files',
-    showTooltips: false,
-    showTooltipPath: true,
-    dualPaneBackground: 'separate',
 
     // General tab - Homepage
     homepage: null,
     mobileHomepage: null,
     useMobileHomepage: false,
 
-    // General tab - Behavior
-    autoRevealActiveFile: true,
-    autoRevealIgnoreRightSidebar: true,
-
-    // General tab - Filtering
-    fileVisibility: FILE_VISIBILITY.DOCUMENTS,
-    excludedFolders: [],
-    excludedFiles: [],
+    // General tab - Desktop appearance
+    showTooltips: false,
+    showTooltipPath: true,
+    dualPaneBackground: 'separate',
 
     // General tab - Formatting
     dateFormat: 'MMM d, yyyy',
@@ -83,6 +85,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showUntagged: false,
     tagSortOrder: 'alpha-asc',
     hiddenTags: [],
+    keepEmptyTagsProperty: false,
 
     // List pane tab
     defaultFolderSort: 'modified-desc',
@@ -108,6 +111,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     iconizeFormat: false,
     fileNameRows: 1,
     showFileDate: true,
+    // Default to showing modified date when sorting alphabetically
+    alphabeticalDateMode: 'modified',
     showFileTags: true,
     showFileTagAncestors: true,
     collapseFileTagsToSelectedTag: true,

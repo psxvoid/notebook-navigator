@@ -310,6 +310,11 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Hide folders:** Comma-separated list of folders to hide. Name patterns: `assets*` (folders starting with assets), `*_temp` (ending with \_temp). Path patterns: `/archive` (root archive only), `/res*` (root folders starting with res), `/*/temp` (temp folders one level deep), `/projects/*` (all folders inside projects)
 - **Hide notes:** Comma-separated frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
 
+**Behavior**
+
+- **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
+  - **Ignore events from right sidebar:** Disable auto-reveal from right sidebar
+
 **View**
 
 - **Default startup view:** Choose which pane displays when opening Notebook Navigator - Navigation pane (shortcuts, recent notes, folders) or List pane (note list)
@@ -325,11 +330,6 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Dual pane background:** Choose background styling for dual-pane mode. `Separate backgrounds`, `Primary background only`, `Secondary background only`
 - **Show tooltips:** Display hover tooltips with additional information for notes and folders
   - **Show tooltips path:** Display full file path in tooltips
-
-**Behavior**
-
-- **Auto-reveal active note:** Automatically reveal notes when opened from Quick Switcher, links, or search
-  - **Ignore events from right sidebar:** Disable auto-reveal from right sidebar
 
 **Formatting**
 

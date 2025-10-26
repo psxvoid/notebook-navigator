@@ -176,6 +176,7 @@ export const STRINGS_KO = {
             changeColor: '아이콘 색상 변경',
             changeBackground: '배경색 변경',
             excludeFolder: '폴더 숨기기',
+            unhideFolder: '폴더 표시',
             moveFolder: '이동...',
             renameFolder: '폴더 이름 변경',
             deleteFolder: '폴더 삭제'
@@ -356,7 +357,8 @@ export const STRINGS_KO = {
             noFileSelected: '선택된 파일이 없습니다'
         },
         notices: {
-            excludedFolder: '숨겨진 폴더: {name}'
+            hideFolder: '폴더 숨김: {name}',
+            showFolder: '폴더 표시: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count}개의 파일이 삭제됨',
@@ -494,10 +496,10 @@ export const STRINGS_KO = {
         },
         groups: {
             general: {
+                filtering: '필터링',
+                behavior: '동작',
                 view: '모양',
                 desktopAppearance: '데스크톱 모양새',
-                behavior: '동작',
-                filtering: '필터링',
                 formatting: '서식'
             },
             navigation: {
@@ -679,6 +681,12 @@ export const STRINGS_KO = {
                 name: '경로 표시',
                 desc: '도구 설명에서 노트 이름 아래에 폴더 경로를 표시합니다.'
             },
+            resetPaneSeparator: {
+                name: '창 구분선 위치 초기화',
+                desc: '탐색 창과 목록 창 사이의 드래그 가능한 구분선을 기본 위치로 초기화합니다.',
+                buttonText: '구분선 초기화',
+                notice: '구분선 위치가 초기화되었습니다. Obsidian을 재시작하거나 Notebook Navigator를 다시 열어 적용하세요.'
+            },
             multiSelectModifier: {
                 name: '다중 선택 수정자',
                 desc: '다중 선택을 전환하는 수정자 키를 선택하세요. Option/Alt를 선택하면 Cmd/Ctrl 클릭이 새 탭에서 노트를 엽니다.',
@@ -721,6 +729,14 @@ export const STRINGS_KO = {
             showFileDate: {
                 name: '날짜 표시',
                 desc: '노트 이름 아래에 날짜를 표시합니다.'
+            },
+            alphabeticalDateMode: {
+                name: '이름 정렬 시',
+                desc: '노트가 이름순으로 정렬될 때 표시할 날짜.',
+                options: {
+                    created: '생성일',
+                    modified: '수정일'
+                }
             },
             showFileTags: {
                 name: '파일 태그 표시',
@@ -880,6 +896,10 @@ export const STRINGS_KO = {
             showUntagged: {
                 name: '태그 없는 노트 표시',
                 desc: '태그가 없는 노트에 대해 "태그 없음" 항목을 표시합니다.'
+            },
+            keepEmptyTagsProperty: {
+                name: '마지막 태그 제거 후 tags 속성 유지',
+                desc: '모든 태그가 제거될 때 frontmatter 의 tags 속성을 유지합니다. 비활성화하면 tags 속성이 frontmatter 에서 삭제됩니다.'
             },
             hiddenTags: {
                 name: '숨겨진 태그',

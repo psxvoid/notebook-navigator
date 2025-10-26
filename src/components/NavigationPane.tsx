@@ -648,6 +648,10 @@ export const NavigationPane = React.memo(
         const navigationBannerPath = settings.navigationBanner;
         // Banner should be shown in pinned area only when shortcuts are pinned and banner is configured
         const shouldShowPinnedBanner = Boolean(navigationBannerPath && pinnedShortcutItems.length > 0);
+        // We only reserve gutter space when a banner exists because Windows scrollbars
+        // change container width by ~7px when they appear. That width change used to
+        // feed back into the virtualizer via ResizeObserver and trigger infinite reflows.
+        const hasNavigationBannerConfigured = Boolean(settings.navigationBanner);
 
         const {
             reorderableRootFolders,
@@ -1939,6 +1943,9 @@ export const NavigationPane = React.memo(
                 <div
                     ref={scrollContainerRefCallback}
                     className="nn-navigation-pane-scroller"
+                    // Reserve permanent gutter width when a banner is visible so the scrollbar
+                    // never changes clientWidth mid-resize (prevents RO feedback loops).
+                    data-banner={hasNavigationBannerConfigured ? 'true' : undefined}
                     data-pane="navigation"
                     role={isRootReorderMode ? 'list' : 'tree'}
                     tabIndex={-1}

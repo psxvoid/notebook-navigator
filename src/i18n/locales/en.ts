@@ -177,6 +177,7 @@ export const STRINGS_EN = {
             changeColor: 'Change color',
             changeBackground: 'Change background',
             excludeFolder: 'Hide folder',
+            unhideFolder: 'Unhide folder',
             moveFolder: 'Move to...',
             renameFolder: 'Rename folder',
             deleteFolder: 'Delete folder'
@@ -356,7 +357,8 @@ export const STRINGS_EN = {
             noFileSelected: 'No file is selected'
         },
         notices: {
-            excludedFolder: 'Excluded folder: {name}'
+            hideFolder: 'Folder hidden: {name}',
+            showFolder: 'Folder shown: {name}'
         },
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
@@ -494,10 +496,10 @@ export const STRINGS_EN = {
         },
         groups: {
             general: {
+                filtering: 'Filtering',
+                behavior: 'Behavior',
                 view: 'Appearance',
                 desktopAppearance: 'Desktop appearance',
-                behavior: 'Behavior',
-                filtering: 'Filtering',
                 formatting: 'Formatting'
             },
             navigation: {
@@ -679,6 +681,12 @@ export const STRINGS_EN = {
                 name: 'Show path',
                 desc: 'Display the folder path below note names in tooltips.'
             },
+            resetPaneSeparator: {
+                name: 'Reset pane separator position',
+                desc: 'Reset the draggable separator between navigation pane and list pane to default position.',
+                buttonText: 'Reset separator',
+                notice: 'Separator position reset. Restart Obsidian or reopen Notebook Navigator to apply.'
+            },
             multiSelectModifier: {
                 name: 'Multi-select modifier',
                 desc: 'Choose which modifier key toggles multi-selection. When Option/Alt is selected, Cmd/Ctrl click opens notes in a new tab.',
@@ -721,6 +729,14 @@ export const STRINGS_EN = {
             showFileDate: {
                 name: 'Show date',
                 desc: 'Display the date below note names.'
+            },
+            alphabeticalDateMode: {
+                name: 'When sorting by name',
+                desc: 'Date to show when notes are alphabetically sorted.',
+                options: {
+                    created: 'Created date',
+                    modified: 'Modified date'
+                }
             },
             showFileTags: {
                 name: 'Show file tags',
@@ -880,6 +896,10 @@ export const STRINGS_EN = {
             showUntagged: {
                 name: 'Show untagged notes',
                 desc: 'Display "Untagged" item for notes without any tags.'
+            },
+            keepEmptyTagsProperty: {
+                name: 'Retain tags property after removing last tag',
+                desc: 'Keep the tags frontmatter property when all tags are removed. When disabled, the tags property is deleted from frontmatter.'
             },
             hiddenTags: {
                 name: 'Hidden tags',

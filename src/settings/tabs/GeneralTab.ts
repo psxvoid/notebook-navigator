@@ -22,6 +22,8 @@ import { strings } from '../../i18n';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
+import { localStorage } from '../../utils/localStorage';
+import { getNavigationPaneSizing } from '../../utils/paneSizing';
 
 /** Renders the general settings tab */
 export function renderGeneralTab(context: SettingsTabContext): void {
@@ -112,6 +114,34 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         }
     );
     excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');
+
+    new Setting(containerEl).setName(strings.settings.groups.general.behavior).setHeading();
+
+    const autoRevealSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.autoRevealActiveNote.name)
+        .setDesc(strings.settings.items.autoRevealActiveNote.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.autoRevealActiveFile).onChange(async value => {
+                plugin.settings.autoRevealActiveFile = value;
+                await plugin.saveSettingsAndUpdate();
+                autoRevealSettingsEl.toggle(value);
+            })
+        );
+
+    containerEl.appendChild(autoRevealSettingsEl);
+
+    new Setting(autoRevealSettingsEl)
+        .setName(strings.settings.items.autoRevealIgnoreRightSidebar.name)
+        .setDesc(strings.settings.items.autoRevealIgnoreRightSidebar.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.autoRevealIgnoreRightSidebar).onChange(async value => {
+                plugin.settings.autoRevealIgnoreRightSidebar = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+    autoRevealSettingsEl.toggle(plugin.settings.autoRevealActiveFile);
 
     new Setting(containerEl).setName(strings.settings.groups.general.view).setHeading();
 
@@ -341,35 +371,19 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             );
 
         updateShowTooltipsSubSettings(plugin.settings.showTooltips);
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.resetPaneSeparator.name)
+            .setDesc(strings.settings.items.resetPaneSeparator.desc)
+            .addButton(button =>
+                button.setButtonText(strings.settings.items.resetPaneSeparator.buttonText).onClick(() => {
+                    const orientation = plugin.getDualPaneOrientation();
+                    const { storageKey } = getNavigationPaneSizing(orientation);
+                    localStorage.remove(storageKey);
+                    new Notice(strings.settings.items.resetPaneSeparator.notice);
+                })
+            );
     }
-
-    new Setting(containerEl).setName(strings.settings.groups.general.behavior).setHeading();
-
-    const autoRevealSettingsEl = containerEl.createDiv('nn-sub-settings');
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.autoRevealActiveNote.name)
-        .setDesc(strings.settings.items.autoRevealActiveNote.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.autoRevealActiveFile).onChange(async value => {
-                plugin.settings.autoRevealActiveFile = value;
-                await plugin.saveSettingsAndUpdate();
-                autoRevealSettingsEl.toggle(value);
-            })
-        );
-
-    containerEl.appendChild(autoRevealSettingsEl);
-
-    new Setting(autoRevealSettingsEl)
-        .setName(strings.settings.items.autoRevealIgnoreRightSidebar.name)
-        .setDesc(strings.settings.items.autoRevealIgnoreRightSidebar.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.autoRevealIgnoreRightSidebar).onChange(async value => {
-                plugin.settings.autoRevealIgnoreRightSidebar = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-    autoRevealSettingsEl.toggle(plugin.settings.autoRevealActiveFile);
 
     new Setting(containerEl).setName(strings.settings.groups.general.formatting).setHeading();
 
