@@ -543,41 +543,50 @@ export const FileItem = React.memo(function FileItem({
                 return { displayTag: tag };
             }
 
-            if (!settings.showFileTagAncestors) {
-                return { displayTag: segments[segments.length - 1] };
-            }
-
+            let displayTag: string = tag
             const selectedTag = selectionState.selectedTag ?? EMPTY_STRING;
 
-            if (selectedTag.length === 0 || selectionState.selectionType !== 'tag') {
-                return { displayTag: tag }
+            if (settings.collapseFileTagsToSelectedTag
+                && selectedTag.length !== 0 && selectionState.selectionType === 'tag') {
+
+                if (selectedTag.length === tag.length && selectedTag === tag) {
+                    return { displayTag: EMPTY_STRING }
+                }
+
+                const selectedTagSegments = selectedTag.split('/').filter(segment => segment.length > 0);
+
+                while(segments.length > 0 && segments.length > 0 && selectedTagSegments[0] === segments[0]) {
+                    segments.shift()
+                    selectedTagSegments.shift()
+                }
+
+                displayTag = segments.join('/')
             }
 
-            if (selectedTag.length === tag.length && selectedTag === tag) {
-                return { displayTag: EMPTY_STRING }
+            if (!settings.showFileTagAncestors && segments.length > 0) {
+                displayTag = segments[segments.length - 1]
             }
 
-            const selectedTagSegments = selectedTag.split('/').filter(segment => segment.length > 0);
+            const displayTooltip = displayTag.length < tag.length ? tag : undefined
 
-            while(selectedTagSegments.length > 0 && segments.length > 0 && selectedTagSegments[0] === segments[0]) {
-                segments.shift()
-                selectedTagSegments.shift()
-            }
-
-            return { displayTag: segments.join('/') }
+            return { displayTag, tooltip: displayTooltip }
         },
         [settings.showFileTagAncestors, settings.collapseFileTagsToSelectedTag, selectionState]
     );
 
-    const RenderTag = React.useCallback(function RenderTag(el: { tag: string, index: number }) {
+    const RenderTag = useCallback(function RenderTag(el: { tag: string, index: number }) {
         const { tag, index } = el
-        const tagRef = useRef<HTMLDivElement>(null);
+        const tagRef = useRef<HTMLSpanElement>(null);
         const tagColor = colorFileTags ? getTagColor(tag) : undefined;
         const { displayTag, tooltip } = getTagDisplayName(tag);
 
         useEffect(() => {
-            if (tagRef.current && tooltip != null) setTooltip(tagRef.current, tooltip);
-        }, [tooltip]);
+            if (tagRef.current == null || displayTag.length === 0 || tooltip == null) {
+                return
+            }
+
+            setTooltip(tagRef.current, tooltip);
+        }, [tagRef, displayTag, tooltip]);
 
         return displayTag === EMPTY_STRING ? null : (
             <span
@@ -587,6 +596,7 @@ export const FileItem = React.memo(function FileItem({
                 role="button"
                 tabIndex={0}
                 style={tagColor ? { backgroundColor: tagColor } : undefined}
+                ref={el => { if (el != null) tagRef.current = el }}
             >
                 {displayTag}
             </span>
