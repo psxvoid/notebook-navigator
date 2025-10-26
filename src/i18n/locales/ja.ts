@@ -43,7 +43,8 @@ export const STRINGS_JA = {
         emptyStateNoNotes: 'ノートなし', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 ピン留め', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
         notesSection: 'ノート', // Header shown between pinned and regular items when showing documents only (English: Notes)
-        filesSection: 'ファイル' // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        filesSection: 'ファイル', // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        hiddenItemAriaLabel: '{name} (非表示)' // Accessibility label applied to list items that are normally hidden
     },
 
     // Tag list
@@ -98,8 +99,8 @@ export const STRINGS_JA = {
         finishRootFolderReorder: '並び替えを終了',
         toggleDescendantNotes: 'サブフォルダ / 子孫のノートを表示', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
-        showExcludedItems: '非表示項目を表示', // Tooltip for button to show hidden items (English: Show hidden items)
-        hideExcludedItems: '非表示項目を隠す', // Tooltip for button to hide hidden items (English: Hide hidden items)
+        showExcludedItems: '非表示のフォルダ・タグ・ノートを表示', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: '非表示のフォルダ・タグ・ノートを非表示', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'デュアルペインを表示', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'シングルペインを表示', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: '外観を変更', // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -382,7 +383,8 @@ export const STRINGS_JA = {
             iconPackDownloaded: '「{provider}」をダウンロードしました',
             iconPackUpdated: '「{provider}」を更新しました ({version})',
             iconPackRemoved: '「{provider}」を削除しました',
-            iconPackLoadFailed: '「{provider}」を読み込めませんでした'
+            iconPackLoadFailed: '「{provider}」を読み込めませんでした',
+            hiddenFileReveal: 'ファイルは非表示です。表示するには「非表示項目を表示」を有効にしてください'
         },
         confirmations: {
             deleteMultipleFiles: '本当に{count}個のファイルを削除しますか？',
@@ -451,7 +453,7 @@ export const STRINGS_JA = {
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'ショートカットに追加', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: '子孫切り替え', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
-        toggleHidden: '非表示項目を切り替え', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleHidden: '非表示のフォルダ・タグ・ノートを切り替え', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         toggleTagSort: 'タグの並び順を切り替え', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'すべての項目を折りたたむ/展開', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '選択したファイルにタグを追加', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)

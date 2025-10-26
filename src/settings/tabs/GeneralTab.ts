@@ -24,6 +24,7 @@ import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { localStorage } from '../../utils/localStorage';
 import { getNavigationPaneSizing } from '../../utils/paneSizing';
+import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 
 /** Renders the general settings tab */
 export function renderGeneralTab(context: SettingsTabContext): void {
@@ -114,6 +115,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 .split(',')
                 .map(folder => folder.trim())
                 .filter(folder => folder.length > 0);
+            resetHiddenToggleIfNoSources(plugin.settings);
         }
     );
     excludedFoldersSetting.controlEl.addClass('nn-setting-wide-input');
@@ -129,6 +131,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 .split(',')
                 .map(file => file.trim())
                 .filter(file => file.length > 0);
+            resetHiddenToggleIfNoSources(plugin.settings);
         }
     );
     excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');

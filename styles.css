@@ -2,6 +2,19 @@
    CSS Variables - Defined at body level for Style Settings compatibility
    ======================================================================== */
 
+/* Utility class for text that should only be exposed to assistive tech */
+.nn-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 body {
     /* ========================================================================
        Padding Variables for Items and Containers
@@ -2506,6 +2519,11 @@ body.nn-resizing {
 .nn-navitem.nn-excluded .nn-navitem-name,
 .nn-navitem.nn-excluded .nn-navitem-count {
     opacity: 0.5;
+}
+
+/* Hidden files surfaced via "show hidden" toggle */
+.nn-file.nn-hidden-file {
+    opacity: 0.55;
 }
 
 /* ========================================================================

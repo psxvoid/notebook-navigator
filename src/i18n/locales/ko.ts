@@ -43,7 +43,8 @@ export const STRINGS_KO = {
         emptyStateNoNotes: '노트 없음', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 고정됨', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
         notesSection: '노트', // Header shown between pinned and regular items when showing documents only (English: Notes)
-        filesSection: '파일' // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        filesSection: '파일', // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        hiddenItemAriaLabel: '{name} (숨김)' // Accessibility label applied to list items that are normally hidden
     },
 
     // Tag list
@@ -98,8 +99,8 @@ export const STRINGS_KO = {
         finishRootFolderReorder: '재정렬 완료',
         toggleDescendantNotes: '하위 폴더 / 하위 항목 노트 표시', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: '폴더 및 태그 자동 펼치기', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
-        showExcludedItems: '숨겨진 항목 표시', // Tooltip for button to show hidden items (English: Show hidden items)
-        hideExcludedItems: '숨겨진 항목 숨기기', // Tooltip for button to hide hidden items (English: Hide hidden items)
+        showExcludedItems: '숨긴 폴더, 태그, 노트 표시', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: '숨긴 폴더, 태그, 노트 숨기기', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: '이중 창 표시', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: '단일 창 표시', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: '모양 변경', // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -381,7 +382,8 @@ export const STRINGS_KO = {
             iconPackDownloaded: '{provider} 다운로드됨',
             iconPackUpdated: '{provider} 업데이트됨 ({version})',
             iconPackRemoved: '{provider} 제거됨',
-            iconPackLoadFailed: '{provider} 로드에 실패했습니다'
+            iconPackLoadFailed: '{provider} 로드에 실패했습니다',
+            hiddenFileReveal: '파일이 숨겨져 있습니다. 표시하려면 "숨겨진 항목 표시"를 활성화하세요'
         },
         confirmations: {
             deleteMultipleFiles: '{count}개의 파일을 삭제하시겠습니까?',
@@ -450,7 +452,7 @@ export const STRINGS_KO = {
         navigateToTag: '태그로 이동', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: '바로가기에 추가', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: '하위 항목 전환', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
-        toggleHidden: '숨겨진 항목 전환', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleHidden: '숨긴 폴더, 태그, 노트 전환', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         toggleTagSort: '태그 정렬 전환', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: '모든 항목 접기 / 펼치기', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '선택한 파일에 태그 추가', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)

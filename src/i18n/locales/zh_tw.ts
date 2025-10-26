@@ -43,7 +43,8 @@ export const STRINGS_ZH_TW = {
         emptyStateNoNotes: '沒有筆記', // 當資料夾/標籤沒有筆記時顯示的訊息 (英文: No notes)
         pinnedSection: '📌 已釘選', // 檔案列表頂部釘選筆記區段的標頭 (英文: 📌 Pinned)
         notesSection: '筆記', // 僅顯示文件時，在釘選項目和一般項目之間顯示的標頭 (英文: Notes)
-        filesSection: '檔案' // 顯示支援的或所有檔案時，在釘選項目和一般項目之間顯示的標頭 (英文: Files)
+        filesSection: '檔案', // 顯示支援的或所有檔案時，在釘選項目和一般項目之間顯示的標頭 (英文: Files)
+        hiddenItemAriaLabel: '{name} (已隱藏)' // 用於標示通常被隱藏項目的無障礙標籤
     },
 
     // 標籤列表
@@ -99,8 +100,8 @@ export const STRINGS_ZH_TW = {
         finishRootFolderReorder: '完成重新排列',
         toggleDescendantNotes: '顯示子資料夾/後代中的筆記', // 工具提示：包含資料夾和標籤的後代
         autoExpandFoldersTags: '自動展開資料夾和標籤', // 選取時自動展開資料夾和標籤的切換按鈕工具提示 (英文: Auto-expand folders and tags)
-        showExcludedItems: '顯示隱藏項目', // 顯示隱藏項目的按鈕工具提示 (英文: Show hidden items)
-        hideExcludedItems: '隱藏隱藏項目', // 隱藏隱藏項目的按鈕工具提示 (英文: Hide hidden items)
+        showExcludedItems: '顯示隱藏的資料夾、標籤和筆記', // 顯示隱藏項目的按鈕工具提示 (英文: Show hidden items)
+        hideExcludedItems: '隱藏隱藏的資料夾、標籤和筆記', // 隱藏隱藏項目的按鈕工具提示 (英文: Hide hidden items)
         showDualPane: '顯示雙窗格', // 顯示雙窗格佈局的按鈕工具提示 (英文: Show dual panes)
         showSinglePane: '顯示單一窗格', // 顯示單一窗格佈局的按鈕工具提示 (英文: Show single pane)
         changeAppearance: '變更外觀', // 變更資料夾外觀設定的按鈕工具提示 (英文: Change appearance)
@@ -381,7 +382,8 @@ export const STRINGS_ZH_TW = {
             iconPackDownloaded: '{provider} 已下載',
             iconPackUpdated: '{provider} 已更新 ({version})',
             iconPackRemoved: '{provider} 已移除',
-            iconPackLoadFailed: '載入 {provider} 失敗'
+            iconPackLoadFailed: '載入 {provider} 失敗',
+            hiddenFileReveal: '檔案已隱藏。啟用「顯示隱藏項目」以顯示它'
         },
         confirmations: {
             deleteMultipleFiles: '您確定要刪除 {count} 個檔案嗎？',
@@ -450,7 +452,7 @@ export const STRINGS_ZH_TW = {
         navigateToTag: '導覽至標籤', // 指令面板：使用模糊搜尋導覽至標籤 (英文: Navigate to tag)
         addShortcut: '新增至捷徑', // 指令面板：將目前的檔案、資料夾或標籤加入捷徑 (英文: Add to shortcuts)
         toggleDescendants: '切換後代項目', // 指令面板：切換顯示後代中的筆記 (英文: Toggle descendants)
-        toggleHidden: '切換隱藏項目', // 指令面板：切換顯示隱藏項目 (英文: Toggle hidden items)
+        toggleHidden: '切換隱藏的資料夾、標籤和筆記', // 指令面板：切換顯示隱藏項目 (英文: Toggle hidden items)
         toggleTagSort: '切換標籤排序', // 指令面板：在字母和頻率標籤排序之間切換 (英文: Toggle tag sort order)
         collapseExpand: '收合/展開所有項目', // 指令面板：收合或展開所有資料夾和標籤 (英文: Collapse / expand all items)
         addTag: '為選取檔案新增標籤', // 指令面板：開啟對話框為選取檔案新增標籤 (英文: Add tag to selected files)

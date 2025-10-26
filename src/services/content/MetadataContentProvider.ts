@@ -22,12 +22,36 @@ import { NotebookNavigatorSettings } from '../../settings';
 import { FileData } from '../../storage/IndexedDBStorage';
 import { getDBInstance } from '../../storage/fileOperations';
 import { extractMetadataFromCache } from '../../utils/metadataExtractor';
+import { shouldExcludeFile } from '../../utils/fileFilters';
 import { BaseContentProvider } from './BaseContentProvider';
+
+// Compares two arrays for same members regardless of order
+function haveSameMembers(left: string[], right: string[]): boolean {
+    if (left === right) {
+        return true;
+    }
+    if (left.length !== right.length) {
+        return false;
+    }
+    const sortedLeft = [...left].sort();
+    const sortedRight = [...right].sort();
+    return sortedLeft.every((value, index) => value === sortedRight[index]);
+}
 
 /**
  * Content provider for extracting metadata from frontmatter
  */
 export class MetadataContentProvider extends BaseContentProvider {
+    // Cache of computed hidden states during needsProcessing checks to avoid redundant frontmatter reads
+    private pendingHiddenStates = new Map<string, boolean>();
+
+    // Clears cached hidden states when no longer needed
+    private clearPendingHiddenStates(): void {
+        if (this.pendingHiddenStates.size > 0) {
+            this.pendingHiddenStates.clear();
+        }
+    }
+
     getContentType(): ContentType {
         return 'metadata';
     }
@@ -40,11 +64,17 @@ export class MetadataContentProvider extends BaseContentProvider {
             'frontmatterColorField',
             'frontmatterCreatedField',
             'frontmatterModifiedField',
-            'frontmatterDateFormat'
+            'frontmatterDateFormat',
+            'excludedFiles'
         ];
     }
 
     shouldRegenerate(oldSettings: NotebookNavigatorSettings, newSettings: NotebookNavigatorSettings): boolean {
+        const excludedFilesChanged = !haveSameMembers(oldSettings.excludedFiles, newSettings.excludedFiles);
+        if (excludedFilesChanged) {
+            return true;
+        }
+
         // Clear if metadata extraction is disabled
         if (!newSettings.useFrontmatterMetadata && oldSettings.useFrontmatterMetadata) {
             return true;
@@ -67,17 +97,71 @@ export class MetadataContentProvider extends BaseContentProvider {
     }
 
     async clearContent(): Promise<void> {
+        this.clearPendingHiddenStates();
         const db = getDBInstance();
         await db.batchClearAllFileContent('metadata');
     }
 
+    onSettingsChanged(settings: NotebookNavigatorSettings): void {
+        super.onSettingsChanged(settings);
+        if (settings.excludedFiles.length === 0) {
+            this.clearPendingHiddenStates();
+        }
+    }
+
+    stopProcessing(): void {
+        super.stopProcessing();
+        this.clearPendingHiddenStates();
+    }
+
     protected needsProcessing(fileData: FileData | null, file: TFile, settings: NotebookNavigatorSettings): boolean {
-        if (!settings.useFrontmatterMetadata) {
+        const requiresMetadata = settings.useFrontmatterMetadata || settings.excludedFiles.length > 0;
+        if (!requiresMetadata) {
             return false;
         }
 
+        const shouldTrackHidden = settings.excludedFiles.length > 0 && file.extension === 'md';
+        // Lazy computation pattern - only check frontmatter when actually needed
+        let hiddenStateComputed = false;
+        let hiddenState = false;
+        // Computes hidden state by checking frontmatter against exclusion patterns
+        const computeHiddenState = (): void => {
+            if (hiddenStateComputed || !shouldTrackHidden) {
+                return;
+            }
+            hiddenState = shouldExcludeFile(file, settings.excludedFiles, this.app);
+            hiddenStateComputed = true;
+        };
+        // Saves computed hidden state to cache for later retrieval in processFile
+        const storeHiddenState = (): void => {
+            if (hiddenStateComputed) {
+                this.pendingHiddenStates.set(file.path, hiddenState);
+            }
+        };
+
         const fileModified = fileData !== null && fileData.mtime !== file.stat.mtime;
-        return !fileData || fileData.metadata === null || fileModified;
+        if (!fileData || fileData.metadata === null) {
+            computeHiddenState();
+            storeHiddenState();
+            return true;
+        }
+
+        if (fileModified) {
+            computeHiddenState();
+            storeHiddenState();
+            return true;
+        }
+
+        if (shouldTrackHidden) {
+            computeHiddenState();
+            const recordedState = fileData.metadata?.hidden;
+            if (recordedState !== hiddenState) {
+                storeHiddenState();
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected async processFile(
@@ -91,20 +175,35 @@ export class MetadataContentProvider extends BaseContentProvider {
         featureImage?: string;
         metadata?: FileData['metadata'];
     } | null> {
-        if (!settings.useFrontmatterMetadata) {
+        const shouldExtractMetadata = settings.useFrontmatterMetadata;
+        const shouldTrackHidden = settings.excludedFiles.length > 0;
+        if (!shouldExtractMetadata && !shouldTrackHidden) {
             return null;
         }
 
         try {
             const cachedMetadata = this.app.metadataCache.getFileCache(job.file);
-            const processedMetadata = extractMetadataFromCache(cachedMetadata, settings);
+            const processedMetadata = shouldExtractMetadata ? extractMetadataFromCache(cachedMetadata, settings) : {};
 
             const fileMetadata: FileData['metadata'] = {};
-            if (processedMetadata.fn) fileMetadata.name = processedMetadata.fn;
-            if (processedMetadata.fc !== undefined) fileMetadata.created = processedMetadata.fc;
-            if (processedMetadata.fm !== undefined) fileMetadata.modified = processedMetadata.fm;
-            if (processedMetadata.icon) fileMetadata.icon = processedMetadata.icon;
-            if (processedMetadata.color) fileMetadata.color = processedMetadata.color;
+            if (shouldExtractMetadata) {
+                if (processedMetadata.fn) fileMetadata.name = processedMetadata.fn;
+                if (processedMetadata.fc !== undefined) fileMetadata.created = processedMetadata.fc;
+                if (processedMetadata.fm !== undefined) fileMetadata.modified = processedMetadata.fm;
+                if (processedMetadata.icon) fileMetadata.icon = processedMetadata.icon;
+                if (processedMetadata.color) fileMetadata.color = processedMetadata.color;
+            }
+
+            if (shouldTrackHidden && job.file.extension === 'md') {
+                let hiddenValue: boolean;
+                if (this.pendingHiddenStates.has(job.file.path)) {
+                    hiddenValue = this.pendingHiddenStates.get(job.file.path) as boolean;
+                    this.pendingHiddenStates.delete(job.file.path);
+                } else {
+                    hiddenValue = shouldExcludeFile(job.file, settings.excludedFiles, this.app);
+                }
+                fileMetadata.hidden = hiddenValue;
+            }
 
             const newMetadata = Object.keys(fileMetadata).length > 0 ? fileMetadata : {};
 

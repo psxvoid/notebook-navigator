@@ -102,6 +102,7 @@ import {
 } from '../utils/contextMenu';
 import type { NoteCountInfo } from '../types/noteCounts';
 import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
+import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { normalizeNavigationSectionOrderInput } from '../utils/navigationSections';
 import { getPathBaseName } from '../utils/pathUtils';
 
@@ -146,6 +147,8 @@ export const NavigationPane = React.memo(
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
+        // Resolves frontmatter exclusions, returns empty array when hidden items are shown
+        const effectiveFrontmatterExclusions = getEffectiveFrontmatterExclusions(settings);
         const updateSettings = useSettingsUpdate();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
@@ -1302,7 +1305,7 @@ export const NavigationPane = React.memo(
                 return calculateFolderNoteCounts(folder, {
                     app,
                     fileVisibility: settings.fileVisibility,
-                    excludedFiles: settings.excludedFiles,
+                    excludedFiles: effectiveFrontmatterExclusions,
                     excludedFolders: settings.excludedFolders,
                     includeDescendants: settings.includeDescendantNotes,
                     showHiddenFolders: settings.showHiddenItems,
@@ -1315,7 +1318,7 @@ export const NavigationPane = React.memo(
                 folderCounts,
                 settings.showNoteCount,
                 settings.fileVisibility,
-                settings.excludedFiles,
+                effectiveFrontmatterExclusions,
                 settings.excludedFolders,
                 settings.includeDescendantNotes,
                 settings.showHiddenItems,

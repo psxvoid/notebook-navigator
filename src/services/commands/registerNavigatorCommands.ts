@@ -8,6 +8,7 @@ import { NOTEBOOK_NAVIGATOR_VIEW } from '../../types';
 import { strings } from '../../i18n';
 import { isFolderNote, isSupportedFolderNoteExtension } from '../../utils/folderNotes';
 import { isFolderInExcludedFolder, shouldExcludeFile } from '../../utils/fileFilters';
+import { getEffectiveFrontmatterExclusions, isFileHiddenBySettings } from '../../utils/exclusionUtils';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 
 /**
@@ -87,6 +88,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                 if (!checking) {
                     void (async () => {
                         await plugin.activateView();
+                        if (isFileHiddenBySettings(activeFile, plugin.settings, plugin.app)) {
+                            new Notice(strings.fileSystem.notifications.hiddenFileReveal);
+                        }
                         await plugin.revealFileInActualFolder(activeFile);
                     })();
                 }
@@ -262,6 +266,8 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
 
             // List of folder notes that can be pinned
             const eligible: TFile[] = [];
+            // Resolves frontmatter exclusions, returns empty array when hidden items are shown
+            const effectiveExcludedFiles = getEffectiveFrontmatterExclusions(plugin.settings);
 
             // Find all eligible folder notes in vault
             plugin.app.vault.getAllLoadedFiles().forEach(file => {
@@ -286,8 +292,8 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                     return;
                 }
 
-                // Skip files that match exclusion patterns
-                if (shouldExcludeFile(file, plugin.settings.excludedFiles, plugin.app)) {
+                // Skip files that are excluded by frontmatter when hidden items are disabled
+                if (effectiveExcludedFiles.length > 0 && shouldExcludeFile(file, effectiveExcludedFiles, plugin.app)) {
                     return;
                 }
 

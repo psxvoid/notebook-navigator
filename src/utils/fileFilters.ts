@@ -20,6 +20,10 @@ import { TFile, TFolder, App } from 'obsidian';
 import type { NotebookNavigatorSettings } from '../settings';
 import { shouldDisplayFile } from './fileTypeUtils';
 
+interface FileFilterOptions {
+    showHiddenItems?: boolean;
+}
+
 /**
  * When true, excluded folders are not indexed in the database
  * Set to false to index all files regardless of exclusion settings
@@ -300,12 +304,19 @@ export function hasSubfolders(folder: TFolder, excludePatterns: string[], showHi
  * - Excludes markdown files with matching frontmatter properties
  * - Optionally excludes files in excluded folders when indexing is configured to skip them
  */
-function passesExclusionFilters(file: TFile, settings: NotebookNavigatorSettings, app: App): boolean {
+function passesExclusionFilters(file: TFile, settings: NotebookNavigatorSettings, app: App, options?: FileFilterOptions): boolean {
     const excludedProperties = settings.excludedFiles;
     const excludedFolderPatterns = settings.excludedFolders;
+    // Skip frontmatter-based exclusion when showHiddenItems override is provided
+    const includeHiddenFiles = options?.showHiddenItems ?? settings.showHiddenItems;
 
     // Frontmatter based exclusion (markdown only)
-    if (file.extension === 'md' && excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
+    if (
+        !includeHiddenFiles &&
+        file.extension === 'md' &&
+        excludedProperties.length > 0 &&
+        shouldExcludeFile(file, excludedProperties, app)
+    ) {
         return false;
     }
 
@@ -322,10 +333,10 @@ function passesExclusionFilters(file: TFile, settings: NotebookNavigatorSettings
  * - Excluded folder patterns
  * - Excluded frontmatter properties
  */
-export function getFilteredMarkdownFiles(app: App, settings: NotebookNavigatorSettings): TFile[] {
+export function getFilteredMarkdownFiles(app: App, settings: NotebookNavigatorSettings, options?: FileFilterOptions): TFile[] {
     if (!app || !settings) return [];
 
-    return app.vault.getMarkdownFiles().filter(file => passesExclusionFilters(file, settings, app));
+    return app.vault.getMarkdownFiles().filter(file => passesExclusionFilters(file, settings, app, options));
 }
 
 /**
@@ -333,7 +344,7 @@ export function getFilteredMarkdownFiles(app: App, settings: NotebookNavigatorSe
  * - Excluded folder patterns
  * - Excluded frontmatter properties
  */
-export function getFilteredDocumentFiles(app: App, settings: NotebookNavigatorSettings): TFile[] {
+export function getFilteredDocumentFiles(app: App, settings: NotebookNavigatorSettings, options?: FileFilterOptions): TFile[] {
     if (!app || !settings) return [];
 
     return app.vault.getFiles().filter(file => {
@@ -341,7 +352,7 @@ export function getFilteredDocumentFiles(app: App, settings: NotebookNavigatorSe
         const isDocument = file.extension === 'md' || file.extension === 'canvas' || file.extension === 'base';
         if (!isDocument) return false;
 
-        return passesExclusionFilters(file, settings, app);
+        return passesExclusionFilters(file, settings, app, options);
     });
 }
 
@@ -351,7 +362,7 @@ export function getFilteredDocumentFiles(app: App, settings: NotebookNavigatorSe
  * - Excluded frontmatter properties (for markdown files only)
  * - Files based on visibility settings
  */
-export function getFilteredFiles(app: App, settings: NotebookNavigatorSettings): TFile[] {
+export function getFilteredFiles(app: App, settings: NotebookNavigatorSettings, options?: FileFilterOptions): TFile[] {
     if (!app || !settings) return [];
 
     return app.vault.getFiles().filter(file => {
@@ -360,6 +371,6 @@ export function getFilteredFiles(app: App, settings: NotebookNavigatorSettings):
             return false;
         }
 
-        return passesExclusionFilters(file, settings, app);
+        return passesExclusionFilters(file, settings, app, options);
     });
 }

@@ -22,6 +22,7 @@ import { isFolderNoteType } from '../../types/folderNote';
 import { isTagSortOrder } from '../types';
 import { normalizeTagPath } from '../../utils/tagUtils';
 import type { SettingsTabContext } from './SettingsTabContext';
+import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 
 /** Renders the folders and tags settings tab */
 export function renderFoldersTagsTab(context: SettingsTabContext): void {
@@ -212,6 +213,7 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
                 .filter((entry): entry is string => entry !== null);
 
             plugin.settings.hiddenTags = Array.from(new Set(normalizedHiddenTags));
+            resetHiddenToggleIfNoSources(plugin.settings);
         }
     );
     hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');

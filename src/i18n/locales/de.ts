@@ -43,7 +43,8 @@ export const STRINGS_DE = {
         emptyStateNoNotes: 'Keine Notizen', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Angeheftet', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
         notesSection: 'Notizen', // Header shown between pinned and regular items when showing documents only (English: Notes)
-        filesSection: 'Dateien' // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        filesSection: 'Dateien', // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        hiddenItemAriaLabel: '{name} (ausgeblendet)' // Accessibility label applied to list items that are normally hidden
     },
 
     // Tag list
@@ -98,8 +99,8 @@ export const STRINGS_DE = {
         finishRootFolderReorder: 'Neuordnung beenden',
         toggleDescendantNotes: 'Notizen aus Unterordnern / Nachkommen anzeigen', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
-        showExcludedItems: 'Versteckte Elemente anzeigen', // Tooltip for button to show hidden items (English: Show hidden items)
-        hideExcludedItems: 'Versteckte Elemente ausblenden', // Tooltip for button to hide hidden items (English: Hide hidden items)
+        showExcludedItems: 'Versteckte Ordner, Tags und Notizen anzeigen', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: 'Versteckte Ordner, Tags und Notizen ausblenden', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'Zweispaltige Ansicht anzeigen', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'Einspaltige Ansicht anzeigen', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: 'Erscheinungsbild ändern', // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -384,7 +385,8 @@ export const STRINGS_DE = {
             iconPackDownloaded: '{provider} heruntergeladen',
             iconPackUpdated: '{provider} aktualisiert ({version})',
             iconPackRemoved: '{provider} entfernt',
-            iconPackLoadFailed: '{provider} konnte nicht geladen werden'
+            iconPackLoadFailed: '{provider} konnte nicht geladen werden',
+            hiddenFileReveal: 'Datei ist ausgeblendet. Aktiviere „Ausgeblendete Elemente anzeigen", um sie anzuzeigen'
         },
         confirmations: {
             deleteMultipleFiles: 'Möchten Sie wirklich {count} Dateien löschen?',
@@ -453,7 +455,7 @@ export const STRINGS_DE = {
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Zu Shortcuts hinzufügen', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Nachkommen umschalten', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
-        toggleHidden: 'Versteckte Elemente umschalten', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleHidden: 'Versteckte Ordner, Tags und Notizen umschalten', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         toggleTagSort: 'Tag-Sortierung umschalten', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'Alle Elemente ein-/ausklappen', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Tag zu ausgewählten Dateien hinzufügen', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)

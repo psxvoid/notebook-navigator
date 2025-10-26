@@ -41,6 +41,8 @@ export interface ListPaneItem {
     searchMeta?: SearchResultMeta;
     // Pre-computed flag indicating if file has tags (for height calculation optimization)
     hasTags?: boolean;
+    // Marks files that are normally hidden (frontmatter or excluded folders) but shown via "show hidden items"
+    isHidden?: boolean;
 }
 
 export interface FolderTreeItem {
