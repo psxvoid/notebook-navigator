@@ -66,24 +66,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         renderUpdateStatus(notice?.version ?? null);
     });
 
-    const supportSetting = new Setting(containerEl)
-        .setName(strings.settings.items.supportDevelopment.name)
-        .setDesc(strings.settings.items.supportDevelopment.desc);
-
-    supportSetting.addButton(button => {
-        button
-            .setButtonText(strings.settings.items.supportDevelopment.buttonText)
-            .onClick(() => window.open('https://github.com/sponsors/johansan/'));
-        button.buttonEl.addClass('nn-support-button');
-    });
-
-    supportSetting.addButton(button => {
-        button
-            .setButtonText(strings.settings.items.supportDevelopment.coffeeButton)
-            .onClick(() => window.open('https://buymeacoffee.com/johansan'));
-        button.buttonEl.addClass('nn-support-button');
-    });
-
     new Setting(containerEl).setName(strings.settings.groups.general.view).setHeading();
 
     new Setting(containerEl)
