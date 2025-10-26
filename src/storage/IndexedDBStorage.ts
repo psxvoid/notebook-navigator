@@ -23,7 +23,7 @@ import { MemoryFileCache } from './MemoryFileCache';
 
 const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
-const DB_CONTENT_VERSION = 4.2; // Data format version
+const DB_CONTENT_VERSION = 4.3; // Data format version
 
 /**
  * Sentinel values for metadata date fields
@@ -42,6 +42,7 @@ export interface FileData {
     featureImage: string | null; // null = not generated yet
     featureImageProvider: string | null; // null = not generated yet
     featureImageConsumers: readonly string[] | null; // null = this file isn't used as a featured image
+    featureImageResized?: string | null; // null = resized image is not generated yet
     metadata: {
         name?: string;
         created?: number; // Valid timestamp, 0 = field not configured, -1 = parse failed
@@ -51,12 +52,15 @@ export interface FileData {
     } | null; // null = not generated yet
 }
 
+export type FileDataCache = Omit<FileData, 'featureImageResized'>
+
 function emptyFileData(): FileData {
     return {
         mtime: 0,
         tags:  null,
         preview: null,
         featureImage: null,
+        featureImageResized: null,
         featureImageProvider: null,
         featureImageConsumers: null,
         metadata: null,
@@ -68,6 +72,7 @@ export interface FileContentChange {
     changes: {
         preview?: string | null;
         featureImage?: string | null;
+        featureImageResized?: string | null;
         featureImageProvider?: string | null;
         featureImageConsumers?: readonly string[] | null;
         metadata?: FileData['metadata'] | null;
@@ -269,6 +274,15 @@ export class IndexedDBStorage {
     }
 
     private async openDatabase(skipCacheLoad: boolean = false): Promise<void> {
+        if (navigator.storage && navigator.storage.persist) {
+            const persistent = await navigator.storage.persist();
+            if (persistent) {
+                console.log("Notebook Navigator Ex: Storage will not be cleared except by explicit user action.");
+            } else {
+                console.warn("Notebook Navigator Ex: Storage may be cleared by the UA under storage pressure.");
+            }
+        }
+
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(this.dbName, DB_SCHEMA_VERSION);
 
@@ -314,9 +328,11 @@ export class IndexedDBStorage {
                             request.onsuccess = event => {
                                 const cursor = (event.target as IDBRequest).result;
                                 if (cursor) {
+                                    const cursorValue = cursor.value as FileData
+                                    delete cursorValue.featureImageResized
                                     filesWithPaths.push({
                                         path: cursor.key as string,
-                                        data: cursor.value as FileData
+                                        data: cursorValue
                                     });
                                     cursor.continue();
                                 } else {
@@ -406,7 +422,7 @@ export class IndexedDBStorage {
      * @param path - File path to retrieve
      * @returns File data or null if not found
      */
-    getFile(path: string): FileData | null {
+    getFile(path: string): FileDataCache | null {
         if (!this.cache.isReady()) {
             return null;
         }
@@ -414,11 +430,49 @@ export class IndexedDBStorage {
     }
 
     /**
+     * Get a single file with preview asynchronously.
+     *
+     * @param path - File path to retrieve
+     * @returns File data or null if not found
+     */
+    async getFileWithPreview(path: string): Promise<FileData | null> {
+        if (!this.cache.isReady()) {
+            return null;
+        }
+
+        const fileData = this.cache.getFile(path);
+
+        if (fileData != null && fileData.featureImage != null ) {
+            // Review: Refactoring: doesn't seem that it should be called each time
+            await this.init();
+
+            if (!this.db) throw new Error('Database not initialized');
+
+            const transaction = this.db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(path)
+
+            // Review: Refactoring: reuse everywhere
+            return new Promise<FileData | null>((resolve, reject) => {
+                request.onsuccess = (e: Event) => {
+                    resolve((request.result as FileData | undefined) || null);
+                }
+
+                request.onerror = (e: Event) => {
+                    reject(request.error)
+                }
+            })
+        }
+
+        return fileData as FileData
+    }
+
+    /**
      * Seed the in-memory cache for a path without writing to IndexedDB.
      * Used to keep UI responsive when files are renamed and we already
      * have complete metadata under the old path.
      */
-    seedMemoryFile(path: string, data: FileData): void {
+    seedMemoryFile(path: string, data: FileDataCache): void {
         if (!this.cache.isReady()) {
             return;
         }
@@ -537,7 +591,7 @@ export class IndexedDBStorage {
      * @param paths - Array of file paths to retrieve
      * @returns Map of path to file data (only includes found files)
      */
-    getFiles(paths: string[]): Map<string, FileData> {
+    getFiles(paths: string[]): Map<string, FileDataCache> {
         if (!this.cache.isReady()) {
             return new Map();
         }
@@ -550,7 +604,7 @@ export class IndexedDBStorage {
      *
      * @param files - Array of file data with paths to store
      */
-    async setFiles(files: { path: string; data: FileData }[]): Promise<void> {
+    async setFiles(files: { path: string; data: FileDataCache }[]): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -669,7 +723,7 @@ export class IndexedDBStorage {
      * @param type - Type of content to check for
      * @returns Array of files with content
      */
-    getFilesWithContent(type: 'preview' | 'featureImage' | 'metadata'): FileData[] {
+    getFilesWithContent(type: 'preview' | 'featureImage' | 'metadata'): FileDataCache[] {
         if (!this.cache.isReady()) {
             return [];
         }
@@ -700,7 +754,7 @@ export class IndexedDBStorage {
      *
      * @returns Array of files with paths
      */
-    getAllFiles(): { path: string; data: FileData }[] {
+    getAllFiles(): { path: string; data: FileDataCache }[] {
         if (!this.cache.isReady()) {
             return [];
         }
@@ -787,6 +841,10 @@ export class IndexedDBStorage {
                 if (data.featureImage !== undefined) {
                     next.featureImage = data.featureImage;
                     changes.featureImage = data.featureImage;
+                }
+                if (data.featureImageResized !== undefined) {
+                    next.featureImageResized = data.featureImageResized;
+                    changes.featureImageResized = data.featureImageResized;
                 }
                 if (data.featureImageProvider !== undefined) {
                     next.featureImageProvider = data.featureImageProvider;
@@ -1092,6 +1150,12 @@ export class IndexedDBStorage {
                         changes.featureImage = null;
                     }
                 }
+                if (type === 'featureImageResized' || type === 'all') {
+                    if (file.featureImageResized !== null) {
+                        file.featureImageResized = null
+                        changes.featureImageResized = null
+                    }
+                }
                 if (type === 'metadata' || type === 'all') {
                     if (file.metadata !== null) {
                         file.metadata = null;
@@ -1200,6 +1264,11 @@ export class IndexedDBStorage {
                     if ((type === 'featureImage' || type === 'all') && updated.featureImage !== null) {
                         updated.featureImage = null;
                         changes.featureImage = null;
+                        hasChanges = true;
+                    }
+                    if ((type === 'featureImageResized' || type === 'all') && updated.featureImageResized !== null) {
+                        updated.featureImageResized = null;
+                        changes.featureImageResized = null;
                         hasChanges = true;
                     }
                     if ((type === 'featureImageProvider' || type === 'all') && updated.featureImageProvider !== null) {
@@ -1339,6 +1408,11 @@ export class IndexedDBStorage {
                         changes.featureImage = null;
                         hasChanges = true;
                     }
+                    if ((type === 'featureImageResized' || type === 'all') && file.featureImageResized !== null) {
+                        file.featureImageResized = null;
+                        changes.featureImageResized = null;
+                        hasChanges = true;
+                    }
                     if ((type === 'featureImageProvider' || type === 'all') && file.featureImageProvider !== null) {
                         file.featureImageProvider = null;
                         changes.featureImageProvider = null;
@@ -1439,6 +1513,7 @@ export class IndexedDBStorage {
             tags?: readonly string[] | null;
             preview?: string;
             featureImage?: string;
+            featureImageResized?: string;
             featureImageProvider?: string;
             featureImageConsumers?: readonly string[] | null;
             metadata?: FileData['metadata'];
@@ -1481,6 +1556,11 @@ export class IndexedDBStorage {
                     if (update.featureImage !== undefined) {
                         newData.featureImage = update.featureImage;
                         changes.featureImage = update.featureImage;
+                        hasChanges = true;
+                    }
+                    if (update.featureImageResized !== undefined) {
+                        newData.featureImageResized = update.featureImageResized;
+                        changes.featureImageResized = update.featureImageResized;
                         hasChanges = true;
                     }
                     if (update.featureImageProvider !== undefined) {

@@ -48,7 +48,7 @@ import { PreviewContentProvider } from '../services/content/PreviewContentProvid
 import { FeatureImageContentProvider } from '../services/content/FeatureImageContentProvider';
 import { MetadataContentProvider } from '../services/content/MetadataContentProvider';
 import { TagContentProvider } from '../services/content/TagContentProvider';
-import { IndexedDBStorage, FileData as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
+import { IndexedDBStorage, FileDataCache as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { calculateFileDiff } from '../storage/diffCalculator';
 import { recordFileChanges, markFilesForRegeneration, removeFilesFromCache, getDBInstance } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';

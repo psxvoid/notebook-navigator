@@ -16,10 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { FileData } from './IndexedDBStorage';
+import { FileData, FileDataCache } from './IndexedDBStorage';
 
 // Creates a deep clone of FileData to prevent mutations from affecting the original
-function cloneFileData(data: FileData): FileData {
+function cloneFileData(data: FileDataCache): FileDataCache {
     const cloneArray = <T>(arr: null|readonly T[]) => arr ? [...arr] : null;
     return {
         mtime: data.mtime,
@@ -32,6 +32,19 @@ function cloneFileData(data: FileData): FileData {
     };
 }
 
+function isFileData(data: FileDataCache | FileData): data is FileData {
+    return (data as FileData).featureImageResized !== undefined
+}
+
+function stripFileData(data: FileDataCache | FileData): data is FileDataCache {
+    if (isFileData(data)) {
+        delete data.featureImageResized
+        return true
+    }
+
+    return false
+}
+
 /**
  * In-memory file cache that mirrors the IndexedDB storage for synchronous access.
  * This cache stores all file data in RAM to enable synchronous reads during rendering,
@@ -40,7 +53,7 @@ function cloneFileData(data: FileData): FileData {
  * Memory usage is minimal - even 100k files at ~300 bytes each = 30MB RAM.
  */
 export class MemoryFileCache {
-    private memoryMap: Map<string, FileData> = new Map();
+    private memoryMap: Map<string, FileDataCache> = new Map();
     private isInitialized = false;
 
     /**
@@ -62,15 +75,15 @@ export class MemoryFileCache {
     /**
      * Get file data synchronously.
      */
-    getFile(path: string): FileData | null {
+    getFile(path: string): FileDataCache | null {
         return this.memoryMap.get(path) || null;
     }
 
     /**
      * Get multiple files synchronously.
      */
-    getFiles(paths: string[]): Map<string, FileData> {
-        const result = new Map<string, FileData>();
+    getFiles(paths: string[]): Map<string, FileDataCache> {
+        const result = new Map<string, FileDataCache>();
         for (const path of paths) {
             const file = this.memoryMap.get(path);
             if (file) {
@@ -98,16 +111,17 @@ export class MemoryFileCache {
     /**
      * Get all files as an array (use sparingly).
      */
-    getAllFiles(): FileData[] {
+    getAllFiles(): FileDataCache[] {
         return Array.from(this.memoryMap.values());
     }
 
     /**
      * Get all files with their paths.
      */
-    getAllFilesWithPaths(): { path: string; data: FileData }[] {
-        const result: { path: string; data: FileData }[] = [];
+    getAllFilesWithPaths(): { path: string; data: FileDataCache }[] {
+        const result: { path: string; data: FileDataCache }[] = [];
         for (const [path, data] of this.memoryMap.entries()) {
+            stripFileData(data)
             result.push({ path, data });
         }
         return result;
@@ -117,11 +131,12 @@ export class MemoryFileCache {
      * Update or add a file in the cache.
      */
     updateFile(path: string, data: FileData): void {
+        stripFileData(data)
         this.memoryMap.set(path, data);
     }
 
     // Sets a cloned copy of file data to prevent external modifications
-    setClonedFile(path: string, data: FileData): void {
+    setClonedFile(path: string, data: FileDataCache): void {
         this.memoryMap.set(path, cloneFileData(data));
     }
 
@@ -164,8 +179,9 @@ export class MemoryFileCache {
     /**
      * Batch update multiple files.
      */
-    batchUpdate(updates: { path: string; data: FileData }[]): void {
+    batchUpdate(updates: { path: string; data: FileDataCache }[]): void {
         for (const { path, data } of updates) {
+            stripFileData(data)
             this.memoryMap.set(path, data);
         }
     }
