@@ -930,8 +930,8 @@ export const STRINGS_ES = {
             },
             folderNoteProperties: {
                 name: 'Propiedades de nota de carpeta',
-                desc: 'Propiedades frontmatter para agregar a las notas de carpeta recién creadas (separadas por comas).',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'Ocultar notas de carpeta en la lista',

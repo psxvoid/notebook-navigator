@@ -930,8 +930,8 @@ export const STRINGS_ZH_CN = {
             },
             folderNoteProperties: {
                 name: '文件夹笔记属性',
-                desc: '添加到新创建的文件夹笔记的 frontmatter 属性（逗号分隔）。',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: '在列表中隐藏文件夹笔记',

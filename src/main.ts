@@ -187,6 +187,27 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             this.settings.rootTagOrder = [];
         }
 
+        const normalizeFolderNoteBlock = (input: string): string =>
+            input
+                .replace(/\r\n/g, '\n')
+                .replace(/^---\s*\n?/, '')
+                .replace(/\n?---\s*$/, '')
+                .trim();
+
+        const folderNotePropertiesSetting = this.settings.folderNoteProperties;
+        if (Array.isArray(folderNotePropertiesSetting)) {
+            const migratedProperties = folderNotePropertiesSetting
+                .map(entry => (typeof entry === 'string' ? entry.trim() : ''))
+                .filter(entry => entry.length > 0)
+                .map(entry => `${entry}: true`)
+                .join('\n');
+            this.settings.folderNoteProperties = normalizeFolderNoteBlock(migratedProperties);
+        } else if (typeof folderNotePropertiesSetting === 'string') {
+            this.settings.folderNoteProperties = normalizeFolderNoteBlock(folderNotePropertiesSetting);
+        } else {
+            this.settings.folderNoteProperties = DEFAULT_SETTINGS.folderNoteProperties;
+        }
+
         // Initialize update check setting with default value for existing users
         if (typeof this.settings.checkForUpdatesOnStart !== 'boolean') {
             this.settings.checkForUpdatesOnStart = true;

@@ -26,7 +26,14 @@ import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 
 /** Renders the folders and tags settings tab */
 export function renderFoldersTagsTab(context: SettingsTabContext): void {
-    const { containerEl, plugin, createDebouncedTextSetting, notifyShowTagsVisibility, registerShowTagsListener } = context;
+    const {
+        containerEl,
+        plugin,
+        createDebouncedTextSetting,
+        createDebouncedTextAreaSetting,
+        notifyShowTagsVisibility,
+        registerShowTagsListener
+    } = context;
 
     new Setting(containerEl).setName(strings.settings.sections.folders).setHeading();
 
@@ -92,18 +99,21 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         }
     );
 
-    const folderNotePropertiesSetting = createDebouncedTextSetting(
+    const folderNotePropertiesSetting = createDebouncedTextAreaSetting(
         folderNotesSettingsEl,
         strings.settings.items.folderNoteProperties.name,
         strings.settings.items.folderNoteProperties.desc,
         strings.settings.items.folderNoteProperties.placeholder,
-        () => plugin.settings.folderNoteProperties.join(', '),
+        () => plugin.settings.folderNoteProperties,
         value => {
-            plugin.settings.folderNoteProperties = value
-                .split(',')
-                .map(property => property.trim())
-                .filter(property => property.length > 0);
-        }
+            const normalizedBlock = value.replace(/\r\n/g, '\n').trim();
+            const withoutDelimiters = normalizedBlock
+                .replace(/^---\s*\n?/, '')
+                .replace(/\n?---\s*$/, '')
+                .trim();
+            plugin.settings.folderNoteProperties = withoutDelimiters;
+        },
+        { rows: 4 }
     );
     folderNotePropertiesSetting.controlEl.addClass('nn-setting-wide-input');
 

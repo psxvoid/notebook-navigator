@@ -29,7 +29,7 @@ import { renderNotesTab } from './settings/tabs/NotesTab';
 import { renderIconPacksTab } from './settings/tabs/IconPacksTab';
 import { renderHotkeysSearchTab } from './settings/tabs/HotkeysSearchTab';
 import { renderAdvancedTab } from './settings/tabs/AdvancedTab';
-import type { SettingsTabContext } from './settings/tabs/SettingsTabContext';
+import type { DebouncedTextAreaSettingOptions, SettingsTabContext } from './settings/tabs/SettingsTabContext';
 
 /** Identifiers for different settings tab panes */
 type SettingsPaneId = 'general' | 'navigation-pane' | 'folders-tags' | 'list-pane' | 'notes' | 'icon-packs' | 'search-hotkeys' | 'advanced';
@@ -140,6 +140,65 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                         this.debounceTimers.set(timerId, timer);
                     })
             );
+    }
+
+    /**
+     * Creates a multiline text setting with debounced onChange handler
+     * Uses the same debounce timers as single-line inputs
+     * @param container - Container element for the setting
+     * @param name - Setting display name
+     * @param desc - Setting description
+     * @param placeholder - Placeholder text for the textarea
+     * @param getValue - Function to get current value
+     * @param setValue - Function to set new value
+     * @param options - Optional configuration for validation and row count
+     * @returns The created Setting instance
+     */
+    private createDebouncedTextAreaSetting(
+        container: HTMLElement,
+        name: string,
+        desc: string,
+        placeholder: string,
+        getValue: () => string,
+        setValue: (value: string) => void,
+        options?: DebouncedTextAreaSettingOptions
+    ): Setting {
+        const rows = options?.rows ?? 4;
+
+        return new Setting(container)
+            .setName(name)
+            .setDesc(desc)
+            .addTextArea(textArea => {
+                textArea.setPlaceholder(placeholder);
+                textArea.setValue(getValue());
+                textArea.inputEl.rows = rows;
+                textArea.onChange(async value => {
+                    const timerId = `setting-${name}`;
+                    const existingTimer = this.debounceTimers.get(timerId);
+                    if (existingTimer !== undefined) {
+                        window.clearTimeout(existingTimer);
+                    }
+
+                    const timer = window.setTimeout(async () => {
+                        const validator = options?.validator;
+                        const isValid = !validator || validator(value);
+                        if (!isValid) {
+                            this.debounceTimers.delete(timerId);
+                            return;
+                        }
+
+                        try {
+                            setValue(value);
+                            await this.plugin.saveSettingsAndUpdate();
+                            options?.onAfterUpdate?.();
+                        } finally {
+                            this.debounceTimers.delete(timerId);
+                        }
+                    }, TIMEOUTS.DEBOUNCE_SETTINGS);
+
+                    this.debounceTimers.set(timerId, timer);
+                });
+            });
     }
 
     /**
@@ -355,6 +414,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             containerEl: container,
             createDebouncedTextSetting: (parent, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate) =>
                 this.createDebouncedTextSetting(parent, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate),
+            createDebouncedTextAreaSetting: (parent, name, desc, placeholder, getValue, setValue, options) =>
+                this.createDebouncedTextAreaSetting(parent, name, desc, placeholder, getValue, setValue, options),
             registerMetadataInfoElement: element => {
                 this.metadataInfoEl = element;
             },

@@ -3081,7 +3081,8 @@ body.nn-resizing {
 }
 
 /* Wider text inputs for settings that benefit from more space */
-.nn-setting-wide-input input[type='text'] {
+.nn-setting-wide-input input[type='text'],
+.nn-setting-wide-input textarea {
     width: 300px;
     max-width: 100%;
 }
@@ -3109,7 +3110,8 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Mobile-specific wide input fields - full width on mobile */
-.is-mobile .nn-setting-wide-input input[type='text'] {
+.is-mobile .nn-setting-wide-input input[type='text'],
+.is-mobile .nn-setting-wide-input textarea {
     width: 100%;
 }
 

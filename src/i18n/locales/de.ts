@@ -933,8 +933,8 @@ export const STRINGS_DE = {
             },
             folderNoteProperties: {
                 name: 'Ordnernotiz-Eigenschaften',
-                desc: 'Frontmatter-Eigenschaften, die neu erstellten Ordnernotizen hinzugefügt werden (kommagetrennt).',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'Ordnernotizen in Liste ausblenden',

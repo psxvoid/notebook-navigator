@@ -36,7 +36,7 @@ export interface FolderNoteDetectionSettings {
 export interface FolderNoteCreationSettings {
     folderNoteType: FolderNoteType;
     folderNoteName: string;
-    folderNoteProperties: string[];
+    folderNoteProperties: string;
 }
 
 /** Set of file extensions that are valid for folder notes */
@@ -147,9 +147,9 @@ export async function createFolderNote(
     let content = '';
 
     if (settings.folderNoteType === 'markdown') {
-        if (settings.folderNoteProperties.length > 0) {
-            const properties = settings.folderNoteProperties.map(prop => `${prop}: true`).join('\n');
-            content = `---\n${properties}\n---\n`;
+        const trimmedBlock = settings.folderNoteProperties.replace(/\r\n/g, '\n').trim();
+        if (trimmedBlock.length > 0) {
+            content = `---\n${trimmedBlock}\n---\n`;
         }
     } else if (settings.folderNoteType === 'canvas') {
         content = '{}';

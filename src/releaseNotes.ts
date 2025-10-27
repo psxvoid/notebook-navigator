@@ -89,7 +89,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: ==Reset pane separator position==. Use it to reset the separator between navigation and list panes back to default position.'
         ],
         improved: [
-            'Files hidden by property are now shown when "Show hidden items" is toggled with the toolbar button in navigation pane or the command "Toggle hidden items".',
+            'Files hidden by property are now shown when "Show hidden items" is toggled with the toolbar button in navigation pane or the command "Toggle hidden items".',            
             'You can now right-click "visible" hidden folders and choose "Unhide" without going to settings.',
             '"Folder Note Properties" can now be entered as a text area for full control of what is copied to frontmatter.',
             'New option for "Default folder note type": "Ask". Will now ask you if you want to create a Markdown, Canvas or Base when creating a new folder note from the context menu. Thanks @artuncolak for the PR!',

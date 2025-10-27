@@ -110,7 +110,7 @@ export interface NotebookNavigatorSettings {
     enableFolderNotes: boolean;
     folderNoteType: FolderNoteType;
     folderNoteName: string;
-    folderNoteProperties: string[];
+    folderNoteProperties: string;
     hideFolderNoteInList: boolean;
     pinCreatedFolderNote: boolean;
     showTags: boolean;

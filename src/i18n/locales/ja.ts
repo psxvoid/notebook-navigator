@@ -931,8 +931,8 @@ export const STRINGS_JA = {
             },
             folderNoteProperties: {
                 name: 'フォルダノートプロパティ',
-                desc: '新しく作成されたフォルダノートに追加するフロントマタープロパティ（カンマ区切り）。',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'リストでフォルダノートを非表示',

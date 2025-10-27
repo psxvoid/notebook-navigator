@@ -929,8 +929,8 @@ export const STRINGS_EN = {
             },
             folderNoteProperties: {
                 name: 'Folder note properties',
-                desc: 'Frontmatter properties to add to newly created folder notes (comma-separated).',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'Hide folder notes in list',

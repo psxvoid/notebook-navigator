@@ -928,8 +928,8 @@ export const STRINGS_ZH_TW = {
             },
             folderNoteProperties: {
                 name: '資料夾筆記屬性',
-                desc: '新增至新建立資料夾筆記的 frontmatter 屬性 (以逗號分隔)。',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: '在清單中隱藏資料夾筆記',

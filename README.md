@@ -342,7 +342,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links
   - **Default folder note type:** Type created from context menu. `Markdown`, `Canvas`, `Base`
   - **Folder note name:** Name of the folder note without extension. Leave empty to use the same name as the folder
-  - **Folder note properties:** Frontmatter properties to add to newly created folder notes (comma-separated)
+  - **Folder note properties:** YAML frontmatter block added to newly created folder notes. --- markers are added automatically.
   - **Hide folder notes in list:** Hide the folder note from appearing in the folder's note list
   - **Pin created folder notes:** Adds folder notes created from the context menu into pinned folders when folder notes are visible
 - **Show tags:** Display tags section below folders in the navigator

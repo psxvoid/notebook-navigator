@@ -929,8 +929,8 @@ export const STRINGS_KO = {
             },
             folderNoteProperties: {
                 name: '폴더 노트 속성',
-                desc: '새로 생성된 폴더 노트에 추가할 frontmatter 속성 (쉼표로 구분).',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: '목록에서 폴더 노트 숨기기',

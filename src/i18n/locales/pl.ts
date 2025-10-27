@@ -931,8 +931,8 @@ export const STRINGS_PL = {
             },
             folderNoteProperties: {
                 name: 'Właściwości notatki folderu',
-                desc: 'Właściwości frontmatter do dodania do nowo tworzonych notatek folderów (oddzielone przecinkami).',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'Ukryj notatki folderów na liście',

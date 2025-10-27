@@ -932,8 +932,8 @@ export const STRINGS_FR = {
             },
             folderNoteProperties: {
                 name: 'Propriétés de note de dossier',
-                desc: 'Propriétés frontmatter à ajouter aux notes de dossier nouvellement créées (séparées par des virgules).',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'Masquer les notes de dossier dans la liste',
