@@ -39,14 +39,23 @@ export function blobToBase64Url(blob: Blob): Promise<string> {
 export async function blobToImage(blob: Blob): Promise<HTMLImageElement> {
     const img = new Image();
 
-    img.src = URL.createObjectURL(blob);
+    const blobUrl = URL.createObjectURL(blob);
 
-    await new Promise<void>((resolve, reject) => {
+    const renderPromise = new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
         img.onerror = (e, status) => {
             reject(status ?? e);
         }
     });
+
+    try {
+        img.src = blobUrl
+        await renderPromise
+    } finally {
+        if (blobUrl != null) {
+            URL.revokeObjectURL(blobUrl)
+        }
+    }
 
     return img;
 };
