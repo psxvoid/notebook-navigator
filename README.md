@@ -62,7 +62,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 1. **Shortcuts** - Jump to shortcuts section at the top of the navigation pane. This button is not visible if you have disabled shortcuts
 2. **Collapse/Expand all** - Collapse or expand folders and tags (keeps selected item expanded by default). Configurable in settings if you want the button to affect folders, tags or both
-3. **Show hidden** - Toggle visibility of excluded folders and hidden tags. This button is not visible if you have do not have any hidden items.
+3. **Show hidden** - Toggle visibility of hidden folders, tags, and notes. This button is not visible if you have do not have any hidden items.
 4. **Reorder root folders** - Open drag-and-drop interface to customize root folder order
 5. **New folder** - Create a new folder in the currently selected location
 
@@ -148,7 +148,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Custom sort order** - Override global sort settings per folder or tag
 - **Custom appearances** - Configure display settings per folder or tag (title rows, preview rows, slim mode)
 - **Hidden tags** - Hide tags by prefix or name wildcards
-- **Toggle hidden items** - Show or hide excluded folders and hidden tags with toolbar button
+- **Toggle hidden items** - Show or hide hidden folders, tags, and notes with toolbar button
 - **Untagged notes** - Find and organize notes without tags
 
 ### File display
@@ -248,7 +248,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - `Notebook Navigator: Toggle dual pane layout` Toggle single/dual-pane layout (desktop)
 - `Notebook Navigator: Toggle descendants` Toggle descendants notes display for both folders and tags. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+S` to quickly toggle display of notes from descendants
-- `Notebook Navigator: Toggle hidden items` Show or hide excluded folders and hidden tags
+- `Notebook Navigator: Toggle hidden items` Show or hide hidden folders, tags, and notes
 - `Notebook Navigator: Toggle tag sort` Toggle between alphabetical and frequency-based tag sorting
 - `Notebook Navigator: Collapse / expand all items` Collapse or expand all items based on the current state. When `Keep selected item expanded` is enabled (default on), all folders except the current one will be collapsed. This is super handy to keep the navigation tree tidy when searching for documents. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+C` to quickly collapse non-selected items
 
@@ -274,29 +274,29 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Command IDs
 
-| Command ID                                  | Command name                                            |
-| ------------------------------------------- | ------------------------------------------------------- |
-| `notebook-navigator:open`                   | Notebook Navigator: Open                                |
-| `notebook-navigator:open-homepage`          | Notebook Navigator: Open homepage                       |
-| `notebook-navigator:reveal-file`            | Notebook Navigator: Reveal file                         |
-| `notebook-navigator:navigate-to-folder`     | Notebook Navigator: Navigate to folder                  |
-| `notebook-navigator:navigate-to-tag`        | Notebook Navigator: Navigate to tag                     |
-| `notebook-navigator:add-shortcut`           | Notebook Navigator: Add to shortcuts                    |
-| `notebook-navigator:search`                 | Notebook Navigator: Search                              |
-| `notebook-navigator:toggle-dual-pane`       | Notebook Navigator: Toggle dual pane layout             |
-| `notebook-navigator:toggle-descendants`     | Notebook Navigator: Toggle descendants                  |
-| `notebook-navigator:toggle-hidden`          | Notebook Navigator: Toggle hidden items                 |
-| `notebook-navigator:toggle-tag-sort`        | Notebook Navigator: Toggle tag sort                     |
-| `notebook-navigator:collapse-expand`        | Notebook Navigator: Collapse / expand all items         |
-| `notebook-navigator:new-note`               | Notebook Navigator: Create new note                     |
-| `notebook-navigator:move-files`             | Notebook Navigator: Move files                          |
-| `notebook-navigator:convert-to-folder-note` | Notebook Navigator: Convert to folder note              |
-| `notebook-navigator:pin-all-folder-notes`   | Notebook Navigator: Pin all folder notes                |
-| `notebook-navigator:delete-files`           | Notebook Navigator: Delete files                        |
-| `notebook-navigator:add-tag`                | Notebook Navigator: Add tag to selected files           |
-| `notebook-navigator:remove-tag`             | Notebook Navigator: Remove tag from selected files      |
-| `notebook-navigator:remove-all-tags`        | Notebook Navigator: Remove all tags from selected files |
-| `notebook-navigator:rebuild-cache`          | Notebook Navigator: Rebuild cache                       |
+| Command ID                                  | Command name                                                   |
+| ------------------------------------------- | -------------------------------------------------------------- |
+| `notebook-navigator:open`                   | Notebook Navigator: Open                                       |
+| `notebook-navigator:open-homepage`          | Notebook Navigator: Open homepage                              |
+| `notebook-navigator:reveal-file`            | Notebook Navigator: Reveal file                                |
+| `notebook-navigator:navigate-to-folder`     | Notebook Navigator: Navigate to folder                         |
+| `notebook-navigator:navigate-to-tag`        | Notebook Navigator: Navigate to tag                            |
+| `notebook-navigator:add-shortcut`           | Notebook Navigator: Add to shortcuts                           |
+| `notebook-navigator:search`                 | Notebook Navigator: Search                                     |
+| `notebook-navigator:toggle-dual-pane`       | Notebook Navigator: Toggle dual pane layout                    |
+| `notebook-navigator:toggle-descendants`     | Notebook Navigator: Toggle descendants                         |
+| `notebook-navigator:toggle-hidden`          | Notebook Navigator: Toggle hidden items (folders, tags, notes) |
+| `notebook-navigator:toggle-tag-sort`        | Notebook Navigator: Toggle tag sort                            |
+| `notebook-navigator:collapse-expand`        | Notebook Navigator: Collapse / expand all items                |
+| `notebook-navigator:new-note`               | Notebook Navigator: Create new note                            |
+| `notebook-navigator:move-files`             | Notebook Navigator: Move files                                 |
+| `notebook-navigator:convert-to-folder-note` | Notebook Navigator: Convert to folder note                     |
+| `notebook-navigator:pin-all-folder-notes`   | Notebook Navigator: Pin all folder notes                       |
+| `notebook-navigator:delete-files`           | Notebook Navigator: Delete files                               |
+| `notebook-navigator:add-tag`                | Notebook Navigator: Add tag to selected files                  |
+| `notebook-navigator:remove-tag`             | Notebook Navigator: Remove tag from selected files             |
+| `notebook-navigator:remove-all-tags`        | Notebook Navigator: Remove all tags from selected files        |
+| `notebook-navigator:rebuild-cache`          | Notebook Navigator: Rebuild cache                              |
 
 <br>
 
@@ -327,9 +327,13 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - **Dual pane layout (not synced):** Show navigation and list panes side by side
   - **Dual pane orientation:** Choose between horizontal (side-by-side) or vertical (top-bottom) layout
-- **Dual pane background:** Choose background styling for dual-pane mode. `Separate backgrounds`, `Primary background only`, `Secondary background only`
+- **Desktop background:** Choose background colors for navigation and list panes. `Separate backgrounds`, `Use list background`, `Use navigation background`
 - **Show tooltips:** Display hover tooltips with additional information for notes and folders
   - **Show tooltips path:** Display full file path in tooltips
+
+**Mobile appearance**
+
+- **Mobile background:** Choose background colors for navigation and list panes on mobile. `Separate backgrounds`, `Use list background`, `Use navigation background`
 
 **Formatting**
 

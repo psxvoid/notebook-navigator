@@ -43,7 +43,8 @@ export const STRINGS_PL = {
         emptyStateNoNotes: 'Brak notatek', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Przypięte', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
         notesSection: 'Notatki', // Header shown between pinned and regular items when showing documents only (English: Notes)
-        filesSection: 'Pliki' // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        filesSection: 'Pliki', // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        hiddenItemAriaLabel: '{name} (ukryte)' // Accessibility label applied to list items that are normally hidden
     },
 
     // Tag list
@@ -98,8 +99,8 @@ export const STRINGS_PL = {
         finishRootFolderReorder: 'Zakończ przestawianie',
         toggleDescendantNotes: 'Pokaż notatki z podfolderów / potomnych', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Automatycznie rozwijaj foldery i tagi', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
-        showExcludedItems: 'Pokaż ukryte elementy', // Tooltip for button to show hidden items (English: Show hidden items)
-        hideExcludedItems: 'Ukryj ukryte elementy', // Tooltip for button to hide hidden items (English: Hide hidden items)
+        showExcludedItems: 'Pokaż ukryte foldery, tagi i notatki', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: 'Ukryj ukryte foldery, tagi i notatki', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'Pokaż podwójne panele', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'Pokaż pojedynczy panel', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: 'Zmień wygląd', // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -383,7 +384,8 @@ export const STRINGS_PL = {
             iconPackDownloaded: '{provider} pobrano',
             iconPackUpdated: '{provider} zaktualizowano ({version})',
             iconPackRemoved: '{provider} usunięto',
-            iconPackLoadFailed: 'Nie udało się załadować {provider}'
+            iconPackLoadFailed: 'Nie udało się załadować {provider}',
+            hiddenFileReveal: 'Plik jest ukryty. Włącz „Pokaż ukryte elementy", aby go wyświetlić'
         },
         confirmations: {
             deleteMultipleFiles: 'Czy na pewno chcesz usunąć {count} plików?',
@@ -452,7 +454,7 @@ export const STRINGS_PL = {
         navigateToTag: 'Przejdź do tagu', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Dodaj do skrótów', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Przełącz podfoldery', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
-        toggleHidden: 'Przełącz ukryte elementy', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleHidden: 'Przełącz ukryte foldery, tagi i notatki', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         toggleTagSort: 'Przełącz sortowanie tagów', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'Zwiń / rozwiń wszystkie elementy', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Dodaj tag do wybranych plików', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
@@ -502,6 +504,7 @@ export const STRINGS_PL = {
                 behavior: 'Zachowanie',
                 view: 'Wygląd',
                 desktopAppearance: 'Wygląd na komputerze',
+                mobileAppearance: 'Wygląd na telefonie',
                 formatting: 'Formatowanie'
             },
             navigation: {
@@ -623,9 +626,18 @@ export const STRINGS_PL = {
                     vertical: 'Podział pionowy'
                 }
             },
-            dualPaneBackground: {
+            desktopBackground: {
                 name: 'Kolor tła',
                 desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy na komputerze.',
+                options: {
+                    separate: 'Oddzielne tła',
+                    primary: 'Użyj tła listy',
+                    secondary: 'Użyj tła nawigacji'
+                }
+            },
+            mobileBackground: {
+                name: 'Kolor tła',
+                desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy na telefonie.',
                 options: {
                     separate: 'Oddzielne tła',
                     primary: 'Użyj tła listy',

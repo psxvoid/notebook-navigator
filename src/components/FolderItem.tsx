@@ -59,6 +59,7 @@ import { getIconService, useIconServiceVersion } from '../services/icons';
 import { ItemType } from '../types';
 import { getFolderNote } from '../utils/folderNotes';
 import { hasSubfolders, shouldExcludeFolder, shouldExcludeFile } from '../utils/fileFilters';
+import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
 import type { NoteCountInfo } from '../types/noteCounts';
 import { buildNoteCountDisplay } from '../utils/noteCountFormatting';
@@ -119,6 +120,8 @@ export const FolderItem = React.memo(function FolderItem({
     const chevronRef = React.useRef<HTMLDivElement>(null);
     const iconRef = React.useRef<HTMLSpanElement>(null);
     const iconVersion = useIconServiceVersion();
+    // Resolves frontmatter exclusions, returns empty array when hidden items are shown
+    const effectiveExcludedFiles = getEffectiveFrontmatterExclusions(settings);
 
     // Count folders and files for tooltip (skip on mobile to save computation)
     const folderStats = React.useMemo(() => {
@@ -127,12 +130,13 @@ export const FolderItem = React.memo(function FolderItem({
             return { fileCount: 0, folderCount: 0 };
         }
 
+        const showHidden = settings.showHiddenItems;
         // Tooltip should show immediate files only (non-recursive)
         let fileCount = 0;
         for (const child of folder.children) {
             if (child instanceof TFile) {
                 if (shouldDisplayFile(child, settings.fileVisibility, app)) {
-                    if (!shouldExcludeFile(child, settings.excludedFiles, app)) {
+                    if (!shouldExcludeFile(child, effectiveExcludedFiles, app)) {
                         fileCount++;
                     }
                 }
@@ -140,7 +144,6 @@ export const FolderItem = React.memo(function FolderItem({
         }
 
         // Count immediate child folders respecting hidden/excluded rules
-        const showHidden = settings.showHiddenItems;
         let folderCount = 0;
         for (const child of folder.children) {
             if (child instanceof TFolder) {
@@ -159,7 +162,7 @@ export const FolderItem = React.memo(function FolderItem({
         settings.showTooltips,
         settings.showHiddenItems,
         settings.fileVisibility,
-        settings.excludedFiles,
+        effectiveExcludedFiles,
         excludedFolders,
         app
     ]);

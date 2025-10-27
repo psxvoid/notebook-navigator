@@ -63,6 +63,95 @@ import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { ContentType } from '../interfaces/IContentProvider';
 
 /**
+ * Returns content types that require Obsidian's metadata cache to be ready
+ */
+function getMetadataDependentTypes(settings: NotebookNavigatorSettings): ContentType[] {
+    const types: ContentType[] = [];
+    if (settings.showTags) {
+        types.push('tags');
+    }
+    if (settings.showFeatureImage) {
+        types.push('featureImage');
+    }
+    if (settings.useFrontmatterMetadata || settings.excludedFiles.length > 0) {
+        types.push('metadata');
+    }
+    return types;
+}
+
+/**
+ * Filters requested content types to only those currently enabled in settings
+ */
+function resolveMetadataDependentTypes(settings: NotebookNavigatorSettings, requested?: ContentType[]): ContentType[] {
+    const baseTypes = requested ?? getMetadataDependentTypes(settings);
+    return baseTypes.filter(type => {
+        if (type === 'tags') {
+            return settings.showTags;
+        }
+        if (type === 'featureImage') {
+            return settings.showFeatureImage;
+        }
+        if (type === 'metadata') {
+            return settings.useFrontmatterMetadata || settings.excludedFiles.length > 0;
+        }
+        return false;
+    });
+}
+
+/**
+ * Returns files that need metadata-dependent content providers to run
+ * Filters out files that already have cached content for the requested types
+ */
+function filterFilesRequiringMetadataSources(files: TFile[], types: ContentType[], settings: NotebookNavigatorSettings): TFile[] {
+    if (files.length === 0 || types.length === 0) {
+        return [];
+    }
+
+    const db = getDBInstance();
+    const records = db.getFiles(files.map(file => file.path));
+    const requiresHiddenState = settings.excludedFiles.length > 0;
+    const needsTags = types.includes('tags');
+    const needsFeatureImage = types.includes('featureImage');
+    const needsMetadata = types.includes('metadata');
+
+    return files.filter(file => {
+        const record = records.get(file.path);
+        // Include files not in database
+        if (!record) {
+            return true;
+        }
+
+        // Include files modified since last cache
+        if (record.mtime !== file.stat.mtime) {
+            return true;
+        }
+
+        // Include files missing tags
+        if (needsTags && record.tags === null) {
+            return true;
+        }
+
+        // Include files missing feature image
+        if (needsFeatureImage && record.featureImage === null) {
+            return true;
+        }
+
+        // Include files missing metadata or hidden state
+        if (needsMetadata) {
+            const metadata = record.metadata;
+            if (metadata === null) {
+                return true;
+            }
+            if (requiresHiddenState && file.extension === 'md' && metadata.hidden === undefined) {
+                return true;
+            }
+        }
+
+        return false;
+    });
+}
+
+/**
  * Data structure containing the hierarchical tag trees and untagged file count
  */
 interface FileData {
@@ -121,7 +210,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     // Cleanup function for current metadata wait operation
     const waitDisposerRef = useRef<(() => void) | null>(null);
     const metadataWaitDisposersRef = useRef<Set<() => void>>(new Set());
-    const pendingTagMetadataPathsRef = useRef<Set<string>>(new Set());
+    const pendingMetadataWaitPathsRef = useRef<Map<string, Set<ContentType>>>(new Map());
     const pendingRenameDataRef = useRef<Map<string, DBFileData>>(new Map());
     const latestSettingsRef = useRef(settings);
     const activeVaultEventRefs = useRef<EventRef[] | null>(null);
@@ -139,9 +228,14 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     // Previous settings reference for detecting what changed between renders
     const prevSettings = useRef<NotebookNavigatorSettings | null>(null);
 
-    // Returns all markdown files in vault after applying exclusion filters from settings
-    const getFilteredMarkdownFilesCallback = useCallback((): TFile[] => {
+    // Returns markdown files visible in the UI after applying exclusion filters
+    const getVisibleMarkdownFiles = useCallback((): TFile[] => {
         return getFilteredMarkdownFiles(app, settings);
+    }, [app, settings]);
+
+    // Returns all markdown files regardless of hidden/excluded settings for indexing
+    const getIndexableMarkdownFiles = useCallback((): TFile[] => {
+        return getFilteredMarkdownFiles(app, settings, { showHiddenItems: true });
     }, [app, settings]);
 
     // Rebuilds the complete tag tree structure from database contents
@@ -150,7 +244,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         // Hidden items override: when enabled, include all folders in tag tree regardless of exclusions
         const excludedFolderPatterns = settings.showHiddenItems ? [] : settings.excludedFolders;
         // Filter database results to only include files matching current visibility settings
-        const includedPaths = new Set(getFilteredMarkdownFilesCallback().map(f => f.path));
+        const includedPaths = new Set(getVisibleMarkdownFiles().map(f => f.path));
         const { tagTree, untagged: newUntagged, hiddenRootTags } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths);
         clearNoteCountCache();
         const untaggedCount = newUntagged;
@@ -162,7 +256,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         return tagTree;
-    }, [settings.excludedFolders, settings.showHiddenItems, tagTreeService, getFilteredMarkdownFilesCallback]);
+    }, [settings.excludedFolders, settings.showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
 
     /**
      * Effect: Rebuild tag tree when hidden items visibility changes
@@ -189,6 +283,27 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
      */
     useEffect(() => {
         latestSettingsRef.current = settings;
+    }, [settings]);
+
+    /**
+     * Effect: Clean up pending metadata waits for disabled content types
+     *
+     * When settings change, removes any pending metadata wait operations for
+     * content types that are no longer enabled (tags, feature images, metadata).
+     * Cleans up entries with no remaining pending types.
+     */
+    useEffect(() => {
+        const activeTypes = new Set(getMetadataDependentTypes(settings));
+        pendingMetadataWaitPathsRef.current.forEach((types, path) => {
+            for (const type of Array.from(types)) {
+                if (!activeTypes.has(type)) {
+                    types.delete(type);
+                }
+            }
+            if (types.size === 0) {
+                pendingMetadataWaitPathsRef.current.delete(path);
+            }
+        });
     }, [settings]);
 
     /**
@@ -220,7 +335,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         // Clear the set of paths waiting for metadata
-        pendingTagMetadataPathsRef.current.clear();
+        pendingMetadataWaitPathsRef.current.clear();
     }, [settings.showTags]);
 
     /**
@@ -395,24 +510,19 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     );
 
     /**
-     * Queues tag extraction for files once their metadata is ready in Obsidian's cache.
-     *
-     * This function:
-     * 1. Deduplicates the input files to avoid duplicate processing
-     * 2. Filters to only markdown files (tags are only in .md files)
-     * 3. Waits for Obsidian's metadata cache to be ready for all files
-     * 4. Queues tag extraction once metadata is available
-     * 5. Tracks the cleanup function to cancel if needed
+     * Queues metadata-dependent content providers (tags, metadata, feature images)
+     * once Obsidian's metadata cache has entries for the provided files.
      */
-    const queueTagsWhenMetadataReady = useCallback(
-        (files: TFile[]) => {
-            // Exit early if tags are disabled in settings
-            const currentSettings = latestSettingsRef.current;
-            if (!currentSettings.showTags) {
+    const queueMetadataContentWhenReady = useCallback(
+        (files: TFile[], includeTypes?: ContentType[], settingsOverride?: NotebookNavigatorSettings) => {
+            const baseSettings = settingsOverride ?? latestSettingsRef.current;
+            const requestedTypes = resolveMetadataDependentTypes(baseSettings, includeTypes);
+
+            if (requestedTypes.length === 0) {
                 return;
             }
 
-            // Deduplicate files by path to avoid processing the same file multiple times
+            // Deduplicate files by path
             const uniqueFiles = new Map<string, TFile>();
             for (const file of files) {
                 if (!uniqueFiles.has(file.path)) {
@@ -420,84 +530,111 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 }
             }
 
-            // Filter to only markdown files that aren't already being processed
-            // Only .md files can have tags, and we skip files already waiting for metadata
-            const tagCandidates = Array.from(uniqueFiles.values()).filter(file => {
-                return file.extension === 'md' && !pendingTagMetadataPathsRef.current.has(file.path);
-            });
-
-            // Exit early if no files need processing
-            if (tagCandidates.length === 0) {
+            // Filter to markdown files only
+            const markdownFiles = Array.from(uniqueFiles.values()).filter(file => file.extension === 'md');
+            if (markdownFiles.length === 0) {
                 return;
             }
 
-            // Extract paths and create a function to release them from tracking
-            const trackedPaths = tagCandidates.map(file => file.path);
-            const releaseTrackedPaths = () => {
+            // Filter to files that actually need content generation
+            const filesNeedingContent = filterFilesRequiringMetadataSources(markdownFiles, requestedTypes, baseSettings);
+            if (filesNeedingContent.length === 0) {
+                return;
+            }
+
+            // Split files into those with metadata cache ready and those waiting
+            const immediateFiles: TFile[] = [];
+            const waitingFiles: TFile[] = [];
+
+            for (const file of filesNeedingContent) {
+                const pendingTypes = pendingMetadataWaitPathsRef.current.get(file.path);
+                const hasAllPending = pendingTypes ? requestedTypes.every(type => pendingTypes.has(type)) : false;
+                // Skip files already waiting for all requested types
+                if (hasAllPending) {
+                    continue;
+                }
+
+                const cacheReady = !!app.metadataCache.getFileCache(file);
+                if (cacheReady) {
+                    immediateFiles.push(file);
+                } else {
+                    waitingFiles.push(file);
+                }
+            }
+
+            // Queues files for content generation with the requested types
+            const queueFilesForTypes = (targetFiles: TFile[]) => {
+                if (targetFiles.length === 0 || stoppedRef.current) {
+                    return;
+                }
+                const latestSettings = latestSettingsRef.current;
+                const activeTypes = resolveMetadataDependentTypes(latestSettings, includeTypes);
+                if (activeTypes.length === 0 || !contentRegistry.current) {
+                    return;
+                }
+                contentRegistry.current.queueFilesForAllProviders(targetFiles, latestSettings, { include: activeTypes });
+            };
+
+            // Queue files with metadata cache already ready
+            if (immediateFiles.length > 0) {
+                queueFilesForTypes(immediateFiles);
+            }
+
+            if (waitingFiles.length === 0) {
+                return;
+            }
+
+            const trackedPaths = waitingFiles.map(file => file.path);
+
+            // Marks file paths as pending for the requested content types
+            const markPending = () => {
                 for (const path of trackedPaths) {
-                    pendingTagMetadataPathsRef.current.delete(path);
+                    const existing = pendingMetadataWaitPathsRef.current.get(path) ?? new Set<ContentType>();
+                    requestedTypes.forEach(type => existing.add(type));
+                    pendingMetadataWaitPathsRef.current.set(path, existing);
                 }
             };
 
-            // Mark these paths as being processed to avoid duplicate operations
-            for (const path of trackedPaths) {
-                pendingTagMetadataPathsRef.current.add(path);
-            }
+            // Removes requested types from pending list for tracked paths
+            const releaseTrackedPaths = () => {
+                for (const path of trackedPaths) {
+                    const pending = pendingMetadataWaitPathsRef.current.get(path);
+                    if (!pending) {
+                        continue;
+                    }
+                    requestedTypes.forEach(type => pending.delete(type));
+                    if (pending.size === 0) {
+                        pendingMetadataWaitPathsRef.current.delete(path);
+                    }
+                }
+            };
 
-            // Track whether we need to store a cleanup function and if callback fired sync
+            markPending();
+
             let cleanupWrapper: (() => void) | null = null;
             let firedImmediately = false;
 
-            // Callback executed when metadata is ready for all files
+            // Called when metadata cache is ready for all waiting files
             const handleReady = () => {
-                // Mark that callback fired immediately (synchronously)
                 firedImmediately = true;
-                // Release the paths from tracking since we're done with them
                 releaseTrackedPaths();
-
-                // Remove cleanup wrapper from tracking if it exists
                 if (cleanupWrapper) {
                     metadataWaitDisposersRef.current.delete(cleanupWrapper);
                     cleanupWrapper = null;
                 }
-
-                // Exit early if processing was stopped
-                if (stoppedRef.current) {
-                    return;
-                }
-
-                // Check again if tags are still enabled (settings might have changed)
-                const latestSettings = latestSettingsRef.current;
-                if (!latestSettings.showTags) {
-                    return;
-                }
-
-                // Ensure content registry is available
-                if (!contentRegistry.current) {
-                    return;
-                }
-
-                // Queue tag extraction for all candidate files
-                contentRegistry.current.queueFilesForAllProviders(tagCandidates, latestSettings, {
-                    include: ['tags'] as ContentType[]
-                });
+                queueFilesForTypes(waitingFiles);
             };
 
-            // Start waiting for metadata cache to be ready
-            // This returns a cleanup function if the wait is async
             let rawCleanup: (() => void) | null = null;
             try {
-                rawCleanup = waitForMetadataCache(tagCandidates, handleReady);
+                rawCleanup = waitForMetadataCache(waitingFiles, handleReady);
             } catch (error) {
-                // If wait setup fails, release tracked paths and re-throw
                 releaseTrackedPaths();
                 throw error;
             }
 
-            // Handle the cleanup function based on whether callback fired immediately
+            // Track cleanup function if callback didn't fire immediately
             if (!firedImmediately && rawCleanup) {
-                // Callback didn't fire immediately - we need to track the cleanup function
-                // Wrap it to also release tracked paths when cleaned up
                 cleanupWrapper = () => {
                     releaseTrackedPaths();
                     try {
@@ -506,14 +643,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                         // ignore cleanup errors
                     }
                 };
-                // Add to our set of tracked disposers for later cleanup
                 metadataWaitDisposersRef.current.add(cleanupWrapper);
             } else if (!firedImmediately) {
-                // Callback didn't fire but no cleanup function returned
-                // Just release the tracked paths
                 releaseTrackedPaths();
                 if (rawCleanup) {
-                    // Clean up immediately if we have a cleanup function
                     try {
                         rawCleanup();
                     } catch {
@@ -522,7 +655,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 }
             }
         },
-        [waitForMetadataCache]
+        [app, waitForMetadataCache]
     );
 
     /**
@@ -580,7 +713,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             metadataWaitDisposersRef.current.clear();
         }
 
-        pendingTagMetadataPathsRef.current.clear();
+        pendingMetadataWaitPathsRef.current.clear();
 
         // Clear the entire IndexedDB database
         try {
@@ -768,18 +901,19 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             }
 
             // Queue content generation for all files if needed
-            const allFiles = getFilteredMarkdownFilesCallback();
+            const allFiles = getIndexableMarkdownFiles();
             if (stoppedRef.current || !contentRegistry.current) {
                 return;
             }
-            const options = newSettings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
+            const metadataDependentTypes = getMetadataDependentTypes(newSettings);
+            const options = metadataDependentTypes.length > 0 ? { exclude: metadataDependentTypes } : undefined;
             contentRegistry.current.queueFilesForAllProviders(allFiles, newSettings, options);
 
-            if (newSettings.showTags) {
-                queueTagsWhenMetadataReady(allFiles);
+            if (metadataDependentTypes.length > 0) {
+                queueMetadataContentWhenReady(allFiles, metadataDependentTypes, newSettings);
             }
         },
-        [getFilteredMarkdownFilesCallback, queueTagsWhenMetadataReady]
+        [getIndexableMarkdownFiles, queueMetadataContentWhenReady]
     );
 
     // ==================== Effects ====================
@@ -975,15 +1109,16 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     }
 
                     // Step 6: Queue remaining content generation for new/modified files
-                    const contentEnabled = settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata;
+                    const metadataDependentTypes = getMetadataDependentTypes(settings);
+                    const contentEnabled = settings.showFilePreview || metadataDependentTypes.length > 0;
 
                     if (contentRegistry.current && contentEnabled && (toAdd.length > 0 || toUpdate.length > 0)) {
-                        const nonTagOptions = settings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
+                        const nonMetadataOptions = metadataDependentTypes.length > 0 ? { exclude: metadataDependentTypes } : undefined;
 
-                        contentRegistry.current.queueFilesForAllProviders([...toAdd, ...toUpdate], settings, nonTagOptions);
+                        contentRegistry.current.queueFilesForAllProviders([...toAdd, ...toUpdate], settings, nonMetadataOptions);
 
-                        if (settings.showTags && toUpdate.length > 0) {
-                            queueTagsWhenMetadataReady(toUpdate);
+                        if (metadataDependentTypes.length > 0) {
+                            queueMetadataContentWhenReady([...toAdd, ...toUpdate], metadataDependentTypes, settings);
                         }
                     }
                 } catch (error) {
@@ -1024,11 +1159,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                                 console.error('Failed to update IndexedDB cache:', error);
                             }
 
-                            const contentEnabled =
-                                settings.showTags ||
-                                settings.showFilePreview ||
-                                settings.showFeatureImage ||
-                                settings.useFrontmatterMetadata;
+                            const metadataDependentTypes = getMetadataDependentTypes(settings);
+                            const contentEnabled = settings.showFilePreview || metadataDependentTypes.length > 0;
 
                             if (contentRegistry.current && contentEnabled) {
                                 const db = getDBInstance();
@@ -1038,6 +1170,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                                     const filesToCheck = [...toAdd, ...toUpdate];
                                     const paths = filesToCheck.map(f => f.path);
                                     const indexedFiles = db.getFiles(paths);
+                                    const metadataEnabled = metadataDependentTypes.includes('metadata');
+                                    const featureImageEnabled = metadataDependentTypes.includes('featureImage');
 
                                     filesToProcess = filesToCheck.filter(file => {
                                         const fileData = indexedFiles.get(file.path);
@@ -1051,20 +1185,21 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
                                         return (
                                             (settings.showFilePreview && fileData.preview === null && file.extension === 'md') ||
-                                            (settings.showFeatureImage && fileData.featureImage === null) ||
-                                            (settings.useFrontmatterMetadata && fileData.metadata === null && file.extension === 'md')
+                                            (featureImageEnabled && fileData.featureImage === null) ||
+                                            (metadataEnabled && fileData.metadata === null && file.extension === 'md')
                                         );
                                     });
 
                                     if (filesToProcess.length === 0) {
-                                        const filesNeedingTags = settings.showTags ? db.getFilesNeedingContent('tags') : new Set<string>();
+                                        const tagsEnabled = metadataDependentTypes.includes('tags');
+                                        const filesNeedingTags = tagsEnabled ? db.getFilesNeedingContent('tags') : new Set<string>();
                                         const filesNeedingPreview = settings.showFilePreview
                                             ? db.getFilesNeedingContent('preview')
                                             : new Set<string>();
-                                        const filesNeedingImage = settings.showFeatureImage
+                                        const filesNeedingImage = featureImageEnabled
                                             ? db.getFilesNeedingContent('featureImage')
                                             : new Set<string>();
-                                        const filesNeedingMetadata = settings.useFrontmatterMetadata
+                                        const filesNeedingMetadata = metadataEnabled
                                             ? db.getFilesNeedingContent('metadata')
                                             : new Set<string>();
 
@@ -1084,10 +1219,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                                 }
 
                                 if (filesToProcess.length > 0) {
-                                    const options = settings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
+                                    const options = metadataDependentTypes.length > 0 ? { exclude: metadataDependentTypes } : undefined;
                                     contentRegistry.current.queueFilesForAllProviders(filesToProcess, settings, options);
-                                    if (settings.showTags) {
-                                        queueTagsWhenMetadataReady(filesToProcess);
+                                    if (metadataDependentTypes.length > 0) {
+                                        queueMetadataContentWhenReady(filesToProcess, metadataDependentTypes, settings);
                                     }
                                 }
                             }
@@ -1116,7 +1251,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
          */
         const buildFileCache = async (isInitialLoad: boolean = false) => {
             if (stoppedRef.current) return;
-            const allFiles = getFilteredMarkdownFilesCallback();
+            const allFiles = getIndexableMarkdownFiles();
             await processExistingCache(allFiles, isInitialLoad);
         };
 
@@ -1212,10 +1347,12 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
                     // Content providers will detect the mtime mismatch (db.mtime != file.mtime) and regenerate
                     if (contentRegistry.current) {
-                        const options = settings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
-                        contentRegistry.current.queueFilesForAllProviders([file], settings, options);
-                        if (settings.showTags) {
-                            queueTagsWhenMetadataReady([file]);
+                        const liveSettings = latestSettingsRef.current;
+                        const metadataDependentTypes = getMetadataDependentTypes(liveSettings);
+                        const options = metadataDependentTypes.length > 0 ? { exclude: metadataDependentTypes } : undefined;
+                        contentRegistry.current.queueFilesForAllProviders([file], liveSettings, options);
+                        if (metadataDependentTypes.length > 0) {
+                            queueMetadataContentWhenReady([file], metadataDependentTypes, liveSettings);
                         }
                     }
                 }
@@ -1246,10 +1383,12 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
                 // Queue content regeneration for the file
                 if (contentRegistry.current) {
-                    const options = settings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
-                    contentRegistry.current.queueFilesForAllProviders([file], settings, options);
-                    if (settings.showTags) {
-                        queueTagsWhenMetadataReady([file]);
+                    const liveSettings = latestSettingsRef.current;
+                    const metadataDependentTypes = getMetadataDependentTypes(liveSettings);
+                    const options = metadataDependentTypes.length > 0 ? { exclude: metadataDependentTypes } : undefined;
+                    contentRegistry.current.queueFilesForAllProviders([file], liveSettings, options);
+                    if (metadataDependentTypes.length > 0) {
+                        queueMetadataContentWhenReady([file], metadataDependentTypes, liveSettings);
                     }
                 }
 
@@ -1301,11 +1440,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         app,
         api,
         isIndexedDBReady,
-        getFilteredMarkdownFilesCallback,
+        getIndexableMarkdownFiles,
         rebuildTagTree,
         settings,
         waitForMetadataCache,
-        queueTagsWhenMetadataReady
+        queueMetadataContentWhenReady
     ]);
 
     /**
@@ -1338,7 +1477,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         if (excludedFoldersChanged || excludedFilesChanged) {
             (async () => {
                 try {
-                    const allFiles = getFilteredMarkdownFilesCallback();
+                    const allFiles = getIndexableMarkdownFiles();
                     const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
 
                     if (toRemove.length > 0) {
@@ -1355,8 +1494,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     }
 
                     // Queue content generation for newly added/updated items if needed
-                    const contentEnabled =
-                        settings.showTags || settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata;
+                    const metadataDependentTypes = getMetadataDependentTypes(settings);
+                    const contentEnabled = settings.showFilePreview || metadataDependentTypes.length > 0;
 
                     if (contentRegistry.current && contentEnabled) {
                         const db = getDBInstance();
@@ -1367,28 +1506,30 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                             const paths = filesToCheck.map(f => f.path);
                             const indexedFiles = db.getFiles(paths);
 
+                            const metadataEnabled = metadataDependentTypes.includes('metadata');
+                            const featureImageEnabled = metadataDependentTypes.includes('featureImage');
+                            const tagsEnabled = metadataDependentTypes.includes('tags');
+
                             filesToProcess = filesToCheck.filter(file => {
                                 const fileData = indexedFiles.get(file.path);
                                 if (!fileData) return true;
                                 if (fileData.mtime !== file.stat.mtime) return true;
                                 const needsContent =
                                     (settings.showFilePreview && fileData.preview === null && file.extension === 'md') ||
-                                    (settings.showFeatureImage && fileData.featureImage === null) ||
-                                    (settings.useFrontmatterMetadata && fileData.metadata === null && file.extension === 'md');
+                                    (featureImageEnabled && fileData.featureImage === null) ||
+                                    (metadataEnabled && fileData.metadata === null && file.extension === 'md');
                                 return needsContent;
                             });
 
                             if (filesToProcess.length === 0) {
-                                const filesNeedingTags = settings.showTags ? db.getFilesNeedingContent('tags') : new Set<string>();
+                                const filesNeedingTags = tagsEnabled ? db.getFilesNeedingContent('tags') : new Set<string>();
                                 const filesNeedingPreview = settings.showFilePreview
                                     ? db.getFilesNeedingContent('preview')
                                     : new Set<string>();
-                                const filesNeedingImage = settings.showFeatureImage
+                                const filesNeedingImage = featureImageEnabled
                                     ? db.getFilesNeedingContent('featureImage')
                                     : new Set<string>();
-                                const filesNeedingMetadata = settings.useFrontmatterMetadata
-                                    ? db.getFilesNeedingContent('metadata')
-                                    : new Set<string>();
+                                const filesNeedingMetadata = metadataEnabled ? db.getFilesNeedingContent('metadata') : new Set<string>();
 
                                 const pathsNeedingContent = new Set([
                                     ...filesNeedingTags,
@@ -1406,10 +1547,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                         }
 
                         if (filesToProcess.length > 0) {
-                            const options = settings.showTags ? { exclude: ['tags'] as ContentType[] } : undefined;
+                            const options = metadataDependentTypes.length > 0 ? { exclude: metadataDependentTypes } : undefined;
                             contentRegistry.current.queueFilesForAllProviders(filesToProcess, settings, options);
-                            if (settings.showTags) {
-                                queueTagsWhenMetadataReady(filesToProcess);
+                            if (metadataDependentTypes.length > 0) {
+                                queueMetadataContentWhenReady(filesToProcess, metadataDependentTypes, settings);
                             }
                         }
                     }
@@ -1420,7 +1561,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         prevSettings.current = settings;
-    }, [settings, handleSettingsChanges, rebuildTagTree, getFilteredMarkdownFilesCallback, queueTagsWhenMetadataReady]);
+    }, [settings, handleSettingsChanges, rebuildTagTree, getIndexableMarkdownFiles, queueMetadataContentWhenReady]);
 
     /**
      * Augment context with control methods
@@ -1493,7 +1634,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     }
                     metadataWaitDisposersRef.current.clear();
                 }
-                pendingTagMetadataPathsRef.current.clear();
+                pendingMetadataWaitPathsRef.current.clear();
             }
         };
     }, [contextValue, app.vault, app.metadataCache]);

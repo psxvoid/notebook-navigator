@@ -23,6 +23,7 @@ import { useUIState } from '../context/UIStateContext';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useNavigationActions } from '../hooks/useNavigationActions';
+import { hasHiddenItemSources } from '../utils/exclusionUtils';
 
 interface NavigationPaneHeaderProps {
     onTreeUpdateComplete?: () => void;
@@ -46,7 +47,8 @@ export function NavigationPaneHeader({
 
     // Hook providing shared navigation actions (expand/collapse, folder creation, toggle visibility)
     const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
-    const hasHiddenItems = settings.excludedFolders.length > 0 || settings.hiddenTags.length > 0;
+    // Detects if any hidden folders, tags, or files are configured to determine if toggle should be shown
+    const hasHiddenItems = hasHiddenItemSources(settings);
 
     if (isMobile) {
         // Mobile devices render actions in tab bar instead of header

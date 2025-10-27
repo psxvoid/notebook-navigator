@@ -22,6 +22,7 @@ import { strings } from '../../i18n';
 import { cleanupTagPatterns, createHiddenTagMatcher, matchesHiddenTagPattern } from '../tagPrefixMatcher';
 import { ItemType, UNTAGGED_TAG_ID } from '../../types';
 import { normalizeTagPath } from '../tagUtils';
+import { resetHiddenToggleIfNoSources } from '../exclusionUtils';
 
 /**
  * Builds the context menu for a tag
@@ -121,6 +122,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                         const cleanedHiddenTags = cleanupTagPatterns(settings.hiddenTags, tagPath);
 
                         plugin.settings.hiddenTags = cleanedHiddenTags;
+                        resetHiddenToggleIfNoSources(plugin.settings);
                         await plugin.saveSettingsAndUpdate();
                     });
             });
@@ -134,6 +136,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                             return !(normalizedPattern && !normalizedPattern.includes('*') && normalizedPattern === normalizedTagPath);
                         });
 
+                        resetHiddenToggleIfNoSources(plugin.settings);
                         await plugin.saveSettingsAndUpdate();
                     });
             });

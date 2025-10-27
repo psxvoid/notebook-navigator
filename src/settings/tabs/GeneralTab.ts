@@ -21,9 +21,11 @@ import { HomepageModal } from '../../modals/HomepageModal';
 import { strings } from '../../i18n';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
+import type { BackgroundMode } from '../../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { localStorage } from '../../utils/localStorage';
 import { getNavigationPaneSizing } from '../../utils/paneSizing';
+import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 
 /** Renders the general settings tab */
 export function renderGeneralTab(context: SettingsTabContext): void {
@@ -96,6 +98,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 .split(',')
                 .map(folder => folder.trim())
                 .filter(folder => folder.length > 0);
+            resetHiddenToggleIfNoSources(plugin.settings);
         }
     );
     excludedFoldersSetting.controlEl.addClass('nn-setting-wide-input');
@@ -111,6 +114,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 .split(',')
                 .map(file => file.trim())
                 .filter(file => file.length > 0);
+            resetHiddenToggleIfNoSources(plugin.settings);
         }
     );
     excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');
@@ -321,20 +325,19 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             });
 
         new Setting(containerEl)
-            .setName(strings.settings.items.dualPaneBackground.name)
-            .setDesc(strings.settings.items.dualPaneBackground.desc)
+            .setName(strings.settings.items.desktopBackground.name)
+            .setDesc(strings.settings.items.desktopBackground.desc)
             .addDropdown(dropdown =>
                 dropdown
                     .addOptions({
-                        separate: strings.settings.items.dualPaneBackground.options.separate,
-                        primary: strings.settings.items.dualPaneBackground.options.primary,
-                        secondary: strings.settings.items.dualPaneBackground.options.secondary
+                        separate: strings.settings.items.desktopBackground.options.separate,
+                        primary: strings.settings.items.desktopBackground.options.primary,
+                        secondary: strings.settings.items.desktopBackground.options.secondary
                     })
-                    .setValue(plugin.settings.dualPaneBackground ?? 'separate')
+                    .setValue(plugin.settings.desktopBackground ?? 'separate')
                     .onChange(async value => {
-                        const nextValue: 'separate' | 'primary' | 'secondary' =
-                            value === 'primary' || value === 'secondary' ? value : 'separate';
-                        plugin.settings.dualPaneBackground = nextValue;
+                        const nextValue: BackgroundMode = value === 'primary' || value === 'secondary' ? value : 'separate';
+                        plugin.settings.desktopBackground = nextValue;
                         await plugin.saveSettingsAndUpdate();
                     })
             );
@@ -384,6 +387,26 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 })
             );
     }
+
+    new Setting(containerEl).setName(strings.settings.groups.general.mobileAppearance).setHeading();
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.mobileBackground.name)
+        .setDesc(strings.settings.items.mobileBackground.desc)
+        .addDropdown(dropdown =>
+            dropdown
+                .addOptions({
+                    separate: strings.settings.items.mobileBackground.options.separate,
+                    primary: strings.settings.items.mobileBackground.options.primary,
+                    secondary: strings.settings.items.mobileBackground.options.secondary
+                })
+                .setValue(plugin.settings.mobileBackground ?? 'primary')
+                .onChange(async value => {
+                    const nextValue: BackgroundMode = value === 'primary' || value === 'secondary' ? value : 'separate';
+                    plugin.settings.mobileBackground = nextValue;
+                    await plugin.saveSettingsAndUpdate();
+                })
+        );
 
     new Setting(containerEl).setName(strings.settings.groups.general.formatting).setHeading();
 

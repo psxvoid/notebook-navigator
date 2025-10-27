@@ -23,7 +23,7 @@ import { MemoryFileCache } from './MemoryFileCache';
 
 const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
-const DB_CONTENT_VERSION = 4.3; // Data format version
+const DB_CONTENT_VERSION = 5.3; // Data format version
 
 /**
  * Sentinel values for metadata date fields
@@ -49,6 +49,7 @@ export interface FileData {
         modified?: number; // Valid timestamp, 0 = field not configured, -1 = parse failed
         icon?: string;
         color?: string;
+        hidden?: boolean; // Whether file matches frontmatter exclusion patterns
     } | null; // null = not generated yet
 }
 
