@@ -110,11 +110,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         try {
             const metadata = this.app.metadataCache.getFileCache(job.file);
 
-            if (isExcalidrawAttachment(job.file, metadata)) {
-                return null
-            }
-
-            const result = await this.getFeatureImageUrlFromMetadata(job.file, metadata, settings);
+            const result = await this.getFeatureImageUrlFromMetadata(job.file, metadata, settings)
             const imageUrl = result?.featurePath;
             const consumerTargetPath = result?.consumerTargetPath;
             const imageUrlStr = imageUrl || '';
@@ -132,10 +128,14 @@ export class FeatureImageContentProvider extends BaseContentProvider {
 
             let featureImageResized: string = EMPTY_STRING
 
+            let selfPreview = false
             if (nonEmptyString(imageUrlStr)) {
                 const maxSizeSquarePx = settings.featureImageSize;
                 const resizedBlob = await autoCrop(await readSourceImageBlob(imageUrlStr, this.app), maxSizeSquarePx)
                 featureImageResized = await blobToBase64Url(resizedBlob)
+                if (result?.featureProviderPath === job.file.path) {
+                    selfPreview = true
+                }
             }
 
             let featureCleanupRequest: ProcessResult | null = null
@@ -163,7 +163,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                         featureImageProvider: result.featureProviderPath,
                     } : {}
                 },
-                isCachePath(imageUrlStr) ? {
+                isCachePath(imageUrlStr) && !selfPreview ? {
                     path: consumerTargetPath as string,
                     featureImageConsumers: [
                         ...(fileData?.featureImageConsumers ?? []).filter(x => x !== job.file.path),
@@ -211,6 +211,11 @@ export class FeatureImageContentProvider extends BaseContentProvider {
 
                 this.deletedFeatureProviders.delete(file.path)
             }
+        }
+
+        // self preview
+        if (isExcalidrawAttachment(file, metadata)) {
+            return generateExcalidrawPreview(file, this.app, file);
         }
 
         // Try each property in order until we find an image
