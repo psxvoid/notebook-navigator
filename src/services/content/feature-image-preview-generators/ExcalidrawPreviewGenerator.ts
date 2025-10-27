@@ -51,7 +51,13 @@ async function getEmbedLinkFileId(lines: readonly string[], outlink: EmbedCache)
     const linesWithLink = lines.filter(x => x.indexOf(outlink.link ?? '') >= 0)
     //# Embedded files
     // 4d12435ada81c2e3600f6fc5b4db4fd56b63261c: [[other/trash-notes/To Do/unknown_filename.1.png]]
-    return linesWithLink.map(lineWithLink => /^(.*?):/g.exec(lineWithLink)![1])
+    return linesWithLink.map(lineWithLink => {
+        const matches = /^(.*?):/g.exec(lineWithLink)
+
+        return matches != null && matches.length > 1
+            ? matches[1]
+            : null
+    }).filter(x => x != null)
 }
 
 export interface ToDataUriResult {
