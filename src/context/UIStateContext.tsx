@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useContext, useReducer, ReactNode, useMemo, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useMemo, useEffect, useCallback, useRef } from 'react';
 import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 // Storage keys
 import { STORAGE_KEYS } from '../types';
@@ -111,7 +111,13 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         return initialState;
     };
 
-    const [state, dispatch] = useReducer(uiStateReducer, undefined, loadInitialState);
+    const [state, internalDispatch] = useReducer(uiStateReducer, undefined, loadInitialState);
+    // Tracks latest shortcuts state so we can detect actual transitions before notifying the plugin
+    const pinShortcutsRef = useRef(state.pinShortcuts);
+
+    useEffect(() => {
+        pinShortcutsRef.current = state.pinShortcuts;
+    }, [state.pinShortcuts]);
 
     // Compute dualPane and singlePane based on isMobile and settings
     const stateWithPaneMode = useMemo(() => {
@@ -124,10 +130,25 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         };
     }, [state, isMobile]);
 
+    // Wraps reducer dispatch to forward real changes to the plugin while ignoring redundant writes
+    const dispatch = useCallback(
+        (action: UIAction) => {
+            if (action.type === 'SET_PIN_SHORTCUTS') {
+                const nextValue = action.value;
+                if (nextValue !== pinShortcutsRef.current) {
+                    pinShortcutsRef.current = nextValue;
+                    setPinShortcuts(nextValue);
+                }
+            }
+            internalDispatch(action);
+        },
+        [internalDispatch, setPinShortcuts]
+    );
+
     useEffect(() => {
         const id = `ui-state-${Date.now()}`;
         const handleUpdate = () => {
-            dispatch({ type: 'SET_DUAL_PANE', value: plugin.useDualPane() });
+            internalDispatch({ type: 'SET_DUAL_PANE', value: plugin.useDualPane() });
         };
 
         plugin.registerSettingsUpdateListener(id, handleUpdate);
@@ -137,17 +158,14 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         };
     }, [plugin]);
 
-    // Update UX preference when local state changes
+    // Pulls fresh plugin preference into local state when an external update is observed
     useEffect(() => {
-        setPinShortcuts(state.pinShortcuts);
-    }, [setPinShortcuts, state.pinShortcuts]);
-
-    // Sync local state with UX preference changes from other sources
-    useEffect(() => {
-        if (state.pinShortcuts !== uxPreferences.pinShortcuts) {
-            dispatch({ type: 'SET_PIN_SHORTCUTS', value: uxPreferences.pinShortcuts });
+        if (pinShortcutsRef.current === uxPreferences.pinShortcuts) {
+            return;
         }
-    }, [state.pinShortcuts, uxPreferences.pinShortcuts]);
+        pinShortcutsRef.current = uxPreferences.pinShortcuts;
+        internalDispatch({ type: 'SET_PIN_SHORTCUTS', value: uxPreferences.pinShortcuts });
+    }, [internalDispatch, uxPreferences.pinShortcuts]);
 
     // Note: Pane width persistence is handled by useResizablePane hook
     // to avoid duplicate writes during drag operations
@@ -160,9 +178,9 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         const view = state.currentSinglePaneView;
         const focused = state.focusedPane;
         if (view === 'navigation' && focused !== 'navigation') {
-            dispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+            internalDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
         } else if (view === 'files' && focused === 'navigation') {
-            dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            internalDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         }
     }, [isMobile, state.currentSinglePaneView, state.focusedPane]);
 
