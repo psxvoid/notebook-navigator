@@ -2,7 +2,14 @@ import { App } from "obsidian";
 import smartcrop from "smartcrop";
 
 export async function readSourceImageBlob(imagePath: string, app: App): Promise<Blob> {
-    const imageBuffer = await app.vault.adapter.readBinary(imagePath);
+    const imageBuffer: ArrayBuffer = await app.vault.adapter.readBinary(imagePath);
+
+    if (imagePath.endsWith('.svg')) {
+        return new Blob([imageBuffer], {
+            type: 'image/svg+xml;charset=utf-8'
+        })
+    }
+
     return new Blob([imageBuffer]);
 }
 
@@ -32,12 +39,23 @@ export function blobToBase64Url(blob: Blob): Promise<string> {
 export async function blobToImage(blob: Blob): Promise<HTMLImageElement> {
     const img = new Image();
 
-    img.src = URL.createObjectURL(blob);
+    const blobUrl = URL.createObjectURL(blob);
 
-    await new Promise<void>((resolve, reject) => {
+    const renderPromise = new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
-        img.onerror = (e) => reject(e);
+        img.onerror = (e, status) => {
+            reject(status ?? e);
+        }
     });
+
+    try {
+        img.src = blobUrl
+        await renderPromise
+    } finally {
+        if (blobUrl != null) {
+            URL.revokeObjectURL(blobUrl)
+        }
+    }
 
     return img;
 };
