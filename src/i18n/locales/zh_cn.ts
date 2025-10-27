@@ -281,6 +281,10 @@ export const STRINGS_ZH_CN = {
             removeAllTagsFromNote: '您确定要从这个笔记中移除所有标签吗？',
             removeAllTagsFromNotes: '您确定要从 {count} 个笔记中移除所有标签吗？'
         },
+        folderNoteType: {
+            title: '选择文件夹笔记类型',
+            folderLabel: '文件夹：{name}'
+        },
         folderSuggest: {
             placeholder: '移动到文件夹...',
             navigatePlaceholder: '导航到文件夹...',
@@ -918,6 +922,7 @@ export const STRINGS_ZH_CN = {
                 name: '默认文件夹笔记类型',
                 desc: '从上下文菜单创建的文件夹笔记类型。',
                 options: {
+                    ask: '创建时询问',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -930,7 +935,7 @@ export const STRINGS_ZH_CN = {
             },
             folderNoteProperties: {
                 name: '文件夹笔记属性',
-                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                desc: '添加到新文件夹笔记的YAML前置内容。--- 标记会自动添加。',
                 placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {

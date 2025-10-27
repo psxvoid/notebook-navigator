@@ -281,6 +281,10 @@ export const STRINGS_ZH_TW = {
             removeAllTagsFromNote: '您確定要從此筆記中移除所有標籤嗎？',
             removeAllTagsFromNotes: '您確定要從 {count} 則筆記中移除所有標籤嗎？'
         },
+        folderNoteType: {
+            title: '選擇資料夾筆記類型',
+            folderLabel: '資料夾：{name}'
+        },
         folderSuggest: {
             placeholder: '移動至資料夾...',
             navigatePlaceholder: '導覽至資料夾...',
@@ -916,6 +920,7 @@ export const STRINGS_ZH_TW = {
                 name: '預設資料夾筆記類型',
                 desc: '從右鍵選單建立的資料夾筆記類型。',
                 options: {
+                    ask: '建立時詢問',
                     markdown: 'Markdown',
                     canvas: '畫布',
                     base: 'Base'
@@ -928,7 +933,7 @@ export const STRINGS_ZH_TW = {
             },
             folderNoteProperties: {
                 name: '資料夾筆記屬性',
-                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                desc: '新增至新資料夾筆記的YAML前言。--- 標記會自動新增。',
                 placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {

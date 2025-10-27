@@ -340,7 +340,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show root folder:** Display the vault name as the root folder in the tree
 - **Inherit folder colors:** Child folders inherit color from parent folders
 - **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links
-  - **Default folder note type:** Type created from context menu. `Markdown`, `Canvas`, `Base`
+  - **Default folder note type:** Type created from context menu. `Ask when creating`, `Markdown`, `Canvas`, `Base`
   - **Folder note name:** Name of the folder note without extension. Leave empty to use the same name as the folder
   - **Folder note properties:** YAML frontmatter block added to newly created folder notes. --- markers are added automatically.
   - **Hide folder notes in list:** Hide the folder note from appearing in the folder's note list

@@ -282,6 +282,10 @@ export const STRINGS_PL = {
             removeAllTagsFromNote: 'Czy na pewno chcesz usunąć wszystkie tagi z tej notatki?',
             removeAllTagsFromNotes: 'Czy na pewno chcesz usunąć wszystkie tagi z {count} notatek?'
         },
+        folderNoteType: {
+            title: 'Wybierz typ notatki folderu',
+            folderLabel: 'Folder: {name}'
+        },
         folderSuggest: {
             placeholder: 'Przenieś do folderu...',
             navigatePlaceholder: 'Przejdź do folderu...',
@@ -919,6 +923,7 @@ export const STRINGS_PL = {
                 name: 'Domyślny typ notatki folderu',
                 desc: 'Typ notatki folderu tworzony z menu kontekstowego.',
                 options: {
+                    ask: 'Pytaj przy tworzeniu',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -931,7 +936,7 @@ export const STRINGS_PL = {
             },
             folderNoteProperties: {
                 name: 'Właściwości notatki folderu',
-                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                desc: 'YAML frontmatter dodawany do nowych notatek folderów. Znaczniki --- są dodawane automatycznie.',
                 placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {

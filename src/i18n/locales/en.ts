@@ -281,6 +281,10 @@ export const STRINGS_EN = {
             removeAllTagsFromNote: 'Are you sure you want to remove all tags from this note?',
             removeAllTagsFromNotes: 'Are you sure you want to remove all tags from {count} notes?'
         },
+        folderNoteType: {
+            title: 'Select folder note type',
+            folderLabel: 'Folder: {name}'
+        },
         folderSuggest: {
             placeholder: 'Move to folder...',
             navigatePlaceholder: 'Navigate to folder...',
@@ -917,6 +921,7 @@ export const STRINGS_EN = {
                 name: 'Default folder note type',
                 desc: 'Folder note type created from the context menu.',
                 options: {
+                    ask: 'Ask when creating',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'

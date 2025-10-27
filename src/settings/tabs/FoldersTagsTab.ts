@@ -18,7 +18,7 @@
 
 import { Setting } from 'obsidian';
 import { strings } from '../../i18n';
-import { isFolderNoteType } from '../../types/folderNote';
+import { isFolderNoteCreationPreference } from '../../types/folderNote';
 import { isTagSortOrder } from '../types';
 import { normalizeTagPath } from '../../utils/tagUtils';
 import type { SettingsTabContext } from './SettingsTabContext';
@@ -75,12 +75,13 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         .setDesc(strings.settings.items.folderNoteType.desc)
         .addDropdown(dropdown => {
             dropdown
+                .addOption('ask', strings.settings.items.folderNoteType.options.ask)
                 .addOption('markdown', strings.settings.items.folderNoteType.options.markdown)
                 .addOption('canvas', strings.settings.items.folderNoteType.options.canvas)
                 .addOption('base', strings.settings.items.folderNoteType.options.base)
                 .setValue(plugin.settings.folderNoteType)
                 .onChange(async value => {
-                    if (!isFolderNoteType(value)) {
+                    if (!isFolderNoteCreationPreference(value)) {
                         return;
                     }
                     plugin.settings.folderNoteType = value;

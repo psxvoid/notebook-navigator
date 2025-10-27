@@ -281,6 +281,10 @@ export const STRINGS_FR = {
             removeAllTagsFromNote: 'Êtes-vous sûr de vouloir supprimer toutes les étiquettes de cette note ?',
             removeAllTagsFromNotes: 'Êtes-vous sûr de vouloir supprimer toutes les étiquettes de {count} notes ?'
         },
+        folderNoteType: {
+            title: 'Sélectionner le type de note de dossier',
+            folderLabel: 'Dossier : {name}'
+        },
         folderSuggest: {
             placeholder: 'Déplacer vers le dossier...',
             navigatePlaceholder: 'Naviguer vers le dossier...',
@@ -920,6 +924,7 @@ export const STRINGS_FR = {
                 name: 'Type de note de dossier par défaut',
                 desc: 'Type de note de dossier créé depuis le menu contextuel.',
                 options: {
+                    ask: 'Demander lors de la création',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -932,7 +937,7 @@ export const STRINGS_FR = {
             },
             folderNoteProperties: {
                 name: 'Propriétés de note de dossier',
-                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                desc: 'En-tête YAML ajouté aux nouvelles notes de dossier. Les marqueurs --- sont ajoutés automatiquement.',
                 placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {

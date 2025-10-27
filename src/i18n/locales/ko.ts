@@ -280,6 +280,10 @@ export const STRINGS_KO = {
             removeAllTagsFromNote: '이 노트에서 모든 태그를 제거하시겠습니까?',
             removeAllTagsFromNotes: '{count}개의 노트에서 모든 태그를 제거하시겠습니까?'
         },
+        folderNoteType: {
+            title: '폴더 노트 형식 선택',
+            folderLabel: '폴더: {name}'
+        },
         folderSuggest: {
             placeholder: '폴더로 이동...',
             navigatePlaceholder: '폴더로 이동...',
@@ -917,6 +921,7 @@ export const STRINGS_KO = {
                 name: '기본 폴더 노트 형식',
                 desc: '컨텍스트 메뉴에서 생성되는 폴더 노트 형식입니다.',
                 options: {
+                    ask: '생성 시 선택',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -929,7 +934,7 @@ export const STRINGS_KO = {
             },
             folderNoteProperties: {
                 name: '폴더 노트 속성',
-                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                desc: '새 폴더 노트에 추가되는 YAML 전문. --- 마커는 자동으로 추가됩니다.',
                 placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {

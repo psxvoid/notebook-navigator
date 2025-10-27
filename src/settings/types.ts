@@ -19,7 +19,7 @@
 import type { FileVisibility } from '../utils/fileTypeUtils';
 import type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
 import type { BackgroundMode, PinnedNotes } from '../types';
-import type { FolderNoteType } from '../types/folderNote';
+import type { FolderNoteCreationPreference } from '../types/folderNote';
 import type { KeyboardShortcutConfig } from '../utils/keyboardShortcuts';
 import type { ShortcutEntry } from '../types/shortcuts';
 import type { SearchProvider } from '../types/search';
@@ -108,7 +108,7 @@ export interface NotebookNavigatorSettings {
     showRootFolder: boolean;
     inheritFolderColors: boolean;
     enableFolderNotes: boolean;
-    folderNoteType: FolderNoteType;
+    folderNoteType: FolderNoteCreationPreference;
     folderNoteName: string;
     folderNoteProperties: string;
     hideFolderNoteInList: boolean;

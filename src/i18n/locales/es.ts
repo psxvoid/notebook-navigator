@@ -281,6 +281,10 @@ export const STRINGS_ES = {
             removeAllTagsFromNote: '¿Estás seguro de que quieres eliminar todas las etiquetas de esta nota?',
             removeAllTagsFromNotes: '¿Estás seguro de que quieres eliminar todas las etiquetas de {count} notas?'
         },
+        folderNoteType: {
+            title: 'Selecciona el tipo de nota de carpeta',
+            folderLabel: 'Carpeta: {name}'
+        },
         folderSuggest: {
             placeholder: 'Mover a carpeta...',
             navigatePlaceholder: 'Navegar a carpeta...',
@@ -918,6 +922,7 @@ export const STRINGS_ES = {
                 name: 'Tipo predeterminado de nota de carpeta',
                 desc: 'Tipo de nota de carpeta creado desde el menú contextual.',
                 options: {
+                    ask: 'Preguntar al crear',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -930,7 +935,7 @@ export const STRINGS_ES = {
             },
             folderNoteProperties: {
                 name: 'Propiedades de nota de carpeta',
-                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                desc: 'Frontmatter YAML agregado a las nuevas notas de carpeta. Los marcadores --- se agregan automáticamente.',
                 placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {

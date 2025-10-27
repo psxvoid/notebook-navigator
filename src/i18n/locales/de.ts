@@ -283,6 +283,10 @@ export const STRINGS_DE = {
             removeAllTagsFromNote: 'Sind Sie sicher, dass Sie alle Tags von dieser Notiz entfernen möchten?',
             removeAllTagsFromNotes: 'Sind Sie sicher, dass Sie alle Tags von {count} Notizen entfernen möchten?'
         },
+        folderNoteType: {
+            title: 'Ordnernotiztyp auswählen',
+            folderLabel: 'Ordner: {name}'
+        },
         folderSuggest: {
             placeholder: 'In Ordner verschieben...',
             navigatePlaceholder: 'Zu Ordner navigieren...',
@@ -921,6 +925,7 @@ export const STRINGS_DE = {
                 name: 'Standardtyp für Ordnernotizen',
                 desc: 'Ordnernotiztyp, der über das Kontextmenü erstellt wird.',
                 options: {
+                    ask: 'Beim Erstellen fragen',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -933,7 +938,7 @@ export const STRINGS_DE = {
             },
             folderNoteProperties: {
                 name: 'Ordnernotiz-Eigenschaften',
-                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                desc: 'YAML-Frontmatter, das neuen Ordnernotizen hinzugefügt wird. --- Markierungen werden automatisch hinzugefügt.',
                 placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {

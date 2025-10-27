@@ -281,6 +281,10 @@ export const STRINGS_JA = {
             removeAllTagsFromNote: 'このノートからすべてのタグを削除してもよろしいですか？',
             removeAllTagsFromNotes: '{count}個のノートからすべてのタグを削除してもよろしいですか？'
         },
+        folderNoteType: {
+            title: 'フォルダノートの形式を選択',
+            folderLabel: 'フォルダ: {name}'
+        },
         folderSuggest: {
             placeholder: 'フォルダに移動...',
             navigatePlaceholder: 'フォルダにナビゲート...',
@@ -919,6 +923,7 @@ export const STRINGS_JA = {
                 name: '既定のフォルダノート形式',
                 desc: 'コンテキストメニューで作成されるフォルダノートの形式です。',
                 options: {
+                    ask: '作成時に確認',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -931,7 +936,7 @@ export const STRINGS_JA = {
             },
             folderNoteProperties: {
                 name: 'フォルダノートプロパティ',
-                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                desc: '新しいフォルダノートに追加されるYAMLフロントマター。--- マーカーは自動的に追加されます。',
                 placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
