@@ -20,12 +20,13 @@ import React, { useState, useEffect, forwardRef } from 'react';
 import { useFileCache } from '../context/StorageContext';
 import { useUIState } from '../context/UIStateContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useServices } from '../context/ServicesContext';
 import { NotebookNavigatorComponent } from './NotebookNavigatorComponent';
 import type { NotebookNavigatorHandle } from './NotebookNavigatorComponent';
 import { SkeletonView } from './SkeletonView';
 import { localStorage } from '../utils/localStorage';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
-import { getDualPaneBackgroundClasses } from '../utils/paneLayout';
+import { getBackgroundClasses } from '../utils/paneLayout';
 
 /**
  * Container component that handles storage initialization.
@@ -36,9 +37,11 @@ export const NotebookNavigatorContainer = React.memo(
         const { isStorageReady } = useFileCache();
         const uiState = useUIState();
         const settings = useSettingsState();
+        const { isMobile } = useServices();
         const orientation = settings.dualPaneOrientation;
-        // Get background mode for dual pane layout (separate, primary, or secondary)
-        const dualPaneBackground = settings.dualPaneBackground ?? 'separate';
+        // Get background mode for desktop and mobile layouts
+        const desktopBackground = settings.desktopBackground ?? 'separate';
+        const mobileBackground = settings.mobileBackground ?? 'primary';
         // Get sizing config for current orientation
         const { defaultSize, minSize, storageKey } = getNavigationPaneSizing(orientation);
         const [paneSize, setPaneSize] = useState(defaultSize);
@@ -63,9 +66,21 @@ export const NotebookNavigatorContainer = React.memo(
 
         if (!isStorageReady) {
             // Build CSS classes for skeleton view
-            const containerClasses = ['nn-split-container', 'nn-desktop'];
-            containerClasses.push(...getDualPaneBackgroundClasses(dualPaneBackground));
-            if (!uiState.singlePane) {
+            const containerClasses = ['nn-split-container'];
+            // Apply platform-specific classes and background mode
+            if (isMobile) {
+                containerClasses.push('nn-mobile');
+                containerClasses.push(...getBackgroundClasses(mobileBackground));
+            } else {
+                containerClasses.push('nn-desktop');
+                containerClasses.push(...getBackgroundClasses(desktopBackground));
+            }
+            // Apply pane mode classes
+            if (uiState.singlePane) {
+                containerClasses.push('nn-single-pane');
+                containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
+            } else {
+                containerClasses.push('nn-dual-pane');
                 containerClasses.push(`nn-orientation-${orientation}`);
             }
 

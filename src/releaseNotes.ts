@@ -78,7 +78,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [
             '**VERTICAL SPLIT!** You now have a new setting: ==Dual pane orientation== where you can choose horizontal or vertical split for the dual pane.',
-            'To match this setting you also have a new setting: ==Background color== where you can choose to use separate background colors (like today) for navigation and files, make both look like navigation, or make both look like files.',
+            'To match this setting you also have a new setting: ==Background color (mobile & desktop)== where you can choose to use separate background colors (like today) for navigation and files, make both look like navigation, or make both look like files.',
             'You can now also ==group files by subfolder==! The old setting "Group notes by date" is now replaced with a dropdown where you can choose no grouping, date or folder. Note that tags are always sorted by date or none.',
             'New command: ==Pin all folder notes==. Use it to quickly pin all folder notes in the vault.',
             'New command: ==Toggle tag sort order==. Use it to quickly switch between alphabetical and frequency based sorting for tags.',
@@ -97,7 +97,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Fixed a startup crash issue when parsing tags with double slash in their path, like #tag//subtag. Thanks @kennethn for helping me fix this one.',
             'Fixed a crash when resizing left pane while using banner image. The scrollbar that appears triggered an infinite render loop. Thanks @muttleydosomething for all the amazing help solving this one.',
             'Fixed an issue where root folder added to shortcuts would show without name and with the wrong icon.',
-            'Fixed an issue where the Style & theme setting "Selected file parent folder color" did not work.',
+            'Fixed an issue where the style setting "Selected file parent folder color" did not work.',
+            'Fixed an issue where the style settings "Selection background for folders and tags" applied to list pane.',
             'Fixed two drag and drop issues: Dragging a file from a subfolder to the list pane would cause it to move to the current folder, and dragging and holding in listpane would incorrectly cause the current folder to expand in navigation pane.',
             'Files and tags in shortcuts area now properly show background color.',
             'Excalidraw files now display with clean names (without .excalidraw suffix) and maintain correct list item height when renamed.'

@@ -887,6 +887,8 @@ export const ListPane = React.memo(
                                                         isPinned={item.isPinned}
                                                         searchQuery={isSearchActive ? searchQuery : undefined}
                                                         searchMeta={item.searchMeta}
+                                                        // Pass hidden state for muted rendering style
+                                                        isHidden={Boolean(item.isHidden)}
                                                     />
                                                 ) : null}
                                             </div>

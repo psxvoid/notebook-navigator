@@ -46,7 +46,7 @@
  *    - Resource paths are cached to avoid repeated vault.getResourcePath calls
  */
 
-import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useMemo, useEffect, useState, useCallback, useId } from 'react';
 import { TFile, TFolder, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import type { FileContentChange, IndexedDBStorage } from '../storage/IndexedDBStorage';
@@ -87,6 +87,8 @@ interface FileItemProps {
     searchQuery?: string;
     /** Search metadata from Omnisearch provider */
     searchMeta?: SearchResultMeta;
+    /** Whether the file is normally hidden (frontmatter or excluded folder) */
+    isHidden?: boolean;
 }
 
 /**
@@ -234,7 +236,8 @@ export const FileItem = React.memo(function FileItem({
     isPinned = false,
     selectionType,
     searchQuery,
-    searchMeta
+    searchMeta,
+    isHidden = false
 }: FileItemProps) {
     // === Hooks (all hooks together at the top) ===
     const { app, isMobile, plugin, commandQueue } = useServices();
@@ -308,6 +311,8 @@ export const FileItem = React.memo(function FileItem({
     const fileExternalIconRef = useRef<HTMLSpanElement>(null);
     // Icon shown in slim mode to indicate file type (canvas, base, or external)
     const slimModeIconRef = useRef<HTMLSpanElement>(null);
+    // Unique ID for linking screen reader description to the file item
+    const hiddenDescriptionId = useId();
 
     // === Derived State & Memoized Values ===
 
@@ -744,8 +749,18 @@ export const FileItem = React.memo(function FileItem({
         if (isSlimMode) classes.push('nn-slim');
         if (isSelected && hasSelectedAbove) classes.push('nn-has-selected-above');
         if (isSelected && hasSelectedBelow) classes.push('nn-has-selected-below');
+        // Apply muted style when file is normally hidden but shown via "show hidden items"
+        if (isHidden) classes.push('nn-hidden-file');
         return classes.join(' ');
-    }, [isSelected, isSlimMode, hasSelectedAbove, hasSelectedBelow]);
+    }, [isSelected, isSlimMode, hasSelectedAbove, hasSelectedBelow, isHidden]);
+
+    // Screen reader description for files shown via "show hidden items" toggle
+    const hiddenDescription = useMemo(() => {
+        if (!isHidden) {
+            return undefined;
+        }
+        return strings.listPane.hiddenItemAriaLabel.replace('{name}', displayName);
+    }, [isHidden, displayName]);
 
     // Handle file changes and subscribe to content updates
     useEffect(() => {
@@ -1051,6 +1066,7 @@ export const FileItem = React.memo(function FileItem({
             role="listitem"
             onMouseEnter={() => !isMobile && setIsHovered(true)}
             onMouseLeave={() => !isMobile && setIsHovered(false)}
+            aria-describedby={hiddenDescription ? hiddenDescriptionId : undefined}
         >
             <div className="nn-file-content">
                 {/* Quick actions panel - appears on hover */}
@@ -1223,6 +1239,12 @@ export const FileItem = React.memo(function FileItem({
                     )}
                 </div>
             </div>
+            {/* Screen reader announcement for hidden files */}
+            {hiddenDescription ? (
+                <span id={hiddenDescriptionId} className="nn-visually-hidden">
+                    {hiddenDescription}
+                </span>
+            ) : null}
         </div>
     );
 });

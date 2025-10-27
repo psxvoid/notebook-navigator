@@ -2,6 +2,19 @@
    CSS Variables - Defined at body level for Style Settings compatibility
    ======================================================================== */
 
+/* Utility class for text that should only be exposed to assistive tech */
+.nn-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 body {
     /* ========================================================================
        Padding Variables for Items and Containers
@@ -173,7 +186,6 @@ body {
     --nn-theme-header-button-disabled-icon-color: var(--text-muted);
 
     /* -- Mobile Styles -- */
-    --nn-theme-mobile-nav-bg: var(--background-primary);
     --nn-theme-mobile-list-header-link-color: var(--link-color);
     --nn-theme-mobile-list-header-breadcrumb-color: var(--text-normal);
     --nn-theme-mobile-list-header-breadcrumb-font-weight: 600;
@@ -437,6 +449,15 @@ body {
 
 /* Secondary mode: use navigation background for list pane */
 .nn-split-container.nn-desktop.nn-bg-secondary {
+    --nn-theme-list-bg: var(--nn-theme-nav-bg);
+}
+
+/* Apply the same background overrides on mobile single-pane layout */
+.nn-split-container.nn-mobile.nn-bg-primary {
+    --nn-theme-nav-bg: var(--nn-theme-list-bg);
+}
+
+.nn-split-container.nn-mobile.nn-bg-secondary {
     --nn-theme-list-bg: var(--nn-theme-nav-bg);
 }
 
@@ -1002,7 +1023,7 @@ body {
 }
 
 .notebook-navigator-mobile .nn-shortcut-pinned {
-    background-color: var(--nn-theme-mobile-nav-bg);
+    background-color: var(--nn-theme-nav-bg);
     border-bottom: 1px solid var(--nn-theme-divider-border-color);
     border-right: none;
 }
@@ -2218,7 +2239,7 @@ body {
     inset-inline-start: 0;
     inset-inline-end: 0;
     bottom: 0; /* Extend all the way down */
-    background-color: var(--nn-theme-navitem-selected-bg);
+    background-color: var(--nn-theme-file-selected-bg);
     border-radius: min(16px, var(--nn-theme-file-border-radius));
     z-index: 0; /* Below separator lines */
 }
@@ -2277,10 +2298,13 @@ body {
    2. Navigator focused but inactive pane (cross-pane dimming)
    3. Search field is focused (both panes dimmed) */
 .nn-split-container[data-navigator-focused='false'] .nn-file.nn-selected .nn-file-content::before,
-.nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file.nn-selected .nn-file-content::before,
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-file.nn-selected .nn-file-content::before {
+    background-color: var(--nn-theme-file-selected-inactive-bg);
+}
+
+.nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::before,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-file.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-navitem.nn-selected::before {
     background-color: var(--nn-theme-navitem-selected-inactive-bg);
 }
@@ -2506,6 +2530,11 @@ body.nn-resizing {
 .nn-navitem.nn-excluded .nn-navitem-name,
 .nn-navitem.nn-excluded .nn-navitem-count {
     opacity: 0.5;
+}
+
+/* Hidden files surfaced via "show hidden" toggle */
+.nn-file.nn-hidden-file {
+    opacity: 0.55;
 }
 
 /* ========================================================================
@@ -3115,7 +3144,7 @@ body.nn-resizing {
 /* Make navigation pane flexible on mobile to handle resize gracefully */
 .notebook-navigator-mobile .nn-navigation-pane {
     flex: 1;
-    background-color: var(--nn-theme-mobile-nav-bg) !important;
+    background-color: var(--nn-theme-nav-bg) !important;
 }
 
 /* Hide resize handle on mobile */
@@ -3281,12 +3310,10 @@ body.nn-resizing {
     -webkit-overflow-scrolling: touch;
 }
 
-/* Hide navigation pane border on mobile and use mobile background */
+/* Hide navigation pane border on mobile and apply navigation background */
 .notebook-navigator-mobile .nn-navigation-pane-scroller {
     border-right: none;
-    background-color: var(
-        --nn-theme-mobile-nav-bg
-    ); /* Opaque background on scroller for GPU scroll layer (see .nn-navigation-pane-scroller) */
+    background-color: var(--nn-theme-nav-bg); /* Opaque background on scroller for GPU scroll layer (see .nn-navigation-pane-scroller) */
 }
 
 /* Note: Bottom spacing is handled by a spacer item in the virtualized list */
@@ -4237,7 +4264,7 @@ settings:
     -
         id: nn-theme-nav-bg
         title: Navigation pane background
-        description: Background color of the navigation pane. See Mobile navigation background for mobile.
+        description: Background color of the navigation pane.
         type: variable-themed-color
         format: hex
         default-light: '#'

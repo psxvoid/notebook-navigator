@@ -24,6 +24,7 @@ import { getFolderNote, createFolderNote } from '../../utils/folderNotes';
 import { ExtendedApp } from '../../types/obsidian-extended';
 import { cleanupExclusionPatterns, isFolderInExcludedFolder } from '../../utils/fileFilters';
 import { ItemType } from '../../types';
+import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 
 const normalizeVaultPath = (value: string): string => {
     if (!value) {
@@ -319,6 +320,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                     .onClick(async () => {
                         const currentExcluded = services.plugin.settings.excludedFolders;
                         services.plugin.settings.excludedFolders = currentExcluded.filter(pattern => pattern !== exactPathExclusion);
+                        resetHiddenToggleIfNoSources(services.plugin.settings);
                         await services.plugin.saveSettingsAndUpdate();
 
                         new Notice(strings.fileSystem.notices.showFolder.replace('{name}', folder.name));
@@ -338,6 +340,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                         const cleanedPatterns = cleanupExclusionPatterns(currentExcluded, folderPath);
 
                         services.plugin.settings.excludedFolders = cleanedPatterns;
+                        resetHiddenToggleIfNoSources(services.plugin.settings);
                         await services.plugin.saveSettingsAndUpdate();
 
                         new Notice(strings.fileSystem.notices.hideFolder.replace('{name}', folder.name));

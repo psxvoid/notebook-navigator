@@ -43,7 +43,8 @@ export const STRINGS_ZH_CN = {
         emptyStateNoNotes: '无笔记', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 已固定', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
         notesSection: '笔记', // Header shown between pinned and regular items when showing documents only (English: Notes)
-        filesSection: '文件' // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        filesSection: '文件', // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        hiddenItemAriaLabel: '{name} (已隐藏)' // Accessibility label applied to list items that are normally hidden
     },
 
     // Tag list
@@ -98,8 +99,8 @@ export const STRINGS_ZH_CN = {
         finishRootFolderReorder: '完成重新排列',
         toggleDescendantNotes: '显示子文件夹/后代的笔记', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
-        showExcludedItems: '显示隐藏项', // Tooltip for button to show hidden items (English: Show hidden items)
-        hideExcludedItems: '隐藏隐藏项', // Tooltip for button to hide hidden items (English: Hide hidden items)
+        showExcludedItems: '显示隐藏的文件夹、标签和笔记', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: '隐藏隐藏的文件夹、标签和笔记', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: '显示双窗格', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: '显示单窗格', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: '更改外观', // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -382,7 +383,8 @@ export const STRINGS_ZH_CN = {
             iconPackDownloaded: '{provider} 已下载',
             iconPackUpdated: '{provider} 已更新 ({version})',
             iconPackRemoved: '{provider} 已移除',
-            iconPackLoadFailed: '{provider} 加载失败'
+            iconPackLoadFailed: '{provider} 加载失败',
+            hiddenFileReveal: '文件已隐藏。启用「显示隐藏项目」以显示它'
         },
         confirmations: {
             deleteMultipleFiles: '确定要删除 {count} 个文件吗？',
@@ -451,7 +453,7 @@ export const STRINGS_ZH_CN = {
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: '添加到快捷方式', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: '切换后代', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
-        toggleHidden: '切换隐藏项', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleHidden: '切换隐藏的文件夹、标签和笔记', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         toggleTagSort: '切换标签排序', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: '折叠/展开所有项目', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '为选定文件添加标签', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
@@ -501,6 +503,7 @@ export const STRINGS_ZH_CN = {
                 behavior: '行为',
                 view: '外观',
                 desktopAppearance: '桌面外观',
+                mobileAppearance: '移动端外观',
                 formatting: '格式'
             },
             navigation: {
@@ -621,9 +624,18 @@ export const STRINGS_ZH_CN = {
                     vertical: '垂直分割'
                 }
             },
-            dualPaneBackground: {
+            desktopBackground: {
                 name: '背景色',
                 desc: '在桌面上为导航窗格和列表窗格选择背景色。',
+                options: {
+                    separate: '分开背景',
+                    primary: '使用列表背景',
+                    secondary: '使用导航背景'
+                }
+            },
+            mobileBackground: {
+                name: '背景色',
+                desc: '在移动端为导航窗格和列表窗格选择背景色。',
                 options: {
                     separate: '分开背景',
                     primary: '使用列表背景',

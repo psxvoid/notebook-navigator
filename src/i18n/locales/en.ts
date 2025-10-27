@@ -43,7 +43,8 @@ export const STRINGS_EN = {
         emptyStateNoNotes: 'No notes', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Pinned', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
         notesSection: 'Notes', // Header shown between pinned and regular items when showing documents only (English: Notes)
-        filesSection: 'Files' // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        filesSection: 'Files', // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        hiddenItemAriaLabel: '{name} (hidden)' // Accessibility label applied to list items that are normally hidden
     },
 
     // Tag list
@@ -99,8 +100,8 @@ export const STRINGS_EN = {
         finishRootFolderReorder: 'Finish root reorder',
         toggleDescendantNotes: 'Show notes from subfolders / descendants', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Auto-expand folders and tags', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
-        showExcludedItems: 'Show hidden items', // Tooltip for button to show hidden items (English: Show hidden items)
-        hideExcludedItems: 'Hide hidden items', // Tooltip for button to hide hidden items (English: Hide hidden items)
+        showExcludedItems: 'Show hidden folders, tags, and notes', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: 'Hide hidden folders, tags, and notes', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'Show dual panes', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'Show single pane', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: 'Change appearance', // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -381,7 +382,8 @@ export const STRINGS_EN = {
             iconPackDownloaded: '{provider} downloaded',
             iconPackUpdated: '{provider} updated ({version})',
             iconPackRemoved: '{provider} removed',
-            iconPackLoadFailed: 'Failed to load {provider}'
+            iconPackLoadFailed: 'Failed to load {provider}',
+            hiddenFileReveal: 'File is hidden. Enable "Show hidden items" to display it'
         },
         confirmations: {
             deleteMultipleFiles: 'Are you sure you want to delete {count} files?',
@@ -450,7 +452,7 @@ export const STRINGS_EN = {
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Add to shortcuts', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Toggle descendants', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
-        toggleHidden: 'Toggle hidden items', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleHidden: 'Toggle hidden folders, tags, and notes', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         toggleTagSort: 'Toggle tag sort order', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'Collapse / expand all items', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Add tag to selected files', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
@@ -500,6 +502,7 @@ export const STRINGS_EN = {
                 behavior: 'Behavior',
                 view: 'Appearance',
                 desktopAppearance: 'Desktop appearance',
+                mobileAppearance: 'Mobile appearance',
                 formatting: 'Formatting'
             },
             navigation: {
@@ -621,9 +624,18 @@ export const STRINGS_EN = {
                     vertical: 'Vertical split'
                 }
             },
-            dualPaneBackground: {
+            desktopBackground: {
                 name: 'Background color',
                 desc: 'Choose background colors for navigation and list panes on desktop.',
+                options: {
+                    separate: 'Separate backgrounds',
+                    primary: 'Use list background',
+                    secondary: 'Use navigation background'
+                }
+            },
+            mobileBackground: {
+                name: 'Background color',
+                desc: 'Choose background colors for navigation and list panes on mobile.',
                 options: {
                     separate: 'Separate backgrounds',
                     primary: 'Use list background',

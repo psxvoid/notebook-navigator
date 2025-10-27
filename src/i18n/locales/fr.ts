@@ -43,7 +43,8 @@ export const STRINGS_FR = {
         emptyStateNoNotes: 'Aucune note', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Épinglées', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
         notesSection: 'Notes', // Header shown between pinned and regular items when showing documents only (English: Notes)
-        filesSection: 'Fichiers' // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        filesSection: 'Fichiers', // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        hiddenItemAriaLabel: '{name} (masqué)' // Accessibility label applied to list items that are normally hidden
     },
 
     // Tag list
@@ -98,8 +99,8 @@ export const STRINGS_FR = {
         finishRootFolderReorder: 'Terminer la réorganisation',
         toggleDescendantNotes: 'Afficher les notes des sous-dossiers / descendants', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
         autoExpandFoldersTags: 'Développer automatiquement les dossiers et les étiquettes', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
-        showExcludedItems: 'Afficher les éléments masqués', // Tooltip for button to show hidden items (English: Show hidden items)
-        hideExcludedItems: 'Masquer les éléments masqués', // Tooltip for button to hide hidden items (English: Hide hidden items)
+        showExcludedItems: 'Afficher les dossiers, étiquettes et notes masqués', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: 'Masquer les dossiers, étiquettes et notes masqués', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'Afficher les panneaux doubles', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'Afficher panneau unique', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: "Changer l'apparence", // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -382,7 +383,8 @@ export const STRINGS_FR = {
             iconPackDownloaded: '{provider} téléchargé',
             iconPackUpdated: '{provider} mis à jour ({version})',
             iconPackRemoved: '{provider} supprimé',
-            iconPackLoadFailed: 'Échec du chargement de {provider}'
+            iconPackLoadFailed: 'Échec du chargement de {provider}',
+            hiddenFileReveal: "Le fichier est masqué. Activer « Afficher les éléments masqués » pour l'afficher"
         },
         confirmations: {
             deleteMultipleFiles: 'Voulez-vous vraiment supprimer {count} fichiers ?',
@@ -451,7 +453,7 @@ export const STRINGS_FR = {
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         addShortcut: 'Ajouter aux raccourcis', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
         toggleDescendants: 'Basculer descendants', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
-        toggleHidden: 'Basculer les éléments masqués', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleHidden: 'Basculer les dossiers, étiquettes et notes masqués', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         toggleTagSort: 'Basculer le tri des étiquettes', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
         collapseExpand: 'Replier / déplier tous les éléments', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Ajouter une étiquette aux fichiers sélectionnés', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
@@ -501,6 +503,7 @@ export const STRINGS_FR = {
                 behavior: 'Comportement',
                 view: 'Apparence',
                 desktopAppearance: 'Apparence sur ordinateur',
+                mobileAppearance: 'Apparence mobile',
                 formatting: 'Formatage'
             },
             navigation: {
@@ -623,9 +626,18 @@ export const STRINGS_FR = {
                     vertical: 'Séparation verticale'
                 }
             },
-            dualPaneBackground: {
+            desktopBackground: {
                 name: 'Couleur de fond',
                 desc: 'Choisissez les couleurs de fond pour les volets de navigation et de liste sur bureau.',
+                options: {
+                    separate: 'Arrière-plans séparés',
+                    primary: 'Utiliser le fond de la liste',
+                    secondary: 'Utiliser le fond de navigation'
+                }
+            },
+            mobileBackground: {
+                name: 'Couleur de fond',
+                desc: 'Choisissez les couleurs de fond pour les volets de navigation et de liste sur mobile.',
                 options: {
                     separate: 'Arrière-plans séparés',
                     primary: 'Utiliser le fond de la liste',

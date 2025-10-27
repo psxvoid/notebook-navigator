@@ -20,7 +20,14 @@ import { TFile, TFolder, App } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { NavigatorContext, PinnedNotes } from '../types';
 import { UNTAGGED_TAG_ID } from '../types';
-import { shouldExcludeFile, shouldExcludeFolder, getFilteredDocumentFiles, getFilteredFiles, isPathInExcludedFolder } from './fileFilters';
+import {
+    shouldExcludeFile,
+    shouldExcludeFolder,
+    getFilteredDocumentFiles,
+    getFilteredFiles,
+    isPathInExcludedFolder,
+    isFolderInExcludedFolder
+} from './fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { TagTreeService } from '../services/TagTreeService';
@@ -54,20 +61,43 @@ export function collectPinnedPaths(pinnedNotes: PinnedNotes, contextFilter?: Nav
     return allPinnedPaths;
 }
 
+// Reorders files to place pinned files first, preserving relative order within each group
+function applyPinnedOrdering(files: TFile[], settings: NotebookNavigatorSettings, context: NavigatorContext): TFile[] {
+    const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, context);
+    if (pinnedPaths.size === 0) {
+        return files;
+    }
+
+    const pinnedFiles: TFile[] = [];
+    const unpinnedFiles: TFile[] = [];
+
+    for (const file of files) {
+        if (pinnedPaths.has(file.path)) {
+            pinnedFiles.push(file);
+        } else {
+            unpinnedFiles.push(file);
+        }
+    }
+
+    return [...pinnedFiles, ...unpinnedFiles];
+}
+
 /**
  * Gets a sorted list of files for a given folder, respecting all plugin settings.
  * This is the primary utility function to be used by the reducer.
  */
 export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSettings, app: App): TFile[] {
-    const excludedProperties = settings.excludedFiles;
-
-    // Collect files from folder
     const files: TFile[] = [];
     const excludedFolderPatterns = settings.excludedFolders;
 
     const showHiddenFolders = settings.showHiddenItems;
+    const folderHiddenInitially = excludedFolderPatterns.length > 0 && isFolderInExcludedFolder(folder, excludedFolderPatterns);
+    if (!showHiddenFolders && folderHiddenInitially) {
+        return [];
+    }
 
-    const collectFiles = (f: TFolder): void => {
+    // Recursively collect files, tracking excluded folder state through the tree
+    const collectFiles = (f: TFolder, parentHidden: boolean): void => {
         for (const child of f.children) {
             if (child instanceof TFile) {
                 // Check if file should be displayed based on visibility setting
@@ -75,21 +105,24 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
                     files.push(child);
                 }
             } else if (settings.includeDescendantNotes && child instanceof TFolder) {
-                // Skip excluded folders when collecting files - pass full path for path-based patterns
-                // Include excluded folders only when showHiddenItems is true
-                if (
-                    showHiddenFolders ||
-                    excludedFolderPatterns.length === 0 ||
-                    !shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)
-                ) {
-                    collectFiles(child);
+                // Inherit parent's hidden state, then check if this folder is also excluded
+                let childHidden = parentHidden;
+                if (excludedFolderPatterns.length > 0 && shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
+                    childHidden = true;
+                }
+                const shouldTraverse = showHiddenFolders || !childHidden;
+                if (shouldTraverse) {
+                    collectFiles(child, childHidden);
                 }
             }
         }
     };
 
-    collectFiles(folder);
-    let allFiles = files.filter(file => !shouldExcludeFile(file, excludedProperties, app));
+    collectFiles(folder, folderHiddenInitially);
+    let allFiles: TFile[] = files;
+    if (!settings.showHiddenItems && settings.excludedFiles.length > 0) {
+        allFiles = files.filter(file => file.extension !== 'md' || !shouldExcludeFile(file, settings.excludedFiles, app));
+    }
 
     // Filter out folder notes if enabled and set to hide
     if (settings.enableFolderNotes && settings.hideFolderNoteInList) {
@@ -149,27 +182,7 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
         );
     }
 
-    const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, 'folder');
-    // Separate pinned and unpinned files
-    let sortedFiles: TFile[];
-    if (pinnedPaths.size === 0) {
-        sortedFiles = allFiles;
-    } else {
-        const pinnedFiles: TFile[] = [];
-        const unpinnedFiles: TFile[] = [];
-
-        for (const file of allFiles) {
-            if (pinnedPaths.has(file.path)) {
-                pinnedFiles.push(file);
-            } else {
-                unpinnedFiles.push(file);
-            }
-        }
-
-        sortedFiles = [...pinnedFiles, ...unpinnedFiles];
-    }
-
-    return sortedFiles;
+    return applyPinnedOrdering(allFiles, settings, 'folder');
 }
 
 /**
@@ -306,22 +319,5 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
         );
     }
 
-    // Handle pinned notes for tag context
-    const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, 'tag');
-    // Separate pinned and unpinned files
-    if (pinnedPaths.size === 0) {
-        return filteredFiles;
-    }
-    const pinnedFiles: TFile[] = [];
-    const unpinnedFiles: TFile[] = [];
-
-    for (const file of filteredFiles) {
-        if (pinnedPaths.has(file.path)) {
-            pinnedFiles.push(file);
-        } else {
-            unpinnedFiles.push(file);
-        }
-    }
-
-    return [...pinnedFiles, ...unpinnedFiles];
+    return applyPinnedOrdering(filteredFiles, settings, 'tag');
 }

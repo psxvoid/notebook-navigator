@@ -68,6 +68,7 @@ import { getDBInstance } from '../storage/fileOperations';
 import { naturalCompare } from '../utils/sortUtils';
 import type { NoteCountInfo } from '../types/noteCounts';
 import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
+import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { sanitizeNavigationSectionOrder } from '../utils/navigationSections';
 
 // Checks if a navigation item is a shortcut-related item (virtual folder, shortcut, or header)
@@ -232,6 +233,8 @@ export function useNavigationPaneData({
     const expansionState = useExpansionState();
     const { fileData } = useFileCache();
     const { hydratedShortcuts } = useShortcuts();
+    // Resolves frontmatter exclusions, returns empty array when hidden items are shown
+    const effectiveFrontmatterExclusions = getEffectiveFrontmatterExclusions(settings);
 
     // Version counter that increments when vault files change
     const [fileChangeVersion, setFileChangeVersion] = useState(0);
@@ -1016,7 +1019,7 @@ export function useNavigationPaneData({
             return counts;
         }
 
-        const excludedProperties = settings.excludedFiles;
+        const excludedProperties = effectiveFrontmatterExclusions;
         const excludedFolderPatterns = settings.excludedFolders;
         const folderNoteSettings: FolderNoteDetectionSettings = {
             enableFolderNotes: settings.enableFolderNotes,
@@ -1050,7 +1053,7 @@ export function useNavigationPaneData({
         itemsWithMetadata,
         settings.showNoteCount,
         settings.includeDescendantNotes,
-        settings.excludedFiles,
+        effectiveFrontmatterExclusions,
         settings.excludedFolders,
         settings.showHiddenItems,
         settings.fileVisibility,
