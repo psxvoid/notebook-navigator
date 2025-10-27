@@ -60,6 +60,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     timeFormat: 'h:mm a',
 
     // Navigation pane tab
+    skipAutoScroll: false,
     autoSelectFirstFileOnFocusChange: false,
     navigationBanner: null,
     showShortcuts: true,

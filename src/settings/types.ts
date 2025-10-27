@@ -87,6 +87,7 @@ export interface NotebookNavigatorSettings {
     timeFormat: string;
 
     // Navigation pane tab
+    skipAutoScroll: boolean;
     autoSelectFirstFileOnFocusChange: boolean;
     navigationBanner: string | null;
     showShortcuts: boolean;

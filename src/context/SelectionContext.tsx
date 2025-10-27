@@ -48,8 +48,8 @@ export interface SelectionState {
 
 // Action types
 export type SelectionAction =
-    | { type: 'SET_SELECTED_FOLDER'; folder: TFolder | null; autoSelectedFile?: TFile | null }
-    | { type: 'SET_SELECTED_TAG'; tag: string | null; autoSelectedFile?: TFile | null }
+    | { type: 'SET_SELECTED_FOLDER'; folder: TFolder | null; autoSelectedFile?: TFile | null; source?: SelectionRevealSource }
+    | { type: 'SET_SELECTED_TAG'; tag: string | null; autoSelectedFile?: TFile | null; source?: SelectionRevealSource }
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_SELECTION_TYPE'; selectionType: NavigationItemType }
     | { type: 'CLEAR_SELECTION' }
@@ -132,7 +132,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
                 isKeyboardNavigation: false,
                 isFolderNavigation: true, // Set flag when folder changes
-                revealSource: null
+                revealSource: action.source ?? null
             };
         }
 
@@ -155,7 +155,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
                 isKeyboardNavigation: false,
                 isFolderNavigation: true, // Set flag when tag changes too
-                revealSource: null
+                revealSource: action.source ?? null
             };
         }
 

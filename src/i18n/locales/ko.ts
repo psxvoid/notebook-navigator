@@ -657,6 +657,10 @@ export const STRINGS_KO = {
                 name: '첫 번째 노트 자동 선택 (데스크톱 전용)',
                 desc: '폴더나 태그를 전환할 때 첫 번째 노트를 자동으로 엽니다.'
             },
+            skipAutoScroll: {
+                name: '바로가기 자동 스크롤 비활성화',
+                desc: '바로가기 내 항목을 클릭할 때 탐색 패널을 스크롤하지 않습니다.'
+            },
             autoExpandFoldersTags: {
                 name: '폴더 및 태그 자동 펼치기',
                 desc: '폴더와 태그가 선택되면 자동으로 펼칩니다.'

@@ -656,6 +656,10 @@ export const STRINGS_ZH_TW = {
                 name: '自動選取第一則筆記 (僅限桌面版)',
                 desc: '切換資料夾或標籤時自動開啟第一則筆記。'
             },
+            skipAutoScroll: {
+                name: '停用捷徑自動捲動',
+                desc: '點選捷徑中的項目時不捲動導覽面板。'
+            },
             autoExpandFoldersTags: {
                 name: '自動展開資料夾和標籤',
                 desc: '選取資料夾和標籤時自動展開。'

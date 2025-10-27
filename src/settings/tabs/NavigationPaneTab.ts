@@ -27,6 +27,18 @@ import type { SettingsTabContext } from './SettingsTabContext';
 export function renderNavigationPaneTab(context: SettingsTabContext): void {
     const { containerEl, plugin } = context;
 
+    new Setting(containerEl).setName(strings.settings.groups.navigation.behavior).setHeading();
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.skipAutoScroll.name)
+        .setDesc(strings.settings.items.skipAutoScroll.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.skipAutoScroll).onChange(async value => {
+                plugin.settings.skipAutoScroll = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
     if (!Platform.isMobile) {
         new Setting(containerEl)
             .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)

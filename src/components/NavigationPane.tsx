@@ -106,6 +106,7 @@ import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
 import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { normalizeNavigationSectionOrderInput } from '../utils/navigationSections';
 import { getPathBaseName } from '../utils/pathUtils';
+import type { NavigateToFolderOptions, RevealTagOptions } from '../hooks/useNavigatorReveal';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (itemType: ItemType, path: string) => number;
@@ -125,8 +126,8 @@ interface NavigationPaneProps {
      */
     rootContainerRef: React.RefObject<HTMLDivElement | null>;
     onExecuteSearchShortcut?: (shortcutKey: string, searchShortcut: SearchShortcut) => Promise<void> | void;
-    onNavigateToFolder: (folderPath: string) => void;
-    onRevealTag: (tagPath: string) => void;
+    onNavigateToFolder: (folderPath: string, options?: NavigateToFolderOptions) => void;
+    onRevealTag: (tagPath: string, options?: RevealTagOptions) => void;
     onRevealFile: (file: TFile) => void;
     onRevealShortcutFile?: (file: TFile) => void;
 }
@@ -720,7 +721,6 @@ export const NavigationPane = React.memo(
             setRootReorderMode(prev => !prev);
         }, [canReorderRootItems]);
 
-        // Use the new scroll hook
         const { rowVirtualizer, scrollContainerRef, scrollContainerRefCallback, requestScroll } = useNavigationPaneScroll({
             items,
             pathToIndex,
@@ -997,14 +997,14 @@ export const NavigationPane = React.memo(
         const handleShortcutFolderActivate = useCallback(
             (folder: TFolder, shortcutKey: string) => {
                 setActiveShortcut(shortcutKey);
-                onNavigateToFolder(folder.path);
+                onNavigateToFolder(folder.path, { skipScroll: settings.skipAutoScroll, source: 'shortcut' });
                 scheduleShortcutRelease();
                 const container = rootContainerRef.current;
                 if (container && !uiState.singlePane) {
                     container.focus();
                 }
             },
-            [setActiveShortcut, onNavigateToFolder, scheduleShortcutRelease, rootContainerRef, uiState.singlePane]
+            [setActiveShortcut, onNavigateToFolder, scheduleShortcutRelease, rootContainerRef, uiState.singlePane, settings.skipAutoScroll]
         );
 
         // Opens folder note when clicking on a shortcut label with an associated folder note
@@ -1116,7 +1116,7 @@ export const NavigationPane = React.memo(
                     scheduleShortcutRelease();
                     return;
                 }
-                onRevealTag(canonicalPath);
+                onRevealTag(canonicalPath, { skipScroll: settings.skipAutoScroll, source: 'shortcut' });
 
                 if (!uiState.singlePane) {
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
@@ -1138,7 +1138,8 @@ export const NavigationPane = React.memo(
                 rootContainerRef,
                 selectionDispatch,
                 scheduleShortcutRelease,
-                tagTree
+                tagTree,
+                settings.skipAutoScroll
             ]
         );
 

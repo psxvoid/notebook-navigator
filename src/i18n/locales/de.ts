@@ -661,6 +661,10 @@ export const STRINGS_DE = {
                 name: 'Erste Notiz automatisch auswählen (nur Desktop)',
                 desc: 'Die erste Notiz automatisch öffnen, wenn Sie den Ordner oder Tag wechseln.'
             },
+            skipAutoScroll: {
+                name: 'Auto-Scroll für Verknüpfungen deaktivieren',
+                desc: 'Navigationsbereich nicht scrollen beim Klicken auf Elemente in Verknüpfungen.'
+            },
             autoExpandFoldersTags: {
                 name: 'Ordner und Tags automatisch erweitern',
                 desc: 'Ordner und Tags automatisch erweitern, wenn sie ausgewählt werden.'

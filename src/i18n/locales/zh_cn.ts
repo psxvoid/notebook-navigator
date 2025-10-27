@@ -657,6 +657,10 @@ export const STRINGS_ZH_CN = {
                 name: '自动选择第一个笔记（仅桌面端）',
                 desc: '切换文件夹或标签时自动打开第一个笔记。'
             },
+            skipAutoScroll: {
+                name: '禁用快捷方式自动滚动',
+                desc: '点击快捷方式中的项目时不滚动导航面板。'
+            },
             autoExpandFoldersTags: {
                 name: '自动展开文件夹和标签',
                 desc: '选择文件夹和标签时自动展开它们。'

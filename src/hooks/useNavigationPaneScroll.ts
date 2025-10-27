@@ -323,6 +323,7 @@ export function useNavigationPaneScroll({
         if (!selectedPath || !rowVirtualizer || !isScrollContainerReady) return;
 
         const currentSelectionType = selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
+        const suppressShortcutScroll = settings.skipAutoScroll && selectionState.revealSource === 'shortcut';
 
         // Check if this is an actual selection change vs just a tree structure update
         const isSelectionChange = prevSelectedPathRef.current !== selectedPath;
@@ -335,6 +336,10 @@ export function useNavigationPaneScroll({
         prevSelectedPathRef.current = selectedPath;
         prevVisibleRef.current = isScrollContainerReady;
         prevFocusedPaneRef.current = uiState.focusedPane;
+
+        if (suppressShortcutScroll) {
+            return;
+        }
 
         // Only scroll on actual selection changes or visibility/focus changes
         if (!isSelectionChange && !justBecameVisible && !justGainedFocus) return;
@@ -371,8 +376,10 @@ export function useNavigationPaneScroll({
         uiState.focusedPane,
         showHiddenItems,
         selectionState.selectionType,
+        selectionState.revealSource,
         resolveIndex,
-        activeShortcutKey
+        activeShortcutKey,
+        settings.skipAutoScroll
     ]);
 
     /**
@@ -387,6 +394,13 @@ export function useNavigationPaneScroll({
                 prevSelectedTagRef.current = selectionState.selectedTag;
                 return;
             }
+
+            const suppressShortcutScroll = settings.skipAutoScroll && selectionState.revealSource === 'shortcut';
+            if (suppressShortcutScroll) {
+                prevSelectedTagRef.current = selectionState.selectedTag;
+                return;
+            }
+
             // Check if this is an actual tag selection change
             const isTagSelectionChange = prevSelectedTagRef.current !== selectionState.selectedTag;
 
@@ -426,7 +440,9 @@ export function useNavigationPaneScroll({
         showHiddenItems,
         selectedPath,
         resolveIndex,
-        activeShortcutKey
+        activeShortcutKey,
+        selectionState.revealSource,
+        settings.skipAutoScroll
     ]);
 
     /**

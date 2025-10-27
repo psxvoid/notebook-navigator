@@ -657,6 +657,10 @@ export const STRINGS_EN = {
                 name: 'Auto-select first note (desktop only)',
                 desc: 'Automatically open the first note when switching folders or tags.'
             },
+            skipAutoScroll: {
+                name: 'Disable auto-scroll for shortcuts',
+                desc: "Don't scroll the navigation pane when clicking items in shortcuts."
+            },
             autoExpandFoldersTags: {
                 name: 'Auto-expand folders and tags',
                 desc: 'Automatically expand folders and tags when they are selected.'

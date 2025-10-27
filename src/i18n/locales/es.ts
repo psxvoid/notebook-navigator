@@ -658,6 +658,10 @@ export const STRINGS_ES = {
                 name: 'Seleccionar automáticamente la primera nota (solo escritorio)',
                 desc: 'Abre automáticamente la primera nota al cambiar de carpeta o etiqueta.'
             },
+            skipAutoScroll: {
+                name: 'Desactivar desplazamiento automático para accesos directos',
+                desc: 'No desplazar el panel de navegación al hacer clic en elementos de accesos directos.'
+            },
             autoExpandFoldersTags: {
                 name: 'Expandir carpetas y etiquetas automáticamente',
                 desc: 'Expandir automáticamente carpetas y etiquetas cuando se seleccionan.'

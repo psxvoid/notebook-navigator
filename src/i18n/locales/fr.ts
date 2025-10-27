@@ -659,6 +659,10 @@ export const STRINGS_FR = {
                 name: 'Sélectionner automatiquement la première note (ordinateur uniquement)',
                 desc: "Ouvrir automatiquement la première note lors du changement de dossier ou d'étiquette."
             },
+            skipAutoScroll: {
+                name: 'Désactiver le défilement automatique pour les raccourcis',
+                desc: 'Ne pas faire défiler le panneau de navigation lors du clic sur les éléments de raccourcis.'
+            },
             autoExpandFoldersTags: {
                 name: 'Développer automatiquement les dossiers et les étiquettes',
                 desc: "Développer automatiquement les dossiers et les étiquettes lorsqu'ils sont sélectionnés."

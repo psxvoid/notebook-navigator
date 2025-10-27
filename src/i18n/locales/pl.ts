@@ -659,6 +659,10 @@ export const STRINGS_PL = {
                 name: 'Automatycznie wybierz pierwszą notatkę (tylko desktop)',
                 desc: 'Automatycznie otwórz pierwszą notatkę podczas zmiany folderów lub tagów.'
             },
+            skipAutoScroll: {
+                name: 'Wyłącz automatyczne przewijanie dla skrótów',
+                desc: 'Nie przewijaj panelu nawigacji przy klikaniu elementów w skrótach.'
+            },
             autoExpandFoldersTags: {
                 name: 'Automatycznie rozwijaj foldery i tagi',
                 desc: 'Automatycznie rozwijaj foldery i tagi gdy są wybrane.'
