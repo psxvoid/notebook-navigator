@@ -62,6 +62,7 @@ import { useSelectionState, useSelectionDispatch } from '../context/SelectionCon
 import { useServices, useCommandQueue, useFileSystemOps, useMetadataService, useTagOperations } from '../context/ServicesContext';
 import { useRecentData } from '../context/RecentDataContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useFileCache } from '../context/StorageContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useNavigationPaneKeyboard } from '../hooks/useNavigationPaneKeyboard';
@@ -147,8 +148,11 @@ export const NavigationPane = React.memo(
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
+        const uxPreferences = useUXPreferences();
+        const includeDescendantNotes = uxPreferences.includeDescendantNotes;
+        const showHiddenItems = uxPreferences.showHiddenItems;
         // Resolves frontmatter exclusions, returns empty array when hidden items are shown
-        const effectiveFrontmatterExclusions = getEffectiveFrontmatterExclusions(settings);
+        const effectiveFrontmatterExclusions = getEffectiveFrontmatterExclusions(settings, showHiddenItems);
         const updateSettings = useSettingsUpdate();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
@@ -167,9 +171,22 @@ export const NavigationPane = React.memo(
                 tagOperations,
                 tagTreeService,
                 commandQueue,
-                shortcuts
+                shortcuts,
+                visibility: { includeDescendantNotes, showHiddenItems }
             }),
-            [app, plugin, isMobile, fileSystemOps, metadataService, tagOperations, tagTreeService, commandQueue, shortcuts]
+            [
+                app,
+                plugin,
+                isMobile,
+                fileSystemOps,
+                metadataService,
+                tagOperations,
+                tagTreeService,
+                commandQueue,
+                shortcuts,
+                includeDescendantNotes,
+                showHiddenItems
+            ]
         );
 
         useEffect(() => {
@@ -1307,8 +1324,8 @@ export const NavigationPane = React.memo(
                     fileVisibility: settings.fileVisibility,
                     excludedFiles: effectiveFrontmatterExclusions,
                     excludedFolders: settings.excludedFolders,
-                    includeDescendants: settings.includeDescendantNotes,
-                    showHiddenFolders: settings.showHiddenItems,
+                    includeDescendants: includeDescendantNotes,
+                    showHiddenFolders: showHiddenItems,
                     hideFolderNoteInList: settings.hideFolderNoteInList,
                     folderNoteSettings
                 });
@@ -1320,8 +1337,8 @@ export const NavigationPane = React.memo(
                 settings.fileVisibility,
                 effectiveFrontmatterExclusions,
                 settings.excludedFolders,
-                settings.includeDescendantNotes,
-                settings.showHiddenItems,
+                includeDescendantNotes,
+                showHiddenItems,
                 settings.hideFolderNoteInList,
                 settings.enableFolderNotes,
                 settings.folderNoteName
@@ -1351,7 +1368,7 @@ export const NavigationPane = React.memo(
 
                 // Calculate note counts for the tag and its descendants
                 const current = tagNode.notesWithTag.size;
-                if (!settings.includeDescendantNotes) {
+                if (!includeDescendantNotes) {
                     // Return only current tag's note count when descendants are disabled
                     return {
                         current,
@@ -1370,7 +1387,7 @@ export const NavigationPane = React.memo(
                     total
                 };
             },
-            [settings.showNoteCount, settings.includeDescendantNotes, tagCounts, tagTree]
+            [settings.showNoteCount, includeDescendantNotes, tagCounts, tagTree]
         );
 
         // Generates display label for missing note shortcuts, stripping .md extension

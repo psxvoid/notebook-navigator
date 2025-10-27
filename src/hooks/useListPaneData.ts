@@ -34,6 +34,7 @@ import { useServices } from '../context/ServicesContext';
 import { OperationType } from '../services/CommandQueueService';
 import { useFileCache } from '../context/StorageContext';
 import { ListPaneItemType, ItemType } from '../types';
+import type { VisibilityPreferences } from '../types';
 import type { ListPaneItem } from '../types/virtualization';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { DateUtils } from '../utils/dateUtils';
@@ -65,6 +66,8 @@ interface UseListPaneDataParams {
     settings: NotebookNavigatorSettings;
     /** Optional search query to filter files */
     searchQuery?: string;
+    /** Visibility preferences that control descendant notes and hidden items */
+    visibility: VisibilityPreferences;
 }
 
 /**
@@ -97,10 +100,12 @@ export function useListPaneData({
     selectedFolder,
     selectedTag,
     settings,
-    searchQuery
+    searchQuery,
+    visibility
 }: UseListPaneDataParams): UseListPaneDataResult {
     const { app, tagTreeService, commandQueue, omnisearchService } = useServices();
     const { getFileCreatedTime, getFileModifiedTime, getDB, getFileDisplayName } = useFileCache();
+    const { includeDescendantNotes, showHiddenItems } = visibility;
 
     // State to force updates when vault changes (incremented on create/delete/rename)
     const [updateKey, setUpdateKey] = useState(0);
@@ -132,16 +137,16 @@ export function useListPaneData({
         let allFiles: TFile[] = [];
 
         if (selectionType === ItemType.FOLDER && selectedFolder) {
-            allFiles = getFilesForFolder(selectedFolder, settings, app);
+            allFiles = getFilesForFolder(selectedFolder, settings, visibility, app);
         } else if (selectionType === ItemType.TAG && selectedTag) {
-            allFiles = getFilesForTag(selectedTag, settings, app, tagTreeService);
+            allFiles = getFilesForTag(selectedTag, settings, visibility, app, tagTreeService);
         }
 
         return allFiles;
         // NOTE: Excluding getFilesForFolder/getFilesForTag - static imports
         // updateKey triggers re-computation on storage updates
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectionType, selectedFolder, selectedTag, settings, app, tagTreeService, updateKey]);
+    }, [selectionType, selectedFolder, selectedTag, settings, includeDescendantNotes, showHiddenItems, app, tagTreeService, updateKey]);
 
     // Set of file paths for the current view scope
     const basePathSet = useMemo(() => new Set(baseFiles.map(file => file.path)), [baseFiles]);
@@ -342,7 +347,7 @@ export function useListPaneData({
 
     // Builds map of file paths that are normally hidden but shown via "show hidden items"
     const hiddenFileState = useMemo(() => {
-        if (!settings.showHiddenItems || files.length === 0) {
+        if (!showHiddenItems || files.length === 0) {
             return EMPTY_HIDDEN_STATE;
         }
 
@@ -383,7 +388,7 @@ export function useListPaneData({
         });
 
         return result;
-    }, [files, getDB, settings.excludedFolders, settings.excludedFiles, settings.showHiddenItems, app]);
+    }, [files, getDB, settings.excludedFolders, settings.excludedFiles, showHiddenItems, app]);
 
     /**
      * Build the complete list of items for rendering, including:
@@ -422,7 +427,7 @@ export function useListPaneData({
         // Check if file has tags for height optimization
         const db = getDB();
         const shouldDetectTags = settings.showTags && settings.showFileTags;
-        const hiddenTagVisibility = shouldDetectTags ? createHiddenTagVisibility(settings.hiddenTags, settings.showHiddenItems) : null;
+        const hiddenTagVisibility = shouldDetectTags ? createHiddenTagVisibility(settings.hiddenTags, showHiddenItems) : null;
         const fileHasTags = shouldDetectTags
             ? (file: TFile) => {
                   const tags = db.getCachedTags(file.path);
@@ -630,7 +635,8 @@ export function useListPaneData({
         searchMetaMap,
         sortOption,
         getDB,
-        hiddenFileState
+        hiddenFileState,
+        showHiddenItems
     ]);
 
     /**
@@ -774,7 +780,7 @@ export function useListPaneData({
 
                 if (!fileFolder || fileFolder.path !== selectedPath) {
                     // If not showing descendants, ignore files not in this folder
-                    if (!settings.includeDescendantNotes) {
+                    if (!includeDescendantNotes) {
                         return;
                     }
                     // If showing descendants, check if it's a descendant
@@ -835,7 +841,7 @@ export function useListPaneData({
             }
 
             // React to metadata changes that may update hidden-state styling
-            if (!shouldRefresh && settings.excludedFiles.length > 0 && settings.showHiddenItems) {
+            if (!shouldRefresh && settings.excludedFiles.length > 0 && showHiddenItems) {
                 const metadataPaths = changes.filter(change => change.changes.metadata !== undefined).map(change => change.path);
                 if (metadataPaths.length > 0) {
                     shouldRefresh = metadataPaths.some(path => basePathSet.has(path));
@@ -866,10 +872,10 @@ export function useListPaneData({
         selectionType,
         selectedTag,
         selectedFolder,
-        settings.includeDescendantNotes,
+        includeDescendantNotes,
         settings.excludedFiles,
         settings.excludedFolders,
-        settings.showHiddenItems,
+        showHiddenItems,
         getDB,
         commandQueue,
         basePathSet,

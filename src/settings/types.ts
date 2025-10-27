@@ -102,7 +102,6 @@ export interface NotebookNavigatorSettings {
     navIndent: number;
     navItemHeight: number;
     navItemHeightScaleText: boolean;
-    showHiddenItems: boolean;
 
     // Folders & tags tab
     showRootFolder: boolean;
@@ -124,7 +123,6 @@ export interface NotebookNavigatorSettings {
     defaultFolderSort: SortOption;
     listPaneTitle: ListPaneTitleOption;
     multiSelectModifier: MultiSelectModifier;
-    includeDescendantNotes: boolean;
     noteGrouping: ListNoteGroupingOption;
     optimizeNoteHeight: boolean;
     showQuickActions: boolean;
@@ -173,7 +171,6 @@ export interface NotebookNavigatorSettings {
     confirmBeforeDelete: boolean;
 
     // Runtime state and cached data
-    searchActive: boolean;
     customVaultName: string;
     pinnedNotes: PinnedNotes;
     fileIcons: Record<string, string>;

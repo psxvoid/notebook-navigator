@@ -70,6 +70,7 @@ import { SaveSearchShortcutModal } from '../modals/SaveSearchShortcutModal';
 import { useShortcuts } from '../context/ShortcutsContext';
 import type { SearchShortcut } from '../types/shortcuts';
 import { EMPTY_LIST_MENU_TYPE } from '../utils/contextMenu';
+import { useUXPreferenceActions, useUXPreferences } from '../context/UXPreferencesContext';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -115,6 +116,10 @@ export const ListPane = React.memo(
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
+        const uxPreferences = useUXPreferences();
+        const includeDescendantNotes = uxPreferences.includeDescendantNotes;
+        const showHiddenItems = uxPreferences.showHiddenItems;
+        const { setSearchActive } = useUXPreferenceActions();
         const appearanceSettings = useListPaneAppearance();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
@@ -128,7 +133,7 @@ export const ListPane = React.memo(
         const topSpacerHeight = shouldShowDesktopTitleArea ? 0 : LISTPANE_MEASUREMENTS.topSpacer;
 
         // Search state - use directly from settings for sync across devices
-        const isSearchActive = settings.searchActive;
+        const isSearchActive = uxPreferences.searchActive;
         const [searchQuery, setSearchQuery] = useState('');
         // Debounced search query used for data filtering to avoid per-keystroke spikes
         const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
@@ -174,15 +179,12 @@ export const ListPane = React.memo(
             return () => window.clearTimeout(id);
         }, [searchQuery, isSearchActive, debouncedSearchQuery]);
 
-        // Helper to toggle search state
+        // Helper to toggle search state using UX preferences action
         const setIsSearchActive = useCallback(
-            async (active: boolean) => {
-                if (plugin.settings.searchActive !== active) {
-                    plugin.settings.searchActive = active;
-                    await plugin.saveSettingsAndUpdate();
-                }
+            (active: boolean) => {
+                setSearchActive(active);
             },
-            [plugin]
+            [setSearchActive]
         );
 
         // Android uses toolbar at top, iOS at bottom
@@ -212,7 +214,8 @@ export const ListPane = React.memo(
             selectedTag,
             settings,
             // Use debounced value for filtering
-            searchQuery: isSearchActive ? debouncedSearchQuery : undefined
+            searchQuery: isSearchActive ? debouncedSearchQuery : undefined,
+            visibility: { includeDescendantNotes, showHiddenItems }
         });
 
         // Determine the target folder path for drag-and-drop of external files
@@ -241,7 +244,8 @@ export const ListPane = React.memo(
             // Use debounced value for scroll orchestration to align with filtering
             searchQuery: isSearchActive ? debouncedSearchQuery : undefined,
             suppressSearchTopScrollRef,
-            topSpacerHeight
+            topSpacerHeight,
+            includeDescendantNotes
         });
 
         // Attach context menu to empty areas in the list pane for file creation
@@ -446,7 +450,7 @@ export const ListPane = React.memo(
 
                 // Activate search or save provider change
                 if (needsSearchActivation) {
-                    await setIsSearchActive(true);
+                    setIsSearchActive(true);
                 } else if (providerChanged) {
                     await plugin.saveSettingsAndUpdate();
                 }

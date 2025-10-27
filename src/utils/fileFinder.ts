@@ -17,8 +17,8 @@
  */
 
 import { TFile, TFolder, App } from 'obsidian';
-import { NotebookNavigatorSettings } from '../settings';
-import { NavigatorContext, PinnedNotes } from '../types';
+import type { NotebookNavigatorSettings } from '../settings';
+import type { NavigatorContext, PinnedNotes, VisibilityPreferences } from '../types';
 import { UNTAGGED_TAG_ID } from '../types';
 import {
     shouldExcludeFile,
@@ -85,12 +85,22 @@ function applyPinnedOrdering(files: TFile[], settings: NotebookNavigatorSettings
 /**
  * Gets a sorted list of files for a given folder, respecting all plugin settings.
  * This is the primary utility function to be used by the reducer.
+ * @param folder - The folder to get files from
+ * @param settings - Plugin settings for sorting and filtering
+ * @param visibility - Visibility preferences for descendant notes and hidden items display
+ * @param app - Obsidian app instance
  */
-export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSettings, app: App): TFile[] {
+export function getFilesForFolder(
+    folder: TFolder,
+    settings: NotebookNavigatorSettings,
+    visibility: VisibilityPreferences,
+    app: App
+): TFile[] {
     const files: TFile[] = [];
     const excludedFolderPatterns = settings.excludedFolders;
 
-    const showHiddenFolders = settings.showHiddenItems;
+    // Check if hidden folders should be shown based on UX preference
+    const showHiddenFolders = visibility.showHiddenItems;
     const folderHiddenInitially = excludedFolderPatterns.length > 0 && isFolderInExcludedFolder(folder, excludedFolderPatterns);
     if (!showHiddenFolders && folderHiddenInitially) {
         return [];
@@ -104,7 +114,8 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
                 if (shouldDisplayFile(child, settings.fileVisibility, app)) {
                     files.push(child);
                 }
-            } else if (settings.includeDescendantNotes && child instanceof TFolder) {
+            } else if (visibility.includeDescendantNotes && child instanceof TFolder) {
+                // Include descendant notes when UX preference is enabled
                 // Inherit parent's hidden state, then check if this folder is also excluded
                 let childHidden = parentHidden;
                 if (excludedFolderPatterns.length > 0 && shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
@@ -120,7 +131,7 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
 
     collectFiles(folder, folderHiddenInitially);
     let allFiles: TFile[] = files;
-    if (!settings.showHiddenItems && settings.excludedFiles.length > 0) {
+    if (!visibility.showHiddenItems && settings.excludedFiles.length > 0) {
         allFiles = files.filter(file => file.extension !== 'md' || !shouldExcludeFile(file, settings.excludedFiles, app));
     }
 
@@ -187,25 +198,36 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
 
 /**
  * Gets a sorted list of files for a given tag, respecting all plugin settings.
+ * @param tag - The tag to get files for
+ * @param settings - Plugin settings for sorting and filtering
+ * @param visibility - Visibility preferences for descendant notes and hidden items display
+ * @param app - Obsidian app instance
+ * @param tagTreeService - Service for tag tree operations
  */
-export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings, app: App, tagTreeService: TagTreeService | null): TFile[] {
+export function getFilesForTag(
+    tag: string,
+    settings: NotebookNavigatorSettings,
+    visibility: VisibilityPreferences,
+    app: App,
+    tagTreeService: TagTreeService | null
+): TFile[] {
     // Get all files based on visibility setting, with proper filtering
     let allFiles: TFile[] = [];
-    const hiddenTagVisibility = createHiddenTagVisibility(settings.hiddenTags, settings.showHiddenItems);
+    const hiddenTagVisibility = createHiddenTagVisibility(settings.hiddenTags, visibility.showHiddenItems);
     const shouldFilterHiddenTags = hiddenTagVisibility.shouldFilterHiddenTags;
 
     if (settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS) {
         // Only document files (markdown, canvas, base)
-        allFiles = getFilteredDocumentFiles(app, settings);
+        allFiles = getFilteredDocumentFiles(app, settings, { showHiddenItems: visibility.showHiddenItems });
     } else {
         // Get all files with filtering
-        allFiles = getFilteredFiles(app, settings);
+        allFiles = getFilteredFiles(app, settings, { showHiddenItems: visibility.showHiddenItems });
     }
 
     const excludedFolderPatterns = settings.excludedFolders;
     // For tag views, exclude files in excluded folders only when hidden items are not shown
     // When showing hidden items, include files from excluded folders to match the tag tree
-    const baseFiles = settings.showHiddenItems
+    const baseFiles = visibility.showHiddenItems
         ? allFiles
         : allFiles.filter(
               (file: TFile) => excludedFolderPatterns.length === 0 || !isPathInExcludedFolder(file.path, excludedFolderPatterns)
@@ -237,7 +259,7 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
             // Collect tags to include based on setting:
             // - When showing notes from descendants: include selected tag and all descendants
             // - Otherwise: include only the exact selected tag
-            const tagsToInclude = settings.includeDescendantNotes
+            const tagsToInclude = visibility.includeDescendantNotes
                 ? tagTreeService?.collectTagPaths(selectedNode) || new Set<string>()
                 : new Set<string>([selectedNode.path]);
             const normalizedTagPaths = new Set(Array.from(tagsToInclude).map(path => normalizeTagPathValue(path)));

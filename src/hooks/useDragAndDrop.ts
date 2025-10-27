@@ -22,6 +22,7 @@ import { TFile, TFolder, Notice, normalizePath } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { strings } from '../i18n';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
@@ -60,6 +61,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const selectionState = useSelectionState();
     const dispatch = useSelectionDispatch();
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
+    const showHiddenItems = uxPreferences.showHiddenItems;
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const dragOverElement = useRef<HTMLElement | null>(null);
@@ -110,12 +114,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      */
     const getCurrentFileList = useCallback((): TFile[] => {
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            return getFilesForFolder(selectionState.selectedFolder, settings, app);
+            return getFilesForFolder(selectionState.selectedFolder, settings, { includeDescendantNotes, showHiddenItems }, app);
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            return getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
+            return getFilesForTag(selectionState.selectedTag, settings, { includeDescendantNotes, showHiddenItems }, app, tagTreeService);
         }
         return [];
-    }, [selectionState, settings, app, tagTreeService]);
+    }, [selectionState, settings, includeDescendantNotes, showHiddenItems, app, tagTreeService]);
 
     /**
      * Converts an array of file paths to TFile objects

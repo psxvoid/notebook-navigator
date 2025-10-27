@@ -21,6 +21,7 @@ import { Platform } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { strings } from '../i18n';
 import { getIconService, useIconServiceVersion } from '../services/icons';
@@ -39,6 +40,8 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
     const iconRef = React.useRef<HTMLSpanElement>(null);
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
@@ -206,7 +209,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                         <ObsidianIcon name="lucide-search" />
                     </button>
                     <button
-                        className={`nn-icon-button ${settings.includeDescendantNotes ? 'nn-icon-button-active' : ''}`}
+                        className={`nn-icon-button ${includeDescendantNotes ? 'nn-icon-button-active' : ''}`}
                         aria-label={strings.paneHeader.toggleDescendantNotes}
                         onClick={handleToggleDescendants}
                         disabled={!selectionState.selectedFolder && !selectionState.selectedTag}

@@ -177,7 +177,8 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
 
     const updateNoteCountSettingsVisibility = () => {
         if (noteCountSubSettingsEl) {
-            noteCountSubSettingsEl.toggle(plugin.settings.showNoteCount && plugin.settings.includeDescendantNotes);
+            const preferences = plugin.getUXPreferences();
+            noteCountSubSettingsEl.toggle(plugin.settings.showNoteCount && preferences.includeDescendantNotes);
         }
     };
 

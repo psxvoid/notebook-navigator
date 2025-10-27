@@ -21,7 +21,8 @@ import { TFolder } from 'obsidian';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState } from '../context/SelectionContext';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
-import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
+import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferenceActions, useUXPreferences } from '../context/UXPreferencesContext';
 import { useFileCache } from '../context/StorageContext';
 import { collectAllTagPaths } from '../utils/tagTree';
 
@@ -34,7 +35,9 @@ import { collectAllTagPaths } from '../utils/tagTree';
 export function useNavigationActions() {
     const { app } = useServices();
     const settings = useSettingsState();
-    const updateSettings = useSettingsUpdate();
+    const uxPreferences = useUXPreferences();
+    const showHiddenItems = uxPreferences.showHiddenItems;
+    const { setShowHiddenItems } = useUXPreferenceActions();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
@@ -231,11 +234,9 @@ export function useNavigationActions() {
         }
     }, [selectionState.selectedFolder, expansionState.expandedFolders, fileSystemOps, expansionDispatch]);
 
-    const handleToggleShowExcludedFolders = useCallback(async () => {
-        await updateSettings(s => {
-            s.showHiddenItems = !s.showHiddenItems;
-        });
-    }, [updateSettings]);
+    const handleToggleShowExcludedFolders = useCallback(() => {
+        setShowHiddenItems(!showHiddenItems);
+    }, [setShowHiddenItems, showHiddenItems]);
 
     return {
         shouldCollapseItems,

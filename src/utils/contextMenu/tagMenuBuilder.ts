@@ -122,7 +122,11 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                         const cleanedHiddenTags = cleanupTagPatterns(settings.hiddenTags, tagPath);
 
                         plugin.settings.hiddenTags = cleanedHiddenTags;
-                        resetHiddenToggleIfNoSources(plugin.settings);
+                        resetHiddenToggleIfNoSources({
+                            settings: plugin.settings,
+                            showHiddenItems: services.visibility.showHiddenItems,
+                            setShowHiddenItems: value => plugin.setShowHiddenItems(value)
+                        });
                         await plugin.saveSettingsAndUpdate();
                     });
             });
@@ -136,7 +140,11 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                             return !(normalizedPattern && !normalizedPattern.includes('*') && normalizedPattern === normalizedTagPath);
                         });
 
-                        resetHiddenToggleIfNoSources(plugin.settings);
+                        resetHiddenToggleIfNoSources({
+                            settings: plugin.settings,
+                            showHiddenItems: services.visibility.showHiddenItems,
+                            setShowHiddenItems: value => plugin.setShowHiddenItems(value)
+                        });
                         await plugin.saveSettingsAndUpdate();
                     });
             });

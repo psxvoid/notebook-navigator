@@ -36,7 +36,7 @@ import { CommandQueueService } from '../../services/CommandQueueService';
  */
 export function buildFileMenu(params: FileMenuBuilderParams): void {
     const { file, menu, services, settings, state, dispatchers } = params;
-    const { app, isMobile, fileSystemOps, metadataService, tagTreeService, commandQueue } = services;
+    const { app, isMobile, fileSystemOps, metadataService, tagTreeService, commandQueue, visibility } = services;
     const { selectionState } = state;
     const { selectionDispatch } = dispatchers;
 
@@ -62,9 +62,9 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // Cache the current file list to avoid regenerating it multiple times
     const cachedFileList = (() => {
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            return getFilesForFolder(selectionState.selectedFolder, settings, app);
+            return getFilesForFolder(selectionState.selectedFolder, settings, visibility, app);
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            return getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
+            return getFilesForTag(selectionState.selectedTag, settings, visibility, app, tagTreeService);
         }
         return [];
     })();

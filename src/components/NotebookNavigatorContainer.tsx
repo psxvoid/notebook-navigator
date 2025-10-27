@@ -28,6 +28,7 @@ import { localStorage } from '../utils/localStorage';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
 import { getBackgroundClasses } from '../utils/paneLayout';
 import { useNavigatorScale } from '../hooks/useNavigatorScale';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 
 /**
  * Container component that handles storage initialization.
@@ -38,6 +39,7 @@ export const NotebookNavigatorContainer = React.memo(
         const { isStorageReady } = useFileCache();
         const uiState = useUIState();
         const settings = useSettingsState();
+        const uxPreferences = useUXPreferences();
         const { isMobile } = useServices();
         const orientation = settings.dualPaneOrientation;
         // Get background mode for desktop and mobile layouts
@@ -96,7 +98,7 @@ export const NotebookNavigatorContainer = React.memo(
                         <SkeletonView
                             paneSize={paneSize}
                             singlePane={uiState.singlePane}
-                            searchActive={settings.searchActive}
+                            searchActive={uxPreferences.searchActive}
                             orientation={orientation}
                         />
                     </div>

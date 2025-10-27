@@ -21,6 +21,7 @@ import { Menu } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
+import { useUXPreferenceActions, useUXPreferences } from '../context/UXPreferencesContext';
 import { strings } from '../i18n';
 import type { SortOption } from '../settings';
 import { ItemType } from '../types';
@@ -38,6 +39,10 @@ import { getFilesForFolder } from '../utils/fileFinder';
 export function useListActions() {
     const { app } = useServices();
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
+    const showHiddenItems = uxPreferences.showHiddenItems;
+    const { setIncludeDescendantNotes } = useUXPreferenceActions();
     const updateSettings = useSettingsUpdate();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
@@ -162,26 +167,39 @@ export function useListActions() {
      * Toggles the display of notes from descendants.
      * When enabling descendants, automatically selects the active file if it's within the current folder/tag hierarchy.
      */
-    const handleToggleDescendants = useCallback(async () => {
-        const wasShowingDescendants = settings.includeDescendantNotes;
+    const handleToggleDescendants = useCallback(() => {
+        const wasShowingDescendants = includeDescendantNotes;
 
-        await updateSettings(s => {
-            s.includeDescendantNotes = !s.includeDescendantNotes;
-        });
+        // Toggle descendant notes preference using UX action
+        setIncludeDescendantNotes(!wasShowingDescendants);
 
         // Special case: When enabling descendants, auto-select the active file if it's in the folder
         if (!wasShowingDescendants && selectionState.selectedFolder && !selectionState.selectedFile) {
             const activeFile = app.workspace.getActiveFile();
             if (activeFile) {
                 // Check if the active file would be visible with descendants enabled
-                const filesInFolder = getFilesForFolder(selectionState.selectedFolder, { ...settings, includeDescendantNotes: true }, app);
+                const filesInFolder = getFilesForFolder(
+                    selectionState.selectedFolder,
+                    settings,
+                    { includeDescendantNotes: true, showHiddenItems },
+                    app
+                );
 
                 if (filesInFolder.some(f => f.path === activeFile.path)) {
                     selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
                 }
             }
         }
-    }, [updateSettings, settings, selectionState.selectedFolder, selectionState.selectedFile, app, selectionDispatch]);
+    }, [
+        setIncludeDescendantNotes,
+        includeDescendantNotes,
+        showHiddenItems,
+        selectionState.selectedFolder,
+        selectionState.selectedFile,
+        app,
+        selectionDispatch,
+        settings
+    ]);
 
     const isCustomSort =
         (selectionState.selectionType === ItemType.FOLDER &&

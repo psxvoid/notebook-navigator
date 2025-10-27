@@ -51,6 +51,7 @@ import { useServices } from '../context/ServicesContext';
 import { useSelectionState } from '../context/SelectionContext';
 import { useUIState } from '../context/UIStateContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { NavigationPaneItemType, ItemType, NAVPANE_MEASUREMENTS, OVERSCAN } from '../types';
 import { Align, NavScrollIntent, getNavAlign } from '../types/scroll';
 import type { CombinedNavigationItem } from '../types/virtualization';
@@ -108,6 +109,8 @@ export function useNavigationPaneScroll({
     const selectionState = useSelectionState();
     const uiState = useUIState();
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const showHiddenItems = uxPreferences.showHiddenItems;
 
     // Reference to the scroll container DOM element
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -220,7 +223,7 @@ export function useNavigationPaneScroll({
     const prevFocusedPaneRef = useRef<string | null>(null);
     const prevSelectedTagRef = useRef<string | null>(null);
     const prevNavSettingsKeyRef = useRef<string>('');
-    const prevShowHiddenItemsRef = useRef<boolean>(settings.showHiddenItems);
+    const prevShowHiddenItemsRef = useRef<boolean>(showHiddenItems);
     const prevPathToIndexSizeRef = useRef<number>(pathToIndex.size);
 
     /**
@@ -344,7 +347,7 @@ export function useNavigationPaneScroll({
         // CRITICAL: Guard against race condition during visibility toggle
         // When showHiddenItems changes, the tree will rebuild with different indices.
         // We must defer this scroll until AFTER the rebuild completes.
-        if (prevShowHiddenItemsRef.current !== settings.showHiddenItems) {
+        if (prevShowHiddenItemsRef.current !== showHiddenItems) {
             pendingScrollRef.current = {
                 path: selectedPath,
                 align: 'auto',
@@ -366,7 +369,7 @@ export function useNavigationPaneScroll({
         rowVirtualizer,
         isScrollContainerReady,
         uiState.focusedPane,
-        settings.showHiddenItems,
+        showHiddenItems,
         selectionState.selectionType,
         resolveIndex,
         activeShortcutKey
@@ -394,7 +397,7 @@ export function useNavigationPaneScroll({
             if (!isTagSelectionChange) return;
 
             // During a hidden-items toggle, defer immediate tag scroll and queue a toggle-intent pending
-            if (prevShowHiddenItemsRef.current !== settings.showHiddenItems) {
+            if (prevShowHiddenItemsRef.current !== showHiddenItems) {
                 if (selectedPath) {
                     pendingScrollRef.current = {
                         path: selectedPath,
@@ -420,7 +423,7 @@ export function useNavigationPaneScroll({
         selectionState.selectedTag,
         rowVirtualizer,
         isScrollContainerReady,
-        settings.showHiddenItems,
+        showHiddenItems,
         selectedPath,
         resolveIndex,
         activeShortcutKey
@@ -443,7 +446,7 @@ export function useNavigationPaneScroll({
 
         // Priority check: During visibility toggle, only process toggle-intent scrolls
         // This prevents stale selection scrolls from executing with wrong indices
-        if (prevShowHiddenItemsRef.current !== settings.showHiddenItems && intent !== 'visibilityToggle') {
+        if (prevShowHiddenItemsRef.current !== showHiddenItems && intent !== 'visibilityToggle') {
             return;
         }
 
@@ -482,7 +485,7 @@ export function useNavigationPaneScroll({
             }
         }
         // If index not found, keep the pending scroll for next rebuild
-    }, [rowVirtualizer, isScrollContainerReady, pendingScrollVersion, settings.showHiddenItems, resolveIndex]);
+    }, [rowVirtualizer, isScrollContainerReady, pendingScrollVersion, showHiddenItems, resolveIndex]);
 
     /**
      * Listen for mobile drawer visibility events
@@ -580,7 +583,7 @@ export function useNavigationPaneScroll({
      * This is what triggers the tag tree rebuild issue
      */
     useEffect(() => {
-        if (prevShowHiddenItemsRef.current !== settings.showHiddenItems) {
+        if (prevShowHiddenItemsRef.current !== showHiddenItems) {
             // When showHiddenItems changes and we have a selected tag, defer scrolling until the tree rebuilds
             if (selectedPath && selectionState.selectionType === ItemType.TAG && isScrollContainerReady && rowVirtualizer) {
                 // Set a pending scroll to be processed after the next index rebuild
@@ -594,16 +597,9 @@ export function useNavigationPaneScroll({
                 setPendingScrollVersion(v => v + 1);
             }
 
-            prevShowHiddenItemsRef.current = settings.showHiddenItems;
+            prevShowHiddenItemsRef.current = showHiddenItems;
         }
-    }, [
-        settings.showHiddenItems,
-        selectedPath,
-        isScrollContainerReady,
-        rowVirtualizer,
-        selectionState.selectionType,
-        selectionState.selectedTag
-    ]);
+    }, [showHiddenItems, selectedPath, isScrollContainerReady, rowVirtualizer, selectionState.selectionType, selectionState.selectedTag]);
 
     return {
         rowVirtualizer,

@@ -126,7 +126,11 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 .split(',')
                 .map(folder => folder.trim())
                 .filter(folder => folder.length > 0);
-            resetHiddenToggleIfNoSources(plugin.settings);
+            resetHiddenToggleIfNoSources({
+                settings: plugin.settings,
+                showHiddenItems: plugin.getUXPreferences().showHiddenItems,
+                setShowHiddenItems: value => plugin.setShowHiddenItems(value)
+            });
         }
     );
     excludedFoldersSetting.controlEl.addClass('nn-setting-wide-input');
@@ -142,7 +146,11 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 .split(',')
                 .map(file => file.trim())
                 .filter(file => file.length > 0);
-            resetHiddenToggleIfNoSources(plugin.settings);
+            resetHiddenToggleIfNoSources({
+                settings: plugin.settings,
+                showHiddenItems: plugin.getUXPreferences().showHiddenItems,
+                setShowHiddenItems: value => plugin.setShowHiddenItems(value)
+            });
         }
     );
     excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');

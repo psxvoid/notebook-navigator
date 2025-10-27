@@ -79,12 +79,12 @@ export function renderListPaneTab(context: SettingsTabContext): void {
     new Setting(containerEl)
         .setName(strings.settings.items.includeDescendantNotes.name)
         .setDesc(strings.settings.items.includeDescendantNotes.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.includeDescendantNotes).onChange(async value => {
-                plugin.settings.includeDescendantNotes = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
+        .addToggle(toggle => {
+            const preferences = plugin.getUXPreferences();
+            toggle.setValue(preferences.includeDescendantNotes).onChange(value => {
+                plugin.setIncludeDescendantNotes(value);
+            });
+        });
 
     new Setting(containerEl)
         .setName(strings.settings.items.groupNotes.name)

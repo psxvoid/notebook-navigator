@@ -29,7 +29,7 @@ import type { NotebookNavigatorSettings } from './types';
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Filtering
-    fileVisibility: FILE_VISIBILITY.SUPPORTED,
+    fileVisibility: FILE_VISIBILITY.DOCUMENTS,
     excludedFolders: [],
     excludedFiles: [],
 
@@ -75,7 +75,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     navIndent: NAVPANE_MEASUREMENTS.defaultIndent,
     navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
     navItemHeightScaleText: true,
-    showHiddenItems: false,
 
     // Folders & tags tab
     showRootFolder: true,
@@ -97,7 +96,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     defaultFolderSort: 'modified-desc',
     listPaneTitle: 'header',
     multiSelectModifier: 'cmdCtrl',
-    includeDescendantNotes: true,
     noteGrouping: 'date',
     optimizeNoteHeight: true,
     showQuickActions: true,
@@ -147,7 +145,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     confirmBeforeDelete: true,
 
     // Runtime state and cached data
-    searchActive: false,
     customVaultName: '',
     pinnedNotes: {} as PinnedNotes,
     fileIcons: {},

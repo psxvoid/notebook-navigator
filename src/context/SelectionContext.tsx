@@ -21,6 +21,7 @@ import { App, TFile, TFolder } from 'obsidian';
 import { NavigationItemType, STORAGE_KEYS } from '../types';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useSettingsState } from './SettingsContext';
+import { useUXPreferences } from './UXPreferencesContext';
 import { localStorage } from '../utils/localStorage';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { TagTreeService } from '../services/TagTreeService';
@@ -507,6 +508,9 @@ export function SelectionProvider({
 }: SelectionProviderProps) {
     // Get current settings from SettingsContext
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
+    const showHiddenItems = uxPreferences.showHiddenItems;
 
     // Load initial state from localStorage and vault
     const loadInitialState = useCallback((): SelectionState => {
@@ -618,7 +622,7 @@ export function SelectionProvider({
             // Handle auto-select logic for folder selection
             if (action.type === 'SET_SELECTED_FOLDER' && action.autoSelectedFile === undefined) {
                 if (action.folder) {
-                    const filesInFolder = getFilesForFolder(action.folder, settings, app);
+                    const filesInFolder = getFilesForFolder(action.folder, settings, { includeDescendantNotes, showHiddenItems }, app);
 
                     // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
                     if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesInFolder.length > 0) {
@@ -645,7 +649,13 @@ export function SelectionProvider({
             // Handle auto-select logic for tag selection
             else if (action.type === 'SET_SELECTED_TAG' && action.autoSelectedFile === undefined) {
                 if (action.tag) {
-                    const filesForTag = getFilesForTag(action.tag, settings, app, tagTreeService);
+                    const filesForTag = getFilesForTag(
+                        action.tag,
+                        settings,
+                        { includeDescendantNotes, showHiddenItems },
+                        app,
+                        tagTreeService
+                    );
 
                     // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
                     if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesForTag.length > 0) {
@@ -679,7 +689,7 @@ export function SelectionProvider({
                 dispatch(action);
             }
         },
-        [app, settings, isMobile, tagTreeService, dispatch]
+        [app, settings, includeDescendantNotes, showHiddenItems, isMobile, tagTreeService, dispatch]
     );
 
     // Persist selected folder to localStorage with error handling

@@ -53,6 +53,7 @@ import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import { TFolder, TFile, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
 import { getIconService, useIconServiceVersion } from '../services/icons';
@@ -115,13 +116,16 @@ export const FolderItem = React.memo(function FolderItem({
 }: FolderItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
+    const showHiddenItems = uxPreferences.showHiddenItems;
     const folderRef = useRef<HTMLDivElement>(null);
 
     const chevronRef = React.useRef<HTMLDivElement>(null);
     const iconRef = React.useRef<HTMLSpanElement>(null);
     const iconVersion = useIconServiceVersion();
     // Resolves frontmatter exclusions, returns empty array when hidden items are shown
-    const effectiveExcludedFiles = getEffectiveFrontmatterExclusions(settings);
+    const effectiveExcludedFiles = getEffectiveFrontmatterExclusions(settings, showHiddenItems);
 
     // Count folders and files for tooltip (skip on mobile to save computation)
     const folderStats = React.useMemo(() => {
@@ -130,7 +134,7 @@ export const FolderItem = React.memo(function FolderItem({
             return { fileCount: 0, folderCount: 0 };
         }
 
-        const showHidden = settings.showHiddenItems;
+        const showHidden = showHiddenItems;
         // Tooltip should show immediate files only (non-recursive)
         let fileCount = 0;
         for (const child of folder.children) {
@@ -160,7 +164,7 @@ export const FolderItem = React.memo(function FolderItem({
         folder.children,
         isMobile,
         settings.showTooltips,
-        settings.showHiddenItems,
+        showHiddenItems,
         settings.fileVisibility,
         effectiveExcludedFiles,
         excludedFolders,
@@ -170,15 +174,15 @@ export const FolderItem = React.memo(function FolderItem({
     // Merge provided count info with default values to ensure all properties are present
     const noteCounts: NoteCountInfo = countInfo ?? { current: 0, descendants: 0, total: 0 };
     // Determine if we should show separate counts (e.g., "2 + 5") or combined count (e.g., "7")
-    const useSeparateCounts = settings.includeDescendantNotes && settings.separateNoteCounts;
+    const useSeparateCounts = includeDescendantNotes && settings.separateNoteCounts;
     // Build formatted display object with label and visibility flags
-    const noteCountDisplay = buildNoteCountDisplay(noteCounts, settings.includeDescendantNotes, useSeparateCounts);
+    const noteCountDisplay = buildNoteCountDisplay(noteCounts, includeDescendantNotes, useSeparateCounts);
     // Check if count should be displayed based on settings and count values
     const shouldDisplayCount = settings.showNoteCount && noteCountDisplay.shouldDisplay;
 
     // Check if folder has children - not memoized because Obsidian mutates the children array
     // The hasSubfolders function handles the logic of whether to show all or only visible subfolders
-    const showHiddenFolders = settings.showHiddenItems;
+    const showHiddenFolders = showHiddenItems;
     const hasChildren = hasSubfolders(folder, excludedFolders, showHiddenFolders);
 
     // Use color from props (passed from NavigationPane)

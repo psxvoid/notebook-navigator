@@ -91,6 +91,8 @@ interface UseListPaneScrollParams {
     suppressSearchTopScrollRef?: { current: boolean } | null;
     /** Height of the synthetic top spacer used ahead of file items */
     topSpacerHeight: number;
+    /** Whether descendant notes should be shown */
+    includeDescendantNotes: boolean;
 }
 
 /**
@@ -127,7 +129,8 @@ export function useListPaneScroll({
     selectionDispatch,
     searchQuery,
     suppressSearchTopScrollRef,
-    topSpacerHeight
+    topSpacerHeight,
+    includeDescendantNotes
 }: UseListPaneScrollParams): UseListPaneScrollResult {
     const { isMobile } = useServices();
     const { hasPreview, getDB, isStorageReady } = useFileCache();
@@ -257,8 +260,7 @@ export function useListPaneScroll({
                     if (!pinnedItemShouldUseCompactLayout && settings.showParentFolderNames) {
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInDescendant = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
-                        const showParentFolderLine =
-                            selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInDescendant);
+                        const showParentFolderLine = selectionState.selectionType === 'tag' || (includeDescendantNotes && isInDescendant);
                         if (showParentFolderLine) {
                             textContentHeight += heights.singleTextLineHeight;
                         }
@@ -272,7 +274,7 @@ export function useListPaneScroll({
                         const showParentFolder =
                             settings.showParentFolderNames &&
                             !pinnedItemShouldUseCompactLayout &&
-                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInDescendant));
+                            (selectionState.selectionType === 'tag' || (includeDescendantNotes && isInDescendant));
 
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
@@ -297,7 +299,7 @@ export function useListPaneScroll({
                         const showParentFolder =
                             settings.showParentFolderNames &&
                             !pinnedItemShouldUseCompactLayout &&
-                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInDescendant));
+                            (selectionState.selectionType === 'tag' || (includeDescendantNotes && isInDescendant));
 
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
@@ -704,7 +706,7 @@ export function useListPaneScroll({
         }
 
         // Build a key from the config values that should trigger scroll preservation
-        const configKey = `${settings.includeDescendantNotes}-${settings.optimizeNoteHeight}-${settings.noteGrouping}-${effectiveSort}-${JSON.stringify(
+        const configKey = `${includeDescendantNotes}-${settings.optimizeNoteHeight}-${settings.noteGrouping}-${effectiveSort}-${JSON.stringify(
             folderSettings
         )}`;
 
@@ -715,7 +717,7 @@ export function useListPaneScroll({
 
         // Detect descendants toggle for special handling
         const wasShowingDescendants = prevConfigKeyRef.current && prevConfigKeyRef.current.startsWith('true');
-        const nowShowingDescendants = settings.includeDescendantNotes;
+        const nowShowingDescendants = includeDescendantNotes;
 
         // Update the ref
         prevConfigKeyRef.current = configKey;
@@ -740,7 +742,7 @@ export function useListPaneScroll({
         isScrollContainerReady,
         rowVirtualizer,
         selectedFile,
-        settings.includeDescendantNotes,
+        includeDescendantNotes,
         settings.optimizeNoteHeight,
         settings.noteGrouping,
         folderSettings,

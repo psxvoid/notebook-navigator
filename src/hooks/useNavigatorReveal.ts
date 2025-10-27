@@ -25,6 +25,7 @@ import { useExpansionState, useExpansionDispatch } from '../context/ExpansionCon
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import type { SelectionRevealSource } from '../context/SelectionContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { useCommandQueue } from '../context/ServicesContext';
@@ -61,6 +62,8 @@ export interface RevealFileOptions {
  */
 export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseNavigatorRevealOptions) {
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
@@ -82,7 +85,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 return { target: null, expandAncestors: false };
             }
 
-            if (!settings.includeDescendantNotes) {
+            if (!includeDescendantNotes) {
                 return { target: folder, expandAncestors: true };
             }
 
@@ -133,7 +136,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
 
             return { target: current, expandAncestors: false };
         },
-        [settings.includeDescendantNotes, settings.showRootFolder, expansionState.expandedFolders, app]
+        [includeDescendantNotes, settings.showRootFolder, expansionState.expandedFolders, app]
     );
 
     /**
@@ -152,7 +155,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             const { target, expandAncestors } = getRevealTargetFolder(parentFolder);
 
             // Always resolve to the actual parent folder for manual reveals
-            const resolvedFolder = settings.includeDescendantNotes ? parentFolder : (target ?? parentFolder);
+            const resolvedFolder = includeDescendantNotes ? parentFolder : (target ?? parentFolder);
 
             const foldersToExpand: string[] = [];
             let ancestor: TFolder | null = parentFolder.parent;
@@ -205,7 +208,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             uiDispatch,
             navigationPaneRef,
             getRevealTargetFolder,
-            settings.includeDescendantNotes
+            includeDescendantNotes
         ]
     );
 

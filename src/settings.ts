@@ -198,7 +198,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
      * Update the statistics display
      */
     private updateStatistics(): void {
-        const stats = calculateCacheStatistics(this.plugin.settings);
+        const stats = calculateCacheStatistics(this.plugin.settings, this.plugin.getUXPreferences().showHiddenItems);
         if (!stats) {
             return;
         }

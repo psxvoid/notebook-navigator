@@ -24,6 +24,7 @@ import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useShortcuts } from '../context/ShortcutsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useDragNavigationPaneActivation } from '../hooks/useDragNavigationPaneActivation';
 import { useNavigatorReveal, type RevealFileOptions } from '../hooks/useNavigatorReveal';
@@ -92,6 +93,11 @@ export const NotebookNavigatorComponent = React.memo(
     forwardRef<NotebookNavigatorHandle>(function NotebookNavigatorComponent(_, ref) {
         const { app, isMobile, fileSystemOps, plugin, tagTreeService, commandQueue, tagOperations } = useServices();
         const settings = useSettingsState();
+        const uxPreferences = useUXPreferences();
+        const uxRef = useRef(uxPreferences);
+        useEffect(() => {
+            uxRef.current = uxPreferences;
+        }, [uxPreferences]);
         // Get active orientation from settings
         const orientation: DualPaneOrientation = settings.dualPaneOrientation;
         // Get background modes for desktop and mobile layouts
@@ -398,6 +404,10 @@ export const NotebookNavigatorComponent = React.memo(
                             app,
                             fileSystemOps,
                             settings,
+                            visibility: {
+                                includeDescendantNotes: uxRef.current.includeDescendantNotes,
+                                showHiddenItems: uxRef.current.showHiddenItems
+                            },
                             selectionState,
                             selectionDispatch,
                             tagTreeService
@@ -411,6 +421,10 @@ export const NotebookNavigatorComponent = React.memo(
                             app,
                             fileSystemOps,
                             settings,
+                            visibility: {
+                                includeDescendantNotes: uxRef.current.includeDescendantNotes,
+                                showHiddenItems: uxRef.current.showHiddenItems
+                            },
                             selectionState,
                             selectionDispatch
                         });
@@ -435,7 +449,16 @@ export const NotebookNavigatorComponent = React.memo(
                     }
 
                     // Get all files in the current view for smart selection
-                    const allFiles = getFilesForSelection(selectionState, settings, app, tagTreeService);
+                    const allFiles = getFilesForSelection(
+                        selectionState,
+                        settings,
+                        {
+                            includeDescendantNotes: uxRef.current.includeDescendantNotes,
+                            showHiddenItems: uxRef.current.showHiddenItems
+                        },
+                        app,
+                        tagTreeService
+                    );
 
                     // Move files with modal
                     await fileSystemOps.moveFilesWithModal(selectedFiles, {

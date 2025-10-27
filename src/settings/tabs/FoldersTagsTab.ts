@@ -213,7 +213,11 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
                 .filter((entry): entry is string => entry !== null);
 
             plugin.settings.hiddenTags = Array.from(new Set(normalizedHiddenTags));
-            resetHiddenToggleIfNoSources(plugin.settings);
+            resetHiddenToggleIfNoSources({
+                settings: plugin.settings,
+                showHiddenItems: plugin.getUXPreferences().showHiddenItems,
+                setShowHiddenItems: value => plugin.setShowHiddenItems(value)
+            });
         }
     );
     hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');
