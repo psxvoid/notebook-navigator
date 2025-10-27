@@ -74,11 +74,12 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.7',
-        date: '2025-10-26',
+        date: '2025-10-27',
         showOnUpdate: true,
         new: [
             '**VERTICAL SPLIT!** You now have a new setting: ==Dual pane orientation== where you can choose horizontal or vertical split for the dual pane.',
             'To match this setting you also have a new setting: ==Background color (mobile & desktop)== where you can choose to use separate background colors (like today) for navigation and files, make both look like navigation, or make both look like files.',
+            "New ==UI Zoom for Notebook Navigator==! You can now set a custom zoom level for Notebook Navigator independent of Obsidian's zoom level. Separate for desktop and mobile! This is useful if you want to have a larger or smaller font size in Notebook Navigator without affecting the rest of Obsidian. Find it in Settings → Zoom Level!",
             'You can now also ==group files by subfolder==! The old setting "Group notes by date" is now replaced with a dropdown where you can choose no grouping, date or folder. Note that tags are always sorted by date or none.',
             'New command: ==Pin all folder notes==. Use it to quickly pin all folder notes in the vault.',
             'New command: ==Toggle tag sort order==. Use it to quickly switch between alphabetical and frequency based sorting for tags.',

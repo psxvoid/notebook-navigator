@@ -624,23 +624,18 @@ export const STRINGS_KO = {
                     vertical: '세로 분할'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: '배경색',
-                desc: '데스크톱에서 탐색 및 목록 패널의 배경색을 선택합니다.',
+                desc: '탐색 및 목록 패널의 배경색을 선택합니다.',
                 options: {
                     separate: '분리된 배경',
                     primary: '목록 배경 사용',
                     secondary: '탐색 배경 사용'
                 }
             },
-            mobileBackground: {
-                name: '배경색',
-                desc: '모바일에서 탐색 및 목록 패널의 배경색을 선택합니다.',
-                options: {
-                    separate: '분리된 배경',
-                    primary: '목록 배경 사용',
-                    secondary: '탐색 배경 사용'
-                }
+            appearanceScale: {
+                name: '확대 수준',
+                desc: 'Notebook Navigator의 전체 확대 수준을 제어합니다.'
             },
             startView: {
                 name: '기본 시작 보기',

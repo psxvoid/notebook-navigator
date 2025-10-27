@@ -628,23 +628,18 @@ export const STRINGS_DE = {
                     vertical: 'Vertikale Aufteilung'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: 'Hintergrundfarbe',
-                desc: 'Wählen Sie Hintergrundfarben für Navigations- und Listenbereich auf dem Desktop.',
+                desc: 'Wählen Sie Hintergrundfarben für Navigations- und Listenbereich.',
                 options: {
                     separate: 'Separate Hintergründe',
                     primary: 'Listenhintergrund verwenden',
                     secondary: 'Navigationshintergrund verwenden'
                 }
             },
-            mobileBackground: {
-                name: 'Hintergrundfarbe',
-                desc: 'Wählen Sie Hintergrundfarben für Navigations- und Listenbereich auf Mobilgeräten.',
-                options: {
-                    separate: 'Separate Hintergründe',
-                    primary: 'Listenhintergrund verwenden',
-                    secondary: 'Navigationshintergrund verwenden'
-                }
+            appearanceScale: {
+                name: 'Zoomstufe',
+                desc: 'Steuert die gesamte Zoomstufe von Notebook Navigator.'
             },
             startView: {
                 name: 'Standard-Startansicht',

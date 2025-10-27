@@ -46,6 +46,7 @@ import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperat
 import { localStorage } from '../utils/localStorage';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
 import { getBackgroundClasses } from '../utils/paneLayout';
+import { useNavigatorScale } from '../hooks/useNavigatorScale';
 import { ListPane } from './ListPane';
 import type { ListPaneHandle } from './ListPane';
 import { NavigationPane } from './NavigationPane';
@@ -96,6 +97,15 @@ export const NotebookNavigatorComponent = React.memo(
         // Get background modes for desktop and mobile layouts
         const desktopBackground: BackgroundMode = settings.desktopBackground ?? 'separate';
         const mobileBackground: BackgroundMode = settings.mobileBackground ?? 'primary';
+        const {
+            scale: uiScale,
+            style: scaleWrapperStyle,
+            dataAttr: scaleWrapperDataAttr
+        } = useNavigatorScale({
+            isMobile,
+            desktopScale: settings.desktopScale,
+            mobileScale: settings.mobileScale
+        });
         // Retrieve sizing config based on current orientation
         const {
             minSize: navigationPaneMinSize,
@@ -143,7 +153,8 @@ export const NotebookNavigatorComponent = React.memo(
             orientation,
             initialSize: navigationPaneDefaultSize,
             min: navigationPaneMinSize,
-            storageKey: navigationPaneStorageKey
+            storageKey: navigationPaneStorageKey,
+            scale: uiScale
         });
 
         // Use navigator reveal logic
@@ -739,45 +750,47 @@ export const NotebookNavigatorComponent = React.memo(
               : { width: `${paneSize}px`, height: '100%' };
 
         return (
-            <div
-                ref={containerCallbackRef}
-                className={containerClasses.join(' ')}
-                data-focus-pane={
-                    uiState.singlePane ? (uiState.currentSinglePaneView === 'navigation' ? 'navigation' : 'files') : uiState.focusedPane
-                }
-                data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
-                tabIndex={-1}
-                onKeyDown={() => {
-                    // Allow keyboard events to bubble up from child components
-                    // The actual keyboard handling is done in NavigationPane and ListPane
-                }}
-            >
-                <UpdateNoticeBanner notice={updateNotice} onDismiss={markAsDisplayed} />
-                {/* Floating indicator button that appears when a new version is available */}
-                <UpdateNoticeIndicator notice={updateNotice} isEnabled={settings.checkForUpdatesOnStart} />
-                {/* KEYBOARD EVENT FLOW:
+            <div className="nn-scale-wrapper" data-ui-scale={scaleWrapperDataAttr} style={scaleWrapperStyle}>
+                <div
+                    ref={containerCallbackRef}
+                    className={containerClasses.join(' ')}
+                    data-focus-pane={
+                        uiState.singlePane ? (uiState.currentSinglePaneView === 'navigation' ? 'navigation' : 'files') : uiState.focusedPane
+                    }
+                    data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
+                    tabIndex={-1}
+                    onKeyDown={() => {
+                        // Allow keyboard events to bubble up from child components
+                        // The actual keyboard handling is done in NavigationPane and ListPane
+                    }}
+                >
+                    <UpdateNoticeBanner notice={updateNotice} onDismiss={markAsDisplayed} />
+                    {/* Floating indicator button that appears when a new version is available */}
+                    <UpdateNoticeIndicator notice={updateNotice} isEnabled={settings.checkForUpdatesOnStart} />
+                    {/* KEYBOARD EVENT FLOW:
                 1. Both NavigationPane and ListPane receive the same containerRef
                 2. Each pane sets up keyboard listeners on this shared container
                 3. The listeners check which pane has focus before handling events
                 4. This allows Tab/Arrow navigation between panes while keeping
                    all keyboard events scoped to the navigator container only
             */}
-                <NavigationPane
-                    ref={navigationPaneRef}
-                    style={navigationPaneStyle}
-                    rootContainerRef={containerRef}
-                    onExecuteSearchShortcut={handleSearchShortcutExecution}
-                    onNavigateToFolder={navigateToFolder}
-                    onRevealTag={revealTag}
-                    onRevealFile={revealFileInNearestFolder}
-                    onRevealShortcutFile={handleShortcutNoteReveal}
-                />
-                <ListPane
-                    ref={listPaneRef}
-                    rootContainerRef={containerRef}
-                    orientation={orientation}
-                    resizeHandleProps={!uiState.singlePane ? resizeHandleProps : undefined}
-                />
+                    <NavigationPane
+                        ref={navigationPaneRef}
+                        style={navigationPaneStyle}
+                        rootContainerRef={containerRef}
+                        onExecuteSearchShortcut={handleSearchShortcutExecution}
+                        onNavigateToFolder={navigateToFolder}
+                        onRevealTag={revealTag}
+                        onRevealFile={revealFileInNearestFolder}
+                        onRevealShortcutFile={handleShortcutNoteReveal}
+                    />
+                    <ListPane
+                        ref={listPaneRef}
+                        rootContainerRef={containerRef}
+                        orientation={orientation}
+                        resizeHandleProps={!uiState.singlePane ? resizeHandleProps : undefined}
+                    />
+                </div>
             </div>
         );
     })

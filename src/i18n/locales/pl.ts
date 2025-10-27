@@ -626,23 +626,18 @@ export const STRINGS_PL = {
                     vertical: 'Podział pionowy'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: 'Kolor tła',
-                desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy na komputerze.',
+                desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy.',
                 options: {
                     separate: 'Oddzielne tła',
                     primary: 'Użyj tła listy',
                     secondary: 'Użyj tła nawigacji'
                 }
             },
-            mobileBackground: {
-                name: 'Kolor tła',
-                desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy na telefonie.',
-                options: {
-                    separate: 'Oddzielne tła',
-                    primary: 'Użyj tła listy',
-                    secondary: 'Użyj tła nawigacji'
-                }
+            appearanceScale: {
+                name: 'Poziom powiększenia',
+                desc: 'Kontroluje ogólny poziom powiększenia w Notebook Navigator.'
             },
             startView: {
                 name: 'Domyślny widok startowy',

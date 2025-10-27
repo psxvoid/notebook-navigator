@@ -624,23 +624,18 @@ export const STRINGS_ZH_CN = {
                     vertical: '垂直分割'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: '背景色',
-                desc: '在桌面上为导航窗格和列表窗格选择背景色。',
+                desc: '为导航窗格和列表窗格选择背景色。',
                 options: {
                     separate: '分开背景',
                     primary: '使用列表背景',
                     secondary: '使用导航背景'
                 }
             },
-            mobileBackground: {
-                name: '背景色',
-                desc: '在移动端为导航窗格和列表窗格选择背景色。',
-                options: {
-                    separate: '分开背景',
-                    primary: '使用列表背景',
-                    secondary: '使用导航背景'
-                }
+            appearanceScale: {
+                name: '缩放级别',
+                desc: '控制 Notebook Navigator 的整体缩放级别。'
             },
             startView: {
                 name: '默认启动视图',

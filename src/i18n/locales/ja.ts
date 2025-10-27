@@ -625,23 +625,18 @@ export const STRINGS_JA = {
                     vertical: '垂直分割'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: '背景色',
-                desc: 'デスクトップでナビゲーションペインとリストペインの背景色を選択します。',
+                desc: 'ナビゲーションペインとリストペインの背景色を選択します。',
                 options: {
                     separate: '背景を分ける',
                     primary: 'リストの背景を使用',
                     secondary: 'ナビゲーションの背景を使用'
                 }
             },
-            mobileBackground: {
-                name: '背景色',
-                desc: 'モバイルでナビゲーションペインとリストペインの背景色を選択します。',
-                options: {
-                    separate: '別々の背景',
-                    primary: 'リストの背景を使用',
-                    secondary: 'ナビゲーションの背景を使用'
-                }
+            appearanceScale: {
+                name: 'ズームレベル',
+                desc: 'Notebook Navigator 全体のズームレベルを制御します。'
             },
             startView: {
                 name: 'デフォルト起動ビュー',

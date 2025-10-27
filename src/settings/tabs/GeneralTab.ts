@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, DropdownComponent, Notice, Platform, Setting } from 'obsidian';
+import { ButtonComponent, DropdownComponent, Notice, Platform, Setting, SliderComponent } from 'obsidian';
 import { HomepageModal } from '../../modals/HomepageModal';
 import { strings } from '../../i18n';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
@@ -26,6 +26,16 @@ import type { SettingsTabContext } from './SettingsTabContext';
 import { localStorage } from '../../utils/localStorage';
 import { getNavigationPaneSizing } from '../../utils/paneSizing';
 import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
+import {
+    DEFAULT_UI_SCALE,
+    formatUIScalePercent,
+    sanitizeUIScale,
+    MIN_UI_SCALE_PERCENT,
+    MAX_UI_SCALE_PERCENT,
+    UI_SCALE_PERCENT_STEP,
+    scaleToPercent,
+    percentToScale
+} from '../../utils/uiScale';
 
 /** Renders the general settings tab */
 export function renderGeneralTab(context: SettingsTabContext): void {
@@ -165,6 +175,218 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         );
     autoRevealSettingsEl.toggle(plugin.settings.autoRevealActiveFile);
 
+    if (!Platform.isMobile) {
+        new Setting(containerEl).setName(strings.settings.groups.general.desktopAppearance).setHeading();
+
+        const desktopScaleSetting = new Setting(containerEl)
+            .setName(strings.settings.items.appearanceScale.name)
+            .setDesc(strings.settings.items.appearanceScale.desc);
+
+        const desktopScaleValueEl = desktopScaleSetting.controlEl.createDiv({ cls: 'nn-slider-value' });
+        const updateDesktopScaleLabel = (percentValue: number) => {
+            desktopScaleValueEl.setText(formatUIScalePercent(percentToScale(percentValue)));
+        };
+
+        let desktopScaleSlider: SliderComponent;
+        const initialDesktopScale = sanitizeUIScale(plugin.settings.desktopScale);
+        const initialDesktopScalePercent = scaleToPercent(initialDesktopScale);
+
+        desktopScaleSetting
+            .addSlider(slider => {
+                desktopScaleSlider = slider
+                    .setLimits(MIN_UI_SCALE_PERCENT, MAX_UI_SCALE_PERCENT, UI_SCALE_PERCENT_STEP)
+                    .setDynamicTooltip()
+                    .setValue(initialDesktopScalePercent)
+                    .onChange(async value => {
+                        const nextValue = percentToScale(value);
+                        plugin.settings.desktopScale = nextValue;
+                        updateDesktopScaleLabel(value);
+                        await plugin.saveSettingsAndUpdate();
+                    });
+                return slider;
+            })
+            .addExtraButton(button =>
+                button
+                    .setIcon('lucide-rotate-ccw')
+                    .setTooltip('Restore to default (100%)')
+                    .onClick(async () => {
+                        const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
+                        desktopScaleSlider.setValue(defaultPercent);
+                        plugin.settings.desktopScale = DEFAULT_UI_SCALE;
+                        updateDesktopScaleLabel(defaultPercent);
+                        await plugin.saveSettingsAndUpdate();
+                    })
+            );
+
+        updateDesktopScaleLabel(initialDesktopScalePercent);
+
+        let orientationDropdown: DropdownComponent | null = null;
+        let orientationContainerEl: HTMLDivElement | null = null;
+
+        const updateOrientationVisibility = (enabled: boolean) => {
+            orientationDropdown?.setDisabled(!enabled);
+            orientationContainerEl?.toggleClass('nn-setting-hidden', !enabled);
+        };
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.dualPane.name)
+            .setDesc(strings.settings.items.dualPane.desc)
+            .addToggle(toggle =>
+                toggle.setValue(plugin.useDualPane()).onChange(value => {
+                    plugin.setDualPanePreference(value);
+                    updateOrientationVisibility(value);
+                })
+            );
+
+        orientationContainerEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(orientationContainerEl)
+            .setName(strings.settings.items.dualPaneOrientation.name)
+            .setDesc(strings.settings.items.dualPaneOrientation.desc)
+            .addDropdown(dropdown => {
+                orientationDropdown = dropdown;
+                dropdown
+                    .addOptions({
+                        horizontal: strings.settings.items.dualPaneOrientation.options.horizontal,
+                        vertical: strings.settings.items.dualPaneOrientation.options.vertical
+                    })
+                    .setValue(plugin.getDualPaneOrientation())
+                    .onChange(async value => {
+                        const nextOrientation = value === 'vertical' ? 'vertical' : 'horizontal';
+                        await plugin.setDualPaneOrientation(nextOrientation);
+                    });
+
+                updateOrientationVisibility(plugin.useDualPane());
+            });
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.appearanceBackground.name)
+            .setDesc(strings.settings.items.appearanceBackground.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOptions({
+                        separate: strings.settings.items.appearanceBackground.options.separate,
+                        primary: strings.settings.items.appearanceBackground.options.primary,
+                        secondary: strings.settings.items.appearanceBackground.options.secondary
+                    })
+                    .setValue(plugin.settings.desktopBackground ?? 'separate')
+                    .onChange(async value => {
+                        const nextValue: BackgroundMode = value === 'primary' || value === 'secondary' ? value : 'separate';
+                        plugin.settings.desktopBackground = nextValue;
+                        await plugin.saveSettingsAndUpdate();
+                    })
+            );
+
+        let showTooltipsSubSettings: HTMLDivElement | null = null;
+
+        const updateShowTooltipsSubSettings = (visible: boolean) => {
+            if (showTooltipsSubSettings) {
+                showTooltipsSubSettings.toggleClass('nn-setting-hidden', !visible);
+            }
+        };
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.showTooltips.name)
+            .setDesc(strings.settings.items.showTooltips.desc)
+            .addToggle(toggle =>
+                toggle.setValue(plugin.settings.showTooltips).onChange(async value => {
+                    plugin.settings.showTooltips = value;
+                    await plugin.saveSettingsAndUpdate();
+                    updateShowTooltipsSubSettings(value);
+                })
+            );
+
+        showTooltipsSubSettings = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(showTooltipsSubSettings)
+            .setName(strings.settings.items.showTooltipPath.name)
+            .setDesc(strings.settings.items.showTooltipPath.desc)
+            .addToggle(toggle =>
+                toggle.setValue(plugin.settings.showTooltipPath).onChange(async value => {
+                    plugin.settings.showTooltipPath = value;
+                    await plugin.saveSettingsAndUpdate();
+                })
+            );
+
+        updateShowTooltipsSubSettings(plugin.settings.showTooltips);
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.resetPaneSeparator.name)
+            .setDesc(strings.settings.items.resetPaneSeparator.desc)
+            .addButton(button =>
+                button.setButtonText(strings.settings.items.resetPaneSeparator.buttonText).onClick(() => {
+                    const orientation = plugin.getDualPaneOrientation();
+                    const { storageKey } = getNavigationPaneSizing(orientation);
+                    localStorage.remove(storageKey);
+                    new Notice(strings.settings.items.resetPaneSeparator.notice);
+                })
+            );
+    }
+
+    if (Platform.isMobile) {
+        new Setting(containerEl).setName(strings.settings.groups.general.mobileAppearance).setHeading();
+
+        const mobileScaleSetting = new Setting(containerEl)
+            .setName(strings.settings.items.appearanceScale.name)
+            .setDesc(strings.settings.items.appearanceScale.desc);
+
+        const mobileScaleValueEl = mobileScaleSetting.controlEl.createDiv({ cls: 'nn-slider-value' });
+        const updateMobileScaleLabel = (percentValue: number) => {
+            mobileScaleValueEl.setText(formatUIScalePercent(percentToScale(percentValue)));
+        };
+
+        let mobileScaleSlider: SliderComponent;
+        const initialMobileScale = sanitizeUIScale(plugin.settings.mobileScale);
+        const initialMobileScalePercent = scaleToPercent(initialMobileScale);
+
+        mobileScaleSetting
+            .addSlider(slider => {
+                mobileScaleSlider = slider
+                    .setLimits(MIN_UI_SCALE_PERCENT, MAX_UI_SCALE_PERCENT, UI_SCALE_PERCENT_STEP)
+                    .setDynamicTooltip()
+                    .setValue(initialMobileScalePercent)
+                    .onChange(async value => {
+                        const nextValue = percentToScale(value);
+                        plugin.settings.mobileScale = nextValue;
+                        updateMobileScaleLabel(value);
+                        await plugin.saveSettingsAndUpdate();
+                    });
+                return slider;
+            })
+            .addExtraButton(button =>
+                button
+                    .setIcon('lucide-rotate-ccw')
+                    .setTooltip('Restore to default (100%)')
+                    .onClick(async () => {
+                        const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
+                        mobileScaleSlider.setValue(defaultPercent);
+                        plugin.settings.mobileScale = DEFAULT_UI_SCALE;
+                        updateMobileScaleLabel(defaultPercent);
+                        await plugin.saveSettingsAndUpdate();
+                    })
+            );
+
+        updateMobileScaleLabel(initialMobileScalePercent);
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.appearanceBackground.name)
+            .setDesc(strings.settings.items.appearanceBackground.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOptions({
+                        separate: strings.settings.items.appearanceBackground.options.separate,
+                        primary: strings.settings.items.appearanceBackground.options.primary,
+                        secondary: strings.settings.items.appearanceBackground.options.secondary
+                    })
+                    .setValue(plugin.settings.mobileBackground ?? 'primary')
+                    .onChange(async value => {
+                        const nextValue: BackgroundMode = value === 'primary' || value === 'secondary' ? value : 'separate';
+                        plugin.settings.mobileBackground = nextValue;
+                        await plugin.saveSettingsAndUpdate();
+                    })
+            );
+    }
+
     new Setting(containerEl).setName(strings.settings.groups.general.view).setHeading();
 
     new Setting(containerEl)
@@ -183,16 +405,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                     await plugin.saveSettingsAndUpdate();
                 });
         });
-
-    // Track orientation dropdown and container for visibility toggling
-    let orientationDropdown: DropdownComponent | null = null;
-    let orientationContainerEl: HTMLDivElement | null = null;
-
-    // Hide orientation controls when dual pane is disabled; background mode stays visible
-    const updateOrientationVisibility = (enabled: boolean) => {
-        orientationDropdown?.setDisabled(!enabled);
-        orientationContainerEl?.toggleClass('nn-setting-hidden', !enabled);
-    };
 
     const homepageSetting = new Setting(containerEl).setName(strings.settings.items.homepage.name);
     homepageSetting.setDesc('');
@@ -307,124 +519,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         );
 
     updateShowIconsSubSettings(plugin.settings.showIcons);
-
-    if (!Platform.isMobile) {
-        new Setting(containerEl).setName(strings.settings.groups.general.desktopAppearance).setHeading();
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.dualPane.name)
-            .setDesc(strings.settings.items.dualPane.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.useDualPane()).onChange(value => {
-                    plugin.setDualPanePreference(value);
-                    updateOrientationVisibility(value);
-                })
-            );
-
-        orientationContainerEl = containerEl.createDiv('nn-sub-settings');
-
-        new Setting(orientationContainerEl)
-            .setName(strings.settings.items.dualPaneOrientation.name)
-            .setDesc(strings.settings.items.dualPaneOrientation.desc)
-            .addDropdown(dropdown => {
-                orientationDropdown = dropdown;
-                dropdown
-                    .addOptions({
-                        horizontal: strings.settings.items.dualPaneOrientation.options.horizontal,
-                        vertical: strings.settings.items.dualPaneOrientation.options.vertical
-                    })
-                    .setValue(plugin.getDualPaneOrientation())
-                    .onChange(async value => {
-                        const nextOrientation = value === 'vertical' ? 'vertical' : 'horizontal';
-                        await plugin.setDualPaneOrientation(nextOrientation);
-                    });
-
-                updateOrientationVisibility(plugin.useDualPane());
-            });
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.desktopBackground.name)
-            .setDesc(strings.settings.items.desktopBackground.desc)
-            .addDropdown(dropdown =>
-                dropdown
-                    .addOptions({
-                        separate: strings.settings.items.desktopBackground.options.separate,
-                        primary: strings.settings.items.desktopBackground.options.primary,
-                        secondary: strings.settings.items.desktopBackground.options.secondary
-                    })
-                    .setValue(plugin.settings.desktopBackground ?? 'separate')
-                    .onChange(async value => {
-                        const nextValue: BackgroundMode = value === 'primary' || value === 'secondary' ? value : 'separate';
-                        plugin.settings.desktopBackground = nextValue;
-                        await plugin.saveSettingsAndUpdate();
-                    })
-            );
-
-        let showTooltipsSubSettings: HTMLDivElement | null = null;
-
-        const updateShowTooltipsSubSettings = (visible: boolean) => {
-            if (showTooltipsSubSettings) {
-                showTooltipsSubSettings.toggleClass('nn-setting-hidden', !visible);
-            }
-        };
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.showTooltips.name)
-            .setDesc(strings.settings.items.showTooltips.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.settings.showTooltips).onChange(async value => {
-                    plugin.settings.showTooltips = value;
-                    await plugin.saveSettingsAndUpdate();
-                    updateShowTooltipsSubSettings(value);
-                })
-            );
-
-        showTooltipsSubSettings = containerEl.createDiv('nn-sub-settings');
-
-        new Setting(showTooltipsSubSettings)
-            .setName(strings.settings.items.showTooltipPath.name)
-            .setDesc(strings.settings.items.showTooltipPath.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.settings.showTooltipPath).onChange(async value => {
-                    plugin.settings.showTooltipPath = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-            );
-
-        updateShowTooltipsSubSettings(plugin.settings.showTooltips);
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.resetPaneSeparator.name)
-            .setDesc(strings.settings.items.resetPaneSeparator.desc)
-            .addButton(button =>
-                button.setButtonText(strings.settings.items.resetPaneSeparator.buttonText).onClick(() => {
-                    const orientation = plugin.getDualPaneOrientation();
-                    const { storageKey } = getNavigationPaneSizing(orientation);
-                    localStorage.remove(storageKey);
-                    new Notice(strings.settings.items.resetPaneSeparator.notice);
-                })
-            );
-    }
-
-    new Setting(containerEl).setName(strings.settings.groups.general.mobileAppearance).setHeading();
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.mobileBackground.name)
-        .setDesc(strings.settings.items.mobileBackground.desc)
-        .addDropdown(dropdown =>
-            dropdown
-                .addOptions({
-                    separate: strings.settings.items.mobileBackground.options.separate,
-                    primary: strings.settings.items.mobileBackground.options.primary,
-                    secondary: strings.settings.items.mobileBackground.options.secondary
-                })
-                .setValue(plugin.settings.mobileBackground ?? 'primary')
-                .onChange(async value => {
-                    const nextValue: BackgroundMode = value === 'primary' || value === 'secondary' ? value : 'separate';
-                    plugin.settings.mobileBackground = nextValue;
-                    await plugin.saveSettingsAndUpdate();
-                })
-        );
 
     new Setting(containerEl).setName(strings.settings.groups.general.formatting).setHeading();
 

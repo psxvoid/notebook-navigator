@@ -624,23 +624,18 @@ export const STRINGS_EN = {
                     vertical: 'Vertical split'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: 'Background color',
-                desc: 'Choose background colors for navigation and list panes on desktop.',
+                desc: 'Choose background colors for navigation and list panes.',
                 options: {
                     separate: 'Separate backgrounds',
                     primary: 'Use list background',
                     secondary: 'Use navigation background'
                 }
             },
-            mobileBackground: {
-                name: 'Background color',
-                desc: 'Choose background colors for navigation and list panes on mobile.',
-                options: {
-                    separate: 'Separate backgrounds',
-                    primary: 'Use list background',
-                    secondary: 'Use navigation background'
-                }
+            appearanceScale: {
+                name: 'Zoom level',
+                desc: 'Controls the overall zoom level of Notebook Navigator.'
             },
             startView: {
                 name: 'Default startup view',

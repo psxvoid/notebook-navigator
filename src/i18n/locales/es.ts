@@ -625,23 +625,18 @@ export const STRINGS_ES = {
                     vertical: 'División vertical'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: 'Color de fondo',
-                desc: 'Elige colores de fondo para los paneles de navegación y lista en escritorio.',
+                desc: 'Elige colores de fondo para los paneles de navegación y lista.',
                 options: {
                     separate: 'Fondos separados',
                     primary: 'Usar fondo de lista',
                     secondary: 'Usar fondo de navegación'
                 }
             },
-            mobileBackground: {
-                name: 'Color de fondo',
-                desc: 'Elige colores de fondo para los paneles de navegación y lista en móvil.',
-                options: {
-                    separate: 'Fondos separados',
-                    primary: 'Usar fondo de lista',
-                    secondary: 'Usar fondo de navegación'
-                }
+            appearanceScale: {
+                name: 'Nivel de zoom',
+                desc: 'Controla el nivel de zoom general de Notebook Navigator.'
             },
             startView: {
                 name: 'Vista de inicio predeterminada',

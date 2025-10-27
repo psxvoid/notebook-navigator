@@ -19,6 +19,7 @@
 import { getDefaultKeyboardShortcuts } from '../utils/keyboardShortcuts';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
 import { NAVPANE_MEASUREMENTS, type PinnedNotes } from '../types';
+import { DEFAULT_UI_SCALE } from '../utils/uiScale';
 import type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
 import type { NotebookNavigatorSettings } from './types';
 
@@ -28,7 +29,7 @@ import type { NotebookNavigatorSettings } from './types';
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Filtering
-    fileVisibility: FILE_VISIBILITY.DOCUMENTS,
+    fileVisibility: FILE_VISIBILITY.SUPPORTED,
     excludedFolders: [],
     excludedFiles: [],
 
@@ -48,9 +49,11 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showTooltips: false,
     showTooltipPath: true,
     desktopBackground: 'separate',
+    desktopScale: DEFAULT_UI_SCALE,
 
     // General tab - Mobile appearance
     mobileBackground: 'primary',
+    mobileScale: DEFAULT_UI_SCALE,
 
     // General tab - Formatting
     dateFormat: 'MMM d, yyyy',
