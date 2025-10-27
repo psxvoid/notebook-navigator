@@ -25,6 +25,7 @@ import { isExcalidrawAttachment, isImageFile } from '../../utils/fileTypeUtils';
 import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
 import { cacheFilePath, generateExcalidrawPreview, isCachePath } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
 import { autoCrop, blobToBase64Url, readSourceImageBlob } from './feature-image-preview-generators/ImageCropUtils';
+import { EMPTY_STRING } from 'src/utils/empty';
 
 /**
  * Content provider for finding and storing feature images
@@ -127,13 +128,17 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                 return null;
             }
 
-            const maxSizeSquarePx = settings.featureImageSize;
-            const resizedBlob = await autoCrop(await readSourceImageBlob(imageUrlStr, this.app), maxSizeSquarePx)
-            const featureImageResized = await blobToBase64Url(resizedBlob)
+            const nonEmptyString = (str?: string | null): str is string => typeof str === 'string' && str.length > 0;
+
+            let featureImageResized: string = EMPTY_STRING
+
+            if (nonEmptyString(imageUrlStr)) {
+                const maxSizeSquarePx = settings.featureImageSize;
+                const resizedBlob = await autoCrop(await readSourceImageBlob(imageUrlStr, this.app), maxSizeSquarePx)
+                featureImageResized = await blobToBase64Url(resizedBlob)
+            }
 
             let featureCleanupRequest: ProcessResult | null = null
-
-            const nonEmptyString = (str?: string | null): str is string => typeof str === 'string' && str.length > 0;
 
             if (nonEmptyString(fileData?.featureImage)
                 && nonEmptyString(fileData?.featureImageProvider)
