@@ -74,11 +74,11 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.7',
-        date: '2025-10-27',
+        date: '2025-10-28',
         showOnUpdate: true,
         new: [
             '**VERTICAL SPLIT!** You now have a new setting: ==Dual pane orientation== where you can choose **horizontal or vertical split** for the dual pane.',
-            'To match this setting you also have a new setting: ==Background color (mobile & desktop)== where you can choose to use separate background colors (like today) for navigation and files, make both look like navigation, or make both look like files.',
+            'To match this setting you also have a new setting: ==Background color (mobile & desktop)== where you can choose to use separate background colors for both panes (like current), make both panes look like navigation pane, or make both panes look like list pane.',
             "New ==UI Zoom for Notebook Navigator==! You can now set a custom zoom level for Notebook Navigator independent of Obsidian's zoom level. Separate for desktop and mobile! This is useful if you want to have a larger or smaller font size in Notebook Navigator without affecting the rest of Obsidian. Find it in Settings → Zoom Level!",
             'You can now also ==group files by subfolder==! The old setting "Group notes by date" is now replaced with a dropdown where you can choose no grouping, date or folder. Note that tags are always sorted by date or none.',
             'New command: ==Pin all folder notes==. Use it to quickly pin all folder notes in the vault.',
@@ -90,13 +90,13 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         improved: [
             'Files hidden by property are now shown when "Show hidden items" is toggled with the toolbar button in navigation pane or the command "Toggle hidden items".',
-            'You can now right-click "visible" hidden folders and choose "Unhide" without going to settings.',
+            'You can now right-click shown hidden folders and choose "Unhide" without going to settings.',
             '"Folder Note Properties" can now be entered as a text area for full control of what is copied to frontmatter.',
             'New option for "Default folder note type": "Ask". Will now ask you if you want to create a Markdown, Canvas or Base when creating a new folder note from the context menu. Thanks @artuncolak for the PR!',
             'If your homepage is open in another tab during startup, it will now be focused instead of opening it again in the current tab.'
         ],
         changed: [
-            'The toolbar settings for "Show hidden items", "Search"  and "Show notes from subfolders" are no longer synced across devices. All toolbar buttons were reset as an effect of this, so ==please re-pin your shortcuts== after upgrading.'
+            'The toolbar settings for "Show hidden items", "Search"  and "Show notes from subfolders" are no longer synced across devices. All toolbar buttons were reset as an effect of this, so you have to click the ==pin shortcuts== toolbar button after upgrading.'
         ],
         fixed: [
             'Fixed a startup crash issue when parsing tags with double slash in their path, like #tag//subtag. Thanks @kennethn for helping me fix this one.',
