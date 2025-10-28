@@ -25,9 +25,9 @@ import { isExcalidrawAttachment, isImageFile } from '../../utils/fileTypeUtils';
 import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
 import { autoCrop, blobToBase64Url, readSourceImageBlob } from './feature-image-preview-generators/ImageCropUtils';
 import { EMPTY_STRING } from 'src/utils/empty';
-import { generatePdfPreview } from './feature-image-preview-generators/PdfPreviewGenerator';
+import { generatePdfPreview } from './feature-image-preview-generators/providers/PdfPreviewGenerator';
 import { cacheFilePath, generatePreview, isCachePath } from './feature-image-preview-generators/PreviewGenerator';
-import { generateExcalidrawPreview } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
+import { generateExcalidrawPreview } from './feature-image-preview-generators/providers/ExcalidrawPreviewGenerator';
 
 /**
  * Content provider for finding and storing feature images
