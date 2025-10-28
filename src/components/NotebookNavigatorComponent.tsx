@@ -810,7 +810,6 @@ export const NotebookNavigatorComponent = React.memo(
                     <ListPane
                         ref={listPaneRef}
                         rootContainerRef={containerRef}
-                        orientation={orientation}
                         resizeHandleProps={!uiState.singlePane ? resizeHandleProps : undefined}
                     />
                 </div>

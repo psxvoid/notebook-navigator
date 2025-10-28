@@ -73,6 +73,12 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.7.2',
+        date: '2025-10-29',
+        showOnUpdate: false,
+        changed: ['Removed the extra separator between navigation and list panes in vertical split mode, it looked bad with some themes.']
+    },
+    {
         version: '1.7.1',
         date: '2025-10-28',
         showOnUpdate: true,
