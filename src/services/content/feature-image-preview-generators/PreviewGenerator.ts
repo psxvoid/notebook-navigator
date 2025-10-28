@@ -45,7 +45,6 @@ export async function generatePreview(providerFile: TFile, app: App, consumerFil
 
     let previewData: ProviderPreviewResult | undefined
     try {
-        // TODO: Remove dispose?
         const exists = (settings.featureImagePersistIntermediate && await app.vault.adapter.exists(previewFilePath))
 
         previewData = exists
