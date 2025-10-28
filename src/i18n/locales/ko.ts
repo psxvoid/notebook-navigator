@@ -280,6 +280,10 @@ export const STRINGS_KO = {
             removeAllTagsFromNote: '이 노트에서 모든 태그를 제거하시겠습니까?',
             removeAllTagsFromNotes: '{count}개의 노트에서 모든 태그를 제거하시겠습니까?'
         },
+        folderNoteType: {
+            title: '폴더 노트 형식 선택',
+            folderLabel: '폴더: {name}'
+        },
         folderSuggest: {
             placeholder: '폴더로 이동...',
             navigatePlaceholder: '폴더로 이동...',
@@ -624,23 +628,18 @@ export const STRINGS_KO = {
                     vertical: '세로 분할'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: '배경색',
-                desc: '데스크톱에서 탐색 및 목록 패널의 배경색을 선택합니다.',
+                desc: '탐색 및 목록 패널의 배경색을 선택합니다.',
                 options: {
                     separate: '분리된 배경',
                     primary: '목록 배경 사용',
                     secondary: '탐색 배경 사용'
                 }
             },
-            mobileBackground: {
-                name: '배경색',
-                desc: '모바일에서 탐색 및 목록 패널의 배경색을 선택합니다.',
-                options: {
-                    separate: '분리된 배경',
-                    primary: '목록 배경 사용',
-                    secondary: '탐색 배경 사용'
-                }
+            appearanceScale: {
+                name: '확대 수준',
+                desc: 'Notebook Navigator의 전체 확대 수준을 제어합니다.'
             },
             startView: {
                 name: '기본 시작 보기',
@@ -661,6 +660,10 @@ export const STRINGS_KO = {
             autoSelectFirstFileOnFocusChange: {
                 name: '첫 번째 노트 자동 선택 (데스크톱 전용)',
                 desc: '폴더나 태그를 전환할 때 첫 번째 노트를 자동으로 엽니다.'
+            },
+            skipAutoScroll: {
+                name: '바로가기 자동 스크롤 비활성화',
+                desc: '바로가기 내 항목을 클릭할 때 탐색 패널을 스크롤하지 않습니다.'
             },
             autoExpandFoldersTags: {
                 name: '폴더 및 태그 자동 펼치기',
@@ -926,6 +929,7 @@ export const STRINGS_KO = {
                 name: '기본 폴더 노트 형식',
                 desc: '컨텍스트 메뉴에서 생성되는 폴더 노트 형식입니다.',
                 options: {
+                    ask: '생성 시 선택',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -938,8 +942,8 @@ export const STRINGS_KO = {
             },
             folderNoteProperties: {
                 name: '폴더 노트 속성',
-                desc: '새로 생성된 폴더 노트에 추가할 frontmatter 속성 (쉼표로 구분).',
-                placeholder: 'foldernote, darktheme'
+                desc: '새 폴더 노트에 추가되는 YAML 전문. --- 마커는 자동으로 추가됩니다.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: '목록에서 폴더 노트 숨기기',

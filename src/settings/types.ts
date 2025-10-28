@@ -19,7 +19,7 @@
 import type { FileVisibility } from '../utils/fileTypeUtils';
 import type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
 import type { BackgroundMode, PinnedNotes } from '../types';
-import type { FolderNoteType } from '../types/folderNote';
+import type { FolderNoteCreationPreference } from '../types/folderNote';
 import type { KeyboardShortcutConfig } from '../utils/keyboardShortcuts';
 import type { ShortcutEntry } from '../types/shortcuts';
 import type { SearchProvider } from '../types/search';
@@ -76,15 +76,18 @@ export interface NotebookNavigatorSettings {
     showTooltips: boolean;
     showTooltipPath: boolean;
     desktopBackground: BackgroundMode;
+    desktopScale: number;
 
     // General tab - Mobile appearance
     mobileBackground: BackgroundMode;
+    mobileScale: number;
 
     // General tab - Formatting
     dateFormat: string;
     timeFormat: string;
 
     // Navigation pane tab
+    skipAutoScroll: boolean;
     autoSelectFirstFileOnFocusChange: boolean;
     navigationBanner: string | null;
     showShortcuts: boolean;
@@ -100,15 +103,14 @@ export interface NotebookNavigatorSettings {
     navIndent: number;
     navItemHeight: number;
     navItemHeightScaleText: boolean;
-    showHiddenItems: boolean;
 
     // Folders & tags tab
     showRootFolder: boolean;
     inheritFolderColors: boolean;
     enableFolderNotes: boolean;
-    folderNoteType: FolderNoteType;
+    folderNoteType: FolderNoteCreationPreference;
     folderNoteName: string;
-    folderNoteProperties: string[];
+    folderNoteProperties: string;
     hideFolderNoteInList: boolean;
     pinCreatedFolderNote: boolean;
     showTags: boolean;
@@ -122,7 +124,6 @@ export interface NotebookNavigatorSettings {
     defaultFolderSort: SortOption;
     listPaneTitle: ListPaneTitleOption;
     multiSelectModifier: MultiSelectModifier;
-    includeDescendantNotes: boolean;
     noteGrouping: ListNoteGroupingOption;
     optimizeNoteHeight: boolean;
     showQuickActions: boolean;
@@ -173,7 +174,6 @@ export interface NotebookNavigatorSettings {
     confirmBeforeDelete: boolean;
 
     // Runtime state and cached data
-    searchActive: boolean;
     customVaultName: string;
     pinnedNotes: PinnedNotes;
     fileIcons: Record<string, string>;

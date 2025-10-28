@@ -281,6 +281,10 @@ export const STRINGS_ZH_CN = {
             removeAllTagsFromNote: '您确定要从这个笔记中移除所有标签吗？',
             removeAllTagsFromNotes: '您确定要从 {count} 个笔记中移除所有标签吗？'
         },
+        folderNoteType: {
+            title: '选择文件夹笔记类型',
+            folderLabel: '文件夹：{name}'
+        },
         folderSuggest: {
             placeholder: '移动到文件夹...',
             navigatePlaceholder: '导航到文件夹...',
@@ -624,23 +628,18 @@ export const STRINGS_ZH_CN = {
                     vertical: '垂直分割'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: '背景色',
-                desc: '在桌面上为导航窗格和列表窗格选择背景色。',
+                desc: '为导航窗格和列表窗格选择背景色。',
                 options: {
                     separate: '分开背景',
                     primary: '使用列表背景',
                     secondary: '使用导航背景'
                 }
             },
-            mobileBackground: {
-                name: '背景色',
-                desc: '在移动端为导航窗格和列表窗格选择背景色。',
-                options: {
-                    separate: '分开背景',
-                    primary: '使用列表背景',
-                    secondary: '使用导航背景'
-                }
+            appearanceScale: {
+                name: '缩放级别',
+                desc: '控制 Notebook Navigator 的整体缩放级别。'
             },
             startView: {
                 name: '默认启动视图',
@@ -661,6 +660,10 @@ export const STRINGS_ZH_CN = {
             autoSelectFirstFileOnFocusChange: {
                 name: '自动选择第一个笔记（仅桌面端）',
                 desc: '切换文件夹或标签时自动打开第一个笔记。'
+            },
+            skipAutoScroll: {
+                name: '禁用快捷方式自动滚动',
+                desc: '点击快捷方式中的项目时不滚动导航面板。'
             },
             autoExpandFoldersTags: {
                 name: '自动展开文件夹和标签',
@@ -927,6 +930,7 @@ export const STRINGS_ZH_CN = {
                 name: '默认文件夹笔记类型',
                 desc: '从上下文菜单创建的文件夹笔记类型。',
                 options: {
+                    ask: '创建时询问',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -939,8 +943,8 @@ export const STRINGS_ZH_CN = {
             },
             folderNoteProperties: {
                 name: '文件夹笔记属性',
-                desc: '添加到新创建的文件夹笔记的 frontmatter 属性（逗号分隔）。',
-                placeholder: 'foldernote, darktheme'
+                desc: '添加到新文件夹笔记的YAML前置内容。--- 标记会自动添加。',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: '在列表中隐藏文件夹笔记',

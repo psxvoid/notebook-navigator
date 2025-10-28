@@ -282,6 +282,10 @@ export const STRINGS_PL = {
             removeAllTagsFromNote: 'Czy na pewno chcesz usunąć wszystkie tagi z tej notatki?',
             removeAllTagsFromNotes: 'Czy na pewno chcesz usunąć wszystkie tagi z {count} notatek?'
         },
+        folderNoteType: {
+            title: 'Wybierz typ notatki folderu',
+            folderLabel: 'Folder: {name}'
+        },
         folderSuggest: {
             placeholder: 'Przenieś do folderu...',
             navigatePlaceholder: 'Przejdź do folderu...',
@@ -626,23 +630,18 @@ export const STRINGS_PL = {
                     vertical: 'Podział pionowy'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: 'Kolor tła',
-                desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy na komputerze.',
+                desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy.',
                 options: {
                     separate: 'Oddzielne tła',
                     primary: 'Użyj tła listy',
                     secondary: 'Użyj tła nawigacji'
                 }
             },
-            mobileBackground: {
-                name: 'Kolor tła',
-                desc: 'Wybierz kolory tła dla panelu nawigacji i panelu listy na telefonie.',
-                options: {
-                    separate: 'Oddzielne tła',
-                    primary: 'Użyj tła listy',
-                    secondary: 'Użyj tła nawigacji'
-                }
+            appearanceScale: {
+                name: 'Poziom powiększenia',
+                desc: 'Kontroluje ogólny poziom powiększenia w Notebook Navigator.'
             },
             startView: {
                 name: 'Domyślny widok startowy',
@@ -663,6 +662,10 @@ export const STRINGS_PL = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'Automatycznie wybierz pierwszą notatkę (tylko desktop)',
                 desc: 'Automatycznie otwórz pierwszą notatkę podczas zmiany folderów lub tagów.'
+            },
+            skipAutoScroll: {
+                name: 'Wyłącz automatyczne przewijanie dla skrótów',
+                desc: 'Nie przewijaj panelu nawigacji przy klikaniu elementów w skrótach.'
             },
             autoExpandFoldersTags: {
                 name: 'Automatycznie rozwijaj foldery i tagi',
@@ -928,6 +931,7 @@ export const STRINGS_PL = {
                 name: 'Domyślny typ notatki folderu',
                 desc: 'Typ notatki folderu tworzony z menu kontekstowego.',
                 options: {
+                    ask: 'Pytaj przy tworzeniu',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -940,8 +944,8 @@ export const STRINGS_PL = {
             },
             folderNoteProperties: {
                 name: 'Właściwości notatki folderu',
-                desc: 'Właściwości frontmatter do dodania do nowo tworzonych notatek folderów (oddzielone przecinkami).',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML frontmatter dodawany do nowych notatek folderów. Znaczniki --- są dodawane automatycznie.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'Ukryj notatki folderów na liście',

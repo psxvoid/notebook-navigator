@@ -283,6 +283,10 @@ export const STRINGS_DE = {
             removeAllTagsFromNote: 'Sind Sie sicher, dass Sie alle Tags von dieser Notiz entfernen möchten?',
             removeAllTagsFromNotes: 'Sind Sie sicher, dass Sie alle Tags von {count} Notizen entfernen möchten?'
         },
+        folderNoteType: {
+            title: 'Ordnernotiztyp auswählen',
+            folderLabel: 'Ordner: {name}'
+        },
         folderSuggest: {
             placeholder: 'In Ordner verschieben...',
             navigatePlaceholder: 'Zu Ordner navigieren...',
@@ -628,23 +632,18 @@ export const STRINGS_DE = {
                     vertical: 'Vertikale Aufteilung'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: 'Hintergrundfarbe',
-                desc: 'Wählen Sie Hintergrundfarben für Navigations- und Listenbereich auf dem Desktop.',
+                desc: 'Wählen Sie Hintergrundfarben für Navigations- und Listenbereich.',
                 options: {
                     separate: 'Separate Hintergründe',
                     primary: 'Listenhintergrund verwenden',
                     secondary: 'Navigationshintergrund verwenden'
                 }
             },
-            mobileBackground: {
-                name: 'Hintergrundfarbe',
-                desc: 'Wählen Sie Hintergrundfarben für Navigations- und Listenbereich auf Mobilgeräten.',
-                options: {
-                    separate: 'Separate Hintergründe',
-                    primary: 'Listenhintergrund verwenden',
-                    secondary: 'Navigationshintergrund verwenden'
-                }
+            appearanceScale: {
+                name: 'Zoomstufe',
+                desc: 'Steuert die gesamte Zoomstufe von Notebook Navigator.'
             },
             startView: {
                 name: 'Standard-Startansicht',
@@ -665,6 +664,10 @@ export const STRINGS_DE = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'Erste Notiz automatisch auswählen (nur Desktop)',
                 desc: 'Die erste Notiz automatisch öffnen, wenn Sie den Ordner oder Tag wechseln.'
+            },
+            skipAutoScroll: {
+                name: 'Auto-Scroll für Verknüpfungen deaktivieren',
+                desc: 'Navigationsbereich nicht scrollen beim Klicken auf Elemente in Verknüpfungen.'
             },
             autoExpandFoldersTags: {
                 name: 'Ordner und Tags automatisch erweitern',
@@ -930,6 +933,7 @@ export const STRINGS_DE = {
                 name: 'Standardtyp für Ordnernotizen',
                 desc: 'Ordnernotiztyp, der über das Kontextmenü erstellt wird.',
                 options: {
+                    ask: 'Beim Erstellen fragen',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -942,8 +946,8 @@ export const STRINGS_DE = {
             },
             folderNoteProperties: {
                 name: 'Ordnernotiz-Eigenschaften',
-                desc: 'Frontmatter-Eigenschaften, die neu erstellten Ordnernotizen hinzugefügt werden (kommagetrennt).',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML-Frontmatter, das neuen Ordnernotizen hinzugefügt wird. --- Markierungen werden automatisch hinzugefügt.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'Ordnernotizen in Liste ausblenden',

@@ -281,6 +281,10 @@ export const STRINGS_ES = {
             removeAllTagsFromNote: '¿Estás seguro de que quieres eliminar todas las etiquetas de esta nota?',
             removeAllTagsFromNotes: '¿Estás seguro de que quieres eliminar todas las etiquetas de {count} notas?'
         },
+        folderNoteType: {
+            title: 'Selecciona el tipo de nota de carpeta',
+            folderLabel: 'Carpeta: {name}'
+        },
         folderSuggest: {
             placeholder: 'Mover a carpeta...',
             navigatePlaceholder: 'Navegar a carpeta...',
@@ -625,23 +629,18 @@ export const STRINGS_ES = {
                     vertical: 'División vertical'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: 'Color de fondo',
-                desc: 'Elige colores de fondo para los paneles de navegación y lista en escritorio.',
+                desc: 'Elige colores de fondo para los paneles de navegación y lista.',
                 options: {
                     separate: 'Fondos separados',
                     primary: 'Usar fondo de lista',
                     secondary: 'Usar fondo de navegación'
                 }
             },
-            mobileBackground: {
-                name: 'Color de fondo',
-                desc: 'Elige colores de fondo para los paneles de navegación y lista en móvil.',
-                options: {
-                    separate: 'Fondos separados',
-                    primary: 'Usar fondo de lista',
-                    secondary: 'Usar fondo de navegación'
-                }
+            appearanceScale: {
+                name: 'Nivel de zoom',
+                desc: 'Controla el nivel de zoom general de Notebook Navigator.'
             },
             startView: {
                 name: 'Vista de inicio predeterminada',
@@ -662,6 +661,10 @@ export const STRINGS_ES = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'Seleccionar automáticamente la primera nota (solo escritorio)',
                 desc: 'Abre automáticamente la primera nota al cambiar de carpeta o etiqueta.'
+            },
+            skipAutoScroll: {
+                name: 'Desactivar desplazamiento automático para accesos directos',
+                desc: 'No desplazar el panel de navegación al hacer clic en elementos de accesos directos.'
             },
             autoExpandFoldersTags: {
                 name: 'Expandir carpetas y etiquetas automáticamente',
@@ -927,6 +930,7 @@ export const STRINGS_ES = {
                 name: 'Tipo predeterminado de nota de carpeta',
                 desc: 'Tipo de nota de carpeta creado desde el menú contextual.',
                 options: {
+                    ask: 'Preguntar al crear',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -939,8 +943,8 @@ export const STRINGS_ES = {
             },
             folderNoteProperties: {
                 name: 'Propiedades de nota de carpeta',
-                desc: 'Propiedades frontmatter para agregar a las notas de carpeta recién creadas (separadas por comas).',
-                placeholder: 'foldernote, darktheme'
+                desc: 'Frontmatter YAML agregado a las nuevas notas de carpeta. Los marcadores --- se agregan automáticamente.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'Ocultar notas de carpeta en la lista',

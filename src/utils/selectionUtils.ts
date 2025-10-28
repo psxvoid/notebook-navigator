@@ -18,7 +18,7 @@
 
 import { TFile, App } from 'obsidian';
 import { SelectionDispatch, SelectionState } from '../context/SelectionContext';
-import { ItemType } from '../types';
+import { ItemType, type VisibilityPreferences } from '../types';
 import { NotebookNavigatorSettings } from '../settings';
 import { TagTreeService } from '../services/TagTreeService';
 import { getFilesForFolder, getFilesForTag } from './fileFinder';
@@ -46,6 +46,7 @@ export function getSelectedPath(selectionState: SelectionState): string | null {
  * Get all files for the current selection (folder or tag)
  * @param selectionState The current selection state
  * @param settings Plugin settings
+ * @param visibility Visibility preferences for descendant notes and hidden items display
  * @param app Obsidian app instance
  * @param tagTreeService Tag tree service for tag operations
  * @returns Array of files in the selected folder or with the selected tag
@@ -53,14 +54,15 @@ export function getSelectedPath(selectionState: SelectionState): string | null {
 export function getFilesForSelection(
     selectionState: SelectionState,
     settings: NotebookNavigatorSettings,
+    visibility: VisibilityPreferences,
     app: App,
     tagTreeService: TagTreeService | null
 ): TFile[] {
     if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-        return getFilesForFolder(selectionState.selectedFolder, settings, app);
+        return getFilesForFolder(selectionState.selectedFolder, settings, visibility, app);
     }
     if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-        return getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
+        return getFilesForTag(selectionState.selectedTag, settings, visibility, app, tagTreeService);
     }
     return [];
 }

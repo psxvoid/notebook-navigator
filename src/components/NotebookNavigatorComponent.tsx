@@ -24,6 +24,7 @@ import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useShortcuts } from '../context/ShortcutsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useDragNavigationPaneActivation } from '../hooks/useDragNavigationPaneActivation';
 import { useNavigatorReveal, type RevealFileOptions } from '../hooks/useNavigatorReveal';
@@ -46,6 +47,7 @@ import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperat
 import { localStorage } from '../utils/localStorage';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
 import { getBackgroundClasses } from '../utils/paneLayout';
+import { useNavigatorScale } from '../hooks/useNavigatorScale';
 import { ListPane } from './ListPane';
 import type { ListPaneHandle } from './ListPane';
 import { NavigationPane } from './NavigationPane';
@@ -91,11 +93,25 @@ export const NotebookNavigatorComponent = React.memo(
     forwardRef<NotebookNavigatorHandle>(function NotebookNavigatorComponent(_, ref) {
         const { app, isMobile, fileSystemOps, plugin, tagTreeService, commandQueue, tagOperations } = useServices();
         const settings = useSettingsState();
+        const uxPreferences = useUXPreferences();
+        const uxRef = useRef(uxPreferences);
+        useEffect(() => {
+            uxRef.current = uxPreferences;
+        }, [uxPreferences]);
         // Get active orientation from settings
         const orientation: DualPaneOrientation = settings.dualPaneOrientation;
         // Get background modes for desktop and mobile layouts
         const desktopBackground: BackgroundMode = settings.desktopBackground ?? 'separate';
         const mobileBackground: BackgroundMode = settings.mobileBackground ?? 'primary';
+        const {
+            scale: uiScale,
+            style: scaleWrapperStyle,
+            dataAttr: scaleWrapperDataAttr
+        } = useNavigatorScale({
+            isMobile,
+            desktopScale: settings.desktopScale,
+            mobileScale: settings.mobileScale
+        });
         // Retrieve sizing config based on current orientation
         const {
             minSize: navigationPaneMinSize,
@@ -143,7 +159,8 @@ export const NotebookNavigatorComponent = React.memo(
             orientation,
             initialSize: navigationPaneDefaultSize,
             min: navigationPaneMinSize,
-            storageKey: navigationPaneStorageKey
+            storageKey: navigationPaneStorageKey,
+            scale: uiScale
         });
 
         // Use navigator reveal logic
@@ -387,6 +404,10 @@ export const NotebookNavigatorComponent = React.memo(
                             app,
                             fileSystemOps,
                             settings,
+                            visibility: {
+                                includeDescendantNotes: uxRef.current.includeDescendantNotes,
+                                showHiddenItems: uxRef.current.showHiddenItems
+                            },
                             selectionState,
                             selectionDispatch,
                             tagTreeService
@@ -400,6 +421,10 @@ export const NotebookNavigatorComponent = React.memo(
                             app,
                             fileSystemOps,
                             settings,
+                            visibility: {
+                                includeDescendantNotes: uxRef.current.includeDescendantNotes,
+                                showHiddenItems: uxRef.current.showHiddenItems
+                            },
                             selectionState,
                             selectionDispatch
                         });
@@ -424,7 +449,16 @@ export const NotebookNavigatorComponent = React.memo(
                     }
 
                     // Get all files in the current view for smart selection
-                    const allFiles = getFilesForSelection(selectionState, settings, app, tagTreeService);
+                    const allFiles = getFilesForSelection(
+                        selectionState,
+                        settings,
+                        {
+                            includeDescendantNotes: uxRef.current.includeDescendantNotes,
+                            showHiddenItems: uxRef.current.showHiddenItems
+                        },
+                        app,
+                        tagTreeService
+                    );
 
                     // Move files with modal
                     await fileSystemOps.moveFilesWithModal(selectedFiles, {
@@ -739,45 +773,47 @@ export const NotebookNavigatorComponent = React.memo(
               : { width: `${paneSize}px`, height: '100%' };
 
         return (
-            <div
-                ref={containerCallbackRef}
-                className={containerClasses.join(' ')}
-                data-focus-pane={
-                    uiState.singlePane ? (uiState.currentSinglePaneView === 'navigation' ? 'navigation' : 'files') : uiState.focusedPane
-                }
-                data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
-                tabIndex={-1}
-                onKeyDown={() => {
-                    // Allow keyboard events to bubble up from child components
-                    // The actual keyboard handling is done in NavigationPane and ListPane
-                }}
-            >
-                <UpdateNoticeBanner notice={updateNotice} onDismiss={markAsDisplayed} />
-                {/* Floating indicator button that appears when a new version is available */}
-                <UpdateNoticeIndicator notice={updateNotice} isEnabled={settings.checkForUpdatesOnStart} />
-                {/* KEYBOARD EVENT FLOW:
+            <div className="nn-scale-wrapper" data-ui-scale={scaleWrapperDataAttr} style={scaleWrapperStyle}>
+                <div
+                    ref={containerCallbackRef}
+                    className={containerClasses.join(' ')}
+                    data-focus-pane={
+                        uiState.singlePane ? (uiState.currentSinglePaneView === 'navigation' ? 'navigation' : 'files') : uiState.focusedPane
+                    }
+                    data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
+                    tabIndex={-1}
+                    onKeyDown={() => {
+                        // Allow keyboard events to bubble up from child components
+                        // The actual keyboard handling is done in NavigationPane and ListPane
+                    }}
+                >
+                    <UpdateNoticeBanner notice={updateNotice} onDismiss={markAsDisplayed} />
+                    {/* Floating indicator button that appears when a new version is available */}
+                    <UpdateNoticeIndicator notice={updateNotice} isEnabled={settings.checkForUpdatesOnStart} />
+                    {/* KEYBOARD EVENT FLOW:
                 1. Both NavigationPane and ListPane receive the same containerRef
                 2. Each pane sets up keyboard listeners on this shared container
                 3. The listeners check which pane has focus before handling events
                 4. This allows Tab/Arrow navigation between panes while keeping
                    all keyboard events scoped to the navigator container only
             */}
-                <NavigationPane
-                    ref={navigationPaneRef}
-                    style={navigationPaneStyle}
-                    rootContainerRef={containerRef}
-                    onExecuteSearchShortcut={handleSearchShortcutExecution}
-                    onNavigateToFolder={navigateToFolder}
-                    onRevealTag={revealTag}
-                    onRevealFile={revealFileInNearestFolder}
-                    onRevealShortcutFile={handleShortcutNoteReveal}
-                />
-                <ListPane
-                    ref={listPaneRef}
-                    rootContainerRef={containerRef}
-                    orientation={orientation}
-                    resizeHandleProps={!uiState.singlePane ? resizeHandleProps : undefined}
-                />
+                    <NavigationPane
+                        ref={navigationPaneRef}
+                        style={navigationPaneStyle}
+                        rootContainerRef={containerRef}
+                        onExecuteSearchShortcut={handleSearchShortcutExecution}
+                        onNavigateToFolder={navigateToFolder}
+                        onRevealTag={revealTag}
+                        onRevealFile={revealFileInNearestFolder}
+                        onRevealShortcutFile={handleShortcutNoteReveal}
+                    />
+                    <ListPane
+                        ref={listPaneRef}
+                        rootContainerRef={containerRef}
+                        orientation={orientation}
+                        resizeHandleProps={!uiState.singlePane ? resizeHandleProps : undefined}
+                    />
+                </div>
             </div>
         );
     })

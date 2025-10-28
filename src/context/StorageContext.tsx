@@ -58,6 +58,7 @@ import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase, findTagNode, collectAllTagPaths } from '../utils/tagTree';
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
+import { useUXPreferences } from './UXPreferencesContext';
 import { NotebookNavigatorSettings } from '../settings';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { ContentType } from '../interfaces/IContentProvider';
@@ -197,6 +198,8 @@ interface StorageProviderProps {
 
 export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const showHiddenItems = uxPreferences.showHiddenItems;
     const { tagTreeService } = useServices();
     const [fileData, setFileData] = useState<FileData>({ tagTree: new Map(), untagged: 0, hiddenRootTags: new Map() });
 
@@ -230,8 +233,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
     // Returns markdown files visible in the UI after applying exclusion filters
     const getVisibleMarkdownFiles = useCallback((): TFile[] => {
-        return getFilteredMarkdownFiles(app, settings);
-    }, [app, settings]);
+        return getFilteredMarkdownFiles(app, settings, { showHiddenItems });
+    }, [app, settings, showHiddenItems]);
 
     // Returns all markdown files regardless of hidden/excluded settings for indexing
     const getIndexableMarkdownFiles = useCallback((): TFile[] => {
@@ -242,7 +245,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
         // Hidden items override: when enabled, include all folders in tag tree regardless of exclusions
-        const excludedFolderPatterns = settings.showHiddenItems ? [] : settings.excludedFolders;
+        const excludedFolderPatterns = showHiddenItems ? [] : settings.excludedFolders;
         // Filter database results to only include files matching current visibility settings
         const includedPaths = new Set(getVisibleMarkdownFiles().map(f => f.path));
         const { tagTree, untagged: newUntagged, hiddenRootTags } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths);
@@ -256,7 +259,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         return tagTree;
-    }, [settings.excludedFolders, settings.showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
+    }, [settings.excludedFolders, showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
 
     /**
      * Effect: Rebuild tag tree when hidden items visibility changes
@@ -272,7 +275,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         if (settings.showTags) {
             rebuildTagTree();
         }
-    }, [settings.showHiddenItems, settings.showTags, isStorageReady, rebuildTagTree]);
+    }, [showHiddenItems, settings.showTags, isStorageReady, rebuildTagTree]);
 
     /**
      * Effect: Keep a ref with the latest settings for use in callbacks

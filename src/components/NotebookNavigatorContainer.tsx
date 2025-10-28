@@ -27,6 +27,8 @@ import { SkeletonView } from './SkeletonView';
 import { localStorage } from '../utils/localStorage';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
 import { getBackgroundClasses } from '../utils/paneLayout';
+import { useNavigatorScale } from '../hooks/useNavigatorScale';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 
 /**
  * Container component that handles storage initialization.
@@ -37,11 +39,17 @@ export const NotebookNavigatorContainer = React.memo(
         const { isStorageReady } = useFileCache();
         const uiState = useUIState();
         const settings = useSettingsState();
+        const uxPreferences = useUXPreferences();
         const { isMobile } = useServices();
         const orientation = settings.dualPaneOrientation;
         // Get background mode for desktop and mobile layouts
         const desktopBackground = settings.desktopBackground ?? 'separate';
         const mobileBackground = settings.mobileBackground ?? 'primary';
+        const { style: scaleWrapperStyle, dataAttr: scaleWrapperDataAttr } = useNavigatorScale({
+            isMobile,
+            desktopScale: settings.desktopScale,
+            mobileScale: settings.mobileScale
+        });
         // Get sizing config for current orientation
         const { defaultSize, minSize, storageKey } = getNavigationPaneSizing(orientation);
         const [paneSize, setPaneSize] = useState(defaultSize);
@@ -85,13 +93,15 @@ export const NotebookNavigatorContainer = React.memo(
             }
 
             return (
-                <div className={containerClasses.join(' ')}>
-                    <SkeletonView
-                        paneSize={paneSize}
-                        singlePane={uiState.singlePane}
-                        searchActive={settings.searchActive}
-                        orientation={orientation}
-                    />
+                <div className="nn-scale-wrapper" data-ui-scale={scaleWrapperDataAttr} style={scaleWrapperStyle}>
+                    <div className={containerClasses.join(' ')}>
+                        <SkeletonView
+                            paneSize={paneSize}
+                            singlePane={uiState.singlePane}
+                            searchActive={uxPreferences.searchActive}
+                            orientation={orientation}
+                        />
+                    </div>
                 </div>
             );
         }

@@ -18,9 +18,10 @@
 
 import { App, Notice, TFile, TFolder, normalizePath } from 'obsidian';
 import { strings } from '../i18n';
-import { FolderNoteType, FOLDER_NOTE_TYPE_EXTENSIONS } from '../types/folderNote';
+import { FolderNoteType, FOLDER_NOTE_TYPE_EXTENSIONS, FolderNoteCreationPreference } from '../types/folderNote';
 import { createDatabaseContent } from './fileCreationUtils';
 import { CommandQueueService } from '../services/CommandQueueService';
+import { promptForFolderNoteType } from '../modals/FolderNoteTypeModal';
 
 /**
  * Settings required for detecting folder notes
@@ -34,9 +35,9 @@ export interface FolderNoteDetectionSettings {
  * Settings required for creating folder notes
  */
 export interface FolderNoteCreationSettings {
-    folderNoteType: FolderNoteType;
+    folderNoteType: FolderNoteCreationPreference;
     folderNoteName: string;
-    folderNoteProperties: string[];
+    folderNoteProperties: string;
 }
 
 /** Set of file extensions that are valid for folder notes */
@@ -122,11 +123,6 @@ export async function createFolderNote(
     settings: FolderNoteCreationSettings,
     commandQueue?: CommandQueueService | null
 ): Promise<TFile | null> {
-    const extension = FOLDER_NOTE_TYPE_EXTENSIONS[settings.folderNoteType];
-    const baseName = settings.folderNoteName || folder.name;
-    const noteFileName = `${baseName}.${extension}`;
-    const notePath = normalizePath(`${folder.path}/${noteFileName}`);
-
     const existingNote = getFolderNote(folder, {
         enableFolderNotes: true,
         folderNoteName: settings.folderNoteName
@@ -137,6 +133,22 @@ export async function createFolderNote(
         return null;
     }
 
+    let selectedType: FolderNoteType | null = null;
+
+    if (settings.folderNoteType === 'ask') {
+        selectedType = await promptForFolderNoteType(app, folder);
+        if (!selectedType) {
+            return null;
+        }
+    } else {
+        selectedType = settings.folderNoteType;
+    }
+
+    const extension = FOLDER_NOTE_TYPE_EXTENSIONS[selectedType];
+    const baseName = settings.folderNoteName || folder.name;
+    const noteFileName = `${baseName}.${extension}`;
+    const notePath = normalizePath(`${folder.path}/${noteFileName}`);
+
     const conflictingItem = app.vault.getAbstractFileByPath(notePath);
     if (conflictingItem) {
         new Notice(strings.fileSystem.errors.folderNoteAlreadyExists);
@@ -146,14 +158,14 @@ export async function createFolderNote(
     // Generate content based on folder note type
     let content = '';
 
-    if (settings.folderNoteType === 'markdown') {
-        if (settings.folderNoteProperties.length > 0) {
-            const properties = settings.folderNoteProperties.map(prop => `${prop}: true`).join('\n');
-            content = `---\n${properties}\n---\n`;
+    if (selectedType === 'markdown') {
+        const trimmedBlock = settings.folderNoteProperties.replace(/\r\n/g, '\n').trim();
+        if (trimmedBlock.length > 0) {
+            content = `---\n${trimmedBlock}\n---\n`;
         }
-    } else if (settings.folderNoteType === 'canvas') {
+    } else if (selectedType === 'canvas') {
         content = '{}';
-    } else if (settings.folderNoteType === 'base') {
+    } else if (selectedType === 'base') {
         content = createDatabaseContent();
     }
 

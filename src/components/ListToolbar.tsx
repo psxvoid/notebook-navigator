@@ -17,7 +17,7 @@
  */
 
 import { useSelectionState } from '../context/SelectionContext';
-import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useListActions } from '../hooks/useListActions';
@@ -28,7 +28,8 @@ interface ListToolbarProps {
 }
 
 export function ListToolbar({ isSearchActive, onSearchToggle }: ListToolbarProps) {
-    const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
     const selectionState = useSelectionState();
 
     // Use the shared actions hook
@@ -47,7 +48,7 @@ export function ListToolbar({ isSearchActive, onSearchToggle }: ListToolbarProps
                 <ObsidianIcon name="lucide-search" />
             </button>
             <button
-                className={`nn-mobile-toolbar-button ${settings.includeDescendantNotes ? 'nn-mobile-toolbar-button-active' : ''}`}
+                className={`nn-mobile-toolbar-button ${includeDescendantNotes ? 'nn-mobile-toolbar-button-active' : ''}`}
                 aria-label={strings.paneHeader.toggleDescendantNotes}
                 onClick={handleToggleDescendants}
                 disabled={!selectionState.selectedFolder && !selectionState.selectedTag}

@@ -19,6 +19,7 @@
 import { getDefaultKeyboardShortcuts } from '../utils/keyboardShortcuts';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
 import { NAVPANE_MEASUREMENTS, type PinnedNotes } from '../types';
+import { DEFAULT_UI_SCALE } from '../utils/uiScale';
 import type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
 import type { NotebookNavigatorSettings } from './types';
 
@@ -48,15 +49,18 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showTooltips: false,
     showTooltipPath: true,
     desktopBackground: 'separate',
+    desktopScale: DEFAULT_UI_SCALE,
 
     // General tab - Mobile appearance
     mobileBackground: 'primary',
+    mobileScale: DEFAULT_UI_SCALE,
 
     // General tab - Formatting
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
 
     // Navigation pane tab
+    skipAutoScroll: false,
     autoSelectFirstFileOnFocusChange: false,
     navigationBanner: null,
     showShortcuts: true,
@@ -72,7 +76,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     navIndent: NAVPANE_MEASUREMENTS.defaultIndent,
     navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
     navItemHeightScaleText: true,
-    showHiddenItems: false,
 
     // Folders & tags tab
     showRootFolder: true,
@@ -80,7 +83,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     enableFolderNotes: false,
     folderNoteType: 'markdown',
     folderNoteName: '',
-    folderNoteProperties: [],
+    folderNoteProperties: '',
     hideFolderNoteInList: true,
     pinCreatedFolderNote: false,
     showTags: true,
@@ -94,7 +97,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     defaultFolderSort: 'modified-desc',
     listPaneTitle: 'header',
     multiSelectModifier: 'cmdCtrl',
-    includeDescendantNotes: true,
     noteGrouping: 'date',
     optimizeNoteHeight: true,
     showQuickActions: true,
@@ -146,7 +148,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     confirmBeforeDelete: true,
 
     // Runtime state and cached data
-    searchActive: false,
     customVaultName: '',
     pinnedNotes: {} as PinnedNotes,
     fileIcons: {},

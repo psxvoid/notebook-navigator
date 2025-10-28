@@ -214,10 +214,10 @@ export interface LocalStorageKeys {
     dualPaneKey: string;
     shortcutsExpandedKey: string;
     recentNotesExpandedKey: string;
-    shortcutsPinnedKey: string;
     recentNotesKey: string;
     recentIconsKey: string;
     navigationSectionOrderKey: string;
+    uxPreferencesKey: string;
     fileCacheKey: string;
     databaseSchemaVersionKey: string;
     databaseContentVersionKey: string;
@@ -242,15 +242,24 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     dualPaneKey: 'notebook-navigator-dual-pane',
     shortcutsExpandedKey: 'notebook-navigator-shortcuts-expanded',
     recentNotesExpandedKey: 'notebook-navigator-recent-notes-expanded',
-    shortcutsPinnedKey: 'notebook-navigator-shortcuts-pinned',
     recentNotesKey: 'notebook-navigator-recent-notes',
     recentIconsKey: 'notebook-navigator-recent-icons',
     navigationSectionOrderKey: 'notebook-navigator-section-order',
+    uxPreferencesKey: 'notebook-navigator-ux-preferences',
     fileCacheKey: 'notebook-navigator-file-cache',
     databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
     databaseContentVersionKey: 'notebook-navigator-db-content-version',
     localStorageVersionKey: 'notebook-navigator-localstorage-version'
 };
+
+export interface UXPreferences {
+    searchActive: boolean;
+    includeDescendantNotes: boolean;
+    showHiddenItems: boolean;
+    pinShortcuts: boolean;
+}
+
+export type VisibilityPreferences = Pick<UXPreferences, 'includeDescendantNotes' | 'showHiddenItems'>;
 
 /** Orientation options for dual-pane layout */
 export type DualPaneOrientation = 'horizontal' | 'vertical';

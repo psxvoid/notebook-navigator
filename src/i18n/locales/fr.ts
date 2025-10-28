@@ -281,6 +281,10 @@ export const STRINGS_FR = {
             removeAllTagsFromNote: 'Êtes-vous sûr de vouloir supprimer toutes les étiquettes de cette note ?',
             removeAllTagsFromNotes: 'Êtes-vous sûr de vouloir supprimer toutes les étiquettes de {count} notes ?'
         },
+        folderNoteType: {
+            title: 'Sélectionner le type de note de dossier',
+            folderLabel: 'Dossier : {name}'
+        },
         folderSuggest: {
             placeholder: 'Déplacer vers le dossier...',
             navigatePlaceholder: 'Naviguer vers le dossier...',
@@ -626,23 +630,18 @@ export const STRINGS_FR = {
                     vertical: 'Séparation verticale'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: 'Couleur de fond',
-                desc: 'Choisissez les couleurs de fond pour les volets de navigation et de liste sur bureau.',
+                desc: 'Choisissez les couleurs de fond pour les volets de navigation et de liste.',
                 options: {
                     separate: 'Arrière-plans séparés',
                     primary: 'Utiliser le fond de la liste',
                     secondary: 'Utiliser le fond de navigation'
                 }
             },
-            mobileBackground: {
-                name: 'Couleur de fond',
-                desc: 'Choisissez les couleurs de fond pour les volets de navigation et de liste sur mobile.',
-                options: {
-                    separate: 'Arrière-plans séparés',
-                    primary: 'Utiliser le fond de la liste',
-                    secondary: 'Utiliser le fond de navigation'
-                }
+            appearanceScale: {
+                name: 'Niveau de zoom',
+                desc: 'Contrôle le niveau de zoom global de Notebook Navigator.'
             },
             startView: {
                 name: 'Vue de démarrage par défaut',
@@ -663,6 +662,10 @@ export const STRINGS_FR = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'Sélectionner automatiquement la première note (ordinateur uniquement)',
                 desc: "Ouvrir automatiquement la première note lors du changement de dossier ou d'étiquette."
+            },
+            skipAutoScroll: {
+                name: 'Désactiver le défilement automatique pour les raccourcis',
+                desc: 'Ne pas faire défiler le panneau de navigation lors du clic sur les éléments de raccourcis.'
             },
             autoExpandFoldersTags: {
                 name: 'Développer automatiquement les dossiers et les étiquettes',
@@ -929,6 +932,7 @@ export const STRINGS_FR = {
                 name: 'Type de note de dossier par défaut',
                 desc: 'Type de note de dossier créé depuis le menu contextuel.',
                 options: {
+                    ask: 'Demander lors de la création',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -941,8 +945,8 @@ export const STRINGS_FR = {
             },
             folderNoteProperties: {
                 name: 'Propriétés de note de dossier',
-                desc: 'Propriétés frontmatter à ajouter aux notes de dossier nouvellement créées (séparées par des virgules).',
-                placeholder: 'foldernote, darktheme'
+                desc: 'En-tête YAML ajouté aux nouvelles notes de dossier. Les marqueurs --- sont ajoutés automatiquement.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'Masquer les notes de dossier dans la liste',

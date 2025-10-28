@@ -597,10 +597,11 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
     const folderReorderItems = useMemo<RootReorderRenderItem[]>(() => {
         return reorderableRootFolders.map(entry => {
             const { dragHandlers, showBefore, showAfter, isDragSource } = getRootFolderReorderVisualState(entry);
-            const iconName = rootFolderIconMap.get(entry.key);
-            const iconColor = rootFolderColorMap.get(entry.key);
             const isMissing = entry.isMissing === true;
             const displayLabel = entry.folder ? entry.folder.name : getPathBaseName(entry.key);
+            // Hidden roots are not present in navigation maps, so read icon data directly from metadata
+            const iconName = rootFolderIconMap.get(entry.key) ?? (isMissing ? undefined : metadataService.getFolderIcon(entry.key));
+            const iconColor = rootFolderColorMap.get(entry.key) ?? (isMissing ? undefined : metadataService.getFolderColor(entry.key));
 
             let displayIcon = 'lucide-folder';
             if (isMissing) {
@@ -634,6 +635,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         getRootFolderReorderVisualState,
         rootFolderIconMap,
         rootFolderColorMap,
+        metadataService,
         buildRemoveMissingAction,
         handleRemoveMissingRootFolder
     ]);
