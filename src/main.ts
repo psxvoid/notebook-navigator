@@ -18,7 +18,14 @@
 
 import { Plugin, TFile, FileView } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab, updateFeatureImageSize } from './settings';
-import { LocalStorageKeys, NOTEBOOK_NAVIGATOR_VIEW, STORAGE_KEYS, type DualPaneOrientation } from './types';
+import {
+    LocalStorageKeys,
+    NOTEBOOK_NAVIGATOR_VIEW,
+    STORAGE_KEYS,
+    type DualPaneOrientation,
+    type UXPreferences,
+    type VisibilityPreferences
+} from './types';
 import { ISettingsProvider } from './interfaces/ISettingsProvider';
 import { MetadataService, type MetadataCleanupSummary } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
@@ -45,6 +52,15 @@ import HomepageController from './services/workspace/HomepageController';
 import registerNavigatorCommands from './services/commands/registerNavigatorCommands';
 import registerWorkspaceEvents from './services/workspace/registerWorkspaceEvents';
 import type { RevealFileOptions } from './hooks/useNavigatorReveal';
+
+const DEFAULT_UX_PREFERENCES: UXPreferences = {
+    searchActive: false,
+    includeDescendantNotes: true,
+    showHiddenItems: false,
+    pinShortcuts: false
+};
+
+const UX_PREFERENCE_KEYS: (keyof UXPreferences)[] = ['searchActive', 'includeDescendantNotes', 'showHiddenItems', 'pinShortcuts'];
 
 /**
  * Main plugin class for Notebook Navigator
@@ -83,6 +99,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     // Handles homepage file opening and startup behavior
     private homepageController: HomepageController | null = null;
     private pendingUpdateNotice: ReleaseUpdateNotice | null = null;
+    private uxPreferences: UXPreferences = { ...DEFAULT_UX_PREFERENCES };
+    private uxPreferenceListeners = new Map<string, () => void>();
 
     // Keys used for persisting UI state in browser localStorage
     keys: LocalStorageKeys = STORAGE_KEYS;
@@ -117,6 +135,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const mutableSettings = this.settings as unknown as Record<string, unknown>;
         delete mutableSettings.recentNotes;
         delete mutableSettings.recentIcons;
+        delete mutableSettings.searchActive;
+        delete mutableSettings.includeDescendantNotes;
+        delete mutableSettings.showHiddenItems;
 
         const storedData = data && typeof data === 'object' ? (data as Record<string, unknown>) : null;
         const storedNoteGrouping = storedData ? storedData['noteGrouping'] : undefined;
@@ -164,6 +185,27 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         if (!Array.isArray(this.settings.rootTagOrder)) {
             this.settings.rootTagOrder = [];
+        }
+
+        const normalizeFolderNoteBlock = (input: string): string =>
+            input
+                .replace(/\r\n/g, '\n')
+                .replace(/^---\s*\n?/, '')
+                .replace(/\n?---\s*$/, '')
+                .trim();
+
+        const folderNotePropertiesSetting = this.settings.folderNoteProperties;
+        if (Array.isArray(folderNotePropertiesSetting)) {
+            const migratedProperties = folderNotePropertiesSetting
+                .map(entry => (typeof entry === 'string' ? entry.trim() : ''))
+                .filter(entry => entry.length > 0)
+                .map(entry => `${entry}: true`)
+                .join('\n');
+            this.settings.folderNoteProperties = normalizeFolderNoteBlock(migratedProperties);
+        } else if (typeof folderNotePropertiesSetting === 'string') {
+            this.settings.folderNoteProperties = normalizeFolderNoteBlock(folderNotePropertiesSetting);
+        } else {
+            this.settings.folderNoteProperties = DEFAULT_SETTINGS.folderNoteProperties;
         }
 
         // Initialize update check setting with default value for existing users
@@ -329,6 +371,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const parsedDualPane = this.parseDualPanePreference(storedDualPane);
         this.dualPanePreference = parsedDualPane ?? true;
         const storedLocalStorageVersion = localStorage.get<number>(STORAGE_KEYS.localStorageVersionKey);
+        this.loadUXPreferences();
 
         // Handle first launch initialization
         if (isFirstLaunch) {
@@ -341,6 +384,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             // Reset dual-pane preference to default on fresh install
             this.dualPanePreference = true;
             this.dualPaneOrientationPreference = 'horizontal';
+            this.uxPreferences = { ...DEFAULT_UX_PREFERENCES };
+            this.persistUXPreferences(false);
 
             // Ensure root folder is expanded on first launch (default is enabled)
             if (this.settings.showRootFolder) {
@@ -377,7 +422,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.fileSystemOps = new FileSystemOperations(
             this.app,
             () => this.tagTreeService,
-            () => this.commandQueue
+            () => this.commandQueue,
+            (): VisibilityPreferences => ({
+                includeDescendantNotes: this.uxPreferences.includeDescendantNotes,
+                showHiddenItems: this.uxPreferences.showHiddenItems
+            })
         );
         this.omnisearchService = new OmnisearchService(this.app);
         this.api = new NotebookNavigatorAPI(this, this.app);
@@ -490,6 +539,111 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.dualPaneOrientationPreference = normalized;
         localStorage.set(this.keys.dualPaneOrientationKey, normalized);
         this.notifySettingsUpdate();
+    }
+
+    public getUXPreferences(): UXPreferences {
+        return { ...this.uxPreferences };
+    }
+
+    public registerUXPreferencesListener(id: string, callback: () => void): void {
+        this.uxPreferenceListeners.set(id, callback);
+    }
+
+    public unregisterUXPreferencesListener(id: string): void {
+        this.uxPreferenceListeners.delete(id);
+    }
+
+    public setSearchActive(value: boolean): void {
+        this.updateUXPreference('searchActive', value);
+    }
+
+    public setIncludeDescendantNotes(value: boolean): void {
+        this.updateUXPreference('includeDescendantNotes', value);
+    }
+
+    public toggleIncludeDescendantNotes(): void {
+        this.setIncludeDescendantNotes(!this.uxPreferences.includeDescendantNotes);
+    }
+
+    public setShowHiddenItems(value: boolean): void {
+        this.updateUXPreference('showHiddenItems', value);
+    }
+
+    public toggleShowHiddenItems(): void {
+        this.setShowHiddenItems(!this.uxPreferences.showHiddenItems);
+    }
+
+    public setPinShortcuts(value: boolean): void {
+        this.updateUXPreference('pinShortcuts', value);
+    }
+
+    private updateUXPreference(key: keyof UXPreferences, value: boolean): void {
+        if (this.uxPreferences[key] === value) {
+            return;
+        }
+
+        this.uxPreferences = {
+            ...this.uxPreferences,
+            [key]: value
+        };
+        this.persistUXPreferences();
+    }
+
+    private loadUXPreferences(): void {
+        const stored = localStorage.get<unknown>(this.keys.uxPreferencesKey);
+        if (this.isUXPreferencesRecord(stored)) {
+            this.uxPreferences = {
+                ...DEFAULT_UX_PREFERENCES,
+                ...stored
+            };
+
+            const hasAllKeys = UX_PREFERENCE_KEYS.every(key => {
+                return typeof stored[key] === 'boolean';
+            });
+
+            if (!hasAllKeys) {
+                this.persistUXPreferences(false);
+            }
+        } else {
+            this.uxPreferences = { ...DEFAULT_UX_PREFERENCES };
+            this.persistUXPreferences(false);
+        }
+    }
+
+    private persistUXPreferences(notify = true): void {
+        localStorage.set(this.keys.uxPreferencesKey, this.uxPreferences);
+        if (notify) {
+            this.notifyUXPreferencesUpdate();
+        }
+    }
+
+    private isUXPreferencesRecord(value: unknown): value is Partial<UXPreferences> {
+        if (value === null || typeof value !== 'object') {
+            return false;
+        }
+
+        const record = value as Record<string, unknown>;
+        for (const key of UX_PREFERENCE_KEYS) {
+            const entry = record[key];
+            if (typeof entry !== 'undefined' && typeof entry !== 'boolean') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private notifyUXPreferencesUpdate(): void {
+        if (this.uxPreferenceListeners.size === 0) {
+            return;
+        }
+
+        for (const [id, listener] of this.uxPreferenceListeners) {
+            try {
+                listener();
+            } catch (error) {
+                console.error(`Failed to notify UX preferences listener "${id}"`, error);
+            }
+        }
     }
 
     /**
@@ -814,15 +968,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 // Silently ignore errors from recent data callbacks
             }
         });
-    }
-
-    /**
-     * Sets the visibility of hidden items (folders and/or tags)
-     * @param value - The new value for showHiddenItems setting
-     */
-    public async showHiddenItems(value: boolean) {
-        this.settings.showHiddenItems = value;
-        await this.saveSettingsAndUpdate();
     }
 
     /**

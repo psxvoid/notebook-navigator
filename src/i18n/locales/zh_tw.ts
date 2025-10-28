@@ -281,6 +281,10 @@ export const STRINGS_ZH_TW = {
             removeAllTagsFromNote: '您確定要從此筆記中移除所有標籤嗎？',
             removeAllTagsFromNotes: '您確定要從 {count} 則筆記中移除所有標籤嗎？'
         },
+        folderNoteType: {
+            title: '選擇資料夾筆記類型',
+            folderLabel: '資料夾：{name}'
+        },
         folderSuggest: {
             placeholder: '移動至資料夾...',
             navigatePlaceholder: '導覽至資料夾...',
@@ -623,23 +627,18 @@ export const STRINGS_ZH_TW = {
                     vertical: '垂直分割'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: '背景色',
-                desc: '在桌面上為導覽窗格和列表窗格選擇背景色。',
+                desc: '為導覽窗格和列表窗格選擇背景色。',
                 options: {
                     separate: '分開背景',
                     primary: '使用列表背景',
                     secondary: '使用導覽背景'
                 }
             },
-            mobileBackground: {
-                name: '背景色',
-                desc: '在行動裝置上為導覽窗格和列表窗格選擇背景色。',
-                options: {
-                    separate: '分開背景',
-                    primary: '使用列表背景',
-                    secondary: '使用導覽背景'
-                }
+            appearanceScale: {
+                name: '縮放等級',
+                desc: '控制 Notebook Navigator 的整體縮放等級。'
             },
             startView: {
                 name: '預設啟動檢視',
@@ -660,6 +659,10 @@ export const STRINGS_ZH_TW = {
             autoSelectFirstFileOnFocusChange: {
                 name: '自動選取第一則筆記 (僅限桌面版)',
                 desc: '切換資料夾或標籤時自動開啟第一則筆記。'
+            },
+            skipAutoScroll: {
+                name: '停用捷徑自動捲動',
+                desc: '點選捷徑中的項目時不捲動導覽面板。'
             },
             autoExpandFoldersTags: {
                 name: '自動展開資料夾和標籤',
@@ -925,6 +928,7 @@ export const STRINGS_ZH_TW = {
                 name: '預設資料夾筆記類型',
                 desc: '從右鍵選單建立的資料夾筆記類型。',
                 options: {
+                    ask: '建立時詢問',
                     markdown: 'Markdown',
                     canvas: '畫布',
                     base: 'Base'
@@ -937,8 +941,8 @@ export const STRINGS_ZH_TW = {
             },
             folderNoteProperties: {
                 name: '資料夾筆記屬性',
-                desc: '新增至新建立資料夾筆記的 frontmatter 屬性 (以逗號分隔)。',
-                placeholder: 'foldernote, darktheme'
+                desc: '新增至新資料夾筆記的YAML前言。--- 標記會自動新增。',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: '在清單中隱藏資料夾筆記',

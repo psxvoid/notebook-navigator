@@ -25,6 +25,7 @@ import { useServices, useFileSystemOps, useMetadataService, useTagOperations, us
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIDispatch } from '../context/UIStateContext';
 import { useShortcuts } from '../context/ShortcutsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { ItemType } from '../types';
 import {
     MenuConfig,
@@ -62,6 +63,9 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     const tagOperations = useTagOperations();
     const commandQueue = useCommandQueue();
     const shortcuts = useShortcuts();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
+    const showHiddenItems = uxPreferences.showHiddenItems;
     const selectionState = useSelectionState();
     const { expandedFolders, expandedTags } = useExpansionState();
     const selectionDispatch = useSelectionDispatch();
@@ -189,7 +193,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 tagOperations,
                 tagTreeService,
                 commandQueue,
-                shortcuts
+                shortcuts,
+                visibility: { includeDescendantNotes, showHiddenItems }
             };
 
             const state: MenuState = {
@@ -253,7 +258,9 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             isMobile,
             tagTreeService,
             commandQueue,
-            shortcuts
+            shortcuts,
+            includeDescendantNotes,
+            showHiddenItems
         ]
     );
 

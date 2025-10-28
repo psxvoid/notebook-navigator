@@ -18,6 +18,7 @@
 
 import { Menu, TFile, TFolder, App } from 'obsidian';
 import { ItemType } from '../../types';
+import type { VisibilityPreferences } from '../../types';
 import { NotebookNavigatorSettings } from '../../settings';
 import { FileSystemOperations } from '../../services/FileSystemService';
 import { MetadataService } from '../../services/MetadataService';
@@ -67,6 +68,7 @@ export interface MenuServices {
     tagTreeService: TagTreeService | null;
     commandQueue: CommandQueueService | null;
     shortcuts: ShortcutsContextValue | null;
+    visibility: VisibilityPreferences;
 }
 
 /**

@@ -27,6 +27,7 @@ interface UseResizablePaneConfig {
     initialSize?: number;
     min?: number;
     storageKey?: string;
+    scale?: number;
 }
 
 interface UseResizablePaneResult {
@@ -49,7 +50,8 @@ export function useResizablePane({
     orientation = 'horizontal',
     initialSize,
     min,
-    storageKey
+    storageKey,
+    scale
 }: UseResizablePaneConfig = {}): UseResizablePaneResult {
     // Get default sizing parameters for orientation
     const sizing = getNavigationPaneSizing(orientation);
@@ -76,6 +78,8 @@ export function useResizablePane({
     // Track resizing state
     const [isResizing, setIsResizing] = useState(false);
 
+    const scaleFactor = typeof scale === 'number' && Number.isFinite(scale) && scale > 0 ? scale : 1;
+
     const handleResizeMouseDown = useCallback(
         (e: React.MouseEvent) => {
             // Capture starting position based on orientation
@@ -97,7 +101,8 @@ export function useResizablePane({
                 if (isRTL) {
                     delta = -delta;
                 }
-                currentSize = Math.max(resolvedMin, startSize + delta);
+                const scaledDelta = delta / scaleFactor;
+                currentSize = Math.max(resolvedMin, startSize + scaledDelta);
                 setPaneSize(currentSize);
             };
 
@@ -124,7 +129,7 @@ export function useResizablePane({
                 setIsResizing(false);
             };
         },
-        [orientation, paneSize, resolvedMin, storageKey]
+        [orientation, paneSize, resolvedMin, scaleFactor, storageKey]
     );
 
     // Reload pane size when orientation changes

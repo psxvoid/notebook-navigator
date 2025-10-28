@@ -242,6 +242,24 @@ body {
     position: relative;
 }
 
+.nn-scale-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.nn-scale-wrapper > .nn-split-container {
+    width: 100%;
+    height: 100%;
+    transform-origin: top left;
+}
+
+.nn-scale-wrapper[data-ui-scale] > .nn-split-container {
+    width: calc(100% / var(--nn-ui-scale, 1));
+    height: calc(100% / var(--nn-ui-scale, 1));
+    transform: scale(var(--nn-ui-scale, 1));
+}
+
 /* ========================================================================
    Update notice banner
    ======================================================================== */
@@ -482,10 +500,6 @@ body {
     border-right: none;
 }
 
-.nn-split-container.nn-orientation-vertical:not(.nn-single-pane) .nn-navigation-pane .nn-pane-header {
-    border-bottom: 1px solid var(--nn-theme-divider-border-color);
-}
-
 .nn-split-container.nn-orientation-vertical .nn-navigation-pane-scroller,
 .nn-split-container.nn-orientation-vertical .nn-shortcut-pinned {
     border-right: none;
@@ -514,6 +528,16 @@ body {
     cursor: row-resize;
     bottom: auto;
     right: 0;
+}
+
+/* Show vertical resize bar at all times when vertical split is active */
+.nn-split-container.nn-orientation-vertical .nn-resize-handle[data-orientation='vertical'] {
+    background-color: var(--nn-theme-divider-border-color);
+}
+
+.nn-split-container.nn-orientation-vertical .nn-resize-handle[data-orientation='vertical']:hover,
+.nn-split-container.nn-orientation-vertical.nn-resizing .nn-resize-handle[data-orientation='vertical'] {
+    background-color: var(--nn-theme-divider-resize-handle-hover-bg);
 }
 
 /* Pane divider resize handle hover state - provides visual feedback */
@@ -1891,9 +1915,16 @@ body {
     flex-wrap: nowrap;
     gap: 4px;
     margin-top: 4px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     height: 22px; /* Fixed height for single row */
     position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.nn-file-tags::-webkit-scrollbar {
+    display: none;
 }
 
 /* Individual tag pill */
@@ -2567,6 +2598,32 @@ body.nn-resizing {
     margin-top: 16px;
 }
 
+.nn-folder-note-type-modal .modal-content {
+    padding-top: 16px;
+}
+
+.nn-folder-note-type-modal .modal-title {
+    width: 100%;
+    text-align: center;
+}
+
+.nn-folder-note-type-info {
+    margin-bottom: 4px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.nn-folder-note-type-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.nn-folder-note-type-buttons button {
+    width: 100%;
+}
+
 /* ========================================================================
    What's New Modal
    ======================================================================== */
@@ -3057,9 +3114,19 @@ body.nn-resizing {
 }
 
 /* Wider text inputs for settings that benefit from more space */
-.nn-setting-wide-input input[type='text'] {
+.nn-setting-wide-input input[type='text'],
+.nn-setting-wide-input textarea {
     width: 300px;
     max-width: 100%;
+}
+
+.nn-slider-value {
+    margin-left: 12px;
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+    min-width: 48px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
 /* ========================================================================
@@ -3076,7 +3143,8 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Mobile-specific wide input fields - full width on mobile */
-.is-mobile .nn-setting-wide-input input[type='text'] {
+.is-mobile .nn-setting-wide-input input[type='text'],
+.is-mobile .nn-setting-wide-input textarea {
     width: 100%;
 }
 

@@ -18,7 +18,7 @@
 
 import { Setting } from 'obsidian';
 import { strings } from '../../i18n';
-import { isFolderNoteType } from '../../types/folderNote';
+import { isFolderNoteCreationPreference } from '../../types/folderNote';
 import { isTagSortOrder } from '../types';
 import { normalizeTagPath } from '../../utils/tagUtils';
 import type { SettingsTabContext } from './SettingsTabContext';
@@ -26,7 +26,14 @@ import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 
 /** Renders the folders and tags settings tab */
 export function renderFoldersTagsTab(context: SettingsTabContext): void {
-    const { containerEl, plugin, createDebouncedTextSetting, notifyShowTagsVisibility, registerShowTagsListener } = context;
+    const {
+        containerEl,
+        plugin,
+        createDebouncedTextSetting,
+        createDebouncedTextAreaSetting,
+        notifyShowTagsVisibility,
+        registerShowTagsListener
+    } = context;
 
     new Setting(containerEl).setName(strings.settings.sections.folders).setHeading();
 
@@ -68,12 +75,13 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         .setDesc(strings.settings.items.folderNoteType.desc)
         .addDropdown(dropdown => {
             dropdown
+                .addOption('ask', strings.settings.items.folderNoteType.options.ask)
                 .addOption('markdown', strings.settings.items.folderNoteType.options.markdown)
                 .addOption('canvas', strings.settings.items.folderNoteType.options.canvas)
                 .addOption('base', strings.settings.items.folderNoteType.options.base)
                 .setValue(plugin.settings.folderNoteType)
                 .onChange(async value => {
-                    if (!isFolderNoteType(value)) {
+                    if (!isFolderNoteCreationPreference(value)) {
                         return;
                     }
                     plugin.settings.folderNoteType = value;
@@ -92,18 +100,21 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         }
     );
 
-    const folderNotePropertiesSetting = createDebouncedTextSetting(
+    const folderNotePropertiesSetting = createDebouncedTextAreaSetting(
         folderNotesSettingsEl,
         strings.settings.items.folderNoteProperties.name,
         strings.settings.items.folderNoteProperties.desc,
         strings.settings.items.folderNoteProperties.placeholder,
-        () => plugin.settings.folderNoteProperties.join(', '),
+        () => plugin.settings.folderNoteProperties,
         value => {
-            plugin.settings.folderNoteProperties = value
-                .split(',')
-                .map(property => property.trim())
-                .filter(property => property.length > 0);
-        }
+            const normalizedBlock = value.replace(/\r\n/g, '\n').trim();
+            const withoutDelimiters = normalizedBlock
+                .replace(/^---\s*\n?/, '')
+                .replace(/\n?---\s*$/, '')
+                .trim();
+            plugin.settings.folderNoteProperties = withoutDelimiters;
+        },
+        { rows: 4 }
     );
     folderNotePropertiesSetting.controlEl.addClass('nn-setting-wide-input');
 
@@ -213,7 +224,11 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
                 .filter((entry): entry is string => entry !== null);
 
             plugin.settings.hiddenTags = Array.from(new Set(normalizedHiddenTags));
-            resetHiddenToggleIfNoSources(plugin.settings);
+            resetHiddenToggleIfNoSources({
+                settings: plugin.settings,
+                showHiddenItems: plugin.getUXPreferences().showHiddenItems,
+                setShowHiddenItems: value => plugin.setShowHiddenItems(value)
+            });
         }
     );
     hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');

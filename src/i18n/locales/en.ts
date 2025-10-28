@@ -281,6 +281,10 @@ export const STRINGS_EN = {
             removeAllTagsFromNote: 'Are you sure you want to remove all tags from this note?',
             removeAllTagsFromNotes: 'Are you sure you want to remove all tags from {count} notes?'
         },
+        folderNoteType: {
+            title: 'Select folder note type',
+            folderLabel: 'Folder: {name}'
+        },
         folderSuggest: {
             placeholder: 'Move to folder...',
             navigatePlaceholder: 'Navigate to folder...',
@@ -624,23 +628,18 @@ export const STRINGS_EN = {
                     vertical: 'Vertical split'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: 'Background color',
-                desc: 'Choose background colors for navigation and list panes on desktop.',
+                desc: 'Choose background colors for navigation and list panes.',
                 options: {
                     separate: 'Separate backgrounds',
                     primary: 'Use list background',
                     secondary: 'Use navigation background'
                 }
             },
-            mobileBackground: {
-                name: 'Background color',
-                desc: 'Choose background colors for navigation and list panes on mobile.',
-                options: {
-                    separate: 'Separate backgrounds',
-                    primary: 'Use list background',
-                    secondary: 'Use navigation background'
-                }
+            appearanceScale: {
+                name: 'Zoom level',
+                desc: 'Controls the overall zoom level of Notebook Navigator.'
             },
             startView: {
                 name: 'Default startup view',
@@ -661,6 +660,10 @@ export const STRINGS_EN = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'Auto-select first note (desktop only)',
                 desc: 'Automatically open the first note when switching folders or tags.'
+            },
+            skipAutoScroll: {
+                name: 'Disable auto-scroll for shortcuts',
+                desc: "Don't scroll the navigation pane when clicking items in shortcuts."
             },
             autoExpandFoldersTags: {
                 name: 'Auto-expand folders and tags',
@@ -926,6 +929,7 @@ export const STRINGS_EN = {
                 name: 'Default folder note type',
                 desc: 'Folder note type created from the context menu.',
                 options: {
+                    ask: 'Ask when creating',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -938,8 +942,8 @@ export const STRINGS_EN = {
             },
             folderNoteProperties: {
                 name: 'Folder note properties',
-                desc: 'Frontmatter properties to add to newly created folder notes (comma-separated).',
-                placeholder: 'foldernote, darktheme'
+                desc: 'YAML frontmatter added to new folder notes. --- markers are added automatically.',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'Hide folder notes in list',

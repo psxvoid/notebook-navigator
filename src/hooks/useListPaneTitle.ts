@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useSelectionState } from '../context/SelectionContext';
 import { useFileCache } from '../context/StorageContext';
 import { useExpansionState } from '../context/ExpansionContext';
@@ -28,6 +29,8 @@ interface UseListPaneTitleResult {
 export function useListPaneTitle(): UseListPaneTitleResult {
     const { app } = useServices();
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const showHiddenItems = uxPreferences.showHiddenItems;
     const selectionState = useSelectionState();
     const { getTagDisplayPath } = useFileCache();
     const expansionState = useExpansionState();
@@ -46,7 +49,7 @@ export function useListPaneTitle(): UseListPaneTitleResult {
             }
 
             const excludedFolders = settings.excludedFolders;
-            const showHiddenFolders = settings.showHiddenItems;
+            const showHiddenFolders = showHiddenItems;
             const hasChildren = hasSubfolders(folder, excludedFolders, showHiddenFolders);
             const isExpanded = expansionState.expandedFolders.has(folder.path);
             return hasChildren && isExpanded ? 'lucide-folder-open' : 'lucide-folder-closed';
@@ -64,7 +67,7 @@ export function useListPaneTitle(): UseListPaneTitleResult {
         selectionState.selectedTag,
         selectionState.selectionType,
         settings.excludedFolders,
-        settings.showHiddenItems,
+        showHiddenItems,
         settings.showIcons
     ]);
 

@@ -34,6 +34,7 @@ import { Virtualizer } from '@tanstack/react-virtual';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { getSupportedLeaves, ListPaneItemType } from '../types';
 import type { ListPaneItem } from '../types/virtualization';
@@ -73,6 +74,9 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
     const { app, isMobile, tagTreeService, commandQueue } = useServices();
     const fileSystemOps = useFileSystemOps();
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
+    const showHiddenItems = uxPreferences.showHiddenItems;
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
@@ -324,6 +328,7 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
                         app,
                         fileSystemOps,
                         settings,
+                        visibility: { includeDescendantNotes, showHiddenItems },
                         selectionState,
                         selectionDispatch,
                         tagTreeService
@@ -407,7 +412,9 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
             selectItemAtIndex,
             handleRangeSelection,
             items,
-            virtualizer
+            virtualizer,
+            includeDescendantNotes,
+            showHiddenItems
         ]
     );
 

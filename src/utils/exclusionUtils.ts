@@ -11,8 +11,8 @@ Object.freeze(NO_EXCLUSIONS);
  * hidden-item visibility settings. When hidden items are shown, frontmatter-based
  * exclusions should be ignored, so we return a shared empty array to signal no exclusions.
  */
-export function getEffectiveFrontmatterExclusions(settings: NotebookNavigatorSettings): string[] {
-    return settings.showHiddenItems ? NO_EXCLUSIONS : settings.excludedFiles;
+export function getEffectiveFrontmatterExclusions(settings: NotebookNavigatorSettings, showHiddenItems: boolean): string[] {
+    return showHiddenItems ? NO_EXCLUSIONS : settings.excludedFiles;
 }
 
 /**
@@ -26,17 +26,22 @@ export function hasHiddenItemSources(settings: NotebookNavigatorSettings): boole
 /**
  * Disables the showHiddenItems toggle when no hidden sources remain.
  */
-export function resetHiddenToggleIfNoSources(settings: NotebookNavigatorSettings): void {
-    if (settings.showHiddenItems && !hasHiddenItemSources(settings)) {
-        settings.showHiddenItems = false;
+export function resetHiddenToggleIfNoSources(options: {
+    settings: NotebookNavigatorSettings;
+    showHiddenItems: boolean;
+    setShowHiddenItems: (value: boolean) => void;
+}): void {
+    const { settings, showHiddenItems, setShowHiddenItems } = options;
+    if (showHiddenItems && !hasHiddenItemSources(settings)) {
+        setShowHiddenItems(false);
     }
 }
 
 /**
  * Detects whether a file is hidden by current exclusion settings when hidden items are off.
  */
-export function isFileHiddenBySettings(file: TFile, settings: NotebookNavigatorSettings, app: App): boolean {
-    if (!file || settings.showHiddenItems) {
+export function isFileHiddenBySettings(file: TFile, settings: NotebookNavigatorSettings, app: App, showHiddenItems: boolean): boolean {
+    if (!file || showHiddenItems) {
         return false;
     }
 

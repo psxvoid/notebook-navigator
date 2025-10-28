@@ -307,8 +307,8 @@ export function hasSubfolders(folder: TFolder, excludePatterns: string[], showHi
 function passesExclusionFilters(file: TFile, settings: NotebookNavigatorSettings, app: App, options?: FileFilterOptions): boolean {
     const excludedProperties = settings.excludedFiles;
     const excludedFolderPatterns = settings.excludedFolders;
-    // Skip frontmatter-based exclusion when showHiddenItems override is provided
-    const includeHiddenFiles = options?.showHiddenItems ?? settings.showHiddenItems;
+    // Skip frontmatter-based exclusion when showHiddenItems override is provided from options
+    const includeHiddenFiles = options?.showHiddenItems ?? false;
 
     // Frontmatter based exclusion (markdown only)
     if (

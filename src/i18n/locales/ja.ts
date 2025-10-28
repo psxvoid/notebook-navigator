@@ -281,6 +281,10 @@ export const STRINGS_JA = {
             removeAllTagsFromNote: 'このノートからすべてのタグを削除してもよろしいですか？',
             removeAllTagsFromNotes: '{count}個のノートからすべてのタグを削除してもよろしいですか？'
         },
+        folderNoteType: {
+            title: 'フォルダノートの形式を選択',
+            folderLabel: 'フォルダ: {name}'
+        },
         folderSuggest: {
             placeholder: 'フォルダに移動...',
             navigatePlaceholder: 'フォルダにナビゲート...',
@@ -625,23 +629,18 @@ export const STRINGS_JA = {
                     vertical: '垂直分割'
                 }
             },
-            desktopBackground: {
+            appearanceBackground: {
                 name: '背景色',
-                desc: 'デスクトップでナビゲーションペインとリストペインの背景色を選択します。',
+                desc: 'ナビゲーションペインとリストペインの背景色を選択します。',
                 options: {
                     separate: '背景を分ける',
                     primary: 'リストの背景を使用',
                     secondary: 'ナビゲーションの背景を使用'
                 }
             },
-            mobileBackground: {
-                name: '背景色',
-                desc: 'モバイルでナビゲーションペインとリストペインの背景色を選択します。',
-                options: {
-                    separate: '別々の背景',
-                    primary: 'リストの背景を使用',
-                    secondary: 'ナビゲーションの背景を使用'
-                }
+            appearanceScale: {
+                name: 'ズームレベル',
+                desc: 'Notebook Navigator 全体のズームレベルを制御します。'
             },
             startView: {
                 name: 'デフォルト起動ビュー',
@@ -662,6 +661,10 @@ export const STRINGS_JA = {
             autoSelectFirstFileOnFocusChange: {
                 name: '最初のノートを自動選択（デスクトップのみ）',
                 desc: 'フォルダまたはタグを切り替えた際に自動的に最初のノートを開きます。'
+            },
+            skipAutoScroll: {
+                name: 'ショートカットの自動スクロールを無効化',
+                desc: 'ショートカット内のアイテムをクリックしてもナビゲーションパネルをスクロールしない。'
             },
             autoExpandFoldersTags: {
                 name: 'フォルダとタグを自動展開',
@@ -928,6 +931,7 @@ export const STRINGS_JA = {
                 name: '既定のフォルダノート形式',
                 desc: 'コンテキストメニューで作成されるフォルダノートの形式です。',
                 options: {
+                    ask: '作成時に確認',
                     markdown: 'Markdown',
                     canvas: 'Canvas',
                     base: 'Base'
@@ -940,8 +944,8 @@ export const STRINGS_JA = {
             },
             folderNoteProperties: {
                 name: 'フォルダノートプロパティ',
-                desc: '新しく作成されたフォルダノートに追加するフロントマタープロパティ（カンマ区切り）。',
-                placeholder: 'foldernote, darktheme'
+                desc: '新しいフォルダノートに追加されるYAMLフロントマター。--- マーカーは自動的に追加されます。',
+                placeholder: 'theme: dark\nfoldernote: true'
             },
             hideFolderNoteInList: {
                 name: 'リストでフォルダノートを非表示',

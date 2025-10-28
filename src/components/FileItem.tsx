@@ -52,6 +52,7 @@ import { useServices } from '../context/ServicesContext';
 import type { FileContentChange, IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useFileCache } from '../context/StorageContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { useTagNavigation } from '../hooks/useTagNavigation';
@@ -242,13 +243,16 @@ export const FileItem = React.memo(function FileItem({
     // === Hooks (all hooks together at the top) ===
     const { app, isMobile, plugin, commandQueue } = useServices();
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
+    const showHiddenItems = uxPreferences.showHiddenItems;
     const appearanceSettings = useListPaneAppearance();
     const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime } = useFileCache();
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
     const hiddenTagVisibility = useMemo(
-        () => createHiddenTagVisibility(settings.hiddenTags, settings.showHiddenItems),
-        [settings.hiddenTags, settings.showHiddenItems]
+        () => createHiddenTagVisibility(settings.hiddenTags, showHiddenItems),
+        [settings.hiddenTags, showHiddenItems]
     );
     const selectionState = useSelectionState();
 
@@ -695,7 +699,7 @@ export const FileItem = React.memo(function FileItem({
     if (settings.showParentFolderNames && parentFolderSource instanceof TFolder && !pinnedItemShouldUseCompactLayout) {
         // Show parent label in tag view or when viewing descendants
         const shouldShowParentLabel =
-            selectionType === ItemType.TAG || (settings.includeDescendantNotes && parentFolder && parentFolderSource.path !== parentFolder);
+            selectionType === ItemType.TAG || (includeDescendantNotes && parentFolder && parentFolderSource.path !== parentFolder);
 
         if (shouldShowParentLabel) {
             // Use custom icon if set, otherwise use default folder icon

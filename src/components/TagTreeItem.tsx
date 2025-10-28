@@ -52,6 +52,7 @@
 import React, { forwardRef, useMemo, useCallback } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import { ItemType } from '../types';
@@ -117,6 +118,8 @@ export const TagTreeItem = React.memo(
         ref
     ) {
         const settings = useSettingsState();
+        const uxPreferences = useUXPreferences();
+        const includeDescendantNotes = uxPreferences.includeDescendantNotes;
         const chevronRef = React.useRef<HTMLDivElement>(null);
         const iconRef = React.useRef<HTMLSpanElement>(null);
         const iconVersion = useIconServiceVersion();
@@ -129,18 +132,18 @@ export const TagTreeItem = React.memo(
             }
             // Calculate counts directly from tag node if not provided
             const directCount = tagNode.notesWithTag.size;
-            if (!settings.includeDescendantNotes) {
+            if (!includeDescendantNotes) {
                 return { current: directCount, descendants: 0, total: directCount };
             }
             const total = getTotalNoteCount(tagNode);
             const descendants = Math.max(total - directCount, 0);
             return { current: directCount, descendants, total };
-        }, [countInfo, tagNode, settings.includeDescendantNotes]);
+        }, [countInfo, tagNode, includeDescendantNotes]);
 
         // Determine if counts should be shown separately (e.g., "2 + 5") or combined
-        const useSeparateCounts = settings.includeDescendantNotes && settings.separateNoteCounts;
+        const useSeparateCounts = includeDescendantNotes && settings.separateNoteCounts;
         // Build formatted display object with label and visibility flags
-        const noteCountDisplay = buildNoteCountDisplay(resolvedCounts, settings.includeDescendantNotes, useSeparateCounts);
+        const noteCountDisplay = buildNoteCountDisplay(resolvedCounts, includeDescendantNotes, useSeparateCounts);
         // Check if count badge should be displayed based on settings and count values
         const shouldDisplayCount = showFileCount && noteCountDisplay.shouldDisplay;
 

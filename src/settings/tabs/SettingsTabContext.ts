@@ -34,6 +34,24 @@ export type DebouncedTextSettingFactory = (
     onAfterUpdate?: () => void
 ) => Setting;
 
+/** Optional configuration for debounced text area settings */
+export interface DebouncedTextAreaSettingOptions {
+    rows?: number;
+    validator?: (value: string) => boolean;
+    onAfterUpdate?: () => void;
+}
+
+/** Factory function type for creating debounced text area settings */
+export type DebouncedTextAreaSettingFactory = (
+    container: HTMLElement,
+    name: string,
+    desc: string,
+    placeholder: string,
+    getValue: () => string,
+    setValue: (value: string) => void,
+    options?: DebouncedTextAreaSettingOptions
+) => Setting;
+
 /**
  * Context object passed to settings tab render functions
  * Provides access to app, plugin, and utility methods for tab rendering
@@ -43,6 +61,7 @@ export interface SettingsTabContext {
     plugin: NotebookNavigatorPlugin;
     containerEl: HTMLElement;
     createDebouncedTextSetting: DebouncedTextSettingFactory;
+    createDebouncedTextAreaSetting: DebouncedTextAreaSettingFactory;
     /** Registers the element where metadata info should be displayed */
     registerMetadataInfoElement(element: HTMLElement): void;
     /** Registers the element where statistics should be displayed */

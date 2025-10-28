@@ -67,11 +67,11 @@ export interface CacheStatistics {
  *
  * @returns Cache statistics or null on error
  */
-export function calculateCacheStatistics(settings: NotebookNavigatorSettings): CacheStatistics | null {
+export function calculateCacheStatistics(settings: NotebookNavigatorSettings, showHiddenItems: boolean): CacheStatistics | null {
     try {
         const db = getDBInstance();
 
-        const excludedFolderPatterns = settings.showHiddenItems ? [] : settings.excludedFolders;
+        const excludedFolderPatterns = showHiddenItems ? [] : settings.excludedFolders;
 
         const stats: CacheStatistics = {
             totalItems: 0,

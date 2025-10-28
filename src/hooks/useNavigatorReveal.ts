@@ -25,6 +25,7 @@ import { useExpansionState, useExpansionDispatch } from '../context/ExpansionCon
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import type { SelectionRevealSource } from '../context/SelectionContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { useCommandQueue } from '../context/ServicesContext';
@@ -49,6 +50,22 @@ export interface RevealFileOptions {
     preserveNavigationFocus?: boolean;
 }
 
+export interface NavigateToFolderOptions {
+    // Skip navigation pane scroll request when navigating to a folder
+    skipScroll?: boolean;
+    // Marks how this navigation was triggered
+    source?: SelectionRevealSource;
+}
+
+export interface RevealTagOptions {
+    // Skip switching to files pane in single pane mode
+    skipSinglePaneSwitch?: boolean;
+    // Skip navigation pane scroll request when revealing a tag
+    skipScroll?: boolean;
+    // Marks how this reveal was triggered
+    source?: SelectionRevealSource;
+}
+
 /**
  * Custom hook that handles revealing items (files, folders, tags) in the Navigator, including:
  * - Manual reveal (via commands, context menus, or direct navigation)
@@ -61,6 +78,8 @@ export interface RevealFileOptions {
  */
 export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseNavigatorRevealOptions) {
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
@@ -82,7 +101,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 return { target: null, expandAncestors: false };
             }
 
-            if (!settings.includeDescendantNotes) {
+            if (!includeDescendantNotes) {
                 return { target: folder, expandAncestors: true };
             }
 
@@ -133,7 +152,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
 
             return { target: current, expandAncestors: false };
         },
-        [settings.includeDescendantNotes, settings.showRootFolder, expansionState.expandedFolders, app]
+        [includeDescendantNotes, settings.showRootFolder, expansionState.expandedFolders, app]
     );
 
     /**
@@ -152,7 +171,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             const { target, expandAncestors } = getRevealTargetFolder(parentFolder);
 
             // Always resolve to the actual parent folder for manual reveals
-            const resolvedFolder = settings.includeDescendantNotes ? parentFolder : (target ?? parentFolder);
+            const resolvedFolder = includeDescendantNotes ? parentFolder : (target ?? parentFolder);
 
             const foldersToExpand: string[] = [];
             let ancestor: TFolder | null = parentFolder.parent;
@@ -205,7 +224,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             uiDispatch,
             navigationPaneRef,
             getRevealTargetFolder,
-            settings.includeDescendantNotes
+            includeDescendantNotes
         ]
     );
 
@@ -215,7 +234,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
      * @param tagPath - The tag path to reveal (without # prefix)
      */
     const revealTag = useCallback(
-        (tagPath: string, options?: { skipSinglePaneSwitch?: boolean }) => {
+        (tagPath: string, options?: RevealTagOptions) => {
             if (!tagPath) {
                 return;
             }
@@ -263,10 +282,11 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 }
             }
 
-            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: canonicalPath });
+            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: canonicalPath, source: options?.source });
 
             // In single pane mode, switch to list pane view (same as revealFileInActualFolder)
             const shouldSkipSinglePaneSwitch = options?.skipSinglePaneSwitch ?? false;
+            const shouldSkipScroll = Boolean(options?.skipScroll);
             if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation' && !shouldSkipSinglePaneSwitch) {
                 uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
             }
@@ -278,7 +298,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             }
 
-            if (navigationPaneRef.current) {
+            if (!shouldSkipScroll && navigationPaneRef.current) {
                 navigationPaneRef.current.requestScroll(canonicalPath, { align: 'auto', itemType: ItemType.TAG });
             }
 
@@ -290,7 +310,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                     file: selectionState.selectedFile,
                     preserveFolder: true, // We're in tag view, preserve it
                     isManualReveal: false, // This is part of auto-reveal
-                    targetTag: canonicalPath
+                    targetTag: canonicalPath,
+                    source: options?.source
                 });
             }
         },
@@ -428,7 +449,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
      * @param folderPath - The path of the folder to navigate to
      */
     const navigateToFolder = useCallback(
-        (folderPath: string) => {
+        (folderPath: string, options?: NavigateToFolderOptions) => {
             const folder = app.vault.getFolderByPath(folderPath);
             if (!folder) return;
 
@@ -449,7 +470,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             }
 
             // Select the folder
-            selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
+            selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, source: options?.source });
 
             // In single pane mode, switch to list pane view and focus list pane
             if (uiState.singlePane) {
@@ -463,7 +484,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
             }
 
-            if (navigationPaneRef.current) {
+            const shouldSkipScroll = Boolean(options?.skipScroll);
+            if (!shouldSkipScroll && navigationPaneRef.current) {
                 navigationPaneRef.current.requestScroll(folder.path, { align: 'auto', itemType: ItemType.FOLDER });
             }
         },

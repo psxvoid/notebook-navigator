@@ -18,6 +18,7 @@
 
 import React, { useMemo } from 'react';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
 import type { NoteCountInfo } from '../types/noteCounts';
@@ -78,12 +79,10 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     onLabelClick
 }: ShortcutItemProps) {
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
     // Build formatted display object with label based on note count settings
-    const countDisplay = buildNoteCountDisplay(
-        countInfo,
-        settings.includeDescendantNotes,
-        settings.includeDescendantNotes && settings.separateNoteCounts
-    );
+    const countDisplay = buildNoteCountDisplay(countInfo, includeDescendantNotes, includeDescendantNotes && settings.separateNoteCounts);
     // Check if this item type supports displaying note counts
     const supportsCount = type === 'folder' || type === 'tag';
     // Determines whether to display count based on settings and item type

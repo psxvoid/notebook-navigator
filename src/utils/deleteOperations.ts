@@ -22,13 +22,14 @@ import { SelectionState, SelectionAction } from '../context/SelectionContext';
 import { FileSystemOperations } from '../services/FileSystemService';
 import { TagTreeService } from '../services/TagTreeService';
 import { NotebookNavigatorSettings } from '../settings';
-import { ItemType } from '../types';
+import { ItemType, type VisibilityPreferences } from '../types';
 import { getFilesForFolder, getFilesForTag } from './fileFinder';
 
 interface BaseDeleteOperationsContext {
     app: App;
     fileSystemOps: FileSystemOperations;
     settings: NotebookNavigatorSettings;
+    visibility: VisibilityPreferences;
     selectionState: SelectionState;
     selectionDispatch: React.Dispatch<SelectionAction>;
 }
@@ -45,6 +46,7 @@ export async function deleteSelectedFiles({
     app,
     fileSystemOps,
     settings,
+    visibility,
     selectionState,
     selectionDispatch,
     tagTreeService
@@ -54,9 +56,9 @@ export async function deleteSelectedFiles({
         // Get all files in the current view for smart selection
         let allFiles: TFile[] = [];
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
+            allFiles = getFilesForFolder(selectionState.selectedFolder, settings, visibility, app);
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
+            allFiles = getFilesForTag(selectionState.selectedTag, settings, visibility, app, tagTreeService);
         }
 
         // Use centralized delete method with smart selection

@@ -35,6 +35,7 @@ import { useExpansionState, useExpansionDispatch } from '../context/ExpansionCon
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { NavigationPaneItemType, ItemType } from '../types';
 import type { CombinedNavigationItem } from '../types/virtualization';
@@ -73,6 +74,9 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
     const { app, isMobile } = useServices();
     const fileSystemOps = useFileSystemOps();
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
+    const showHiddenItems = uxPreferences.showHiddenItems;
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
     const expansionState = useExpansionState();
@@ -392,6 +396,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                         app,
                         fileSystemOps,
                         settings,
+                        visibility: { includeDescendantNotes, showHiddenItems },
                         selectionState,
                         selectionDispatch
                     });
@@ -441,7 +446,9 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
             selectionState,
             app,
             fileSystemOps,
-            virtualizer
+            virtualizer,
+            includeDescendantNotes,
+            showHiddenItems
         ]
     );
 
