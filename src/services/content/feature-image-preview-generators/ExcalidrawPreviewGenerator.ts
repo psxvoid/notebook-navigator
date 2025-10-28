@@ -30,7 +30,7 @@ declare global {
     const ExcalidrawAutomate: ExcalidrawAutomateGlobal
 }
 
-const cacheDirPath = `thumbnails/full`
+export const cacheDirPath = `thumbnails/full`
 export const cacheFilePath = (excalidrawFile: TFile) => `${cacheDirPath}/${excalidrawFile.basename}_${excalidrawFile.stat.size}.png`
 const getDbFile = (path: string) => getDBInstance().getFile(path)
 export const isCachePath = (path: string | unknown) => typeof path === 'string'

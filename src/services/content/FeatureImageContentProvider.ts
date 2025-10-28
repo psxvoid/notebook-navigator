@@ -26,6 +26,7 @@ import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
 import { cacheFilePath, generateExcalidrawPreview, isCachePath } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
 import { autoCrop, blobToBase64Url, readSourceImageBlob } from './feature-image-preview-generators/ImageCropUtils';
 import { EMPTY_STRING } from 'src/utils/empty';
+import { generatePdfPreview } from './feature-image-preview-generators/PdfPreviewGenerator';
 
 /**
  * Content provider for finding and storing feature images
@@ -276,6 +277,10 @@ export class FeatureImageContentProvider extends BaseContentProvider {
 
                     if (isExcalidrawAttachment(embedFile, embedMetadata)) {
                         return generateExcalidrawPreview(embedFile, this.app, file);
+                    }
+
+                    if (embedFile.extension === 'pdf') {
+                        return generatePdfPreview(embedFile, this.app, file)
                     }
 
                     return null;
