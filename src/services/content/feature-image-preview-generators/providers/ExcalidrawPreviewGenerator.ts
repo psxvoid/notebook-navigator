@@ -1,5 +1,5 @@
 import { LinkCache, CachedMetadata, EmbedCache, TFile, App } from "obsidian";
-import { GeneratePreviewResult } from "../PreviewGenerator";
+import { ProviderPreviewResult } from "../PreviewGenerator";
 
 interface SceneElements {
     [key: string]: unknown
@@ -69,7 +69,7 @@ async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: numb
 
     const metadata: CachedMetadata | null = this.app.metadataCache.getFileCache(tFile);
 
-    let previewPngBlob: GeneratePreviewResult | undefined
+    let previewPngBlob: ProviderPreviewResult | undefined
     if (getExcalidrawAttachmentType(outlink, metadata) === 'raw') {
         previewPngBlob = await generatePreview(tFile, true, app)
     } else if (getExcalidrawAttachmentType(outlink, metadata) === 'parsed') {
@@ -183,13 +183,13 @@ async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, e
 }
 
 
-export async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, app: App): Promise<GeneratePreviewResult> {
+export async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, app: App): Promise<ProviderPreviewResult> {
     // eslint-disable-next-line no-undef
     const ea = ExcalidrawAutomate.getAPI();
 
     const scene = await ea.getSceneFromFile(excalidrawFile)
 
-    async function createNewBlobResult(dispose?: Dispose): Promise<GeneratePreviewResult> {
+    async function createNewBlobResult(dispose?: Dispose): Promise<ProviderPreviewResult> {
         return {
             blob: await ea.createPNG(),
             dispose: dispose ?? EMPTY_DISPOSE
@@ -209,6 +209,6 @@ export async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, a
 }
 
 
-export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App): Promise<GeneratePreviewResult> {
+export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App): Promise<ProviderPreviewResult> {
     return generatePreview(excalidrawFile, false, app)
 }

@@ -6,7 +6,7 @@ import { DocumentInitParameters } from "pdfjs-dist/types/src/display/api";
 import { canvasToPngBlob } from "../ImageCropUtils";
 
 import "pdfjs-dist/build/pdf.worker.mjs";
-import { GeneratePreviewResult } from "../PreviewGenerator";
+import { ProviderPreviewResult } from "../PreviewGenerator";
 
 class WorkerController {
     private activeWorker: PDFWorker
@@ -75,7 +75,7 @@ const getActiveWorker = async () => {
     return activeWorker
 }
 
-export async function generatePdfPreview(pdfFile: TFile, app: App): Promise<GeneratePreviewResult> {
+export async function generatePdfPreview(pdfFile: TFile, app: App): Promise<ProviderPreviewResult> {
     const controller: WorkerController = await getActiveWorker()
     controller.cancelAutoDispose()
 

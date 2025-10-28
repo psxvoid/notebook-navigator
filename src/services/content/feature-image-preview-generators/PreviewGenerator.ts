@@ -9,8 +9,7 @@ export const isCachePath = (path: string | unknown) => typeof path === 'string'
     ? path.startsWith(cacheDirPath)
     : false
 
-// TODO: Rename to ProviderPreviewResult
-export interface GeneratePreviewResult {
+export interface ProviderPreviewResult {
     blob: Blob,
     dispose: () => void
 }
@@ -26,7 +25,7 @@ export interface GeneratePreviewResultEx {
 // TODO: use settings
 export const savePreviewFileToDisk = true
 
-type PreviewProviderGen = (file: TFile, app: App) => Promise<GeneratePreviewResult>;
+type PreviewProviderGen = (file: TFile, app: App) => Promise<ProviderPreviewResult>;
 
 export async function generatePreview(providerFile: TFile, app: App, consumerFile: TFile, generate: PreviewProviderGen): Promise<GeneratePreviewResultEx | null> {
     const previewFilePath = cacheFilePath(providerFile);
@@ -47,7 +46,7 @@ export async function generatePreview(providerFile: TFile, app: App, consumerFil
         await this.app.vault.adapter.mkdir(cacheDirPath);
     }
 
-    let previewData: GeneratePreviewResult | undefined
+    let previewData: ProviderPreviewResult | undefined
     try {
         // TODO: Remove dispose?
         const exists = (savePreviewFileToDisk && await app.vault.adapter.exists(previewFilePath))
