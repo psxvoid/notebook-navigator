@@ -14,8 +14,7 @@ export interface ProviderPreviewResult {
     dispose: () => void
 }
 
-// TODO: Rename to GeneratePreviewResult
-export interface GeneratePreviewResultEx {
+export interface GeneratePreviewResult {
     featurePath: string,
     featureProviderPath?: string,
     consumerTargetPath?: string,
@@ -27,7 +26,7 @@ export const savePreviewFileToDisk = true
 
 type PreviewProviderGen = (file: TFile, app: App) => Promise<ProviderPreviewResult>;
 
-export async function generatePreview(providerFile: TFile, app: App, consumerFile: TFile, generate: PreviewProviderGen): Promise<GeneratePreviewResultEx | null> {
+export async function generatePreview(providerFile: TFile, app: App, consumerFile: TFile, generate: PreviewProviderGen): Promise<GeneratePreviewResult | null> {
     const previewFilePath = cacheFilePath(providerFile);
     const dbFile = getDBInstance().getFile(consumerFile.path);
     const currentFeature: string | null | undefined = dbFile?.featureImage

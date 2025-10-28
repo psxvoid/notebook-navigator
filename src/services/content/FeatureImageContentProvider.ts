@@ -26,7 +26,7 @@ import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
 import { autoCrop, blobToBase64Url, readSourceImageBlob } from './feature-image-preview-generators/ImageCropUtils';
 import { EMPTY_STRING } from 'src/utils/empty';
 import { generatePdfPreview } from './feature-image-preview-generators/providers/PdfPreviewGenerator';
-import { cacheFilePath, generatePreview, GeneratePreviewResultEx, isCachePath, savePreviewFileToDisk } from './feature-image-preview-generators/PreviewGenerator';
+import { cacheFilePath, generatePreview, GeneratePreviewResult, isCachePath, savePreviewFileToDisk } from './feature-image-preview-generators/PreviewGenerator';
 import { generateExcalidrawPreview } from './feature-image-preview-generators/providers/ExcalidrawPreviewGenerator';
 
 /**
@@ -200,7 +200,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         file: TFile,
         metadata: CachedMetadata | null,
         settings: NotebookNavigatorSettings
-    ): Promise<GeneratePreviewResultEx | null> {
+    ): Promise<GeneratePreviewResult | null> {
         // Only process markdown files for feature images
         if (file.extension !== 'md') {
             return null;
