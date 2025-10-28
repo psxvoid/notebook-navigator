@@ -60,19 +60,6 @@ export async function blobToImage(blob: Blob): Promise<HTMLImageElement> {
     return img;
 };
 
-export async function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
-    return new Promise((resolve, reject) => {
-        canvas.toBlob((result: Blob | null) => {
-            if (result == null) {
-                reject("Unable to render blob to canvas.")
-                return
-            }
-
-            resolve(result)
-        }, 'image/png')
-    });
-}
-
 export async function autoCrop(blob: Blob, maxSizeSquarePx: number): Promise<Blob> {
     const image = await blobToImage(blob);
 
@@ -91,5 +78,14 @@ export async function autoCrop(blob: Blob, maxSizeSquarePx: number): Promise<Blo
 
     ctx.drawImage(image, x, y, width, height, 0, 0, maxSizeSquarePx, maxSizeSquarePx);
 
-    return canvasToPngBlob(canvas)
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((result: Blob | null) => {
+            if (result == null) {
+                reject("Unable to render blob to canvas.")
+                return
+            }
+
+            resolve(result)
+        }, 'image/png')
+    });
 }
