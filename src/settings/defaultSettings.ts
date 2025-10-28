@@ -123,6 +123,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     forceSquareFeatureImage: true,
     useEmbeddedImageFallback: true,
     featureImageSize: 64,
+    featureImagePersistIntermediate: false,
 
     // Icon packs tab
     externalIconProviders: {},

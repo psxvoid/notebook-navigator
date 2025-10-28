@@ -26,7 +26,7 @@ import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
 import { autoCrop, blobToBase64Url, readSourceImageBlob } from './feature-image-preview-generators/ImageCropUtils';
 import { EMPTY_STRING } from 'src/utils/empty';
 import { generatePdfPreview } from './feature-image-preview-generators/providers/PdfPreviewGenerator';
-import { cacheFilePath, generatePreview, GeneratePreviewResult, isCachePath, savePreviewFileToDisk } from './feature-image-preview-generators/PreviewGenerator';
+import { cacheFilePath, generatePreview, GeneratePreviewResult, isCachePath } from './feature-image-preview-generators/PreviewGenerator';
 import { generateExcalidrawPreview } from './feature-image-preview-generators/providers/ExcalidrawPreviewGenerator';
 
 /**
@@ -212,7 +212,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             if (providerPath === embedFile.path) {
                 const imagePath = cacheFilePath(embedFile)
 
-                if (savePreviewFileToDisk && isCachePath(imagePath) && await this.app.vault.adapter.exists(imagePath)) {
+                if (settings && isCachePath(imagePath) && await this.app.vault.adapter.exists(imagePath)) {
                     const toDelete = this.app.vault.getFileByPath(imagePath)
                     if (toDelete != null) {
                         // Review: Refactoring: now delete is also in ExcalidrawPreviewGenerator, handle deletion in a single place
@@ -228,7 +228,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
 
         // self preview
         if (isExcalidrawAttachment(file, metadata)) {
-            return generatePreview(file, this.app, file, generateExcalidrawPreview)
+            return generatePreview(file, this.app, file, generateExcalidrawPreview, settings)
         }
 
         // Try each property in order until we find an image
@@ -254,7 +254,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                     await cleanupFeatureProviderEmbed(imageFile)
 
                     if (isExcalidrawAttachment(imageFile, metadata)) {
-                        return generatePreview(imageFile, this.app, file, generateExcalidrawPreview)
+                        return generatePreview(imageFile, this.app, file, generateExcalidrawPreview, settings)
                     }
                 }
 
@@ -288,11 +288,11 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                     const embedMetadata = this.app.metadataCache.getFileCache(embedFile);
 
                     if (isExcalidrawAttachment(embedFile, embedMetadata)) {
-                        return generatePreview(embedFile, this.app, file, generateExcalidrawPreview)
+                        return generatePreview(embedFile, this.app, file, generateExcalidrawPreview, settings)
                     }
 
                     if (embedFile.extension === 'pdf') {
-                        return generatePreview(embedFile, this.app, file, generatePdfPreview)
+                        return generatePreview(embedFile, this.app, file, generatePdfPreview, settings)
                     }
 
                     return null;
