@@ -1,5 +1,5 @@
 import { LinkCache, CachedMetadata, EmbedCache, TFile, App } from "obsidian";
-import { GeneratePreviewResult } from "./PreviewGenerator";
+import { GeneratePreviewResult } from "../PreviewGenerator";
 
 interface SceneElements {
     [key: string]: unknown

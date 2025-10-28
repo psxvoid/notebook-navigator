@@ -3,10 +3,10 @@ import { EMPTY_FUNC } from "src/utils/empty";
 import * as pdfjs from "pdfjs-dist";
 import { PDFDocumentProxy,  PDFPageProxy, PDFWorker } from "pdfjs-dist";
 import { DocumentInitParameters } from "pdfjs-dist/types/src/display/api";
-import { canvasToPngBlob } from "./ImageCropUtils";
+import { canvasToPngBlob } from "../ImageCropUtils";
 
 import "pdfjs-dist/build/pdf.worker.mjs";
-import { GeneratePreviewResult } from "./PreviewGenerator";
+import { GeneratePreviewResult } from "../PreviewGenerator";
 
 class WorkerController {
     private activeWorker: PDFWorker
