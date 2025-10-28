@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, DropdownComponent, Notice, Platform, Setting, SliderComponent } from 'obsidian';
+import { ButtonComponent, Notice, Platform, Setting, SliderComponent } from 'obsidian';
 import { HomepageModal } from '../../modals/HomepageModal';
 import { strings } from '../../i18n';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
@@ -228,31 +228,19 @@ export function renderGeneralTab(context: SettingsTabContext): void {
 
         updateDesktopScaleLabel(initialDesktopScalePercent);
 
-        let orientationDropdown: DropdownComponent | null = null;
-        let orientationContainerEl: HTMLDivElement | null = null;
-
-        const updateOrientationVisibility = (enabled: boolean) => {
-            orientationDropdown?.setDisabled(!enabled);
-            orientationContainerEl?.toggleClass('nn-setting-hidden', !enabled);
-        };
-
         new Setting(containerEl)
             .setName(strings.settings.items.dualPane.name)
             .setDesc(strings.settings.items.dualPane.desc)
             .addToggle(toggle =>
                 toggle.setValue(plugin.useDualPane()).onChange(value => {
                     plugin.setDualPanePreference(value);
-                    updateOrientationVisibility(value);
                 })
             );
 
-        orientationContainerEl = containerEl.createDiv('nn-sub-settings');
-
-        new Setting(orientationContainerEl)
+        new Setting(containerEl)
             .setName(strings.settings.items.dualPaneOrientation.name)
             .setDesc(strings.settings.items.dualPaneOrientation.desc)
             .addDropdown(dropdown => {
-                orientationDropdown = dropdown;
                 dropdown
                     .addOptions({
                         horizontal: strings.settings.items.dualPaneOrientation.options.horizontal,
@@ -263,8 +251,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                         const nextOrientation = value === 'vertical' ? 'vertical' : 'horizontal';
                         await plugin.setDualPaneOrientation(nextOrientation);
                     });
-
-                updateOrientationVisibility(plugin.useDualPane());
             });
 
         new Setting(containerEl)

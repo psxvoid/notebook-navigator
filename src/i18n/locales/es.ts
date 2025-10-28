@@ -580,6 +580,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar notas de subcarpetas / descendientes',
                 desc: 'Incluir notas de subcarpetas y descendientes de etiquetas al ver una carpeta o etiqueta.'
             },
+            limitPinnedToCurrentFolder: {
+                name: 'Mostrar notas fijadas solo en la carpeta principal',
+                desc: 'Las notas fijadas aparecen solo al ver su carpeta'
+            },
             separateNoteCounts: {
                 name: 'Mostrar conteos actuales y descendientes por separado',
                 desc: 'Muestra el conteo de notas como formato "actual ▾ descendientes" en carpetas y etiquetas.'

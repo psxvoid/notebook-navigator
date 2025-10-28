@@ -87,6 +87,16 @@ export function renderListPaneTab(context: SettingsTabContext): void {
         });
 
     new Setting(containerEl)
+        .setName(strings.settings.items.limitPinnedToCurrentFolder.name)
+        .setDesc(strings.settings.items.limitPinnedToCurrentFolder.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.filterPinnedByFolder).onChange(async value => {
+                plugin.settings.filterPinnedByFolder = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(containerEl)
         .setName(strings.settings.items.groupNotes.name)
         .setDesc(strings.settings.items.groupNotes.desc)
         .addDropdown(dropdown =>

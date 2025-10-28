@@ -125,6 +125,7 @@ export interface NotebookNavigatorSettings {
     listPaneTitle: ListPaneTitleOption;
     multiSelectModifier: MultiSelectModifier;
     noteGrouping: ListNoteGroupingOption;
+    filterPinnedByFolder: boolean;
     optimizeNoteHeight: boolean;
     showQuickActions: boolean;
     quickActionRevealInFolder: boolean;

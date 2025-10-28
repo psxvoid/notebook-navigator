@@ -581,6 +581,10 @@ export const STRINGS_FR = {
                 name: 'Afficher les notes des sous-dossiers / descendants',
                 desc: "Inclure les notes des sous-dossiers imbriqués et des descendants d'étiquettes lors de l'affichage d'un dossier ou d'une étiquette."
             },
+            limitPinnedToCurrentFolder: {
+                name: 'Afficher les notes épinglées uniquement dans le dossier parent',
+                desc: 'Les notes épinglées apparaissent uniquement lors de la visualisation de leur dossier'
+            },
             separateNoteCounts: {
                 name: 'Afficher les comptes actuels et descendants séparément',
                 desc: 'Affiche le nombre de notes au format "actuel ▾ descendants" dans les dossiers et étiquettes.'

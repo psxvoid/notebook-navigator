@@ -579,6 +579,10 @@ export const STRINGS_EN = {
                 name: 'Show notes from subfolders / descendants',
                 desc: 'Include notes from nested subfolders and tag descendants when viewing a folder or tag.'
             },
+            limitPinnedToCurrentFolder: {
+                name: 'Show pinned notes in parent folder only',
+                desc: 'Pinned notes appear only when viewing their folder'
+            },
             separateNoteCounts: {
                 name: 'Show current and descendant counts separately',
                 desc: 'Display note counts as "current ▾ descendants" format in folders and tags.'
