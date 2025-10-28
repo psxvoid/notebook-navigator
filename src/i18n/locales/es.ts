@@ -789,6 +789,10 @@ export const STRINGS_ES = {
                 name: 'Tamaño de la imagen destacada',
                 desc: 'Establece el tamaño de la imagen destacada que se utilizará en la lista de notas.'
             },
+            featureImagePersistIntermediate: {
+                name: 'Guardar la imagen con todas las funciones en el disco',
+                desc: 'Solo para usuarios avanzados. Al activar esta opción, se guardan las imágenes intermedias con todas las funciones en un disco. Puede ser útil para acelerar la indexación inicial al cambiar el tamaño y la sincronización de las imágenes destacadas. Requiere reconstruir la caché al activarla. No se borran las imágenes intermedias después de desactivarla.'
+            },
             showRootFolder: {
                 name: 'Mostrar carpeta raíz',
                 desc: 'Muestra el nombre de la carpeta raíz en el árbol.'

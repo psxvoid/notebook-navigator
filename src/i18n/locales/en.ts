@@ -788,6 +788,10 @@ export const STRINGS_EN = {
                 name: 'Featured image size',
                 desc: 'Sets the size of the featured image to be used in the note list.'
             },
+            featureImagePersistIntermediate: {
+                name: 'Save full featured image to disk',
+                desc: 'For advanced users only. Enabling this option saves intermediate full featured images to a disk. Might be useful to speedup initial indexing on changing featured images size and sync. Requires cache rebuild on enabling. Does not cleanup intermediate images after being disabled.'
+            },
             showRootFolder: {
                 name: 'Show root folder',
                 desc: 'Display the vault name as the root folder in the tree.'

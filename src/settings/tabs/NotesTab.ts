@@ -510,6 +510,16 @@ export function renderNotesTab(context: SettingsTabContext): void {
             })
         });
 
+    new Setting(featureImageSettingsEl)
+        .setName(strings.settings.items.featureImagePersistIntermediate.name)
+        .setDesc(strings.settings.items.featureImagePersistIntermediate.desc)
+        .addToggle(toggle => {
+            toggle.setValue(plugin.settings.featureImagePersistIntermediate).onChange(async value => {
+                plugin.settings.featureImagePersistIntermediate = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        });
+
     fileTagsSubSettingsEl.toggle(plugin.settings.showFileTags);
     previewSettingsEl.toggle(plugin.settings.showFilePreview);
     featureImageSettingsEl.toggle(plugin.settings.showFeatureImage);

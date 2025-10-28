@@ -790,6 +790,10 @@ export const STRINGS_PL = {
                 name: 'Rozmiar wyróżnionego obrazu',
                 desc: 'Ustawia rozmiar wyróżnionego obrazu, który będzie używany na liście notatek.'
             },
+            featureImagePersistIntermediate: {
+                name: 'Zapisz obraz w pełnym formacie na dysku',
+                desc: 'Tylko dla zaawansowanych użytkowników. Włączenie tej opcji powoduje zapisanie na dysku obrazów pośrednich z pełnymi opcjami. Może to być przydatne do przyspieszenia początkowego indeksowania po zmianie rozmiaru obrazów wyróżnionych i synchronizacji. Wymaga odbudowy pamięci podręcznej po włączeniu. Obrazy pośrednie nie są czyszczone po wyłączeniu.'
+            },
             showRootFolder: {
                 name: 'Pokaż folder główny',
                 desc: 'Wyświetl nazwę magazynu jako folder główny w drzewie.'
