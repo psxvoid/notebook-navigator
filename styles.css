@@ -1915,9 +1915,16 @@ body {
     flex-wrap: nowrap;
     gap: 4px;
     margin-top: 4px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     height: 22px; /* Fixed height for single row */
     position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.nn-file-tags::-webkit-scrollbar {
+    display: none;
 }
 
 /* Individual tag pill */

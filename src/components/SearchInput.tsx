@@ -97,6 +97,11 @@ export function SearchInput({
     const handleKeyDown = (e: React.KeyboardEvent) => {
         const nativeEvent = e.nativeEvent;
         const shortcuts = settings.keyboardShortcuts;
+        const isImeComposing = nativeEvent.isComposing || nativeEvent.keyCode === 229;
+
+        if (isImeComposing) {
+            return;
+        }
 
         if (matchesShortcut(nativeEvent, shortcuts, KeyboardShortcutAction.SEARCH_CLOSE)) {
             e.preventDefault();

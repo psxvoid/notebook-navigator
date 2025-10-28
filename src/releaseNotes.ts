@@ -93,7 +93,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'You can now right-click shown hidden folders and choose "Unhide" without going to settings.',
             '"Folder Note Properties" can now be entered as a text area for full control of what is copied to frontmatter.',
             'New option for "Default folder note type": "Ask". Will now ask you if you want to create a Markdown, Canvas or Base when creating a new folder note from the context menu. Thanks @artuncolak for the PR!',
-            'If your homepage is open in another tab during startup, it will now be focused instead of opening it again in the current tab.'
+            'If your homepage is open in another tab during startup, it will now be focused instead of opening it again in the current tab.',
+            'You can now scroll the file tags in list pane if there are many tags.'
         ],
         changed: [
             'The toolbar settings for "Show hidden items", "Search"  and "Show notes from subfolders" are no longer synced across devices. All toolbar buttons were reset as an effect of this, so you have to click the ==pin shortcuts== toolbar button after upgrading.'
@@ -106,6 +107,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Fixed an issue where the style settings "Selection background for folders and tags" applied to list pane.',
             'Fixed two drag and drop issues: Dragging a file from a subfolder to the list pane would cause it to move to the current folder, and dragging and holding in listpane would incorrectly cause the current folder to expand in navigation pane.',
             'Files and tags in shortcuts area now properly show background color.',
+            'Fixed a bug where IME preedit text was not replaced on commit, causing duplicated Latin input when typing with a Chinese IME active.',
             'Excalidraw files now display with clean names (without .excalidraw suffix) and maintain correct list item height when renamed.'
         ]
     },
