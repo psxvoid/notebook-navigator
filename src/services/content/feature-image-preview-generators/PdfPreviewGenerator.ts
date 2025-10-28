@@ -1,13 +1,12 @@
 import { App, TFile } from "obsidian";
-import { getDBInstance } from "src/storage/fileOperations";
-import { cacheDirPath, cacheFilePath, GeneratePreviewResult, isCachePath } from "./ExcalidrawPreviewGenerator";
-import { EMPTY_FUNC, EMPTY_STRING } from "src/utils/empty";
+import { EMPTY_FUNC } from "src/utils/empty";
 import * as pdfjs from "pdfjs-dist";
 import { PDFDocumentProxy,  PDFPageProxy, PDFWorker } from "pdfjs-dist";
 import { DocumentInitParameters } from "pdfjs-dist/types/src/display/api";
 import { canvasToPngBlob } from "./ImageCropUtils";
 
 import "pdfjs-dist/build/pdf.worker.mjs";
+import { GeneratePreviewResult } from "./PreviewGenerator";
 
 class WorkerController {
     private activeWorker: PDFWorker
@@ -76,7 +75,7 @@ const getActiveWorker = async () => {
     return activeWorker
 }
 
-async function generatePreview(pdfFile: TFile, app: App): Promise<GeneratePreviewResult> {
+export async function generatePdfPreview(pdfFile: TFile, app: App): Promise<GeneratePreviewResult> {
     const controller: WorkerController = await getActiveWorker()
     controller.cancelAutoDispose()
 
@@ -116,42 +115,5 @@ async function generatePreview(pdfFile: TFile, app: App): Promise<GeneratePrevie
         controller.enableAutoDispose(1 * 60 * 1000)
         page?.cleanup()
         doc?.destroy()
-    }
-}
-
-// TODO: extract into a common function
-export async function generatePdfPreview(pdfFile: TFile, app: App, requestingFile: TFile): Promise<{ featurePath: string, featureProviderPath?: string, consumerTargetPath?: string } | null> {
-    const previewFilePath = cacheFilePath(pdfFile);
-    const dbFile = getDBInstance().getFile(pdfFile.path)
-    const currentFeature: string | null | undefined = dbFile?.featureImage
-
-    const hasExistingFeature = (currentFeature ?? EMPTY_STRING).length > 0;
-
-    if (hasExistingFeature && currentFeature === previewFilePath) {
-        return { featurePath: previewFilePath, featureProviderPath: pdfFile.path };
-    }
-
-    if (hasExistingFeature && isCachePath(currentFeature) && await this.app.vault.adapter.exists(currentFeature)) {
-        const previewAbstractFile = this.app.vault.getFileByPath(currentFeature)
-
-        await this.app.vault.delete(previewAbstractFile);
-    } else if (!(await this.app.vault.adapter.exists(cacheDirPath))) {
-        await this.app.vault.adapter.mkdir(cacheDirPath);
-    }
-
-    let previewData: GeneratePreviewResult | undefined
-    try {
-        previewData = await generatePreview(pdfFile, app);
-        await this.app.vault.createBinary(previewFilePath, await previewData.blob.arrayBuffer());
-        return { featurePath: previewFilePath, featureProviderPath: pdfFile.path, consumerTargetPath: pdfFile.path }
-    } catch (e: unknown) {
-        if (e instanceof Error && e.message.indexOf("File already exists") >= 0) {
-            // usually should not happen but just in case
-            return { featurePath: previewFilePath, featureProviderPath: pdfFile.path, consumerTargetPath: pdfFile.path }
-        }
-
-        throw e;
-    } finally {
-        previewData?.dispose()
     }
 }
