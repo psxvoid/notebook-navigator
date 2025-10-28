@@ -233,21 +233,21 @@ graph TD
     Start[From Phase 3:<br/>Database & Providers Ready] --> A
 
     subgraph "Shared Initial Steps"
-        A[processExistingCache()] --> B[getFilteredMarkdownFiles()]
-        B --> C[calculateFileDiff()]
+        A[processExistingCache] --> B[getFilteredMarkdownFiles]
+        B --> C[calculateFileDiff]
     end
 
     C --> D{Boot Type}
 
     subgraph "Cold Boot Path"
-        E[All files new] --> F[recordFileChanges()]
-        F --> G[sync MemoryFileCache()]
-        G --> H[rebuildTagTree()]
+        E[All files new] --> F[recordFileChanges]
+        F --> G[sync MemoryFileCache]
+        G --> H[rebuildTagTree]
     end
 
     subgraph "Warm Boot Path"
         I[Diff results] --> J[record updates & removals]
-        J --> K[sync MemoryFileCache()]
+        J --> K[sync MemoryFileCache]
         K --> L[rebuild tag tree if files removed]
     end
 
@@ -261,12 +261,12 @@ graph TD
         M[Mark storage ready<br/>notify API]
         M --> N[Queue preview provider immediately]
         M --> O{Tags enabled?}
-        O -->|Yes| P[waitForMetadataCache()]
+        O -->|Yes| P[waitForMetadataCache]
         P --> Q[Queue tag provider when metadata arrives]
         O -->|No| R[Skip tag gating]
         M --> S[Resolve metadata-dependent types]
         S --> T{Any gated types?}
-        T -->|Yes| U[queueMetadataContentWhenReady()]
+        T -->|Yes| U[queueMetadataContentWhenReady]
         U --> V[Schedule metadata/feature image providers]
         T -->|No| R
         R --> W[Enter Phase 5]
