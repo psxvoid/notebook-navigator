@@ -455,6 +455,14 @@ export function useListPaneScroll({
      * 3. folder-navigation - User changed folders
      * 4. reveal - Show active file command
      */
+    const clearPending = useCallback(() => {
+        // Drop any stale pending request so new context-specific scrolls can be queued
+        if (pendingScrollRef.current) {
+            pendingScrollRef.current = null;
+            setPendingScrollVersion(v => v + 1);
+        }
+    }, []);
+
     const setPending = useCallback((next: PendingScroll) => {
         const current = pendingScrollRef.current;
         if (!current) {
@@ -808,6 +816,11 @@ export function useListPaneScroll({
         const currentListKey = `${selectedFolder?.path || ''}_${selectedTag || ''}`;
         const listChanged = prevListKeyRef.current !== currentListKey;
 
+        if (listChanged) {
+            // Context changed while a pending scroll might still target the prior folder/tag
+            clearPending();
+        }
+
         // Check if this is a folder navigation where we need to scroll to maintain the selected file
         const isFolderNavigation = selectionState.isFolderNavigation;
 
@@ -902,7 +915,8 @@ export function useListPaneScroll({
         selectionState.isFolderNavigation,
         selectionDispatch,
         listItems.length,
-        setPending
+        setPending,
+        clearPending
     ]);
 
     /**
