@@ -24,13 +24,19 @@ theme to customize how Notebook Navigator looks.
 
 ## CSS Variables Reference
 
-All variables start with `--nn-theme-` and should be defined at the `body` level.
+The theming variables use the `--nn-theme-` prefix and should be defined at the `body` level.
 
 ### Navigation pane
 
 | Variable            | Default                       | Description                                                  |
 | ------------------- | ----------------------------- | ------------------------------------------------------------ |
 | `--nn-theme-nav-bg` | `var(--background-secondary)` | Navigation pane background (desktop only, see mobile styles) |
+
+#### Pinned shortcuts
+
+| Variable                                  | Default               | Description                                                                             |
+| ----------------------------------------- | --------------------- | --------------------------------------------------------------------------------------- |
+| `--nn-theme-pinned-shortcut-shadow-color` | `rgba(0, 0, 0, 0.05)` | Gradient overlay rendered beneath pinned shortcuts (defaults to `0.2` in `.theme-dark`) |
 
 #### Folder & tag items
 
@@ -196,6 +202,9 @@ body {
   --nn-theme-navitem-selected-count-bg: rgba(0, 0, 0, 0.2); /* Subtle dark overlay - selected count bg */
   --nn-theme-navitem-selected-inactive-bg: #464c55; /* Dark gray - inactive selected background */
 
+  /* Pinned shortcuts */
+  --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.2); /* Shadow gradient below pinned shortcuts */
+
   /* Text styling */
   --nn-theme-navitem-name-font-weight: 400; /* Regular weight for normal items */
   --nn-theme-navitem-file-name-font-weight: 400; /* Regular weight for file names */
@@ -348,4 +357,5 @@ theme through inline styles.
 ## Style Settings Support
 
 Notebook Navigator fully supports the Style Settings plugin. When users install Style Settings, they can customize all
-these variables through a UI. Your theme values become the defaults that users can override.
+documented variables through a UI. `--nn-theme-pinned-shortcut-shadow-color` is not yet exposed and must be changed
+through custom CSS.
