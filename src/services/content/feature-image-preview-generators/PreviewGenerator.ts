@@ -37,7 +37,6 @@ export async function generatePreview(excalidrawFile: TFile, app: App, requestin
     let previewData: GeneratePreviewResult | undefined
 
     try {
-        // previewData = await generatePreview(excalidrawFile, false, app);
         previewData = await generate(excalidrawFile, app);
         await this.app.vault.createBinary(previewFilePath, await previewData.blob.arrayBuffer());
         return { featurePath: previewFilePath, featureProviderPath: excalidrawFile.path, consumerTargetPath: excalidrawFile.path }
