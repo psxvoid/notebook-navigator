@@ -1,16 +1,25 @@
+import { fileTypeFromBuffer } from "file-type";
 import { App } from "obsidian";
 import smartcrop from "smartcrop";
+import { EMPTY_STRING } from "src/utils/empty";
 
-export async function readSourceImageBlob(imagePath: string, app: App): Promise<Blob> {
+export async function readSourceImageBlob(imagePath: string, app: App, knownMime?: string): Promise<Blob> {
     const imageBuffer: ArrayBuffer = await app.vault.adapter.readBinary(imagePath);
 
-    if (imagePath.endsWith('.svg')) {
-        return new Blob([imageBuffer], {
-            type: 'image/svg+xml;charset=utf-8'
-        })
+    let mimeType: string = knownMime ?? EMPTY_STRING
+
+    if (mimeType.length === 0) {
+        if (imagePath.endsWith('.svg')) {
+            mimeType = 'image/svg+xml;charset=utf-8'
+        } else if (imagePath.endsWith('.png')) {
+            mimeType = 'image/png'
+        } else {
+            const fileType = await fileTypeFromBuffer(imageBuffer);
+            mimeType = fileType != null ? fileType.mime : ''
+        }
     }
 
-    return new Blob([imageBuffer]);
+    return new Blob([imageBuffer], { type: mimeType });
 }
 
 export function blobToBase64Url(blob: Blob): Promise<string> {

@@ -26,7 +26,7 @@ import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
 import { autoCrop, blobToBase64Url, readSourceImageBlob } from './feature-image-preview-generators/ImageCropUtils';
 import { EMPTY_STRING } from 'src/utils/empty';
 import { generatePdfPreview } from './feature-image-preview-generators/providers/PdfPreviewGenerator';
-import { cacheFilePath, generatePreview, isCachePath } from './feature-image-preview-generators/PreviewGenerator';
+import { cacheFilePath, generatePreview, GeneratePreviewResultEx, isCachePath, savePreviewFileToDisk } from './feature-image-preview-generators/PreviewGenerator';
 import { generateExcalidrawPreview } from './feature-image-preview-generators/providers/ExcalidrawPreviewGenerator';
 
 /**
@@ -133,7 +133,18 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             let selfPreview = false
             if (nonEmptyString(imageUrlStr)) {
                 const maxSizeSquarePx = settings.featureImageSize;
-                const resizedBlob = await autoCrop(await readSourceImageBlob(imageUrlStr, this.app), maxSizeSquarePx)
+
+                let previewBlob: Blob | undefined = result?.previewBlob
+
+                if (previewBlob == null && isImageFile(this.app.vault.getFileByPath(imageUrlStr))) {
+                    previewBlob = await readSourceImageBlob(imageUrlStr, this.app)
+                }
+
+                if (previewBlob == null) {
+                    throw new Error("Preview blob is missing from the preview provider result.")
+                }
+
+                const resizedBlob = await autoCrop(previewBlob, maxSizeSquarePx)
                 featureImageResized = await blobToBase64Url(resizedBlob)
                 if (result?.featureProviderPath === job.file.path) {
                     selfPreview = true
@@ -189,7 +200,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         file: TFile,
         metadata: CachedMetadata | null,
         settings: NotebookNavigatorSettings
-    ): Promise<{ featurePath: string, featureProviderPath?: string, consumerTargetPath?: string } | null> {
+    ): Promise<GeneratePreviewResultEx | null> {
         // Only process markdown files for feature images
         if (file.extension !== 'md') {
             return null;
@@ -201,7 +212,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             if (providerPath === embedFile.path) {
                 const imagePath = cacheFilePath(embedFile)
 
-                if (isCachePath(imagePath) && await this.app.vault.adapter.exists(imagePath)) {
+                if (savePreviewFileToDisk && isCachePath(imagePath) && await this.app.vault.adapter.exists(imagePath)) {
                     const toDelete = this.app.vault.getFileByPath(imagePath)
                     if (toDelete != null) {
                         // Review: Refactoring: now delete is also in ExcalidrawPreviewGenerator, handle deletion in a single place
