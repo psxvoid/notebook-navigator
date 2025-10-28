@@ -23,10 +23,11 @@ import { FileData } from '../../storage/IndexedDBStorage';
 import { getDBInstance } from '../../storage/fileOperations';
 import { isExcalidrawAttachment, isImageFile } from '../../utils/fileTypeUtils';
 import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
-import { cacheFilePath, generateExcalidrawPreview, isCachePath } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
 import { autoCrop, blobToBase64Url, readSourceImageBlob } from './feature-image-preview-generators/ImageCropUtils';
 import { EMPTY_STRING } from 'src/utils/empty';
 import { generatePdfPreview } from './feature-image-preview-generators/PdfPreviewGenerator';
+import { cacheFilePath, generatePreview, isCachePath } from './feature-image-preview-generators/PreviewGenerator';
+import { generateExcalidrawPreview } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
 
 /**
  * Content provider for finding and storing feature images
@@ -216,7 +217,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
 
         // self preview
         if (isExcalidrawAttachment(file, metadata)) {
-            return generateExcalidrawPreview(file, this.app, file);
+            return generatePreview(file, this.app, file, generateExcalidrawPreview)
         }
 
         // Try each property in order until we find an image
@@ -242,7 +243,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                     await cleanupFeatureProviderEmbed(imageFile)
 
                     if (isExcalidrawAttachment(imageFile, metadata)) {
-                        return generateExcalidrawPreview(imageFile, this.app, file);
+                        return generatePreview(imageFile, this.app, file, generateExcalidrawPreview)
                     }
                 }
 
@@ -276,11 +277,11 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                     const embedMetadata = this.app.metadataCache.getFileCache(embedFile);
 
                     if (isExcalidrawAttachment(embedFile, embedMetadata)) {
-                        return generateExcalidrawPreview(embedFile, this.app, file);
+                        return generatePreview(embedFile, this.app, file, generateExcalidrawPreview)
                     }
 
                     if (embedFile.extension === 'pdf') {
-                        return generatePdfPreview(embedFile, this.app, file)
+                        return generatePreview(embedFile, this.app, file, generatePdfPreview)
                     }
 
                     return null;
