@@ -2,6 +2,9 @@ import { fileTypeFromBuffer } from "file-type";
 import { App } from "obsidian";
 import smartcrop from "smartcrop";
 import { EMPTY_STRING } from "src/utils/empty";
+import PicaStatic from "pica";
+
+const pica = new PicaStatic()
 
 export async function readSourceImageBlob(imagePath: string, app: App, knownMime?: string): Promise<Blob> {
     const imageBuffer: ArrayBuffer = await app.vault.adapter.readBinary(imagePath);
@@ -90,15 +93,21 @@ export async function autoCrop(blob: Blob, maxSizeSquarePx: number): Promise<Blo
     const { x, y, width, height } = result.topCrop;
 
     const canvas = document.createElement('canvas');
-    canvas.width = maxSizeSquarePx;
-    canvas.height = maxSizeSquarePx;
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext('2d');
 
     if (ctx == null) {
         throw new Error("Unable to get 2D context from canvas.")
     }
 
-    ctx.drawImage(image, x, y, width, height, 0, 0, maxSizeSquarePx, maxSizeSquarePx);
+    ctx.drawImage(image, x, y, width, height, 0, 0, width, height);
+    
+    const resizeCanvas = document.createElement('canvas');
+    resizeCanvas.width = maxSizeSquarePx;
+    resizeCanvas.height = maxSizeSquarePx;
+
+    await pica.resize(canvas, resizeCanvas)
 
     return canvasToPngBlob(canvas)
 }
