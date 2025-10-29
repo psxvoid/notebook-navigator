@@ -578,6 +578,10 @@ export const STRINGS_ZH_TW = {
                 name: '顯示子資料夾/後代中的筆記',
                 desc: '檢視資料夾或標籤時，包含巢狀子資料夾和標籤後代的筆記。'
             },
+            limitPinnedToCurrentFolder: {
+                name: '僅在父資料夾中顯示固定筆記',
+                desc: '固定筆記僅在查看其資料夾時顯示'
+            },
             separateNoteCounts: {
                 name: '分別顯示當前和後代計數',
                 desc: '在資料夾和標籤中以「當前 ▾ 後代」格式顯示筆記計數。'

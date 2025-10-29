@@ -38,17 +38,43 @@ import { getFileDisplayName as getDisplayName } from './fileNameUtils';
 import { isFolderNote } from './folderNotes';
 import { createHiddenTagVisibility, normalizeTagPathValue } from './tagPrefixMatcher';
 
+interface CollectPinnedPathsOptions {
+    restrictToFolderPath?: string;
+}
+
+function getParentFolderPath(path: string): string {
+    const separatorIndex = path.lastIndexOf('/');
+    if (separatorIndex === -1 || separatorIndex === 0) {
+        return '/';
+    }
+    return path.slice(0, separatorIndex);
+}
+
 /**
  * Collects all pinned note paths from settings
  */
-export function collectPinnedPaths(pinnedNotes: PinnedNotes, contextFilter?: NavigatorContext): Set<string> {
+export function collectPinnedPaths(
+    pinnedNotes: PinnedNotes,
+    contextFilter?: NavigatorContext,
+    options: CollectPinnedPathsOptions = {}
+): Set<string> {
     const allPinnedPaths = new Set<string>();
 
     if (!pinnedNotes || typeof pinnedNotes !== 'object') {
         return allPinnedPaths;
     }
 
+    const restrictToFolderPath = options.restrictToFolderPath;
+    const shouldRestrictFolderContext = contextFilter === 'folder' && restrictToFolderPath !== undefined;
+
     for (const [path, contexts] of Object.entries(pinnedNotes)) {
+        if (shouldRestrictFolderContext) {
+            const parentPath = getParentFolderPath(path);
+            if (parentPath !== restrictToFolderPath) {
+                continue;
+            }
+        }
+
         if (!contextFilter) {
             // Include all pinned notes
             allPinnedPaths.add(path);
@@ -62,8 +88,13 @@ export function collectPinnedPaths(pinnedNotes: PinnedNotes, contextFilter?: Nav
 }
 
 // Reorders files to place pinned files first, preserving relative order within each group
-function applyPinnedOrdering(files: TFile[], settings: NotebookNavigatorSettings, context: NavigatorContext): TFile[] {
-    const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, context);
+function applyPinnedOrdering(
+    files: TFile[],
+    settings: NotebookNavigatorSettings,
+    context: NavigatorContext,
+    options?: CollectPinnedPathsOptions
+): TFile[] {
+    const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, context, options);
     if (pinnedPaths.size === 0) {
         return files;
     }
@@ -193,7 +224,8 @@ export function getFilesForFolder(
         );
     }
 
-    return applyPinnedOrdering(allFiles, settings, 'folder');
+    const pinnedOrderingOptions = settings.filterPinnedByFolder ? { restrictToFolderPath: folder.path } : undefined;
+    return applyPinnedOrdering(allFiles, settings, 'folder', pinnedOrderingOptions);
 }
 
 /**

@@ -250,15 +250,17 @@ export class FileSystemOperations {
 
                     // Reconstruct filename with .excalidraw suffix
                     finalFileName = `${workingName}${EXCALIDRAW_BASENAME_SUFFIX}${extensionSuffix}`;
-                } else if (!extensionSuffix) {
-                    // File has no extension, use input as-is
-                    finalFileName = trimmedInput;
-                } else if (trimmedInput.includes('.')) {
-                    // User provided extension, use input as-is
-                    finalFileName = trimmedInput;
                 } else {
-                    // Append original extension to input
-                    finalFileName = `${trimmedInput}${extensionSuffix}`;
+                    // Preserve original extension for all other files
+                    let workingName = trimmedInput;
+                    if (extensionSuffix && workingName.toLowerCase().endsWith(extensionSuffix.toLowerCase())) {
+                        workingName = workingName.slice(0, -extensionSuffix.length);
+                    }
+                    workingName = workingName.replace(/\.+$/u, '');
+                    if (!workingName) {
+                        return;
+                    }
+                    finalFileName = extensionSuffix ? `${workingName}${extensionSuffix}` : workingName;
                 }
 
                 // Skip rename if name unchanged

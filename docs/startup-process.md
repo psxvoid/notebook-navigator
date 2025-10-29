@@ -78,36 +78,52 @@ Both version changes result in a cold boot to ensure data consistency.
 
 **Trigger**: Obsidian calls Plugin.onload() when enabling the plugin
 
-1. Plugin.onload() called by Obsidian
-2. Initialize database early via initializeDatabase(appId)
-   - Database is ready for all consumers from the start
-   - Idempotent operation safe for rapid enable/disable cycles
-3. Load settings from data.json
-4. Initialize core services:
-   - LocalStorage (vault-specific storage)
-   - IconService (icon providers)
-   - MetadataService (colors, icons, sort overrides, appearance overrides)
-   - TagOperations (tag manipulation)
-   - TagTreeService (tag hierarchy)
-   - CommandQueueService (operation tracking)
-5. Register view type with Obsidian
-6. Register commands and event handlers
-7. Add ribbon icon
-8. Wait for workspace.onLayoutReady()
-   - When ready, calls activateView() if no navigator exists
+1. Obsidian calls `Plugin.onload()`.
+2. Initialize vault-scoped localStorage (`localStorage.init`) before any database work.
+3. Initialize IndexedDB early via `initializeDatabase(appId)`.
+   - Database is ready for all consumers from the start.
+   - Operation is idempotent to support rapid enable/disable cycles.
+4. Load settings from `data.json` and run migrations.
+   - Sanitize keyboard shortcuts and migrate legacy fields.
+   - Apply default date/time formats and normalize folder note properties.
+   - Load dual-pane orientation and UX preferences from localStorage.
+5. Handle first-launch setup when no saved data exists.
+   - Normalize tag settings, clear vault-scoped localStorage keys, and expand the root folder.
+   - Reset dual-pane orientation and UX preferences to defaults.
+   - Record the current localStorage schema version for future migrations.
+6. Initialize recent data and UX tracking.
+   - `RecentDataManager` loads persisted recent notes and icons.
+   - `RecentNotesService` starts recording file-open history.
+7. Construct core services and controllers:
+   - `WorkspaceCoordinator` and `HomepageController` manage view activation and homepage flow.
+   - `MetadataService`, `TagOperations`, `TagTreeService`, and `CommandQueueService`.
+   - `FileSystemOperations` wired with tag tree and visibility preferences.
+   - `OmnisearchService`, `NotebookNavigatorAPI`, and `ReleaseCheckService`.
+   - `ExternalIconProviderController` initializes icon providers and syncs settings.
+8. Register view, commands, settings tab, and workspace integrations.
+   - `registerNavigatorCommands` wires command palette entries.
+   - `registerWorkspaceEvents` adds editor context menu actions, the ribbon icon, recent-note tracking, and
+     rename/delete handlers.
+9. Wait for `workspace.onLayoutReady()`.
+   - `HomepageController.handleWorkspaceReady()` activates the view on first launch and opens the configured homepage
+     when available.
+   - Triggers Style Settings parsing, version notice checks, and optional release polling.
 
 ### Phase 2: View Creation (NotebookNavigatorView.tsx)
 
 **Trigger**: activateView() creates the view via workspace.getLeaf()
 
 1. Obsidian calls onOpen() when view is created
-2. React app mounted with context providers:
-   - SettingsProvider (user preferences)
-   - ServicesProvider (dependency injection)
-   - StorageProvider (data management)
-   - ExpansionProvider (UI state)
-   - SelectionProvider (selected items)
-   - UIStateProvider (pane focus)
+2. React app mounts with the following context providers:
+   - `SettingsProvider` (settings state and update actions)
+   - `UXPreferencesProvider` (dual-pane and search preferences synced with the plugin)
+   - `RecentDataProvider` (recent notes and icon lists)
+   - `ServicesProvider` (Obsidian app, services, and platform flags)
+   - `ShortcutsProvider` (pinned shortcut hydration and operations)
+   - `StorageProvider` (IndexedDB access and content pipeline)
+   - `ExpansionProvider` (expanded folders and tags)
+   - `SelectionProvider` (selected items plus rename listeners from the plugin)
+   - `UIStateProvider` (pane focus and layout mode)
 3. Container renders skeleton view while storage initializes:
    - Shows placeholder panes with saved dimensions
    - Provides immediate visual feedback
@@ -121,38 +137,35 @@ Both version changes result in a cold boot to ensure data consistency.
 
 **Trigger**: Database already initialized by Plugin.onload() in Phase 1
 
-1. StorageContext useEffect checks database availability
-   - Calls getDBInstance() to verify database is ready
-   - Sets isIndexedDBReady state based on availability
-2. Database version check (already performed during init):
-3. Version check process:
-   - Check stored versions in localStorage
-   - Compare DB_SCHEMA_VERSION and DB_CONTENT_VERSION
-   - Determine boot type:
-     - No stored versions → First install → Cold boot
-     - Schema change → Delete database → Cold boot
-     - Content change → Clear data → Cold boot
-     - Versions match → Warm boot
-4. Store current versions in localStorage
-5. Open/create database based on boot type
+1. StorageContext retrieves the shared database instance.
+   - Calls `getDBInstance()` (singleton created during plugin load).
+   - Awaits `db.init()` and sets `isIndexedDBReady` on success.
+   - Logs and keeps the flag false if initialization fails.
+2. `IndexedDBStorage.init()` handles schema and content version checks.
+   - Reads stored versions from vault-scoped localStorage.
+   - Deletes the database when `DB_SCHEMA_VERSION` changes.
+   - Marks a rebuild when only `DB_CONTENT_VERSION` changes.
+   - Persists the current versions back to localStorage.
+3. Database opening and cache hydration:
+   - Rebuilds start with an empty `MemoryFileCache`.
+   - Warm boots load all records into the cache for synchronous access.
+4. StorageContext creates a `ContentProviderRegistry` once and registers the preview, feature image, metadata, and tag
+   providers.
+5. With `isIndexedDBReady` true, Phase 4 processing can begin.
 
 #### Cold Boot Path (database empty or cleared):
 
-1. Create new database or clear existing data
-2. Initialize empty MemoryFileCache
-3. Initialize content provider registry:
-   - PreviewContentProvider
-   - FeatureImageContentProvider
-   - MetadataContentProvider
-   - TagContentProvider
-4. Continue to Phase 4 with empty database
+1. Database is deleted or cleared during initialization.
+2. `MemoryFileCache` starts empty because no cached data exists.
+3. Providers remain idle until Phase 4 queues work.
+4. Continue to Phase 4 with an empty database snapshot.
 
 #### Warm Boot Path (database has existing data):
 
-1. Open existing database
-2. Load all existing data into MemoryFileCache
-3. Initialize content provider registry (same providers as cold boot)
-4. Continue to Phase 4 with cached data
+1. Database opens without recreation.
+2. All records load into `MemoryFileCache`.
+3. Providers have immediate access to cached content.
+4. Continue to Phase 4 with populated data.
 
 ### Phase 4: Initial Data Load and Metadata Resolution
 
@@ -163,11 +176,11 @@ tag extraction:
 
 #### Shared Initial Steps:
 
-1. StorageContext: Begin processing (processExistingCache)
-   - Cold boot: isInitialLoad=true (synchronous)
-   - Warm boot: isInitialLoad=false (queued via deferred scheduling)
-2. Get all markdown files from vault (getFilteredMarkdownFiles)
-3. Calculate diff via diffCalculator
+1. StorageContext calls `processExistingCache()`.
+   - Cold boot: `isInitialLoad=true` runs synchronously.
+   - Warm boot: `isInitialLoad=false` defers work via zero-delay timeouts.
+2. Gather markdown files with `getFilteredMarkdownFiles()`.
+3. Calculate diffs through `calculateFileDiff()`.
    - Cold boot: All files appear as new (database is empty)
    - Warm boot: Compare against cached data to find changes
 
@@ -179,8 +192,8 @@ tag extraction:
    - Null fields act as flags that content needs to be generated
 5. Sync MemoryFileCache with new database entries
    - Updates the empty memory cache with the new file records
-6. Build empty tag tree via TagTreeBuilder
-   - Creates the tree structure but with no tags since none are extracted yet
+6. Rebuild tag tree via `rebuildTagTree()` (`buildTagTreeFromDatabase`).
+   - Tree mirrors the empty database; counts remain zero until tags extract.
 
 #### Warm Boot Specific:
 
@@ -191,29 +204,24 @@ tag extraction:
    - Remove deleted files (removeFilesFromCache)
 5. Sync MemoryFileCache with any database changes
    - Cache already loaded in Phase 3, just sync changes
-6. Rebuild tag tree only if files were deleted
-   - Otherwise use existing tree from memory cache
+6. Rebuild tag tree only when deletions occur.
+   - Otherwise preserve counts already cached in memory.
 
 #### Shared Final Steps:
 
-7. Mark storage as ready (setIsStorageReady(true))
-   - Cold boot: UI can now render with files visible but no content
-   - Warm boot: UI renders immediately with cached content
-   - Tag trees and other metadata-driven views remain empty until Step 9 finishes extracting content
-8. If tags enabled (settings.showTags):
-   - Filter files needing tags (where fileData.tags === null)
-   - Call waitForMetadataCache with these files
-   - Function tracks pending files without metadata
-   - Registers listeners for 'resolved' and 'changed' events on metadataCache
-   - As metadata becomes available, files are removed from pending set
-   - When all files have metadata (pending set empty), callback fires
-   - Callback queues files for tag extraction via ContentProviderRegistry
-9. When metadata cache ready:
-   - Queue files (ContentProviderRegistry.queueFilesForAllProviders)
-   - Tag extraction begins immediately
-10. Begin background processing (see Phase 5)
-    - Cold boot: All files need content generation
-    - Warm boot: Only changed files and files with null content fields
+7. Mark storage as ready (`setIsStorageReady(true)` and `NotebookNavigatorAPI.setStorageReady(true)`).
+   - Cold boot: UI renders with folder/file lists while content fields remain empty.
+   - Warm boot: Cached previews, tags, and metadata remain visible immediately.
+8. When tags are enabled, identify files with `tags === null` and call `waitForMetadataCache()`.
+   - Subscribes to Obsidian's `resolved` and `changed` events.
+   - Queues tag extraction once metadata exists for every tracked file.
+9. Determine metadata-dependent content types with `getMetadataDependentTypes()`.
+   - `queueMetadataContentWhenReady()` holds back tag, feature image, and metadata providers until metadata is
+     available.
+   - Preview generation (and other non-dependent providers) runs immediately.
+10. Begin background processing (see Phase 5).
+    - Cold boot: all files have pending work across providers.
+    - Warm boot: only changed or missing records are queued.
 
 #### Data Flow Diagram
 
@@ -225,58 +233,47 @@ graph TD
     Start[From Phase 3:<br/>Database & Providers Ready] --> A
 
     subgraph "Shared Initial Steps"
-        A[StorageContext.processExistingCache]
-        A --> B[Get Markdown Files<br/>getFilteredMarkdownFiles]
-        B --> C[Calculate Diff<br/>diffCalculator]
+        A[processExistingCache()] --> B[getFilteredMarkdownFiles()]
+        B --> C[calculateFileDiff()]
     end
 
     C --> D{Boot Type}
 
     subgraph "Cold Boot Path"
-        E[All Files are New]
-        E --> G[Record All Files in DB<br/>with null content fields]
-        G --> I[Sync MemoryFileCache<br/>with new entries]
-        I --> K[Build Empty Tag Tree]
+        E[All files new] --> F[recordFileChanges()]
+        F --> G[sync MemoryFileCache()]
+        G --> H[rebuildTagTree()]
     end
 
     subgraph "Warm Boot Path"
-        F[Find Changes]
-        F --> H[Update DB Based on Diff<br/>Add/Skip/Remove]
-        H --> J[Sync MemoryFileCache<br/>with changes]
-        J --> L[Rebuild Tree if Deletes<br/>else use existing]
+        I[Diff results] --> J[record updates & removals]
+        J --> K[sync MemoryFileCache()]
+        K --> L[rebuild tag tree if files removed]
     end
 
     D -->|Cold| E
-    D -->|Warm| F
+    D -->|Warm| I
 
-    K --> M
+    H --> M
     L --> M
 
     subgraph "Shared Final Steps"
-        M[Mark Storage Ready]
-        M --> N{Tags Enabled?}
-        N -->|Yes| O[Filter Files Needing Tags<br/>tags === null]
-        O --> P[waitForMetadataCache<br/>with filtered files]
-        P --> Q{Files have<br/>metadata?}
-        Q -->|All have metadata| R[Fire Callback Immediately]
-        Q -->|Some missing| S[Register Event Listeners<br/>'resolved' and 'changed']
-        S --> T[Track Pending Files]
-        T --> T2[As metadata arrives,<br/>remove from pending]
-        T2 --> T3{Pending<br/>empty?}
-        T3 -->|No| T2
-        T3 -->|Yes| R
-        R --> U[ContentProviderRegistry<br/>queueFilesForAllProviders]
-        U --> V[Process Files in Queue]
-        V --> W[TagContentProvider<br/>Extracts Tags]
-        W --> X[Update Database]
-        X --> Y{All Files<br/>Processed?}
-        Y -->|No<br/>More files| V
-        Y -->|Yes<br/>Complete| Skip[Begin Background Processing<br/>Phase 5]
-        N -->|No<br/>Tags disabled| Skip2[Queue Files Without Tags]
-        Skip2 --> Skip
+        M[Mark storage ready<br/>notify API]
+        M --> N[Queue preview provider immediately]
+        M --> O{Tags enabled?}
+        O -->|Yes| P[waitForMetadataCache()]
+        P --> Q[Queue tag provider when metadata arrives]
+        O -->|No| R[Skip tag gating]
+        M --> S[Resolve metadata-dependent types]
+        S --> T{Any gated types?}
+        T -->|Yes| U[queueMetadataContentWhenReady()]
+        U --> V[Schedule metadata/feature image providers]
+        T -->|No| R
+        R --> W[Enter Phase 5]
+        V --> W
+        Q --> W
+        N --> W
     end
-
-    Skip
 ```
 
 #### Metadata Cleanup
@@ -321,6 +318,7 @@ Content is generated asynchronously in the background by the ContentProviderRegi
    - ContentProviderRegistry manages the queue
    - Processes files in batches to avoid blocking UI
    - Uses deferred scheduling for background processing
+   - `queueMetadataContentWhenReady()` delays metadata-dependent providers until Obsidian's metadata cache has entries
 
 3. **Processing**: Each provider processes files independently
    - TagContentProvider: Extracts tags from app.metadataCache.getFileCache()
@@ -364,24 +362,28 @@ across vault events and UI updates to coalesce rapid event bursts and avoid redu
 
 **Trigger**: Obsidian calls Plugin.onunload() when disabling the plugin
 
-1. Set isUnloading flag to prevent new operations
-2. Clear all listener maps:
+1. Set the `isUnloading` flag to prevent new operations from starting.
+2. Dispose runtime managers that watch local storage and external providers.
+   - `RecentDataManager.dispose()` stops persistence sync.
+   - `ExternalIconProviderController.dispose()` releases icon provider hooks.
+3. Clear listener maps to avoid callbacks during teardown:
    - Settings update listeners
    - File rename listeners
-3. Stop content processing in all views:
-   - Get all NotebookNavigatorView instances
-   - Call stopContentProcessing() on each view
-   - This stops all ContentProviders via StorageContext
-4. Clean up services:
-   - MetadataService (set to null)
-   - TagOperations (set to null)
-   - CommandQueueService (clear operations and set to null)
-5. Remove ribbon icon
-6. Call shutdownDatabase() to:
-   - Close IndexedDB connection
-   - Clear memory cache
-   - Reset singleton instances
-   - Idempotent operation safe for multiple calls
+   - Recent data listeners
+4. Release service instances:
+   - `MetadataService` and `TagOperations` references set to `null`
+   - `CommandQueueService.clearAllOperations()` then set to `null`
+   - `OmnisearchService` reference cleared
+   - `RecentDataManager` reference cleared after disposal
+5. Stop content processing in every navigator leaf:
+   - Iterate leaves via `getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW)`
+   - Call `stopContentProcessing()` on each view to halt the `ContentProviderRegistry`
+6. Remove the ribbon icon element.
+7. Call `shutdownDatabase()` to:
+   - Close the IndexedDB connection
+   - Clear the in-memory cache
+   - Reset the singleton instance
+   - Keep the operation idempotent for repeated unloads
 
 ### Phase 2: View Cleanup (NotebookNavigatorView.tsx)
 

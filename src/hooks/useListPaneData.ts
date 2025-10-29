@@ -422,7 +422,13 @@ export function useListPaneData({
         // selectionType can be FOLDER, TAG, FILE, or null - we only use FOLDER and TAG for pinned context
         const contextFilter =
             selectionType === ItemType.TAG ? ItemType.TAG : selectionType === ItemType.FOLDER ? ItemType.FOLDER : undefined;
-        const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, contextFilter);
+        const restrictToFolderPath =
+            settings.filterPinnedByFolder && selectionType === ItemType.FOLDER && selectedFolder ? selectedFolder.path : undefined;
+        const pinnedPaths = collectPinnedPaths(
+            settings.pinnedNotes,
+            contextFilter,
+            restrictToFolderPath !== undefined ? { restrictToFolderPath } : undefined
+        );
 
         // Separate pinned and unpinned files
         const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));

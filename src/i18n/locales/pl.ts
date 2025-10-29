@@ -581,6 +581,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż notatki z podfolderów / potomnych',
                 desc: 'Podczas przeglądania folderu lub tagu uwzględnij notatki z zagnieżdżonych podfolderów i potomnych tagów.'
             },
+            limitPinnedToCurrentFolder: {
+                name: 'Pokaż przypięte notatki tylko w folderze nadrzędnym',
+                desc: 'Przypięte notatki pojawiają się tylko podczas przeglądania ich folderu'
+            },
             separateNoteCounts: {
                 name: 'Pokaż bieżące i potomne liczniki osobno',
                 desc: 'Wyświetla liczbę notatek w formacie "bieżące ▾ potomne" w folderach i tagach.'

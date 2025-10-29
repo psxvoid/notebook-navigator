@@ -8,6 +8,7 @@
   - [Local Storage](#2-local-storage-persistent-local-storage)
   - [Memory Cache](#3-memory-cache-temporary-storage)
   - [Settings](#4-settings-synchronized-storage)
+  - [Icon Assets Database](#5-icon-assets-database-device-specific-storage)
 - [Data Flow Patterns](#data-flow-patterns)
   - [Initial Load](#initial-load-cold-boot)
   - [File Change](#file-change-during-session)
@@ -21,7 +22,8 @@
 
 The Notebook Navigator plugin uses five distinct storage containers, each serving a specific purpose in the plugin's
 data management strategy. These containers work together to provide fast performance, data persistence, and cross-device
-synchronization while maintaining clear separation of concerns.
+synchronization while maintaining clear separation of concerns. The stack consists of the IndexedDB cache, an in-memory
+mirror, vault-scoped localStorage, synchronized settings in `data.json`, and a dedicated icon asset database.
 
 ## Storage Containers
 
@@ -37,10 +39,12 @@ caching vault information to enable fast searches and filtering without repeated
 **Data Stored**:
 
 - File modification times (mtime)
-- Extracted tags from files
+- Extracted tags from Markdown content and frontmatter
 - Generated preview text (first ~500 characters)
-- Feature images (from frontmatter or first embedded image)
-- Custom metadata fields (created date, modified date, custom name)
+- Feature image references from frontmatter or embedded image fallback
+- Frontmatter metadata overrides (display name, created timestamp, modified timestamp)
+- Frontmatter icon and color overrides
+- Hidden flag when file matches exclusion patterns
 
 **Key Characteristics**:
 
@@ -62,16 +66,19 @@ caching vault information to enable fast searches and filtering without repeated
 **Implementation**: `src/storage/IndexedDBStorage.ts`
 
 ```typescript
-interface FileData {
+export interface FileData {
   mtime: number;
-  tags: string[] | null; // null = not extracted yet
-  preview: string | null; // null = not generated yet
-  featureImage: string | null; // null = not found yet
+  tags: string[] | null;
+  preview: string | null;
+  featureImage: string | null;
   metadata: {
     name?: string;
     created?: number;
     modified?: number;
-  } | null; // null = not extracted yet
+    icon?: string;
+    color?: string;
+    hidden?: boolean;
+  } | null;
 }
 ```
 
@@ -86,12 +93,15 @@ allows users to have different UI layouts on desktop vs mobile, for example.
 
 **Data Stored**:
 
-- Navigation pane width
-- Selected folder/tag/file
-- Expanded/collapsed folders
-- Expanded/collapsed tags
+- Navigation pane width and height
+- Dual-pane preference and orientation
+- Selected folder, tag, file, and multi-select state
+- Expanded folders, tags, and virtual folders
+- Navigation section order and collapsed state for shortcuts and recent notes
+- UX preferences (search toggle, descendant scope, hidden item visibility, pinned shortcuts)
+- Recent note history and recent icon usage
 - Database version numbers (for detecting schema changes)
-- Last shown version (for release notes)
+- Local storage schema version marker
 
 **Key Characteristics**:
 
@@ -104,14 +114,25 @@ allows users to have different UI layouts on desktop vs mobile, for example.
 **Implementation**: `src/utils/localStorage.ts`
 
 ```typescript
-const STORAGE_KEYS = {
-  expandedFoldersKey: 'notebookNavigator:expandedFolders',
-  expandedTagsKey: 'notebookNavigator:expandedTags',
-  navigationPaneWidthKey: 'notebookNavigator:navigationPaneWidth',
-  selectedFolderKey: 'notebookNavigator:selectedFolder',
-  selectedTagKey: 'notebookNavigator:selectedTag',
-  selectedFileKey: 'notebookNavigator:selectedFile'
-  // ... more keys
+export const STORAGE_KEYS: LocalStorageKeys = {
+  expandedFoldersKey: 'notebook-navigator-expanded-folders',
+  expandedTagsKey: 'notebook-navigator-expanded-tags',
+  selectedFolderKey: 'notebook-navigator-selected-folder',
+  selectedFileKey: 'notebook-navigator-selected-file',
+  selectedFilesKey: 'notebook-navigator-selected-files',
+  navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width',
+  navigationPaneHeightKey: 'notebook-navigator-navigation-pane-height',
+  dualPaneKey: 'notebook-navigator-dual-pane',
+  dualPaneOrientationKey: 'notebook-navigator-dual-pane-orientation',
+  shortcutsExpandedKey: 'notebook-navigator-shortcuts-expanded',
+  recentNotesExpandedKey: 'notebook-navigator-recent-notes-expanded',
+  uxPreferencesKey: 'notebook-navigator-ux-preferences',
+  recentNotesKey: 'notebook-navigator-recent-notes',
+  recentIconsKey: 'notebook-navigator-recent-icons',
+  databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
+  databaseContentVersionKey: 'notebook-navigator-db-content-version',
+  localStorageVersionKey: 'notebook-navigator-localstorage-version'
+  // ... additional keys omitted for brevity
 };
 ```
 
@@ -131,19 +152,22 @@ lists.
 
 - Cleared when plugin reloads or Obsidian restarts
 - Provides instant synchronous access for UI rendering
-- Memory usage: ~500 bytes per file (5MB for 10k files, 50MB for 100k files)
-- Automatically updated when IndexedDB changes
+- Memory usage: ~300 bytes per file (3MB for 10k files, 30MB for 100k files)
+- Hydrated from IndexedDB on startup and updated with every database write
 - Essential for virtual scrolling performance
 
 **Implementation**: `src/storage/MemoryFileCache.ts`
 
 ```typescript
-class MemoryFileCache {
-  private memoryMap: Map<string, FileData> = new Map();
+export class MemoryFileCache {
+  private memoryMap = new Map<string, FileData>();
 
-  // Synchronous access for rendering
-  get(path: string): FileData | undefined {
-    return this.memoryMap.get(path);
+  getFile(path: string): FileData | null {
+    return this.memoryMap.get(path) ?? null;
+  }
+
+  updateFile(path: string, data: FileData): void {
+    this.memoryMap.set(path, data);
   }
 }
 ```
@@ -159,21 +183,27 @@ Sync, these settings are automatically synchronized.
 
 **Data Stored**:
 
-- Feature toggles (show tags, show folders, etc.)
-- Display preferences (preview lines, date format, etc.)
+- Feature toggles and display preferences (folder visibility, preview rows, grouping, date/time formats, quick actions)
+- Frontmatter field mappings and metadata extraction options
 - Folder metadata:
-  - Colors (custom color per folder)
+  - Colors and background colors (custom palette per folder)
   - Icons (custom icon per folder)
   - Sort overrides (custom sort order per folder)
   - Custom appearance (titleRows, previewRows, showDate, showPreview, showImage)
   - Pinned notes (list of pinned files per folder)
 - Tag metadata:
-  - Colors (custom color per tag)
+  - Colors and background colors (custom palette per tag)
   - Icons (custom icon per tag)
   - Sort overrides (custom sort order per tag)
   - Custom appearance (titleRows, previewRows, showDate, showPreview, showImage)
-- Global sort preferences
-- Frontmatter field mappings
+- File metadata overrides:
+  - Icons (custom icon per file)
+  - Colors (custom color per file)
+- Shortcut definitions and keyboard shortcut configuration
+- External icon provider enablement flags
+- Recent color palette, release notice tracking, and sync timestamps
+- Root folder order, root tag order, and custom vault name
+- Homepage configuration for desktop and mobile
 
 **Key Characteristics**:
 
@@ -217,10 +247,11 @@ libraries without bloating the vault or sync system.
 
 **Data Stored**:
 
-- Icon pack files (WOFF2 web font format)
-- CSS stylesheets for icon rendering
-- Icon manifests with metadata
-- Version information for each pack
+- Icon font binary data (ArrayBuffer)
+- Metadata manifests with icon identifiers and keywords
+- Font MIME type
+- Metadata format indicator (currently JSON)
+- Provider version and last updated timestamp
 
 **Key Characteristics**:
 
@@ -228,7 +259,8 @@ libraries without bloating the vault or sync system.
 - Large storage capacity for icon pack assets (5MB-10MB per pack)
 - Asynchronous download and storage
 - Automatic version management
-- Database name: `notebooknavigator/icon-assets/{appId}`
+- Database name: `notebooknavigator/icons/{appId}`
+- Records keyed by provider ID (one entry per installed pack)
 - Separate from main cache database
 
 **Icon Pack Management**:
@@ -241,20 +273,23 @@ libraries without bloating the vault or sync system.
 **Available Icon Packs**:
 
 - **Bootstrap Icons**: 1,800+ icons
-- **Font Awesome Free**: 2,000+ icons
+- **Font Awesome Solid**: 2,000+ icons
 - **Material Icons**: 2,100+ icons
 - **Phosphor Icons**: 7,000+ icons
 - **RPG Awesome**: 500+ game/fantasy icons
+- **Simple Icons**: 2,700+ brand icons
 
 **Implementation**: `src/services/icons/external/IconAssetDatabase.ts`
 
 ```typescript
 interface IconAssetRecord {
-  providerId: string;
+  id: string;
   version: string;
-  css: string;
-  fontData: ArrayBuffer;
-  manifest: ExternalIconManifest;
+  mimeType: string;
+  data: ArrayBuffer;
+  metadataFormat: 'json';
+  metadata: string;
+  updated: number;
 }
 ```
 
@@ -263,35 +298,37 @@ interface IconAssetRecord {
 ### Initial Load (Cold Boot)
 
 1. **Settings** loaded from data.json
-2. **IndexedDB** opened/created
-3. **Memory Cache** initialized (empty)
-4. **Local Storage** checked for saved UI state
-5. Vault files scanned → **IndexedDB** populated
-6. **IndexedDB** → **Memory Cache** synced
-7. **Memory Cache** → UI renders with data
+2. **IndexedDB** opened, schema/content versions validated, and databases cleared if versions changed
+3. Existing **IndexedDB** records hydrated into the in-memory cache
+4. **Local Storage** read for pane layout, selections, UX preferences, and recent data
+5. StorageContext diffs vault files and writes additions, updates, and removals to **IndexedDB**
+6. Tag tree rebuilt from the synchronized database
+7. Content providers queue pending previews, tags, metadata, and feature images while UI renders from the memory cache
 
 ### File Change (During Session)
 
-1. Obsidian detects file change
-2. **Content Providers** generate new content
-3. New content → **IndexedDB** updated
-4. **IndexedDB** → **Memory Cache** auto-synced
-5. **Memory Cache** → UI re-renders
+1. Obsidian emits vault event (create, delete, rename, modify)
+2. StorageContext diffs vault files and updates **IndexedDB** (adds new files, removes deleted entries, preserves
+   renamed data)
+3. **ContentProviderRegistry** queues affected files for previews, tags, feature images, and metadata
+4. Providers write updates through **IndexedDBStorage**, keeping the memory cache in sync and notifying listeners
+5. React components re-render with the refreshed in-memory data
 
 ### Settings Change
 
 1. User modifies setting in UI
 2. New setting → **Settings** (data.json)
-3. **Settings** → React Context update
-4. All components re-render with new settings
-5. If Obsidian Sync enabled → synced to other devices
+3. **Settings** context broadcasts updates to React tree
+4. StorageContext compares old and new settings, marks affected files for regeneration, and queues content providers
+5. Components re-render with updated configuration
+6. If Obsidian Sync enabled → synced to other devices
 
 ### UI State Change
 
-1. User resizes pane or selects folder
-2. New state → **Local Storage**
-3. State persists for next session
-4. Each device maintains independent UI state
+1. User resizes a pane, changes selection, or toggles a UX preference
+2. New state → **Local Storage** (immediate writes for layout/selection, debounced writes for recent data)
+3. State persists for the next session on that device
+4. Each device maintains independent UI and recent history
 
 ## Storage Selection Guidelines
 
@@ -325,7 +362,7 @@ interface IconAssetRecord {
 
 ### Use Icon Assets Database When:
 
-- Storing large binary assets (fonts, images)
+- Storing large binary assets (icon fonts)
 - Data is too large for settings sync
 - Device-specific resources are acceptable
 - Content can be re-downloaded if needed
@@ -343,10 +380,11 @@ interface IconAssetRecord {
 - **Size Limits**: Keep under 5MB total across all keys
 - **JSON Parsing**: Cache parsed values to avoid repeated parsing
 - **Cleanup**: Remove obsolete keys during migration
+- **Debounced Writes**: RecentStorageService batches writes (~1s delay) to reduce churn for recent data
 
 ### Memory Cache
 
-- **Memory Usage**: ~500 bytes per file (50MB for 100k files)
+- **Memory Usage**: ~300 bytes per file (30MB for 100k files)
 - **Synchronization**: Keep perfectly synced with IndexedDB
 - **Initialization**: Load all data upfront for consistent performance
 
@@ -376,6 +414,8 @@ When content generation logic changes:
 3. Content regenerated for all files
 4. Gradual population via background processing
 
+Current values: `DB_SCHEMA_VERSION = 1`, `DB_CONTENT_VERSION = 5`.
+
 ### Settings Updates
 
 When settings structure changes:
@@ -393,3 +433,4 @@ When storage keys change:
 2. Copy data to new keys
 3. Delete old keys
 4. Handle missing data gracefully
+5. Update `LOCALSTORAGE_VERSION` so migrations run only once

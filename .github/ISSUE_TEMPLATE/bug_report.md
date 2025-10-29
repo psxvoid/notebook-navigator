@@ -6,7 +6,7 @@ labels: 'bug'
 assignees: ''
 ---
 
-**Before submitting** Please check [⚠️ IMPORTANT! READ BEFORE POSTING NEW ISSUES ⚠️](https://github.com/johansan/notebook-navigator/issues/335) to see if this bug has already been fixed.
+**Before submitting** Please check if your issue is already fixed in next version: [Features and bug fixes in next release](https://github.com/johansan/notebook-navigator/issues/363)
 
 **Describe the bug**
 
