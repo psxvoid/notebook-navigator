@@ -161,6 +161,8 @@ export interface NotebookNavigatorSettings {
     forceSquareFeatureImage: boolean;
     useEmbeddedImageFallback: boolean;
     featureImageSize: number;
+    featureImageForPDF: boolean;
+    featureImagePersistIntermediate: boolean;
 
     // Icon packs tab
     externalIconProviders: Record<string, boolean>;

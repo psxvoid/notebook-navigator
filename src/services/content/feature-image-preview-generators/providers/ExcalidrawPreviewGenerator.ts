@@ -1,5 +1,5 @@
 import { LinkCache, CachedMetadata, EmbedCache, TFile, App } from "obsidian";
-import { getDBInstance } from "src/storage/fileOperations";
+import { ProviderPreviewResult } from "../PreviewGenerator";
 
 interface SceneElements {
     [key: string]: unknown
@@ -29,13 +29,6 @@ interface ExcalidrawAutomateGlobal {
 declare global {
     const ExcalidrawAutomate: ExcalidrawAutomateGlobal
 }
-
-const cacheDirPath = `thumbnails/full`
-export const cacheFilePath = (excalidrawFile: TFile) => `${cacheDirPath}/${excalidrawFile.basename}_${excalidrawFile.stat.size}.png`
-const getDbFile = (path: string) => getDBInstance().getFile(path)
-export const isCachePath = (path: string | unknown) => typeof path === 'string'
-    ? path.startsWith(cacheDirPath)
-    : false
 
 function getExcalidrawAttachmentType(outlink: LinkCache, metadata: CachedMetadata | null) {
     const frontMatter = outlink != null && outlink.link != null ? metadata?.frontmatter ?? {} : {};
@@ -76,7 +69,7 @@ async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: numb
 
     const metadata: CachedMetadata | null = this.app.metadataCache.getFileCache(tFile);
 
-    let previewPngBlob: GeneratePreviewResult | undefined
+    let previewPngBlob: ProviderPreviewResult | undefined
     if (getExcalidrawAttachmentType(outlink, metadata) === 'raw') {
         previewPngBlob = await generatePreview(tFile, true, app)
     } else if (getExcalidrawAttachmentType(outlink, metadata) === 'parsed') {
@@ -189,20 +182,14 @@ async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, e
     }
 }
 
-export interface GeneratePreviewResult {
-    blob: Blob,
-    dispose: () => void
-}
 
-const EMPTY_STRING = '';
-
-async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, app: App): Promise<GeneratePreviewResult> {
+export async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, app: App): Promise<ProviderPreviewResult> {
     // eslint-disable-next-line no-undef
     const ea = ExcalidrawAutomate.getAPI();
 
     const scene = await ea.getSceneFromFile(excalidrawFile)
 
-    async function createNewBlobResult(dispose?: Dispose): Promise<GeneratePreviewResult> {
+    async function createNewBlobResult(dispose?: Dispose): Promise<ProviderPreviewResult> {
         return {
             blob: await ea.createPNG(),
             dispose: dispose ?? EMPTY_DISPOSE
@@ -221,38 +208,7 @@ async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, app: App
     return createNewBlobResult(dispose)
 }
 
-export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App, requestingFile: TFile): Promise<{ featurePath: string, featureProviderPath?: string, consumerTargetPath?: string } | null> {
-    const previewFilePath = cacheFilePath(excalidrawFile);
-    const dbFile = getDbFile(requestingFile.path);
-    const currentFeature: string | null | undefined = dbFile?.featureImage
 
-    const hasExistingFeature = (currentFeature ?? EMPTY_STRING).length > 0;
-
-    if (hasExistingFeature && currentFeature === previewFilePath) {
-        return { featurePath: previewFilePath, featureProviderPath: excalidrawFile.path };
-    }
-
-    if (hasExistingFeature && isCachePath(currentFeature) && await this.app.vault.adapter.exists(currentFeature) ) {
-        const previewAbstractFile = this.app.vault.getFileByPath(currentFeature)
-
-        await this.app.vault.delete(previewAbstractFile);
-    } else if (!(await this.app.vault.adapter.exists(cacheDirPath))) {
-        await this.app.vault.adapter.mkdir(cacheDirPath);
-    }
-
-    let previewData: GeneratePreviewResult | undefined
-    try {
-        previewData = await generatePreview(excalidrawFile, false, app);
-        await this.app.vault.createBinary(previewFilePath, await previewData.blob.arrayBuffer());
-        return { featurePath: previewFilePath, featureProviderPath: excalidrawFile.path, consumerTargetPath: excalidrawFile.path }
-    } catch(e: unknown) {
-        if (e instanceof Error && e.message.indexOf("File already exists") >= 0) {
-            // usually should not happen but just in case
-            return { featurePath: previewFilePath, featureProviderPath: excalidrawFile.path, consumerTargetPath: excalidrawFile.path }
-        }
-
-        throw e;
-    } finally {
-        previewData?.dispose()
-    }
+export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App): Promise<ProviderPreviewResult> {
+    return generatePreview(excalidrawFile, false, app)
 }

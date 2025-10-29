@@ -23,9 +23,11 @@ import { FileData } from '../../storage/IndexedDBStorage';
 import { getDBInstance } from '../../storage/fileOperations';
 import { isExcalidrawAttachment, isImageFile } from '../../utils/fileTypeUtils';
 import { BaseContentProvider, ProcessResult } from './BaseContentProvider';
-import { cacheFilePath, generateExcalidrawPreview, isCachePath } from './feature-image-preview-generators/ExcalidrawPreviewGenerator';
 import { autoCrop, blobToBase64Url, readSourceImageBlob } from './feature-image-preview-generators/ImageCropUtils';
 import { EMPTY_STRING } from 'src/utils/empty';
+import { generatePdfPreview } from './feature-image-preview-generators/providers/PdfPreviewGenerator';
+import { cacheFilePath, generatePreview, GeneratePreviewResult, isCachePath } from './feature-image-preview-generators/PreviewGenerator';
+import { generateExcalidrawPreview } from './feature-image-preview-generators/providers/ExcalidrawPreviewGenerator';
 
 /**
  * Content provider for finding and storing feature images
@@ -131,7 +133,18 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             let selfPreview = false
             if (nonEmptyString(imageUrlStr)) {
                 const maxSizeSquarePx = settings.featureImageSize;
-                const resizedBlob = await autoCrop(await readSourceImageBlob(imageUrlStr, this.app), maxSizeSquarePx)
+
+                let previewBlob: Blob | undefined = result?.previewBlob
+
+                if (previewBlob == null && isImageFile(this.app.vault.getFileByPath(imageUrlStr))) {
+                    previewBlob = await readSourceImageBlob(imageUrlStr, this.app)
+                }
+
+                if (previewBlob == null) {
+                    throw new Error("Preview blob is missing from the preview provider result.")
+                }
+
+                const resizedBlob = await autoCrop(previewBlob, maxSizeSquarePx)
                 featureImageResized = await blobToBase64Url(resizedBlob)
                 if (result?.featureProviderPath === job.file.path) {
                     selfPreview = true
@@ -187,7 +200,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         file: TFile,
         metadata: CachedMetadata | null,
         settings: NotebookNavigatorSettings
-    ): Promise<{ featurePath: string, featureProviderPath?: string, consumerTargetPath?: string } | null> {
+    ): Promise<GeneratePreviewResult | null> {
         // Only process markdown files for feature images
         if (file.extension !== 'md') {
             return null;
@@ -199,7 +212,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
             if (providerPath === embedFile.path) {
                 const imagePath = cacheFilePath(embedFile)
 
-                if (isCachePath(imagePath) && await this.app.vault.adapter.exists(imagePath)) {
+                if (settings && isCachePath(imagePath) && await this.app.vault.adapter.exists(imagePath)) {
                     const toDelete = this.app.vault.getFileByPath(imagePath)
                     if (toDelete != null) {
                         // Review: Refactoring: now delete is also in ExcalidrawPreviewGenerator, handle deletion in a single place
@@ -215,7 +228,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
 
         // self preview
         if (isExcalidrawAttachment(file, metadata)) {
-            return generateExcalidrawPreview(file, this.app, file);
+            return generatePreview(file, this.app, file, generateExcalidrawPreview, settings)
         }
 
         // Try each property in order until we find an image
@@ -241,7 +254,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                     await cleanupFeatureProviderEmbed(imageFile)
 
                     if (isExcalidrawAttachment(imageFile, metadata)) {
-                        return generateExcalidrawPreview(imageFile, this.app, file);
+                        return generatePreview(imageFile, this.app, file, generateExcalidrawPreview, settings)
                     }
                 }
 
@@ -275,7 +288,11 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                     const embedMetadata = this.app.metadataCache.getFileCache(embedFile);
 
                     if (isExcalidrawAttachment(embedFile, embedMetadata)) {
-                        return generateExcalidrawPreview(embedFile, this.app, file);
+                        return generatePreview(embedFile, this.app, file, generateExcalidrawPreview, settings)
+                    }
+
+                    if (settings.featureImageForPDF && embedFile.extension === 'pdf') {
+                        return generatePreview(embedFile, this.app, file, generatePdfPreview, settings)
                     }
 
                     return null;

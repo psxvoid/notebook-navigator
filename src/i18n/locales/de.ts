@@ -853,6 +853,14 @@ export const STRINGS_DE = {
                 name: 'Größe des vorgestellten Bildes',
                 desc: 'Legt die Größe des in der Notizliste zu verwendenden Bildes fest.'
             },
+            featureImageForPDF: {
+                name: 'Ausgewählte Bilder für PDF',
+                desc: 'Ermöglicht das Generieren von vorgestellten Bildern für PDFs.'
+            },
+            featureImagePersistIntermediate: {
+                name: 'Vollständiges Bild auf der Festplatte speichern',
+                desc: 'Nur für fortgeschrittene Benutzer. Durch Aktivieren dieser Option werden Zwischenbilder mit vollem Funktionsumfang auf einer Festplatte gespeichert. Dies kann nützlich sein, um die anfängliche Indizierung bei Größenänderungen und Synchronisierung von Funktionsbildern zu beschleunigen. Beim Aktivieren muss der Cache neu erstellt werden. Zwischenbilder werden nach dem Deaktivieren nicht bereinigt.'
+            },
             showRootFolder: {
                 name: 'Wurzelordner anzeigen',
                 desc: 'Den Namen des Wurzelordners im Baum anzeigen.'

@@ -115,7 +115,7 @@ export function shouldDisplayFile(file: TFile, visibility: FileVisibility, app: 
 /**
  * Check if a file is an image that can be displayed as a feature image
  */
-export function isImageFile(file: TFile): boolean {
+export function isImageFile(file: TFile | null): boolean {
     if (!file?.extension) {
         return false;
     }
