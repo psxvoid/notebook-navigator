@@ -291,7 +291,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
                         return generatePreview(embedFile, this.app, file, generateExcalidrawPreview, settings)
                     }
 
-                    if (embedFile.extension === 'pdf') {
+                    if (settings.featureImageForPDF && embedFile.extension === 'pdf') {
                         return generatePreview(embedFile, this.app, file, generatePdfPreview, settings)
                     }
 

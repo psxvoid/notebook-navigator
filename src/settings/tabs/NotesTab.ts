@@ -511,6 +511,16 @@ export function renderNotesTab(context: SettingsTabContext): void {
         });
 
     new Setting(featureImageSettingsEl)
+        .setName(strings.settings.items.featureImageForPDF.name)
+        .setDesc(strings.settings.items.featureImageForPDF.desc)
+        .addToggle(toggle => {
+            toggle.setValue(plugin.settings.featureImageForPDF).onChange(async value => {
+                plugin.settings.featureImageForPDF = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        });
+
+    new Setting(featureImageSettingsEl)
         .setName(strings.settings.items.featureImagePersistIntermediate.name)
         .setDesc(strings.settings.items.featureImagePersistIntermediate.desc)
         .addToggle(toggle => {

@@ -787,6 +787,10 @@ export const STRINGS_ZH_TW = {
                 name: '特色圖片尺寸',
                 desc: 'ノートリストで使用する注目画像のサイズを設定します。'
             },
+            featureImageForPDF: {
+                name: 'PDF 的特色圖片',
+                desc: '允許為 PDF 產生特色圖像。'
+            },
             featureImagePersistIntermediate: {
                 name: '將完整功能影像儲存到磁碟',
                 desc: '僅限進階用戶。啟用此選項會將中間的完整特色圖片儲存到磁碟。可能有助於加快更改特色圖片大小和同步時的初始索引速度。啟用時需要重建快取。禁用後不會清理中間圖片。'

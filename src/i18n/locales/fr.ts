@@ -791,6 +791,10 @@ export const STRINGS_FR = {
                 name: "Taille de l'image en vedette",
                 desc: "Définit la taille de l'image sélectionnée à utiliser dans la liste de notes."
             },
+            featureImageForPDF: {
+                name: 'Images mises en avant pour le PDF',
+                desc: 'Permet de générer des images en vedette pour les PDF.'
+            },
             featureImagePersistIntermediate: {
                 name: "Enregistrer l'image complète sur le disque",
                 desc: "Réservé aux utilisateurs avancés. Activer cette option enregistre les images intermédiaires complètes sur un disque. Cela peut être utile pour accélérer l'indexation initiale lors de la modification de la taille et de la synchronisation des images sélectionnées. Nécessite une reconstruction du cache lors de l'activation. Ne nettoie pas les images intermédiaires après leur désactivation."
