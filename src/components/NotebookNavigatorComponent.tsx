@@ -45,6 +45,7 @@ import { getSelectedPath, getFilesForSelection } from '../utils/selectionUtils';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { localStorage } from '../utils/localStorage';
+import { calculateSlimListMetrics } from '../utils/listPaneMetrics';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
 import { getBackgroundClasses } from '../utils/paneLayout';
 import { useNavigatorScale } from '../hooks/useNavigatorScale';
@@ -762,8 +763,26 @@ export const NotebookNavigatorComponent = React.memo(
                 containerRef.current.style.setProperty('--nn-setting-nav-font-size', `${fontSize}px`);
                 containerRef.current.style.setProperty('--nn-setting-nav-font-size-mobile', `${mobileFontSize}px`);
                 containerRef.current.style.setProperty('--nn-setting-nav-indent', `${settings.navIndent}px`);
+
+                // Calculate slim list padding and font sizes based on configured item height
+                const slimMetrics = calculateSlimListMetrics({
+                    slimItemHeight: settings.slimItemHeight,
+                    scaleText: settings.slimItemHeightScaleText
+                });
+
+                // Apply slim list metrics to CSS custom properties
+                containerRef.current.style.setProperty('--nn-file-padding-vertical-slim', `${slimMetrics.desktopPadding}px`);
+                containerRef.current.style.setProperty('--nn-file-padding-vertical-slim-mobile', `${slimMetrics.mobilePadding}px`);
+                containerRef.current.style.setProperty('--nn-slim-font-size', `${slimMetrics.fontSize}px`);
+                containerRef.current.style.setProperty('--nn-slim-font-size-mobile', `${slimMetrics.mobileFontSize}px`);
             }
-        }, [settings.navItemHeight, settings.navItemHeightScaleText, settings.navIndent]);
+        }, [
+            settings.navItemHeight,
+            settings.navItemHeightScaleText,
+            settings.navIndent,
+            settings.slimItemHeight,
+            settings.slimItemHeightScaleText
+        ]);
 
         // Compute navigation pane style based on orientation and single pane mode
         const navigationPaneStyle = uiState.singlePane

@@ -127,6 +127,8 @@ export interface NotebookNavigatorSettings {
     noteGrouping: ListNoteGroupingOption;
     filterPinnedByFolder: boolean;
     optimizeNoteHeight: boolean;
+    slimItemHeight: number;
+    slimItemHeightScaleText: boolean;
     showQuickActions: boolean;
     quickActionRevealInFolder: boolean;
     quickActionPinNote: boolean;

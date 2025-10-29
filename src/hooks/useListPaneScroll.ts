@@ -54,6 +54,7 @@ import { Align, ListScrollIntent, getListAlign, rankListPending } from '../types
 import type { ListPaneItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { SelectionState } from '../context/SelectionContext';
+import { calculateSlimListMetrics } from '../utils/listPaneMetrics';
 
 /**
  * Parameters for the useListPaneScroll hook
@@ -134,6 +135,16 @@ export function useListPaneScroll({
 }: UseListPaneScrollParams): UseListPaneScrollResult {
     const { isMobile } = useServices();
     const { hasPreview, getDB, isStorageReady } = useFileCache();
+
+    // Calculate slim list padding for height estimation in virtualization
+    const slimListMetrics = useMemo(
+        () =>
+            calculateSlimListMetrics({
+                slimItemHeight: settings.slimItemHeight,
+                scaleText: settings.slimItemHeightScaleText
+            }),
+        [settings.slimItemHeight, settings.slimItemHeightScaleText]
+    );
 
     // Reference to the scroll container DOM element
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -322,7 +333,11 @@ export function useListPaneScroll({
             }
 
             // Use reduced padding for slim mode (with mobile-specific padding)
-            const padding = isSlimMode ? (isMobile ? heights.slimPaddingMobile : heights.slimPadding) : heights.basePadding;
+            const padding = isSlimMode
+                ? isMobile
+                    ? slimListMetrics.mobilePaddingTotal
+                    : slimListMetrics.desktopPaddingTotal
+                : heights.basePadding;
             return padding + textContentHeight;
         },
         overscan: OVERSCAN,
@@ -673,6 +688,8 @@ export function useListPaneScroll({
         settings.showFileTags,
         settings.showFileTagsInSlimMode,
         settings.optimizeNoteHeight,
+        settings.slimItemHeight,
+        settings.slimItemHeightScaleText,
         folderSettings,
         rowVirtualizer
     ]);

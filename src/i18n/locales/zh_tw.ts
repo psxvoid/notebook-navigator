@@ -599,6 +599,15 @@ export const STRINGS_ZH_TW = {
                 name: '最佳化筆記高度',
                 desc: '減少釘選筆記和無預覽文字筆記的高度。'
             },
+            slimItemHeight: {
+                name: '精簡項目高度',
+                desc: '設定桌面與行動裝置的精簡清單項目高度。',
+                resetTooltip: '恢復預設值 (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: '精簡高度同步縮放文字',
+                desc: '降低精簡清單項目高度時同步調整文字大小。'
+            },
             showParentFolderNames: {
                 name: '顯示父資料夾名稱',
                 desc: '在子資料夾或標籤中顯示筆記的父資料夾名稱。'

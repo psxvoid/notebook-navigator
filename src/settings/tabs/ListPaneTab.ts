@@ -16,8 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Platform, Setting } from 'obsidian';
+import { Platform, Setting, SliderComponent } from 'obsidian';
 import { strings } from '../../i18n';
+import { DEFAULT_SETTINGS } from '../defaultSettings';
 import type { ListNoteGroupingOption, ListPaneTitleOption, MultiSelectModifier, SortOption } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 
@@ -117,6 +118,48 @@ export function renderListPaneTab(context: SettingsTabContext): void {
         .addToggle(toggle =>
             toggle.setValue(plugin.settings.optimizeNoteHeight).onChange(async value => {
                 plugin.settings.optimizeNoteHeight = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    // Slider to configure slim list item height with reset button
+    let slimItemHeightSlider: SliderComponent;
+    new Setting(containerEl)
+        .setName(strings.settings.items.slimItemHeight.name)
+        .setDesc(strings.settings.items.slimItemHeight.desc)
+        .addSlider(slider => {
+            slimItemHeightSlider = slider
+                .setLimits(20, 28, 1)
+                .setValue(plugin.settings.slimItemHeight)
+                .setDynamicTooltip()
+                .onChange(async value => {
+                    plugin.settings.slimItemHeight = value;
+                    await plugin.saveSettingsAndUpdate();
+                });
+            return slider;
+        })
+        .addExtraButton(button =>
+            button
+                .setIcon('lucide-rotate-ccw')
+                .setTooltip(strings.settings.items.slimItemHeight.resetTooltip)
+                .onClick(async () => {
+                    const defaultValue = DEFAULT_SETTINGS.slimItemHeight;
+                    slimItemHeightSlider.setValue(defaultValue);
+                    plugin.settings.slimItemHeight = defaultValue;
+                    await plugin.saveSettingsAndUpdate();
+                })
+        );
+
+    // Sub-setting container for slim item height options
+    const slimItemHeightSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    // Toggle to scale text proportionally with slim item height
+    new Setting(slimItemHeightSettingsEl)
+        .setName(strings.settings.items.slimItemHeightScaleText.name)
+        .setDesc(strings.settings.items.slimItemHeightScaleText.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.slimItemHeightScaleText).onChange(async value => {
+                plugin.settings.slimItemHeightScaleText = value;
                 await plugin.saveSettingsAndUpdate();
             })
         );

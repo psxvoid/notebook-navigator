@@ -600,6 +600,15 @@ export const STRINGS_ZH_CN = {
                 name: '优化笔记高度',
                 desc: '减少固定笔记和无预览文本笔记的高度。'
             },
+            slimItemHeight: {
+                name: '精简项目高度',
+                desc: '设置桌面和移动端的紧凑列表项高度。',
+                resetTooltip: '恢复默认值 (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: '随精简高度缩放文本',
+                desc: '当减小紧凑列表项高度时同步缩放文本。'
+            },
             showParentFolderNames: {
                 name: '显示父文件夹名称',
                 desc: '为子文件夹或标签中的笔记显示父文件夹名称。'

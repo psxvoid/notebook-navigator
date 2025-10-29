@@ -601,6 +601,15 @@ export const STRINGS_ES = {
                 name: 'Optimizar altura de notas',
                 desc: 'Reducir altura para notas ancladas y notas sin texto de vista previa.'
             },
+            slimItemHeight: {
+                name: 'Altura de elementos compactos',
+                desc: 'Define la altura de los elementos compactos en escritorio y móvil.',
+                resetTooltip: 'Restablecer al valor predeterminado (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: 'Escalar texto con altura compacta',
+                desc: 'Escala el texto de los elementos compactos cuando se reduce la altura.'
+            },
             showParentFolderNames: {
                 name: 'Mostrar nombres de carpetas principales',
                 desc: 'Muestra el nombre de la carpeta principal para las notas en subcarpetas o etiquetas.'

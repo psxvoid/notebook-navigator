@@ -73,6 +73,17 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.7.3',
+        date: '2025-10-30',
+        showOnUpdate: true,
+        new: [
+            'New setting: ==List Pane > Slim item height==. Use it to reduce line spacing in list pane with slim mode enabled.'
+        ],
+        changed: [
+        ],
+        fixed: []
+    },
+    {
         version: '1.7.2',
         date: '2025-10-28',
         showOnUpdate: false,

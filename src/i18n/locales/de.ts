@@ -604,6 +604,15 @@ export const STRINGS_DE = {
                 name: 'Notizenhöhe optimieren',
                 desc: 'Höhe für angeheftete Notizen und Notizen ohne Vorschautext reduzieren.'
             },
+            slimItemHeight: {
+                name: 'Höhe schlanker Elemente',
+                desc: 'Legt die Höhe schlanker Listenelemente auf Desktop und Mobilgeräten fest.',
+                resetTooltip: 'Auf Standard zurücksetzen (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: 'Text an schlanke Elementhöhe anpassen',
+                desc: 'Skaliert den Text schlanker Listenelemente bei reduzierter Höhe.'
+            },
             showParentFolderNames: {
                 name: 'Übergeordnete Ordnernamen anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen in Unterordnern oder Tags anzeigen.'
