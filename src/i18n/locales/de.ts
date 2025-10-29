@@ -583,6 +583,10 @@ export const STRINGS_DE = {
                 name: 'Notizen aus Unterordnern / Nachkommen anzeigen',
                 desc: 'Beim Anzeigen eines Ordners oder Tags Notizen aus Unterordnern und Tag-Nachkommen einbeziehen.'
             },
+            limitPinnedToCurrentFolder: {
+                name: 'Angeheftete Notizen nur im übergeordneten Ordner anzeigen',
+                desc: 'Angeheftete Notizen erscheinen nur beim Anzeigen ihres Ordners'
+            },
             separateNoteCounts: {
                 name: 'Aktuelle und Nachkommen-Anzahl getrennt anzeigen',
                 desc: 'Zeigt Notizanzahl als "aktuell ▾ Nachkommen" Format in Ordnern und Tags.'

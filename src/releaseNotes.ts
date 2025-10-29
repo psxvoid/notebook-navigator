@@ -73,6 +73,19 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.7.2',
+        date: '2025-10-28',
+        showOnUpdate: false,
+        new: [
+            'New setting: ==Show pinned notes in parent folder only==. When enabled, pinned notes are only shown when their parent folder is selected in navigation pane. Useful if you have many pinned notes.'
+        ],
+        changed: [
+            'Removed the extra separator bar between navigation pane and list pane in vertical split mode since it looked bad with some themes.',
+            'The setting "Dual pane orientation" is now always shown even if Dual pane is disabled, to make it easier to find.'
+        ],
+        fixed: ['Fixed an issue when renaming files with multiple periods in the name, causing incorrect extension in the final name.']
+    },
+    {
         version: '1.7.1',
         date: '2025-10-28',
         showOnUpdate: true,

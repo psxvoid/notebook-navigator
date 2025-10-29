@@ -579,6 +579,10 @@ export const STRINGS_KO = {
                 name: '하위 폴더 / 하위 항목 노트 표시',
                 desc: '폴더나 태그를 볼 때 중첩된 하위 폴더와 태그 하위 항목의 노트를 포함합니다.'
             },
+            limitPinnedToCurrentFolder: {
+                name: '상위 폴더에서만 고정된 노트 표시',
+                desc: '고정된 노트는 해당 폴더를 볼 때만 표시됩니다'
+            },
             separateNoteCounts: {
                 name: '현재와 하위 항목 수를 별도로 표시',
                 desc: '폴더와 태그의 노트 수를 "현재 ▾ 하위" 형식으로 표시합니다.'

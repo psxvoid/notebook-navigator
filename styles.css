@@ -522,22 +522,12 @@ body {
     z-index: 10;
 }
 
-.nn-resize-handle[data-orientation='vertical'] {
+.nn-split-container.nn-orientation-vertical .nn-resize-handle {
     width: 100%;
     height: 3px;
     cursor: row-resize;
     bottom: auto;
     right: 0;
-}
-
-/* Show vertical resize bar at all times when vertical split is active */
-.nn-split-container.nn-orientation-vertical .nn-resize-handle[data-orientation='vertical'] {
-    background-color: var(--nn-theme-divider-border-color);
-}
-
-.nn-split-container.nn-orientation-vertical .nn-resize-handle[data-orientation='vertical']:hover,
-.nn-split-container.nn-orientation-vertical.nn-resizing .nn-resize-handle[data-orientation='vertical'] {
-    background-color: var(--nn-theme-divider-resize-handle-hover-bg);
 }
 
 /* Pane divider resize handle hover state - provides visual feedback */
