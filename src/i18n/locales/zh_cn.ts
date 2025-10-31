@@ -29,7 +29,7 @@ export const STRINGS_ZH_CN = {
         submit: '提交', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '未选择', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: '无标签', // Label for notes without any tags (English: Untagged)
-        untitled: '无标题', // Default name for notes without a title (English: Untitled)
+        untitled: '未命名', // Default name for notes without a title (English: Untitled)
         featureImageAlt: '特色图片', // Alt text for thumbnail/preview images (English: Feature image)
         unknownError: '未知错误', // Generic fallback when an error has no message (English: Unknown error)
         updateBannerTitle: 'Notebook Navigator 有可用更新',
@@ -395,8 +395,8 @@ export const STRINGS_ZH_CN = {
             deleteConfirmation: '此操作无法撤销。'
         },
         defaultNames: {
-            untitled: '无标题',
-            untitledNumber: '无标题 {number}'
+            untitled: '未命名',
+            untitledNumber: '未命名 {number}'
         }
     },
 
