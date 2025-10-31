@@ -121,7 +121,6 @@ export class MemoryFileCache {
     getAllFilesWithPaths(): { path: string; data: FileDataCache }[] {
         const result: { path: string; data: FileDataCache }[] = [];
         for (const [path, data] of this.memoryMap.entries()) {
-            stripFileData(data)
             result.push({ path, data });
         }
         return result;
@@ -181,8 +180,7 @@ export class MemoryFileCache {
      */
     batchUpdate(updates: { path: string; data: FileDataCache }[]): void {
         for (const { path, data } of updates) {
-            stripFileData(data)
-            this.memoryMap.set(path, data);
+            this.memoryMap.set(path, cloneFileData(data));
         }
     }
 
