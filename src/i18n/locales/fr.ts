@@ -602,6 +602,15 @@ export const STRINGS_FR = {
                 name: 'Optimiser la hauteur des notes',
                 desc: "Réduire la hauteur pour les notes épinglées et les notes sans texte d'aperçu."
             },
+            slimItemHeight: {
+                name: 'Hauteur des éléments compacts',
+                desc: 'Définit la hauteur des éléments compacts sur ordinateur et mobile.',
+                resetTooltip: 'Restaurer la valeur par défaut (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: 'Adapter le texte à la hauteur compacte',
+                desc: 'Adapte le texte des éléments compacts lorsque la hauteur est réduite.'
+            },
             showParentFolderNames: {
                 name: 'Afficher les noms des dossiers parents',
                 desc: 'Afficher le nom du dossier parent pour les notes dans les sous-dossiers ou étiquettes.'

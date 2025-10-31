@@ -6,8 +6,9 @@ import { useSelectionState } from '../context/SelectionContext';
 import { useFileCache } from '../context/StorageContext';
 import { useExpansionState } from '../context/ExpansionContext';
 import { strings } from '../i18n';
-import { ItemType, UNTAGGED_TAG_ID } from '../types';
+import { ItemType, TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import { hasSubfolders } from '../utils/fileFilters';
+import { getVirtualTagCollection, VIRTUAL_TAG_COLLECTION_IDS } from '../utils/virtualTagCollections';
 
 export type BreadcrumbTargetType = 'folder' | 'tag' | 'none';
 
@@ -109,6 +110,22 @@ export function useListPaneTitle(): UseListPaneTitleResult {
 
         if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
             const tag = selectionState.selectedTag;
+
+            // Handle virtual tag collection showing all tagged notes
+            if (tag === TAGGED_TAG_ID) {
+                const taggedLabel = getVirtualTagCollection(VIRTUAL_TAG_COLLECTION_IDS.TAGGED).getLabel();
+                const taggedBreadcrumb: BreadcrumbSegment[] = [
+                    {
+                        label: taggedLabel,
+                        targetType: 'none',
+                        isLast: true
+                    }
+                ];
+                return {
+                    desktopTitle: taggedLabel,
+                    breadcrumbSegments: taggedBreadcrumb
+                };
+            }
 
             if (tag === UNTAGGED_TAG_ID) {
                 const untaggedBreadcrumb: BreadcrumbSegment[] = [

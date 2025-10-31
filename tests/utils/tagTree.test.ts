@@ -151,3 +151,18 @@ describe('tag tree hardening', () => {
         expect(findTagNode(tree, 'missing')).toBeNull();
     });
 });
+
+describe('tagged count visibility', () => {
+    it('excludes files with only hidden tags when hidden tags are filtered', () => {
+        const db = createMockDb([
+            { path: 'visible.md', tags: ['projects/work'] },
+            { path: 'hidden.md', tags: ['archive/secret'] }
+        ]);
+
+        const filtered = buildTagTreeFromDatabase(db, undefined, undefined, ['archive'], false);
+        expect(filtered.tagged).toBe(1);
+
+        const unfiltered = buildTagTreeFromDatabase(db, undefined, undefined, ['archive'], true);
+        expect(unfiltered.tagged).toBe(2);
+    });
+});

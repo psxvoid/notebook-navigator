@@ -601,6 +601,15 @@ export const STRINGS_JA = {
                 name: 'ノートの高さを最適化',
                 desc: 'ピン留めされたノートとプレビューテキストのないノートの高さを削減。'
             },
+            slimItemHeight: {
+                name: 'スリム表示の項目高さ',
+                desc: 'デスクトップとモバイルのスリム表示項目の高さを設定します。',
+                resetTooltip: 'デフォルトに戻す (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: 'スリム表示の文字サイズを高さに合わせる',
+                desc: '項目の高さを下げたときにスリム表示の文字サイズを調整します。'
+            },
             showParentFolderNames: {
                 name: '親フォルダ名を表示',
                 desc: 'サブフォルダまたはタグ内のノートに親フォルダ名を表示します。'

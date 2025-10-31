@@ -21,6 +21,7 @@ import { ListPaneItemType, NavigationPaneItemType, VirtualFolder } from '../type
 import type { SearchResultMeta } from './search';
 import { TagTreeNode } from '../types/storage';
 import type { SearchShortcut, ShortcutEntry } from '../types/shortcuts';
+import type { NoteCountInfo } from '../types/noteCounts';
 
 export interface VirtualItem<T> {
     type: string;
@@ -85,6 +86,11 @@ export interface VirtualFolderItem {
     data: VirtualFolder;
     level: number;
     key: string;
+    isSelectable?: boolean;
+    isSelected?: boolean;
+    tagCollectionId?: string;
+    showFileCount?: boolean;
+    noteCount?: NoteCountInfo;
 }
 
 interface ShortcutNavigationBase {
