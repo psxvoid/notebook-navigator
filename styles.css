@@ -1092,6 +1092,7 @@ body {
 
 /* Nav rows that display a background overlay need positioning for the pseudo elements */
 .nn-navitem.nn-has-custom-background,
+.nn-navitem.nn-has-search-match,
 .nn-navitem.nn-selected {
     position: relative;
 }
@@ -1119,27 +1120,29 @@ body {
     z-index: 2;
 }
 
-/* Zero shared corners when consecutive custom background rows touch */
-.nn-navitem.nn-has-custom-background + .nn-navitem.nn-has-custom-background {
+/* Zero shared corners when consecutive background overlays touch */
+.nn-navitem:is(.nn-has-custom-background, .nn-has-search-match) + .nn-navitem:is(.nn-has-custom-background, .nn-has-search-match) {
     --nn-navitem-top-left-radius: 0;
     --nn-navitem-top-right-radius: 0;
 }
 
-.nn-navitem.nn-has-custom-background:has(+ .nn-navitem.nn-has-custom-background) {
+.nn-navitem:is(.nn-has-custom-background, .nn-has-search-match):has(+ .nn-navitem:is(.nn-has-custom-background, .nn-has-search-match)) {
     --nn-navitem-bottom-left-radius: 0;
     --nn-navitem-bottom-right-radius: 0;
 }
 
 /* Apply the same corner trimming within the virtualized row wrapper */
-.nn-virtual-nav-item:has(> .nn-navitem.nn-has-custom-background)
-    + .nn-virtual-nav-item:has(> .nn-navitem.nn-has-custom-background)
-    > .nn-navitem.nn-has-custom-background {
+.nn-virtual-nav-item:has(> .nn-navitem:is(.nn-has-custom-background, .nn-has-search-match))
+    + .nn-virtual-nav-item:has(> .nn-navitem:is(.nn-has-custom-background, .nn-has-search-match))
+    > .nn-navitem:is(.nn-has-custom-background, .nn-has-search-match) {
     --nn-navitem-top-left-radius: 0;
     --nn-navitem-top-right-radius: 0;
 }
 
-.nn-virtual-nav-item:has(> .nn-navitem.nn-has-custom-background):has(+ .nn-virtual-nav-item > .nn-navitem.nn-has-custom-background)
-    > .nn-navitem.nn-has-custom-background {
+.nn-virtual-nav-item:has(> .nn-navitem:is(.nn-has-custom-background, .nn-has-search-match)):has(
+        + .nn-virtual-nav-item > .nn-navitem:is(.nn-has-custom-background, .nn-has-search-match)
+    )
+    > .nn-navitem:is(.nn-has-custom-background, .nn-has-search-match) {
     --nn-navitem-bottom-left-radius: 0;
     --nn-navitem-bottom-right-radius: 0;
 }
@@ -1172,7 +1175,10 @@ body {
     bottom: 0;
     inset-inline-end: 0;
     inset-inline-start: calc(var(--level, 0) * var(--nn-setting-nav-indent) * -1);
-    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
+    border-top-left-radius: var(--nn-navitem-top-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
+    border-top-right-radius: var(--nn-navitem-top-right-radius, min(14px, var(--nn-theme-navitem-border-radius)));
+    border-bottom-left-radius: var(--nn-navitem-bottom-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
+    border-bottom-right-radius: var(--nn-navitem-bottom-right-radius, min(14px, var(--nn-theme-navitem-border-radius)));
     pointer-events: none;
     z-index: -1;
 }

@@ -134,8 +134,11 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
         if (isSelected) {
             classes.push('nn-selected');
         }
+        if (searchMatch) {
+            classes.push('nn-has-search-match');
+        }
         return classes.join(' ');
-    }, [isSelected]);
+    }, [isSelected, searchMatch]);
 
     const contentClassName = useMemo(() => buildSearchMatchContentClass(['nn-navitem-content'], searchMatch), [searchMatch]);
 

@@ -167,8 +167,9 @@ export const TagTreeItem = React.memo(
             if (isSelected) classes.push('nn-selected');
             if (isHidden) classes.push('nn-excluded');
             if (tagBackground) classes.push('nn-has-custom-background');
+            if (searchMatch) classes.push('nn-has-search-match');
             return classes.join(' ');
-        }, [isSelected, isHidden, tagBackground]);
+        }, [isSelected, isHidden, tagBackground, searchMatch]);
 
         const tagNameClassName = useMemo(() => {
             const classes = ['nn-navitem-name'];
