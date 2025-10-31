@@ -217,7 +217,7 @@ export const FolderItem = React.memo(function FolderItem({
         const classes = ['nn-navitem', 'nn-folder'];
         if (isSelected) classes.push('nn-selected');
         if (isExcluded) classes.push('nn-excluded');
-        if (customBackground && !isSelected) classes.push('nn-has-custom-background');
+        if (customBackground) classes.push('nn-has-custom-background');
         return classes.join(' ');
     }, [customBackground, isSelected, isExcluded]);
 
@@ -360,7 +360,7 @@ export const FolderItem = React.memo(function FolderItem({
             style={
                 {
                     '--level': level,
-                    ...(customBackground && !isSelected ? { '--nn-navitem-custom-bg-color': customBackground } : {})
+                    ...(customBackground ? { '--nn-navitem-custom-bg-color': customBackground } : {})
                 } as React.CSSProperties
             }
             role="treeitem"

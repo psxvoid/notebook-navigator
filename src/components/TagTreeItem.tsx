@@ -166,7 +166,7 @@ export const TagTreeItem = React.memo(
             const classes = ['nn-navitem', 'nn-tag'];
             if (isSelected) classes.push('nn-selected');
             if (isHidden) classes.push('nn-excluded');
-            if (tagBackground && !isSelected) classes.push('nn-has-custom-background');
+            if (tagBackground) classes.push('nn-has-custom-background');
             return classes.join(' ');
         }, [isSelected, isHidden, tagBackground]);
 
@@ -246,7 +246,7 @@ export const TagTreeItem = React.memo(
                 style={
                     {
                         '--level': level,
-                        ...(tagBackground && !isSelected ? { '--nn-navitem-custom-bg-color': tagBackground } : {})
+                        ...(tagBackground ? { '--nn-navitem-custom-bg-color': tagBackground } : {})
                     } as React.CSSProperties
                 }
                 role="treeitem"

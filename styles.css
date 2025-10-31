@@ -1084,11 +1084,14 @@ body {
     contain: paint; /* Isolate per-item painting */
 }
 
-.nn-navitem.nn-has-custom-background {
+/* Nav rows that display a background overlay need positioning for the pseudo elements */
+.nn-navitem.nn-has-custom-background,
+.nn-navitem.nn-selected {
     position: relative;
 }
 
-.nn-navitem.nn-has-custom-background:not(.nn-selected)::before {
+/* Render the custom background color behind the nav item content */
+.nn-navitem.nn-has-custom-background::before {
     content: '';
     position: absolute;
     top: 0;
@@ -1096,19 +1099,43 @@ body {
     inset-inline-end: 0;
     bottom: 0;
     background-color: var(--nn-navitem-custom-bg-color);
-    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
+    border-top-left-radius: var(--nn-navitem-top-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
+    border-top-right-radius: var(--nn-navitem-top-right-radius, min(14px, var(--nn-theme-navitem-border-radius)));
+    border-bottom-left-radius: var(--nn-navitem-bottom-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
+    border-bottom-right-radius: var(--nn-navitem-bottom-right-radius, min(14px, var(--nn-theme-navitem-border-radius)));
     z-index: 0;
     pointer-events: none;
 }
 
-.nn-navitem.nn-has-custom-background > .nn-navitem-content {
+.nn-navitem.nn-has-custom-background > .nn-navitem-content,
+.nn-navitem.nn-has-custom-background > .nn-navitem-content > * {
     position: relative;
     z-index: 2;
 }
 
-.nn-navitem.nn-has-custom-background > .nn-navitem-content > * {
-    position: relative;
-    z-index: 2;
+/* Zero shared corners when consecutive custom background rows touch */
+.nn-navitem.nn-has-custom-background + .nn-navitem.nn-has-custom-background {
+    --nn-navitem-top-left-radius: 0;
+    --nn-navitem-top-right-radius: 0;
+}
+
+.nn-navitem.nn-has-custom-background:has(+ .nn-navitem.nn-has-custom-background) {
+    --nn-navitem-bottom-left-radius: 0;
+    --nn-navitem-bottom-right-radius: 0;
+}
+
+/* Apply the same corner trimming within the virtualized row wrapper */
+.nn-virtual-nav-item:has(> .nn-navitem.nn-has-custom-background)
+    + .nn-virtual-nav-item:has(> .nn-navitem.nn-has-custom-background)
+    > .nn-navitem.nn-has-custom-background {
+    --nn-navitem-top-left-radius: 0;
+    --nn-navitem-top-right-radius: 0;
+}
+
+.nn-virtual-nav-item:has(> .nn-navitem.nn-has-custom-background):has(+ .nn-virtual-nav-item > .nn-navitem.nn-has-custom-background)
+    > .nn-navitem.nn-has-custom-background {
+    --nn-navitem-bottom-left-radius: 0;
+    --nn-navitem-bottom-right-radius: 0;
 }
 
 /* Folder content - contains folder UI elements */
@@ -2325,17 +2352,12 @@ body {
     border-bottom-right-radius: 0;
 }
 
-/* Selected folder - transparent background for pseudo-element approach */
-.nn-navitem.nn-selected {
-    position: relative;
-}
-
 .nn-navitem.nn-selected > .nn-navitem-content:not(.nn-navitem-content--search-include):not(.nn-navitem-content--search-exclude) {
     background: transparent;
 }
 
-/* Selected folder background - uses pseudo-element for better control */
-.nn-navitem.nn-selected::before {
+/* Selection overlay lives above the custom background while mirroring trimmed corners */
+.nn-navitem.nn-selected::after {
     content: '';
     position: absolute;
     top: 0;
@@ -2343,14 +2365,18 @@ body {
     inset-inline-end: 0;
     bottom: 0;
     background-color: var(--nn-theme-navitem-selected-bg);
-    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
-    z-index: 0;
+    border-top-left-radius: var(--nn-navitem-top-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
+    border-top-right-radius: var(--nn-navitem-top-right-radius, min(14px, var(--nn-theme-navitem-border-radius)));
+    border-bottom-left-radius: var(--nn-navitem-bottom-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
+    border-bottom-right-radius: var(--nn-navitem-bottom-right-radius, min(14px, var(--nn-theme-navitem-border-radius)));
+    z-index: 1;
+    pointer-events: none;
 }
 
-/* Selected folder content z-index - ensures text appears above background */
+.nn-navitem.nn-selected > .nn-navitem-content,
 .nn-navitem.nn-selected > .nn-navitem-content > * {
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 /* Selected file inner content z-index - ensures content above background */
@@ -2373,9 +2399,9 @@ body {
     background-color: var(--nn-theme-file-selected-inactive-bg);
 }
 
-.nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::before,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::before,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-navitem.nn-selected::before {
+.nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::after,
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::after,
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-navitem.nn-selected::after {
     background-color: var(--nn-theme-navitem-selected-inactive-bg);
 }
 
