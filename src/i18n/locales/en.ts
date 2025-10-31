@@ -899,6 +899,10 @@ export const STRINGS_EN = {
                 name: 'Scale text with item height',
                 desc: 'Reduce navigation text size when item height is decreased.'
             },
+            navRootSpacing: {
+                name: 'Root item spacing',
+                desc: 'Spacing between root-level folders and tags.'
+            },
             showTags: {
                 name: 'Show tags',
                 desc: 'Display tags section below folders in the navigator.'

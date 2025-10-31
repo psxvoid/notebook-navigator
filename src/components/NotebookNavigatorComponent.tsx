@@ -807,6 +807,7 @@ export const NotebookNavigatorComponent = React.memo(
                 containerRef.current.style.setProperty('--nn-setting-nav-font-size', `${fontSize}px`);
                 containerRef.current.style.setProperty('--nn-setting-nav-font-size-mobile', `${mobileFontSize}px`);
                 containerRef.current.style.setProperty('--nn-setting-nav-indent', `${settings.navIndent}px`);
+                containerRef.current.style.setProperty('--nn-nav-root-spacing', `${settings.rootLevelSpacing}px`);
 
                 // Calculate slim list padding and font sizes based on configured item height
                 const slimMetrics = calculateSlimListMetrics({
@@ -824,6 +825,7 @@ export const NotebookNavigatorComponent = React.memo(
             settings.navItemHeight,
             settings.navItemHeightScaleText,
             settings.navIndent,
+            settings.rootLevelSpacing,
             settings.slimItemHeight,
             settings.slimItemHeightScaleText
         ]);

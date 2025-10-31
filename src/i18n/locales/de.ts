@@ -903,6 +903,10 @@ export const STRINGS_DE = {
                 name: 'Text mit Zeilenhöhe skalieren',
                 desc: 'Verkleinert die Navigationsschrift, wenn die Zeilenhöhe reduziert wird.'
             },
+            navRootSpacing: {
+                name: 'Abstand für Wurzelelemente',
+                desc: 'Abstand zwischen Ordnern und Tags auf der obersten Ebene.'
+            },
             showTags: {
                 name: 'Tags anzeigen',
                 desc: 'Tag-Bereich unterhalb der Ordner im Navigator anzeigen.'

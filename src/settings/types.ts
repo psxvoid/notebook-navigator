@@ -103,6 +103,7 @@ export interface NotebookNavigatorSettings {
     navIndent: number;
     navItemHeight: number;
     navItemHeightScaleText: boolean;
+    rootLevelSpacing: number;
 
     // Folders & tags tab
     showRootFolder: boolean;

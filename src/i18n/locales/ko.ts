@@ -899,6 +899,10 @@ export const STRINGS_KO = {
                 name: '항목 높이에 따라 글자 크기 조정',
                 desc: '항목 높이를 줄이면 탐색 글자 크기를 작게 합니다.'
             },
+            navRootSpacing: {
+                name: '루트 항목 간격',
+                desc: '최상위 폴더와 태그 사이의 간격.'
+            },
             showTags: {
                 name: '태그 표시',
                 desc: '네비게이터에서 폴더 아래에 태그 섹션을 표시합니다.'

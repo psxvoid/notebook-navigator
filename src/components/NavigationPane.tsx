@@ -1958,6 +1958,10 @@ export const NavigationPane = React.memo(
                         return <div className="nn-nav-list-spacer" />;
                     }
 
+                    case NavigationPaneItemType.ROOT_SPACER: {
+                        return <div className="nn-nav-root-spacer" style={{ height: `${item.spacing}px` }} aria-hidden="true" />;
+                    }
+
                     default:
                         return null;
                 }

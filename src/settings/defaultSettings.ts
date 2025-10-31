@@ -76,6 +76,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     navIndent: NAVPANE_MEASUREMENTS.defaultIndent,
     navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
     navItemHeightScaleText: true,
+    rootLevelSpacing: 0,
 
     // Folders & tags tab
     showRootFolder: true,

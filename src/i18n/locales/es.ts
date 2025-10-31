@@ -900,6 +900,10 @@ export const STRINGS_ES = {
                 name: 'Escalar texto con la altura de línea',
                 desc: 'Reduce el texto de navegación cuando la altura de línea se disminuye.'
             },
+            navRootSpacing: {
+                name: 'Espaciado de elementos raíz',
+                desc: 'Espaciado entre carpetas y etiquetas de nivel superior.'
+            },
             showTags: {
                 name: 'Mostrar etiquetas',
                 desc: 'Muestra la sección de etiquetas debajo de las carpetas en el navegador.'

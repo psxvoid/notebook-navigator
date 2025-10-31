@@ -902,6 +902,10 @@ export const STRINGS_FR = {
                 name: 'Adapter le texte à la hauteur de ligne',
                 desc: 'Réduit le texte de navigation lorsque la hauteur de ligne est diminuée.'
             },
+            navRootSpacing: {
+                name: 'Espacement des éléments racine',
+                desc: 'Espacement entre les dossiers et étiquettes de niveau racine.'
+            },
             showTags: {
                 name: 'Afficher les étiquettes',
                 desc: 'Afficher la section des étiquettes sous les dossiers dans le navigateur.'

@@ -103,7 +103,8 @@ export const NavigationPaneItemType = {
     BANNER: 'banner',
     TOP_SPACER: 'top-spacer',
     BOTTOM_SPACER: 'bottom-spacer',
-    LIST_SPACER: 'list-spacer'
+    LIST_SPACER: 'list-spacer',
+    ROOT_SPACER: 'root-spacer'
 } as const;
 
 /**

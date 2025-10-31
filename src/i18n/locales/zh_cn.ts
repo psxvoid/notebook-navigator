@@ -900,6 +900,10 @@ export const STRINGS_ZH_CN = {
                 name: '随行高调整文字大小',
                 desc: '降低行高时减小导航文字大小。'
             },
+            navRootSpacing: {
+                name: '根级项目间距',
+                desc: '根级文件夹和标签之间的间距。'
+            },
             showTags: {
                 name: '显示标签',
                 desc: '在导航器中的文件夹下方显示标签部分。'

@@ -901,6 +901,10 @@ export const STRINGS_PL = {
                 name: 'Skaluj tekst z wysokością elementu',
                 desc: 'Zmniejsza tekst nawigacji, gdy wysokość elementu jest obniżona.'
             },
+            navRootSpacing: {
+                name: 'Odstęp elementów głównych',
+                desc: 'Odstęp między folderami i tagami na poziomie głównym.'
+            },
             showTags: {
                 name: 'Pokaż tagi',
                 desc: 'Wyświetl sekcję tagów poniżej folderów w nawigatorze.'

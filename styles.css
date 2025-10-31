@@ -968,6 +968,12 @@ body {
     flex-shrink: 0;
 }
 
+.nn-nav-root-spacer {
+    height: var(--nn-nav-root-spacing, 0px);
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
 /* List pane spacers - match navigation pane for consistency */
 .nn-list-top-spacer {
     height: 8px;

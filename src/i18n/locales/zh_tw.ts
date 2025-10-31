@@ -898,6 +898,10 @@ export const STRINGS_ZH_TW = {
                 name: '隨項目高度縮放文字',
                 desc: '減少項目高度時，縮小導覽文字大小。'
             },
+            navRootSpacing: {
+                name: '根層項目間距',
+                desc: '根層資料夾與標籤之間的間距。'
+            },
             showTags: {
                 name: '顯示標籤',
                 desc: '在導覽器中資料夾下方顯示標籤區段。'
