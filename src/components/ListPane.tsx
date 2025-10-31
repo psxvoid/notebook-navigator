@@ -59,7 +59,7 @@ import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
 import { TIMEOUTS } from '../types/obsidian-extended';
-import { ListPaneItemType, LISTPANE_MEASUREMENTS } from '../types';
+import { ListPaneItemType, LISTPANE_MEASUREMENTS, UNTAGGED_TAG_ID } from '../types';
 import { getEffectiveSortOption } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
@@ -69,8 +69,11 @@ import { ListPaneTitleArea } from './ListPaneTitleArea';
 import { SaveSearchShortcutModal } from '../modals/SaveSearchShortcutModal';
 import { useShortcuts } from '../context/ShortcutsContext';
 import type { SearchShortcut } from '../types/shortcuts';
+import { EMPTY_SEARCH_TAG_FILTER_STATE, type SearchTagFilterState } from '../types/search';
 import { EMPTY_LIST_MENU_TYPE } from '../utils/contextMenu';
 import { useUXPreferenceActions, useUXPreferences } from '../context/UXPreferencesContext';
+import { normalizeTagPath } from '../utils/tagUtils';
+import { parseFilterSearchTokens, updateFilterQueryWithTag, type InclusionOperator } from '../utils/filterSearch';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -87,6 +90,7 @@ export interface ListPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
+    modifySearchWithTag: (tag: string, operator: InclusionOperator) => void;
     toggleSearch: () => void;
     executeSearchShortcut: (params: ExecuteSearchShortcutParams) => Promise<void>;
 }
@@ -107,6 +111,10 @@ interface ListPaneProps {
     resizeHandleProps?: {
         onMouseDown: (e: React.MouseEvent) => void;
     };
+    /**
+     * Callback invoked whenever tag-related search tokens change.
+     */
+    onSearchTokensChange?: (state: SearchTagFilterState) => void;
 }
 
 export const ListPane = React.memo(
@@ -137,6 +145,26 @@ export const ListPane = React.memo(
         // Debounced search query used for data filtering to avoid per-keystroke spikes
         const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
         const [shouldFocusSearch, setShouldFocusSearch] = useState(false);
+        // Callback to notify parent component of tag filter changes
+        const { onSearchTokensChange } = props;
+
+        // Pre-parsed search tokens matching the debounced query
+        const debouncedSearchTokens = useMemo(
+            () => parseFilterSearchTokens(isSearchActive ? debouncedSearchQuery : ''),
+            [debouncedSearchQuery, isSearchActive]
+        );
+        const debouncedSearchMode = debouncedSearchTokens.mode;
+
+        // Disable inline highlight when search is operating in tag filter mode
+        const searchHighlightQuery = useMemo(() => {
+            if (!isSearchActive) {
+                return undefined;
+            }
+            if (debouncedSearchMode === 'tag') {
+                return undefined;
+            }
+            return searchQuery;
+        }, [isSearchActive, debouncedSearchMode, searchQuery]);
 
         // Check if the current search query matches any saved search
         const activeSearchShortcut = useMemo(() => {
@@ -178,6 +206,46 @@ export const ListPane = React.memo(
             return () => window.clearTimeout(id);
         }, [searchQuery, isSearchActive, debouncedSearchQuery]);
 
+        // Extract tag-related tokens from search query and notify parent for navigation pane highlighting
+        useEffect(() => {
+            if (!onSearchTokensChange) {
+                return;
+            }
+
+            const trimmed = searchQuery.trim();
+            if (!trimmed) {
+                onSearchTokensChange(EMPTY_SEARCH_TAG_FILTER_STATE);
+                return;
+            }
+
+            const tokens = parseFilterSearchTokens(trimmed);
+            // Normalize and collect included tag tokens
+            const includeSet = new Set<string>();
+            tokens.includedTagTokens.forEach(token => {
+                const normalized = normalizeTagPath(token);
+                if (normalized) {
+                    includeSet.add(normalized);
+                }
+            });
+
+            // Normalize and collect excluded tag tokens
+            const excludeSet = new Set<string>();
+            tokens.excludeTagTokens.forEach(token => {
+                const normalized = normalizeTagPath(token);
+                if (normalized) {
+                    excludeSet.add(normalized);
+                }
+            });
+
+            onSearchTokensChange({
+                include: Array.from(includeSet),
+                exclude: Array.from(excludeSet),
+                excludeTagged: tokens.excludeTagged,
+                includeUntagged: tokens.includeUntagged,
+                requireTagged: tokens.requireTagged
+            });
+        }, [searchQuery, onSearchTokensChange]);
+
         // Helper to toggle search state using UX preferences action
         const setIsSearchActive = useCallback(
             (active: boolean) => {
@@ -214,6 +282,7 @@ export const ListPane = React.memo(
             settings,
             // Use debounced value for filtering
             searchQuery: isSearchActive ? debouncedSearchQuery : undefined,
+            searchTokens: isSearchActive ? debouncedSearchTokens : undefined,
             visibility: { includeDescendantNotes, showHiddenItems }
         });
 
@@ -609,6 +678,38 @@ export const ListPane = React.memo(
                 getIndexOfPath: (path: string) => filePathToIndex.get(path) ?? -1,
                 virtualizer: rowVirtualizer,
                 scrollContainerRef: scrollContainerRef.current,
+                // Toggle or modify search query to include/exclude a tag with AND/OR operator
+                modifySearchWithTag: (tag: string, operator: InclusionOperator) => {
+                    const normalizedTag = normalizeTagPath(tag);
+                    if (!normalizedTag || normalizedTag === UNTAGGED_TAG_ID) {
+                        return;
+                    }
+
+                    // Activate search if not already active
+                    if (!isSearchActive) {
+                        setIsSearchActive(true);
+                        if (uiState.singlePane) {
+                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                        }
+                    }
+
+                    setShouldFocusSearch(true);
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
+
+                    let nextQueryValue: string | null = null;
+
+                    // Update search query with the new tag token
+                    setSearchQuery(prev => {
+                        const result = updateFilterQueryWithTag(prev, normalizedTag, operator);
+                        nextQueryValue = result.query;
+                        return result.query;
+                    });
+
+                    // Synchronize debounced query immediately to show results
+                    if (nextQueryValue !== null) {
+                        setDebouncedSearchQuery(nextQueryValue);
+                    }
+                },
                 // Toggle search mode on/off or focus existing search
                 toggleSearch: () => {
                     if (isSearchActive) {
@@ -640,6 +741,9 @@ export const ListPane = React.memo(
                 isSearchActive,
                 uiDispatch,
                 setIsSearchActive,
+                setDebouncedSearchQuery,
+                setSearchQuery,
+                setShouldFocusSearch,
                 props.rootContainerRef,
                 uiState.singlePane,
                 executeSearchShortcut
@@ -886,7 +990,7 @@ export const ListPane = React.memo(
                                                         sortOption={effectiveSortOption}
                                                         parentFolder={item.parentFolder}
                                                         isPinned={item.isPinned}
-                                                        searchQuery={isSearchActive ? searchQuery : undefined}
+                                                        searchQuery={searchHighlightQuery}
                                                         searchMeta={item.searchMeta}
                                                         // Pass hidden state for muted rendering style
                                                         isHidden={Boolean(item.isHidden)}

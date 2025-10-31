@@ -76,11 +76,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.7.3',
         date: '2025-10-30',
         showOnUpdate: true,
-        new: [
-            'New setting: ==List Pane > Slim item height==. Use it to reduce line spacing in list pane with slim mode enabled.'
-        ],
-        changed: [
-        ],
+        new: ['New setting: ==List Pane > Slim item height==. Use it to reduce line spacing in list pane with slim mode enabled.'],
+        improved: ['Navigation pane: Tags folder now selectable and shows all tagged notes.'],
+        changed: [],
         fixed: []
     },
     {

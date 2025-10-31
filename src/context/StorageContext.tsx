@@ -157,6 +157,7 @@ function filterFilesRequiringMetadataSources(files: TFile[], types: ContentType[
  */
 interface FileData {
     tagTree: Map<string, TagTreeNode>;
+    tagged: number;
     untagged: number;
     hiddenRootTags: Map<string, TagTreeNode>;
 }
@@ -201,7 +202,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const uxPreferences = useUXPreferences();
     const showHiddenItems = uxPreferences.showHiddenItems;
     const { tagTreeService } = useServices();
-    const [fileData, setFileData] = useState<FileData>({ tagTree: new Map(), untagged: 0, hiddenRootTags: new Map() });
+    const [fileData, setFileData] = useState<FileData>({ tagTree: new Map(), tagged: 0, untagged: 0, hiddenRootTags: new Map() });
 
     // Registry managing all content providers for generating preview text, feature images, metadata, and tags
     const contentRegistry = useRef<ContentProviderRegistry | null>(null);
@@ -248,18 +249,23 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         const excludedFolderPatterns = showHiddenItems ? [] : settings.excludedFolders;
         // Filter database results to only include files matching current visibility settings
         const includedPaths = new Set(getVisibleMarkdownFiles().map(f => f.path));
-        const { tagTree, untagged: newUntagged, hiddenRootTags } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths);
+        const {
+            tagTree,
+            tagged: newTagged,
+            untagged: newUntagged,
+            hiddenRootTags
+        } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths, settings.hiddenTags, showHiddenItems);
         clearNoteCountCache();
         const untaggedCount = newUntagged;
-        setFileData({ tagTree, untagged: untaggedCount, hiddenRootTags });
+        setFileData({ tagTree, tagged: newTagged, untagged: untaggedCount, hiddenRootTags });
 
         // Propagate updated tag trees to the global TagTreeService for cross-component access
         if (tagTreeService) {
-            tagTreeService.updateTagTree(tagTree, untaggedCount);
+            tagTreeService.updateTagTree(tagTree, newTagged, untaggedCount);
         }
 
         return tagTree;
-    }, [settings.excludedFolders, showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
+    }, [settings.excludedFolders, settings.hiddenTags, showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
 
     /**
      * Effect: Rebuild tag tree when hidden items visibility changes
@@ -730,9 +736,9 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
         // Reset in-memory tag tree structures to empty state
         const emptyTagTree = new Map<string, TagTreeNode>();
-        setFileData({ tagTree: emptyTagTree, untagged: 0, hiddenRootTags: new Map() });
+        setFileData({ tagTree: emptyTagTree, tagged: 0, untagged: 0, hiddenRootTags: new Map() });
         if (tagTreeService) {
-            tagTreeService.updateTagTree(emptyTagTree, 0);
+            tagTreeService.updateTagTree(emptyTagTree, 0, 0);
         }
         clearNoteCountCache();
 

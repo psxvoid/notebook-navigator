@@ -19,7 +19,7 @@
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
 import { isPathInExcludedFolder } from './fileFilters';
-import { HiddenTagMatcher, matchesHiddenTagPattern, normalizeTagPathValue } from './tagPrefixMatcher';
+import { HiddenTagMatcher, matchesHiddenTagPattern, normalizeTagPathValue, createHiddenTagVisibility } from './tagPrefixMatcher';
 import { naturalCompare } from './sortUtils';
 
 /**
@@ -58,13 +58,18 @@ function getNoteCountCache(): WeakMap<TagTreeNode, number> {
 export function buildTagTreeFromDatabase(
     db: IndexedDBStorage,
     excludedFolderPatterns?: string[],
-    includedPaths?: Set<string>
-): { tagTree: Map<string, TagTreeNode>; untagged: number; hiddenRootTags: Map<string, TagTreeNode> } {
+    includedPaths?: Set<string>,
+    hiddenTagPatterns: string[] = [],
+    showHiddenItems = false
+): { tagTree: Map<string, TagTreeNode>; tagged: number; untagged: number; hiddenRootTags: Map<string, TagTreeNode> } {
     // Track all unique tags that exist in the vault
     const allTagsSet = new Set<string>();
     let untaggedCount = 0;
+    let taggedCount = 0;
 
     const caseMap = new Map<string, string>();
+    const hiddenTagVisibility = createHiddenTagVisibility(hiddenTagPatterns, showHiddenItems);
+    const shouldFilterHiddenTags = hiddenTagVisibility.shouldFilterHiddenTags;
 
     // Map to store file associations for each tag
     const tagFiles = new Map<string, Set<string>>();
@@ -138,12 +143,18 @@ export function buildTagTreeFromDatabase(
             continue;
         }
 
+        let hasVisibleTagForFile = false;
+
         // Process each tag
         for (const tag of tags) {
             const canonicalPath = (tag.startsWith('#') ? tag.substring(1) : tag).replace(/^\/+|\/+$/g, '');
             const normalizedPath = normalizeTagPathValue(tag);
             if (canonicalPath.length === 0 || normalizedPath.length === 0) {
                 continue;
+            }
+
+            if (!shouldFilterHiddenTags || hiddenTagVisibility.isTagVisible(tag, canonicalPath.split('/').pop())) {
+                hasVisibleTagForFile = true;
             }
 
             let storedCanonical = caseMap.get(normalizedPath);
@@ -163,6 +174,10 @@ export function buildTagTreeFromDatabase(
             if (fileSet) {
                 fileSet.add(path);
             }
+        }
+
+        if (path.endsWith('.md') && hasVisibleTagForFile) {
+            taggedCount++;
         }
     }
 
@@ -253,7 +268,7 @@ export function buildTagTreeFromDatabase(
     // Clear note count cache since tree structure has changed
     clearNoteCountCache();
 
-    return { tagTree, untagged: untaggedCount, hiddenRootTags };
+    return { tagTree, tagged: taggedCount, untagged: untaggedCount, hiddenRootTags };
 }
 
 /**

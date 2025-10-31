@@ -36,6 +36,12 @@ export const NOTEBOOK_NAVIGATOR_VIEW = 'notebook-navigator';
 export const UNTAGGED_TAG_ID = '__untagged__';
 
 /**
+ * Special tag identifier representing all tagged notes
+ * Mirrors untagged constant to keep virtual collections consistent
+ */
+export const TAGGED_TAG_ID = '__tagged__';
+
+/**
  * Identifies which pane currently has keyboard focus
  * Used for keyboard navigation between folder tree and file list
  */

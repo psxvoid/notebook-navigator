@@ -30,10 +30,11 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { useCommandQueue } from '../context/ServicesContext';
 import { determineTagToReveal, findNearestVisibleTagAncestor, resolveCanonicalTagPath } from '../utils/tagUtils';
-import { ItemType, UNTAGGED_TAG_ID } from '../types';
+import { ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
 import type { Align } from '../types/scroll';
+import { isVirtualTagCollectionId } from '../utils/virtualTagCollections';
 
 interface UseNavigatorRevealOptions {
     app: App;
@@ -244,7 +245,11 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 return;
             }
 
-            if (canonicalPath !== UNTAGGED_TAG_ID) {
+            // Check if this is a virtual tag collection rather than a real tag
+            const isVirtualCollection = isVirtualTagCollectionId(canonicalPath);
+
+            // Validate tag exists in tree for real tags
+            if (!isVirtualCollection) {
                 const tagNode = findTagInTree(canonicalPath);
                 if (!tagNode) {
                     return;
@@ -267,7 +272,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 expansionDispatch({ type: 'SET_EXPANDED_VIRTUAL_FOLDERS', folders: newExpanded });
             }
 
-            if (canonicalPath !== UNTAGGED_TAG_ID) {
+            // Expand parent tags for real tags, skip for virtual collections
+            if (!isVirtualCollection) {
                 const tagsToExpand: string[] = [];
                 const parts = canonicalPath.split('/');
 

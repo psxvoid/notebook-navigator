@@ -360,6 +360,7 @@ const { listItems, filePathToIndex, orderedFiles } = useListPaneData({
   selectedTag,
   settings,
   searchQuery: debouncedSearchQuery,
+  searchTokens: debouncedSearchTokens,
   visibility: { includeDescendantNotes, showHiddenItems }
 });
 

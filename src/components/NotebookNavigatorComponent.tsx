@@ -56,6 +56,23 @@ import type { NavigationPaneHandle } from './NavigationPane';
 import type { SearchShortcut } from '../types/shortcuts';
 import { UpdateNoticeBanner } from './UpdateNoticeBanner';
 import { UpdateNoticeIndicator } from './UpdateNoticeIndicator';
+import { EMPTY_SEARCH_TAG_FILTER_STATE, type SearchTagFilterState } from '../types/search';
+
+// Checks if two string arrays have identical content in the same order
+const arraysEqual = (a: string[], b: string[]): boolean => {
+    if (a === b) {
+        return true;
+    }
+    if (a.length !== b.length) {
+        return false;
+    }
+    for (let index = 0; index < a.length; index += 1) {
+        if (a[index] !== b[index]) {
+            return false;
+        }
+    }
+    return true;
+};
 
 export interface NotebookNavigatorHandle {
     // Navigates to a file by revealing it in its actual parent folder
@@ -143,8 +160,35 @@ export const NotebookNavigatorComponent = React.memo(
         const containerRef = useRef<HTMLDivElement>(null);
 
         const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
+        // Tracks tag-related search tokens for highlighting tags in navigation pane
+        const [searchTagFilters, setSearchTagFilters] = useState<SearchTagFilterState>(EMPTY_SEARCH_TAG_FILTER_STATE);
         const navigationPaneRef = useRef<NavigationPaneHandle>(null);
         const listPaneRef = useRef<ListPaneHandle>(null);
+
+        // Updates search tag filters only when values actually change to avoid unnecessary re-renders
+        const handleSearchTokensChange = useCallback((next: SearchTagFilterState) => {
+            setSearchTagFilters(prev => {
+                // Skip update if all values match
+                if (
+                    prev.excludeTagged === next.excludeTagged &&
+                    prev.includeUntagged === next.includeUntagged &&
+                    prev.requireTagged === next.requireTagged &&
+                    arraysEqual(prev.include, next.include) &&
+                    arraysEqual(prev.exclude, next.exclude)
+                ) {
+                    return prev;
+                }
+
+                // Create new state with cloned arrays to prevent mutation
+                return {
+                    include: next.include.slice(),
+                    exclude: next.exclude.slice(),
+                    excludeTagged: next.excludeTagged,
+                    includeUntagged: next.includeUntagged,
+                    requireTagged: next.requireTagged
+                };
+            });
+        }, []);
 
         // Executes a search shortcut by delegating to the list pane component
         const handleSearchShortcutExecution = useCallback(async (_shortcutKey: string, searchShortcut: SearchShortcut) => {
@@ -820,15 +864,20 @@ export const NotebookNavigatorComponent = React.memo(
                         ref={navigationPaneRef}
                         style={navigationPaneStyle}
                         rootContainerRef={containerRef}
+                        searchTagFilters={searchTagFilters}
                         onExecuteSearchShortcut={handleSearchShortcutExecution}
                         onNavigateToFolder={navigateToFolder}
                         onRevealTag={revealTag}
                         onRevealFile={revealFileInNearestFolder}
                         onRevealShortcutFile={handleShortcutNoteReveal}
+                        onModifySearchWithTag={(tag, operator) => {
+                            listPaneRef.current?.modifySearchWithTag(tag, operator);
+                        }}
                     />
                     <ListPane
                         ref={listPaneRef}
                         rootContainerRef={containerRef}
+                        onSearchTokensChange={handleSearchTokensChange}
                         resizeHandleProps={!uiState.singlePane ? resizeHandleProps : undefined}
                     />
                 </div>
