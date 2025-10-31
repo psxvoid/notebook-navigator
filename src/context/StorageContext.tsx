@@ -40,7 +40,7 @@
  */
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
-import { App, TAbstractFile, TFile, debounce, EventRef } from 'obsidian';
+import { App, TAbstractFile, TFile, debounce, EventRef, getAllTags } from 'obsidian';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { ProcessedMetadata, extractMetadata } from '../utils/metadataExtractor';
 import { ContentProviderRegistry } from '../services/content/ContentProviderRegistry';
@@ -62,6 +62,7 @@ import { useUXPreferences } from './UXPreferencesContext';
 import { NotebookNavigatorSettings } from '../settings';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { ContentType } from '../interfaces/IContentProvider';
+import { EMPTY_ARRAY } from 'src/utils/empty';
 
 /**
  * Returns content types that require Obsidian's metadata cache to be ready
@@ -1320,6 +1321,15 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     const existingFull = existing?.featureImage != null
                         ? await db.getFileWithPreview(oldPath)
                         : existing
+                    
+                    const meta = app.metadataCache.getFileCache(file)
+                    const fastTags = meta != null
+                        ? getAllTags(meta)?.filter(x => x != null).map(x => x.replace('#', '')).filter(x => x.length > 0) ?? EMPTY_ARRAY
+                        : EMPTY_ARRAY
+
+                    if (existingFull != null && fastTags.length > 0 && (existingFull.tags == null || !fastTags.every(x => existingFull?.tags?.includes(x)))) {
+                        existingFull.tags = [...(existingFull.tags ?? EMPTY_ARRAY),...fastTags].filter(x => x != null && x.length > 0)
+                    }
 
                     if (existingFull) {
                         pendingRenameDataRef.current.set(file.path, existingFull);
