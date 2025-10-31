@@ -36,8 +36,8 @@ body {
     /* File item heights - fixed pixel values to prevent fractional rendering */
     --nn-file-title-line-height: 20px; /* Height of file title text */
     --nn-file-padding-vertical: 8px; /* 8px */
-    --nn-file-padding-vertical-slim: 5px; /* Reduced padding for slim mode */
-    --nn-file-padding-vertical-slim-mobile: 8px; /* Mobile slim mode padding for touch targets */
+    --nn-file-padding-vertical-slim: 4px; /* Desktop slim mode padding */
+    --nn-file-padding-vertical-slim-mobile: 8px; /* Mobile slim mode padding */
     --nn-file-padding-total: calc(var(--nn-file-padding-vertical) * 2); /* Total vertical padding (top + bottom) */
     --nn-file-single-text-line-height: 19px; /* Height for single-line text (metadata, date, or single preview) */
     --nn-file-multiline-text-line-height: 18px; /* Height for multi-line preview text */
@@ -47,6 +47,8 @@ body {
     /* Font sizes - fixed pixel values to prevent scaling with Obsidian font size */
     --nn-file-name-size: 14px; /* Fixed 14px */
     --nn-file-small-size: 13px; /* Fixed 13px */
+    --nn-slim-font-size: 13px; /* Slim mode desktop font size */
+    --nn-slim-font-size-mobile: 15px; /* Slim mode mobile font size */
 
     /* Date header heights and padding */
     --nn-date-header-height: 35px; /* First header */
@@ -115,6 +117,8 @@ body {
     --nn-theme-navitem-selected-count-color: var(--nn-theme-navitem-count-color);
     --nn-theme-navitem-selected-count-bg: var(--nn-theme-navitem-count-bg);
     --nn-theme-navitem-selected-inactive-bg: var(--background-modifier-hover);
+    --nn-theme-tag-positive-bg: #00800033;
+    --nn-theme-tag-negative-bg: #ff000033;
 
     /* -- Navigation Item Text Styling -- */
     --nn-theme-navitem-file-name-font-weight: 400;
@@ -1119,12 +1123,39 @@ body {
     box-sizing: border-box;
 }
 
+.nn-navitem-content--search-include,
+.nn-navitem-content--search-exclude {
+    position: relative;
+    z-index: 1;
+}
+
+.nn-navitem-content--search-include::before,
+.nn-navitem-content--search-exclude::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inset-inline-end: 0;
+    inset-inline-start: calc(var(--level, 0) * var(--nn-setting-nav-indent) * -1);
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
+    pointer-events: none;
+    z-index: -1;
+}
+
+.nn-navitem-content--search-include::before {
+    background-color: var(--nn-theme-tag-positive-bg);
+}
+
+.nn-navitem-content--search-exclude::before {
+    background-color: var(--nn-theme-tag-negative-bg);
+}
+
 /* Folder hover state - desktop only, using pseudo-element for padding control */
 .nn-desktop .nn-navitem:hover {
     position: relative;
 }
 
-.nn-desktop .nn-navitem:hover::after {
+.nn-desktop .nn-navitem:not([data-search-match]):hover::after {
     content: '';
     position: absolute;
     top: 0;
@@ -1761,7 +1792,7 @@ body {
     position: absolute;
     top: 8px; /* Default: 8px for normal mode */
     inset-inline-end: 8px;
-    height: 24px;
+    height: 20px;
     display: none;
     background: var(--nn-theme-quick-actions-bg);
     border: 1px solid var(--nn-theme-quick-actions-border);
@@ -1800,15 +1831,15 @@ body {
     flex-shrink: 0;
 }
 
-/* Slim mode with 1 title row and no tags: center vertically (4px offset) */
+/* Slim mode with 1 title row and no tags: center vertically */
 .nn-quick-actions-panel.nn-slim-mode[data-title-rows='1'][data-has-tags='false'] {
-    top: 3px; /* (20px line height + 10px padding - 24px icon) / 2 = 3px */
+    top: max(0px, calc((var(--nn-file-title-line-height) + var(--nn-file-padding-vertical-slim) * 2 - 20px) / 2));
 }
 
-/* Slim mode with tags or 2 title rows: use default slim padding (6px) */
+/* Slim mode with tags or 2 title rows: align with slim padding */
 .nn-quick-actions-panel.nn-slim-mode[data-title-rows='2'],
 .nn-quick-actions-panel.nn-slim-mode[data-has-tags='true'] {
-    top: 5px; /* Match slim mode padding */
+    top: var(--nn-file-padding-vertical-slim);
 }
 
 /* Panel appears when hovering anywhere on file row */
@@ -1997,11 +2028,12 @@ body {
 /* Slim file item - more compact list appearance */
 .nn-file.nn-slim .nn-file-content {
     padding: var(--nn-file-padding-vertical-slim) var(--nn-file-item-padding-horizontal); /* Reduced vertical padding */
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
 /* Slim file name - no bold, smaller font like folder items */
 .nn-file.nn-slim .nn-file-name {
-    font-size: var(--nn-file-small-size);
+    font-size: var(--nn-slim-font-size, var(--nn-file-small-size));
     font-weight: var(--nn-theme-file-slim-name-font-weight);
     margin-bottom: 0;
     line-height: var(--nn-file-title-line-height);
@@ -2265,6 +2297,10 @@ body {
     z-index: 0; /* Below separator lines */
 }
 
+.nn-file.nn-slim.nn-selected .nn-file-content::before {
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
+}
+
 /* Adjust rounded corners for multiselection */
 .nn-file.nn-selected.nn-has-selected-above .nn-file-content::before {
     border-top-left-radius: 0;
@@ -2281,7 +2317,7 @@ body {
     position: relative;
 }
 
-.nn-navitem.nn-selected > .nn-navitem-content {
+.nn-navitem.nn-selected > .nn-navitem-content:not(.nn-navitem-content--search-include):not(.nn-navitem-content--search-exclude) {
     background: transparent;
 }
 
@@ -2390,13 +2426,13 @@ body.nn-resizing {
 
 /* Special visual feedback for tag drop zones */
 [data-drop-zone='tag'].nn-drag-over {
-    background-color: var(--background-modifier-success);
+    background-color: var(--nn-theme-tag-positive-bg);
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
 /* Different style for untagged drop zone */
 [data-drop-zone='tag'][data-tag='__untagged__'].nn-drag-over {
-    background-color: var(--background-modifier-error-hover);
+    background-color: var(--nn-theme-tag-negative-bg);
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
@@ -2539,6 +2575,10 @@ body.nn-resizing {
     border-radius: min(16px, var(--nn-theme-file-border-radius));
     pointer-events: none;
     z-index: 10;
+}
+
+.nn-file.nn-slim.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
 /* ========================================================================
@@ -4027,9 +4067,9 @@ body.nn-resizing {
     padding: var(--nn-file-padding-vertical-slim-mobile) var(--nn-file-item-padding-horizontal);
 }
 
-/* Mobile slim mode file names - larger font for better readability */
+/* Mobile slim mode file names - use dedicated font variable */
 .notebook-navigator-mobile .nn-file.nn-slim .nn-file-name {
-    font-size: 15px;
+    font-size: var(--nn-slim-font-size-mobile, var(--nn-slim-font-size, 15px));
 }
 
 /* ========================================================================
@@ -4475,6 +4515,24 @@ settings:
         id: nn-theme-navitem-selected-inactive-bg
         title: Selection background (inactive)
         description: Selected item background color when pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-tag-positive-bg
+        title: Tag highlight (include)
+        description: Background color for positive tag highlights and tag drop targets.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-tag-negative-bg
+        title: Tag highlight (exclude)
+        description: Background color for negative tag highlights and the untagged drop target.
         type: variable-themed-color
         format: hex
         default-light: '#'

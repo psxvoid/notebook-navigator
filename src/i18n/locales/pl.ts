@@ -602,6 +602,15 @@ export const STRINGS_PL = {
                 name: 'Optymalizuj wysokość notatek',
                 desc: 'Zmniejsz wysokość dla przypiętych notatek i notatek bez tekstu podglądu.'
             },
+            slimItemHeight: {
+                name: 'Wysokość elementów w trybie slim',
+                desc: 'Ustawia wysokość elementów listy w trybie slim na komputerze i urządzeniach mobilnych.',
+                resetTooltip: 'Przywróć wartość domyślną (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: 'Skalowanie tekstu z wysokością trybu slim',
+                desc: 'Skaluje tekst elementów listy w trybie slim po zmniejszeniu wysokości.'
+            },
             showParentFolderNames: {
                 name: 'Pokaż nazwy folderów nadrzędnych',
                 desc: 'Wyświetl nazwę folderu nadrzędnego dla notatek w podfolderach lub tagach.'

@@ -29,7 +29,7 @@ export const STRINGS_ZH_CN = {
         submit: '提交', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '未选择', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: '无标签', // Label for notes without any tags (English: Untagged)
-        untitled: '无标题', // Default name for notes without a title (English: Untitled)
+        untitled: '未命名', // Default name for notes without a title (English: Untitled)
         featureImageAlt: '特色图片', // Alt text for thumbnail/preview images (English: Feature image)
         unknownError: '未知错误', // Generic fallback when an error has no message (English: Unknown error)
         updateBannerTitle: 'Notebook Navigator 有可用更新',
@@ -395,8 +395,8 @@ export const STRINGS_ZH_CN = {
             deleteConfirmation: '此操作无法撤销。'
         },
         defaultNames: {
-            untitled: '无标题',
-            untitledNumber: '无标题 {number}'
+            untitled: '未命名',
+            untitledNumber: '未命名 {number}'
         }
     },
 
@@ -599,6 +599,15 @@ export const STRINGS_ZH_CN = {
             optimizeNoteHeight: {
                 name: '优化笔记高度',
                 desc: '减少固定笔记和无预览文本笔记的高度。'
+            },
+            slimItemHeight: {
+                name: '精简项目高度',
+                desc: '设置桌面和移动端的紧凑列表项高度。',
+                resetTooltip: '恢复默认值 (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: '随精简高度缩放文本',
+                desc: '当减小紧凑列表项高度时同步缩放文本。'
             },
             showParentFolderNames: {
                 name: '显示父文件夹名称',

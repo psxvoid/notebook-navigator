@@ -71,7 +71,7 @@ import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
 import { useNavigationRootReorder } from '../hooks/useNavigationRootReorder';
 import { useListReorder, type ListReorderHandlers } from '../hooks/useListReorder';
 import type { CombinedNavigationItem } from '../types/virtualization';
-import { NavigationPaneItemType, ItemType } from '../types';
+import { NavigationPaneItemType, ItemType, TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import { getSelectedPath } from '../utils/selectionUtils';
 import { TagTreeNode } from '../types/storage';
 import { getFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
@@ -102,11 +102,14 @@ import {
     type MenuDispatchers
 } from '../utils/contextMenu';
 import type { NoteCountInfo } from '../types/noteCounts';
+import type { SearchTagFilterState } from '../types/search';
+import type { InclusionOperator } from '../utils/filterSearch';
 import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
 import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { normalizeNavigationSectionOrderInput } from '../utils/navigationSections';
 import { getPathBaseName } from '../utils/pathUtils';
 import type { NavigateToFolderOptions, RevealTagOptions } from '../hooks/useNavigatorReveal';
+import { isVirtualTagCollectionId } from '../utils/virtualTagCollections';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (itemType: ItemType, path: string) => number;
@@ -125,21 +128,33 @@ interface NavigationPaneProps {
      * other Obsidian views.
      */
     rootContainerRef: React.RefObject<HTMLDivElement | null>;
+    searchTagFilters?: SearchTagFilterState;
     onExecuteSearchShortcut?: (shortcutKey: string, searchShortcut: SearchShortcut) => Promise<void> | void;
     onNavigateToFolder: (folderPath: string, options?: NavigateToFolderOptions) => void;
     onRevealTag: (tagPath: string, options?: RevealTagOptions) => void;
     onRevealFile: (file: TFile) => void;
     onRevealShortcutFile?: (file: TFile) => void;
+    onModifySearchWithTag: (tag: string, operator: InclusionOperator) => void;
 }
 
 // Default note count object used when counts are disabled or unavailable
 const ZERO_NOTE_COUNT: NoteCountInfo = { current: 0, descendants: 0, total: 0 };
+const EMPTY_TAG_TOKENS: string[] = [];
 
 export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
         const { app, isMobile, plugin, tagTreeService } = useServices();
         const { recentNotes } = useRecentData();
-        const { onExecuteSearchShortcut, rootContainerRef, onNavigateToFolder, onRevealTag, onRevealFile, onRevealShortcutFile } = props;
+        const {
+            onExecuteSearchShortcut,
+            rootContainerRef,
+            searchTagFilters,
+            onNavigateToFolder,
+            onRevealTag,
+            onRevealFile,
+            onRevealShortcutFile,
+            onModifySearchWithTag
+        } = props;
         const commandQueue = useCommandQueue();
         const fileSystemOps = useFileSystemOps();
         const metadataService = useMetadataService();
@@ -161,6 +176,42 @@ export const NavigationPane = React.memo(
         const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts, addFolderShortcut, addNoteShortcut } = shortcuts;
         const { fileData, getFileDisplayName } = useFileCache();
         const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
+
+        // Extract included tag tokens from search filters for highlighting
+        const searchIncludeTokens = useMemo(() => {
+            if (!searchTagFilters || searchTagFilters.include.length === 0) {
+                return EMPTY_TAG_TOKENS;
+            }
+            return searchTagFilters.include;
+        }, [searchTagFilters]);
+
+        // Extract excluded tag tokens from search filters for highlighting
+        const searchExcludeTokens = useMemo(() => {
+            if (!searchTagFilters || searchTagFilters.exclude.length === 0) {
+                return EMPTY_TAG_TOKENS;
+            }
+            return searchTagFilters.exclude;
+        }, [searchTagFilters]);
+
+        // Flags indicating if untagged or tagged filters are active in search
+        const highlightRequireTagged = searchTagFilters?.requireTagged ?? false;
+        const highlightExcludeTagged = searchTagFilters?.excludeTagged ?? false;
+        const highlightIncludeUntagged = searchTagFilters?.includeUntagged ?? false;
+
+        // Convert tag filter arrays to sets for faster membership checks while rendering
+        const searchIncludeTokenSet = useMemo(() => {
+            if (searchIncludeTokens.length === 0) {
+                return null;
+            }
+            return new Set(searchIncludeTokens);
+        }, [searchIncludeTokens]);
+
+        const searchExcludeTokenSet = useMemo(() => {
+            if (searchExcludeTokens.length === 0) {
+                return null;
+            }
+            return new Set(searchExcludeTokens);
+        }, [searchExcludeTokens]);
 
         const menuServices = useMemo<MenuServices>(
             () => ({
@@ -894,10 +945,39 @@ export const NavigationPane = React.memo(
 
         // Handle tag click
         const handleTagClick = useCallback(
-            (tagPath: string, options?: { fromShortcut?: boolean }) => {
+            (tagPath: string, event?: React.MouseEvent, options?: { fromShortcut?: boolean }) => {
                 const tagNode = findTagNode(tagTree, tagPath);
                 const canonicalPath = resolveCanonicalTagPath(tagPath, tagTree);
                 if (!canonicalPath) {
+                    return;
+                }
+
+                // Check if modifier key is pressed to modify search instead of navigating
+                const shouldModifySearch = (() => {
+                    if (!event || isMobile) {
+                        return false;
+                    }
+                    if (settings.multiSelectModifier === 'cmdCtrl') {
+                        if (Platform.isMacOS) {
+                            return event.metaKey;
+                        }
+                        return event.metaKey || event.ctrlKey;
+                    }
+                    return event.altKey;
+                })();
+                const isVirtualCollection = isVirtualTagCollectionId(canonicalPath);
+                // Handle search modification mode
+                if (shouldModifySearch) {
+                    if (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    // Add tag to search query with AND or OR operator (shift key toggles)
+                    if (!isVirtualCollection && canonicalPath !== UNTAGGED_TAG_ID) {
+                        const operator: InclusionOperator = event?.shiftKey ? 'OR' : 'AND';
+                        onModifySearchWithTag(canonicalPath, operator);
+                    }
                     return;
                 }
 
@@ -951,8 +1031,19 @@ export const NavigationPane = React.memo(
                 expansionDispatch,
                 selectionState.selectedTag,
                 selectionState.selectionType,
-                setActiveShortcut
+                setActiveShortcut,
+                onModifySearchWithTag,
+                isMobile,
+                settings.multiSelectModifier
             ]
+        );
+
+        // Forward tag collection clicks to the main tag click handler
+        const handleTagCollectionClick = useCallback(
+            (tagCollectionId: string, event: React.MouseEvent<HTMLDivElement>) => {
+                handleTagClick(tagCollectionId, event);
+            },
+            [handleTagClick]
         );
 
         // Toggles shortcuts between pinned (always visible) and inline (in main list) display
@@ -1739,12 +1830,38 @@ export const NavigationPane = React.memo(
                               ? recentNotesExpanded
                               : expansionState.expandedVirtualFolders.has(virtualFolder.id);
 
+                        const tagCollectionId = item.tagCollectionId ?? null;
+                        const isTagCollection = Boolean(tagCollectionId);
+                        const isSelected =
+                            isTagCollection &&
+                            selectionState.selectionType === ItemType.TAG &&
+                            selectionState.selectedTag === tagCollectionId;
+                        const collectionCountInfo = item.noteCount ?? (tagCollectionId ? tagCounts.get(tagCollectionId) : undefined);
+                        const showFileCount = item.showFileCount ?? false;
+                        let collectionSearchMatch: 'include' | 'exclude' | undefined;
+                        if (tagCollectionId === TAGGED_TAG_ID) {
+                            if (highlightExcludeTagged) {
+                                collectionSearchMatch = 'exclude';
+                            } else if (highlightRequireTagged) {
+                                collectionSearchMatch = 'include';
+                            }
+                        }
+
                         return (
                             <VirtualFolderComponent
                                 virtualFolder={virtualFolder}
                                 level={item.level}
                                 isExpanded={isExpanded}
                                 hasChildren={hasChildren}
+                                isSelected={Boolean(isSelected)}
+                                showFileCount={showFileCount}
+                                countInfo={collectionCountInfo}
+                                searchMatch={collectionSearchMatch}
+                                onSelect={
+                                    isTagCollection && tagCollectionId
+                                        ? event => handleTagCollectionClick(tagCollectionId, event)
+                                        : undefined
+                                }
                                 onToggle={() => handleVirtualFolderToggle(virtualFolder.id)}
                                 onDragOver={isShortcutsGroup && allowEmptyShortcutDrop ? handleShortcutRootDragOver : undefined}
                                 onDrop={isShortcutsGroup && allowEmptyShortcutDrop ? handleShortcutRootDrop : undefined}
@@ -1775,6 +1892,18 @@ export const NavigationPane = React.memo(
                     case NavigationPaneItemType.TAG:
                     case NavigationPaneItemType.UNTAGGED: {
                         const tagNode = item.data;
+                        let searchMatch: 'include' | 'exclude' | undefined;
+                        if (tagNode.path === UNTAGGED_TAG_ID) {
+                            if (highlightIncludeUntagged) {
+                                searchMatch = 'include';
+                            } else if (highlightExcludeTagged) {
+                                searchMatch = 'exclude';
+                            }
+                        } else if (searchExcludeTokenSet?.has(tagNode.path)) {
+                            searchMatch = 'exclude';
+                        } else if (searchIncludeTokenSet?.has(tagNode.path)) {
+                            searchMatch = 'include';
+                        }
                         return (
                             <TagTreeItem
                                 tagNode={tagNode}
@@ -1783,10 +1912,11 @@ export const NavigationPane = React.memo(
                                 isSelected={selectionState.selectionType === ItemType.TAG && selectionState.selectedTag === tagNode.path}
                                 isHidden={'isHidden' in item ? item.isHidden : false}
                                 onToggle={() => handleTagToggle(tagNode.path)}
-                                onClick={() => handleTagClick(tagNode.path)}
+                                onClick={event => handleTagClick(tagNode.path, event)}
                                 color={item.color}
                                 backgroundColor={item.backgroundColor}
                                 icon={item.icon}
+                                searchMatch={searchMatch}
                                 onToggleAllSiblings={() => {
                                     const isCurrentlyExpanded = expansionState.expandedTags.has(tagNode.path);
 
@@ -1844,6 +1974,7 @@ export const NavigationPane = React.memo(
                 handleFolderNameClick,
                 handleTagToggle,
                 handleTagClick,
+                handleTagCollectionClick,
                 handleVirtualFolderToggle,
                 recentNotes.length,
                 getAllDescendantFolders,
@@ -1878,6 +2009,11 @@ export const NavigationPane = React.memo(
                 getMissingNoteLabel,
                 handleShortcutFolderNoteClick,
                 tagsVirtualFolderHasChildren,
+                searchIncludeTokenSet,
+                searchExcludeTokenSet,
+                highlightRequireTagged,
+                highlightExcludeTagged,
+                highlightIncludeUntagged,
                 vaultChangeVersion
             ]
         );

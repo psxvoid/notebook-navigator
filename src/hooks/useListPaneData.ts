@@ -43,8 +43,15 @@ import { shouldExcludeFile, isFolderInExcludedFolder } from '../utils/fileFilter
 import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
 import { strings } from '../i18n';
 import { FILE_VISIBILITY, isExcalidrawAttachment } from '../utils/fileTypeUtils';
-import { parseFilterSearchTokens, fileMatchesFilterTokens } from '../utils/filterSearch';
+import {
+    parseFilterSearchTokens,
+    fileMatchesFilterTokens,
+    filterSearchHasActiveCriteria,
+    filterSearchNeedsTagLookup,
+    filterSearchRequiresTagsForEveryMatch
+} from '../utils/filterSearch';
 import type { NotebookNavigatorSettings } from '../settings';
+import type { FilterSearchTokens } from '../utils/filterSearch';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility, normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 import { getDBInstance } from 'src/storage/fileOperations';
@@ -55,6 +62,8 @@ import { EMPTY_ARRAY, EMPTY_STRING } from 'src/utils/empty';
 const EMPTY_SEARCH_META = new Map<string, SearchResultMeta>();
 // Shared empty map used when no files are hidden to avoid allocations
 const EMPTY_HIDDEN_STATE = new Map<string, boolean>();
+// Shared sentinel array used when only tag presence is required
+const TAG_PRESENCE_SENTINEL = ['__nn_tag_present__'];
 
 /**
  * Parameters for the useListPaneData hook
@@ -70,6 +79,8 @@ interface UseListPaneDataParams {
     settings: NotebookNavigatorSettings;
     /** Optional search query to filter files */
     searchQuery?: string;
+    /** Pre-parsed search tokens matching the debounced query */
+    searchTokens?: FilterSearchTokens;
     /** Visibility preferences that control descendant notes and hidden items */
     visibility: VisibilityPreferences;
 }
@@ -105,6 +116,7 @@ export function useListPaneData({
     selectedTag,
     settings,
     searchQuery,
+    searchTokens,
     visibility
 }: UseListPaneDataParams): UseListPaneDataResult {
     const { app, tagTreeService, commandQueue, omnisearchService } = useServices();
@@ -289,65 +301,67 @@ export function useListPaneData({
         }
 
         // Parse the search query into filter tokens
-        const tokens = parseFilterSearchTokens(trimmedQuery);
+        const tokens = searchTokens ?? parseFilterSearchTokens(trimmedQuery);
 
-        // Check if any meaningful tokens exist (inclusions or exclusions)
-        const hasTokens =
-            tokens.nameTokens.length > 0 ||
-            tokens.tagTokens.length > 0 ||
-            tokens.requireTagged ||
-            tokens.excludeNameTokens.length > 0 ||
-            tokens.excludeTagTokens.length > 0 ||
-            tokens.excludeTagged;
-
-        // Skip filtering if no tokens (e.g., query was only connector words)
-        if (!hasTokens) {
+        // Skip filtering if query contains no meaningful criteria
+        if (!filterSearchHasActiveCriteria(tokens)) {
             return baseFiles;
         }
 
-        // Get database instance for tag lookups
+        // Check if we need to access tag metadata for any file
+        const needsTagLookup = filterSearchNeedsTagLookup(tokens);
+        // Check if all inclusion clauses require files to have tags
+        const requireTaggedMatches = filterSearchRequiresTagsForEveryMatch(tokens);
+        const requiresNormalizedTagValues = tokens.mode === 'tag' || tokens.tagTokens.length > 0 || tokens.excludeTagTokens.length > 0;
+
         const db = getDB();
 
-        // Local cache for lowercase tags to avoid repeated transformations
-        const lowercaseTagCache = new Map<string, string[]>();
+        // Cache normalized tag arrays to avoid repeated string transformations
+        const normalizedTagCache = new Map<string, string[]>();
+        const emptyTags: string[] = [];
+
+        // Get or compute normalized tags for a file path
+        const resolveNormalizedTags = (path: string, rawTags: readonly string[]): string[] => {
+            const cached = normalizedTagCache.get(path);
+            if (cached !== undefined) {
+                return cached;
+            }
+            const normalized = rawTags.map(tag => normalizeTagPathValue(tag)).filter((value): value is string => value.length > 0);
+            normalizedTagCache.set(path, normalized);
+            return normalized;
+        };
 
         const filteredByFilterSearch = baseFiles.filter(file => {
-            const name = searchableNames.get(file.path) || '';
+            const lowercaseName = searchableNames.get(file.path) || '';
 
-            // Performance optimization: Only access the tag cache when the query actually
-            // references tags (either for inclusion or exclusion). This avoids expensive
-            // tag lookups for simple name-only searches.
-            const needsTags =
-                tokens.requireTagged || tokens.tagTokens.length > 0 || tokens.excludeTagged || tokens.excludeTagTokens.length > 0;
-
-            let lowercaseTags: string[] = [];
-            if (needsTags) {
-                const tags = db.getCachedTags(file.path);
-                if (tags.length === 0) {
-                    // File has no tags - fail if we require tags for inclusion
-                    if (tokens.requireTagged || tokens.tagTokens.length > 0) {
-                        return false;
-                    }
-                    // Otherwise, continue with empty tag array for exclusion checks
-                    lowercaseTags = [];
-                } else {
-                    // Performance optimization: Cache lowercase tag arrays to avoid repeated
-                    // toLowerCase() calls when checking multiple files
-                    let cached = lowercaseTagCache.get(file.path);
-                    if (!cached) {
-                        cached = tags.map(tag => normalizeTagPathValue(tag)).filter((value): value is string => value.length > 0);
-                        lowercaseTagCache.set(file.path, cached);
-                    }
-                    lowercaseTags = cached;
-                }
+            // Skip tag lookup if tokens do not reference tags
+            if (!needsTagLookup) {
+                return fileMatchesFilterTokens(lowercaseName, emptyTags, tokens);
             }
 
-            return fileMatchesFilterTokens(name, lowercaseTags, tokens);
+            const rawTags = db.getCachedTags(file.path);
+            const hasTags = rawTags.length > 0;
+
+            // Early return if file must have tags but has none
+            if (requireTaggedMatches && !hasTags) {
+                return false;
+            }
+
+            let lowercaseTags: string[];
+            if (!hasTags) {
+                lowercaseTags = emptyTags;
+            } else if (requiresNormalizedTagValues) {
+                lowercaseTags = resolveNormalizedTags(file.path, rawTags);
+            } else {
+                lowercaseTags = TAG_PRESENCE_SENTINEL;
+            }
+
+            return fileMatchesFilterTokens(lowercaseName, lowercaseTags, tokens);
         });
 
         // Return the filtered results from the internal filter search
         return filteredByFilterSearch;
-    }, [useOmnisearch, trimmedQuery, baseFiles, searchableNames, omnisearchResult, getDB]);
+    }, [useOmnisearch, trimmedQuery, baseFiles, searchableNames, omnisearchResult, getDB, searchTokens]);
 
     // Builds map of file paths that are normally hidden but shown via "show hidden items"
     const hiddenFileState = useMemo(() => {

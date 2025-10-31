@@ -18,7 +18,7 @@
 
 import { getDefaultKeyboardShortcuts } from '../utils/keyboardShortcuts';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
-import { NAVPANE_MEASUREMENTS, type PinnedNotes } from '../types';
+import { LISTPANE_MEASUREMENTS, NAVPANE_MEASUREMENTS, type PinnedNotes } from '../types';
 import { DEFAULT_UI_SCALE } from '../utils/uiScale';
 import type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
 import type { NotebookNavigatorSettings } from './types';
@@ -100,6 +100,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     noteGrouping: 'date',
     filterPinnedByFolder: false,
     optimizeNoteHeight: true,
+    slimItemHeight: LISTPANE_MEASUREMENTS.defaultSlimItemHeight,
+    slimItemHeightScaleText: true,
     showQuickActions: true,
     quickActionRevealInFolder: true,
     quickActionPinNote: true,

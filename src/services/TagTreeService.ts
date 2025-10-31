@@ -26,14 +26,16 @@ import { ITagTreeProvider } from '../interfaces/ITagTreeProvider';
  */
 export class TagTreeService implements ITagTreeProvider {
     private tagTree: Map<string, TagTreeNode> = new Map();
+    private taggedCount = 0;
     private untaggedCount = 0;
 
     /**
      * Updates the tag tree data from StorageContext
      * Called whenever StorageContext rebuilds the tag tree
      */
-    updateTagTree(tree: Map<string, TagTreeNode>, untagged: number): void {
+    updateTagTree(tree: Map<string, TagTreeNode>, tagged: number, untagged: number): void {
         this.tagTree = tree;
+        this.taggedCount = tagged;
         this.untaggedCount = untagged;
     }
 
@@ -75,5 +77,11 @@ export class TagTreeService implements ITagTreeProvider {
      */
     collectTagPaths(node: TagTreeNode): Set<string> {
         return collectAllTagPaths(node);
+    }
+    /**
+     * Gets the count of tagged files
+     */
+    getTaggedCount(): number {
+        return this.taggedCount;
     }
 }

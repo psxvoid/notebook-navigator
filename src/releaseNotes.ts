@@ -73,6 +73,18 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.7.3',
+        date: '2025-11-04',
+        showOnUpdate: true,
+        new: [
+            'Multi-tag selection! You can now command+click tags to select multiple tags in list pane with "AND", or shift+click to select multiple tags with "OR".',
+            'New setting: ==List Pane > Slim item height==. Use it to reduce line spacing in list pane with slim mode enabled.'
+        ],
+        improved: ['You can now click the "Tags" folder to view all notes with tags.'],
+        changed: ['Changed ZH-CN translation for "Untitled" to 未命名 to match Obsidian default.'],
+        fixed: []
+    },
+    {
         version: '1.7.2',
         date: '2025-10-28',
         showOnUpdate: false,

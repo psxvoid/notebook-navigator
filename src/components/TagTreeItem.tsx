@@ -59,6 +59,7 @@ import { ItemType } from '../types';
 import { TagTreeNode } from '../types/storage';
 import type { NoteCountInfo } from '../types/noteCounts';
 import { buildNoteCountDisplay } from '../utils/noteCountFormatting';
+import { buildSearchMatchContentClass } from '../utils/searchHighlight';
 import { getTotalNoteCount } from '../utils/tagTree';
 
 /**
@@ -76,7 +77,7 @@ interface TagTreeItemProps {
     /** Callback when the expand/collapse chevron is clicked */
     onToggle: () => void;
     /** Callback when the tag name is clicked */
-    onClick: () => void;
+    onClick: (event: React.MouseEvent) => void;
     /** Callback when all sibling tags should be toggled */
     onToggleAllSiblings?: () => void;
     /** Pre-computed note counts for this tag (current and descendants) */
@@ -91,6 +92,8 @@ interface TagTreeItemProps {
     icon?: string;
     /** Whether this tag is normally hidden but being shown */
     isHidden?: boolean;
+    /** Indicates if the tag is referenced by the active search query */
+    searchMatch?: 'include' | 'exclude';
 }
 
 /**
@@ -113,7 +116,8 @@ export const TagTreeItem = React.memo(
             showFileCount,
             color,
             backgroundColor,
-            icon
+            icon,
+            searchMatch
         },
         ref
     ) {
@@ -171,6 +175,9 @@ export const TagTreeItem = React.memo(
             if (applyColorToName) classes.push('nn-has-custom-color');
             return classes.join(' ');
         }, [applyColorToName]);
+
+        // Apply search highlight classes when tag matches include or exclude filters
+        const contentClassName = useMemo(() => buildSearchMatchContentClass(['nn-navitem-content'], searchMatch), [searchMatch]);
 
         // Stable event handlers
         const handleDoubleClick = useCallback(
@@ -230,6 +237,7 @@ export const TagTreeItem = React.memo(
                 ref={itemRef}
                 className={className}
                 data-tag={tagNode.path}
+                data-search-match={searchMatch ?? undefined}
                 // Drop zone type (folder or tag)
                 data-drop-zone="tag"
                 // Target path for drop operations on this tag
@@ -245,7 +253,7 @@ export const TagTreeItem = React.memo(
                 aria-expanded={hasChildren ? isExpanded : undefined}
                 aria-level={level + 1}
             >
-                <div className="nn-navitem-content" onClick={onClick} onDoubleClick={handleDoubleClick}>
+                <div className={contentClassName} onClick={onClick} onDoubleClick={handleDoubleClick}>
                     <div
                         ref={chevronRef}
                         className={`nn-navitem-chevron ${hasChildren ? 'nn-navitem-chevron--has-children' : 'nn-navitem-chevron--no-children'}`}

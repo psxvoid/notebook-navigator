@@ -19,7 +19,7 @@
 import { TFile, TFolder, App } from 'obsidian';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { NavigatorContext, PinnedNotes, VisibilityPreferences } from '../types';
-import { UNTAGGED_TAG_ID } from '../types';
+import { TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import {
     shouldExcludeFile,
     shouldExcludeFolder,
@@ -279,6 +279,21 @@ export function getFilesForTag(
             // Check if the markdown file has tags using our cache
             const fileTags = db.getCachedTags(file.path);
             return fileTags.length === 0;
+        });
+    } else if (tag === TAGGED_TAG_ID) {
+        // Include markdown files that have at least one tag, respecting hidden tag visibility
+        const markdownFiles = baseFiles.filter(file => file.extension === 'md');
+        filteredFiles = markdownFiles.filter(file => {
+            const fileTags = db.getCachedTags(file.path);
+            if (fileTags.length === 0) {
+                return false;
+            }
+
+            if (!shouldFilterHiddenTags) {
+                return true;
+            }
+
+            return fileTags.some(tagValue => hiddenTagVisibility.isTagVisible(normalizeTagPathValue(tagValue)));
         });
     } else {
         // For regular tags, only consider markdown files since only they can have tags

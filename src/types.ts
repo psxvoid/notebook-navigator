@@ -36,6 +36,12 @@ export const NOTEBOOK_NAVIGATOR_VIEW = 'notebook-navigator';
 export const UNTAGGED_TAG_ID = '__untagged__';
 
 /**
+ * Special tag identifier representing all tagged notes
+ * Mirrors untagged constant to keep virtual collections consistent
+ */
+export const TAGGED_TAG_ID = '__tagged__';
+
+/**
  * Identifies which pane currently has keyboard focus
  * Used for keyboard navigation between folder tree and file list
  */
@@ -165,13 +171,20 @@ export const OVERSCAN = 10;
  * Used by ListPane component for calculating item heights
  */
 export const LISTPANE_MEASUREMENTS = {
+    // Default slim mode metrics
+    defaultSlimItemHeight: 28, // Desktop slim item height
+    defaultSlimFontSize: 13, // Desktop slim mode font size
+    mobileHeightIncrement: 8, // Mobile slim item height is desktop + 8px
+    mobileFontSizeIncrement: 2, // Mobile slim font size is desktop + 2px
+    minSlimPaddingVerticalMobile: 6, // Minimum mobile padding per side
+
     // Date group headers
     firstHeader: 35, // var(--nn-date-header-height)
     subsequentHeader: 50, // var(--nn-date-header-height-subsequent)
 
     // File item components
     basePadding: 16, // var(--nn-file-padding-total) = var(--nn-file-padding-vertical) * 2
-    slimPadding: 10, // var(--nn-file-padding-vertical-slim) * 2
+    slimPadding: 8, // var(--nn-file-padding-vertical-slim) * 2
     slimPaddingMobile: 16, // var(--nn-file-padding-vertical-slim-mobile) * 2
     titleLineHeight: 20, // var(--nn-file-title-line-height)
     singleTextLineHeight: 19, // var(--nn-file-single-text-line-height)

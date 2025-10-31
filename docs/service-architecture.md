@@ -429,15 +429,16 @@ Bridge between React storage state and non-React consumers that need tag data.
 
 **Responsibilities:**
 
-- Stores latest tag tree snapshot and untagged count.
+- Stores latest tag tree snapshot and tagged/untagged counts.
 - Provides lookup helpers used by services outside React.
 
 **Key Methods:**
 
 ```typescript
-updateTagTree(tree: Map<string, TagTreeNode>, untagged: number): void
+updateTagTree(tree: Map<string, TagTreeNode>, tagged: number, untagged: number): void
 getTagTree(): Map<string, TagTreeNode>
 getUntaggedCount(): number
+getTaggedCount(): number
 findTagNode(tagPath: string): TagTreeNode | null
 getAllTagPaths(): string[]
 collectTagPaths(node: TagTreeNode): Set<string>

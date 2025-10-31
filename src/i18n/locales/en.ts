@@ -600,6 +600,15 @@ export const STRINGS_EN = {
                 name: 'Optimize note height',
                 desc: 'Reduce height for pinned notes and notes without preview text.'
             },
+            slimItemHeight: {
+                name: 'Slim item height',
+                desc: 'Set the height of slim list items on desktop and mobile.',
+                resetTooltip: 'Restore to default (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: 'Scale text with slim item height',
+                desc: 'Scale slim list text when the item height is reduced.'
+            },
             showParentFolderNames: {
                 name: 'Show parent folder names',
                 desc: 'Display the parent folder name for notes in subfolders or tags.'
