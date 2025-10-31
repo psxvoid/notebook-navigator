@@ -1126,14 +1126,27 @@ body {
 .nn-navitem-content--search-include,
 .nn-navitem-content--search-exclude {
     position: relative;
-    z-index: 2;
+    z-index: 1;
 }
 
-.nn-navitem-content--search-include {
+.nn-navitem-content--search-include::before,
+.nn-navitem-content--search-exclude::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inset-inline-end: 0;
+    inset-inline-start: calc(var(--level, 0) * var(--nn-setting-nav-indent) * -1);
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
+    pointer-events: none;
+    z-index: -1;
+}
+
+.nn-navitem-content--search-include::before {
     background-color: var(--nn-theme-tag-positive-bg);
 }
 
-.nn-navitem-content--search-exclude {
+.nn-navitem-content--search-exclude::before {
     background-color: var(--nn-theme-tag-negative-bg);
 }
 
