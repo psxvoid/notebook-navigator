@@ -445,8 +445,8 @@ const parseFilterModeTokens = (
         }
     }
 
-    // Treat connector words as name tokens if no other meaningful tokens exist
-    if (nameTokens.length === 0 && tagTokens.length === 0 && connectorCandidates.length > 0) {
+    // Treat connector words as literal tokens when not in tag mode
+    if (connectorCandidates.length > 0) {
         nameTokens.push(...connectorCandidates);
     }
 

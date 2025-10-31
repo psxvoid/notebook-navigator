@@ -47,13 +47,13 @@ describe('parseFilterSearchTokens', () => {
         expect(tokens.includeUntagged).toBe(false);
     });
 
-    it('treats explicit AND as connector between tokens', () => {
+    it('keeps explicit AND as literal token outside tag mode', () => {
         const tokens = parseFilterSearchTokens('#yta and plat');
         expect(tokens.mode).toBe('filter');
         expect(tokens.requiresTags).toBe(true);
         expect(tokens.allRequireTags).toBe(true);
         expect(tokens.includedTagTokens).toEqual(['yta']);
-        expect(tokens.nameTokens).toEqual(['plat']);
+        expect(sortTokens(tokens.nameTokens)).toEqual(['and', 'plat']);
         expect(tokens.includeUntagged).toBe(false);
     });
 
@@ -90,6 +90,22 @@ describe('parseFilterSearchTokens', () => {
         expect(tokens.includeUntagged).toBe(false);
     });
 
+    it('treats trailing connector as literal with name tokens', () => {
+        const tokens = parseFilterSearchTokens('openai and');
+        expect(tokens.mode).toBe('filter');
+        expect(tokens.requiresTags).toBe(false);
+        expect(tokens.tagTokens).toEqual([]);
+        expect(sortTokens(tokens.nameTokens)).toEqual(['and', 'openai']);
+    });
+
+    it('treats leading connector as literal with name tokens', () => {
+        const tokens = parseFilterSearchTokens('or openai');
+        expect(tokens.mode).toBe('filter');
+        expect(tokens.requiresTags).toBe(false);
+        expect(tokens.tagTokens).toEqual([]);
+        expect(sortTokens(tokens.nameTokens)).toEqual(['openai', 'or']);
+    });
+
     it('sets requireTagged when query is only hash', () => {
         const tokens = parseFilterSearchTokens('#');
         expect(tokens.mode).toBe('tag');
@@ -106,7 +122,7 @@ describe('parseFilterSearchTokens', () => {
         expect(tokens.requiresTags).toBe(true);
         expect(tokens.allRequireTags).toBe(true);
         expect(sortTokens(tokens.includedTagTokens)).toEqual(['alpha']);
-        expect(tokens.nameTokens).toEqual(['plan']);
+        expect(sortTokens(tokens.nameTokens)).toEqual(['or', 'plan']);
         expect(tokens.includeUntagged).toBe(false);
     });
 
@@ -258,10 +274,11 @@ describe('fileMatchesFilterTokens', () => {
         expect(fileMatchesFilterTokens('platform plan', ['archive'], tokens)).toBe(false);
     });
 
-    it('requires all terms in filter mode when connectors are used with plain text', () => {
+    it('requires every literal token when connectors appear with plain text', () => {
         const tokens = parseFilterSearchTokens('alpha OR beta');
         expect(tokens.mode).toBe('filter');
-        expect(fileMatchesFilterTokens('alpha beta notes', [], tokens)).toBe(true);
+        expect(fileMatchesFilterTokens('alpha or beta notes', [], tokens)).toBe(true);
+        expect(fileMatchesFilterTokens('alpha beta notes', [], tokens)).toBe(false);
         expect(fileMatchesFilterTokens('alpha notes', [], tokens)).toBe(false);
         expect(fileMatchesFilterTokens('beta summary', [], tokens)).toBe(false);
     });
@@ -286,8 +303,8 @@ describe('fileMatchesFilterTokens', () => {
     it('requires matching both name and tag in mixed filter mode queries', () => {
         const tokens = parseFilterSearchTokens('#alpha OR plan');
         expect(tokens.mode).toBe('filter');
-        expect(fileMatchesFilterTokens('project plan', ['alpha'], tokens)).toBe(true);
-        expect(fileMatchesFilterTokens('project plan', [], tokens)).toBe(false);
+        expect(fileMatchesFilterTokens('project or plan', ['alpha'], tokens)).toBe(true);
+        expect(fileMatchesFilterTokens('project or plan', [], tokens)).toBe(false);
         expect(fileMatchesFilterTokens('roadmap', ['projects/alpha'], tokens)).toBe(false);
     });
 
