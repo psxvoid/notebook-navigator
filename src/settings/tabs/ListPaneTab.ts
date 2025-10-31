@@ -112,6 +112,19 @@ export function renderListPaneTab(context: SettingsTabContext): void {
                 })
         );
 
+    // Sub-settings container for group notes options
+    const groupNotesSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(groupNotesSettingsEl)
+        .setName(strings.settings.items.showPinnedGroupHeader.name)
+        .setDesc(strings.settings.items.showPinnedGroupHeader.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showPinnedGroupHeader).onChange(async value => {
+                plugin.settings.showPinnedGroupHeader = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
     new Setting(containerEl)
         .setName(strings.settings.items.optimizeNoteHeight.name)
         .setDesc(strings.settings.items.optimizeNoteHeight.desc)

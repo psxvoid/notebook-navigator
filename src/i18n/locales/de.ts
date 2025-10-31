@@ -600,6 +600,10 @@ export const STRINGS_DE = {
                     folder: 'Nach Ordner gruppieren'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'Überschrift für angeheftete Notizen anzeigen',
+                desc: 'Zeigt die Überschrift des Abschnitts für angeheftete Notizen an.'
+            },
             optimizeNoteHeight: {
                 name: 'Notizenhöhe optimieren',
                 desc: 'Höhe für angeheftete Notizen und Notizen ohne Vorschautext reduzieren.'

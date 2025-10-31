@@ -596,6 +596,10 @@ export const STRINGS_KO = {
                     folder: '폴더별 그룹'
                 }
             },
+            showPinnedGroupHeader: {
+                name: '고정 그룹 헤더 표시',
+                desc: '고정된 노트 위에 섹션 헤더를 표시합니다.'
+            },
             optimizeNoteHeight: {
                 name: '노트 높이 최적화',
                 desc: '고정된 노트와 미리보기 텍스트가 없는 노트의 높이를 줄입니다.'

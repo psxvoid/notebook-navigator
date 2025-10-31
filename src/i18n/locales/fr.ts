@@ -598,6 +598,10 @@ export const STRINGS_FR = {
                     folder: 'Grouper par dossier'
                 }
             },
+            showPinnedGroupHeader: {
+                name: "Afficher l'en-tête du groupe épinglé",
+                desc: "Affiche l'en-tête de la section des notes épinglées."
+            },
             optimizeNoteHeight: {
                 name: 'Optimiser la hauteur des notes',
                 desc: "Réduire la hauteur pour les notes épinglées et les notes sans texte d'aperçu."

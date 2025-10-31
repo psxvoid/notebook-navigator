@@ -126,6 +126,7 @@ export interface NotebookNavigatorSettings {
     multiSelectModifier: MultiSelectModifier;
     noteGrouping: ListNoteGroupingOption;
     filterPinnedByFolder: boolean;
+    showPinnedGroupHeader: boolean;
     optimizeNoteHeight: boolean;
     slimItemHeight: number;
     slimItemHeightScaleText: boolean;

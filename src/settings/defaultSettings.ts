@@ -99,6 +99,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     multiSelectModifier: 'cmdCtrl',
     noteGrouping: 'date',
     filterPinnedByFolder: false,
+    showPinnedGroupHeader: true,
     optimizeNoteHeight: true,
     slimItemHeight: LISTPANE_MEASUREMENTS.defaultSlimItemHeight,
     slimItemHeightScaleText: true,

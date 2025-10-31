@@ -598,6 +598,10 @@ export const STRINGS_PL = {
                     folder: 'Grupuj według folderu'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'Pokaż nagłówek grupy przypiętych',
+                desc: 'Wyświetla nagłówek sekcji przypiętych notatek.'
+            },
             optimizeNoteHeight: {
                 name: 'Optymalizuj wysokość notatek',
                 desc: 'Zmniejsz wysokość dla przypiętych notatek i notatek bez tekstu podglądu.'

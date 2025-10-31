@@ -480,13 +480,18 @@ export function useListPaneData({
             items.push({ ...baseItem, ...overrides });
         };
 
+        // Controls whether to show header above pinned notes section
+        const showPinnedGroupHeader = settings.showPinnedGroupHeader ?? true;
+
         // Add pinned files
         if (pinnedFiles.length > 0) {
-            items.push({
-                type: ListPaneItemType.HEADER,
-                data: strings.listPane.pinnedSection,
-                key: `header-pinned`
-            });
+            if (showPinnedGroupHeader) {
+                items.push({
+                    type: ListPaneItemType.HEADER,
+                    data: strings.listPane.pinnedSection,
+                    key: `header-pinned`
+                });
+            }
             pinnedFiles.forEach(file => {
                 pushFileItem(file, { isPinned: true });
             });
@@ -502,7 +507,7 @@ export function useListPaneData({
 
         if (!shouldGroupByDate && !shouldGroupByFolder) {
             // No grouping
-            // If we showed a pinned section and have regular items, insert a split header
+            // If pinned notes exist and there are regular items, insert a header before regular notes
             if (pinnedFiles.length > 0 && unpinnedFiles.length > 0) {
                 const label =
                     settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS ? strings.listPane.notesSection : strings.listPane.filesSection;

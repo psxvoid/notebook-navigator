@@ -595,6 +595,10 @@ export const STRINGS_ZH_TW = {
                     folder: '依資料夾分組'
                 }
             },
+            showPinnedGroupHeader: {
+                name: '顯示釘選群組標題',
+                desc: '在釘選筆記上方顯示分組標題。'
+            },
             optimizeNoteHeight: {
                 name: '最佳化筆記高度',
                 desc: '減少釘選筆記和無預覽文字筆記的高度。'

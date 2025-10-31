@@ -117,6 +117,7 @@ body {
     --nn-theme-navitem-selected-count-color: var(--nn-theme-navitem-count-color);
     --nn-theme-navitem-selected-count-bg: var(--nn-theme-navitem-count-bg);
     --nn-theme-navitem-selected-inactive-bg: var(--background-modifier-hover);
+    --nn-theme-navitem-selected-inactive-name-color: var(--nn-theme-navitem-name-color);
     --nn-theme-tag-positive-bg: #00800033;
     --nn-theme-tag-negative-bg: #ff000033;
 
@@ -164,6 +165,7 @@ body {
     --nn-theme-file-selected-tag-color: var(--nn-theme-file-tag-color);
     --nn-theme-file-selected-tag-bg: var(--nn-theme-file-tag-bg);
     --nn-theme-file-selected-inactive-bg: var(--background-modifier-hover);
+    --nn-theme-file-selected-inactive-name-color: var(--nn-theme-file-selected-name-color);
 
     /* -- File Item Text Styling -- */
     --nn-theme-list-group-header-font-weight: 600;
@@ -2065,6 +2067,17 @@ body {
     color: var(--nn-file-name-custom-color);
 }
 
+/* Inactive file name color when list pane is not focused */
+.nn-split-container[data-navigator-focused='false'] .nn-file.nn-selected .nn-file-name:not([data-has-color='true']),
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation']
+    .nn-file.nn-selected
+    .nn-file-name:not([data-has-color='true']),
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='search']
+    .nn-file.nn-selected
+    .nn-file-name:not([data-has-color='true']) {
+    color: var(--nn-theme-file-selected-inactive-name-color);
+}
+
 /* ========================================================================
    Feature Image Styles
    ======================================================================== */
@@ -2364,6 +2377,13 @@ body {
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-navitem.nn-selected::before {
     background-color: var(--nn-theme-navitem-selected-inactive-bg);
+}
+
+/* Inactive navigation item name color when navigation pane is not focused */
+.nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected .nn-navitem-name,
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected .nn-navitem-name,
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-navitem.nn-selected .nn-navitem-name {
+    color: var(--nn-theme-navitem-selected-inactive-name-color);
 }
 
 /* Active navigation item selection styles - only when navigation pane is focused */
@@ -4521,6 +4541,15 @@ settings:
         default-dark: '#'
     -
     -
+        id: nn-theme-navitem-selected-inactive-name-color
+        title: Selected name color (inactive)
+        description: Folder/tag name color when selected and pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
         id: nn-theme-tag-positive-bg
         title: Tag highlight (include)
         description: Background color for positive tag highlights and tag drop targets.
@@ -4925,6 +4954,15 @@ settings:
         id: nn-theme-file-selected-inactive-bg
         title: Selection background (inactive)
         description: Selected file background color when pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-file-selected-inactive-name-color
+        title: Selected file name color (inactive)
+        description: File name color when selected and pane is inactive.
         type: variable-themed-color
         format: hex
         default-light: '#'

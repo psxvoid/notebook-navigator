@@ -597,6 +597,10 @@ export const STRINGS_JA = {
                     folder: 'フォルダでグループ化'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'ピン留めグループヘッダーを表示',
+                desc: 'ピン留めされたノートの上にセクションヘッダーを表示します。'
+            },
             optimizeNoteHeight: {
                 name: 'ノートの高さを最適化',
                 desc: 'ピン留めされたノートとプレビューテキストのないノートの高さを削減。'

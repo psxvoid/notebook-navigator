@@ -78,9 +78,13 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [
             'Multi-tag selection! You can now command+click tags to select multiple tags in list pane with "AND", or shift+click to select multiple tags with "OR".',
-            'New setting: ==List Pane > Slim item height==. Use it to reduce line spacing in list pane with slim mode enabled.'
+            'New setting: ==List Pane > Slim item height==. Use it to reduce line spacing in list pane with slim mode enabled.',
+            'New setting: ==List Pane > Show pinned group header==. Toggle to hide the section header above pinned notes.'
         ],
-        improved: ['You can now click the "Tags" folder to view all notes with tags.'],
+        improved: [
+            'You can now click the "Tags" folder to view all notes with tags.',
+            'Added theme variables for selected folder and file names when pane is inactive.'
+        ],
         changed: ['Changed ZH-CN translation for "Untitled" to 未命名 to match Obsidian default.'],
         fixed: []
     },

@@ -596,6 +596,10 @@ export const STRINGS_ZH_CN = {
                     folder: '按文件夹分组'
                 }
             },
+            showPinnedGroupHeader: {
+                name: '显示固定组标题',
+                desc: '在固定笔记上方显示分组标题。'
+            },
             optimizeNoteHeight: {
                 name: '优化笔记高度',
                 desc: '减少固定笔记和无预览文本笔记的高度。'

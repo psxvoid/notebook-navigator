@@ -596,6 +596,10 @@ export const STRINGS_EN = {
                     folder: 'Group by folder'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'Show pinned group header',
+                desc: 'Display the pinned section header above pinned notes.'
+            },
             optimizeNoteHeight: {
                 name: 'Optimize note height',
                 desc: 'Reduce height for pinned notes and notes without preview text.'

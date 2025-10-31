@@ -597,6 +597,10 @@ export const STRINGS_ES = {
                     folder: 'Agrupar por carpeta'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'Mostrar encabezado del grupo anclado',
+                desc: 'Muestra el encabezado de la sección de notas ancladas.'
+            },
             optimizeNoteHeight: {
                 name: 'Optimizar altura de notas',
                 desc: 'Reducir altura para notas ancladas y notas sin texto de vista previa.'
