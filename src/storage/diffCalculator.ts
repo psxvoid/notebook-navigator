@@ -19,6 +19,7 @@
 import { TFile } from 'obsidian';
 import { FileData, FileDataCache } from './IndexedDBStorage';
 import { getDBInstance } from './fileOperations';
+import { EMPTY_MAP } from 'src/utils/empty';
 
 /**
  * DiffCalculator - Efficient vault state synchronization
@@ -50,26 +51,25 @@ import { getDBInstance } from './fileOperations';
  */
 export async function calculateFileDiff(
     currentFiles: TFile[],
-    cachedFiles?: Map<string, FileDataCache>
+    renamed: Map<string, FileDataCache>
 ): Promise<{
     toAdd: TFile[];
     toUpdate: TFile[];
     toRemove: string[];
     cachedFiles: Map<string, FileDataCache>;
 }> {
+    renamed ??= EMPTY_MAP
     const toAdd: TFile[] = [];
     const toUpdate: TFile[] = [];
     const toRemove: string[] = [];
 
     // Get cached files from database if not provided
-    if (!cachedFiles) {
-        const db = getDBInstance();
-        cachedFiles = new Map<string, FileData>();
-        // Get all files from cache
-        const allFiles = db.getAllFiles();
-        for (const { path, data } of allFiles) {
-            cachedFiles.set(path, data);
-        }
+    const db = getDBInstance();
+    const cachedFiles = new Map<string, FileData>();
+    // Get all files from cache
+    const allFiles = db.getAllFiles();
+    for (const { path, data } of allFiles) {
+        cachedFiles.set(path, data);
     }
 
     // Create a set of current file paths for quick lookup
@@ -85,7 +85,7 @@ export async function calculateFileDiff(
         if (!cached) {
             // New file not in cache
             toAdd.push(file);
-        } else if (file.stat.mtime !== cached.mtime) {
+        } else if (file.stat.mtime !== cached.mtime || renamed.has(file.path)) {
             // File modified since last cache
             toUpdate.push(file);
         }

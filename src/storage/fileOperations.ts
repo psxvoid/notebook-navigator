@@ -179,7 +179,7 @@ export async function recordFileChanges(
         // the mtime mismatch and regenerate content as needed.
     }
 
-    await db.setFiles(updates);
+    await db.setFiles(updates, true);
 }
 
 /**

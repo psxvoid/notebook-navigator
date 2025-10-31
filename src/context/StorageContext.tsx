@@ -1063,7 +1063,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     // toUpdate: Files modified since last cached (mtime mismatch)
                     // toRemove: Files in database but not in vault (deleted files)
                     // cachedFiles: Current database state for comparison
-                    const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
+                    const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles, pendingRenameDataRef.current);
 
                     // Step 2: Update database with changes
                     if (toRemove.length > 0) {
@@ -1143,7 +1143,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 const processDiff = async () => {
                     if (stoppedRef.current) return;
                     try {
-                        const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
+                        const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles, pendingRenameDataRef.current);
 
                         if (toAdd.length > 0 || toUpdate.length > 0 || toRemove.length > 0) {
                             try {
@@ -1312,15 +1312,19 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
          * Handles file rename events by preserving metadata from the old path.
          * This ensures that file icons, colors, and other metadata survive renames.
          */
-        const handleRename = (file: TAbstractFile, oldPath: string) => {
+        const handleRename = async (file: TAbstractFile, oldPath: string) => {
             if (file instanceof TFile) {
                 try {
                     const db = getDBInstance();
                     const existing = db.getFile(oldPath);
-                    if (existing) {
-                        pendingRenameDataRef.current.set(file.path, existing);
+                    const existingFull = existing?.featureImage != null
+                        ? await db.getFileWithPreview(oldPath)
+                        : existing
+
+                    if (existingFull) {
+                        pendingRenameDataRef.current.set(file.path, existingFull);
                         // Preload memory cache with existing data to avoid re-fetching after rename
-                        db.seedMemoryFile(file.path, existing);
+                        db.seedMemoryFile(file.path, existingFull);
                     }
                 } catch (error) {
                     console.error('Failed to capture renamed file data:', error);
@@ -1481,7 +1485,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             (async () => {
                 try {
                     const allFiles = getIndexableMarkdownFiles();
-                    const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
+                    const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles, pendingRenameDataRef.current);
 
                     if (toRemove.length > 0) {
                         await removeFilesFromCache(toRemove);

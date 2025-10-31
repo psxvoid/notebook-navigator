@@ -82,6 +82,16 @@ export interface FileContentChange {
     changeType?: 'metadata' | 'content' | 'both';
 }
 
+function createNotification(path: string, changes: FileContentChange['changes'] = {}): FileContentChange | undefined {
+    const hasContentUpdates = changes.preview !== undefined || changes.featureImage !== undefined;
+    const hasMetadataUpdates = changes.metadata !== undefined || changes.tags !== undefined;
+
+    if (hasContentUpdates || hasMetadataUpdates) {
+        const updateType = hasContentUpdates && hasMetadataUpdates ? 'both' : hasContentUpdates ? 'content' : 'metadata';
+        return { path: path, changes, changeType: updateType };
+    }
+}
+
 /**
  * IndexedDBStorage - Browser's IndexedDB wrapper for persistent file storage
  *
@@ -605,7 +615,7 @@ export class IndexedDBStorage {
      *
      * @param files - Array of file data with paths to store
      */
-    async setFiles(files: { path: string; data: FileDataCache }[]): Promise<void> {
+    async setFiles(files: { path: string; data: FileData }[], emit: boolean = false): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -635,6 +645,9 @@ export class IndexedDBStorage {
 
             transaction.oncomplete = () => {
                 this.cache.batchUpdate(files);
+                if (emit) {
+                    this.emitChanges(files.map(file => createNotification(file.path, file.data)).filter(x => x != null));
+                }
                 resolve();
             };
             transaction.onabort = () => {
