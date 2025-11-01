@@ -625,13 +625,21 @@ export function useListPaneData({
 
             // Add groups and their files to the items list
             orderedGroups.forEach(group => {
-                // Skip header for current folder if there are no pinned notes
-                const shouldSkipHeader = group.isCurrentFolder && pinnedFiles.length === 0;
-                if (!shouldSkipHeader) {
+                if (group.files.length === 0) {
+                    return;
+                }
+
+                if (!group.isCurrentFolder) {
                     items.push({
                         type: ListPaneItemType.HEADER,
                         data: group.label,
                         key: `header-${group.key}`
+                    });
+                } else if (pinnedFiles.length > 0) {
+                    items.push({
+                        type: ListPaneItemType.GROUP_SPACER,
+                        data: '',
+                        key: `spacer-${group.key}`
                     });
                 }
 

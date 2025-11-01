@@ -63,6 +63,7 @@ export const ItemType = {
  */
 export const ListPaneItemType = {
     HEADER: 'header',
+    GROUP_SPACER: 'group-spacer',
     FILE: 'file',
     TOP_SPACER: 'top-spacer',
     BOTTOM_SPACER: 'bottom-spacer'
@@ -194,6 +195,7 @@ export const LISTPANE_MEASUREMENTS = {
     featureImageHeight: 42, // var(--nn-feature-image-min-size)
 
     // Spacers
+    groupSpacer: 24,
     bottomSpacer: 20,
     topSpacer: 8
 };
