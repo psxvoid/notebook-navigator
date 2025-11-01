@@ -94,7 +94,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'File reveal now preserve folder selection when "Show notes from subfolders" is enabled and a descendant folder contains the file.'
         ],
         changed: ['Changed ZH-CN translation for "Untitled" to 未命名 to match Obsidian default.'],
-        fixed: ['Date parsing in frontmatter now uses correct locale handling.']
+        fixed: [
+            'Date parsing in frontmatter now uses correct locale handling.',
+            'Drag and drop is broken on Android devices due to a Chromium bug. This was fixed by implementing a popup menu on Android devices to rearrange items.'
+        ]
     },
     {
         version: '1.7.2',

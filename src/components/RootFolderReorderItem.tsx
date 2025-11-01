@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
+import { strings } from '../i18n';
 
 /**
  * Props for a root folder item in reorder mode
@@ -13,14 +14,14 @@ interface RootFolderReorderItemProps {
     showDropIndicatorBefore?: boolean;
     showDropIndicatorAfter?: boolean;
     isDragSource?: boolean;
-    dragHandleLabel: string;
     onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
     chevronIcon?: string;
     isMissing?: boolean;
-    actions?: ReactNode;
     color?: string;
     itemType?: 'folder' | 'tag' | 'section'; // Type of navigation item (folder, tag, or section header)
     className?: string; // Additional CSS classes to apply to the item
+    dragHandleConfig?: DragHandleConfig;
+    trailingAccessory?: ReactNode;
 }
 
 /**
@@ -35,14 +36,14 @@ export function RootFolderReorderItem({
     showDropIndicatorBefore,
     showDropIndicatorAfter,
     isDragSource,
-    dragHandleLabel,
     onClick,
     chevronIcon,
     isMissing,
-    actions,
     color,
     itemType = 'folder',
-    className
+    className,
+    dragHandleConfig,
+    trailingAccessory
 }: RootFolderReorderItemProps) {
     // Prevents event bubbling for reorder item clicks to avoid triggering parent handlers
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -55,13 +56,15 @@ export function RootFolderReorderItem({
 
     // Configures the drag handle appearance when drag handlers are available
     // Shows a grip icon that allows users to reorder the root folder
-    const handleConfig: DragHandleConfig | undefined = dragHandlers
-        ? {
-              label: dragHandleLabel,
-              visible: true,
-              icon: 'lucide-grip-horizontal'
-          }
-        : undefined;
+    const handleConfig =
+        dragHandleConfig ??
+        (dragHandlers
+            ? {
+                  label: strings.navigationPane.dragHandleLabel,
+                  visible: true,
+                  icon: 'lucide-grip-horizontal'
+              }
+            : undefined);
 
     // Builds the CSS class names for the reorder item, combining base class with optional modifiers
     const rowClassName = (() => {
@@ -101,7 +104,7 @@ export function RootFolderReorderItem({
             ariaGrabbed={isDragSource}
             dragHandleConfig={handleConfig}
             chevronIcon={chevronIcon}
-            actions={actions}
+            trailingAccessory={trailingAccessory}
         />
     );
 }

@@ -1449,7 +1449,7 @@ body {
     flex-shrink: 0;
 }
 
-.nn-shortcut-actions {
+.nn-navitem-accessory {
     display: flex;
     gap: 0.25rem;
     margin-inline-start: 0.5rem;
