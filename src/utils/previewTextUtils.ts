@@ -308,11 +308,11 @@ export class PreviewTextUtils {
         // Remove leading task checkbox markers while keeping task text
         const withoutTaskCheckboxes = stripped.replace(/^\s*(?:[-*+]\s+|\d+\.\s+)?\[(?: |x|X|\/|-)?\]\]?\s*/gm, '');
 
-        // Remove lines that only contain dashes (like -, ---, ----- etc.)
-        const withoutDashLines = withoutTaskCheckboxes.replace(/^-+$/gm, '');
+        // Remove horizontal rule lines including spaced variants
+        const withoutHorizontalRules = withoutTaskCheckboxes.replace(/^\s*([*_-])(?:\s*\1){2,}\s*$/gm, '');
 
         // Clean up extra whitespace and truncate
-        const preview = withoutDashLines
+        const preview = withoutHorizontalRules
             .split(/\s+/) // Split on any whitespace
             .filter(word => word) // Remove empty strings
             .join(' ') // Join with single spaces

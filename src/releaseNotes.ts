@@ -87,10 +87,11 @@ const RELEASE_NOTES: ReleaseNote[] = [
         improved: [
             'You can now click the "Tags" folder to view all notes with tags.',
             'Significantly improved the way background color renders in navigation pane. This is a huge upgrade if you use background color for folders and tags in your vault!',
-            'Added theme variables for selected folder and file names when pane is inactive.'
+            'Horizontal rules are now removed from preview text.',
+            'Added two new theme variables for selected folder and selected file name when pane is inactive: --nn-theme-navitem-selected-inactive-name-color and --nn-theme-file-selected-inactive-name-color.'
         ],
         changed: ['Changed ZH-CN translation for "Untitled" to 未命名 to match Obsidian default.'],
-        fixed: []
+        fixed: ['Date parsing in frontmatter now uses correct locale handling.']
     },
     {
         version: '1.7.2',
