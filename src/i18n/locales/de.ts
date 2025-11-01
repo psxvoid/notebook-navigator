@@ -200,9 +200,11 @@ export const STRINGS_DE = {
         slimPreset: 'Schmal (ohne Datum/Vorschau/Bild)',
         titleRows: 'Titelzeilen',
         previewRows: 'Vorschauzeilen',
+        groupBy: 'Gruppieren nach',
         defaultOption: (rows: number) => `Standard (${rows})`,
         defaultTitleOption: (rows: number) => `Standard-Titelzeilen (${rows})`,
         defaultPreviewOption: (rows: number) => `Standard-Vorschauzeilen (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Standardgruppierung (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} Titelzeile${rows === 1 ? '' : 'n'}`,
         previewRowOption: (rows: number) => `${rows} Vorschauzeile${rows === 1 ? '' : 'n'}`
     },

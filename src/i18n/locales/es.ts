@@ -198,9 +198,11 @@ export const STRINGS_ES = {
         slimPreset: 'Compacto (sin fecha/vista previa/imagen)',
         titleRows: 'Filas de título',
         previewRows: 'Filas de vista previa',
+        groupBy: 'Agrupar por',
         defaultOption: (rows: number) => `Predeterminado (${rows})`,
         defaultTitleOption: (rows: number) => `Filas de título predeterminadas (${rows})`,
         defaultPreviewOption: (rows: number) => `Filas de vista previa predeterminadas (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Agrupación predeterminada (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} fila${rows === 1 ? '' : 's'} de título`,
         previewRowOption: (rows: number) => `${rows} fila${rows === 1 ? '' : 's'} de vista previa`
     },

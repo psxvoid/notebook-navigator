@@ -198,9 +198,11 @@ export const STRINGS_EN = {
         slimPreset: 'Slim (no date/preview/image)',
         titleRows: 'Title rows',
         previewRows: 'Preview rows',
+        groupBy: 'Group by',
         defaultOption: (rows: number) => `Default (${rows})`,
         defaultTitleOption: (rows: number) => `Default title rows (${rows})`,
         defaultPreviewOption: (rows: number) => `Default preview rows (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Default grouping (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} title row${rows === 1 ? '' : 's'}`,
         previewRowOption: (rows: number) => `${rows} preview row${rows === 1 ? '' : 's'}`
     },

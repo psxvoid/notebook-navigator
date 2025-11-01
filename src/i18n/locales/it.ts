@@ -199,9 +199,11 @@ export const STRINGS_IT = {
         slimPreset: 'Sottile (senza data/anteprima/immagine)',
         titleRows: 'Righe titolo',
         previewRows: 'Righe anteprima',
+        groupBy: 'Raggruppa per',
         defaultOption: (rows: number) => `Predefinito (${rows})`,
         defaultTitleOption: (rows: number) => `Righe titolo predefinite (${rows})`,
         defaultPreviewOption: (rows: number) => `Righe anteprima predefinite (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Raggruppamento predefinito (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} ${rows === 1 ? 'riga' : 'righe'} titolo`,
         previewRowOption: (rows: number) => `${rows} ${rows === 1 ? 'riga' : 'righe'} anteprima`
     },

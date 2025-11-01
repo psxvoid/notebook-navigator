@@ -198,9 +198,11 @@ export const STRINGS_FR = {
         slimPreset: 'Compact (sans date/aperçu/image)',
         titleRows: 'Lignes de titre',
         previewRows: "Lignes d'aperçu",
+        groupBy: 'Grouper par',
         defaultOption: (rows: number) => `Défaut (${rows})`,
         defaultTitleOption: (rows: number) => `Lignes de titre par défaut (${rows})`,
         defaultPreviewOption: (rows: number) => `Lignes d'aperçu par défaut (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Regroupement par défaut (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} ligne${rows === 1 ? '' : 's'} de titre`,
         previewRowOption: (rows: number) => `${rows} ligne${rows === 1 ? '' : 's'} d'aperçu`
     },

@@ -199,9 +199,11 @@ export const STRINGS_PT_BR = {
         slimPreset: 'Simples (sem data/visualização/imagem)',
         titleRows: 'Linhas do título',
         previewRows: 'Linhas de visualização',
+        groupBy: 'Agrupar por',
         defaultOption: (rows: number) => `Padrão (${rows})`,
         defaultTitleOption: (rows: number) => `Linhas de título padrão (${rows})`,
         defaultPreviewOption: (rows: number) => `Linhas de visualização padrão (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Agrupamento padrão (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} linha${rows === 1 ? '' : 's'} de título`,
         previewRowOption: (rows: number) => `${rows} linha${rows === 1 ? '' : 's'} de visualização`
     },

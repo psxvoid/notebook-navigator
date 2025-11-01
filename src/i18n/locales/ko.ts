@@ -197,9 +197,11 @@ export const STRINGS_KO = {
         slimPreset: '슬림 (날짜/미리보기/이미지 없음)',
         titleRows: '제목 행',
         previewRows: '미리보기 행',
+        groupBy: '그룹화 기준',
         defaultOption: (rows: number) => `기본 (${rows})`,
         defaultTitleOption: (rows: number) => `기본 제목 행 (${rows})`,
         defaultPreviewOption: (rows: number) => `기본 미리보기 행 (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `기본 그룹화 (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows}개 제목 행`,
         previewRowOption: (rows: number) => `${rows}개 미리보기 행`
     },

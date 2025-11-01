@@ -199,9 +199,11 @@ export const STRINGS_NL = {
         slimPreset: 'Compact (geen datum/voorbeeld/afbeelding)',
         titleRows: 'Titelrijen',
         previewRows: 'Voorbeeldrijen',
+        groupBy: 'Groeperen op',
         defaultOption: (rows: number) => `Standaard (${rows})`,
         defaultTitleOption: (rows: number) => `Standaard titelrijen (${rows})`,
         defaultPreviewOption: (rows: number) => `Standaard voorbeeldrijen (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Standaardgroepering (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} titelrij${rows === 1 ? '' : 'en'}`,
         previewRowOption: (rows: number) => `${rows} voorbeeldrij${rows === 1 ? '' : 'en'}`
     },

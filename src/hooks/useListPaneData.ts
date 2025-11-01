@@ -54,6 +54,7 @@ import type { NotebookNavigatorSettings } from '../settings';
 import type { FilterSearchTokens } from '../utils/filterSearch';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility, normalizeTagPathValue } from '../utils/tagPrefixMatcher';
+import { resolveListGrouping } from '../utils/listGrouping';
 
 const EMPTY_SEARCH_META = new Map<string, SearchResultMeta>();
 // Shared empty map used when no files are hidden to avoid allocations
@@ -497,12 +498,17 @@ export function useListPaneData({
             });
         }
 
-        // Add unpinned files using the configured grouping mode
-        const groupingMode = settings.noteGrouping ?? 'none';
+        // Resolve effective grouping mode (handles global default + per-folder/tag overrides)
+        const groupingInfo = resolveListGrouping({
+            settings,
+            selectionType: selectionType ?? undefined,
+            folderPath: selectedFolder ? selectedFolder.path : null,
+            tag: selectedTag ?? null
+        });
+        const groupingMode = groupingInfo.effectiveGrouping;
         const isTitleSort = sortOption.startsWith('title');
         // Date grouping is only applied when sorting by date
-        const shouldGroupByDate =
-            (groupingMode === 'date' || (groupingMode === 'folder' && selectionType === ItemType.TAG)) && !isTitleSort;
+        const shouldGroupByDate = groupingMode === 'date' && !isTitleSort;
         const shouldGroupByFolder = groupingMode === 'folder' && selectionType === ItemType.FOLDER;
 
         if (!shouldGroupByDate && !shouldGroupByFolder) {
@@ -663,6 +669,7 @@ export function useListPaneData({
         settings,
         selectionType,
         selectedFolder,
+        selectedTag,
         getFileCreatedTime,
         getFileModifiedTime,
         searchMetaMap,

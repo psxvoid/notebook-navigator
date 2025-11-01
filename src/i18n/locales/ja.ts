@@ -198,9 +198,11 @@ export const STRINGS_JA = {
         slimPreset: 'スリム（日付/プレビュー/画像なし）',
         titleRows: 'タイトル行数',
         previewRows: 'プレビュー行数',
+        groupBy: 'グループ分け',
         defaultOption: (rows: number) => `デフォルト (${rows})`,
         defaultTitleOption: (rows: number) => `デフォルトタイトル行数 (${rows})`,
         defaultPreviewOption: (rows: number) => `デフォルトプレビュー行数 (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `デフォルトのグループ化 (${groupLabel})`,
         titleRowOption: (rows: number) => `タイトル${rows}行`,
         previewRowOption: (rows: number) => `プレビュー${rows}行`
     },

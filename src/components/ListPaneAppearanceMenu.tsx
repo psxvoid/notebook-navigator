@@ -1,8 +1,10 @@
 import { Menu, TFolder } from 'obsidian';
 import { strings } from '../i18n';
 import { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
+import type { ListNoteGroupingOption } from '../settings/types';
 import { NotebookNavigatorSettings } from '../settings';
 import { ItemType } from '../types';
+import { resolveListGrouping } from '../utils/listGrouping';
 
 interface AppearanceMenuProps {
     event: MouseEvent;
@@ -81,13 +83,23 @@ export function showListPaneAppearanceMenu({
         appearance = settings.folderAppearances?.[selectedFolder.path];
     }
 
+    // Resolve grouping settings to detect custom overrides for this folder/tag
+    const groupingInfo = resolveListGrouping({
+        settings,
+        selectionType,
+        folderPath: selectedFolder ? selectedFolder.path : null,
+        tag: selectedTag ?? null
+    });
+    const hasCustomGroupBy = groupingInfo.hasCustomOverride;
+
     const hasAnyCustomValues =
         appearance &&
         (appearance.titleRows !== undefined ||
             appearance.previewRows !== undefined ||
             appearance.showDate !== undefined ||
             appearance.showPreview !== undefined ||
-            appearance.showImage !== undefined);
+            appearance.showImage !== undefined ||
+            hasCustomGroupBy);
 
     const isUsingDefaults = !hasAnyCustomValues;
 
@@ -104,7 +116,8 @@ export function showListPaneAppearanceMenu({
                     previewRows: undefined,
                     showDate: undefined,
                     showPreview: undefined,
-                    showImage: undefined
+                    showImage: undefined,
+                    groupBy: undefined
                 });
             });
     });
@@ -203,6 +216,44 @@ export function showListPaneAppearanceMenu({
                 });
         });
     });
+
+    const isFolderSelection = selectionType === ItemType.FOLDER && selectedFolder;
+    const isTagSelection = selectionType === ItemType.TAG && selectedTag;
+
+    // Add groupBy menu section for folders and tags
+    if (isFolderSelection || isTagSelection) {
+        menu.addSeparator();
+
+        // Group by header
+        menu.addItem(item => {
+            item.setTitle(strings.folderAppearance.groupBy).setIcon('lucide-layers').setDisabled(true);
+        });
+
+        // Default grouping option (clears custom override)
+        const defaultGroupLabel = strings.settings.items.groupNotes.options[groupingInfo.defaultGrouping];
+
+        menu.addItem(item => {
+            item.setTitle(`    ${strings.folderAppearance.defaultGroupOption(defaultGroupLabel)}`)
+                .setChecked(!hasCustomGroupBy)
+                .onClick(() => {
+                    updateAppearance({ groupBy: undefined });
+                });
+        });
+
+        // Custom grouping options (folders support all three, tags only support none/date)
+        const groupOptions: ListNoteGroupingOption[] = isFolderSelection ? ['none', 'date', 'folder'] : ['none', 'date'];
+        groupOptions.forEach(option => {
+            menu.addItem(item => {
+                const isChecked = hasCustomGroupBy && groupingInfo.normalizedOverride === option;
+                const optionLabel = strings.settings.items.groupNotes.options[option];
+                item.setTitle(`    ${optionLabel}`)
+                    .setChecked(isChecked)
+                    .onClick(() => {
+                        updateAppearance({ groupBy: option });
+                    });
+            });
+        });
+    }
 
     menu.showAtMouseEvent(event);
 }

@@ -198,9 +198,11 @@ export const STRINGS_ZH_TW = {
         slimPreset: '緊湊 (無日期/預覽/圖片)',
         titleRows: '標題列數',
         previewRows: '預覽列數',
+        groupBy: '分組依據',
         defaultOption: (rows: number) => `預設 (${rows})`,
         defaultTitleOption: (rows: number) => `預設標題列數 (${rows})`,
         defaultPreviewOption: (rows: number) => `預設預覽列數 (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `預設分組 (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} 標題列`,
         previewRowOption: (rows: number) => `${rows} 預覽列`
     },

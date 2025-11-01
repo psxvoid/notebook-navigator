@@ -198,9 +198,11 @@ export const STRINGS_ZH_CN = {
         slimPreset: '精简（无日期/预览/图片）',
         titleRows: '标题行数',
         previewRows: '预览行数',
+        groupBy: '分组依据',
         defaultOption: (rows: number) => `默认 (${rows})`,
         defaultTitleOption: (rows: number) => `默认标题行数 (${rows})`,
         defaultPreviewOption: (rows: number) => `默认预览行数 (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `默认分组 (${groupLabel})`,
         titleRowOption: (rows: number) => `标题${rows}行`,
         previewRowOption: (rows: number) => `预览${rows}行`
     },

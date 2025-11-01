@@ -197,9 +197,11 @@ export const STRINGS_PL = {
         slimPreset: 'Szczupły (bez daty/podglądu/obrazu)',
         titleRows: 'Wiersze tytułu',
         previewRows: 'Wiersze podglądu',
+        groupBy: 'Grupuj według',
         defaultOption: (rows: number) => `Domyślne (${rows})`,
         defaultTitleOption: (rows: number) => `Domyślne wiersze tytułu (${rows})`,
         defaultPreviewOption: (rows: number) => `Domyślne wiersze podglądu (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Domyślne grupowanie (${groupLabel})`,
         titleRowOption: (rows: number) =>
             `${rows} ${rows === 1 ? 'wiersz' : rows === 2 || rows === 3 || rows === 4 ? 'wiersze' : 'wierszy'} tytułu`,
         previewRowOption: (rows: number) =>
