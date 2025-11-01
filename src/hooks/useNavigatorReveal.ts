@@ -33,6 +33,7 @@ import { determineTagToReveal, findNearestVisibleTagAncestor, resolveCanonicalTa
 import { ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
+import { doesFolderContainPath } from '../utils/pathUtils';
 import type { Align } from '../types/scroll';
 import { isVirtualTagCollectionId } from '../utils/virtualTagCollections';
 
@@ -368,12 +369,24 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 const { target, expandAncestors } = getRevealTargetFolder(file.parent);
                 resolvedFolder = target;
 
+                const selectedFolder = selectionState.selectedFolder;
+                // Check if selected folder contains file when including descendants
+                const shouldPreserveSelectedFolder =
+                    includeDescendantNotes &&
+                    selectionState.selectionType === 'folder' &&
+                    selectedFolder !== null &&
+                    doesFolderContainPath(selectedFolder.path, file.parent.path);
+
                 if (target) {
-                    if (selectionState.selectedFolder && selectionState.selectedFolder.path === target.path) {
+                    const isCurrentFolderSelected = selectedFolder && selectedFolder.path === target.path;
+                    if (isCurrentFolderSelected || shouldPreserveSelectedFolder) {
                         preserveFolder = true;
                     } else {
                         targetFolderOverride = target;
                     }
+                } else if (shouldPreserveSelectedFolder) {
+                    // No reveal target but selected folder contains the file
+                    preserveFolder = true;
                 }
 
                 if (expandAncestors) {
@@ -432,6 +445,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
         },
         [
             settings,
+            includeDescendantNotes,
             selectionState.selectedFolder,
             selectionState.selectionType,
             selectionState.selectedTag,
