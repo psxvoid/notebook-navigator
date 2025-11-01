@@ -110,6 +110,9 @@ import { normalizeNavigationSectionOrderInput } from '../utils/navigationSection
 import { getPathBaseName } from '../utils/pathUtils';
 import type { NavigateToFolderOptions, RevealTagOptions } from '../hooks/useNavigatorReveal';
 import { isVirtualTagCollectionId } from '../utils/virtualTagCollections';
+import { compositeWithBase } from '../utils/colorUtils';
+import { useSurfaceColorVariables } from '../hooks/useSurfaceColorVariables';
+import { NAVIGATION_PANE_SURFACE_COLOR_MAPPINGS } from '../constants/surfaceColorMappings';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (itemType: ItemType, path: string) => number;
@@ -176,6 +179,18 @@ export const NavigationPane = React.memo(
         const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts, addFolderShortcut, addNoteShortcut } = shortcuts;
         const { fileData, getFileDisplayName } = useFileCache();
         const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
+        const navigationPaneRef = useRef<HTMLDivElement>(null);
+        /** Maps semi-transparent theme color variables to their pre-composited solid equivalents (see constants/surfaceColorMappings). */
+        const { color: navSurfaceColor, version: navSurfaceVersion } = useSurfaceColorVariables(navigationPaneRef, {
+            app,
+            rootContainerRef,
+            variables: NAVIGATION_PANE_SURFACE_COLOR_MAPPINGS
+        });
+        const solidBackgroundCacheRef = useRef<Map<string, string | undefined>>(new Map());
+        // Invalidates the solid background cache when surface color changes
+        useEffect(() => {
+            solidBackgroundCacheRef.current.clear();
+        }, [navSurfaceColor, navSurfaceVersion]);
 
         // Extract included tag tokens from search filters for highlighting
         const searchIncludeTokens = useMemo(() => {
@@ -779,6 +794,28 @@ export const NavigationPane = React.memo(
             activeShortcutKey,
             bannerHeight
         });
+
+        /** Converts a potentially transparent background color into a solid color by compositing with the pane surface. */
+        const getSolidBackground = useCallback(
+            (color?: string | null) => {
+                if (!color) {
+                    return undefined;
+                }
+                const trimmed = color.trim();
+                if (!trimmed) {
+                    return undefined;
+                }
+                const cache = solidBackgroundCacheRef.current;
+                if (cache.has(trimmed)) {
+                    return cache.get(trimmed);
+                }
+                const pane = navigationPaneRef.current;
+                const solidColor = compositeWithBase(navSurfaceColor, trimmed, { container: pane ?? null });
+                cache.set(trimmed, solidColor);
+                return solidColor;
+            },
+            [navSurfaceColor]
+        );
 
         useEffect(() => {
             if (isRootReorderMode) {
@@ -1590,12 +1627,13 @@ export const NavigationPane = React.memo(
                             canInteract && folder
                                 ? { type: 'folder', key: item.key, folder }
                                 : { type: 'missing', key: item.key, kind: 'folder' };
+                        const shortcutBackground = isMissing ? undefined : getSolidBackground(item.backgroundColor);
 
                         return (
                             <ShortcutItem
                                 icon={isMissing ? 'lucide-alert-triangle' : (item.icon ?? 'lucide-folder')}
                                 color={isMissing ? undefined : item.color}
-                                backgroundColor={isMissing ? undefined : item.backgroundColor}
+                                backgroundColor={shortcutBackground}
                                 label={folderName}
                                 description={undefined}
                                 level={item.level}
@@ -1737,12 +1775,13 @@ export const NavigationPane = React.memo(
                         const contextTarget: ShortcutContextMenuTarget = !isMissing
                             ? { type: 'tag', key: item.key, tagPath }
                             : { type: 'missing', key: item.key, kind: 'tag' };
+                        const shortcutBackground = isMissing ? undefined : getSolidBackground(item.backgroundColor);
 
                         return (
                             <ShortcutItem
                                 icon={isMissing ? 'lucide-alert-triangle' : (item.icon ?? 'lucide-tags')}
                                 color={isMissing ? undefined : item.color}
-                                backgroundColor={isMissing ? undefined : item.backgroundColor}
+                                backgroundColor={shortcutBackground}
                                 label={item.displayName}
                                 description={undefined}
                                 level={item.level}
@@ -1803,7 +1842,7 @@ export const NavigationPane = React.memo(
                                 }}
                                 icon={item.icon}
                                 color={item.color}
-                                backgroundColor={item.backgroundColor}
+                                backgroundColor={getSolidBackground(item.backgroundColor)}
                                 countInfo={countInfo}
                                 excludedFolders={item.parsedExcludedFolders || []}
                                 vaultChangeVersion={vaultChangeVersion}
@@ -1914,7 +1953,7 @@ export const NavigationPane = React.memo(
                                 onToggle={() => handleTagToggle(tagNode.path)}
                                 onClick={event => handleTagClick(tagNode.path, event)}
                                 color={item.color}
-                                backgroundColor={item.backgroundColor}
+                                backgroundColor={getSolidBackground(item.backgroundColor)}
                                 icon={item.icon}
                                 searchMatch={searchMatch}
                                 onToggleAllSiblings={() => {
@@ -2018,6 +2057,7 @@ export const NavigationPane = React.memo(
                 highlightRequireTagged,
                 highlightExcludeTagged,
                 highlightIncludeUntagged,
+                getSolidBackground,
                 vaultChangeVersion
             ]
         );
@@ -2064,7 +2104,7 @@ export const NavigationPane = React.memo(
         });
 
         return (
-            <div className="nn-navigation-pane" style={props.style}>
+            <div ref={navigationPaneRef} className="nn-navigation-pane" style={props.style}>
                 <NavigationPaneHeader
                     onTreeUpdateComplete={handleTreeUpdateComplete}
                     onTogglePinnedShortcuts={settings.showShortcuts ? handleShortcutSplitToggle : undefined}

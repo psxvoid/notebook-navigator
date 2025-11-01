@@ -15,6 +15,24 @@
     border: 0;
 }
 
+/**
+ * Hidden element used to resolve CSS variable colors to computed RGBA values.
+ * Positioned offscreen and invisible to avoid layout impact while allowing getComputedStyle access.
+ */
+.nn-color-resolver {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    z-index: -1;
+    margin: 0;
+    padding: 0;
+    color: var(--nn-color-resolver-value, transparent);
+    background-color: var(--nn-color-resolver-value, transparent);
+}
+
 body {
     /* ========================================================================
        Padding Variables for Items and Containers
@@ -1087,7 +1105,8 @@ body {
     height: var(--nn-setting-nav-item-height); /* Fixed height for virtualizer accuracy */
     box-sizing: border-box;
     padding-inline-start: calc(var(--level, 0) * var(--nn-setting-nav-indent));
-    contain: paint; /* Isolate per-item painting */
+    /* Isolate layout and style calculations per item while allowing ::before/::after to extend beyond bounds */
+    contain: layout style;
 }
 
 /* Nav rows that display a background overlay need positioning for the pseudo elements */
@@ -1101,10 +1120,11 @@ body {
 .nn-navitem.nn-has-custom-background::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: 0px;
     inset-inline-start: 0;
     inset-inline-end: 0;
-    bottom: 0;
+    /* Extend slightly beyond bottom item bounds (height rounding issue) to prevent hairline gaps when zoomed */
+    bottom: -0.2px;
     background-color: var(--nn-navitem-custom-bg-color);
     border-top-left-radius: var(--nn-navitem-top-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
     border-top-right-radius: var(--nn-navitem-top-right-radius, min(14px, var(--nn-theme-navitem-border-radius)));
@@ -1171,8 +1191,9 @@ body {
 .nn-navitem-content--search-exclude::before {
     content: '';
     position: absolute;
-    top: 0;
-    bottom: 0;
+    top: 0px;
+    /* Extend slightly beyond bottom item bounds (height rounding issue) to prevent hairline gaps when zoomed */
+    bottom: -0.2px;
     inset-inline-end: 0;
     inset-inline-start: calc(var(--level, 0) * var(--nn-setting-nav-indent) * -1);
     border-top-left-radius: var(--nn-navitem-top-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
@@ -1183,12 +1204,14 @@ body {
     z-index: -1;
 }
 
+/* Pre-composited solid color prevents hairlines by blending alpha with pane background */
 .nn-navitem-content--search-include::before {
-    background-color: var(--nn-theme-tag-positive-bg);
+    background-color: var(--nn-theme-tag-positive-bg-solid, var(--nn-theme-tag-positive-bg));
 }
 
+/* Pre-composited solid color prevents hairlines by blending alpha with pane background */
 .nn-navitem-content--search-exclude::before {
-    background-color: var(--nn-theme-tag-negative-bg);
+    background-color: var(--nn-theme-tag-negative-bg-solid, var(--nn-theme-tag-negative-bg));
 }
 
 /* Folder hover state - desktop only, using pseudo-element for padding control */
@@ -1651,7 +1674,8 @@ body {
     position: relative;
 
     /* CSS Custom Properties for file items - themes can override these */
-    contain: paint; /* Isolate per-item painting */
+    /* Isolate layout and style calculations per item while allowing ::before to extend beyond bounds */
+    contain: layout style;
 }
 
 /* Remove shadows */
@@ -2340,11 +2364,13 @@ body {
 .nn-file.nn-selected .nn-file-content::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: 0px;
     inset-inline-start: 0;
     inset-inline-end: 0;
-    bottom: 0; /* Extend all the way down */
-    background-color: var(--nn-theme-file-selected-bg);
+    /* Extend slightly beyond bottom item bounds (height rounding issue) to prevent hairline gaps when zoomed */
+    bottom: -0.2px;
+    /* Pre-composited solid color prevents hairlines by blending alpha with pane background */
+    background-color: var(--nn-theme-file-selected-bg-solid, var(--nn-theme-file-selected-bg));
     border-radius: min(16px, var(--nn-theme-file-border-radius));
     z-index: 0; /* Below separator lines */
 }
@@ -2372,11 +2398,13 @@ body {
 .nn-navitem.nn-selected::after {
     content: '';
     position: absolute;
-    top: 0;
+    top: 0px;
     inset-inline-start: 0;
     inset-inline-end: 0;
-    bottom: 0;
-    background-color: var(--nn-theme-navitem-selected-bg);
+    /* Extend slightly beyond bottom item bounds (height rounding issue) to prevent hairline gaps when zoomed */
+    bottom: -0.2px;
+    /* Pre-composited solid color prevents hairlines by blending alpha with pane background */
+    background-color: var(--nn-theme-navitem-selected-bg-solid, var(--nn-theme-navitem-selected-bg));
     border-top-left-radius: var(--nn-navitem-top-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
     border-top-right-radius: var(--nn-navitem-top-right-radius, min(14px, var(--nn-theme-navitem-border-radius)));
     border-bottom-left-radius: var(--nn-navitem-bottom-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
@@ -2405,16 +2433,18 @@ body {
    1. Navigator unfocused (all selections dimmed)
    2. Navigator focused but inactive pane (cross-pane dimming)
    3. Search field is focused (both panes dimmed) */
+/* Pre-composited solid colors for inactive selection states */
 .nn-split-container[data-navigator-focused='false'] .nn-file.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-file.nn-selected .nn-file-content::before {
-    background-color: var(--nn-theme-file-selected-inactive-bg);
+    background-color: var(--nn-theme-file-selected-inactive-bg-solid, var(--nn-theme-file-selected-inactive-bg));
 }
 
+/* Pre-composited solid colors for inactive navigation selection states */
 .nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::after,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::after,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-navitem.nn-selected::after {
-    background-color: var(--nn-theme-navitem-selected-inactive-bg);
+    background-color: var(--nn-theme-navitem-selected-inactive-bg-solid, var(--nn-theme-navitem-selected-inactive-bg));
 }
 
 /* Inactive navigation item name color when navigation pane is not focused */
@@ -2482,15 +2512,15 @@ body.nn-resizing {
     outline-offset: -2px;
 }
 
-/* Special visual feedback for tag drop zones */
+/* Special visual feedback for tag drop zones - uses pre-composited solid color */
 [data-drop-zone='tag'].nn-drag-over {
-    background-color: var(--nn-theme-tag-positive-bg);
+    background-color: var(--nn-theme-tag-positive-bg-solid, var(--nn-theme-tag-positive-bg));
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
-/* Different style for untagged drop zone */
+/* Different style for untagged drop zone - uses pre-composited solid color */
 [data-drop-zone='tag'][data-tag='__untagged__'].nn-drag-over {
-    background-color: var(--nn-theme-tag-negative-bg);
+    background-color: var(--nn-theme-tag-negative-bg-solid, var(--nn-theme-tag-negative-bg));
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
@@ -2610,7 +2640,8 @@ body.nn-resizing {
     inset-inline-start: 0;
     inset-inline-end: 0;
     bottom: 0;
-    border: 2px solid var(--nn-theme-navitem-selected-bg);
+    /* Use pre-composited solid color for consistent border appearance */
+    border: 2px solid var(--nn-theme-navitem-selected-bg-solid, var(--nn-theme-navitem-selected-bg));
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
     pointer-events: none;
     z-index: 10;
@@ -2629,7 +2660,8 @@ body.nn-resizing {
     inset-inline-start: 0;
     inset-inline-end: 0;
     bottom: 0; /* Extend to bottom edge to cover separator space */
-    border: 2px solid var(--nn-theme-navitem-selected-bg);
+    /* Use pre-composited solid color for consistent border appearance */
+    border: 2px solid var(--nn-theme-navitem-selected-bg-solid, var(--nn-theme-navitem-selected-bg));
     border-radius: min(16px, var(--nn-theme-file-border-radius));
     pointer-events: none;
     z-index: 10;
@@ -3121,7 +3153,8 @@ body.nn-resizing {
 /* Virtual file item wrapper - position relative for separator positioning */
 .nn-virtual-file-item {
     position: relative;
-    contain: paint; /* Isolate per-item painting */
+    /* Isolate layout and style calculations per item while allowing overlays to extend beyond bounds */
+    contain: layout style;
 }
 
 /* ========================================================================

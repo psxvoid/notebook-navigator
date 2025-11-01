@@ -74,6 +74,8 @@ import { EMPTY_LIST_MENU_TYPE } from '../utils/contextMenu';
 import { useUXPreferenceActions, useUXPreferences } from '../context/UXPreferencesContext';
 import { normalizeTagPath } from '../utils/tagUtils';
 import { parseFilterSearchTokens, updateFilterQueryWithTag, type InclusionOperator } from '../utils/filterSearch';
+import { useSurfaceColorVariables } from '../hooks/useSurfaceColorVariables';
+import { LIST_PANE_SURFACE_COLOR_MAPPINGS } from '../constants/surfaceColorMappings';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -132,6 +134,13 @@ export const ListPane = React.memo(
         const uiDispatch = useUIDispatch();
         const shortcuts = useShortcuts();
         const { addSearchShortcut, removeSearchShortcut, searchShortcutsByName } = shortcuts;
+        const listPaneRef = useRef<HTMLDivElement>(null);
+        /** Maps semi-transparent theme color variables to their pre-composited solid equivalents (see constants/surfaceColorMappings). */
+        useSurfaceColorVariables(listPaneRef, {
+            app,
+            rootContainerRef: props.rootContainerRef,
+            variables: LIST_PANE_SURFACE_COLOR_MAPPINGS
+        });
         const searchShortcuts = useMemo(() => Array.from(searchShortcutsByName.values()), [searchShortcutsByName]);
         const [isSavingSearchShortcut, setIsSavingSearchShortcut] = useState(false);
         const currentSearchProvider = settings.searchProvider ?? 'internal';
@@ -769,7 +778,7 @@ export const ListPane = React.memo(
 
         // Single return with conditional content
         return (
-            <div className={`nn-list-pane ${isSearchActive ? 'nn-search-active' : ''}`}>
+            <div ref={listPaneRef} className={`nn-list-pane ${isSearchActive ? 'nn-search-active' : ''}`}>
                 {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                 <ListPaneHeader
                     onHeaderClick={handleScrollToTop}
