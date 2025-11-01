@@ -63,6 +63,7 @@ export interface NotebookNavigatorSettings {
     // General tab - Behavior
     autoRevealActiveFile: boolean;
     autoRevealIgnoreRightSidebar: boolean;
+    multiSelectModifier: MultiSelectModifier;
 
     // General tab - View
     startView: 'navigation' | 'files';
@@ -124,7 +125,6 @@ export interface NotebookNavigatorSettings {
     // List pane tab
     defaultFolderSort: SortOption;
     listPaneTitle: ListPaneTitleOption;
-    multiSelectModifier: MultiSelectModifier;
     noteGrouping: ListNoteGroupingOption;
     filterPinnedByFolder: boolean;
     showPinnedGroupHeader: boolean;

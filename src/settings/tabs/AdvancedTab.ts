@@ -16,10 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, Notice, Setting } from 'obsidian';
+import { ButtonComponent, Notice, Platform, Setting } from 'obsidian';
 import { strings } from '../../i18n';
 import type { MetadataCleanupSummary } from '../../services/MetadataService';
 import type { SettingsTabContext } from './SettingsTabContext';
+import { getNavigationPaneSizing } from '../../utils/paneSizing';
+import { localStorage } from '../../utils/localStorage';
 
 /** Renders the advanced settings tab */
 export function renderAdvancedTab(context: SettingsTabContext): void {
@@ -50,6 +52,20 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
                 await plugin.saveSettingsAndUpdate();
             })
         );
+
+    if (!Platform.isMobile) {
+        new Setting(containerEl)
+            .setName(strings.settings.items.resetPaneSeparator.name)
+            .setDesc(strings.settings.items.resetPaneSeparator.desc)
+            .addButton(button =>
+                button.setButtonText(strings.settings.items.resetPaneSeparator.buttonText).onClick(() => {
+                    const orientation = plugin.getDualPaneOrientation();
+                    const { storageKey } = getNavigationPaneSizing(orientation);
+                    localStorage.remove(storageKey);
+                    new Notice(strings.settings.items.resetPaneSeparator.notice);
+                })
+            );
+    }
 
     let metadataCleanupButton: ButtonComponent | null = null;
     let metadataCleanupInfoText: HTMLDivElement | null = null;

@@ -77,7 +77,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-03',
         showOnUpdate: true,
         new: [
-            'Multi-tag selection! You can now command+click tags to select multiple tags in list pane with "AND", or shift+click to select multiple tags with "OR".',
+            '==Multi-tag selection!== This is huge! You can now command+click tags to select multiple tags in list pane with "AND", or shift+command+click to select multiple tags with "OR". This updates the search field, and you can save these filters for future use!',
             'New setting: ==List Pane > Appearance > Slim item height==. Reduce line spacing in list pane with slim mode enabled.',
             'New setting: ==List Pane > Appearance > Show pinned group header==. Toggle to hide the section header above pinned notes.',
             'New setting: ==Navigation Pane > Appearance > Root folder spacing==. Use it to add extra spacing between root folders and tags in navigation pane. Especially useful when you use background colors with inheritance.',
