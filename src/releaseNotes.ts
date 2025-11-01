@@ -84,7 +84,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         improved: [
             'You can now click the "Tags" folder to view all notes with tags.',
-            'Significantly improved the way background color renders in navigation pane. Just looks so much better.',
+            'Significantly improved the way background color renders in navigation pane. This is a huge upgrade if you use background color for folders and tags in your vault!',
             'Added theme variables for selected folder and file names when pane is inactive.'
         ],
         changed: ['Changed ZH-CN translation for "Untitled" to 未命名 to match Obsidian default.'],
