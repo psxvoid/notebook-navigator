@@ -619,6 +619,10 @@ export const STRINGS_NL = {
                 name: 'Bovenliggende mapnamen tonen',
                 desc: 'De naam van de bovenliggende map weergeven voor notities in submappen of tags.'
             },
+            showParentFolderColors: {
+                name: 'Bovenliggende mapkleuren tonen',
+                desc: 'Mapkleuren gebruiken voor labels van bovenliggende mappen.'
+            },
             showQuickActions: {
                 name: 'Snelle acties tonen (alleen desktop)',
                 desc: 'Zweefacties op bestandsitems tonen.'

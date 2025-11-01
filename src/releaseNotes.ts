@@ -81,6 +81,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: ==List Pane > Appearance > Slim item height==. Reduce line spacing in list pane with slim mode enabled.',
             'New setting: ==List Pane > Appearance > Show pinned group header==. Toggle to hide the section header above pinned notes.',
             'New setting: ==Navigation Pane > Appearance > Root folder spacing==. Use it to add extra spacing between root folders and tags in navigation pane. Especially useful when you use background colors with inheritance.',
+            'New setting: ==Notes > Appearance > Show parent folder colors==. When enabled, parent folder names in list pane will use their text color from navigation pane. Enabled by default.',
             'Three new localizations: Dutch (nl), Italian (it) and Portuguese / Brazil (pt-BR).'
         ],
         improved: [

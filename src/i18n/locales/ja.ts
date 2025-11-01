@@ -618,6 +618,10 @@ export const STRINGS_JA = {
                 name: '親フォルダ名を表示',
                 desc: 'サブフォルダまたはタグ内のノートに親フォルダ名を表示します。'
             },
+            showParentFolderColors: {
+                name: '親フォルダの色を表示',
+                desc: '親フォルダラベルにフォルダの色を使用します。'
+            },
             showQuickActions: {
                 name: 'クイックアクションを表示 (デスクトップのみ)',
                 desc: 'ファイルアイテムにホバーアクションを表示します。'

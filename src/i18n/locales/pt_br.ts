@@ -619,6 +619,10 @@ export const STRINGS_PT_BR = {
                 name: 'Mostrar nomes de pastas pai',
                 desc: 'Exibir o nome da pasta pai para notas em subpastas ou tags.'
             },
+            showParentFolderColors: {
+                name: 'Mostrar cores de pastas pai',
+                desc: 'Usar cores de pasta em rótulos de pastas pai.'
+            },
             showQuickActions: {
                 name: 'Mostrar ações rápidas (apenas desktop)',
                 desc: 'Mostrar ações de passar o mouse em itens de arquivo.'

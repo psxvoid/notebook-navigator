@@ -178,13 +178,20 @@ interface ParentFolderLabelProps {
     iconId: string;
     label: string;
     iconVersion: number;
+    color?: string;
+    showIcon: boolean;
+    applyColorToName: boolean;
 }
 
 /**
  * Renders a parent folder label with icon for display in file items.
  */
-function ParentFolderLabel({ iconId, label, iconVersion }: ParentFolderLabelProps) {
+function ParentFolderLabel({ iconId, label, iconVersion, color, showIcon, applyColorToName }: ParentFolderLabelProps) {
     const iconRef = useRef<HTMLSpanElement>(null);
+    const hasColor = Boolean(color);
+    const iconStyle: React.CSSProperties | undefined = color ? { color } : undefined;
+    const labelStyle: React.CSSProperties | undefined = applyColorToName && color ? { color } : undefined;
+    const labelClassName = applyColorToName ? 'nn-file-folder-label nn-file-folder-label--colored' : 'nn-file-folder-label';
 
     // Render the folder icon when iconId or iconVersion changes
     useEffect(() => {
@@ -194,18 +201,28 @@ function ParentFolderLabel({ iconId, label, iconVersion }: ParentFolderLabelProp
         }
 
         iconContainer.innerHTML = '';
-        if (!iconId) {
+        if (!iconId || !showIcon) {
             return;
         }
 
         const iconService = getIconService();
         iconService.renderIcon(iconContainer, iconId);
-    }, [iconId, iconVersion]);
+    }, [iconId, iconVersion, showIcon]);
 
     return (
         <div className="nn-file-folder">
-            <span className="nn-file-folder-icon" ref={iconRef} aria-hidden="true" />
-            <span>{label}</span>
+            {showIcon ? (
+                <span
+                    className="nn-file-folder-icon"
+                    ref={iconRef}
+                    aria-hidden="true"
+                    data-has-color={hasColor ? 'true' : 'false'}
+                    style={iconStyle}
+                />
+            ) : null}
+            <span className={labelClassName} style={labelStyle} data-has-color={applyColorToName ? 'true' : 'false'}>
+                {label}
+            </span>
         </div>
     );
 }
@@ -651,7 +668,13 @@ export const FileItem = React.memo(function FileItem({
 
     // Determine parent folder display metadata
     const parentFolderSource = file.parent;
-    let parentFolderMeta: { name: string; iconId: string } | null = null;
+    let parentFolderMeta: {
+        name: string;
+        iconId: string;
+        color?: string;
+        applyColorToName: boolean;
+        showIcon: boolean;
+    } | null = null;
     if (settings.showParentFolderNames && parentFolderSource instanceof TFolder && !pinnedItemShouldUseCompactLayout) {
         // Show parent label in tag view or when viewing descendants
         const shouldShowParentLabel =
@@ -661,9 +684,13 @@ export const FileItem = React.memo(function FileItem({
             // Use custom icon if set, otherwise use default folder icon
             const customParentIcon = metadataService.getFolderIcon(parentFolderSource.path);
             const fallbackParentIcon = parentFolderSource.path === '/' ? 'vault' : 'lucide-folder-closed';
+            const parentFolderColor = settings.showParentFolderColors ? metadataService.getFolderColor(parentFolderSource.path) : undefined;
             parentFolderMeta = {
                 name: parentFolderSource.name,
-                iconId: customParentIcon ?? fallbackParentIcon
+                iconId: customParentIcon ?? fallbackParentIcon,
+                color: parentFolderColor,
+                applyColorToName: Boolean(parentFolderColor) && !settings.colorIconOnly,
+                showIcon: settings.showIcons
             };
         }
     }
@@ -671,7 +698,14 @@ export const FileItem = React.memo(function FileItem({
     // Render parent folder label if metadata is available
     const renderParentFolder = () =>
         parentFolderMeta ? (
-            <ParentFolderLabel iconId={parentFolderMeta.iconId} label={parentFolderMeta.name} iconVersion={iconServiceVersion} />
+            <ParentFolderLabel
+                iconId={parentFolderMeta.iconId}
+                label={parentFolderMeta.name}
+                iconVersion={iconServiceVersion}
+                color={parentFolderMeta.color}
+                showIcon={parentFolderMeta.showIcon}
+                applyColorToName={parentFolderMeta.applyColorToName}
+            />
         ) : null;
 
     // Determine if we should show the feature image area (either with an image or extension badge)

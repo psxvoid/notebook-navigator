@@ -619,6 +619,10 @@ export const STRINGS_FR = {
                 name: 'Afficher les noms des dossiers parents',
                 desc: 'Afficher le nom du dossier parent pour les notes dans les sous-dossiers ou étiquettes.'
             },
+            showParentFolderColors: {
+                name: 'Afficher les couleurs des dossiers parents',
+                desc: 'Utiliser les couleurs des dossiers sur les étiquettes des dossiers parents.'
+            },
             showQuickActions: {
                 name: 'Afficher les actions rapides (bureau uniquement)',
                 desc: 'Afficher les actions au survol sur les éléments de fichier.'

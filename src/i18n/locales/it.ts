@@ -619,6 +619,10 @@ export const STRINGS_IT = {
                 name: 'Mostra nomi cartelle genitore',
                 desc: 'Visualizza il nome della cartella genitore per note in sottocartelle o tag.'
             },
+            showParentFolderColors: {
+                name: 'Mostra colori cartelle genitore',
+                desc: 'Usa colori cartella su etichette cartelle genitore.'
+            },
             showQuickActions: {
                 name: 'Mostra azioni rapide (solo desktop)',
                 desc: 'Mostra azioni al passaggio del mouse su elementi file.'

@@ -618,6 +618,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar nombres de carpetas principales',
                 desc: 'Muestra el nombre de la carpeta principal para las notas en subcarpetas o etiquetas.'
             },
+            showParentFolderColors: {
+                name: 'Mostrar colores de carpetas principales',
+                desc: 'Usar colores de carpeta en etiquetas de carpetas principales.'
+            },
             showQuickActions: {
                 name: 'Mostrar acciones rápidas (solo escritorio)',
                 desc: 'Mostrar acciones al pasar el cursor sobre los elementos de archivo.'

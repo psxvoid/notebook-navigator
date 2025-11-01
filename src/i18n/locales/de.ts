@@ -621,6 +621,10 @@ export const STRINGS_DE = {
                 name: 'Übergeordnete Ordnernamen anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen in Unterordnern oder Tags anzeigen.'
             },
+            showParentFolderColors: {
+                name: 'Übergeordnete Ordnerfarben anzeigen',
+                desc: 'Ordnerfarben auf übergeordnete Ordnerlabels anwenden.'
+            },
             showQuickActions: {
                 name: 'Schnellaktionen anzeigen (nur Desktop)',
                 desc: 'Zeige Hover-Aktionen auf Dateielementen.'

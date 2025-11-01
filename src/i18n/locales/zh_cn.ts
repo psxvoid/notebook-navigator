@@ -617,6 +617,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示父文件夹名称',
                 desc: '为子文件夹或标签中的笔记显示父文件夹名称。'
             },
+            showParentFolderColors: {
+                name: '显示父文件夹颜色',
+                desc: '在父文件夹标签上使用文件夹颜色。'
+            },
             showQuickActions: {
                 name: '显示快速操作（仅桌面版）',
                 desc: '在文件项上显示悬停操作。'

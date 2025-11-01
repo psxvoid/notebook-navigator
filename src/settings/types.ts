@@ -154,6 +154,7 @@ export interface NotebookNavigatorSettings {
     colorFileTags: boolean;
     showFileTagsInSlimMode: boolean;
     showParentFolderNames: boolean;
+    showParentFolderColors: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     skipCodeBlocksInPreview: boolean;

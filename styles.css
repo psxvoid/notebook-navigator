@@ -1991,6 +1991,18 @@ body {
     flex-shrink: 0;
 }
 
+.nn-file-folder-icon[data-has-color='true'] svg {
+    stroke-width: 2.4;
+}
+
+.nn-file-folder-label {
+    font-weight: var(--nn-theme-file-parent-font-weight);
+}
+
+.nn-file-folder-label.nn-file-folder-label--colored {
+    font-weight: var(--nn-theme-navitem-custom-color-name-font-weight);
+}
+
 /* ========================================================================
    Tag Display Styles
    ======================================================================== */

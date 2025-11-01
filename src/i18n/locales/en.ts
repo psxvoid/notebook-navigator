@@ -617,6 +617,10 @@ export const STRINGS_EN = {
                 name: 'Show parent folder names',
                 desc: 'Display the parent folder name for notes in subfolders or tags.'
             },
+            showParentFolderColors: {
+                name: 'Show parent folder colors',
+                desc: 'Use folder colors on parent folder labels.'
+            },
             showQuickActions: {
                 name: 'Show quick actions (desktop only)',
                 desc: 'Show hover actions on file items.'

@@ -128,6 +128,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     colorFileTags: true,
     showFileTagsInSlimMode: false,
     showParentFolderNames: true,
+    showParentFolderColors: true,
     showFilePreview: true,
     skipHeadingsInPreview: true,
     skipCodeBlocksInPreview: true,

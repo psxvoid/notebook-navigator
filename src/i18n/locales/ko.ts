@@ -617,6 +617,10 @@ export const STRINGS_KO = {
                 name: '상위 폴더 이름 표시',
                 desc: '하위 폴더나 태그의 노트에 상위 폴더 이름을 표시합니다.'
             },
+            showParentFolderColors: {
+                name: '상위 폴더 색상 표시',
+                desc: '상위 폴더 레이블에 폴더 색상을 사용합니다.'
+            },
             showQuickActions: {
                 name: '빠른 작업 표시 (데스크톱 전용)',
                 desc: '파일 항목에 호버 작업을 표시합니다.'

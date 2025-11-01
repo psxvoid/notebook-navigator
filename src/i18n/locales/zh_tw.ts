@@ -616,6 +616,10 @@ export const STRINGS_ZH_TW = {
                 name: '顯示父資料夾名稱',
                 desc: '在子資料夾或標籤中顯示筆記的父資料夾名稱。'
             },
+            showParentFolderColors: {
+                name: '顯示父資料夾顏色',
+                desc: '在父資料夾標籤上使用資料夾顏色。'
+            },
             showQuickActions: {
                 name: '顯示快速操作 (僅限桌面版)',
                 desc: '在檔案項目上顯示懸停操作。'
