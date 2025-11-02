@@ -345,6 +345,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         const { containerEl } = this;
         containerEl.empty();
+        containerEl.addClass('nn-settings-tab-root');
 
         // Reset state for new render
         this.tabContentMap.clear();
@@ -481,6 +482,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             }
         });
         this.lastActiveTabId = id;
+        contentWrapper.scrollTop = 0;
 
         if (shouldFocus) {
             const activeButton = this.tabButtons.get(id);
@@ -582,6 +584,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.tabContentMap.clear();
         this.tabButtons.clear();
         this.showTagsListeners = [];
+        this.containerEl.removeClass('nn-settings-tab-root');
     }
 }
 

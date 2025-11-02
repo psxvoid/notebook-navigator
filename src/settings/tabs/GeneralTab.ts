@@ -39,6 +39,7 @@ import {
 /** Renders the general settings tab */
 export function renderGeneralTab(context: SettingsTabContext): void {
     const { containerEl, plugin, createDebouncedTextSetting } = context;
+    const pluginVersion = plugin.manifest.version;
 
     let updateStatusEl: HTMLDivElement | null = null;
 
@@ -60,7 +61,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     plugin.unregisterUpdateNoticeListener(updateStatusListenerId);
 
     const whatsNewSetting = new Setting(containerEl)
-        .setName(strings.settings.items.whatsNew.name)
+        .setName(strings.settings.items.whatsNew.name.replace('{version}', pluginVersion))
         .setDesc(strings.settings.items.whatsNew.desc)
         .addButton(button =>
             button.setButtonText(strings.settings.items.whatsNew.buttonText).onClick(async () => {

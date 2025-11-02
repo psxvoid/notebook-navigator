@@ -1100,7 +1100,7 @@ export const STRINGS_ZH_TW = {
                 status: '已有新版本: {version}'
             },
             whatsNew: {
-                name: '最新消息',
+                name: 'Notebook Navigator {version} 的最新消息',
                 desc: '查看最近的更新和改進',
                 buttonText: '查看最近更新'
             },

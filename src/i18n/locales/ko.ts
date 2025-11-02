@@ -1101,7 +1101,7 @@ export const STRINGS_KO = {
                 status: 'New version available: {version}'
             },
             whatsNew: {
-                name: '새로운 기능',
+                name: 'Notebook Navigator {version}의 새로운 기능',
                 desc: '최근 업데이트와 개선 사항 보기',
                 buttonText: '최근 업데이트 보기'
             },

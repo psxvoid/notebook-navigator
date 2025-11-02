@@ -1102,7 +1102,7 @@ export const STRINGS_ES = {
                 status: 'New version available: {version}'
             },
             whatsNew: {
-                name: 'Novedades',
+                name: 'Novedades en Notebook Navigator {version}',
                 desc: 'Ver actualizaciones y mejoras recientes',
                 buttonText: 'Ver actualizaciones recientes'
             },

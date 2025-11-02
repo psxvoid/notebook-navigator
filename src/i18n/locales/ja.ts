@@ -1103,7 +1103,7 @@ export const STRINGS_JA = {
                 status: 'New version available: {version}'
             },
             whatsNew: {
-                name: '新着情報',
+                name: 'Notebook Navigator {version} の新着情報',
                 desc: '最近の更新と改善を確認',
                 buttonText: '最近の更新を表示'
             },
