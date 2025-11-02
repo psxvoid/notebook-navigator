@@ -33,7 +33,7 @@ import { TFile, TFolder, debounce } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { OperationType } from '../services/CommandQueueService';
 import { useFileCache } from '../context/StorageContext';
-import { ListPaneItemType, ItemType } from '../types';
+import { ListPaneItemType, ItemType, PINNED_SECTION_HEADER_KEY } from '../types';
 import type { VisibilityPreferences } from '../types';
 import type { ListPaneItem } from '../types/virtualization';
 import { TIMEOUTS } from '../types/obsidian-extended';
@@ -490,7 +490,7 @@ export function useListPaneData({
                 items.push({
                     type: ListPaneItemType.HEADER,
                     data: strings.listPane.pinnedSection,
-                    key: `header-pinned`
+                    key: PINNED_SECTION_HEADER_KEY
                 });
             }
             pinnedFiles.forEach(file => {

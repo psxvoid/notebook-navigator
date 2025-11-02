@@ -41,7 +41,7 @@ export const STRINGS_ZH_CN = {
     listPane: {
         emptyStateNoSelection: '选择文件夹或标签以查看笔记', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: '无笔记', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 已固定', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: '已固定', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: '笔记', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: '文件', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (已隐藏)' // Accessibility label applied to list items that are normally hidden

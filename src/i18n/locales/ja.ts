@@ -41,7 +41,7 @@ export const STRINGS_JA = {
     listPane: {
         emptyStateNoSelection: 'フォルダまたはタグを選択してノートを表示', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'ノートなし', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 ピン留め', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: 'ピン留め', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: 'ノート', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: 'ファイル', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (非表示)' // Accessibility label applied to list items that are normally hidden

@@ -41,7 +41,7 @@ export const STRINGS_PT_BR = {
     listPane: {
         emptyStateNoSelection: 'Selecione uma pasta ou tag para ver notas',
         emptyStateNoNotes: 'Sem notas',
-        pinnedSection: '📌 Fixadas',
+        pinnedSection: 'Fixadas',
         notesSection: 'Notas',
         filesSection: 'Arquivos',
         hiddenItemAriaLabel: '{name} (oculto)'

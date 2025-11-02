@@ -41,7 +41,7 @@ export const STRINGS_IT = {
     listPane: {
         emptyStateNoSelection: 'Seleziona una cartella o un tag per visualizzare le note',
         emptyStateNoNotes: 'Nessuna nota',
-        pinnedSection: '📌 Fissate',
+        pinnedSection: 'Fissate',
         notesSection: 'Note',
         filesSection: 'File',
         hiddenItemAriaLabel: '{name} (nascosto)'

@@ -162,6 +162,7 @@ body {
     --nn-theme-list-heading-color: var(--text-muted);
     --nn-theme-list-heading-font-weight: 600;
     --nn-theme-list-group-header-color: var(--text-muted);
+    --nn-style-pinned-section-icon: 'lucide-pin';
     --nn-theme-list-separator-color: var(--background-modifier-border);
 
     /* -- File Items -- */
@@ -2264,12 +2265,32 @@ body {
     text-overflow: ellipsis;
     display: flex;
     align-items: flex-start;
+    gap: 6px;
 }
 
 /* First date header - no top margin or extra padding for first group */
 .nn-date-group-header.nn-first-header {
     height: var(--nn-date-header-height);
     padding: 0 var(--nn-file-item-padding-horizontal);
+    align-items: center;
+}
+
+.nn-date-group-header-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
+    color: var(--nn-theme-list-group-header-color);
+    flex: 0 0 auto;
+}
+
+.nn-date-group-header-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nn-pinned-section-header {
     align-items: center;
 }
 
@@ -4862,6 +4883,13 @@ settings:
         format: hex
         default-light: '#'
         default-dark: '#'
+    -
+    -
+        id: nn-style-pinned-section-icon
+        title: Pinned section icon
+        description: Icon name used for the pinned notes header.
+        type: variable-text
+        default: 'lucide-pin'
     -
     -
         id: nn-theme-list-separator-color

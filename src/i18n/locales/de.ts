@@ -41,7 +41,7 @@ export const STRINGS_DE = {
     listPane: {
         emptyStateNoSelection: 'Wählen Sie einen Ordner oder Tag aus, um Notizen anzuzeigen', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Keine Notizen', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 Angeheftet', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: 'Angeheftet', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: 'Notizen', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: 'Dateien', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (ausgeblendet)' // Accessibility label applied to list items that are normally hidden

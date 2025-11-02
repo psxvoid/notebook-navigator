@@ -41,7 +41,7 @@ export const STRINGS_KO = {
     listPane: {
         emptyStateNoSelection: '노트를 보려면 폴더나 태그를 선택하세요', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: '노트 없음', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 고정됨', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: '고정됨', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: '노트', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: '파일', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (숨김)' // Accessibility label applied to list items that are normally hidden

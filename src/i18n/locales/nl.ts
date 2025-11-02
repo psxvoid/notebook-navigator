@@ -41,7 +41,7 @@ export const STRINGS_NL = {
     listPane: {
         emptyStateNoSelection: 'Selecteer een map of tag om notities te bekijken',
         emptyStateNoNotes: 'Geen notities',
-        pinnedSection: '📌 Vastgepind',
+        pinnedSection: 'Vastgepind',
         notesSection: 'Notities',
         filesSection: 'Bestanden',
         hiddenItemAriaLabel: '{name} (verborgen)'

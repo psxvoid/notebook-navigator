@@ -59,7 +59,7 @@ import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
 import { TIMEOUTS } from '../types/obsidian-extended';
-import { ListPaneItemType, LISTPANE_MEASUREMENTS, UNTAGGED_TAG_ID } from '../types';
+import { ListPaneItemType, LISTPANE_MEASUREMENTS, PINNED_SECTION_HEADER_KEY, UNTAGGED_TAG_ID } from '../types';
 import { getEffectiveSortOption } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
@@ -76,6 +76,7 @@ import { normalizeTagPath } from '../utils/tagUtils';
 import { parseFilterSearchTokens, updateFilterQueryWithTag, type InclusionOperator } from '../utils/filterSearch';
 import { useSurfaceColorVariables } from '../hooks/useSurfaceColorVariables';
 import { LIST_PANE_SURFACE_COLOR_MAPPINGS } from '../constants/surfaceColorMappings';
+import { ObsidianIcon } from './ObsidianIcon';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -119,6 +120,38 @@ interface ListPaneProps {
     onSearchTokensChange?: (state: SearchTagFilterState) => void;
 }
 
+const PINNED_SECTION_ICON_VARIABLE = '--nn-style-pinned-section-icon';
+const DEFAULT_PINNED_SECTION_ICON = 'lucide-pin';
+
+function sanitizePinnedSectionIcon(value: string): string {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+        return '';
+    }
+    const withoutLeadingQuotes = trimmed.replace(/^['"]+/, '');
+    const withoutTrailingQuotes = withoutLeadingQuotes.replace(/['"]+$/, '');
+    const sanitized = withoutTrailingQuotes.trim();
+    if (sanitized === '#' || sanitized.length === 0) {
+        return '';
+    }
+    return sanitized;
+}
+
+function resolvePinnedSectionIcon(): string {
+    if (typeof window === 'undefined' || !window.document?.body) {
+        return DEFAULT_PINNED_SECTION_ICON;
+    }
+
+    try {
+        const computed = window.getComputedStyle(window.document.body);
+        const rawValue = computed.getPropertyValue(PINNED_SECTION_ICON_VARIABLE);
+        const iconName = sanitizePinnedSectionIcon(rawValue);
+        return iconName.length > 0 ? iconName : DEFAULT_PINNED_SECTION_ICON;
+    } catch {
+        return DEFAULT_PINNED_SECTION_ICON;
+    }
+}
+
 export const ListPane = React.memo(
     forwardRef<ListPaneHandle, ListPaneProps>(function ListPane(props, ref) {
         const { app, commandQueue, isMobile, plugin } = useServices();
@@ -147,6 +180,7 @@ export const ListPane = React.memo(
         const listPaneTitle = settings.listPaneTitle ?? 'header';
         const shouldShowDesktopTitleArea = !isMobile && listPaneTitle === 'list';
         const topSpacerHeight = shouldShowDesktopTitleArea ? 0 : LISTPANE_MEASUREMENTS.topSpacer;
+        const [pinnedSectionIcon, setPinnedSectionIcon] = useState(DEFAULT_PINNED_SECTION_ICON);
 
         // Search state - use directly from settings for sync across devices
         const isSearchActive = uxPreferences.searchActive;
@@ -254,6 +288,37 @@ export const ListPane = React.memo(
                 requireTagged: tokens.requireTagged
             });
         }, [searchQuery, onSearchTokensChange]);
+
+        useEffect(() => {
+            if (typeof window === 'undefined') {
+                return;
+            }
+
+            const updatePinnedIcon = () => {
+                const resolvedIcon = resolvePinnedSectionIcon();
+                setPinnedSectionIcon(current => (current === resolvedIcon ? current : resolvedIcon));
+            };
+
+            updatePinnedIcon();
+
+            const target = window.document?.body;
+            if (!target || typeof MutationObserver === 'undefined') {
+                return;
+            }
+
+            const observer = new MutationObserver(mutations => {
+                for (const mutation of mutations) {
+                    if (mutation.type === 'attributes') {
+                        updatePinnedIcon();
+                        break;
+                    }
+                }
+            });
+
+            observer.observe(target, { attributes: true, attributeFilter: ['style', 'class'] });
+
+            return () => observer.disconnect();
+        }, []);
 
         // Helper to toggle search state using UX preferences action
         const setIsSearchActive = useCallback(
@@ -936,6 +1001,10 @@ export const ListPane = React.memo(
                                         // Check if this is the first header (same logic as in estimateSize)
                                         // Index 1 because TOP_SPACER is at index 0
                                         const isFirstHeader = item.type === ListPaneItemType.HEADER && virtualItem.index === 1;
+                                        const isPinnedHeader =
+                                            item.type === ListPaneItemType.HEADER && item.key === PINNED_SECTION_HEADER_KEY;
+                                        const headerLabel =
+                                            item.type === ListPaneItemType.HEADER && typeof item.data === 'string' ? item.data : '';
 
                                         // Find current date group for file items
                                         let dateGroup: string | null = null;
@@ -979,8 +1048,23 @@ export const ListPane = React.memo(
                                                 data-index={virtualItem.index}
                                             >
                                                 {item.type === ListPaneItemType.HEADER ? (
-                                                    <div className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''}`}>
-                                                        {typeof item.data === 'string' ? item.data : ''}
+                                                    <div
+                                                        className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''} ${
+                                                            isPinnedHeader ? 'nn-pinned-section-header' : ''
+                                                        }`}
+                                                    >
+                                                        {isPinnedHeader ? (
+                                                            <>
+                                                                <ObsidianIcon
+                                                                    name={pinnedSectionIcon}
+                                                                    className="nn-date-group-header-icon"
+                                                                    aria-hidden={true}
+                                                                />
+                                                                <span className="nn-date-group-header-text">{headerLabel}</span>
+                                                            </>
+                                                        ) : (
+                                                            <span className="nn-date-group-header-text">{headerLabel}</span>
+                                                        )}
                                                     </div>
                                                 ) : item.type === ListPaneItemType.TOP_SPACER ? (
                                                     <div className="nn-list-top-spacer" style={{ height: `${topSpacerHeight}px` }} />

@@ -41,7 +41,7 @@ export const STRINGS_FR = {
     listPane: {
         emptyStateNoSelection: 'Sélectionnez un dossier ou une étiquette pour afficher les notes', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Aucune note', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 Épinglées', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: 'Épinglées', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: 'Notes', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: 'Fichiers', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (masqué)' // Accessibility label applied to list items that are normally hidden

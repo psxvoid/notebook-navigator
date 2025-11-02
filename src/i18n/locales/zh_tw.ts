@@ -41,7 +41,7 @@ export const STRINGS_ZH_TW = {
     listPane: {
         emptyStateNoSelection: '選取一個資料夾或標籤以檢視筆記', // 未選取資料夾或標籤時顯示的訊息 (英文: Select a folder or tag to view notes)
         emptyStateNoNotes: '沒有筆記', // 當資料夾/標籤沒有筆記時顯示的訊息 (英文: No notes)
-        pinnedSection: '📌 已釘選', // 檔案列表頂部釘選筆記區段的標頭 (英文: 📌 Pinned)
+        pinnedSection: '已釘選', // 檔案列表頂部釘選筆記區段的標頭 (英文: Pinned)
         notesSection: '筆記', // 僅顯示文件時，在釘選項目和一般項目之間顯示的標頭 (英文: Notes)
         filesSection: '檔案', // 顯示支援的或所有檔案時，在釘選項目和一般項目之間顯示的標頭 (英文: Files)
         hiddenItemAriaLabel: '{name} (已隱藏)' // 用於標示通常被隱藏項目的無障礙標籤

@@ -41,7 +41,7 @@ export const STRINGS_PL = {
     listPane: {
         emptyStateNoSelection: 'Wybierz folder lub tag aby zobaczyć notatki', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Brak notatek', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 Przypięte', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: 'Przypięte', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: 'Notatki', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: 'Pliki', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (ukryte)' // Accessibility label applied to list items that are normally hidden
