@@ -198,9 +198,11 @@ export const STRINGS_JA = {
         slimPreset: 'スリム（日付/プレビュー/画像なし）',
         titleRows: 'タイトル行数',
         previewRows: 'プレビュー行数',
+        groupBy: 'グループ分け',
         defaultOption: (rows: number) => `デフォルト (${rows})`,
         defaultTitleOption: (rows: number) => `デフォルトタイトル行数 (${rows})`,
         defaultPreviewOption: (rows: number) => `デフォルトプレビュー行数 (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `デフォルトのグループ化 (${groupLabel})`,
         titleRowOption: (rows: number) => `タイトル${rows}行`,
         previewRowOption: (rows: number) => `プレビュー${rows}行`
     },
@@ -597,6 +599,10 @@ export const STRINGS_JA = {
                     folder: 'フォルダでグループ化'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'ピン留めグループヘッダーを表示',
+                desc: 'ピン留めされたノートの上にセクションヘッダーを表示します。'
+            },
             optimizeNoteHeight: {
                 name: 'ノートの高さを最適化',
                 desc: 'ピン留めされたノートとプレビューテキストのないノートの高さを削減。'
@@ -613,6 +619,10 @@ export const STRINGS_JA = {
             showParentFolderNames: {
                 name: '親フォルダ名を表示',
                 desc: 'サブフォルダまたはタグ内のノートに親フォルダ名を表示します。'
+            },
+            showParentFolderColors: {
+                name: '親フォルダの色を表示',
+                desc: '親フォルダラベルにフォルダの色を使用します。'
             },
             showQuickActions: {
                 name: 'クイックアクションを表示 (デスクトップのみ)',
@@ -912,6 +922,10 @@ export const STRINGS_JA = {
             navItemHeightScaleText: {
                 name: '行高に合わせて文字サイズを調整',
                 desc: '行高を下げたときにナビゲーションの文字サイズを小さくします。'
+            },
+            navRootSpacing: {
+                name: 'ルート要素の間隔',
+                desc: '最上位のフォルダとタグの間隔。'
             },
             showTags: {
                 name: 'タグを表示',

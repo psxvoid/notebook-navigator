@@ -284,4 +284,31 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
                 await plugin.saveSettingsAndUpdate();
             })
         );
+
+    let rootSpacingSlider: SliderComponent;
+    new Setting(containerEl)
+        .setName(strings.settings.items.navRootSpacing.name)
+        .setDesc(strings.settings.items.navRootSpacing.desc)
+        .addSlider(slider => {
+            rootSpacingSlider = slider
+                .setLimits(0, 6, 1)
+                .setValue(plugin.settings.rootLevelSpacing)
+                .setDynamicTooltip()
+                .onChange(async value => {
+                    plugin.settings.rootLevelSpacing = value;
+                    await plugin.saveSettingsAndUpdate();
+                });
+            return slider;
+        })
+        .addExtraButton(button =>
+            button
+                .setIcon('lucide-rotate-ccw')
+                .setTooltip('Restore to default (0px)')
+                .onClick(async () => {
+                    const defaultValue = DEFAULT_SETTINGS.rootLevelSpacing;
+                    rootSpacingSlider.setValue(defaultValue);
+                    plugin.settings.rootLevelSpacing = defaultValue;
+                    await plugin.saveSettingsAndUpdate();
+                })
+        );
 }

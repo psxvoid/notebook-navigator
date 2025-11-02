@@ -89,6 +89,74 @@ const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
     );
 };
 
+/** Options controlling which navigation items are eligible for root spacing */
+interface RootSpacingOptions {
+    showRootFolder: boolean;
+    tagRootLevel: number;
+}
+
+/** Determines if the navigation item is a top-level folder or tag eligible for root spacing */
+const isRootSpacingCandidate = (item: CombinedNavigationItem, options: RootSpacingOptions): boolean => {
+    if (item.type === NavigationPaneItemType.FOLDER) {
+        const desiredLevel = options.showRootFolder ? 1 : 0;
+        return item.level === desiredLevel;
+    }
+    if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
+        return item.level === options.tagRootLevel;
+    }
+    return false;
+};
+
+/**
+ * Inserts spacer items between consecutive root-level folders or tags
+ * @param items Navigation items to augment with spacing
+ * @param spacing Spacing value in pixels
+ */
+const insertRootSpacing = (items: CombinedNavigationItem[], spacing: number, options: RootSpacingOptions): CombinedNavigationItem[] => {
+    if (spacing <= 0) {
+        return items;
+    }
+
+    const result: CombinedNavigationItem[] = [];
+    let rootCountInSection = 0;
+    let spacerId = 0;
+
+    const shouldResetSection = (item: CombinedNavigationItem): boolean => {
+        return (
+            item.type === NavigationPaneItemType.TOP_SPACER ||
+            item.type === NavigationPaneItemType.BOTTOM_SPACER ||
+            item.type === NavigationPaneItemType.LIST_SPACER ||
+            item.type === NavigationPaneItemType.BANNER ||
+            item.type === NavigationPaneItemType.VIRTUAL_FOLDER
+        );
+    };
+
+    for (const item of items) {
+        if (shouldResetSection(item)) {
+            rootCountInSection = 0;
+            result.push(item);
+            continue;
+        }
+
+        if (isRootSpacingCandidate(item, options)) {
+            if (rootCountInSection > 0) {
+                result.push({
+                    type: NavigationPaneItemType.ROOT_SPACER,
+                    key: `root-spacer-${spacerId++}`,
+                    spacing
+                });
+            }
+            rootCountInSection += 1;
+            result.push(item);
+            continue;
+        }
+
+        result.push(item);
+    }
+
+    return result;
+};
+
 // Maps non-markdown document extensions to their icon names
 const DOCUMENT_EXTENSION_ICONS: Record<string, string> = {
     canvas: 'lucide-layout-grid',
@@ -982,10 +1050,18 @@ export function useNavigationPaneData({
      * Create a map for O(1) item lookups by path
      * Build from filtered items so indices match what's displayed
      */
+    const itemsWithRootSpacing = useMemo(() => {
+        const tagRootLevel = settings.showAllTagsFolder ? 1 : 0;
+        return insertRootSpacing(filteredItems, settings.rootLevelSpacing, {
+            showRootFolder: settings.showRootFolder,
+            tagRootLevel
+        });
+    }, [filteredItems, settings.rootLevelSpacing, settings.showRootFolder, settings.showAllTagsFolder]);
+
     const pathToIndex = useMemo(() => {
         const indexMap = new Map<string, number>();
 
-        filteredItems.forEach((item, index) => {
+        itemsWithRootSpacing.forEach((item, index) => {
             if (item.type === NavigationPaneItemType.FOLDER) {
                 setNavigationIndex(indexMap, ItemType.FOLDER, item.data.path, index);
             } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
@@ -997,13 +1073,13 @@ export function useNavigationPaneData({
         });
 
         return indexMap;
-    }, [filteredItems]);
+    }, [itemsWithRootSpacing]);
 
     // Build index map for shortcuts to enable scrolling to specific shortcuts
     const shortcutIndex = useMemo(() => {
         const indexMap = new Map<string, number>();
 
-        const source = pinShortcuts ? shortcutItemsWithMetadata : filteredItems;
+        const source = pinShortcuts ? shortcutItemsWithMetadata : itemsWithRootSpacing;
 
         source.forEach((item, index) => {
             if (
@@ -1017,7 +1093,7 @@ export function useNavigationPaneData({
         });
 
         return indexMap;
-    }, [filteredItems, pinShortcuts, shortcutItemsWithMetadata]);
+    }, [itemsWithRootSpacing, pinShortcuts, shortcutItemsWithMetadata]);
 
     /**
      * Pre-compute tag counts to avoid expensive calculations during render
@@ -1145,7 +1221,7 @@ export function useNavigationPaneData({
     }, [app]);
 
     return {
-        items: filteredItems,
+        items: itemsWithRootSpacing,
         shortcutItems: shortcutItemsWithMetadata,
         tagsVirtualFolderHasChildren,
         pathToIndex,

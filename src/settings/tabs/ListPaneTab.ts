@@ -19,7 +19,7 @@
 import { Platform, Setting, SliderComponent } from 'obsidian';
 import { strings } from '../../i18n';
 import { DEFAULT_SETTINGS } from '../defaultSettings';
-import type { ListNoteGroupingOption, ListPaneTitleOption, MultiSelectModifier, SortOption } from '../types';
+import type { ListNoteGroupingOption, ListPaneTitleOption, SortOption } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 
 /** Renders the list pane settings tab */
@@ -61,20 +61,6 @@ export function renderListPaneTab(context: SettingsTabContext): void {
                 })
         );
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.multiSelectModifier.name)
-        .setDesc(strings.settings.items.multiSelectModifier.desc)
-        .addDropdown(dropdown =>
-            dropdown
-                .addOption('cmdCtrl', strings.settings.items.multiSelectModifier.options.cmdCtrl)
-                .addOption('optionAlt', strings.settings.items.multiSelectModifier.options.optionAlt)
-                .setValue(plugin.settings.multiSelectModifier)
-                .onChange(async (value: MultiSelectModifier) => {
-                    plugin.settings.multiSelectModifier = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-        );
-
     new Setting(containerEl).setName(strings.settings.groups.list.display).setHeading();
 
     new Setting(containerEl)
@@ -110,6 +96,19 @@ export function renderListPaneTab(context: SettingsTabContext): void {
                     plugin.settings.noteGrouping = value;
                     await plugin.saveSettingsAndUpdate();
                 })
+        );
+
+    // Sub-settings container for group notes options
+    const groupNotesSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(groupNotesSettingsEl)
+        .setName(strings.settings.items.showPinnedGroupHeader.name)
+        .setDesc(strings.settings.items.showPinnedGroupHeader.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showPinnedGroupHeader).onChange(async value => {
+                plugin.settings.showPinnedGroupHeader = value;
+                await plugin.saveSettingsAndUpdate();
+            })
         );
 
     new Setting(containerEl)

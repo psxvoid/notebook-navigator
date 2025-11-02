@@ -63,6 +63,7 @@ export interface NotebookNavigatorSettings {
     // General tab - Behavior
     autoRevealActiveFile: boolean;
     autoRevealIgnoreRightSidebar: boolean;
+    multiSelectModifier: MultiSelectModifier;
 
     // General tab - View
     startView: 'navigation' | 'files';
@@ -103,6 +104,7 @@ export interface NotebookNavigatorSettings {
     navIndent: number;
     navItemHeight: number;
     navItemHeightScaleText: boolean;
+    rootLevelSpacing: number;
 
     // Folders & tags tab
     showRootFolder: boolean;
@@ -123,9 +125,9 @@ export interface NotebookNavigatorSettings {
     // List pane tab
     defaultFolderSort: SortOption;
     listPaneTitle: ListPaneTitleOption;
-    multiSelectModifier: MultiSelectModifier;
     noteGrouping: ListNoteGroupingOption;
     filterPinnedByFolder: boolean;
+    showPinnedGroupHeader: boolean;
     optimizeNoteHeight: boolean;
     slimItemHeight: number;
     slimItemHeightScaleText: boolean;
@@ -153,6 +155,7 @@ export interface NotebookNavigatorSettings {
     colorFileTags: boolean;
     showFileTagsInSlimMode: boolean;
     showParentFolderNames: boolean;
+    showParentFolderColors: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     skipCodeBlocksInPreview: boolean;

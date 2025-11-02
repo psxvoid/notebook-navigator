@@ -198,9 +198,11 @@ export const STRINGS_ZH_TW = {
         slimPreset: '緊湊 (無日期/預覽/圖片)',
         titleRows: '標題列數',
         previewRows: '預覽列數',
+        groupBy: '分組依據',
         defaultOption: (rows: number) => `預設 (${rows})`,
         defaultTitleOption: (rows: number) => `預設標題列數 (${rows})`,
         defaultPreviewOption: (rows: number) => `預設預覽列數 (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `預設分組 (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} 標題列`,
         previewRowOption: (rows: number) => `${rows} 預覽列`
     },
@@ -595,6 +597,10 @@ export const STRINGS_ZH_TW = {
                     folder: '依資料夾分組'
                 }
             },
+            showPinnedGroupHeader: {
+                name: '顯示釘選群組標題',
+                desc: '在釘選筆記上方顯示分組標題。'
+            },
             optimizeNoteHeight: {
                 name: '最佳化筆記高度',
                 desc: '減少釘選筆記和無預覽文字筆記的高度。'
@@ -611,6 +617,10 @@ export const STRINGS_ZH_TW = {
             showParentFolderNames: {
                 name: '顯示父資料夾名稱',
                 desc: '在子資料夾或標籤中顯示筆記的父資料夾名稱。'
+            },
+            showParentFolderColors: {
+                name: '顯示父資料夾顏色',
+                desc: '在父資料夾標籤上使用資料夾顏色。'
             },
             showQuickActions: {
                 name: '顯示快速操作 (僅限桌面版)',
@@ -909,6 +919,10 @@ export const STRINGS_ZH_TW = {
             navItemHeightScaleText: {
                 name: '隨項目高度縮放文字',
                 desc: '減少項目高度時，縮小導覽文字大小。'
+            },
+            navRootSpacing: {
+                name: '根層項目間距',
+                desc: '根層資料夾與標籤之間的間距。'
             },
             showTags: {
                 name: '顯示標籤',

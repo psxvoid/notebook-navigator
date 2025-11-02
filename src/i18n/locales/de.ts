@@ -200,9 +200,11 @@ export const STRINGS_DE = {
         slimPreset: 'Schmal (ohne Datum/Vorschau/Bild)',
         titleRows: 'Titelzeilen',
         previewRows: 'Vorschauzeilen',
+        groupBy: 'Gruppieren nach',
         defaultOption: (rows: number) => `Standard (${rows})`,
         defaultTitleOption: (rows: number) => `Standard-Titelzeilen (${rows})`,
         defaultPreviewOption: (rows: number) => `Standard-Vorschauzeilen (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Standardgruppierung (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} Titelzeile${rows === 1 ? '' : 'n'}`,
         previewRowOption: (rows: number) => `${rows} Vorschauzeile${rows === 1 ? '' : 'n'}`
     },
@@ -600,6 +602,10 @@ export const STRINGS_DE = {
                     folder: 'Nach Ordner gruppieren'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'Überschrift für angeheftete Notizen anzeigen',
+                desc: 'Zeigt die Überschrift des Abschnitts für angeheftete Notizen an.'
+            },
             optimizeNoteHeight: {
                 name: 'Notizenhöhe optimieren',
                 desc: 'Höhe für angeheftete Notizen und Notizen ohne Vorschautext reduzieren.'
@@ -616,6 +622,10 @@ export const STRINGS_DE = {
             showParentFolderNames: {
                 name: 'Übergeordnete Ordnernamen anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen in Unterordnern oder Tags anzeigen.'
+            },
+            showParentFolderColors: {
+                name: 'Übergeordnete Ordnerfarben anzeigen',
+                desc: 'Ordnerfarben auf übergeordnete Ordnerlabels anwenden.'
             },
             showQuickActions: {
                 name: 'Schnellaktionen anzeigen (nur Desktop)',
@@ -914,6 +924,10 @@ export const STRINGS_DE = {
             navItemHeightScaleText: {
                 name: 'Text mit Zeilenhöhe skalieren',
                 desc: 'Verkleinert die Navigationsschrift, wenn die Zeilenhöhe reduziert wird.'
+            },
+            navRootSpacing: {
+                name: 'Abstand für Wurzelelemente',
+                desc: 'Abstand zwischen Ordnern und Tags auf der obersten Ebene.'
             },
             showTags: {
                 name: 'Tags anzeigen',

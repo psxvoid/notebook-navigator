@@ -198,9 +198,11 @@ export const STRINGS_ZH_CN = {
         slimPreset: '精简（无日期/预览/图片）',
         titleRows: '标题行数',
         previewRows: '预览行数',
+        groupBy: '分组依据',
         defaultOption: (rows: number) => `默认 (${rows})`,
         defaultTitleOption: (rows: number) => `默认标题行数 (${rows})`,
         defaultPreviewOption: (rows: number) => `默认预览行数 (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `默认分组 (${groupLabel})`,
         titleRowOption: (rows: number) => `标题${rows}行`,
         previewRowOption: (rows: number) => `预览${rows}行`
     },
@@ -596,6 +598,10 @@ export const STRINGS_ZH_CN = {
                     folder: '按文件夹分组'
                 }
             },
+            showPinnedGroupHeader: {
+                name: '显示固定组标题',
+                desc: '在固定笔记上方显示分组标题。'
+            },
             optimizeNoteHeight: {
                 name: '优化笔记高度',
                 desc: '减少固定笔记和无预览文本笔记的高度。'
@@ -612,6 +618,10 @@ export const STRINGS_ZH_CN = {
             showParentFolderNames: {
                 name: '显示父文件夹名称',
                 desc: '为子文件夹或标签中的笔记显示父文件夹名称。'
+            },
+            showParentFolderColors: {
+                name: '显示父文件夹颜色',
+                desc: '在父文件夹标签上使用文件夹颜色。'
             },
             showQuickActions: {
                 name: '显示快速操作（仅桌面版）',
@@ -911,6 +921,10 @@ export const STRINGS_ZH_CN = {
             navItemHeightScaleText: {
                 name: '随行高调整文字大小',
                 desc: '降低行高时减小导航文字大小。'
+            },
+            navRootSpacing: {
+                name: '根级项目间距',
+                desc: '根级文件夹和标签之间的间距。'
             },
             showTags: {
                 name: '显示标签',

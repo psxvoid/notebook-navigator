@@ -265,6 +265,8 @@ export function useNavigationPaneScroll({
                 case NavigationPaneItemType.BANNER:
                     // Fall back to a small spacer height until ResizeObserver reports the real banner height
                     return bannerHeight > 0 ? bannerHeight : NAVPANE_MEASUREMENTS.topSpacer;
+                case NavigationPaneItemType.ROOT_SPACER:
+                    return item.spacing;
                 case NavigationPaneItemType.FOLDER:
                 case NavigationPaneItemType.VIRTUAL_FOLDER:
                     return itemHeight;

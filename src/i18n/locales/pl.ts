@@ -197,9 +197,11 @@ export const STRINGS_PL = {
         slimPreset: 'Szczupły (bez daty/podglądu/obrazu)',
         titleRows: 'Wiersze tytułu',
         previewRows: 'Wiersze podglądu',
+        groupBy: 'Grupuj według',
         defaultOption: (rows: number) => `Domyślne (${rows})`,
         defaultTitleOption: (rows: number) => `Domyślne wiersze tytułu (${rows})`,
         defaultPreviewOption: (rows: number) => `Domyślne wiersze podglądu (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Domyślne grupowanie (${groupLabel})`,
         titleRowOption: (rows: number) =>
             `${rows} ${rows === 1 ? 'wiersz' : rows === 2 || rows === 3 || rows === 4 ? 'wiersze' : 'wierszy'} tytułu`,
         previewRowOption: (rows: number) =>
@@ -598,6 +600,10 @@ export const STRINGS_PL = {
                     folder: 'Grupuj według folderu'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'Pokaż nagłówek grupy przypiętych',
+                desc: 'Wyświetla nagłówek sekcji przypiętych notatek.'
+            },
             optimizeNoteHeight: {
                 name: 'Optymalizuj wysokość notatek',
                 desc: 'Zmniejsz wysokość dla przypiętych notatek i notatek bez tekstu podglądu.'
@@ -614,6 +620,10 @@ export const STRINGS_PL = {
             showParentFolderNames: {
                 name: 'Pokaż nazwy folderów nadrzędnych',
                 desc: 'Wyświetl nazwę folderu nadrzędnego dla notatek w podfolderach lub tagach.'
+            },
+            showParentFolderColors: {
+                name: 'Pokaż kolory folderów nadrzędnych',
+                desc: 'Używaj kolorów folderów na etykietach folderów nadrzędnych.'
             },
             showQuickActions: {
                 name: 'Pokaż szybkie akcje (tylko desktop)',
@@ -912,6 +922,10 @@ export const STRINGS_PL = {
             navItemHeightScaleText: {
                 name: 'Skaluj tekst z wysokością elementu',
                 desc: 'Zmniejsza tekst nawigacji, gdy wysokość elementu jest obniżona.'
+            },
+            navRootSpacing: {
+                name: 'Odstęp elementów głównych',
+                desc: 'Odstęp między folderami i tagami na poziomie głównym.'
             },
             showTags: {
                 name: 'Pokaż tagi',

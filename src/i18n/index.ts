@@ -27,6 +27,7 @@ import { STRINGS_ES } from './locales/es';
 import { STRINGS_FR } from './locales/fr';
 import { STRINGS_JA } from './locales/ja';
 import { STRINGS_KO } from './locales/ko';
+import { STRINGS_NL } from './locales/nl';
 import { STRINGS_PL } from './locales/pl';
 import { STRINGS_ZH_CN } from './locales/zh_cn';
 import { STRINGS_ZH_TW } from './locales/zh_tw';
@@ -43,6 +44,7 @@ const LANGUAGE_MAP: Record<string, TranslationStrings> = {
     fr: STRINGS_FR,
     ja: STRINGS_JA,
     ko: STRINGS_KO,
+    nl: STRINGS_NL,
     pl: STRINGS_PL,
     zh: STRINGS_ZH_CN,
     'zh-CN': STRINGS_ZH_CN,

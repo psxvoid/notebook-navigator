@@ -401,6 +401,19 @@ export function renderNotesTab(context: SettingsTabContext): void {
             toggle.setValue(plugin.settings.showParentFolderNames).onChange(async value => {
                 plugin.settings.showParentFolderNames = value;
                 await plugin.saveSettingsAndUpdate();
+                parentFolderSettingsEl.toggle(value);
+            })
+        );
+
+    const parentFolderSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(parentFolderSettingsEl)
+        .setName(strings.settings.items.showParentFolderColors.name)
+        .setDesc(strings.settings.items.showParentFolderColors.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showParentFolderColors).onChange(async value => {
+                plugin.settings.showParentFolderColors = value;
+                await plugin.saveSettingsAndUpdate();
             })
         );
 
@@ -554,6 +567,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
         });
 
     fileTagsSubSettingsEl.toggle(plugin.settings.showFileTags);
+    parentFolderSettingsEl.toggle(plugin.settings.showParentFolderNames);
     previewSettingsEl.toggle(plugin.settings.showFilePreview);
     featureImageSettingsEl.toggle(plugin.settings.showFeatureImage);
     frontmatterSettingsEl.toggle(plugin.settings.useFrontmatterMetadata);
