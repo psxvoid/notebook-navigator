@@ -604,6 +604,10 @@ export const STRINGS_IT = {
                 name: 'Mostra intestazione gruppo fissato',
                 desc: "Visualizza l'intestazione della sezione fissata sopra le note fissate."
             },
+            showPinnedIcon: {
+                name: 'Mostra icona fissata',
+                desc: "Visualizza l'icona accanto all'intestazione della sezione fissata."
+            },
             optimizeNoteHeight: {
                 name: 'Ottimizza altezza nota',
                 desc: 'Riduci altezza per note fissate e note senza testo anteprima.'
@@ -617,12 +621,12 @@ export const STRINGS_IT = {
                 name: 'Scala testo con altezza elemento sottile',
                 desc: "Scala testo lista sottile quando l'altezza elemento è ridotta."
             },
-            showParentFolderNames: {
-                name: 'Mostra nomi cartelle genitore',
+            showParentFolder: {
+                name: 'Mostra cartella genitore',
                 desc: 'Visualizza il nome della cartella genitore per note in sottocartelle o tag.'
             },
-            showParentFolderColors: {
-                name: 'Mostra colori cartelle genitore',
+            showParentFolderColor: {
+                name: 'Mostra colore cartella genitore',
                 desc: 'Usa colori cartella su etichette cartelle genitore.'
             },
             showQuickActions: {
@@ -866,6 +870,10 @@ export const STRINGS_IT = {
                 name: 'Mostra cartella radice',
                 desc: "Visualizza il nome del vault come cartella radice nell'albero."
             },
+            showFolderIcons: {
+                name: 'Mostra icone cartelle',
+                desc: 'Visualizza icone accanto alle cartelle nel pannello navigazione.'
+            },
             inheritFolderColors: {
                 name: 'Eredita colori cartelle',
                 desc: 'Le cartelle figlie ereditano il colore dalle cartelle genitore.'
@@ -874,9 +882,9 @@ export const STRINGS_IT = {
                 name: 'Mostra conteggio note',
                 desc: 'Visualizza il numero di note accanto a ogni cartella e tag.'
             },
-            showIcons: {
-                name: 'Mostra icone',
-                desc: 'Visualizza icone per cartelle, tag e note.'
+            showSectionIcons: {
+                name: 'Mostra icone collegamento',
+                desc: 'Visualizza icone per sezioni navigazione come Collegamenti e File recenti.'
             },
             showIconsColorOnly: {
                 name: 'Applica colore solo alle icone',
@@ -914,6 +922,10 @@ export const STRINGS_IT = {
             showTags: {
                 name: 'Mostra tag',
                 desc: 'Visualizza sezione tag sotto le cartelle nel navigatore.'
+            },
+            showTagIcons: {
+                name: 'Mostra icone tag',
+                desc: 'Visualizza icone accanto ai tag nel pannello navigazione.'
             },
             tagSortOrder: {
                 name: 'Ordine tag',

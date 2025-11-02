@@ -602,6 +602,10 @@ export const STRINGS_KO = {
                 name: '고정 그룹 헤더 표시',
                 desc: '고정된 노트 위에 섹션 헤더를 표시합니다.'
             },
+            showPinnedIcon: {
+                name: '고정 아이콘 표시',
+                desc: '고정 섹션 헤더 옆에 아이콘을 표시합니다.'
+            },
             optimizeNoteHeight: {
                 name: '노트 높이 최적화',
                 desc: '고정된 노트와 미리보기 텍스트가 없는 노트의 높이를 줄입니다.'
@@ -615,11 +619,11 @@ export const STRINGS_KO = {
                 name: '슬림 항목 높이에 맞춰 텍스트 크기 조정',
                 desc: '항목 높이를 줄이면 슬림 목록 텍스트 크기를 조정합니다.'
             },
-            showParentFolderNames: {
-                name: '상위 폴더 이름 표시',
+            showParentFolder: {
+                name: '상위 폴더 표시',
                 desc: '하위 폴더나 태그의 노트에 상위 폴더 이름을 표시합니다.'
             },
-            showParentFolderColors: {
+            showParentFolderColor: {
                 name: '상위 폴더 색상 표시',
                 desc: '상위 폴더 레이블에 폴더 색상을 사용합니다.'
             },
@@ -864,6 +868,10 @@ export const STRINGS_KO = {
                 name: '루트 폴더 표시',
                 desc: '트리에서 보관함 이름을 루트 폴더로 표시합니다.'
             },
+            showFolderIcons: {
+                name: '폴더 아이콘 표시',
+                desc: '탐색 창의 폴더 옆에 아이콘을 표시합니다.'
+            },
             inheritFolderColors: {
                 name: '폴더 색상 상속',
                 desc: '하위 폴더가 상위 폴더에서 색상을 상속합니다.'
@@ -872,9 +880,9 @@ export const STRINGS_KO = {
                 name: '노트 수 표시',
                 desc: '각 폴더와 태그 옆에 노트 수를 표시합니다.'
             },
-            showIcons: {
-                name: '아이콘 표시',
-                desc: '폴더, 태그 및 노트에 아이콘을 표시합니다.'
+            showSectionIcons: {
+                name: '바로 가기 아이콘 표시',
+                desc: '바로 가기 및 최근 파일과 같은 탐색 섹션의 아이콘을 표시합니다.'
             },
             showIconsColorOnly: {
                 name: '아이콘에만 색상 적용',
@@ -912,6 +920,10 @@ export const STRINGS_KO = {
             showTags: {
                 name: '태그 표시',
                 desc: '네비게이터에서 폴더 아래에 태그 섹션을 표시합니다.'
+            },
+            showTagIcons: {
+                name: '태그 아이콘 표시',
+                desc: '탐색 창의 태그 옆에 아이콘을 표시합니다.'
             },
             tagSortOrder: {
                 name: '태그 정렬 순서',

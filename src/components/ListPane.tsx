@@ -1055,11 +1055,13 @@ export const ListPane = React.memo(
                                                     >
                                                         {isPinnedHeader ? (
                                                             <>
-                                                                <ObsidianIcon
-                                                                    name={pinnedSectionIcon}
-                                                                    className="nn-date-group-header-icon"
-                                                                    aria-hidden={true}
-                                                                />
+                                                                {settings.showPinnedIcon ? (
+                                                                    <ObsidianIcon
+                                                                        name={pinnedSectionIcon}
+                                                                        className="nn-date-group-header-icon"
+                                                                        aria-hidden={true}
+                                                                    />
+                                                                ) : null}
                                                                 <span className="nn-date-group-header-text">{headerLabel}</span>
                                                             </>
                                                         ) : (

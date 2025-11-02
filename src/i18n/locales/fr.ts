@@ -604,6 +604,10 @@ export const STRINGS_FR = {
                 name: "Afficher l'en-tête du groupe épinglé",
                 desc: "Affiche l'en-tête de la section des notes épinglées."
             },
+            showPinnedIcon: {
+                name: "Afficher l'icône épinglée",
+                desc: "Afficher l'icône à côté de l'en-tête de la section épinglée."
+            },
             optimizeNoteHeight: {
                 name: 'Optimiser la hauteur des notes',
                 desc: "Réduire la hauteur pour les notes épinglées et les notes sans texte d'aperçu."
@@ -617,12 +621,12 @@ export const STRINGS_FR = {
                 name: 'Adapter le texte à la hauteur compacte',
                 desc: 'Adapte le texte des éléments compacts lorsque la hauteur est réduite.'
             },
-            showParentFolderNames: {
-                name: 'Afficher les noms des dossiers parents',
+            showParentFolder: {
+                name: 'Afficher le dossier parent',
                 desc: 'Afficher le nom du dossier parent pour les notes dans les sous-dossiers ou étiquettes.'
             },
-            showParentFolderColors: {
-                name: 'Afficher les couleurs des dossiers parents',
+            showParentFolderColor: {
+                name: 'Afficher la couleur du dossier parent',
                 desc: 'Utiliser les couleurs des dossiers sur les étiquettes des dossiers parents.'
             },
             showQuickActions: {
@@ -867,6 +871,10 @@ export const STRINGS_FR = {
                 name: 'Afficher le dossier racine',
                 desc: "Afficher le nom du dossier racine dans l'arborescence."
             },
+            showFolderIcons: {
+                name: 'Afficher les icônes de dossier',
+                desc: 'Afficher les icônes à côté des dossiers dans le panneau de navigation.'
+            },
             inheritFolderColors: {
                 name: 'Hériter des couleurs de dossier',
                 desc: 'Les sous-dossiers héritent de la couleur des dossiers parents.'
@@ -875,9 +883,9 @@ export const STRINGS_FR = {
                 name: 'Afficher le nombre de notes',
                 desc: 'Afficher le nombre de notes à côté de chaque dossier et étiquette.'
             },
-            showIcons: {
-                name: 'Afficher les icônes',
-                desc: 'Afficher les icônes pour les dossiers, étiquettes et notes.'
+            showSectionIcons: {
+                name: 'Afficher les icônes de raccourci',
+                desc: 'Afficher les icônes pour les sections de navigation comme Raccourcis et Fichiers récents.'
             },
             showIconsColorOnly: {
                 name: 'Appliquer la couleur uniquement aux icônes',
@@ -915,6 +923,10 @@ export const STRINGS_FR = {
             showTags: {
                 name: 'Afficher les étiquettes',
                 desc: 'Afficher la section des étiquettes sous les dossiers dans le navigateur.'
+            },
+            showTagIcons: {
+                name: "Afficher les icônes d'étiquettes",
+                desc: 'Afficher les icônes à côté des étiquettes dans le panneau de navigation.'
             },
             tagSortOrder: {
                 name: 'Ordre de tri des étiquettes',

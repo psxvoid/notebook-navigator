@@ -603,6 +603,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar encabezado del grupo anclado',
                 desc: 'Muestra el encabezado de la sección de notas ancladas.'
             },
+            showPinnedIcon: {
+                name: 'Mostrar icono de anclados',
+                desc: 'Muestra el icono junto al encabezado de la sección anclada.'
+            },
             optimizeNoteHeight: {
                 name: 'Optimizar altura de notas',
                 desc: 'Reducir altura para notas ancladas y notas sin texto de vista previa.'
@@ -616,12 +620,12 @@ export const STRINGS_ES = {
                 name: 'Escalar texto con altura compacta',
                 desc: 'Escala el texto de los elementos compactos cuando se reduce la altura.'
             },
-            showParentFolderNames: {
-                name: 'Mostrar nombres de carpetas principales',
+            showParentFolder: {
+                name: 'Mostrar carpeta principal',
                 desc: 'Muestra el nombre de la carpeta principal para las notas en subcarpetas o etiquetas.'
             },
-            showParentFolderColors: {
-                name: 'Mostrar colores de carpetas principales',
+            showParentFolderColor: {
+                name: 'Mostrar color de carpeta principal',
                 desc: 'Usar colores de carpeta en etiquetas de carpetas principales.'
             },
             showQuickActions: {
@@ -865,6 +869,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar carpeta raíz',
                 desc: 'Muestra el nombre de la carpeta raíz en el árbol.'
             },
+            showFolderIcons: {
+                name: 'Mostrar iconos de carpetas',
+                desc: 'Muestra iconos junto a las carpetas en el panel de navegación.'
+            },
             inheritFolderColors: {
                 name: 'Heredar colores de carpeta',
                 desc: 'Las subcarpetas heredan el color de las carpetas principales.'
@@ -873,9 +881,9 @@ export const STRINGS_ES = {
                 name: 'Mostrar conteo de notas',
                 desc: 'Muestra el número de notas junto a cada carpeta y etiqueta.'
             },
-            showIcons: {
-                name: 'Mostrar iconos',
-                desc: 'Muestra iconos para carpetas, etiquetas y notas.'
+            showSectionIcons: {
+                name: 'Mostrar iconos de atajo',
+                desc: 'Muestra iconos para secciones de navegación como Atajos y Archivos recientes.'
             },
             showIconsColorOnly: {
                 name: 'Aplicar color solo a los iconos',
@@ -913,6 +921,10 @@ export const STRINGS_ES = {
             showTags: {
                 name: 'Mostrar etiquetas',
                 desc: 'Muestra la sección de etiquetas debajo de las carpetas en el navegador.'
+            },
+            showTagIcons: {
+                name: 'Mostrar iconos de etiquetas',
+                desc: 'Muestra iconos junto a las etiquetas en el panel de navegación.'
             },
             tagSortOrder: {
                 name: 'Orden de etiquetas',

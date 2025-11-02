@@ -116,6 +116,16 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
     renderNavigationBannerValue();
 
     new Setting(containerEl)
+        .setName(strings.settings.items.showSectionIcons.name)
+        .setDesc(strings.settings.items.showSectionIcons.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showSectionIcons).onChange(async value => {
+                plugin.settings.showSectionIcons = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(containerEl)
         .setName(strings.settings.items.showShortcuts.name)
         .setDesc(strings.settings.items.showShortcuts.desc)
         .addToggle(toggle =>

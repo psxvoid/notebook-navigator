@@ -271,7 +271,7 @@ export function useListPaneScroll({
                     }
 
                     // Parent folder gets its own line (not when pinned is in compact layout)
-                    if (!pinnedItemShouldUseCompactLayout && settings.showParentFolderNames) {
+                    if (!pinnedItemShouldUseCompactLayout && settings.showParentFolder) {
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInDescendant = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolderLine = selectionState.selectionType === 'tag' || (includeDescendantNotes && isInDescendant);
@@ -286,7 +286,7 @@ export function useListPaneScroll({
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInDescendant = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolder =
-                            settings.showParentFolderNames &&
+                            settings.showParentFolder &&
                             !pinnedItemShouldUseCompactLayout &&
                             (selectionState.selectionType === 'tag' || (includeDescendantNotes && isInDescendant));
 
@@ -311,7 +311,7 @@ export function useListPaneScroll({
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInDescendant = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolder =
-                            settings.showParentFolderNames &&
+                            settings.showParentFolder &&
                             !pinnedItemShouldUseCompactLayout &&
                             (selectionState.selectionType === 'tag' || (includeDescendantNotes && isInDescendant));
 
@@ -686,7 +686,7 @@ export function useListPaneScroll({
         settings.showFeatureImage,
         settings.fileNameRows,
         settings.previewRows,
-        settings.showParentFolderNames,
+        settings.showParentFolder,
         settings.showTags,
         settings.showFileTags,
         settings.showFileTagsInSlimMode,

@@ -55,6 +55,7 @@ interface NavigationListRowProps {
     labelClassName?: string;
     onLabelClick?: (event: React.MouseEvent<HTMLSpanElement>) => void;
     trailingAccessory?: React.ReactNode;
+    showIcon?: boolean;
 }
 
 /**
@@ -89,7 +90,8 @@ export function NavigationListRow({
     ariaGrabbed,
     labelClassName,
     onLabelClick,
-    trailingAccessory
+    trailingAccessory,
+    showIcon = true
 }: NavigationListRowProps) {
     const settings = useSettingsState();
     const chevronRef = useRef<HTMLSpanElement>(null);
@@ -161,14 +163,14 @@ export function NavigationListRow({
             return;
         }
 
-        if (!settings.showIcons) {
+        if (!showIcon) {
             iconRef.current.textContent = '';
             return;
         }
 
         const iconService = getIconService();
         iconService.renderIcon(iconRef.current, icon);
-    }, [icon, iconVersion, settings.showIcons]);
+    }, [icon, iconVersion, showIcon]);
 
     // Determines drag and drop behavior based on handlers and configuration
     // Supports both full-row dragging and handle-only dragging modes
@@ -261,7 +263,7 @@ export function NavigationListRow({
                     className={`nn-navitem-chevron${chevronIcon ? '' : ' nn-navitem-chevron--no-children'}`}
                     aria-hidden="true"
                 />
-                {settings.showIcons ? (
+                {showIcon ? (
                     <span
                         ref={iconRef}
                         className="nn-navitem-icon"

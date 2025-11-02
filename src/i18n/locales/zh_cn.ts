@@ -602,6 +602,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示固定组标题',
                 desc: '在固定笔记上方显示分组标题。'
             },
+            showPinnedIcon: {
+                name: '显示固定图标',
+                desc: '在固定部分标题旁显示图标。'
+            },
             optimizeNoteHeight: {
                 name: '优化笔记高度',
                 desc: '减少固定笔记和无预览文本笔记的高度。'
@@ -615,11 +619,11 @@ export const STRINGS_ZH_CN = {
                 name: '随精简高度缩放文本',
                 desc: '当减小紧凑列表项高度时同步缩放文本。'
             },
-            showParentFolderNames: {
-                name: '显示父文件夹名称',
+            showParentFolder: {
+                name: '显示父文件夹',
                 desc: '为子文件夹或标签中的笔记显示父文件夹名称。'
             },
-            showParentFolderColors: {
+            showParentFolderColor: {
                 name: '显示父文件夹颜色',
                 desc: '在父文件夹标签上使用文件夹颜色。'
             },
@@ -865,6 +869,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示根文件夹',
                 desc: '在树中显示根文件夹名称。'
             },
+            showFolderIcons: {
+                name: '显示文件夹图标',
+                desc: '在导航窗格的文件夹旁显示图标。'
+            },
             inheritFolderColors: {
                 name: '继承文件夹颜色',
                 desc: '子文件夹从父文件夹继承颜色。'
@@ -873,9 +881,9 @@ export const STRINGS_ZH_CN = {
                 name: '显示笔记数',
                 desc: '在每个文件夹和标签旁显示笔记数量。'
             },
-            showIcons: {
-                name: '显示图标',
-                desc: '显示文件夹、标签和笔记的图标。'
+            showSectionIcons: {
+                name: '显示快捷方式图标',
+                desc: '显示导航分区（如快捷方式和最近文件）的图标。'
             },
             showIconsColorOnly: {
                 name: '仅对图标应用颜色',
@@ -913,6 +921,10 @@ export const STRINGS_ZH_CN = {
             showTags: {
                 name: '显示标签',
                 desc: '在导航器中的文件夹下方显示标签部分。'
+            },
+            showTagIcons: {
+                name: '显示标签图标',
+                desc: '在导航窗格的标签旁显示图标。'
             },
             tagSortOrder: {
                 name: '标签排序方式',

@@ -606,6 +606,10 @@ export const STRINGS_DE = {
                 name: 'Überschrift für angeheftete Notizen anzeigen',
                 desc: 'Zeigt die Überschrift des Abschnitts für angeheftete Notizen an.'
             },
+            showPinnedIcon: {
+                name: 'Icon für angeheftete Notizen anzeigen',
+                desc: 'Icon neben der Überschrift für angeheftete Notizen anzeigen.'
+            },
             optimizeNoteHeight: {
                 name: 'Notizenhöhe optimieren',
                 desc: 'Höhe für angeheftete Notizen und Notizen ohne Vorschautext reduzieren.'
@@ -619,12 +623,12 @@ export const STRINGS_DE = {
                 name: 'Text an schlanke Elementhöhe anpassen',
                 desc: 'Skaliert den Text schlanker Listenelemente bei reduzierter Höhe.'
             },
-            showParentFolderNames: {
-                name: 'Übergeordnete Ordnernamen anzeigen',
+            showParentFolder: {
+                name: 'Übergeordneten Ordner anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen in Unterordnern oder Tags anzeigen.'
             },
-            showParentFolderColors: {
-                name: 'Übergeordnete Ordnerfarben anzeigen',
+            showParentFolderColor: {
+                name: 'Übergeordnete Ordnerfarbe anzeigen',
                 desc: 'Ordnerfarben auf übergeordnete Ordnerlabels anwenden.'
             },
             showQuickActions: {
@@ -868,6 +872,10 @@ export const STRINGS_DE = {
                 name: 'Wurzelordner anzeigen',
                 desc: 'Den Namen des Wurzelordners im Baum anzeigen.'
             },
+            showFolderIcons: {
+                name: 'Ordner-Icons anzeigen',
+                desc: 'Icons neben Ordnern im Navigationsbereich anzeigen.'
+            },
             inheritFolderColors: {
                 name: 'Ordnerfarben vererben',
                 desc: 'Unterordner erben die Farbe von übergeordneten Ordnern.'
@@ -876,9 +884,9 @@ export const STRINGS_DE = {
                 name: 'Notizenzahl anzeigen',
                 desc: 'Die Anzahl der Notizen neben jedem Ordner und Tag anzeigen.'
             },
-            showIcons: {
-                name: 'Symbole anzeigen',
-                desc: 'Symbole für Ordner, Tags und Notizen anzeigen.'
+            showSectionIcons: {
+                name: 'Shortcut-Icons anzeigen',
+                desc: 'Icons für Navigationsbereiche wie Shortcuts und Zuletzt verwendete Dateien anzeigen.'
             },
             showIconsColorOnly: {
                 name: 'Farbe nur auf Symbole anwenden',
@@ -916,6 +924,10 @@ export const STRINGS_DE = {
             showTags: {
                 name: 'Tags anzeigen',
                 desc: 'Tag-Bereich unterhalb der Ordner im Navigator anzeigen.'
+            },
+            showTagIcons: {
+                name: 'Tag-Icons anzeigen',
+                desc: 'Icons neben Tags im Navigationsbereich anzeigen.'
             },
             tagSortOrder: {
                 name: 'Tag-Sortierreihenfolge',

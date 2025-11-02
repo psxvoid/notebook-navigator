@@ -314,8 +314,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Default startup view:** Choose which pane to display when opening Notebook Navigator. `Navigation pane`, `List pane`.
 - **Homepage:** Choose the file that Notebook Navigator opens automatically, such as a dashboard.
   - **Separate mobile homepage:** Use a different homepage for mobile devices.
-- **Show icons:** Display icons for folders, tags and notes.
-  - **Apply color to icons only:** When enabled, custom colors are applied only to icons. When disabled, colors are applied to both icons and text labels.
+- **Apply color to icons only:** When enabled, custom colors are applied only to icons. When disabled, colors are applied to both icons and text labels.
 
 **Formatting**
 
@@ -333,6 +332,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show shortcuts:** Display the shortcuts section in the navigation pane.
 - **Show recent notes:** Display the recent notes section in the navigation pane.
   - **Recent notes count:** Number of recent notes to display.
+- **Show section icons:** Display icons for navigation sections like Shortcuts and Recent files.
 - **Show note count:** Display the number of notes next to each folder and tag.
   - **Show current and descendant counts separately:** Display note counts as "current ▾ descendants" format in folders and tags.
 - **Tree indentation:** Adjust the indentation width for nested folders and tags.
@@ -344,6 +344,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 **Folders**
 
 - **Show root folder:** Display the vault name as the root folder in the tree.
+- **Show folder icons:** Display icons next to folders in the navigation pane.
 - **Inherit folder colors:** Child folders inherit color from parent folders.
 - **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links.
   - **Default folder note type:** Folder note type created from the context menu. `Ask when creating`, `Markdown`, `Canvas`, `Base`.
@@ -355,6 +356,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 **Tags**
 
 - **Show tags:** Display tags section below folders in the navigator.
+  - **Show tag icons:** Display icons next to tags in the navigation pane.
   - **Tag sort order:** Choose how tags are ordered in the navigation pane. `A to Z`, `Z to A`, `Frequency (low to high)`, `Frequency (high to low)`.
   - **Show tags folder:** Display "Tags" as a collapsible folder.
   - **Show untagged notes:** Display "Untagged" item for notes without any tags.
@@ -367,6 +369,8 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Sort notes by:** Choose how notes are sorted in the note list. `Date edited (newest on top)`, `Date edited (oldest on top)`, `Date created (newest on top)`, `Date created (oldest on top)`, `Title (A on top)`, `Title (Z on top)`.
 - **Multi-select modifier:** Choose which modifier key toggles multi-selection. When Option/Alt is selected, Cmd/Ctrl click opens notes in a new tab. `Cmd/Ctrl click`, `Option/Alt click`.
 - **Show notes from subfolders / descendants:** Include notes from nested subfolders and tag descendants when viewing a folder or tag.
+- **Show pinned notes in parent folder only:** Pinned notes appear only when viewing their parent folder.
+  - **Show pinned icon:** Show the icon next to the pinned section header.
 - **Group notes:** Display headers between notes grouped by date or folder. Tag views use date groups when folder grouping is enabled. `Don't group`, `Group by date`, `Group by folder`.
 - **Optimize note height:** Reduce height for pinned notes and notes without preview text.
 - **Show quick actions (desktop only):** Show hover actions on file items.
@@ -399,6 +403,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Color file tags:** Apply tag colors to tag badges on file items.
   - **Show file tags in slim mode:** Display tags when date, preview, and image are hidden.
 - **Show parent folder names:** Display the parent folder name for notes in subfolders or tags.
+- **Show parent folder colors:** Use folder colors on parent folder labels.
 - **Show note preview:** Display preview text beneath note names.
   - **Skip headings in preview:** Skip heading lines when generating preview text.
   - **Skip code blocks in preview:** Skip code blocks when generating preview text.

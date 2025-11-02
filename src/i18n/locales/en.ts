@@ -602,6 +602,10 @@ export const STRINGS_EN = {
                 name: 'Show pinned group header',
                 desc: 'Display the pinned section header above pinned notes.'
             },
+            showPinnedIcon: {
+                name: 'Show pinned icon',
+                desc: 'Show the icon next to the pinned section header.'
+            },
             optimizeNoteHeight: {
                 name: 'Optimize note height',
                 desc: 'Reduce height for pinned notes and notes without preview text.'
@@ -615,12 +619,12 @@ export const STRINGS_EN = {
                 name: 'Scale text with slim item height',
                 desc: 'Scale slim list text when the item height is reduced.'
             },
-            showParentFolderNames: {
-                name: 'Show parent folder names',
+            showParentFolder: {
+                name: 'Show parent folder',
                 desc: 'Display the parent folder name for notes in subfolders or tags.'
             },
-            showParentFolderColors: {
-                name: 'Show parent folder colors',
+            showParentFolderColor: {
+                name: 'Show parent folder color',
                 desc: 'Use folder colors on parent folder labels.'
             },
             showQuickActions: {
@@ -864,6 +868,10 @@ export const STRINGS_EN = {
                 name: 'Show root folder',
                 desc: 'Display the vault name as the root folder in the tree.'
             },
+            showFolderIcons: {
+                name: 'Show folder icons',
+                desc: 'Display icons next to folders in the navigation pane.'
+            },
             inheritFolderColors: {
                 name: 'Inherit folder colors',
                 desc: 'Child folders inherit color from parent folders.'
@@ -872,9 +880,9 @@ export const STRINGS_EN = {
                 name: 'Show note count',
                 desc: 'Display the number of notes next to each folder and tag.'
             },
-            showIcons: {
-                name: 'Show icons',
-                desc: 'Display icons for folders, tags and notes.'
+            showSectionIcons: {
+                name: 'Show shortcut icons',
+                desc: 'Display icons for navigation sections like Shortcuts and Recent files.'
             },
             showIconsColorOnly: {
                 name: 'Apply color to icons only',
@@ -912,6 +920,10 @@ export const STRINGS_EN = {
             showTags: {
                 name: 'Show tags',
                 desc: 'Display tags section below folders in the navigator.'
+            },
+            showTagIcons: {
+                name: 'Show tag icons',
+                desc: 'Display icons next to tags in the navigation pane.'
             },
             tagSortOrder: {
                 name: 'Tag sort order',

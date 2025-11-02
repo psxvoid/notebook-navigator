@@ -86,7 +86,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     menu.addSeparator();
 
     // Icon and color customization options - single selection only
-    const canCustomizeFileIcon = !shouldShowMultiOptions && settings.showIcons;
+    const canCustomizeFileIcon = !shouldShowMultiOptions;
     const canCustomizeFileColor = !shouldShowMultiOptions;
     if (canCustomizeFileIcon || canCustomizeFileColor) {
         if (canCustomizeFileIcon) {

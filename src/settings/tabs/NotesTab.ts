@@ -382,11 +382,11 @@ export function renderNotesTab(context: SettingsTabContext): void {
         );
 
     new Setting(containerEl)
-        .setName(strings.settings.items.showParentFolderNames.name)
-        .setDesc(strings.settings.items.showParentFolderNames.desc)
+        .setName(strings.settings.items.showParentFolder.name)
+        .setDesc(strings.settings.items.showParentFolder.desc)
         .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showParentFolderNames).onChange(async value => {
-                plugin.settings.showParentFolderNames = value;
+            toggle.setValue(plugin.settings.showParentFolder).onChange(async value => {
+                plugin.settings.showParentFolder = value;
                 await plugin.saveSettingsAndUpdate();
                 parentFolderSettingsEl.toggle(value);
             })
@@ -395,11 +395,11 @@ export function renderNotesTab(context: SettingsTabContext): void {
     const parentFolderSettingsEl = containerEl.createDiv('nn-sub-settings');
 
     new Setting(parentFolderSettingsEl)
-        .setName(strings.settings.items.showParentFolderColors.name)
-        .setDesc(strings.settings.items.showParentFolderColors.desc)
+        .setName(strings.settings.items.showParentFolderColor.name)
+        .setDesc(strings.settings.items.showParentFolderColor.desc)
         .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showParentFolderColors).onChange(async value => {
-                plugin.settings.showParentFolderColors = value;
+            toggle.setValue(plugin.settings.showParentFolderColor).onChange(async value => {
+                plugin.settings.showParentFolderColor = value;
                 await plugin.saveSettingsAndUpdate();
             })
         );
@@ -524,7 +524,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
         );
 
     fileTagsSubSettingsEl.toggle(plugin.settings.showFileTags);
-    parentFolderSettingsEl.toggle(plugin.settings.showParentFolderNames);
+    parentFolderSettingsEl.toggle(plugin.settings.showParentFolder);
     previewSettingsEl.toggle(plugin.settings.showFilePreview);
     featureImageSettingsEl.toggle(plugin.settings.showFeatureImage);
     frontmatterSettingsEl.toggle(plugin.settings.useFrontmatterMetadata);

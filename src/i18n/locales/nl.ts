@@ -604,6 +604,10 @@ export const STRINGS_NL = {
                 name: 'Vastgepinde groepskop tonen',
                 desc: 'De vastgepinde sectiekop boven vastgepinde notities weergeven.'
             },
+            showPinnedIcon: {
+                name: 'Vastgepind pictogram tonen',
+                desc: 'Pictogram naast vastgepinde sectiekop weergeven.'
+            },
             optimizeNoteHeight: {
                 name: 'Notitiehoogte optimaliseren',
                 desc: 'Hoogte verminderen voor vastgepinde notities en notities zonder voorbeeldtekst.'
@@ -617,12 +621,12 @@ export const STRINGS_NL = {
                 name: 'Tekst schalen met compacte itemhoogte',
                 desc: 'Compacte lijsttekst schalen wanneer de itemhoogte wordt verminderd.'
             },
-            showParentFolderNames: {
-                name: 'Bovenliggende mapnamen tonen',
+            showParentFolder: {
+                name: 'Bovenliggende map tonen',
                 desc: 'De naam van de bovenliggende map weergeven voor notities in submappen of tags.'
             },
-            showParentFolderColors: {
-                name: 'Bovenliggende mapkleuren tonen',
+            showParentFolderColor: {
+                name: 'Bovenliggende mapkleur tonen',
                 desc: 'Mapkleuren gebruiken voor labels van bovenliggende mappen.'
             },
             showQuickActions: {
@@ -866,6 +870,10 @@ export const STRINGS_NL = {
                 name: 'Hoofdmap tonen',
                 desc: 'De kluisnaam als hoofdmap in de structuur weergeven.'
             },
+            showFolderIcons: {
+                name: 'Mappictogrammen tonen',
+                desc: 'Pictogrammen naast mappen in navigatiepaneel weergeven.'
+            },
             inheritFolderColors: {
                 name: 'Mapkleuren overerven',
                 desc: 'Submappen erven kleur van bovenliggende mappen.'
@@ -874,9 +882,9 @@ export const STRINGS_NL = {
                 name: 'Notitietelling tonen',
                 desc: 'Het aantal notities naast elke map en tag weergeven.'
             },
-            showIcons: {
-                name: 'Pictogrammen tonen',
-                desc: 'Pictogrammen weergeven voor mappen, tags en notities.'
+            showSectionIcons: {
+                name: 'Snelkoppeling-pictogrammen tonen',
+                desc: 'Pictogrammen voor navigatiesecties zoals Snelkoppelingen en Recente bestanden weergeven.'
             },
             showIconsColorOnly: {
                 name: 'Kleur alleen op pictogrammen toepassen',
@@ -914,6 +922,10 @@ export const STRINGS_NL = {
             showTags: {
                 name: 'Tags tonen',
                 desc: 'Tagsectie onder mappen in de navigator weergeven.'
+            },
+            showTagIcons: {
+                name: 'Tagpictogrammen tonen',
+                desc: 'Pictogrammen naast tags in navigatiepaneel weergeven.'
             },
             tagSortOrder: {
                 name: 'Tag sorteervolgorde',

@@ -60,6 +60,16 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
     new Setting(containerEl).setName(strings.settings.sections.folders).setHeading();
 
     new Setting(containerEl)
+        .setName(strings.settings.items.showFolderIcons.name)
+        .setDesc(strings.settings.items.showFolderIcons.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showFolderIcons).onChange(async value => {
+                plugin.settings.showFolderIcons = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(containerEl)
         .setName(strings.settings.items.showRootFolder.name)
         .setDesc(strings.settings.items.showRootFolder.desc)
         .addToggle(toggle =>
@@ -182,6 +192,16 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         );
 
     const tagSubSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(tagSubSettingsEl)
+        .setName(strings.settings.items.showTagIcons.name)
+        .setDesc(strings.settings.items.showTagIcons.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showTagIcons).onChange(async value => {
+                plugin.settings.showTagIcons = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
 
     /** Setting for choosing tag sort order in the navigation pane */
     new Setting(tagSubSettingsEl)

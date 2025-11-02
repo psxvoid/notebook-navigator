@@ -603,6 +603,10 @@ export const STRINGS_JA = {
                 name: 'ピン留めグループヘッダーを表示',
                 desc: 'ピン留めされたノートの上にセクションヘッダーを表示します。'
             },
+            showPinnedIcon: {
+                name: 'ピン留めアイコンを表示',
+                desc: 'ピン留めセクションヘッダーの横にアイコンを表示します。'
+            },
             optimizeNoteHeight: {
                 name: 'ノートの高さを最適化',
                 desc: 'ピン留めされたノートとプレビューテキストのないノートの高さを削減。'
@@ -616,11 +620,11 @@ export const STRINGS_JA = {
                 name: 'スリム表示の文字サイズを高さに合わせる',
                 desc: '項目の高さを下げたときにスリム表示の文字サイズを調整します。'
             },
-            showParentFolderNames: {
-                name: '親フォルダ名を表示',
+            showParentFolder: {
+                name: '親フォルダを表示',
                 desc: 'サブフォルダまたはタグ内のノートに親フォルダ名を表示します。'
             },
-            showParentFolderColors: {
+            showParentFolderColor: {
                 name: '親フォルダの色を表示',
                 desc: '親フォルダラベルにフォルダの色を使用します。'
             },
@@ -866,6 +870,10 @@ export const STRINGS_JA = {
                 name: 'ルートフォルダを表示',
                 desc: 'ツリーにルートフォルダ名を表示します。'
             },
+            showFolderIcons: {
+                name: 'フォルダアイコンを表示',
+                desc: 'ナビゲーションペインのフォルダの横にアイコンを表示します。'
+            },
             inheritFolderColors: {
                 name: 'フォルダの色を継承',
                 desc: 'サブフォルダが親フォルダから色を継承します。'
@@ -874,9 +882,9 @@ export const STRINGS_JA = {
                 name: 'ノート数を表示',
                 desc: '各フォルダとタグの横にノート数を表示します。'
             },
-            showIcons: {
-                name: 'アイコンを表示',
-                desc: 'フォルダ、タグ、ノートのアイコンを表示します。'
+            showSectionIcons: {
+                name: 'ショートカットアイコンを表示',
+                desc: 'ショートカットや最近使用したファイルなどのナビゲーションセクションのアイコンを表示します。'
             },
             showIconsColorOnly: {
                 name: 'アイコンのみに色を適用',
@@ -914,6 +922,10 @@ export const STRINGS_JA = {
             showTags: {
                 name: 'タグを表示',
                 desc: 'ナビゲーターのフォルダの下にタグセクションを表示します。'
+            },
+            showTagIcons: {
+                name: 'タグアイコンを表示',
+                desc: 'ナビゲーションペインのタグの横にアイコンを表示します。'
             },
             tagSortOrder: {
                 name: 'タグの並び順',

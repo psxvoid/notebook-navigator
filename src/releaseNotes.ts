@@ -91,11 +91,14 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Significantly improved the way **background color** renders in navigation pane. This is a huge upgrade if you use background color for folders and tags in your vault!',
             'The pinned section now uses a **Lucide icon instead of emoji**, and you can also change this icon with Style Settings > List pane > Pinned section icon.',
             '**Horizontal rules (---, ***, ___)** are now removed from preview text.',
-            'When using "Group by subfolder" **the current folder name will no longer display** as a group.',
             '**File reveal now preserve folder selection** when "Show notes from subfolders" is enabled and a descendant folder contains the file.',
             'Added **two new theme variables** for selected folder and selected file name when pane is inactive: --nn-theme-navitem-selected-inactive-name-color and --nn-theme-file-selected-inactive-name-color.'
         ],
-        changed: ['Changed ZH-CN translation for "Untitled" to 未命名 to match Obsidian default.'],
+        changed: [
+            'Changed ZH-CN translation for "Untitled" to 未命名 to match Obsidian default.',
+            'When using "Group by subfolder" the current folder name will no longer show in the list.',
+            'The setting "Show icons" was split into separate controls for shortcut icons, folder icons, tag icons, and pinned section icon.'
+        ],
         fixed: [
             'Date parsing in frontmatter now uses correct locale handling.',
             'Drag and drop does not work on Android devices due to a Chromium bug. This was fixed by implementing a popup menu on Android devices to rearrange shortcuts and root items.'

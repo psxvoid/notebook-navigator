@@ -219,10 +219,10 @@ export const TagTreeItem = React.memo(
 
         // Update tag icon
         React.useEffect(() => {
-            if (iconRef.current && settings.showIcons) {
+            if (iconRef.current && settings.showTagIcons) {
                 getIconService().renderIcon(iconRef.current, tagIcon || 'lucide-tags');
             }
-        }, [tagIcon, settings.showIcons, iconVersion]);
+        }, [tagIcon, settings.showTagIcons, iconVersion]);
 
         // Set up forwarded ref
         React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
@@ -262,7 +262,7 @@ export const TagTreeItem = React.memo(
                         onDoubleClick={handleChevronDoubleClick}
                         tabIndex={-1}
                     />
-                    {settings.showIcons && (
+                    {settings.showTagIcons && (
                         <span className="nn-navitem-icon" ref={iconRef} style={tagColor ? { color: tagColor } : undefined} />
                     )}
                     <span className={tagNameClassName} style={applyColorToName ? { color: tagColor } : undefined}>

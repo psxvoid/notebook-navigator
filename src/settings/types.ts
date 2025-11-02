@@ -90,12 +90,12 @@ export interface NotebookNavigatorSettings {
     // Navigation pane tab
     skipAutoScroll: boolean;
     navigationBanner: string | null;
+    showSectionIcons: boolean;
     showShortcuts: boolean;
     showRecentNotes: boolean;
     recentNotesCount: number;
     collapseBehavior: ItemScope;
     smartCollapse: boolean;
-    showIcons: boolean;
     colorIconOnly: boolean;
     showNoteCount: boolean;
     separateNoteCounts: boolean;
@@ -107,6 +107,7 @@ export interface NotebookNavigatorSettings {
     // Folders & tags tab
     autoSelectFirstFileOnFocusChange: boolean;
     autoExpandFoldersTags: boolean;
+    showFolderIcons: boolean;
     showRootFolder: boolean;
     inheritFolderColors: boolean;
     enableFolderNotes: boolean;
@@ -116,6 +117,7 @@ export interface NotebookNavigatorSettings {
     hideFolderNoteInList: boolean;
     pinCreatedFolderNote: boolean;
     showTags: boolean;
+    showTagIcons: boolean;
     showAllTagsFolder: boolean;
     showUntagged: boolean;
     tagSortOrder: TagSortOrder;
@@ -128,6 +130,7 @@ export interface NotebookNavigatorSettings {
     noteGrouping: ListNoteGroupingOption;
     filterPinnedByFolder: boolean;
     showPinnedGroupHeader: boolean;
+    showPinnedIcon: boolean;
     optimizeNoteHeight: boolean;
     slimItemHeight: number;
     slimItemHeightScaleText: boolean;
@@ -153,8 +156,8 @@ export interface NotebookNavigatorSettings {
     showFileTagAncestors: boolean;
     colorFileTags: boolean;
     showFileTagsInSlimMode: boolean;
-    showParentFolderNames: boolean;
-    showParentFolderColors: boolean;
+    showParentFolder: boolean;
+    showParentFolderColor: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     skipCodeBlocksInPreview: boolean;

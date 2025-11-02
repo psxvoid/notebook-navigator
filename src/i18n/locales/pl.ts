@@ -604,6 +604,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż nagłówek grupy przypiętych',
                 desc: 'Wyświetla nagłówek sekcji przypiętych notatek.'
             },
+            showPinnedIcon: {
+                name: 'Pokaż ikonę przypiętych',
+                desc: 'Wyświetl ikonę obok nagłówka sekcji przypiętych.'
+            },
             optimizeNoteHeight: {
                 name: 'Optymalizuj wysokość notatek',
                 desc: 'Zmniejsz wysokość dla przypiętych notatek i notatek bez tekstu podglądu.'
@@ -617,12 +621,12 @@ export const STRINGS_PL = {
                 name: 'Skalowanie tekstu z wysokością trybu slim',
                 desc: 'Skaluje tekst elementów listy w trybie slim po zmniejszeniu wysokości.'
             },
-            showParentFolderNames: {
-                name: 'Pokaż nazwy folderów nadrzędnych',
+            showParentFolder: {
+                name: 'Pokaż folder nadrzędny',
                 desc: 'Wyświetl nazwę folderu nadrzędnego dla notatek w podfolderach lub tagach.'
             },
-            showParentFolderColors: {
-                name: 'Pokaż kolory folderów nadrzędnych',
+            showParentFolderColor: {
+                name: 'Pokaż kolor folderu nadrzędnego',
                 desc: 'Używaj kolorów folderów na etykietach folderów nadrzędnych.'
             },
             showQuickActions: {
@@ -866,6 +870,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż folder główny',
                 desc: 'Wyświetl nazwę magazynu jako folder główny w drzewie.'
             },
+            showFolderIcons: {
+                name: 'Pokaż ikony folderów',
+                desc: 'Wyświetl ikony obok folderów w panelu nawigacji.'
+            },
             inheritFolderColors: {
                 name: 'Dziedzicz kolory folderów',
                 desc: 'Podfoldery dziedziczą kolor z folderów nadrzędnych.'
@@ -874,9 +882,9 @@ export const STRINGS_PL = {
                 name: 'Pokaż liczbę notatek',
                 desc: 'Wyświetl liczbę notatek obok każdego folderu i tagu.'
             },
-            showIcons: {
-                name: 'Pokaż ikony',
-                desc: 'Wyświetl ikony dla folderów, tagów i notatek.'
+            showSectionIcons: {
+                name: 'Pokaż ikony skrótów',
+                desc: 'Wyświetl ikony dla sekcji nawigacji takich jak Skróty i Ostatnie pliki.'
             },
             showIconsColorOnly: {
                 name: 'Zastosuj kolor tylko do ikon',
@@ -914,6 +922,10 @@ export const STRINGS_PL = {
             showTags: {
                 name: 'Pokaż tagi',
                 desc: 'Wyświetl sekcję tagów poniżej folderów w nawigatorze.'
+            },
+            showTagIcons: {
+                name: 'Pokaż ikony tagów',
+                desc: 'Wyświetl ikony obok tagów w panelu nawigacji.'
             },
             tagSortOrder: {
                 name: 'Kolejność sortowania tagów',

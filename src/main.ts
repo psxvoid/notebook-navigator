@@ -143,6 +143,38 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const storedData = data && typeof data === 'object' ? (data as Record<string, unknown>) : null;
         const storedNoteGrouping = storedData ? storedData['noteGrouping'] : undefined;
 
+        // Migrates legacy showIcons boolean to separate icon settings for sections, folders, tags, and pinned items
+        const legacyShowIcons = mutableSettings.showIcons;
+        if (typeof legacyShowIcons === 'boolean') {
+            if (typeof storedData?.['showSectionIcons'] === 'undefined') {
+                this.settings.showSectionIcons = legacyShowIcons;
+            }
+            if (typeof storedData?.['showFolderIcons'] === 'undefined') {
+                this.settings.showFolderIcons = legacyShowIcons;
+            }
+            if (typeof storedData?.['showTagIcons'] === 'undefined') {
+                this.settings.showTagIcons = legacyShowIcons;
+            }
+            if (typeof storedData?.['showPinnedIcon'] === 'undefined') {
+                this.settings.showPinnedIcon = legacyShowIcons;
+            }
+        }
+        delete mutableSettings.showIcons;
+
+        // Migrate legacy parent folder visibility flag
+        const legacyShowParentFolderNames = mutableSettings['showParentFolderNames'];
+        if (typeof legacyShowParentFolderNames === 'boolean' && typeof storedData?.['showParentFolder'] === 'undefined') {
+            this.settings.showParentFolder = legacyShowParentFolderNames;
+        }
+        delete mutableSettings['showParentFolderNames'];
+
+        // Migrate legacy parent folder color toggle
+        const legacyShowParentFolderColors = mutableSettings['showParentFolderColors'];
+        if (typeof legacyShowParentFolderColors === 'boolean' && typeof storedData?.['showParentFolderColor'] === 'undefined') {
+            this.settings.showParentFolderColor = legacyShowParentFolderColors;
+        }
+        delete mutableSettings['showParentFolderColors'];
+
         // Migrate legacy groupByDate boolean to noteGrouping dropdown
         const legacyGroupByDate = mutableSettings.groupByDate;
         if (typeof legacyGroupByDate === 'boolean' && typeof storedNoteGrouping === 'undefined') {
