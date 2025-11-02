@@ -96,6 +96,8 @@ export interface NotebookNavigatorHandle {
     triggerCollapse: () => void;
     stopContentProcessing: () => void;
     rebuildCache: () => Promise<void>;
+    selectNextFile: () => Promise<boolean>;
+    selectPreviousFile: () => Promise<boolean>;
 }
 
 /**
@@ -443,6 +445,15 @@ export const NotebookNavigatorComponent = React.memo(
                 return selectedFiles;
             };
 
+            // Routes adjacent file selection requests through the list pane reference
+            const navigateToAdjacentFile = (direction: 'next' | 'previous'): boolean => {
+                const listHandle = listPaneRef.current;
+                if (!listHandle) {
+                    return false;
+                }
+                return listHandle.selectAdjacentFile(direction);
+            };
+
             return {
                 // Forward to the manual reveal implementation
                 navigateToFile: (file: TFile, options?: RevealFileOptions) => {
@@ -471,6 +482,9 @@ export const NotebookNavigatorComponent = React.memo(
                     // Trigger complete cache rebuild from storage context
                     await rebuildCacheRef.current?.();
                 },
+                // Select adjacent files via command palette actions
+                selectNextFile: async () => navigateToAdjacentFile('next'),
+                selectPreviousFile: async () => navigateToAdjacentFile('previous'),
                 refresh: () => {
                     // A no-op update will increment the version and force a re-render
                     updateSettings(() => {});

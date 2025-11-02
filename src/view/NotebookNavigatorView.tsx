@@ -239,6 +239,20 @@ export class NotebookNavigatorView extends ItemView {
     }
 
     /**
+     * Selects the next file in the current navigator view
+     */
+    async selectNextFileInCurrentView(): Promise<boolean> {
+        return (await this.componentRef.current?.selectNextFile()) ?? false;
+    }
+
+    /**
+     * Selects the previous file in the current navigator view
+     */
+    async selectPreviousFileInCurrentView(): Promise<boolean> {
+        return (await this.componentRef.current?.selectPreviousFile()) ?? false;
+    }
+
+    /**
      * Adds the current navigator selection or active file to shortcuts
      */
     async addShortcutForCurrentSelection(): Promise<void> {

@@ -47,7 +47,7 @@
 import React, { useCallback, useRef, useEffect, useImperativeHandle, forwardRef, useState, useMemo } from 'react';
 import { TFile, Platform } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
-import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useSelectionState, useSelectionDispatch, resolvePrimarySelectedFile } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -57,6 +57,7 @@ import { useListPaneData } from '../hooks/useListPaneData';
 import { useListPaneScroll } from '../hooks/useListPaneScroll';
 import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
 import { useContextMenu } from '../hooks/useContextMenu';
+import { useFileOpener } from '../hooks/useFileOpener';
 import { strings } from '../i18n';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { ListPaneItemType, LISTPANE_MEASUREMENTS, PINNED_SECTION_HEADER_KEY, UNTAGGED_TAG_ID } from '../types';
@@ -89,10 +90,24 @@ interface ExecuteSearchShortcutParams {
     searchShortcut: SearchShortcut;
 }
 
+/**
+ * Options for selecting a file programmatically
+ */
+export interface SelectFileOptions {
+    /** Mark the selection as keyboard navigation to prevent scroll interference */
+    markKeyboardNavigation?: boolean;
+    /** Mark the selection as user-initiated to track explicit user actions */
+    markUserSelection?: boolean;
+    /** Skip opening the file after selection */
+    suppressOpen?: boolean;
+}
+
 export interface ListPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
+    selectFile: (file: TFile, options?: SelectFileOptions) => void;
+    selectAdjacentFile: (direction: 'next' | 'previous') => boolean;
     modifySearchWithTag: (tag: string, operator: InclusionOperator) => void;
     toggleSearch: () => void;
     executeSearchShortcut: (params: ExecuteSearchShortcutParams) => Promise<void>;
@@ -155,6 +170,7 @@ function resolvePinnedSectionIcon(): string {
 export const ListPane = React.memo(
     forwardRef<ListPaneHandle, ListPaneProps>(function ListPane(props, ref) {
         const { app, commandQueue, isMobile, plugin } = useServices();
+        const openFileInWorkspace = useFileOpener();
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
@@ -340,6 +356,35 @@ export const ListPane = React.memo(
         // Initialize multi-selection hook
         const multiSelection = useMultiSelection();
 
+        /**
+         * Selects a file from the list pane and opens it in the active leaf.
+         * Shared between keyboard navigation and command handlers.
+         */
+        const selectFileFromList = useCallback(
+            (file: TFile, options?: SelectFileOptions) => {
+                if (!file) {
+                    return;
+                }
+
+                // Track whether this selection originated from explicit user interaction
+                isUserSelectionRef.current = options?.markUserSelection ?? false;
+
+                // Update the selected file in global state
+                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+
+                // Mark as keyboard-driven to prevent automatic scroll interference
+                if (options?.markKeyboardNavigation) {
+                    selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+                }
+
+                // Open file in the active leaf without moving focus
+                if (!options?.suppressOpen) {
+                    openFileInWorkspace(file);
+                }
+            },
+            [selectionDispatch, openFileInWorkspace]
+        );
+
         // Track render count
         const renderCountRef = useRef(0);
 
@@ -349,7 +394,7 @@ export const ListPane = React.memo(
         const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
 
         // Use the new data hook
-        const { listItems, orderedFiles, filePathToIndex, fileIndexMap, files } = useListPaneData({
+        const { listItems, orderedFiles, orderedFileIndexMap, filePathToIndex, fileIndexMap, files } = useListPaneData({
             selectionType,
             selectedFolder,
             selectedTag,
@@ -409,19 +454,13 @@ export const ListPane = React.memo(
                 if (needsSelection) {
                     if (selectFallback && orderedFiles.length > 0) {
                         const firstFile = orderedFiles[0];
-                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
-                        if (openInEditor) {
-                            const leaf = app.workspace.getLeaf(false);
-                            if (leaf) {
-                                leaf.openFile(firstFile, { active: false });
-                            }
-                        }
+                        selectFileFromList(firstFile, { suppressOpen: !openInEditor });
                     } else if (!selectFallback && clearIfEmpty && orderedFiles.length === 0) {
                         selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
                     }
                 }
             },
-            [selectedFile, orderedFiles, filePathToIndex, selectionDispatch, app.workspace]
+            [selectedFile, orderedFiles, filePathToIndex, selectionDispatch, selectFileFromList]
         );
 
         /**
@@ -467,6 +506,47 @@ export const ListPane = React.memo(
             }
         }, [activeSearchShortcut, isSavingSearchShortcut, removeSearchShortcut]);
 
+        /**
+         * Advances the selection to the next or previous file and syncs scroll position
+         */
+        const selectAdjacentFile = useCallback(
+            (direction: 'next' | 'previous') => {
+                if (orderedFiles.length === 0) {
+                    return false;
+                }
+
+                // Resolve the currently selected file from state
+                const currentFile = resolvePrimarySelectedFile(app, selectionState);
+                const currentIndex = currentFile ? (orderedFileIndexMap.get(currentFile.path) ?? -1) : -1;
+
+                // Calculate the target index based on direction, wrapping to start or end if no current selection
+                const targetIndex =
+                    currentIndex === -1
+                        ? direction === 'next'
+                            ? 0
+                            : orderedFiles.length - 1
+                        : direction === 'next'
+                          ? currentIndex + 1
+                          : currentIndex - 1;
+
+                // Return false if target is out of bounds
+                if (targetIndex < 0 || targetIndex >= orderedFiles.length) {
+                    return false;
+                }
+
+                // Select the target file and scroll to it in the virtualized list
+                const targetFile = orderedFiles[targetIndex];
+                selectFileFromList(targetFile, { markKeyboardNavigation: true, markUserSelection: true });
+                const virtualIndex = filePathToIndex.get(targetFile.path);
+                if (virtualIndex !== undefined) {
+                    rowVirtualizer?.scrollToIndex(virtualIndex, { align: 'auto' });
+                }
+
+                return true;
+            },
+            [orderedFiles, orderedFileIndexMap, selectFileFromList, rowVirtualizer, app, selectionState, filePathToIndex]
+        );
+
         const handleFileClick = useCallback(
             (file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {
                 // Ignore middle mouse button clicks - they're handled by onMouseDown
@@ -491,9 +571,10 @@ export const ListPane = React.memo(
                 } else if (!isMobile && isShiftKey && fileIndex !== undefined && orderedFiles) {
                     multiSelection.handleRangeSelectClick(file, fileIndex, orderedFiles);
                 } else {
-                    // Normal click - always clear multi-selection and select only this file
-                    multiSelection.clearSelection();
-                    selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+                    selectFileFromList(file, {
+                        markUserSelection: true,
+                        suppressOpen: shouldOpenInNewTab
+                    });
                 }
 
                 // Always ensure list pane has focus when clicking a file
@@ -508,12 +589,6 @@ export const ListPane = React.memo(
                         } else {
                             app.workspace.getLeaf('tab').openFile(file);
                         }
-                    } else {
-                        // Open file in current tab
-                        const leaf = app.workspace.getLeaf(false);
-                        if (leaf) {
-                            leaf.openFile(file, { active: false });
-                        }
                     }
                 }
 
@@ -522,7 +597,7 @@ export const ListPane = React.memo(
                     app.workspace.leftSplit.collapse();
                 }
             },
-            [app.workspace, commandQueue, isMobile, multiSelection, selectionDispatch, settings.multiSelectModifier, uiDispatch]
+            [app.workspace, commandQueue, isMobile, multiSelection, selectFileFromList, settings.multiSelectModifier, uiDispatch]
         );
 
         /**
@@ -682,17 +757,13 @@ export const ListPane = React.memo(
 
                 // Open the file if we're not actively using the navigator OR if this is a folder change with auto-select
                 if (!hasNavigatorFocus || isFolderChangeWithAutoSelect) {
-                    const leaf = app.workspace.getLeaf(false);
-                    if (leaf) {
-                        leaf.openFile(selectedFile, { active: false });
-                    }
+                    openFileInWorkspace(selectedFile);
                 }
             }
             // Reset the flag after processing
             isUserSelectionRef.current = false;
         }, [
             selectedFile,
-            app.workspace,
             settings.autoSelectFirstFileOnFocusChange,
             isMobile,
             selectionState.isRevealOperation,
@@ -701,7 +772,8 @@ export const ListPane = React.memo(
             selectionDispatch,
             isSearchActive,
             files,
-            ensureSelectionForCurrentFilter
+            ensureSelectionForCurrentFilter,
+            openFileInWorkspace
         ]);
 
         // Auto-select first file when navigating to files pane with keyboard in dual-pane mode
@@ -752,6 +824,10 @@ export const ListPane = React.memo(
                 getIndexOfPath: (path: string) => filePathToIndex.get(path) ?? -1,
                 virtualizer: rowVirtualizer,
                 scrollContainerRef: scrollContainerRef.current,
+                // Allow parent components to trigger file selection programmatically
+                selectFile: selectFileFromList,
+                // Provide imperative adjacent navigation for command handlers
+                selectAdjacentFile,
                 // Toggle or modify search query to include/exclude a tag with AND/OR operator
                 modifySearchWithTag: (tag: string, operator: InclusionOperator) => {
                     const normalizedTag = normalizeTagPath(tag);
@@ -820,7 +896,9 @@ export const ListPane = React.memo(
                 setShouldFocusSearch,
                 props.rootContainerRef,
                 uiState.singlePane,
-                executeSearchShortcut
+                executeSearchShortcut,
+                selectFileFromList,
+                selectAdjacentFile
             ]
         );
 
@@ -834,7 +912,8 @@ export const ListPane = React.memo(
             containerRef: props.rootContainerRef,
             pathToIndex: filePathToIndex,
             files,
-            fileIndexMap
+            fileIndexMap,
+            onSelectFile: file => selectFileFromList(file, { markKeyboardNavigation: true })
         });
 
         // Determine if we're showing empty state

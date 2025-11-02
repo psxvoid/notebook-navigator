@@ -454,6 +454,8 @@ export const STRINGS_NL = {
         deleteFile: 'Bestanden verwijderen',
         createNewNote: 'Nieuwe notitie maken',
         moveFiles: 'Bestanden verplaatsen',
+        selectNextFile: 'Volgend bestand selecteren',
+        selectPreviousFile: 'Vorig bestand selecteren',
         convertToFolderNote: 'Converteren naar mapnotitie',
         pinAllFolderNotes: 'Alle mapnotities vastpinnen',
         navigateToFolder: 'Navigeren naar map',

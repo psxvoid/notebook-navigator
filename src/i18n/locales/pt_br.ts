@@ -454,6 +454,8 @@ export const STRINGS_PT_BR = {
         deleteFile: 'Excluir arquivos',
         createNewNote: 'Criar nova nota',
         moveFiles: 'Mover arquivos',
+        selectNextFile: 'Selecionar próximo arquivo',
+        selectPreviousFile: 'Selecionar arquivo anterior',
         convertToFolderNote: 'Converter em nota de pasta',
         pinAllFolderNotes: 'Fixar todas as notas de pasta',
         navigateToFolder: 'Navegar para pasta',

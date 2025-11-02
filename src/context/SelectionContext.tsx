@@ -85,10 +85,29 @@ const SelectionDispatchContext = createContext<React.Dispatch<SelectionAction> |
 
 // Helper function to get first file from selection
 function getFirstSelectedFile(selectedFiles: Set<string>, app: App): TFile | null {
-    if (selectedFiles.size === 0) return null;
-    const firstPath = Array.from(selectedFiles)[0];
+    // Get the first value from the set without converting to array
+    const iterator = selectedFiles.values().next();
+    if (iterator.done) {
+        return null;
+    }
+    const firstPath = iterator.value;
+    if (!firstPath) {
+        return null;
+    }
+    // Resolve file path to TFile instance
     const file = app.vault.getFileByPath(firstPath);
     return file || null;
+}
+
+/**
+ * Resolves the primary selected file used for keyboard navigation.
+ * Prefers the explicit selectedFile, falling back to the first entry in the set.
+ */
+export function resolvePrimarySelectedFile(app: App, selectionState: SelectionState): TFile | null {
+    if (selectionState.selectedFile) {
+        return selectionState.selectedFile;
+    }
+    return getFirstSelectedFile(selectionState.selectedFiles, app);
 }
 
 /**
