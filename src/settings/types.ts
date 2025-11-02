@@ -89,12 +89,10 @@ export interface NotebookNavigatorSettings {
 
     // Navigation pane tab
     skipAutoScroll: boolean;
-    autoSelectFirstFileOnFocusChange: boolean;
     navigationBanner: string | null;
     showShortcuts: boolean;
     showRecentNotes: boolean;
     recentNotesCount: number;
-    autoExpandFoldersTags: boolean;
     collapseBehavior: ItemScope;
     smartCollapse: boolean;
     showIcons: boolean;
@@ -107,6 +105,8 @@ export interface NotebookNavigatorSettings {
     rootLevelSpacing: number;
 
     // Folders & tags tab
+    autoSelectFirstFileOnFocusChange: boolean;
+    autoExpandFoldersTags: boolean;
     showRootFolder: boolean;
     inheritFolderColors: boolean;
     enableFolderNotes: boolean;

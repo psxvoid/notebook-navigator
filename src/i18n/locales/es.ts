@@ -558,7 +558,7 @@ export const STRINGS_ES = {
                 }
             },
             listPaneTitle: {
-                name: 'Título del panel de lista',
+                name: 'Título del panel de lista (solo escritorio)',
                 desc: 'Elige dónde se muestra el título del panel de lista.',
                 options: {
                     header: 'Mostrar en el encabezado',

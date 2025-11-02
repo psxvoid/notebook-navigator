@@ -556,7 +556,7 @@ export const STRINGS_ZH_TW = {
                 }
             },
             listPaneTitle: {
-                name: '列表窗格標題',
+                name: '列表窗格標題（僅限桌面）',
                 desc: '選擇列表窗格標題的顯示位置。',
                 options: {
                     header: '顯示在標頭',

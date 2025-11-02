@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Setting } from 'obsidian';
+import { Platform, Setting } from 'obsidian';
 import { strings } from '../../i18n';
 import { isFolderNoteCreationPreference } from '../../types/folderNote';
 import { isTagSortOrder } from '../types';
@@ -34,6 +34,28 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         notifyShowTagsVisibility,
         registerShowTagsListener
     } = context;
+
+    if (!Platform.isMobile) {
+        new Setting(containerEl)
+            .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
+            .setDesc(strings.settings.items.autoSelectFirstFileOnFocusChange.desc)
+            .addToggle(toggle =>
+                toggle.setValue(plugin.settings.autoSelectFirstFileOnFocusChange).onChange(async value => {
+                    plugin.settings.autoSelectFirstFileOnFocusChange = value;
+                    await plugin.saveSettingsAndUpdate();
+                })
+            );
+    }
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.autoExpandFoldersTags.name)
+        .setDesc(strings.settings.items.autoExpandFoldersTags.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.autoExpandFoldersTags).onChange(async value => {
+                plugin.settings.autoExpandFoldersTags = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
 
     new Setting(containerEl).setName(strings.settings.sections.folders).setHeading();
 

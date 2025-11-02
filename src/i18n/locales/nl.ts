@@ -559,7 +559,7 @@ export const STRINGS_NL = {
                 }
             },
             listPaneTitle: {
-                name: 'Titel lijstpaneel',
+                name: 'Titel lijstpaneel (alleen desktop)',
                 desc: 'Kies waar de titel van het lijstpaneel wordt weergegeven.',
                 options: {
                     header: 'Tonen in koptekst',

@@ -559,7 +559,7 @@ export const STRINGS_PL = {
                 }
             },
             listPaneTitle: {
-                name: 'Tytuł panelu listy',
+                name: 'Tytuł panelu listy (tylko na komputerze)',
                 desc: 'Wybierz, gdzie ma być wyświetlany tytuł panelu listy.',
                 options: {
                     header: 'Wyświetlaj w nagłówku',

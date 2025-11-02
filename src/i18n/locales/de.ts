@@ -561,7 +561,7 @@ export const STRINGS_DE = {
                 }
             },
             listPaneTitle: {
-                name: 'Titel des Listenbereichs',
+                name: 'Titel des Listenbereichs (nur Desktop)',
                 desc: 'Wählen Sie, wo der Titel des Listenbereichs angezeigt wird.',
                 options: {
                     header: 'Im Kopfbereich anzeigen',

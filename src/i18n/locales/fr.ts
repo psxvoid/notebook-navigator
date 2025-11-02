@@ -559,7 +559,7 @@ export const STRINGS_FR = {
                 }
             },
             listPaneTitle: {
-                name: 'Titre du panneau de liste',
+                name: 'Titre du panneau de liste (ordinateur uniquement)',
                 desc: 'Choisissez où afficher le titre du panneau de liste.',
                 options: {
                     header: 'Afficher dans l’en-tête',

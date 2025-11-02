@@ -559,7 +559,7 @@ export const STRINGS_PT_BR = {
                 }
             },
             listPaneTitle: {
-                name: 'Título do painel de lista',
+                name: 'Título do painel de lista (somente desktop)',
                 desc: 'Escolha onde o título do painel de lista é mostrado.',
                 options: {
                     header: 'Mostrar no cabeçalho',

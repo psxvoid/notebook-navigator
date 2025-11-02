@@ -557,7 +557,7 @@ export const STRINGS_EN = {
                 }
             },
             listPaneTitle: {
-                name: 'List pane title',
+                name: 'List pane title (desktop only)',
                 desc: 'Choose where the list pane title is shown.',
                 options: {
                     header: 'Show in header',

@@ -559,7 +559,7 @@ export const STRINGS_IT = {
                 }
             },
             listPaneTitle: {
-                name: 'Titolo pannello lista',
+                name: 'Titolo pannello lista (solo desktop)',
                 desc: 'Scegli dove viene mostrato il titolo del pannello lista.',
                 options: {
                     header: 'Mostra in intestazione',

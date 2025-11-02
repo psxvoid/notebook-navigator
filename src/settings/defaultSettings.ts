@@ -62,12 +62,10 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
 
     // Navigation pane tab
     skipAutoScroll: false,
-    autoSelectFirstFileOnFocusChange: false,
     navigationBanner: null,
     showShortcuts: true,
     showRecentNotes: true,
     recentNotesCount: 5,
-    autoExpandFoldersTags: false,
     collapseBehavior: 'all',
     smartCollapse: true,
     showIcons: true,
@@ -80,6 +78,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     rootLevelSpacing: 0,
 
     // Folders & tags tab
+    autoSelectFirstFileOnFocusChange: false,
+    autoExpandFoldersTags: false,
     showRootFolder: true,
     inheritFolderColors: false,
     enableFolderNotes: false,

@@ -557,7 +557,7 @@ export const STRINGS_KO = {
                 }
             },
             listPaneTitle: {
-                name: '목록 창 제목',
+                name: '목록 창 제목(데스크톱 전용)',
                 desc: '목록 창 제목을 표시할 위치를 선택하세요.',
                 options: {
                     header: '헤더에 표시',

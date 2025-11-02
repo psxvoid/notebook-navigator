@@ -558,7 +558,7 @@ export const STRINGS_JA = {
                 }
             },
             listPaneTitle: {
-                name: 'リストペインのタイトル',
+                name: 'リストペインのタイトル（デスクトップのみ）',
                 desc: 'リストペインのタイトルを表示する場所を選択します。',
                 options: {
                     header: 'ヘッダーに表示',
