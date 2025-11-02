@@ -19,10 +19,10 @@ import { Root, createRoot } from 'react-dom/client';
  */
 
 // src/view/NotebookNavigatorView.tsx
-import { ItemView, WorkspaceLeaf, TFile, Platform } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, Platform, TFolder } from 'obsidian';
 import { NotebookNavigatorContainer } from '../components/NotebookNavigatorContainer';
 import type { NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
-import type { RevealFileOptions } from '../hooks/useNavigatorReveal';
+import type { RevealFileOptions, NavigateToFolderOptions } from '../hooks/useNavigatorReveal';
 import { ExpansionProvider } from '../context/ExpansionContext';
 import { SelectionProvider } from '../context/SelectionContext';
 import { ServicesProvider } from '../context/ServicesContext';
@@ -183,6 +183,13 @@ export class NotebookNavigatorView extends ItemView {
     }
 
     /**
+     * Navigates directly to the provided folder path
+     */
+    navigateToFolder(folder: TFolder, options?: NavigateToFolderOptions) {
+        this.componentRef.current?.navigateToFolder(folder.path, options);
+    }
+
+    /**
      * Reveals a file while attempting to preserve the current navigation context
      */
     revealFileInNearestFolder(file: TFile, options?: RevealFileOptions) {
@@ -194,6 +201,13 @@ export class NotebookNavigatorView extends ItemView {
      */
     focusVisiblePane() {
         this.componentRef.current?.focusVisiblePane();
+    }
+
+    /**
+     * Moves focus to the navigation pane explicitly
+     */
+    focusNavigationPane() {
+        this.componentRef.current?.focusNavigationPane();
     }
 
     /**

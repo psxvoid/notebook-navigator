@@ -83,7 +83,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: ==List Pane > Appearance > Show pinned group header==. Toggle to hide the section header above pinned notes.',
             'New setting: ==Navigation Pane > Appearance > Root folder spacing==. Use it to add extra spacing between root folders and tags in navigation pane. Especially useful when you use background colors with inheritance.',
             'New setting: ==Notes > Appearance > Show parent folder colors==. When enabled, parent folder names in list pane will use their text color from navigation pane. Enabled by default.',
-            'Added "Reveal in Notebook Navigator" to folder menus. You can now right click any folder in Obsidian to open it in Notebook Navigator.',
+            'Added "Reveal in Notebook Navigator" to folder menus. Right clicking a folder in Obsidian opens it in Notebook Navigator.',
             'Three new localizations: Dutch (nl), Italian (it) and Portuguese / Brazil (pt-BR).'
         ],
         improved: [

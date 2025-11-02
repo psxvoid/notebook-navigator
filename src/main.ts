@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Plugin, TFile, FileView } from 'obsidian';
+import { Plugin, TFile, FileView, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
 import {
     LocalStorageKeys,
@@ -38,6 +38,7 @@ import { RecentNotesService } from './services/RecentNotesService';
 import RecentDataManager from './services/recent/RecentDataManager';
 import { ExternalIconProviderController } from './services/icons/external/ExternalIconProviderController';
 import { ExternalIconProviderId } from './services/icons/external/providerRegistry';
+import type { NavigateToFolderOptions } from './hooks/useNavigatorReveal';
 import ReleaseCheckService, { type ReleaseUpdateNotice } from './services/ReleaseCheckService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
@@ -972,6 +973,25 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     async activateView() {
         return this.workspaceCoordinator?.activateNavigatorView() ?? null;
+    }
+
+    /**
+     * Opens the navigator view, focuses the navigation pane, and selects the given folder
+     * @param folder - Folder instance to highlight
+     */
+    async navigateToFolder(folder: TFolder, options?: NavigateToFolderOptions): Promise<void> {
+        await this.activateView();
+
+        const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+        if (navigatorLeaves.length === 0) {
+            return;
+        }
+
+        const leaf = navigatorLeaves[0];
+        const view = leaf.view;
+        if (view instanceof NotebookNavigatorView) {
+            view.navigateToFolder(folder, options);
+        }
     }
 
     /**
