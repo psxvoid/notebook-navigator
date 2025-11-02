@@ -84,13 +84,13 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: ==List Pane > Appearance > Show pinned group header==. Toggle to hide the section header above pinned notes.',
             'New setting: ==Navigation Pane > Appearance > Root folder spacing==. Use it to add extra spacing between root folders and tags in navigation pane. Especially useful when you use background colors with inheritance.',
             'New setting: ==Notes > Appearance > Show parent folder colors==. When enabled, parent folder names in list pane will use their text color from navigation pane. Enabled by default.',
-            'Added "Reveal in Notebook Navigator" to folder menus. Right clicking a folder in Obsidian opens it in Notebook Navigator.',
-            'Three new localizations: Dutch (nl), Italian (it) and Portuguese / Brazil (pt-BR).'
+            'Added "Reveal in Notebook Navigator" to ==Obsidian folder menus==. Right clicking a folder in Obsidian opens it in Notebook Navigator.',
+            '==Three new localizations==: Dutch (nl), Italian (it) and Portuguese / Brazil (pt-BR).'
         ],
         improved: [
             'You can now **click the "Tags" folder** to view all notes with tags.',
             'Significantly improved the way **background color** renders in navigation pane. This is a huge upgrade if you use background color for folders and tags in your vault!',
-            'The pinned section now uses a **Lucide icon instead of emoji**, and you can also change this icon with Style Settings > List pane > Pinned section icon.',
+            'The pinned section now uses a **Lucide icon instead of emoji**, and you can also change this icon with Style Settings > List pane > Pinned section icon. And if you do not want it you can remove it completely in settings.',
             '**Horizontal rules (---, ***, ___)** are now removed from preview text.',
             '**File reveal now preserve folder selection** when "Show notes from subfolders" is enabled and a descendant folder contains the file.',
             'Added **two new theme variables** for selected folder and selected file name when pane is inactive: --nn-theme-navitem-selected-inactive-name-color and --nn-theme-file-selected-inactive-name-color.'
