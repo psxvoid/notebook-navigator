@@ -198,9 +198,11 @@ export const STRINGS_EN = {
         slimPreset: 'Slim (no date/preview/image)',
         titleRows: 'Title rows',
         previewRows: 'Preview rows',
+        groupBy: 'Group by',
         defaultOption: (rows: number) => `Default (${rows})`,
         defaultTitleOption: (rows: number) => `Default title rows (${rows})`,
         defaultPreviewOption: (rows: number) => `Default preview rows (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Default grouping (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} title row${rows === 1 ? '' : 's'}`,
         previewRowOption: (rows: number) => `${rows} preview row${rows === 1 ? '' : 's'}`
     },
@@ -596,6 +598,10 @@ export const STRINGS_EN = {
                     folder: 'Group by folder'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'Show pinned group header',
+                desc: 'Display the pinned section header above pinned notes.'
+            },
             optimizeNoteHeight: {
                 name: 'Optimize note height',
                 desc: 'Reduce height for pinned notes and notes without preview text.'
@@ -612,6 +618,10 @@ export const STRINGS_EN = {
             showParentFolderNames: {
                 name: 'Show parent folder names',
                 desc: 'Display the parent folder name for notes in subfolders or tags.'
+            },
+            showParentFolderColors: {
+                name: 'Show parent folder colors',
+                desc: 'Use folder colors on parent folder labels.'
             },
             showQuickActions: {
                 name: 'Show quick actions (desktop only)',
@@ -910,6 +920,10 @@ export const STRINGS_EN = {
             navItemHeightScaleText: {
                 name: 'Scale text with item height',
                 desc: 'Reduce navigation text size when item height is decreased.'
+            },
+            navRootSpacing: {
+                name: 'Root item spacing',
+                desc: 'Spacing between root-level folders and tags.'
             },
             showTags: {
                 name: 'Show tags',

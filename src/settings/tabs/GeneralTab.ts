@@ -22,9 +22,8 @@ import { strings } from '../../i18n';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { BackgroundMode } from '../../types';
+import type { MultiSelectModifier } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
-import { localStorage } from '../../utils/localStorage';
-import { getNavigationPaneSizing } from '../../utils/paneSizing';
 import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 import {
     DEFAULT_UI_SCALE,
@@ -165,6 +164,20 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         );
     autoRevealSettingsEl.toggle(plugin.settings.autoRevealActiveFile);
 
+    new Setting(containerEl)
+        .setName(strings.settings.items.multiSelectModifier.name)
+        .setDesc(strings.settings.items.multiSelectModifier.desc)
+        .addDropdown(dropdown =>
+            dropdown
+                .addOption('cmdCtrl', strings.settings.items.multiSelectModifier.options.cmdCtrl)
+                .addOption('optionAlt', strings.settings.items.multiSelectModifier.options.optionAlt)
+                .setValue(plugin.settings.multiSelectModifier)
+                .onChange(async (value: MultiSelectModifier) => {
+                    plugin.settings.multiSelectModifier = value;
+                    await plugin.saveSettingsAndUpdate();
+                })
+        );
+
     if (!Platform.isMobile) {
         new Setting(containerEl).setName(strings.settings.groups.general.desktopAppearance).setHeading();
 
@@ -285,18 +298,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             );
 
         updateShowTooltipsSubSettings(plugin.settings.showTooltips);
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.resetPaneSeparator.name)
-            .setDesc(strings.settings.items.resetPaneSeparator.desc)
-            .addButton(button =>
-                button.setButtonText(strings.settings.items.resetPaneSeparator.buttonText).onClick(() => {
-                    const orientation = plugin.getDualPaneOrientation();
-                    const { storageKey } = getNavigationPaneSizing(orientation);
-                    localStorage.remove(storageKey);
-                    new Notice(strings.settings.items.resetPaneSeparator.notice);
-                })
-            );
     }
 
     if (Platform.isMobile) {

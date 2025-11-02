@@ -74,15 +74,30 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.7.3',
-        date: '2025-11-04',
+        date: '2025-11-02',
         showOnUpdate: true,
         new: [
-            'Multi-tag selection! You can now command+click tags to select multiple tags in list pane with "AND", or shift+click to select multiple tags with "OR".',
-            'New setting: ==List Pane > Slim item height==. Use it to reduce line spacing in list pane with slim mode enabled.'
+            '==Multi-tag selection!== This is huge! You can now command+click tags to select multiple tags in list pane with "AND", or shift+command+click to select multiple tags with "OR". This updates the search field, and you can save these filters for future use!',
+            '==You can now override "Group by" for each tag and folder==. Just click the "Change appearance" toolbar button in list pane.',
+            'New setting: ==List Pane > Appearance > Slim item height==. Reduce line spacing in list pane with slim mode enabled.',
+            'New setting: ==List Pane > Appearance > Show pinned group header==. Toggle to hide the section header above pinned notes.',
+            'New setting: ==Navigation Pane > Appearance > Root folder spacing==. Use it to add extra spacing between root folders and tags in navigation pane. Especially useful when you use background colors with inheritance.',
+            'New setting: ==Notes > Appearance > Show parent folder colors==. When enabled, parent folder names in list pane will use their text color from navigation pane. Enabled by default.',
+            'Three new localizations: Dutch (nl), Italian (it) and Portuguese / Brazil (pt-BR).'
         ],
-        improved: ['You can now click the "Tags" folder to view all notes with tags.'],
+        improved: [
+            'You can now click the "Tags" folder to view all notes with tags.',
+            'Significantly improved the way background color renders in navigation pane. This is a huge upgrade if you use background color for folders and tags in your vault!',
+            'Horizontal rules are now removed from preview text.',
+            'Added two new theme variables for selected folder and selected file name when pane is inactive: --nn-theme-navitem-selected-inactive-name-color and --nn-theme-file-selected-inactive-name-color.',
+            'When using "Group by subfolder" the current folder name will no longer display as a group.',
+            'File reveal now preserve folder selection when "Show notes from subfolders" is enabled and a descendant folder contains the file.'
+        ],
         changed: ['Changed ZH-CN translation for "Untitled" to 未命名 to match Obsidian default.'],
-        fixed: []
+        fixed: [
+            'Date parsing in frontmatter now uses correct locale handling.',
+            'Drag and drop is broken on Android devices due to a Chromium bug. This was fixed by implementing a popup menu on Android devices to rearrange items.'
+        ]
     },
     {
         version: '1.7.2',

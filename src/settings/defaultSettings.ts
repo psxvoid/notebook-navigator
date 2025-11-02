@@ -29,13 +29,14 @@ import type { NotebookNavigatorSettings } from './types';
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Filtering
-    fileVisibility: FILE_VISIBILITY.DOCUMENTS,
+    fileVisibility: FILE_VISIBILITY.SUPPORTED,
     excludedFolders: [],
     excludedFiles: [],
 
     // General tab - Behavior
     autoRevealActiveFile: true,
     autoRevealIgnoreRightSidebar: true,
+    multiSelectModifier: 'cmdCtrl',
 
     // General tab - View
     startView: 'files',
@@ -76,6 +77,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     navIndent: NAVPANE_MEASUREMENTS.defaultIndent,
     navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
     navItemHeightScaleText: true,
+    rootLevelSpacing: 0,
 
     // Folders & tags tab
     showRootFolder: true,
@@ -96,9 +98,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // List pane tab
     defaultFolderSort: 'modified-desc',
     listPaneTitle: 'header',
-    multiSelectModifier: 'cmdCtrl',
     noteGrouping: 'date',
     filterPinnedByFolder: false,
+    showPinnedGroupHeader: true,
     optimizeNoteHeight: true,
     slimItemHeight: LISTPANE_MEASUREMENTS.defaultSlimItemHeight,
     slimItemHeightScaleText: true,
@@ -127,6 +129,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     colorFileTags: true,
     showFileTagsInSlimMode: false,
     showParentFolderNames: true,
+    showParentFolderColors: true,
     showFilePreview: true,
     skipHeadingsInPreview: true,
     skipCodeBlocksInPreview: true,

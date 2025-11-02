@@ -148,6 +148,12 @@ export interface NavigationBannerItem {
     path: string;
 }
 
+export interface RootSpacerItem {
+    type: typeof NavigationPaneItemType.ROOT_SPACER;
+    key: string;
+    spacing: number;
+}
+
 export type CombinedNavigationItem =
     | FolderTreeItem
     | VirtualFolderItem
@@ -160,6 +166,7 @@ export type CombinedNavigationItem =
     | ShortcutSearchNavItem
     | ShortcutTagNavItem
     | NavigationBannerItem
+    | RootSpacerItem
     | { type: typeof NavigationPaneItemType.TOP_SPACER; key: string }
     | { type: typeof NavigationPaneItemType.BOTTOM_SPACER; key: string }
     | { type: typeof NavigationPaneItemType.LIST_SPACER; key: string };

@@ -197,9 +197,11 @@ export const STRINGS_KO = {
         slimPreset: '슬림 (날짜/미리보기/이미지 없음)',
         titleRows: '제목 행',
         previewRows: '미리보기 행',
+        groupBy: '그룹화 기준',
         defaultOption: (rows: number) => `기본 (${rows})`,
         defaultTitleOption: (rows: number) => `기본 제목 행 (${rows})`,
         defaultPreviewOption: (rows: number) => `기본 미리보기 행 (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `기본 그룹화 (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows}개 제목 행`,
         previewRowOption: (rows: number) => `${rows}개 미리보기 행`
     },
@@ -596,6 +598,10 @@ export const STRINGS_KO = {
                     folder: '폴더별 그룹'
                 }
             },
+            showPinnedGroupHeader: {
+                name: '고정 그룹 헤더 표시',
+                desc: '고정된 노트 위에 섹션 헤더를 표시합니다.'
+            },
             optimizeNoteHeight: {
                 name: '노트 높이 최적화',
                 desc: '고정된 노트와 미리보기 텍스트가 없는 노트의 높이를 줄입니다.'
@@ -612,6 +618,10 @@ export const STRINGS_KO = {
             showParentFolderNames: {
                 name: '상위 폴더 이름 표시',
                 desc: '하위 폴더나 태그의 노트에 상위 폴더 이름을 표시합니다.'
+            },
+            showParentFolderColors: {
+                name: '상위 폴더 색상 표시',
+                desc: '상위 폴더 레이블에 폴더 색상을 사용합니다.'
             },
             showQuickActions: {
                 name: '빠른 작업 표시 (데스크톱 전용)',
@@ -910,6 +920,10 @@ export const STRINGS_KO = {
             navItemHeightScaleText: {
                 name: '항목 높이에 따라 글자 크기 조정',
                 desc: '항목 높이를 줄이면 탐색 글자 크기를 작게 합니다.'
+            },
+            navRootSpacing: {
+                name: '루트 항목 간격',
+                desc: '최상위 폴더와 태그 사이의 간격.'
             },
             showTags: {
                 name: '태그 표시',

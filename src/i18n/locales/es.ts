@@ -198,9 +198,11 @@ export const STRINGS_ES = {
         slimPreset: 'Compacto (sin fecha/vista previa/imagen)',
         titleRows: 'Filas de título',
         previewRows: 'Filas de vista previa',
+        groupBy: 'Agrupar por',
         defaultOption: (rows: number) => `Predeterminado (${rows})`,
         defaultTitleOption: (rows: number) => `Filas de título predeterminadas (${rows})`,
         defaultPreviewOption: (rows: number) => `Filas de vista previa predeterminadas (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Agrupación predeterminada (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} fila${rows === 1 ? '' : 's'} de título`,
         previewRowOption: (rows: number) => `${rows} fila${rows === 1 ? '' : 's'} de vista previa`
     },
@@ -597,6 +599,10 @@ export const STRINGS_ES = {
                     folder: 'Agrupar por carpeta'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'Mostrar encabezado del grupo anclado',
+                desc: 'Muestra el encabezado de la sección de notas ancladas.'
+            },
             optimizeNoteHeight: {
                 name: 'Optimizar altura de notas',
                 desc: 'Reducir altura para notas ancladas y notas sin texto de vista previa.'
@@ -613,6 +619,10 @@ export const STRINGS_ES = {
             showParentFolderNames: {
                 name: 'Mostrar nombres de carpetas principales',
                 desc: 'Muestra el nombre de la carpeta principal para las notas en subcarpetas o etiquetas.'
+            },
+            showParentFolderColors: {
+                name: 'Mostrar colores de carpetas principales',
+                desc: 'Usar colores de carpeta en etiquetas de carpetas principales.'
             },
             showQuickActions: {
                 name: 'Mostrar acciones rápidas (solo escritorio)',
@@ -911,6 +921,10 @@ export const STRINGS_ES = {
             navItemHeightScaleText: {
                 name: 'Escalar texto con la altura de línea',
                 desc: 'Reduce el texto de navegación cuando la altura de línea se disminuye.'
+            },
+            navRootSpacing: {
+                name: 'Espaciado de elementos raíz',
+                desc: 'Espaciado entre carpetas y etiquetas de nivel superior.'
             },
             showTags: {
                 name: 'Mostrar etiquetas',

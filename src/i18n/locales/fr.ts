@@ -198,9 +198,11 @@ export const STRINGS_FR = {
         slimPreset: 'Compact (sans date/aperçu/image)',
         titleRows: 'Lignes de titre',
         previewRows: "Lignes d'aperçu",
+        groupBy: 'Grouper par',
         defaultOption: (rows: number) => `Défaut (${rows})`,
         defaultTitleOption: (rows: number) => `Lignes de titre par défaut (${rows})`,
         defaultPreviewOption: (rows: number) => `Lignes d'aperçu par défaut (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Regroupement par défaut (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} ligne${rows === 1 ? '' : 's'} de titre`,
         previewRowOption: (rows: number) => `${rows} ligne${rows === 1 ? '' : 's'} d'aperçu`
     },
@@ -598,6 +600,10 @@ export const STRINGS_FR = {
                     folder: 'Grouper par dossier'
                 }
             },
+            showPinnedGroupHeader: {
+                name: "Afficher l'en-tête du groupe épinglé",
+                desc: "Affiche l'en-tête de la section des notes épinglées."
+            },
             optimizeNoteHeight: {
                 name: 'Optimiser la hauteur des notes',
                 desc: "Réduire la hauteur pour les notes épinglées et les notes sans texte d'aperçu."
@@ -614,6 +620,10 @@ export const STRINGS_FR = {
             showParentFolderNames: {
                 name: 'Afficher les noms des dossiers parents',
                 desc: 'Afficher le nom du dossier parent pour les notes dans les sous-dossiers ou étiquettes.'
+            },
+            showParentFolderColors: {
+                name: 'Afficher les couleurs des dossiers parents',
+                desc: 'Utiliser les couleurs des dossiers sur les étiquettes des dossiers parents.'
             },
             showQuickActions: {
                 name: 'Afficher les actions rapides (bureau uniquement)',
@@ -913,6 +923,10 @@ export const STRINGS_FR = {
             navItemHeightScaleText: {
                 name: 'Adapter le texte à la hauteur de ligne',
                 desc: 'Réduit le texte de navigation lorsque la hauteur de ligne est diminuée.'
+            },
+            navRootSpacing: {
+                name: 'Espacement des éléments racine',
+                desc: 'Espacement entre les dossiers et étiquettes de niveau racine.'
             },
             showTags: {
                 name: 'Afficher les étiquettes',
