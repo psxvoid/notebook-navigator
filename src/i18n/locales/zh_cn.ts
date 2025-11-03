@@ -263,6 +263,10 @@ export const STRINGS_ZH_CN = {
             affectedFiles: '{count} 个文件受影响',
             andMore: '以及 {count} 个更多...',
             confirmRename: '重命名标签',
+            renameUnchanged: '{tag} 未更改',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: '请输入有效的标签名称。',
+            descendantRenameError: '无法将标签移动到自身或其子标签中。',
             confirmDelete: '删除标签',
             file: '个文件',
             files: '个文件'

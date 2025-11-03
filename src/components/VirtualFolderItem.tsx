@@ -68,6 +68,13 @@ interface VirtualFolderItemProps {
     onDragOver?: (event: DragEvent<HTMLDivElement>) => void; // Optional drag over handler for shortcuts
     onDrop?: (event: DragEvent<HTMLDivElement>) => void; // Optional drop handler for shortcuts
     onDragLeave?: (event: DragEvent<HTMLDivElement>) => void; // Optional drag leave handler for shortcuts
+    dropConfig?: {
+        zone: string;
+        path: string;
+        tag?: string;
+        allowInternalDrop?: boolean;
+        allowExternalDrop?: boolean;
+    };
 }
 
 /**
@@ -98,7 +105,8 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
     onToggle,
     onDragOver,
     onDrop,
-    onDragLeave
+    onDragLeave,
+    dropConfig
 }: VirtualFolderItemProps) {
     const settings = useSettingsState();
     const uxPreferences = useUXPreferences();
@@ -195,6 +203,11 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
             className={className}
             data-search-match={searchMatch ?? undefined}
             data-path={virtualFolder.id}
+            data-drop-zone={dropConfig?.zone}
+            data-drop-path={dropConfig?.path}
+            data-tag={dropConfig?.tag}
+            data-allow-internal-drop={dropConfig?.allowInternalDrop === false ? 'false' : undefined}
+            data-allow-external-drop={dropConfig?.allowExternalDrop === false ? 'false' : undefined}
             data-level={level}
             style={{ '--level': level } as React.CSSProperties}
             role="treeitem"

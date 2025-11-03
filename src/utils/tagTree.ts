@@ -320,6 +320,18 @@ export function collectAllTagPaths(node: TagTreeNode, paths: Set<string> = new S
 }
 
 /**
+ * Collects all file paths associated with a tag node and its descendants.
+ * Returns a set to avoid duplicate paths when tags overlap.
+ */
+export function collectTagFilePaths(node: TagTreeNode, files: Set<string> = new Set()): Set<string> {
+    node.notesWithTag.forEach(path => files.add(path));
+    for (const child of node.children.values()) {
+        collectTagFilePaths(child, files);
+    }
+    return files;
+}
+
+/**
  * Find a tag node by its path
  */
 export function findTagNode(tree: Map<string, TagTreeNode>, tagPath: string): TagTreeNode | null {

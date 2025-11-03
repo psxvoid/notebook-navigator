@@ -16,10 +16,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile } from 'obsidian';
+import { App, Notice, TFile } from 'obsidian';
 import { getDBInstance } from '../storage/fileOperations';
 import { normalizeTagPathValue } from '../utils/tagPrefixMatcher';
+import { normalizeTagPath } from '../utils/tagUtils';
 import type { NotebookNavigatorSettings } from '../settings/types';
+import { strings } from '../i18n';
+import type { TagTreeService } from './TagTreeService';
+import type { MetadataService } from './MetadataService';
+import { collectRenameFiles, TagDescriptor, TagReplacement, RenameFile, isDescendantRename } from './tagRename/TagRenameEngine';
+import { TagRenameModal } from '../modals/TagRenameModal';
+import { TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
+import type { ShortcutEntry } from '../types/shortcuts';
+import { isTagShortcut } from '../types/shortcuts';
+
+interface TagRenameAnalysis {
+    oldTag: TagDescriptor;
+    newTag: TagDescriptor;
+    replacement: TagReplacement;
+    targets: RenameFile[];
+    mergeConflict: [TagDescriptor, TagDescriptor] | null;
+}
+
+interface TagRenameResult {
+    renamed: number;
+    total: number;
+}
+
+interface TagUsageSummary {
+    total: number;
+    sample: string[];
+}
 
 /**
  * Service for managing tag operations.
@@ -38,6 +65,8 @@ export class TagOperations {
      */
     private static readonly TAG_BOUNDARY = '(?=\\s|$|\\p{P})';
 
+    private static readonly RENAME_BATCH_SIZE = 10;
+
     /**
      * Complete pattern for matching any inline tag with optional leading space
      */
@@ -53,7 +82,9 @@ export class TagOperations {
 
     constructor(
         private app: App,
-        private getSettings: () => NotebookNavigatorSettings
+        private getSettings: () => NotebookNavigatorSettings,
+        private getTagTreeService: () => TagTreeService | null,
+        private getMetadataService: () => MetadataService | null
     ) {}
 
     /**
@@ -106,6 +137,39 @@ export class TagOperations {
      */
     private escapeRegExp(string: string): string {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    /**
+     * Validates tag name format according to Obsidian tag rules.
+     * Rejects empty tags, leading/trailing slashes, and double slashes.
+     */
+    private isValidTagName(tag: string): boolean {
+        const candidate = tag.trim();
+        if (candidate.length === 0) {
+            return false;
+        }
+        if (candidate.startsWith('/') || candidate.endsWith('/')) {
+            return false;
+        }
+        if (candidate.includes('//')) {
+            return false;
+        }
+        const pattern = new RegExp(`^${TagOperations.TAG_CHAR_CLASS}$`, 'u');
+        return pattern.test(candidate);
+    }
+
+    /**
+     * Resolves canonical tag path to its display path using the tag tree.
+     * Returns original path if tag tree is unavailable or tag not found.
+     */
+    private resolveDisplayTagPath(tagPath: string): string {
+        const canonical = normalizeTagPathValue(tagPath);
+        if (canonical.length === 0) {
+            return tagPath;
+        }
+        const treeService = this.getTagTreeService();
+        const node = treeService?.findTagNode(canonical);
+        return node?.displayPath ?? tagPath;
     }
 
     /**
@@ -556,5 +620,353 @@ export class TagOperations {
      */
     private removeAllInlineTags(content: string): string {
         return content.replace(TagOperations.INLINE_TAG_PATTERN, '');
+    }
+
+    /**
+     * Extracts the last segment of a tag path.
+     * Example: "project/tasks/urgent" → "urgent"
+     */
+    private getTagLeaf(tagPath: string): string {
+        const parts = tagPath.split('/');
+        return parts[parts.length - 1] ?? tagPath;
+    }
+
+    /**
+     * Builds a summary of files that will be affected by tag rename.
+     * Returns up to 8 sample file basenames for display in modal.
+     */
+    private buildUsageSummaryFromPaths(paths: Iterable<string>): TagUsageSummary {
+        const sample: string[] = [];
+        let total = 0;
+
+        for (const filePath of paths) {
+            total += 1;
+            const abstractFile = this.app.vault.getAbstractFileByPath(filePath);
+            if (abstractFile instanceof TFile) {
+                sample.push(abstractFile.basename);
+            } else {
+                sample.push(filePath);
+            }
+
+            if (sample.length >= 8) {
+                break;
+            }
+        }
+
+        return { total, sample };
+    }
+
+    private buildUsageSummary(targets: RenameFile[]): TagUsageSummary {
+        return this.buildUsageSummaryFromPaths(targets.map(target => target.filePath));
+    }
+
+    /**
+     * Analyzes a tag rename operation to determine affected files and potential conflicts.
+     * Collects target files and checks for tag merge scenarios.
+     */
+    private buildRenameAnalysis(oldTagPath: string, newTagPath: string, presetTargets?: RenameFile[] | null): TagRenameAnalysis {
+        const oldTag = new TagDescriptor(oldTagPath);
+        const newTag = new TagDescriptor(newTagPath);
+        const replacement = new TagReplacement(oldTag, newTag);
+        const tagTree = this.getTagTreeService();
+        const targets = presetTargets ?? collectRenameFiles(this.app, oldTag, tagTree);
+        const existingTags = tagTree ? tagTree.getAllTagPaths().map(path => `#${path}`) : [];
+        const mergeConflict = existingTags.length > 0 ? replacement.willMergeTags(existingTags) : null;
+        return { oldTag, newTag, replacement, targets, mergeConflict };
+    }
+
+    /**
+     * Executes tag rename across all target files.
+     * Shows notice if rename will merge tags.
+     */
+    private async executeRename(analysis: TagRenameAnalysis): Promise<TagRenameResult> {
+        const conflict = analysis.mergeConflict;
+        if (conflict) {
+            const [origin, clash] = conflict;
+            new Notice(`${origin.tag} merges into ${clash.tag}`);
+        }
+
+        let renamed = 0;
+        for (let index = 0; index < analysis.targets.length; index++) {
+            const target = analysis.targets[index];
+            if (await target.renamed(analysis.replacement)) {
+                renamed++;
+            }
+            if ((index + 1) % TagOperations.RENAME_BATCH_SIZE === 0) {
+                await this.yieldToEventLoop();
+            }
+        }
+
+        return { renamed, total: analysis.targets.length };
+    }
+
+    /**
+     * Updates tag metadata keys after a successful rename operation.
+     * Migrates colors, icons, backgrounds, sort overrides, and appearances.
+     */
+    private async updateTagMetadataAfterRename(oldTagPath: string, newTagPath: string, preserveDestination: boolean): Promise<void> {
+        const metadataService = this.getMetadataService();
+        if (!metadataService) {
+            return;
+        }
+
+        const trimmedOld = oldTagPath.trim();
+        const trimmedNew = newTagPath.trim();
+        if (trimmedOld.length === 0 || trimmedNew.length === 0) {
+            return;
+        }
+        if (trimmedOld === trimmedNew) {
+            return;
+        }
+
+        try {
+            await metadataService.handleTagRename(trimmedOld, trimmedNew, preserveDestination);
+        } catch (error) {
+            console.error('[Notebook Navigator] Failed to update tag metadata after rename', error);
+        }
+    }
+
+    /**
+     * Updates tag shortcuts when a tag is renamed so saved references continue to resolve.
+     * Drops shortcuts that would collide with existing entries after the rename.
+     */
+    private async updateTagShortcutsAfterRename(oldTagPath: string, newTagPath: string): Promise<void> {
+        const metadataService = this.getMetadataService();
+        const settingsProvider = metadataService?.getSettingsProvider();
+        if (!settingsProvider) {
+            return;
+        }
+
+        const normalizedOld = normalizeTagPath(oldTagPath);
+        const normalizedNew = normalizeTagPath(newTagPath);
+        if (!normalizedOld || !normalizedNew) {
+            return;
+        }
+        if (normalizedOld === normalizedNew) {
+            return;
+        }
+
+        const shortcuts = settingsProvider.settings.shortcuts;
+        if (!Array.isArray(shortcuts) || shortcuts.length === 0) {
+            return;
+        }
+
+        const prefix = `${normalizedOld}/`;
+        const preservedPaths = new Set<string>();
+        for (const shortcut of shortcuts) {
+            if (isTagShortcut(shortcut)) {
+                const { tagPath } = shortcut;
+                if (tagPath !== normalizedOld && !tagPath.startsWith(prefix)) {
+                    preservedPaths.add(tagPath);
+                }
+            }
+        }
+
+        const occupiedPaths = new Set<string>();
+        let changed = false;
+        const updated: ShortcutEntry[] = [];
+
+        for (const shortcut of shortcuts) {
+            if (!isTagShortcut(shortcut)) {
+                updated.push(shortcut);
+                continue;
+            }
+
+            const currentPath = shortcut.tagPath;
+            const isDirectMatch = currentPath === normalizedOld;
+            const isDescendantMatch = currentPath.startsWith(prefix);
+            let targetPath = currentPath;
+
+            if (isDirectMatch || isDescendantMatch) {
+                const suffix = isDescendantMatch ? currentPath.slice(prefix.length) : '';
+                targetPath = suffix.length > 0 ? `${normalizedNew}/${suffix}` : normalizedNew;
+                if (targetPath !== currentPath) {
+                    changed = true;
+                }
+            }
+
+            if ((isDirectMatch || isDescendantMatch) && preservedPaths.has(targetPath)) {
+                changed = true;
+                continue;
+            }
+
+            if (occupiedPaths.has(targetPath)) {
+                if (targetPath !== currentPath) {
+                    changed = true;
+                }
+                continue;
+            }
+
+            const nextShortcut = targetPath === currentPath ? shortcut : { ...shortcut, tagPath: targetPath };
+            updated.push(nextShortcut);
+            occupiedPaths.add(targetPath);
+            preservedPaths.add(targetPath);
+        }
+
+        if (!changed) {
+            return;
+        }
+
+        settingsProvider.settings.shortcuts = updated;
+        try {
+            await settingsProvider.saveSettingsAndUpdate();
+        } catch (error) {
+            console.error('[Notebook Navigator] Failed to update tag shortcuts after rename', error);
+        }
+    }
+
+    /**
+     * Yields control back to the event loop to keep the UI responsive during long operations.
+     */
+    private async yieldToEventLoop(): Promise<void> {
+        await new Promise<void>(resolve => {
+            if (typeof requestAnimationFrame === 'function') {
+                requestAnimationFrame(() => resolve());
+            } else {
+                setTimeout(resolve, 0);
+            }
+        });
+    }
+
+    /**
+     * Collects current file paths for a tag and its descendants using the cached tag tree.
+     * Returns null when the tag tree is unavailable.
+     */
+    private collectPreviewPaths(tag: TagDescriptor): string[] | null {
+        if (tag.canonicalName.length === 0) {
+            return [];
+        }
+
+        const tagTreeService = this.getTagTreeService();
+        if (!tagTreeService) {
+            return null;
+        }
+
+        return tagTreeService.collectTagFilePaths(tag.canonicalName);
+    }
+
+    /**
+     * Orchestrates tag rename operation with validation and user feedback.
+     * Returns true if rename succeeded, false if validation failed or no files were modified.
+     */
+    private async runTagRename(oldTagPath: string, newTagPath: string, presetTargets?: RenameFile[] | null): Promise<boolean> {
+        // Reuse preset targets gathered when the modal opened to avoid a second vault scan.
+        const analysis = this.buildRenameAnalysis(oldTagPath, newTagPath, presetTargets);
+
+        if (isDescendantRename(analysis.oldTag, analysis.newTag)) {
+            new Notice(strings.modals.tagOperation.descendantRenameError);
+            return false;
+        }
+
+        if (analysis.oldTag.tag === analysis.newTag.tag) {
+            new Notice(strings.modals.tagOperation.renameUnchanged.replace('{tag}', analysis.oldTag.tag));
+            return false;
+        }
+
+        if (analysis.targets.length === 0) {
+            new Notice(`#${analysis.oldTag.name}: ${strings.listPane.emptyStateNoNotes}`);
+            return false;
+        }
+
+        const result = await this.executeRename(analysis);
+        if (result.renamed === 0) {
+            new Notice(
+                strings.modals.tagOperation.renameNoChanges
+                    .replace('{oldTag}', analysis.oldTag.tag)
+                    .replace('{newTag}', analysis.newTag.tag)
+                    .replace('{countLabel}', strings.listPane.emptyStateNoNotes)
+            );
+            return false;
+        }
+
+        await this.updateTagMetadataAfterRename(analysis.oldTag.name, analysis.newTag.name, Boolean(analysis.mergeConflict));
+        await this.updateTagShortcutsAfterRename(analysis.oldTag.name, analysis.newTag.name);
+
+        new Notice(
+            `${strings.modals.tagOperation.confirmRename}: ${analysis.oldTag.tag} → ${analysis.newTag.tag} (${result.renamed}/${result.total})`
+        );
+        return true;
+    }
+
+    /**
+     * Prompts user with modal to rename a tag and updates all affected files.
+     * Shows affected file count and sample list before confirming rename.
+     */
+    async promptRenameTag(tagPath: string): Promise<void> {
+        const displayPath = this.resolveDisplayTagPath(tagPath);
+        const oldTagDescriptor = new TagDescriptor(displayPath);
+        const previewPaths = this.collectPreviewPaths(oldTagDescriptor);
+        let presetTargets: RenameFile[] | null = null;
+        let usage: TagUsageSummary;
+
+        if (previewPaths === null) {
+            const targets = collectRenameFiles(this.app, oldTagDescriptor, this.getTagTreeService());
+            usage = this.buildUsageSummary(targets);
+            presetTargets = targets;
+        } else {
+            usage = this.buildUsageSummaryFromPaths(previewPaths);
+        }
+
+        if (usage.total === 0) {
+            new Notice(`#${displayPath}: ${strings.listPane.emptyStateNoNotes}`);
+            return;
+        }
+
+        const modal = new TagRenameModal(this.app, {
+            tagPath: displayPath,
+            affectedCount: usage.total,
+            sampleFiles: usage.sample,
+            onSubmit: async newName => {
+                const trimmedName = newName.startsWith('#') ? newName.slice(1) : newName;
+                if (!this.isValidTagName(trimmedName)) {
+                    new Notice(strings.modals.tagOperation.invalidTagName);
+                    return false;
+                }
+                const newDescriptor = new TagDescriptor(trimmedName);
+                if (isDescendantRename(oldTagDescriptor, newDescriptor)) {
+                    new Notice(strings.modals.tagOperation.descendantRenameError);
+                    return false;
+                }
+                return this.runTagRename(displayPath, trimmedName, presetTargets);
+            }
+        });
+        modal.open();
+    }
+
+    /**
+     * Moves a tag to the root level while preserving its leaf name.
+     * Used when dragging a nested tag onto the Tags root section.
+     */
+    async promoteTagToRoot(sourceTagPath: string): Promise<void> {
+        if (sourceTagPath === TAGGED_TAG_ID || sourceTagPath === UNTAGGED_TAG_ID) {
+            return;
+        }
+        const sourceDisplay = this.resolveDisplayTagPath(sourceTagPath);
+        if (!sourceDisplay || sourceDisplay.length === 0) {
+            return;
+        }
+        if (!sourceDisplay.includes('/')) {
+            return;
+        }
+        const leaf = this.getTagLeaf(sourceDisplay);
+        if (leaf.length === 0 || leaf === sourceDisplay) {
+            return;
+        }
+        await this.runTagRename(sourceDisplay, leaf);
+    }
+
+    /**
+     * Renames a tag by dragging it onto another tag in the navigation pane.
+     * Moves source tag as a child under target tag, preserving the leaf name.
+     */
+    async renameTagByDrag(sourceTagPath: string, targetTagPath: string): Promise<void> {
+        if (targetTagPath === TAGGED_TAG_ID || targetTagPath === UNTAGGED_TAG_ID) {
+            return;
+        }
+        const sourceDisplay = this.resolveDisplayTagPath(sourceTagPath);
+        const targetDisplay = this.resolveDisplayTagPath(targetTagPath);
+        const leaf = this.getTagLeaf(sourceDisplay);
+        const newPath = targetDisplay.length > 0 ? `${targetDisplay}/${leaf}` : leaf;
+        await this.runTagRename(sourceDisplay, newPath);
     }
 }

@@ -264,6 +264,10 @@ export const STRINGS_PL = {
             affectedFiles: 'Dotknięte pliki:',
             andMore: '...i {count} więcej',
             confirmRename: 'Zmień nazwę tagu',
+            renameUnchanged: '{tag} bez zmian',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: 'Wprowadź prawidłową nazwę tagu.',
+            descendantRenameError: 'Nie można przenieść tagu do samego siebie lub potomka.',
             confirmDelete: 'Usuń tag',
             file: 'plik',
             files: 'plików'

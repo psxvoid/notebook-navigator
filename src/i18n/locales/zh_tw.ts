@@ -263,6 +263,10 @@ export const STRINGS_ZH_TW = {
             affectedFiles: '受影響的檔案：',
             andMore: '...還有 {count} 個',
             confirmRename: '重新命名標籤',
+            renameUnchanged: '{tag} 未變更',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: '請輸入有效的標籤名稱。',
+            descendantRenameError: '無法將標籤移動到自身或其子標籤中。',
             confirmDelete: '刪除標籤',
             file: '檔案',
             files: '檔案'

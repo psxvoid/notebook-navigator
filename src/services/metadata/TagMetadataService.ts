@@ -215,6 +215,90 @@ export class TagMetadataService extends BaseMetadataService {
     }
 
     /**
+     * Checks if metadata exists for a tag path or any of its descendants.
+     */
+    private hasTagMetadataForPath(settings: NotebookNavigatorSettings, path: string): boolean {
+        const prefix = `${path}/`;
+        const records: (Record<string, unknown> | undefined)[] = [
+            settings.tagColors,
+            settings.tagBackgroundColors,
+            settings.tagIcons,
+            settings.tagSortOverrides,
+            settings.tagAppearances
+        ];
+
+        for (const record of records) {
+            if (!record) {
+                continue;
+            }
+            if (Object.prototype.hasOwnProperty.call(record, path)) {
+                return true;
+            }
+            for (const key in record) {
+                if (key.startsWith(prefix)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private willUpdateNestedPaths<T>(
+        metadata: Record<string, T> | undefined,
+        oldPath: string,
+        newPath: string,
+        preserveExisting: boolean
+    ): boolean {
+        if (!metadata) {
+            return false;
+        }
+        const clone = { ...metadata };
+        return this.updateNestedPaths(clone, oldPath, newPath, preserveExisting);
+    }
+
+    /**
+     * Updates all tag metadata entries when a tag is renamed.
+     * Migrates direct entries and nested descendants to the new path.
+     */
+    async handleTagRename(oldPath: string, newPath: string, preserveExisting = false): Promise<void> {
+        const normalizedOld = normalizeTagPath(oldPath);
+        const normalizedNew = normalizeTagPath(newPath);
+        if (!normalizedOld || !normalizedNew || normalizedOld === normalizedNew) {
+            return;
+        }
+
+        const settingsSnapshot = this.settingsProvider.settings;
+        if (!this.hasTagMetadataForPath(settingsSnapshot, normalizedOld)) {
+            return;
+        }
+
+        const requiresUpdate =
+            this.willUpdateNestedPaths(settingsSnapshot.tagColors, normalizedOld, normalizedNew, preserveExisting) ||
+            this.willUpdateNestedPaths(settingsSnapshot.tagBackgroundColors, normalizedOld, normalizedNew, preserveExisting) ||
+            this.willUpdateNestedPaths(settingsSnapshot.tagIcons, normalizedOld, normalizedNew, preserveExisting) ||
+            this.willUpdateNestedPaths(settingsSnapshot.tagSortOverrides, normalizedOld, normalizedNew, preserveExisting) ||
+            this.willUpdateNestedPaths(settingsSnapshot.tagAppearances, normalizedOld, normalizedNew, preserveExisting);
+
+        if (!requiresUpdate) {
+            return;
+        }
+
+        await this.saveAndUpdate(settings => {
+            let changed = false;
+            changed = this.updateNestedPaths(settings.tagColors, normalizedOld, normalizedNew, preserveExisting) || changed;
+            changed = this.updateNestedPaths(settings.tagBackgroundColors, normalizedOld, normalizedNew, preserveExisting) || changed;
+            changed = this.updateNestedPaths(settings.tagIcons, normalizedOld, normalizedNew, preserveExisting) || changed;
+            changed = this.updateNestedPaths(settings.tagSortOverrides, normalizedOld, normalizedNew, preserveExisting) || changed;
+            changed = this.updateNestedPaths(settings.tagAppearances, normalizedOld, normalizedNew, preserveExisting) || changed;
+
+            if (!changed) {
+                return;
+            }
+        });
+    }
+
+    /**
      * Clean up tag metadata for non-existent tags
      * @returns True if any changes were made
      */

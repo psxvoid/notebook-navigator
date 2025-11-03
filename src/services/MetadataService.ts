@@ -172,6 +172,10 @@ export class MetadataService {
         return this.tagService.getTagIcon(tagPath);
     }
 
+    async handleTagRename(oldPath: string, newPath: string, preserveExisting = false): Promise<void> {
+        return this.tagService.handleTagRename(oldPath, newPath, preserveExisting);
+    }
+
     async setTagSortOverride(tagPath: string, sortOption: SortOption): Promise<void> {
         return this.tagService.setTagSortOverride(tagPath, sortOption);
     }

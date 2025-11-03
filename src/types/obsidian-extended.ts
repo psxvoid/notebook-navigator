@@ -18,6 +18,8 @@
 
 import { App, Plugin, View, WorkspaceLeaf, TFile } from 'obsidian';
 
+export const TAG_DRAG_MIME = 'application/x-notebook-navigator-tag';
+
 /**
  * Extended Obsidian type definitions for internal/undocumented APIs
  * These are based on actual Obsidian behavior but not part of the official API
@@ -81,7 +83,7 @@ type DragManagerPayloadValue =
     | (() => void);
 
 export interface DragManagerPayload {
-    type?: 'file' | 'files' | 'link'; // Type of drag operation
+    type?: 'file' | 'files' | 'link' | 'tag'; // Type of drag operation
     file?: TFile; // Single file being dragged
     files?: TFile[]; // Multiple files being dragged
     title?: string; // Display title for the drag operation

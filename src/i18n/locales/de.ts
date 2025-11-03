@@ -265,6 +265,10 @@ export const STRINGS_DE = {
             affectedFiles: 'Betroffene Dateien:',
             andMore: '...und {count} weitere',
             confirmRename: 'Tag umbenennen',
+            renameUnchanged: '{tag} unverändert',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: 'Geben Sie einen gültigen Tag-Namen ein.',
+            descendantRenameError: 'Ein Tag kann nicht in sich selbst oder einen Nachkommen verschoben werden.',
             confirmDelete: 'Tag löschen',
             file: 'Datei',
             files: 'Dateien'

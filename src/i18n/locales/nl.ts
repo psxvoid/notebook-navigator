@@ -264,6 +264,10 @@ export const STRINGS_NL = {
             affectedFiles: 'Betreffende bestanden:',
             andMore: '...en {count} meer',
             confirmRename: 'Tag hernoemen',
+            renameUnchanged: '{tag} niet gewijzigd',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: 'Voer een geldige tagnaam in.',
+            descendantRenameError: 'Een tag kan niet in zichzelf of een afstammeling worden verplaatst.',
             confirmDelete: 'Tag verwijderen',
             file: 'bestand',
             files: 'bestanden'

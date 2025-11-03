@@ -263,6 +263,10 @@ export const STRINGS_JA = {
             affectedFiles: '{count}個のファイルが影響を受けます',
             andMore: 'さらに{count}個...',
             confirmRename: 'タグを名前変更',
+            renameUnchanged: '{tag} は変更されませんでした',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: '有効なタグ名を入力してください。',
+            descendantRenameError: 'タグを自身または子孫に移動することはできません。',
             confirmDelete: 'タグを削除',
             file: 'ファイル',
             files: 'ファイル'
