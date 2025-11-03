@@ -33,7 +33,7 @@ import { LinkCache, TFile, TFolder, debounce } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { OperationType } from '../services/CommandQueueService';
 import { useFileCache } from '../context/StorageContext';
-import { ListPaneItemType, ItemType } from '../types';
+import { ListPaneItemType, ItemType, PINNED_SECTION_HEADER_KEY } from '../types';
 import type { VisibilityPreferences } from '../types';
 import type { ListPaneItem } from '../types/virtualization';
 import { TIMEOUTS } from '../types/obsidian-extended';
@@ -94,6 +94,8 @@ interface UseListPaneDataResult {
     listItems: ListPaneItem[];
     /** Ordered array of files (without headers) for multi-selection */
     orderedFiles: TFile[];
+    /** Map from file path to index within orderedFiles array */
+    orderedFileIndexMap: Map<string, number>;
     /** Map from file path to list item index for O(1) lookups */
     filePathToIndex: Map<string, number>;
     /** Map from file path to position in files array for multi-selection */
@@ -494,7 +496,7 @@ export function useListPaneData({
                 items.push({
                     type: ListPaneItemType.HEADER,
                     data: strings.listPane.pinnedSection,
-                    key: `header-pinned`
+                    key: PINNED_SECTION_HEADER_KEY
                 });
             }
             pinnedFiles.forEach(file => {
@@ -715,16 +717,20 @@ export function useListPaneData({
      * Build an ordered array of files (excluding headers and spacers).
      * Used for Shift+Click range selection functionality.
      */
-    const orderedFiles = useMemo(() => {
+    const { orderedFiles, orderedFileIndexMap } = useMemo<{
+        orderedFiles: TFile[];
+        orderedFileIndexMap: Map<string, number>;
+    }>(() => {
         const files: TFile[] = [];
+        const indexMap = new Map<string, number>();
         listItems.forEach(item => {
-            if (item.type === ListPaneItemType.FILE) {
-                if (item.data instanceof TFile) {
-                    files.push(item.data);
-                }
+            if (item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
+                // Store the index before pushing to maintain correct mapping
+                indexMap.set(item.data.path, files.length);
+                files.push(item.data);
             }
         });
-        return files;
+        return { orderedFiles: files, orderedFileIndexMap: indexMap };
     }, [listItems]);
 
     /**
@@ -1032,6 +1038,7 @@ export function useListPaneData({
     return {
         listItems,
         orderedFiles,
+        orderedFileIndexMap,
         filePathToIndex,
         fileIndexMap,
         files,

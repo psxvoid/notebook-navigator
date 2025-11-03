@@ -195,6 +195,32 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to select the next file in the current view
+    plugin.addCommand({
+        id: 'select-next-file',
+        name: strings.commands.selectNextFile,
+        callback: async () => {
+            const leaf = await ensureNavigatorOpen(plugin);
+            const view = leaf?.view;
+            if (view instanceof NotebookNavigatorView) {
+                await view.selectNextFileInCurrentView();
+            }
+        }
+    });
+
+    // Command to select the previous file in the current view
+    plugin.addCommand({
+        id: 'select-previous-file',
+        name: strings.commands.selectPreviousFile,
+        callback: async () => {
+            const leaf = await ensureNavigatorOpen(plugin);
+            const view = leaf?.view;
+            if (view instanceof NotebookNavigatorView) {
+                await view.selectPreviousFileInCurrentView();
+            }
+        }
+    });
+
     // Command to convert the active file into a folder note
     plugin.addCommand({
         id: 'convert-to-folder-note',

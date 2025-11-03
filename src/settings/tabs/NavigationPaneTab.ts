@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, Platform, Setting, SliderComponent } from 'obsidian';
+import { ButtonComponent, Setting, SliderComponent } from 'obsidian';
 import { strings } from '../../i18n';
 import { NavigationBannerModal } from '../../modals/NavigationBannerModal';
 import { DEFAULT_SETTINGS } from '../defaultSettings';
@@ -35,28 +35,6 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
         .addToggle(toggle =>
             toggle.setValue(plugin.settings.skipAutoScroll).onChange(async value => {
                 plugin.settings.skipAutoScroll = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    if (!Platform.isMobile) {
-        new Setting(containerEl)
-            .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
-            .setDesc(strings.settings.items.autoSelectFirstFileOnFocusChange.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.settings.autoSelectFirstFileOnFocusChange).onChange(async value => {
-                    plugin.settings.autoSelectFirstFileOnFocusChange = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-            );
-    }
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.autoExpandFoldersTags.name)
-        .setDesc(strings.settings.items.autoExpandFoldersTags.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.autoExpandFoldersTags).onChange(async value => {
-                plugin.settings.autoExpandFoldersTags = value;
                 await plugin.saveSettingsAndUpdate();
             })
         );
@@ -136,6 +114,16 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
     });
 
     renderNavigationBannerValue();
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.showSectionIcons.name)
+        .setDesc(strings.settings.items.showSectionIcons.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showSectionIcons).onChange(async value => {
+                plugin.settings.showSectionIcons = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
 
     new Setting(containerEl)
         .setName(strings.settings.items.showShortcuts.name)

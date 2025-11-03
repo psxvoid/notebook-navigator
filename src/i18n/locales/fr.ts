@@ -41,7 +41,7 @@ export const STRINGS_FR = {
     listPane: {
         emptyStateNoSelection: 'Sélectionnez un dossier ou une étiquette pour afficher les notes', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Aucune note', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 Épinglées', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: 'Épinglées', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: 'Notes', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: 'Fichiers', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (masqué)' // Accessibility label applied to list items that are normally hidden
@@ -453,6 +453,8 @@ export const STRINGS_FR = {
         deleteFile: 'Supprimer les fichiers', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Créer une nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Déplacer les fichiers', // Command palette: Move selected files to another folder (English: Move files)
+        selectNextFile: 'Sélectionner le fichier suivant', // Command palette: Selects the next file in the current view (English: Select next file)
+        selectPreviousFile: 'Sélectionner le fichier précédent', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Convertir en note de dossier', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         pinAllFolderNotes: 'Épingler toutes les notes de dossier', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Naviguer vers le dossier', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
@@ -559,7 +561,7 @@ export const STRINGS_FR = {
                 }
             },
             listPaneTitle: {
-                name: 'Titre du panneau de liste',
+                name: 'Titre du panneau de liste (ordinateur uniquement)',
                 desc: 'Choisissez où afficher le titre du panneau de liste.',
                 options: {
                     header: 'Afficher dans l’en-tête',
@@ -604,6 +606,10 @@ export const STRINGS_FR = {
                 name: "Afficher l'en-tête du groupe épinglé",
                 desc: "Affiche l'en-tête de la section des notes épinglées."
             },
+            showPinnedIcon: {
+                name: "Afficher l'icône épinglée",
+                desc: "Afficher l'icône à côté de l'en-tête de la section épinglée."
+            },
             optimizeNoteHeight: {
                 name: 'Optimiser la hauteur des notes',
                 desc: "Réduire la hauteur pour les notes épinglées et les notes sans texte d'aperçu."
@@ -617,12 +623,12 @@ export const STRINGS_FR = {
                 name: 'Adapter le texte à la hauteur compacte',
                 desc: 'Adapte le texte des éléments compacts lorsque la hauteur est réduite.'
             },
-            showParentFolderNames: {
-                name: 'Afficher les noms des dossiers parents',
+            showParentFolder: {
+                name: 'Afficher le dossier parent',
                 desc: 'Afficher le nom du dossier parent pour les notes dans les sous-dossiers ou étiquettes.'
             },
-            showParentFolderColors: {
-                name: 'Afficher les couleurs des dossiers parents',
+            showParentFolderColor: {
+                name: 'Afficher la couleur du dossier parent',
                 desc: 'Utiliser les couleurs des dossiers sur les étiquettes des dossiers parents.'
             },
             showQuickActions: {
@@ -883,6 +889,10 @@ export const STRINGS_FR = {
                 name: 'Afficher le dossier racine',
                 desc: "Afficher le nom du dossier racine dans l'arborescence."
             },
+            showFolderIcons: {
+                name: 'Afficher les icônes de dossier',
+                desc: 'Afficher les icônes à côté des dossiers dans le panneau de navigation.'
+            },
             inheritFolderColors: {
                 name: 'Hériter des couleurs de dossier',
                 desc: 'Les sous-dossiers héritent de la couleur des dossiers parents.'
@@ -891,9 +901,9 @@ export const STRINGS_FR = {
                 name: 'Afficher le nombre de notes',
                 desc: 'Afficher le nombre de notes à côté de chaque dossier et étiquette.'
             },
-            showIcons: {
-                name: 'Afficher les icônes',
-                desc: 'Afficher les icônes pour les dossiers, étiquettes et notes.'
+            showSectionIcons: {
+                name: 'Afficher les icônes de raccourci',
+                desc: 'Afficher les icônes pour les sections de navigation comme Raccourcis et Fichiers récents.'
             },
             showIconsColorOnly: {
                 name: 'Appliquer la couleur uniquement aux icônes',
@@ -931,6 +941,10 @@ export const STRINGS_FR = {
             showTags: {
                 name: 'Afficher les étiquettes',
                 desc: 'Afficher la section des étiquettes sous les dossiers dans le navigateur.'
+            },
+            showTagIcons: {
+                name: "Afficher les icônes d'étiquettes",
+                desc: 'Afficher les icônes à côté des étiquettes dans le panneau de navigation.'
             },
             tagSortOrder: {
                 name: 'Ordre de tri des étiquettes',
@@ -1108,7 +1122,7 @@ export const STRINGS_FR = {
                 status: 'New version available: {version}'
             },
             whatsNew: {
-                name: 'Nouveautés',
+                name: 'Nouveautés dans Notebook Navigator {version}',
                 desc: 'Voir les mises à jour et améliorations récentes',
                 buttonText: 'Voir les mises à jour récentes'
             },

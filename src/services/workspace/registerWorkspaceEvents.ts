@@ -30,6 +30,22 @@ export default function registerWorkspaceEvents(plugin: NotebookNavigatorPlugin)
         })
     );
 
+    // Add Notebook Navigator option to the folder explorer menu
+    plugin.registerEvent(
+        plugin.app.workspace.on('file-menu', (menu, file) => {
+            // Add navigate option for folders
+            if (file instanceof TFolder) {
+                menu.addItem(item => {
+                    item.setTitle(strings.plugin.revealInNavigator)
+                        .setIcon('lucide-notebook')
+                        .onClick(async () => {
+                            await plugin.navigateToFolder(file, { preserveNavigationFocus: true });
+                        });
+                });
+            }
+        })
+    );
+
     // Add ribbon icon to open the navigator
     plugin.ribbonIconEl = plugin.addRibbonIcon('lucide-notebook', strings.plugin.ribbonTooltip, async () => {
         await plugin.activateView();

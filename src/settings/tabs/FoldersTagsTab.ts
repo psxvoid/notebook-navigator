@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Setting } from 'obsidian';
+import { Platform, Setting } from 'obsidian';
 import { strings } from '../../i18n';
 import { isFolderNoteCreationPreference } from '../../types/folderNote';
 import { isTagSortOrder } from '../types';
@@ -35,7 +35,39 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         registerShowTagsListener
     } = context;
 
+    if (!Platform.isMobile) {
+        new Setting(containerEl)
+            .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
+            .setDesc(strings.settings.items.autoSelectFirstFileOnFocusChange.desc)
+            .addToggle(toggle =>
+                toggle.setValue(plugin.settings.autoSelectFirstFileOnFocusChange).onChange(async value => {
+                    plugin.settings.autoSelectFirstFileOnFocusChange = value;
+                    await plugin.saveSettingsAndUpdate();
+                })
+            );
+    }
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.autoExpandFoldersTags.name)
+        .setDesc(strings.settings.items.autoExpandFoldersTags.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.autoExpandFoldersTags).onChange(async value => {
+                plugin.settings.autoExpandFoldersTags = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
     new Setting(containerEl).setName(strings.settings.sections.folders).setHeading();
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.showFolderIcons.name)
+        .setDesc(strings.settings.items.showFolderIcons.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showFolderIcons).onChange(async value => {
+                plugin.settings.showFolderIcons = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
 
     new Setting(containerEl)
         .setName(strings.settings.items.showRootFolder.name)
@@ -160,6 +192,16 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         );
 
     const tagSubSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(tagSubSettingsEl)
+        .setName(strings.settings.items.showTagIcons.name)
+        .setDesc(strings.settings.items.showTagIcons.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showTagIcons).onChange(async value => {
+                plugin.settings.showTagIcons = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
 
     /** Setting for choosing tag sort order in the navigation pane */
     new Setting(tagSubSettingsEl)

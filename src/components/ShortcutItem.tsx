@@ -114,6 +114,20 @@ export const ShortcutItem = React.memo(function ShortcutItem({
         return backgroundColor;
     }, [backgroundColor, isMissing]);
 
+    // Determines icon visibility based on section icons setting and shortcut type
+    const shouldShowIcon = useMemo(() => {
+        if (!settings.showSectionIcons) {
+            return false;
+        }
+        if (type === 'folder') {
+            return settings.showFolderIcons;
+        }
+        if (type === 'tag') {
+            return settings.showTagIcons;
+        }
+        return true;
+    }, [settings.showFolderIcons, settings.showSectionIcons, settings.showTagIcons, type]);
+
     return (
         <NavigationListRow
             icon={icon}
@@ -154,6 +168,7 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             dragHandleConfig={dragHandleConfig}
             labelClassName={hasFolderNote ? 'nn-has-folder-note' : undefined}
             onLabelClick={labelClickHandler}
+            showIcon={shouldShowIcon}
         />
     );
 });

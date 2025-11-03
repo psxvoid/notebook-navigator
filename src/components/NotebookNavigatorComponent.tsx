@@ -27,7 +27,7 @@ import { useShortcuts } from '../context/ShortcutsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useDragNavigationPaneActivation } from '../hooks/useDragNavigationPaneActivation';
-import { useNavigatorReveal, type RevealFileOptions } from '../hooks/useNavigatorReveal';
+import { useNavigatorReveal, type RevealFileOptions, type NavigateToFolderOptions } from '../hooks/useNavigatorReveal';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useNavigationActions } from '../hooks/useNavigationActions';
@@ -80,12 +80,13 @@ export interface NotebookNavigatorHandle {
     // Reveals a file while preserving the current navigation context when possible
     revealFileInNearestFolder: (file: TFile, options?: RevealFileOptions) => void;
     focusVisiblePane: () => void;
+    focusNavigationPane: () => void;
     refresh: () => void;
     deleteActiveFile: () => void;
     createNoteInSelectedFolder: () => Promise<void>;
     moveSelectedFiles: () => Promise<void>;
     addShortcutForCurrentSelection: () => Promise<void>;
-    navigateToFolder: (folderPath: string) => void;
+    navigateToFolder: (folderPath: string, options?: NavigateToFolderOptions) => void;
     navigateToFolderWithModal: () => void;
     navigateToTagWithModal: () => void;
     addTagToSelectedFiles: () => Promise<void>;
@@ -95,6 +96,8 @@ export interface NotebookNavigatorHandle {
     triggerCollapse: () => void;
     stopContentProcessing: () => void;
     rebuildCache: () => Promise<void>;
+    selectNextFile: () => Promise<boolean>;
+    selectPreviousFile: () => Promise<boolean>;
 }
 
 /**
@@ -207,24 +210,6 @@ export const NotebookNavigatorComponent = React.memo(
             storageKey: navigationPaneStorageKey,
             scale: uiScale
         });
-
-        // Use navigator reveal logic
-        const { revealFileInActualFolder, revealFileInNearestFolder, navigateToFolder, revealTag } = useNavigatorReveal({
-            app,
-            navigationPaneRef,
-            listPaneRef
-        });
-
-        // Use tag navigation logic
-        const { navigateToTag } = useTagNavigation();
-
-        // Handles file reveal from shortcuts, using nearest folder navigation
-        const handleShortcutNoteReveal = useCallback(
-            (file: TFile) => {
-                revealFileInNearestFolder(file, { source: 'shortcut' });
-            },
-            [revealFileInNearestFolder]
-        );
 
         // Get updateSettings from SettingsContext for refresh
         const updateSettings = useSettingsUpdate();
@@ -385,6 +370,62 @@ export const NotebookNavigatorComponent = React.memo(
         // Get navigation actions
         const { handleExpandCollapseAll } = useNavigationActions();
 
+        const focusPane = useCallback(
+            (pane: 'files' | 'navigation', options?: { updateSinglePaneView?: boolean }) => {
+                const isOpeningVersionHistory = commandQueue?.isOpeningVersionHistory() || false;
+                const isOpeningInNewContext = commandQueue?.isOpeningInNewContext() || false;
+
+                if (uiState.singlePane && options?.updateSinglePaneView && uiState.currentSinglePaneView !== pane) {
+                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: pane });
+                }
+
+                if (uiState.focusedPane !== pane) {
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane });
+                }
+
+                if (!isOpeningVersionHistory && !isOpeningInNewContext) {
+                    containerRef.current?.focus();
+                }
+            },
+            [commandQueue, uiDispatch, uiState.singlePane, uiState.currentSinglePaneView, uiState.focusedPane]
+        );
+
+        const focusNavigationPaneCallback = useCallback(
+            (options?: { updateSinglePaneView?: boolean }) => {
+                const updateSinglePaneView = options?.updateSinglePaneView ?? uiState.singlePane;
+                focusPane('navigation', { updateSinglePaneView });
+            },
+            [focusPane, uiState.singlePane]
+        );
+
+        const focusFilesPaneCallback = useCallback(
+            (options?: { updateSinglePaneView?: boolean }) => {
+                const updateSinglePaneView = options?.updateSinglePaneView ?? uiState.singlePane;
+                focusPane('files', { updateSinglePaneView });
+            },
+            [focusPane, uiState.singlePane]
+        );
+
+        // Use navigator reveal logic
+        const { revealFileInActualFolder, revealFileInNearestFolder, navigateToFolder, revealTag } = useNavigatorReveal({
+            app,
+            navigationPaneRef,
+            listPaneRef,
+            focusNavigationPane: focusNavigationPaneCallback,
+            focusFilesPane: focusFilesPaneCallback
+        });
+
+        // Use tag navigation logic
+        const { navigateToTag } = useTagNavigation();
+
+        // Handles file reveal from shortcuts, using nearest folder navigation
+        const handleShortcutNoteReveal = useCallback(
+            (file: TFile) => {
+                revealFileInNearestFolder(file, { source: 'shortcut' });
+            },
+            [revealFileInNearestFolder]
+        );
+
         // Expose methods via ref
         useImperativeHandle(ref, () => {
             // Retrieves currently selected files or falls back to single selected file
@@ -404,6 +445,15 @@ export const NotebookNavigatorComponent = React.memo(
                 return selectedFiles;
             };
 
+            // Routes adjacent file selection requests through the list pane reference
+            const navigateToAdjacentFile = (direction: 'next' | 'previous'): boolean => {
+                const listHandle = listPaneRef.current;
+                if (!listHandle) {
+                    return false;
+                }
+                return listHandle.selectAdjacentFile(direction);
+            };
+
             return {
                 // Forward to the manual reveal implementation
                 navigateToFile: (file: TFile, options?: RevealFileOptions) => {
@@ -414,19 +464,13 @@ export const NotebookNavigatorComponent = React.memo(
                     revealFileInNearestFolder(file, options);
                 },
                 focusVisiblePane: () => {
-                    const isOpeningVersionHistory = commandQueue?.isOpeningVersionHistory() || false;
-                    const isOpeningInNewContext = commandQueue?.isOpeningInNewContext() || false;
-
                     if (uiState.singlePane) {
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: uiState.currentSinglePaneView });
+                        focusPane(uiState.currentSinglePaneView);
                     } else {
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                    }
-
-                    if (!isOpeningVersionHistory && !isOpeningInNewContext) {
-                        containerRef.current?.focus();
+                        focusPane('files');
                     }
                 },
+                focusNavigationPane: focusNavigationPaneCallback,
                 stopContentProcessing: () => {
                     try {
                         stopProcessingRef.current?.();
@@ -438,6 +482,9 @@ export const NotebookNavigatorComponent = React.memo(
                     // Trigger complete cache rebuild from storage context
                     await rebuildCacheRef.current?.();
                 },
+                // Select adjacent files via command palette actions
+                selectNextFile: async () => navigateToAdjacentFile('next'),
+                selectPreviousFile: async () => navigateToAdjacentFile('previous'),
                 refresh: () => {
                     // A no-op update will increment the version and force a re-render
                     updateSettings(() => {});
@@ -549,7 +596,7 @@ export const NotebookNavigatorComponent = React.memo(
                         app,
                         (targetFolder: TFolder) => {
                             // Navigate to the selected folder
-                            navigateToFolder(targetFolder.path);
+                            navigateToFolder(targetFolder.path, { preserveNavigationFocus: true });
                         },
                         strings.modals.folderSuggest.navigatePlaceholder,
                         strings.modals.folderSuggest.instructions.select,
@@ -724,7 +771,6 @@ export const NotebookNavigatorComponent = React.memo(
         }, [
             revealFileInActualFolder,
             revealFileInNearestFolder,
-            uiDispatch,
             updateSettings,
             selectionState,
             fileSystemOps,
@@ -738,7 +784,8 @@ export const NotebookNavigatorComponent = React.memo(
             settings,
             plugin,
             tagTreeService,
-            commandQueue,
+            focusPane,
+            focusNavigationPaneCallback,
             tagOperations,
             handleExpandCollapseAll,
             navigationPaneRef,

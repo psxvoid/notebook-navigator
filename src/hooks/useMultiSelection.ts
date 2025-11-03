@@ -20,6 +20,7 @@ import { useCallback } from 'react';
 import { TFile } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
+import { useFileOpener } from './useFileOpener';
 import { findFileIndex, getFilesInRange } from '../utils/selectionUtils';
 
 /**
@@ -30,6 +31,8 @@ export function useMultiSelection() {
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
     const { app } = useServices();
+    const workspace = app.workspace;
+    const openFileInWorkspace = useFileOpener();
 
     /**
      * Handle Cmd/Ctrl+Click for toggling individual file selection
@@ -45,7 +48,7 @@ export function useMultiSelection() {
             }
 
             // Get the currently active file in editor
-            const activeFile = app.workspace.getActiveFile();
+            const activeFile = workspace.getActiveFile();
 
             // If deselecting, don't move cursor
             if (isDeselecting) {
@@ -60,32 +63,23 @@ export function useMultiSelection() {
                         // Move cursor to the first selected file in the list
                         selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file: firstSelectedFile });
                         // Open that file in editor
-                        const leaf = app.workspace.getLeaf(false);
-                        if (leaf) {
-                            leaf.openFile(firstSelectedFile, { active: false });
-                        }
+                        openFileInWorkspace(firstSelectedFile);
                     }
                 }
                 // If we're deselecting a file that's open in editor but cursor is elsewhere,
                 // open the file where the cursor is
                 else if (activeFile && activeFile.path === file.path && selectionState.selectedFile) {
-                    const leaf = app.workspace.getLeaf(false);
-                    if (leaf) {
-                        leaf.openFile(selectionState.selectedFile, { active: false });
-                    }
+                    openFileInWorkspace(selectionState.selectedFile);
                 }
             } else {
                 // If selecting, update cursor
                 selectionDispatch({ type: 'TOGGLE_WITH_CURSOR', file, anchorIndex: fileIndex });
 
                 // Open the file without changing focus
-                const leaf = app.workspace.getLeaf(false);
-                if (leaf) {
-                    leaf.openFile(file, { active: false });
-                }
+                openFileInWorkspace(file);
             }
         },
-        [selectionState.selectedFiles, selectionState.selectedFile, selectionDispatch, app.workspace]
+        [selectionState.selectedFiles, selectionState.selectedFile, selectionDispatch, openFileInWorkspace, workspace]
     );
 
     /**
@@ -116,12 +110,9 @@ export function useMultiSelection() {
             selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file });
 
             // Open the file without changing focus
-            const leaf = app.workspace.getLeaf(false);
-            if (leaf) {
-                leaf.openFile(file, { active: false });
-            }
+            openFileInWorkspace(file);
         },
-        [selectionState.selectedFile, selectionState.selectedFiles, selectionDispatch, app.workspace]
+        [selectionState.selectedFile, selectionState.selectedFiles, selectionDispatch, openFileInWorkspace]
     );
 
     /**
@@ -149,7 +140,7 @@ export function useMultiSelection() {
             let jumpingEnabled = true;
 
             // Get the currently active file in editor
-            const activeFile = app.workspace.getActiveFile();
+            const activeFile = workspace.getActiveFile();
             let deselectedActiveFile = false;
 
             // STEP 1: Check if we need to deselect current item
@@ -205,16 +196,13 @@ export function useMultiSelection() {
             // Open the file at cursor without changing focus
             // Always open if we deselected the active file, or if cursor moved to a different file
             if (deselectedActiveFile || !activeFile || activeFile.path !== finalFile.path) {
-                const leaf = app.workspace.getLeaf(false);
-                if (leaf) {
-                    leaf.openFile(finalFile, { active: false });
-                }
+                openFileInWorkspace(finalFile);
             }
 
             // Return the final index for the caller to handle scrolling
             return finalIndex;
         },
-        [selectionState.selectedFile, selectionState.selectedFiles, selectionDispatch, app.workspace]
+        [selectionState.selectedFile, selectionState.selectedFiles, selectionDispatch, openFileInWorkspace, workspace]
     );
 
     /**

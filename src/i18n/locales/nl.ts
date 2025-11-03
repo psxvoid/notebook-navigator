@@ -41,7 +41,7 @@ export const STRINGS_NL = {
     listPane: {
         emptyStateNoSelection: 'Selecteer een map of tag om notities te bekijken',
         emptyStateNoNotes: 'Geen notities',
-        pinnedSection: '📌 Vastgepind',
+        pinnedSection: 'Vastgepind',
         notesSection: 'Notities',
         filesSection: 'Bestanden',
         hiddenItemAriaLabel: '{name} (verborgen)'
@@ -454,6 +454,8 @@ export const STRINGS_NL = {
         deleteFile: 'Bestanden verwijderen',
         createNewNote: 'Nieuwe notitie maken',
         moveFiles: 'Bestanden verplaatsen',
+        selectNextFile: 'Volgend bestand selecteren',
+        selectPreviousFile: 'Vorig bestand selecteren',
         convertToFolderNote: 'Converteren naar mapnotitie',
         pinAllFolderNotes: 'Alle mapnotities vastpinnen',
         navigateToFolder: 'Navigeren naar map',
@@ -559,7 +561,7 @@ export const STRINGS_NL = {
                 }
             },
             listPaneTitle: {
-                name: 'Titel lijstpaneel',
+                name: 'Titel lijstpaneel (alleen desktop)',
                 desc: 'Kies waar de titel van het lijstpaneel wordt weergegeven.',
                 options: {
                     header: 'Tonen in koptekst',
@@ -604,6 +606,10 @@ export const STRINGS_NL = {
                 name: 'Vastgepinde groepskop tonen',
                 desc: 'De vastgepinde sectiekop boven vastgepinde notities weergeven.'
             },
+            showPinnedIcon: {
+                name: 'Vastgepind pictogram tonen',
+                desc: 'Pictogram naast vastgepinde sectiekop weergeven.'
+            },
             optimizeNoteHeight: {
                 name: 'Notitiehoogte optimaliseren',
                 desc: 'Hoogte verminderen voor vastgepinde notities en notities zonder voorbeeldtekst.'
@@ -617,12 +623,12 @@ export const STRINGS_NL = {
                 name: 'Tekst schalen met compacte itemhoogte',
                 desc: 'Compacte lijsttekst schalen wanneer de itemhoogte wordt verminderd.'
             },
-            showParentFolderNames: {
-                name: 'Bovenliggende mapnamen tonen',
+            showParentFolder: {
+                name: 'Bovenliggende map tonen',
                 desc: 'De naam van de bovenliggende map weergeven voor notities in submappen of tags.'
             },
-            showParentFolderColors: {
-                name: 'Bovenliggende mapkleuren tonen',
+            showParentFolderColor: {
+                name: 'Bovenliggende mapkleur tonen',
                 desc: 'Mapkleuren gebruiken voor labels van bovenliggende mappen.'
             },
             showQuickActions: {
@@ -882,6 +888,10 @@ export const STRINGS_NL = {
                 name: 'Hoofdmap tonen',
                 desc: 'De kluisnaam als hoofdmap in de structuur weergeven.'
             },
+            showFolderIcons: {
+                name: 'Mappictogrammen tonen',
+                desc: 'Pictogrammen naast mappen in navigatiepaneel weergeven.'
+            },
             inheritFolderColors: {
                 name: 'Mapkleuren overerven',
                 desc: 'Submappen erven kleur van bovenliggende mappen.'
@@ -890,9 +900,9 @@ export const STRINGS_NL = {
                 name: 'Notitietelling tonen',
                 desc: 'Het aantal notities naast elke map en tag weergeven.'
             },
-            showIcons: {
-                name: 'Pictogrammen tonen',
-                desc: 'Pictogrammen weergeven voor mappen, tags en notities.'
+            showSectionIcons: {
+                name: 'Snelkoppeling-pictogrammen tonen',
+                desc: 'Pictogrammen voor navigatiesecties zoals Snelkoppelingen en Recente bestanden weergeven.'
             },
             showIconsColorOnly: {
                 name: 'Kleur alleen op pictogrammen toepassen',
@@ -930,6 +940,10 @@ export const STRINGS_NL = {
             showTags: {
                 name: 'Tags tonen',
                 desc: 'Tagsectie onder mappen in de navigator weergeven.'
+            },
+            showTagIcons: {
+                name: 'Tagpictogrammen tonen',
+                desc: 'Pictogrammen naast tags in navigatiepaneel weergeven.'
             },
             tagSortOrder: {
                 name: 'Tag sorteervolgorde',
@@ -1107,7 +1121,7 @@ export const STRINGS_NL = {
                 status: 'Nieuwe versie beschikbaar: {version}'
             },
             whatsNew: {
-                name: 'Wat is er nieuw',
+                name: 'Wat is er nieuw in Notebook Navigator {version}',
                 desc: 'Bekijk recente updates en verbeteringen',
                 buttonText: 'Bekijk recente updates'
             },

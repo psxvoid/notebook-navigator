@@ -261,7 +261,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     }
 
     // Only show icon options if folder icons are enabled
-    if (settings.showIcons) {
+    if (settings.showFolderIcons) {
         menu.addSeparator();
 
         // Change icon

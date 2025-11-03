@@ -41,7 +41,7 @@ export const STRINGS_PT_BR = {
     listPane: {
         emptyStateNoSelection: 'Selecione uma pasta ou tag para ver notas',
         emptyStateNoNotes: 'Sem notas',
-        pinnedSection: '📌 Fixadas',
+        pinnedSection: 'Fixadas',
         notesSection: 'Notas',
         filesSection: 'Arquivos',
         hiddenItemAriaLabel: '{name} (oculto)'
@@ -454,6 +454,8 @@ export const STRINGS_PT_BR = {
         deleteFile: 'Excluir arquivos',
         createNewNote: 'Criar nova nota',
         moveFiles: 'Mover arquivos',
+        selectNextFile: 'Selecionar próximo arquivo',
+        selectPreviousFile: 'Selecionar arquivo anterior',
         convertToFolderNote: 'Converter em nota de pasta',
         pinAllFolderNotes: 'Fixar todas as notas de pasta',
         navigateToFolder: 'Navegar para pasta',
@@ -559,7 +561,7 @@ export const STRINGS_PT_BR = {
                 }
             },
             listPaneTitle: {
-                name: 'Título do painel de lista',
+                name: 'Título do painel de lista (somente desktop)',
                 desc: 'Escolha onde o título do painel de lista é mostrado.',
                 options: {
                     header: 'Mostrar no cabeçalho',
@@ -604,6 +606,10 @@ export const STRINGS_PT_BR = {
                 name: 'Mostrar cabeçalho do grupo fixado',
                 desc: 'Exibir o cabeçalho da seção fixada acima das notas fixadas.'
             },
+            showPinnedIcon: {
+                name: 'Mostrar ícone fixado',
+                desc: 'Exibir o ícone ao lado do cabeçalho da seção fixada.'
+            },
             optimizeNoteHeight: {
                 name: 'Otimizar altura da nota',
                 desc: 'Reduzir altura para notas fixadas e notas sem texto de visualização.'
@@ -617,12 +623,12 @@ export const STRINGS_PT_BR = {
                 name: 'Dimensionar texto com altura do item simples',
                 desc: 'Dimensionar texto da lista simples quando a altura do item é reduzida.'
             },
-            showParentFolderNames: {
-                name: 'Mostrar nomes de pastas pai',
+            showParentFolder: {
+                name: 'Mostrar pasta pai',
                 desc: 'Exibir o nome da pasta pai para notas em subpastas ou tags.'
             },
-            showParentFolderColors: {
-                name: 'Mostrar cores de pastas pai',
+            showParentFolderColor: {
+                name: 'Mostrar cor de pasta pai',
                 desc: 'Usar cores de pasta em rótulos de pastas pai.'
             },
             showQuickActions: {
@@ -866,6 +872,10 @@ export const STRINGS_PT_BR = {
                 name: 'Mostrar pasta raiz',
                 desc: 'Exibir o nome do cofre como a pasta raiz na árvore.'
             },
+            showFolderIcons: {
+                name: 'Mostrar ícones de pastas',
+                desc: 'Exibir ícones ao lado das pastas no painel de navegação.'
+            },
             inheritFolderColors: {
                 name: 'Herdar cores de pastas',
                 desc: 'Pastas filhas herdam cor das pastas pai.'
@@ -874,9 +884,9 @@ export const STRINGS_PT_BR = {
                 name: 'Mostrar contagem de notas',
                 desc: 'Exibir o número de notas ao lado de cada pasta e tag.'
             },
-            showIcons: {
-                name: 'Mostrar ícones',
-                desc: 'Exibir ícones para pastas, tags e notas.'
+            showSectionIcons: {
+                name: 'Mostrar ícones de atalho',
+                desc: 'Exibir ícones para seções de navegação como Atalhos e Arquivos recentes.'
             },
             showIconsColorOnly: {
                 name: 'Aplicar cor apenas aos ícones',
@@ -914,6 +924,10 @@ export const STRINGS_PT_BR = {
             showTags: {
                 name: 'Mostrar tags',
                 desc: 'Exibir seção de tags abaixo das pastas no navegador.'
+            },
+            showTagIcons: {
+                name: 'Mostrar ícones de tags',
+                desc: 'Exibir ícones ao lado das tags no painel de navegação.'
             },
             tagSortOrder: {
                 name: 'Ordem de classificação de tags',
@@ -1091,7 +1105,7 @@ export const STRINGS_PT_BR = {
                 status: 'Nova versão disponível: {version}'
             },
             whatsNew: {
-                name: 'O que há de novo',
+                name: 'O que há de novo no Notebook Navigator {version}',
                 desc: 'Veja atualizações e melhorias recentes',
                 buttonText: 'Ver atualizações recentes'
             },
