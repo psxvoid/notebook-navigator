@@ -39,6 +39,7 @@ import {
 /** Renders the general settings tab */
 export function renderGeneralTab(context: SettingsTabContext): void {
     const { containerEl, plugin, createDebouncedTextSetting } = context;
+    const pluginVersion = plugin.manifest.version;
 
     let updateStatusEl: HTMLDivElement | null = null;
 
@@ -60,7 +61,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     plugin.unregisterUpdateNoticeListener(updateStatusListenerId);
 
     const whatsNewSetting = new Setting(containerEl)
-        .setName(strings.settings.items.whatsNew.name)
+        .setName(strings.settings.items.whatsNew.name.replace('{version}', pluginVersion))
         .setDesc(strings.settings.items.whatsNew.desc)
         .addButton(button =>
             button.setButtonText(strings.settings.items.whatsNew.buttonText).onClick(async () => {
@@ -464,28 +465,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             })
         );
 
-    let showIconsSubSettings: HTMLDivElement | null = null;
-
-    const updateShowIconsSubSettings = (visible: boolean) => {
-        if (showIconsSubSettings) {
-            showIconsSubSettings.toggleClass('nn-setting-hidden', !visible);
-        }
-    };
-
     new Setting(containerEl)
-        .setName(strings.settings.items.showIcons.name)
-        .setDesc(strings.settings.items.showIcons.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showIcons).onChange(async value => {
-                plugin.settings.showIcons = value;
-                await plugin.saveSettingsAndUpdate();
-                updateShowIconsSubSettings(value);
-            })
-        );
-
-    showIconsSubSettings = containerEl.createDiv('nn-sub-settings');
-
-    new Setting(showIconsSubSettings)
         .setName(strings.settings.items.showIconsColorOnly.name)
         .setDesc(strings.settings.items.showIconsColorOnly.desc)
         .addToggle(toggle =>
@@ -494,8 +474,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 await plugin.saveSettingsAndUpdate();
             })
         );
-
-    updateShowIconsSubSettings(plugin.settings.showIcons);
 
     new Setting(containerEl).setName(strings.settings.groups.general.formatting).setHeading();
 

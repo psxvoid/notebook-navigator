@@ -162,6 +162,7 @@ body {
     --nn-theme-list-heading-color: var(--text-muted);
     --nn-theme-list-heading-font-weight: 600;
     --nn-theme-list-group-header-color: var(--text-muted);
+    --nn-style-pinned-section-icon: 'lucide-pin';
     --nn-theme-list-separator-color: var(--background-modifier-border);
 
     /* -- File Items -- */
@@ -2264,12 +2265,32 @@ body {
     text-overflow: ellipsis;
     display: flex;
     align-items: flex-start;
+    gap: 6px;
 }
 
 /* First date header - no top margin or extra padding for first group */
 .nn-date-group-header.nn-first-header {
     height: var(--nn-date-header-height);
     padding: 0 var(--nn-file-item-padding-horizontal);
+    align-items: center;
+}
+
+.nn-date-group-header-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
+    color: var(--nn-theme-list-group-header-color);
+    flex: 0 0 auto;
+}
+
+.nn-date-group-header-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nn-pinned-section-header {
     align-items: center;
 }
 
@@ -3185,11 +3206,22 @@ body.nn-resizing {
     border-left: 2px solid var(--background-modifier-border);
 }
 
+/* Settings layout root to keep tab header fixed */
+.nn-settings-tab-root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
 /* Settings tabs layout and navigation */
 .nn-settings-tabs {
     display: flex;
     flex-direction: column;
     gap: var(--size-4-4);
+    flex: 1;
+    min-height: 0;
 }
 
 .nn-settings-tabs-nav {
@@ -3197,7 +3229,7 @@ body.nn-resizing {
     flex-wrap: wrap;
     gap: var(--size-2-3);
     padding-bottom: var(--size-2-2);
-    border-bottom: 1px solid var(--background-modifier-border);
+    flex-shrink: 0;
 }
 
 .nn-settings-tab-button {
@@ -3210,6 +3242,12 @@ body.nn-resizing {
 
 .nn-settings-tabs-content {
     position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    box-sizing: border-box;
+    scrollbar-gutter: stable;
+    padding-inline-end: var(--nn-scroller-padding);
 }
 
 /* Hide tabs by default, show only active tab */
@@ -4862,6 +4900,13 @@ settings:
         format: hex
         default-light: '#'
         default-dark: '#'
+    -
+    -
+        id: nn-style-pinned-section-icon
+        title: Pinned section icon
+        description: Icon name used for the pinned notes header.
+        type: variable-text
+        default: 'lucide-pin'
     -
     -
         id: nn-theme-list-separator-color

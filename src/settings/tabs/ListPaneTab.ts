@@ -84,6 +84,31 @@ export function renderListPaneTab(context: SettingsTabContext): void {
         );
 
     new Setting(containerEl)
+        .setName(strings.settings.items.showPinnedGroupHeader.name)
+        .setDesc(strings.settings.items.showPinnedGroupHeader.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showPinnedGroupHeader).onChange(async value => {
+                plugin.settings.showPinnedGroupHeader = value;
+                await plugin.saveSettingsAndUpdate();
+                pinnedGroupSettingsEl.toggle(value);
+            })
+        );
+
+    const pinnedGroupSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(pinnedGroupSettingsEl)
+        .setName(strings.settings.items.showPinnedIcon.name)
+        .setDesc(strings.settings.items.showPinnedIcon.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showPinnedIcon).onChange(async value => {
+                plugin.settings.showPinnedIcon = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    pinnedGroupSettingsEl.toggle(plugin.settings.showPinnedGroupHeader);
+
+    new Setting(containerEl)
         .setName(strings.settings.items.groupNotes.name)
         .setDesc(strings.settings.items.groupNotes.desc)
         .addDropdown(dropdown =>
@@ -96,19 +121,6 @@ export function renderListPaneTab(context: SettingsTabContext): void {
                     plugin.settings.noteGrouping = value;
                     await plugin.saveSettingsAndUpdate();
                 })
-        );
-
-    // Sub-settings container for group notes options
-    const groupNotesSettingsEl = containerEl.createDiv('nn-sub-settings');
-
-    new Setting(groupNotesSettingsEl)
-        .setName(strings.settings.items.showPinnedGroupHeader.name)
-        .setDesc(strings.settings.items.showPinnedGroupHeader.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showPinnedGroupHeader).onChange(async value => {
-                plugin.settings.showPinnedGroupHeader = value;
-                await plugin.saveSettingsAndUpdate();
-            })
         );
 
     new Setting(containerEl)

@@ -37,12 +37,12 @@ export function useListPaneTitle(): UseListPaneTitleResult {
     const expansionState = useExpansionState();
     const metadataService = useMetadataService();
 
+    // Determines the icon to display in the list pane header based on selection type and icon settings
     const iconName = useMemo(() => {
-        if (!settings.showIcons) {
-            return '';
-        }
-
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+            if (!settings.showFolderIcons) {
+                return '';
+            }
             const folder = selectionState.selectedFolder;
             const customIcon = metadataService.getFolderIcon(folder.path);
             if (customIcon) {
@@ -57,6 +57,9 @@ export function useListPaneTitle(): UseListPaneTitleResult {
         }
 
         if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+            if (!settings.showTagIcons) {
+                return '';
+            }
             return metadataService.getTagIcon(selectionState.selectedTag) || 'lucide-tags';
         }
 
@@ -69,7 +72,8 @@ export function useListPaneTitle(): UseListPaneTitleResult {
         selectionState.selectionType,
         settings.excludedFolders,
         showHiddenItems,
-        settings.showIcons
+        settings.showFolderIcons,
+        settings.showTagIcons
     ]);
 
     const { desktopTitle, breadcrumbSegments } = useMemo(() => {
@@ -184,7 +188,9 @@ export function useListPaneTitle(): UseListPaneTitleResult {
         desktopTitle,
         breadcrumbSegments,
         iconName,
-        showIcon: settings.showIcons && iconName.length > 0,
+        showIcon:
+            (selectionState.selectionType === ItemType.FOLDER && settings.showFolderIcons && iconName.length > 0) ||
+            (selectionState.selectionType === ItemType.TAG && settings.showTagIcons && iconName.length > 0),
         selectionType: selectionState.selectionType
     };
 }

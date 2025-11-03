@@ -37,10 +37,16 @@ import { doesFolderContainPath } from '../utils/pathUtils';
 import type { Align } from '../types/scroll';
 import { isVirtualTagCollectionId } from '../utils/virtualTagCollections';
 
+interface FocusPaneOptions {
+    updateSinglePaneView?: boolean;
+}
+
 interface UseNavigatorRevealOptions {
     app: App;
     navigationPaneRef: RefObject<NavigationPaneHandle | null>;
     listPaneRef: RefObject<ListPaneHandle | null>;
+    focusNavigationPane: (options?: FocusPaneOptions) => void;
+    focusFilesPane: (options?: FocusPaneOptions) => void;
 }
 
 export interface RevealFileOptions {
@@ -57,6 +63,8 @@ export interface NavigateToFolderOptions {
     skipScroll?: boolean;
     // Marks how this navigation was triggered
     source?: SelectionRevealSource;
+    // When true, keep the navigation pane focused in single pane mode
+    preserveNavigationFocus?: boolean;
 }
 
 export interface RevealTagOptions {
@@ -78,7 +86,13 @@ export interface RevealTagOptions {
  * This hook encapsulates the complex reveal logic that was previously
  * in the NotebookNavigatorComponent, making it reusable and testable.
  */
-export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseNavigatorRevealOptions) {
+export function useNavigatorReveal({
+    app,
+    navigationPaneRef,
+    listPaneRef,
+    focusNavigationPane,
+    focusFilesPane
+}: UseNavigatorRevealOptions) {
     const settings = useSettingsState();
     const uxPreferences = useUXPreferences();
     const includeDescendantNotes = uxPreferences.includeDescendantNotes;
@@ -492,16 +506,14 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             // Select the folder
             selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, source: options?.source });
 
-            // In single pane mode, switch to list pane view and focus list pane
             if (uiState.singlePane) {
-                if (uiState.currentSinglePaneView === 'navigation') {
-                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                if (options?.preserveNavigationFocus) {
+                    focusNavigationPane({ updateSinglePaneView: true });
+                } else {
+                    focusFilesPane({ updateSinglePaneView: true });
                 }
-                // Set focus to list pane when in single pane mode
-                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             } else {
-                // In dual-pane mode, focus the folders pane
-                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                focusNavigationPane();
             }
 
             const shouldSkipScroll = Boolean(options?.skipScroll);
@@ -509,7 +521,16 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 navigationPaneRef.current.requestScroll(folder.path, { align: 'auto', itemType: ItemType.FOLDER });
             }
         },
-        [app, expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiState, uiDispatch, navigationPaneRef]
+        [
+            app,
+            expansionState.expandedFolders,
+            expansionDispatch,
+            selectionDispatch,
+            uiState,
+            navigationPaneRef,
+            focusNavigationPane,
+            focusFilesPane
+        ]
     );
 
     // Auto-reveal effect: Reset fileToReveal after it's been consumed

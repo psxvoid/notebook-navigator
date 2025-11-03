@@ -424,6 +424,18 @@ export const FileItem = React.memo(function FileItem({
 
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
+    // Determines whether to display the file icon based on icon availability and external file handling
+    // External files with fallback icons are hidden in non-slim mode to avoid visual clutter
+    const shouldShowFileIcon = useMemo(() => {
+        if (!effectiveFileIconId) {
+            return false;
+        }
+        if (usingFallbackIcon && isExternalFile && !isSlimMode) {
+            return false;
+        }
+        return true;
+    }, [effectiveFileIconId, isExternalFile, isSlimMode, usingFallbackIcon]);
+
     const isMultiRowTitle = appearanceSettings.titleRows > 1;
 
     const fileTitleElement = useMemo(() => {
@@ -433,7 +445,7 @@ export const FileItem = React.memo(function FileItem({
                 data-title-rows={appearanceSettings.titleRows}
                 data-multiline={isMultiRowTitle ? 'true' : 'false'}
             >
-                {settings.showIcons && effectiveFileIconId && !(usingFallbackIcon && isExternalFile && !isSlimMode) ? (
+                {shouldShowFileIcon ? (
                     <span
                         ref={fileIconRef}
                         className="nn-file-icon"
@@ -474,13 +486,11 @@ export const FileItem = React.memo(function FileItem({
         extensionSuffix,
         fileColor,
         applyColorToName,
-        effectiveFileIconId,
-        usingFallbackIcon,
         highlightedName,
         isExternalFile,
         isSlimMode,
         isMultiRowTitle,
-        settings.showIcons,
+        shouldShowFileIcon,
         showExtensionSuffix
     ]);
 
@@ -719,7 +729,7 @@ export const FileItem = React.memo(function FileItem({
         applyColorToName: boolean;
         showIcon: boolean;
     } | null = null;
-    if (settings.showParentFolderNames && parentFolderSource instanceof TFolder && !pinnedItemShouldUseCompactLayout) {
+    if (settings.showParentFolder && parentFolderSource instanceof TFolder && !pinnedItemShouldUseCompactLayout) {
         // Show parent label in tag view or when viewing descendants
         const shouldShowParentLabel =
             selectionType === ItemType.TAG || (includeDescendantNotes && parentFolder && parentFolderSource.path !== parentFolder);
@@ -728,13 +738,13 @@ export const FileItem = React.memo(function FileItem({
             // Use custom icon if set, otherwise use default folder icon
             const customParentIcon = metadataService.getFolderIcon(parentFolderSource.path);
             const fallbackParentIcon = parentFolderSource.path === '/' ? 'vault' : 'lucide-folder-closed';
-            const parentFolderColor = settings.showParentFolderColors ? metadataService.getFolderColor(parentFolderSource.path) : undefined;
+            const parentFolderColor = settings.showParentFolderColor ? metadataService.getFolderColor(parentFolderSource.path) : undefined;
             parentFolderMeta = {
                 name: parentFolderSource.name,
                 iconId: customParentIcon ?? fallbackParentIcon,
                 color: parentFolderColor,
                 applyColorToName: Boolean(parentFolderColor) && !settings.colorIconOnly,
-                showIcon: settings.showIcons
+                showIcon: settings.showFolderIcons
             };
         }
     }
@@ -1012,6 +1022,7 @@ export const FileItem = React.memo(function FileItem({
 
     // === Effects ===
 
+    // Renders the file icon in the DOM using the icon service
     useEffect(() => {
         const iconContainer = fileIconRef.current;
         if (!iconContainer) {
@@ -1019,13 +1030,17 @@ export const FileItem = React.memo(function FileItem({
         }
 
         iconContainer.innerHTML = '';
-        if (!settings.showIcons || !effectiveFileIconId || (usingFallbackIcon && isExternalFile && !isSlimMode)) {
+        if (!shouldShowFileIcon) {
             return;
         }
 
+        const iconId = effectiveFileIconId;
+        if (!iconId) {
+            return;
+        }
         const iconService = getIconService();
-        iconService.renderIcon(iconContainer, effectiveFileIconId);
-    }, [effectiveFileIconId, iconServiceVersion, isExternalFile, isSlimMode, settings.showIcons, usingFallbackIcon]);
+        iconService.renderIcon(iconContainer, iconId);
+    }, [effectiveFileIconId, iconServiceVersion, shouldShowFileIcon]);
 
     // Render external file indicator icon (shown next to filename in non-slim mode)
     useEffect(() => {

@@ -41,7 +41,7 @@ export const STRINGS_IT = {
     listPane: {
         emptyStateNoSelection: 'Seleziona una cartella o un tag per visualizzare le note',
         emptyStateNoNotes: 'Nessuna nota',
-        pinnedSection: '📌 Fissate',
+        pinnedSection: 'Fissate',
         notesSection: 'Note',
         filesSection: 'File',
         hiddenItemAriaLabel: '{name} (nascosto)'
@@ -454,6 +454,8 @@ export const STRINGS_IT = {
         deleteFile: 'Elimina file',
         createNewNote: 'Crea nuova nota',
         moveFiles: 'Sposta file',
+        selectNextFile: 'Seleziona file successivo',
+        selectPreviousFile: 'Seleziona file precedente',
         convertToFolderNote: 'Converti in nota cartella',
         pinAllFolderNotes: 'Fissa tutte le note cartella',
         navigateToFolder: 'Vai a cartella',
@@ -559,7 +561,7 @@ export const STRINGS_IT = {
                 }
             },
             listPaneTitle: {
-                name: 'Titolo pannello lista',
+                name: 'Titolo pannello lista (solo desktop)',
                 desc: 'Scegli dove viene mostrato il titolo del pannello lista.',
                 options: {
                     header: 'Mostra in intestazione',
@@ -604,6 +606,10 @@ export const STRINGS_IT = {
                 name: 'Mostra intestazione gruppo fissato',
                 desc: "Visualizza l'intestazione della sezione fissata sopra le note fissate."
             },
+            showPinnedIcon: {
+                name: 'Mostra icona fissata',
+                desc: "Visualizza l'icona accanto all'intestazione della sezione fissata."
+            },
             optimizeNoteHeight: {
                 name: 'Ottimizza altezza nota',
                 desc: 'Riduci altezza per note fissate e note senza testo anteprima.'
@@ -617,12 +623,12 @@ export const STRINGS_IT = {
                 name: 'Scala testo con altezza elemento sottile',
                 desc: "Scala testo lista sottile quando l'altezza elemento è ridotta."
             },
-            showParentFolderNames: {
-                name: 'Mostra nomi cartelle genitore',
+            showParentFolder: {
+                name: 'Mostra cartella genitore',
                 desc: 'Visualizza il nome della cartella genitore per note in sottocartelle o tag.'
             },
-            showParentFolderColors: {
-                name: 'Mostra colori cartelle genitore',
+            showParentFolderColor: {
+                name: 'Mostra colore cartella genitore',
                 desc: 'Usa colori cartella su etichette cartelle genitore.'
             },
             showQuickActions: {
@@ -866,6 +872,10 @@ export const STRINGS_IT = {
                 name: 'Mostra cartella radice',
                 desc: "Visualizza il nome del vault come cartella radice nell'albero."
             },
+            showFolderIcons: {
+                name: 'Mostra icone cartelle',
+                desc: 'Visualizza icone accanto alle cartelle nel pannello navigazione.'
+            },
             inheritFolderColors: {
                 name: 'Eredita colori cartelle',
                 desc: 'Le cartelle figlie ereditano il colore dalle cartelle genitore.'
@@ -874,9 +884,9 @@ export const STRINGS_IT = {
                 name: 'Mostra conteggio note',
                 desc: 'Visualizza il numero di note accanto a ogni cartella e tag.'
             },
-            showIcons: {
-                name: 'Mostra icone',
-                desc: 'Visualizza icone per cartelle, tag e note.'
+            showSectionIcons: {
+                name: 'Mostra icone collegamento',
+                desc: 'Visualizza icone per sezioni navigazione come Collegamenti e File recenti.'
             },
             showIconsColorOnly: {
                 name: 'Applica colore solo alle icone',
@@ -914,6 +924,10 @@ export const STRINGS_IT = {
             showTags: {
                 name: 'Mostra tag',
                 desc: 'Visualizza sezione tag sotto le cartelle nel navigatore.'
+            },
+            showTagIcons: {
+                name: 'Mostra icone tag',
+                desc: 'Visualizza icone accanto ai tag nel pannello navigazione.'
             },
             tagSortOrder: {
                 name: 'Ordine tag',
@@ -1091,7 +1105,7 @@ export const STRINGS_IT = {
                 status: 'Nuova versione disponibile: {version}'
             },
             whatsNew: {
-                name: 'Novità',
+                name: 'Novità in Notebook Navigator {version}',
                 desc: 'Vedi aggiornamenti e miglioramenti recenti',
                 buttonText: 'Visualizza aggiornamenti recenti'
             },

@@ -47,7 +47,7 @@
 import React, { useCallback, useRef, useEffect, useImperativeHandle, forwardRef, useState, useMemo } from 'react';
 import { TFile, Platform } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
-import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useSelectionState, useSelectionDispatch, resolvePrimarySelectedFile } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -57,9 +57,10 @@ import { useListPaneData } from '../hooks/useListPaneData';
 import { useListPaneScroll } from '../hooks/useListPaneScroll';
 import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
 import { useContextMenu } from '../hooks/useContextMenu';
+import { useFileOpener } from '../hooks/useFileOpener';
 import { strings } from '../i18n';
 import { TIMEOUTS } from '../types/obsidian-extended';
-import { ListPaneItemType, LISTPANE_MEASUREMENTS, UNTAGGED_TAG_ID } from '../types';
+import { ListPaneItemType, LISTPANE_MEASUREMENTS, PINNED_SECTION_HEADER_KEY, UNTAGGED_TAG_ID } from '../types';
 import { getEffectiveSortOption } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
@@ -76,6 +77,7 @@ import { normalizeTagPath } from '../utils/tagUtils';
 import { parseFilterSearchTokens, updateFilterQueryWithTag, type InclusionOperator } from '../utils/filterSearch';
 import { useSurfaceColorVariables } from '../hooks/useSurfaceColorVariables';
 import { LIST_PANE_SURFACE_COLOR_MAPPINGS } from '../constants/surfaceColorMappings';
+import { ObsidianIcon } from './ObsidianIcon';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -88,10 +90,24 @@ interface ExecuteSearchShortcutParams {
     searchShortcut: SearchShortcut;
 }
 
+/**
+ * Options for selecting a file programmatically
+ */
+export interface SelectFileOptions {
+    /** Mark the selection as keyboard navigation to prevent scroll interference */
+    markKeyboardNavigation?: boolean;
+    /** Mark the selection as user-initiated to track explicit user actions */
+    markUserSelection?: boolean;
+    /** Skip opening the file after selection */
+    suppressOpen?: boolean;
+}
+
 export interface ListPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
+    selectFile: (file: TFile, options?: SelectFileOptions) => void;
+    selectAdjacentFile: (direction: 'next' | 'previous') => boolean;
     modifySearchWithTag: (tag: string, operator: InclusionOperator) => void;
     toggleSearch: () => void;
     executeSearchShortcut: (params: ExecuteSearchShortcutParams) => Promise<void>;
@@ -119,9 +135,42 @@ interface ListPaneProps {
     onSearchTokensChange?: (state: SearchTagFilterState) => void;
 }
 
+const PINNED_SECTION_ICON_VARIABLE = '--nn-style-pinned-section-icon';
+const DEFAULT_PINNED_SECTION_ICON = 'lucide-pin';
+
+function sanitizePinnedSectionIcon(value: string): string {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+        return '';
+    }
+    const withoutLeadingQuotes = trimmed.replace(/^['"]+/, '');
+    const withoutTrailingQuotes = withoutLeadingQuotes.replace(/['"]+$/, '');
+    const sanitized = withoutTrailingQuotes.trim();
+    if (sanitized === '#' || sanitized.length === 0) {
+        return '';
+    }
+    return sanitized;
+}
+
+function resolvePinnedSectionIcon(): string {
+    if (typeof window === 'undefined' || !window.document?.body) {
+        return DEFAULT_PINNED_SECTION_ICON;
+    }
+
+    try {
+        const computed = window.getComputedStyle(window.document.body);
+        const rawValue = computed.getPropertyValue(PINNED_SECTION_ICON_VARIABLE);
+        const iconName = sanitizePinnedSectionIcon(rawValue);
+        return iconName.length > 0 ? iconName : DEFAULT_PINNED_SECTION_ICON;
+    } catch {
+        return DEFAULT_PINNED_SECTION_ICON;
+    }
+}
+
 export const ListPane = React.memo(
     forwardRef<ListPaneHandle, ListPaneProps>(function ListPane(props, ref) {
         const { app, commandQueue, isMobile, plugin } = useServices();
+        const openFileInWorkspace = useFileOpener();
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
@@ -147,6 +196,7 @@ export const ListPane = React.memo(
         const listPaneTitle = settings.listPaneTitle ?? 'header';
         const shouldShowDesktopTitleArea = !isMobile && listPaneTitle === 'list';
         const topSpacerHeight = shouldShowDesktopTitleArea ? 0 : LISTPANE_MEASUREMENTS.topSpacer;
+        const [pinnedSectionIcon, setPinnedSectionIcon] = useState(DEFAULT_PINNED_SECTION_ICON);
 
         // Search state - use directly from settings for sync across devices
         const isSearchActive = uxPreferences.searchActive;
@@ -255,6 +305,37 @@ export const ListPane = React.memo(
             });
         }, [searchQuery, onSearchTokensChange]);
 
+        useEffect(() => {
+            if (typeof window === 'undefined') {
+                return;
+            }
+
+            const updatePinnedIcon = () => {
+                const resolvedIcon = resolvePinnedSectionIcon();
+                setPinnedSectionIcon(current => (current === resolvedIcon ? current : resolvedIcon));
+            };
+
+            updatePinnedIcon();
+
+            const target = window.document?.body;
+            if (!target || typeof MutationObserver === 'undefined') {
+                return;
+            }
+
+            const observer = new MutationObserver(mutations => {
+                for (const mutation of mutations) {
+                    if (mutation.type === 'attributes') {
+                        updatePinnedIcon();
+                        break;
+                    }
+                }
+            });
+
+            observer.observe(target, { attributes: true, attributeFilter: ['style', 'class'] });
+
+            return () => observer.disconnect();
+        }, []);
+
         // Helper to toggle search state using UX preferences action
         const setIsSearchActive = useCallback(
             (active: boolean) => {
@@ -275,6 +356,35 @@ export const ListPane = React.memo(
         // Initialize multi-selection hook
         const multiSelection = useMultiSelection();
 
+        /**
+         * Selects a file from the list pane and opens it in the active leaf.
+         * Shared between keyboard navigation and command handlers.
+         */
+        const selectFileFromList = useCallback(
+            (file: TFile, options?: SelectFileOptions) => {
+                if (!file) {
+                    return;
+                }
+
+                // Track whether this selection originated from explicit user interaction
+                isUserSelectionRef.current = options?.markUserSelection ?? false;
+
+                // Update the selected file in global state
+                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+
+                // Mark as keyboard-driven to prevent automatic scroll interference
+                if (options?.markKeyboardNavigation) {
+                    selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+                }
+
+                // Open file in the active leaf without moving focus
+                if (!options?.suppressOpen) {
+                    openFileInWorkspace(file);
+                }
+            },
+            [selectionDispatch, openFileInWorkspace]
+        );
+
         // Track render count
         const renderCountRef = useRef(0);
 
@@ -284,7 +394,7 @@ export const ListPane = React.memo(
         const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
 
         // Use the new data hook
-        const { listItems, orderedFiles, filePathToIndex, fileIndexMap, files } = useListPaneData({
+        const { listItems, orderedFiles, orderedFileIndexMap, filePathToIndex, fileIndexMap, files } = useListPaneData({
             selectionType,
             selectedFolder,
             selectedTag,
@@ -344,19 +454,13 @@ export const ListPane = React.memo(
                 if (needsSelection) {
                     if (selectFallback && orderedFiles.length > 0) {
                         const firstFile = orderedFiles[0];
-                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
-                        if (openInEditor) {
-                            const leaf = app.workspace.getLeaf(false);
-                            if (leaf) {
-                                leaf.openFile(firstFile, { active: false });
-                            }
-                        }
+                        selectFileFromList(firstFile, { suppressOpen: !openInEditor });
                     } else if (!selectFallback && clearIfEmpty && orderedFiles.length === 0) {
                         selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
                     }
                 }
             },
-            [selectedFile, orderedFiles, filePathToIndex, selectionDispatch, app.workspace]
+            [selectedFile, orderedFiles, filePathToIndex, selectionDispatch, selectFileFromList]
         );
 
         /**
@@ -402,6 +506,47 @@ export const ListPane = React.memo(
             }
         }, [activeSearchShortcut, isSavingSearchShortcut, removeSearchShortcut]);
 
+        /**
+         * Advances the selection to the next or previous file and syncs scroll position
+         */
+        const selectAdjacentFile = useCallback(
+            (direction: 'next' | 'previous') => {
+                if (orderedFiles.length === 0) {
+                    return false;
+                }
+
+                // Resolve the currently selected file from state
+                const currentFile = resolvePrimarySelectedFile(app, selectionState);
+                const currentIndex = currentFile ? (orderedFileIndexMap.get(currentFile.path) ?? -1) : -1;
+
+                // Calculate the target index based on direction, wrapping to start or end if no current selection
+                const targetIndex =
+                    currentIndex === -1
+                        ? direction === 'next'
+                            ? 0
+                            : orderedFiles.length - 1
+                        : direction === 'next'
+                          ? currentIndex + 1
+                          : currentIndex - 1;
+
+                // Return false if target is out of bounds
+                if (targetIndex < 0 || targetIndex >= orderedFiles.length) {
+                    return false;
+                }
+
+                // Select the target file and scroll to it in the virtualized list
+                const targetFile = orderedFiles[targetIndex];
+                selectFileFromList(targetFile, { markKeyboardNavigation: true, markUserSelection: true });
+                const virtualIndex = filePathToIndex.get(targetFile.path);
+                if (virtualIndex !== undefined) {
+                    rowVirtualizer?.scrollToIndex(virtualIndex, { align: 'auto' });
+                }
+
+                return true;
+            },
+            [orderedFiles, orderedFileIndexMap, selectFileFromList, rowVirtualizer, app, selectionState, filePathToIndex]
+        );
+
         const handleFileClick = useCallback(
             (file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {
                 // Ignore middle mouse button clicks - they're handled by onMouseDown
@@ -426,9 +571,10 @@ export const ListPane = React.memo(
                 } else if (!isMobile && isShiftKey && fileIndex !== undefined && orderedFiles) {
                     multiSelection.handleRangeSelectClick(file, fileIndex, orderedFiles);
                 } else {
-                    // Normal click - always clear multi-selection and select only this file
-                    multiSelection.clearSelection();
-                    selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+                    selectFileFromList(file, {
+                        markUserSelection: true,
+                        suppressOpen: shouldOpenInNewTab
+                    });
                 }
 
                 // Always ensure list pane has focus when clicking a file
@@ -443,12 +589,6 @@ export const ListPane = React.memo(
                         } else {
                             app.workspace.getLeaf('tab').openFile(file);
                         }
-                    } else {
-                        // Open file in current tab
-                        const leaf = app.workspace.getLeaf(false);
-                        if (leaf) {
-                            leaf.openFile(file, { active: false });
-                        }
                     }
                 }
 
@@ -457,7 +597,7 @@ export const ListPane = React.memo(
                     app.workspace.leftSplit.collapse();
                 }
             },
-            [app.workspace, commandQueue, isMobile, multiSelection, selectionDispatch, settings.multiSelectModifier, uiDispatch]
+            [app.workspace, commandQueue, isMobile, multiSelection, selectFileFromList, settings.multiSelectModifier, uiDispatch]
         );
 
         /**
@@ -617,17 +757,13 @@ export const ListPane = React.memo(
 
                 // Open the file if we're not actively using the navigator OR if this is a folder change with auto-select
                 if (!hasNavigatorFocus || isFolderChangeWithAutoSelect) {
-                    const leaf = app.workspace.getLeaf(false);
-                    if (leaf) {
-                        leaf.openFile(selectedFile, { active: false });
-                    }
+                    openFileInWorkspace(selectedFile);
                 }
             }
             // Reset the flag after processing
             isUserSelectionRef.current = false;
         }, [
             selectedFile,
-            app.workspace,
             settings.autoSelectFirstFileOnFocusChange,
             isMobile,
             selectionState.isRevealOperation,
@@ -636,7 +772,8 @@ export const ListPane = React.memo(
             selectionDispatch,
             isSearchActive,
             files,
-            ensureSelectionForCurrentFilter
+            ensureSelectionForCurrentFilter,
+            openFileInWorkspace
         ]);
 
         // Auto-select first file when navigating to files pane with keyboard in dual-pane mode
@@ -687,6 +824,10 @@ export const ListPane = React.memo(
                 getIndexOfPath: (path: string) => filePathToIndex.get(path) ?? -1,
                 virtualizer: rowVirtualizer,
                 scrollContainerRef: scrollContainerRef.current,
+                // Allow parent components to trigger file selection programmatically
+                selectFile: selectFileFromList,
+                // Provide imperative adjacent navigation for command handlers
+                selectAdjacentFile,
                 // Toggle or modify search query to include/exclude a tag with AND/OR operator
                 modifySearchWithTag: (tag: string, operator: InclusionOperator) => {
                     const normalizedTag = normalizeTagPath(tag);
@@ -755,7 +896,9 @@ export const ListPane = React.memo(
                 setShouldFocusSearch,
                 props.rootContainerRef,
                 uiState.singlePane,
-                executeSearchShortcut
+                executeSearchShortcut,
+                selectFileFromList,
+                selectAdjacentFile
             ]
         );
 
@@ -769,7 +912,8 @@ export const ListPane = React.memo(
             containerRef: props.rootContainerRef,
             pathToIndex: filePathToIndex,
             files,
-            fileIndexMap
+            fileIndexMap,
+            onSelectFile: file => selectFileFromList(file, { markKeyboardNavigation: true })
         });
 
         // Determine if we're showing empty state
@@ -936,6 +1080,10 @@ export const ListPane = React.memo(
                                         // Check if this is the first header (same logic as in estimateSize)
                                         // Index 1 because TOP_SPACER is at index 0
                                         const isFirstHeader = item.type === ListPaneItemType.HEADER && virtualItem.index === 1;
+                                        const isPinnedHeader =
+                                            item.type === ListPaneItemType.HEADER && item.key === PINNED_SECTION_HEADER_KEY;
+                                        const headerLabel =
+                                            item.type === ListPaneItemType.HEADER && typeof item.data === 'string' ? item.data : '';
 
                                         // Find current date group for file items
                                         let dateGroup: string | null = null;
@@ -979,8 +1127,25 @@ export const ListPane = React.memo(
                                                 data-index={virtualItem.index}
                                             >
                                                 {item.type === ListPaneItemType.HEADER ? (
-                                                    <div className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''}`}>
-                                                        {typeof item.data === 'string' ? item.data : ''}
+                                                    <div
+                                                        className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''} ${
+                                                            isPinnedHeader ? 'nn-pinned-section-header' : ''
+                                                        }`}
+                                                    >
+                                                        {isPinnedHeader ? (
+                                                            <>
+                                                                {settings.showPinnedIcon ? (
+                                                                    <ObsidianIcon
+                                                                        name={pinnedSectionIcon}
+                                                                        className="nn-date-group-header-icon"
+                                                                        aria-hidden={true}
+                                                                    />
+                                                                ) : null}
+                                                                <span className="nn-date-group-header-text">{headerLabel}</span>
+                                                            </>
+                                                        ) : (
+                                                            <span className="nn-date-group-header-text">{headerLabel}</span>
+                                                        )}
                                                     </div>
                                                 ) : item.type === ListPaneItemType.TOP_SPACER ? (
                                                     <div className="nn-list-top-spacer" style={{ height: `${topSpacerHeight}px` }} />

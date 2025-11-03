@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Plugin, TFile, FileView } from 'obsidian';
+import { Plugin, TFile, FileView, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab, updateFeatureImageSize } from './settings';
 import {
     LocalStorageKeys,
@@ -38,6 +38,7 @@ import { RecentNotesService } from './services/RecentNotesService';
 import RecentDataManager from './services/recent/RecentDataManager';
 import { ExternalIconProviderController } from './services/icons/external/ExternalIconProviderController';
 import { ExternalIconProviderId } from './services/icons/external/providerRegistry';
+import type { NavigateToFolderOptions } from './hooks/useNavigatorReveal';
 import ReleaseCheckService, { type ReleaseUpdateNotice } from './services/ReleaseCheckService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
@@ -141,6 +142,38 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         const storedData = data && typeof data === 'object' ? (data as Record<string, unknown>) : null;
         const storedNoteGrouping = storedData ? storedData['noteGrouping'] : undefined;
+
+        // Migrates legacy showIcons boolean to separate icon settings for sections, folders, tags, and pinned items
+        const legacyShowIcons = mutableSettings.showIcons;
+        if (typeof legacyShowIcons === 'boolean') {
+            if (typeof storedData?.['showSectionIcons'] === 'undefined') {
+                this.settings.showSectionIcons = legacyShowIcons;
+            }
+            if (typeof storedData?.['showFolderIcons'] === 'undefined') {
+                this.settings.showFolderIcons = legacyShowIcons;
+            }
+            if (typeof storedData?.['showTagIcons'] === 'undefined') {
+                this.settings.showTagIcons = legacyShowIcons;
+            }
+            if (typeof storedData?.['showPinnedIcon'] === 'undefined') {
+                this.settings.showPinnedIcon = legacyShowIcons;
+            }
+        }
+        delete mutableSettings.showIcons;
+
+        // Migrate legacy parent folder visibility flag
+        const legacyShowParentFolderNames = mutableSettings['showParentFolderNames'];
+        if (typeof legacyShowParentFolderNames === 'boolean' && typeof storedData?.['showParentFolder'] === 'undefined') {
+            this.settings.showParentFolder = legacyShowParentFolderNames;
+        }
+        delete mutableSettings['showParentFolderNames'];
+
+        // Migrate legacy parent folder color toggle
+        const legacyShowParentFolderColors = mutableSettings['showParentFolderColors'];
+        if (typeof legacyShowParentFolderColors === 'boolean' && typeof storedData?.['showParentFolderColor'] === 'undefined') {
+            this.settings.showParentFolderColor = legacyShowParentFolderColors;
+        }
+        delete mutableSettings['showParentFolderColors'];
 
         // Migrate legacy groupByDate boolean to noteGrouping dropdown
         const legacyGroupByDate = mutableSettings.groupByDate;
@@ -978,6 +1011,25 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     async activateView() {
         return this.workspaceCoordinator?.activateNavigatorView() ?? null;
+    }
+
+    /**
+     * Opens the navigator view, focuses the navigation pane, and selects the given folder
+     * @param folder - Folder instance to highlight
+     */
+    async navigateToFolder(folder: TFolder, options?: NavigateToFolderOptions): Promise<void> {
+        await this.activateView();
+
+        const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+        if (navigatorLeaves.length === 0) {
+            return;
+        }
+
+        const leaf = navigatorLeaves[0];
+        const view = leaf.view;
+        if (view instanceof NotebookNavigatorView) {
+            view.navigateToFolder(folder, options);
+        }
     }
 
     /**

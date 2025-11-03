@@ -41,7 +41,7 @@ export const STRINGS_EN = {
     listPane: {
         emptyStateNoSelection: 'Select a folder or tag to view notes', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'No notes', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 Pinned', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: 'Pinned', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: 'Notes', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: 'Files', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (hidden)' // Accessibility label applied to list items that are normally hidden
@@ -452,6 +452,8 @@ export const STRINGS_EN = {
         deleteFile: 'Delete files', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)
+        selectNextFile: 'Select next file', // Command palette: Selects the next file in the current view (English: Select next file)
+        selectPreviousFile: 'Select previous file', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Convert to folder note', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         pinAllFolderNotes: 'Pin all folder notes', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
@@ -557,7 +559,7 @@ export const STRINGS_EN = {
                 }
             },
             listPaneTitle: {
-                name: 'List pane title',
+                name: 'List pane title (desktop only)',
                 desc: 'Choose where the list pane title is shown.',
                 options: {
                     header: 'Show in header',
@@ -602,6 +604,10 @@ export const STRINGS_EN = {
                 name: 'Show pinned group header',
                 desc: 'Display the pinned section header above pinned notes.'
             },
+            showPinnedIcon: {
+                name: 'Show pinned icon',
+                desc: 'Show the icon next to the pinned section header.'
+            },
             optimizeNoteHeight: {
                 name: 'Optimize note height',
                 desc: 'Reduce height for pinned notes and notes without preview text.'
@@ -615,12 +621,12 @@ export const STRINGS_EN = {
                 name: 'Scale text with slim item height',
                 desc: 'Scale slim list text when the item height is reduced.'
             },
-            showParentFolderNames: {
-                name: 'Show parent folder names',
+            showParentFolder: {
+                name: 'Show parent folder',
                 desc: 'Display the parent folder name for notes in subfolders or tags.'
             },
-            showParentFolderColors: {
-                name: 'Show parent folder colors',
+            showParentFolderColor: {
+                name: 'Show parent folder color',
                 desc: 'Use folder colors on parent folder labels.'
             },
             showQuickActions: {
@@ -880,6 +886,10 @@ export const STRINGS_EN = {
                 name: 'Show root folder',
                 desc: 'Display the vault name as the root folder in the tree.'
             },
+            showFolderIcons: {
+                name: 'Show folder icons',
+                desc: 'Display icons next to folders in the navigation pane.'
+            },
             inheritFolderColors: {
                 name: 'Inherit folder colors',
                 desc: 'Child folders inherit color from parent folders.'
@@ -888,9 +898,9 @@ export const STRINGS_EN = {
                 name: 'Show note count',
                 desc: 'Display the number of notes next to each folder and tag.'
             },
-            showIcons: {
-                name: 'Show icons',
-                desc: 'Display icons for folders, tags and notes.'
+            showSectionIcons: {
+                name: 'Show shortcut icons',
+                desc: 'Display icons for navigation sections like Shortcuts and Recent files.'
             },
             showIconsColorOnly: {
                 name: 'Apply color to icons only',
@@ -928,6 +938,10 @@ export const STRINGS_EN = {
             showTags: {
                 name: 'Show tags',
                 desc: 'Display tags section below folders in the navigator.'
+            },
+            showTagIcons: {
+                name: 'Show tag icons',
+                desc: 'Display icons next to tags in the navigation pane.'
             },
             tagSortOrder: {
                 name: 'Tag sort order',
@@ -1105,7 +1119,7 @@ export const STRINGS_EN = {
                 status: 'New version available: {version}'
             },
             whatsNew: {
-                name: "What's new",
+                name: "What's new in Notebook Navigator {version}",
                 desc: 'See recent updates and improvements',
                 buttonText: 'View recent updates'
             },

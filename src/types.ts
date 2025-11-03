@@ -75,6 +75,11 @@ export const ListPaneItemType = {
 export type ListPaneItemType = (typeof ListPaneItemType)[keyof typeof ListPaneItemType];
 
 /**
+ * Key used for identifying the pinned notes header in list data
+ */
+export const PINNED_SECTION_HEADER_KEY = 'header-pinned';
+
+/**
  * Navigator context type for context-aware features like pinning
  * Represents different browsing contexts in the navigator
  */

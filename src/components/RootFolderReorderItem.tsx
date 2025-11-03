@@ -1,7 +1,8 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
 import { strings } from '../i18n';
+import { useSettingsState } from '../context/SettingsContext';
 
 /**
  * Props for a root folder item in reorder mode
@@ -45,6 +46,7 @@ export function RootFolderReorderItem({
     dragHandleConfig,
     trailingAccessory
 }: RootFolderReorderItemProps) {
+    const settings = useSettingsState();
     // Prevents event bubbling for reorder item clicks to avoid triggering parent handlers
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
@@ -85,6 +87,20 @@ export function RootFolderReorderItem({
         return classes.join(' ');
     })();
 
+    // Determines icon visibility based on section icons setting and item-specific icon settings
+    const showIcon = useMemo(() => {
+        if (!settings.showSectionIcons) {
+            return false;
+        }
+        if (itemType === 'folder') {
+            return settings.showFolderIcons;
+        }
+        if (itemType === 'tag') {
+            return settings.showTagIcons;
+        }
+        return true;
+    }, [itemType, settings.showFolderIcons, settings.showSectionIcons, settings.showTagIcons]);
+
     return (
         <NavigationListRow
             icon={icon}
@@ -105,6 +121,7 @@ export function RootFolderReorderItem({
             dragHandleConfig={handleConfig}
             chevronIcon={chevronIcon}
             trailingAccessory={trailingAccessory}
+            showIcon={showIcon}
         />
     );
 }
