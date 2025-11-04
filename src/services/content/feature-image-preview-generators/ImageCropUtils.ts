@@ -109,5 +109,5 @@ export async function autoCrop(blob: Blob, maxSizeSquarePx: number): Promise<Blo
 
     await pica.resize(canvas, resizeCanvas)
 
-    return canvasToPngBlob(canvas)
+    return canvasToPngBlob(resizeCanvas)
 }
