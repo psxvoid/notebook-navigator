@@ -50,6 +50,26 @@ interface TagUsageSummary {
     sample: string[];
 }
 
+export interface TagRenameEventPayload {
+    /** Original tag path without # prefix (preserves casing) */
+    oldPath: string;
+    /** New tag path without # prefix (preserves casing) */
+    newPath: string;
+    /** Original canonical lowercase tag path */
+    oldCanonicalPath: string;
+    /** New canonical lowercase tag path */
+    newCanonicalPath: string;
+    /** Indicates if rename merged into an existing tag */
+    mergedIntoExisting: boolean;
+}
+
+export interface TagDeleteEventPayload {
+    /** Deleted tag path without # prefix (preserves casing) */
+    path: string;
+    /** Deleted canonical lowercase tag path */
+    canonicalPath: string;
+}
+
 /**
  * Service for managing tag operations.
  * Handles adding tags to files and managing tag hierarchies.
@@ -87,6 +107,63 @@ export class TagOperations {
         private getTagTreeService: () => TagTreeService | null,
         private getMetadataService: () => MetadataService | null
     ) {}
+
+    private readonly tagRenameListeners = new Set<(payload: TagRenameEventPayload) => void>();
+    private readonly tagDeleteListeners = new Set<(payload: TagDeleteEventPayload) => void>();
+
+    /**
+     * Registers a listener that fires after a successful tag rename.
+     * Returns a cleanup function to unsubscribe.
+     */
+    addTagRenameListener(listener: (payload: TagRenameEventPayload) => void): () => void {
+        this.tagRenameListeners.add(listener);
+        return () => {
+            this.tagRenameListeners.delete(listener);
+        };
+    }
+
+    /**
+     * Registers a listener that fires after a successful tag delete operation.
+     * Returns a cleanup function to unsubscribe.
+     */
+    addTagDeleteListener(listener: (payload: TagDeleteEventPayload) => void): () => void {
+        this.tagDeleteListeners.add(listener);
+        return () => {
+            this.tagDeleteListeners.delete(listener);
+        };
+    }
+
+    /**
+     * Notifies all registered listeners of a successful tag rename
+     */
+    private notifyTagRenamed(payload: TagRenameEventPayload): void {
+        if (this.tagRenameListeners.size === 0) {
+            return;
+        }
+        for (const listener of this.tagRenameListeners) {
+            try {
+                listener(payload);
+            } catch (error) {
+                console.error('[Notebook Navigator] Tag rename listener failed', error);
+            }
+        }
+    }
+
+    /**
+     * Notifies all registered listeners of a successful tag deletion
+     */
+    private notifyTagDeleted(payload: TagDeleteEventPayload): void {
+        if (this.tagDeleteListeners.size === 0) {
+            return;
+        }
+        for (const listener of this.tagDeleteListeners) {
+            try {
+                listener(payload);
+            } catch (error) {
+                console.error('[Notebook Navigator] Tag delete listener failed', error);
+            }
+        }
+    }
 
     /**
      * Checks if a file is a markdown file
@@ -1173,6 +1250,15 @@ export class TagOperations {
         await this.updateTagMetadataAfterRename(analysis.oldTag.name, analysis.newTag.name, Boolean(analysis.mergeConflict));
         await this.updateTagShortcutsAfterRename(analysis.oldTag.name, analysis.newTag.name);
 
+        // Notify listeners that tag was renamed
+        this.notifyTagRenamed({
+            oldPath: analysis.oldTag.name,
+            newPath: analysis.newTag.name,
+            oldCanonicalPath: analysis.oldTag.canonicalName,
+            newCanonicalPath: analysis.newTag.canonicalName,
+            mergedIntoExisting: Boolean(analysis.mergeConflict)
+        });
+
         new Notice(
             `${strings.modals.tagOperation.confirmRename}: ${analysis.oldTag.tag} → ${analysis.newTag.tag} (${result.renamed}/${result.total})`
         );
@@ -1267,6 +1353,12 @@ export class TagOperations {
 
         await this.removeTagMetadataAfterDelete(descriptor.name);
         await this.removeTagShortcutsAfterDelete(descriptor.name);
+
+        // Notify listeners that tag was deleted
+        this.notifyTagDeleted({
+            path: descriptor.name,
+            canonicalPath: descriptor.canonicalName
+        });
 
         if (removed === 1) {
             new Notice(strings.fileSystem.notifications.tagRemovedFromNote);

@@ -485,6 +485,45 @@ describe('TagOperations tag deletion', () => {
         expect(/#project(?![-_/])/u.test(file.content)).toBe(false);
         expect(metadataService.handleTagDelete).toHaveBeenCalledWith('project');
     });
+
+    it('notifies listeners after successful tag delete', async () => {
+        const settings = createSettings();
+        const file = Object.assign(new TFile(), {
+            path: 'Project.md',
+            extension: 'md'
+        });
+
+        const vault = {
+            getAbstractFileByPath: vi.fn(() => file)
+        };
+
+        const tagOperations = new TagOperations(
+            { vault } as unknown as App,
+            () => settings,
+            () => null,
+            () => null
+        );
+
+        vi.spyOn(tagOperations as any, 'deleteTagFromFile').mockResolvedValue(true);
+        vi.spyOn(tagOperations as any, 'removeTagMetadataAfterDelete').mockResolvedValue(undefined);
+        vi.spyOn(tagOperations as any, 'removeTagShortcutsAfterDelete').mockResolvedValue(undefined);
+
+        const listener = vi.fn();
+        const unsubscribe = tagOperations.addTagDeleteListener(listener);
+
+        const result = await (tagOperations as any).runTagDelete('project', [file.path]);
+
+        expect(result).toBe(true);
+        expect(listener).toHaveBeenCalledTimes(1);
+        expect(listener).toHaveBeenCalledWith(
+            expect.objectContaining({
+                canonicalPath: 'project',
+                path: 'project'
+            })
+        );
+
+        unsubscribe();
+    });
 });
 
 describe('TagOperations tag rename workflow', () => {
@@ -579,6 +618,33 @@ describe('TagOperations tag rename workflow', () => {
         expect(result).toBe(true);
         expect(metadataSpy).toHaveBeenCalledWith('projects', 'areas', false);
         expect(shortcutsSpy).toHaveBeenCalledWith('projects', 'areas');
+    });
+
+    it('notifies listeners after successful rename', async () => {
+        const tagOperations = createTagOperationsInstance();
+        vi.spyOn(tagOperations as any, 'executeRename').mockResolvedValue({
+            renamed: 2,
+            total: 2
+        });
+        vi.spyOn(tagOperations as any, 'updateTagMetadataAfterRename').mockResolvedValue(undefined);
+        vi.spyOn(tagOperations as any, 'updateTagShortcutsAfterRename').mockResolvedValue(undefined);
+
+        const listener = vi.fn();
+        const unsubscribe = tagOperations.addTagRenameListener(listener);
+
+        const result = await (tagOperations as any).runTagRename('projects/client', 'areas/client', createRenameTargets(2));
+
+        expect(result).toBe(true);
+        expect(listener).toHaveBeenCalledTimes(1);
+        expect(listener).toHaveBeenCalledWith(
+            expect.objectContaining({
+                oldCanonicalPath: 'projects/client',
+                newCanonicalPath: 'areas/client',
+                mergedIntoExisting: false
+            })
+        );
+
+        unsubscribe();
     });
 });
 
