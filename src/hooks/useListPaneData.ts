@@ -40,7 +40,7 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { shouldExcludeFile, isFolderInExcludedFolder } from '../utils/fileFilters';
-import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
+import { getDateField, getEffectiveSortOption, naturalCompare } from '../utils/sortUtils';
 import { strings } from '../i18n';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
 import {
@@ -625,10 +625,20 @@ export function useListPaneData({
             const orderedGroups = Array.from(folderGroups.entries())
                 .map(([key, group]) => ({ key, ...group }))
                 .sort((a, b) => {
-                    if (a.sortKey === b.sortKey) {
-                        return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+                    const sortKeyCompare = naturalCompare(a.sortKey, b.sortKey);
+                    if (sortKeyCompare !== 0) {
+                        return sortKeyCompare;
                     }
-                    return a.sortKey.localeCompare(b.sortKey, undefined, { sensitivity: 'base' });
+
+                    const labelCompare = naturalCompare(a.label, b.label);
+                    if (labelCompare !== 0) {
+                        return labelCompare;
+                    }
+
+                    if (a.key === b.key) {
+                        return 0;
+                    }
+                    return a.key < b.key ? -1 : 1;
                 });
 
             // Add groups and their files to the items list

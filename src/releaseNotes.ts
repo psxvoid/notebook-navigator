@@ -81,7 +81,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         improved: [],
         changed: [],
-        fixed: []
+        fixed: ['Fixed a performance issue with Group by subfolder, it is now much faster with larger number of subfolders.']
     },
     {
         version: '1.7.3',
