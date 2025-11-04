@@ -73,6 +73,17 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.7.4',
+        date: '2025-11-10',
+        showOnUpdate: true,
+        new: [
+            '==Tag rename, tag delete, tag drag-and-drop==! You can now rename tags, delete tags (removes from all notes), and drag-and-drop tags to reorganize them in navigation pane.'
+        ],
+        improved: [],
+        changed: [],
+        fixed: []
+    },
+    {
         version: '1.7.3',
         date: '2025-11-03',
         showOnUpdate: true,
