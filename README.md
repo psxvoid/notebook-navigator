@@ -84,10 +84,6 @@ Tag renaming and deletion operations update tag references across all files in y
 - Example: Dragging `#urgent` onto `#project` creates `#project/urgent`
 - All subtags move with their parent (e.g., `#urgent/bug` becomes `#project/urgent/bug`)
 
-**Comparison with Tag Wrangler:**
-
-Both plugins rename tags across files using Obsidian's metadata cache. Tag Wrangler provides tag renaming through context menus and commands. Notebook Navigator adds tag deletion, drag-and-drop tag restructuring, and displays affected files before applying changes. Both check for tag merge conflicts and warn before proceeding.
-
 **Limitations:**
 
 - Virtual tags "Untagged" and "Tagged" cannot be renamed or used as drop targets
