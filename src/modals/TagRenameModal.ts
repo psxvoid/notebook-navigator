@@ -47,6 +47,9 @@ export class TagRenameModal extends Modal {
         this.onSubmit = options.onSubmit;
     }
 
+    /**
+     * Renders the modal content including input field, affected files preview, and action buttons
+     */
     onOpen(): void {
         const tagLabel = `#${this.tagPath}`;
         const countLabel = this.affectedCount === 1 ? strings.modals.tagOperation.file : strings.modals.tagOperation.files;
@@ -118,10 +121,16 @@ export class TagRenameModal extends Modal {
         this.inputEl.select();
     }
 
+    /**
+     * Cleans up modal content when closed
+     */
     onClose(): void {
         this.contentEl.empty();
     }
 
+    /**
+     * Enables or disables submit button based on input validity
+     */
     private updateSubmitState(): void {
         if (!this.submitBtn) {
             return;
@@ -132,6 +141,9 @@ export class TagRenameModal extends Modal {
         this.submitBtn.disabled = disabled;
     }
 
+    /**
+     * Validates input and invokes the submit callback, closing modal on success
+     */
     private async handleSubmit(): Promise<void> {
         const newName = this.inputEl.value.trim();
         if (newName.length === 0 || newName === this.tagPath) {

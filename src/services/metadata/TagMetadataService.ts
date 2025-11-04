@@ -244,6 +244,44 @@ export class TagMetadataService extends BaseMetadataService {
         return false;
     }
 
+    /**
+     * Removes metadata entries matching the specified path or prefix
+     * Returns true if any entries were removed
+     */
+    private removeTagMetadataForPath<T>(metadata: Record<string, T> | undefined, path: string, prefix: string): boolean {
+        if (!metadata) {
+            return false;
+        }
+
+        let changed = false;
+        const keys = Object.keys(metadata);
+        for (const key of keys) {
+            if (key === path || key.startsWith(prefix)) {
+                delete metadata[key];
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    /**
+     * Checks if settings contain any hidden tags matching the path or its descendants
+     */
+    private hasHiddenTagForPath(settings: NotebookNavigatorSettings, path: string): boolean {
+        return Array.isArray(settings.hiddenTags)
+            ? settings.hiddenTags.some(tag => {
+                  const normalized = normalizeTagPath(tag);
+                  if (!normalized) {
+                      return false;
+                  }
+                  return normalized === path || normalized.startsWith(`${path}/`);
+              })
+            : false;
+    }
+
+    /**
+     * Checks if updateNestedPaths would modify a metadata record without mutating it
+     */
     private willUpdateNestedPaths<T>(
         metadata: Record<string, T> | undefined,
         oldPath: string,
@@ -294,6 +332,52 @@ export class TagMetadataService extends BaseMetadataService {
 
             if (!changed) {
                 return;
+            }
+        });
+    }
+
+    /**
+     * Removes all metadata associated with a tag and its descendants
+     * Clears colors, icons, sort overrides, appearances, and hidden tag entries
+     */
+    async handleTagDelete(tagPath: string): Promise<void> {
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return;
+        }
+
+        const settingsSnapshot = this.settingsProvider.settings;
+        if (!this.hasTagMetadataForPath(settingsSnapshot, normalized) && !this.hasHiddenTagForPath(settingsSnapshot, normalized)) {
+            return;
+        }
+
+        const prefix = `${normalized}/`;
+
+        await this.saveAndUpdate(settings => {
+            let changed = false;
+            changed = this.removeTagMetadataForPath(settings.tagColors, normalized, prefix) || changed;
+            changed = this.removeTagMetadataForPath(settings.tagBackgroundColors, normalized, prefix) || changed;
+            changed = this.removeTagMetadataForPath(settings.tagIcons, normalized, prefix) || changed;
+            changed = this.removeTagMetadataForPath(settings.tagSortOverrides, normalized, prefix) || changed;
+            changed = this.removeTagMetadataForPath(settings.tagAppearances, normalized, prefix) || changed;
+
+            if (Array.isArray(settings.hiddenTags) && settings.hiddenTags.length > 0) {
+                const filtered = settings.hiddenTags.filter(tag => {
+                    const normalizedTag = normalizeTagPath(tag);
+                    if (!normalizedTag) {
+                        return true;
+                    }
+                    return normalizedTag !== normalized && !normalizedTag.startsWith(prefix);
+                });
+
+                if (filtered.length !== settings.hiddenTags.length) {
+                    settings.hiddenTags = filtered;
+                    changed = true;
+                }
+            }
+
+            if (!changed) {
+                return false;
             }
         });
     }

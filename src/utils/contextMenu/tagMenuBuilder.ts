@@ -49,6 +49,14 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                 });
         });
 
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.modals.tagOperation.confirmDelete)
+                .setIcon('lucide-trash-2')
+                .onClick(() => {
+                    void services.tagOperations.promptDeleteTag(tagPath);
+                });
+        });
+
         menu.addSeparator();
     }
 

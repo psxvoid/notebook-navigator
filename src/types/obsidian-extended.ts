@@ -18,6 +18,7 @@
 
 import { App, Plugin, View, WorkspaceLeaf, TFile } from 'obsidian';
 
+/** MIME type identifier for tag drag-and-drop operations */
 export const TAG_DRAG_MIME = 'application/x-notebook-navigator-tag';
 
 /**

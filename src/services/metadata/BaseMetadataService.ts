@@ -71,12 +71,15 @@ export abstract class BaseMetadataService {
      * Saves settings and triggers UI update
      * Uses a queue to serialize updates and prevent race conditions
      */
-    protected async saveAndUpdate(updater: (settings: NotebookNavigatorSettings) => void): Promise<void> {
+    protected async saveAndUpdate(updater: (settings: NotebookNavigatorSettings) => void | boolean): Promise<void> {
         // Queue this update to run after any pending updates
         this.updateQueue = this.updateQueue
             .then(async () => {
                 // Update settings
-                updater(this.settingsProvider.settings);
+                const result = updater(this.settingsProvider.settings);
+                if (result === false) {
+                    return;
+                }
                 // Save settings
                 await this.settingsProvider.saveSettingsAndUpdate();
             })

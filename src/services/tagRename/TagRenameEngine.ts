@@ -19,6 +19,7 @@
 import { App, Notice, TFile, parseFrontMatterAliases, parseFrontMatterTags, TagCache } from 'obsidian';
 import { normalizeTagPathValue } from '../../utils/tagPrefixMatcher';
 import type { TagTreeService } from '../TagTreeService';
+import { mutateFrontmatterTagFields } from './frontmatterTagMutator';
 
 /**
  * Describes a tag and provides helper utilities for normalization.
@@ -74,6 +75,9 @@ export class TagDescriptor {
     }
 }
 
+/**
+ * Checks if a tag rename would move a tag into itself or one of its descendants
+ */
 export function isDescendantRename(source: TagDescriptor, target: TagDescriptor): boolean {
     return target.canonical.startsWith(source.canonicalPrefix);
 }
@@ -285,34 +289,25 @@ export class RenameFile {
                 return [updated, localChanged];
             };
 
-            const updateField = (property: string, isAlias: boolean) => {
-                const current = frontmatter[property];
-                if (current === undefined || current === null) {
+            const mutated = mutateFrontmatterTagFields(frontmatter, field => {
+                if (Array.isArray(field.value)) {
+                    const [next, localChanged] = renameArrayValue(field.value, field.isAlias);
+                    if (!localChanged) {
+                        return;
+                    }
+                    field.set(next);
                     return;
                 }
 
-                if (Array.isArray(current)) {
-                    const [next, localChanged] = renameArrayValue(current, isAlias);
-                    if (localChanged) {
-                        frontmatter[property] = next;
-                        changed = true;
-                    }
-                } else if (typeof current === 'string') {
-                    const [next, localChanged] = renameStringValue(current, isAlias);
-                    if (localChanged) {
-                        frontmatter[property] = next;
-                        changed = true;
-                    }
+                const [next, localChanged] = renameStringValue(field.value, field.isAlias);
+                if (!localChanged) {
+                    return;
                 }
-            };
+                field.set(next);
+            });
 
-            for (const key of Object.keys(frontmatter)) {
-                const lower = key.toLowerCase();
-                if (lower === 'tags' || lower === 'tag') {
-                    updateField(key, false);
-                } else if (lower === 'aliases' || lower === 'alias') {
-                    updateField(key, true);
-                }
+            if (mutated) {
+                changed = true;
             }
         });
 

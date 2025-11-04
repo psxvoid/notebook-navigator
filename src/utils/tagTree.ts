@@ -284,24 +284,25 @@ export function getTotalNoteCount(node: TagTreeNode): number {
         return cachedCount;
     }
 
-    // Calculate count
-    let count = node.notesWithTag.size;
+    const allFiles = new Set<string>();
+    const visited = new Set<TagTreeNode>();
 
-    // Collect all unique files from this node and all descendants
-    const allFiles = new Set(node.notesWithTag);
-
-    // Helper to collect files from children
-    function collectFromChildren(n: TagTreeNode): void {
-        for (const child of n.children.values()) {
-            child.notesWithTag.forEach(file => allFiles.add(file));
-            collectFromChildren(child);
+    // Recursively visits nodes while tracking visited set to handle circular references
+    const visit = (current: TagTreeNode): void => {
+        if (visited.has(current)) {
+            return;
         }
-    }
+        visited.add(current);
 
-    collectFromChildren(node);
-    count = allFiles.size;
+        current.notesWithTag.forEach(path => allFiles.add(path));
+        for (const child of current.children.values()) {
+            visit(child);
+        }
+    };
 
-    // Cache the result
+    visit(node);
+
+    const count = allFiles.size;
     cache.set(node, count);
 
     return count;
@@ -311,10 +312,16 @@ export function getTotalNoteCount(node: TagTreeNode): number {
  * Collect all tag paths from a node and its descendants
  * Returns lowercase paths for logic operations
  */
-export function collectAllTagPaths(node: TagTreeNode, paths: Set<string> = new Set()): Set<string> {
+export function collectAllTagPaths(node: TagTreeNode, paths: Set<string> = new Set(), visited: Set<TagTreeNode> = new Set()): Set<string> {
+    // Guard against circular references in tree structure
+    if (visited.has(node)) {
+        return paths;
+    }
+    visited.add(node);
+
     paths.add(node.path);
     for (const child of node.children.values()) {
-        collectAllTagPaths(child, paths);
+        collectAllTagPaths(child, paths, visited);
     }
     return paths;
 }
@@ -323,10 +330,16 @@ export function collectAllTagPaths(node: TagTreeNode, paths: Set<string> = new S
  * Collects all file paths associated with a tag node and its descendants.
  * Returns a set to avoid duplicate paths when tags overlap.
  */
-export function collectTagFilePaths(node: TagTreeNode, files: Set<string> = new Set()): Set<string> {
+export function collectTagFilePaths(node: TagTreeNode, files: Set<string> = new Set(), visited: Set<TagTreeNode> = new Set()): Set<string> {
+    // Guard against circular references in tree structure
+    if (visited.has(node)) {
+        return files;
+    }
+    visited.add(node);
+
     node.notesWithTag.forEach(path => files.add(path));
     for (const child of node.children.values()) {
-        collectTagFilePaths(child, files);
+        collectTagFilePaths(child, files, visited);
     }
     return files;
 }

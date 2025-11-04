@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, Notice, TFile } from 'obsidian';
+import { App, Notice, TFile, parseFrontMatterTags } from 'obsidian';
 import { getDBInstance } from '../storage/fileOperations';
 import { normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 import { normalizeTagPath } from '../utils/tagUtils';
@@ -25,7 +25,9 @@ import { strings } from '../i18n';
 import type { TagTreeService } from './TagTreeService';
 import type { MetadataService } from './MetadataService';
 import { collectRenameFiles, TagDescriptor, TagReplacement, RenameFile, isDescendantRename } from './tagRename/TagRenameEngine';
+import { mutateFrontmatterTagFields } from './tagRename/frontmatterTagMutator';
 import { TagRenameModal } from '../modals/TagRenameModal';
+import { ConfirmModal } from '../modals/ConfirmModal';
 import { TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import type { ShortcutEntry } from '../types/shortcuts';
 import { isTagShortcut } from '../types/shortcuts';
@@ -60,10 +62,9 @@ export class TagOperations {
     private static readonly TAG_CHAR_CLASS = '[\\p{L}\\p{N}_\\-/]+';
 
     /**
-     * Pattern for tag boundaries: must be followed by whitespace, any Unicode punctuation, or end of line
-     * Uses Unicode property escapes (\\p{P}) to support non-ASCII punctuation (e.g., Japanese、Arabic, CJK)
+     * Pattern for tag boundaries: matches when the next character is whitespace, end of line, or not an allowed tag character
      */
-    private static readonly TAG_BOUNDARY = '(?=\\s|$|\\p{P})';
+    private static readonly TAG_BOUNDARY = '(?=$|[^\\p{L}\\p{N}_\\-/])';
 
     private static readonly RENAME_BATCH_SIZE = 10;
 
@@ -108,6 +109,362 @@ export class TagOperations {
         }
 
         delete fm.tags;
+    }
+
+    /**
+     * Filters array entries based on normalization and removal predicates
+     * Returns filtered array and whether any entries were removed
+     */
+    private filterStringArrayEntries(
+        entries: unknown[],
+        normalize: (entry: string) => string | null,
+        shouldRemove: (normalized: string) => boolean
+    ): { filtered: unknown[]; removed: boolean } {
+        let removed = false;
+        const filtered: unknown[] = [];
+
+        for (const entry of entries) {
+            if (typeof entry !== 'string') {
+                filtered.push(entry);
+                continue;
+            }
+
+            const trimmed = entry.trim();
+            if (trimmed.length === 0) {
+                removed = true;
+                continue;
+            }
+
+            const normalized = normalize(trimmed);
+            if (normalized === null) {
+                filtered.push(trimmed);
+                continue;
+            }
+
+            if (shouldRemove(normalized)) {
+                removed = true;
+                continue;
+            }
+
+            filtered.push(trimmed);
+        }
+
+        return { filtered, removed };
+    }
+
+    /**
+     * Filters tag values from frontmatter fields based on removal predicate
+     * Handles both string and array tag values, normalizing and filtering each entry
+     */
+    private filterFrontmatterTags(
+        value: string | string[],
+        shouldRemove: (normalizedTag: string) => boolean
+    ): { nextValue?: string | string[]; changed: boolean } {
+        if (Array.isArray(value)) {
+            const { filtered, removed } = this.filterStringArrayEntries(
+                value,
+                entry => normalizeTagPathValue(entry),
+                normalized => normalized.length === 0 || shouldRemove(normalized)
+            );
+
+            if (!removed) {
+                return { nextValue: value, changed: false };
+            }
+
+            return {
+                nextValue: filtered.length === 0 ? undefined : (filtered as string[]),
+                changed: true
+            };
+        }
+
+        if (typeof value === 'string') {
+            const parsed = parseFrontMatterTags({ tags: value }) ?? [];
+            if (parsed.length === 0) {
+                return { nextValue: value, changed: false };
+            }
+
+            const { filtered, removed } = this.filterStringArrayEntries(
+                parsed,
+                entry => normalizeTagPathValue(entry),
+                normalized => normalized.length === 0 || shouldRemove(normalized)
+            );
+
+            if (!removed) {
+                return { nextValue: value, changed: false };
+            }
+
+            const filteredTags = filtered.filter((entry): entry is string => typeof entry === 'string');
+
+            if (filteredTags.length === 0) {
+                return { changed: true };
+            }
+
+            return {
+                nextValue: filteredTags.length === 1 ? filteredTags[0] : filteredTags,
+                changed: true
+            };
+        }
+
+        return { nextValue: value, changed: false };
+    }
+
+    /**
+     * Removes tags matching the removal predicate from file frontmatter
+     * Processes all tag and alias fields, cleaning up empty fields
+     */
+    private async stripTagsFromFrontmatter(
+        file: TFile,
+        shouldRemove: (normalizedTag: string) => boolean,
+        failureContext: string
+    ): Promise<boolean> {
+        let changed = false;
+        try {
+            await this.app.fileManager.processFrontMatter(file, fm => {
+                let removedCanonicalTags = false;
+                const mutated = mutateFrontmatterTagFields(fm, field => {
+                    if (Array.isArray(field.value)) {
+                        if (field.isAlias) {
+                            const result = this.filterAliasValues(field.value as string[], shouldRemove);
+                            if (!result.changed) {
+                                return;
+                            }
+                            if (result.nextValue === undefined) {
+                                field.remove();
+                            } else {
+                                field.set(result.nextValue);
+                            }
+                            return;
+                        }
+
+                        const result = this.filterFrontmatterTags(field.value as string[], shouldRemove);
+                        if (!result.changed) {
+                            return;
+                        }
+                        if (result.nextValue === undefined) {
+                            field.remove();
+                            if (field.lowerKey === 'tags') {
+                                removedCanonicalTags = true;
+                            }
+                        } else {
+                            field.set(result.nextValue);
+                        }
+                        return;
+                    }
+
+                    const targetValue = field.value;
+                    if (typeof targetValue !== 'string') {
+                        return;
+                    }
+
+                    if (field.isAlias) {
+                        const result = this.filterAliasValues(targetValue, shouldRemove);
+                        if (!result.changed) {
+                            return;
+                        }
+                        if (result.nextValue === undefined) {
+                            field.remove();
+                        } else {
+                            field.set(result.nextValue);
+                        }
+                        return;
+                    }
+
+                    const result = this.filterFrontmatterTags(targetValue, shouldRemove);
+                    if (!result.changed) {
+                        return;
+                    }
+                    if (result.nextValue === undefined) {
+                        field.remove();
+                        if (field.lowerKey === 'tags') {
+                            removedCanonicalTags = true;
+                        }
+                    } else {
+                        field.set(result.nextValue);
+                    }
+                });
+
+                if (removedCanonicalTags) {
+                    this.cleanupFrontmatterTags(fm);
+                }
+
+                if (mutated || removedCanonicalTags) {
+                    changed = true;
+                }
+            });
+        } catch (error) {
+            console.error(`[Notebook Navigator] Failed to ${failureContext}`, error);
+        }
+        return changed;
+    }
+
+    /**
+     * Filters alias values from frontmatter fields based on removal predicate
+     * Only processes values starting with # as tag aliases
+     */
+    private filterAliasValues(
+        value: string | string[],
+        shouldRemove: (normalizedTag: string) => boolean
+    ): { nextValue?: string | string[]; changed: boolean } {
+        if (Array.isArray(value)) {
+            const { filtered, removed } = this.filterStringArrayEntries(
+                value,
+                entry => {
+                    const trimmed = entry.trim();
+                    if (!trimmed.startsWith('#')) {
+                        return null;
+                    }
+                    const normalized = normalizeTagPathValue(trimmed);
+                    if (normalized.length === 0) {
+                        return null;
+                    }
+                    return normalized;
+                },
+                shouldRemove
+            );
+
+            if (!removed) {
+                return { nextValue: value, changed: false };
+            }
+
+            return {
+                nextValue: filtered.length === 0 ? undefined : (filtered as string[]),
+                changed: true
+            };
+        }
+
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (!trimmed.startsWith('#')) {
+                return { nextValue: value, changed: false };
+            }
+
+            const normalized = normalizeTagPathValue(trimmed);
+            if (normalized.length === 0 || !shouldRemove(normalized)) {
+                return { nextValue: value, changed: false };
+            }
+
+            return { changed: true };
+        }
+
+        return { nextValue: value, changed: false };
+    }
+
+    /**
+     * Removes specified inline tags from file content
+     * Sorts tags by length to handle nested tags correctly, processes longer tags first
+     */
+    private async stripInlineTags(file: TFile, tags: string[]): Promise<boolean> {
+        const uniqueTags = Array.from(new Set(tags.map(tag => tag.trim()).filter((tag): tag is string => tag.length > 0)));
+
+        if (uniqueTags.length === 0) {
+            return false;
+        }
+
+        uniqueTags.sort((a, b) => b.length - a.length);
+
+        let hasInlineMatch = false;
+        let cachedContent: string | null = null;
+        const vaultRead = (this.app.vault as { read?: (file: TFile) => Promise<string> }).read;
+        if (typeof vaultRead === 'function') {
+            try {
+                cachedContent = await vaultRead.call(this.app.vault, file);
+                if (cachedContent !== null) {
+                    const contentToCheck = cachedContent;
+                    hasInlineMatch = uniqueTags.some(tag => this.hasSpecificInlineTag(contentToCheck, tag));
+                }
+            } catch (error) {
+                console.error('[Notebook Navigator] Failed to read file while stripping inline tags', error);
+                throw error instanceof Error ? error : new Error('[Notebook Navigator] Failed to read file while stripping inline tags');
+            }
+        } else {
+            hasInlineMatch = true;
+        }
+
+        if (!hasInlineMatch) {
+            return false;
+        }
+
+        if (cachedContent !== null) {
+            let updatedContent = cachedContent;
+            let changed = false;
+            for (const tag of uniqueTags) {
+                const nextContent = this.removeInlineTags(updatedContent, tag);
+                if (nextContent !== updatedContent) {
+                    changed = true;
+                    updatedContent = nextContent;
+                }
+            }
+
+            if (!changed) {
+                return false;
+            }
+
+            await this.app.vault.modify(file, updatedContent);
+            return true;
+        }
+
+        let changed = false;
+        await this.app.vault.process(file, content => {
+            let nextContent = content;
+            for (const tag of uniqueTags) {
+                const updated = this.removeInlineTags(nextContent, tag);
+                if (updated !== nextContent) {
+                    changed = true;
+                    nextContent = updated;
+                }
+            }
+            return nextContent;
+        });
+        return changed;
+    }
+
+    /**
+     * Removes tags from both frontmatter and inline content
+     * Combines frontmatter and inline tag removal into a single operation
+     */
+    private async stripTagsFromFile(
+        file: TFile,
+        shouldRemove: (normalizedTag: string) => boolean,
+        inlineTags: string[],
+        failureContext: string
+    ): Promise<boolean> {
+        const frontmatterChanged = await this.stripTagsFromFrontmatter(file, shouldRemove, failureContext);
+        const inlineChanged = inlineTags.length > 0 ? await this.stripInlineTags(file, inlineTags) : false;
+        return frontmatterChanged || inlineChanged;
+    }
+
+    /**
+     * Collects all descendant tags of the specified ancestor tag from a file
+     * Returns tag strings and normalized set for efficient lookup, or null if no descendants found
+     */
+    private collectDescendantTags(file: TFile, ancestorTag: string): { tags: string[]; normalizedSet: Set<string> } | null {
+        const normalizedAncestor = normalizeTagPathValue(ancestorTag);
+        if (normalizedAncestor.length === 0) {
+            return null;
+        }
+
+        const currentTags = this.getTagsFromFiles([file]);
+        const descendantTags = currentTags.filter(tag => {
+            const normalizedTag = normalizeTagPathValue(tag);
+            return normalizedTag.startsWith(`${normalizedAncestor}/`);
+        });
+
+        if (descendantTags.length === 0) {
+            return null;
+        }
+
+        const normalizedSet = new Set(
+            descendantTags.map(tag => normalizeTagPathValue(tag)).filter((value): value is string => value.length > 0)
+        );
+
+        if (normalizedSet.size === 0) {
+            return null;
+        }
+
+        return {
+            tags: descendantTags,
+            normalizedSet
+        };
     }
 
     /**
@@ -378,166 +735,35 @@ export class TagOperations {
             return false;
         }
 
-        let hadTag = false;
-
-        // Remove from frontmatter
-        try {
-            await this.app.fileManager.processFrontMatter(file, fm => {
-                if (!fm.tags) return;
-
-                const normalizedTarget = normalizeTagPathValue(tag);
-
-                if (Array.isArray(fm.tags)) {
-                    const originalLength = fm.tags.length;
-                    fm.tags = fm.tags.filter((t: string) => {
-                        const normalizedTag = normalizeTagPathValue(t);
-                        if (normalizedTag.length === 0) {
-                            return false;
-                        }
-                        if (normalizedTarget.length === 0) {
-                            return true;
-                        }
-                        return normalizedTag !== normalizedTarget;
-                    });
-
-                    if (fm.tags.length < originalLength) {
-                        hadTag = true;
-                    }
-
-                    if (fm.tags.length === 0) {
-                        this.cleanupFrontmatterTags(fm);
-                    }
-                } else if (typeof fm.tags === 'string') {
-                    const tags = fm.tags.split(',').map((t: string) => t.trim());
-                    const filteredTags = tags.filter((t: string) => {
-                        const normalizedTag = normalizeTagPathValue(t);
-                        if (normalizedTag.length === 0) {
-                            return false;
-                        }
-                        if (normalizedTarget.length === 0) {
-                            return true;
-                        }
-                        return normalizedTag !== normalizedTarget;
-                    });
-
-                    if (filteredTags.length < tags.length) {
-                        hadTag = true;
-                    }
-
-                    if (filteredTags.length === 0) {
-                        this.cleanupFrontmatterTags(fm);
-                    } else {
-                        fm.tags = filteredTags.length === 1 ? filteredTags[0] : filteredTags;
-                    }
-                }
-            });
-        } catch (error) {
-            console.error('Error removing tag from frontmatter:', error);
+        const normalizedTarget = normalizeTagPathValue(tag);
+        if (normalizedTarget.length === 0) {
+            return false;
         }
 
-        // Remove from inline content only if tag might exist
-        // First, read the content to check if we need to process it
-        const content = await this.app.vault.read(file);
-        if (this.hasSpecificInlineTag(content, tag)) {
-            await this.app.vault.process(file, content => {
-                const newContent = this.removeInlineTags(content, tag);
-                if (newContent !== content) {
-                    hadTag = true;
-                }
-                return newContent;
-            });
-        }
-
-        return hadTag;
+        return this.stripTagsFromFile(file, candidate => candidate === normalizedTarget, [tag], 'remove tag from frontmatter');
     }
 
     /**
      * Removes any descendant tags of the given tag from a file
      * e.g., if adding "project", removes "project/example", "project/task1", etc.
      */
-    private async removeDescendantTagsFromFile(file: TFile, ancestorTag: string): Promise<void> {
+    private async removeDescendantTagsFromFile(file: TFile, ancestorTag: string): Promise<boolean> {
         // Skip non-markdown files
         if (!this.isMarkdownFile(file)) {
-            return;
+            return false;
         }
 
-        // Get all current tags from the file
-        const currentTags = this.getTagsFromFiles([file]);
-
-        // Find descendant tags to remove (case-insensitive)
-        const normalizedAncestor = normalizeTagPathValue(ancestorTag);
-        if (normalizedAncestor.length === 0) {
-            return;
+        const descendants = this.collectDescendantTags(file, ancestorTag);
+        if (!descendants) {
+            return false;
         }
-        const descendantTags = currentTags.filter(tag => {
-            const normalizedTag = normalizeTagPathValue(tag);
-            return normalizedTag.startsWith(`${normalizedAncestor}/`);
-        });
 
-        if (descendantTags.length === 0) return;
-
-        // Create lowercase set for efficient lookup
-        const normalizedDescendantSet = new Set(
-            descendantTags.map(t => normalizeTagPathValue(t)).filter((value): value is string => value.length > 0)
+        return this.stripTagsFromFile(
+            file,
+            candidate => descendants.normalizedSet.has(candidate),
+            descendants.tags,
+            'remove descendant tags from frontmatter'
         );
-        if (normalizedDescendantSet.size === 0) {
-            return;
-        }
-
-        // Remove descendant tags from frontmatter
-        try {
-            await this.app.fileManager.processFrontMatter(file, fm => {
-                if (!fm.tags) return;
-
-                if (Array.isArray(fm.tags)) {
-                    fm.tags = fm.tags.filter((tag: string) => {
-                        const normalizedTag = normalizeTagPathValue(tag);
-                        if (normalizedTag.length === 0) {
-                            return false;
-                        }
-                        // Case-insensitive check
-                        return !normalizedDescendantSet.has(normalizedTag);
-                    });
-
-                    if (fm.tags.length === 0) {
-                        this.cleanupFrontmatterTags(fm);
-                    }
-                } else if (typeof fm.tags === 'string') {
-                    const tags = fm.tags.split(',').map((t: string) => t.trim());
-                    const filteredTags = tags.filter((tag: string) => {
-                        const normalizedTag = normalizeTagPathValue(tag);
-                        if (normalizedTag.length === 0) {
-                            return false;
-                        }
-                        // Case-insensitive check
-                        return !normalizedDescendantSet.has(normalizedTag);
-                    });
-
-                    if (filteredTags.length === 0) {
-                        this.cleanupFrontmatterTags(fm);
-                    } else {
-                        fm.tags = filteredTags.length === 1 ? filteredTags[0] : filteredTags;
-                    }
-                }
-            });
-        } catch (error) {
-            console.error('Error removing descendant tags from frontmatter:', error);
-        }
-
-        // Remove descendant tags from inline content only if any exist
-        // First check if we need to process at all
-        const content = await this.app.vault.read(file);
-        const hasAnyDescendantTag = descendantTags.some(tag => this.hasSpecificInlineTag(content, tag));
-
-        if (hasAnyDescendantTag) {
-            await this.app.vault.process(file, content => {
-                let newContent = content;
-                for (const descendantTag of descendantTags) {
-                    newContent = this.removeInlineTags(newContent, descendantTag);
-                }
-                return newContent;
-            });
-        }
     }
 
     /**
@@ -641,15 +867,13 @@ export class TagOperations {
 
         for (const filePath of paths) {
             total += 1;
-            const abstractFile = this.app.vault.getAbstractFileByPath(filePath);
-            if (abstractFile instanceof TFile) {
-                sample.push(abstractFile.basename);
-            } else {
-                sample.push(filePath);
-            }
-
-            if (sample.length >= 8) {
-                break;
+            if (sample.length < 8) {
+                const abstractFile = this.app.vault.getAbstractFileByPath(filePath);
+                if (abstractFile instanceof TFile) {
+                    sample.push(abstractFile.basename);
+                } else {
+                    sample.push(filePath);
+                }
             }
         }
 
@@ -727,16 +951,42 @@ export class TagOperations {
     }
 
     /**
-     * Updates tag shortcuts when a tag is renamed so saved references continue to resolve.
-     * Drops shortcuts that would collide with existing entries after the rename.
+     * Applies a transformation to tag shortcuts and saves if changes were made
+     * Used to update or remove shortcuts while avoiding duplicate entries
      */
-    private async updateTagShortcutsAfterRename(oldTagPath: string, newTagPath: string): Promise<void> {
+    private async mutateTagShortcuts(
+        apply: (shortcuts: ShortcutEntry[]) => { changed: boolean; next: ShortcutEntry[] },
+        failureContext: string
+    ): Promise<void> {
         const metadataService = this.getMetadataService();
         const settingsProvider = metadataService?.getSettingsProvider();
         if (!settingsProvider) {
             return;
         }
 
+        const shortcuts = settingsProvider.settings.shortcuts;
+        if (!Array.isArray(shortcuts) || shortcuts.length === 0) {
+            return;
+        }
+
+        const { changed, next } = apply(shortcuts);
+        if (!changed) {
+            return;
+        }
+
+        settingsProvider.settings.shortcuts = next;
+        try {
+            await settingsProvider.saveSettingsAndUpdate();
+        } catch (error) {
+            console.error(`[Notebook Navigator] ${failureContext}`, error);
+        }
+    }
+
+    /**
+     * Updates tag shortcuts after a tag is renamed
+     * Drops shortcuts that would collide with existing entries after the rename
+     */
+    private async updateTagShortcutsAfterRename(oldTagPath: string, newTagPath: string): Promise<void> {
         const normalizedOld = normalizeTagPath(oldTagPath);
         const normalizedNew = normalizeTagPath(newTagPath);
         if (!normalizedOld || !normalizedNew) {
@@ -746,73 +996,115 @@ export class TagOperations {
             return;
         }
 
-        const shortcuts = settingsProvider.settings.shortcuts;
-        if (!Array.isArray(shortcuts) || shortcuts.length === 0) {
+        await this.mutateTagShortcuts(shortcuts => {
+            const prefix = `${normalizedOld}/`;
+            const preservedPaths = new Set<string>();
+            for (const shortcut of shortcuts) {
+                if (isTagShortcut(shortcut)) {
+                    const { tagPath } = shortcut;
+                    if (tagPath !== normalizedOld && !tagPath.startsWith(prefix)) {
+                        preservedPaths.add(tagPath);
+                    }
+                }
+            }
+
+            const occupiedPaths = new Set<string>();
+            let changed = false;
+            const updated: ShortcutEntry[] = [];
+
+            for (const shortcut of shortcuts) {
+                if (!isTagShortcut(shortcut)) {
+                    updated.push(shortcut);
+                    continue;
+                }
+
+                const currentPath = shortcut.tagPath;
+                const isDirectMatch = currentPath === normalizedOld;
+                const isDescendantMatch = currentPath.startsWith(prefix);
+                let targetPath = currentPath;
+
+                if (isDirectMatch || isDescendantMatch) {
+                    const suffix = isDescendantMatch ? currentPath.slice(prefix.length) : '';
+                    targetPath = suffix.length > 0 ? `${normalizedNew}/${suffix}` : normalizedNew;
+                    if (targetPath !== currentPath) {
+                        changed = true;
+                    }
+                }
+
+                if ((isDirectMatch || isDescendantMatch) && preservedPaths.has(targetPath)) {
+                    changed = true;
+                    continue;
+                }
+
+                if (occupiedPaths.has(targetPath)) {
+                    if (targetPath !== currentPath) {
+                        changed = true;
+                    }
+                    continue;
+                }
+
+                const nextShortcut = targetPath === currentPath ? shortcut : { ...shortcut, tagPath: targetPath };
+                updated.push(nextShortcut);
+                occupiedPaths.add(targetPath);
+                preservedPaths.add(targetPath);
+            }
+
+            return { changed, next: updated };
+        }, 'Failed to update tag shortcuts after rename');
+    }
+
+    /**
+     * Removes all metadata associated with a deleted tag and its descendants
+     */
+    private async removeTagMetadataAfterDelete(tagPath: string): Promise<void> {
+        const metadataService = this.getMetadataService();
+        if (!metadataService) {
             return;
         }
 
-        const prefix = `${normalizedOld}/`;
-        const preservedPaths = new Set<string>();
-        for (const shortcut of shortcuts) {
-            if (isTagShortcut(shortcut)) {
-                const { tagPath } = shortcut;
-                if (tagPath !== normalizedOld && !tagPath.startsWith(prefix)) {
-                    preservedPaths.add(tagPath);
-                }
-            }
-        }
-
-        const occupiedPaths = new Set<string>();
-        let changed = false;
-        const updated: ShortcutEntry[] = [];
-
-        for (const shortcut of shortcuts) {
-            if (!isTagShortcut(shortcut)) {
-                updated.push(shortcut);
-                continue;
-            }
-
-            const currentPath = shortcut.tagPath;
-            const isDirectMatch = currentPath === normalizedOld;
-            const isDescendantMatch = currentPath.startsWith(prefix);
-            let targetPath = currentPath;
-
-            if (isDirectMatch || isDescendantMatch) {
-                const suffix = isDescendantMatch ? currentPath.slice(prefix.length) : '';
-                targetPath = suffix.length > 0 ? `${normalizedNew}/${suffix}` : normalizedNew;
-                if (targetPath !== currentPath) {
-                    changed = true;
-                }
-            }
-
-            if ((isDirectMatch || isDescendantMatch) && preservedPaths.has(targetPath)) {
-                changed = true;
-                continue;
-            }
-
-            if (occupiedPaths.has(targetPath)) {
-                if (targetPath !== currentPath) {
-                    changed = true;
-                }
-                continue;
-            }
-
-            const nextShortcut = targetPath === currentPath ? shortcut : { ...shortcut, tagPath: targetPath };
-            updated.push(nextShortcut);
-            occupiedPaths.add(targetPath);
-            preservedPaths.add(targetPath);
-        }
-
-        if (!changed) {
+        const trimmedPath = tagPath.trim();
+        if (trimmedPath.length === 0) {
             return;
         }
 
-        settingsProvider.settings.shortcuts = updated;
         try {
-            await settingsProvider.saveSettingsAndUpdate();
+            await metadataService.handleTagDelete(trimmedPath);
         } catch (error) {
-            console.error('[Notebook Navigator] Failed to update tag shortcuts after rename', error);
+            console.error('[Notebook Navigator] Failed to remove tag metadata after delete', error);
         }
+    }
+
+    /**
+     * Removes all shortcuts associated with a deleted tag and its descendants
+     */
+    private async removeTagShortcutsAfterDelete(tagPath: string): Promise<void> {
+        const normalizedPath = normalizeTagPath(tagPath);
+        if (!normalizedPath) {
+            return;
+        }
+
+        await this.mutateTagShortcuts(shortcuts => {
+            const prefix = `${normalizedPath}/`;
+            let changed = false;
+            const filtered: ShortcutEntry[] = [];
+
+            for (const shortcut of shortcuts) {
+                if (!isTagShortcut(shortcut)) {
+                    filtered.push(shortcut);
+                    continue;
+                }
+
+                const currentPath = shortcut.tagPath;
+                if (currentPath === normalizedPath || currentPath.startsWith(prefix)) {
+                    changed = true;
+                    continue;
+                }
+
+                filtered.push(shortcut);
+            }
+
+            return { changed, next: filtered };
+        }, 'Failed to remove tag shortcuts after delete');
     }
 
     /**
@@ -844,7 +1136,6 @@ export class TagOperations {
 
         return tagTreeService.collectTagFilePaths(tag.canonicalName);
     }
-
     /**
      * Orchestrates tag rename operation with validation and user feedback.
      * Returns true if rename succeeded, false if validation failed or no files were modified.
@@ -885,6 +1176,104 @@ export class TagOperations {
         new Notice(
             `${strings.modals.tagOperation.confirmRename}: ${analysis.oldTag.tag} → ${analysis.newTag.tag} (${result.renamed}/${result.total})`
         );
+        return true;
+    }
+
+    /**
+     * Removes a tag and all its descendants from a file
+     * Processes both frontmatter and inline tags
+     */
+    private async deleteTagFromFile(file: TFile, tag: TagDescriptor): Promise<boolean> {
+        if (!this.isMarkdownFile(file)) {
+            return false;
+        }
+
+        const normalizedTarget = normalizeTagPathValue(tag.name);
+        if (normalizedTarget.length === 0) {
+            return false;
+        }
+
+        const descendants = this.collectDescendantTags(file, tag.name);
+        const normalizedDescendants = descendants?.normalizedSet ?? new Set<string>();
+        const descendantTags = descendants?.tags ?? [];
+
+        const targets = new Set<string>(normalizedDescendants);
+        targets.add(normalizedTarget);
+
+        const inlineTags = descendantTags.length > 0 ? [tag.name, ...descendantTags] : [tag.name];
+        return this.stripTagsFromFile(file, candidate => targets.has(candidate), inlineTags, 'remove tag hierarchy from frontmatter');
+    }
+
+    /**
+     * Executes tag deletion across files, removing tag and descendants from all affected files
+     * Cleans up metadata and shortcuts after successful deletion
+     */
+    private async runTagDelete(tagPath: string, presetPaths?: readonly string[] | null): Promise<boolean> {
+        const descriptor = new TagDescriptor(tagPath);
+        const targetPathsSet = new Set<string>();
+
+        if (presetPaths && presetPaths.length > 0) {
+            presetPaths.forEach(path => {
+                if (typeof path === 'string' && path.length > 0) {
+                    targetPathsSet.add(path);
+                }
+            });
+        } else {
+            const previewPaths = this.collectPreviewPaths(descriptor);
+            if (previewPaths === null) {
+                new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
+                return false;
+            }
+            previewPaths.forEach(path => {
+                if (typeof path === 'string' && path.length > 0) {
+                    targetPathsSet.add(path);
+                }
+            });
+        }
+
+        if (targetPathsSet.size === 0) {
+            new Notice(`#${descriptor.name}: ${strings.listPane.emptyStateNoNotes}`);
+            return false;
+        }
+
+        let removed = 0;
+        let processed = 0;
+
+        for (const path of targetPathsSet) {
+            const abstract = this.app.vault.getAbstractFileByPath(path);
+            if (!(abstract instanceof TFile)) {
+                processed++;
+                continue;
+            }
+
+            try {
+                if (await this.deleteTagFromFile(abstract, descriptor)) {
+                    removed++;
+                }
+            } catch (error) {
+                console.error(`[Notebook Navigator] Failed to delete tag ${descriptor.tag} in ${path}`, error);
+            }
+
+            processed++;
+            if (processed % TagOperations.RENAME_BATCH_SIZE === 0) {
+                await this.yieldToEventLoop();
+            }
+        }
+
+        if (removed === 0) {
+            new Notice(strings.fileSystem.notifications.noTagsToRemove);
+            return false;
+        }
+
+        await this.removeTagMetadataAfterDelete(descriptor.name);
+        await this.removeTagShortcutsAfterDelete(descriptor.name);
+
+        if (removed === 1) {
+            new Notice(strings.fileSystem.notifications.tagRemovedFromNote);
+        } else {
+            new Notice(strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', removed.toString()));
+        }
+
         return true;
     }
 
@@ -930,6 +1319,72 @@ export class TagOperations {
                 return this.runTagRename(displayPath, trimmedName, presetTargets);
             }
         });
+        modal.open();
+    }
+
+    /**
+     * Prompts user to confirm tag deletion and removes matching tags from all affected files.
+     * Shares usage summary with rename flow for consistent messaging.
+     */
+    async promptDeleteTag(tagPath: string): Promise<void> {
+        if (tagPath === TAGGED_TAG_ID || tagPath === UNTAGGED_TAG_ID) {
+            return;
+        }
+
+        const displayPath = this.resolveDisplayTagPath(tagPath);
+        if (displayPath.length === 0) {
+            return;
+        }
+
+        const descriptor = new TagDescriptor(displayPath);
+        const previewPaths = this.collectPreviewPaths(descriptor);
+        if (previewPaths === null) {
+            new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
+            return;
+        }
+
+        const uniquePreview = Array.from(new Set(previewPaths));
+        const usage = this.buildUsageSummaryFromPaths(uniquePreview);
+        const presetPaths = uniquePreview;
+
+        if (usage.total === 0) {
+            new Notice(`#${displayPath}: ${strings.listPane.emptyStateNoNotes}`);
+            return;
+        }
+
+        const countLabel = usage.total === 1 ? strings.modals.tagOperation.file : strings.modals.tagOperation.files;
+        const modal = new ConfirmModal(
+            this.app,
+            strings.modals.tagOperation.deleteTitle.replace('{tag}', `#${displayPath}`),
+            strings.modals.tagOperation.deleteWarning
+                .replace('{tag}', `#${displayPath}`)
+                .replace('{count}', usage.total.toString())
+                .replace('{files}', countLabel),
+            () => {
+                void this.runTagDelete(displayPath, presetPaths);
+            },
+            strings.modals.tagOperation.confirmDelete,
+            {
+                buildContent: container => {
+                    if (usage.sample.length === 0) {
+                        return;
+                    }
+
+                    const listContainer = container.createDiv('nn-tag-rename-file-preview');
+                    listContainer.createEl('h4', { text: strings.modals.tagOperation.affectedFiles });
+                    const list = listContainer.createEl('ul');
+                    usage.sample.forEach(fileName => {
+                        list.createEl('li', { text: fileName });
+                    });
+                    const remaining = usage.total - usage.sample.length;
+                    if (remaining > 0) {
+                        listContainer.createEl('p', {
+                            text: strings.modals.tagOperation.andMore.replace('{count}', remaining.toString())
+                        });
+                    }
+                }
+            }
+        );
         modal.open();
     }
 

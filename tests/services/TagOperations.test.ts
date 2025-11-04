@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { App } from 'obsidian';
-import { TagDescriptor, TagReplacement, isDescendantRename } from '../../src/services/tagRename/TagRenameEngine';
+import { TFile } from 'obsidian';
+import * as TagRenameModule from '../../src/services/tagRename/TagRenameEngine';
 import { TagOperations } from '../../src/services/TagOperations';
 import { ShortcutType } from '../../src/types/shortcuts';
 import type { NotebookNavigatorSettings } from '../../src/settings';
@@ -24,9 +25,45 @@ vi.mock('obsidian', () => {
         TFile,
         TFolder: class {},
         getLanguage: () => 'en',
-        normalizePath: (path: string) => path
+        normalizePath: (path: string) => path,
+        parseFrontMatterTags: (frontmatter?: { tags?: string | string[] }) => {
+            const raw = frontmatter?.tags;
+            if (raw === undefined || raw === null) {
+                return null;
+            }
+            if (Array.isArray(raw)) {
+                const tags: string[] = [];
+                for (const entry of raw) {
+                    if (typeof entry !== 'string') {
+                        continue;
+                    }
+                    entry
+                        .split(/[, ]+/u)
+                        .map(tag => tag.trim())
+                        .filter(tag => tag.length > 0)
+                        .forEach(tag => tags.push(tag));
+                }
+                return tags.length > 0 ? tags : null;
+            }
+            if (typeof raw === 'string') {
+                const tags = raw
+                    .split(/[, ]+/u)
+                    .map(tag => tag.trim())
+                    .filter(tag => tag.length > 0);
+                return tags.length > 0 ? tags : null;
+            }
+            return null;
+        }
     };
 });
+
+const cachedTagsByPath = new Map<string, string[]>();
+
+vi.mock('../../src/storage/fileOperations', () => ({
+    getDBInstance: () => ({
+        getCachedTags: (path: string) => cachedTagsByPath.get(path) ?? []
+    })
+}));
 
 function createSettings(): NotebookNavigatorSettings {
     return {
@@ -65,16 +102,20 @@ function createTagOperations(settings: NotebookNavigatorSettings) {
     return { tagOperations, provider };
 }
 
+beforeEach(() => {
+    cachedTagsByPath.clear();
+});
+
 describe('TagDescriptor', () => {
     it('normalizes canonical form while preserving display casing', () => {
-        const descriptor = new TagDescriptor('Projects/Archive/');
+        const descriptor = new TagRenameModule.TagDescriptor('Projects/Archive/');
         expect(descriptor.tag).toBe('#Projects/Archive/');
         expect(descriptor.canonical).toBe('#projects/archive');
         expect(descriptor.canonicalName).toBe('projects/archive');
     });
 
     it('matches descendants regardless of hash or casing', () => {
-        const descriptor = new TagDescriptor('#Projects');
+        const descriptor = new TagRenameModule.TagDescriptor('#Projects');
         expect(descriptor.matches('projects')).toBe(true);
         expect(descriptor.matches('Projects/Archive')).toBe(true);
         expect(descriptor.matches('#projects/archive')).toBe(true);
@@ -83,33 +124,42 @@ describe('TagDescriptor', () => {
 
 describe('isDescendantRename', () => {
     it('returns true when the new tag is within the original hierarchy', () => {
-        const original = new TagDescriptor('Projects');
-        const descendant = new TagDescriptor('Projects/Archive');
-        expect(isDescendantRename(original, descendant)).toBe(true);
+        const original = new TagRenameModule.TagDescriptor('Projects');
+        const descendant = new TagRenameModule.TagDescriptor('Projects/Archive');
+        expect(TagRenameModule.isDescendantRename(original, descendant)).toBe(true);
     });
 
     it('returns false for unrelated or sibling tags', () => {
-        const original = new TagDescriptor('Projects');
-        const sibling = new TagDescriptor('ProjectsArchive');
-        expect(isDescendantRename(original, sibling)).toBe(false);
+        const original = new TagRenameModule.TagDescriptor('Projects');
+        const sibling = new TagRenameModule.TagDescriptor('ProjectsArchive');
+        expect(TagRenameModule.isDescendantRename(original, sibling)).toBe(false);
     });
 });
 
 describe('TagReplacement', () => {
     it('renames lowercase frontmatter tags without hashes', () => {
-        const replacement = new TagReplacement(new TagDescriptor('Projects'), new TagDescriptor('Areas'));
+        const replacement = new TagRenameModule.TagReplacement(
+            new TagRenameModule.TagDescriptor('Projects'),
+            new TagRenameModule.TagDescriptor('Areas')
+        );
         const [updated] = replacement.inArray(['projects'], false, false) as string[];
         expect(updated).toBe('Areas');
     });
 
     it('renames lowercase tags with descendants', () => {
-        const replacement = new TagReplacement(new TagDescriptor('Projects'), new TagDescriptor('Areas'));
+        const replacement = new TagRenameModule.TagReplacement(
+            new TagRenameModule.TagDescriptor('Projects'),
+            new TagRenameModule.TagDescriptor('Areas')
+        );
         const [updated] = replacement.inArray(['projects/archive'], false, false) as string[];
         expect(updated).toBe('Areas/archive');
     });
 
     it('detects collisions when renamed tag already exists', () => {
-        const replacement = new TagReplacement(new TagDescriptor('Projects'), new TagDescriptor('Areas'));
+        const replacement = new TagRenameModule.TagReplacement(
+            new TagRenameModule.TagDescriptor('Projects'),
+            new TagRenameModule.TagDescriptor('Areas')
+        );
         const collision = replacement.willMergeTags(['#Projects', '#areas']);
         expect(collision).not.toBeNull();
         if (!collision) {
@@ -164,5 +214,268 @@ describe('TagOperations shortcut migration', () => {
 
         expect(settings.shortcuts).toEqual([{ type: ShortcutType.TAG, tagPath: 'projects' }]);
         expect(provider.saveSettingsAndUpdate).not.toHaveBeenCalled();
+    });
+});
+
+describe('TagOperations shortcut cleanup on delete', () => {
+    it('removes tag shortcuts for deleted tag hierarchy', async () => {
+        const settings = createSettings();
+        settings.shortcuts = [
+            { type: ShortcutType.TAG, tagPath: 'projects' },
+            { type: ShortcutType.TAG, tagPath: 'projects/client' },
+            { type: ShortcutType.NOTE, path: 'Notes.md' }
+        ];
+        const { tagOperations, provider } = createTagOperations(settings);
+
+        await (tagOperations as any).removeTagShortcutsAfterDelete('projects');
+
+        expect(settings.shortcuts).toEqual([{ type: ShortcutType.NOTE, path: 'Notes.md' }]);
+        expect(provider.saveSettingsAndUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    it('skips saving when no shortcuts reference deleted tag', async () => {
+        const settings = createSettings();
+        settings.shortcuts = [{ type: ShortcutType.NOTE, path: 'Notes.md' }];
+        const { tagOperations, provider } = createTagOperations(settings);
+
+        await (tagOperations as any).removeTagShortcutsAfterDelete('projects');
+
+        expect(settings.shortcuts).toEqual([{ type: ShortcutType.NOTE, path: 'Notes.md' }]);
+        expect(provider.saveSettingsAndUpdate).not.toHaveBeenCalled();
+    });
+});
+
+describe('TagOperations tag deletion', () => {
+    it('removes direct and descendant tags from a file once confirmed', async () => {
+        const settings = createSettings();
+        const frontmatter = {
+            tags: ['project', 'project/client'] as string[] | string,
+            aliases: ['#project', '#project/client', 'Project kickoff'],
+            alias: '#project/client'
+        };
+        const file = Object.assign(new TFile(), {
+            path: 'Project.md',
+            extension: 'md',
+            frontmatter,
+            content: '#project kickoff\nTasks include #project/client follow-up.'
+        }) as TFile & { frontmatter: { tags?: string | string[]; aliases?: string | string[]; alias?: string }; content: string };
+
+        cachedTagsByPath.set(file.path, ['project', 'project/client']);
+
+        const fileManager = {
+            processFrontMatter: vi.fn((_file: TFile, callback: (fm: Record<string, unknown>) => void) => {
+                callback(file.frontmatter as unknown as Record<string, unknown>);
+                return Promise.resolve();
+            })
+        };
+
+        const vault = {
+            getAbstractFileByPath: vi.fn((path: string) => (path === file.path ? file : null)),
+            process: vi.fn(async (_file: TFile, processor: (content: string) => string) => {
+                const updated = processor(file.content);
+                file.content = updated;
+            })
+        };
+
+        const provider = createSettingsProvider(settings);
+        const metadataService = {
+            getSettingsProvider: () => provider,
+            handleTagDelete: vi.fn().mockResolvedValue(undefined)
+        };
+
+        const tagOperations = new TagOperations(
+            { vault, fileManager } as unknown as App,
+            () => settings,
+            () => null,
+            () => metadataService as any
+        );
+
+        const result = await (tagOperations as any).runTagDelete('project', [file.path]);
+
+        expect(result).toBe(true);
+        expect(fileManager.processFrontMatter).toHaveBeenCalled();
+        expect(vault.process).toHaveBeenCalled();
+        expect(file.frontmatter.tags).toBeUndefined();
+        expect(file.frontmatter.aliases).toEqual(['Project kickoff']);
+        expect(file.frontmatter.alias).toBeUndefined();
+        expect(file.content).not.toContain('#project');
+        expect(file.content).not.toContain('#project/client');
+        expect(file.content).not.toContain('/client');
+        expect(metadataService.handleTagDelete).toHaveBeenCalledWith('project');
+    });
+
+    it('removes tags when frontmatter uses scalar string formatting', async () => {
+        const settings = createSettings();
+        const frontmatter = {
+            tags: 'project project/client other'
+        };
+
+        const file = Object.assign(new TFile(), {
+            path: 'Scalar.md',
+            extension: 'md',
+            frontmatter,
+            content: '#project details and #project/client next steps'
+        }) as TFile & { frontmatter: { tags?: string | string[] }; content: string };
+
+        cachedTagsByPath.set(file.path, ['project', 'project/client', 'other']);
+
+        const fileManager = {
+            processFrontMatter: vi.fn((_file: TFile, callback: (fm: Record<string, unknown>) => void) => {
+                callback(file.frontmatter as unknown as Record<string, unknown>);
+                return Promise.resolve();
+            })
+        };
+
+        const vault = {
+            getAbstractFileByPath: vi.fn((path: string) => (path === file.path ? file : null)),
+            read: vi.fn(async () => file.content),
+            modify: vi.fn(async (_file: TFile, data: string) => {
+                file.content = data;
+            }),
+            process: vi.fn()
+        };
+
+        const provider = createSettingsProvider(settings);
+        const metadataService = {
+            getSettingsProvider: () => provider,
+            handleTagDelete: vi.fn().mockResolvedValue(undefined)
+        };
+
+        const tagOperations = new TagOperations(
+            { vault, fileManager } as unknown as App,
+            () => settings,
+            () => null,
+            () => metadataService as any
+        );
+
+        const result = await (tagOperations as any).runTagDelete('project', [file.path]);
+
+        expect(result).toBe(true);
+        expect(fileManager.processFrontMatter).toHaveBeenCalled();
+        expect(vault.read).toHaveBeenCalled();
+        expect(vault.modify).toHaveBeenCalled();
+        expect(file.frontmatter.tags).toBe('other');
+        expect(file.content).not.toContain('#project');
+        expect(file.content).not.toContain('#project/client');
+        expect(metadataService.handleTagDelete).toHaveBeenCalledWith('project');
+    });
+
+    it('handles malformed tag separators when deleting tag hierarchies', async () => {
+        const settings = createSettings();
+        const frontmatter = {
+            tags: ['project//client', 'project//client/research', 'other'],
+            aliases: ['#project//client', '#project//client/research'],
+            alias: '#project//client'
+        };
+        const file = Object.assign(new TFile(), {
+            path: 'Client.md',
+            extension: 'md',
+            frontmatter,
+            content: 'Meeting notes for #project//client.\nFollow-up tasks #project//client/research.'
+        }) as TFile & {
+            frontmatter: { tags?: string | string[]; aliases?: string | string[]; alias?: string };
+            content: string;
+        };
+
+        cachedTagsByPath.set(file.path, ['project//client', 'project//client/research', 'other']);
+
+        const fileManager = {
+            processFrontMatter: vi.fn((_file: TFile, callback: (fm: Record<string, unknown>) => void) => {
+                callback(file.frontmatter as unknown as Record<string, unknown>);
+                return Promise.resolve();
+            })
+        };
+
+        const vault = {
+            getAbstractFileByPath: vi.fn((path: string) => (path === file.path ? file : null)),
+            read: vi.fn(async () => file.content),
+            modify: vi.fn(async (_file: TFile, data: string) => {
+                file.content = data;
+            }),
+            process: vi.fn()
+        };
+
+        const provider = createSettingsProvider(settings);
+        const metadataService = {
+            getSettingsProvider: () => provider,
+            handleTagDelete: vi.fn().mockResolvedValue(undefined)
+        };
+
+        const tagOperations = new TagOperations(
+            { vault, fileManager } as unknown as App,
+            () => settings,
+            () => null,
+            () => metadataService as any
+        );
+
+        const result = await (tagOperations as any).runTagDelete('project//client', [file.path]);
+
+        expect(result).toBe(true);
+        expect(fileManager.processFrontMatter).toHaveBeenCalled();
+        expect(vault.read).toHaveBeenCalled();
+        expect(vault.modify).toHaveBeenCalled();
+        expect(file.frontmatter.tags).toEqual(['other']);
+        expect(file.frontmatter.aliases).toBeUndefined();
+        expect(file.frontmatter.alias).toBeUndefined();
+        expect(file.content).not.toContain('#project//client');
+        expect(file.content).not.toContain('#project//client/research');
+        expect(metadataService.handleTagDelete).toHaveBeenCalledWith('project//client');
+    });
+
+    it('preserves hyphenated and underscored tags when deleting base inline tags', async () => {
+        const settings = createSettings();
+        const frontmatter = {
+            tags: ['project', 'project/client', 'project-archive', 'project_2024']
+        };
+        const file = Object.assign(new TFile(), {
+            path: 'Mixed.md',
+            extension: 'md',
+            frontmatter,
+            content: 'Summary #project overview #project-archive tasks #project_2024 next #project/client wrap'
+        }) as TFile & {
+            frontmatter: { tags?: string | string[] };
+            content: string;
+        };
+
+        cachedTagsByPath.set(file.path, ['project', 'project/client', 'project-archive', 'project_2024']);
+
+        const fileManager = {
+            processFrontMatter: vi.fn((_file: TFile, callback: (fm: Record<string, unknown>) => void) => {
+                callback(file.frontmatter as unknown as Record<string, unknown>);
+                return Promise.resolve();
+            })
+        };
+
+        const vault = {
+            getAbstractFileByPath: vi.fn((path: string) => (path === file.path ? file : null)),
+            read: vi.fn(async () => file.content),
+            modify: vi.fn(async (_file: TFile, data: string) => {
+                file.content = data;
+            }),
+            process: vi.fn()
+        };
+
+        const provider = createSettingsProvider(settings);
+        const metadataService = {
+            getSettingsProvider: () => provider,
+            handleTagDelete: vi.fn().mockResolvedValue(undefined)
+        };
+
+        const tagOperations = new TagOperations(
+            { vault, fileManager } as unknown as App,
+            () => settings,
+            () => null,
+            () => metadataService as any
+        );
+
+        const result = await (tagOperations as any).runTagDelete('project', [file.path]);
+
+        expect(result).toBe(true);
+        expect(file.frontmatter.tags).toEqual(['project-archive', 'project_2024']);
+        expect(file.content).toContain('#project-archive');
+        expect(file.content).toContain('#project_2024');
+        expect(file.content).not.toContain('#project/client');
+        expect(/#project(?![-_/])/u.test(file.content)).toBe(false);
+        expect(metadataService.handleTagDelete).toHaveBeenCalledWith('project');
     });
 });

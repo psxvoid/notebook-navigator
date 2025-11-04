@@ -172,8 +172,18 @@ export class MetadataService {
         return this.tagService.getTagIcon(tagPath);
     }
 
+    /**
+     * Updates tag metadata when a tag is renamed, optionally preserving existing overrides at the new path
+     */
     async handleTagRename(oldPath: string, newPath: string, preserveExisting = false): Promise<void> {
         return this.tagService.handleTagRename(oldPath, newPath, preserveExisting);
+    }
+
+    /**
+     * Removes all metadata associated with a tag and its descendants
+     */
+    async handleTagDelete(tagPath: string): Promise<void> {
+        return this.tagService.handleTagDelete(tagPath);
     }
 
     async setTagSortOverride(tagPath: string, sortOption: SortOption): Promise<void> {

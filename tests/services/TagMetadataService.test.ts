@@ -78,3 +78,33 @@ describe('TagMetadataService.handleTagRename', () => {
         expect(settings.tagBackgroundColors['areas/design']).toBe('#123456');
     });
 });
+
+describe('TagMetadataService.handleTagDelete', () => {
+    const appStub = {} as unknown as App;
+
+    it('removes metadata and hidden tags for deleted hierarchy', async () => {
+        const settings = createSettings();
+        settings.tagColors = { project: '#ff0000', other: '#00ff00' };
+        settings.tagIcons = { 'project/archive': 'lucide-archive' };
+        settings.hiddenTags = ['project', 'archive'];
+        const provider = new TestSettingsProvider(settings);
+        const service = new TagMetadataService(appStub, provider, () => null);
+
+        await service.handleTagDelete('project');
+
+        expect(settings.tagColors).toEqual({ other: '#00ff00' });
+        expect(settings.tagIcons).toEqual({});
+        expect(settings.hiddenTags).toEqual(['archive']);
+        expect(provider.saveSettingsAndUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    it('skips work when no metadata matches deleted tag', async () => {
+        const settings = createSettings();
+        const provider = new TestSettingsProvider(settings);
+        const service = new TagMetadataService(appStub, provider, () => null);
+
+        await service.handleTagDelete('project');
+
+        expect(provider.saveSettingsAndUpdate).not.toHaveBeenCalled();
+    });
+});

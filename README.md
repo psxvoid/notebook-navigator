@@ -66,17 +66,17 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - Drag shortcuts to reorder them
 - Drag root folders when in reorder mode
 
-### Tag renaming (new in version 1.7.4)
+### Tag renaming and deletion (new in version 1.7.4)
 
-Tag renaming updates tag references across all files in your vault, including inline tags, frontmatter tags, and nested subtags.
+Tag renaming and deletion operations update tag references across all files in your vault, including inline tags, frontmatter tags, and nested subtags.
 
 **Using the context menu:**
 
 1. Right-click any tag in the navigation pane
-2. Select "Rename tag"
-3. Enter the new tag name
+2. Select "Rename tag" or "Delete tag"
+3. For rename: Enter the new tag name
 4. Review the list of affected files
-5. Confirm to update all references
+5. Confirm to update or remove all references
 
 **Using drag and drop:**
 
@@ -86,7 +86,7 @@ Tag renaming updates tag references across all files in your vault, including in
 
 **Comparison with Tag Wrangler:**
 
-Both plugins rename tags across files using Obsidian's metadata cache. Tag Wrangler provides tag renaming through context menus and commands. Notebook Navigator adds drag-and-drop tag restructuring and displays affected files before renaming. Both check for tag merge conflicts and warn before proceeding.
+Both plugins rename tags across files using Obsidian's metadata cache. Tag Wrangler provides tag renaming through context menus and commands. Notebook Navigator adds tag deletion, drag-and-drop tag restructuring, and displays affected files before applying changes. Both check for tag merge conflicts and warn before proceeding.
 
 **Limitations:**
 
@@ -200,7 +200,7 @@ AND has higher precedence than OR. Use this to create complex filters:
 
 - **Pin notes** - Keep important notes at the top of folders and tags
 - **Folder notes** - Turn folders into clickable links with associated notes
-- **Tag renaming** - Rename tags across all files with context menu or drag-and-drop restructuring. Updates inline tags, frontmatter tags, and nested subtags. Drag tags onto other tags to move them as children
+- **Tag renaming and deletion** - Rename or delete tags across all files with context menu or drag-and-drop restructuring. Updates inline tags, frontmatter tags, and nested subtags. Drag tags onto other tags to move them as children
 - **Custom colors and backgrounds** - Set text colors and background colors for folders, tags, and files with opacity/transparency support
 - **Custom icons** - Choose Lucide icons, emojis, or from 8 icon packs for files, folders, and tags
 - **File customization** - Set custom icons and colors for individual files
@@ -699,6 +699,7 @@ Use cases:
 - **Drag to tag:** Drag notes to tags to add tags
 - **Remove tags:** Drag notes to "Untagged" to remove all tags
 - **Rename tags:** Right-click any tag and select "Rename tag" to update references across all files
+- **Delete tags:** Right-click any tag and select "Delete tag" to remove the tag from all files
 - **Restructure hierarchy:** Drag tags onto other tags to move them as children (e.g., drag `#urgent` onto `#project` to create `#project/urgent`)
 - **Context menu:** Right-click to add, remove, or clear tags
 

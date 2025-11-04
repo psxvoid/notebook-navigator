@@ -202,7 +202,6 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 e.dataTransfer.effectAllowed = 'all';
                 dragTypeRef.current = ItemType.FILE;
 
-                // Set drag manager payload for other plugins to access
                 const draggedFiles = getFilesFromPaths(selectedPaths);
                 if (draggedFiles.length > 0) {
                     setDragManagerPayload({
@@ -250,14 +249,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             }
             e.dataTransfer.effectAllowed = 'all';
 
-            // Generate markdown link for single file drag and set drag manager payload
             if (type === ItemType.FILE) {
                 const file = app.vault.getFileByPath(path);
                 if (file) {
                     const src = app.workspace.getActiveFile()?.path ?? '';
                     const link = app.fileManager.generateMarkdownLink(file, src);
                     e.dataTransfer.setData('text/plain', link);
-                    // Set drag manager payload for other plugins to access
                     setDragManagerPayload({
                         type: 'file',
                         file,
@@ -265,7 +262,6 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     });
                 }
             } else if (type === ItemType.TAG) {
-                // Store tag paths for drag-to-rename operations
                 dragTagDisplayRef.current = path;
                 dragTagCanonicalRef.current = canonicalTag ?? null;
                 try {
