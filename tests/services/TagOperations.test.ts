@@ -1,12 +1,15 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { App } from 'obsidian';
 import { TFile } from 'obsidian';
 import * as TagRenameModule from '../../src/services/tagRename/TagRenameEngine';
 import { TagOperations } from '../../src/services/TagOperations';
 import { ShortcutType } from '../../src/types/shortcuts';
+import { TAGGED_TAG_ID } from '../../src/types';
 import type { NotebookNavigatorSettings } from '../../src/settings';
 import { DEFAULT_SETTINGS } from '../../src/settings/defaultSettings';
 import type { ISettingsProvider } from '../../src/interfaces/ISettingsProvider';
+import type { TagTreeService } from '../../src/services/TagTreeService';
+import type { MetadataService } from '../../src/services/MetadataService';
 
 vi.mock('obsidian', () => {
     class Modal {}
@@ -104,6 +107,10 @@ function createTagOperations(settings: NotebookNavigatorSettings) {
 
 beforeEach(() => {
     cachedTagsByPath.clear();
+});
+
+afterEach(() => {
+    vi.restoreAllMocks();
 });
 
 describe('TagDescriptor', () => {
@@ -477,5 +484,185 @@ describe('TagOperations tag deletion', () => {
         expect(file.content).not.toContain('#project/client');
         expect(/#project(?![-_/])/u.test(file.content)).toBe(false);
         expect(metadataService.handleTagDelete).toHaveBeenCalledWith('project');
+    });
+});
+
+describe('TagOperations tag rename workflow', () => {
+    function createTagOperationsInstance(
+        overrides: {
+            settings?: NotebookNavigatorSettings;
+            tagTree?: Partial<TagTreeService> | null;
+            metadataService?: Partial<MetadataService> | null;
+        } = {}
+    ) {
+        const settings = overrides.settings ?? createSettings();
+        const tagTree = overrides.tagTree ?? null;
+        const metadataService = overrides.metadataService ?? null;
+        const app = { vault: {}, fileManager: {} } as unknown as App;
+
+        return new TagOperations(
+            app,
+            () => settings,
+            () => tagTree as TagTreeService | null,
+            () => metadataService as MetadataService | null
+        );
+    }
+
+    function createRenameTargets(count = 1): TagRenameModule.RenameFile[] {
+        return Array.from({ length: count }, (_, index) => ({
+            filePath: `Note-${index}.md`,
+            renamed: vi.fn().mockResolvedValue(true)
+        })) as unknown as TagRenameModule.RenameFile[];
+    }
+
+    it('rejects descendant rename requests', async () => {
+        const tagOperations = createTagOperationsInstance();
+        const executeSpy = vi.spyOn(tagOperations as any, 'executeRename');
+        const metadataSpy = vi.spyOn(tagOperations as any, 'updateTagMetadataAfterRename');
+        const shortcutsSpy = vi.spyOn(tagOperations as any, 'updateTagShortcutsAfterRename');
+
+        const result = await (tagOperations as any).runTagRename('projects', 'projects/client', createRenameTargets());
+
+        expect(result).toBe(false);
+        expect(executeSpy).not.toHaveBeenCalled();
+        expect(metadataSpy).not.toHaveBeenCalled();
+        expect(shortcutsSpy).not.toHaveBeenCalled();
+    });
+
+    it('rejects renames that keep the same tag', async () => {
+        const tagOperations = createTagOperationsInstance();
+        const executeSpy = vi.spyOn(tagOperations as any, 'executeRename');
+
+        const result = await (tagOperations as any).runTagRename('projects', 'projects', createRenameTargets());
+
+        expect(result).toBe(false);
+        expect(executeSpy).not.toHaveBeenCalled();
+    });
+
+    it('rejects renames with no target files', async () => {
+        const tagOperations = createTagOperationsInstance();
+        const executeSpy = vi.spyOn(tagOperations as any, 'executeRename');
+
+        const result = await (tagOperations as any).runTagRename('projects', 'areas', []);
+
+        expect(result).toBe(false);
+        expect(executeSpy).not.toHaveBeenCalled();
+    });
+
+    it('aborts when rename produces no file updates', async () => {
+        const tagOperations = createTagOperationsInstance();
+        vi.spyOn(tagOperations as any, 'executeRename').mockResolvedValue({
+            renamed: 0,
+            total: 2
+        });
+        const metadataSpy = vi.spyOn(tagOperations as any, 'updateTagMetadataAfterRename');
+        const shortcutsSpy = vi.spyOn(tagOperations as any, 'updateTagShortcutsAfterRename');
+
+        const result = await (tagOperations as any).runTagRename('projects', 'areas', createRenameTargets(2));
+
+        expect(result).toBe(false);
+        expect(metadataSpy).not.toHaveBeenCalled();
+        expect(shortcutsSpy).not.toHaveBeenCalled();
+    });
+
+    it('updates metadata and shortcuts after successful rename', async () => {
+        const tagOperations = createTagOperationsInstance();
+        vi.spyOn(tagOperations as any, 'executeRename').mockResolvedValue({
+            renamed: 3,
+            total: 3
+        });
+        const metadataSpy = vi.spyOn(tagOperations as any, 'updateTagMetadataAfterRename').mockResolvedValue(undefined);
+        const shortcutsSpy = vi.spyOn(tagOperations as any, 'updateTagShortcutsAfterRename').mockResolvedValue(undefined);
+
+        const result = await (tagOperations as any).runTagRename('projects', 'areas', createRenameTargets(3));
+
+        expect(result).toBe(true);
+        expect(metadataSpy).toHaveBeenCalledWith('projects', 'areas', false);
+        expect(shortcutsSpy).toHaveBeenCalledWith('projects', 'areas');
+    });
+});
+
+describe('TagOperations drag-based tag renames', () => {
+    function createTagOperationsInstance() {
+        const settings = createSettings();
+        const app = { vault: {}, fileManager: {} } as unknown as App;
+        return new TagOperations(
+            app,
+            () => settings,
+            () => null,
+            () => null
+        );
+    }
+
+    it('promotes nested tags to root leaf name', async () => {
+        const tagOperations = createTagOperationsInstance();
+        vi.spyOn(tagOperations as any, 'resolveDisplayTagPath').mockImplementation((path: string) => {
+            if (path === 'sourceTag') {
+                return 'projects/client';
+            }
+            return path;
+        });
+        const renameSpy = vi.spyOn(tagOperations as any, 'runTagRename').mockResolvedValue(true);
+
+        await tagOperations.promoteTagToRoot('sourceTag');
+
+        expect(renameSpy).toHaveBeenCalledWith('projects/client', 'client');
+    });
+
+    it('skips promotion when tag already at root', async () => {
+        const tagOperations = createTagOperationsInstance();
+        vi.spyOn(tagOperations as any, 'resolveDisplayTagPath').mockReturnValue('projects');
+        const renameSpy = vi.spyOn(tagOperations as any, 'runTagRename').mockResolvedValue(true);
+
+        await tagOperations.promoteTagToRoot('projects');
+
+        expect(renameSpy).not.toHaveBeenCalled();
+    });
+
+    it('renames dragged tag under target hierarchy', async () => {
+        const tagOperations = createTagOperationsInstance();
+        vi.spyOn(tagOperations as any, 'resolveDisplayTagPath').mockImplementation((path: string) => {
+            if (path === 'sourceTag') {
+                return 'projects/client';
+            }
+            if (path === 'targetTag') {
+                return 'areas';
+            }
+            return path;
+        });
+        const renameSpy = vi.spyOn(tagOperations as any, 'runTagRename').mockResolvedValue(true);
+
+        await tagOperations.renameTagByDrag('sourceTag', 'targetTag');
+
+        expect(renameSpy).toHaveBeenCalledWith('projects/client', 'areas/client');
+    });
+
+    it('renames dragged tag to root when dropping on empty target', async () => {
+        const tagOperations = createTagOperationsInstance();
+        vi.spyOn(tagOperations as any, 'resolveDisplayTagPath').mockImplementation((path: string) => {
+            if (path === 'sourceTag') {
+                return 'projects/client';
+            }
+            if (path === 'targetTag') {
+                return '';
+            }
+            return path;
+        });
+        const renameSpy = vi.spyOn(tagOperations as any, 'runTagRename').mockResolvedValue(true);
+
+        await tagOperations.renameTagByDrag('sourceTag', 'targetTag');
+
+        expect(renameSpy).toHaveBeenCalledWith('projects/client', 'client');
+    });
+
+    it('skips drag rename when target is virtual tag collection', async () => {
+        const tagOperations = createTagOperationsInstance();
+        const resolveSpy = vi.spyOn(tagOperations as any, 'resolveDisplayTagPath');
+        const renameSpy = vi.spyOn(tagOperations as any, 'runTagRename').mockResolvedValue(true);
+
+        await tagOperations.renameTagByDrag('sourceTag', TAGGED_TAG_ID);
+
+        expect(resolveSpy).not.toHaveBeenCalled();
+        expect(renameSpy).not.toHaveBeenCalled();
     });
 });
