@@ -145,6 +145,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     featureImageSize: 64,
     featureImageForPDF: true,
     featureImagePersistIntermediate: false,
+    noteTitleTransform: [],
 
     // Icon packs tab
     externalIconProviders: {},

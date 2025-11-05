@@ -524,7 +524,11 @@ export const STRINGS_FR = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Apparence'
+                display: 'Apparence',
+                titleTransformAdd: 'Ajouter une nouvelle transformation',
+                titleTransformPatternPlaceholder: 'Expression régulière',
+                titleTransformReplacementPlaceholder: 'Remplacement',
+                titleTransformEmptyTitle: 'Un modèle doit être une expression régulière valide',
             }
         },
         items: {
@@ -855,6 +859,10 @@ export const STRINGS_FR = {
                     '1': '1 ligne',
                     '2': '2 lignes'
                 }
+            },
+            titleTransformName: {
+                name: 'Le titre se transforme',
+                desc: `Remplace le titre entier ou une partie de celui-ci par une valeur personnalisée. Par exemple, vous pouvez l'utiliser pour remplacer «idée» au début du titre d'une note par une icône d'ampoule (Unicode). Utilise la syntaxe «string.replace». Nécessite une reconstruction du cache pour appliquer les modifications aux notes existantes.`
             },
             showFeatureImage: {
                 name: "Afficher l'image vedette",

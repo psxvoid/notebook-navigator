@@ -523,7 +523,11 @@ export const STRINGS_EN = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Appearance'
+                display: 'Appearance',
+                titleTransformAdd: 'Add new transform',
+                titleTransformPatternPlaceholder: 'Regular expression',
+                titleTransformReplacementPlaceholder: 'Replacement',
+                titleTransformEmptyTitle: 'A pattern must be a valid RegExp',
             }
         },
         items: {
@@ -852,6 +856,10 @@ export const STRINGS_EN = {
                     '1': '1 row',
                     '2': '2 rows'
                 }
+            },
+            titleTransformName: {
+                name: 'Title transforms',
+                desc: `Replaces entire title or it's parts with a custom value. For example you can use this to replace "idea" at the start of a note title with a light bulb unicode icon. Uses "string.replace" syntax. Requires rebuilding the cache to apply changes to existing notes.`
             },
             showFeatureImage: {
                 name: 'Show feature image',

@@ -305,6 +305,80 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 })
         );
 
+    const titleGroupEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(titleGroupEl)
+        .setName(strings.settings.items.titleTransformName.name)
+        .setDesc(strings.settings.items.titleTransformName.desc)
+        .addButton((button: ButtonComponent) => {
+            button
+                .setTooltip(strings.settings.groups.notes.titleTransformAdd)
+                .setButtonText('+')
+                .setCta()
+                .onClick(async () => {
+                    plugin.settings.noteTitleTransform.push({
+                        pattern: '',
+                        replacement: ''
+                    });
+                    await plugin.saveSettingsAndUpdate();
+                    addOption({ pattern: '', replacement: '' }, plugin.settings.noteTitleTransform.length - 1)
+                });
+        });
+
+    const addOption = (noteTitleTransform: { pattern: string, replacement: string }, index: number) => {
+        const replacementSettings = new Setting(titleGroupEl)
+        const titleInput = replacementSettings.addText((cb) => {
+            cb.setPlaceholder(strings.settings.groups.notes.titleTransformPatternPlaceholder)
+                .setValue(noteTitleTransform.pattern)
+                .onChange(async (newPattern: string) => {
+                    if (newPattern == null || newPattern.length === 0) {
+                        return new Notice(strings.settings.groups.notes.titleTransformEmptyTitle);
+                    }
+
+                    const currentPattern = plugin.settings.noteTitleTransform[index].pattern
+
+                    if (currentPattern === newPattern) {
+                        return
+                    }
+
+                    plugin.settings.noteTitleTransform[index].pattern = newPattern;
+                    await plugin.saveSettingsAndUpdate();
+                });
+        })
+        const replacementInput = titleInput.addText((cb) => {
+            cb.setPlaceholder(strings.settings.groups.notes.titleTransformReplacementPlaceholder)
+                .setValue(noteTitleTransform.replacement)
+                .onChange(async (newReplacement) => {
+                    if (newReplacement == null) {
+                        return
+                    }
+
+                    const currentReplacement = plugin.settings.noteTitleTransform[index].replacement
+
+                    if (currentReplacement === newReplacement) {
+                        return
+                    }
+
+                    plugin.settings.noteTitleTransform[index].replacement = newReplacement;
+                    await plugin.saveSettingsAndUpdate();
+                });
+        })
+        const deleteButton = replacementInput.addExtraButton((cb) => {
+            cb.setIcon('cross')
+                .setTooltip(strings.common.delete)
+                .onClick(async () => {
+                    plugin.settings.noteTitleTransform.splice(index, 1)
+                    await plugin.saveSettingsAndUpdate()
+                    titleInput.settingEl.remove()
+                    replacementInput.settingEl.remove()
+                    deleteButton.settingEl.remove()
+                });
+        });
+        replacementSettings.infoEl.remove();
+    }
+
+    plugin.settings.noteTitleTransform.forEach(addOption);
+
     // Container for settings that depend on showFileDate being enabled
     const fileDateSubSettingsEl = containerEl.createDiv('nn-sub-settings');
     new Setting(containerEl)
