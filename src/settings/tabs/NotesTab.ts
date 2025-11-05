@@ -326,56 +326,56 @@ export function renderNotesTab(context: SettingsTabContext): void {
         });
 
     const addOption = (noteTitleTransform: { pattern: string, replacement: string }, index: number) => {
-            const replacementSettings = new Setting(titleGroupEl)
-            const titleInput = replacementSettings.addSearch((cb) => {
-                cb.setPlaceholder(strings.settings.groups.notes.titleTransformPatternPlaceholder)
-                    .setValue(noteTitleTransform.pattern)
-                    .onChange(async (newPattern: string) => {
-                        if (newPattern == null || newPattern.length === 0) {
-                            return new Notice(strings.settings.groups.notes.titleTransformEmptyTitle);
-                        }
+        const replacementSettings = new Setting(titleGroupEl)
+        const titleInput = replacementSettings.addText((cb) => {
+            cb.setPlaceholder(strings.settings.groups.notes.titleTransformPatternPlaceholder)
+                .setValue(noteTitleTransform.pattern)
+                .onChange(async (newPattern: string) => {
+                    if (newPattern == null || newPattern.length === 0) {
+                        return new Notice(strings.settings.groups.notes.titleTransformEmptyTitle);
+                    }
 
-                        const currentPattern = plugin.settings.noteTitleTransform[index].pattern
+                    const currentPattern = plugin.settings.noteTitleTransform[index].pattern
 
-                        if (currentPattern === newPattern) {
-                            return
-                        }
+                    if (currentPattern === newPattern) {
+                        return
+                    }
 
-                        plugin.settings.noteTitleTransform[index].pattern = newPattern;
-                        await plugin.saveSettingsAndUpdate();
-                    });
-            })
-            const replacementInput = titleInput.addSearch((cb) => {
-                cb.setPlaceholder(strings.settings.groups.notes.titleTransformReplacementPlaceholder)
-                    .setValue(noteTitleTransform.replacement)
-                    .onChange(async (newReplacement) => {
-                        if (newReplacement == null) {
-                            return
-                        }
+                    plugin.settings.noteTitleTransform[index].pattern = newPattern;
+                    await plugin.saveSettingsAndUpdate();
+                });
+        })
+        const replacementInput = titleInput.addText((cb) => {
+            cb.setPlaceholder(strings.settings.groups.notes.titleTransformReplacementPlaceholder)
+                .setValue(noteTitleTransform.replacement)
+                .onChange(async (newReplacement) => {
+                    if (newReplacement == null) {
+                        return
+                    }
 
-                        const currentReplacement = plugin.settings.noteTitleTransform[index].replacement
+                    const currentReplacement = plugin.settings.noteTitleTransform[index].replacement
 
-                        if (currentReplacement === newReplacement) {
-                            return
-                        }
+                    if (currentReplacement === newReplacement) {
+                        return
+                    }
 
-                        plugin.settings.noteTitleTransform[index].replacement = newReplacement;
-                        await plugin.saveSettingsAndUpdate();
-                    });
-            })
-            const deleteButton = replacementInput.addExtraButton((cb) => {
-                cb.setIcon('cross')
-                    .setTooltip(strings.common.delete)
-                    .onClick(async () => {
-                        plugin.settings.noteTitleTransform.splice(index, 1)
-                        await plugin.saveSettingsAndUpdate()
-                        titleInput.settingEl.remove()
-                        replacementInput.settingEl.remove()
-                        deleteButton.settingEl.remove()
-                    });
-            });
-            replacementSettings.infoEl.remove();
-        }
+                    plugin.settings.noteTitleTransform[index].replacement = newReplacement;
+                    await plugin.saveSettingsAndUpdate();
+                });
+        })
+        const deleteButton = replacementInput.addExtraButton((cb) => {
+            cb.setIcon('cross')
+                .setTooltip(strings.common.delete)
+                .onClick(async () => {
+                    plugin.settings.noteTitleTransform.splice(index, 1)
+                    await plugin.saveSettingsAndUpdate()
+                    titleInput.settingEl.remove()
+                    replacementInput.settingEl.remove()
+                    deleteButton.settingEl.remove()
+                });
+        });
+        replacementSettings.infoEl.remove();
+    }
 
     plugin.settings.noteTitleTransform.forEach(addOption);
 
