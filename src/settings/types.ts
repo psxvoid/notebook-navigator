@@ -163,6 +163,7 @@ export interface NotebookNavigatorSettings {
     featureImageSize: number;
     featureImageForPDF: boolean;
     featureImagePersistIntermediate: boolean;
+    noteTitleTransform: { pattern: string, replacement: string } [],
 
     // Icon packs tab
     externalIconProviders: Record<string, boolean>;

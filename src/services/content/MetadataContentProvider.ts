@@ -24,6 +24,7 @@ import { getDBInstance } from '../../storage/fileOperations';
 import { extractMetadataFromCache } from '../../utils/metadataExtractor';
 import { shouldExcludeFile } from '../../utils/fileFilters';
 import { BaseContentProvider } from './BaseContentProvider';
+import { getFileDisplayName } from 'src/utils/fileNameUtils';
 
 // Compares two arrays for same members regardless of order
 function haveSameMembers(left: string[], right: string[]): boolean {
@@ -36,6 +37,35 @@ function haveSameMembers(left: string[], right: string[]): boolean {
     const sortedLeft = [...left].sort();
     const sortedRight = [...right].sort();
     return sortedLeft.every((value, index) => value === sortedRight[index]);
+}
+
+const regexCache = new Map<string, RegExp>()
+
+export function transformTitle<T extends string | undefined | null>(sourceTitle: T, settings: NotebookNavigatorSettings): T {
+    if (sourceTitle == null || settings.noteTitleTransform.length === 0) {
+        return sourceTitle
+    }
+
+    for (const { pattern, replacement } of settings.noteTitleTransform) {
+        let regExp = regexCache.get(pattern)
+
+        if (regExp == null) {
+            regExp = new RegExp(pattern)
+            regexCache.set(pattern, regExp)
+        }
+
+        const transformedTitle: string = sourceTitle.replace(regExp, replacement)
+
+        if (transformedTitle.length === 0) {
+            return sourceTitle
+        }
+
+        if (transformedTitle.length !== sourceTitle.length || transformedTitle !== sourceTitle) {
+            return transformedTitle as T
+        }
+    }
+
+    return sourceTitle
 }
 
 /**
@@ -192,7 +222,11 @@ export class MetadataContentProvider extends BaseContentProvider {
                 if (processedMetadata.fm !== undefined) fileMetadata.modified = processedMetadata.fm;
                 if (processedMetadata.icon) fileMetadata.icon = processedMetadata.icon;
                 if (processedMetadata.color) fileMetadata.color = processedMetadata.color;
+            } else {
+                fileMetadata.name = getFileDisplayName(job.file, undefined, settings)
             }
+
+            fileMetadata.name = transformTitle(fileMetadata.name, settings)
 
             if (shouldTrackHidden && job.file.extension === 'md') {
                 let hiddenValue: boolean;
