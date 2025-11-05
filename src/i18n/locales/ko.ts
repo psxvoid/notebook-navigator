@@ -832,7 +832,7 @@ export const STRINGS_KO = {
                     '2': '2행'
                 }
             },
-            fileNameTransformName: {
+            titleTransformName: {
                 name: '제목이 변형됩니다',
                 desc: `제목 전체 또는 일부를 사용자 지정 값으로 바꿉니다. 예를 들어 메모 제목 시작 부분의 "idea"를 전구 ​​유니코드 아이콘으로 바꿀 수 있습니다. "string.replace" 구문을 사용합니다. 기존 메모에 변경 사항을 적용하려면 캐시를 다시 빌드해야 합니다.`
             },

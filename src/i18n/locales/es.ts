@@ -833,10 +833,9 @@ export const STRINGS_ES = {
                     '2': '2 filas'
                 }
             },
-            fileNameTransformName: {
+            titleTransformName: {
                 name: 'El título se transforma',
                 desc: `Reemplaza el título completo o partes del mismo con un valor personalizado. Por ejemplo, puedes usarlo para reemplazar «idea» al inicio del título de una nota con un icono Unicode de bombilla. Utiliza la sintaxis «string.replace». Requiere reconstruir la caché para aplicar los cambios a las notas existentes.`
-,
             },
             showFeatureImage: {
                 name: 'Mostrar imagen destacada',

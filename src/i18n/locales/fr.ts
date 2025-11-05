@@ -835,7 +835,7 @@ export const STRINGS_FR = {
                     '2': '2 lignes'
                 }
             },
-            fileNameTransformName: {
+            titleTransformName: {
                 name: 'Le titre se transforme',
                 desc: `Remplace le titre entier ou une partie de celui-ci par une valeur personnalisée. Par exemple, vous pouvez l'utiliser pour remplacer «idée» au début du titre d'une note par une icône d'ampoule (Unicode). Utilise la syntaxe «string.replace». Nécessite une reconstruction du cache pour appliquer les modifications aux notes existantes.`
             },

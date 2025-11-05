@@ -834,7 +834,7 @@ export const STRINGS_PL = {
                     '2': '2 wiersze'
                 }
             },
-            fileNameTransformName: {
+            titleTransformName: {
                 name: 'Tytuł zmienia się',
                 desc: `Zastępuje cały tytuł lub jego fragmenty niestandardową wartością. Na przykład, można użyć tego do zastąpienia słowa „idea” na początku tytułu notatki ikoną żarówki w formacie Unicode. Używa składni „string.replace”. Wymaga przebudowania pamięci podręcznej, aby zastosować zmiany w istniejących notatkach.`
             },

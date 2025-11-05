@@ -836,7 +836,7 @@ export const STRINGS_DE = {
                     '2': '2 Zeilen'
                 }
             },
-            fileNameTransformName: {
+            titleTransformName: {
                 name: 'Titel transformiert',
                 desc: `Ersetzt den gesamten Titel oder Teile davon durch einen benutzerdefinierten Wert. Beispielsweise können Sie damit „Idee“ am Anfang eines Notiztitels durch ein Glühbirnen-Unicode-Symbol ersetzen. Verwendet die Syntax „string.replace“. Der Cache muss neu erstellt werden, damit die Änderungen auf bestehende Notizen angewendet werden.`
             },

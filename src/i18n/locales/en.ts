@@ -832,10 +832,9 @@ export const STRINGS_EN = {
                     '2': '2 rows'
                 }
             },
-            fileNameTransformName: {
+            titleTransformName: {
                 name: 'Title transforms',
                 desc: `Replaces entire title or it's parts with a custom value. For example you can use this to replace "idea" at the start of a note title with a light bulb unicode icon. Uses "string.replace" syntax. Requires rebuilding the cache to apply changes to existing notes.`
-,
             },
             showFeatureImage: {
                 name: 'Show feature image',

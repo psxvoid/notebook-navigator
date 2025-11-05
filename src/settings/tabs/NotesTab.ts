@@ -308,8 +308,8 @@ export function renderNotesTab(context: SettingsTabContext): void {
     const titleGroupEl = containerEl.createDiv('nn-sub-settings');
 
     new Setting(titleGroupEl)
-        .setName(strings.settings.items.fileNameTransformName.name)
-        .setDesc(strings.settings.items.fileNameTransformName.desc)
+        .setName(strings.settings.items.titleTransformName.name)
+        .setDesc(strings.settings.items.titleTransformName.desc)
         .addButton((button: ButtonComponent) => {
             button
                 .setTooltip(strings.settings.groups.notes.titleTransformAdd)
