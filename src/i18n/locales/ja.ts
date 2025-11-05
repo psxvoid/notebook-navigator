@@ -520,7 +520,11 @@ export const STRINGS_JA = {
             },
             notes: {
                 frontmatter: 'フロントマター',
-                display: '外観'
+                display: '外観',
+                titleTransformAdd: '新しい変換を追加',
+                titleTransformPatternPlaceholder: '正規表現',
+                titleTransformReplacementPlaceholder: '交換',
+                titleTransformEmptyTitle: 'パターンは有効な RegExp である必要があります',
             }
         },
         items: {
@@ -829,6 +833,11 @@ export const STRINGS_JA = {
                     '1': '1行',
                     '2': '2行'
                 }
+            },
+            fileNameTransformName: {
+                name: 'タイトルが変わる',
+                desc: `タイトル全体またはその一部をカスタム値に置き換えます。例えば、ノートのタイトルの先頭にある「idea」を電球のUnicodeアイコンに置き換えることができます。「string.replace」構文を使用します。既存のノートに変更を適用するには、キャッシュを再構築する必要があります。`
+,
             },
             showFeatureImage: {
                 name: 'アイキャッチ画像を表示',

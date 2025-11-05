@@ -519,7 +519,11 @@ export const STRINGS_ZH_TW = {
             },
             notes: {
                 frontmatter: '前置元資料',
-                display: '外觀'
+                display: '外觀',
+                titleTransformAdd: '新增變換',
+                titleTransformPatternPlaceholder: '正規表示式',
+                titleTransformReplacementPlaceholder: '替代品',
+                titleTransformEmptyTitle: '模式必須是有效的正規表示式',
             }
         },
         items: {
@@ -826,6 +830,10 @@ export const STRINGS_ZH_TW = {
                     '1': '1 行',
                     '2': '2 行'
                 }
+            },
+            fileNameTransformName: {
+                name: '標題轉換',
+                desc: `將整個標題或其部分內容替換為自訂值。例如，您可以使用此功能將筆記標題開頭的“idea”替換為燈泡 Unicode 圖示。使用“string.replace”語法。要將變更套用到現有筆記，需要重建快取。`
             },
             showFeatureImage: {
                 name: '顯示特色圖片',

@@ -521,7 +521,11 @@ export const STRINGS_PL = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Wygląd'
+                display: 'Wygląd',
+                titleTransformAdd: 'Dodaj nową transformację',
+                titleTransformPatternPlaceholder: 'Wyrażenie regularne',
+                titleTransformReplacementPlaceholder: 'Wymiana',
+                titleTransformEmptyTitle: 'Wzorzec musi być prawidłowym wyrażeniem regularnym',
             }
         },
         items: {
@@ -829,6 +833,10 @@ export const STRINGS_PL = {
                     '1': '1 wiersz',
                     '2': '2 wiersze'
                 }
+            },
+            fileNameTransformName: {
+                name: 'Tytuł zmienia się',
+                desc: `Zastępuje cały tytuł lub jego fragmenty niestandardową wartością. Na przykład, można użyć tego do zastąpienia słowa „idea” na początku tytułu notatki ikoną żarówki w formacie Unicode. Używa składni „string.replace”. Wymaga przebudowania pamięci podręcznej, aby zastosować zmiany w istniejących notatkach.`
             },
             showFeatureImage: {
                 name: 'Pokaż obraz wyróżniający',

@@ -520,7 +520,11 @@ export const STRINGS_ZH_CN = {
             },
             notes: {
                 frontmatter: '前置元数据',
-                display: '外观'
+                display: '外观',
+                titleTransformAdd: '添加新变换',
+                titleTransformPatternPlaceholder: '正则表达式',
+                titleTransformReplacementPlaceholder: '替代品',
+                titleTransformEmptyTitle: '模式必须是有效的正则表达式',
             }
         },
         items: {
@@ -828,6 +832,10 @@ export const STRINGS_ZH_CN = {
                     '1': '1 行',
                     '2': '2 行'
                 }
+            },
+            fileNameTransformName: {
+                name: '标题转换',
+                desc: `将整个标题或其部分内容替换为自定义值。例如，您可以使用此功能将笔记标题开头的“idea”替换为灯泡 Unicode 图标。使用“string.replace”语法。要将更改应用到现有笔记，需要重建缓存。`
             },
             showFeatureImage: {
                 name: '显示特色图片',

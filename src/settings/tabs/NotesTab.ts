@@ -307,13 +307,12 @@ export function renderNotesTab(context: SettingsTabContext): void {
 
     const titleGroupEl = containerEl.createDiv('nn-sub-settings');
 
-
     new Setting(titleGroupEl)
-        .setName('Title Transform')
-        .setDesc('TBD')
+        .setName(strings.settings.items.fileNameTransformName.name)
+        .setDesc(strings.settings.items.fileNameTransformName.desc)
         .addButton((button: ButtonComponent) => {
             button
-                .setTooltip('Add new transform')
+                .setTooltip(strings.settings.groups.notes.titleTransformAdd)
                 .setButtonText('+')
                 .setCta()
                 .onClick(async () => {
@@ -329,11 +328,11 @@ export function renderNotesTab(context: SettingsTabContext): void {
     const addOption = (noteTitleTransform: { pattern: string, replacement: string }, index: number) => {
             const replacementSettings = new Setting(titleGroupEl)
             const titleInput = replacementSettings.addSearch((cb) => {
-                cb.setPlaceholder('Title RegEx')
+                cb.setPlaceholder(strings.settings.groups.notes.titleTransformPatternPlaceholder)
                     .setValue(noteTitleTransform.pattern)
                     .onChange(async (newPattern: string) => {
                         if (newPattern == null || newPattern.length === 0) {
-                            return new Notice(`A pattern must be a valid RegExp.`);
+                            return new Notice(strings.settings.groups.notes.titleTransformEmptyTitle);
                         }
 
                         const currentPattern = plugin.settings.noteTitleTransform[index].pattern
@@ -347,7 +346,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
                     });
             })
             const replacementInput = titleInput.addSearch((cb) => {
-                cb.setPlaceholder('Replacement')
+                cb.setPlaceholder(strings.settings.groups.notes.titleTransformReplacementPlaceholder)
                     .setValue(noteTitleTransform.replacement)
                     .onChange(async (newReplacement) => {
                         if (newReplacement == null) {
@@ -366,7 +365,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
             })
             const deleteButton = replacementInput.addExtraButton((cb) => {
                 cb.setIcon('cross')
-                    .setTooltip('Delete')
+                    .setTooltip(strings.common.delete)
                     .onClick(async () => {
                         plugin.settings.noteTitleTransform.splice(index, 1)
                         await plugin.saveSettingsAndUpdate()
