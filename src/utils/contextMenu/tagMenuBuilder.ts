@@ -20,7 +20,7 @@ import { MenuItem } from 'obsidian';
 import { TagMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { cleanupTagPatterns, createHiddenTagMatcher, matchesHiddenTagPattern } from '../tagPrefixMatcher';
-import { ItemType, UNTAGGED_TAG_ID } from '../../types';
+import { ItemType, TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../../types';
 import { normalizeTagPath } from '../tagUtils';
 import { resetHiddenToggleIfNoSources } from '../exclusionUtils';
 
@@ -36,6 +36,28 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
         menu.addItem((item: MenuItem) => {
             item.setTitle(`#${tagPath}`).setIsLabel(true);
         });
+    }
+
+    // Add rename option for user-created tags
+    const isVirtualTag = tagPath === UNTAGGED_TAG_ID || tagPath === TAGGED_TAG_ID;
+    if (!isVirtualTag) {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.modals.tagOperation.confirmRename)
+                .setIcon('lucide-pencil')
+                .onClick(() => {
+                    void services.tagOperations.promptRenameTag(tagPath);
+                });
+        });
+
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.modals.tagOperation.confirmDelete)
+                .setIcon('lucide-trash-2')
+                .onClick(() => {
+                    void services.tagOperations.promptDeleteTag(tagPath);
+                });
+        });
+
+        menu.addSeparator();
     }
 
     if (services.shortcuts) {

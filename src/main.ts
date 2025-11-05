@@ -448,9 +448,14 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.homepageController = new HomepageController(this, this.workspaceCoordinator);
 
         // Initialize services
-        this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
-        this.tagOperations = new TagOperations(this.app, () => this.settings);
         this.tagTreeService = new TagTreeService();
+        this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
+        this.tagOperations = new TagOperations(
+            this.app,
+            () => this.settings,
+            () => this.tagTreeService,
+            () => this.metadataService
+        );
         this.commandQueue = new CommandQueueService(this.app);
         this.fileSystemOps = new FileSystemOperations(
             this.app,

@@ -25,13 +25,14 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { strings } from '../i18n';
-import { ItemType, UNTAGGED_TAG_ID } from '../types';
+import { ItemType, TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import { SHORTCUT_DRAG_MIME } from '../types/shortcuts';
-import { DragManagerPayload, hasDragManager, TIMEOUTS } from '../types/obsidian-extended';
+import { DragManagerPayload, TAG_DRAG_MIME, hasDragManager, TIMEOUTS } from '../types/obsidian-extended';
 import { getPathFromDataAttribute } from '../utils/domUtils';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { generateUniqueFilename } from '../utils/fileCreationUtils';
 import { createDragGhostManager } from '../utils/dragGhost';
+import { normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 
 /**
  * Enables drag and drop for files and folders using event delegation.
@@ -72,6 +73,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const expandedFoldersRef = useRef(expansionState.expandedFolders);
     const expandedTagsRef = useRef(expansionState.expandedTags);
     const dragTypeRef = useRef<DragItemType | null>(null);
+    // Stores display path of dragged tag for rename operations
+    const dragTagDisplayRef = useRef<string | null>(null);
+    // Stores canonical path of dragged tag for comparison and validation
+    const dragTagCanonicalRef = useRef<string | null>(null);
     const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
 
     /**
@@ -178,6 +183,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             const path = getPathFromDataAttribute(draggable, 'data-drag-path');
             const type = draggable.getAttribute('data-drag-type');
+            const canonicalTag = draggable.getAttribute('data-drag-canonical');
             const iconIdAttr = draggable.getAttribute('data-drag-icon');
             const iconColorAttr = draggable.getAttribute('data-drag-icon-color');
             const iconId = iconIdAttr && iconIdAttr.trim().length > 0 ? iconIdAttr : undefined;
@@ -196,7 +202,6 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 e.dataTransfer.effectAllowed = 'all';
                 dragTypeRef.current = ItemType.FILE;
 
-                // Set drag manager payload for other plugins to access
                 const draggedFiles = getFilesFromPaths(selectedPaths);
                 if (draggedFiles.length > 0) {
                     setDragManagerPayload({
@@ -244,20 +249,34 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             }
             e.dataTransfer.effectAllowed = 'all';
 
-            // Generate markdown link for single file drag and set drag manager payload
             if (type === ItemType.FILE) {
                 const file = app.vault.getFileByPath(path);
                 if (file) {
                     const src = app.workspace.getActiveFile()?.path ?? '';
                     const link = app.fileManager.generateMarkdownLink(file, src);
                     e.dataTransfer.setData('text/plain', link);
-                    // Set drag manager payload for other plugins to access
                     setDragManagerPayload({
                         type: 'file',
                         file,
                         title: file.basename
                     });
                 }
+            } else if (type === ItemType.TAG) {
+                dragTagDisplayRef.current = path;
+                dragTagCanonicalRef.current = canonicalTag ?? null;
+                try {
+                    const tagPayload = {
+                        displayPath: path,
+                        canonicalPath: canonicalTag ?? normalizeTagPathValue(path)
+                    };
+                    e.dataTransfer.setData(TAG_DRAG_MIME, JSON.stringify(tagPayload));
+                } catch (error) {
+                    console.error('[Notebook Navigator] Failed to attach tag drag payload', error);
+                }
+                setDragManagerPayload({
+                    type: 'tag',
+                    title: path
+                });
             }
 
             draggable.classList.add('nn-dragging');
@@ -397,7 +416,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const handleDragOver = useCallback(
         (e: DragEvent) => {
             if (!isHTMLElement(e.target)) return;
-            const dropZone = e.target.closest<HTMLElement>('[data-drop-zone="folder"],[data-drop-zone="tag"]');
+            const dropZone = e.target.closest<HTMLElement>('[data-drop-zone="folder"],[data-drop-zone="tag"],[data-drop-zone="tag-root"]');
             const isShortcutDrag = Boolean(e.dataTransfer?.types?.includes(SHORTCUT_DRAG_MIME));
 
             if (dragOverElement.current && dragOverElement.current !== dropZone) {
@@ -454,6 +473,15 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
                 // Folder: move (internal) / copy (external); Tag: untagged = move, tag = copy
                 if (dropType === 'folder') {
+                    if (dragTypeRef.current === ItemType.TAG) {
+                        if (dragOverElement.current === dropZone) {
+                            dropZone.classList.remove('nn-drag-over');
+                            dragOverElement.current = null;
+                        }
+                        clearAutoExpandTimer();
+                        e.dataTransfer.dropEffect = 'none';
+                        return;
+                    }
                     e.dataTransfer.dropEffect = isExternal ? 'copy' : 'move';
                     if (targetPath) {
                         scheduleFolderAutoExpand(targetPath);
@@ -479,6 +507,20 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     } else {
                         clearAutoExpandTimer();
                     }
+                }
+
+                if (dropType === 'tag-root') {
+                    if (dragTypeRef.current !== ItemType.TAG) {
+                        if (dragOverElement.current === dropZone) {
+                            dropZone.classList.remove('nn-drag-over');
+                            dragOverElement.current = null;
+                        }
+                        clearAutoExpandTimer();
+                        e.dataTransfer.dropEffect = 'none';
+                        return;
+                    }
+                    e.dataTransfer.dropEffect = 'move';
+                    clearAutoExpandTimer();
                 }
             }
 
@@ -722,7 +764,46 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
                 e.preventDefault();
 
+                if (dropType === 'tag-root') {
+                    if (dragTypeRef.current === ItemType.TAG) {
+                        const sourceDisplay = dragTagDisplayRef.current;
+                        if (!sourceDisplay) {
+                            return;
+                        }
+                        await tagOperations.promoteTagToRoot(sourceDisplay);
+                    }
+                    return;
+                }
+
                 if (dropType === 'tag') {
+                    // Handle tag-to-tag drag for renaming and restructuring
+                    if (dragTypeRef.current === ItemType.TAG) {
+                        const sourceDisplay = dragTagDisplayRef.current;
+                        const sourceCanonical = dragTagCanonicalRef.current;
+                        if (!sourceDisplay || !sourceCanonical) {
+                            return;
+                        }
+                        const targetCanonical = dropZone.getAttribute('data-tag') ?? '';
+                        // Reject drops on virtual tags
+                        if (targetPath === UNTAGGED_TAG_ID) {
+                            return;
+                        }
+                        if (targetCanonical === TAGGED_TAG_ID || targetPath === TAGGED_TAG_ID) {
+                            return;
+                        }
+                        // Reject drops on same tag
+                        if (targetCanonical === sourceCanonical) {
+                            return;
+                        }
+                        // Reject drops that would create descendant rename
+                        if (targetCanonical.startsWith(`${sourceCanonical}/`)) {
+                            new Notice(strings.modals.tagOperation.descendantRenameError);
+                            return;
+                        }
+                        await tagOperations.renameTagByDrag(sourceDisplay, targetPath);
+                        return;
+                    }
+
                     if (dragTypeRef.current === ItemType.FOLDER) {
                         return;
                     }
@@ -733,6 +814,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
 
                     await handleTagDrop(e, targetPath);
+                    return;
+                }
+
+                if (dropType === 'folder' && dragTypeRef.current === ItemType.TAG) {
                     return;
                 }
 
@@ -800,9 +885,20 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 // Clean up drag state and payload after drop completes
                 setDragManagerPayload(null);
                 dragTypeRef.current = null;
+                dragTagDisplayRef.current = null;
+                dragTagCanonicalRef.current = null;
             }
         },
-        [app, handleTagDrop, handleExternalFileDrop, moveFilesWithContext, getFilesFromPaths, clearAutoExpandTimer, setDragManagerPayload]
+        [
+            app,
+            handleTagDrop,
+            handleExternalFileDrop,
+            moveFilesWithContext,
+            getFilesFromPaths,
+            clearAutoExpandTimer,
+            setDragManagerPayload,
+            tagOperations
+        ]
     );
 
     /**
@@ -861,6 +957,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             setDragManagerPayload(null);
             clearAutoExpandTimer();
             dragTypeRef.current = null;
+            dragTagDisplayRef.current = null;
+            dragTagCanonicalRef.current = null;
         },
         [selectionState, containerRef, dragGhostManager, clearAutoExpandTimer, setDragManagerPayload]
     );

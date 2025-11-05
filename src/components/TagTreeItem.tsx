@@ -94,6 +94,8 @@ interface TagTreeItemProps {
     isHidden?: boolean;
     /** Indicates if the tag is referenced by the active search query */
     searchMatch?: 'include' | 'exclude';
+    /** Enables drag and drop for tag reordering */
+    isDraggable: boolean;
 }
 
 /**
@@ -117,7 +119,8 @@ export const TagTreeItem = React.memo(
             color,
             backgroundColor,
             icon,
-            searchMatch
+            searchMatch,
+            isDraggable
         },
         ref
     ) {
@@ -160,6 +163,8 @@ export const TagTreeItem = React.memo(
         const tagIcon = icon;
         // Determine whether to apply color to the tag name instead of the icon
         const applyColorToName = Boolean(tagColor) && !settings.colorIconOnly;
+        // Use custom icon or default to tags icon for drag ghost
+        const dragIconId = tagIcon || 'lucide-tags';
 
         // Memoize className to avoid string concatenation on every render
         const className = useMemo(() => {
@@ -243,7 +248,21 @@ export const TagTreeItem = React.memo(
                 data-drop-zone="tag"
                 // Target path for drop operations on this tag
                 data-drop-path={tagNode.displayPath}
+                // Display path used as drag source identifier
+                data-drag-path={tagNode.displayPath}
+                // Canonical lowercase path for comparison operations
+                data-drag-canonical={tagNode.path}
+                // Identifies element as a tag for drag operations
+                data-drag-type="tag"
+                // Marks element as draggable for drag handler filtering
+                data-draggable={isDraggable ? 'true' : undefined}
+                // Icon displayed in drag ghost
+                data-drag-icon={dragIconId}
+                // Optional color applied to drag ghost icon
+                data-drag-icon-color={tagColor || undefined}
                 data-level={level}
+                // Enable native drag and drop when not on mobile and not a virtual tag
+                draggable={isDraggable}
                 style={
                     {
                         '--level': level,

@@ -263,6 +263,10 @@ export const STRINGS_FR = {
             affectedFiles: '{count} fichier(s) affecté(s)',
             andMore: 'et {count} de plus...',
             confirmRename: "Renommer l'étiquette",
+            renameUnchanged: '{tag} inchangé',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: "Entrez un nom d'étiquette valide.",
+            descendantRenameError: 'Impossible de déplacer une étiquette dans elle-même ou un descendant.',
             confirmDelete: "Supprimer l'étiquette",
             file: 'fichier',
             files: 'fichiers'

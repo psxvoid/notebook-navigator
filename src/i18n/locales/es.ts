@@ -263,6 +263,10 @@ export const STRINGS_ES = {
             affectedFiles: '{count} archivo(s) afectado(s)',
             andMore: 'y {count} más...',
             confirmRename: 'Renombrar etiqueta',
+            renameUnchanged: '{tag} sin cambios',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: 'Introduce un nombre de etiqueta válido.',
+            descendantRenameError: 'No se puede mover una etiqueta dentro de sí misma o un descendiente.',
             confirmDelete: 'Eliminar etiqueta',
             file: 'archivo',
             files: 'archivos'

@@ -264,6 +264,10 @@ export const STRINGS_IT = {
             affectedFiles: 'File interessati:',
             andMore: '...e altri {count}',
             confirmRename: 'Rinomina tag',
+            renameUnchanged: '{tag} non modificato',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: 'Inserisci un nome tag valido.',
+            descendantRenameError: 'Impossibile spostare un tag in se stesso o in un discendente.',
             confirmDelete: 'Elimina tag',
             file: 'file',
             files: 'file'

@@ -264,6 +264,10 @@ export const STRINGS_PT_BR = {
             affectedFiles: 'Arquivos afetados:',
             andMore: '...e mais {count}',
             confirmRename: 'Renomear tag',
+            renameUnchanged: '{tag} sem alterações',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: 'Digite um nome de tag válido.',
+            descendantRenameError: 'Não é possível mover uma tag para dentro de si mesma ou um descendente.',
             confirmDelete: 'Excluir tag',
             file: 'arquivo',
             files: 'arquivos'

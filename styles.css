@@ -2556,6 +2556,11 @@ body.nn-resizing {
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
+[data-drop-zone='tag-root'].nn-drag-over {
+    background-color: var(--nn-theme-tag-positive-bg-solid, var(--nn-theme-tag-positive-bg));
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
+}
+
 /* Different style for untagged drop zone - uses pre-composited solid color */
 [data-drop-zone='tag'][data-tag='__untagged__'].nn-drag-over {
     background-color: var(--nn-theme-tag-negative-bg-solid, var(--nn-theme-tag-negative-bg));
