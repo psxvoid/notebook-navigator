@@ -138,6 +138,7 @@ export async function recordFileChanges(
     const db = getDBInstance();
     const updates: { path: string; data: FileDataCache }[] = [];
 
+    let shouldEmit = false
     for (const file of files) {
         const existing = existingData.get(file.path);
         const renamed = renamedData?.get(file.path);
@@ -150,6 +151,7 @@ export async function recordFileChanges(
                 };
                 updates.push({ path: file.path, data: clonedData });
                 renamedData?.delete(file.path);
+                shouldEmit = true
                 continue;
             }
             // New file - initialize with null content
@@ -173,13 +175,14 @@ export async function recordFileChanges(
             };
             updates.push({ path: file.path, data: mergedData });
             renamedData?.delete(file.path);
+            shouldEmit = true
         }
         // If file was actually modified (existing.mtime !== file.stat.mtime),
         // we intentionally skip the update. Content providers will detect
         // the mtime mismatch and regenerate content as needed.
     }
 
-    await db.setFiles(updates, true);
+    await db.setFiles(updates, shouldEmit);
 }
 
 /**
