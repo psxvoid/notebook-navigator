@@ -172,6 +172,8 @@ export const STRINGS_ZH_TW = {
             newDrawing: '新繪圖',
             duplicateFolder: '複製資料夾',
             searchInFolder: '在此資料夾中搜尋',
+            copyPath: '複製路徑',
+            copyRelativePath: '複製相對路徑',
             createFolderNote: '建立資料夾筆記',
             deleteFolderNote: '刪除資料夾筆記',
             changeIcon: '變更圖示',

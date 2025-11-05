@@ -174,6 +174,8 @@ export const STRINGS_DE = {
             newDrawing: 'Neue Zeichnung',
             duplicateFolder: 'Ordner duplizieren',
             searchInFolder: 'In Ordner suchen',
+            copyPath: 'Pfad kopieren',
+            copyRelativePath: 'Relativen Pfad kopieren',
             createFolderNote: 'Ordnernotiz erstellen',
             deleteFolderNote: 'Ordnernotiz löschen',
             changeIcon: 'Symbol ändern',

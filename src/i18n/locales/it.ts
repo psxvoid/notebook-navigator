@@ -173,6 +173,8 @@ export const STRINGS_IT = {
             newDrawing: 'Nuovo disegno',
             duplicateFolder: 'Duplica cartella',
             searchInFolder: 'Cerca nella cartella',
+            copyPath: 'Copia percorso',
+            copyRelativePath: 'Copia percorso relativo',
             createFolderNote: 'Crea nota cartella',
             deleteFolderNote: 'Elimina nota cartella',
             changeIcon: 'Cambia icona',

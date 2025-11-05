@@ -171,6 +171,8 @@ export const STRINGS_KO = {
             newDrawing: '새 드로잉',
             duplicateFolder: '폴더 복제',
             searchInFolder: '폴더에서 검색',
+            copyPath: '경로 복사',
+            copyRelativePath: '상대 경로 복사',
             createFolderNote: '폴더 노트 만들기',
             deleteFolderNote: '폴더 노트 삭제',
             changeIcon: '아이콘 변경',

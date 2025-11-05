@@ -172,6 +172,8 @@ export const STRINGS_ZH_CN = {
             newDrawing: '新建绘图',
             duplicateFolder: '复制文件夹',
             searchInFolder: '在文件夹中搜索',
+            copyPath: '复制路径',
+            copyRelativePath: '复制相对路径',
             createFolderNote: '创建文件夹笔记',
             deleteFolderNote: '删除文件夹笔记',
             changeIcon: '更改图标',

@@ -171,6 +171,8 @@ export const STRINGS_PL = {
             newDrawing: 'Nowy rysunek',
             duplicateFolder: 'Duplikuj folder',
             searchInFolder: 'Szukaj w folderze',
+            copyPath: 'Kopiuj ścieżkę',
+            copyRelativePath: 'Kopiuj ścieżkę względną',
             createFolderNote: 'Utwórz notatkę folderu',
             deleteFolderNote: 'Usuń notatkę folderu',
             changeIcon: 'Zmień ikonę',

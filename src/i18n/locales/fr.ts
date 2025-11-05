@@ -172,6 +172,8 @@ export const STRINGS_FR = {
             newDrawing: 'Nouveau dessin',
             duplicateFolder: 'Dupliquer le dossier',
             searchInFolder: 'Rechercher dans le dossier',
+            copyPath: 'Copier le chemin',
+            copyRelativePath: 'Copier le chemin relatif',
             createFolderNote: 'Créer une note de dossier',
             deleteFolderNote: 'Supprimer la note de dossier',
             changeIcon: "Changer l'icône",

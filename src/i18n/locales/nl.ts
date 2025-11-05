@@ -173,6 +173,8 @@ export const STRINGS_NL = {
             newDrawing: 'Nieuwe tekening',
             duplicateFolder: 'Map dupliceren',
             searchInFolder: 'Zoeken in map',
+            copyPath: 'Pad kopiëren',
+            copyRelativePath: 'Relatief pad kopiëren',
             createFolderNote: 'Mapnotitie maken',
             deleteFolderNote: 'Mapnotitie verwijderen',
             changeIcon: 'Pictogram wijzigen',

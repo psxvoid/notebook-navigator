@@ -172,6 +172,8 @@ export const STRINGS_EN = {
             newDrawing: 'New drawing',
             duplicateFolder: 'Duplicate folder',
             searchInFolder: 'Search in folder',
+            copyPath: 'Copy path',
+            copyRelativePath: 'Copy relative path',
             createFolderNote: 'Create folder note',
             deleteFolderNote: 'Delete folder note',
             changeIcon: 'Change icon',

@@ -172,6 +172,8 @@ export const STRINGS_JA = {
             newDrawing: '新規図面',
             duplicateFolder: 'フォルダを複製',
             searchInFolder: 'フォルダ内を検索',
+            copyPath: 'パスをコピー',
+            copyRelativePath: '相対パスをコピー',
             createFolderNote: 'フォルダノートを作成',
             deleteFolderNote: 'フォルダーノートを削除',
             changeIcon: 'アイコンを変更',
