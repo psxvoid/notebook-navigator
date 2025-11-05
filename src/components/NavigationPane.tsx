@@ -115,6 +115,7 @@ import { isVirtualTagCollectionId } from '../utils/virtualTagCollections';
 import { compositeWithBase } from '../utils/colorUtils';
 import { useSurfaceColorVariables } from '../hooks/useSurfaceColorVariables';
 import { NAVIGATION_PANE_SURFACE_COLOR_MAPPINGS } from '../constants/surfaceColorMappings';
+import { TAG_DRAG_MIME } from '../types/obsidian-extended';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (itemType: ItemType, path: string) => number;
@@ -178,7 +179,8 @@ export const NavigationPane = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const shortcuts = useShortcuts();
-        const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts, addFolderShortcut, addNoteShortcut } = shortcuts;
+        const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts, addFolderShortcut, addNoteShortcut, addTagShortcut } =
+            shortcuts;
         const { fileData, getFileDisplayName } = useFileCache();
         const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
         // Detect Android platform for mobile-specific UI behavior
@@ -480,7 +482,8 @@ export const NavigationPane = React.memo(
                 }
 
                 const hasObsidianFiles = types.includes('obsidian/file') || types.includes('obsidian/files');
-                if (!hasObsidianFiles) {
+                const hasTagPayload = types.includes(TAG_DRAG_MIME);
+                if (!hasObsidianFiles && !hasTagPayload) {
                     setExternalShortcutDropIndex(null);
                     return false;
                 }
@@ -510,6 +513,42 @@ export const NavigationPane = React.memo(
                 if (types.includes(SHORTCUT_DRAG_MIME)) {
                     setExternalShortcutDropIndex(null);
                     return false;
+                }
+
+                const tagPayloadRaw = dataTransfer.getData(TAG_DRAG_MIME);
+                if (tagPayloadRaw) {
+                    let droppedTagPath: string | null = null;
+                    try {
+                        const parsed = JSON.parse(tagPayloadRaw);
+                        if (typeof parsed === 'string') {
+                            droppedTagPath = parsed;
+                        } else if (parsed && typeof parsed === 'object') {
+                            const candidate =
+                                (typeof parsed.canonicalPath === 'string' && parsed.canonicalPath.length > 0
+                                    ? parsed.canonicalPath
+                                    : null) ??
+                                (typeof parsed.displayPath === 'string' && parsed.displayPath.length > 0 ? parsed.displayPath : null);
+                            droppedTagPath = candidate ?? null;
+                        }
+                    } catch {
+                        const trimmed = tagPayloadRaw.trim();
+                        if (trimmed.length > 0) {
+                            droppedTagPath = trimmed;
+                        }
+                    }
+
+                    if (droppedTagPath) {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const baseInsertIndex = computeShortcutInsertIndex(event, key);
+                        void (async () => {
+                            await addTagShortcut(droppedTagPath, { index: Math.max(0, baseInsertIndex) });
+                        })();
+
+                        setExternalShortcutDropIndex(null);
+                        return true;
+                    }
                 }
 
                 const rawPaths: string[] = [];
@@ -597,7 +636,15 @@ export const NavigationPane = React.memo(
                 setExternalShortcutDropIndex(null);
                 return true;
             },
-            [addFolderShortcut, addNoteShortcut, app.vault, computeShortcutInsertIndex, shortcutsExpanded, settings.showShortcuts]
+            [
+                addFolderShortcut,
+                addNoteShortcut,
+                addTagShortcut,
+                app.vault,
+                computeShortcutInsertIndex,
+                shortcutsExpanded,
+                settings.showShortcuts
+            ]
         );
 
         const handleShortcutDragLeave = useCallback(() => {
@@ -2021,6 +2068,15 @@ export const NavigationPane = React.memo(
                             }
                         }
 
+                        const dropConfig =
+                            virtualFolder.id === 'tags-root'
+                                ? {
+                                      zone: 'tag-root',
+                                      path: '__nn-tag-root__',
+                                      allowExternalDrop: false
+                                  }
+                                : undefined;
+
                         return (
                             <VirtualFolderComponent
                                 virtualFolder={virtualFolder}
@@ -2040,6 +2096,7 @@ export const NavigationPane = React.memo(
                                 onDragOver={isShortcutsGroup && allowEmptyShortcutDrop ? handleShortcutRootDragOver : undefined}
                                 onDrop={isShortcutsGroup && allowEmptyShortcutDrop ? handleShortcutRootDrop : undefined}
                                 onDragLeave={isShortcutsGroup && allowEmptyShortcutDrop ? handleShortcutRootDragLeave : undefined}
+                                dropConfig={dropConfig}
                             />
                         );
                     }
@@ -2091,6 +2148,7 @@ export const NavigationPane = React.memo(
                                 backgroundColor={getSolidBackground(item.backgroundColor)}
                                 icon={item.icon}
                                 searchMatch={searchMatch}
+                                isDraggable={!isMobile && tagNode.path !== UNTAGGED_TAG_ID && tagNode.path !== TAGGED_TAG_ID}
                                 onToggleAllSiblings={() => {
                                     const isCurrentlyExpanded = expansionState.expandedTags.has(tagNode.path);
 
@@ -2187,6 +2245,8 @@ export const NavigationPane = React.memo(
                 allowEmptyShortcutDrop,
                 getMissingNoteLabel,
                 handleShortcutFolderNoteClick,
+                isMobile,
+                useMobileReorderMenu,
                 tagsVirtualFolderHasChildren,
                 searchIncludeTokenSet,
                 searchExcludeTokenSet,
@@ -2194,7 +2254,6 @@ export const NavigationPane = React.memo(
                 highlightExcludeTagged,
                 highlightIncludeUntagged,
                 getSolidBackground,
-                useMobileReorderMenu,
                 vaultChangeVersion
             ]
         );

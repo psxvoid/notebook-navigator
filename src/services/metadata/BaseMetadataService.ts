@@ -71,12 +71,15 @@ export abstract class BaseMetadataService {
      * Saves settings and triggers UI update
      * Uses a queue to serialize updates and prevent race conditions
      */
-    protected async saveAndUpdate(updater: (settings: NotebookNavigatorSettings) => void): Promise<void> {
+    protected async saveAndUpdate(updater: (settings: NotebookNavigatorSettings) => void | boolean): Promise<void> {
         // Queue this update to run after any pending updates
         this.updateQueue = this.updateQueue
             .then(async () => {
                 // Update settings
-                updater(this.settingsProvider.settings);
+                const result = updater(this.settingsProvider.settings);
+                if (result === false) {
+                    return;
+                }
                 // Save settings
                 await this.settingsProvider.saveSettingsAndUpdate();
             })
@@ -417,14 +420,19 @@ export abstract class BaseMetadataService {
      * Updates nested paths when a parent is renamed
      * Handles both direct matches and nested children
      */
-    protected updateNestedPaths<T>(metadata: Record<string, T> | undefined, oldPath: string, newPath: string): boolean {
+    protected updateNestedPaths<T>(
+        metadata: Record<string, T> | undefined,
+        oldPath: string,
+        newPath: string,
+        preserveExisting = false
+    ): boolean {
         if (!metadata) return false;
 
         const oldPrefix = `${oldPath}/`;
         const updates: { oldPath: string; newPath: string; value: T }[] = [];
 
         // First, handle direct path match
-        if (oldPath in metadata) {
+        if (Object.prototype.hasOwnProperty.call(metadata, oldPath)) {
             updates.push({
                 oldPath: oldPath,
                 newPath: newPath,
@@ -433,7 +441,8 @@ export abstract class BaseMetadataService {
         }
 
         // Then handle nested paths
-        for (const path in metadata) {
+        const metadataKeys = Object.keys(metadata);
+        for (const path of metadataKeys) {
             if (path.startsWith(oldPrefix)) {
                 const newNestedPath = `${newPath}/${path.slice(oldPrefix.length)}`;
                 updates.push({
@@ -444,13 +453,29 @@ export abstract class BaseMetadataService {
             }
         }
 
+        let changed = false;
+
         // Apply all updates
         for (const update of updates) {
+            if (update.oldPath === update.newPath) {
+                continue;
+            }
+
+            const newPathExists = Object.prototype.hasOwnProperty.call(metadata, update.newPath);
+            if (newPathExists && preserveExisting) {
+                if (update.oldPath !== update.newPath) {
+                    delete metadata[update.oldPath];
+                    changed = true;
+                }
+                continue;
+            }
+
             metadata[update.newPath] = update.value;
             delete metadata[update.oldPath];
+            changed = true;
         }
 
-        return updates.length > 0;
+        return changed;
     }
 
     /**

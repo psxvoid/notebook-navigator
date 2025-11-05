@@ -215,6 +215,174 @@ export class TagMetadataService extends BaseMetadataService {
     }
 
     /**
+     * Checks if metadata exists for a tag path or any of its descendants.
+     */
+    private hasTagMetadataForPath(settings: NotebookNavigatorSettings, path: string): boolean {
+        const prefix = `${path}/`;
+        const records: (Record<string, unknown> | undefined)[] = [
+            settings.tagColors,
+            settings.tagBackgroundColors,
+            settings.tagIcons,
+            settings.tagSortOverrides,
+            settings.tagAppearances
+        ];
+
+        for (const record of records) {
+            if (!record) {
+                continue;
+            }
+            if (Object.prototype.hasOwnProperty.call(record, path)) {
+                return true;
+            }
+            for (const key in record) {
+                if (key.startsWith(prefix)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Removes metadata entries matching the specified path or prefix
+     * Returns true if any entries were removed
+     */
+    private removeTagMetadataForPath<T>(metadata: Record<string, T> | undefined, path: string, prefix: string): boolean {
+        if (!metadata) {
+            return false;
+        }
+
+        let changed = false;
+        const keys = Object.keys(metadata);
+        for (const key of keys) {
+            if (key === path || key.startsWith(prefix)) {
+                delete metadata[key];
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    /**
+     * Checks if settings contain any hidden tags matching the path or its descendants
+     */
+    private hasHiddenTagForPath(settings: NotebookNavigatorSettings, path: string): boolean {
+        return Array.isArray(settings.hiddenTags)
+            ? settings.hiddenTags.some(tag => {
+                  const normalized = normalizeTagPath(tag);
+                  if (!normalized) {
+                      return false;
+                  }
+                  return normalized === path || normalized.startsWith(`${path}/`);
+              })
+            : false;
+    }
+
+    /**
+     * Checks if updateNestedPaths would modify a metadata record without mutating it
+     */
+    private willUpdateNestedPaths<T>(
+        metadata: Record<string, T> | undefined,
+        oldPath: string,
+        newPath: string,
+        preserveExisting: boolean
+    ): boolean {
+        if (!metadata) {
+            return false;
+        }
+        const clone = { ...metadata };
+        return this.updateNestedPaths(clone, oldPath, newPath, preserveExisting);
+    }
+
+    /**
+     * Updates all tag metadata entries when a tag is renamed.
+     * Migrates direct entries and nested descendants to the new path.
+     */
+    async handleTagRename(oldPath: string, newPath: string, preserveExisting = false): Promise<void> {
+        const normalizedOld = normalizeTagPath(oldPath);
+        const normalizedNew = normalizeTagPath(newPath);
+        if (!normalizedOld || !normalizedNew || normalizedOld === normalizedNew) {
+            return;
+        }
+
+        const settingsSnapshot = this.settingsProvider.settings;
+        if (!this.hasTagMetadataForPath(settingsSnapshot, normalizedOld)) {
+            return;
+        }
+
+        const requiresUpdate =
+            this.willUpdateNestedPaths(settingsSnapshot.tagColors, normalizedOld, normalizedNew, preserveExisting) ||
+            this.willUpdateNestedPaths(settingsSnapshot.tagBackgroundColors, normalizedOld, normalizedNew, preserveExisting) ||
+            this.willUpdateNestedPaths(settingsSnapshot.tagIcons, normalizedOld, normalizedNew, preserveExisting) ||
+            this.willUpdateNestedPaths(settingsSnapshot.tagSortOverrides, normalizedOld, normalizedNew, preserveExisting) ||
+            this.willUpdateNestedPaths(settingsSnapshot.tagAppearances, normalizedOld, normalizedNew, preserveExisting);
+
+        if (!requiresUpdate) {
+            return;
+        }
+
+        await this.saveAndUpdate(settings => {
+            let changed = false;
+            changed = this.updateNestedPaths(settings.tagColors, normalizedOld, normalizedNew, preserveExisting) || changed;
+            changed = this.updateNestedPaths(settings.tagBackgroundColors, normalizedOld, normalizedNew, preserveExisting) || changed;
+            changed = this.updateNestedPaths(settings.tagIcons, normalizedOld, normalizedNew, preserveExisting) || changed;
+            changed = this.updateNestedPaths(settings.tagSortOverrides, normalizedOld, normalizedNew, preserveExisting) || changed;
+            changed = this.updateNestedPaths(settings.tagAppearances, normalizedOld, normalizedNew, preserveExisting) || changed;
+
+            if (!changed) {
+                return;
+            }
+        });
+    }
+
+    /**
+     * Removes all metadata associated with a tag and its descendants
+     * Clears colors, icons, sort overrides, appearances, and hidden tag entries
+     */
+    async handleTagDelete(tagPath: string): Promise<void> {
+        const normalized = normalizeTagPath(tagPath);
+        if (!normalized) {
+            return;
+        }
+
+        const settingsSnapshot = this.settingsProvider.settings;
+        if (!this.hasTagMetadataForPath(settingsSnapshot, normalized) && !this.hasHiddenTagForPath(settingsSnapshot, normalized)) {
+            return;
+        }
+
+        const prefix = `${normalized}/`;
+
+        await this.saveAndUpdate(settings => {
+            let changed = false;
+            changed = this.removeTagMetadataForPath(settings.tagColors, normalized, prefix) || changed;
+            changed = this.removeTagMetadataForPath(settings.tagBackgroundColors, normalized, prefix) || changed;
+            changed = this.removeTagMetadataForPath(settings.tagIcons, normalized, prefix) || changed;
+            changed = this.removeTagMetadataForPath(settings.tagSortOverrides, normalized, prefix) || changed;
+            changed = this.removeTagMetadataForPath(settings.tagAppearances, normalized, prefix) || changed;
+
+            if (Array.isArray(settings.hiddenTags) && settings.hiddenTags.length > 0) {
+                const filtered = settings.hiddenTags.filter(tag => {
+                    const normalizedTag = normalizeTagPath(tag);
+                    if (!normalizedTag) {
+                        return true;
+                    }
+                    return normalizedTag !== normalized && !normalizedTag.startsWith(prefix);
+                });
+
+                if (filtered.length !== settings.hiddenTags.length) {
+                    settings.hiddenTags = filtered;
+                    changed = true;
+                }
+            }
+
+            if (!changed) {
+                return false;
+            }
+        });
+    }
+
+    /**
      * Clean up tag metadata for non-existent tags
      * @returns True if any changes were made
      */

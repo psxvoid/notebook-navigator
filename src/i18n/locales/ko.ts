@@ -262,6 +262,10 @@ export const STRINGS_KO = {
             affectedFiles: '영향받는 파일:',
             andMore: '...그리고 {count}개 더',
             confirmRename: '태그 이름 변경',
+            renameUnchanged: '{tag} 변경 없음',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: '유효한 태그 이름을 입력하세요.',
+            descendantRenameError: '태그를 자신 또는 하위 태그로 이동할 수 없습니다.',
             confirmDelete: '태그 삭제',
             file: '파일',
             files: '파일'
