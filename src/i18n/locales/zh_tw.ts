@@ -523,7 +523,7 @@ export const STRINGS_ZH_TW = {
                 titleTransformAdd: '新增變換',
                 titleTransformPatternPlaceholder: '正規表示式',
                 titleTransformReplacementPlaceholder: '替代品',
-                titleTransformEmptyTitle: '模式必須是有效的正規表示式',
+                titleTransformEmptyTitle: '模式必須是有效的正規表示式。',
             }
         },
         items: {
@@ -770,7 +770,7 @@ export const STRINGS_ZH_TW = {
             },
             collapseFileTagsToSelectedTag: {
                 name: '將標籤折疊到選定的標籤',
-                desc: '隱藏選取標籤視圖的父段。'
+                desc: '隱藏屬於所選標籤視圖的父級片段。'
             },
             colorFileTags: {
                 name: '為檔案標籤著色',
@@ -854,15 +854,15 @@ export const STRINGS_ZH_TW = {
             },
             featureImageSize: {
                 name: '特色圖片尺寸',
-                desc: 'ノートリストで使用する注目画像のサイズを設定します。'
+                desc: '設定筆記清單中要使用的特色圖片的大小。'
             },
             featureImageForPDF: {
-                name: 'PDF 的特色圖片',
+                name: 'PDF 特色圖片',
                 desc: '允許為 PDF 產生特色圖像。'
             },
             featureImagePersistIntermediate: {
-                name: '將完整功能影像儲存到磁碟',
-                desc: '僅限進階用戶。啟用此選項會將中間的完整特色圖片儲存到磁碟。可能有助於加快更改特色圖片大小和同步時的初始索引速度。啟用時需要重建快取。禁用後不會清理中間圖片。'
+                name: '將完整映像儲存到磁碟',
+                desc: '僅限進階用戶使用。啟用此選項會將中間的完整功能影像儲存到磁碟。這有助於在更改特色圖像大小和同步時加快初始索引速度。啟用後需要重建快取。禁用後不會清理中間影像。'
             },
             showRootFolder: {
                 name: '顯示根資料夾',
