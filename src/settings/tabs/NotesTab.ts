@@ -21,6 +21,7 @@ import { strings } from '../../i18n';
 import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
+import { parseReplacer } from 'src/services/content/MetadataContentProvider';
 
 /**
  * Type guard to check if a file is a markdown file
@@ -325,13 +326,26 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 });
         });
 
+    function isValidPattern(pattern: string): boolean {
+        let isValid = true;
+
+        try {
+            parseReplacer(pattern)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch(e) {
+            isValid = false
+        }
+
+        return isValid
+    }
+
     const addOption = (noteTitleTransform: { pattern: string, replacement: string }, index: number) => {
         const replacementSettings = new Setting(titleGroupEl)
         const titleInput = replacementSettings.addText((cb) => {
             cb.setPlaceholder(strings.settings.groups.notes.titleTransformPatternPlaceholder)
                 .setValue(noteTitleTransform.pattern)
                 .onChange(async (newPattern: string) => {
-                    if (newPattern == null || newPattern.length === 0) {
+                    if (newPattern == null || newPattern.length === 0 || !isValidPattern(newPattern)) {
                         return new Notice(strings.settings.groups.notes.titleTransformEmptyTitle);
                     }
 
