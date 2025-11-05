@@ -25,6 +25,7 @@ import { extractMetadataFromCache } from '../../utils/metadataExtractor';
 import { shouldExcludeFile } from '../../utils/fileFilters';
 import { BaseContentProvider } from './BaseContentProvider';
 import { getFileDisplayName } from 'src/utils/fileNameUtils';
+import { EMPTY_STRING } from 'src/utils/empty';
 
 // Compares two arrays for same members regardless of order
 function haveSameMembers(left: string[], right: string[]): boolean {
@@ -39,7 +40,8 @@ function haveSameMembers(left: string[], right: string[]): boolean {
     return sortedLeft.every((value, index) => value === sortedRight[index]);
 }
 
-const regexCache = new Map<string, RegExp>()
+const replacerCache = new Map<string, { regex: RegExp, isGlobal: boolean }>()
+const supportedFlags = new Set<string>(['g', 'i', 'm', 's', 'u', 'v', 'y'])
 
 export function transformTitle<T extends string | undefined | null>(sourceTitle: T, settings: NotebookNavigatorSettings): T {
     if (sourceTitle == null || settings.noteTitleTransform.length === 0) {
@@ -47,21 +49,33 @@ export function transformTitle<T extends string | undefined | null>(sourceTitle:
     }
 
     for (const { pattern, replacement } of settings.noteTitleTransform) {
-        let regExp = regexCache.get(pattern)
+        let replacer = replacerCache.get(pattern)
 
-        if (regExp == null) {
-            regExp = new RegExp(pattern)
-            regexCache.set(pattern, regExp)
+        if (replacer == null) {
+            const flagMatches = /(.*?)(\/.*)$/.exec(pattern)
+
+            if (flagMatches != null && flagMatches.length > 1) {
+                const patternPart = flagMatches[1]
+                const flags = [...flagMatches[2]]
+                    .filter((v, i, arr) => supportedFlags.has(v) && arr.indexOf(v) === i)
+                    .join(EMPTY_STRING)
+                replacer = { regex: new RegExp(patternPart, flags), isGlobal: flags.contains('g') }
+            } else {
+                replacer = { regex: new RegExp(pattern), isGlobal: false }
+            }
+
+            replacerCache.set(pattern, replacer)
         }
 
-        const transformedTitle: string = sourceTitle.replace(regExp, replacement)
+        // @ts-ignore
+        const transformedTitle: string = replacer.isGlobal && typeof String.prototype.replaceAll === 'function' ? sourceTitle.replaceAll(replacer.regex, replacement) : sourceTitle.replace(replacer.regex, replacement)
 
         if (transformedTitle.length === 0) {
-            return sourceTitle
+            continue
         }
 
-        if (transformedTitle.length !== sourceTitle.length || transformedTitle !== sourceTitle) {
-            return transformedTitle as T
+        if (sourceTitle != null && transformedTitle.length !== sourceTitle.length || transformedTitle !== sourceTitle) {
+            sourceTitle = transformedTitle as T
         }
     }
 
