@@ -123,6 +123,7 @@ export interface NotebookNavigatorSettings {
     tagSortOrder: TagSortOrder;
     hiddenTags: string[];
     keepEmptyTagsProperty: boolean;
+    allowTagCreationInAddTagModal: boolean;
 
     // List pane tab
     defaultFolderSort: SortOption;

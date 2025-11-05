@@ -325,6 +325,7 @@ export const STRINGS_JA = {
             addPlaceholder: '追加するタグを検索...',
             removePlaceholder: '削除するタグを選択...',
             createNewTag: '新しいタグを作成: #{tag}',
+            allowCreationToggle: '新しいタグの作成を許可',
             instructions: {
                 navigate: 'でナビゲート',
                 select: 'で選択',
@@ -956,6 +957,10 @@ export const STRINGS_JA = {
             keepEmptyTagsProperty: {
                 name: '最後のタグを削除した後も tags プロパティを保持',
                 desc: 'すべてのタグが削除されても frontmatter の tags プロパティを保持します。無効にすると、tags プロパティは frontmatter から削除されます。'
+            },
+            allowTagCreationInAddTagModal: {
+                name: 'タグ追加モーダルでタグ作成を許可',
+                desc: 'タグ追加時に作成オプションを表示します。トグルはモーダル内に表示されます。'
             },
             hiddenTags: {
                 name: '非表示タグ',

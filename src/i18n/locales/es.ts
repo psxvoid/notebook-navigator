@@ -325,6 +325,7 @@ export const STRINGS_ES = {
             addPlaceholder: 'Buscar etiqueta para añadir...',
             removePlaceholder: 'Seleccionar etiqueta para eliminar...',
             createNewTag: 'Crear nueva etiqueta: #{tag}',
+            allowCreationToggle: 'Permitir crear nuevas etiquetas',
             instructions: {
                 navigate: 'para navegar',
                 select: 'para seleccionar',
@@ -955,6 +956,10 @@ export const STRINGS_ES = {
             keepEmptyTagsProperty: {
                 name: 'Conservar propiedad tags después de eliminar la última etiqueta',
                 desc: 'Mantiene la propiedad tags en frontmatter cuando se eliminan todas las etiquetas. Cuando está desactivado, la propiedad tags se elimina del frontmatter.'
+            },
+            allowTagCreationInAddTagModal: {
+                name: 'Permitir crear etiquetas en el modal de añadir etiqueta',
+                desc: 'Mostrar opción de crear etiqueta al añadir etiquetas. El interruptor aparece en el modal.'
             },
             hiddenTags: {
                 name: 'Etiquetas ocultas',

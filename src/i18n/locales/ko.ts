@@ -324,6 +324,7 @@ export const STRINGS_KO = {
             addPlaceholder: '추가할 태그 검색...',
             removePlaceholder: '제거할 태그 선택...',
             createNewTag: '새 태그 생성: #{tag}',
+            allowCreationToggle: '새 태그 생성 허용',
             instructions: {
                 navigate: '이동',
                 select: '선택',
@@ -954,6 +955,10 @@ export const STRINGS_KO = {
             keepEmptyTagsProperty: {
                 name: '마지막 태그 제거 후 tags 속성 유지',
                 desc: '모든 태그가 제거될 때 frontmatter 의 tags 속성을 유지합니다. 비활성화하면 tags 속성이 frontmatter 에서 삭제됩니다.'
+            },
+            allowTagCreationInAddTagModal: {
+                name: '태그 추가 모달에서 태그 생성 허용',
+                desc: '태그 추가 시 생성 옵션을 표시합니다. 토글이 모달에 나타납니다.'
             },
             hiddenTags: {
                 name: '숨겨진 태그',

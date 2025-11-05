@@ -253,6 +253,17 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
             })
         );
 
+    // Toggle for allowing tag creation in the Add tag modal
+    new Setting(tagSubSettingsEl)
+        .setName(strings.settings.items.allowTagCreationInAddTagModal.name)
+        .setDesc(strings.settings.items.allowTagCreationInAddTagModal.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.allowTagCreationInAddTagModal).onChange(async value => {
+                plugin.settings.allowTagCreationInAddTagModal = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
     const hiddenTagsSetting = createDebouncedTextSetting(
         tagSubSettingsEl,
         strings.settings.items.hiddenTags.name,

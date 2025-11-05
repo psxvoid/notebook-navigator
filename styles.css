@@ -2761,6 +2761,26 @@ body.nn-resizing {
     margin-top: 16px;
 }
 
+/* Tag suggest modal create toggle */
+.nn-tag-suggest-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 8px;
+    padding: 0 4px;
+}
+
+.nn-tag-suggest-toggle-label {
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+}
+
+.nn-tag-suggest-toggle-control {
+    display: flex;
+    align-items: center;
+}
+
 .nn-folder-note-type-modal .modal-content {
     padding-top: 16px;
 }
