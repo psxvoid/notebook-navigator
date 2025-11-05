@@ -528,7 +528,11 @@ export const STRINGS_ES = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Apariencia'
+                display: 'Apariencia',
+                titleTransformAdd: 'Agregar nueva transformación',
+                titleTransformPatternPlaceholder: 'Expresión regular',
+                titleTransformReplacementPlaceholder: 'Reemplazo',
+                titleTransformEmptyTitle: 'Un patrón debe ser una expresión regular válida',
             }
         },
         items: {
@@ -857,6 +861,10 @@ export const STRINGS_ES = {
                     '1': '1 fila',
                     '2': '2 filas'
                 }
+            },
+            titleTransformName: {
+                name: 'El título se transforma',
+                desc: `Reemplaza el título completo o partes del mismo con un valor personalizado. Por ejemplo, puedes usarlo para reemplazar «idea» al inicio del título de una nota con un icono Unicode de bombilla. Utiliza la sintaxis «string.replace». Requiere reconstruir la caché para aplicar los cambios a las notas existentes.`
             },
             showFeatureImage: {
                 name: 'Mostrar imagen destacada',

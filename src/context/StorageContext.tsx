@@ -46,7 +46,7 @@ import { ProcessedMetadata, extractMetadata } from '../utils/metadataExtractor';
 import { ContentProviderRegistry } from '../services/content/ContentProviderRegistry';
 import { PreviewContentProvider } from '../services/content/PreviewContentProvider';
 import { FeatureImageContentProvider } from '../services/content/FeatureImageContentProvider';
-import { MetadataContentProvider } from '../services/content/MetadataContentProvider';
+import { MetadataContentProvider, transformTitle } from '../services/content/MetadataContentProvider';
 import { TagContentProvider } from '../services/content/TagContentProvider';
 import { IndexedDBStorage, FileDataCache as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { calculateFileDiff } from '../storage/diffCalculator';
@@ -788,13 +788,23 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const contextValue = useMemo(() => {
         // Gets the display name for a file, using frontmatter if configured
         const getFileDisplayName = (file: TFile): string => {
-            if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (metadata.fn) {
-                    return metadata.fn;
-                }
+            const cachedDisplayName = getDBInstance().getFile(file.path)?.metadata?.name
+
+            if (cachedDisplayName != null) {
+                return cachedDisplayName
             }
-            return getDisplayName(file, undefined, settings);
+
+            let displayName: string | undefined;
+            
+            if (settings.useFrontmatterMetadata) {
+                displayName = extractMetadata(app, file, settings)?.fn
+            }
+
+            if (displayName == null) {
+                displayName = getDisplayName(file, undefined, settings);
+            }
+            
+            return transformTitle(displayName, settings)
         };
 
         // Gets the creation time for a file, using frontmatter if configured
