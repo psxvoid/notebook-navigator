@@ -40,8 +40,27 @@ function haveSameMembers(left: string[], right: string[]): boolean {
     return sortedLeft.every((value, index) => value === sortedRight[index]);
 }
 
-const replacerCache = new Map<string, { regex: RegExp, isGlobal: boolean }>()
+interface TitleReplacer {
+    regex: RegExp,
+    isGlobal: boolean
+}
+
+const replacerCache = new Map<string, TitleReplacer>()
 const supportedFlags = new Set<string>(['g', 'i', 'm', 's', 'u', 'v', 'y'])
+
+export function parseReplacer(source: string): TitleReplacer {
+    const flagMatches = /(.*?)(\/.*)$/.exec(source)
+
+    if (flagMatches != null && flagMatches.length > 1) {
+        const patternPart = flagMatches[1]
+        const flags = [...flagMatches[2]]
+            .filter((v, i, arr) => supportedFlags.has(v) && arr.indexOf(v) === i)
+            .join(EMPTY_STRING)
+        return { regex: new RegExp(patternPart, flags), isGlobal: flags.contains('g') }
+    }
+
+    return { regex: new RegExp(source), isGlobal: false }
+}
 
 export function transformTitle<T extends string | undefined | null>(sourceTitle: T, settings: NotebookNavigatorSettings): T {
     if (sourceTitle == null || settings.noteTitleTransform.length === 0) {
@@ -52,19 +71,11 @@ export function transformTitle<T extends string | undefined | null>(sourceTitle:
         let replacer = replacerCache.get(pattern)
 
         if (replacer == null) {
-            const flagMatches = /(.*?)(\/.*)$/.exec(pattern)
+            const newReplacer = parseReplacer(pattern)
 
-            if (flagMatches != null && flagMatches.length > 1) {
-                const patternPart = flagMatches[1]
-                const flags = [...flagMatches[2]]
-                    .filter((v, i, arr) => supportedFlags.has(v) && arr.indexOf(v) === i)
-                    .join(EMPTY_STRING)
-                replacer = { regex: new RegExp(patternPart, flags), isGlobal: flags.contains('g') }
-            } else {
-                replacer = { regex: new RegExp(pattern), isGlobal: false }
-            }
+            replacerCache.set(pattern, newReplacer)
 
-            replacerCache.set(pattern, replacer)
+            replacer = newReplacer
         }
 
         // @ts-ignore
