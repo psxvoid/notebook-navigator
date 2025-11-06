@@ -530,10 +530,10 @@ export const STRINGS_NL = {
             notes: {
                 frontmatter: 'Frontmatter',
                 display: 'Uiterlijk',
-                titleTransformAdd: 'Nieuwe transformatie toevoegen',
-                titleTransformPatternPlaceholder: 'Reguliere expressie',
-                titleTransformReplacementPlaceholder: 'Vervanging',
-                titleTransformEmptyTitle: 'Een patroon moet een geldige RegExp zijn',
+                textTransformAdd: 'Nieuwe transformatie toevoegen',
+                textTransformPatternPlaceholder: 'Reguliere expressie',
+                textTransformReplacementPlaceholder: 'Vervanging',
+                textTransformEmptyTitle: 'Een patroon moet een geldige RegExp zijn',
             }
         },
         items: {
@@ -866,6 +866,10 @@ export const STRINGS_NL = {
             titleTransformName: {
                 name: 'Titel transformeert',
                 desc: `Vervangt de volledige titel of delen ervan door een aangepaste waarde. U kunt dit bijvoorbeeld gebruiken om "idee" aan het begin van een notitietitel te vervangen door een Unicode-pictogram van een gloeilamp. Gebruikt de syntaxis "string.replace". Vereist een heropbouw van de cache om wijzigingen in bestaande notities toe te passen.`
+            },
+            previewTransformName: {
+                name: 'Voorbeeldtransformaties',
+                desc: `Vervangt de volledige preview of delen ervan door een aangepaste waarde. Dit kan handig zijn als uw notities blokken bevatten die u niet in de notitielijst wilt zien. Gebruikt de syntaxis "string.replace". Vereist het opnieuw opbouwen van de cache om wijzigingen in bestaande notities toe te passen.`
             },
             showFeatureImage: {
                 name: 'Uitgelichte afbeelding tonen',
