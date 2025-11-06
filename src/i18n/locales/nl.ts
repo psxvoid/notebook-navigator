@@ -173,6 +173,8 @@ export const STRINGS_NL = {
             newDrawing: 'Nieuwe tekening',
             duplicateFolder: 'Map dupliceren',
             searchInFolder: 'Zoeken in map',
+            copyPath: 'Pad kopiëren',
+            copyRelativePath: 'Relatief pad kopiëren',
             createFolderNote: 'Mapnotitie maken',
             deleteFolderNote: 'Mapnotitie verwijderen',
             changeIcon: 'Pictogram wijzigen',
@@ -324,6 +326,7 @@ export const STRINGS_NL = {
             addPlaceholder: 'Zoeken naar tag om toe te voegen...',
             removePlaceholder: 'Selecteer tag om te verwijderen...',
             createNewTag: 'Nieuwe tag maken: #{tag}',
+            allowCreationToggle: 'Nieuwe tags aanmaken toestaan',
             instructions: {
                 navigate: 'om te navigeren',
                 select: 'om te selecteren',
@@ -982,6 +985,10 @@ export const STRINGS_NL = {
             keepEmptyTagsProperty: {
                 name: 'Tags-eigenschap behouden na verwijderen laatste tag',
                 desc: 'De tags frontmatter-eigenschap behouden wanneer alle tags worden verwijderd. Indien uitgeschakeld, wordt de tags-eigenschap verwijderd uit frontmatter.'
+            },
+            allowTagCreationInAddTagModal: {
+                name: 'Tags aanmaken in Tag toevoegen-dialoog toestaan',
+                desc: 'Optie om tags te maken weergeven bij het toevoegen van tags. Schakelaar verschijnt in het dialoogvenster.'
             },
             hiddenTags: {
                 name: 'Verborgen tags',

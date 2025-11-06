@@ -172,6 +172,8 @@ export const STRINGS_ZH_CN = {
             newDrawing: '新建绘图',
             duplicateFolder: '复制文件夹',
             searchInFolder: '在文件夹中搜索',
+            copyPath: '复制路径',
+            copyRelativePath: '复制相对路径',
             createFolderNote: '创建文件夹笔记',
             deleteFolderNote: '删除文件夹笔记',
             changeIcon: '更改图标',
@@ -323,6 +325,7 @@ export const STRINGS_ZH_CN = {
             addPlaceholder: '搜索要添加的标签...',
             removePlaceholder: '选择要移除的标签...',
             createNewTag: '创建新标签: #{tag}',
+            allowCreationToggle: '允许创建新标签',
             instructions: {
                 navigate: '导航',
                 select: '选择',
@@ -981,6 +984,10 @@ export const STRINGS_ZH_CN = {
             keepEmptyTagsProperty: {
                 name: '删除最后一个标签后保留 tags 属性',
                 desc: '当所有标签被删除时保留 frontmatter 中的 tags 属性。禁用时,tags 属性将从 frontmatter 中删除。'
+            },
+            allowTagCreationInAddTagModal: {
+                name: '允许在添加标签对话框中创建标签',
+                desc: '添加标签时显示创建选项。切换按钮显示在对话框中。'
             },
             hiddenTags: {
                 name: '隐藏标签',

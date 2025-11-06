@@ -172,6 +172,8 @@ export const STRINGS_ZH_TW = {
             newDrawing: '新繪圖',
             duplicateFolder: '複製資料夾',
             searchInFolder: '在此資料夾中搜尋',
+            copyPath: '複製路徑',
+            copyRelativePath: '複製相對路徑',
             createFolderNote: '建立資料夾筆記',
             deleteFolderNote: '刪除資料夾筆記',
             changeIcon: '變更圖示',
@@ -323,6 +325,7 @@ export const STRINGS_ZH_TW = {
             addPlaceholder: '搜尋要新增的標籤...',
             removePlaceholder: '選取要移除的標籤...',
             createNewTag: '建立新標籤：#{tag}',
+            allowCreationToggle: '允許建立新標籤',
             instructions: {
                 navigate: '導覽',
                 select: '選取',
@@ -979,6 +982,10 @@ export const STRINGS_ZH_TW = {
             keepEmptyTagsProperty: {
                 name: '刪除最後一個標籤後保留 tags 屬性',
                 desc: '當所有標籤被刪除時保留 frontmatter 中的 tags 屬性。停用時,tags 屬性將從 frontmatter 中刪除。'
+            },
+            allowTagCreationInAddTagModal: {
+                name: '允許在新增標籤對話框中建立標籤',
+                desc: '新增標籤時顯示建立選項。切換按鈕顯示在對話框中。'
             },
             hiddenTags: {
                 name: '隱藏標籤',
