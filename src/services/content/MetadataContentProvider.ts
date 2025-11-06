@@ -25,7 +25,7 @@ import { extractMetadataFromCache } from '../../utils/metadataExtractor';
 import { shouldExcludeFile } from '../../utils/fileFilters';
 import { BaseContentProvider } from './BaseContentProvider';
 import { getFileDisplayName } from 'src/utils/fileNameUtils';
-import { parseReplacer, TitleReplacer } from './common/TextReplacer';
+import { parseReplacer, TextReplacer } from './common/TextReplacer';
 
 // Compares two arrays for same members regardless of order
 function haveSameMembers(left: string[], right: string[]): boolean {
@@ -41,7 +41,7 @@ function haveSameMembers(left: string[], right: string[]): boolean {
 }
 
 
-const replacerCache = new Map<string, TitleReplacer>()
+const replacerCache = new Map<string, TextReplacer>()
 
 export function transformTitle<T extends string | undefined | null>(sourceTitle: T, settings: NotebookNavigatorSettings): T {
     if (sourceTitle == null || settings.noteTitleTransform.length === 0) {
@@ -52,17 +52,16 @@ export function transformTitle<T extends string | undefined | null>(sourceTitle:
         let replacer = replacerCache.get(pattern)
 
         if (replacer == null) {
-            const newReplacer = parseReplacer(pattern)
+            const newReplacer = parseReplacer(pattern, replacement)
 
             replacerCache.set(pattern, newReplacer)
 
             replacer = newReplacer
         }
 
-        // @ts-ignore
-        const transformedTitle: string = replacer.isGlobal && typeof String.prototype.replaceAll === 'function' ? sourceTitle.replaceAll(replacer.regex, replacement) : sourceTitle.replace(replacer.regex, replacement)
+        const transformedTitle = replacer.replace(sourceTitle)
 
-        if (transformedTitle.length === 0) {
+        if (transformedTitle == null || transformedTitle.length === 0) {
             continue
         }
 

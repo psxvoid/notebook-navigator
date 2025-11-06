@@ -22,6 +22,7 @@ import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { parseReplacer } from 'src/services/content/common/TextReplacer';
+import { EMPTY_STRING } from 'src/utils/empty';
 
 /**
  * Type guard to check if a file is a markdown file
@@ -330,7 +331,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
         let isValid = true;
 
         try {
-            parseReplacer(pattern)
+            parseReplacer(pattern, EMPTY_STRING)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch(e) {
             isValid = false
