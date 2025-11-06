@@ -479,18 +479,18 @@ export function renderNotesTab(context: SettingsTabContext): void {
     );
     previewPropertiesSetting.controlEl.addClass('nn-setting-wide-input');
 
+    const previewInfoContainer = previewSettingsEl.createDiv('nn-setting-info-container');
+    const previewInfoDiv = previewInfoContainer.createEl('div', {
+        cls: 'setting-item-description'
+    });
+    previewInfoDiv.createSpan({ text: strings.settings.items.previewProperties.info });
+
     buildTextReplaceSettings({
         getSource: () => plugin.settings.notePreviewTransform,
         getSettingsElement: () => previewSettingsEl,
         getPlugin: () => plugin,
         optionName: strings.settings.items.previewTransformName
     })
-
-    const previewInfoContainer = previewSettingsEl.createDiv('nn-setting-info-container');
-    const previewInfoDiv = previewInfoContainer.createEl('div', {
-        cls: 'setting-item-description'
-    });
-    previewInfoDiv.createSpan({ text: strings.settings.items.previewProperties.info });
 
     new Setting(containerEl)
         .setName(strings.settings.items.showFeatureImage.name)
