@@ -66,7 +66,13 @@ export default tseslint.config(
             '@typescript-eslint/array-type': ['warn', { default: 'array' }], // Prefer T[] over Array<T>
             'prefer-object-spread': 'warn', // Use {...obj} instead of Object.assign()
             curly: ['warn', 'multi-line'], // Require curly braces for multi-line blocks
-            'no-else-return': 'warn' // Remove unnecessary else after return
+            'no-else-return': 'warn', // Remove unnecessary else after return
+            'obsidianmd/ui/sentence-case': [
+                'warn',
+                {
+                    acronyms: ['RRGGBB', 'RRGGBBAA']
+                }
+            ]
         }
     }
 );
