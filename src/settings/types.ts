@@ -23,6 +23,7 @@ import type { FolderNoteCreationPreference } from '../types/folderNote';
 import type { KeyboardShortcutConfig } from '../utils/keyboardShortcuts';
 import type { ShortcutEntry } from '../types/shortcuts';
 import type { SearchProvider } from '../types/search';
+import type { PatternReplaceSource } from 'src/services/content/common/TextReplacerTransform';
 
 /** Available sort options for file listing */
 export type SortOption = 'modified-desc' | 'modified-asc' | 'created-desc' | 'created-asc' | 'title-asc' | 'title-desc';
@@ -171,7 +172,8 @@ export interface NotebookNavigatorSettings {
     featureImageSize: number;
     featureImageForPDF: boolean;
     featureImagePersistIntermediate: boolean;
-    noteTitleTransform: { pattern: string, replacement: string } [],
+    noteTitleTransform: PatternReplaceSource [],
+    notePreviewTransform: PatternReplaceSource [],
 
     // Icon packs tab
     externalIconProviders: Record<string, boolean>;

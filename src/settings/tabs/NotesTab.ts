@@ -21,7 +21,7 @@ import { strings } from '../../i18n';
 import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
-import { parseReplacer } from 'src/services/content/MetadataContentProvider';
+import { buildTextReplaceSettings } from './common/TextReplaceSettingsBuilder';
 
 /**
  * Type guard to check if a file is a markdown file
@@ -308,90 +308,12 @@ export function renderNotesTab(context: SettingsTabContext): void {
 
     const titleGroupEl = containerEl.createDiv('nn-sub-settings');
 
-    new Setting(titleGroupEl)
-        .setName(strings.settings.items.titleTransformName.name)
-        .setDesc(strings.settings.items.titleTransformName.desc)
-        .addButton((button: ButtonComponent) => {
-            button
-                .setTooltip(strings.settings.groups.notes.titleTransformAdd)
-                .setButtonText('+')
-                .setCta()
-                .onClick(async () => {
-                    plugin.settings.noteTitleTransform.push({
-                        pattern: '',
-                        replacement: ''
-                    });
-                    await plugin.saveSettingsAndUpdate();
-                    addOption({ pattern: '', replacement: '' }, plugin.settings.noteTitleTransform.length - 1)
-                });
-        });
-
-    function isValidPattern(pattern: string): boolean {
-        let isValid = true;
-
-        try {
-            parseReplacer(pattern)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch(e) {
-            isValid = false
-        }
-
-        return isValid
-    }
-
-    const addOption = (noteTitleTransform: { pattern: string, replacement: string }, index: number) => {
-        const replacementSettings = new Setting(titleGroupEl)
-        const titleInput = replacementSettings.addText((cb) => {
-            cb.setPlaceholder(strings.settings.groups.notes.titleTransformPatternPlaceholder)
-                .setValue(noteTitleTransform.pattern)
-                .onChange(async (newPattern: string) => {
-                    if (newPattern == null || newPattern.length === 0 || !isValidPattern(newPattern)) {
-                        return new Notice(strings.settings.groups.notes.titleTransformEmptyTitle);
-                    }
-
-                    const currentPattern = plugin.settings.noteTitleTransform[index].pattern
-
-                    if (currentPattern === newPattern) {
-                        return
-                    }
-
-                    plugin.settings.noteTitleTransform[index].pattern = newPattern;
-                    await plugin.saveSettingsAndUpdate();
-                });
-        })
-        const replacementInput = titleInput.addText((cb) => {
-            cb.setPlaceholder(strings.settings.groups.notes.titleTransformReplacementPlaceholder)
-                .setValue(noteTitleTransform.replacement)
-                .onChange(async (newReplacement) => {
-                    if (newReplacement == null) {
-                        return
-                    }
-
-                    const currentReplacement = plugin.settings.noteTitleTransform[index].replacement
-
-                    if (currentReplacement === newReplacement) {
-                        return
-                    }
-
-                    plugin.settings.noteTitleTransform[index].replacement = newReplacement;
-                    await plugin.saveSettingsAndUpdate();
-                });
-        })
-        const deleteButton = replacementInput.addExtraButton((cb) => {
-            cb.setIcon('cross')
-                .setTooltip(strings.common.delete)
-                .onClick(async () => {
-                    plugin.settings.noteTitleTransform.splice(index, 1)
-                    await plugin.saveSettingsAndUpdate()
-                    titleInput.settingEl.remove()
-                    replacementInput.settingEl.remove()
-                    deleteButton.settingEl.remove()
-                });
-        });
-        replacementSettings.infoEl.remove();
-    }
-
-    plugin.settings.noteTitleTransform.forEach(addOption);
+    buildTextReplaceSettings({
+        getSource: () => plugin.settings.noteTitleTransform,
+        getSettingsElement: () => titleGroupEl,
+        getPlugin: () => plugin,
+        optionName: strings.settings.items.titleTransformName
+    })
 
     // Container for settings that depend on showFileDate being enabled
     const fileDateSubSettingsEl = containerEl.createDiv('nn-sub-settings');
@@ -575,6 +497,13 @@ export function renderNotesTab(context: SettingsTabContext): void {
         cls: 'setting-item-description'
     });
     previewInfoDiv.createSpan({ text: strings.settings.items.previewProperties.info });
+
+    buildTextReplaceSettings({
+        getSource: () => plugin.settings.notePreviewTransform,
+        getSettingsElement: () => previewSettingsEl,
+        getPlugin: () => plugin,
+        optionName: strings.settings.items.previewTransformName
+    })
 
     new Setting(containerEl)
         .setName(strings.settings.items.showFeatureImage.name)

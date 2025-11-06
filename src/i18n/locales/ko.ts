@@ -528,10 +528,10 @@ export const STRINGS_KO = {
             notes: {
                 frontmatter: '프런트매터',
                 display: '모양',
-                titleTransformAdd: '새로운 변형 추가',
-                titleTransformPatternPlaceholder: '정규 표현식',
-                titleTransformReplacementPlaceholder: '대사',
-                titleTransformEmptyTitle: '패턴은 유효한 정규식이어야 합니다',
+                textTransformAdd: '새로운 변형 추가',
+                textTransformPatternPlaceholder: '정규 표현식',
+                textTransformReplacementPlaceholder: '대사',
+                textTransformEmptyTitle: '패턴은 유효한 정규식이어야 합니다',
             }
         },
         items: {
@@ -864,6 +864,10 @@ export const STRINGS_KO = {
             titleTransformName: {
                 name: '제목이 변형됩니다',
                 desc: `제목 전체 또는 일부를 사용자 지정 값으로 바꿉니다. 예를 들어 메모 제목 시작 부분의 "idea"를 전구 ​​유니코드 아이콘으로 바꿀 수 있습니다. "string.replace" 구문을 사용합니다. 기존 메모에 변경 사항을 적용하려면 캐시를 다시 빌드해야 합니다.`
+            },
+            previewTransformName: {
+                name: '미리보기 변형',
+                desc: `미리보기 전체 또는 일부를 사용자 지정 값으로 바꿉니다. 노트 목록에 원하지 않는 블록이 노트에 포함된 경우 유용할 수 있습니다. "string.replace" 구문을 사용합니다. 기존 노트에 변경 사항을 적용하려면 캐시를 다시 빌드해야 합니다.`
             },
             showFeatureImage: {
                 name: '대표 이미지 표시',

@@ -530,10 +530,10 @@ export const STRINGS_PL = {
             notes: {
                 frontmatter: 'Frontmatter',
                 display: 'Wygląd',
-                titleTransformAdd: 'Dodaj nową transformację',
-                titleTransformPatternPlaceholder: 'Wyrażenie regularne',
-                titleTransformReplacementPlaceholder: 'Wymiana',
-                titleTransformEmptyTitle: 'Wzorzec musi być prawidłowym wyrażeniem regularnym',
+                textTransformAdd: 'Dodaj nową transformację',
+                textTransformPatternPlaceholder: 'Wyrażenie regularne',
+                textTransformReplacementPlaceholder: 'Wymiana',
+                textTransformEmptyTitle: 'Wzorzec musi być prawidłowym wyrażeniem regularnym',
             }
         },
         items: {
@@ -866,6 +866,10 @@ export const STRINGS_PL = {
             titleTransformName: {
                 name: 'Tytuł zmienia się',
                 desc: `Zastępuje cały tytuł lub jego fragmenty niestandardową wartością. Na przykład, można użyć tego do zastąpienia słowa „idea” na początku tytułu notatki ikoną żarówki w formacie Unicode. Używa składni „string.replace”. Wymaga przebudowania pamięci podręcznej, aby zastosować zmiany w istniejących notatkach.`
+            },
+            previewTransformName: {
+                name: 'Podgląd transformacji',
+                desc: `Zastępuje cały podgląd lub jego fragmenty wartością niestandardową. Może to być przydatne, jeśli notatki zawierają bloki, których nie chcesz widzieć na liście notatek. Używa składni „string.replace”. Wymaga przebudowania pamięci podręcznej, aby zastosować zmiany w istniejących notatkach.`
             },
             showFeatureImage: {
                 name: 'Pokaż obraz wyróżniający',

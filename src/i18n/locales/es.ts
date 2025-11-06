@@ -529,10 +529,10 @@ export const STRINGS_ES = {
             notes: {
                 frontmatter: 'Frontmatter',
                 display: 'Apariencia',
-                titleTransformAdd: 'Agregar nueva transformación',
-                titleTransformPatternPlaceholder: 'Expresión regular',
-                titleTransformReplacementPlaceholder: 'Reemplazo',
-                titleTransformEmptyTitle: 'Un patrón debe ser una expresión regular válida',
+                textTransformAdd: 'Agregar nueva transformación',
+                textTransformPatternPlaceholder: 'Expresión regular',
+                textTransformReplacementPlaceholder: 'Reemplazo',
+                textTransformEmptyTitle: 'Un patrón debe ser una expresión regular válida',
             }
         },
         items: {
@@ -865,6 +865,10 @@ export const STRINGS_ES = {
             titleTransformName: {
                 name: 'El título se transforma',
                 desc: `Reemplaza el título completo o partes del mismo con un valor personalizado. Por ejemplo, puedes usarlo para reemplazar «idea» al inicio del título de una nota con un icono Unicode de bombilla. Utiliza la sintaxis «string.replace». Requiere reconstruir la caché para aplicar los cambios a las notas existentes.`
+            },
+            previewTransformName: {
+                name: 'Vista previa transforma',
+                desc: `Reemplaza la vista previa completa o partes de ella con un valor personalizado. Puede ser útil si tus notas contienen bloques que no quieres que aparezcan en la lista. Utiliza la sintaxis «string.replace». Requiere reconstruir la caché para aplicar los cambios a las notas existentes.`
             },
             showFeatureImage: {
                 name: 'Mostrar imagen destacada',
