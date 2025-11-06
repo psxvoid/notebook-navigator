@@ -21,8 +21,7 @@ import { strings } from '../../i18n';
 import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
-import { PatternReplaceSource } from 'src/services/content/common/TextReplacerTransform';
-import { addOption, ReplaceTextConfig } from './common/TextReplaceSettingsBuilder';
+import { buildTextReplaceSettings } from './common/TextReplaceSettingsBuilder';
 
 /**
  * Type guard to check if a file is a markdown file
@@ -309,35 +308,12 @@ export function renderNotesTab(context: SettingsTabContext): void {
 
     const titleGroupEl = containerEl.createDiv('nn-sub-settings');
 
-    new Setting(titleGroupEl)
-        .setName(strings.settings.items.titleTransformName.name)
-        .setDesc(strings.settings.items.titleTransformName.desc)
-        .addButton((button: ButtonComponent) => {
-            button
-                .setTooltip(strings.settings.groups.notes.titleTransformAdd)
-                .setButtonText('+')
-                .setCta()
-                .onClick(async () => {
-                    plugin.settings.noteTitleTransform.push({
-                        pattern: '',
-                        replacement: ''
-                    });
-                    await plugin.saveSettingsAndUpdate();
-                    addTitleReplaceOption({ pattern: '', replacement: '' }, plugin.settings.noteTitleTransform.length - 1)
-                });
-        });
-
-    const titleReplaceConfig: ReplaceTextConfig = {
+    buildTextReplaceSettings(titleGroupEl, {
         getSource: () => plugin.settings.noteTitleTransform,
         getSettingsElement: () => titleGroupEl,
-        getPlugin: () => plugin
-    }
-
-    const addTitleReplaceOption = (noteTitleTransform: PatternReplaceSource, index: number) => {
-        return addOption(noteTitleTransform, index, titleReplaceConfig)
-    };
-
-    plugin.settings.noteTitleTransform.forEach(addTitleReplaceOption);
+        getPlugin: () => plugin,
+        optionName: strings.settings.items.titleTransformName
+    })
 
     // Container for settings that depend on showFileDate being enabled
     const fileDateSubSettingsEl = containerEl.createDiv('nn-sub-settings');

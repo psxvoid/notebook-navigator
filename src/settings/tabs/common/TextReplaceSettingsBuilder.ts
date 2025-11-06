@@ -1,4 +1,4 @@
-import { Notice, Setting } from "obsidian";
+import { ButtonComponent, Notice, Setting } from "obsidian";
 import { strings } from "src/i18n";
 import type NotebookNavigatorPlugin from "src/main";
 import { parseReplacer } from "src/services/content/common/TextReplacer";
@@ -9,6 +9,7 @@ export interface ReplaceTextConfig {
     getSource(): PatternReplaceSource[]
     getSettingsElement(): HTMLElement
     getPlugin(): NotebookNavigatorPlugin
+    optionName: { name: string, desc: string }
 }
 
 function isValidPattern(pattern: string): boolean {
@@ -24,7 +25,7 @@ function isValidPattern(pattern: string): boolean {
     return isValid
 }
 
-export function addOption(transform: PatternReplaceSource, index: number, config: ReplaceTextConfig) {
+function addOption(transform: PatternReplaceSource, index: number, config: ReplaceTextConfig) {
     const replacementSettings = new Setting(config.getSettingsElement())
     const titleInput = replacementSettings.addText((cb) => {
         cb.setPlaceholder(strings.settings.groups.notes.titleTransformPatternPlaceholder)
@@ -77,3 +78,28 @@ export function addOption(transform: PatternReplaceSource, index: number, config
     replacementSettings.infoEl.remove();
 }
 
+export function buildTextReplaceSettings(parentSettingElement: HTMLElement, config: ReplaceTextConfig) {
+    new Setting(parentSettingElement)
+        .setName(config.optionName.name)
+        .setDesc(config.optionName.desc)
+        .addButton((button: ButtonComponent) => {
+            button
+                .setTooltip(strings.settings.groups.notes.titleTransformAdd)
+                .setButtonText('+')
+                .setCta()
+                .onClick(async () => {
+                    config.getSource().push({
+                        pattern: '',
+                        replacement: ''
+                    });
+                    await config.getPlugin().saveSettingsAndUpdate();
+                    addReplaceOption({ pattern: '', replacement: '' }, config.getSource().length - 1)
+                });
+        });
+
+    const addReplaceOption = (noteTitleTransform: PatternReplaceSource, index: number) => {
+        return addOption(noteTitleTransform, index, config)
+    };
+
+    config.getSource().forEach(addReplaceOption);
+}
