@@ -4,11 +4,20 @@ import { parseReplacer, TextReplacer } from "./TextReplacer"
 const replacerCache = new Map<string, TextReplacer>()
 
 export function transformTitle<T extends string | undefined | null>(sourceTitle: T, settings: NotebookNavigatorSettings): T {
-    if (sourceTitle == null || settings.noteTitleTransform.length === 0) {
+    return transformWith(sourceTitle, settings.noteTitleTransform)
+}
+
+interface PatternReplaceSource {
+    pattern: string,
+    replacement: string,
+}
+
+function transformWith<T extends string | undefined | null>(sourceTitle: T, sources: readonly PatternReplaceSource[]): T {
+    if (sourceTitle == null || sources.length === 0) {
         return sourceTitle
     }
 
-    for (const { pattern, replacement } of settings.noteTitleTransform) {
+    for (const { pattern, replacement } of sources) {
         let replacer = replacerCache.get(pattern)
 
         if (replacer == null) {
