@@ -21,9 +21,8 @@ import { strings } from '../../i18n';
 import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
-import { parseReplacer } from 'src/services/content/common/TextReplacer';
-import { EMPTY_STRING } from 'src/utils/empty';
 import { PatternReplaceSource } from 'src/services/content/common/TextReplacerTransform';
+import { addOption, ReplaceTextConfig } from './common/TextReplaceSettingsBuilder';
 
 /**
  * Type guard to check if a file is a markdown file
@@ -328,85 +327,15 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 });
         });
 
-    function isValidPattern(pattern: string): boolean {
-        let isValid = true;
-
-        try {
-            parseReplacer(pattern, EMPTY_STRING)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch(e) {
-            isValid = false
-        }
-
-        return isValid
-    }
-
-    interface ReplaceTextConfig {
-        getSource(): PatternReplaceSource[]
-        getSettingsElement(): HTMLElement
-    }
-
     const titleReplaceConfig: ReplaceTextConfig = {
         getSource: () => plugin.settings.noteTitleTransform,
-        getSettingsElement: () => titleGroupEl
+        getSettingsElement: () => titleGroupEl,
+        getPlugin: () => plugin
     }
 
     const addTitleReplaceOption = (noteTitleTransform: PatternReplaceSource, index: number) => {
         return addOption(noteTitleTransform, index, titleReplaceConfig)
     };
-
-    const addOption = (transform: PatternReplaceSource, index: number, config: ReplaceTextConfig) => {
-        const replacementSettings = new Setting(config.getSettingsElement())
-        const titleInput = replacementSettings.addText((cb) => {
-            cb.setPlaceholder(strings.settings.groups.notes.titleTransformPatternPlaceholder)
-                .setValue(transform.pattern)
-                .onChange(async (newPattern: string) => {
-                    if (newPattern == null || newPattern.length === 0 || !isValidPattern(newPattern)) {
-                        return new Notice(strings.settings.groups.notes.titleTransformEmptyTitle);
-                    }
-
-                    const currentPattern = config.getSource()[index].pattern
-
-                    if (currentPattern === newPattern) {
-                        return
-                    }
-
-                    config.getSource()[index].pattern = newPattern;
-                    await plugin.saveSettingsAndUpdate();
-                });
-        })
-
-        const replacementInput = titleInput.addText((cb) => {
-            cb.setPlaceholder(strings.settings.groups.notes.titleTransformReplacementPlaceholder)
-                .setValue(transform.replacement)
-                .onChange(async (newReplacement) => {
-                    if (newReplacement == null) {
-                        return
-                    }
-
-                    const currentReplacement = config.getSource()[index].replacement
-
-                    if (currentReplacement === newReplacement) {
-                        return
-                    }
-
-                    config.getSource()[index].replacement = newReplacement;
-                    await plugin.saveSettingsAndUpdate();
-                });
-        })
-        const deleteButton = replacementInput.addExtraButton((cb) => {
-            cb.setIcon('cross')
-                .setTooltip(strings.common.delete)
-                .onClick(async () => {
-                    config.getSource().splice(index, 1)
-                    await plugin.saveSettingsAndUpdate()
-                    titleInput.settingEl.remove()
-                    replacementInput.settingEl.remove()
-                    deleteButton.settingEl.remove()
-                });
-        });
-        replacementSettings.infoEl.remove();
-    }
 
     plugin.settings.noteTitleTransform.forEach(addTitleReplaceOption);
 
