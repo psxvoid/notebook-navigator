@@ -24,6 +24,7 @@ interface ExcalidrawAutomateGlobal {
         copyViewElementsToEAforEditing(scene: SceneElements, copyImages?: boolean): unknown;
         createPNG(): Promise<Blob>;
     }
+    destroy(): void
 }
 
 declare global {
@@ -192,7 +193,7 @@ export async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, a
     async function createNewBlobResult(dispose?: Dispose): Promise<ProviderPreviewResult> {
         return {
             blob: await ea.createPNG(),
-            dispose: dispose ?? EMPTY_DISPOSE
+            dispose: () => { ea.destroy(); (dispose ?? EMPTY_DISPOSE)(); }
         }
     }
 
@@ -207,7 +208,6 @@ export async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, a
 
     return createNewBlobResult(dispose)
 }
-
 
 export async function generateExcalidrawPreview(excalidrawFile: TFile, app: App): Promise<ProviderPreviewResult> {
     return generatePreview(excalidrawFile, false, app)
