@@ -25,7 +25,7 @@ import { extractMetadataFromCache } from '../../utils/metadataExtractor';
 import { shouldExcludeFile } from '../../utils/fileFilters';
 import { BaseContentProvider } from './BaseContentProvider';
 import { getFileDisplayName } from 'src/utils/fileNameUtils';
-import { parseReplacer, TextReplacer } from './common/TextReplacer';
+import { transformTitle } from './common/TextReplacerTransform';
 
 // Compares two arrays for same members regardless of order
 function haveSameMembers(left: string[], right: string[]): boolean {
@@ -38,39 +38,6 @@ function haveSameMembers(left: string[], right: string[]): boolean {
     const sortedLeft = [...left].sort();
     const sortedRight = [...right].sort();
     return sortedLeft.every((value, index) => value === sortedRight[index]);
-}
-
-
-const replacerCache = new Map<string, TextReplacer>()
-
-export function transformTitle<T extends string | undefined | null>(sourceTitle: T, settings: NotebookNavigatorSettings): T {
-    if (sourceTitle == null || settings.noteTitleTransform.length === 0) {
-        return sourceTitle
-    }
-
-    for (const { pattern, replacement } of settings.noteTitleTransform) {
-        let replacer = replacerCache.get(pattern)
-
-        if (replacer == null) {
-            const newReplacer = parseReplacer(pattern, replacement)
-
-            replacerCache.set(pattern, newReplacer)
-
-            replacer = newReplacer
-        }
-
-        const transformedTitle = replacer.replace(sourceTitle)
-
-        if (transformedTitle == null || transformedTitle.length === 0) {
-            continue
-        }
-
-        if (sourceTitle != null && transformedTitle.length !== sourceTitle.length || transformedTitle !== sourceTitle) {
-            sourceTitle = transformedTitle as T
-        }
-    }
-
-    return sourceTitle
 }
 
 /**

@@ -46,7 +46,7 @@ import { ProcessedMetadata, extractMetadata } from '../utils/metadataExtractor';
 import { ContentProviderRegistry } from '../services/content/ContentProviderRegistry';
 import { PreviewContentProvider } from '../services/content/PreviewContentProvider';
 import { FeatureImageContentProvider } from '../services/content/FeatureImageContentProvider';
-import { MetadataContentProvider, transformTitle } from '../services/content/MetadataContentProvider';
+import { MetadataContentProvider } from '../services/content/MetadataContentProvider';
 import { TagContentProvider } from '../services/content/TagContentProvider';
 import { IndexedDBStorage, FileDataCache as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { calculateFileDiff } from '../storage/diffCalculator';
@@ -63,6 +63,7 @@ import { NotebookNavigatorSettings } from '../settings';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { ContentType } from '../interfaces/IContentProvider';
 import { EMPTY_ARRAY } from 'src/utils/empty';
+import { transformTitle } from 'src/services/content/common/TextReplacerTransform';
 
 /**
  * Returns content types that require Obsidian's metadata cache to be ready
