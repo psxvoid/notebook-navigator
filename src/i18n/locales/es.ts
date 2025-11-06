@@ -521,10 +521,10 @@ export const STRINGS_ES = {
             notes: {
                 frontmatter: 'Frontmatter',
                 display: 'Apariencia',
-                titleTransformAdd: 'Agregar nueva transformación',
-                titleTransformPatternPlaceholder: 'Expresión regular',
-                titleTransformReplacementPlaceholder: 'Reemplazo',
-                titleTransformEmptyTitle: 'Un patrón debe ser una expresión regular válida',
+                textTransformAdd: 'Agregar nueva transformación',
+                textTransformPatternPlaceholder: 'Expresión regular',
+                textTransformReplacementPlaceholder: 'Reemplazo',
+                textTransformEmptyTitle: 'Un patrón debe ser una expresión regular válida',
             }
         },
         items: {

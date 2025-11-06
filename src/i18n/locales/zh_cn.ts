@@ -521,10 +521,10 @@ export const STRINGS_ZH_CN = {
             notes: {
                 frontmatter: '前置元数据',
                 display: '外观',
-                titleTransformAdd: '添加新变换',
-                titleTransformPatternPlaceholder: '正则表达式',
-                titleTransformReplacementPlaceholder: '替代品',
-                titleTransformEmptyTitle: '模式必须是有效的正则表达式',
+                textTransformAdd: '添加新变换',
+                textTransformPatternPlaceholder: '正则表达式',
+                textTransformReplacementPlaceholder: '替代品',
+                textTransformEmptyTitle: '模式必须是有效的正则表达式',
             }
         },
         items: {

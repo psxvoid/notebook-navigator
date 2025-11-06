@@ -520,10 +520,10 @@ export const STRINGS_ZH_TW = {
             notes: {
                 frontmatter: '前置元資料',
                 display: '外觀',
-                titleTransformAdd: '新增變換',
-                titleTransformPatternPlaceholder: '正規表示式',
-                titleTransformReplacementPlaceholder: '替代品',
-                titleTransformEmptyTitle: '模式必須是有效的正規表示式。',
+                textTransformAdd: '新增變換',
+                textTransformPatternPlaceholder: '正規表示式',
+                textTransformReplacementPlaceholder: '替代品',
+                textTransformEmptyTitle: '模式必須是有效的正規表示式。',
             }
         },
         items: {

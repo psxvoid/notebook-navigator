@@ -520,10 +520,10 @@ export const STRINGS_KO = {
             notes: {
                 frontmatter: '프런트매터',
                 display: '모양',
-                titleTransformAdd: '새로운 변형 추가',
-                titleTransformPatternPlaceholder: '정규 표현식',
-                titleTransformReplacementPlaceholder: '대사',
-                titleTransformEmptyTitle: '패턴은 유효한 정규식이어야 합니다',
+                textTransformAdd: '새로운 변형 추가',
+                textTransformPatternPlaceholder: '정규 표현식',
+                textTransformReplacementPlaceholder: '대사',
+                textTransformEmptyTitle: '패턴은 유효한 정규식이어야 합니다',
             }
         },
         items: {

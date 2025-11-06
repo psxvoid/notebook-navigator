@@ -520,10 +520,10 @@ export const STRINGS_EN = {
             notes: {
                 frontmatter: 'Frontmatter',
                 display: 'Appearance',
-                titleTransformAdd: 'Add new transform',
-                titleTransformPatternPlaceholder: 'Regular expression',
-                titleTransformReplacementPlaceholder: 'Replacement',
-                titleTransformEmptyTitle: 'A pattern must be a valid RegExp',
+                textTransformAdd: 'Add new transform',
+                textTransformPatternPlaceholder: 'Regular expression',
+                textTransformReplacementPlaceholder: 'Replacement',
+                textTransformEmptyTitle: 'A pattern must be a valid RegExp',
             }
         },
         items: {

@@ -521,10 +521,10 @@ export const STRINGS_FR = {
             notes: {
                 frontmatter: 'Frontmatter',
                 display: 'Apparence',
-                titleTransformAdd: 'Ajouter une nouvelle transformation',
-                titleTransformPatternPlaceholder: 'Expression régulière',
-                titleTransformReplacementPlaceholder: 'Remplacement',
-                titleTransformEmptyTitle: 'Un modèle doit être une expression régulière valide',
+                textTransformAdd: 'Ajouter une nouvelle transformation',
+                textTransformPatternPlaceholder: 'Expression régulière',
+                textTransformReplacementPlaceholder: 'Remplacement',
+                textTransformEmptyTitle: 'Un modèle doit être une expression régulière valide',
             }
         },
         items: {

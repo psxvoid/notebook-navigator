@@ -28,11 +28,11 @@ function isValidPattern(pattern: string): boolean {
 function addOption(transform: PatternReplaceSource, index: number, config: ReplaceTextConfig) {
     const replacementSettings = new Setting(config.getSettingsElement())
     const titleInput = replacementSettings.addText((cb) => {
-        cb.setPlaceholder(strings.settings.groups.notes.titleTransformPatternPlaceholder)
+        cb.setPlaceholder(strings.settings.groups.notes.textTransformPatternPlaceholder)
             .setValue(transform.pattern)
             .onChange(async (newPattern: string) => {
                 if (newPattern == null || newPattern.length === 0 || !isValidPattern(newPattern)) {
-                    return new Notice(strings.settings.groups.notes.titleTransformEmptyTitle);
+                    return new Notice(strings.settings.groups.notes.textTransformEmptyTitle);
                 }
 
                 const currentPattern = config.getSource()[index].pattern
@@ -47,7 +47,7 @@ function addOption(transform: PatternReplaceSource, index: number, config: Repla
     })
 
     const replacementInput = titleInput.addText((cb) => {
-        cb.setPlaceholder(strings.settings.groups.notes.titleTransformReplacementPlaceholder)
+        cb.setPlaceholder(strings.settings.groups.notes.textTransformReplacementPlaceholder)
             .setValue(transform.replacement)
             .onChange(async (newReplacement) => {
                 if (newReplacement == null) {
@@ -84,7 +84,7 @@ export function buildTextReplaceSettings(config: ReplaceTextConfig) {
         .setDesc(config.optionName.desc)
         .addButton((button: ButtonComponent) => {
             button
-                .setTooltip(strings.settings.groups.notes.titleTransformAdd)
+                .setTooltip(strings.settings.groups.notes.textTransformAdd)
                 .setButtonText('+')
                 .setCta()
                 .onClick(async () => {

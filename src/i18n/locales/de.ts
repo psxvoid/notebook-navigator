@@ -523,10 +523,10 @@ export const STRINGS_DE = {
             notes: {
                 frontmatter: 'Frontmatter',
                 display: 'Darstellung',
-                titleTransformAdd: 'Neue Transformation hinzufügen',
-                titleTransformPatternPlaceholder: 'Regulärer Ausdruck',
-                titleTransformReplacementPlaceholder: 'Ersatz',
-                titleTransformEmptyTitle: 'Ein Muster muss ein gültiger regulärer Ausdruck sein',
+                textTransformAdd: 'Neue Transformation hinzufügen',
+                textTransformPatternPlaceholder: 'Regulärer Ausdruck',
+                textTransformReplacementPlaceholder: 'Ersatz',
+                textTransformEmptyTitle: 'Ein Muster muss ein gültiger regulärer Ausdruck sein',
             }
         },
         items: {

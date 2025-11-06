@@ -522,10 +522,10 @@ export const STRINGS_PL = {
             notes: {
                 frontmatter: 'Frontmatter',
                 display: 'Wygląd',
-                titleTransformAdd: 'Dodaj nową transformację',
-                titleTransformPatternPlaceholder: 'Wyrażenie regularne',
-                titleTransformReplacementPlaceholder: 'Wymiana',
-                titleTransformEmptyTitle: 'Wzorzec musi być prawidłowym wyrażeniem regularnym',
+                textTransformAdd: 'Dodaj nową transformację',
+                textTransformPatternPlaceholder: 'Wyrażenie regularne',
+                textTransformReplacementPlaceholder: 'Wymiana',
+                textTransformEmptyTitle: 'Wzorzec musi być prawidłowym wyrażeniem regularnym',
             }
         },
         items: {

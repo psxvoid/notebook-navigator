@@ -521,10 +521,10 @@ export const STRINGS_JA = {
             notes: {
                 frontmatter: 'フロントマター',
                 display: '外観',
-                titleTransformAdd: '新しい変換を追加',
-                titleTransformPatternPlaceholder: '正規表現',
-                titleTransformReplacementPlaceholder: '交換',
-                titleTransformEmptyTitle: 'パターンは有効な RegExp である必要があります',
+                textTransformAdd: '新しい変換を追加',
+                textTransformPatternPlaceholder: '正規表現',
+                textTransformReplacementPlaceholder: '交換',
+                textTransformEmptyTitle: 'パターンは有効な RegExp である必要があります',
             }
         },
         items: {
