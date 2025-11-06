@@ -25,7 +25,7 @@ import { extractMetadataFromCache } from '../../utils/metadataExtractor';
 import { shouldExcludeFile } from '../../utils/fileFilters';
 import { BaseContentProvider } from './BaseContentProvider';
 import { getFileDisplayName } from 'src/utils/fileNameUtils';
-import { EMPTY_STRING } from 'src/utils/empty';
+import { parseReplacer, TitleReplacer } from './common/TextReplacer';
 
 // Compares two arrays for same members regardless of order
 function haveSameMembers(left: string[], right: string[]): boolean {
@@ -40,27 +40,8 @@ function haveSameMembers(left: string[], right: string[]): boolean {
     return sortedLeft.every((value, index) => value === sortedRight[index]);
 }
 
-interface TitleReplacer {
-    regex: RegExp,
-    isGlobal: boolean
-}
 
 const replacerCache = new Map<string, TitleReplacer>()
-const supportedFlags = new Set<string>(['g', 'i', 'm', 's', 'u', 'v', 'y'])
-
-export function parseReplacer(source: string): TitleReplacer {
-    const flagMatches = /(.*?)(\/.*)$/.exec(source)
-
-    if (flagMatches != null && flagMatches.length > 1) {
-        const patternPart = flagMatches[1]
-        const flags = [...flagMatches[2]]
-            .filter((v, i, arr) => supportedFlags.has(v) && arr.indexOf(v) === i)
-            .join(EMPTY_STRING)
-        return { regex: new RegExp(patternPart, flags), isGlobal: flags.contains('g') }
-    }
-
-    return { regex: new RegExp(source), isGlobal: false }
-}
 
 export function transformTitle<T extends string | undefined | null>(sourceTitle: T, settings: NotebookNavigatorSettings): T {
     if (sourceTitle == null || settings.noteTitleTransform.length === 0) {

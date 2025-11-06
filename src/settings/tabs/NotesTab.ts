@@ -21,7 +21,7 @@ import { strings } from '../../i18n';
 import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
-import { parseReplacer } from 'src/services/content/MetadataContentProvider';
+import { parseReplacer } from 'src/services/content/common/TextReplacer';
 
 /**
  * Type guard to check if a file is a markdown file
