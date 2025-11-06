@@ -7,7 +7,11 @@ export function transformTitle<T extends string | undefined | null>(sourceTitle:
     return transformWith(sourceTitle, settings.noteTitleTransform)
 }
 
-interface PatternReplaceSource {
+export function transformPreview<T extends string | undefined | null>(sourceTitle: T, settings: NotebookNavigatorSettings): T {
+    return transformWith(sourceTitle, settings.notePreviewTransform)
+}
+
+export interface PatternReplaceSource {
     pattern: string,
     replacement: string,
 }

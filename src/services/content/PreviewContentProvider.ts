@@ -23,6 +23,7 @@ import { FileData } from '../../storage/IndexedDBStorage';
 import { getDBInstance } from '../../storage/fileOperations';
 import { PreviewTextUtils } from '../../utils/previewTextUtils';
 import { BaseContentProvider } from './BaseContentProvider';
+import { transformPreview } from './common/TextReplacerTransform';
 
 /**
  * Content provider for generating file preview text
@@ -102,7 +103,9 @@ export class PreviewContentProvider extends BaseContentProvider {
             }
 
             const content = await this.app.vault.cachedRead(job.file);
-            const previewText = PreviewTextUtils.extractPreviewText(content, settings, metadata?.frontmatter);
+            const previewText = transformPreview(
+                PreviewTextUtils.extractPreviewText(content, settings, metadata?.frontmatter),
+                settings);
 
             // Only return update if preview changed
             if (fileData && fileData.preview === previewText) {
