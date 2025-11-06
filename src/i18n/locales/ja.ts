@@ -525,10 +525,10 @@ export const STRINGS_JA = {
             notes: {
                 frontmatter: 'フロントマター',
                 display: '外観',
-                titleTransformAdd: '新しい変換を追加',
-                titleTransformPatternPlaceholder: '正規表現',
-                titleTransformReplacementPlaceholder: '交換',
-                titleTransformEmptyTitle: 'パターンは有効な RegExp である必要があります',
+                textTransformAdd: '新しい変換を追加',
+                textTransformPatternPlaceholder: '正規表現',
+                textTransformReplacementPlaceholder: '交換',
+                textTransformEmptyTitle: 'パターンは有効な RegExp である必要があります',
             }
         },
         items: {
@@ -862,6 +862,10 @@ export const STRINGS_JA = {
             titleTransformName: {
                 name: 'タイトルが変わる',
                 desc: `タイトル全体またはその一部をカスタム値に置き換えます。例えば、ノートのタイトルの先頭にある「idea」を電球のUnicodeアイコンに置き換えることができます。「string.replace」構文を使用します。既存のノートに変更を適用するには、キャッシュを再構築する必要があります。`
+            },
+            previewTransformName: {
+                name: 'プレビュー変換',
+                desc: `プレビュー全体またはその一部をカスタム値に置き換えます。ノートリストに表示したくないブロックがノートに含まれている場合に便利です。「string.replace」構文を使用します。既存のノートに変更を適用するには、キャッシュを再構築する必要があります。`
             },
             showFeatureImage: {
                 name: 'アイキャッチ画像を表示',

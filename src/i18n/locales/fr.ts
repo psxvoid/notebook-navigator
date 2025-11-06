@@ -525,10 +525,10 @@ export const STRINGS_FR = {
             notes: {
                 frontmatter: 'Frontmatter',
                 display: 'Apparence',
-                titleTransformAdd: 'Ajouter une nouvelle transformation',
-                titleTransformPatternPlaceholder: 'Expression régulière',
-                titleTransformReplacementPlaceholder: 'Remplacement',
-                titleTransformEmptyTitle: 'Un modèle doit être une expression régulière valide',
+                textTransformAdd: 'Ajouter une nouvelle transformation',
+                textTransformPatternPlaceholder: 'Expression régulière',
+                textTransformReplacementPlaceholder: 'Remplacement',
+                textTransformEmptyTitle: 'Un modèle doit être une expression régulière valide',
             }
         },
         items: {
@@ -863,6 +863,10 @@ export const STRINGS_FR = {
             titleTransformName: {
                 name: 'Le titre se transforme',
                 desc: `Remplace le titre entier ou une partie de celui-ci par une valeur personnalisée. Par exemple, vous pouvez l'utiliser pour remplacer «idée» au début du titre d'une note par une icône d'ampoule (Unicode). Utilise la syntaxe «string.replace». Nécessite une reconstruction du cache pour appliquer les modifications aux notes existantes.`
+            },
+            previewTransformName: {
+                name: 'Aperçu des transformations',
+                desc: `Remplace l'intégralité de l'aperçu ou une partie de celui-ci par une valeur personnalisée. Peut s'avérer utile si vos notes contiennent des blocs que vous ne souhaitez pas voir dans la liste des notes. Utilise la syntaxe «string.replace». Nécessite une reconstruction du cache pour appliquer les modifications aux notes existantes.`
             },
             showFeatureImage: {
                 name: "Afficher l'image vedette",
