@@ -23,6 +23,7 @@ import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { parseReplacer } from 'src/services/content/common/TextReplacer';
 import { EMPTY_STRING } from 'src/utils/empty';
+import { PatternReplaceSource } from 'src/services/content/common/TextReplacerTransform';
 
 /**
  * Type guard to check if a file is a markdown file
@@ -323,7 +324,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
                         replacement: ''
                     });
                     await plugin.saveSettingsAndUpdate();
-                    addOption({ pattern: '', replacement: '' }, plugin.settings.noteTitleTransform.length - 1)
+                    addTitleReplaceOption({ pattern: '', replacement: '' }, plugin.settings.noteTitleTransform.length - 1)
                 });
         });
 
@@ -340,41 +341,56 @@ export function renderNotesTab(context: SettingsTabContext): void {
         return isValid
     }
 
-    const addOption = (noteTitleTransform: { pattern: string, replacement: string }, index: number) => {
-        const replacementSettings = new Setting(titleGroupEl)
+    interface ReplaceTextConfig {
+        getSource(): PatternReplaceSource[]
+        getSettingsElement(): HTMLElement
+    }
+
+    const titleReplaceConfig: ReplaceTextConfig = {
+        getSource: () => plugin.settings.noteTitleTransform,
+        getSettingsElement: () => titleGroupEl
+    }
+
+    const addTitleReplaceOption = (noteTitleTransform: PatternReplaceSource, index: number) => {
+        return addOption(noteTitleTransform, index, titleReplaceConfig)
+    };
+
+    const addOption = (transform: PatternReplaceSource, index: number, config: ReplaceTextConfig) => {
+        const replacementSettings = new Setting(config.getSettingsElement())
         const titleInput = replacementSettings.addText((cb) => {
             cb.setPlaceholder(strings.settings.groups.notes.titleTransformPatternPlaceholder)
-                .setValue(noteTitleTransform.pattern)
+                .setValue(transform.pattern)
                 .onChange(async (newPattern: string) => {
                     if (newPattern == null || newPattern.length === 0 || !isValidPattern(newPattern)) {
                         return new Notice(strings.settings.groups.notes.titleTransformEmptyTitle);
                     }
 
-                    const currentPattern = plugin.settings.noteTitleTransform[index].pattern
+                    const currentPattern = config.getSource()[index].pattern
 
                     if (currentPattern === newPattern) {
                         return
                     }
 
-                    plugin.settings.noteTitleTransform[index].pattern = newPattern;
+                    config.getSource()[index].pattern = newPattern;
                     await plugin.saveSettingsAndUpdate();
                 });
         })
+
         const replacementInput = titleInput.addText((cb) => {
             cb.setPlaceholder(strings.settings.groups.notes.titleTransformReplacementPlaceholder)
-                .setValue(noteTitleTransform.replacement)
+                .setValue(transform.replacement)
                 .onChange(async (newReplacement) => {
                     if (newReplacement == null) {
                         return
                     }
 
-                    const currentReplacement = plugin.settings.noteTitleTransform[index].replacement
+                    const currentReplacement = config.getSource()[index].replacement
 
                     if (currentReplacement === newReplacement) {
                         return
                     }
 
-                    plugin.settings.noteTitleTransform[index].replacement = newReplacement;
+                    config.getSource()[index].replacement = newReplacement;
                     await plugin.saveSettingsAndUpdate();
                 });
         })
@@ -382,7 +398,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
             cb.setIcon('cross')
                 .setTooltip(strings.common.delete)
                 .onClick(async () => {
-                    plugin.settings.noteTitleTransform.splice(index, 1)
+                    config.getSource().splice(index, 1)
                     await plugin.saveSettingsAndUpdate()
                     titleInput.settingEl.remove()
                     replacementInput.settingEl.remove()
@@ -392,7 +408,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
         replacementSettings.infoEl.remove();
     }
 
-    plugin.settings.noteTitleTransform.forEach(addOption);
+    plugin.settings.noteTitleTransform.forEach(addTitleReplaceOption);
 
     // Container for settings that depend on showFileDate being enabled
     const fileDateSubSettingsEl = containerEl.createDiv('nn-sub-settings');
