@@ -837,6 +837,10 @@ export const STRINGS_ZH_CN = {
                 name: '标题转换',
                 desc: `将整个标题或其部分内容替换为自定义值。例如，您可以使用此功能将笔记标题开头的“idea”替换为灯泡 Unicode 图标。使用“string.replace”语法。要将更改应用到现有笔记，需要重建缓存。`
             },
+            previewTransformName: {
+                name: '预览变换',
+                desc: `将整个预览或其部分内容替换为自定义值。如果您的笔记包含您不想在笔记列表中看到的块，此功能可能很有用。使用“string.replace”语法。需要重建缓存才能将更改应用到现有笔记。`
+            },
             showFeatureImage: {
                 name: '显示特色图片',
                 desc: '从前置元数据显示缩略图。提示：使用"Featured Image"插件自动为所有文档设置特色图片。'

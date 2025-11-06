@@ -78,8 +78,8 @@ function addOption(transform: PatternReplaceSource, index: number, config: Repla
     replacementSettings.infoEl.remove();
 }
 
-export function buildTextReplaceSettings(parentSettingElement: HTMLElement, config: ReplaceTextConfig) {
-    new Setting(parentSettingElement)
+export function buildTextReplaceSettings(config: ReplaceTextConfig) {
+    new Setting(config.getSettingsElement())
         .setName(config.optionName.name)
         .setDesc(config.optionName.desc)
         .addButton((button: ButtonComponent) => {

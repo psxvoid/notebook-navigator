@@ -840,6 +840,10 @@ export const STRINGS_DE = {
                 name: 'Titel transformiert',
                 desc: `Ersetzt den gesamten Titel oder Teile davon durch einen benutzerdefinierten Wert. Beispielsweise können Sie damit „Idee“ am Anfang eines Notiztitels durch ein Glühbirnen-Unicode-Symbol ersetzen. Verwendet die Syntax „string.replace“. Der Cache muss neu erstellt werden, damit die Änderungen auf bestehende Notizen angewendet werden.`
             },
+            previewTransformName: {
+                name: 'Vorschau-Transformationen',
+                desc: `Ersetzt die gesamte Vorschau oder Teile davon durch einen benutzerdefinierten Wert. Dies kann hilfreich sein, wenn Ihre Notizen Abschnitte enthalten, die nicht in der Notizliste angezeigt werden sollen. Verwendet die Syntax „string.replace“. Der Cache muss neu erstellt werden, um die Änderungen auf bestehende Notizen anzuwenden.`
+            },
             showFeatureImage: {
                 name: 'Vorschaubild anzeigen',
                 desc: 'Miniaturbilder aus Frontmatter anzeigen. Tipp: Verwenden Sie das "Featured Image" Plugin, um automatisch Vorschaubilder für alle Ihre Dokumente festzulegen.'

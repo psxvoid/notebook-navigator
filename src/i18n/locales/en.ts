@@ -836,6 +836,10 @@ export const STRINGS_EN = {
                 name: 'Title transforms',
                 desc: `Replaces entire title or it's parts with a custom value. For example you can use this to replace "idea" at the start of a note title with a light bulb unicode icon. Uses "string.replace" syntax. Requires rebuilding the cache to apply changes to existing notes.`
             },
+            previewTransformName: {
+                name: 'Preview transforms',
+                desc: `Replaces entire preview or it's parts with a custom value. Might be useful if your notes contain blocks that you don't wont to see in the note list. Uses "string.replace" syntax. Requires rebuilding the cache to apply changes to existing notes.`
+            },
             showFeatureImage: {
                 name: 'Show feature image',
                 desc: 'Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents.'

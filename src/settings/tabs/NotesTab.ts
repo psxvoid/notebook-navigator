@@ -308,7 +308,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
 
     const titleGroupEl = containerEl.createDiv('nn-sub-settings');
 
-    buildTextReplaceSettings(titleGroupEl, {
+    buildTextReplaceSettings({
         getSource: () => plugin.settings.noteTitleTransform,
         getSettingsElement: () => titleGroupEl,
         getPlugin: () => plugin,
@@ -478,6 +478,13 @@ export function renderNotesTab(context: SettingsTabContext): void {
         }
     );
     previewPropertiesSetting.controlEl.addClass('nn-setting-wide-input');
+
+    buildTextReplaceSettings({
+        getSource: () => plugin.settings.notePreviewTransform,
+        getSettingsElement: () => previewSettingsEl,
+        getPlugin: () => plugin,
+        optionName: strings.settings.items.previewTransformName
+    })
 
     const previewInfoContainer = previewSettingsEl.createDiv('nn-setting-info-container');
     const previewInfoDiv = previewInfoContainer.createEl('div', {
