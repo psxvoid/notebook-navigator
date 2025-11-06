@@ -173,6 +173,8 @@ export const STRINGS_PT_BR = {
             newDrawing: 'Novo desenho',
             duplicateFolder: 'Duplicar pasta',
             searchInFolder: 'Pesquisar na pasta',
+            copyPath: 'Copiar caminho',
+            copyRelativePath: 'Copiar caminho relativo',
             createFolderNote: 'Criar nota de pasta',
             deleteFolderNote: 'Excluir nota de pasta',
             changeIcon: 'Alterar ícone',

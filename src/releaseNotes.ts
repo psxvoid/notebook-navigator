@@ -77,7 +77,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-10',
         showOnUpdate: true,
         new: [
-            '==Tag rename, tag delete, tag drag-and-drop==! You can now rename tags, delete tags (removes from all notes), and drag-and-drop tags to reorganize them in navigation pane.'
+            '==Tag rename, tag delete, tag drag-and-drop==! You can now rename tags, delete tags (removes from all notes), and drag-and-drop tags to reorganize them in navigation pane.',
+            'Two new folder menu items: **Copy path** and **Copy relative path**.',
+            'New check box in add tag modal: **Allow creating new tags**. Disable to only allow selecting existing tags.'
         ],
         improved: [],
         changed: [],

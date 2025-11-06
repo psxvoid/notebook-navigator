@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { MenuItem, Notice, Platform, TFolder, TFile } from 'obsidian';
+import { FileSystemAdapter, MenuItem, Notice, Platform, TFolder, TFile } from 'obsidian';
 import { FolderMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin, isFolderAncestor } from '../../utils/typeGuards';
@@ -211,6 +211,32 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             }
         });
     }
+
+    // Copy actions
+    menu.addSeparator();
+
+    const adapter = app.vault.adapter;
+
+    if (adapter instanceof FileSystemAdapter) {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.folder.copyPath)
+                .setIcon('lucide-clipboard')
+                .onClick(async () => {
+                    const absolutePath = adapter.getFullPath(folder.path);
+                    await navigator.clipboard.writeText(absolutePath);
+                    new Notice(strings.fileSystem.notifications.pathCopied);
+                });
+        });
+    }
+
+    menu.addItem((item: MenuItem) => {
+        item.setTitle(strings.contextMenu.folder.copyRelativePath)
+            .setIcon('lucide-clipboard-list')
+            .onClick(async () => {
+                await navigator.clipboard.writeText(folder.path);
+                new Notice(strings.fileSystem.notifications.relativePathCopied);
+            });
+    });
 
     // Folder note operations
     if (settings.enableFolderNotes) {

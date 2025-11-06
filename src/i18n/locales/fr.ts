@@ -172,6 +172,8 @@ export const STRINGS_FR = {
             newDrawing: 'Nouveau dessin',
             duplicateFolder: 'Dupliquer le dossier',
             searchInFolder: 'Rechercher dans le dossier',
+            copyPath: 'Copier le chemin',
+            copyRelativePath: 'Copier le chemin relatif',
             createFolderNote: 'Créer une note de dossier',
             deleteFolderNote: 'Supprimer la note de dossier',
             changeIcon: "Changer l'icône",
@@ -323,6 +325,7 @@ export const STRINGS_FR = {
             addPlaceholder: 'Rechercher une étiquette à ajouter...',
             removePlaceholder: "Sélectionner l'étiquette à supprimer...",
             createNewTag: 'Créer une nouvelle étiquette : #{tag}',
+            allowCreationToggle: 'Autoriser la création de nouvelles étiquettes',
             instructions: {
                 navigate: 'pour naviguer',
                 select: 'pour sélectionner',
@@ -983,6 +986,10 @@ export const STRINGS_FR = {
             keepEmptyTagsProperty: {
                 name: 'Conserver la propriété tags après suppression de la dernière étiquette',
                 desc: 'Conserve la propriété tags dans le frontmatter lorsque toutes les étiquettes sont supprimées. Si désactivé, la propriété tags est supprimée du frontmatter.'
+            },
+            allowTagCreationInAddTagModal: {
+                name: "Autoriser la création d'étiquettes dans le modal d'ajout",
+                desc: "Afficher l'option de création d'étiquette lors de l'ajout d'étiquettes. Le bouton apparaît dans le modal."
             },
             hiddenTags: {
                 name: 'Étiquettes cachées',

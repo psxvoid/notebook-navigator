@@ -171,6 +171,8 @@ export const STRINGS_PL = {
             newDrawing: 'Nowy rysunek',
             duplicateFolder: 'Duplikuj folder',
             searchInFolder: 'Szukaj w folderze',
+            copyPath: 'Kopiuj ścieżkę',
+            copyRelativePath: 'Kopiuj ścieżkę względną',
             createFolderNote: 'Utwórz notatkę folderu',
             deleteFolderNote: 'Usuń notatkę folderu',
             changeIcon: 'Zmień ikonę',
@@ -324,6 +326,7 @@ export const STRINGS_PL = {
             addPlaceholder: 'Szukaj tagu do dodania...',
             removePlaceholder: 'Wybierz tag do usunięcia...',
             createNewTag: 'Utwórz nowy tag: #{tag}',
+            allowCreationToggle: 'Zezwalaj na tworzenie nowych tagów',
             instructions: {
                 navigate: 'aby nawigować',
                 select: 'aby wybrać',
@@ -982,6 +985,10 @@ export const STRINGS_PL = {
             keepEmptyTagsProperty: {
                 name: 'Zachowaj właściwość tags po usunięciu ostatniego tagu',
                 desc: 'Zachowuje właściwość tags we frontmatterze, gdy wszystkie tagi są usuwane. Gdy wyłączone, właściwość tags jest usuwana z frontmattera.'
+            },
+            allowTagCreationInAddTagModal: {
+                name: 'Zezwalaj na tworzenie tagów w oknie dodawania tagów',
+                desc: 'Pokaż opcję tworzenia tagów podczas dodawania tagów. Przełącznik pojawia się w oknie modalnym.'
             },
             hiddenTags: {
                 name: 'Ukryte tagi',

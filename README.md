@@ -54,7 +54,13 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 ## Getting started
 
-**Can't see your files?** If you've enabled dual-pane layout but don't see any files, you may need to resize the navigation pane. Drag the divider between the left pane and editor to reveal the file list.
+**Can't see your files?** There are two common reasons:
+
+1. **File type filtering:** By default, Notebook Navigator shows only "supported file types" (files that open directly in Obsidian). To see all files, go to Settings → General → Show file types and select "All (may open externally)".
+   - **Supported file types:** Markdown (.md), Canvas (.canvas), Base (.base), PDFs, images (PNG, JPG, SVG), and other Obsidian-compatible formats
+   - **Not supported by default:** Code files (.js, .css, .py), config files (.json, .yml), archives (.zip), and other external formats
+
+2. **Pane sizing:** If you've enabled dual-pane layout but don't see the file list, you may need to resize the navigation pane. Drag the divider between the left pane and editor to reveal the file list.
 
 ### Navigation pane toolbar
 
@@ -86,6 +92,37 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - Drag files from shortcuts to remove from shortcuts
 - Drag shortcuts to reorder them
 - Drag root folders when in reorder mode
+
+### Search modes (new in version 1.7.3)
+
+The search field operates in two modes depending on what you type:
+
+**Filter mode (default):**
+
+- Type mixed text and tags to find files matching all terms
+- Examples:
+  - `meeting notes` - Files containing both "meeting" and "notes" in their name
+  - `project #work` - Files containing "project" in the name with #work tag
+  - `!draft` - Files NOT containing "draft" in the name
+  - `#urgent !#archived` - Files with #urgent tag but NOT #archived tag
+  - `!#` - Files without any tags (untagged notes)
+
+**Tag mode (advanced):**
+
+- Activated when search contains only tags and operators (AND/OR)
+- AND has higher precedence than OR
+- Examples:
+  - `#project AND #urgent` - Files with both tags
+  - `#work OR #personal` - Files with either tag
+  - `#project OR #personal AND #urgent` - Files with #project OR (both #personal AND #urgent)
+  - `#work AND !#completed` - Files with #work tag but NOT #completed
+
+**Quick tag selection:**
+
+- **Cmd/Ctrl+Click** on any tag - Adds to search with AND
+- **Cmd/Ctrl+Shift+Click** on any tag - Adds to search with OR
+- Tags are automatically added in the correct format
+- Click tags again to remove them from search
 
 ### Tag renaming and deletion (new in version 1.7.4)
 
