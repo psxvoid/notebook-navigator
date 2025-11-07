@@ -18,6 +18,7 @@
 
 import { App, Modal } from 'obsidian';
 import { strings } from '../i18n';
+import { runAsyncAction } from '../utils/async';
 
 interface TagRenameModalOptions {
     tagPath: string;
@@ -106,13 +107,13 @@ export class TagRenameModal extends Modal {
             cls: 'mod-cta'
         });
         this.submitBtn.addEventListener('click', () => {
-            void this.handleSubmit();
+            runAsyncAction(() => this.handleSubmit());
         });
 
         this.scope.register([], 'Enter', event => {
             if (document.activeElement === this.inputEl) {
                 event.preventDefault();
-                void this.handleSubmit();
+                runAsyncAction(() => this.handleSubmit());
             }
         });
 

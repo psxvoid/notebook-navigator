@@ -44,6 +44,7 @@ import { useKeyboardNavigation, KeyboardNavigationHelpers } from './useKeyboardN
 import { useMultiSelection } from './useMultiSelection';
 import { useFileOpener } from './useFileOpener';
 import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
+import { runAsyncAction } from '../utils/async';
 
 /**
  * Check if a list item is selectable (file, not header or spacer)
@@ -313,15 +314,17 @@ export function useListPaneKeyboard({
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.DELETE_SELECTED)) {
                 if (selectionState.selectedFile || selectionState.selectedFiles.size > 0) {
                     e.preventDefault();
-                    deleteSelectedFiles({
-                        app,
-                        fileSystemOps,
-                        settings,
-                        visibility: { includeDescendantNotes, showHiddenItems },
-                        selectionState,
-                        selectionDispatch,
-                        tagTreeService
-                    });
+                    runAsyncAction(() =>
+                        deleteSelectedFiles({
+                            app,
+                            fileSystemOps,
+                            settings,
+                            visibility: { includeDescendantNotes, showHiddenItems },
+                            selectionState,
+                            selectionDispatch,
+                            tagTreeService
+                        })
+                    );
                 }
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.LIST_SELECT_ALL)) {
                 e.preventDefault();

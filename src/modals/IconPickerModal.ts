@@ -24,10 +24,16 @@ import { MetadataService } from '../services/MetadataService';
 import { ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { ISettingsProvider } from '../interfaces/ISettingsProvider';
+import { runAsyncAction } from '../utils/async';
+import { addAsyncEventListener } from '../utils/domEventListeners';
 
 // Constants
 const GRID_COLUMNS = 5;
 const MAX_SEARCH_RESULTS = 50;
+
+function isStringArray(value: unknown): value is string[] {
+    return Array.isArray(value) && value.every(item => typeof item === 'string');
+}
 
 /**
  * Enhanced icon picker modal that supports multiple icon providers
@@ -59,16 +65,6 @@ export class IconPickerModal extends Modal {
 
     public static setLastUsedProvider(providerId: string | null): void {
         IconPickerModal.lastUsedProvider = providerId;
-    }
-
-    private addDomListener(
-        el: HTMLElement,
-        type: string,
-        handler: EventListenerOrEventListenerObject,
-        options?: boolean | AddEventListenerOptions
-    ): void {
-        el.addEventListener(type, handler, options);
-        this.domDisposers.push(() => el.removeEventListener(type, handler, options));
     }
 
     constructor(
@@ -122,19 +118,19 @@ export class IconPickerModal extends Modal {
                 removeButton.disabled = true;
             }
         }
-        this.addDomListener(removeButton, 'click', async () => {
-            await this.removeIcon();
-        });
+        this.domDisposers.push(addAsyncEventListener(removeButton, 'click', () => this.removeIcon()));
 
         // Set up search functionality with debouncing
-        this.addDomListener(this.searchInput, 'input', () => {
-            if (this.searchDebounceTimer) {
-                window.clearTimeout(this.searchDebounceTimer);
-            }
-            this.searchDebounceTimer = window.setTimeout(() => {
-                this.updateResults();
-            }, TIMEOUTS.DEBOUNCE_KEYBOARD);
-        });
+        this.domDisposers.push(
+            addAsyncEventListener(this.searchInput, 'input', () => {
+                if (this.searchDebounceTimer) {
+                    window.clearTimeout(this.searchDebounceTimer);
+                }
+                this.searchDebounceTimer = window.setTimeout(() => {
+                    this.updateResults();
+                }, TIMEOUTS.DEBOUNCE_KEYBOARD);
+            })
+        );
 
         // Set up keyboard navigation
         this.setupKeyboardNavigation();
@@ -171,13 +167,15 @@ export class IconPickerModal extends Modal {
             tab.dataset.providerId = provider.id;
             this.providerTabs.push(tab);
 
-            this.addDomListener(tab, 'click', () => {
-                this.setActiveProviderTab(provider.id);
-                this.currentProvider = provider.id;
-                IconPickerModal.setLastUsedProvider(provider.id);
-                this.updateResults();
-                this.resetResultsScroll();
-            });
+            this.domDisposers.push(
+                addAsyncEventListener(tab, 'click', () => {
+                    this.setActiveProviderTab(provider.id);
+                    this.currentProvider = provider.id;
+                    IconPickerModal.setLastUsedProvider(provider.id);
+                    this.updateResults();
+                    this.resetResultsScroll();
+                })
+            );
         });
 
         this.setActiveProviderTab(resolvedProviderId);
@@ -303,9 +301,10 @@ export class IconPickerModal extends Modal {
             if (provider.id === 'emoji') {
                 let displayName = '';
                 // Look up emoji keywords from emojilib
-                for (const [emoji, keywords] of Object.entries(emojilib)) {
-                    if (emoji === parsed.identifier && Array.isArray(keywords)) {
-                        displayName = keywords[0] || '';
+                const emojiEntries = Object.entries(emojilib as Record<string, unknown>);
+                for (const [emoji, keywords] of emojiEntries) {
+                    if (emoji === parsed.identifier && isStringArray(keywords)) {
+                        displayName = keywords[0] ?? '';
                         break;
                     }
                 }
@@ -381,9 +380,7 @@ export class IconPickerModal extends Modal {
         iconName.setText(iconDef.displayName);
 
         // Click handler
-        this.addDomListener(iconItem, 'click', () => {
-            this.selectIcon(fullIconId);
-        });
+        this.domDisposers.push(addAsyncEventListener(iconItem, 'click', () => this.selectIcon(fullIconId)));
 
         // Make focusable
         iconItem.setAttribute('tabindex', '0');
@@ -542,7 +539,7 @@ export class IconPickerModal extends Modal {
                 evt.preventDefault();
                 const iconId = currentFocused.getAttribute('data-icon-id');
                 if (iconId) {
-                    this.selectIcon(iconId);
+                    runAsyncAction(() => this.selectIcon(iconId));
                 }
             }
         });
@@ -688,7 +685,7 @@ export class IconPickerModal extends Modal {
             this.close();
         };
 
-        this.addDomListener(closeButton, 'click', handleClose);
-        this.addDomListener(closeButton, 'pointerdown', handleClose);
+        this.domDisposers.push(addAsyncEventListener(closeButton, 'click', handleClose));
+        this.domDisposers.push(addAsyncEventListener<PointerEvent>(closeButton, 'pointerdown', handleClose));
     }
 }

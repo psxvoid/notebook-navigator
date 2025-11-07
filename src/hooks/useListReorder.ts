@@ -19,6 +19,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DragEvent } from 'react';
 import { SHORTCUT_DRAG_MIME } from '../types/shortcuts';
+import { runAsyncAction } from '../utils/async';
 
 /**
  * Base interface for items that can be reordered.
@@ -449,7 +450,9 @@ export function useListReorder<T extends ReorderItemDescriptor>({
                 onDragStart: event => handleDragStart(event, key),
                 onDragOver: event => handleDragOver(event, key),
                 onDragLeave: handleDragLeave,
-                onDrop: event => void handleDrop(event, key),
+                onDrop: event => {
+                    runAsyncAction(() => handleDrop(event, key));
+                },
                 onDragEnd: handleDragEnd
             };
         },

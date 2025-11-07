@@ -20,6 +20,8 @@ import { App, Modal, setIcon } from 'obsidian';
 import { strings } from '../i18n';
 import { ItemType } from '../types';
 import { ISettingsProvider } from '../interfaces/ISettingsProvider';
+import { runAsyncAction } from '../utils/async';
+import { addAsyncEventListener } from '../utils/domEventListeners';
 
 /**
  * Color palette for folder colors
@@ -104,16 +106,6 @@ export class ColorPickerModal extends Modal {
     private presetColorsContainer: HTMLDivElement;
     private isUpdating = false;
     private domDisposers: (() => void)[] = [];
-
-    private addDomListener(
-        el: HTMLElement,
-        type: string,
-        handler: EventListenerOrEventListenerObject,
-        options?: boolean | AddEventListenerOptions
-    ): void {
-        el.addEventListener(type, handler, options);
-        this.domDisposers.push(() => el.removeEventListener(type, handler, options));
-    }
 
     /** Callback function invoked when a color is selected */
     public onChooseColor: (color: string | null) => void;
@@ -288,9 +280,11 @@ export class ColorPickerModal extends Modal {
             cls: 'nn-clear-recent',
             title: strings.modals.colorPicker.clearRecentColors
         });
-        this.addDomListener(clearButton, 'click', () => {
-            this.clearRecentColors();
-        });
+        this.domDisposers.push(
+            addAsyncEventListener(clearButton, 'click', () => {
+                this.clearRecentColors();
+            })
+        );
 
         this.recentColorsContainer = recentSection.createDiv('nn-recent-colors');
 
@@ -302,22 +296,22 @@ export class ColorPickerModal extends Modal {
         const cancelRemoveButton = buttonContainer.createEl('button', {
             text: this.currentColor ? removeColorText : strings.common.cancel
         });
-        this.addDomListener(cancelRemoveButton, 'click', () => {
-            if (this.currentColor) {
-                this.removeColor();
-            } else {
+        this.domDisposers.push(
+            addAsyncEventListener(cancelRemoveButton, 'click', () => {
+                if (this.currentColor) {
+                    return this.removeColor();
+                }
                 this.close();
-            }
-        });
+                return undefined;
+            })
+        );
 
         // Apply color button
         const applyButton = buttonContainer.createEl('button', {
             text: strings.modals.colorPicker.apply,
             cls: 'mod-cta'
         });
-        this.addDomListener(applyButton, 'click', async () => {
-            await this.applyColor();
-        });
+        this.domDisposers.push(addAsyncEventListener(applyButton, 'click', () => this.applyColor()));
 
         // Set up event handlers
         this.setupEventHandlers();
@@ -327,16 +321,18 @@ export class ColorPickerModal extends Modal {
         this.updateFromHex(this.selectedColor);
 
         // Hex input real-time update
-        this.addDomListener(this.hexInput, 'input', () => {
-            const sanitized = this.sanitizeHexInput(this.hexInput.value);
-            if (sanitized !== this.hexInput.value) {
-                this.hexInput.value = sanitized;
-            }
+        this.domDisposers.push(
+            addAsyncEventListener(this.hexInput, 'input', () => {
+                const sanitized = this.sanitizeHexInput(this.hexInput.value);
+                if (sanitized !== this.hexInput.value) {
+                    this.hexInput.value = sanitized;
+                }
 
-            if (sanitized.length === 6 || sanitized.length === 8) {
-                this.updateFromHex(`#${sanitized.toLowerCase()}`, { syncInput: false });
-            }
-        });
+                if (sanitized.length === 6 || sanitized.length === 8) {
+                    this.updateFromHex(`#${sanitized.toLowerCase()}`, { syncInput: false });
+                }
+            })
+        );
     }
 
     /**
@@ -371,8 +367,8 @@ export class ColorPickerModal extends Modal {
             this.close();
         };
 
-        this.addDomListener(closeButton, 'click', handleClose);
-        this.addDomListener(closeButton, 'pointerdown', handleClose);
+        this.domDisposers.push(addAsyncEventListener(closeButton, 'click', handleClose));
+        this.domDisposers.push(addAsyncEventListener<PointerEvent>(closeButton, 'pointerdown', handleClose));
     }
 
     /**
@@ -382,11 +378,13 @@ export class ColorPickerModal extends Modal {
         // RGB slider handlers
         (Object.keys(this.channelSliders) as ColorChannel[]).forEach(channel => {
             const slider = this.channelSliders[channel];
-            this.addDomListener(slider, 'input', () => {
-                if (!this.isUpdating) {
-                    this.updateFromRGB();
-                }
-            });
+            this.domDisposers.push(
+                addAsyncEventListener(slider, 'input', () => {
+                    if (!this.isUpdating) {
+                        this.updateFromRGB();
+                    }
+                })
+            );
         });
     }
 
@@ -415,9 +413,7 @@ export class ColorPickerModal extends Modal {
             const dot = this.recentColorsContainer.createDiv('nn-color-dot nn-recent-color nn-show-checkerboard');
             this.applySwatchColor(dot, color);
             dot.setAttribute('data-color', color);
-            this.addDomListener(dot, 'click', () => {
-                this.applyColorAndClose(color, false);
-            });
+            this.domDisposers.push(addAsyncEventListener(dot, 'click', () => this.applyColorAndClose(color, false)));
 
             const removeButton = dot.createEl('button', {
                 cls: 'nn-recent-remove-button',
@@ -428,11 +424,13 @@ export class ColorPickerModal extends Modal {
                 }
             });
             removeButton.createSpan({ text: '×', cls: 'nn-recent-remove-glyph', attr: { 'aria-hidden': 'true' } });
-            this.addDomListener(removeButton, 'click', event => {
-                event.stopPropagation();
-                event.preventDefault();
-                this.removeRecentColor(index);
-            });
+            this.domDisposers.push(
+                addAsyncEventListener(removeButton, 'click', event => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    this.removeRecentColor(index);
+                })
+            );
         });
 
         // Fill empty slots
@@ -446,7 +444,7 @@ export class ColorPickerModal extends Modal {
      */
     private clearRecentColors() {
         this.settingsProvider.settings.recentColors = [];
-        this.settingsProvider.saveSettingsAndUpdate();
+        runAsyncAction(() => this.settingsProvider.saveSettingsAndUpdate());
         this.loadRecentColors();
     }
 
@@ -460,7 +458,7 @@ export class ColorPickerModal extends Modal {
         }
 
         recentColors.splice(index, 1);
-        this.settingsProvider.saveSettingsAndUpdate();
+        runAsyncAction(() => this.settingsProvider.saveSettingsAndUpdate());
         this.loadRecentColors();
     }
 
@@ -475,9 +473,7 @@ export class ColorPickerModal extends Modal {
             this.applySwatchColor(dot, color.value);
             dot.setAttribute('data-color', color.value);
             dot.setAttribute('title', color.name);
-            this.addDomListener(dot, 'click', () => {
-                this.applyColorAndClose(color.value, false);
-            });
+            this.domDisposers.push(addAsyncEventListener(dot, 'click', () => this.applyColorAndClose(color.value, false)));
         });
     }
 

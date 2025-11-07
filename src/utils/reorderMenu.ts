@@ -18,6 +18,7 @@
 
 import { Menu } from 'obsidian';
 import type { DragHandleConfig } from '../components/NavigationListRow';
+import { runAsyncAction } from './async';
 
 export interface ShowReorderMenuOptions {
     anchor: HTMLElement;
@@ -71,7 +72,9 @@ export function showReorderMenu(options: ShowReorderMenuOptions): boolean {
             item.setTitle(moveUpLabel)
                 .setIcon(moveUpIcon)
                 .onClick(() => {
-                    void onMoveUp();
+                    runAsyncAction(() => {
+                        onMoveUp();
+                    });
                 });
         });
     }
@@ -80,7 +83,9 @@ export function showReorderMenu(options: ShowReorderMenuOptions): boolean {
             item.setTitle(moveDownLabel)
                 .setIcon(moveDownIcon)
                 .onClick(() => {
-                    void onMoveDown();
+                    runAsyncAction(() => {
+                        onMoveDown();
+                    });
                 });
         });
     }

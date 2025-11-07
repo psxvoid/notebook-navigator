@@ -49,6 +49,7 @@ import { FeatureImageContentProvider } from '../services/content/FeatureImageCon
 import { MetadataContentProvider } from '../services/content/MetadataContentProvider';
 import { TagContentProvider } from '../services/content/TagContentProvider';
 import { IndexedDBStorage, FileData as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
+import { runAsyncAction } from '../utils/async';
 import { calculateFileDiff } from '../storage/diffCalculator';
 import { recordFileChanges, markFilesForRegeneration, removeFilesFromCache, getDBInstance } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
@@ -97,6 +98,24 @@ function resolveMetadataDependentTypes(settings: NotebookNavigatorSettings, requ
         }
         return false;
     });
+}
+
+function haveStringArraysChanged(prev?: string[] | null, next?: string[] | null): boolean {
+    if (prev === next) {
+        return false;
+    }
+    if (!prev || !next) {
+        return (prev?.length ?? 0) !== (next?.length ?? 0);
+    }
+    if (prev.length !== next.length) {
+        return true;
+    }
+    for (let index = 0; index < prev.length; index += 1) {
+        if (prev[index] !== next[index]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -977,7 +996,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
      */
     useEffect(() => {
         let cancelled = false;
-        (async () => {
+        const initializeDatabase = async () => {
             try {
                 const db = getDBInstance();
                 await db.init();
@@ -986,7 +1005,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 console.error('Database not available for StorageContext:', error);
                 if (!cancelled) setIsIndexedDBReady(false);
             }
-        })();
+        };
+        runAsyncAction(initializeDatabase);
         return () => {
             cancelled = true;
         };
@@ -1244,10 +1264,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 if (typeof window !== 'undefined') {
                     pendingSyncTimeoutId.current = window.setTimeout(() => {
                         pendingSyncTimeoutId.current = null;
-                        void processDiff();
+                        runAsyncAction(() => processDiff());
                     }, 0);
                 } else {
-                    void processDiff();
+                    runAsyncAction(() => processDiff());
                 }
             }
         };
@@ -1288,7 +1308,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     if (!build) {
                         return;
                     }
-                    void build(false);
+                    runAsyncAction(() => build(false));
                 },
                 TIMEOUTS.FILE_OPERATION_DELAY,
                 true
@@ -1299,7 +1319,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         // Only build initial cache if IndexedDB is ready and we haven't built it yet
         if (isIndexedDBReady && !hasBuiltInitialCache.current) {
             hasBuiltInitialCache.current = true;
-            buildFileCache(true);
+            runAsyncAction(() => buildFileCache(true));
         }
 
         /**
@@ -1471,20 +1491,20 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
      */
     useEffect(() => {
         // Skip on initial mount
-        if (!prevSettings.current) {
+        const previousSettings = prevSettings.current;
+        if (!previousSettings) {
             prevSettings.current = settings;
             return;
         }
-
-        // Let content providers handle settings changes
-        handleSettingsChanges(prevSettings.current, settings);
+        // Settings UIs debounce excluded folders/files edits, so this effect only runs after the user stops typing
+        runAsyncAction(() => handleSettingsChanges(previousSettings, settings));
 
         // Detect exclusion setting changes and resync cache / tag tree
-        const excludedFoldersChanged = JSON.stringify(prevSettings.current.excludedFolders) !== JSON.stringify(settings.excludedFolders);
-        const excludedFilesChanged = JSON.stringify(prevSettings.current.excludedFiles) !== JSON.stringify(settings.excludedFiles);
+        const excludedFoldersChanged = haveStringArraysChanged(previousSettings.excludedFolders, settings.excludedFolders);
+        const excludedFilesChanged = haveStringArraysChanged(previousSettings.excludedFiles, settings.excludedFiles);
 
         if (excludedFoldersChanged || excludedFilesChanged) {
-            (async () => {
+            runAsyncAction(async () => {
                 try {
                     const allFiles = getIndexableMarkdownFiles();
                     const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
@@ -1566,7 +1586,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 } catch (error) {
                     console.error('Error resyncing cache after exclusion changes:', error);
                 }
-            })();
+            });
         }
 
         prevSettings.current = settings;

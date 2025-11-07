@@ -2,6 +2,7 @@ import { App, Modal } from 'obsidian';
 import { strings } from '../i18n';
 import { ReleaseNote } from '../releaseNotes';
 import { DateUtils } from '../utils/dateUtils';
+import { addAsyncEventListener } from '../utils/domEventListeners';
 
 export class WhatsNewModal extends Modal {
     private releaseNotes: ReleaseNote[];
@@ -65,16 +66,6 @@ export class WhatsNewModal extends Modal {
                 container.createEl('br');
             }
         }
-    }
-
-    private addDomListener(
-        el: HTMLElement,
-        type: string,
-        handler: EventListenerOrEventListenerObject,
-        options?: boolean | AddEventListenerOptions
-    ): void {
-        el.addEventListener(type, handler, options);
-        this.domDisposers.push(() => el.removeEventListener(type, handler, options));
     }
 
     constructor(app: App, releaseNotes: ReleaseNote[], dateFormat: string, onCloseCallback?: () => void) {
@@ -179,17 +170,21 @@ export class WhatsNewModal extends Modal {
             cls: 'nn-support-button-label',
             text: strings.whatsNew.supportButton
         });
-        this.addDomListener(supportButton, 'click', () => {
-            window.open('https://www.buymeacoffee.com/johansan');
-        });
+        this.domDisposers.push(
+            addAsyncEventListener(supportButton, 'click', () => {
+                window.open('https://www.buymeacoffee.com/johansan');
+            })
+        );
 
         const thanksButton = buttonContainer.createEl('button', {
             text: strings.whatsNew.thanksButton,
             cls: 'mod-cta'
         });
-        this.addDomListener(thanksButton, 'click', () => {
-            this.close();
-        });
+        this.domDisposers.push(
+            addAsyncEventListener(thanksButton, 'click', () => {
+                this.close();
+            })
+        );
 
         // Store reference to thanks button
         this.thanksButton = thanksButton;
@@ -239,7 +234,7 @@ export class WhatsNewModal extends Modal {
             this.close();
         };
 
-        this.addDomListener(closeButton, 'click', handleClose);
-        this.addDomListener(closeButton, 'pointerdown', handleClose);
+        this.domDisposers.push(addAsyncEventListener(closeButton, 'click', handleClose));
+        this.domDisposers.push(addAsyncEventListener<PointerEvent>(closeButton, 'pointerdown', handleClose));
     }
 }

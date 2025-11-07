@@ -21,6 +21,7 @@ import { strings } from '../../i18n';
 import { DEFAULT_SETTINGS } from '../defaultSettings';
 import type { ListNoteGroupingOption, ListPaneTitleOption, SortOption } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
+import { runAsyncAction } from '../../utils/async';
 
 /** Renders the list pane settings tab */
 export function renderListPaneTab(context: SettingsTabContext): void {
@@ -153,11 +154,13 @@ export function renderListPaneTab(context: SettingsTabContext): void {
             button
                 .setIcon('lucide-rotate-ccw')
                 .setTooltip(strings.settings.items.slimItemHeight.resetTooltip)
-                .onClick(async () => {
-                    const defaultValue = DEFAULT_SETTINGS.slimItemHeight;
-                    slimItemHeightSlider.setValue(defaultValue);
-                    plugin.settings.slimItemHeight = defaultValue;
-                    await plugin.saveSettingsAndUpdate();
+                .onClick(() => {
+                    runAsyncAction(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.slimItemHeight;
+                        slimItemHeightSlider.setValue(defaultValue);
+                        plugin.settings.slimItemHeight = defaultValue;
+                        await plugin.saveSettingsAndUpdate();
+                    });
                 })
         );
 

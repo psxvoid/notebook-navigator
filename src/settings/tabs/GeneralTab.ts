@@ -35,6 +35,7 @@ import {
     scaleToPercent,
     percentToScale
 } from '../../utils/uiScale';
+import { runAsyncAction } from '../../utils/async';
 
 /** Renders the general settings tab */
 export function renderGeneralTab(context: SettingsTabContext): void {
@@ -64,11 +65,13 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         .setName(strings.settings.items.whatsNew.name.replace('{version}', pluginVersion))
         .setDesc(strings.settings.items.whatsNew.desc)
         .addButton(button =>
-            button.setButtonText(strings.settings.items.whatsNew.buttonText).onClick(async () => {
-                const { WhatsNewModal } = await import('../../modals/WhatsNewModal');
-                const { getLatestReleaseNotes } = await import('../../releaseNotes');
-                const latestNotes = getLatestReleaseNotes();
-                new WhatsNewModal(context.app, latestNotes, plugin.settings.dateFormat).open();
+            button.setButtonText(strings.settings.items.whatsNew.buttonText).onClick(() => {
+                runAsyncAction(async () => {
+                    const { WhatsNewModal } = await import('../../modals/WhatsNewModal');
+                    const { getLatestReleaseNotes } = await import('../../releaseNotes');
+                    const latestNotes = getLatestReleaseNotes();
+                    new WhatsNewModal(context.app, latestNotes, plugin.settings.dateFormat).open();
+                });
             })
         );
 
@@ -231,12 +234,14 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 button
                     .setIcon('lucide-rotate-ccw')
                     .setTooltip('Restore to default (100%)')
-                    .onClick(async () => {
-                        const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
-                        desktopScaleSlider.setValue(defaultPercent);
-                        plugin.settings.desktopScale = DEFAULT_UI_SCALE;
-                        updateDesktopScaleLabel(defaultPercent);
-                        await plugin.saveSettingsAndUpdate();
+                    .onClick(() => {
+                        runAsyncAction(async () => {
+                            const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
+                            desktopScaleSlider.setValue(defaultPercent);
+                            plugin.settings.desktopScale = DEFAULT_UI_SCALE;
+                            updateDesktopScaleLabel(defaultPercent);
+                            await plugin.saveSettingsAndUpdate();
+                        });
                     })
             );
 
@@ -353,12 +358,14 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 button
                     .setIcon('lucide-rotate-ccw')
                     .setTooltip('Restore to default (100%)')
-                    .onClick(async () => {
-                        const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
-                        mobileScaleSlider.setValue(defaultPercent);
-                        plugin.settings.mobileScale = DEFAULT_UI_SCALE;
-                        updateMobileScaleLabel(defaultPercent);
-                        await plugin.saveSettingsAndUpdate();
+                    .onClick(() => {
+                        runAsyncAction(async () => {
+                            const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
+                            mobileScaleSlider.setValue(defaultPercent);
+                            plugin.settings.mobileScale = DEFAULT_UI_SCALE;
+                            updateMobileScaleLabel(defaultPercent);
+                            await plugin.saveSettingsAndUpdate();
+                        });
                     })
             );
 
@@ -444,7 +451,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                     plugin.settings.homepage = file.path;
                 }
                 renderHomepageValue();
-                void plugin.saveSettingsAndUpdate();
+                runAsyncAction(() => plugin.saveSettingsAndUpdate());
             }).open();
         });
     });
@@ -452,20 +459,22 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     homepageSetting.addButton(button => {
         button.setButtonText(strings.settings.items.homepage.clearButton);
         clearHomepageButton = button;
-        button.onClick(async () => {
-            if (Platform.isMobile && plugin.settings.useMobileHomepage) {
-                if (!plugin.settings.mobileHomepage) {
-                    return;
+        button.onClick(() => {
+            runAsyncAction(async () => {
+                if (Platform.isMobile && plugin.settings.useMobileHomepage) {
+                    if (!plugin.settings.mobileHomepage) {
+                        return;
+                    }
+                    plugin.settings.mobileHomepage = null;
+                } else {
+                    if (!plugin.settings.homepage) {
+                        return;
+                    }
+                    plugin.settings.homepage = null;
                 }
-                plugin.settings.mobileHomepage = null;
-            } else {
-                if (!plugin.settings.homepage) {
-                    return;
-                }
-                plugin.settings.homepage = null;
-            }
-            renderHomepageValue();
-            await plugin.saveSettingsAndUpdate();
+                renderHomepageValue();
+                await plugin.saveSettingsAndUpdate();
+            });
         });
     });
 

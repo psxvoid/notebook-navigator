@@ -35,6 +35,7 @@ import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
 import { useTagNavigation } from '../hooks/useTagNavigation';
 import { useFileCache } from '../context/StorageContext';
 import { strings } from '../i18n';
+import { runAsyncAction } from '../utils/async';
 import { useUpdateNotice } from '../hooks/useUpdateNotice';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 import { TagSuggestModal, createTagCreationOptions } from '../modals/TagSuggestModal';
@@ -487,40 +488,44 @@ export const NotebookNavigatorComponent = React.memo(
                 selectPreviousFile: async () => navigateToAdjacentFile('previous'),
                 refresh: () => {
                     // A no-op update will increment the version and force a re-render
-                    updateSettings(() => {});
+                    runAsyncAction(() => updateSettings(() => {}));
                 },
                 deleteActiveFile: () => {
-                    // Determine which delete operation to perform based on focus
-                    if (uiState.focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
-                        deleteSelectedFiles({
-                            app,
-                            fileSystemOps,
-                            settings,
-                            visibility: {
-                                includeDescendantNotes: uxRef.current.includeDescendantNotes,
-                                showHiddenItems: uxRef.current.showHiddenItems
-                            },
-                            selectionState,
-                            selectionDispatch,
-                            tagTreeService
-                        });
-                    } else if (
-                        uiState.focusedPane === 'navigation' &&
-                        selectionState.selectionType === ItemType.FOLDER &&
-                        selectionState.selectedFolder
-                    ) {
-                        deleteSelectedFolder({
-                            app,
-                            fileSystemOps,
-                            settings,
-                            visibility: {
-                                includeDescendantNotes: uxRef.current.includeDescendantNotes,
-                                showHiddenItems: uxRef.current.showHiddenItems
-                            },
-                            selectionState,
-                            selectionDispatch
-                        });
-                    }
+                    runAsyncAction(async () => {
+                        if (uiState.focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
+                            await deleteSelectedFiles({
+                                app,
+                                fileSystemOps,
+                                settings,
+                                visibility: {
+                                    includeDescendantNotes: uxRef.current.includeDescendantNotes,
+                                    showHiddenItems: uxRef.current.showHiddenItems
+                                },
+                                selectionState,
+                                selectionDispatch,
+                                tagTreeService
+                            });
+                            return;
+                        }
+
+                        if (
+                            uiState.focusedPane === 'navigation' &&
+                            selectionState.selectionType === ItemType.FOLDER &&
+                            selectionState.selectedFolder
+                        ) {
+                            await deleteSelectedFolder({
+                                app,
+                                fileSystemOps,
+                                settings,
+                                visibility: {
+                                    includeDescendantNotes: uxRef.current.includeDescendantNotes,
+                                    showHiddenItems: uxRef.current.showHiddenItems
+                                },
+                                selectionState,
+                                selectionDispatch
+                            });
+                        }
+                    });
                 },
                 createNoteInSelectedFolder: async () => {
                     if (!selectionState.selectedFolder) {
@@ -642,13 +647,15 @@ export const NotebookNavigatorComponent = React.memo(
                     const modal = new TagSuggestModal(
                         app,
                         plugin,
-                        async (tag: string) => {
-                            const result = await tagOperations.addTagToFiles(tag, selectedFiles);
-                            const message =
-                                result.added === 1
-                                    ? strings.fileSystem.notifications.tagAddedToNote
-                                    : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', result.added.toString());
-                            new Notice(message);
+                        (tag: string) => {
+                            runAsyncAction(async () => {
+                                const result = await tagOperations.addTagToFiles(tag, selectedFiles);
+                                const message =
+                                    result.added === 1
+                                        ? strings.fileSystem.notifications.tagAddedToNote
+                                        : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', result.added.toString());
+                                new Notice(message);
+                            });
                         },
                         strings.modals.tagSuggest.addPlaceholder,
                         strings.modals.tagSuggest.instructions.add,
@@ -695,13 +702,15 @@ export const NotebookNavigatorComponent = React.memo(
                     }
 
                     // Show modal to select which tag to remove
-                    const modal = new RemoveTagModal(app, existingTags, async (tag: string) => {
-                        const result = await tagOperations.removeTagFromFiles(tag, selectedFiles);
-                        const message =
-                            result === 1
-                                ? strings.fileSystem.notifications.tagRemovedFromNote
-                                : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                        new Notice(message);
+                    const modal = new RemoveTagModal(app, existingTags, (tag: string) => {
+                        runAsyncAction(async () => {
+                            const result = await tagOperations.removeTagFromFiles(tag, selectedFiles);
+                            const message =
+                                result === 1
+                                    ? strings.fileSystem.notifications.tagRemovedFromNote
+                                    : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
+                            new Notice(message);
+                        });
                     });
                     modal.open();
                 },
@@ -738,13 +747,15 @@ export const NotebookNavigatorComponent = React.memo(
                         selectedFiles.length === 1
                             ? strings.modals.fileSystem.removeAllTagsFromNote
                             : strings.modals.fileSystem.removeAllTagsFromNotes.replace('{count}', selectedFiles.length.toString()),
-                        async () => {
-                            const result = await tagOperations.clearAllTagsFromFiles(selectedFiles);
-                            const message =
-                                result === 1
-                                    ? strings.fileSystem.notifications.tagsClearedFromNote
-                                    : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
-                            new Notice(message);
+                        () => {
+                            runAsyncAction(async () => {
+                                const result = await tagOperations.clearAllTagsFromFiles(selectedFiles);
+                                const message =
+                                    result === 1
+                                        ? strings.fileSystem.notifications.tagsClearedFromNote
+                                        : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
+                                new Notice(message);
+                            });
                         },
                         strings.common.remove
                     );

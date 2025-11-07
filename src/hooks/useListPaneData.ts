@@ -55,6 +55,7 @@ import type { FilterSearchTokens } from '../utils/filterSearch';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility, normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 import { resolveListGrouping } from '../utils/listGrouping';
+import { runAsyncAction } from '../utils/async';
 
 const EMPTY_SEARCH_META = new Map<string, SearchResultMeta>();
 // Shared empty map used when no files are hidden to avoid allocations
@@ -193,7 +194,7 @@ export function useListPaneData({
         const token = ++searchTokenRef.current;
         let disposed = false;
 
-        (async () => {
+        runAsyncAction(async () => {
             try {
                 const hits = await omnisearchService.search(trimmedQuery);
                 // Ignore stale results
@@ -236,7 +237,7 @@ export function useListPaneData({
                     setOmnisearchResult({ query: trimmedQuery, files: [], meta: new Map() });
                 }
             }
-        })();
+        });
 
         return () => {
             disposed = true;
