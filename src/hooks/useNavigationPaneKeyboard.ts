@@ -42,6 +42,7 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import { deleteSelectedFolder } from '../utils/deleteOperations';
 import { useKeyboardNavigation, KeyboardNavigationHelpers } from './useKeyboardNavigation';
 import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
+import { runAsyncAction } from '../utils/async';
 import { getNavigationIndex } from '../utils/navigationIndex';
 
 /**
@@ -405,14 +406,16 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.DELETE_SELECTED)) {
                 if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                     e.preventDefault();
-                    deleteSelectedFolder({
-                        app,
-                        fileSystemOps,
-                        settings,
-                        visibility: { includeDescendantNotes, showHiddenItems },
-                        selectionState,
-                        selectionDispatch
-                    });
+                    runAsyncAction(() =>
+                        deleteSelectedFolder({
+                            app,
+                            fileSystemOps,
+                            settings,
+                            visibility: { includeDescendantNotes, showHiddenItems },
+                            selectionState,
+                            selectionDispatch
+                        })
+                    );
                 }
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_HOME)) {
                 e.preventDefault();

@@ -23,6 +23,7 @@ import { getTotalNoteCount } from '../utils/tagTree';
 import { BaseSuggestModal } from './BaseSuggestModal';
 import NotebookNavigatorPlugin from '../main';
 import { naturalCompare } from '../utils/sortUtils';
+import { runAsyncAction } from '../utils/async';
 
 export interface TagSuggestModalOptions {
     allowCreateNewTags?: boolean;
@@ -36,7 +37,7 @@ export function createTagCreationOptions(plugin: NotebookNavigatorPlugin): TagSu
         showCreationToggle: true,
         onAllowCreateChange: value => {
             plugin.settings.allowTagCreationInAddTagModal = value;
-            void plugin.saveSettingsAndUpdate();
+            runAsyncAction(() => plugin.saveSettingsAndUpdate());
         }
     };
 }

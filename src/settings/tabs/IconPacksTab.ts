@@ -20,6 +20,7 @@ import { Notice, Setting } from 'obsidian';
 import { strings } from '../../i18n';
 import { EXTERNAL_ICON_PROVIDERS, type ExternalIconProviderId } from '../../services/icons/external/providerRegistry';
 import type { SettingsTabContext } from './SettingsTabContext';
+import { runAsyncAction } from '../../utils/async';
 
 /** Renders the icon packs settings tab */
 export function renderIconPacksTab(context: SettingsTabContext): void {
@@ -70,16 +71,18 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
             setting.addButton(button => {
                 button.setButtonText(strings.settings.items.externalIcons.removeButton);
                 button.setDisabled(isDownloading);
-                button.onClick(async () => {
-                    button.setDisabled(true);
-                    try {
-                        await plugin.removeExternalIconProvider(config.id);
-                        renderIconPacksTab(context);
-                    } catch (error) {
-                        console.error('Failed to remove icon provider', error);
-                        new Notice(strings.settings.items.externalIcons.removeFailed.replace('{name}', config.name));
-                        button.setDisabled(false);
-                    }
+                button.onClick(() => {
+                    runAsyncAction(async () => {
+                        button.setDisabled(true);
+                        try {
+                            await plugin.removeExternalIconProvider(config.id);
+                            renderIconPacksTab(context);
+                        } catch (error) {
+                            console.error('Failed to remove icon provider', error);
+                            new Notice(strings.settings.items.externalIcons.removeFailed.replace('{name}', config.name));
+                            button.setDisabled(false);
+                        }
+                    });
                 });
             });
         } else {
@@ -90,16 +93,18 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
                         : strings.settings.items.externalIcons.downloadButton
                 );
                 button.setDisabled(isDownloading);
-                button.onClick(async () => {
-                    button.setDisabled(true);
-                    try {
-                        await plugin.downloadExternalIconProvider(config.id);
-                        renderIconPacksTab(context);
-                    } catch (error) {
-                        console.error('Failed to download icon provider', error);
-                        new Notice(strings.settings.items.externalIcons.downloadFailed.replace('{name}', config.name));
-                        button.setDisabled(false);
-                    }
+                button.onClick(() => {
+                    runAsyncAction(async () => {
+                        button.setDisabled(true);
+                        try {
+                            await plugin.downloadExternalIconProvider(config.id);
+                            renderIconPacksTab(context);
+                        } catch (error) {
+                            console.error('Failed to download icon provider', error);
+                            new Notice(strings.settings.items.externalIcons.downloadFailed.replace('{name}', config.name));
+                            button.setDisabled(false);
+                        }
+                    });
                 });
             });
         }

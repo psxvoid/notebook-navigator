@@ -850,7 +850,7 @@ export function SelectionProvider({
 
     // Register file rename listener
     useEffect(() => {
-        const listenerId = `selection-context-${Math.random().toString(36).substr(2, 9)}`;
+        const listenerId = `selection-context-${Math.random().toString(36).substring(2, 11)}`;
 
         const handleFileRename = (oldPath: string, newPath: string) => {
             dispatch({ type: 'UPDATE_FILE_PATH', oldPath, newPath });

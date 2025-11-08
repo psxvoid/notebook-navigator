@@ -21,6 +21,7 @@ import { useUXPreferences } from '../context/UXPreferencesContext';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useListActions } from '../hooks/useListActions';
+import { runAsyncAction } from '../utils/async';
 
 interface ListToolbarProps {
     isSearchActive?: boolean;
@@ -77,7 +78,9 @@ export function ListToolbar({ isSearchActive, onSearchToggle }: ListToolbarProps
             <button
                 className="nn-mobile-toolbar-button"
                 aria-label={strings.paneHeader.newNote}
-                onClick={handleNewFile}
+                onClick={() => {
+                    runAsyncAction(() => handleNewFile());
+                }}
                 disabled={!selectionState.selectedFolder}
                 tabIndex={-1}
             >

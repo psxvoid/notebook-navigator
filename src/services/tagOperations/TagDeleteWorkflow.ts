@@ -27,6 +27,7 @@ import { TagDescriptor } from '../tagRename/TagRenameEngine';
 import { TagFileMutations } from './TagFileMutations';
 import { collectPreviewPaths, yieldToEventLoop, buildUsageSummaryFromPaths } from './TagOperationUtils';
 import type { TagDeleteEventPayload } from './types';
+import { runAsyncAction } from '../../utils/async';
 
 const DELETE_BATCH_SIZE = 10;
 
@@ -90,7 +91,7 @@ export class TagDeleteWorkflow {
                 .replace('{count}', usage.total.toString())
                 .replace('{files}', countLabel),
             () => {
-                void this.runTagDelete(displayPath, uniquePreview);
+                runAsyncAction(() => this.runTagDelete(displayPath, uniquePreview));
             },
             strings.modals.tagOperation.confirmDelete,
             {

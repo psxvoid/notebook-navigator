@@ -19,6 +19,7 @@
 import { useCallback } from 'react';
 import { TFile, WorkspaceLeaf } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
+import { runAsyncAction } from '../utils/async';
 
 interface OpenFileOptions {
     /** Optional target leaf for opening the file */
@@ -50,11 +51,11 @@ export function useFileOpener() {
             };
 
             if (commandQueue) {
-                void commandQueue.executeOpenActiveFile(file, openFile);
+                runAsyncAction(() => commandQueue.executeOpenActiveFile(file, openFile));
                 return;
             }
 
-            void openFile();
+            runAsyncAction(() => openFile());
         },
         [app.workspace, commandQueue]
     );

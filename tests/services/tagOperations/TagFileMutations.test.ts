@@ -151,6 +151,106 @@ describe('TagFileMutations', () => {
         expect(file.content).toBe('#project kickoff\nFollow up with tomorrow');
     });
 
+    it('skips removing inline tags inside code contexts', async () => {
+        const file = createFile(
+            'Projects/Review.md',
+            { tags: ['project'] },
+            [
+                'Overview line #project with summary',
+                'Johan',
+                '```',
+                '#project inside fenced block',
+                '```',
+                '`#project` inline code sample',
+                'Final line #project after code'
+            ].join('\n')
+        );
+        cachedTagsByPath.set(file.path, ['project']);
+
+        const removed = await fileMutations.removeTagFromFile(file, 'project');
+
+        expect(removed).toBe(true);
+        const [textLine, nameLine, openingFence, fencedLine, closingFence, inlineCodeLine, finalLine] = file.content.split('\n');
+        expect(textLine).not.toContain('#project');
+        expect(nameLine).toBe('Johan');
+        expect(openingFence).toBe('```');
+        expect(fencedLine).toBe('#project inside fenced block');
+        expect(closingFence).toBe('```');
+        expect(inlineCodeLine).toBe('`#project` inline code sample');
+        expect(finalLine).not.toContain('#project');
+    });
+
+    it('skips removing inline tags inside tilde code fences', async () => {
+        const file = createFile(
+            'Projects/Tilde.md',
+            { tags: ['project'] },
+            ['Intro line #project before code', '~~~', '#project inside tilde fenced block', '~~~', 'Outro line #project after code'].join(
+                '\n'
+            )
+        );
+        cachedTagsByPath.set(file.path, ['project']);
+
+        const removed = await fileMutations.removeTagFromFile(file, 'project');
+
+        expect(removed).toBe(true);
+        const [introLine, openingFence, fencedLine, closingFence, outroLine] = file.content.split('\n');
+        expect(introLine).not.toContain('#project');
+        expect(openingFence).toBe('~~~');
+        expect(fencedLine).toBe('#project inside tilde fenced block');
+        expect(closingFence).toBe('~~~');
+        expect(outroLine).not.toContain('#project');
+    });
+
+    it('removes inline tags inside indented markdown structures', async () => {
+        const file = createFile(
+            'Projects/Indented.md',
+            { tags: ['project'] },
+            [
+                '- Parent task',
+                '    - Child entry with #project tag',
+                '    Text block with leading spaces and #project tag',
+                '\t#project tab-indented tag'
+            ].join('\n')
+        );
+        cachedTagsByPath.set(file.path, ['project']);
+
+        const removed = await fileMutations.removeTagFromFile(file, 'project');
+
+        expect(removed).toBe(true);
+        const [parentLine, childLine, textLine, tabLine] = file.content.split('\n');
+        expect(parentLine).toBe('- Parent task');
+        expect(childLine).not.toContain('#project');
+        expect(textLine).not.toContain('#project');
+        expect(tabLine).not.toContain('#project');
+    });
+
+    it('keeps matches inside html tags when removing inline tags', async () => {
+        const file = createFile(
+            'Projects/Color.md',
+            {},
+            ['Inline tag #D10000 inside text', '<span style="color:#D10000">example</span>', '<a href="#D10000">link</a>'].join('\n')
+        );
+        cachedTagsByPath.set(file.path, ['D10000']);
+
+        const removed = await fileMutations.removeTagFromFile(file, 'D10000');
+
+        expect(removed).toBe(true);
+        const [inlineText, spanLine, linkLine] = file.content.split('\n');
+        expect(inlineText).not.toContain('#D10000');
+        expect(spanLine).toContain('color:#D10000');
+        expect(linkLine).toContain('href="#D10000"');
+    });
+
+    it('removes inline tags surrounded by comparison operators', async () => {
+        const file = createFile('Projects/Compare.md', {}, 'Value < 5 #D10000 > threshold');
+        cachedTagsByPath.set(file.path, ['D10000']);
+
+        const removed = await fileMutations.removeTagFromFile(file, 'D10000');
+
+        expect(removed).toBe(true);
+        expect(file.content).toBe('Value < 5 > threshold');
+    });
+
     it('collects descendant tags using cached data', () => {
         const file = createFile('Projects/Research.md', { tags: ['project', 'project/research'] }, '#project notes');
         cachedTagsByPath.set(file.path, ['project', 'project/research', 'project/research/notes']);

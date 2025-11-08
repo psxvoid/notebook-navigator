@@ -21,6 +21,7 @@ import { strings } from '../../i18n';
 import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
+import { runAsyncAction } from '../../utils/async';
 import { buildTextReplaceSettings } from './common/TextReplaceSettingsBuilder';
 
 /**
@@ -162,44 +163,46 @@ export function renderNotesTab(context: SettingsTabContext): void {
         migrateButton = button;
         button.setButtonText(strings.settings.items.frontmatterMigration.button);
         button.setCta();
-        button.onClick(async () => {
-            if (!plugin.metadataService) {
-                return;
-            }
-
-            button.setDisabled(true);
-            button.setButtonText(strings.settings.items.frontmatterMigration.buttonWorking);
-
-            try {
-                const result = await plugin.metadataService.migrateFileMetadataToFrontmatter();
-                updateMigrationDescription();
-
-                const { iconsBefore, colorsBefore, migratedIcons, migratedColors, failures } = result;
-
-                if (iconsBefore === 0 && colorsBefore === 0) {
-                    new Notice(strings.settings.items.frontmatterMigration.noticeNone);
-                } else if (migratedIcons === 0 && migratedColors === 0) {
-                    new Notice(strings.settings.items.frontmatterMigration.noticeNone);
-                } else {
-                    let message = strings.settings.items.frontmatterMigration.noticeDone
-                        .replace('{migratedIcons}', migratedIcons.toString())
-                        .replace('{icons}', iconsBefore.toString())
-                        .replace('{migratedColors}', migratedColors.toString())
-                        .replace('{colors}', colorsBefore.toString());
-                    if (failures > 0) {
-                        message += ` ${strings.settings.items.frontmatterMigration.noticeFailures.replace('{failures}', failures.toString())}`;
-                    }
-                    new Notice(message);
+        button.onClick(() => {
+            runAsyncAction(async () => {
+                if (!plugin.metadataService) {
+                    return;
                 }
-            } catch (error) {
-                console.error('Failed to migrate icon/color metadata to frontmatter', error);
-                new Notice(strings.settings.items.frontmatterMigration.noticeError, TIMEOUTS.NOTICE_ERROR);
-            } finally {
-                button.setButtonText(strings.settings.items.frontmatterMigration.button);
-                button.setDisabled(false);
-                updateMigrationDescription();
-                requestStatisticsRefresh();
-            }
+
+                button.setDisabled(true);
+                button.setButtonText(strings.settings.items.frontmatterMigration.buttonWorking);
+
+                try {
+                    const result = await plugin.metadataService.migrateFileMetadataToFrontmatter();
+                    updateMigrationDescription();
+
+                    const { iconsBefore, colorsBefore, migratedIcons, migratedColors, failures } = result;
+
+                    if (iconsBefore === 0 && colorsBefore === 0) {
+                        new Notice(strings.settings.items.frontmatterMigration.noticeNone);
+                    } else if (migratedIcons === 0 && migratedColors === 0) {
+                        new Notice(strings.settings.items.frontmatterMigration.noticeNone);
+                    } else {
+                        let message = strings.settings.items.frontmatterMigration.noticeDone
+                            .replace('{migratedIcons}', migratedIcons.toString())
+                            .replace('{icons}', iconsBefore.toString())
+                            .replace('{migratedColors}', migratedColors.toString())
+                            .replace('{colors}', colorsBefore.toString());
+                        if (failures > 0) {
+                            message += ` ${strings.settings.items.frontmatterMigration.noticeFailures.replace('{failures}', failures.toString())}`;
+                        }
+                        new Notice(message);
+                    }
+                } catch (error) {
+                    console.error('Failed to migrate icon/color metadata to frontmatter', error);
+                    new Notice(strings.settings.items.frontmatterMigration.noticeError, TIMEOUTS.NOTICE_ERROR);
+                } finally {
+                    button.setButtonText(strings.settings.items.frontmatterMigration.button);
+                    button.setDisabled(false);
+                    updateMigrationDescription();
+                    requestStatisticsRefresh();
+                }
+            });
         });
     });
 

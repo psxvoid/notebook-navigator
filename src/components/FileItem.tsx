@@ -61,6 +61,8 @@ import { strings } from '../i18n';
 import { SortOption } from '../settings';
 import { ItemType } from '../types';
 import { DateUtils } from '../utils/dateUtils';
+import { runAsyncAction } from '../utils/async';
+import { openFileInContext } from '../utils/openFileInContext';
 import { FILE_VISIBILITY, getExtensionSuffix, isImageFile, shouldDisplayFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
 import { getIconService, useIconServiceVersion } from '../services/icons';
@@ -320,6 +322,7 @@ export const FileItem = React.memo(function FileItem({
     const [tags, setTags] = useState<string[]>(initialDataRef.current?.tags ?? EMPTY_ARRAY);
     const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(initialDataRef.current?.imageUrl ?? null);
     const [featureImageAspectRatio, setFeatureImageAspectRatio] = useState<number | null>(null);
+    const [isFeatureImageHidden, setIsFeatureImageHidden] = useState(false);
     const [metadataVersion, setMetadataVersion] = useState(0);
 
     // === Refs ===
@@ -769,6 +772,10 @@ export const FileItem = React.memo(function FileItem({
             file.extension === 'canvas' ||
             file.extension === 'base');
 
+    useEffect(() => {
+        setIsFeatureImageHidden(false);
+    }, [featureImageUrl]);
+
     const featureImageContainerClassName = useMemo(() => {
         const classes = ['nn-feature-image'];
         if (!featureImageUrl || settings.forceSquareFeatureImage) {
@@ -776,8 +783,11 @@ export const FileItem = React.memo(function FileItem({
         } else {
             classes.push('nn-feature-image--natural');
         }
+        if (isFeatureImageHidden) {
+            classes.push('nn-feature-image--hidden');
+        }
         return classes.join(' ');
-    }, [featureImageUrl, settings.forceSquareFeatureImage]);
+    }, [featureImageUrl, settings.forceSquareFeatureImage, isFeatureImageHidden]);
 
     const featureImageStyle = useMemo(() => {
         if (!featureImageUrl || settings.forceSquareFeatureImage) {
@@ -982,42 +992,35 @@ export const FileItem = React.memo(function FileItem({
     const handleOpenInNewTab = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        if (commandQueue) {
-            commandQueue.executeOpenInNewContext(file, 'tab', async () => {
-                await app.workspace.getLeaf('tab').openFile(file);
-            });
-        } else {
-            app.workspace.getLeaf('tab').openFile(file);
-        }
+        runAsyncAction(() => openFileInContext({ app, commandQueue, file, context: 'tab' }));
     };
 
-    const handlePinClick = async (e: React.MouseEvent) => {
+    const handlePinClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        const context = selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
-        await metadataService.togglePin(file.path, context);
+        runAsyncAction(async () => {
+            const context = selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
+            await metadataService.togglePin(file.path, context);
+        });
     };
 
-    const handleRevealClick = async (e: React.MouseEvent) => {
+    const handleRevealClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        await plugin.activateView();
-        await plugin.revealFileInActualFolder(file);
+        runAsyncAction(async () => {
+            await plugin.activateView();
+            await plugin.revealFileInActualFolder(file);
+        });
     };
 
     // Handle middle mouse button click to open in new tab
     const handleMouseDown = (e: React.MouseEvent) => {
-        if (e.button === 1) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (commandQueue) {
-                commandQueue.executeOpenInNewContext(file, 'tab', async () => {
-                    await app.workspace.getLeaf('tab').openFile(file);
-                });
-            } else {
-                app.workspace.getLeaf('tab').openFile(file);
-            }
+        if (e.button !== 1) {
+            return;
         }
+        e.preventDefault();
+        e.stopPropagation();
+        runAsyncAction(() => openFileInContext({ app, commandQueue, file, context: 'tab' }));
     };
 
     // === Effects ===
@@ -1273,12 +1276,8 @@ export const FileItem = React.memo(function FileItem({
                                             className="nn-feature-image-img"
                                             draggable={false}
                                             onDragStart={e => e.preventDefault()}
-                                            onError={e => {
-                                                const img = e.target as HTMLImageElement;
-                                                const featureImageDiv = img.closest('.nn-feature-image');
-                                                if (featureImageDiv) {
-                                                    (featureImageDiv as HTMLElement).style.display = 'none';
-                                                }
+                                            onError={() => {
+                                                setIsFeatureImageHidden(true);
                                             }}
                                         />
                                     ) : (

@@ -33,6 +33,7 @@ import {
 import type { SearchProvider } from '../types/search';
 import { strings } from '../i18n';
 import { normalizeTagPath } from '../utils/tagUtils';
+import { runAsyncAction } from '../utils/async';
 
 /**
  * Represents a shortcut with resolved file/folder references and validation state.
@@ -63,6 +64,7 @@ export interface ShortcutsContextValue {
     addNoteShortcut: (path: string, options?: { index?: number }) => Promise<boolean>;
     addTagShortcut: (tagPath: string, options?: { index?: number }) => Promise<boolean>;
     addSearchShortcut: (input: { name: string; query: string; provider: SearchProvider }, options?: { index?: number }) => Promise<boolean>;
+    addShortcutsBatch: (entries: ShortcutEntry[], options?: { index?: number }) => Promise<number>;
     removeShortcut: (key: string) => Promise<boolean>;
     removeSearchShortcut: (name: string) => Promise<boolean>;
     reorderShortcuts: (orderedKeys: string[]) => Promise<boolean>;
@@ -116,7 +118,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
             return;
         }
 
-        void (async () => {
+        runAsyncAction(async () => {
             await updateSettings(current => {
                 const existing = current.shortcuts ?? [];
                 current.shortcuts = existing.map(entry => {
@@ -133,7 +135,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
                     return entry;
                 });
             });
-        })();
+        });
     }, [rawShortcuts, updateSettings]);
 
     // Creates map of shortcuts by their unique keys for O(1) lookup
@@ -243,11 +245,8 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         };
     }, [app.vault, folderShortcutKeysByPath, noteShortcutKeysByPath]);
 
-    // Hydrates shortcuts by resolving file references and validating existence
-    // Transforms shortcut entries into hydrated objects with resolved file/folder references
     const hydratedShortcuts = useMemo<HydratedShortcut[]>(() => {
-        // Reference vaultChangeVersion to ensure memoized value updates when tracked files change
-        void vaultChangeVersion;
+        void vaultChangeVersion; // Ensures memo recalculates after vault changes
         return rawShortcuts.map(shortcut => {
             const key = getShortcutKey(shortcut);
 
@@ -338,6 +337,134 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
             return true;
         },
         [updateSettings]
+    );
+
+    const addShortcutsBatch = useCallback(
+        async (entries: ShortcutEntry[], options?: { index?: number }) => {
+            if (entries.length === 0) {
+                return 0;
+            }
+
+            const folderPaths = new Set(folderShortcutKeysByPath.keys());
+            const notePaths = new Set(noteShortcutKeysByPath.keys());
+            const tagPaths = new Set(tagShortcutKeysByPath.keys());
+            const searchNames = new Set(searchShortcutsByName.keys());
+
+            let duplicateFolder = false;
+            let duplicateNote = false;
+            let duplicateTag = false;
+            let invalidTag = false;
+            let duplicateSearch = false;
+            let emptySearchName = false;
+            let emptySearchQuery = false;
+
+            const normalizedEntries: ShortcutEntry[] = [];
+            entries.forEach(entry => {
+                if (entry.type === ShortcutType.FOLDER) {
+                    if (folderPaths.has(entry.path)) {
+                        duplicateFolder = true;
+                        return;
+                    }
+                    folderPaths.add(entry.path);
+                    normalizedEntries.push(entry);
+                    return;
+                }
+
+                if (entry.type === ShortcutType.NOTE) {
+                    if (notePaths.has(entry.path)) {
+                        duplicateNote = true;
+                        return;
+                    }
+                    notePaths.add(entry.path);
+                    normalizedEntries.push(entry);
+                    return;
+                }
+
+                if (entry.type === ShortcutType.TAG) {
+                    const normalizedPath = normalizeTagPath(entry.tagPath);
+                    if (!normalizedPath) {
+                        invalidTag = true;
+                        return;
+                    }
+                    if (tagPaths.has(normalizedPath)) {
+                        duplicateTag = true;
+                        return;
+                    }
+                    tagPaths.add(normalizedPath);
+                    normalizedEntries.push({
+                        ...entry,
+                        tagPath: normalizedPath
+                    });
+                    return;
+                }
+
+                if (entry.type === ShortcutType.SEARCH) {
+                    const normalizedName = entry.name.trim();
+                    const normalizedQuery = entry.query.trim();
+                    if (!normalizedName) {
+                        emptySearchName = true;
+                        return;
+                    }
+                    if (!normalizedQuery) {
+                        emptySearchQuery = true;
+                        return;
+                    }
+                    const lookupKey = normalizedName.toLowerCase();
+                    if (searchNames.has(lookupKey)) {
+                        duplicateSearch = true;
+                        return;
+                    }
+                    searchNames.add(lookupKey);
+                    normalizedEntries.push({
+                        ...entry,
+                        name: normalizedName,
+                        query: normalizedQuery
+                    });
+                }
+            });
+
+            if (duplicateFolder) {
+                new Notice(strings.shortcuts.folderExists);
+            }
+            if (duplicateNote) {
+                new Notice(strings.shortcuts.noteExists);
+            }
+            if (duplicateTag) {
+                new Notice(strings.shortcuts.tagExists);
+            }
+            if (invalidTag) {
+                new Notice(strings.modals.tagOperation.invalidTagName);
+            }
+            if (duplicateSearch) {
+                new Notice(strings.shortcuts.searchExists);
+            }
+            if (emptySearchName) {
+                new Notice(strings.shortcuts.emptySearchName);
+            }
+            if (emptySearchQuery) {
+                new Notice(strings.shortcuts.emptySearchQuery);
+            }
+
+            if (normalizedEntries.length === 0) {
+                return 0;
+            }
+
+            await updateSettings(current => {
+                const existing = current.shortcuts ?? [];
+                const next = [...existing];
+                let insertAt = typeof options?.index === 'number' ? Math.max(0, Math.min(options.index, next.length)) : next.length;
+
+                normalizedEntries.forEach(entry => {
+                    next.splice(insertAt, 0, entry);
+                    insertAt += 1;
+                });
+
+                current.shortcuts = next;
+            });
+
+            return normalizedEntries.length;
+        },
+        [folderShortcutKeysByPath, noteShortcutKeysByPath, tagShortcutKeysByPath, searchShortcutsByName, updateSettings]
     );
 
     // Adds a folder shortcut if it doesn't already exist
@@ -499,6 +626,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
             addNoteShortcut,
             addTagShortcut,
             addSearchShortcut,
+            addShortcutsBatch,
             removeShortcut,
             removeSearchShortcut,
             reorderShortcuts,
@@ -519,6 +647,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
             addNoteShortcut,
             addTagShortcut,
             addSearchShortcut,
+            addShortcutsBatch,
             removeShortcut,
             removeSearchShortcut,
             reorderShortcuts,

@@ -78,6 +78,8 @@ import { parseFilterSearchTokens, updateFilterQueryWithTag, type InclusionOperat
 import { useSurfaceColorVariables } from '../hooks/useSurfaceColorVariables';
 import { LIST_PANE_SURFACE_COLOR_MAPPINGS } from '../constants/surfaceColorMappings';
 import { ObsidianIcon } from './ObsidianIcon';
+import { runAsyncAction } from '../utils/async';
+import { openFileInContext } from '../utils/openFileInContext';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -582,13 +584,7 @@ export const ListPane = React.memo(
 
                 if (!shouldMultiSelect && !isShiftKey) {
                     if (shouldOpenInNewTab) {
-                        if (commandQueue) {
-                            commandQueue.executeOpenInNewContext(file, 'tab', async () => {
-                                await app.workspace.getLeaf('tab').openFile(file);
-                            });
-                        } else {
-                            app.workspace.getLeaf('tab').openFile(file);
-                        }
+                        runAsyncAction(() => openFileInContext({ app, commandQueue, file, context: 'tab' }));
                     }
                 }
 
@@ -597,7 +593,7 @@ export const ListPane = React.memo(
                     app.workspace.leftSplit.collapse();
                 }
             },
-            [app.workspace, commandQueue, isMobile, multiSelection, selectFileFromList, settings.multiSelectModifier, uiDispatch]
+            [app, commandQueue, isMobile, multiSelection, selectFileFromList, settings.multiSelectModifier, uiDispatch]
         );
 
         /**

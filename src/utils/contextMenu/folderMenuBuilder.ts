@@ -25,6 +25,8 @@ import { ExtendedApp } from '../../types/obsidian-extended';
 import { cleanupExclusionPatterns, isFolderInExcludedFolder } from '../../utils/fileFilters';
 import { ItemType } from '../../types';
 import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
+import { runAsyncAction } from '../async';
+import { setAsyncOnClick } from './menuAsyncHelpers';
 
 const normalizeVaultPath = (value: string): string => {
     if (!value) {
@@ -73,61 +75,51 @@ export function buildFolderCreationMenu(params: FolderMenuBuilderParams): void {
     };
 
     menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.newNote)
-            .setIcon('lucide-pen-box')
-            .onClick(async () => {
-                ensureFolderSelected();
-                const createdFile = await fileSystemOps.createNewFile(folder);
-                handleFileCreation(createdFile);
-            });
+        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.newNote).setIcon('lucide-pen-box'), async () => {
+            ensureFolderSelected();
+            const createdFile = await fileSystemOps.createNewFile(folder);
+            handleFileCreation(createdFile);
+        });
     });
 
     menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.newFolder)
-            .setIcon('lucide-folder-plus')
-            .onClick(async () => {
-                ensureFolderSelected();
-                await fileSystemOps.createNewFolder(folder, () => {
-                    if (!expandedFolders.has(folder.path)) {
-                        expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
-                    }
-                });
+        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.newFolder).setIcon('lucide-folder-plus'), async () => {
+            ensureFolderSelected();
+            await fileSystemOps.createNewFolder(folder, () => {
+                if (!expandedFolders.has(folder.path)) {
+                    expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+                }
             });
+        });
     });
 
     menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.newCanvas)
-            .setIcon('lucide-layout-grid')
-            .onClick(async () => {
-                ensureFolderSelected();
-                const createdCanvas = await fileSystemOps.createCanvas(folder);
-                handleFileCreation(createdCanvas);
-            });
+        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.newCanvas).setIcon('lucide-layout-grid'), async () => {
+            ensureFolderSelected();
+            const createdCanvas = await fileSystemOps.createCanvas(folder);
+            handleFileCreation(createdCanvas);
+        });
     });
 
     const basesPlugin = getInternalPlugin(app, 'bases');
     if (basesPlugin?.enabled) {
         menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.folder.newBase)
-                .setIcon('lucide-database')
-                .onClick(async () => {
-                    ensureFolderSelected();
-                    const createdBase = await fileSystemOps.createBase(folder);
-                    handleFileCreation(createdBase);
-                });
+            setAsyncOnClick(item.setTitle(strings.contextMenu.folder.newBase).setIcon('lucide-database'), async () => {
+                ensureFolderSelected();
+                const createdBase = await fileSystemOps.createBase(folder);
+                handleFileCreation(createdBase);
+            });
         });
     }
 
     const isExcalidrawInstalled = !!(app as ExtendedApp).plugins?.plugins?.['obsidian-excalidraw-plugin'];
     if (isExcalidrawInstalled) {
         menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.folder.newDrawing)
-                .setIcon('lucide-pencil')
-                .onClick(async () => {
-                    ensureFolderSelected();
-                    const createdDrawing = await fileSystemOps.createNewDrawing(folder);
-                    handleFileCreation(createdDrawing);
-                });
+            setAsyncOnClick(item.setTitle(strings.contextMenu.folder.newDrawing).setIcon('lucide-pencil'), async () => {
+                ensureFolderSelected();
+                const createdDrawing = await fileSystemOps.createNewDrawing(folder);
+                handleFileCreation(createdDrawing);
+            });
         });
     }
 }
@@ -154,11 +146,9 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     // Duplicate folder
     menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.duplicateFolder)
-            .setIcon('lucide-copy')
-            .onClick(async () => {
-                await fileSystemOps.duplicateFolder(folder);
-            });
+        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.duplicateFolder).setIcon('lucide-copy'), async () => {
+            await fileSystemOps.duplicateFolder(folder);
+        });
     });
 
     // Search in folder
@@ -182,11 +172,14 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // Reveal in system explorer - desktop only
     if (!services.isMobile) {
         menu.addItem((item: MenuItem) => {
-            item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
-                .setIcon(Platform.isMacOS ? 'lucide-app-window-mac' : 'lucide-app-window')
-                .onClick(async () => {
+            setAsyncOnClick(
+                item
+                    .setTitle(fileSystemOps.getRevealInSystemExplorerText())
+                    .setIcon(Platform.isMacOS ? 'lucide-app-window-mac' : 'lucide-app-window'),
+                async () => {
                     await fileSystemOps.revealInSystemExplorer(folder);
-                });
+                }
+            );
         });
     }
 
@@ -197,17 +190,13 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
         menu.addItem((item: MenuItem) => {
             if (existingShortcutKey) {
-                item.setTitle(strings.shortcuts.remove)
-                    .setIcon('lucide-bookmark-x')
-                    .onClick(() => {
-                        void removeShortcut(existingShortcutKey);
-                    });
+                setAsyncOnClick(item.setTitle(strings.shortcuts.remove).setIcon('lucide-bookmark-x'), async () => {
+                    await removeShortcut(existingShortcutKey);
+                });
             } else {
-                item.setTitle(strings.shortcuts.add)
-                    .setIcon('lucide-bookmark')
-                    .onClick(() => {
-                        void addFolderShortcut(folder.path);
-                    });
+                setAsyncOnClick(item.setTitle(strings.shortcuts.add).setIcon('lucide-bookmark'), async () => {
+                    await addFolderShortcut(folder.path);
+                });
             }
         });
     }
@@ -219,23 +208,19 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     if (adapter instanceof FileSystemAdapter) {
         menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.folder.copyPath)
-                .setIcon('lucide-clipboard')
-                .onClick(async () => {
-                    const absolutePath = adapter.getFullPath(folder.path);
-                    await navigator.clipboard.writeText(absolutePath);
-                    new Notice(strings.fileSystem.notifications.pathCopied);
-                });
+            setAsyncOnClick(item.setTitle(strings.contextMenu.folder.copyPath).setIcon('lucide-clipboard'), async () => {
+                const absolutePath = adapter.getFullPath(folder.path);
+                await navigator.clipboard.writeText(absolutePath);
+                new Notice(strings.fileSystem.notifications.pathCopied);
+            });
         });
     }
 
     menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.copyRelativePath)
-            .setIcon('lucide-clipboard-list')
-            .onClick(async () => {
-                await navigator.clipboard.writeText(folder.path);
-                new Notice(strings.fileSystem.notifications.relativePathCopied);
-            });
+        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.copyRelativePath).setIcon('lucide-clipboard-list'), async () => {
+            await navigator.clipboard.writeText(folder.path);
+            new Notice(strings.fileSystem.notifications.relativePathCopied);
+        });
     });
 
     // Folder note operations
@@ -247,41 +232,37 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         if (folderNote) {
             // Delete folder note option
             menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.folder.deleteFolderNote)
-                    .setIcon('lucide-trash')
-                    .onClick(async () => {
-                        await fileSystemOps.deleteFile(folderNote, settings.confirmBeforeDelete);
-                    });
+                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.deleteFolderNote).setIcon('lucide-trash'), async () => {
+                    await fileSystemOps.deleteFile(folderNote, settings.confirmBeforeDelete);
+                });
             });
         } else {
             // Create folder note option
             menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.folder.createFolderNote)
-                    .setIcon('lucide-pen-box')
-                    .onClick(async () => {
-                        const createdNote = await createFolderNote(
-                            app,
-                            folder,
-                            {
-                                folderNoteType: settings.folderNoteType,
-                                folderNoteName: settings.folderNoteName,
-                                folderNoteProperties: settings.folderNoteProperties
-                            },
-                            services.commandQueue
-                        );
-                        if (createdNote && settings.pinCreatedFolderNote) {
-                            try {
-                                if (!metadataService.isFilePinned(createdNote.path, 'folder')) {
-                                    await metadataService.togglePin(createdNote.path, 'folder');
-                                }
-                            } catch (error) {
-                                console.error('Failed to pin created folder note', {
-                                    path: createdNote.path,
-                                    error
-                                });
+                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.createFolderNote).setIcon('lucide-pen-box'), async () => {
+                    const createdNote = await createFolderNote(
+                        app,
+                        folder,
+                        {
+                            folderNoteType: settings.folderNoteType,
+                            folderNoteName: settings.folderNoteName,
+                            folderNoteProperties: settings.folderNoteProperties
+                        },
+                        services.commandQueue
+                    );
+                    if (createdNote && settings.pinCreatedFolderNote) {
+                        try {
+                            if (!metadataService.isFilePinned(createdNote.path, 'folder')) {
+                                await metadataService.togglePin(createdNote.path, 'folder');
                             }
+                        } catch (error) {
+                            console.error('Failed to pin created folder note', {
+                                path: createdNote.path,
+                                error
+                            });
                         }
-                    });
+                    }
+                });
             });
         }
     }
@@ -292,36 +273,30 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
         // Change icon
         menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.folder.changeIcon)
-                .setIcon('lucide-image')
-                .onClick(async () => {
-                    const { IconPickerModal } = await import('../../modals/IconPickerModal');
-                    const modal = new IconPickerModal(app, metadataService, folder.path, ItemType.FOLDER);
-                    modal.open();
-                });
+            setAsyncOnClick(item.setTitle(strings.contextMenu.folder.changeIcon).setIcon('lucide-image'), async () => {
+                const { IconPickerModal } = await import('../../modals/IconPickerModal');
+                const modal = new IconPickerModal(app, metadataService, folder.path, ItemType.FOLDER);
+                modal.open();
+            });
         });
     }
 
     // Change color
     menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.changeColor)
-            .setIcon('lucide-palette')
-            .onClick(async () => {
-                const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
-                const modal = new ColorPickerModal(app, metadataService, folder.path, ItemType.FOLDER, 'foreground');
-                modal.open();
-            });
+        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.changeColor).setIcon('lucide-palette'), async () => {
+            const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
+            const modal = new ColorPickerModal(app, metadataService, folder.path, ItemType.FOLDER, 'foreground');
+            modal.open();
+        });
     });
 
     // Change background color
     menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.changeBackground)
-            .setIcon('lucide-paint-bucket')
-            .onClick(async () => {
-                const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
-                const modal = new ColorPickerModal(app, metadataService, folder.path, ItemType.FOLDER, 'background');
-                modal.open();
-            });
+        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.changeBackground).setIcon('lucide-paint-bucket'), async () => {
+            const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
+            const modal = new ColorPickerModal(app, metadataService, folder.path, ItemType.FOLDER, 'background');
+            modal.open();
+        });
     });
 
     menu.addSeparator();
@@ -342,159 +317,151 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
         if (exactPathExclusion) {
             menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.folder.unhideFolder)
-                    .setIcon('lucide-eye')
-                    .onClick(async () => {
-                        const currentExcluded = services.plugin.settings.excludedFolders;
-                        services.plugin.settings.excludedFolders = currentExcluded.filter(pattern => pattern !== exactPathExclusion);
-                        resetHiddenToggleIfNoSources({
-                            settings: services.plugin.settings,
-                            showHiddenItems,
-                            setShowHiddenItems: value => services.plugin.setShowHiddenItems(value)
-                        });
-                        await services.plugin.saveSettingsAndUpdate();
-
-                        new Notice(strings.fileSystem.notices.showFolder.replace('{name}', folder.name));
+                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.unhideFolder).setIcon('lucide-eye'), async () => {
+                    const currentExcluded = services.plugin.settings.excludedFolders;
+                    services.plugin.settings.excludedFolders = currentExcluded.filter(pattern => pattern !== exactPathExclusion);
+                    resetHiddenToggleIfNoSources({
+                        settings: services.plugin.settings,
+                        showHiddenItems,
+                        setShowHiddenItems: value => services.plugin.setShowHiddenItems(value)
                     });
+                    await services.plugin.saveSettingsAndUpdate();
+
+                    new Notice(strings.fileSystem.notices.showFolder.replace('{name}', folder.name));
+                });
             });
         } else if (!isExcluded) {
             menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.folder.excludeFolder)
-                    .setIcon('lucide-eye-off')
-                    .onClick(async () => {
-                        const currentExcluded = services.plugin.settings.excludedFolders;
-                        // Ensure path starts with / for path-based exclusion
-                        // Obsidian folder paths don't start with /, so we add it
-                        const folderPath = folder.path.startsWith('/') ? folder.path : `/${folder.path}`;
+                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.excludeFolder).setIcon('lucide-eye-off'), async () => {
+                    const currentExcluded = services.plugin.settings.excludedFolders;
+                    // Ensure path starts with / for path-based exclusion
+                    // Obsidian folder paths don't start with /, so we add it
+                    const folderPath = folder.path.startsWith('/') ? folder.path : `/${folder.path}`;
 
-                        // Clean up redundant patterns and add the new one
-                        const cleanedPatterns = cleanupExclusionPatterns(currentExcluded, folderPath);
+                    // Clean up redundant patterns and add the new one
+                    const cleanedPatterns = cleanupExclusionPatterns(currentExcluded, folderPath);
 
-                        services.plugin.settings.excludedFolders = cleanedPatterns;
-                        resetHiddenToggleIfNoSources({
-                            settings: services.plugin.settings,
-                            showHiddenItems,
-                            setShowHiddenItems: value => services.plugin.setShowHiddenItems(value)
-                        });
-                        await services.plugin.saveSettingsAndUpdate();
-
-                        new Notice(strings.fileSystem.notices.hideFolder.replace('{name}', folder.name));
+                    services.plugin.settings.excludedFolders = cleanedPatterns;
+                    resetHiddenToggleIfNoSources({
+                        settings: services.plugin.settings,
+                        showHiddenItems,
+                        setShowHiddenItems: value => services.plugin.setShowHiddenItems(value)
                     });
+                    await services.plugin.saveSettingsAndUpdate();
+
+                    new Notice(strings.fileSystem.notices.hideFolder.replace('{name}', folder.name));
+                });
             });
         }
     }
 
     // Rename folder
     menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.renameFolder)
-            .setIcon('lucide-pencil')
-            .onClick(async () => {
-                // Handle root folder rename differently
-                if (folder.path === '/') {
-                    const { InputModal } = await import('../../modals/InputModal');
-                    const modal = new InputModal(
-                        app,
-                        strings.modals.fileSystem.renameVaultTitle,
-                        strings.modals.fileSystem.renameVaultPrompt,
-                        async newName => {
+        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.renameFolder).setIcon('lucide-pencil'), async () => {
+            // Handle root folder rename differently
+            if (folder.path === '/') {
+                const { InputModal } = await import('../../modals/InputModal');
+                const modal = new InputModal(
+                    app,
+                    strings.modals.fileSystem.renameVaultTitle,
+                    strings.modals.fileSystem.renameVaultPrompt,
+                    newName => {
+                        runAsyncAction(async () => {
                             // Update custom vault name setting (allow empty string)
                             services.plugin.settings.customVaultName = newName;
                             await services.plugin.saveSettingsAndUpdate();
-                        },
-                        settings.customVaultName
-                    );
-                    modal.open();
-                } else {
-                    await fileSystemOps.renameFolder(folder, settings);
-                }
-            });
+                        });
+                    },
+                    settings.customVaultName
+                );
+                modal.open();
+            } else {
+                await fileSystemOps.renameFolder(folder, settings);
+            }
+        });
     });
 
     // Move folder (not available for vault root)
     if (folder.path !== '/') {
         menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.folder.moveFolder)
-                .setIcon('lucide-folder-input')
-                .onClick(async () => {
-                    // Open modal to select destination folder for move operation
-                    const moveResult = await fileSystemOps.moveFolderWithModal(folder);
-                    if (!moveResult) {
+            setAsyncOnClick(item.setTitle(strings.contextMenu.folder.moveFolder).setIcon('lucide-folder-input'), async () => {
+                // Open modal to select destination folder for move operation
+                const moveResult = await fileSystemOps.moveFolderWithModal(folder);
+                if (!moveResult) {
+                    return;
+                }
+
+                const { oldPath, newPath, targetFolder } = moveResult;
+                // Verify the moved folder exists at new location
+                const movedEntry = app.vault.getAbstractFileByPath(newPath);
+                if (!movedEntry || !(movedEntry instanceof TFolder)) {
+                    return;
+                }
+
+                // Update selection if the moved folder was selected
+                const selectedFolder = selectionState.selectedFolder;
+                if (selectedFolder === folder) {
+                    selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: movedEntry });
+                }
+
+                // Update expansion state for all moved folders and their descendants
+                const updatedExpanded = new Set<string>();
+                const oldPrefix = `${oldPath}/`;
+
+                expandedFolders.forEach(path => {
+                    // Update path for the moved folder itself
+                    if (path === oldPath) {
+                        updatedExpanded.add(newPath);
                         return;
                     }
 
-                    const { oldPath, newPath, targetFolder } = moveResult;
-                    // Verify the moved folder exists at new location
-                    const movedEntry = app.vault.getAbstractFileByPath(newPath);
-                    if (!movedEntry || !(movedEntry instanceof TFolder)) {
+                    // Update paths for descendants of the moved folder
+                    if (path.startsWith(oldPrefix)) {
+                        const suffix = path.substring(oldPrefix.length);
+                        const updatedPath = suffix.length > 0 ? `${newPath}/${suffix}` : newPath;
+                        updatedExpanded.add(updatedPath);
                         return;
                     }
 
-                    // Update selection if the moved folder was selected
-                    const selectedFolder = selectionState.selectedFolder;
-                    if (selectedFolder === folder) {
-                        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: movedEntry });
-                    }
-
-                    // Update expansion state for all moved folders and their descendants
-                    const updatedExpanded = new Set<string>();
-                    const oldPrefix = `${oldPath}/`;
-
-                    expandedFolders.forEach(path => {
-                        // Update path for the moved folder itself
-                        if (path === oldPath) {
-                            updatedExpanded.add(newPath);
-                            return;
-                        }
-
-                        // Update paths for descendants of the moved folder
-                        if (path.startsWith(oldPrefix)) {
-                            const suffix = path.substring(oldPrefix.length);
-                            const updatedPath = suffix.length > 0 ? `${newPath}/${suffix}` : newPath;
-                            updatedExpanded.add(updatedPath);
-                            return;
-                        }
-
-                        // Keep paths for folders not affected by the move
-                        updatedExpanded.add(path);
-                    });
-
-                    // Expand the destination folder to show the moved folder
-                    const parentPath = targetFolder.path;
-                    if (parentPath !== '/' && !updatedExpanded.has(parentPath)) {
-                        updatedExpanded.add(parentPath);
-                    }
-
-                    expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: updatedExpanded });
+                    // Keep paths for folders not affected by the move
+                    updatedExpanded.add(path);
                 });
+
+                // Expand the destination folder to show the moved folder
+                const parentPath = targetFolder.path;
+                if (parentPath !== '/' && !updatedExpanded.has(parentPath)) {
+                    updatedExpanded.add(parentPath);
+                }
+
+                expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: updatedExpanded });
+            });
         });
     }
 
     // Delete folder (not available for vault root)
     if (folder.path !== '/') {
         menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.folder.deleteFolder)
-                .setIcon('lucide-trash')
-                .onClick(async () => {
-                    const parentFolder = folder.parent;
+            setAsyncOnClick(item.setTitle(strings.contextMenu.folder.deleteFolder).setIcon('lucide-trash'), async () => {
+                const parentFolder = folder.parent;
 
-                    await fileSystemOps.deleteFolder(folder, settings.confirmBeforeDelete, () => {
-                        // Check if we need to update selection
-                        if (selectionState.selectedFolder) {
-                            const isSelectedFolderDeleted = folder.path === selectionState.selectedFolder.path;
-                            const isAncestorDeleted = isFolderAncestor(folder, selectionState.selectedFolder);
+                await fileSystemOps.deleteFolder(folder, settings.confirmBeforeDelete, () => {
+                    // Check if we need to update selection
+                    if (selectionState.selectedFolder) {
+                        const isSelectedFolderDeleted = folder.path === selectionState.selectedFolder.path;
+                        const isAncestorDeleted = isFolderAncestor(folder, selectionState.selectedFolder);
 
-                            if (isSelectedFolderDeleted || isAncestorDeleted) {
-                                // If parent exists and is not root (or root is visible), select it
-                                if (parentFolder && (parentFolder.path !== '/' || settings.showRootFolder)) {
-                                    selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
-                                } else {
-                                    // Clear selection if no valid parent
-                                    selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: null });
-                                }
+                        if (isSelectedFolderDeleted || isAncestorDeleted) {
+                            // If parent exists and is not root (or root is visible), select it
+                            if (parentFolder && (parentFolder.path !== '/' || settings.showRootFolder)) {
+                                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
+                            } else {
+                                // Clear selection if no valid parent
+                                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: null });
                             }
                         }
-                    });
+                    }
                 });
+            });
         });
     }
 }

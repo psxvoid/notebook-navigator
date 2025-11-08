@@ -1,10 +1,11 @@
 import { Menu, TFolder } from 'obsidian';
 import { strings } from '../i18n';
-import { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
+import { FolderAppearance } from '../hooks/useListPaneAppearance';
 import type { ListNoteGroupingOption } from '../settings/types';
 import { NotebookNavigatorSettings } from '../settings';
 import { ItemType } from '../types';
 import { resolveListGrouping } from '../utils/listGrouping';
+import { runAsyncAction } from '../utils/async';
 
 interface AppearanceMenuProps {
     event: MouseEvent;
@@ -33,42 +34,41 @@ export function showListPaneAppearanceMenu({
     selectionType,
     updateSettings
 }: AppearanceMenuProps) {
-    const updateAppearance = (updates: Partial<FolderAppearance | TagAppearance>) => {
+    const updateAppearance = (updates: Partial<FolderAppearance>) => {
         if (selectionType === ItemType.TAG && selectedTag) {
             // Update tag appearance
-            updateSettings(s => {
-                const newAppearances = { ...s.tagAppearances };
-                const currentAppearance = newAppearances[selectedTag] || {};
+            runAsyncAction(() =>
+                updateSettings(s => {
+                    const newAppearances = { ...s.tagAppearances };
+                    const currentAppearance = newAppearances[selectedTag] || {};
+                    newAppearances[selectedTag] = { ...currentAppearance, ...updates };
 
-                // Merge updates
-                newAppearances[selectedTag] = { ...currentAppearance, ...updates };
+                    const hasDefinedValues = Object.values(newAppearances[selectedTag]).some(value => value !== undefined);
+                    if (!hasDefinedValues) {
+                        delete newAppearances[selectedTag];
+                    }
 
-                // Remove tag entry if all settings are cleared (back to defaults)
-                const hasDefinedValues = Object.values(newAppearances[selectedTag]).some(value => value !== undefined);
-                if (!hasDefinedValues) {
-                    delete newAppearances[selectedTag];
-                }
-
-                s.tagAppearances = newAppearances;
-            });
+                    s.tagAppearances = newAppearances;
+                })
+            );
         } else if (selectionType === ItemType.FOLDER && selectedFolder) {
             // Update folder appearance
             const folderPath = selectedFolder.path;
-            updateSettings(s => {
-                const newAppearances = { ...s.folderAppearances };
-                const currentAppearance = newAppearances[folderPath] || {};
+            runAsyncAction(() =>
+                updateSettings(s => {
+                    const newAppearances = { ...s.folderAppearances };
+                    const currentAppearance = newAppearances[folderPath] || {};
 
-                // Merge updates
-                newAppearances[folderPath] = { ...currentAppearance, ...updates };
+                    newAppearances[folderPath] = { ...currentAppearance, ...updates };
 
-                // Remove folder entry if all settings are cleared (back to defaults)
-                const hasDefinedValues = Object.values(newAppearances[folderPath]).some(value => value !== undefined);
-                if (!hasDefinedValues) {
-                    delete newAppearances[folderPath];
-                }
+                    const hasDefinedValues = Object.values(newAppearances[folderPath]).some(value => value !== undefined);
+                    if (!hasDefinedValues) {
+                        delete newAppearances[folderPath];
+                    }
 
-                s.folderAppearances = newAppearances;
-            });
+                    s.folderAppearances = newAppearances;
+                })
+            );
         }
     };
 
@@ -76,7 +76,7 @@ export function showListPaneAppearanceMenu({
 
     // Get custom appearance settings for the selected folder/tag
     // Will be undefined if no custom appearance has been set
-    let appearance: FolderAppearance | TagAppearance | undefined;
+    let appearance: FolderAppearance | undefined;
     if (selectionType === ItemType.TAG && selectedTag) {
         appearance = settings.tagAppearances?.[selectedTag];
     } else if (selectionType === ItemType.FOLDER && selectedFolder) {

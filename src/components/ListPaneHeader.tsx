@@ -29,6 +29,7 @@ import { ObsidianIcon } from './ObsidianIcon';
 import { useListActions } from '../hooks/useListActions';
 import { useListPaneTitle } from '../hooks/useListPaneTitle';
 import { normalizeTagPath } from '../utils/tagUtils';
+import { runAsyncAction } from '../utils/async';
 
 interface ListPaneHeaderProps {
     onHeaderClick?: () => void;
@@ -238,7 +239,9 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                     <button
                         className="nn-icon-button"
                         aria-label={strings.paneHeader.newNote}
-                        onClick={handleNewFile}
+                        onClick={() => {
+                            runAsyncAction(() => handleNewFile());
+                        }}
                         disabled={!selectionState.selectedFolder}
                         tabIndex={-1}
                     >

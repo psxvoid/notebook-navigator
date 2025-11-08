@@ -55,6 +55,7 @@ import type { FilterSearchTokens } from '../utils/filterSearch';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility, normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 import { resolveListGrouping } from '../utils/listGrouping';
+import { runAsyncAction } from '../utils/async';
 import { getDBInstance } from 'src/storage/fileOperations';
 import { FeatureImageContentProvider } from 'src/services/content/FeatureImageContentProvider';
 import { CachedMetadata } from 'tests/stubs/obsidian';
@@ -197,7 +198,7 @@ export function useListPaneData({
         const token = ++searchTokenRef.current;
         let disposed = false;
 
-        (async () => {
+        runAsyncAction(async () => {
             try {
                 const hits = await omnisearchService.search(trimmedQuery);
                 // Ignore stale results
@@ -240,7 +241,7 @@ export function useListPaneData({
                     setOmnisearchResult({ query: trimmedQuery, files: [], meta: new Map() });
                 }
             }
-        })();
+        });
 
         return () => {
             disposed = true;
