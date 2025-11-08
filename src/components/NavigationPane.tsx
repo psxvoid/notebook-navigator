@@ -55,7 +55,7 @@
  */
 
 import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo, useState, useReducer } from 'react';
-import { TFolder, TFile, Platform, Menu } from 'obsidian';
+import { TFolder, TFile, Platform, Menu, Notice } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -86,9 +86,20 @@ import { VirtualFolderComponent } from './VirtualFolderItem';
 import { getNavigationIndex, normalizeNavigationPath } from '../utils/navigationIndex';
 import { STORAGE_KEYS, SHORTCUTS_VIRTUAL_FOLDER_ID, RECENT_NOTES_VIRTUAL_FOLDER_ID, NavigationSectionId } from '../types';
 import { localStorage } from '../utils/localStorage';
+import { runAsyncAction } from '../utils/async';
+import { extractFilePathsFromDataTransfer, parseTagDragPayload } from '../utils/dragData';
+import { openFileInContext } from '../utils/openFileInContext';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { ShortcutItem } from './ShortcutItem';
-import { ShortcutType, SearchShortcut, SHORTCUT_DRAG_MIME, isFolderShortcut, isNoteShortcut, isTagShortcut } from '../types/shortcuts';
+import {
+    ShortcutEntry,
+    ShortcutType,
+    SearchShortcut,
+    SHORTCUT_DRAG_MIME,
+    isFolderShortcut,
+    isNoteShortcut,
+    isTagShortcut
+} from '../types/shortcuts';
 import { strings } from '../i18n';
 import { createDragGhostManager, type DragGhostOptions } from '../utils/dragGhost';
 import { showReorderMenu, createMenuReorderHandleConfig } from '../utils/reorderMenu';
@@ -179,8 +190,16 @@ export const NavigationPane = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const shortcuts = useShortcuts();
-        const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts, addFolderShortcut, addNoteShortcut, addTagShortcut } =
-            shortcuts;
+        const {
+            shortcutMap,
+            removeShortcut,
+            hydratedShortcuts,
+            reorderShortcuts,
+            addTagShortcut,
+            addShortcutsBatch,
+            hasFolderShortcut,
+            hasNoteShortcut
+        } = shortcuts;
         const { fileData, getFileDisplayName } = useFileCache();
         const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
         // Detect Android platform for mobile-specific UI behavior
@@ -517,64 +536,26 @@ export const NavigationPane = React.memo(
 
                 const tagPayloadRaw = dataTransfer.getData(TAG_DRAG_MIME);
                 if (tagPayloadRaw) {
-                    let droppedTagPath: string | null = null;
-                    try {
-                        const parsed = JSON.parse(tagPayloadRaw);
-                        if (typeof parsed === 'string') {
-                            droppedTagPath = parsed;
-                        } else if (parsed && typeof parsed === 'object') {
-                            const candidate =
-                                (typeof parsed.canonicalPath === 'string' && parsed.canonicalPath.length > 0
-                                    ? parsed.canonicalPath
-                                    : null) ??
-                                (typeof parsed.displayPath === 'string' && parsed.displayPath.length > 0 ? parsed.displayPath : null);
-                            droppedTagPath = candidate ?? null;
-                        }
-                    } catch {
-                        const trimmed = tagPayloadRaw.trim();
-                        if (trimmed.length > 0) {
-                            droppedTagPath = trimmed;
-                        }
-                    }
-
+                    const droppedTagPath = parseTagDragPayload(tagPayloadRaw);
                     if (droppedTagPath) {
                         event.preventDefault();
                         event.stopPropagation();
 
                         const baseInsertIndex = computeShortcutInsertIndex(event, key);
-                        void (async () => {
+                        runAsyncAction(async () => {
                             await addTagShortcut(droppedTagPath, { index: Math.max(0, baseInsertIndex) });
-                        })();
+                        });
 
                         setExternalShortcutDropIndex(null);
                         return true;
                     }
                 }
 
-                const rawPaths: string[] = [];
-                const multiple = dataTransfer.getData('obsidian/files');
-                if (multiple) {
-                    try {
-                        const parsed = JSON.parse(multiple);
-                        if (Array.isArray(parsed)) {
-                            parsed.forEach(path => {
-                                if (typeof path === 'string' && path.length > 0) {
-                                    rawPaths.push(path);
-                                }
-                            });
-                        }
-                    } catch (error) {
-                        console.error('Failed to parse obsidian/files payload', error);
-                        setExternalShortcutDropIndex(null);
-                        return false;
-                    }
+                const rawPaths = extractFilePathsFromDataTransfer(dataTransfer);
+                if (!rawPaths) {
+                    setExternalShortcutDropIndex(null);
+                    return false;
                 }
-
-                const single = dataTransfer.getData('obsidian/file');
-                if (single) {
-                    rawPaths.push(single);
-                }
-
                 if (rawPaths.length === 0) {
                     setExternalShortcutDropIndex(null);
                     return false;
@@ -594,17 +575,35 @@ export const NavigationPane = React.memo(
                     return false;
                 }
 
-                const additions: { type: 'folder' | 'note'; path: string }[] = [];
+                const additions: ShortcutEntry[] = [];
+                let duplicateFolderCount = 0;
+                let duplicateNoteCount = 0;
                 orderedPaths.forEach(path => {
                     const target = app.vault.getAbstractFileByPath(path);
                     if (target instanceof TFolder) {
-                        if (target.path !== '/') {
-                            additions.push({ type: 'folder', path: target.path });
+                        if (target.path === '/') {
+                            return;
                         }
+                        if (hasFolderShortcut(target.path)) {
+                            duplicateFolderCount += 1;
+                            return;
+                        }
+                        additions.push({ type: ShortcutType.FOLDER, path: target.path });
                     } else if (target instanceof TFile) {
-                        additions.push({ type: 'note', path: target.path });
+                        if (hasNoteShortcut(target.path)) {
+                            duplicateNoteCount += 1;
+                            return;
+                        }
+                        additions.push({ type: ShortcutType.NOTE, path: target.path });
                     }
                 });
+
+                if (duplicateFolderCount > 0) {
+                    new Notice(strings.shortcuts.folderExists);
+                }
+                if (duplicateNoteCount > 0) {
+                    new Notice(strings.shortcuts.noteExists);
+                }
 
                 if (additions.length === 0) {
                     setExternalShortcutDropIndex(null);
@@ -616,34 +615,22 @@ export const NavigationPane = React.memo(
 
                 const baseInsertIndex = computeShortcutInsertIndex(event, key);
 
-                void (async () => {
-                    let offset = 0;
-                    for (const addition of additions) {
-                        const targetIndex = Math.max(0, baseInsertIndex + offset);
-                        let success = false;
-                        if (addition.type === 'folder') {
-                            success = await addFolderShortcut(addition.path, { index: targetIndex });
-                        } else {
-                            success = await addNoteShortcut(addition.path, { index: targetIndex });
-                        }
-
-                        if (success) {
-                            offset += 1;
-                        }
-                    }
-                })();
+                runAsyncAction(async () => {
+                    await addShortcutsBatch(additions, { index: Math.max(0, baseInsertIndex) });
+                });
 
                 setExternalShortcutDropIndex(null);
                 return true;
             },
             [
-                addFolderShortcut,
-                addNoteShortcut,
+                addShortcutsBatch,
                 addTagShortcut,
                 app.vault,
                 computeShortcutInsertIndex,
                 shortcutsExpanded,
-                settings.showShortcuts
+                settings.showShortcuts,
+                hasFolderShortcut,
+                hasNoteShortcut
             ]
         );
 
@@ -773,10 +760,10 @@ export const NavigationPane = React.memo(
                     moveUpLabel: strings.shortcuts.moveUp,
                     moveDownLabel: strings.shortcuts.moveDown,
                     onMoveUp: () => {
-                        void moveShortcutItem(key, -1);
+                        runAsyncAction(() => moveShortcutItem(key, -1));
                     },
                     onMoveDown: () => {
-                        void moveShortcutItem(key, 1);
+                        runAsyncAction(() => moveShortcutItem(key, 1));
                     }
                 });
             },
@@ -793,7 +780,7 @@ export const NavigationPane = React.memo(
                 event.preventDefault();
                 event.stopPropagation();
 
-                void openShortcutReorderMenu(key, event.currentTarget);
+                openShortcutReorderMenu(key, event.currentTarget);
             },
             [canUseShortcutReorderMenu, openShortcutReorderMenu]
         );
@@ -809,7 +796,7 @@ export const NavigationPane = React.memo(
 
                 const nativeEvent = event.nativeEvent;
                 const mouseEvent = nativeEvent instanceof MouseEvent ? nativeEvent : undefined;
-                void openShortcutReorderMenu(key, event.currentTarget, mouseEvent);
+                openShortcutReorderMenu(key, event.currentTarget, mouseEvent);
             },
             [canUseShortcutReorderMenu, openShortcutReorderMenu]
         );
@@ -1064,8 +1051,8 @@ export const NavigationPane = React.memo(
                         // Set folder as selected without auto-selecting first file
                         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, autoSelectedFile: null });
 
-                        commandQueue.executeOpenFolderNote(folder.path, async () => {
-                            await app.workspace.getLeaf().openFile(folderNote);
+                        runAsyncAction(async () => {
+                            await commandQueue.executeOpenFolderNote(folder.path, () => app.workspace.getLeaf().openFile(folderNote));
                         });
 
                         return;
@@ -1327,7 +1314,7 @@ export const NavigationPane = React.memo(
 
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
-                    void leaf.openFile(note, { active: false });
+                    runAsyncAction(() => leaf.openFile(note, { active: false }));
                 }
                 if (isMobile && app.workspace.leftSplit) {
                     app.workspace.leftSplit.collapse();
@@ -1342,7 +1329,7 @@ export const NavigationPane = React.memo(
                 onRevealFile,
                 onRevealShortcutFile,
                 scheduleShortcutRelease,
-                app.workspace,
+                app,
                 isMobile,
                 uiDispatch
             ]
@@ -1360,15 +1347,9 @@ export const NavigationPane = React.memo(
                 event.stopPropagation();
 
                 // Use command queue if available to ensure proper focus and context handling
-                if (commandQueue) {
-                    commandQueue.executeOpenInNewContext(note, 'tab', async () => {
-                        await app.workspace.getLeaf('tab').openFile(note);
-                    });
-                } else {
-                    app.workspace.getLeaf('tab').openFile(note);
-                }
+                runAsyncAction(() => openFileInContext({ app, commandQueue, file: note, context: 'tab' }));
             },
-            [app.workspace, commandQueue]
+            [app, commandQueue]
         );
 
         const handleRecentNoteActivate = useCallback(
@@ -1381,7 +1362,7 @@ export const NavigationPane = React.memo(
 
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
-                    void leaf.openFile(note, { active: false });
+                    runAsyncAction(() => leaf.openFile(note, { active: false }));
                 }
                 if (isMobile && app.workspace.leftSplit) {
                     app.workspace.leftSplit.collapse();
@@ -1398,7 +1379,7 @@ export const NavigationPane = React.memo(
                 setActiveShortcut(shortcutKey);
                 scrollShortcutIntoView(shortcutKey);
                 if (onExecuteSearchShortcut) {
-                    void onExecuteSearchShortcut(shortcutKey, searchShortcut);
+                    runAsyncAction(() => onExecuteSearchShortcut(shortcutKey, searchShortcut));
                 }
                 scheduleShortcutRelease();
             },
@@ -1472,7 +1453,7 @@ export const NavigationPane = React.memo(
                         item.setTitle(strings.shortcuts.remove)
                             .setIcon('lucide-bookmark-x')
                             .onClick(() => {
-                                void removeShortcut(target.key);
+                                runAsyncAction(() => removeShortcut(target.key));
                             });
                     });
                     menu.showAtMouseEvent(event.nativeEvent);
@@ -1484,7 +1465,7 @@ export const NavigationPane = React.memo(
                         item.setTitle(strings.shortcuts.remove)
                             .setIcon('lucide-bookmark-x')
                             .onClick(() => {
-                                void removeShortcut(target.key);
+                                runAsyncAction(() => removeShortcut(target.key));
                             });
                     });
                     menu.showAtMouseEvent(event.nativeEvent);
@@ -1528,7 +1509,7 @@ export const NavigationPane = React.memo(
                             item.setTitle(strings.shortcuts.remove)
                                 .setIcon('lucide-bookmark-x')
                                 .onClick(() => {
-                                    void removeShortcut(target.key);
+                                    runAsyncAction(() => removeShortcut(target.key));
                                 });
                         });
                     }

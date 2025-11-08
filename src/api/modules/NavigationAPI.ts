@@ -37,7 +37,7 @@ export class NavigationAPI {
             throw new Error('Could not open navigator view');
         }
 
-        await view.navigateToFile(file);
+        view.navigateToFile(file);
     }
 
     /**

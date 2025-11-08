@@ -236,7 +236,6 @@ export function NavigationListRow({
             role={role}
             tabIndex={tabIndex}
             aria-disabled={ariaDisabled || undefined}
-            aria-grabbed={ariaGrabbed ? true : undefined}
             data-nav-item-type={itemType}
             data-nav-item-disabled={isDisabled ? 'true' : undefined}
             data-nav-item-excluded={isExcluded ? 'true' : undefined}

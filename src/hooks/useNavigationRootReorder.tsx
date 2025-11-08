@@ -38,6 +38,7 @@ import { areStringArraysEqual } from '../utils/arrayUtils';
 import { useListReorder, type ListReorderHandlers } from './useListReorder';
 import { RootFolderReorderItem } from '../components/RootFolderReorderItem';
 import type { DragHandleConfig } from '../components/NavigationListRow';
+import { runAsyncAction } from '../utils/async';
 import { mergeNavigationSectionOrder } from '../utils/navigationSections';
 import { getPathBaseName } from '../utils/pathUtils';
 import { showReorderMenu, createMenuReorderHandleConfig } from '../utils/reorderMenu';
@@ -192,10 +193,10 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                 moveUpLabel: strings.shortcuts.moveUp,
                 moveDownLabel: strings.shortcuts.moveDown,
                 onMoveUp: () => {
-                    void move(-1);
+                    runAsyncAction(() => move(-1));
                 },
                 onMoveDown: () => {
-                    void move(1);
+                    runAsyncAction(() => move(1));
                 }
             });
         },
@@ -227,23 +228,27 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                 onClick: (event: React.MouseEvent<HTMLSpanElement>) => {
                     event.preventDefault();
                     event.stopPropagation();
-                    void openRootReorderMenu(
-                        event.currentTarget,
-                        offset => canMoveItemFn(itemKey, offset),
-                        offset => moveItemFn(itemKey, offset)
-                    );
+                    runAsyncAction(() => {
+                        openRootReorderMenu(
+                            event.currentTarget,
+                            offset => canMoveItemFn(itemKey, offset),
+                            offset => moveItemFn(itemKey, offset)
+                        );
+                    });
                 },
                 onContextMenu: (event: React.MouseEvent<HTMLSpanElement>) => {
                     event.preventDefault();
                     event.stopPropagation();
                     const nativeEvent = event.nativeEvent;
                     const mouseEvent = nativeEvent instanceof MouseEvent ? nativeEvent : undefined;
-                    void openRootReorderMenu(
-                        event.currentTarget,
-                        offset => canMoveItemFn(itemKey, offset),
-                        offset => moveItemFn(itemKey, offset),
-                        mouseEvent
-                    );
+                    runAsyncAction(() => {
+                        openRootReorderMenu(
+                            event.currentTarget,
+                            offset => canMoveItemFn(itemKey, offset),
+                            offset => moveItemFn(itemKey, offset),
+                            mouseEvent
+                        );
+                    });
                 }
             } satisfies NonNullable<DragHandleConfig['events']>;
 
@@ -563,7 +568,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
 
     const buildRemoveMissingAction = useCallback((path: string, removeCallback: (targetPath: string) => Promise<void>) => {
         const invokeRemoval = () => {
-            void removeCallback(path);
+            runAsyncAction(() => removeCallback(path));
         };
         return (
             <span

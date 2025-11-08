@@ -2184,6 +2184,10 @@ body {
     aspect-ratio: var(--nn-feature-image-aspect-ratio, 1);
 }
 
+.nn-feature-image--hidden {
+    display: none;
+}
+
 /* Dynamic sizing based on calculated item height */
 .nn-virtual-file-item .nn-feature-image {
     /* Size based on item height minus total padding */

@@ -23,6 +23,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useServices } from '../context/ServicesContext';
 import { strings } from '../i18n';
 import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
+import { runAsyncAction, type MaybePromise } from '../utils/async';
 
 interface SearchInputProps {
     searchQuery: string;
@@ -33,8 +34,8 @@ interface SearchInputProps {
     onFocusComplete?: () => void;
     /** Root container to scope DOM queries within this navigator instance */
     containerRef?: React.RefObject<HTMLDivElement | null>;
-    onSaveShortcut?: () => void;
-    onRemoveShortcut?: () => void;
+    onSaveShortcut?: () => MaybePromise;
+    onRemoveShortcut?: () => MaybePromise;
     isShortcutSaved?: boolean;
     isShortcutDisabled?: boolean;
 }
@@ -97,6 +98,7 @@ export function SearchInput({
     const handleKeyDown = (e: React.KeyboardEvent) => {
         const nativeEvent = e.nativeEvent;
         const shortcuts = settings.keyboardShortcuts;
+        // eslint-disable-next-line @typescript-eslint/no-deprecated -- keyCode=229 is still needed for legacy IME detection
         const isImeComposing = nativeEvent.isComposing || nativeEvent.keyCode === 229;
 
         if (isImeComposing) {
@@ -177,7 +179,7 @@ export function SearchInput({
                             }
                             const action = isShortcutSaved ? onRemoveShortcut : onSaveShortcut;
                             if (action) {
-                                void action();
+                                runAsyncAction(action);
                             }
                             inputRef.current?.focus();
                         }}
@@ -186,7 +188,7 @@ export function SearchInput({
                                 event.preventDefault();
                                 const action = isShortcutSaved ? onRemoveShortcut : onSaveShortcut;
                                 if (action) {
-                                    void action();
+                                    runAsyncAction(action);
                                 }
                                 inputRef.current?.focus();
                             }

@@ -22,6 +22,7 @@ import { NavigationBannerModal } from '../../modals/NavigationBannerModal';
 import { DEFAULT_SETTINGS } from '../defaultSettings';
 import type { ItemScope } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
+import { runAsyncAction } from '../../utils/async';
 
 /** Renders the navigation pane settings tab */
 export function renderNavigationPaneTab(context: SettingsTabContext): void {
@@ -94,7 +95,7 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             new NavigationBannerModal(context.app, file => {
                 plugin.settings.navigationBanner = file.path;
                 renderNavigationBannerValue();
-                void plugin.saveSettingsAndUpdate();
+                runAsyncAction(() => plugin.saveSettingsAndUpdate());
             }).open();
         });
     });
@@ -103,13 +104,15 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
         button.setButtonText(strings.settings.items.navigationBanner.clearButton);
         clearNavigationBannerButton = button;
         button.setDisabled(!plugin.settings.navigationBanner);
-        button.onClick(async () => {
-            if (!plugin.settings.navigationBanner) {
-                return;
-            }
-            plugin.settings.navigationBanner = null;
-            renderNavigationBannerValue();
-            await plugin.saveSettingsAndUpdate();
+        button.onClick(() => {
+            runAsyncAction(async () => {
+                if (!plugin.settings.navigationBanner) {
+                    return;
+                }
+                plugin.settings.navigationBanner = null;
+                renderNavigationBannerValue();
+                await plugin.saveSettingsAndUpdate();
+            });
         });
     });
 
@@ -226,11 +229,13 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             button
                 .setIcon('lucide-rotate-ccw')
                 .setTooltip('Restore to default (16px)')
-                .onClick(async () => {
-                    const defaultValue = DEFAULT_SETTINGS.navIndent;
-                    indentationSlider.setValue(defaultValue);
-                    plugin.settings.navIndent = defaultValue;
-                    await plugin.saveSettingsAndUpdate();
+                .onClick(() => {
+                    runAsyncAction(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.navIndent;
+                        indentationSlider.setValue(defaultValue);
+                        plugin.settings.navIndent = defaultValue;
+                        await plugin.saveSettingsAndUpdate();
+                    });
                 })
         );
 
@@ -253,11 +258,13 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             button
                 .setIcon('lucide-rotate-ccw')
                 .setTooltip('Restore to default (28px)')
-                .onClick(async () => {
-                    const defaultValue = DEFAULT_SETTINGS.navItemHeight;
-                    lineHeightSlider.setValue(defaultValue);
-                    plugin.settings.navItemHeight = defaultValue;
-                    await plugin.saveSettingsAndUpdate();
+                .onClick(() => {
+                    runAsyncAction(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.navItemHeight;
+                        lineHeightSlider.setValue(defaultValue);
+                        plugin.settings.navItemHeight = defaultValue;
+                        await plugin.saveSettingsAndUpdate();
+                    });
                 })
         );
 
@@ -292,11 +299,13 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             button
                 .setIcon('lucide-rotate-ccw')
                 .setTooltip('Restore to default (0px)')
-                .onClick(async () => {
-                    const defaultValue = DEFAULT_SETTINGS.rootLevelSpacing;
-                    rootSpacingSlider.setValue(defaultValue);
-                    plugin.settings.rootLevelSpacing = defaultValue;
-                    await plugin.saveSettingsAndUpdate();
+                .onClick(() => {
+                    runAsyncAction(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.rootLevelSpacing;
+                        rootSpacingSlider.setValue(defaultValue);
+                        plugin.settings.rootLevelSpacing = defaultValue;
+                        await plugin.saveSettingsAndUpdate();
+                    });
                 })
         );
 }

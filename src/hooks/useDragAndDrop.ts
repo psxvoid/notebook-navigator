@@ -33,6 +33,8 @@ import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { generateUniqueFilename } from '../utils/fileCreationUtils';
 import { createDragGhostManager } from '../utils/dragGhost';
 import { normalizeTagPathValue } from '../utils/tagPrefixMatcher';
+import { runAsyncAction } from '../utils/async';
+import { extractFilePathsFromDataTransfer, parseObsidianFilesPayload } from '../utils/dragData';
 
 /**
  * Enables drag and drop for files and folders using event delegation.
@@ -545,30 +547,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         async (e: DragEvent, targetTag: string) => {
             let files: TFile[] = [];
 
-            // Check if dragging multiple files (never folders)
-            const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
-            if (multipleFilesData) {
-                try {
-                    const selectedPaths = JSON.parse(multipleFilesData);
-                    if (Array.isArray(selectedPaths)) {
-                        files = getFilesFromPaths(selectedPaths);
-                    }
-                } catch (error) {
-                    console.error('Error parsing multiple files data:', error);
-                    return;
-                }
-            } else {
-                // Check if dragging single item (could be file or folder)
-                const singleFileData = e.dataTransfer?.getData('obsidian/file');
-                if (singleFileData) {
-                    const item = app.vault.getAbstractFileByPath(singleFileData);
-                    if (item instanceof TFolder) {
-                        return;
-                    }
-                    if (item instanceof TFile) {
-                        files = [item];
-                    }
-                }
+            const selectedPaths = extractFilePathsFromDataTransfer(e.dataTransfer ?? null);
+            if (selectedPaths && selectedPaths.length > 0) {
+                files = getFilesFromPaths(selectedPaths);
             }
 
             if (files.length === 0) return;
@@ -832,19 +813,11 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     return;
                 }
 
-                const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
-                if (multipleFilesData) {
-                    try {
-                        const selectedPaths = JSON.parse(multipleFilesData);
-                        if (Array.isArray(selectedPaths)) {
-                            const filesToMove = getFilesFromPaths(selectedPaths);
-                            if (filesToMove.length > 0) {
-                                await moveFilesWithContext(filesToMove, targetFolder);
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error parsing multiple files data:', error);
-                        return;
+                const selectedPaths = extractFilePathsFromDataTransfer(e.dataTransfer ?? null);
+                if (selectedPaths && selectedPaths.length > 0) {
+                    const filesToMove = getFilesFromPaths(selectedPaths);
+                    if (filesToMove.length > 0) {
+                        await moveFilesWithContext(filesToMove, targetFolder);
                     }
                     return;
                 }
@@ -977,11 +950,14 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 dragGhostManager.hideGhost();
             }
         };
+        const handleDropListener = (event: DragEvent) => {
+            runAsyncAction(() => handleDrop(event));
+        };
 
         container.addEventListener('dragstart', handleDragStart);
         container.addEventListener('dragover', handleDragOver);
         container.addEventListener('dragleave', handleDragLeave);
-        container.addEventListener('drop', handleDrop);
+        container.addEventListener('drop', handleDropListener);
         container.addEventListener('dragend', handleDragEnd);
         document.addEventListener('keydown', handleEscape);
 
@@ -989,7 +965,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             container.removeEventListener('dragstart', handleDragStart);
             container.removeEventListener('dragover', handleDragOver);
             container.removeEventListener('dragleave', handleDragLeave);
-            container.removeEventListener('drop', handleDrop);
+            container.removeEventListener('drop', handleDropListener);
             container.removeEventListener('dragend', handleDragEnd);
             document.removeEventListener('keydown', handleEscape);
 

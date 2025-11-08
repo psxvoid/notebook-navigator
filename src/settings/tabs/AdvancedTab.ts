@@ -22,6 +22,7 @@ import type { MetadataCleanupSummary } from '../../services/MetadataService';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { getNavigationPaneSizing } from '../../utils/paneSizing';
 import { localStorage } from '../../utils/localStorage';
+import { runAsyncAction } from '../../utils/async';
 
 /** Renders the advanced settings tab */
 export function renderAdvancedTab(context: SettingsTabContext): void {
@@ -117,16 +118,18 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
         metadataCleanupButton = button;
         button.setButtonText(strings.settings.items.metadataCleanup.buttonText);
         button.setDisabled(true);
-        button.onClick(async () => {
-            setMetadataCleanupLoadingState();
-            try {
-                await plugin.runMetadataCleanup();
-            } catch (error) {
-                console.error('Metadata cleanup failed', error);
-                new Notice(strings.settings.items.metadataCleanup.error);
-            } finally {
-                await refreshMetadataCleanupSummary();
-            }
+        button.onClick(() => {
+            runAsyncAction(async () => {
+                setMetadataCleanupLoadingState();
+                try {
+                    await plugin.runMetadataCleanup();
+                } catch (error) {
+                    console.error('Metadata cleanup failed', error);
+                    new Notice(strings.settings.items.metadataCleanup.error);
+                } finally {
+                    await refreshMetadataCleanupSummary();
+                }
+            });
         });
     });
 
@@ -135,23 +138,25 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
         text: strings.settings.items.metadataCleanup.loading
     });
 
-    void refreshMetadataCleanupSummary();
+    runAsyncAction(() => refreshMetadataCleanupSummary());
 
     new Setting(containerEl)
         .setName(strings.settings.items.rebuildCache.name)
         .setDesc(strings.settings.items.rebuildCache.desc)
         .addButton(button =>
-            button.setButtonText(strings.settings.items.rebuildCache.buttonText).onClick(async () => {
-                button.setDisabled(true);
-                try {
-                    await plugin.rebuildCache();
-                    new Notice(strings.settings.items.rebuildCache.success);
-                } catch (error) {
-                    console.error('Failed to rebuild cache from settings:', error);
-                    new Notice(strings.settings.items.rebuildCache.error);
-                } finally {
-                    button.setDisabled(false);
-                }
+            button.setButtonText(strings.settings.items.rebuildCache.buttonText).onClick(() => {
+                runAsyncAction(async () => {
+                    button.setDisabled(true);
+                    try {
+                        await plugin.rebuildCache();
+                        new Notice(strings.settings.items.rebuildCache.success);
+                    } catch (error) {
+                        console.error('Failed to rebuild cache from settings:', error);
+                        new Notice(strings.settings.items.rebuildCache.error);
+                    } finally {
+                        button.setDisabled(false);
+                    }
+                });
             })
         );
 

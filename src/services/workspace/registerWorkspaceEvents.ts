@@ -5,6 +5,7 @@
 import { TFile, TFolder } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 import { strings } from '../../i18n';
+import { runAsyncAction } from '../../utils/async';
 
 /**
  * Registers all workspace-related event listeners for the plugin
@@ -22,9 +23,11 @@ export default function registerWorkspaceEvents(plugin: NotebookNavigatorPlugin)
             menu.addItem(item => {
                 item.setTitle(strings.plugin.revealInNavigator)
                     .setIcon('lucide-folder-open')
-                    .onClick(async () => {
-                        await plugin.activateView();
-                        await plugin.revealFileInActualFolder(file);
+                    .onClick(() => {
+                        runAsyncAction(async () => {
+                            await plugin.activateView();
+                            await plugin.revealFileInActualFolder(file);
+                        });
                     });
             });
         })
@@ -38,8 +41,10 @@ export default function registerWorkspaceEvents(plugin: NotebookNavigatorPlugin)
                 menu.addItem(item => {
                     item.setTitle(strings.plugin.revealInNavigator)
                         .setIcon('lucide-notebook')
-                        .onClick(async () => {
-                            await plugin.navigateToFolder(file, { preserveNavigationFocus: true });
+                        .onClick(() => {
+                            runAsyncAction(async () => {
+                                await plugin.navigateToFolder(file, { preserveNavigationFocus: true });
+                            });
                         });
                 });
             }
@@ -47,8 +52,8 @@ export default function registerWorkspaceEvents(plugin: NotebookNavigatorPlugin)
     );
 
     // Add ribbon icon to open the navigator
-    plugin.ribbonIconEl = plugin.addRibbonIcon('lucide-notebook', strings.plugin.ribbonTooltip, async () => {
-        await plugin.activateView();
+    plugin.ribbonIconEl = plugin.addRibbonIcon('lucide-notebook', strings.plugin.ribbonTooltip, () => {
+        runAsyncAction(() => plugin.activateView());
     });
 
     // Track file opens for recent notes history
