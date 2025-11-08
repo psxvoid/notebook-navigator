@@ -243,13 +243,35 @@ duplicateFolder(folder: TFolder): Promise<void>
 isDescendant(parent: TAbstractFile, child: TAbstractFile): boolean
 
 moveFilesToFolder(options: MoveFilesOptions): Promise<MoveFilesResult>
-moveFilesWithModal(files: TFile[], targetFolder: TFolder, onSuccess?: () => void): Promise<void>
-moveFolderWithModal(folder: TFolder): Promise<MoveFolderResult | null>
+moveFilesWithModal(
+  files: TFile[],
+  selectionContext?: {
+    selectedFile: TFile | null;
+    dispatch: SelectionDispatch;
+    allFiles: TFile[];
+  }
+): Promise<void>
+moveFolderWithModal(
+  folder: TFolder
+): Promise<
+  | { status: 'success'; data: MoveFolderResult }
+  | { status: 'cancelled' }
+  | { status: 'error'; error: unknown }
+>
 
 convertFileToFolderNote(file: TFile, settings: NotebookNavigatorSettings): Promise<void>
 
-deleteMultipleFiles(files: TAbstractFile[], confirmBeforeDelete: boolean, onSuccess?: () => void): Promise<void>
-deleteFilesWithSmartSelection(files: TAbstractFile[], confirmBeforeDelete: boolean): Promise<void>
+deleteMultipleFiles(
+  files: TFile[],
+  confirmBeforeDelete: boolean,
+  preDeleteAction?: () => void | Promise<void>
+): Promise<void>
+deleteFilesWithSmartSelection(
+  selectedFiles: Set<string>,
+  allFiles: TFile[],
+  selectionDispatch: SelectionDispatch,
+  confirmBeforeDelete: boolean
+): Promise<void>
 
 createCanvas(parent: TFolder): Promise<TFile | null>
 createBase(parent: TFolder): Promise<TFile | null>

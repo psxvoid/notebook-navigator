@@ -17,8 +17,9 @@
  */
 
 import { FrontMatterCache } from 'obsidian';
-import { NotebookNavigatorSettings } from '../settings';
 import { isExcalidrawFileName } from './fileNameUtils';
+import { NotebookNavigatorSettings } from '../settings';
+import { getRecordValue } from './typeGuards';
 
 // Maximum number of characters for preview text
 const MAX_PREVIEW_TEXT_LENGTH = 500;
@@ -138,6 +139,58 @@ const REGEX_STRIP_MARKDOWN = new RegExp(BASE_PATTERNS.join('|'), 'gm');
 // Both regexes are now the same since heading handling is in the replacement logic
 const REGEX_STRIP_MARKDOWN_WITH_HEADINGS = REGEX_STRIP_MARKDOWN;
 
+function getCaptureLength(args: unknown[]): number {
+    if (args.length === 0) {
+        return 0;
+    }
+    const lastArg = args[args.length - 1];
+    const hasNamedGroups = typeof lastArg === 'object' && lastArg !== null && !Array.isArray(lastArg);
+    const metadataCount = hasNamedGroups ? 3 : 2;
+    return Math.max(args.length - metadataCount, 0);
+}
+
+function resolvePreviewPropertyValue(value: unknown): string | null {
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed.length > 0 ? trimmed : null;
+    }
+
+    if (Array.isArray(value)) {
+        for (const entry of value) {
+            if (typeof entry !== 'string') {
+                continue;
+            }
+            const trimmed = entry.trim();
+            if (trimmed) {
+                return trimmed;
+            }
+        }
+    }
+
+    return null;
+}
+
+function isTruthyExcalidrawPluginFlag(value: unknown): boolean {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+
+    if (typeof value === 'number') {
+        return value !== 0;
+    }
+
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (!trimmed) {
+            return false;
+        }
+        const normalized = trimmed.toLowerCase();
+        return normalized !== 'false' && normalized !== '0';
+    }
+
+    return Boolean(value);
+}
+
 export class PreviewTextUtils {
     /**
      * Checks if a file is an Excalidraw drawing
@@ -152,7 +205,8 @@ export class PreviewTextUtils {
         }
 
         // Check frontmatter for excalidraw-plugin property
-        if (frontmatter?.['excalidraw-plugin']) {
+        const pluginFlag = getRecordValue(frontmatter, 'excalidraw-plugin');
+        if (isTruthyExcalidrawPluginFlag(pluginFlag)) {
             return true;
         }
 
@@ -169,7 +223,9 @@ export class PreviewTextUtils {
     static stripMarkdownSyntax(text: string, skipHeadings: boolean = false, skipCodeBlocks: boolean = true): string {
         const regex = skipHeadings ? REGEX_STRIP_MARKDOWN_WITH_HEADINGS : REGEX_STRIP_MARKDOWN;
 
-        return text.replace(regex, (match, ...groups) => {
+        return text.replace(regex, (match, ...rawArgs) => {
+            const args: unknown[] = rawArgs;
+            const captureLength = getCaptureLength(args);
             // Check for specific patterns to remove entirely
             // Code blocks
             if (match.startsWith('```') || match.startsWith('~~~')) {
@@ -234,9 +290,11 @@ export class PreviewTextUtils {
                     return '';
                 }
                 // Otherwise, return just the heading text without # symbols
-                // The heading text is in the last captured group before offset/string
-                const headingTextIndex = groups.length - 3; // -2 for offset/string, -1 for heading text position
-                return groups[headingTextIndex] || '';
+                const headingCandidate = captureLength > 0 ? args[captureLength - 1] : undefined;
+                if (typeof headingCandidate === 'string') {
+                    return headingCandidate;
+                }
+                return '';
             }
 
             // List markers
@@ -250,10 +308,10 @@ export class PreviewTextUtils {
             }
 
             // Find first defined capture group - that's our content to keep
-            for (let i = 0; i < groups.length - 2; i++) {
-                // -2 for offset and string
-                if (groups[i] !== undefined) {
-                    return groups[i];
+            for (let i = 0; i < captureLength; i++) {
+                const capture = args[i];
+                if (typeof capture === 'string') {
+                    return capture;
                 }
             }
 
@@ -292,17 +350,17 @@ export class PreviewTextUtils {
         // Check preview properties first if frontmatter is provided
         if (frontmatter && settings.previewProperties && settings.previewProperties.length > 0) {
             for (const property of settings.previewProperties) {
-                if (frontmatter[property]) {
-                    const propertyValue = String(frontmatter[property]).trim();
-                    if (propertyValue) {
-                        // Apply same character limit to property values
-                        const maxChars = MAX_PREVIEW_TEXT_LENGTH;
-                        if (propertyValue.length > maxChars) {
-                            return `${propertyValue.substring(0, maxChars - 1)}…`;
-                        }
-                        return propertyValue;
-                    }
+                const value = getRecordValue(frontmatter, property);
+                const propertyValue = resolvePreviewPropertyValue(value);
+                if (!propertyValue) {
+                    continue;
                 }
+
+                const maxChars = MAX_PREVIEW_TEXT_LENGTH;
+                if (propertyValue.length > maxChars) {
+                    return `${propertyValue.substring(0, maxChars - 1)}…`;
+                }
+                return propertyValue;
             }
         }
 

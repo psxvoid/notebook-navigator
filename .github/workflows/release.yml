@@ -29,7 +29,12 @@ jobs:
         run: |
           tag="${GITHUB_REF#refs/tags/}"
 
+          # Generate release notes
+          node scripts/mdReleaseNotes.js > release-notes.md
+
+          # Create release with notes
           gh release create "$tag" \
             --title="$tag" \
+            --notes-file release-notes.md \
             --draft \
             main.js manifest.json styles.css

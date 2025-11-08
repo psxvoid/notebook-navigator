@@ -661,7 +661,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             let rawCleanup: (() => void) | null = null;
             try {
                 rawCleanup = waitForMetadataCache(waitingFiles, handleReady);
-            } catch (error) {
+            } catch (error: unknown) {
                 releaseTrackedPaths();
                 throw error;
             }
@@ -763,7 +763,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 default:
                     assertNever(AssertId.RebuildCacheUnknown, mode)
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to clear database during cache rebuild:', error);
             stoppedRef.current = previousStopped;
             throw error;
@@ -796,7 +796,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         try {
             hasBuiltInitialCache.current = true;
             await buildCache(true);
-        } catch (error) {
+        } catch (error: unknown) {
             hasBuiltInitialCache.current = false;
             stoppedRef.current = previousStopped;
             throw error;
@@ -1045,7 +1045,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 const db = getDBInstance();
                 await db.init();
                 if (!cancelled) setIsIndexedDBReady(true);
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error('Database not available for StorageContext:', error);
                 if (!cancelled) setIsIndexedDBReady(false);
             }
@@ -1194,7 +1194,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                             queueMetadataContentWhenReady([...toAdd, ...toUpdate], metadataDependentTypes, settings);
                         }
                     }
-                } catch (error) {
+                } catch (error: unknown) {
                     console.error('Failed during initial load sequence:', error);
                 }
             } else {
@@ -1228,7 +1228,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                                         rebuildTagTree();
                                     }
                                 }
-                            } catch (error) {
+                            } catch (error: unknown) {
                                 console.error('Failed to update IndexedDB cache:', error);
                             }
 
@@ -1287,7 +1287,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                                             filesToProcess = allFiles.filter(file => pathsNeedingContent.has(file.path));
                                         }
                                     }
-                                } catch (error) {
+                                } catch (error: unknown) {
                                     console.error('Failed to check content needs from IndexedDB:', error);
                                 }
 
@@ -1300,7 +1300,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                                 }
                             }
                         }
-                    } catch (error) {
+                    } catch (error: unknown) {
                         console.error('Error processing file cache diff:', error);
                     }
                 };
@@ -1405,44 +1405,58 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                         // Preload memory cache with existing data to avoid re-fetching after rename
                         db.seedMemoryFile(file.path, existingFull);
                     }
-                } catch (error) {
+                } catch (error: unknown) {
                     console.error('Failed to capture renamed file data:', error);
                 }
             }
             rebuildFileCache();
         };
 
+        const queueFileContentRefresh = (file: TFile) => {
+            if (stoppedRef.current || !contentRegistry.current) {
+                return;
+            }
+
+            try {
+                const liveSettings = latestSettingsRef.current;
+                const metadataDependentTypes = getMetadataDependentTypes(liveSettings);
+                const options = metadataDependentTypes.length > 0 ? { exclude: metadataDependentTypes } : undefined;
+                contentRegistry.current.queueFilesForAllProviders([file], liveSettings, options);
+                if (metadataDependentTypes.length > 0) {
+                    queueMetadataContentWhenReady([file], metadataDependentTypes, liveSettings);
+                }
+            } catch (error: unknown) {
+                console.error('Failed to queue content refresh for file:', file.path, error);
+            }
+        };
+
+        const handleModify = (file: TAbstractFile) => {
+            if (stoppedRef.current) {
+                return;
+            }
+            if (!(file instanceof TFile) || file.extension !== 'md') {
+                return;
+            }
+
+            runAsyncAction(async () => {
+                try {
+                    const db = getDBInstance();
+                    const existingData = db.getFiles([file.path]);
+                    await recordFileChanges([file], existingData, pendingRenameDataRef.current);
+                } catch (error: unknown) {
+                    console.error('Failed to record file change on modify:', error);
+                    return;
+                }
+
+                queueFileContentRefresh(file);
+            });
+        };
+
         const vaultEvents = [
             app.vault.on('create', rebuildFileCache),
             app.vault.on('delete', rebuildFileCache),
             app.vault.on('rename', handleRename),
-            app.vault.on('modify', async file => {
-                if (stoppedRef.current) return;
-                // Check if it's a TFile (not a folder)
-                if (file instanceof TFile && file.extension === 'md') {
-                    // Get existing data for the file
-                    try {
-                        const db = getDBInstance();
-                        const existingData = db.getFiles([file.path]);
-                        // Record the file change (only does something for new files)
-                        await recordFileChanges([file], existingData, pendingRenameDataRef.current);
-                    } catch (e) {
-                        console.error('Failed to record file change on modify:', e);
-                        return;
-                    }
-
-                    // Content providers will detect the mtime mismatch (db.mtime != file.mtime) and regenerate
-                    if (contentRegistry.current) {
-                        const liveSettings = latestSettingsRef.current;
-                        const metadataDependentTypes = getMetadataDependentTypes(liveSettings);
-                        const options = metadataDependentTypes.length > 0 ? { exclude: metadataDependentTypes } : undefined;
-                        contentRegistry.current.queueFilesForAllProviders([file], liveSettings, options);
-                        if (metadataDependentTypes.length > 0) {
-                            queueMetadataContentWhenReady([file], metadataDependentTypes, liveSettings);
-                        }
-                    }
-                }
-            })
+            app.vault.on('modify', handleModify)
         ];
         activeVaultEventRefs.current = vaultEvents;
 
@@ -1456,32 +1470,27 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
          *
          * We mark files for regeneration to ensure content stays in sync.
          */
-        const metadataEvent = app.metadataCache.on('changed', async file => {
-            if (stoppedRef.current) return;
-            if (file && file.extension === 'md') {
-                // Mark file for regeneration - metadata changes might not update mtime
+        const handleMetadataChange = (file: TAbstractFile | null) => {
+            if (stoppedRef.current) {
+                return;
+            }
+            if (!(file instanceof TFile) || file.extension !== 'md') {
+                return;
+            }
+
+            runAsyncAction(async () => {
                 try {
                     await markFilesForRegeneration([file]);
-                } catch (e) {
-                    console.error('Failed to mark file for regeneration:', e);
+                } catch (error: unknown) {
+                    console.error('Failed to mark file for regeneration:', error);
                     return;
                 }
 
-                // Queue content regeneration for the file
-                if (contentRegistry.current) {
-                    const liveSettings = latestSettingsRef.current;
-                    const metadataDependentTypes = getMetadataDependentTypes(liveSettings);
-                    const options = metadataDependentTypes.length > 0 ? { exclude: metadataDependentTypes } : undefined;
-                    contentRegistry.current.queueFilesForAllProviders([file], liveSettings, options);
-                    if (metadataDependentTypes.length > 0) {
-                        queueMetadataContentWhenReady([file], metadataDependentTypes, liveSettings);
-                    }
-                }
+                queueFileContentRefresh(file);
+            });
+        };
 
-                // Note: We already queued content regeneration above
-                // No need to check for specific feature image changes
-            }
-        });
+        const metadataEvent = app.metadataCache.on('changed', handleMetadataChange);
         activeMetadataEventRef.current = metadataEvent;
 
         // Cleanup
@@ -1628,8 +1637,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                                     filesToProcess = allFiles.filter(file => pathsNeedingContent.has(file.path));
                                 }
                             }
-                        } catch (err) {
-                            console.error('Failed to check content needs from IndexedDB:', err);
+                        } catch (error: unknown) {
+                            console.error('Failed to check content needs from IndexedDB:', error);
                         }
 
                         if (filesToProcess.length > 0) {
@@ -1640,7 +1649,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                             }
                         }
                     }
-                } catch (error) {
+                } catch (error: unknown) {
                     console.error('Error resyncing cache after exclusion changes:', error);
                 }
             });
