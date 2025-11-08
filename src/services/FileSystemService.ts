@@ -31,6 +31,7 @@ import { EXCALIDRAW_BASENAME_SUFFIX, isExcalidrawFile, stripExcalidrawSuffix } f
 import { getFolderNote, isFolderNote, isSupportedFolderNoteExtension } from '../utils/folderNotes';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 import { executeCommand } from '../utils/typeGuards';
+import { getErrorMessage } from '../utils/errorUtils';
 import { TagTreeService } from './TagTreeService';
 import { CommandQueueService } from './CommandQueueService';
 
@@ -86,6 +87,8 @@ interface MoveFolderResult {
     targetFolder: TFolder;
 }
 
+type MoveFolderModalResult = { status: 'success'; data: MoveFolderResult } | { status: 'cancelled' } | { status: 'error'; error: unknown };
+
 /**
  * Handles all file system operations for Notebook Navigator
  * Provides centralized methods for creating, renaming, and deleting files/folders
@@ -105,6 +108,11 @@ export class FileSystemOperations {
         private getVisibilityPreferences: () => VisibilityPreferences // Function to get current visibility preferences for descendant/hidden items state
     ) {}
 
+    private notifyError(template: string, error: unknown, fallback?: string): void {
+        const message = template.replace('{error}', getErrorMessage(error, fallback ?? strings.common.unknownError));
+        new Notice(message);
+    }
+
     /**
      * Creates a new folder with user-provided name
      * Shows input modal for folder name and handles creation
@@ -117,17 +125,19 @@ export class FileSystemOperations {
             strings.modals.fileSystem.newFolderTitle,
             strings.modals.fileSystem.folderNamePrompt,
             async name => {
-                if (name) {
-                    try {
-                        const base = parent.path === '/' ? '' : `${parent.path}/`;
-                        const path = normalizePath(`${base}${name}`);
-                        await this.app.vault.createFolder(path);
-                        if (onSuccess) {
-                            onSuccess(path);
-                        }
-                    } catch (error) {
-                        new Notice(strings.fileSystem.errors.createFolder.replace('{error}', error.message));
+                if (!name) {
+                    return;
+                }
+
+                try {
+                    const base = parent.path === '/' ? '' : `${parent.path}/`;
+                    const path = normalizePath(`${base}${name}`);
+                    await this.app.vault.createFolder(path);
+                    if (onSuccess) {
+                        onSuccess(path);
                     }
+                } catch (error) {
+                    this.notifyError(strings.fileSystem.errors.createFolder, error);
                 }
             }
         );
@@ -163,41 +173,43 @@ export class FileSystemOperations {
             strings.modals.fileSystem.renameFolderTitle,
             strings.modals.fileSystem.renamePrompt,
             async newName => {
-                if (newName && newName !== folder.name) {
-                    try {
-                        const useDefaultFolderNote = Boolean(settings?.enableFolderNotes && !settings.folderNoteName);
+                if (!newName || newName === folder.name) {
+                    return;
+                }
 
-                        let folderNote: TFile | null = null;
-                        if (useDefaultFolderNote && settings) {
-                            folderNote = getFolderNote(folder, settings);
-                        }
+                try {
+                    const useDefaultFolderNote = Boolean(settings?.enableFolderNotes && !settings.folderNoteName);
 
-                        if (folderNote) {
-                            const newNoteName = `${newName}.${folderNote.extension}`;
-                            const folderBase = folder.path === '/' ? '' : `${folder.path}/`;
-                            const conflictPath = normalizePath(`${folderBase}${newNoteName}`);
-                            const conflict = this.app.vault.getFileByPath(conflictPath);
-                            if (conflict) {
-                                new Notice(strings.fileSystem.errors.renameFolderNoteConflict.replace('{name}', newNoteName));
-                                return;
-                            }
-                        }
-
-                        const parentPath = folder.parent?.path ?? '/';
-                        const base = parentPath === '/' ? '' : `${parentPath}/`;
-                        const newFolderPath = normalizePath(`${base}${newName}`);
-
-                        // Rename the folder (moves contents including the folder note)
-                        await this.app.fileManager.renameFile(folder, newFolderPath);
-
-                        // Rename the folder note to match the new folder name when using default naming
-                        if (folderNote) {
-                            const newNotePath = normalizePath(`${newFolderPath}/${newName}.${folderNote.extension}`);
-                            await this.app.fileManager.renameFile(folderNote, newNotePath);
-                        }
-                    } catch (error) {
-                        new Notice(strings.fileSystem.errors.renameFolder.replace('{error}', error.message));
+                    let folderNote: TFile | null = null;
+                    if (useDefaultFolderNote && settings) {
+                        folderNote = getFolderNote(folder, settings);
                     }
+
+                    if (folderNote) {
+                        const newNoteName = `${newName}.${folderNote.extension}`;
+                        const folderBase = folder.path === '/' ? '' : `${folder.path}/`;
+                        const conflictPath = normalizePath(`${folderBase}${newNoteName}`);
+                        const conflict = this.app.vault.getFileByPath(conflictPath);
+                        if (conflict) {
+                            new Notice(strings.fileSystem.errors.renameFolderNoteConflict.replace('{name}', newNoteName));
+                            return;
+                        }
+                    }
+
+                    const parentPath = folder.parent?.path ?? '/';
+                    const base = parentPath === '/' ? '' : `${parentPath}/`;
+                    const newFolderPath = normalizePath(`${base}${newName}`);
+
+                    // Rename the folder (moves contents including the folder note)
+                    await this.app.fileManager.renameFile(folder, newFolderPath);
+
+                    // Rename the folder note to match the new folder name when using default naming
+                    if (folderNote) {
+                        const newNotePath = normalizePath(`${newFolderPath}/${newName}.${folderNote.extension}`);
+                        await this.app.fileManager.renameFile(folderNote, newNotePath);
+                    }
+                } catch (error) {
+                    this.notifyError(strings.fileSystem.errors.renameFolder, error);
                 }
             },
             folder.name
@@ -274,7 +286,7 @@ export class FileSystemOperations {
                     const newPath = normalizePath(`${base}${finalFileName}`);
                     await this.app.fileManager.renameFile(file, newPath);
                 } catch (error) {
-                    new Notice(strings.fileSystem.errors.renameFile.replace('{error}', error.message));
+                    this.notifyError(strings.fileSystem.errors.renameFile, error);
                 }
             },
             defaultValue
@@ -303,7 +315,7 @@ export class FileSystemOperations {
                             onSuccess();
                         }
                     } catch (error) {
-                        new Notice(strings.fileSystem.errors.deleteFolder.replace('{error}', error.message));
+                        this.notifyError(strings.fileSystem.errors.deleteFolder, error);
                     }
                 }
             );
@@ -316,7 +328,7 @@ export class FileSystemOperations {
                     onSuccess();
                 }
             } catch (error) {
-                new Notice(strings.fileSystem.errors.deleteFolder.replace('{error}', error.message));
+                this.notifyError(strings.fileSystem.errors.deleteFolder, error);
             }
         }
     }
@@ -348,7 +360,7 @@ export class FileSystemOperations {
                     onSuccess();
                 }
             } catch (error) {
-                new Notice(strings.fileSystem.errors.deleteFile.replace('{error}', error.message));
+                this.notifyError(strings.fileSystem.errors.deleteFile, error);
             }
         };
 
@@ -574,7 +586,7 @@ export class FileSystemOperations {
         // Show the folder selection modal
         const modal = new FolderSuggestModal(
             this.app,
-            async (targetFolder: TFolder) => {
+            async targetFolder => {
                 // Move the files to the selected folder
                 const result = await this.moveFilesToFolder({
                     files,
@@ -605,9 +617,9 @@ export class FileSystemOperations {
      * Excludes the folder itself and all descendants from the destination list to prevent recursion
      *
      * @param folder - Folder to move
-     * @returns Move result describing the new location, or null if the operation was cancelled or produced no change
+     * @returns Status object describing success with the new location data, a cancel signal, or an error payload
      */
-    async moveFolderWithModal(folder: TFolder): Promise<MoveFolderResult | null> {
+    async moveFolderWithModal(folder: TFolder): Promise<MoveFolderModalResult> {
         const excludePaths = new Set<string>();
 
         const collectPaths = (current: TFolder) => {
@@ -624,7 +636,7 @@ export class FileSystemOperations {
         return new Promise(resolve => {
             let isResolved = false;
 
-            const finish = (result: MoveFolderResult | null) => {
+            const finish = (result: MoveFolderModalResult) => {
                 if (!isResolved) {
                     isResolved = true;
                     resolve(result);
@@ -633,7 +645,7 @@ export class FileSystemOperations {
 
             const modal = new FolderSuggestModal(
                 this.app,
-                async (targetFolder: TFolder) => {
+                async targetFolder => {
                     // Prevent selecting the folder itself or any descendant
                     if (targetFolder.path === folder.path || targetFolder.path.startsWith(`${folder.path}/`)) {
                         new Notice(strings.dragDrop.errors.cannotMoveIntoSelf);
@@ -646,7 +658,7 @@ export class FileSystemOperations {
                     // No-op if destination equals current location
                     if (newPath === folder.path) {
                         modal.close();
-                        finish(null);
+                        finish({ status: 'cancelled' });
                         return;
                     }
 
@@ -664,20 +676,25 @@ export class FileSystemOperations {
                         if (!movedEntry || !(movedEntry instanceof TFolder)) {
                             new Notice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', folder.name));
                             modal.close();
-                            finish(null);
+                            finish({ status: 'error', error: new Error('Folder move verification failed') });
                             return;
                         }
 
                         new Notice(strings.fileSystem.notifications.folderMoved.replace('{name}', movedEntry.name));
                         modal.close();
                         finish({
-                            oldPath,
-                            newPath,
-                            targetFolder
+                            status: 'success',
+                            data: {
+                                oldPath,
+                                newPath,
+                                targetFolder
+                            }
                         });
                     } catch (error) {
                         console.error('Failed to move folder via modal:', error);
                         new Notice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', folder.name));
+                        modal.close();
+                        finish({ status: 'error', error });
                     }
                 },
                 strings.modals.folderSuggest.placeholder,
@@ -688,7 +705,7 @@ export class FileSystemOperations {
             const originalOnClose = modal.onClose.bind(modal);
             modal.onClose = () => {
                 originalOnClose();
-                finish(null);
+                finish({ status: 'cancelled' });
             };
 
             modal.open();
@@ -749,8 +766,7 @@ export class FileSystemOperations {
         try {
             await this.app.vault.createFolder(targetFolderPath);
         } catch (error) {
-            const message = error instanceof Error ? error.message : String(error);
-            new Notice(strings.fileSystem.errors.createFolder.replace('{error}', message));
+            this.notifyError(strings.fileSystem.errors.createFolder, error);
             return;
         }
 
@@ -773,13 +789,7 @@ export class FileSystemOperations {
             if (moveResult.movedCount === 0) {
                 await this.removeFolderIfEmpty(targetFolder);
                 const firstError = moveResult.errors[0]?.error;
-                const message =
-                    firstError instanceof Error
-                        ? firstError.message
-                        : typeof firstError === 'string'
-                          ? firstError
-                          : strings.common.unknownError;
-                new Notice(strings.fileSystem.errors.folderNoteMoveFailed.replace('{error}', message));
+                this.notifyError(strings.fileSystem.errors.folderNoteMoveFailed, firstError, strings.common.unknownError);
                 return;
             }
 
@@ -831,8 +841,7 @@ export class FileSystemOperations {
                     opened = true;
                 } catch (openError) {
                     console.error('Failed to open folder note after conversion', openError);
-                    const message = openError instanceof Error ? openError.message : String(openError);
-                    new Notice(strings.fileSystem.errors.folderNoteOpenFailed.replace('{error}', message));
+                    this.notifyError(strings.fileSystem.errors.folderNoteOpenFailed, openError);
                 }
             }
 
@@ -843,8 +852,7 @@ export class FileSystemOperations {
         } catch (error) {
             // Clean up folder on any error and show error message
             await this.removeFolderIfEmpty(targetFolder);
-            const message = error instanceof Error ? error.message : String(error);
-            new Notice(strings.fileSystem.errors.folderNoteConversionFailedWithReason.replace('{error}', message));
+            this.notifyError(strings.fileSystem.errors.folderNoteConversionFailedWithReason, error);
         }
     }
 
@@ -888,10 +896,10 @@ export class FileSystemOperations {
             const newFile = await this.app.vault.copy(file, newPath);
 
             if (newFile instanceof TFile) {
-                this.app.workspace.getLeaf(false).openFile(newFile);
+                await this.app.workspace.getLeaf(false).openFile(newFile);
             }
         } catch (error) {
-            new Notice(strings.fileSystem.errors.duplicateNote.replace('{error}', error.message));
+            this.notifyError(strings.fileSystem.errors.duplicateNote, error);
         }
     }
 
@@ -940,7 +948,7 @@ export class FileSystemOperations {
 
             await this.app.vault.copy(folder, newPath);
         } catch (error) {
-            new Notice(strings.fileSystem.errors.duplicateFolder.replace('{error}', error.message));
+            this.notifyError(strings.fileSystem.errors.duplicateFolder, error);
         }
     }
 
@@ -948,13 +956,11 @@ export class FileSystemOperations {
      * Deletes multiple files with confirmation
      * @param files - Array of files to delete
      * @param confirmBeforeDelete - Whether to show confirmation dialog
-     * @param onSuccess - Optional callback to run after successful deletion
      * @param preDeleteAction - Optional action to run BEFORE files are deleted
      */
     async deleteMultipleFiles(
         files: TFile[],
         confirmBeforeDelete = true,
-        onSuccess?: () => void,
         preDeleteAction?: () => void | Promise<void>
     ): Promise<void> {
         if (files.length === 0) return;
@@ -996,14 +1002,11 @@ export class FileSystemOperations {
                     errors.length === 1
                         ? strings.fileSystem.errors.failedToDeleteFile
                               .replace('{name}', errors[0].file.name)
-                              .replace('{error}', String(errors[0].error))
+                              .replace('{error}', getErrorMessage(errors[0].error))
                         : strings.fileSystem.errors.failedToDeleteMultipleFiles.replace('{count}', errors.length.toString());
                 new Notice(errorMsg);
             }
 
-            if (onSuccess && deletedCount > 0) {
-                onSuccess();
-            }
         };
 
         if (confirmBeforeDelete) {
@@ -1059,37 +1062,30 @@ export class FileSystemOperations {
         const nextFileToSelect = findNextFileAfterRemoval(allFiles, selectedFiles);
 
         // Delete the files with a pre-delete action that updates selection only after confirmation
-        await this.deleteMultipleFiles(
-            filesToDelete,
-            confirmBeforeDelete,
-            async () => {
-                // No additional selection changes here. Selection handled in beforeDelete.
-            },
-            async () => {
-                if (nextFileToSelect) {
-                    // Verify the next file still exists (matching single file deletion)
-                    const stillExists = this.app.vault.getFileByPath(nextFileToSelect.path);
-                    if (stillExists) {
-                        // Update selection using same params as single file deletion
-                        await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app);
-                    } else {
-                        // Next file was deleted, clear selection
-                        await updateSelectionAfterFileOperation(null, selectionDispatch, this.app);
-                    }
+        await this.deleteMultipleFiles(filesToDelete, confirmBeforeDelete, async () => {
+            if (nextFileToSelect) {
+                // Verify the next file still exists (matching single file deletion)
+                const stillExists = this.app.vault.getFileByPath(nextFileToSelect.path);
+                if (stillExists) {
+                    // Update selection using same params as single file deletion
+                    await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app);
                 } else {
-                    // No files left in folder - clear selection
-                    selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
+                    // Next file was deleted, clear selection
+                    await updateSelectionAfterFileOperation(null, selectionDispatch, this.app);
                 }
-
-                // Focus management (matching single file deletion)
-                window.setTimeout(() => {
-                    const fileListEl = document.querySelector('.nn-list-pane-scroller');
-                    if (fileListEl instanceof HTMLElement) {
-                        fileListEl.focus();
-                    }
-                }, TIMEOUTS.FILE_OPERATION_DELAY);
+            } else {
+                // No files left in folder - clear selection
+                selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
             }
-        );
+
+            // Focus management (matching single file deletion)
+            window.setTimeout(() => {
+                const fileListEl = document.querySelector('.nn-list-pane-scroller');
+                if (fileListEl instanceof HTMLElement) {
+                    fileListEl.focus();
+                }
+            }, TIMEOUTS.FILE_OPERATION_DELAY);
+        });
     }
 
     /**
@@ -1127,7 +1123,7 @@ export class FileSystemOperations {
         });
 
         if (!result.success && result.error) {
-            new Notice(strings.fileSystem.errors.openVersionHistory.replace('{error}', result.error.message));
+            this.notifyError(strings.fileSystem.errors.openVersionHistory, result.error);
         }
     }
 
@@ -1154,7 +1150,7 @@ export class FileSystemOperations {
             const extendedApp = this.app as ExtendedApp;
             await extendedApp.showInFolder(file.path);
         } catch (error) {
-            new Notice(strings.fileSystem.errors.revealInExplorer.replace('{error}', error.message));
+            this.notifyError(strings.fileSystem.errors.revealInExplorer, error);
         }
     }
 
@@ -1210,7 +1206,8 @@ tags: [excalidraw]
             // The Excalidraw plugin should automatically recognize and open it in drawing mode
             return file;
         } catch (error) {
-            if (error.message?.includes('already exists')) {
+            const message = getErrorMessage(error);
+            if (message.includes('already exists')) {
                 new Notice(strings.fileSystem.errors.drawingAlreadyExists);
             } else {
                 new Notice(strings.fileSystem.errors.failedToCreateDrawing);

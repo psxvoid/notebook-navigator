@@ -129,23 +129,32 @@ export class TagFileMutations {
         await this.removeDescendantTagsFromFile(file, tag);
 
         try {
-            await this.app.fileManager.processFrontMatter(file, fm => {
-                if (!fm.tags) {
-                    fm.tags = [tag];
+            await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
+                const rawTags = frontmatter.tags;
+                const isEmptyString = typeof rawTags === 'string' && rawTags.trim().length === 0;
+
+                if (rawTags === undefined || rawTags === null || isEmptyString) {
+                    frontmatter.tags = [tag];
                     return;
                 }
 
-                if (Array.isArray(fm.tags)) {
-                    fm.tags.push(tag);
-                    fm.tags = [...new Set(fm.tags)];
+                if (Array.isArray(rawTags)) {
+                    const nextTags = Array.from(new Set([...rawTags, tag]));
+                    frontmatter.tags = nextTags;
                     return;
                 }
 
-                if (typeof fm.tags === 'string') {
-                    const tags = fm.tags.split(',').map((value: string) => value.trim());
+                if (typeof rawTags === 'string') {
+                    const tags = rawTags
+                        .split(',')
+                        .map((value: string) => value.trim())
+                        .filter(Boolean);
                     tags.push(tag);
-                    fm.tags = [...new Set(tags)];
+                    frontmatter.tags = [...new Set(tags)];
+                    return;
                 }
+
+                frontmatter.tags = [tag];
             });
         } catch (error) {
             console.error('[Notebook Navigator] Error adding tag to frontmatter', error);
@@ -243,10 +252,18 @@ export class TagFileMutations {
         }
 
         try {
-            await this.app.fileManager.processFrontMatter(file, fm => {
-                if (fm.tags) {
+            await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
+                const rawTags = frontmatter.tags;
+                const hasTags =
+                    typeof rawTags === 'string'
+                        ? rawTags.trim().length > 0
+                        : Array.isArray(rawTags)
+                          ? rawTags.length > 0
+                          : Boolean(rawTags);
+
+                if (hasTags) {
                     hadTags = true;
-                    this.cleanupFrontmatterTags(fm);
+                    this.cleanupFrontmatterTags(frontmatter);
                 }
             });
         } catch (error) {
@@ -318,9 +335,9 @@ export class TagFileMutations {
     ): Promise<boolean> {
         let changed = false;
         try {
-            await this.app.fileManager.processFrontMatter(file, fm => {
+            await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
                 let removedCanonicalTags = false;
-                const mutated = mutateFrontmatterTagFields(fm, field => {
+                const mutated = mutateFrontmatterTagFields(frontmatter, field => {
                     if (Array.isArray(field.value)) {
                         if (field.isAlias) {
                             const result = this.filterAliasValues(field.value as string[], shouldRemove);
@@ -383,7 +400,7 @@ export class TagFileMutations {
                 });
 
                 if (removedCanonicalTags) {
-                    this.cleanupFrontmatterTags(fm);
+                    this.cleanupFrontmatterTags(frontmatter);
                 }
 
                 if (mutated || removedCanonicalTags) {
@@ -532,14 +549,16 @@ export class TagFileMutations {
         return { filtered, removed };
     }
 
-    private cleanupFrontmatterTags(fm: { tags?: string | string[] }): void {
+    private cleanupFrontmatterTags(frontmatter: Record<string, unknown>): void {
         const settings = this.getSettings();
         const keepProperty = Boolean(settings?.keepEmptyTagsProperty);
         if (keepProperty) {
-            fm.tags = [];
+            frontmatter.tags = [];
             return;
         }
-        delete fm.tags;
+        if (Object.prototype.hasOwnProperty.call(frontmatter, 'tags')) {
+            delete frontmatter.tags;
+        }
     }
 
     private async stripInlineTags(file: TFile, tags: string[]): Promise<boolean> {

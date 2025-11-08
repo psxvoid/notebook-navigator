@@ -18,6 +18,7 @@
 
 import { App, Modal } from 'obsidian';
 import { strings } from '../i18n';
+import { runAsyncAction, type MaybePromise } from '../utils/async';
 
 /**
  * Modal dialog for accepting text input from the user
@@ -43,7 +44,7 @@ export class InputModal extends Modal {
         app: App,
         title: string,
         placeholder: string,
-        private onSubmit: (value: string) => void,
+        private onSubmit: (value: string) => MaybePromise,
         defaultValue: string = ''
     ) {
         super(app);
@@ -60,7 +61,7 @@ export class InputModal extends Modal {
         this.cancelHandler = () => this.close();
         this.submitHandler = () => {
             this.close();
-            this.onSubmit(this.inputEl.value);
+            this.submitValue(this.inputEl.value);
         };
 
         // Use Obsidian scope for keyboard handling
@@ -68,7 +69,7 @@ export class InputModal extends Modal {
             if (document.activeElement === this.inputEl) {
                 evt.preventDefault();
                 this.close();
-                this.onSubmit(this.inputEl.value);
+                this.submitValue(this.inputEl.value);
             }
         });
 
@@ -100,5 +101,9 @@ export class InputModal extends Modal {
         if (this.submitBtn && this.submitHandler) {
             this.submitBtn.removeEventListener('click', this.submitHandler);
         }
+    }
+
+    private submitValue(value: string): void {
+        runAsyncAction(() => this.onSubmit(value));
     }
 }

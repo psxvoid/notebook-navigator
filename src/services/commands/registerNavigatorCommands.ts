@@ -2,9 +2,8 @@
  * Notebook Navigator - Plugin for Obsidian
  */
 
-import { Notice, TFile, TFolder } from 'obsidian';
+import { Notice, TFile, TFolder, type WorkspaceLeaf } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
-import { NOTEBOOK_NAVIGATOR_VIEW } from '../../types';
 import { strings } from '../../i18n';
 import { isFolderNote, isSupportedFolderNoteExtension } from '../../utils/folderNotes';
 import { isFolderInExcludedFolder, shouldExcludeFile } from '../../utils/fileFilters';
@@ -16,11 +15,11 @@ import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
  * Reveals the navigator view and focuses whichever pane is currently visible
  * @param plugin - The plugin instance
  */
-function focusNavigatorVisiblePane(plugin: NotebookNavigatorPlugin) {
-    const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+async function focusNavigatorVisiblePane(plugin: NotebookNavigatorPlugin, existingLeaves?: WorkspaceLeaf[]): Promise<void> {
+    const navigatorLeaves = existingLeaves ?? plugin.getNavigatorLeaves();
     if (navigatorLeaves.length > 0) {
         const leaf = navigatorLeaves[0];
-        plugin.app.workspace.revealLeaf(leaf);
+        await plugin.app.workspace.revealLeaf(leaf);
         const view = leaf.view;
         if (view instanceof NotebookNavigatorView) {
             view.focusVisiblePane();
@@ -33,14 +32,24 @@ function focusNavigatorVisiblePane(plugin: NotebookNavigatorPlugin) {
  * @param plugin - The plugin instance
  * @returns The workspace leaf containing the navigator view
  */
-async function ensureNavigatorOpen(plugin: NotebookNavigatorPlugin) {
-    const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+async function ensureNavigatorOpen(
+    plugin: NotebookNavigatorPlugin,
+    existingLeaves?: WorkspaceLeaf[]
+): Promise<NotebookNavigatorView | null> {
+    const navigatorLeaves = existingLeaves ?? plugin.getNavigatorLeaves();
     if (navigatorLeaves.length > 0) {
-        plugin.app.workspace.revealLeaf(navigatorLeaves[0]);
-        return navigatorLeaves[0];
+        const leaf = navigatorLeaves[0];
+        await plugin.app.workspace.revealLeaf(leaf);
+        const view = leaf.view;
+        return view instanceof NotebookNavigatorView ? view : null;
     }
 
-    return plugin.activateView();
+    const createdLeaf = await plugin.activateView();
+    if (!createdLeaf) {
+        return null;
+    }
+    const view = createdLeaf.view;
+    return view instanceof NotebookNavigatorView ? view : null;
 }
 
 /**
@@ -53,9 +62,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.open,
         callback: () => {
             runAsyncAction(async () => {
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                const navigatorLeaves = plugin.getNavigatorLeaves();
                 if (navigatorLeaves.length > 0) {
-                    focusNavigatorVisiblePane(plugin);
+                    await focusNavigatorVisiblePane(plugin, navigatorLeaves);
                     return;
                 }
                 await plugin.activateView();
@@ -158,15 +167,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.collapseExpand,
         callback: () => {
             runAsyncAction(async () => {
-                await plugin.activateView();
-
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        view.triggerCollapse();
-                        break;
-                    }
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
+                    view.triggerCollapse();
                 }
             });
         }
@@ -178,15 +181,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.createNewNote,
         callback: () => {
             runAsyncAction(async () => {
-                await plugin.activateView();
-
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.createNoteInSelectedFolder();
-                        break;
-                    }
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
+                    await view.createNoteInSelectedFolder();
                 }
             });
         }
@@ -198,15 +195,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.moveFiles,
         callback: () => {
             runAsyncAction(async () => {
-                await plugin.activateView();
-
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.moveSelectedFiles();
-                        break;
-                    }
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
+                    await view.moveSelectedFiles();
                 }
             });
         }
@@ -218,9 +209,8 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.selectNextFile,
         callback: () => {
             runAsyncAction(async () => {
-                const leaf = await ensureNavigatorOpen(plugin);
-                const view = leaf?.view;
-                if (view instanceof NotebookNavigatorView) {
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
                     await view.selectNextFileInCurrentView();
                 }
             });
@@ -233,9 +223,8 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.selectPreviousFile,
         callback: () => {
             runAsyncAction(async () => {
-                const leaf = await ensureNavigatorOpen(plugin);
-                const view = leaf?.view;
-                if (view instanceof NotebookNavigatorView) {
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
                     await view.selectPreviousFileInCurrentView();
                 }
             });
@@ -380,7 +369,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
             runAsyncAction(async () => {
                 await plugin.activateView();
 
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                const navigatorLeaves = plugin.getNavigatorLeaves();
                 navigatorLeaves.forEach(leaf => {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -412,15 +401,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.addTag,
         callback: () => {
             runAsyncAction(async () => {
-                await plugin.activateView();
-
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.addTagToSelectedFiles();
-                        break;
-                    }
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
+                    await view.addTagToSelectedFiles();
                 }
             });
         }
@@ -432,15 +415,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.removeTag,
         callback: () => {
             runAsyncAction(async () => {
-                await plugin.activateView();
-
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.removeTagFromSelectedFiles();
-                        break;
-                    }
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
+                    await view.removeTagFromSelectedFiles();
                 }
             });
         }
@@ -452,15 +429,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.removeAllTags,
         callback: () => {
             runAsyncAction(async () => {
-                await plugin.activateView();
-
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.removeAllTagsFromSelectedFiles();
-                        break;
-                    }
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
+                    await view.removeAllTagsFromSelectedFiles();
                 }
             });
         }
@@ -472,15 +443,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.navigateToFolder,
         callback: () => {
             runAsyncAction(async () => {
-                await plugin.activateView();
-
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.navigateToFolderWithModal();
-                        break;
-                    }
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
+                    await view.navigateToFolderWithModal();
                 }
             });
         }
@@ -492,15 +457,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.navigateToTag,
         callback: () => {
             runAsyncAction(async () => {
-                await plugin.activateView();
-
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.navigateToTagWithModal();
-                        break;
-                    }
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
+                    await view.navigateToTagWithModal();
                 }
             });
         }
@@ -512,15 +471,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.addShortcut,
         callback: () => {
             runAsyncAction(async () => {
-                await ensureNavigatorOpen(plugin);
-
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        await view.addShortcutForCurrentSelection();
-                        break;
-                    }
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
+                    await view.addShortcutForCurrentSelection();
                 }
             });
         }
@@ -532,15 +485,9 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.search,
         callback: () => {
             runAsyncAction(async () => {
-                await ensureNavigatorOpen(plugin);
-
-                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-                for (const leaf of navigatorLeaves) {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        view.toggleSearch();
-                        break;
-                    }
+                const view = await ensureNavigatorOpen(plugin);
+                if (view) {
+                    view.toggleSearch();
                 }
             });
         }
