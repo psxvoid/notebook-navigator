@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Plugin, TFile, FileView, TFolder } from 'obsidian';
+import { Plugin, TFile, FileView, TFolder, WorkspaceLeaf } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab, updateFeatureImageSize } from './settings';
 import {
     LocalStorageKeys,
@@ -48,6 +48,7 @@ import { initializeDatabase, shutdownDatabase } from './storage/fileOperations';
 import { ExtendedApp } from './types/obsidian-extended';
 import { getLeafSplitLocation } from './utils/workspaceSplit';
 import { sanitizeKeyboardShortcuts } from './utils/keyboardShortcuts';
+import { isRecord } from './utils/typeGuards';
 import { runAsyncAction } from './utils/async';
 import WorkspaceCoordinator from './services/workspace/WorkspaceCoordinator';
 import HomepageController from './services/workspace/HomepageController';
@@ -69,10 +70,6 @@ export const enum CacheRebuildMode {
 }
 
 const UX_PREFERENCE_KEYS: (keyof UXPreferences)[] = ['searchActive', 'includeDescendantNotes', 'showHiddenItems', 'pinShortcuts'];
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null;
-}
 
 /**
  * Main plugin class for Notebook Navigator
@@ -515,23 +512,25 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Only auto-create the navigator view on first launch; upgrades restore existing leaves themselves
         const shouldActivateOnStartup = isFirstLaunch;
 
-        this.app.workspace.onLayoutReady(async () => {
-            if (this.isUnloading) {
-                return;
-            }
+        this.app.workspace.onLayoutReady(() => {
+            runAsyncAction(async () => {
+                if (this.isUnloading) {
+                    return;
+                }
 
-            await this.homepageController?.handleWorkspaceReady({ shouldActivateOnStartup });
+                await this.homepageController?.handleWorkspaceReady({ shouldActivateOnStartup });
 
-            // Check for version updates
-            await this.checkForVersionUpdate();
+                // Check for version updates
+                await this.checkForVersionUpdate();
 
-            // Trigger Style Settings plugin to parse our settings
-            this.app.workspace.trigger('parse-style-settings');
+                // Trigger Style Settings plugin to parse our settings
+                this.app.workspace.trigger('parse-style-settings');
 
-            // Check for new GitHub releases if enabled
-            if (this.settings.checkForUpdatesOnStart) {
-                runAsyncAction(() => this.runReleaseUpdateCheck());
-            }
+                // Check for new GitHub releases if enabled
+                if (this.settings.checkForUpdatesOnStart) {
+                    runAsyncAction(() => this.runReleaseUpdateCheck());
+                }
+            });
         });
     }
 
@@ -1045,6 +1044,10 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     async activateView() {
         return this.workspaceCoordinator?.activateNavigatorView() ?? null;
+    }
+
+    public getNavigatorLeaves(): WorkspaceLeaf[] {
+        return this.workspaceCoordinator?.getNavigatorLeaves() ?? this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
     }
 
     /**

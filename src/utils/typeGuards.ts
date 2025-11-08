@@ -102,3 +102,20 @@ export function isFolderAncestor(potentialAncestor: TFolder, folder: TFolder): b
     }
     return false;
 }
+
+/**
+ * Checks if the provided value is a plain object record
+ */
+export function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Safely reads a property from a record-like value
+ */
+export function getRecordValue<T = unknown>(value: unknown, key: string): T | undefined {
+    if (!isRecord(value)) {
+        return undefined;
+    }
+    return value[key] as T | undefined;
+}

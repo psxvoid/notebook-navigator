@@ -17,6 +17,7 @@
  */
 
 import { App, FuzzySuggestModal, FuzzyMatch, prepareSimpleSearch, renderMatches } from 'obsidian';
+import { runAsyncAction, type MaybePromise } from '../utils/async';
 
 /**
  * Configuration for modal instructions
@@ -33,7 +34,7 @@ export interface ModalInstructions {
  * @template T - The type of items being searched
  */
 export abstract class BaseSuggestModal<T> extends FuzzySuggestModal<T> {
-    protected onChooseCallback: (item: T) => void;
+    protected onChooseCallback: (item: T) => MaybePromise;
 
     /**
      * Creates a new BaseSuggestModal
@@ -42,7 +43,7 @@ export abstract class BaseSuggestModal<T> extends FuzzySuggestModal<T> {
      * @param placeholderText - Placeholder text for the search input
      * @param instructions - Instructions to display in the modal
      */
-    constructor(app: App, onChoose: (item: T) => void, placeholderText: string, instructions: ModalInstructions) {
+    constructor(app: App, onChoose: (item: T) => MaybePromise, placeholderText: string, instructions: ModalInstructions) {
         super(app);
         this.onChooseCallback = onChoose;
 
@@ -179,6 +180,6 @@ export abstract class BaseSuggestModal<T> extends FuzzySuggestModal<T> {
      * @param evt - The triggering event
      */
     onChooseItem(item: T, _evt: MouseEvent | KeyboardEvent): void {
-        this.onChooseCallback(item);
+        runAsyncAction(() => this.onChooseCallback(item));
     }
 }

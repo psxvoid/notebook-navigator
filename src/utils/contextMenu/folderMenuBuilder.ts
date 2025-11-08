@@ -387,11 +387,11 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             setAsyncOnClick(item.setTitle(strings.contextMenu.folder.moveFolder).setIcon('lucide-folder-input'), async () => {
                 // Open modal to select destination folder for move operation
                 const moveResult = await fileSystemOps.moveFolderWithModal(folder);
-                if (!moveResult) {
+                if (moveResult.status !== 'success') {
                     return;
                 }
 
-                const { oldPath, newPath, targetFolder } = moveResult;
+                const { oldPath, newPath, targetFolder } = moveResult.data;
                 // Verify the moved folder exists at new location
                 const movedEntry = app.vault.getAbstractFileByPath(newPath);
                 if (!movedEntry || !(movedEntry instanceof TFolder)) {

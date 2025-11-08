@@ -18,6 +18,7 @@
 
 import { App, Modal } from 'obsidian';
 import { strings } from '../i18n';
+import { runAsyncAction, type MaybePromise } from '../utils/async';
 
 /**
  * Modal dialog for confirming destructive actions
@@ -42,7 +43,7 @@ export class ConfirmModal extends Modal {
         app: App,
         title: string,
         message: string,
-        private onConfirm: () => void,
+        private onConfirm: () => MaybePromise,
         confirmButtonText?: string,
         options?: { buildContent?: (container: HTMLElement) => void }
     ) {
@@ -62,7 +63,7 @@ export class ConfirmModal extends Modal {
         this.cancelHandler = () => this.close();
         this.confirmHandler = () => {
             this.close();
-            this.onConfirm();
+            this.triggerConfirm();
         };
 
         this.cancelBtn = buttonContainer.createEl('button', { text: strings.common.cancel });
@@ -78,7 +79,7 @@ export class ConfirmModal extends Modal {
         this.scope.register([], 'Enter', evt => {
             evt.preventDefault();
             this.close();
-            this.onConfirm();
+            this.triggerConfirm();
         });
         this.scope.register([], 'Escape', evt => {
             evt.preventDefault();
@@ -97,5 +98,9 @@ export class ConfirmModal extends Modal {
         if (this.confirmBtn && this.confirmHandler) {
             this.confirmBtn.removeEventListener('click', this.confirmHandler);
         }
+    }
+
+    private triggerConfirm(): void {
+        runAsyncAction(() => this.onConfirm());
     }
 }
