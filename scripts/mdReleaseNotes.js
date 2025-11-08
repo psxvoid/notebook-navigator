@@ -37,9 +37,6 @@ const release = releases[0];
 // Helper function to convert == to **
 const convertMarkdown = text => text.replace(/==/g, '**');
 
-// Output the formatted markdown
-console.log(`## Notebook Navigator ${release.version} (${release.date})\n`);
-
 // Print optional info section if present
 if (release.info) {
     console.log(`${convertMarkdown(release.info)}\n`);
