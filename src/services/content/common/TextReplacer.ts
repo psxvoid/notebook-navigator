@@ -2,6 +2,7 @@ import { EMPTY_STRING } from "src/utils/empty"
 
 export interface TextReplacer {
     replace<T extends string | null | undefined>(text: T): T
+    readonly replacement: string
 }
 
 const supportedFlags = new Set<string>(['g', 'i', 'm', 's', 'u', 'v', 'y'])
@@ -14,7 +15,7 @@ class RegExpReplacer implements TextReplacer {
     constructor(
         private readonly regex: RegExp,
         private readonly isGlobal: boolean,
-        private readonly replacement: string,
+        private readonly currentReplacement: string,
     ) {
     }
 
@@ -24,13 +25,19 @@ class RegExpReplacer implements TextReplacer {
         }
 
         if (!this.isGlobal) {
-            return text.replace(this.regex, this.replacement) as T
+            return text.replace(this.regex, this.currentReplacement) as T
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return IsReplaceAllSupported
             // @ts-ignore
-            ? text.replaceAll(this.regex, this.replacement)
-            : text.replace(this.regex, this.replacement) as T
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            ? text.replaceAll(this.regex, this.currentReplacement)
+            : text.replace(this.regex, this.currentReplacement) as T
+    }
+
+    public get replacement(): string {
+        return this.currentReplacement
     }
 }
 
