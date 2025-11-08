@@ -119,7 +119,13 @@ export class FeatureImageContentProvider extends BaseContentProvider {
 
         // Try each property in order until we find an image
         for (const property of settings.featureImageProperties) {
-            const imagePath = metadata?.frontmatter?.[property];
+            const imageValue: unknown = metadata?.frontmatter?.[property];
+
+            if (typeof imageValue !== 'string') {
+                continue;
+            }
+
+            const imagePath = imageValue.trim();
 
             if (!imagePath) {
                 continue;

@@ -34,6 +34,7 @@ import { executeCommand } from '../utils/typeGuards';
 import { getErrorMessage } from '../utils/errorUtils';
 import { TagTreeService } from './TagTreeService';
 import { CommandQueueService } from './CommandQueueService';
+import type { MaybePromise } from '../utils/async';
 
 /**
  * Selection context for file operations
@@ -88,6 +89,24 @@ interface MoveFolderResult {
 }
 
 type MoveFolderModalResult = { status: 'success'; data: MoveFolderResult } | { status: 'cancelled' } | { status: 'error'; error: unknown };
+
+class CancelAwareFolderSuggestModal extends FolderSuggestModal {
+    constructor(
+        app: App,
+        onChooseFolder: (folder: TFolder) => MaybePromise,
+        placeholderText: string,
+        actionText: string,
+        excludePaths: Set<string>,
+        private readonly onCancel: () => void
+    ) {
+        super(app, onChooseFolder, placeholderText, actionText, excludePaths);
+    }
+
+    onClose(): void {
+        super.onClose();
+        this.onCancel();
+    }
+}
 
 /**
  * Handles all file system operations for Notebook Navigator
@@ -643,7 +662,7 @@ export class FileSystemOperations {
                 }
             };
 
-            const modal = new FolderSuggestModal(
+            const modal = new CancelAwareFolderSuggestModal(
                 this.app,
                 async targetFolder => {
                     // Prevent selecting the folder itself or any descendant
@@ -699,14 +718,9 @@ export class FileSystemOperations {
                 },
                 strings.modals.folderSuggest.placeholder,
                 strings.modals.folderSuggest.instructions.move,
-                excludePaths
+                excludePaths,
+                () => finish({ status: 'cancelled' })
             );
-
-            const originalOnClose = modal.onClose.bind(modal);
-            modal.onClose = () => {
-                originalOnClose();
-                finish({ status: 'cancelled' });
-            };
 
             modal.open();
         });

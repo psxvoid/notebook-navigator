@@ -20,6 +20,10 @@ import { IconProvider, IconDefinition } from '../types';
 import { isValidEmoji, extractFirstEmoji } from '../../../utils/emojiUtils';
 import * as emojilib from 'emojilib';
 
+function isKeywordList(value: unknown): value is string[] {
+    return Array.isArray(value) && value.every(entry => typeof entry === 'string');
+}
+
 /**
  * Icon provider for emoji icons.
  *
@@ -100,8 +104,9 @@ export class EmojiIconProvider implements IconProvider {
 
         // Search through emojilib
         for (const [emoji, keywords] of Object.entries(emojilib)) {
-            // Skip non-emoji entries (like the _lib key)
-            if (!Array.isArray(keywords)) continue;
+            if (!isKeywordList(keywords) || keywords.length === 0) {
+                continue;
+            }
 
             // Check if any keyword matches the search query
             const matches = keywords.some(keyword => keyword.toLowerCase().includes(searchLower));
