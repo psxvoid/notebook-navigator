@@ -171,6 +171,8 @@ export const STRINGS_KO = {
             newDrawing: '새 드로잉',
             duplicateFolder: '폴더 복제',
             searchInFolder: '폴더에서 검색',
+            copyPath: '경로 복사',
+            copyRelativePath: '상대 경로 복사',
             createFolderNote: '폴더 노트 만들기',
             deleteFolderNote: '폴더 노트 삭제',
             changeIcon: '아이콘 변경',
@@ -262,6 +264,10 @@ export const STRINGS_KO = {
             affectedFiles: '영향받는 파일:',
             andMore: '...그리고 {count}개 더',
             confirmRename: '태그 이름 변경',
+            renameUnchanged: '{tag} 변경 없음',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: '유효한 태그 이름을 입력하세요.',
+            descendantRenameError: '태그를 자신 또는 하위 태그로 이동할 수 없습니다.',
             confirmDelete: '태그 삭제',
             file: '파일',
             files: '파일'
@@ -318,6 +324,7 @@ export const STRINGS_KO = {
             addPlaceholder: '추가할 태그 검색...',
             removePlaceholder: '제거할 태그 선택...',
             createNewTag: '새 태그 생성: #{tag}',
+            allowCreationToggle: '새 태그 생성 허용',
             instructions: {
                 navigate: '이동',
                 select: '선택',
@@ -976,6 +983,10 @@ export const STRINGS_KO = {
             keepEmptyTagsProperty: {
                 name: '마지막 태그 제거 후 tags 속성 유지',
                 desc: '모든 태그가 제거될 때 frontmatter 의 tags 속성을 유지합니다. 비활성화하면 tags 속성이 frontmatter 에서 삭제됩니다.'
+            },
+            allowTagCreationInAddTagModal: {
+                name: '태그 추가 모달에서 태그 생성 허용',
+                desc: '태그 추가 시 생성 옵션을 표시합니다. 토글이 모달에 나타납니다.'
             },
             hiddenTags: {
                 name: '숨겨진 태그',

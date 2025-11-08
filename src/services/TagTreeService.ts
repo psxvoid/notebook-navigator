@@ -17,7 +17,7 @@
  */
 
 import { TagTreeNode } from '../types/storage';
-import { findTagNode, collectAllTagPaths } from '../utils/tagTree';
+import { findTagNode, collectAllTagPaths, collectTagFilePaths } from '../utils/tagTree';
 import { ITagTreeProvider } from '../interfaces/ITagTreeProvider';
 
 /**
@@ -77,6 +77,18 @@ export class TagTreeService implements ITagTreeProvider {
      */
     collectTagPaths(node: TagTreeNode): Set<string> {
         return collectAllTagPaths(node);
+    }
+
+    /**
+     * Collects file paths for the specified tag and its descendants.
+     */
+    collectTagFilePaths(tagPath: string): string[] {
+        const node = this.findTagNode(tagPath);
+        if (!node) {
+            return [];
+        }
+        const files = collectTagFilePaths(node);
+        return Array.from(files);
     }
     /**
      * Gets the count of tagged files

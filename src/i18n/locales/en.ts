@@ -172,6 +172,8 @@ export const STRINGS_EN = {
             newDrawing: 'New drawing',
             duplicateFolder: 'Duplicate folder',
             searchInFolder: 'Search in folder',
+            copyPath: 'Copy path',
+            copyRelativePath: 'Copy relative path',
             createFolderNote: 'Create folder note',
             deleteFolderNote: 'Delete folder note',
             changeIcon: 'Change icon',
@@ -263,6 +265,10 @@ export const STRINGS_EN = {
             affectedFiles: 'Affected files:',
             andMore: '...and {count} more',
             confirmRename: 'Rename tag',
+            renameUnchanged: '{tag} unchanged',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: 'Enter a valid tag name.',
+            descendantRenameError: 'Cannot move a tag into itself or a descendant.',
             confirmDelete: 'Delete tag',
             file: 'file',
             files: 'files'
@@ -319,6 +325,7 @@ export const STRINGS_EN = {
             addPlaceholder: 'Search for tag to add...',
             removePlaceholder: 'Select tag to remove...',
             createNewTag: 'Create new tag: #{tag}',
+            allowCreationToggle: 'Allow creating new tags',
             instructions: {
                 navigate: 'to navigate',
                 select: 'to select',
@@ -976,6 +983,10 @@ export const STRINGS_EN = {
             keepEmptyTagsProperty: {
                 name: 'Retain tags property after removing last tag',
                 desc: 'Keep the tags frontmatter property when all tags are removed. When disabled, the tags property is deleted from frontmatter.'
+            },
+            allowTagCreationInAddTagModal: {
+                name: 'Allow creating tags in Add tag modal',
+                desc: 'Show create tag option when adding tags. Toggle appears in the modal.'
             },
             hiddenTags: {
                 name: 'Hidden tags',

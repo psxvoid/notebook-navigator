@@ -72,4 +72,16 @@ describe('PreviewTextUtils.extractPreviewText', () => {
         const preview = PreviewTextUtils.extractPreviewText(content, skipCodeSettings);
         expect(preview).toBe('Reference continues.');
     });
+
+    it('removes tilde fenced code blocks when skipping code blocks', () => {
+        const content = ['Summary line', '~~~', 'const value = 42;', '~~~', 'Final note'].join('\n');
+        const preview = PreviewTextUtils.extractPreviewText(content, skipCodeSettings);
+        expect(preview).toBe('Summary line Final note');
+    });
+
+    it('keeps tilde fenced code block content when including code blocks', () => {
+        const content = ['Intro', '~~~', 'console.log(42);', '~~~', 'Outro'].join('\n');
+        const preview = PreviewTextUtils.extractPreviewText(content, includeCodeSettings);
+        expect(preview).toBe('Intro console.log(42); Outro');
+    });
 });

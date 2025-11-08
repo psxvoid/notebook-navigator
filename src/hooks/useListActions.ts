@@ -29,6 +29,7 @@ import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } 
 import { showListPaneAppearanceMenu } from '../components/ListPaneAppearanceMenu';
 import { useListPaneAppearance } from './useListPaneAppearance';
 import { getFilesForFolder } from '../utils/fileFinder';
+import { runAsyncAction } from '../utils/async';
 
 /**
  * Custom hook that provides shared actions for list pane toolbars.
@@ -111,13 +112,15 @@ export function useListActions() {
                     `${strings.paneHeader.defaultSort}: ${strings.settings.items.sortNotesBy.options[settings.defaultFolderSort]}`
                 )
                     .setChecked(!isCustomSort)
-                    .onClick(async () => {
-                        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                            await metadataService.removeFolderSortOverride(selectionState.selectedFolder.path);
-                        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                            await metadataService.removeTagSortOverride(selectionState.selectedTag);
-                        }
-                        app.workspace.requestSaveLayout();
+                    .onClick(() => {
+                        runAsyncAction(async () => {
+                            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                                await metadataService.removeFolderSortOverride(selectionState.selectedFolder.path);
+                            } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                                await metadataService.removeTagSortOverride(selectionState.selectedTag);
+                            }
+                            app.workspace.requestSaveLayout();
+                        });
                     });
             });
 
@@ -134,17 +137,19 @@ export function useListActions() {
                 menu.addItem(item => {
                     item.setTitle(strings.settings.items.sortNotesBy.options[option])
                         .setChecked(!!isCustomSort && currentSort === option)
-                        .onClick(async () => {
-                            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                                await metadataService.setFolderSortOverride(selectionState.selectedFolder.path, option);
-                            } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                                await metadataService.setTagSortOverride(selectionState.selectedTag, option);
-                            } else {
-                                await updateSettings(s => {
-                                    s.defaultFolderSort = option;
-                                });
-                            }
-                            app.workspace.requestSaveLayout();
+                        .onClick(() => {
+                            runAsyncAction(async () => {
+                                if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                                    await metadataService.setFolderSortOverride(selectionState.selectedFolder.path, option);
+                                } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                                    await metadataService.setTagSortOverride(selectionState.selectedTag, option);
+                                } else {
+                                    await updateSettings(s => {
+                                        s.defaultFolderSort = option;
+                                    });
+                                }
+                                app.workspace.requestSaveLayout();
+                            });
                         });
                 });
             });

@@ -40,7 +40,7 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { shouldExcludeFile, isFolderInExcludedFolder } from '../utils/fileFilters';
-import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
+import { getDateField, getEffectiveSortOption, naturalCompare } from '../utils/sortUtils';
 import { strings } from '../i18n';
 import { FILE_VISIBILITY, isExcalidrawAttachment } from '../utils/fileTypeUtils';
 import {
@@ -55,6 +55,7 @@ import type { FilterSearchTokens } from '../utils/filterSearch';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility, normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 import { resolveListGrouping } from '../utils/listGrouping';
+import { runAsyncAction } from '../utils/async';
 import { getDBInstance } from 'src/storage/fileOperations';
 import { FeatureImageContentProvider } from 'src/services/content/FeatureImageContentProvider';
 import { CachedMetadata } from 'tests/stubs/obsidian';
@@ -197,7 +198,7 @@ export function useListPaneData({
         const token = ++searchTokenRef.current;
         let disposed = false;
 
-        (async () => {
+        runAsyncAction(async () => {
             try {
                 const hits = await omnisearchService.search(trimmedQuery);
                 // Ignore stale results
@@ -240,7 +241,7 @@ export function useListPaneData({
                     setOmnisearchResult({ query: trimmedQuery, files: [], meta: new Map() });
                 }
             }
-        })();
+        });
 
         return () => {
             disposed = true;
@@ -629,10 +630,20 @@ export function useListPaneData({
             const orderedGroups = Array.from(folderGroups.entries())
                 .map(([key, group]) => ({ key, ...group }))
                 .sort((a, b) => {
-                    if (a.sortKey === b.sortKey) {
-                        return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+                    const sortKeyCompare = naturalCompare(a.sortKey, b.sortKey);
+                    if (sortKeyCompare !== 0) {
+                        return sortKeyCompare;
                     }
-                    return a.sortKey.localeCompare(b.sortKey, undefined, { sensitivity: 'base' });
+
+                    const labelCompare = naturalCompare(a.label, b.label);
+                    if (labelCompare !== 0) {
+                        return labelCompare;
+                    }
+
+                    if (a.key === b.key) {
+                        return 0;
+                    }
+                    return a.key < b.key ? -1 : 1;
                 });
 
             // Add groups and their files to the items list

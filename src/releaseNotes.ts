@@ -73,6 +73,22 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.7.4',
+        date: '2025-11-10',
+        showOnUpdate: true,
+        new: [
+            '==Tag rename, tag delete, tag drag-and-drop==! You can now rename tags, delete tags (removes from all notes), and drag-and-drop tags to reorganize them in navigation pane.',
+            'Two new folder menu items: **Copy path** and **Copy relative path**.',
+            'New check box in "Add tag" modal: **Allow creating new tags**. Disable to only allow selecting existing tags in the "Add tag" modal.'
+        ],
+        improved: ['Text preview filter now also removes code blocks with tilde fencing (~~~).'],
+        changed: [],
+        fixed: [
+            'Fixed a performance issue with Group by subfolder, it is now much faster with larger number of subfolders.',
+            'Fixed an issue where "Remove tag" would remove hashtags from HTML blocks and code blocks.'
+        ]
+    },
+    {
         version: '1.7.3',
         date: '2025-11-03',
         showOnUpdate: true,

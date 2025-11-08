@@ -2184,6 +2184,10 @@ body {
     aspect-ratio: var(--nn-feature-image-aspect-ratio, 1);
 }
 
+.nn-feature-image--hidden {
+    display: none;
+}
+
 /* Dynamic sizing based on calculated item height */
 .nn-virtual-file-item .nn-feature-image {
     /* Size based on item height minus total padding */
@@ -2556,6 +2560,11 @@ body.nn-resizing {
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
+[data-drop-zone='tag-root'].nn-drag-over {
+    background-color: var(--nn-theme-tag-positive-bg-solid, var(--nn-theme-tag-positive-bg));
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
+}
+
 /* Different style for untagged drop zone - uses pre-composited solid color */
 [data-drop-zone='tag'][data-tag='__untagged__'].nn-drag-over {
     background-color: var(--nn-theme-tag-negative-bg-solid, var(--nn-theme-tag-negative-bg));
@@ -2754,6 +2763,26 @@ body.nn-resizing {
     justify-content: flex-end;
     gap: 8px;
     margin-top: 16px;
+}
+
+/* Tag suggest modal create toggle */
+.nn-tag-suggest-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 8px;
+    padding: 0 4px;
+}
+
+.nn-tag-suggest-toggle-label {
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+}
+
+.nn-tag-suggest-toggle-control {
+    display: flex;
+    align-items: center;
 }
 
 .nn-folder-note-type-modal .modal-content {

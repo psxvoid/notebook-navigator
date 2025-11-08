@@ -9,6 +9,7 @@ import { strings } from '../../i18n';
 import { isFolderNote, isSupportedFolderNoteExtension } from '../../utils/folderNotes';
 import { isFolderInExcludedFolder, shouldExcludeFile } from '../../utils/fileFilters';
 import { getEffectiveFrontmatterExclusions, isFileHiddenBySettings } from '../../utils/exclusionUtils';
+import { runAsyncAction } from '../../utils/async';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 import { CacheRebuildMode } from '../../main';
 
@@ -51,13 +52,15 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'open',
         name: strings.commands.open,
-        callback: async () => {
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            if (navigatorLeaves.length > 0) {
-                focusNavigatorVisiblePane(plugin);
-            } else {
+        callback: () => {
+            runAsyncAction(async () => {
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                if (navigatorLeaves.length > 0) {
+                    focusNavigatorVisiblePane(plugin);
+                    return;
+                }
                 await plugin.activateView();
-            }
+            });
         }
     });
 
@@ -72,7 +75,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
             }
 
             if (!checking) {
-                void plugin.openHomepage('command');
+                runAsyncAction(() => plugin.openHomepage('command'));
             }
 
             return true;
@@ -87,13 +90,13 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
             const activeFile = plugin.app.workspace.getActiveFile();
             if (activeFile && activeFile.parent) {
                 if (!checking) {
-                    void (async () => {
+                    runAsyncAction(async () => {
                         await plugin.activateView();
                         if (isFileHiddenBySettings(activeFile, plugin.settings, plugin.app, plugin.getUXPreferences().showHiddenItems)) {
                             new Notice(strings.fileSystem.notifications.hiddenFileReveal);
                         }
                         await plugin.revealFileInActualFolder(activeFile);
-                    })();
+                    });
                 }
                 return true;
             }
@@ -105,9 +108,11 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'toggle-descendants',
         name: strings.commands.toggleDescendants,
-        callback: async () => {
-            await plugin.activateView();
-            plugin.toggleIncludeDescendantNotes();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
+                plugin.toggleIncludeDescendantNotes();
+            });
         }
     });
 
@@ -115,9 +120,11 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'toggle-hidden',
         name: strings.commands.toggleHidden,
-        callback: async () => {
-            await plugin.activateView();
-            plugin.toggleShowHiddenItems();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
+                plugin.toggleShowHiddenItems();
+            });
         }
     });
 
@@ -125,10 +132,12 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'toggle-tag-sort',
         name: strings.commands.toggleTagSort,
-        callback: async () => {
-            await plugin.activateView();
-            plugin.settings.tagSortOrder = plugin.settings.tagSortOrder === 'frequency-desc' ? 'alpha-asc' : 'frequency-desc';
-            await plugin.saveSettingsAndUpdate();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
+                plugin.settings.tagSortOrder = plugin.settings.tagSortOrder === 'frequency-desc' ? 'alpha-asc' : 'frequency-desc';
+                await plugin.saveSettingsAndUpdate();
+            });
         }
     });
 
@@ -136,9 +145,11 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'toggle-dual-pane',
         name: strings.commands.toggleDualPane,
-        callback: async () => {
-            await plugin.activateView();
-            plugin.toggleDualPanePreference();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
+                plugin.toggleDualPanePreference();
+            });
         }
     });
 
@@ -146,17 +157,19 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'collapse-expand',
         name: strings.commands.collapseExpand,
-        callback: async () => {
-            await plugin.activateView();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
 
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            for (const leaf of navigatorLeaves) {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    view.triggerCollapse();
-                    break;
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        view.triggerCollapse();
+                        break;
+                    }
                 }
-            }
+            });
         }
     });
 
@@ -164,17 +177,19 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'new-note',
         name: strings.commands.createNewNote,
-        callback: async () => {
-            await plugin.activateView();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
 
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            for (const leaf of navigatorLeaves) {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    await view.createNoteInSelectedFolder();
-                    break;
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.createNoteInSelectedFolder();
+                        break;
+                    }
                 }
-            }
+            });
         }
     });
 
@@ -182,17 +197,19 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'move-files',
         name: strings.commands.moveFiles,
-        callback: async () => {
-            await plugin.activateView();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
 
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            for (const leaf of navigatorLeaves) {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    await view.moveSelectedFiles();
-                    break;
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.moveSelectedFiles();
+                        break;
+                    }
                 }
-            }
+            });
         }
     });
 
@@ -200,12 +217,14 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'select-next-file',
         name: strings.commands.selectNextFile,
-        callback: async () => {
-            const leaf = await ensureNavigatorOpen(plugin);
-            const view = leaf?.view;
-            if (view instanceof NotebookNavigatorView) {
-                await view.selectNextFileInCurrentView();
-            }
+        callback: () => {
+            runAsyncAction(async () => {
+                const leaf = await ensureNavigatorOpen(plugin);
+                const view = leaf?.view;
+                if (view instanceof NotebookNavigatorView) {
+                    await view.selectNextFileInCurrentView();
+                }
+            });
         }
     });
 
@@ -213,12 +232,14 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'select-previous-file',
         name: strings.commands.selectPreviousFile,
-        callback: async () => {
-            const leaf = await ensureNavigatorOpen(plugin);
-            const view = leaf?.view;
-            if (view instanceof NotebookNavigatorView) {
-                await view.selectPreviousFileInCurrentView();
-            }
+        callback: () => {
+            runAsyncAction(async () => {
+                const leaf = await ensureNavigatorOpen(plugin);
+                const view = leaf?.view;
+                if (view instanceof NotebookNavigatorView) {
+                    await view.selectPreviousFileInCurrentView();
+                }
+            });
         }
     });
 
@@ -263,7 +284,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                 return true;
             }
 
-            void fileSystemOps.convertFileToFolderNote(activeFile, plugin.settings);
+            runAsyncAction(() => fileSystemOps.convertFileToFolderNote(activeFile, plugin.settings));
             return true;
         }
     });
@@ -338,14 +359,14 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
 
             // Pin all eligible folder notes
             if (!checking) {
-                void (async () => {
+                runAsyncAction(async () => {
                     for (const note of eligible) {
                         await metadataService.togglePin(note.path, 'folder');
                     }
 
                     // Show notification with count of pinned folder notes
                     new Notice(strings.shortcuts.folderNotesPinned.replace('{count}', eligible.length.toString()));
-                })();
+                });
             }
 
             return true;
@@ -356,15 +377,17 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'delete-files',
         name: strings.commands.deleteFile,
-        callback: async () => {
-            await plugin.activateView();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
 
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            navigatorLeaves.forEach(leaf => {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    view.deleteActiveFile();
-                }
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                navigatorLeaves.forEach(leaf => {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        view.deleteActiveFile();
+                    }
+                });
             });
         }
     });
@@ -373,12 +396,14 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'rebuild-cache',
         name: strings.commands.rebuildCache,
-        callback: async () => {
-            try {
-                await plugin.rebuildCache(CacheRebuildMode.DropDatabaseSlow)
-            } catch (error) {
-                console.error('Failed to rebuild cache:', error);
-            }
+        callback: () => {
+            runAsyncAction(async () => {
+                try {
+                    await plugin.rebuildCache(CacheRebuildMode.DropDatabaseSlow)
+                } catch (error) {
+                    console.error('Failed to rebuild cache:', error);
+                }
+            });
         }
     });
 
@@ -386,17 +411,19 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'add-tag',
         name: strings.commands.addTag,
-        callback: async () => {
-            await plugin.activateView();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
 
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            for (const leaf of navigatorLeaves) {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    await view.addTagToSelectedFiles();
-                    break;
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.addTagToSelectedFiles();
+                        break;
+                    }
                 }
-            }
+            });
         }
     });
 
@@ -404,17 +431,19 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'remove-tag',
         name: strings.commands.removeTag,
-        callback: async () => {
-            await plugin.activateView();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
 
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            for (const leaf of navigatorLeaves) {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    await view.removeTagFromSelectedFiles();
-                    break;
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.removeTagFromSelectedFiles();
+                        break;
+                    }
                 }
-            }
+            });
         }
     });
 
@@ -422,17 +451,19 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'remove-all-tags',
         name: strings.commands.removeAllTags,
-        callback: async () => {
-            await plugin.activateView();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
 
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            for (const leaf of navigatorLeaves) {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    await view.removeAllTagsFromSelectedFiles();
-                    break;
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.removeAllTagsFromSelectedFiles();
+                        break;
+                    }
                 }
-            }
+            });
         }
     });
 
@@ -440,17 +471,19 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'navigate-to-folder',
         name: strings.commands.navigateToFolder,
-        callback: async () => {
-            await plugin.activateView();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
 
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            for (const leaf of navigatorLeaves) {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    await view.navigateToFolderWithModal();
-                    break;
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.navigateToFolderWithModal();
+                        break;
+                    }
                 }
-            }
+            });
         }
     });
 
@@ -458,17 +491,19 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'navigate-to-tag',
         name: strings.commands.navigateToTag,
-        callback: async () => {
-            await plugin.activateView();
+        callback: () => {
+            runAsyncAction(async () => {
+                await plugin.activateView();
 
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            for (const leaf of navigatorLeaves) {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    await view.navigateToTagWithModal();
-                    break;
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.navigateToTagWithModal();
+                        break;
+                    }
                 }
-            }
+            });
         }
     });
 
@@ -476,17 +511,19 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'add-shortcut',
         name: strings.commands.addShortcut,
-        callback: async () => {
-            await ensureNavigatorOpen(plugin);
+        callback: () => {
+            runAsyncAction(async () => {
+                await ensureNavigatorOpen(plugin);
 
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            for (const leaf of navigatorLeaves) {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    await view.addShortcutForCurrentSelection();
-                    break;
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.addShortcutForCurrentSelection();
+                        break;
+                    }
                 }
-            }
+            });
         }
     });
 
@@ -494,17 +531,19 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     plugin.addCommand({
         id: 'search',
         name: strings.commands.search,
-        callback: async () => {
-            await ensureNavigatorOpen(plugin);
+        callback: () => {
+            runAsyncAction(async () => {
+                await ensureNavigatorOpen(plugin);
 
-            const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            for (const leaf of navigatorLeaves) {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    view.toggleSearch();
-                    break;
+                const navigatorLeaves = plugin.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        view.toggleSearch();
+                        break;
+                    }
                 }
-            }
+            });
         }
     });
 }

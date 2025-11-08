@@ -21,6 +21,7 @@ import { RootFolderReorderItem } from './RootFolderReorderItem';
 import { strings } from '../i18n';
 import type { SectionReorderRenderItem, RootReorderRenderItem } from '../hooks/useNavigationRootReorder';
 import { NavigationSectionId } from '../types';
+import { runAsyncAction } from '../utils/async';
 
 interface NavigationRootReorderPanelProps {
     sectionItems: SectionReorderRenderItem[];
@@ -82,7 +83,9 @@ export function NavigationRootReorderPanel({
                 event.preventDefault();
                 event.stopPropagation();
                 if (options?.onReset) {
-                    void options.onReset();
+                    runAsyncAction(async () => {
+                        await options.onReset?.();
+                    });
                 }
             };
 

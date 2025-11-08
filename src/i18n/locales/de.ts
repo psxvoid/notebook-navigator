@@ -174,6 +174,8 @@ export const STRINGS_DE = {
             newDrawing: 'Neue Zeichnung',
             duplicateFolder: 'Ordner duplizieren',
             searchInFolder: 'In Ordner suchen',
+            copyPath: 'Pfad kopieren',
+            copyRelativePath: 'Relativen Pfad kopieren',
             createFolderNote: 'Ordnernotiz erstellen',
             deleteFolderNote: 'Ordnernotiz löschen',
             changeIcon: 'Symbol ändern',
@@ -265,6 +267,10 @@ export const STRINGS_DE = {
             affectedFiles: 'Betroffene Dateien:',
             andMore: '...und {count} weitere',
             confirmRename: 'Tag umbenennen',
+            renameUnchanged: '{tag} unverändert',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: 'Geben Sie einen gültigen Tag-Namen ein.',
+            descendantRenameError: 'Ein Tag kann nicht in sich selbst oder einen Nachkommen verschoben werden.',
             confirmDelete: 'Tag löschen',
             file: 'Datei',
             files: 'Dateien'
@@ -321,6 +327,7 @@ export const STRINGS_DE = {
             addPlaceholder: 'Nach hinzuzufügendem Tag suchen...',
             removePlaceholder: 'Tag zum Entfernen auswählen...',
             createNewTag: 'Neuen Tag erstellen: #{tag}',
+            allowCreationToggle: 'Erstellung neuer Tags erlauben',
             instructions: {
                 navigate: 'zum Navigieren',
                 select: 'zum Auswählen',
@@ -980,6 +987,10 @@ export const STRINGS_DE = {
             keepEmptyTagsProperty: {
                 name: 'Tags-Eigenschaft nach Entfernen des letzten Tags beibehalten',
                 desc: 'Behält die Tags-Frontmatter-Eigenschaft, wenn alle Tags entfernt werden. Wenn deaktiviert, wird die Tags-Eigenschaft aus dem Frontmatter gelöscht.'
+            },
+            allowTagCreationInAddTagModal: {
+                name: 'Tag-Erstellung im Tag-Hinzufügen-Dialog erlauben',
+                desc: 'Option zum Erstellen von Tags beim Hinzufügen anzeigen. Umschalter erscheint im Dialog.'
             },
             hiddenTags: {
                 name: 'Versteckte Tags',

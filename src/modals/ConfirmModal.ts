@@ -43,11 +43,18 @@ export class ConfirmModal extends Modal {
         title: string,
         message: string,
         private onConfirm: () => void,
-        confirmButtonText?: string
+        confirmButtonText?: string,
+        options?: { buildContent?: (container: HTMLElement) => void }
     ) {
         super(app);
         this.titleEl.setText(title);
-        this.contentEl.createEl('p', { text: message });
+        if (message) {
+            this.contentEl.createEl('p', { text: message });
+        }
+
+        if (options?.buildContent) {
+            options.buildContent(this.contentEl);
+        }
 
         const buttonContainer = this.contentEl.createDiv('nn-button-container');
 
