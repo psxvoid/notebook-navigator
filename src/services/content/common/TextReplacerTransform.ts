@@ -24,7 +24,7 @@ function transformWith<T extends string | undefined | null>(sourceTitle: T, sour
     for (const { pattern, replacement } of sources) {
         let replacer = replacerCache.get(pattern)
 
-        if (replacer == null) {
+        if (replacer == null || replacer.replacement !== replacement) {
             const newReplacer = parseReplacer(pattern, replacement)
 
             replacerCache.set(pattern, newReplacer)

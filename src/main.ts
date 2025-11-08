@@ -54,6 +54,7 @@ import HomepageController from './services/workspace/HomepageController';
 import registerNavigatorCommands from './services/commands/registerNavigatorCommands';
 import registerWorkspaceEvents from './services/workspace/registerWorkspaceEvents';
 import type { RevealFileOptions } from './hooks/useNavigatorReveal';
+import { AssertId, assertNever } from './utils/asserts';
 
 const DEFAULT_UX_PREFERENCES: UXPreferences = {
     searchActive: false,
@@ -61,6 +62,11 @@ const DEFAULT_UX_PREFERENCES: UXPreferences = {
     showHiddenItems: false,
     pinShortcuts: false
 };
+
+export const enum CacheRebuildMode {
+    DropDatabaseSlow,
+    RefreshFast,
+}
 
 const UX_PREFERENCE_KEYS: (keyof UXPreferences)[] = ['searchActive', 'includeDescendantNotes', 'showHiddenItems', 'pinShortcuts'];
 
@@ -733,7 +739,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      * Activates the view if needed and delegates to the view's rebuild method.
      * Throws if plugin is unloading or view is not available.
      */
-    public async rebuildCache(): Promise<void> {
+    public async rebuildCache(mode: CacheRebuildMode): Promise<void> {
         // Prevent rebuild if plugin is being unloaded
         if (this.isUnloading) {
             throw new Error('Plugin is unloading');
@@ -754,7 +760,16 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             throw new Error('Notebook Navigator view not found');
         }
 
-        await view.rebuildCache();
+        switch (mode) {
+            case CacheRebuildMode.DropDatabaseSlow:
+                await view.rebuildCache()
+                return
+            case CacheRebuildMode.RefreshFast:
+                await view.rebuildCacheFast()
+                return
+            default:
+                assertNever(AssertId.RebuildCacheUnknown, mode)
+        }
     }
 
     public isExternalIconProviderInstalled(providerId: ExternalIconProviderId): boolean {

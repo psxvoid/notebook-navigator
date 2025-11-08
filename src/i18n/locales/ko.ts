@@ -1038,6 +1038,13 @@ export const STRINGS_KO = {
                 statusClean: '정리할 메타데이터가 없습니다',
                 statusCounts: '고아 항목: {folders} 폴더, {tags} 태그, {files} 파일, {pinned} 고정'
             },
+            rebuildCacheFast: {
+                name: '캐시 새로 고침',
+                desc: `태그 누락, 잘못된 미리보기 또는 기능 이미지 누락이 발생하는 경우 이 기능을 사용하세요. 동기화 충돌이나 예기치 않은 종료 후에 발생할 수 있습니다. "캐시 다시 작성"보다 훨씬 가벼운 버전이지만 모든 문제를 해결하지는 못할 수 있습니다.`,
+                buttonText: '캐시 새로 고침',
+                success: '캐시 새로 고침됨',
+                error: '캐시를 새로 고치지 못했습니다.'
+            },
             rebuildCache: {
                 name: '캐시 다시 빌드',
                 desc: '태그 누락, 잘못된 미리보기 또는 누락된 이미지가 있을 때 사용하세요. 동기화 충돌이나 예기치 않은 종료 후에 발생할 수 있습니다.',

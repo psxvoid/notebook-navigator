@@ -1039,6 +1039,13 @@ export const STRINGS_ZH_CN = {
                 statusClean: '没有需要清理的元数据',
                 statusCounts: '孤立项目：{folders} 文件夹，{tags} 标签，{files} 文件，{pinned} 置顶'
             },
+            rebuildCacheFast: {
+                name: '刷新缓存',
+                desc: `如果遇到标签缺失、预览错误或特色图片缺失等问题，请使用此功能。这些问题可能由同步冲突或意外关闭引起。此方法比“重建缓存”轻量级得多，但可能无法解决所有问题。`,
+                buttonText: '刷新缓存',
+                success: '缓存已刷新',
+                error: '刷新缓存失败'
+            },
             rebuildCache: {
                 name: '重建缓存',
                 desc: '如果出现标签缺失、预览不正确或图片缺失，请使用此功能。这可能在同步冲突或意外关闭后发生。',

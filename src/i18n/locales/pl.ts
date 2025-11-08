@@ -1040,6 +1040,13 @@ export const STRINGS_PL = {
                 statusClean: 'Brak metadanych do wyczyszczenia',
                 statusCounts: 'Osierocone elementy: {folders} folderów, {tags} tagów, {files} plików, {pinned} przypiętych'
             },
+            rebuildCacheFast: {
+                name: 'Odśwież pamięć podręczną',
+                desc: `Użyj tej opcji, jeśli brakuje Ci tagów, występują nieprawidłowe podglądy lub brakuje obrazów obiektów. Może się to zdarzyć po konfliktach synchronizacji lub nieoczekiwanym zamknięciu. Znacznie lżejsza wersja niż „Odbuduj pamięć podręczną”, ale może nie rozwiązać wszystkich problemów.`,
+                buttonText: 'Odśwież pamięć podręczną',
+                success: 'Odświeżono pamięć podręczną',
+                error: 'Nie udało się odświeżyć pamięci podręcznej'
+            },
             rebuildCache: {
                 name: 'Odbuduj pamięć podręczną',
                 desc: 'Użyj tego, jeśli brakuje tagów, podglądy są nieprawidłowe lub brakuje obrazów. Może się to zdarzyć po konfliktach synchronizacji lub nieoczekiwanych zamknięciach.',

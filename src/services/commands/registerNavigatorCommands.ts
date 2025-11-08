@@ -11,6 +11,7 @@ import { isFolderInExcludedFolder, shouldExcludeFile } from '../../utils/fileFil
 import { getEffectiveFrontmatterExclusions, isFileHiddenBySettings } from '../../utils/exclusionUtils';
 import { runAsyncAction } from '../../utils/async';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
+import { CacheRebuildMode } from '../../main';
 
 /**
  * Reveals the navigator view and focuses whichever pane is currently visible
@@ -398,7 +399,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         callback: () => {
             runAsyncAction(async () => {
                 try {
-                    await plugin.rebuildCache();
+                    await plugin.rebuildCache(CacheRebuildMode.DropDatabaseSlow)
                 } catch (error) {
                     console.error('Failed to rebuild cache:', error);
                 }

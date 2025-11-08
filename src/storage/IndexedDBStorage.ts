@@ -602,7 +602,7 @@ export class IndexedDBStorage {
      * @param paths - Array of file paths to retrieve
      * @returns Map of path to file data (only includes found files)
      */
-    getFiles(paths: string[]): Map<string, FileDataCache> {
+    getFiles(paths: readonly string[]): Map<string, FileDataCache> {
         if (!this.cache.isReady()) {
             return new Map();
         }

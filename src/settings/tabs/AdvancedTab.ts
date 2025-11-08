@@ -23,6 +23,7 @@ import type { SettingsTabContext } from './SettingsTabContext';
 import { getNavigationPaneSizing } from '../../utils/paneSizing';
 import { localStorage } from '../../utils/localStorage';
 import { runAsyncAction } from '../../utils/async';
+import { CacheRebuildMode } from 'src/main';
 
 /** Renders the advanced settings tab */
 export function renderAdvancedTab(context: SettingsTabContext): void {
@@ -141,6 +142,26 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
     runAsyncAction(() => refreshMetadataCleanupSummary());
 
     new Setting(containerEl)
+        .setName(strings.settings.items.rebuildCacheFast.name)
+        .setDesc(strings.settings.items.rebuildCacheFast.desc)
+        .addButton(button =>
+            button.setButtonText(strings.settings.items.rebuildCacheFast.buttonText).onClick(() => {
+                runAsyncAction(async () => {
+                    button.setDisabled(true);
+                    try {
+                        await plugin.rebuildCache(CacheRebuildMode.RefreshFast);
+                        new Notice(strings.settings.items.rebuildCacheFast.success);
+                    } catch (error) {
+                        console.error('Failed to rebuild cache (fast) from settings:', error);
+                        new Notice(strings.settings.items.rebuildCacheFast.error);
+                    } finally {
+                        button.setDisabled(false);
+                    }
+                })
+            })
+        );
+
+    new Setting(containerEl)
         .setName(strings.settings.items.rebuildCache.name)
         .setDesc(strings.settings.items.rebuildCache.desc)
         .addButton(button =>
@@ -148,7 +169,7 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
                 runAsyncAction(async () => {
                     button.setDisabled(true);
                     try {
-                        await plugin.rebuildCache();
+                        await plugin.rebuildCache(CacheRebuildMode.DropDatabaseSlow);
                         new Notice(strings.settings.items.rebuildCache.success);
                     } catch (error) {
                         console.error('Failed to rebuild cache from settings:', error);
