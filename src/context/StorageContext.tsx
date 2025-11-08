@@ -730,7 +730,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 case CacheRebuildMode.DropDatabaseSlow:
                     await db.clearDatabase();
                     break;
-                case CacheRebuildMode.RescanFast: {
+                case CacheRebuildMode.RefreshFast: {
                     const paths: readonly string[] = db.getAllFiles().map(x => x.path)
                     await markPathsForRegeneration(paths)
                 }
@@ -786,7 +786,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
      * without clearing all cached data. Might not fix all issues.
      */
     const rebuildCacheFast = useCallback(async () => {
-        await rebuildCacheCommon(CacheRebuildMode.RescanFast)
+        await rebuildCacheCommon(CacheRebuildMode.RefreshFast)
     }, [rebuildCacheCommon]);
 
     /**

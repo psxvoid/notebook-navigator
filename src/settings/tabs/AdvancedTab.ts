@@ -129,7 +129,7 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
             button.setButtonText(strings.settings.items.rebuildCacheFast.buttonText).onClick(async () => {
                 button.setDisabled(true);
                 try {
-                    await plugin.rebuildCache(CacheRebuildMode.RescanFast);
+                    await plugin.rebuildCache(CacheRebuildMode.RefreshFast);
                     new Notice(strings.settings.items.rebuildCacheFast.success);
                 } catch (error) {
                     console.error('Failed to rebuild cache (fast) from settings:', error);

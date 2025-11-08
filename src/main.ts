@@ -63,7 +63,7 @@ const DEFAULT_UX_PREFERENCES: UXPreferences = {
 
 export const enum CacheRebuildMode {
     DropDatabaseSlow,
-    RescanFast,
+    RefreshFast,
 }
 
 const UX_PREFERENCE_KEYS: (keyof UXPreferences)[] = ['searchActive', 'includeDescendantNotes', 'showHiddenItems', 'pinShortcuts'];
@@ -714,7 +714,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             case CacheRebuildMode.DropDatabaseSlow:
                 await view.rebuildCache()
                 return
-            case CacheRebuildMode.RescanFast:
+            case CacheRebuildMode.RefreshFast:
                 await view.rebuildCacheFast()
                 return
             default:
