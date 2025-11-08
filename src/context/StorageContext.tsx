@@ -50,7 +50,7 @@ import { MetadataContentProvider } from '../services/content/MetadataContentProv
 import { TagContentProvider } from '../services/content/TagContentProvider';
 import { IndexedDBStorage, FileDataCache as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { calculateFileDiff } from '../storage/diffCalculator';
-import { recordFileChanges, markFilesForRegeneration, removeFilesFromCache, getDBInstance } from '../storage/fileOperations';
+import { recordFileChanges, markFilesForRegeneration, removeFilesFromCache, getDBInstance, markPathsForRegeneration } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
 import { getFilteredMarkdownFiles } from '../utils/fileFilters';
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
@@ -64,6 +64,8 @@ import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { ContentType } from '../interfaces/IContentProvider';
 import { EMPTY_ARRAY } from 'src/utils/empty';
 import { transformTitle } from 'src/services/content/common/TextReplacerTransform';
+import { CacheRebuildMode } from 'src/main';
+import { AssertId, assertNever } from 'src/utils/asserts';
 
 /**
  * Returns content types that require Obsidian's metadata cache to be ready
@@ -189,6 +191,7 @@ interface StorageContextValue {
     isStorageReady: boolean;
     stopAllProcessing: () => void;
     rebuildCache: () => Promise<void>;
+    rebuildCacheFast: () => Promise<void>;
 }
 
 const StorageContext = createContext<StorageContextValue | null>(null);
@@ -674,7 +677,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
      * Stops all ongoing processing, clears the database, resets state,
      * and triggers a full initial cache rebuild.
      */
-    const rebuildCache = useCallback(async () => {
+    const rebuildCacheCommon = useCallback(async (mode: CacheRebuildMode) => {
         // Save the current processing state to restore after rebuild
         const previousStopped = stoppedRef.current;
         stoppedRef.current = true;
@@ -729,7 +732,18 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         // Clear the entire IndexedDB database
         try {
             const db = getDBInstance();
-            await db.clearDatabase();
+            switch (mode) {
+                case CacheRebuildMode.DropDatabaseSlow:
+                    await db.clearDatabase();
+                    break;
+                case CacheRebuildMode.RefreshFast: {
+                    const paths: readonly string[] = db.getAllFiles().map(x => x.path)
+                    await markPathsForRegeneration(paths)
+                }
+                    break;
+                default:
+                    assertNever(AssertId.RebuildCacheUnknown, mode)
+            }
         } catch (error) {
             console.error('Failed to clear database during cache rebuild:', error);
             stoppedRef.current = previousStopped;
@@ -774,6 +788,23 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     }, [api, tagTreeService]);
 
     /**
+     * Much lighter version of the rebuildCache which updates the cache
+     * without clearing all cached data. Might not fix all issues.
+     */
+    const rebuildCacheFast = useCallback(async () => {
+        await rebuildCacheCommon(CacheRebuildMode.RefreshFast)
+    }, [rebuildCacheCommon]);
+
+    /**
+     * Clears all cached data and rebuilds the entire cache from scratch.
+     * Stops all ongoing processing, clears the database, resets state,
+     * and triggers a full initial cache rebuild.
+     */
+    const rebuildCache = useCallback(async () => {
+        await rebuildCacheCommon(CacheRebuildMode.DropDatabaseSlow)
+    }, [rebuildCacheCommon])
+
+    /**
      * Memoized context value to prevent unnecessary re-renders
      *
      * This memo creates the context value object that will be provided to all child
@@ -796,7 +827,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             }
 
             let displayName: string | undefined;
-            
+
             if (settings.useFrontmatterMetadata) {
                 displayName = extractMetadata(app, file, settings)?.fn
             }
@@ -804,7 +835,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             if (displayName == null) {
                 displayName = getDisplayName(file, undefined, settings);
             }
-            
+
             return transformTitle(displayName, settings)
         };
 
@@ -899,9 +930,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             findTagInTree,
             getAllTagPaths,
             getTagDisplayPath,
-            rebuildCache
+            rebuildCache,
+            rebuildCacheFast
         };
-    }, [fileData, settings, app, isStorageReady, rebuildCache]);
+    }, [fileData, settings, app, isStorageReady, rebuildCache, rebuildCacheFast]);
 
     /**
      * Centralized handler for all content-related settings changes
@@ -1338,14 +1370,14 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     const existingFull = existing?.featureImage != null
                         ? await db.getFileWithPreview(oldPath)
                         : existing
-                    
+
                     const meta = app.metadataCache.getFileCache(file)
                     const fastTags = meta != null
                         ? getAllTags(meta)?.filter(x => x != null).map(x => x.replace('#', '')).filter(x => x.length > 0) ?? EMPTY_ARRAY
                         : EMPTY_ARRAY
 
                     if (existingFull != null && fastTags.length > 0 && (existingFull.tags == null || !fastTags.every(x => existingFull?.tags?.includes(x)))) {
-                        existingFull.tags = [...(existingFull.tags ?? EMPTY_ARRAY),...fastTags].filter(x => x != null && x.length > 0)
+                        existingFull.tags = [...(existingFull.tags ?? EMPTY_ARRAY), ...fastTags].filter(x => x != null && x.length > 0)
                     }
 
                     if (existingFull) {

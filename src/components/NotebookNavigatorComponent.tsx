@@ -96,6 +96,7 @@ export interface NotebookNavigatorHandle {
     triggerCollapse: () => void;
     stopContentProcessing: () => void;
     rebuildCache: () => Promise<void>;
+    rebuildCacheFast: () => Promise<void>;
     selectNextFile: () => Promise<boolean>;
     selectPreviousFile: () => Promise<boolean>;
 }
@@ -144,7 +145,7 @@ export const NotebookNavigatorComponent = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const { addFolderShortcut, addNoteShortcut, addTagShortcut } = useShortcuts();
-        const { stopAllProcessing, rebuildCache } = useFileCache();
+        const { stopAllProcessing, rebuildCache, rebuildCacheFast } = useFileCache();
         const { notice: updateNotice, markAsDisplayed } = useUpdateNotice();
         // Keep stable references to avoid stale closures in imperative handles
         const stopProcessingRef = useRef(stopAllProcessing);
@@ -155,6 +156,10 @@ export const NotebookNavigatorComponent = React.memo(
         useEffect(() => {
             rebuildCacheRef.current = rebuildCache;
         }, [rebuildCache]);
+        const rebuildCacheFastRef = useRef(rebuildCacheFast);
+        useEffect(() => {
+            rebuildCacheFastRef.current = rebuildCacheFast;
+        }, [rebuildCacheFast]);
 
         // Root container reference for the entire navigator
         // This ref is passed to both NavigationPane and ListPane to ensure
@@ -481,6 +486,10 @@ export const NotebookNavigatorComponent = React.memo(
                 rebuildCache: async () => {
                     // Trigger complete cache rebuild from storage context
                     await rebuildCacheRef.current?.();
+                },
+                rebuildCacheFast: async () => {
+                    // Trigger complete cache rebuild from storage context
+                    await rebuildCacheFastRef.current?.();
                 },
                 // Select adjacent files via command palette actions
                 selectNextFile: async () => navigateToAdjacentFile('next'),

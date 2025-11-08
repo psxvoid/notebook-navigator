@@ -1031,6 +1031,13 @@ export const STRINGS_DE = {
                 statusClean: 'Keine Metadaten zu bereinigen',
                 statusCounts: 'Verwaiste Elemente: {folders} Ordner, {tags} Tags, {files} Dateien, {pinned} Pins'
             },
+            rebuildCacheFast: {
+                name: 'Cache aktualisieren',
+                desc: `Verwenden Sie diese Option, wenn Tags fehlen, Vorschaubilder fehlerhaft angezeigt werden oder Feature-Bilder fehlen. Dies kann nach Synchronisierungskonflikten oder unerwarteten Schließungen auftreten. Diese Version ist deutlich schlanker als „Cache neu erstellen“, behebt aber möglicherweise nicht alle Probleme.`,
+                buttonText: 'Cache aktualisieren',
+                success: 'Cache aktualisiert',
+                error: 'Fehler beim Aktualisieren des Caches'
+            },
             rebuildCache: {
                 name: 'Cache neu aufbauen',
                 desc: 'Verwenden Sie dies, wenn Tags fehlen, Vorschauen falsch sind oder Bilder fehlen. Dies kann nach Synchronisierungskonflikten oder unerwarteten Schließungen auftreten.',

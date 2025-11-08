@@ -1029,6 +1029,13 @@ export const STRINGS_NL = {
                 statusClean: 'Geen metadata om op te schonen',
                 statusCounts: 'Verweesde items: {folders} mappen, {tags} tags, {files} bestanden, {pinned} pins'
             },
+            rebuildCacheFast: {
+                name: 'Cache vernieuwen',
+                desc: `Gebruik dit als u last heeft van ontbrekende tags, onjuiste previews of ontbrekende afbeeldingen van functies. Dit kan gebeuren na synchronisatieconflicten of onverwachte sluitingen. Een veel lichtere versie dan 'Cache opnieuw opbouwen', maar lost mogelijk niet alle problemen op.`,
+                buttonText: 'Cache vernieuwen',
+                success: 'Cache vernieuwd',
+                error: 'Cache kan niet worden vernieuwd'
+            },
             rebuildCache: {
                 name: 'Cache opnieuw opbouwen',
                 desc: 'Gebruik dit als u ontbrekende tags, onjuiste voorbeelden of ontbrekende uitgelichte afbeeldingen ervaart. Dit kan gebeuren na synchronisatieconflicten of onverwachte afsluitingen.',
