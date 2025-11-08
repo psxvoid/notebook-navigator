@@ -990,6 +990,13 @@ export const STRINGS_EN = {
                 statusClean: 'No metadata to clean',
                 statusCounts: 'Orphaned items: {folders} folders, {tags} tags, {files} files, {pinned} pins'
             },
+            rebuildCacheFast: {
+                name: 'Refresh cache',
+                desc: `Use this if you experience missing tags, incorrect previews or missing feature images. This can happen after sync conflicts or unexpected closures. Much lighter version than "Rebuild Cache" but might not fix all issues.`,
+                buttonText: 'Refresh cache',
+                success: 'Cache refreshed',
+                error: 'Failed to refresh cache'
+            },
             rebuildCache: {
                 name: 'Rebuild cache',
                 desc: 'Use this if you experience missing tags, incorrect previews or missing feature images. This can happen after sync conflicts or unexpected closures.',

@@ -993,6 +993,13 @@ export const STRINGS_FR = {
                 statusClean: 'Aucune métadonnée à nettoyer',
                 statusCounts: 'Éléments orphelins: {folders} dossiers, {tags} étiquettes, {files} fichiers, {pinned} épingles'
             },
+            rebuildCacheFast: {
+                name: 'Actualiser le cache',
+                desc: `Utilisez cette option si vous rencontrez des problèmes de tags manquants, d'aperçus incorrects ou d'images à la une absentes. Cela peut se produire suite à des conflits de synchronisation ou à des fermetures inattendues. Cette version est beaucoup plus légère que «Reconstruire le cache», mais elle ne résout pas forcément tous les problèmes.`,
+                buttonText: 'Actualiser le cache',
+                success: 'Cache actualisé',
+                error: `Échec de l'actualisation du cache`
+            },
             rebuildCache: {
                 name: 'Reconstruire le cache',
                 desc: 'Utilisez ceci si des étiquettes manquent, les aperçus sont incorrects ou des images manquent. Cela peut arriver après des conflits de synchronisation ou des fermetures inattendues.',

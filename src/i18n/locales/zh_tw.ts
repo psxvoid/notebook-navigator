@@ -989,6 +989,13 @@ export const STRINGS_ZH_TW = {
                 statusClean: '沒有要清理的中繼資料',
                 statusCounts: '孤立項目：{folders} 個資料夾、{tags} 個標籤、{files} 個檔案、{pinned} 個釘選'
             },
+            rebuildCacheFast: {
+                name: '刷新快取',
+                desc: `如果遇到標籤缺失、預覽錯誤或特色圖片缺失等問題，請使用此功能。這些問題可能由同步衝突或意外關閉所引起。此方法比「重建快取」輕量級得多，但可能無法解決所有問題。`,
+                buttonText: '刷新快取',
+                success: '快取已刷新',
+                error: '刷新快取失敗'
+            },
             rebuildCache: {
                 name: '重建快取',
                 desc: '如果您遇到標籤遺失、預覽不正確或特色圖片遺失的問題，請使用此功能。這可能在同步衝突或意外關閉後發生。',

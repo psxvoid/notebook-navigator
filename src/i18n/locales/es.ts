@@ -991,6 +991,13 @@ export const STRINGS_ES = {
                 statusClean: 'No hay metadatos para limpiar',
                 statusCounts: 'Elementos huérfanos: {folders} carpetas, {tags} etiquetas, {files} archivos, {pinned} fijados'
             },
+            rebuildCacheFast: {
+                name: 'Actualizar caché',
+                desc: `Utilice esta opción si experimenta etiquetas faltantes, vistas previas incorrectas o imágenes destacadas no disponibles. Esto puede ocurrir tras conflictos de sincronización o cierres inesperados. Es una versión mucho más ligera que "Reconstruir caché", pero puede que no solucione todos los problemas.`,
+                buttonText: 'Actualizar caché',
+                success: 'Caché actualizado',
+                error: 'No se pudo actualizar la caché'
+            },
             rebuildCache: {
                 name: 'Reconstruir caché',
                 desc: 'Úselo si faltan etiquetas, las vistas previas son incorrectas o faltan imágenes. Esto puede ocurrir después de conflictos de sincronización o cierres inesperados.',

@@ -123,17 +123,17 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
     void refreshMetadataCleanupSummary();
 
     new Setting(containerEl)
-        .setName(`${strings.settings.items.rebuildCache.name}`)
-        .setDesc(strings.settings.items.rebuildCache.desc)
+        .setName(strings.settings.items.rebuildCacheFast.name)
+        .setDesc(strings.settings.items.rebuildCacheFast.desc)
         .addButton(button =>
-            button.setButtonText(`${strings.settings.items.rebuildCache.buttonText} (FAST)`).onClick(async () => {
+            button.setButtonText(strings.settings.items.rebuildCacheFast.buttonText).onClick(async () => {
                 button.setDisabled(true);
                 try {
                     await plugin.rebuildCache(CacheRebuildMode.RescanFast);
-                    new Notice(strings.settings.items.rebuildCache.success);
+                    new Notice(strings.settings.items.rebuildCacheFast.success);
                 } catch (error) {
-                    console.error('Failed to rebuild cache from settings:', error);
-                    new Notice(strings.settings.items.rebuildCache.error);
+                    console.error('Failed to rebuild cache (fast) from settings:', error);
+                    new Notice(strings.settings.items.rebuildCacheFast.error);
                 } finally {
                     button.setDisabled(false);
                 }
