@@ -41,18 +41,18 @@ export class MemoryFileCache {
     private isInitialized = false;
 
     /**
-     * Initialize the cache by loading all data from IndexedDB.
-     * This is called once during database initialization.
+     * Mark the cache as initialized after loading data.
      */
-    initialize(filesWithPaths: { path: string; data: FileData }[]): void {
-        // Clear any existing data
+    markInitialized(): void {
+        this.isInitialized = true;
+    }
+
+    /**
+     * Clears any cached data but leaves the cache marked as ready.
+     * Used when IndexedDB operations succeed but contain no rows.
+     */
+    resetToEmpty(): void {
         this.memoryMap.clear();
-
-        // Load all files into memory
-        for (const { path, data } of filesWithPaths) {
-            this.memoryMap.set(path, data);
-        }
-
         this.isInitialized = true;
     }
 

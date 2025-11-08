@@ -144,7 +144,7 @@ export class IndexedDBStorage {
         this.changeListeners.forEach(listener => {
             try {
                 listener(changes);
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error('Error in change listener:', error);
             }
         });
@@ -156,7 +156,7 @@ export class IndexedDBStorage {
                 fileListeners.forEach(listener => {
                     try {
                         listener(change.changes);
-                    } catch (error) {
+                    } catch (error: unknown) {
                         console.error('Error in file change listener:', error);
                     }
                 });
@@ -241,8 +241,9 @@ export class IndexedDBStorage {
             };
 
             deleteReq.onerror = () => {
-                console.error('Failed to delete database:', deleteReq.error);
-                reject(deleteReq.error);
+                const deleteError = deleteReq.error;
+                console.error('Failed to delete database:', deleteError);
+                reject(this.normalizeIdbError(deleteError, 'Failed to delete database'));
             };
 
             deleteReq.onblocked = () => {
@@ -252,13 +253,28 @@ export class IndexedDBStorage {
         });
     }
 
+    private normalizeIdbError(error: unknown, fallbackMessage: string): Error {
+        return error instanceof Error ? error : new Error(fallbackMessage);
+    }
+
+    private rejectWithTransactionError(
+        reject: (reason?: unknown) => void,
+        transaction: IDBTransaction,
+        lastRequestError: DOMException | Error | null,
+        fallbackMessage: string
+    ): void {
+        const combinedError = transaction.error || lastRequestError;
+        reject(this.normalizeIdbError(combinedError, fallbackMessage));
+    }
+
     private async openDatabase(skipCacheLoad: boolean = false): Promise<void> {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(this.dbName, DB_SCHEMA_VERSION);
 
             request.onerror = () => {
-                console.error('Database open error:', request.error);
-                reject(new Error(`Failed to open database: ${request.error?.message || 'Unknown error'}`));
+                const requestError = request.error;
+                console.error('Database open error:', requestError);
+                reject(this.normalizeIdbError(requestError, 'Failed to open database'));
             };
 
             request.onblocked = () => {
@@ -283,38 +299,41 @@ export class IndexedDBStorage {
 
                 // Initialize the cache with all data from IndexedDB
                 if (skipCacheLoad) {
-                    this.cache.initialize([]);
+                    this.cache.resetToEmpty();
                 } else {
                     try {
-                        // Use getAll() for much faster bulk loading
+                        // Use cursor streaming to avoid materializing duplicate arrays in memory
                         const transaction = this.db.transaction([STORE_NAME], 'readonly');
                         const store = transaction.objectStore(STORE_NAME);
 
-                        // Use openCursor to get both keys and values
-                        const request = store.openCursor();
-                        const filesWithPaths: { path: string; data: FileData }[] = [];
+                        this.cache.clear();
 
-                        await new Promise<void>((resolve, reject) => {
-                            request.onsuccess = event => {
-                                const cursor = (event.target as IDBRequest).result;
-                                if (cursor) {
-                                    filesWithPaths.push({
-                                        path: cursor.key as string,
-                                        data: cursor.value as FileData
-                                    });
-                                    cursor.continue();
-                                } else {
-                                    // Done iterating
-                                    this.cache.initialize(filesWithPaths);
-                                    resolve();
+                        await new Promise<void>((resolveCursor, rejectCursor) => {
+                            const cursorRequest = store.openCursor();
+
+                            cursorRequest.onsuccess = () => {
+                                const cursor = cursorRequest.result;
+                                if (!cursor) {
+                                    this.cache.markInitialized();
+                                    resolveCursor();
+                                    return;
                                 }
+
+                                const path = cursor.key as string;
+                                this.cache.updateFile(path, cursor.value as FileData);
+                                cursor.continue();
                             };
 
-                            request.onerror = () => reject(request.error);
+                            cursorRequest.onerror = () => {
+                                rejectCursor(this.normalizeIdbError(cursorRequest.error, 'Cursor iteration failed'));
+                            };
                         });
-                    } catch (error) {
+                    } catch (error: unknown) {
                         console.error('[DB Cache] Failed to initialize cache:', error);
-                        // Continue without cache - database will still work
+                        console.error(
+                            '[DB Cache] IndexedDB cache hydration failed. Run Notebook Navigator: Rebuild cache to reset the database.'
+                        );
+                        this.cache.clear();
                     }
                 }
 
@@ -359,8 +378,7 @@ export class IndexedDBStorage {
                 });
             };
             transaction.oncomplete = () => {
-                this.cache.clear();
-                this.cache.initialize([]);
+                this.cache.resetToEmpty();
                 resolve();
             };
             transaction.onabort = () => {
@@ -370,7 +388,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -379,7 +397,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction error');
             };
         });
     }
@@ -447,7 +465,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -457,7 +475,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction error');
             };
         });
     }
@@ -499,7 +517,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -509,7 +527,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction error');
             };
         });
     }
@@ -573,7 +591,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -582,7 +600,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction error');
             };
         });
     }
@@ -632,7 +650,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -641,7 +659,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction error');
             };
         });
     }
@@ -812,7 +830,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestErrorUpdate?.message
                 });
-                reject(transaction.error || lastRequestErrorUpdate || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestErrorUpdate, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -822,7 +840,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestErrorUpdate?.message
                 });
-                reject(transaction.error || lastRequestErrorUpdate || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestErrorUpdate, 'Transaction error');
             };
         });
 
@@ -910,7 +928,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestErrorMeta?.message
                 });
-                reject(transaction.error || lastRequestErrorMeta || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestErrorMeta, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -920,7 +938,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestErrorMeta?.message
                 });
-                reject(transaction.error || lastRequestErrorMeta || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestErrorMeta, 'Transaction error');
             };
         });
 
@@ -999,7 +1017,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -1008,7 +1026,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction error');
             };
         });
     }
@@ -1096,7 +1114,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -1106,7 +1124,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction error');
             };
         });
 
@@ -1202,14 +1220,15 @@ export class IndexedDBStorage {
             };
 
             request.onerror = () => {
-                lastRequestError = request.error || null;
+                const requestError = request.error;
+                lastRequestError = requestError || null;
                 console.error('[IndexedDB] openCursor failed', {
                     store: STORE_NAME,
                     op,
-                    name: request.error?.name,
-                    message: request.error?.message
+                    name: requestError?.name,
+                    message: requestError?.message
                 });
-                reject(request.error);
+                reject(this.normalizeIdbError(requestError, 'Cursor request failed'));
             };
 
             transaction.oncomplete = () => {
@@ -1226,7 +1245,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -1235,7 +1254,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction error');
             };
         });
     }
@@ -1341,7 +1360,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -1350,7 +1369,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction error');
             };
         });
 
@@ -1464,7 +1483,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction aborted'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction aborted');
             };
             transaction.onerror = () => {
                 console.error('[IndexedDB] transaction error', {
@@ -1473,7 +1492,7 @@ export class IndexedDBStorage {
                     txError: transaction.error?.message,
                     reqError: lastRequestError?.message
                 });
-                reject(transaction.error || lastRequestError || new Error('Transaction error'));
+                this.rejectWithTransactionError(reject, transaction, lastRequestError, 'Transaction error');
             };
         });
 
