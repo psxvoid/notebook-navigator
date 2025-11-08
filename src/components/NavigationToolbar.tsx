@@ -24,6 +24,7 @@ import { ObsidianIcon } from './ObsidianIcon';
 import { useNavigationActions } from '../hooks/useNavigationActions';
 import { useUIState } from '../context/UIStateContext';
 import { hasHiddenItemSources } from '../utils/exclusionUtils';
+import { runAsyncAction } from '../utils/async';
 
 interface NavigationToolbarProps {
     onTreeUpdateComplete?: () => void;
@@ -57,11 +58,7 @@ export function NavigationToolbar({
                 <button
                     className="nn-mobile-toolbar-button"
                     aria-label={uiState.pinShortcuts ? strings.navigationPane.unpinShortcuts : strings.navigationPane.pinShortcuts}
-                    onClick={() => {
-                        if (onTogglePinnedShortcuts) {
-                            onTogglePinnedShortcuts();
-                        }
-                    }}
+                    onClick={onTogglePinnedShortcuts}
                     tabIndex={-1}
                 >
                     <ObsidianIcon name={uiState.pinShortcuts ? 'lucide-bookmark-minus' : 'lucide-bookmark'} />
@@ -73,7 +70,6 @@ export function NavigationToolbar({
                 onClick={() => {
                     handleExpandCollapseAll();
                     if (onTreeUpdateComplete) {
-                        // Defer callback until after DOM updates complete
                         requestAnimationFrame(() => {
                             onTreeUpdateComplete();
                         });
@@ -90,7 +86,6 @@ export function NavigationToolbar({
                     onClick={() => {
                         handleToggleShowExcludedFolders();
                         if (onTreeUpdateComplete) {
-                            // Defer callback until after DOM updates complete
                             requestAnimationFrame(() => {
                                 onTreeUpdateComplete();
                             });
@@ -105,11 +100,7 @@ export function NavigationToolbar({
             <button
                 className={`nn-mobile-toolbar-button ${rootReorderActive ? 'nn-mobile-toolbar-button-active' : ''}`}
                 aria-label={rootReorderActive ? strings.paneHeader.finishRootFolderReorder : strings.paneHeader.reorderRootFolders}
-                onClick={() => {
-                    if (onToggleRootFolderReorder) {
-                        onToggleRootFolderReorder();
-                    }
-                }}
+                onClick={onToggleRootFolderReorder}
                 disabled={rootReorderDisabled}
                 tabIndex={-1}
             >
@@ -118,7 +109,9 @@ export function NavigationToolbar({
             <button
                 className="nn-mobile-toolbar-button"
                 aria-label={strings.paneHeader.newFolder}
-                onClick={handleNewFolder}
+                onClick={() => {
+                    runAsyncAction(() => handleNewFolder());
+                }}
                 disabled={!selectionState.selectedFolder}
                 tabIndex={-1}
             >

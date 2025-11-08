@@ -42,7 +42,9 @@ import { deleteSelectedFiles } from '../utils/deleteOperations';
 import { getFilesInRange } from '../utils/selectionUtils';
 import { useKeyboardNavigation, KeyboardNavigationHelpers } from './useKeyboardNavigation';
 import { useMultiSelection } from './useMultiSelection';
+import { useFileOpener } from './useFileOpener';
 import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
+import { runAsyncAction } from '../utils/async';
 
 /**
  * Check if a list item is selectable (file, not header or spacer)
@@ -64,14 +66,25 @@ interface UseListPaneKeyboardProps {
     files: TFile[];
     /** Map from file paths to their position in files array */
     fileIndexMap: Map<string, number>;
+    /** Handler for selecting a file from keyboard actions */
+    onSelectFile: (file: TFile, options?: { markKeyboardNavigation?: boolean }) => void;
 }
 
 /**
  * Hook for keyboard navigation in the list pane.
  * Handles file-specific keyboard interactions and multi-selection.
  */
-export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIndex, files, fileIndexMap }: UseListPaneKeyboardProps) {
-    const { app, isMobile, tagTreeService, commandQueue } = useServices();
+export function useListPaneKeyboard({
+    items,
+    virtualizer,
+    containerRef,
+    pathToIndex,
+    files,
+    fileIndexMap,
+    onSelectFile
+}: UseListPaneKeyboardProps) {
+    const { app, isMobile, tagTreeService } = useServices();
+    const openFileInWorkspace = useFileOpener();
     const fileSystemOps = useFileSystemOps();
     const settings = useSettingsState();
     const uxPreferences = useUXPreferences();
@@ -102,30 +115,10 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
                 const file = item.data instanceof TFile ? item.data : null;
                 if (!file) return;
 
-                // Normal navigation clears multi-selection
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
-
-                // Mark as keyboard navigation to prevent auto-scrolling on rapid navigation
-                selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
-
-                // Open the file in the editor without moving focus
-                const openFile = async () => {
-                    const leaf = app.workspace.getLeaf(false);
-                    if (!leaf) {
-                        return;
-                    }
-                    await leaf.openFile(file, { active: false });
-                };
-
-                // Queue the file open if command queue is available
-                if (commandQueue) {
-                    void commandQueue.executeOpenActiveFile(file, openFile);
-                } else {
-                    void openFile();
-                }
+                onSelectFile(file, { markKeyboardNavigation: true });
             }
         },
-        [selectionDispatch, app.workspace, commandQueue]
+        [onSelectFile]
     );
 
     /**
@@ -155,15 +148,12 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
             selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file: targetFile });
 
             // Open the file without changing focus
-            const leaf = app.workspace.getLeaf(false);
-            if (leaf) {
-                leaf.openFile(targetFile, { active: false });
-            }
+            openFileInWorkspace(targetFile);
 
             // Scroll to target position
             virtualizer.scrollToIndex(targetIndex, { align: 'auto' });
         },
-        [files, selectionState.selectedFiles, selectionDispatch, app.workspace, virtualizer]
+        [files, selectionState.selectedFiles, selectionDispatch, virtualizer, openFileInWorkspace]
     );
 
     /**
@@ -324,15 +314,17 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.DELETE_SELECTED)) {
                 if (selectionState.selectedFile || selectionState.selectedFiles.size > 0) {
                     e.preventDefault();
-                    deleteSelectedFiles({
-                        app,
-                        fileSystemOps,
-                        settings,
-                        visibility: { includeDescendantNotes, showHiddenItems },
-                        selectionState,
-                        selectionDispatch,
-                        tagTreeService
-                    });
+                    runAsyncAction(() =>
+                        deleteSelectedFiles({
+                            app,
+                            fileSystemOps,
+                            settings,
+                            visibility: { includeDescendantNotes, showHiddenItems },
+                            selectionState,
+                            selectionDispatch,
+                            tagTreeService
+                        })
+                    );
                 }
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.LIST_SELECT_ALL)) {
                 e.preventDefault();

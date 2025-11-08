@@ -18,7 +18,7 @@
 
 import { getDefaultKeyboardShortcuts } from '../utils/keyboardShortcuts';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
-import { NAVPANE_MEASUREMENTS, type PinnedNotes } from '../types';
+import { LISTPANE_MEASUREMENTS, NAVPANE_MEASUREMENTS, type PinnedNotes } from '../types';
 import { DEFAULT_UI_SCALE } from '../utils/uiScale';
 import type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
 import type { NotebookNavigatorSettings } from './types';
@@ -29,13 +29,14 @@ import type { NotebookNavigatorSettings } from './types';
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Filtering
-    fileVisibility: FILE_VISIBILITY.DOCUMENTS,
+    fileVisibility: FILE_VISIBILITY.SUPPORTED,
     excludedFolders: [],
     excludedFiles: [],
 
     // General tab - Behavior
     autoRevealActiveFile: true,
     autoRevealIgnoreRightSidebar: true,
+    multiSelectModifier: 'cmdCtrl',
 
     // General tab - View
     startView: 'files',
@@ -61,23 +62,25 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
 
     // Navigation pane tab
     skipAutoScroll: false,
-    autoSelectFirstFileOnFocusChange: false,
     navigationBanner: null,
+    showSectionIcons: true,
     showShortcuts: true,
     showRecentNotes: true,
     recentNotesCount: 5,
-    autoExpandFoldersTags: false,
     collapseBehavior: 'all',
     smartCollapse: true,
-    showIcons: true,
     colorIconOnly: false,
     showNoteCount: true,
     separateNoteCounts: true,
     navIndent: NAVPANE_MEASUREMENTS.defaultIndent,
     navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
     navItemHeightScaleText: true,
+    rootLevelSpacing: 0,
 
     // Folders & tags tab
+    autoSelectFirstFileOnFocusChange: false,
+    autoExpandFoldersTags: false,
+    showFolderIcons: true,
     showRootFolder: true,
     inheritFolderColors: false,
     enableFolderNotes: false,
@@ -87,19 +90,24 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     hideFolderNoteInList: true,
     pinCreatedFolderNote: false,
     showTags: true,
+    showTagIcons: true,
     showAllTagsFolder: true,
     showUntagged: false,
     tagSortOrder: 'alpha-asc',
     hiddenTags: [],
     keepEmptyTagsProperty: false,
+    allowTagCreationInAddTagModal: true,
 
     // List pane tab
     defaultFolderSort: 'modified-desc',
     listPaneTitle: 'header',
-    multiSelectModifier: 'cmdCtrl',
     noteGrouping: 'date',
     filterPinnedByFolder: false,
+    showPinnedGroupHeader: true,
+    showPinnedIcon: true,
     optimizeNoteHeight: true,
+    slimItemHeight: LISTPANE_MEASUREMENTS.defaultSlimItemHeight,
+    slimItemHeightScaleText: true,
     showQuickActions: true,
     quickActionRevealInFolder: true,
     quickActionPinNote: true,
@@ -124,7 +132,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     collapseFileTagsToSelectedTag: true,
     colorFileTags: true,
     showFileTagsInSlimMode: false,
-    showParentFolderNames: true,
+    showParentFolder: true,
+    showParentFolderColor: true,
     showFilePreview: true,
     skipHeadingsInPreview: true,
     skipCodeBlocksInPreview: true,

@@ -5,6 +5,7 @@ import { useSettingsUpdate } from '../context/SettingsContext';
 import { areStringArraysEqual, createIndexMap } from '../utils/arrayUtils';
 import { normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 import { naturalCompare } from '../utils/sortUtils';
+import { runAsyncAction } from '../utils/async';
 
 interface UseRootTagOrderParams {
     settings: NotebookNavigatorSettings;
@@ -111,8 +112,10 @@ export function useRootTagOrder({ settings, tagTree, comparator }: UseRootTagOrd
         if (areStringArraysEqual(normalization.normalizedOrder, settings.rootTagOrder)) {
             return;
         }
-        void updateSettings(current => {
-            current.rootTagOrder = normalization.normalizedOrder;
+        runAsyncAction(async () => {
+            await updateSettings(current => {
+                current.rootTagOrder = normalization.normalizedOrder;
+            });
         });
     }, [hasCustomOrder, normalization.normalizedOrder, settings.rootTagOrder, updateSettings]);
 

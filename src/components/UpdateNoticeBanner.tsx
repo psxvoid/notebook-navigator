@@ -20,6 +20,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { ReleaseUpdateNotice } from '../services/ReleaseCheckService';
 import { strings } from '../i18n';
 import { useAutoDismissFade } from '../hooks/useAutoDismissFade';
+import { runAsyncAction } from '../utils/async';
 
 /** Props for the UpdateNoticeBanner component */
 interface UpdateNoticeBannerProps {
@@ -48,7 +49,7 @@ export function UpdateNoticeBanner({ notice, onDismiss }: UpdateNoticeBannerProp
             return;
         }
 
-        void onDismiss(visibleNotice.version);
+        runAsyncAction(() => onDismiss(visibleNotice.version));
         setVisibleNotice(null);
     }, [visibleNotice, onDismiss]);
 

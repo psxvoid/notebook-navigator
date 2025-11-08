@@ -25,11 +25,15 @@
  * - PATCH: Bug fixes (backwards compatible)
  */
 
+function formatApiVersion(version: { major: number; minor: number; patch: number }): string {
+    return `${version.major}.${version.minor}.${version.patch}`;
+}
+
 export const API_VERSION = {
     major: 1,
     minor: 0,
     patch: 1,
     toString(): string {
-        return `${this.major}.${this.minor}.${this.patch}`;
+        return formatApiVersion(API_VERSION);
     }
-};
+} as const;

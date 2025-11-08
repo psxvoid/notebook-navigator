@@ -41,7 +41,7 @@ export const STRINGS_KO = {
     listPane: {
         emptyStateNoSelection: '노트를 보려면 폴더나 태그를 선택하세요', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: '노트 없음', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 고정됨', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: '고정됨', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: '노트', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: '파일', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (숨김)' // Accessibility label applied to list items that are normally hidden
@@ -171,6 +171,8 @@ export const STRINGS_KO = {
             newDrawing: '새 드로잉',
             duplicateFolder: '폴더 복제',
             searchInFolder: '폴더에서 검색',
+            copyPath: '경로 복사',
+            copyRelativePath: '상대 경로 복사',
             createFolderNote: '폴더 노트 만들기',
             deleteFolderNote: '폴더 노트 삭제',
             changeIcon: '아이콘 변경',
@@ -197,9 +199,11 @@ export const STRINGS_KO = {
         slimPreset: '슬림 (날짜/미리보기/이미지 없음)',
         titleRows: '제목 행',
         previewRows: '미리보기 행',
+        groupBy: '그룹화 기준',
         defaultOption: (rows: number) => `기본 (${rows})`,
         defaultTitleOption: (rows: number) => `기본 제목 행 (${rows})`,
         defaultPreviewOption: (rows: number) => `기본 미리보기 행 (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `기본 그룹화 (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows}개 제목 행`,
         previewRowOption: (rows: number) => `${rows}개 미리보기 행`
     },
@@ -260,6 +264,10 @@ export const STRINGS_KO = {
             affectedFiles: '영향받는 파일:',
             andMore: '...그리고 {count}개 더',
             confirmRename: '태그 이름 변경',
+            renameUnchanged: '{tag} 변경 없음',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: '유효한 태그 이름을 입력하세요.',
+            descendantRenameError: '태그를 자신 또는 하위 태그로 이동할 수 없습니다.',
             confirmDelete: '태그 삭제',
             file: '파일',
             files: '파일'
@@ -316,6 +324,7 @@ export const STRINGS_KO = {
             addPlaceholder: '추가할 태그 검색...',
             removePlaceholder: '제거할 태그 선택...',
             createNewTag: '새 태그 생성: #{tag}',
+            allowCreationToggle: '새 태그 생성 허용',
             instructions: {
                 navigate: '이동',
                 select: '선택',
@@ -450,6 +459,8 @@ export const STRINGS_KO = {
         deleteFile: '파일 삭제', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '새 노트 만들기', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '파일 이동', // Command palette: Move selected files to another folder (English: Move files)
+        selectNextFile: '다음 파일 선택', // Command palette: Selects the next file in the current view (English: Select next file)
+        selectPreviousFile: '이전 파일 선택', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: '폴더 노트로 변환', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         pinAllFolderNotes: '폴더 노트를 모두 고정', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: '폴더로 이동', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
@@ -559,7 +570,7 @@ export const STRINGS_KO = {
                 }
             },
             listPaneTitle: {
-                name: '목록 창 제목',
+                name: '목록 창 제목(데스크톱 전용)',
                 desc: '목록 창 제목을 표시할 위치를 선택하세요.',
                 options: {
                     header: '헤더에 표시',
@@ -600,13 +611,34 @@ export const STRINGS_KO = {
                     folder: '폴더별 그룹'
                 }
             },
+            showPinnedGroupHeader: {
+                name: '고정 그룹 헤더 표시',
+                desc: '고정된 노트 위에 섹션 헤더를 표시합니다.'
+            },
+            showPinnedIcon: {
+                name: '고정 아이콘 표시',
+                desc: '고정 섹션 헤더 옆에 아이콘을 표시합니다.'
+            },
             optimizeNoteHeight: {
                 name: '노트 높이 최적화',
                 desc: '고정된 노트와 미리보기 텍스트가 없는 노트의 높이를 줄입니다.'
             },
-            showParentFolderNames: {
-                name: '상위 폴더 이름 표시',
+            slimItemHeight: {
+                name: '슬림 항목 높이',
+                desc: '데스크톱과 모바일에서 슬림 목록 항목 높이를 설정합니다.',
+                resetTooltip: '기본값으로 복원 (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: '슬림 항목 높이에 맞춰 텍스트 크기 조정',
+                desc: '항목 높이를 줄이면 슬림 목록 텍스트 크기를 조정합니다.'
+            },
+            showParentFolder: {
+                name: '상위 폴더 표시',
                 desc: '하위 폴더나 태그의 노트에 상위 폴더 이름을 표시합니다.'
+            },
+            showParentFolderColor: {
+                name: '상위 폴더 색상 표시',
+                desc: '상위 폴더 레이블에 폴더 색상을 사용합니다.'
             },
             showQuickActions: {
                 name: '빠른 작업 표시 (데스크톱 전용)',
@@ -873,6 +905,10 @@ export const STRINGS_KO = {
                 name: '루트 폴더 표시',
                 desc: '트리에서 보관함 이름을 루트 폴더로 표시합니다.'
             },
+            showFolderIcons: {
+                name: '폴더 아이콘 표시',
+                desc: '탐색 창의 폴더 옆에 아이콘을 표시합니다.'
+            },
             inheritFolderColors: {
                 name: '폴더 색상 상속',
                 desc: '하위 폴더가 상위 폴더에서 색상을 상속합니다.'
@@ -881,9 +917,9 @@ export const STRINGS_KO = {
                 name: '노트 수 표시',
                 desc: '각 폴더와 태그 옆에 노트 수를 표시합니다.'
             },
-            showIcons: {
-                name: '아이콘 표시',
-                desc: '폴더, 태그 및 노트에 아이콘을 표시합니다.'
+            showSectionIcons: {
+                name: '바로 가기 아이콘 표시',
+                desc: '바로 가기 및 최근 파일과 같은 탐색 섹션의 아이콘을 표시합니다.'
             },
             showIconsColorOnly: {
                 name: '아이콘에만 색상 적용',
@@ -914,9 +950,17 @@ export const STRINGS_KO = {
                 name: '항목 높이에 따라 글자 크기 조정',
                 desc: '항목 높이를 줄이면 탐색 글자 크기를 작게 합니다.'
             },
+            navRootSpacing: {
+                name: '루트 항목 간격',
+                desc: '최상위 폴더와 태그 사이의 간격.'
+            },
             showTags: {
                 name: '태그 표시',
                 desc: '네비게이터에서 폴더 아래에 태그 섹션을 표시합니다.'
+            },
+            showTagIcons: {
+                name: '태그 아이콘 표시',
+                desc: '탐색 창의 태그 옆에 아이콘을 표시합니다.'
             },
             tagSortOrder: {
                 name: '태그 정렬 순서',
@@ -939,6 +983,10 @@ export const STRINGS_KO = {
             keepEmptyTagsProperty: {
                 name: '마지막 태그 제거 후 tags 속성 유지',
                 desc: '모든 태그가 제거될 때 frontmatter 의 tags 속성을 유지합니다. 비활성화하면 tags 속성이 frontmatter 에서 삭제됩니다.'
+            },
+            allowTagCreationInAddTagModal: {
+                name: '태그 추가 모달에서 태그 생성 허용',
+                desc: '태그 추가 시 생성 옵션을 표시합니다. 토글이 모달에 나타납니다.'
             },
             hiddenTags: {
                 name: '숨겨진 태그',
@@ -1101,7 +1149,7 @@ export const STRINGS_KO = {
                 status: 'New version available: {version}'
             },
             whatsNew: {
-                name: '새로운 기능',
+                name: 'Notebook Navigator {version}의 새로운 기능',
                 desc: '최근 업데이트와 개선 사항 보기',
                 buttonText: '최근 업데이트 보기'
             },

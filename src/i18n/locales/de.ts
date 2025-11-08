@@ -41,7 +41,7 @@ export const STRINGS_DE = {
     listPane: {
         emptyStateNoSelection: 'Wählen Sie einen Ordner oder Tag aus, um Notizen anzuzeigen', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Keine Notizen', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 Angeheftet', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: 'Angeheftet', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: 'Notizen', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: 'Dateien', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (ausgeblendet)' // Accessibility label applied to list items that are normally hidden
@@ -174,6 +174,8 @@ export const STRINGS_DE = {
             newDrawing: 'Neue Zeichnung',
             duplicateFolder: 'Ordner duplizieren',
             searchInFolder: 'In Ordner suchen',
+            copyPath: 'Pfad kopieren',
+            copyRelativePath: 'Relativen Pfad kopieren',
             createFolderNote: 'Ordnernotiz erstellen',
             deleteFolderNote: 'Ordnernotiz löschen',
             changeIcon: 'Symbol ändern',
@@ -200,9 +202,11 @@ export const STRINGS_DE = {
         slimPreset: 'Schmal (ohne Datum/Vorschau/Bild)',
         titleRows: 'Titelzeilen',
         previewRows: 'Vorschauzeilen',
+        groupBy: 'Gruppieren nach',
         defaultOption: (rows: number) => `Standard (${rows})`,
         defaultTitleOption: (rows: number) => `Standard-Titelzeilen (${rows})`,
         defaultPreviewOption: (rows: number) => `Standard-Vorschauzeilen (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Standardgruppierung (${groupLabel})`,
         titleRowOption: (rows: number) => `${rows} Titelzeile${rows === 1 ? '' : 'n'}`,
         previewRowOption: (rows: number) => `${rows} Vorschauzeile${rows === 1 ? '' : 'n'}`
     },
@@ -263,6 +267,10 @@ export const STRINGS_DE = {
             affectedFiles: 'Betroffene Dateien:',
             andMore: '...und {count} weitere',
             confirmRename: 'Tag umbenennen',
+            renameUnchanged: '{tag} unverändert',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: 'Geben Sie einen gültigen Tag-Namen ein.',
+            descendantRenameError: 'Ein Tag kann nicht in sich selbst oder einen Nachkommen verschoben werden.',
             confirmDelete: 'Tag löschen',
             file: 'Datei',
             files: 'Dateien'
@@ -319,6 +327,7 @@ export const STRINGS_DE = {
             addPlaceholder: 'Nach hinzuzufügendem Tag suchen...',
             removePlaceholder: 'Tag zum Entfernen auswählen...',
             createNewTag: 'Neuen Tag erstellen: #{tag}',
+            allowCreationToggle: 'Erstellung neuer Tags erlauben',
             instructions: {
                 navigate: 'zum Navigieren',
                 select: 'zum Auswählen',
@@ -453,6 +462,8 @@ export const STRINGS_DE = {
         deleteFile: 'Dateien löschen', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
+        selectNextFile: 'Nächste Datei auswählen', // Command palette: Selects the next file in the current view (English: Select next file)
+        selectPreviousFile: 'Vorherige Datei auswählen', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'In Ordnernotiz konvertieren', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         pinAllFolderNotes: 'Alle Ordnernotizen anheften', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
@@ -563,7 +574,7 @@ export const STRINGS_DE = {
                 }
             },
             listPaneTitle: {
-                name: 'Titel des Listenbereichs',
+                name: 'Titel des Listenbereichs (nur Desktop)',
                 desc: 'Wählen Sie, wo der Titel des Listenbereichs angezeigt wird.',
                 options: {
                     header: 'Im Kopfbereich anzeigen',
@@ -604,13 +615,34 @@ export const STRINGS_DE = {
                     folder: 'Nach Ordner gruppieren'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'Überschrift für angeheftete Notizen anzeigen',
+                desc: 'Zeigt die Überschrift des Abschnitts für angeheftete Notizen an.'
+            },
+            showPinnedIcon: {
+                name: 'Icon für angeheftete Notizen anzeigen',
+                desc: 'Icon neben der Überschrift für angeheftete Notizen anzeigen.'
+            },
             optimizeNoteHeight: {
                 name: 'Notizenhöhe optimieren',
                 desc: 'Höhe für angeheftete Notizen und Notizen ohne Vorschautext reduzieren.'
             },
-            showParentFolderNames: {
-                name: 'Übergeordnete Ordnernamen anzeigen',
+            slimItemHeight: {
+                name: 'Höhe schlanker Elemente',
+                desc: 'Legt die Höhe schlanker Listenelemente auf Desktop und Mobilgeräten fest.',
+                resetTooltip: 'Auf Standard zurücksetzen (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: 'Text an schlanke Elementhöhe anpassen',
+                desc: 'Skaliert den Text schlanker Listenelemente bei reduzierter Höhe.'
+            },
+            showParentFolder: {
+                name: 'Übergeordneten Ordner anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen in Unterordnern oder Tags anzeigen.'
+            },
+            showParentFolderColor: {
+                name: 'Übergeordnete Ordnerfarbe anzeigen',
+                desc: 'Ordnerfarben auf übergeordnete Ordnerlabels anwenden.'
             },
             showQuickActions: {
                 name: 'Schnellaktionen anzeigen (nur Desktop)',
@@ -877,6 +909,10 @@ export const STRINGS_DE = {
                 name: 'Wurzelordner anzeigen',
                 desc: 'Den Namen des Wurzelordners im Baum anzeigen.'
             },
+            showFolderIcons: {
+                name: 'Ordner-Icons anzeigen',
+                desc: 'Icons neben Ordnern im Navigationsbereich anzeigen.'
+            },
             inheritFolderColors: {
                 name: 'Ordnerfarben vererben',
                 desc: 'Unterordner erben die Farbe von übergeordneten Ordnern.'
@@ -885,9 +921,9 @@ export const STRINGS_DE = {
                 name: 'Notizenzahl anzeigen',
                 desc: 'Die Anzahl der Notizen neben jedem Ordner und Tag anzeigen.'
             },
-            showIcons: {
-                name: 'Symbole anzeigen',
-                desc: 'Symbole für Ordner, Tags und Notizen anzeigen.'
+            showSectionIcons: {
+                name: 'Shortcut-Icons anzeigen',
+                desc: 'Icons für Navigationsbereiche wie Shortcuts und Zuletzt verwendete Dateien anzeigen.'
             },
             showIconsColorOnly: {
                 name: 'Farbe nur auf Symbole anwenden',
@@ -918,9 +954,17 @@ export const STRINGS_DE = {
                 name: 'Text mit Zeilenhöhe skalieren',
                 desc: 'Verkleinert die Navigationsschrift, wenn die Zeilenhöhe reduziert wird.'
             },
+            navRootSpacing: {
+                name: 'Abstand für Wurzelelemente',
+                desc: 'Abstand zwischen Ordnern und Tags auf der obersten Ebene.'
+            },
             showTags: {
                 name: 'Tags anzeigen',
                 desc: 'Tag-Bereich unterhalb der Ordner im Navigator anzeigen.'
+            },
+            showTagIcons: {
+                name: 'Tag-Icons anzeigen',
+                desc: 'Icons neben Tags im Navigationsbereich anzeigen.'
             },
             tagSortOrder: {
                 name: 'Tag-Sortierreihenfolge',
@@ -943,6 +987,10 @@ export const STRINGS_DE = {
             keepEmptyTagsProperty: {
                 name: 'Tags-Eigenschaft nach Entfernen des letzten Tags beibehalten',
                 desc: 'Behält die Tags-Frontmatter-Eigenschaft, wenn alle Tags entfernt werden. Wenn deaktiviert, wird die Tags-Eigenschaft aus dem Frontmatter gelöscht.'
+            },
+            allowTagCreationInAddTagModal: {
+                name: 'Tag-Erstellung im Tag-Hinzufügen-Dialog erlauben',
+                desc: 'Option zum Erstellen von Tags beim Hinzufügen anzeigen. Umschalter erscheint im Dialog.'
             },
             hiddenTags: {
                 name: 'Versteckte Tags',
@@ -1105,7 +1153,7 @@ export const STRINGS_DE = {
                 status: 'New version available: {version}'
             },
             whatsNew: {
-                name: 'Neuigkeiten',
+                name: 'Neuigkeiten in Notebook Navigator {version}',
                 desc: 'Letzte Updates und Verbesserungen anzeigen',
                 buttonText: 'Letzte Updates anzeigen'
             },

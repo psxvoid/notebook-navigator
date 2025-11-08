@@ -43,12 +43,16 @@
  *    - Pure presentational component
  */
 
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useMemo } from 'react';
 import type { DragEvent } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import { VirtualFolder } from '../types';
+import { useUXPreferences } from '../context/UXPreferencesContext';
+import type { NoteCountInfo } from '../types/noteCounts';
+import { buildNoteCountDisplay } from '../utils/noteCountFormatting';
+import { buildSearchMatchContentClass } from '../utils/searchHighlight';
 
 interface VirtualFolderItemProps {
     virtualFolder: VirtualFolder; // Static data structure from NavigationPane
@@ -56,9 +60,21 @@ interface VirtualFolderItemProps {
     isExpanded: boolean; // From ExpansionContext via NavigationPane
     hasChildren: boolean; // Computed by NavigationPane from tag tree
     onToggle: () => void; // Expansion toggle handler
+    onSelect?: (event: React.MouseEvent<HTMLDivElement>) => void; // Optional selection handler
+    isSelected?: boolean; // Selection state for virtual folders that act as collections
+    showFileCount?: boolean; // Whether to render note count badge
+    countInfo?: NoteCountInfo; // Pre-computed note counts
+    searchMatch?: 'include' | 'exclude'; // Search highlight state
     onDragOver?: (event: DragEvent<HTMLDivElement>) => void; // Optional drag over handler for shortcuts
     onDrop?: (event: DragEvent<HTMLDivElement>) => void; // Optional drop handler for shortcuts
     onDragLeave?: (event: DragEvent<HTMLDivElement>) => void; // Optional drag leave handler for shortcuts
+    dropConfig?: {
+        zone: string;
+        path: string;
+        tag?: string;
+        allowInternalDrop?: boolean;
+        allowExternalDrop?: boolean;
+    };
 }
 
 /**
@@ -81,16 +97,58 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
     level,
     isExpanded,
     hasChildren,
+    onSelect,
+    isSelected = false,
+    showFileCount = false,
+    countInfo,
+    searchMatch,
     onToggle,
     onDragOver,
     onDrop,
-    onDragLeave
+    onDragLeave,
+    dropConfig
 }: VirtualFolderItemProps) {
     const settings = useSettingsState();
+    const uxPreferences = useUXPreferences();
     const folderRef = useRef<HTMLDivElement>(null);
     const chevronRef = useRef<HTMLDivElement>(null);
     const iconRef = useRef<HTMLSpanElement>(null);
     const iconVersion = useIconServiceVersion();
+    const includeDescendantNotes = uxPreferences.includeDescendantNotes;
+
+    // Format note count display based on descendant notes preference and count settings
+    const noteCountDisplay = useMemo(() => {
+        if (!countInfo) {
+            return null;
+        }
+        const useSeparateCounts = includeDescendantNotes && settings.separateNoteCounts;
+        return buildNoteCountDisplay(countInfo, includeDescendantNotes, useSeparateCounts);
+    }, [countInfo, includeDescendantNotes, settings.separateNoteCounts]);
+
+    // Determine if count badge should be rendered based on settings and available data
+    const shouldDisplayCount = useMemo(() => {
+        if (!showFileCount) {
+            return false;
+        }
+        if (!noteCountDisplay) {
+            return false;
+        }
+        return noteCountDisplay.shouldDisplay;
+    }, [showFileCount, noteCountDisplay]);
+
+    // Build CSS class name with selection state
+    const className = useMemo(() => {
+        const classes = ['nn-navitem'];
+        if (isSelected) {
+            classes.push('nn-selected');
+        }
+        if (searchMatch) {
+            classes.push('nn-has-search-match');
+        }
+        return classes.join(' ');
+    }, [isSelected, searchMatch]);
+
+    const contentClassName = useMemo(() => buildSearchMatchContentClass(['nn-navitem-content'], searchMatch), [searchMatch]);
 
     const handleDoubleClick = useCallback(() => {
         if (hasChildren) {
@@ -111,33 +169,56 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
         e.preventDefault();
     }, []);
 
+    // Route click to selection handler if provided, otherwise toggle expansion
+    const handleContentClick = useCallback(
+        (event: React.MouseEvent<HTMLDivElement>) => {
+            if (onSelect) {
+                event.preventDefault();
+                event.stopPropagation();
+                onSelect(event);
+                return;
+            }
+            onToggle();
+        },
+        [onSelect, onToggle]
+    );
+
     useEffect(() => {
         if (chevronRef.current) {
             setIcon(chevronRef.current, isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right');
         }
     }, [isExpanded]);
 
+    // Renders icon for virtual folders based on folder type and icon visibility settings
     useEffect(() => {
-        if (iconRef.current && settings.showIcons && virtualFolder.icon) {
+        const showIcon = virtualFolder.id === 'tags-root' ? settings.showTagIcons : settings.showSectionIcons;
+        if (iconRef.current && showIcon && virtualFolder.icon) {
             getIconService().renderIcon(iconRef.current, virtualFolder.icon);
         }
-    }, [virtualFolder.icon, settings.showIcons, iconVersion]);
+    }, [virtualFolder.id, virtualFolder.icon, settings.showSectionIcons, settings.showTagIcons, iconVersion]);
 
     return (
         <div
             ref={folderRef}
-            className="nn-navitem"
+            className={className}
+            data-search-match={searchMatch ?? undefined}
             data-path={virtualFolder.id}
+            data-drop-zone={dropConfig?.zone}
+            data-drop-path={dropConfig?.path}
+            data-tag={dropConfig?.tag}
+            data-allow-internal-drop={dropConfig?.allowInternalDrop === false ? 'false' : undefined}
+            data-allow-external-drop={dropConfig?.allowExternalDrop === false ? 'false' : undefined}
             data-level={level}
             style={{ '--level': level } as React.CSSProperties}
             role="treeitem"
             aria-expanded={hasChildren ? isExpanded : undefined}
+            aria-selected={onSelect ? isSelected : undefined}
             aria-level={level + 1}
             onDragOver={onDragOver}
             onDrop={onDrop}
             onDragLeave={onDragLeave}
         >
-            <div className="nn-navitem-content" onClick={onToggle} onDoubleClick={handleDoubleClick}>
+            <div className={contentClassName} onClick={handleContentClick} onDoubleClick={handleDoubleClick}>
                 <div
                     className={`nn-navitem-chevron ${hasChildren ? 'nn-navitem-chevron--has-children' : 'nn-navitem-chevron--no-children'}`}
                     ref={chevronRef}
@@ -145,9 +226,12 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
                     onDoubleClick={handleChevronDoubleClick}
                     tabIndex={-1}
                 />
-                {settings.showIcons && virtualFolder.icon && <span className="nn-navitem-icon" ref={iconRef} />}
+                {(virtualFolder.id === 'tags-root' ? settings.showTagIcons : settings.showSectionIcons) && virtualFolder.icon && (
+                    <span className="nn-navitem-icon" ref={iconRef} />
+                )}
                 <span className="nn-navitem-name">{virtualFolder.name}</span>
                 <span className="nn-navitem-spacer" />
+                {shouldDisplayCount && noteCountDisplay && <span className="nn-navitem-count">{noteCountDisplay.label}</span>}
             </div>
         </div>
     );

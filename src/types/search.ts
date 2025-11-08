@@ -39,3 +39,23 @@ export interface SearchResultMeta {
     matches: SearchResultMatch[];
     excerpt?: string;
 }
+
+/**
+ * Captures tag-related filters derived from the search query.
+ * Used to highlight matching tags inside the navigation tree.
+ */
+export interface SearchTagFilterState {
+    include: string[];
+    exclude: string[];
+    excludeTagged: boolean;
+    includeUntagged: boolean;
+    requireTagged: boolean;
+}
+
+export const EMPTY_SEARCH_TAG_FILTER_STATE: SearchTagFilterState = {
+    include: [],
+    exclude: [],
+    excludeTagged: false,
+    includeUntagged: false,
+    requireTagged: false
+};

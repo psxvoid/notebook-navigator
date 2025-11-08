@@ -61,6 +61,8 @@ import { strings } from '../i18n';
 import { SortOption } from '../settings';
 import { ItemType } from '../types';
 import { DateUtils } from '../utils/dateUtils';
+import { runAsyncAction } from '../utils/async';
+import { openFileInContext } from '../utils/openFileInContext';
 import { FILE_VISIBILITY, getExtensionSuffix, isImageFile, shouldDisplayFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
 import { getIconService, useIconServiceVersion } from '../services/icons';
@@ -180,13 +182,20 @@ interface ParentFolderLabelProps {
     iconId: string;
     label: string;
     iconVersion: number;
+    color?: string;
+    showIcon: boolean;
+    applyColorToName: boolean;
 }
 
 /**
  * Renders a parent folder label with icon for display in file items.
  */
-function ParentFolderLabel({ iconId, label, iconVersion }: ParentFolderLabelProps) {
+function ParentFolderLabel({ iconId, label, iconVersion, color, showIcon, applyColorToName }: ParentFolderLabelProps) {
     const iconRef = useRef<HTMLSpanElement>(null);
+    const hasColor = Boolean(color);
+    const iconStyle: React.CSSProperties | undefined = color ? { color } : undefined;
+    const labelStyle: React.CSSProperties | undefined = applyColorToName && color ? { color } : undefined;
+    const labelClassName = applyColorToName ? 'nn-file-folder-label nn-file-folder-label--colored' : 'nn-file-folder-label';
 
     // Render the folder icon when iconId or iconVersion changes
     useEffect(() => {
@@ -196,18 +205,28 @@ function ParentFolderLabel({ iconId, label, iconVersion }: ParentFolderLabelProp
         }
 
         iconContainer.innerHTML = '';
-        if (!iconId) {
+        if (!iconId || !showIcon) {
             return;
         }
 
         const iconService = getIconService();
         iconService.renderIcon(iconContainer, iconId);
-    }, [iconId, iconVersion]);
+    }, [iconId, iconVersion, showIcon]);
 
     return (
         <div className="nn-file-folder">
-            <span className="nn-file-folder-icon" ref={iconRef} aria-hidden="true" />
-            <span>{label}</span>
+            {showIcon ? (
+                <span
+                    className="nn-file-folder-icon"
+                    ref={iconRef}
+                    aria-hidden="true"
+                    data-has-color={hasColor ? 'true' : 'false'}
+                    style={iconStyle}
+                />
+            ) : null}
+            <span className={labelClassName} style={labelStyle} data-has-color={applyColorToName ? 'true' : 'false'}>
+                {label}
+            </span>
         </div>
     );
 }
@@ -303,6 +322,7 @@ export const FileItem = React.memo(function FileItem({
     const [tags, setTags] = useState<string[]>(initialDataRef.current?.tags ?? EMPTY_ARRAY);
     const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(initialDataRef.current?.imageUrl ?? null);
     const [featureImageAspectRatio, setFeatureImageAspectRatio] = useState<number | null>(null);
+    const [isFeatureImageHidden, setIsFeatureImageHidden] = useState(false);
     const [metadataVersion, setMetadataVersion] = useState(0);
 
     // === Refs ===
@@ -407,6 +427,18 @@ export const FileItem = React.memo(function FileItem({
 
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
+    // Determines whether to display the file icon based on icon availability and external file handling
+    // External files with fallback icons are hidden in non-slim mode to avoid visual clutter
+    const shouldShowFileIcon = useMemo(() => {
+        if (!effectiveFileIconId) {
+            return false;
+        }
+        if (usingFallbackIcon && isExternalFile && !isSlimMode) {
+            return false;
+        }
+        return true;
+    }, [effectiveFileIconId, isExternalFile, isSlimMode, usingFallbackIcon]);
+
     const isMultiRowTitle = appearanceSettings.titleRows > 1;
 
     const fileTitleElement = useMemo(() => {
@@ -416,7 +448,7 @@ export const FileItem = React.memo(function FileItem({
                 data-title-rows={appearanceSettings.titleRows}
                 data-multiline={isMultiRowTitle ? 'true' : 'false'}
             >
-                {settings.showIcons && effectiveFileIconId && !(usingFallbackIcon && isExternalFile && !isSlimMode) ? (
+                {shouldShowFileIcon ? (
                     <span
                         ref={fileIconRef}
                         className="nn-file-icon"
@@ -457,13 +489,11 @@ export const FileItem = React.memo(function FileItem({
         extensionSuffix,
         fileColor,
         applyColorToName,
-        effectiveFileIconId,
-        usingFallbackIcon,
         highlightedName,
         isExternalFile,
         isSlimMode,
         isMultiRowTitle,
-        settings.showIcons,
+        shouldShowFileIcon,
         showExtensionSuffix
     ]);
 
@@ -695,8 +725,14 @@ export const FileItem = React.memo(function FileItem({
 
     // Determine parent folder display metadata
     const parentFolderSource = file.parent;
-    let parentFolderMeta: { name: string; iconId: string } | null = null;
-    if (settings.showParentFolderNames && parentFolderSource instanceof TFolder && !pinnedItemShouldUseCompactLayout) {
+    let parentFolderMeta: {
+        name: string;
+        iconId: string;
+        color?: string;
+        applyColorToName: boolean;
+        showIcon: boolean;
+    } | null = null;
+    if (settings.showParentFolder && parentFolderSource instanceof TFolder && !pinnedItemShouldUseCompactLayout) {
         // Show parent label in tag view or when viewing descendants
         const shouldShowParentLabel =
             selectionType === ItemType.TAG || (includeDescendantNotes && parentFolder && parentFolderSource.path !== parentFolder);
@@ -705,9 +741,13 @@ export const FileItem = React.memo(function FileItem({
             // Use custom icon if set, otherwise use default folder icon
             const customParentIcon = metadataService.getFolderIcon(parentFolderSource.path);
             const fallbackParentIcon = parentFolderSource.path === '/' ? 'vault' : 'lucide-folder-closed';
+            const parentFolderColor = settings.showParentFolderColor ? metadataService.getFolderColor(parentFolderSource.path) : undefined;
             parentFolderMeta = {
                 name: parentFolderSource.name,
-                iconId: customParentIcon ?? fallbackParentIcon
+                iconId: customParentIcon ?? fallbackParentIcon,
+                color: parentFolderColor,
+                applyColorToName: Boolean(parentFolderColor) && !settings.colorIconOnly,
+                showIcon: settings.showFolderIcons
             };
         }
     }
@@ -715,7 +755,14 @@ export const FileItem = React.memo(function FileItem({
     // Render parent folder label if metadata is available
     const renderParentFolder = () =>
         parentFolderMeta ? (
-            <ParentFolderLabel iconId={parentFolderMeta.iconId} label={parentFolderMeta.name} iconVersion={iconServiceVersion} />
+            <ParentFolderLabel
+                iconId={parentFolderMeta.iconId}
+                label={parentFolderMeta.name}
+                iconVersion={iconServiceVersion}
+                color={parentFolderMeta.color}
+                showIcon={parentFolderMeta.showIcon}
+                applyColorToName={parentFolderMeta.applyColorToName}
+            />
         ) : null;
 
     // Determine if we should show the feature image area (either with an image or extension badge)
@@ -725,6 +772,10 @@ export const FileItem = React.memo(function FileItem({
             file.extension === 'canvas' ||
             file.extension === 'base');
 
+    useEffect(() => {
+        setIsFeatureImageHidden(false);
+    }, [featureImageUrl]);
+
     const featureImageContainerClassName = useMemo(() => {
         const classes = ['nn-feature-image'];
         if (!featureImageUrl || settings.forceSquareFeatureImage) {
@@ -732,8 +783,11 @@ export const FileItem = React.memo(function FileItem({
         } else {
             classes.push('nn-feature-image--natural');
         }
+        if (isFeatureImageHidden) {
+            classes.push('nn-feature-image--hidden');
+        }
         return classes.join(' ');
-    }, [featureImageUrl, settings.forceSquareFeatureImage]);
+    }, [featureImageUrl, settings.forceSquareFeatureImage, isFeatureImageHidden]);
 
     const featureImageStyle = useMemo(() => {
         if (!featureImageUrl || settings.forceSquareFeatureImage) {
@@ -938,46 +992,40 @@ export const FileItem = React.memo(function FileItem({
     const handleOpenInNewTab = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        if (commandQueue) {
-            commandQueue.executeOpenInNewContext(file, 'tab', async () => {
-                await app.workspace.getLeaf('tab').openFile(file);
-            });
-        } else {
-            app.workspace.getLeaf('tab').openFile(file);
-        }
+        runAsyncAction(() => openFileInContext({ app, commandQueue, file, context: 'tab' }));
     };
 
-    const handlePinClick = async (e: React.MouseEvent) => {
+    const handlePinClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        const context = selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
-        await metadataService.togglePin(file.path, context);
+        runAsyncAction(async () => {
+            const context = selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
+            await metadataService.togglePin(file.path, context);
+        });
     };
 
-    const handleRevealClick = async (e: React.MouseEvent) => {
+    const handleRevealClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        await plugin.activateView();
-        await plugin.revealFileInActualFolder(file);
+        runAsyncAction(async () => {
+            await plugin.activateView();
+            await plugin.revealFileInActualFolder(file);
+        });
     };
 
     // Handle middle mouse button click to open in new tab
     const handleMouseDown = (e: React.MouseEvent) => {
-        if (e.button === 1) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (commandQueue) {
-                commandQueue.executeOpenInNewContext(file, 'tab', async () => {
-                    await app.workspace.getLeaf('tab').openFile(file);
-                });
-            } else {
-                app.workspace.getLeaf('tab').openFile(file);
-            }
+        if (e.button !== 1) {
+            return;
         }
+        e.preventDefault();
+        e.stopPropagation();
+        runAsyncAction(() => openFileInContext({ app, commandQueue, file, context: 'tab' }));
     };
 
     // === Effects ===
 
+    // Renders the file icon in the DOM using the icon service
     useEffect(() => {
         const iconContainer = fileIconRef.current;
         if (!iconContainer) {
@@ -985,13 +1033,17 @@ export const FileItem = React.memo(function FileItem({
         }
 
         iconContainer.innerHTML = '';
-        if (!settings.showIcons || !effectiveFileIconId || (usingFallbackIcon && isExternalFile && !isSlimMode)) {
+        if (!shouldShowFileIcon) {
             return;
         }
 
+        const iconId = effectiveFileIconId;
+        if (!iconId) {
+            return;
+        }
         const iconService = getIconService();
-        iconService.renderIcon(iconContainer, effectiveFileIconId);
-    }, [effectiveFileIconId, iconServiceVersion, isExternalFile, isSlimMode, settings.showIcons, usingFallbackIcon]);
+        iconService.renderIcon(iconContainer, iconId);
+    }, [effectiveFileIconId, iconServiceVersion, shouldShowFileIcon]);
 
     // Render external file indicator icon (shown next to filename in non-slim mode)
     useEffect(() => {
@@ -1224,12 +1276,8 @@ export const FileItem = React.memo(function FileItem({
                                             className="nn-feature-image-img"
                                             draggable={false}
                                             onDragStart={e => e.preventDefault()}
-                                            onError={e => {
-                                                const img = e.target as HTMLImageElement;
-                                                const featureImageDiv = img.closest('.nn-feature-image');
-                                                if (featureImageDiv) {
-                                                    (featureImageDiv as HTMLElement).style.display = 'none';
-                                                }
+                                            onError={() => {
+                                                setIsFeatureImageHidden(true);
                                             }}
                                         />
                                     ) : (

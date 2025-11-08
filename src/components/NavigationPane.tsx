@@ -55,7 +55,7 @@
  */
 
 import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo, useState, useReducer } from 'react';
-import { TFolder, TFile, Platform, Menu } from 'obsidian';
+import { TFolder, TFile, Platform, Menu, Notice } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -71,7 +71,7 @@ import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
 import { useNavigationRootReorder } from '../hooks/useNavigationRootReorder';
 import { useListReorder, type ListReorderHandlers } from '../hooks/useListReorder';
 import type { CombinedNavigationItem } from '../types/virtualization';
-import { NavigationPaneItemType, ItemType } from '../types';
+import { NavigationPaneItemType, ItemType, TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import { getSelectedPath } from '../utils/selectionUtils';
 import { TagTreeNode } from '../types/storage';
 import { getFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
@@ -86,13 +86,26 @@ import { VirtualFolderComponent } from './VirtualFolderItem';
 import { getNavigationIndex, normalizeNavigationPath } from '../utils/navigationIndex';
 import { STORAGE_KEYS, SHORTCUTS_VIRTUAL_FOLDER_ID, RECENT_NOTES_VIRTUAL_FOLDER_ID, NavigationSectionId } from '../types';
 import { localStorage } from '../utils/localStorage';
+import { runAsyncAction } from '../utils/async';
+import { extractFilePathsFromDataTransfer, parseTagDragPayload } from '../utils/dragData';
+import { openFileInContext } from '../utils/openFileInContext';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { ShortcutItem } from './ShortcutItem';
-import { ShortcutType, SearchShortcut, SHORTCUT_DRAG_MIME, isFolderShortcut, isNoteShortcut, isTagShortcut } from '../types/shortcuts';
+import {
+    ShortcutEntry,
+    ShortcutType,
+    SearchShortcut,
+    SHORTCUT_DRAG_MIME,
+    isFolderShortcut,
+    isNoteShortcut,
+    isTagShortcut
+} from '../types/shortcuts';
 import { strings } from '../i18n';
 import { createDragGhostManager, type DragGhostOptions } from '../utils/dragGhost';
+import { showReorderMenu, createMenuReorderHandleConfig } from '../utils/reorderMenu';
 import { NavigationBanner } from './NavigationBanner';
 import { NavigationRootReorderPanel } from './NavigationRootReorderPanel';
+import type { DragHandleConfig } from './NavigationListRow';
 import {
     buildFolderMenu,
     buildFileMenu,
@@ -102,11 +115,18 @@ import {
     type MenuDispatchers
 } from '../utils/contextMenu';
 import type { NoteCountInfo } from '../types/noteCounts';
+import type { SearchTagFilterState } from '../types/search';
+import type { InclusionOperator } from '../utils/filterSearch';
 import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
 import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { normalizeNavigationSectionOrderInput } from '../utils/navigationSections';
 import { getPathBaseName } from '../utils/pathUtils';
 import type { NavigateToFolderOptions, RevealTagOptions } from '../hooks/useNavigatorReveal';
+import { isVirtualTagCollectionId } from '../utils/virtualTagCollections';
+import { compositeWithBase } from '../utils/colorUtils';
+import { useSurfaceColorVariables } from '../hooks/useSurfaceColorVariables';
+import { NAVIGATION_PANE_SURFACE_COLOR_MAPPINGS } from '../constants/surfaceColorMappings';
+import { TAG_DRAG_MIME } from '../types/obsidian-extended';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (itemType: ItemType, path: string) => number;
@@ -125,21 +145,33 @@ interface NavigationPaneProps {
      * other Obsidian views.
      */
     rootContainerRef: React.RefObject<HTMLDivElement | null>;
+    searchTagFilters?: SearchTagFilterState;
     onExecuteSearchShortcut?: (shortcutKey: string, searchShortcut: SearchShortcut) => Promise<void> | void;
     onNavigateToFolder: (folderPath: string, options?: NavigateToFolderOptions) => void;
     onRevealTag: (tagPath: string, options?: RevealTagOptions) => void;
     onRevealFile: (file: TFile) => void;
     onRevealShortcutFile?: (file: TFile) => void;
+    onModifySearchWithTag: (tag: string, operator: InclusionOperator) => void;
 }
 
 // Default note count object used when counts are disabled or unavailable
 const ZERO_NOTE_COUNT: NoteCountInfo = { current: 0, descendants: 0, total: 0 };
+const EMPTY_TAG_TOKENS: string[] = [];
 
 export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
         const { app, isMobile, plugin, tagTreeService } = useServices();
         const { recentNotes } = useRecentData();
-        const { onExecuteSearchShortcut, rootContainerRef, onNavigateToFolder, onRevealTag, onRevealFile, onRevealShortcutFile } = props;
+        const {
+            onExecuteSearchShortcut,
+            rootContainerRef,
+            searchTagFilters,
+            onNavigateToFolder,
+            onRevealTag,
+            onRevealFile,
+            onRevealShortcutFile,
+            onModifySearchWithTag
+        } = props;
         const commandQueue = useCommandQueue();
         const fileSystemOps = useFileSystemOps();
         const metadataService = useMetadataService();
@@ -158,9 +190,71 @@ export const NavigationPane = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const shortcuts = useShortcuts();
-        const { shortcutMap, removeShortcut, hydratedShortcuts, reorderShortcuts, addFolderShortcut, addNoteShortcut } = shortcuts;
+        const {
+            shortcutMap,
+            removeShortcut,
+            hydratedShortcuts,
+            reorderShortcuts,
+            addTagShortcut,
+            addShortcutsBatch,
+            hasFolderShortcut,
+            hasNoteShortcut
+        } = shortcuts;
         const { fileData, getFileDisplayName } = useFileCache();
         const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
+        // Detect Android platform for mobile-specific UI behavior
+        const isAndroid = Platform.isAndroidApp;
+        // Use menu-based reordering on Android mobile instead of drag-and-drop
+        const useMobileReorderMenu = isMobile && isAndroid;
+        const navigationPaneRef = useRef<HTMLDivElement>(null);
+        const shortcutHandleConfigCacheRef = useRef<Map<string, DragHandleConfig>>(new Map());
+        /** Maps semi-transparent theme color variables to their pre-composited solid equivalents (see constants/surfaceColorMappings). */
+        const { color: navSurfaceColor, version: navSurfaceVersion } = useSurfaceColorVariables(navigationPaneRef, {
+            app,
+            rootContainerRef,
+            variables: NAVIGATION_PANE_SURFACE_COLOR_MAPPINGS
+        });
+        const solidBackgroundCacheRef = useRef<Map<string, string | undefined>>(new Map());
+        // Invalidates the solid background cache when surface color changes
+        useEffect(() => {
+            solidBackgroundCacheRef.current.clear();
+        }, [navSurfaceColor, navSurfaceVersion]);
+
+        // Extract included tag tokens from search filters for highlighting
+        const searchIncludeTokens = useMemo(() => {
+            if (!searchTagFilters || searchTagFilters.include.length === 0) {
+                return EMPTY_TAG_TOKENS;
+            }
+            return searchTagFilters.include;
+        }, [searchTagFilters]);
+
+        // Extract excluded tag tokens from search filters for highlighting
+        const searchExcludeTokens = useMemo(() => {
+            if (!searchTagFilters || searchTagFilters.exclude.length === 0) {
+                return EMPTY_TAG_TOKENS;
+            }
+            return searchTagFilters.exclude;
+        }, [searchTagFilters]);
+
+        // Flags indicating if untagged or tagged filters are active in search
+        const highlightRequireTagged = searchTagFilters?.requireTagged ?? false;
+        const highlightExcludeTagged = searchTagFilters?.excludeTagged ?? false;
+        const highlightIncludeUntagged = searchTagFilters?.includeUntagged ?? false;
+
+        // Convert tag filter arrays to sets for faster membership checks while rendering
+        const searchIncludeTokenSet = useMemo(() => {
+            if (searchIncludeTokens.length === 0) {
+                return null;
+            }
+            return new Set(searchIncludeTokens);
+        }, [searchIncludeTokens]);
+
+        const searchExcludeTokenSet = useMemo(() => {
+            if (searchExcludeTokens.length === 0) {
+                return null;
+            }
+            return new Set(searchExcludeTokens);
+        }, [searchExcludeTokens]);
 
         const menuServices = useMemo<MenuServices>(
             () => ({
@@ -293,8 +387,8 @@ export const NavigationPane = React.memo(
         const shortcutCount = hydratedShortcuts.length;
         const isShortcutDnDEnabled = shortcutsExpanded && shortcutCount > 0 && settings.showShortcuts;
 
-        // Show drag handles on mobile when drag and drop is enabled
-        const showShortcutDragHandles = isMobile && isShortcutDnDEnabled;
+        // Show drag handles on mobile when drag and drop is enabled, excluding Android which uses menu-based reordering
+        const showShortcutDragHandles = isMobile && isShortcutDnDEnabled && !useMobileReorderMenu;
 
         const shortcutDragHandleConfig = useMemo(() => {
             if (!showShortcutDragHandles) {
@@ -316,7 +410,14 @@ export const NavigationPane = React.memo(
             return map;
         }, [hydratedShortcuts]);
 
-        const { getDragHandlers, dropIndex, draggingKey } = useListReorder({
+        // Extract reorder state and helpers, including moveItem and canMoveItem for menu-based reordering
+        const {
+            getDragHandlers,
+            dropIndex,
+            draggingKey,
+            moveItem: moveShortcutItem,
+            canMoveItem: canMoveShortcutItem
+        } = useListReorder({
             items: hydratedShortcuts,
             isEnabled: isShortcutDnDEnabled,
             reorderItems: reorderShortcuts
@@ -400,7 +501,8 @@ export const NavigationPane = React.memo(
                 }
 
                 const hasObsidianFiles = types.includes('obsidian/file') || types.includes('obsidian/files');
-                if (!hasObsidianFiles) {
+                const hasTagPayload = types.includes(TAG_DRAG_MIME);
+                if (!hasObsidianFiles && !hasTagPayload) {
                     setExternalShortcutDropIndex(null);
                     return false;
                 }
@@ -432,30 +534,28 @@ export const NavigationPane = React.memo(
                     return false;
                 }
 
-                const rawPaths: string[] = [];
-                const multiple = dataTransfer.getData('obsidian/files');
-                if (multiple) {
-                    try {
-                        const parsed = JSON.parse(multiple);
-                        if (Array.isArray(parsed)) {
-                            parsed.forEach(path => {
-                                if (typeof path === 'string' && path.length > 0) {
-                                    rawPaths.push(path);
-                                }
-                            });
-                        }
-                    } catch (error) {
-                        console.error('Failed to parse obsidian/files payload', error);
+                const tagPayloadRaw = dataTransfer.getData(TAG_DRAG_MIME);
+                if (tagPayloadRaw) {
+                    const droppedTagPath = parseTagDragPayload(tagPayloadRaw);
+                    if (droppedTagPath) {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const baseInsertIndex = computeShortcutInsertIndex(event, key);
+                        runAsyncAction(async () => {
+                            await addTagShortcut(droppedTagPath, { index: Math.max(0, baseInsertIndex) });
+                        });
+
                         setExternalShortcutDropIndex(null);
-                        return false;
+                        return true;
                     }
                 }
 
-                const single = dataTransfer.getData('obsidian/file');
-                if (single) {
-                    rawPaths.push(single);
+                const rawPaths = extractFilePathsFromDataTransfer(dataTransfer);
+                if (!rawPaths) {
+                    setExternalShortcutDropIndex(null);
+                    return false;
                 }
-
                 if (rawPaths.length === 0) {
                     setExternalShortcutDropIndex(null);
                     return false;
@@ -475,17 +575,35 @@ export const NavigationPane = React.memo(
                     return false;
                 }
 
-                const additions: { type: 'folder' | 'note'; path: string }[] = [];
+                const additions: ShortcutEntry[] = [];
+                let duplicateFolderCount = 0;
+                let duplicateNoteCount = 0;
                 orderedPaths.forEach(path => {
                     const target = app.vault.getAbstractFileByPath(path);
                     if (target instanceof TFolder) {
-                        if (target.path !== '/') {
-                            additions.push({ type: 'folder', path: target.path });
+                        if (target.path === '/') {
+                            return;
                         }
+                        if (hasFolderShortcut(target.path)) {
+                            duplicateFolderCount += 1;
+                            return;
+                        }
+                        additions.push({ type: ShortcutType.FOLDER, path: target.path });
                     } else if (target instanceof TFile) {
-                        additions.push({ type: 'note', path: target.path });
+                        if (hasNoteShortcut(target.path)) {
+                            duplicateNoteCount += 1;
+                            return;
+                        }
+                        additions.push({ type: ShortcutType.NOTE, path: target.path });
                     }
                 });
+
+                if (duplicateFolderCount > 0) {
+                    new Notice(strings.shortcuts.folderExists);
+                }
+                if (duplicateNoteCount > 0) {
+                    new Notice(strings.shortcuts.noteExists);
+                }
 
                 if (additions.length === 0) {
                     setExternalShortcutDropIndex(null);
@@ -497,27 +615,23 @@ export const NavigationPane = React.memo(
 
                 const baseInsertIndex = computeShortcutInsertIndex(event, key);
 
-                void (async () => {
-                    let offset = 0;
-                    for (const addition of additions) {
-                        const targetIndex = Math.max(0, baseInsertIndex + offset);
-                        let success = false;
-                        if (addition.type === 'folder') {
-                            success = await addFolderShortcut(addition.path, { index: targetIndex });
-                        } else {
-                            success = await addNoteShortcut(addition.path, { index: targetIndex });
-                        }
-
-                        if (success) {
-                            offset += 1;
-                        }
-                    }
-                })();
+                runAsyncAction(async () => {
+                    await addShortcutsBatch(additions, { index: Math.max(0, baseInsertIndex) });
+                });
 
                 setExternalShortcutDropIndex(null);
                 return true;
             },
-            [addFolderShortcut, addNoteShortcut, app.vault, computeShortcutInsertIndex, shortcutsExpanded, settings.showShortcuts]
+            [
+                addShortcutsBatch,
+                addTagShortcut,
+                app.vault,
+                computeShortcutInsertIndex,
+                shortcutsExpanded,
+                settings.showShortcuts,
+                hasFolderShortcut,
+                hasNoteShortcut
+            ]
         );
 
         const handleShortcutDragLeave = useCallback(() => {
@@ -625,8 +739,116 @@ export const NavigationPane = React.memo(
             [draggingKey, dropIndex, externalShortcutDropIndex, shortcutPositionMap]
         );
 
+        // Enable menu-based reordering when on mobile with Android and there are multiple shortcuts
+        const canUseShortcutReorderMenu = useMobileReorderMenu && isShortcutDnDEnabled && hydratedShortcuts.length > 1;
+
+        // Opens the reorder menu for a shortcut, showing move up/down options based on current position
+        const openShortcutReorderMenu = useCallback(
+            (key: string, anchor: HTMLElement, mouseEvent?: MouseEvent) => {
+                if (!canUseShortcutReorderMenu) {
+                    return false;
+                }
+
+                const allowMoveUp = canMoveShortcutItem(key, -1);
+                const allowMoveDown = canMoveShortcutItem(key, 1);
+
+                return showReorderMenu({
+                    anchor,
+                    mouseEvent,
+                    allowMoveUp,
+                    allowMoveDown,
+                    moveUpLabel: strings.shortcuts.moveUp,
+                    moveDownLabel: strings.shortcuts.moveDown,
+                    onMoveUp: () => {
+                        runAsyncAction(() => moveShortcutItem(key, -1));
+                    },
+                    onMoveDown: () => {
+                        runAsyncAction(() => moveShortcutItem(key, 1));
+                    }
+                });
+            },
+            [canUseShortcutReorderMenu, canMoveShortcutItem, moveShortcutItem]
+        );
+
+        // Handles click events on shortcut drag handle to open reorder menu
+        const handleShortcutHandleClick = useCallback(
+            (key: string, event: React.MouseEvent<HTMLSpanElement>) => {
+                if (!canUseShortcutReorderMenu) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                openShortcutReorderMenu(key, event.currentTarget);
+            },
+            [canUseShortcutReorderMenu, openShortcutReorderMenu]
+        );
+
+        // Handles context menu events on shortcut drag handle to open reorder menu at cursor position
+        const handleShortcutHandleContextMenu = useCallback(
+            (key: string, event: React.MouseEvent<HTMLSpanElement>) => {
+                if (!canUseShortcutReorderMenu) {
+                    return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+
+                const nativeEvent = event.nativeEvent;
+                const mouseEvent = nativeEvent instanceof MouseEvent ? nativeEvent : undefined;
+                openShortcutReorderMenu(key, event.currentTarget, mouseEvent);
+            },
+            [canUseShortcutReorderMenu, openShortcutReorderMenu]
+        );
+
+        // Builds event handlers for shortcut drag handle click and context menu
+        const getShortcutHandleEvents = useCallback(
+            (key: string) => ({
+                onClick: (event: React.MouseEvent<HTMLSpanElement>) => handleShortcutHandleClick(key, event),
+                onContextMenu: (event: React.MouseEvent<HTMLSpanElement>) => handleShortcutHandleContextMenu(key, event)
+            }),
+            [handleShortcutHandleClick, handleShortcutHandleContextMenu]
+        );
+
+        const getMobileShortcutHandleConfig = useCallback(
+            (key: string): DragHandleConfig | undefined => {
+                if (!canUseShortcutReorderMenu) {
+                    return undefined;
+                }
+                const cache = shortcutHandleConfigCacheRef.current;
+                const cachedConfig = cache.get(key);
+                if (cachedConfig) {
+                    return cachedConfig;
+                }
+                const config = createMenuReorderHandleConfig({
+                    label: strings.navigationPane.dragHandleLabel,
+                    events: getShortcutHandleEvents(key)
+                });
+                cache.set(key, config);
+                return config;
+            },
+            [canUseShortcutReorderMenu, getShortcutHandleEvents]
+        );
+
+        useEffect(() => {
+            const cache = shortcutHandleConfigCacheRef.current;
+            if (!canUseShortcutReorderMenu) {
+                cache.clear();
+                return;
+            }
+            const validKeys = new Set(hydratedShortcuts.map(entry => entry.key));
+            for (const key of Array.from(cache.keys())) {
+                if (!validKeys.has(key)) {
+                    cache.delete(key);
+                }
+            }
+        }, [canUseShortcutReorderMenu, hydratedShortcuts]);
+
+        useEffect(() => {
+            shortcutHandleConfigCacheRef.current.clear();
+        }, [canUseShortcutReorderMenu, getShortcutHandleEvents]);
+
         // Android uses toolbar at top, iOS at bottom
-        const isAndroid = Platform.isAndroidApp;
         // Track previous settings for smart auto-expand
         const prevShowAllTagsFolder = useRef(settings.showAllTagsFolder);
 
@@ -704,7 +926,8 @@ export const NavigationPane = React.memo(
             notesSectionExpanded,
             tagsSectionExpanded,
             handleToggleNotesSection,
-            handleToggleTagsSection
+            handleToggleTagsSection,
+            useReorderMenu: useMobileReorderMenu
         });
 
         useEffect(() => {
@@ -728,6 +951,28 @@ export const NavigationPane = React.memo(
             activeShortcutKey,
             bannerHeight
         });
+
+        /** Converts a potentially transparent background color into a solid color by compositing with the pane surface. */
+        const getSolidBackground = useCallback(
+            (color?: string | null) => {
+                if (!color) {
+                    return undefined;
+                }
+                const trimmed = color.trim();
+                if (!trimmed) {
+                    return undefined;
+                }
+                const cache = solidBackgroundCacheRef.current;
+                if (cache.has(trimmed)) {
+                    return cache.get(trimmed);
+                }
+                const pane = navigationPaneRef.current;
+                const solidColor = compositeWithBase(navSurfaceColor, trimmed, { container: pane ?? null });
+                cache.set(trimmed, solidColor);
+                return solidColor;
+            },
+            [navSurfaceColor]
+        );
 
         useEffect(() => {
             if (isRootReorderMode) {
@@ -806,8 +1051,8 @@ export const NavigationPane = React.memo(
                         // Set folder as selected without auto-selecting first file
                         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, autoSelectedFile: null });
 
-                        commandQueue.executeOpenFolderNote(folder.path, async () => {
-                            await app.workspace.getLeaf().openFile(folderNote);
+                        runAsyncAction(async () => {
+                            await commandQueue.executeOpenFolderNote(folder.path, () => app.workspace.getLeaf().openFile(folderNote));
                         });
 
                         return;
@@ -894,10 +1139,39 @@ export const NavigationPane = React.memo(
 
         // Handle tag click
         const handleTagClick = useCallback(
-            (tagPath: string, options?: { fromShortcut?: boolean }) => {
+            (tagPath: string, event?: React.MouseEvent, options?: { fromShortcut?: boolean }) => {
                 const tagNode = findTagNode(tagTree, tagPath);
                 const canonicalPath = resolveCanonicalTagPath(tagPath, tagTree);
                 if (!canonicalPath) {
+                    return;
+                }
+
+                // Check if modifier key is pressed to modify search instead of navigating
+                const shouldModifySearch = (() => {
+                    if (!event || isMobile) {
+                        return false;
+                    }
+                    if (settings.multiSelectModifier === 'cmdCtrl') {
+                        if (Platform.isMacOS) {
+                            return event.metaKey;
+                        }
+                        return event.metaKey || event.ctrlKey;
+                    }
+                    return event.altKey;
+                })();
+                const isVirtualCollection = isVirtualTagCollectionId(canonicalPath);
+                // Handle search modification mode
+                if (shouldModifySearch) {
+                    if (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    // Add tag to search query with AND or OR operator (shift key toggles)
+                    if (!isVirtualCollection && canonicalPath !== UNTAGGED_TAG_ID) {
+                        const operator: InclusionOperator = event?.shiftKey ? 'OR' : 'AND';
+                        onModifySearchWithTag(canonicalPath, operator);
+                    }
                     return;
                 }
 
@@ -951,8 +1225,19 @@ export const NavigationPane = React.memo(
                 expansionDispatch,
                 selectionState.selectedTag,
                 selectionState.selectionType,
-                setActiveShortcut
+                setActiveShortcut,
+                onModifySearchWithTag,
+                isMobile,
+                settings.multiSelectModifier
             ]
+        );
+
+        // Forward tag collection clicks to the main tag click handler
+        const handleTagCollectionClick = useCallback(
+            (tagCollectionId: string, event: React.MouseEvent<HTMLDivElement>) => {
+                handleTagClick(tagCollectionId, event);
+            },
+            [handleTagClick]
         );
 
         // Toggles shortcuts between pinned (always visible) and inline (in main list) display
@@ -1029,7 +1314,7 @@ export const NavigationPane = React.memo(
 
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
-                    void leaf.openFile(note, { active: false });
+                    runAsyncAction(() => leaf.openFile(note, { active: false }));
                 }
                 if (isMobile && app.workspace.leftSplit) {
                     app.workspace.leftSplit.collapse();
@@ -1044,7 +1329,7 @@ export const NavigationPane = React.memo(
                 onRevealFile,
                 onRevealShortcutFile,
                 scheduleShortcutRelease,
-                app.workspace,
+                app,
                 isMobile,
                 uiDispatch
             ]
@@ -1062,15 +1347,9 @@ export const NavigationPane = React.memo(
                 event.stopPropagation();
 
                 // Use command queue if available to ensure proper focus and context handling
-                if (commandQueue) {
-                    commandQueue.executeOpenInNewContext(note, 'tab', async () => {
-                        await app.workspace.getLeaf('tab').openFile(note);
-                    });
-                } else {
-                    app.workspace.getLeaf('tab').openFile(note);
-                }
+                runAsyncAction(() => openFileInContext({ app, commandQueue, file: note, context: 'tab' }));
             },
-            [app.workspace, commandQueue]
+            [app, commandQueue]
         );
 
         const handleRecentNoteActivate = useCallback(
@@ -1083,7 +1362,7 @@ export const NavigationPane = React.memo(
 
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
-                    void leaf.openFile(note, { active: false });
+                    runAsyncAction(() => leaf.openFile(note, { active: false }));
                 }
                 if (isMobile && app.workspace.leftSplit) {
                     app.workspace.leftSplit.collapse();
@@ -1100,7 +1379,7 @@ export const NavigationPane = React.memo(
                 setActiveShortcut(shortcutKey);
                 scrollShortcutIntoView(shortcutKey);
                 if (onExecuteSearchShortcut) {
-                    void onExecuteSearchShortcut(shortcutKey, searchShortcut);
+                    runAsyncAction(() => onExecuteSearchShortcut(shortcutKey, searchShortcut));
                 }
                 scheduleShortcutRelease();
             },
@@ -1174,7 +1453,7 @@ export const NavigationPane = React.memo(
                         item.setTitle(strings.shortcuts.remove)
                             .setIcon('lucide-bookmark-x')
                             .onClick(() => {
-                                void removeShortcut(target.key);
+                                runAsyncAction(() => removeShortcut(target.key));
                             });
                     });
                     menu.showAtMouseEvent(event.nativeEvent);
@@ -1186,7 +1465,7 @@ export const NavigationPane = React.memo(
                         item.setTitle(strings.shortcuts.remove)
                             .setIcon('lucide-bookmark-x')
                             .onClick(() => {
-                                void removeShortcut(target.key);
+                                runAsyncAction(() => removeShortcut(target.key));
                             });
                     });
                     menu.showAtMouseEvent(event.nativeEvent);
@@ -1230,7 +1509,7 @@ export const NavigationPane = React.memo(
                             item.setTitle(strings.shortcuts.remove)
                                 .setIcon('lucide-bookmark-x')
                                 .onClick(() => {
-                                    void removeShortcut(target.key);
+                                    runAsyncAction(() => removeShortcut(target.key));
                                 });
                         });
                     }
@@ -1488,23 +1767,27 @@ export const NavigationPane = React.memo(
                         const folderNote = canInteract && folder && settings.enableFolderNotes ? getFolderNote(folder, settings) : null;
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
-                        const dragHandlers = buildShortcutDragHandlers(item.key, {
-                            itemType: ItemType.FOLDER,
-                            path: folder?.path ?? folderPath,
-                            icon: item.icon ?? 'lucide-folder',
-                            iconColor: item.color
-                        });
+                        const dragHandlers = !useMobileReorderMenu
+                            ? buildShortcutDragHandlers(item.key, {
+                                  itemType: ItemType.FOLDER,
+                                  path: folder?.path ?? folderPath,
+                                  icon: item.icon ?? 'lucide-folder',
+                                  iconColor: item.color
+                              })
+                            : undefined;
+                        const dragHandleConfig = useMobileReorderMenu ? getMobileShortcutHandleConfig(item.key) : shortcutDragHandleConfig;
 
                         const contextTarget: ShortcutContextMenuTarget =
                             canInteract && folder
                                 ? { type: 'folder', key: item.key, folder }
                                 : { type: 'missing', key: item.key, kind: 'folder' };
+                        const shortcutBackground = isMissing ? undefined : getSolidBackground(item.backgroundColor);
 
                         return (
                             <ShortcutItem
                                 icon={isMissing ? 'lucide-alert-triangle' : (item.icon ?? 'lucide-folder')}
                                 color={isMissing ? undefined : item.color}
-                                backgroundColor={isMissing ? undefined : item.backgroundColor}
+                                backgroundColor={shortcutBackground}
                                 label={folderName}
                                 description={undefined}
                                 level={item.level}
@@ -1521,10 +1804,10 @@ export const NavigationPane = React.memo(
                                 }}
                                 onContextMenu={event => handleShortcutContextMenu(event, contextTarget)}
                                 dragHandlers={dragHandlers}
-                                showDropIndicatorBefore={showBefore}
-                                showDropIndicatorAfter={showAfter}
-                                isDragSource={isDragSource}
-                                dragHandleConfig={shortcutDragHandleConfig}
+                                showDropIndicatorBefore={!useMobileReorderMenu && showBefore}
+                                showDropIndicatorAfter={!useMobileReorderMenu && showAfter}
+                                isDragSource={!useMobileReorderMenu && isDragSource}
+                                dragHandleConfig={dragHandleConfig}
                                 hasFolderNote={!isMissing && Boolean(folderNote)}
                                 onLabelClick={
                                     folder && folderNote
@@ -1544,12 +1827,15 @@ export const NavigationPane = React.memo(
                         const notePath = isNoteShortcut(item.shortcut) ? item.shortcut.path : '';
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
-                        const dragHandlers = buildShortcutDragHandlers(item.key, {
-                            itemType: ItemType.FILE,
-                            path: note?.path ?? notePath,
-                            icon: item.icon ?? 'lucide-file',
-                            iconColor: item.color
-                        });
+                        const dragHandlers = !useMobileReorderMenu
+                            ? buildShortcutDragHandlers(item.key, {
+                                  itemType: ItemType.FILE,
+                                  path: note?.path ?? notePath,
+                                  icon: item.icon ?? 'lucide-file',
+                                  iconColor: item.color
+                              })
+                            : undefined;
+                        const dragHandleConfig = useMobileReorderMenu ? getMobileShortcutHandleConfig(item.key) : shortcutDragHandleConfig;
 
                         const label = (() => {
                             if (!note || !canInteract) {
@@ -1589,10 +1875,10 @@ export const NavigationPane = React.memo(
                                 }}
                                 onContextMenu={event => handleShortcutContextMenu(event, contextTarget)}
                                 dragHandlers={dragHandlers}
-                                showDropIndicatorBefore={showBefore}
-                                showDropIndicatorAfter={showAfter}
-                                isDragSource={isDragSource}
-                                dragHandleConfig={shortcutDragHandleConfig}
+                                showDropIndicatorBefore={!useMobileReorderMenu && showBefore}
+                                showDropIndicatorAfter={!useMobileReorderMenu && showAfter}
+                                isDragSource={!useMobileReorderMenu && isDragSource}
+                                dragHandleConfig={dragHandleConfig}
                             />
                         );
                     }
@@ -1601,11 +1887,14 @@ export const NavigationPane = React.memo(
                         const searchShortcut = item.searchShortcut;
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
-                        const dragHandlers = buildShortcutDragHandlers(item.key, {
-                            itemType: 'search',
-                            icon: item.icon ?? 'lucide-search',
-                            iconColor: item.color
-                        });
+                        const dragHandlers = !useMobileReorderMenu
+                            ? buildShortcutDragHandlers(item.key, {
+                                  itemType: 'search',
+                                  icon: item.icon ?? 'lucide-search',
+                                  iconColor: item.color
+                              })
+                            : undefined;
+                        const dragHandleConfig = useMobileReorderMenu ? getMobileShortcutHandleConfig(item.key) : shortcutDragHandleConfig;
 
                         return (
                             <ShortcutItem
@@ -1622,10 +1911,10 @@ export const NavigationPane = React.memo(
                                     })
                                 }
                                 dragHandlers={dragHandlers}
-                                showDropIndicatorBefore={showBefore}
-                                showDropIndicatorAfter={showAfter}
-                                isDragSource={isDragSource}
-                                dragHandleConfig={shortcutDragHandleConfig}
+                                showDropIndicatorBefore={!useMobileReorderMenu && showBefore}
+                                showDropIndicatorAfter={!useMobileReorderMenu && showAfter}
+                                isDragSource={!useMobileReorderMenu && isDragSource}
+                                dragHandleConfig={dragHandleConfig}
                             />
                         );
                     }
@@ -1636,22 +1925,26 @@ export const NavigationPane = React.memo(
                         const tagCountInfo = !isMissing ? getTagShortcutCount(tagPath) : ZERO_NOTE_COUNT;
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
-                        const dragHandlers = buildShortcutDragHandlers(item.key, {
-                            itemType: ItemType.TAG,
-                            path: tagPath,
-                            icon: item.icon ?? 'lucide-tags',
-                            iconColor: item.color
-                        });
+                        const dragHandlers = !useMobileReorderMenu
+                            ? buildShortcutDragHandlers(item.key, {
+                                  itemType: ItemType.TAG,
+                                  path: tagPath,
+                                  icon: item.icon ?? 'lucide-tags',
+                                  iconColor: item.color
+                              })
+                            : undefined;
+                        const dragHandleConfig = useMobileReorderMenu ? getMobileShortcutHandleConfig(item.key) : shortcutDragHandleConfig;
 
                         const contextTarget: ShortcutContextMenuTarget = !isMissing
                             ? { type: 'tag', key: item.key, tagPath }
                             : { type: 'missing', key: item.key, kind: 'tag' };
+                        const shortcutBackground = isMissing ? undefined : getSolidBackground(item.backgroundColor);
 
                         return (
                             <ShortcutItem
                                 icon={isMissing ? 'lucide-alert-triangle' : (item.icon ?? 'lucide-tags')}
                                 color={isMissing ? undefined : item.color}
-                                backgroundColor={isMissing ? undefined : item.backgroundColor}
+                                backgroundColor={shortcutBackground}
                                 label={item.displayName}
                                 description={undefined}
                                 level={item.level}
@@ -1667,10 +1960,10 @@ export const NavigationPane = React.memo(
                                 }}
                                 onContextMenu={event => handleShortcutContextMenu(event, contextTarget)}
                                 dragHandlers={dragHandlers}
-                                showDropIndicatorBefore={showBefore}
-                                showDropIndicatorAfter={showAfter}
-                                isDragSource={isDragSource}
-                                dragHandleConfig={shortcutDragHandleConfig}
+                                showDropIndicatorBefore={!useMobileReorderMenu && showBefore}
+                                showDropIndicatorAfter={!useMobileReorderMenu && showAfter}
+                                isDragSource={!useMobileReorderMenu && isDragSource}
+                                dragHandleConfig={dragHandleConfig}
                             />
                         );
                     }
@@ -1712,7 +2005,7 @@ export const NavigationPane = React.memo(
                                 }}
                                 icon={item.icon}
                                 color={item.color}
-                                backgroundColor={item.backgroundColor}
+                                backgroundColor={getSolidBackground(item.backgroundColor)}
                                 countInfo={countInfo}
                                 excludedFolders={item.parsedExcludedFolders || []}
                                 vaultChangeVersion={vaultChangeVersion}
@@ -1739,16 +2032,52 @@ export const NavigationPane = React.memo(
                               ? recentNotesExpanded
                               : expansionState.expandedVirtualFolders.has(virtualFolder.id);
 
+                        const tagCollectionId = item.tagCollectionId ?? null;
+                        const isTagCollection = Boolean(tagCollectionId);
+                        const isSelected =
+                            isTagCollection &&
+                            selectionState.selectionType === ItemType.TAG &&
+                            selectionState.selectedTag === tagCollectionId;
+                        const collectionCountInfo = item.noteCount ?? (tagCollectionId ? tagCounts.get(tagCollectionId) : undefined);
+                        const showFileCount = item.showFileCount ?? false;
+                        let collectionSearchMatch: 'include' | 'exclude' | undefined;
+                        if (tagCollectionId === TAGGED_TAG_ID) {
+                            if (highlightExcludeTagged) {
+                                collectionSearchMatch = 'exclude';
+                            } else if (highlightRequireTagged) {
+                                collectionSearchMatch = 'include';
+                            }
+                        }
+
+                        const dropConfig =
+                            virtualFolder.id === 'tags-root'
+                                ? {
+                                      zone: 'tag-root',
+                                      path: '__nn-tag-root__',
+                                      allowExternalDrop: false
+                                  }
+                                : undefined;
+
                         return (
                             <VirtualFolderComponent
                                 virtualFolder={virtualFolder}
                                 level={item.level}
                                 isExpanded={isExpanded}
                                 hasChildren={hasChildren}
+                                isSelected={Boolean(isSelected)}
+                                showFileCount={showFileCount}
+                                countInfo={collectionCountInfo}
+                                searchMatch={collectionSearchMatch}
+                                onSelect={
+                                    isTagCollection && tagCollectionId
+                                        ? event => handleTagCollectionClick(tagCollectionId, event)
+                                        : undefined
+                                }
                                 onToggle={() => handleVirtualFolderToggle(virtualFolder.id)}
                                 onDragOver={isShortcutsGroup && allowEmptyShortcutDrop ? handleShortcutRootDragOver : undefined}
                                 onDrop={isShortcutsGroup && allowEmptyShortcutDrop ? handleShortcutRootDrop : undefined}
                                 onDragLeave={isShortcutsGroup && allowEmptyShortcutDrop ? handleShortcutRootDragLeave : undefined}
+                                dropConfig={dropConfig}
                             />
                         );
                     }
@@ -1775,6 +2104,18 @@ export const NavigationPane = React.memo(
                     case NavigationPaneItemType.TAG:
                     case NavigationPaneItemType.UNTAGGED: {
                         const tagNode = item.data;
+                        let searchMatch: 'include' | 'exclude' | undefined;
+                        if (tagNode.path === UNTAGGED_TAG_ID) {
+                            if (highlightIncludeUntagged) {
+                                searchMatch = 'include';
+                            } else if (highlightExcludeTagged) {
+                                searchMatch = 'exclude';
+                            }
+                        } else if (searchExcludeTokenSet?.has(tagNode.path)) {
+                            searchMatch = 'exclude';
+                        } else if (searchIncludeTokenSet?.has(tagNode.path)) {
+                            searchMatch = 'include';
+                        }
                         return (
                             <TagTreeItem
                                 tagNode={tagNode}
@@ -1783,10 +2124,12 @@ export const NavigationPane = React.memo(
                                 isSelected={selectionState.selectionType === ItemType.TAG && selectionState.selectedTag === tagNode.path}
                                 isHidden={'isHidden' in item ? item.isHidden : false}
                                 onToggle={() => handleTagToggle(tagNode.path)}
-                                onClick={() => handleTagClick(tagNode.path)}
+                                onClick={event => handleTagClick(tagNode.path, event)}
                                 color={item.color}
-                                backgroundColor={item.backgroundColor}
+                                backgroundColor={getSolidBackground(item.backgroundColor)}
                                 icon={item.icon}
+                                searchMatch={searchMatch}
+                                isDraggable={!isMobile && tagNode.path !== UNTAGGED_TAG_ID && tagNode.path !== TAGGED_TAG_ID}
                                 onToggleAllSiblings={() => {
                                     const isCurrentlyExpanded = expansionState.expandedTags.has(tagNode.path);
 
@@ -1828,6 +2171,10 @@ export const NavigationPane = React.memo(
                         return <div className="nn-nav-list-spacer" />;
                     }
 
+                    case NavigationPaneItemType.ROOT_SPACER: {
+                        return <div className="nn-nav-root-spacer" style={{ height: `${item.spacing}px` }} aria-hidden="true" />;
+                    }
+
                     default:
                         return null;
                 }
@@ -1844,6 +2191,7 @@ export const NavigationPane = React.memo(
                 handleFolderNameClick,
                 handleTagToggle,
                 handleTagClick,
+                handleTagCollectionClick,
                 handleVirtualFolderToggle,
                 recentNotes.length,
                 getAllDescendantFolders,
@@ -1864,6 +2212,7 @@ export const NavigationPane = React.memo(
                 handleRecentFileContextMenu,
                 handleShortcutContextMenu,
                 getShortcutVisualState,
+                getMobileShortcutHandleConfig,
                 buildShortcutDragHandlers,
                 hydratedShortcuts,
                 shortcutsExpanded,
@@ -1877,7 +2226,15 @@ export const NavigationPane = React.memo(
                 allowEmptyShortcutDrop,
                 getMissingNoteLabel,
                 handleShortcutFolderNoteClick,
+                isMobile,
+                useMobileReorderMenu,
                 tagsVirtualFolderHasChildren,
+                searchIncludeTokenSet,
+                searchExcludeTokenSet,
+                highlightRequireTagged,
+                highlightExcludeTagged,
+                highlightIncludeUntagged,
+                getSolidBackground,
                 vaultChangeVersion
             ]
         );
@@ -1924,7 +2281,7 @@ export const NavigationPane = React.memo(
         });
 
         return (
-            <div className="nn-navigation-pane" style={props.style}>
+            <div ref={navigationPaneRef} className="nn-navigation-pane" style={props.style}>
                 <NavigationPaneHeader
                     onTreeUpdateComplete={handleTreeUpdateComplete}
                     onTogglePinnedShortcuts={settings.showShortcuts ? handleShortcutSplitToggle : undefined}

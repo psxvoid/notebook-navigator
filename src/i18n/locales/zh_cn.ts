@@ -29,7 +29,7 @@ export const STRINGS_ZH_CN = {
         submit: '提交', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '未选择', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: '无标签', // Label for notes without any tags (English: Untagged)
-        untitled: '无标题', // Default name for notes without a title (English: Untitled)
+        untitled: '未命名', // Default name for notes without a title (English: Untitled)
         featureImageAlt: '特色图片', // Alt text for thumbnail/preview images (English: Feature image)
         unknownError: '未知错误', // Generic fallback when an error has no message (English: Unknown error)
         updateBannerTitle: 'Notebook Navigator 有可用更新',
@@ -41,7 +41,7 @@ export const STRINGS_ZH_CN = {
     listPane: {
         emptyStateNoSelection: '选择文件夹或标签以查看笔记', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: '无笔记', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 已固定', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: '已固定', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: '笔记', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: '文件', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (已隐藏)' // Accessibility label applied to list items that are normally hidden
@@ -172,6 +172,8 @@ export const STRINGS_ZH_CN = {
             newDrawing: '新建绘图',
             duplicateFolder: '复制文件夹',
             searchInFolder: '在文件夹中搜索',
+            copyPath: '复制路径',
+            copyRelativePath: '复制相对路径',
             createFolderNote: '创建文件夹笔记',
             deleteFolderNote: '删除文件夹笔记',
             changeIcon: '更改图标',
@@ -198,9 +200,11 @@ export const STRINGS_ZH_CN = {
         slimPreset: '精简（无日期/预览/图片）',
         titleRows: '标题行数',
         previewRows: '预览行数',
+        groupBy: '分组依据',
         defaultOption: (rows: number) => `默认 (${rows})`,
         defaultTitleOption: (rows: number) => `默认标题行数 (${rows})`,
         defaultPreviewOption: (rows: number) => `默认预览行数 (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `默认分组 (${groupLabel})`,
         titleRowOption: (rows: number) => `标题${rows}行`,
         previewRowOption: (rows: number) => `预览${rows}行`
     },
@@ -261,6 +265,10 @@ export const STRINGS_ZH_CN = {
             affectedFiles: '{count} 个文件受影响',
             andMore: '以及 {count} 个更多...',
             confirmRename: '重命名标签',
+            renameUnchanged: '{tag} 未更改',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: '请输入有效的标签名称。',
+            descendantRenameError: '无法将标签移动到自身或其子标签中。',
             confirmDelete: '删除标签',
             file: '个文件',
             files: '个文件'
@@ -317,6 +325,7 @@ export const STRINGS_ZH_CN = {
             addPlaceholder: '搜索要添加的标签...',
             removePlaceholder: '选择要移除的标签...',
             createNewTag: '创建新标签: #{tag}',
+            allowCreationToggle: '允许创建新标签',
             instructions: {
                 navigate: '导航',
                 select: '选择',
@@ -395,8 +404,8 @@ export const STRINGS_ZH_CN = {
             deleteConfirmation: '此操作无法撤销。'
         },
         defaultNames: {
-            untitled: '无标题',
-            untitledNumber: '无标题 {number}'
+            untitled: '未命名',
+            untitledNumber: '未命名 {number}'
         }
     },
 
@@ -451,6 +460,8 @@ export const STRINGS_ZH_CN = {
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
+        selectNextFile: '选择下一个文件', // Command palette: Selects the next file in the current view (English: Select next file)
+        selectPreviousFile: '选择上一个文件', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: '转换为文件夹笔记', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         pinAllFolderNotes: '固定所有文件夹笔记', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
@@ -559,7 +570,7 @@ export const STRINGS_ZH_CN = {
                 }
             },
             listPaneTitle: {
-                name: '列表窗格标题',
+                name: '列表窗格标题（仅限桌面版）',
                 desc: '选择列表窗格标题的显示位置。',
                 options: {
                     header: '显示在标题栏',
@@ -600,13 +611,34 @@ export const STRINGS_ZH_CN = {
                     folder: '按文件夹分组'
                 }
             },
+            showPinnedGroupHeader: {
+                name: '显示固定组标题',
+                desc: '在固定笔记上方显示分组标题。'
+            },
+            showPinnedIcon: {
+                name: '显示固定图标',
+                desc: '在固定部分标题旁显示图标。'
+            },
             optimizeNoteHeight: {
                 name: '优化笔记高度',
                 desc: '减少固定笔记和无预览文本笔记的高度。'
             },
-            showParentFolderNames: {
-                name: '显示父文件夹名称',
+            slimItemHeight: {
+                name: '精简项目高度',
+                desc: '设置桌面和移动端的紧凑列表项高度。',
+                resetTooltip: '恢复默认值 (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: '随精简高度缩放文本',
+                desc: '当减小紧凑列表项高度时同步缩放文本。'
+            },
+            showParentFolder: {
+                name: '显示父文件夹',
                 desc: '为子文件夹或标签中的笔记显示父文件夹名称。'
+            },
+            showParentFolderColor: {
+                name: '显示父文件夹颜色',
+                desc: '在父文件夹标签上使用文件夹颜色。'
             },
             showQuickActions: {
                 name: '显示快速操作（仅桌面版）',
@@ -874,6 +906,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示根文件夹',
                 desc: '在树中显示根文件夹名称。'
             },
+            showFolderIcons: {
+                name: '显示文件夹图标',
+                desc: '在导航窗格的文件夹旁显示图标。'
+            },
             inheritFolderColors: {
                 name: '继承文件夹颜色',
                 desc: '子文件夹从父文件夹继承颜色。'
@@ -882,9 +918,9 @@ export const STRINGS_ZH_CN = {
                 name: '显示笔记数',
                 desc: '在每个文件夹和标签旁显示笔记数量。'
             },
-            showIcons: {
-                name: '显示图标',
-                desc: '显示文件夹、标签和笔记的图标。'
+            showSectionIcons: {
+                name: '显示快捷方式图标',
+                desc: '显示导航分区（如快捷方式和最近文件）的图标。'
             },
             showIconsColorOnly: {
                 name: '仅对图标应用颜色',
@@ -915,9 +951,17 @@ export const STRINGS_ZH_CN = {
                 name: '随行高调整文字大小',
                 desc: '降低行高时减小导航文字大小。'
             },
+            navRootSpacing: {
+                name: '根级项目间距',
+                desc: '根级文件夹和标签之间的间距。'
+            },
             showTags: {
                 name: '显示标签',
                 desc: '在导航器中的文件夹下方显示标签部分。'
+            },
+            showTagIcons: {
+                name: '显示标签图标',
+                desc: '在导航窗格的标签旁显示图标。'
             },
             tagSortOrder: {
                 name: '标签排序方式',
@@ -940,6 +984,10 @@ export const STRINGS_ZH_CN = {
             keepEmptyTagsProperty: {
                 name: '删除最后一个标签后保留 tags 属性',
                 desc: '当所有标签被删除时保留 frontmatter 中的 tags 属性。禁用时,tags 属性将从 frontmatter 中删除。'
+            },
+            allowTagCreationInAddTagModal: {
+                name: '允许在添加标签对话框中创建标签',
+                desc: '添加标签时显示创建选项。切换按钮显示在对话框中。'
             },
             hiddenTags: {
                 name: '隐藏标签',
@@ -1102,7 +1150,7 @@ export const STRINGS_ZH_CN = {
                 status: 'New version available: {version}'
             },
             whatsNew: {
-                name: '最新动态',
+                name: 'Notebook Navigator {version} 的最新动态',
                 desc: '查看最近的更新和改进',
                 buttonText: '查看最近更新'
             },

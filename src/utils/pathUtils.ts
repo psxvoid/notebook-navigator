@@ -42,3 +42,17 @@ export function getPathBaseName(path: string): string {
 
     return segments[segments.length - 1];
 }
+
+/**
+ * Checks whether the candidate path is the folder itself or within the folder hierarchy.
+ */
+export function doesFolderContainPath(folderPath: string, candidatePath: string): boolean {
+    if (folderPath === '/') {
+        return true;
+    }
+    if (folderPath === candidatePath) {
+        return true;
+    }
+    const normalizedFolderPath = folderPath.endsWith('/') ? folderPath : `${folderPath}/`;
+    return candidatePath.startsWith(normalizedFolderPath);
+}

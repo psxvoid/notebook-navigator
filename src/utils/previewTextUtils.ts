@@ -26,8 +26,10 @@ const MAX_PREVIEW_TEXT_LENGTH = 500;
 // Base patterns used in both regex versions
 const BASE_PATTERNS = [
     // Group 0: Code blocks - remove entirely
-    // Example: ```javascript\nconst x = 1;\n``` → (removed)
-    /```[\s\S]*?```/.source,
+    // Examples: ```javascript\nconst x = 1;\n``` and ~~~\nconst x = 1;\n~~~ → (removed)
+    // Known limitation: closing fence must use the same character count as the opening fence.
+    // Obsidian's renderer shares this limitation, and lines like "~~~ note" are not parsed as fenced blocks.
+    /([`~]{3,})[\s\S]*?\1/.source,
     // Group 1: Obsidian comments - remove entirely (both inline and block)
     // Example: %%comment%% → (removed), %%\nmultiline\n%% → (removed)
     /%%[\s\S]*?%%/.source,
@@ -170,7 +172,7 @@ export class PreviewTextUtils {
         return text.replace(regex, (match, ...groups) => {
             // Check for specific patterns to remove entirely
             // Code blocks
-            if (match.startsWith('```')) {
+            if (match.startsWith('```') || match.startsWith('~~~')) {
                 if (skipCodeBlocks) {
                     return '';
                 }
@@ -260,8 +262,21 @@ export class PreviewTextUtils {
     }
 
     private static extractCodeBlockContent(block: string): string {
-        const withoutOpeningFence = block.replace(/^```[^\n\r]*\r?\n?/, '');
-        const withoutClosingFence = withoutOpeningFence.replace(/\r?\n?```(?:\s*)$/, '');
+        // Match opening fence (``` or ~~~) with optional language identifier
+        const openingFenceMatch = block.match(/^([`~]{3,})[^\n\r]*\r?\n?/);
+        if (!openingFenceMatch) {
+            return block;
+        }
+
+        // Extract fence character and length for matching closing fence
+        const fenceSequence = openingFenceMatch[1];
+        const fenceChar = fenceSequence[0] ?? '`';
+        const fenceLength = fenceSequence.length;
+        // Remove opening fence from block
+        const withoutOpeningFence = block.slice(openingFenceMatch[0].length);
+        // Build pattern for closing fence (must match character type and be at least same length)
+        const closingFencePattern = new RegExp(`\\r?\\n?${fenceChar}{${fenceLength},}(?:\\s*)$`);
+        const withoutClosingFence = withoutOpeningFence.replace(closingFencePattern, '');
         return withoutClosingFence;
     }
 
@@ -308,11 +323,11 @@ export class PreviewTextUtils {
         // Remove leading task checkbox markers while keeping task text
         const withoutTaskCheckboxes = stripped.replace(/^\s*(?:[-*+]\s+|\d+\.\s+)?\[(?: |x|X|\/|-)?\]\]?\s*/gm, '');
 
-        // Remove lines that only contain dashes (like -, ---, ----- etc.)
-        const withoutDashLines = withoutTaskCheckboxes.replace(/^-+$/gm, '');
+        // Remove horizontal rule lines including spaced variants
+        const withoutHorizontalRules = withoutTaskCheckboxes.replace(/^\s*([*_-])(?:\s*\1){2,}\s*$/gm, '');
 
         // Clean up extra whitespace and truncate
-        const preview = withoutDashLines
+        const preview = withoutHorizontalRules
             .split(/\s+/) // Split on any whitespace
             .filter(word => word) // Remove empty strings
             .join(' ') // Join with single spaces

@@ -16,12 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, Platform, Setting, SliderComponent } from 'obsidian';
+import { ButtonComponent, Setting, SliderComponent } from 'obsidian';
 import { strings } from '../../i18n';
 import { NavigationBannerModal } from '../../modals/NavigationBannerModal';
 import { DEFAULT_SETTINGS } from '../defaultSettings';
 import type { ItemScope } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
+import { runAsyncAction } from '../../utils/async';
 
 /** Renders the navigation pane settings tab */
 export function renderNavigationPaneTab(context: SettingsTabContext): void {
@@ -35,28 +36,6 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
         .addToggle(toggle =>
             toggle.setValue(plugin.settings.skipAutoScroll).onChange(async value => {
                 plugin.settings.skipAutoScroll = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    if (!Platform.isMobile) {
-        new Setting(containerEl)
-            .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
-            .setDesc(strings.settings.items.autoSelectFirstFileOnFocusChange.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.settings.autoSelectFirstFileOnFocusChange).onChange(async value => {
-                    plugin.settings.autoSelectFirstFileOnFocusChange = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-            );
-    }
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.autoExpandFoldersTags.name)
-        .setDesc(strings.settings.items.autoExpandFoldersTags.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.autoExpandFoldersTags).onChange(async value => {
-                plugin.settings.autoExpandFoldersTags = value;
                 await plugin.saveSettingsAndUpdate();
             })
         );
@@ -116,7 +95,7 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             new NavigationBannerModal(context.app, file => {
                 plugin.settings.navigationBanner = file.path;
                 renderNavigationBannerValue();
-                void plugin.saveSettingsAndUpdate();
+                runAsyncAction(() => plugin.saveSettingsAndUpdate());
             }).open();
         });
     });
@@ -125,17 +104,29 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
         button.setButtonText(strings.settings.items.navigationBanner.clearButton);
         clearNavigationBannerButton = button;
         button.setDisabled(!plugin.settings.navigationBanner);
-        button.onClick(async () => {
-            if (!plugin.settings.navigationBanner) {
-                return;
-            }
-            plugin.settings.navigationBanner = null;
-            renderNavigationBannerValue();
-            await plugin.saveSettingsAndUpdate();
+        button.onClick(() => {
+            runAsyncAction(async () => {
+                if (!plugin.settings.navigationBanner) {
+                    return;
+                }
+                plugin.settings.navigationBanner = null;
+                renderNavigationBannerValue();
+                await plugin.saveSettingsAndUpdate();
+            });
         });
     });
 
     renderNavigationBannerValue();
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.showSectionIcons.name)
+        .setDesc(strings.settings.items.showSectionIcons.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showSectionIcons).onChange(async value => {
+                plugin.settings.showSectionIcons = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
 
     new Setting(containerEl)
         .setName(strings.settings.items.showShortcuts.name)
@@ -238,11 +229,13 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             button
                 .setIcon('lucide-rotate-ccw')
                 .setTooltip('Restore to default (16px)')
-                .onClick(async () => {
-                    const defaultValue = DEFAULT_SETTINGS.navIndent;
-                    indentationSlider.setValue(defaultValue);
-                    plugin.settings.navIndent = defaultValue;
-                    await plugin.saveSettingsAndUpdate();
+                .onClick(() => {
+                    runAsyncAction(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.navIndent;
+                        indentationSlider.setValue(defaultValue);
+                        plugin.settings.navIndent = defaultValue;
+                        await plugin.saveSettingsAndUpdate();
+                    });
                 })
         );
 
@@ -265,11 +258,13 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             button
                 .setIcon('lucide-rotate-ccw')
                 .setTooltip('Restore to default (28px)')
-                .onClick(async () => {
-                    const defaultValue = DEFAULT_SETTINGS.navItemHeight;
-                    lineHeightSlider.setValue(defaultValue);
-                    plugin.settings.navItemHeight = defaultValue;
-                    await plugin.saveSettingsAndUpdate();
+                .onClick(() => {
+                    runAsyncAction(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.navItemHeight;
+                        lineHeightSlider.setValue(defaultValue);
+                        plugin.settings.navItemHeight = defaultValue;
+                        await plugin.saveSettingsAndUpdate();
+                    });
                 })
         );
 
@@ -283,5 +278,34 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
                 plugin.settings.navItemHeightScaleText = value;
                 await plugin.saveSettingsAndUpdate();
             })
+        );
+
+    let rootSpacingSlider: SliderComponent;
+    new Setting(containerEl)
+        .setName(strings.settings.items.navRootSpacing.name)
+        .setDesc(strings.settings.items.navRootSpacing.desc)
+        .addSlider(slider => {
+            rootSpacingSlider = slider
+                .setLimits(0, 6, 1)
+                .setValue(plugin.settings.rootLevelSpacing)
+                .setDynamicTooltip()
+                .onChange(async value => {
+                    plugin.settings.rootLevelSpacing = value;
+                    await plugin.saveSettingsAndUpdate();
+                });
+            return slider;
+        })
+        .addExtraButton(button =>
+            button
+                .setIcon('lucide-rotate-ccw')
+                .setTooltip('Restore to default (0px)')
+                .onClick(() => {
+                    runAsyncAction(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.rootLevelSpacing;
+                        rootSpacingSlider.setValue(defaultValue);
+                        plugin.settings.rootLevelSpacing = defaultValue;
+                        await plugin.saveSettingsAndUpdate();
+                    });
+                })
         );
 }

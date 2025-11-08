@@ -42,6 +42,7 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import { deleteSelectedFolder } from '../utils/deleteOperations';
 import { useKeyboardNavigation, KeyboardNavigationHelpers } from './useKeyboardNavigation';
 import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
+import { runAsyncAction } from '../utils/async';
 import { getNavigationIndex } from '../utils/navigationIndex';
 
 /**
@@ -51,7 +52,8 @@ const isSelectableNavigationItem = (item: CombinedNavigationItem): boolean => {
     return (
         item.type === NavigationPaneItemType.FOLDER ||
         item.type === NavigationPaneItemType.TAG ||
-        item.type === NavigationPaneItemType.UNTAGGED
+        item.type === NavigationPaneItemType.UNTAGGED ||
+        (item.type === NavigationPaneItemType.VIRTUAL_FOLDER && Boolean(item.isSelectable && item.tagCollectionId))
     );
 };
 
@@ -156,6 +158,9 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                         expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path });
                     }
                 }
+            } else if (item.type === NavigationPaneItemType.VIRTUAL_FOLDER && item.tagCollectionId) {
+                // Select virtual tag collection as a tag
+                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: item.tagCollectionId });
             }
         },
         [selectionDispatch, settings, expansionState, expansionDispatch]
@@ -182,6 +187,15 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                     expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
                 } else if (!expand && isExpanded) {
                     expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
+                }
+            } else if (item.type === NavigationPaneItemType.VIRTUAL_FOLDER && item.tagCollectionId) {
+                // Handle expansion for virtual folders that act as tag collections
+                const folderId = item.data.id;
+                const isExpanded = expansionState.expandedVirtualFolders.has(folderId);
+                if (expand && !isExpanded) {
+                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId });
+                } else if (!expand && isExpanded) {
+                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId });
                 }
             }
         },
@@ -392,14 +406,16 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.DELETE_SELECTED)) {
                 if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                     e.preventDefault();
-                    deleteSelectedFolder({
-                        app,
-                        fileSystemOps,
-                        settings,
-                        visibility: { includeDescendantNotes, showHiddenItems },
-                        selectionState,
-                        selectionDispatch
-                    });
+                    runAsyncAction(() =>
+                        deleteSelectedFolder({
+                            app,
+                            fileSystemOps,
+                            settings,
+                            visibility: { includeDescendantNotes, showHiddenItems },
+                            selectionState,
+                            selectionDispatch
+                        })
+                    );
                 }
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.PANE_HOME)) {
                 e.preventDefault();

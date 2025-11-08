@@ -6,8 +6,9 @@ import { useSelectionState } from '../context/SelectionContext';
 import { useFileCache } from '../context/StorageContext';
 import { useExpansionState } from '../context/ExpansionContext';
 import { strings } from '../i18n';
-import { ItemType, UNTAGGED_TAG_ID } from '../types';
+import { ItemType, TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import { hasSubfolders } from '../utils/fileFilters';
+import { getVirtualTagCollection, VIRTUAL_TAG_COLLECTION_IDS } from '../utils/virtualTagCollections';
 
 export type BreadcrumbTargetType = 'folder' | 'tag' | 'none';
 
@@ -36,12 +37,12 @@ export function useListPaneTitle(): UseListPaneTitleResult {
     const expansionState = useExpansionState();
     const metadataService = useMetadataService();
 
+    // Determines the icon to display in the list pane header based on selection type and icon settings
     const iconName = useMemo(() => {
-        if (!settings.showIcons) {
-            return '';
-        }
-
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+            if (!settings.showFolderIcons) {
+                return '';
+            }
             const folder = selectionState.selectedFolder;
             const customIcon = metadataService.getFolderIcon(folder.path);
             if (customIcon) {
@@ -56,6 +57,9 @@ export function useListPaneTitle(): UseListPaneTitleResult {
         }
 
         if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+            if (!settings.showTagIcons) {
+                return '';
+            }
             return metadataService.getTagIcon(selectionState.selectedTag) || 'lucide-tags';
         }
 
@@ -68,7 +72,8 @@ export function useListPaneTitle(): UseListPaneTitleResult {
         selectionState.selectionType,
         settings.excludedFolders,
         showHiddenItems,
-        settings.showIcons
+        settings.showFolderIcons,
+        settings.showTagIcons
     ]);
 
     const { desktopTitle, breadcrumbSegments } = useMemo(() => {
@@ -109,6 +114,22 @@ export function useListPaneTitle(): UseListPaneTitleResult {
 
         if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
             const tag = selectionState.selectedTag;
+
+            // Handle virtual tag collection showing all tagged notes
+            if (tag === TAGGED_TAG_ID) {
+                const taggedLabel = getVirtualTagCollection(VIRTUAL_TAG_COLLECTION_IDS.TAGGED).getLabel();
+                const taggedBreadcrumb: BreadcrumbSegment[] = [
+                    {
+                        label: taggedLabel,
+                        targetType: 'none',
+                        isLast: true
+                    }
+                ];
+                return {
+                    desktopTitle: taggedLabel,
+                    breadcrumbSegments: taggedBreadcrumb
+                };
+            }
 
             if (tag === UNTAGGED_TAG_ID) {
                 const untaggedBreadcrumb: BreadcrumbSegment[] = [
@@ -167,7 +188,9 @@ export function useListPaneTitle(): UseListPaneTitleResult {
         desktopTitle,
         breadcrumbSegments,
         iconName,
-        showIcon: settings.showIcons && iconName.length > 0,
+        showIcon:
+            (selectionState.selectionType === ItemType.FOLDER && settings.showFolderIcons && iconName.length > 0) ||
+            (selectionState.selectionType === ItemType.TAG && settings.showTagIcons && iconName.length > 0),
         selectionType: selectionState.selectionType
     };
 }

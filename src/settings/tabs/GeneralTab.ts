@@ -22,9 +22,8 @@ import { strings } from '../../i18n';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { BackgroundMode } from '../../types';
+import type { MultiSelectModifier } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
-import { localStorage } from '../../utils/localStorage';
-import { getNavigationPaneSizing } from '../../utils/paneSizing';
 import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 import {
     DEFAULT_UI_SCALE,
@@ -36,10 +35,12 @@ import {
     scaleToPercent,
     percentToScale
 } from '../../utils/uiScale';
+import { runAsyncAction } from '../../utils/async';
 
 /** Renders the general settings tab */
 export function renderGeneralTab(context: SettingsTabContext): void {
     const { containerEl, plugin, createDebouncedTextSetting } = context;
+    const pluginVersion = plugin.manifest.version;
 
     let updateStatusEl: HTMLDivElement | null = null;
 
@@ -61,14 +62,16 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     plugin.unregisterUpdateNoticeListener(updateStatusListenerId);
 
     const whatsNewSetting = new Setting(containerEl)
-        .setName(strings.settings.items.whatsNew.name)
+        .setName(strings.settings.items.whatsNew.name.replace('{version}', pluginVersion))
         .setDesc(strings.settings.items.whatsNew.desc)
         .addButton(button =>
-            button.setButtonText(strings.settings.items.whatsNew.buttonText).onClick(async () => {
-                const { WhatsNewModal } = await import('../../modals/WhatsNewModal');
-                const { getLatestReleaseNotes } = await import('../../releaseNotes');
-                const latestNotes = getLatestReleaseNotes();
-                new WhatsNewModal(context.app, latestNotes, plugin.settings.dateFormat).open();
+            button.setButtonText(strings.settings.items.whatsNew.buttonText).onClick(() => {
+                runAsyncAction(async () => {
+                    const { WhatsNewModal } = await import('../../modals/WhatsNewModal');
+                    const { getLatestReleaseNotes } = await import('../../releaseNotes');
+                    const latestNotes = getLatestReleaseNotes();
+                    new WhatsNewModal(context.app, latestNotes, plugin.settings.dateFormat).open();
+                });
             })
         );
 
@@ -165,6 +168,20 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         );
     autoRevealSettingsEl.toggle(plugin.settings.autoRevealActiveFile);
 
+    new Setting(containerEl)
+        .setName(strings.settings.items.multiSelectModifier.name)
+        .setDesc(strings.settings.items.multiSelectModifier.desc)
+        .addDropdown(dropdown =>
+            dropdown
+                .addOption('cmdCtrl', strings.settings.items.multiSelectModifier.options.cmdCtrl)
+                .addOption('optionAlt', strings.settings.items.multiSelectModifier.options.optionAlt)
+                .setValue(plugin.settings.multiSelectModifier)
+                .onChange(async (value: MultiSelectModifier) => {
+                    plugin.settings.multiSelectModifier = value;
+                    await plugin.saveSettingsAndUpdate();
+                })
+        );
+
     if (!Platform.isMobile) {
         new Setting(containerEl).setName(strings.settings.groups.general.desktopAppearance).setHeading();
 
@@ -199,12 +216,14 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 button
                     .setIcon('lucide-rotate-ccw')
                     .setTooltip('Restore to default (100%)')
-                    .onClick(async () => {
-                        const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
-                        desktopScaleSlider.setValue(defaultPercent);
-                        plugin.settings.desktopScale = DEFAULT_UI_SCALE;
-                        updateDesktopScaleLabel(defaultPercent);
-                        await plugin.saveSettingsAndUpdate();
+                    .onClick(() => {
+                        runAsyncAction(async () => {
+                            const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
+                            desktopScaleSlider.setValue(defaultPercent);
+                            plugin.settings.desktopScale = DEFAULT_UI_SCALE;
+                            updateDesktopScaleLabel(defaultPercent);
+                            await plugin.saveSettingsAndUpdate();
+                        });
                     })
             );
 
@@ -285,18 +304,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             );
 
         updateShowTooltipsSubSettings(plugin.settings.showTooltips);
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.resetPaneSeparator.name)
-            .setDesc(strings.settings.items.resetPaneSeparator.desc)
-            .addButton(button =>
-                button.setButtonText(strings.settings.items.resetPaneSeparator.buttonText).onClick(() => {
-                    const orientation = plugin.getDualPaneOrientation();
-                    const { storageKey } = getNavigationPaneSizing(orientation);
-                    localStorage.remove(storageKey);
-                    new Notice(strings.settings.items.resetPaneSeparator.notice);
-                })
-            );
     }
 
     if (Platform.isMobile) {
@@ -333,12 +340,14 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 button
                     .setIcon('lucide-rotate-ccw')
                     .setTooltip('Restore to default (100%)')
-                    .onClick(async () => {
-                        const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
-                        mobileScaleSlider.setValue(defaultPercent);
-                        plugin.settings.mobileScale = DEFAULT_UI_SCALE;
-                        updateMobileScaleLabel(defaultPercent);
-                        await plugin.saveSettingsAndUpdate();
+                    .onClick(() => {
+                        runAsyncAction(async () => {
+                            const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
+                            mobileScaleSlider.setValue(defaultPercent);
+                            plugin.settings.mobileScale = DEFAULT_UI_SCALE;
+                            updateMobileScaleLabel(defaultPercent);
+                            await plugin.saveSettingsAndUpdate();
+                        });
                     })
             );
 
@@ -424,7 +433,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                     plugin.settings.homepage = file.path;
                 }
                 renderHomepageValue();
-                void plugin.saveSettingsAndUpdate();
+                runAsyncAction(() => plugin.saveSettingsAndUpdate());
             }).open();
         });
     });
@@ -432,20 +441,22 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     homepageSetting.addButton(button => {
         button.setButtonText(strings.settings.items.homepage.clearButton);
         clearHomepageButton = button;
-        button.onClick(async () => {
-            if (Platform.isMobile && plugin.settings.useMobileHomepage) {
-                if (!plugin.settings.mobileHomepage) {
-                    return;
+        button.onClick(() => {
+            runAsyncAction(async () => {
+                if (Platform.isMobile && plugin.settings.useMobileHomepage) {
+                    if (!plugin.settings.mobileHomepage) {
+                        return;
+                    }
+                    plugin.settings.mobileHomepage = null;
+                } else {
+                    if (!plugin.settings.homepage) {
+                        return;
+                    }
+                    plugin.settings.homepage = null;
                 }
-                plugin.settings.mobileHomepage = null;
-            } else {
-                if (!plugin.settings.homepage) {
-                    return;
-                }
-                plugin.settings.homepage = null;
-            }
-            renderHomepageValue();
-            await plugin.saveSettingsAndUpdate();
+                renderHomepageValue();
+                await plugin.saveSettingsAndUpdate();
+            });
         });
     });
 
@@ -463,28 +474,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             })
         );
 
-    let showIconsSubSettings: HTMLDivElement | null = null;
-
-    const updateShowIconsSubSettings = (visible: boolean) => {
-        if (showIconsSubSettings) {
-            showIconsSubSettings.toggleClass('nn-setting-hidden', !visible);
-        }
-    };
-
     new Setting(containerEl)
-        .setName(strings.settings.items.showIcons.name)
-        .setDesc(strings.settings.items.showIcons.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showIcons).onChange(async value => {
-                plugin.settings.showIcons = value;
-                await plugin.saveSettingsAndUpdate();
-                updateShowIconsSubSettings(value);
-            })
-        );
-
-    showIconsSubSettings = containerEl.createDiv('nn-sub-settings');
-
-    new Setting(showIconsSubSettings)
         .setName(strings.settings.items.showIconsColorOnly.name)
         .setDesc(strings.settings.items.showIconsColorOnly.desc)
         .addToggle(toggle =>
@@ -493,8 +483,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 await plugin.saveSettingsAndUpdate();
             })
         );
-
-    updateShowIconsSubSettings(plugin.settings.showIcons);
 
     new Setting(containerEl).setName(strings.settings.groups.general.formatting).setHeading();
 

@@ -41,7 +41,7 @@ export const STRINGS_JA = {
     listPane: {
         emptyStateNoSelection: 'フォルダまたはタグを選択してノートを表示', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'ノートなし', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 ピン留め', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: 'ピン留め', // Header for the pinned notes section at the top of file list (English: Pinned)
         notesSection: 'ノート', // Header shown between pinned and regular items when showing documents only (English: Notes)
         filesSection: 'ファイル', // Header shown between pinned and regular items when showing supported or all files (English: Files)
         hiddenItemAriaLabel: '{name} (非表示)' // Accessibility label applied to list items that are normally hidden
@@ -172,6 +172,8 @@ export const STRINGS_JA = {
             newDrawing: '新規図面',
             duplicateFolder: 'フォルダを複製',
             searchInFolder: 'フォルダ内を検索',
+            copyPath: 'パスをコピー',
+            copyRelativePath: '相対パスをコピー',
             createFolderNote: 'フォルダノートを作成',
             deleteFolderNote: 'フォルダーノートを削除',
             changeIcon: 'アイコンを変更',
@@ -198,9 +200,11 @@ export const STRINGS_JA = {
         slimPreset: 'スリム（日付/プレビュー/画像なし）',
         titleRows: 'タイトル行数',
         previewRows: 'プレビュー行数',
+        groupBy: 'グループ分け',
         defaultOption: (rows: number) => `デフォルト (${rows})`,
         defaultTitleOption: (rows: number) => `デフォルトタイトル行数 (${rows})`,
         defaultPreviewOption: (rows: number) => `デフォルトプレビュー行数 (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `デフォルトのグループ化 (${groupLabel})`,
         titleRowOption: (rows: number) => `タイトル${rows}行`,
         previewRowOption: (rows: number) => `プレビュー${rows}行`
     },
@@ -261,6 +265,10 @@ export const STRINGS_JA = {
             affectedFiles: '{count}個のファイルが影響を受けます',
             andMore: 'さらに{count}個...',
             confirmRename: 'タグを名前変更',
+            renameUnchanged: '{tag} は変更されませんでした',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: '有効なタグ名を入力してください。',
+            descendantRenameError: 'タグを自身または子孫に移動することはできません。',
             confirmDelete: 'タグを削除',
             file: 'ファイル',
             files: 'ファイル'
@@ -317,6 +325,7 @@ export const STRINGS_JA = {
             addPlaceholder: '追加するタグを検索...',
             removePlaceholder: '削除するタグを選択...',
             createNewTag: '新しいタグを作成: #{tag}',
+            allowCreationToggle: '新しいタグの作成を許可',
             instructions: {
                 navigate: 'でナビゲート',
                 select: 'で選択',
@@ -451,6 +460,8 @@ export const STRINGS_JA = {
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
+        selectNextFile: '次のファイルを選択', // Command palette: Selects the next file in the current view (English: Select next file)
+        selectPreviousFile: '前のファイルを選択', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'フォルダノートに変換', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
         pinAllFolderNotes: 'フォルダノートをすべてピン留め', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
@@ -560,7 +571,7 @@ export const STRINGS_JA = {
                 }
             },
             listPaneTitle: {
-                name: 'リストペインのタイトル',
+                name: 'リストペインのタイトル（デスクトップのみ）',
                 desc: 'リストペインのタイトルを表示する場所を選択します。',
                 options: {
                     header: 'ヘッダーに表示',
@@ -601,13 +612,34 @@ export const STRINGS_JA = {
                     folder: 'フォルダでグループ化'
                 }
             },
+            showPinnedGroupHeader: {
+                name: 'ピン留めグループヘッダーを表示',
+                desc: 'ピン留めされたノートの上にセクションヘッダーを表示します。'
+            },
+            showPinnedIcon: {
+                name: 'ピン留めアイコンを表示',
+                desc: 'ピン留めセクションヘッダーの横にアイコンを表示します。'
+            },
             optimizeNoteHeight: {
                 name: 'ノートの高さを最適化',
                 desc: 'ピン留めされたノートとプレビューテキストのないノートの高さを削減。'
             },
-            showParentFolderNames: {
-                name: '親フォルダ名を表示',
+            slimItemHeight: {
+                name: 'スリム表示の項目高さ',
+                desc: 'デスクトップとモバイルのスリム表示項目の高さを設定します。',
+                resetTooltip: 'デフォルトに戻す (28px)'
+            },
+            slimItemHeightScaleText: {
+                name: 'スリム表示の文字サイズを高さに合わせる',
+                desc: '項目の高さを下げたときにスリム表示の文字サイズを調整します。'
+            },
+            showParentFolder: {
+                name: '親フォルダを表示',
                 desc: 'サブフォルダまたはタグ内のノートに親フォルダ名を表示します。'
+            },
+            showParentFolderColor: {
+                name: '親フォルダの色を表示',
+                desc: '親フォルダラベルにフォルダの色を使用します。'
             },
             showQuickActions: {
                 name: 'クイックアクションを表示 (デスクトップのみ)',
@@ -875,6 +907,10 @@ export const STRINGS_JA = {
                 name: 'ルートフォルダを表示',
                 desc: 'ツリーにルートフォルダ名を表示します。'
             },
+            showFolderIcons: {
+                name: 'フォルダアイコンを表示',
+                desc: 'ナビゲーションペインのフォルダの横にアイコンを表示します。'
+            },
             inheritFolderColors: {
                 name: 'フォルダの色を継承',
                 desc: 'サブフォルダが親フォルダから色を継承します。'
@@ -883,9 +919,9 @@ export const STRINGS_JA = {
                 name: 'ノート数を表示',
                 desc: '各フォルダとタグの横にノート数を表示します。'
             },
-            showIcons: {
-                name: 'アイコンを表示',
-                desc: 'フォルダ、タグ、ノートのアイコンを表示します。'
+            showSectionIcons: {
+                name: 'ショートカットアイコンを表示',
+                desc: 'ショートカットや最近使用したファイルなどのナビゲーションセクションのアイコンを表示します。'
             },
             showIconsColorOnly: {
                 name: 'アイコンのみに色を適用',
@@ -916,9 +952,17 @@ export const STRINGS_JA = {
                 name: '行高に合わせて文字サイズを調整',
                 desc: '行高を下げたときにナビゲーションの文字サイズを小さくします。'
             },
+            navRootSpacing: {
+                name: 'ルート要素の間隔',
+                desc: '最上位のフォルダとタグの間隔。'
+            },
             showTags: {
                 name: 'タグを表示',
                 desc: 'ナビゲーターのフォルダの下にタグセクションを表示します。'
+            },
+            showTagIcons: {
+                name: 'タグアイコンを表示',
+                desc: 'ナビゲーションペインのタグの横にアイコンを表示します。'
             },
             tagSortOrder: {
                 name: 'タグの並び順',
@@ -941,6 +985,10 @@ export const STRINGS_JA = {
             keepEmptyTagsProperty: {
                 name: '最後のタグを削除した後も tags プロパティを保持',
                 desc: 'すべてのタグが削除されても frontmatter の tags プロパティを保持します。無効にすると、tags プロパティは frontmatter から削除されます。'
+            },
+            allowTagCreationInAddTagModal: {
+                name: 'タグ追加モーダルでタグ作成を許可',
+                desc: 'タグ追加時に作成オプションを表示します。トグルはモーダル内に表示されます。'
             },
             hiddenTags: {
                 name: '非表示タグ',
@@ -1103,7 +1151,7 @@ export const STRINGS_JA = {
                 status: 'New version available: {version}'
             },
             whatsNew: {
-                name: '新着情報',
+                name: 'Notebook Navigator {version} の新着情報',
                 desc: '最近の更新と改善を確認',
                 buttonText: '最近の更新を表示'
             },

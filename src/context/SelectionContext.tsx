@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { App, TFile, TFolder } from 'obsidian';
 import { NavigationItemType, STORAGE_KEYS } from '../types';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
@@ -25,6 +25,8 @@ import { useUXPreferences } from './UXPreferencesContext';
 import { localStorage } from '../utils/localStorage';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { TagTreeService } from '../services/TagTreeService';
+import type { TagDeleteEventPayload, TagRenameEventPayload } from '../services/TagOperations';
+import { useServices } from './ServicesContext';
 import { normalizeTagPath } from '../utils/tagUtils';
 
 export type SelectionRevealSource = 'auto' | 'manual' | 'shortcut' | 'startup';
@@ -85,10 +87,29 @@ const SelectionDispatchContext = createContext<React.Dispatch<SelectionAction> |
 
 // Helper function to get first file from selection
 function getFirstSelectedFile(selectedFiles: Set<string>, app: App): TFile | null {
-    if (selectedFiles.size === 0) return null;
-    const firstPath = Array.from(selectedFiles)[0];
+    // Get the first value from the set without converting to array
+    const iterator = selectedFiles.values().next();
+    if (iterator.done) {
+        return null;
+    }
+    const firstPath = iterator.value;
+    if (!firstPath) {
+        return null;
+    }
+    // Resolve file path to TFile instance
     const file = app.vault.getFileByPath(firstPath);
     return file || null;
+}
+
+/**
+ * Resolves the primary selected file used for keyboard navigation.
+ * Prefers the explicit selectedFile, falling back to the first entry in the set.
+ */
+export function resolvePrimarySelectedFile(app: App, selectionState: SelectionState): TFile | null {
+    if (selectionState.selectedFile) {
+        return selectionState.selectedFile;
+    }
+    return getFirstSelectedFile(selectionState.selectedFiles, app);
 }
 
 /**
@@ -511,6 +532,8 @@ export function SelectionProvider({
     const uxPreferences = useUXPreferences();
     const includeDescendantNotes = uxPreferences.includeDescendantNotes;
     const showHiddenItems = uxPreferences.showHiddenItems;
+    // Get tag operations service for subscribing to tag rename and delete events
+    const { tagOperations } = useServices();
 
     // Load initial state from localStorage and vault
     const loadInitialState = useCallback((): SelectionState => {
@@ -615,6 +638,12 @@ export function SelectionProvider({
         undefined,
         loadInitialState
     );
+    // Store state in ref for access in event listeners without triggering re-subscriptions
+    const stateRef = useRef(state);
+    // Sync ref with current state
+    useEffect(() => {
+        stateRef.current = state;
+    }, [state]);
 
     // Create an enhanced dispatch that handles side effects
     const enhancedDispatch = useCallback(
@@ -692,6 +721,66 @@ export function SelectionProvider({
         [app, settings, includeDescendantNotes, showHiddenItems, isMobile, tagTreeService, dispatch]
     );
 
+    // Subscribe to tag operations and update selection when tags are renamed or deleted
+    useEffect(() => {
+        if (!tagOperations) {
+            return;
+        }
+
+        // Updates selected tag path when a tag is renamed
+        const handleTagRename = (payload: TagRenameEventPayload) => {
+            const current = stateRef.current;
+            const currentTag = current.selectedTag;
+            if (!currentTag) {
+                return;
+            }
+
+            const { oldCanonicalPath, newCanonicalPath } = payload;
+            if (!oldCanonicalPath || !newCanonicalPath) {
+                return;
+            }
+
+            // Update selected tag if it matches renamed tag or is a descendant
+            if (currentTag === oldCanonicalPath || currentTag.startsWith(`${oldCanonicalPath}/`)) {
+                const suffix = currentTag.slice(oldCanonicalPath.length);
+                const nextTag = suffix ? `${newCanonicalPath}${suffix}` : newCanonicalPath;
+                enhancedDispatch({ type: 'SET_SELECTED_TAG', tag: nextTag });
+            }
+        };
+
+        // Updates selection when a tag is deleted
+        const handleTagDelete = (payload: TagDeleteEventPayload) => {
+            const current = stateRef.current;
+            const currentTag = current.selectedTag;
+            if (!currentTag) {
+                return;
+            }
+
+            const canonical = payload.canonicalPath;
+            if (!canonical) {
+                return;
+            }
+
+            // Navigate to parent or clear selection if deleted tag matches current selection
+            if (currentTag === canonical || currentTag.startsWith(`${canonical}/`)) {
+                const parent = canonical.includes('/') ? canonical.slice(0, canonical.lastIndexOf('/')) : '';
+                if (parent) {
+                    enhancedDispatch({ type: 'SET_SELECTED_TAG', tag: parent });
+                } else {
+                    enhancedDispatch({ type: 'CLEAR_SELECTION' });
+                }
+            }
+        };
+
+        const removeRenameListener = tagOperations.addTagRenameListener(handleTagRename);
+        const removeDeleteListener = tagOperations.addTagDeleteListener(handleTagDelete);
+
+        return () => {
+            removeRenameListener();
+            removeDeleteListener();
+        };
+    }, [tagOperations, enhancedDispatch]);
+
     // Persist selected folder to localStorage with error handling
     useEffect(() => {
         try {
@@ -761,7 +850,7 @@ export function SelectionProvider({
 
     // Register file rename listener
     useEffect(() => {
-        const listenerId = `selection-context-${Math.random().toString(36).substr(2, 9)}`;
+        const listenerId = `selection-context-${Math.random().toString(36).substring(2, 11)}`;
 
         const handleFileRename = (oldPath: string, newPath: string) => {
             dispatch({ type: 'UPDATE_FILE_PATH', oldPath, newPath });

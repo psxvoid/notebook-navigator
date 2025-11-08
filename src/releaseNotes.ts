@@ -73,6 +73,56 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.7.4',
+        date: '2025-11-10',
+        showOnUpdate: true,
+        new: [
+            '==Tag rename, tag delete, tag drag-and-drop==! You can now rename tags, delete tags (removes from all notes), and drag-and-drop tags to reorganize them in navigation pane.',
+            'Two new folder menu items: **Copy path** and **Copy relative path**.',
+            'New check box in "Add tag" modal: **Allow creating new tags**. Disable to only allow selecting existing tags in the "Add tag" modal.'
+        ],
+        improved: ['Text preview filter now also removes code blocks with tilde fencing (~~~).'],
+        changed: [],
+        fixed: [
+            'Fixed a performance issue with Group by subfolder, it is now much faster with larger number of subfolders.',
+            'Fixed an issue where "Remove tag" would remove hashtags from HTML blocks and code blocks.'
+        ]
+    },
+    {
+        version: '1.7.3',
+        date: '2025-11-03',
+        showOnUpdate: true,
+        info: 'This version has three main improvements: First: ==multi-tag selection==. If you love working with tasks this will improve your productivity a lot. Secondly: ==much better vertical split mode==. You can now choose to hide the pinned files header, you can reduce the line spacing in "slim" file mode, and the current folder name is not shown if you group by subfolders. You can now also **override group by** for every folder individually. Thirdly: ==much better background rendering in navigation pane==. This is a great improvement if you use "Inherit folder colors" and use different background colors for each root folder. A new setting **Root folder spacing** allows you to separate root items further, making for a very pleasing visual setup. Enjoy!',
+        new: [
+            '==Multi-tag selection!== This is huge! You can now command+click tags to select multiple tags in list pane with "AND", or shift+command+click to select multiple tags with "OR". This updates the search field, and you can save these filters for future use!',
+            '==You can now override "Group by" for each tag and folder==. Just click the "Change appearance" toolbar button in list pane.',
+            'New commands: ==Select next file== and ==Select previous file==. Bind them to something like Cmd+left and Cmd+right to quickly navigate between tags and folders.',
+            'New setting: ==List Pane > Appearance > Slim item height==. Reduce line spacing in list pane with slim mode enabled.',
+            'New setting: ==List Pane > Appearance > Show pinned group header==. Toggle to hide the section header above pinned notes.',
+            'New setting: ==Navigation Pane > Appearance > Root folder spacing==. Use it to add extra spacing between root folders and tags in navigation pane. Especially useful when you use background colors with inheritance.',
+            'New setting: ==Notes > Appearance > Show parent folder colors==. When enabled, parent folder names in list pane will use their text color from navigation pane. Enabled by default.',
+            'Added "Reveal in Notebook Navigator" to ==Obsidian folder menus==. Right clicking a folder in Obsidian opens it in Notebook Navigator.',
+            '==Three new localizations==: Dutch (nl), Italian (it) and Portuguese / Brazil (pt-BR).'
+        ],
+        improved: [
+            'You can now **click the "Tags" folder** to view all notes with tags.',
+            'Significantly improved the way **background color** renders in navigation pane. This is a huge upgrade if you use background color for folders and tags in your vault!',
+            'The pinned section now uses a **Lucide icon instead of emoji**, and you can also change this icon with Style Settings > List pane > Pinned section icon. And if you do not want it you can remove it completely in settings.',
+            '**Horizontal rules (---, ***, ___)** are now removed from preview text.',
+            '**File reveal now preserve folder selection** when "Show notes from subfolders" is enabled and a descendant folder contains the file.',
+            'Added **two new theme variables** for selected folder and selected file name when pane is inactive: --nn-theme-navitem-selected-inactive-name-color and --nn-theme-file-selected-inactive-name-color.'
+        ],
+        changed: [
+            'Changed ZH-CN translation for "Untitled" to 未命名 to match Obsidian default.',
+            'When using "Group by subfolder" the current folder name will no longer show in the list.',
+            'The setting "Show icons" was split into separate controls for shortcut icons, folder icons, tag icons, and pinned section icon.'
+        ],
+        fixed: [
+            'Date parsing in frontmatter now uses correct locale handling.',
+            'Drag and drop does not work on Android devices due to a Chromium bug. This was fixed by implementing a popup menu on Android devices to rearrange shortcuts and root items.'
+        ]
+    },
+    {
         version: '1.7.2',
         date: '2025-10-28',
         showOnUpdate: false,

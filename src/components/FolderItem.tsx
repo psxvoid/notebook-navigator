@@ -42,7 +42,7 @@
  *
  * 6. Icon rendering optimization:
  *    - Icons rendered via useEffect to avoid blocking main render
- *    - Conditional rendering based on settings.showIcons
+ *    - Conditional rendering based on settings.showFolderIcons
  *
  * 7. Tooltip optimization:
  *    - Tooltip only created on desktop (mobile skipped)
@@ -217,7 +217,7 @@ export const FolderItem = React.memo(function FolderItem({
         const classes = ['nn-navitem', 'nn-folder'];
         if (isSelected) classes.push('nn-selected');
         if (isExcluded) classes.push('nn-excluded');
-        if (customBackground && !isSelected) classes.push('nn-has-custom-background');
+        if (customBackground) classes.push('nn-has-custom-background');
         return classes.join(' ');
     }, [customBackground, isSelected, isExcluded]);
 
@@ -308,7 +308,7 @@ export const FolderItem = React.memo(function FolderItem({
 
     // Add this useEffect for the folder icon
     useEffect(() => {
-        if (iconRef.current && settings.showIcons) {
+        if (iconRef.current && settings.showFolderIcons) {
             const iconService = getIconService();
 
             if (icon) {
@@ -324,7 +324,7 @@ export const FolderItem = React.memo(function FolderItem({
                 iconService.renderIcon(iconRef.current, iconName);
             }
         }
-    }, [isExpanded, icon, hasChildren, settings.showIcons, folder.path, iconVersion]);
+    }, [isExpanded, icon, hasChildren, settings.showFolderIcons, folder.path, iconVersion]);
 
     // Enable context menu
     useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });
@@ -360,7 +360,7 @@ export const FolderItem = React.memo(function FolderItem({
             style={
                 {
                     '--level': level,
-                    ...(customBackground && !isSelected ? { '--nn-navitem-custom-bg-color': customBackground } : {})
+                    ...(customBackground ? { '--nn-navitem-custom-bg-color': customBackground } : {})
                 } as React.CSSProperties
             }
             role="treeitem"
@@ -375,7 +375,7 @@ export const FolderItem = React.memo(function FolderItem({
                     onDoubleClick={handleChevronDoubleClick}
                     tabIndex={-1}
                 />
-                {settings.showIcons && (
+                {settings.showFolderIcons && (
                     <span className="nn-navitem-icon" ref={iconRef} style={customColor ? { color: customColor } : undefined}></span>
                 )}
                 <span

@@ -26,6 +26,7 @@ import { areStringArraysEqual, createIndexMap } from '../utils/arrayUtils';
 import { compareFolderOrderWithFallback } from '../utils/treeFlattener';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { stripTrailingSlash } from '../utils/pathUtils';
+import { runAsyncAction } from '../utils/async';
 
 const ROOT_PATH = '/';
 
@@ -219,8 +220,10 @@ export function useRootFolderOrder({ settings, onFileChange }: UseRootFolderOrde
 
             if (!areStringArraysEqual(normalizedOrder, rootFolderOrderRef.current)) {
                 rootFolderOrderRef.current = normalizedOrder;
-                void updateSettings(current => {
-                    current.rootFolderOrder = normalizedOrder;
+                runAsyncAction(async () => {
+                    await updateSettings(current => {
+                        current.rootFolderOrder = normalizedOrder;
+                    });
                 });
             }
 

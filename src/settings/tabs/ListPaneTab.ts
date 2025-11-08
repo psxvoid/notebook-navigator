@@ -16,10 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Platform, Setting } from 'obsidian';
+import { Platform, Setting, SliderComponent } from 'obsidian';
 import { strings } from '../../i18n';
-import type { ListNoteGroupingOption, ListPaneTitleOption, MultiSelectModifier, SortOption } from '../types';
+import { DEFAULT_SETTINGS } from '../defaultSettings';
+import type { ListNoteGroupingOption, ListPaneTitleOption, SortOption } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
+import { runAsyncAction } from '../../utils/async';
 
 /** Renders the list pane settings tab */
 export function renderListPaneTab(context: SettingsTabContext): void {
@@ -60,20 +62,6 @@ export function renderListPaneTab(context: SettingsTabContext): void {
                 })
         );
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.multiSelectModifier.name)
-        .setDesc(strings.settings.items.multiSelectModifier.desc)
-        .addDropdown(dropdown =>
-            dropdown
-                .addOption('cmdCtrl', strings.settings.items.multiSelectModifier.options.cmdCtrl)
-                .addOption('optionAlt', strings.settings.items.multiSelectModifier.options.optionAlt)
-                .setValue(plugin.settings.multiSelectModifier)
-                .onChange(async (value: MultiSelectModifier) => {
-                    plugin.settings.multiSelectModifier = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-        );
-
     new Setting(containerEl).setName(strings.settings.groups.list.display).setHeading();
 
     new Setting(containerEl)
@@ -97,6 +85,31 @@ export function renderListPaneTab(context: SettingsTabContext): void {
         );
 
     new Setting(containerEl)
+        .setName(strings.settings.items.showPinnedGroupHeader.name)
+        .setDesc(strings.settings.items.showPinnedGroupHeader.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showPinnedGroupHeader).onChange(async value => {
+                plugin.settings.showPinnedGroupHeader = value;
+                await plugin.saveSettingsAndUpdate();
+                pinnedGroupSettingsEl.toggle(value);
+            })
+        );
+
+    const pinnedGroupSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(pinnedGroupSettingsEl)
+        .setName(strings.settings.items.showPinnedIcon.name)
+        .setDesc(strings.settings.items.showPinnedIcon.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showPinnedIcon).onChange(async value => {
+                plugin.settings.showPinnedIcon = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    pinnedGroupSettingsEl.toggle(plugin.settings.showPinnedGroupHeader);
+
+    new Setting(containerEl)
         .setName(strings.settings.items.groupNotes.name)
         .setDesc(strings.settings.items.groupNotes.desc)
         .addDropdown(dropdown =>
@@ -117,6 +130,50 @@ export function renderListPaneTab(context: SettingsTabContext): void {
         .addToggle(toggle =>
             toggle.setValue(plugin.settings.optimizeNoteHeight).onChange(async value => {
                 plugin.settings.optimizeNoteHeight = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    // Slider to configure slim list item height with reset button
+    let slimItemHeightSlider: SliderComponent;
+    new Setting(containerEl)
+        .setName(strings.settings.items.slimItemHeight.name)
+        .setDesc(strings.settings.items.slimItemHeight.desc)
+        .addSlider(slider => {
+            slimItemHeightSlider = slider
+                .setLimits(20, 28, 1)
+                .setValue(plugin.settings.slimItemHeight)
+                .setDynamicTooltip()
+                .onChange(async value => {
+                    plugin.settings.slimItemHeight = value;
+                    await plugin.saveSettingsAndUpdate();
+                });
+            return slider;
+        })
+        .addExtraButton(button =>
+            button
+                .setIcon('lucide-rotate-ccw')
+                .setTooltip(strings.settings.items.slimItemHeight.resetTooltip)
+                .onClick(() => {
+                    runAsyncAction(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.slimItemHeight;
+                        slimItemHeightSlider.setValue(defaultValue);
+                        plugin.settings.slimItemHeight = defaultValue;
+                        await plugin.saveSettingsAndUpdate();
+                    });
+                })
+        );
+
+    // Sub-setting container for slim item height options
+    const slimItemHeightSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+    // Toggle to scale text proportionally with slim item height
+    new Setting(slimItemHeightSettingsEl)
+        .setName(strings.settings.items.slimItemHeightScaleText.name)
+        .setDesc(strings.settings.items.slimItemHeightScaleText.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.slimItemHeightScaleText).onChange(async value => {
+                plugin.settings.slimItemHeightScaleText = value;
                 await plugin.saveSettingsAndUpdate();
             })
         );

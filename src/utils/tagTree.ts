@@ -19,7 +19,7 @@
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
 import { isPathInExcludedFolder } from './fileFilters';
-import { HiddenTagMatcher, matchesHiddenTagPattern, normalizeTagPathValue } from './tagPrefixMatcher';
+import { HiddenTagMatcher, matchesHiddenTagPattern, normalizeTagPathValue, createHiddenTagVisibility } from './tagPrefixMatcher';
 import { naturalCompare } from './sortUtils';
 
 /**
@@ -58,13 +58,18 @@ function getNoteCountCache(): WeakMap<TagTreeNode, number> {
 export function buildTagTreeFromDatabase(
     db: IndexedDBStorage,
     excludedFolderPatterns?: string[],
-    includedPaths?: Set<string>
-): { tagTree: Map<string, TagTreeNode>; untagged: number; hiddenRootTags: Map<string, TagTreeNode> } {
+    includedPaths?: Set<string>,
+    hiddenTagPatterns: string[] = [],
+    showHiddenItems = false
+): { tagTree: Map<string, TagTreeNode>; tagged: number; untagged: number; hiddenRootTags: Map<string, TagTreeNode> } {
     // Track all unique tags that exist in the vault
     const allTagsSet = new Set<string>();
     let untaggedCount = 0;
+    let taggedCount = 0;
 
     const caseMap = new Map<string, string>();
+    const hiddenTagVisibility = createHiddenTagVisibility(hiddenTagPatterns, showHiddenItems);
+    const shouldFilterHiddenTags = hiddenTagVisibility.shouldFilterHiddenTags;
 
     // Map to store file associations for each tag
     const tagFiles = new Map<string, Set<string>>();
@@ -138,12 +143,18 @@ export function buildTagTreeFromDatabase(
             continue;
         }
 
+        let hasVisibleTagForFile = false;
+
         // Process each tag
         for (const tag of tags) {
             const canonicalPath = (tag.startsWith('#') ? tag.substring(1) : tag).replace(/^\/+|\/+$/g, '');
             const normalizedPath = normalizeTagPathValue(tag);
             if (canonicalPath.length === 0 || normalizedPath.length === 0) {
                 continue;
+            }
+
+            if (!shouldFilterHiddenTags || hiddenTagVisibility.isTagVisible(tag, canonicalPath.split('/').pop())) {
+                hasVisibleTagForFile = true;
             }
 
             let storedCanonical = caseMap.get(normalizedPath);
@@ -163,6 +174,10 @@ export function buildTagTreeFromDatabase(
             if (fileSet) {
                 fileSet.add(path);
             }
+        }
+
+        if (path.endsWith('.md') && hasVisibleTagForFile) {
+            taggedCount++;
         }
     }
 
@@ -253,7 +268,7 @@ export function buildTagTreeFromDatabase(
     // Clear note count cache since tree structure has changed
     clearNoteCountCache();
 
-    return { tagTree, untagged: untaggedCount, hiddenRootTags };
+    return { tagTree, tagged: taggedCount, untagged: untaggedCount, hiddenRootTags };
 }
 
 /**
@@ -269,24 +284,25 @@ export function getTotalNoteCount(node: TagTreeNode): number {
         return cachedCount;
     }
 
-    // Calculate count
-    let count = node.notesWithTag.size;
+    const allFiles = new Set<string>();
+    const visited = new Set<TagTreeNode>();
 
-    // Collect all unique files from this node and all descendants
-    const allFiles = new Set(node.notesWithTag);
-
-    // Helper to collect files from children
-    function collectFromChildren(n: TagTreeNode): void {
-        for (const child of n.children.values()) {
-            child.notesWithTag.forEach(file => allFiles.add(file));
-            collectFromChildren(child);
+    // Recursively visits nodes while tracking visited set to handle circular references
+    const visit = (current: TagTreeNode): void => {
+        if (visited.has(current)) {
+            return;
         }
-    }
+        visited.add(current);
 
-    collectFromChildren(node);
-    count = allFiles.size;
+        current.notesWithTag.forEach(path => allFiles.add(path));
+        for (const child of current.children.values()) {
+            visit(child);
+        }
+    };
 
-    // Cache the result
+    visit(node);
+
+    const count = allFiles.size;
     cache.set(node, count);
 
     return count;
@@ -296,12 +312,36 @@ export function getTotalNoteCount(node: TagTreeNode): number {
  * Collect all tag paths from a node and its descendants
  * Returns lowercase paths for logic operations
  */
-export function collectAllTagPaths(node: TagTreeNode, paths: Set<string> = new Set()): Set<string> {
+export function collectAllTagPaths(node: TagTreeNode, paths: Set<string> = new Set(), visited: Set<TagTreeNode> = new Set()): Set<string> {
+    // Guard against circular references in tree structure
+    if (visited.has(node)) {
+        return paths;
+    }
+    visited.add(node);
+
     paths.add(node.path);
     for (const child of node.children.values()) {
-        collectAllTagPaths(child, paths);
+        collectAllTagPaths(child, paths, visited);
     }
     return paths;
+}
+
+/**
+ * Collects all file paths associated with a tag node and its descendants.
+ * Returns a set to avoid duplicate paths when tags overlap.
+ */
+export function collectTagFilePaths(node: TagTreeNode, files: Set<string> = new Set(), visited: Set<TagTreeNode> = new Set()): Set<string> {
+    // Guard against circular references in tree structure
+    if (visited.has(node)) {
+        return files;
+    }
+    visited.add(node);
+
+    node.notesWithTag.forEach(path => files.add(path));
+    for (const child of node.children.values()) {
+        collectTagFilePaths(child, files, visited);
+    }
+    return files;
 }
 
 /**

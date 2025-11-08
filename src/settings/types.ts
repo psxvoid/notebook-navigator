@@ -64,6 +64,7 @@ export interface NotebookNavigatorSettings {
     // General tab - Behavior
     autoRevealActiveFile: boolean;
     autoRevealIgnoreRightSidebar: boolean;
+    multiSelectModifier: MultiSelectModifier;
 
     // General tab - View
     startView: 'navigation' | 'files';
@@ -89,23 +90,25 @@ export interface NotebookNavigatorSettings {
 
     // Navigation pane tab
     skipAutoScroll: boolean;
-    autoSelectFirstFileOnFocusChange: boolean;
     navigationBanner: string | null;
+    showSectionIcons: boolean;
     showShortcuts: boolean;
     showRecentNotes: boolean;
     recentNotesCount: number;
-    autoExpandFoldersTags: boolean;
     collapseBehavior: ItemScope;
     smartCollapse: boolean;
-    showIcons: boolean;
     colorIconOnly: boolean;
     showNoteCount: boolean;
     separateNoteCounts: boolean;
     navIndent: number;
     navItemHeight: number;
     navItemHeightScaleText: boolean;
+    rootLevelSpacing: number;
 
     // Folders & tags tab
+    autoSelectFirstFileOnFocusChange: boolean;
+    autoExpandFoldersTags: boolean;
+    showFolderIcons: boolean;
     showRootFolder: boolean;
     inheritFolderColors: boolean;
     enableFolderNotes: boolean;
@@ -115,19 +118,24 @@ export interface NotebookNavigatorSettings {
     hideFolderNoteInList: boolean;
     pinCreatedFolderNote: boolean;
     showTags: boolean;
+    showTagIcons: boolean;
     showAllTagsFolder: boolean;
     showUntagged: boolean;
     tagSortOrder: TagSortOrder;
     hiddenTags: string[];
     keepEmptyTagsProperty: boolean;
+    allowTagCreationInAddTagModal: boolean;
 
     // List pane tab
     defaultFolderSort: SortOption;
     listPaneTitle: ListPaneTitleOption;
-    multiSelectModifier: MultiSelectModifier;
     noteGrouping: ListNoteGroupingOption;
     filterPinnedByFolder: boolean;
+    showPinnedGroupHeader: boolean;
+    showPinnedIcon: boolean;
     optimizeNoteHeight: boolean;
+    slimItemHeight: number;
+    slimItemHeightScaleText: boolean;
     showQuickActions: boolean;
     quickActionRevealInFolder: boolean;
     quickActionPinNote: boolean;
@@ -151,7 +159,8 @@ export interface NotebookNavigatorSettings {
     collapseFileTagsToSelectedTag: boolean;
     colorFileTags: boolean;
     showFileTagsInSlimMode: boolean;
-    showParentFolderNames: boolean;
+    showParentFolder: boolean;
+    showParentFolderColor: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     skipCodeBlocksInPreview: boolean;

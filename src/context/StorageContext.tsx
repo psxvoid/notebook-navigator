@@ -49,6 +49,7 @@ import { FeatureImageContentProvider } from '../services/content/FeatureImageCon
 import { MetadataContentProvider } from '../services/content/MetadataContentProvider';
 import { TagContentProvider } from '../services/content/TagContentProvider';
 import { IndexedDBStorage, FileDataCache as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
+import { runAsyncAction } from '../utils/async';
 import { calculateFileDiff } from '../storage/diffCalculator';
 import { recordFileChanges, markFilesForRegeneration, removeFilesFromCache, getDBInstance, markPathsForRegeneration } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
@@ -101,6 +102,24 @@ function resolveMetadataDependentTypes(settings: NotebookNavigatorSettings, requ
         }
         return false;
     });
+}
+
+function haveStringArraysChanged(prev?: string[] | null, next?: string[] | null): boolean {
+    if (prev === next) {
+        return false;
+    }
+    if (!prev || !next) {
+        return (prev?.length ?? 0) !== (next?.length ?? 0);
+    }
+    if (prev.length !== next.length) {
+        return true;
+    }
+    for (let index = 0; index < prev.length; index += 1) {
+        if (prev[index] !== next[index]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -161,6 +180,7 @@ function filterFilesRequiringMetadataSources(files: TFile[], types: ContentType[
  */
 interface FileData {
     tagTree: Map<string, TagTreeNode>;
+    tagged: number;
     untagged: number;
     hiddenRootTags: Map<string, TagTreeNode>;
 }
@@ -206,7 +226,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const uxPreferences = useUXPreferences();
     const showHiddenItems = uxPreferences.showHiddenItems;
     const { tagTreeService } = useServices();
-    const [fileData, setFileData] = useState<FileData>({ tagTree: new Map(), untagged: 0, hiddenRootTags: new Map() });
+    const [fileData, setFileData] = useState<FileData>({ tagTree: new Map(), tagged: 0, untagged: 0, hiddenRootTags: new Map() });
 
     // Registry managing all content providers for generating preview text, feature images, metadata, and tags
     const contentRegistry = useRef<ContentProviderRegistry | null>(null);
@@ -253,18 +273,23 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         const excludedFolderPatterns = showHiddenItems ? [] : settings.excludedFolders;
         // Filter database results to only include files matching current visibility settings
         const includedPaths = new Set(getVisibleMarkdownFiles().map(f => f.path));
-        const { tagTree, untagged: newUntagged, hiddenRootTags } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths);
+        const {
+            tagTree,
+            tagged: newTagged,
+            untagged: newUntagged,
+            hiddenRootTags
+        } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths, settings.hiddenTags, showHiddenItems);
         clearNoteCountCache();
         const untaggedCount = newUntagged;
-        setFileData({ tagTree, untagged: untaggedCount, hiddenRootTags });
+        setFileData({ tagTree, tagged: newTagged, untagged: untaggedCount, hiddenRootTags });
 
         // Propagate updated tag trees to the global TagTreeService for cross-component access
         if (tagTreeService) {
-            tagTreeService.updateTagTree(tagTree, untaggedCount);
+            tagTreeService.updateTagTree(tagTree, newTagged, untaggedCount);
         }
 
         return tagTree;
-    }, [settings.excludedFolders, showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
+    }, [settings.excludedFolders, settings.hiddenTags, showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
 
     /**
      * Effect: Rebuild tag tree when hidden items visibility changes
@@ -746,9 +771,9 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
         // Reset in-memory tag tree structures to empty state
         const emptyTagTree = new Map<string, TagTreeNode>();
-        setFileData({ tagTree: emptyTagTree, untagged: 0, hiddenRootTags: new Map() });
+        setFileData({ tagTree: emptyTagTree, tagged: 0, untagged: 0, hiddenRootTags: new Map() });
         if (tagTreeService) {
-            tagTreeService.updateTagTree(emptyTagTree, 0);
+            tagTreeService.updateTagTree(emptyTagTree, 0, 0);
         }
         clearNoteCountCache();
 
@@ -1015,7 +1040,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
      */
     useEffect(() => {
         let cancelled = false;
-        (async () => {
+        const initializeDatabase = async () => {
             try {
                 const db = getDBInstance();
                 await db.init();
@@ -1024,7 +1049,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 console.error('Database not available for StorageContext:', error);
                 if (!cancelled) setIsIndexedDBReady(false);
             }
-        })();
+        };
+        runAsyncAction(initializeDatabase);
         return () => {
             cancelled = true;
         };
@@ -1282,10 +1308,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 if (typeof window !== 'undefined') {
                     pendingSyncTimeoutId.current = window.setTimeout(() => {
                         pendingSyncTimeoutId.current = null;
-                        void processDiff();
+                        runAsyncAction(() => processDiff());
                     }, 0);
                 } else {
-                    void processDiff();
+                    runAsyncAction(() => processDiff());
                 }
             }
         };
@@ -1326,7 +1352,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     if (!build) {
                         return;
                     }
-                    void build(false);
+                    runAsyncAction(() => build(false));
                 },
                 TIMEOUTS.FILE_OPERATION_DELAY,
                 true
@@ -1337,7 +1363,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         // Only build initial cache if IndexedDB is ready and we haven't built it yet
         if (isIndexedDBReady && !hasBuiltInitialCache.current) {
             hasBuiltInitialCache.current = true;
-            buildFileCache(true);
+            runAsyncAction(() => buildFileCache(true));
         }
 
         /**
@@ -1522,20 +1548,20 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
      */
     useEffect(() => {
         // Skip on initial mount
-        if (!prevSettings.current) {
+        const previousSettings = prevSettings.current;
+        if (!previousSettings) {
             prevSettings.current = settings;
             return;
         }
-
-        // Let content providers handle settings changes
-        handleSettingsChanges(prevSettings.current, settings);
+        // Settings UIs debounce excluded folders/files edits, so this effect only runs after the user stops typing
+        runAsyncAction(() => handleSettingsChanges(previousSettings, settings));
 
         // Detect exclusion setting changes and resync cache / tag tree
-        const excludedFoldersChanged = JSON.stringify(prevSettings.current.excludedFolders) !== JSON.stringify(settings.excludedFolders);
-        const excludedFilesChanged = JSON.stringify(prevSettings.current.excludedFiles) !== JSON.stringify(settings.excludedFiles);
+        const excludedFoldersChanged = haveStringArraysChanged(previousSettings.excludedFolders, settings.excludedFolders);
+        const excludedFilesChanged = haveStringArraysChanged(previousSettings.excludedFiles, settings.excludedFiles);
 
         if (excludedFoldersChanged || excludedFilesChanged) {
-            (async () => {
+            runAsyncAction(async () => {
                 try {
                     const allFiles = getIndexableMarkdownFiles();
                     const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles, pendingRenameDataRef.current);
@@ -1617,7 +1643,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 } catch (error) {
                     console.error('Error resyncing cache after exclusion changes:', error);
                 }
-            })();
+            });
         }
 
         prevSettings.current = settings;

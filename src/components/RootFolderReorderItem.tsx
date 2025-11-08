@@ -1,6 +1,8 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import type { ListReorderHandlers } from '../hooks/useListReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
+import { strings } from '../i18n';
+import { useSettingsState } from '../context/SettingsContext';
 
 /**
  * Props for a root folder item in reorder mode
@@ -13,14 +15,14 @@ interface RootFolderReorderItemProps {
     showDropIndicatorBefore?: boolean;
     showDropIndicatorAfter?: boolean;
     isDragSource?: boolean;
-    dragHandleLabel: string;
     onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
     chevronIcon?: string;
     isMissing?: boolean;
-    actions?: ReactNode;
     color?: string;
     itemType?: 'folder' | 'tag' | 'section'; // Type of navigation item (folder, tag, or section header)
     className?: string; // Additional CSS classes to apply to the item
+    dragHandleConfig?: DragHandleConfig;
+    trailingAccessory?: ReactNode;
 }
 
 /**
@@ -35,15 +37,16 @@ export function RootFolderReorderItem({
     showDropIndicatorBefore,
     showDropIndicatorAfter,
     isDragSource,
-    dragHandleLabel,
     onClick,
     chevronIcon,
     isMissing,
-    actions,
     color,
     itemType = 'folder',
-    className
+    className,
+    dragHandleConfig,
+    trailingAccessory
 }: RootFolderReorderItemProps) {
+    const settings = useSettingsState();
     // Prevents event bubbling for reorder item clicks to avoid triggering parent handlers
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
@@ -55,13 +58,15 @@ export function RootFolderReorderItem({
 
     // Configures the drag handle appearance when drag handlers are available
     // Shows a grip icon that allows users to reorder the root folder
-    const handleConfig: DragHandleConfig | undefined = dragHandlers
-        ? {
-              label: dragHandleLabel,
-              visible: true,
-              icon: 'lucide-grip-horizontal'
-          }
-        : undefined;
+    const handleConfig =
+        dragHandleConfig ??
+        (dragHandlers
+            ? {
+                  label: strings.navigationPane.dragHandleLabel,
+                  visible: true,
+                  icon: 'lucide-grip-horizontal'
+              }
+            : undefined);
 
     // Builds the CSS class names for the reorder item, combining base class with optional modifiers
     const rowClassName = (() => {
@@ -82,6 +87,20 @@ export function RootFolderReorderItem({
         return classes.join(' ');
     })();
 
+    // Determines icon visibility based on section icons setting and item-specific icon settings
+    const showIcon = useMemo(() => {
+        if (!settings.showSectionIcons) {
+            return false;
+        }
+        if (itemType === 'folder') {
+            return settings.showFolderIcons;
+        }
+        if (itemType === 'tag') {
+            return settings.showTagIcons;
+        }
+        return true;
+    }, [itemType, settings.showFolderIcons, settings.showSectionIcons, settings.showTagIcons]);
+
     return (
         <NavigationListRow
             icon={icon}
@@ -101,7 +120,8 @@ export function RootFolderReorderItem({
             ariaGrabbed={isDragSource}
             dragHandleConfig={handleConfig}
             chevronIcon={chevronIcon}
-            actions={actions}
+            trailingAccessory={trailingAccessory}
+            showIcon={showIcon}
         />
     );
 }

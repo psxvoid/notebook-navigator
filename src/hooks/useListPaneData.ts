@@ -33,20 +33,29 @@ import { LinkCache, TFile, TFolder, debounce } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { OperationType } from '../services/CommandQueueService';
 import { useFileCache } from '../context/StorageContext';
-import { ListPaneItemType, ItemType } from '../types';
+import { ListPaneItemType, ItemType, PINNED_SECTION_HEADER_KEY } from '../types';
 import type { VisibilityPreferences } from '../types';
 import type { ListPaneItem } from '../types/virtualization';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { shouldExcludeFile, isFolderInExcludedFolder } from '../utils/fileFilters';
-import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
+import { getDateField, getEffectiveSortOption, naturalCompare } from '../utils/sortUtils';
 import { strings } from '../i18n';
 import { FILE_VISIBILITY, isExcalidrawAttachment } from '../utils/fileTypeUtils';
-import { parseFilterSearchTokens, fileMatchesFilterTokens } from '../utils/filterSearch';
+import {
+    parseFilterSearchTokens,
+    fileMatchesFilterTokens,
+    filterSearchHasActiveCriteria,
+    filterSearchNeedsTagLookup,
+    filterSearchRequiresTagsForEveryMatch
+} from '../utils/filterSearch';
 import type { NotebookNavigatorSettings } from '../settings';
+import type { FilterSearchTokens } from '../utils/filterSearch';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility, normalizeTagPathValue } from '../utils/tagPrefixMatcher';
+import { resolveListGrouping } from '../utils/listGrouping';
+import { runAsyncAction } from '../utils/async';
 import { getDBInstance } from 'src/storage/fileOperations';
 import { FeatureImageContentProvider } from 'src/services/content/FeatureImageContentProvider';
 import { CachedMetadata } from 'tests/stubs/obsidian';
@@ -55,6 +64,8 @@ import { EMPTY_ARRAY, EMPTY_STRING } from 'src/utils/empty';
 const EMPTY_SEARCH_META = new Map<string, SearchResultMeta>();
 // Shared empty map used when no files are hidden to avoid allocations
 const EMPTY_HIDDEN_STATE = new Map<string, boolean>();
+// Shared sentinel array used when only tag presence is required
+const TAG_PRESENCE_SENTINEL = ['__nn_tag_present__'];
 
 /**
  * Parameters for the useListPaneData hook
@@ -70,6 +81,8 @@ interface UseListPaneDataParams {
     settings: NotebookNavigatorSettings;
     /** Optional search query to filter files */
     searchQuery?: string;
+    /** Pre-parsed search tokens matching the debounced query */
+    searchTokens?: FilterSearchTokens;
     /** Visibility preferences that control descendant notes and hidden items */
     visibility: VisibilityPreferences;
 }
@@ -82,6 +95,8 @@ interface UseListPaneDataResult {
     listItems: ListPaneItem[];
     /** Ordered array of files (without headers) for multi-selection */
     orderedFiles: TFile[];
+    /** Map from file path to index within orderedFiles array */
+    orderedFileIndexMap: Map<string, number>;
     /** Map from file path to list item index for O(1) lookups */
     filePathToIndex: Map<string, number>;
     /** Map from file path to position in files array for multi-selection */
@@ -105,6 +120,7 @@ export function useListPaneData({
     selectedTag,
     settings,
     searchQuery,
+    searchTokens,
     visibility
 }: UseListPaneDataParams): UseListPaneDataResult {
     const { app, tagTreeService, commandQueue, omnisearchService } = useServices();
@@ -182,7 +198,7 @@ export function useListPaneData({
         const token = ++searchTokenRef.current;
         let disposed = false;
 
-        (async () => {
+        runAsyncAction(async () => {
             try {
                 const hits = await omnisearchService.search(trimmedQuery);
                 // Ignore stale results
@@ -225,7 +241,7 @@ export function useListPaneData({
                     setOmnisearchResult({ query: trimmedQuery, files: [], meta: new Map() });
                 }
             }
-        })();
+        });
 
         return () => {
             disposed = true;
@@ -289,65 +305,67 @@ export function useListPaneData({
         }
 
         // Parse the search query into filter tokens
-        const tokens = parseFilterSearchTokens(trimmedQuery);
+        const tokens = searchTokens ?? parseFilterSearchTokens(trimmedQuery);
 
-        // Check if any meaningful tokens exist (inclusions or exclusions)
-        const hasTokens =
-            tokens.nameTokens.length > 0 ||
-            tokens.tagTokens.length > 0 ||
-            tokens.requireTagged ||
-            tokens.excludeNameTokens.length > 0 ||
-            tokens.excludeTagTokens.length > 0 ||
-            tokens.excludeTagged;
-
-        // Skip filtering if no tokens (e.g., query was only connector words)
-        if (!hasTokens) {
+        // Skip filtering if query contains no meaningful criteria
+        if (!filterSearchHasActiveCriteria(tokens)) {
             return baseFiles;
         }
 
-        // Get database instance for tag lookups
+        // Check if we need to access tag metadata for any file
+        const needsTagLookup = filterSearchNeedsTagLookup(tokens);
+        // Check if all inclusion clauses require files to have tags
+        const requireTaggedMatches = filterSearchRequiresTagsForEveryMatch(tokens);
+        const requiresNormalizedTagValues = tokens.mode === 'tag' || tokens.tagTokens.length > 0 || tokens.excludeTagTokens.length > 0;
+
         const db = getDB();
 
-        // Local cache for lowercase tags to avoid repeated transformations
-        const lowercaseTagCache = new Map<string, string[]>();
+        // Cache normalized tag arrays to avoid repeated string transformations
+        const normalizedTagCache = new Map<string, string[]>();
+        const emptyTags: string[] = [];
+
+        // Get or compute normalized tags for a file path
+        const resolveNormalizedTags = (path: string, rawTags: readonly string[]): string[] => {
+            const cached = normalizedTagCache.get(path);
+            if (cached !== undefined) {
+                return cached;
+            }
+            const normalized = rawTags.map(tag => normalizeTagPathValue(tag)).filter((value): value is string => value.length > 0);
+            normalizedTagCache.set(path, normalized);
+            return normalized;
+        };
 
         const filteredByFilterSearch = baseFiles.filter(file => {
-            const name = searchableNames.get(file.path) || '';
+            const lowercaseName = searchableNames.get(file.path) || '';
 
-            // Performance optimization: Only access the tag cache when the query actually
-            // references tags (either for inclusion or exclusion). This avoids expensive
-            // tag lookups for simple name-only searches.
-            const needsTags =
-                tokens.requireTagged || tokens.tagTokens.length > 0 || tokens.excludeTagged || tokens.excludeTagTokens.length > 0;
-
-            let lowercaseTags: string[] = [];
-            if (needsTags) {
-                const tags = db.getCachedTags(file.path);
-                if (tags.length === 0) {
-                    // File has no tags - fail if we require tags for inclusion
-                    if (tokens.requireTagged || tokens.tagTokens.length > 0) {
-                        return false;
-                    }
-                    // Otherwise, continue with empty tag array for exclusion checks
-                    lowercaseTags = [];
-                } else {
-                    // Performance optimization: Cache lowercase tag arrays to avoid repeated
-                    // toLowerCase() calls when checking multiple files
-                    let cached = lowercaseTagCache.get(file.path);
-                    if (!cached) {
-                        cached = tags.map(tag => normalizeTagPathValue(tag)).filter((value): value is string => value.length > 0);
-                        lowercaseTagCache.set(file.path, cached);
-                    }
-                    lowercaseTags = cached;
-                }
+            // Skip tag lookup if tokens do not reference tags
+            if (!needsTagLookup) {
+                return fileMatchesFilterTokens(lowercaseName, emptyTags, tokens);
             }
 
-            return fileMatchesFilterTokens(name, lowercaseTags, tokens);
+            const rawTags = db.getCachedTags(file.path);
+            const hasTags = rawTags.length > 0;
+
+            // Early return if file must have tags but has none
+            if (requireTaggedMatches && !hasTags) {
+                return false;
+            }
+
+            let lowercaseTags: string[];
+            if (!hasTags) {
+                lowercaseTags = emptyTags;
+            } else if (requiresNormalizedTagValues) {
+                lowercaseTags = resolveNormalizedTags(file.path, rawTags);
+            } else {
+                lowercaseTags = TAG_PRESENCE_SENTINEL;
+            }
+
+            return fileMatchesFilterTokens(lowercaseName, lowercaseTags, tokens);
         });
 
         // Return the filtered results from the internal filter search
         return filteredByFilterSearch;
-    }, [useOmnisearch, trimmedQuery, baseFiles, searchableNames, omnisearchResult, getDB]);
+    }, [useOmnisearch, trimmedQuery, baseFiles, searchableNames, omnisearchResult, getDB, searchTokens]);
 
     // Builds map of file paths that are normally hidden but shown via "show hidden items"
     const hiddenFileState = useMemo(() => {
@@ -470,29 +488,39 @@ export function useListPaneData({
             items.push({ ...baseItem, ...overrides });
         };
 
+        // Controls whether to show header above pinned notes section
+        const showPinnedGroupHeader = settings.showPinnedGroupHeader ?? true;
+
         // Add pinned files
         if (pinnedFiles.length > 0) {
-            items.push({
-                type: ListPaneItemType.HEADER,
-                data: strings.listPane.pinnedSection,
-                key: `header-pinned`
-            });
+            if (showPinnedGroupHeader) {
+                items.push({
+                    type: ListPaneItemType.HEADER,
+                    data: strings.listPane.pinnedSection,
+                    key: PINNED_SECTION_HEADER_KEY
+                });
+            }
             pinnedFiles.forEach(file => {
                 pushFileItem(file, { isPinned: true });
             });
         }
 
-        // Add unpinned files using the configured grouping mode
-        const groupingMode = settings.noteGrouping ?? 'none';
+        // Resolve effective grouping mode (handles global default + per-folder/tag overrides)
+        const groupingInfo = resolveListGrouping({
+            settings,
+            selectionType: selectionType ?? undefined,
+            folderPath: selectedFolder ? selectedFolder.path : null,
+            tag: selectedTag ?? null
+        });
+        const groupingMode = groupingInfo.effectiveGrouping;
         const isTitleSort = sortOption.startsWith('title');
         // Date grouping is only applied when sorting by date
-        const shouldGroupByDate =
-            (groupingMode === 'date' || (groupingMode === 'folder' && selectionType === ItemType.TAG)) && !isTitleSort;
+        const shouldGroupByDate = groupingMode === 'date' && !isTitleSort;
         const shouldGroupByFolder = groupingMode === 'folder' && selectionType === ItemType.FOLDER;
 
         if (!shouldGroupByDate && !shouldGroupByFolder) {
             // No grouping
-            // If we showed a pinned section and have regular items, insert a split header
+            // If pinned notes exist and there are regular items, insert a header before regular notes
             if (pinnedFiles.length > 0 && unpinnedFiles.length > 0) {
                 const label =
                     settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS ? strings.listPane.notesSection : strings.listPane.filesSection;
@@ -602,21 +630,39 @@ export function useListPaneData({
             const orderedGroups = Array.from(folderGroups.entries())
                 .map(([key, group]) => ({ key, ...group }))
                 .sort((a, b) => {
-                    if (a.sortKey === b.sortKey) {
-                        return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+                    const sortKeyCompare = naturalCompare(a.sortKey, b.sortKey);
+                    if (sortKeyCompare !== 0) {
+                        return sortKeyCompare;
                     }
-                    return a.sortKey.localeCompare(b.sortKey, undefined, { sensitivity: 'base' });
+
+                    const labelCompare = naturalCompare(a.label, b.label);
+                    if (labelCompare !== 0) {
+                        return labelCompare;
+                    }
+
+                    if (a.key === b.key) {
+                        return 0;
+                    }
+                    return a.key < b.key ? -1 : 1;
                 });
 
             // Add groups and their files to the items list
             orderedGroups.forEach(group => {
-                // Skip header for current folder if there are no pinned notes
-                const shouldSkipHeader = group.isCurrentFolder && pinnedFiles.length === 0;
-                if (!shouldSkipHeader) {
+                if (group.files.length === 0) {
+                    return;
+                }
+
+                if (!group.isCurrentFolder) {
                     items.push({
                         type: ListPaneItemType.HEADER,
                         data: group.label,
                         key: `header-${group.key}`
+                    });
+                } else if (pinnedFiles.length > 0) {
+                    items.push({
+                        type: ListPaneItemType.GROUP_SPACER,
+                        data: '',
+                        key: `spacer-${group.key}`
                     });
                 }
 
@@ -640,6 +686,7 @@ export function useListPaneData({
         settings,
         selectionType,
         selectedFolder,
+        selectedTag,
         getFileCreatedTime,
         getFileModifiedTime,
         searchMetaMap,
@@ -681,16 +728,20 @@ export function useListPaneData({
      * Build an ordered array of files (excluding headers and spacers).
      * Used for Shift+Click range selection functionality.
      */
-    const orderedFiles = useMemo(() => {
+    const { orderedFiles, orderedFileIndexMap } = useMemo<{
+        orderedFiles: TFile[];
+        orderedFileIndexMap: Map<string, number>;
+    }>(() => {
         const files: TFile[] = [];
+        const indexMap = new Map<string, number>();
         listItems.forEach(item => {
-            if (item.type === ListPaneItemType.FILE) {
-                if (item.data instanceof TFile) {
-                    files.push(item.data);
-                }
+            if (item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
+                // Store the index before pushing to maintain correct mapping
+                indexMap.set(item.data.path, files.length);
+                files.push(item.data);
             }
         });
-        return files;
+        return { orderedFiles: files, orderedFileIndexMap: indexMap };
     }, [listItems]);
 
     /**
@@ -998,6 +1049,7 @@ export function useListPaneData({
     return {
         listItems,
         orderedFiles,
+        orderedFileIndexMap,
         filePathToIndex,
         fileIndexMap,
         files,

@@ -19,6 +19,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DragEvent } from 'react';
 import { SHORTCUT_DRAG_MIME } from '../types/shortcuts';
+import { runAsyncAction } from '../utils/async';
 
 /**
  * Base interface for items that can be reordered.
@@ -57,6 +58,8 @@ interface UseListReorderResult {
     getDragHandlers: (key: string) => ListReorderHandlers; // Factory function for drag handlers
     dropIndex: number | null; // Current drop position indicator
     draggingKey: string | null; // Key of the item being dragged
+    moveItem: (key: string, offset: number) => Promise<boolean>; // Moves an item by the specified offset
+    canMoveItem: (key: string, offset: number) => boolean; // Checks if an item can be moved by the offset
 }
 
 function noopHandler() {
@@ -347,6 +350,80 @@ export function useListReorder<T extends ReorderItemDescriptor>({
         resetDragState();
     }, [draggingKey, resetDragState]);
 
+    // Checks if an item can be moved by the specified offset without going out of bounds
+    const canMoveItem = useCallback(
+        (key: string, offset: number) => {
+            if (!isEnabled) {
+                return false;
+            }
+            if (offset === 0) {
+                return false;
+            }
+
+            const currentIndex = keyToIndex.get(key);
+            if (currentIndex === undefined) {
+                return false;
+            }
+
+            const targetIndex = currentIndex + offset;
+            if (targetIndex < 0) {
+                return false;
+            }
+            if (targetIndex >= itemOrder.length) {
+                return false;
+            }
+
+            return true;
+        },
+        [isEnabled, itemOrder.length, keyToIndex]
+    );
+
+    // Moves an item by the specified offset, updating the order and persisting changes
+    const moveItem = useCallback(
+        async (key: string, offset: number) => {
+            if (!canMoveItem(key, offset)) {
+                return false;
+            }
+
+            const currentIndex = keyToIndex.get(key);
+            if (currentIndex === undefined) {
+                return false;
+            }
+
+            // Calculate new position and build reordered array
+            const targetIndex = currentIndex + offset;
+            const nextOrder = [...itemOrder];
+            const [moved] = nextOrder.splice(currentIndex, 1);
+            nextOrder.splice(targetIndex, 0, moved);
+
+            // Check if order actually changed
+            let changed = false;
+            for (let index = 0; index < nextOrder.length; index += 1) {
+                if (nextOrder[index] !== itemOrder[index]) {
+                    changed = true;
+                    break;
+                }
+            }
+
+            if (!changed) {
+                return false;
+            }
+
+            // Persist the new order
+            try {
+                const success = await reorderItems(nextOrder);
+                if (!success) {
+                    console.warn('List reorder returned false, no changes applied');
+                }
+                return success;
+            } catch (error) {
+                console.error('Failed to reorder list', error);
+                return false;
+            }
+        },
+        [canMoveItem, itemOrder, keyToIndex, reorderItems]
+    );
+
     // No-op handlers used when drag and drop is disabled
     const disabledHandlers = useMemo<ListReorderHandlers>(
         () => ({
@@ -373,7 +450,9 @@ export function useListReorder<T extends ReorderItemDescriptor>({
                 onDragStart: event => handleDragStart(event, key),
                 onDragOver: event => handleDragOver(event, key),
                 onDragLeave: handleDragLeave,
-                onDrop: event => void handleDrop(event, key),
+                onDrop: event => {
+                    runAsyncAction(() => handleDrop(event, key));
+                },
                 onDragEnd: handleDragEnd
             };
         },
@@ -383,6 +462,8 @@ export function useListReorder<T extends ReorderItemDescriptor>({
     return {
         getDragHandlers,
         dropIndex,
-        draggingKey
+        draggingKey,
+        moveItem,
+        canMoveItem
     };
 }

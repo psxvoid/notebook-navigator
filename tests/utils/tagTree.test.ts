@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildTagTreeFromDatabase, findTagNode } from '../../src/utils/tagTree';
+import { buildTagTreeFromDatabase, findTagNode, collectTagFilePaths, collectAllTagPaths, getTotalNoteCount } from '../../src/utils/tagTree';
 import { normalizeTagPathValue } from '../../src/utils/tagPrefixMatcher';
 import type { IndexedDBStorage, FileData } from '../../src/storage/IndexedDBStorage';
 import type { TagTreeNode } from '../../src/types/storage';
@@ -149,5 +149,49 @@ describe('tag tree hardening', () => {
         const tree = new Map<string, TagTreeNode>([['root', root]]);
         expect(findTagNode(tree, 'root')).toBe(root);
         expect(findTagNode(tree, 'missing')).toBeNull();
+    });
+
+    it('guards traversal helpers against malformed cycles introduced by invalid tags', () => {
+        const root: TagTreeNode = {
+            name: 'root',
+            path: 'root',
+            displayPath: 'root',
+            children: new Map(),
+            notesWithTag: new Set(['root.md'])
+        };
+        const child: TagTreeNode = {
+            name: 'child',
+            path: 'root//child',
+            displayPath: 'root//child',
+            children: new Map(),
+            notesWithTag: new Set(['child.md'])
+        };
+
+        // Simulate a corrupted structure where the child references the parent.
+        root.children.set(child.path, child);
+        child.children.set(root.path, root);
+
+        const files = collectTagFilePaths(root);
+        expect(files).toEqual(new Set(['root.md', 'child.md']));
+
+        const paths = Array.from(collectAllTagPaths(root)).sort();
+        expect(paths).toEqual(['root', 'root//child']);
+
+        expect(getTotalNoteCount(root)).toBe(2);
+    });
+});
+
+describe('tagged count visibility', () => {
+    it('excludes files with only hidden tags when hidden tags are filtered', () => {
+        const db = createMockDb([
+            { path: 'visible.md', tags: ['projects/work'] },
+            { path: 'hidden.md', tags: ['archive/secret'] }
+        ]);
+
+        const filtered = buildTagTreeFromDatabase(db, undefined, undefined, ['archive'], false);
+        expect(filtered.tagged).toBe(1);
+
+        const unfiltered = buildTagTreeFromDatabase(db, undefined, undefined, ['archive'], true);
+        expect(unfiltered.tagged).toBe(2);
     });
 });

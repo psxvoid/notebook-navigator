@@ -25,6 +25,7 @@ import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useNavigationActions } from '../hooks/useNavigationActions';
 import { hasHiddenItemSources } from '../utils/exclusionUtils';
+import { runAsyncAction } from '../utils/async';
 
 interface NavigationPaneHeaderProps {
     onTreeUpdateComplete?: () => void;
@@ -124,11 +125,7 @@ export function NavigationPaneHeader({
                     <button
                         className={`nn-icon-button ${rootReorderActive ? 'nn-icon-button-active' : ''}`}
                         aria-label={rootReorderActive ? strings.paneHeader.finishRootFolderReorder : strings.paneHeader.reorderRootFolders}
-                        onClick={() => {
-                            if (onToggleRootFolderReorder) {
-                                onToggleRootFolderReorder();
-                            }
-                        }}
+                        onClick={onToggleRootFolderReorder}
                         disabled={rootReorderDisabled}
                         tabIndex={-1}
                     >
@@ -137,7 +134,9 @@ export function NavigationPaneHeader({
                     <button
                         className="nn-icon-button"
                         aria-label={strings.paneHeader.newFolder}
-                        onClick={handleNewFolder}
+                        onClick={() => {
+                            runAsyncAction(() => handleNewFolder());
+                        }}
                         disabled={!selectionState.selectedFolder}
                         tabIndex={-1}
                     >

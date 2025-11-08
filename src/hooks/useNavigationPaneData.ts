@@ -40,6 +40,7 @@ import { useShortcuts } from '../context/ShortcutsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
 import { strings } from '../i18n';
 import {
+    TAGGED_TAG_ID,
     UNTAGGED_TAG_ID,
     NavigationPaneItemType,
     VirtualFolder,
@@ -71,6 +72,7 @@ import type { NoteCountInfo } from '../types/noteCounts';
 import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
 import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { sanitizeNavigationSectionOrder } from '../utils/navigationSections';
+import { getVirtualTagCollection, VIRTUAL_TAG_COLLECTION_IDS } from '../utils/virtualTagCollections';
 
 // Checks if a navigation item is a shortcut-related item (virtual folder, shortcut, or header)
 const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
@@ -85,6 +87,74 @@ const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
         item.type === NavigationPaneItemType.SHORTCUT_TAG ||
         item.type === NavigationPaneItemType.SHORTCUT_HEADER
     );
+};
+
+/** Options controlling which navigation items are eligible for root spacing */
+interface RootSpacingOptions {
+    showRootFolder: boolean;
+    tagRootLevel: number;
+}
+
+/** Determines if the navigation item is a top-level folder or tag eligible for root spacing */
+const isRootSpacingCandidate = (item: CombinedNavigationItem, options: RootSpacingOptions): boolean => {
+    if (item.type === NavigationPaneItemType.FOLDER) {
+        const desiredLevel = options.showRootFolder ? 1 : 0;
+        return item.level === desiredLevel;
+    }
+    if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
+        return item.level === options.tagRootLevel;
+    }
+    return false;
+};
+
+/**
+ * Inserts spacer items between consecutive root-level folders or tags
+ * @param items Navigation items to augment with spacing
+ * @param spacing Spacing value in pixels
+ */
+const insertRootSpacing = (items: CombinedNavigationItem[], spacing: number, options: RootSpacingOptions): CombinedNavigationItem[] => {
+    if (spacing <= 0) {
+        return items;
+    }
+
+    const result: CombinedNavigationItem[] = [];
+    let rootCountInSection = 0;
+    let spacerId = 0;
+
+    const shouldResetSection = (item: CombinedNavigationItem): boolean => {
+        return (
+            item.type === NavigationPaneItemType.TOP_SPACER ||
+            item.type === NavigationPaneItemType.BOTTOM_SPACER ||
+            item.type === NavigationPaneItemType.LIST_SPACER ||
+            item.type === NavigationPaneItemType.BANNER ||
+            item.type === NavigationPaneItemType.VIRTUAL_FOLDER
+        );
+    };
+
+    for (const item of items) {
+        if (shouldResetSection(item)) {
+            rootCountInSection = 0;
+            result.push(item);
+            continue;
+        }
+
+        if (isRootSpacingCandidate(item, options)) {
+            if (rootCountInSection > 0) {
+                result.push({
+                    type: NavigationPaneItemType.ROOT_SPACER,
+                    key: `root-spacer-${spacerId++}`,
+                    spacing
+                });
+            }
+            rootCountInSection += 1;
+            result.push(item);
+            continue;
+        }
+
+        result.push(item);
+    }
+
+    return result;
 };
 
 // Maps non-markdown document extensions to their icon names
@@ -264,6 +334,15 @@ export function useNavigationPaneData({
     const hiddenTagMatcher = hiddenTagVisibility.matcher;
     const hiddenMatcherHasRules = hiddenTagVisibility.hasHiddenRules;
 
+    const visibleTagTree = useMemo(() => {
+        if (!hiddenMatcherHasRules || showHiddenItems) {
+            return tagTree;
+        }
+        return excludeFromTagTree(tagTree, hiddenTagMatcher);
+    }, [tagTree, hiddenMatcherHasRules, showHiddenItems, hiddenTagMatcher]);
+
+    const visibleTaggedCount = fileData.tagged ?? 0;
+
     /** Create tag comparator based on current sort order and descendant note settings */
     const tagComparator = useMemo(
         () => createTagComparator(settings.tagSortOrder, includeDescendantNotes),
@@ -311,18 +390,26 @@ export function useNavigationPaneData({
     /**
      * Build tag items with a single tag tree
      */
-    const { tagItems, hasTagContent, resolvedRootTagKeys } = useMemo(() => {
+    const { tagItems, resolvedRootTagKeys, tagsVirtualFolderHasChildren } = useMemo(() => {
         if (!settings.showTags) {
-            return { tagItems: [] as CombinedNavigationItem[], hasTagContent: false, resolvedRootTagKeys: [] };
+            return {
+                tagItems: [] as CombinedNavigationItem[],
+                resolvedRootTagKeys: [],
+                tagsVirtualFolderHasChildren: false
+            };
         }
 
         const items: CombinedNavigationItem[] = [];
 
         const shouldHideTags = !showHiddenItems;
         const hasHiddenPatterns = hiddenMatcherHasRules;
-        const visibleTagTree = hasHiddenPatterns && shouldHideTags ? excludeFromTagTree(tagTree, hiddenTagMatcher) : tagTree;
         const shouldIncludeUntagged = settings.showUntagged && untaggedCount > 0;
         const matcherForMarking = !shouldHideTags && hasHiddenPatterns ? hiddenTagMatcher : undefined;
+        const taggedCollectionCount: NoteCountInfo = {
+            current: visibleTaggedCount,
+            descendants: 0,
+            total: visibleTaggedCount
+        };
 
         // Adds the untagged node to the items list at the specified level
         const pushUntaggedNode = (level: number) => {
@@ -332,7 +419,7 @@ export function useNavigationPaneData({
             const untaggedNode: TagTreeNode = {
                 path: UNTAGGED_TAG_ID,
                 displayPath: UNTAGGED_TAG_ID,
-                name: strings.tagList.untaggedLabel,
+                name: getVirtualTagCollection(VIRTUAL_TAG_COLLECTION_IDS.UNTAGGED).getLabel(),
                 children: new Map(),
                 notesWithTag: new Set()
             };
@@ -345,34 +432,52 @@ export function useNavigationPaneData({
             });
         };
 
-        const addVirtualFolder = (id: string, name: string, icon?: string) => {
+        const addVirtualFolder = (
+            id: string,
+            name: string,
+            icon?: string,
+            options?: { tagCollectionId?: string; showFileCount?: boolean; noteCount?: NoteCountInfo }
+        ) => {
             const folder: VirtualFolder = { id, name, icon };
             items.push({
                 type: NavigationPaneItemType.VIRTUAL_FOLDER,
                 data: folder,
                 level: 0,
-                key: id
+                key: id,
+                isSelectable: Boolean(options?.tagCollectionId),
+                tagCollectionId: options?.tagCollectionId,
+                showFileCount: options?.showFileCount,
+                noteCount: options?.noteCount
             });
         };
 
-        if (!visibleTagTree) {
-            if (!shouldIncludeUntagged) {
-                return { tagItems: items, hasTagContent: false, resolvedRootTagKeys: [] };
-            }
-
+        if (visibleTagTree.size === 0) {
             if (settings.showAllTagsFolder) {
                 const folderId = 'tags-root';
-                addVirtualFolder(folderId, strings.tagList.tags, 'lucide-tags');
+                addVirtualFolder(folderId, strings.tagList.tags, 'lucide-tags', {
+                    tagCollectionId: TAGGED_TAG_ID,
+                    showFileCount: settings.showNoteCount,
+                    noteCount: taggedCollectionCount
+                });
 
-                if (expansionState.expandedVirtualFolders.has(folderId)) {
+                if (expansionState.expandedVirtualFolders.has(folderId) && shouldIncludeUntagged) {
                     pushUntaggedNode(1);
                 }
 
-                return { tagItems: items, hasTagContent: true, resolvedRootTagKeys: [UNTAGGED_TAG_ID] };
+                const tagsVirtualFolderHasChildren = shouldIncludeUntagged;
+                return {
+                    tagItems: items,
+                    resolvedRootTagKeys: shouldIncludeUntagged ? [UNTAGGED_TAG_ID] : [],
+                    tagsVirtualFolderHasChildren
+                };
             }
 
-            pushUntaggedNode(0);
-            return { tagItems: items, hasTagContent: true, resolvedRootTagKeys: [UNTAGGED_TAG_ID] };
+            if (shouldIncludeUntagged) {
+                pushUntaggedNode(0);
+                return { tagItems: items, resolvedRootTagKeys: [UNTAGGED_TAG_ID], tagsVirtualFolderHasChildren: true };
+            }
+
+            return { tagItems: items, resolvedRootTagKeys: [], tagsVirtualFolderHasChildren: false };
         }
 
         // Extract root nodes and determine effective comparator based on custom ordering
@@ -382,7 +487,9 @@ export function useNavigationPaneData({
             rootTagOrderMap.size > 0 ? (a, b) => compareTagOrderWithFallback(a, b, rootTagOrderMap, baseComparator) : baseComparator;
         const sortedRootNodes = visibleRootNodes.length > 0 ? visibleRootNodes.slice().sort(effectiveComparator) : visibleRootNodes;
         const hasVisibleTags = sortedRootNodes.length > 0;
-        const hasContent = hasVisibleTags || shouldIncludeUntagged;
+        const hasTagCollectionContent = visibleTaggedCount > 0;
+        const hasContent = hasVisibleTags || shouldIncludeUntagged || hasTagCollectionContent;
+        const tagsVirtualFolderHasChildren = hasVisibleTags || shouldIncludeUntagged;
 
         // Build map of all root nodes including visible and hidden ones
         const rootNodeMap = new Map<string, TagTreeNode>();
@@ -442,7 +549,11 @@ export function useNavigationPaneData({
         if (settings.showAllTagsFolder) {
             if (hasContent) {
                 const folderId = 'tags-root';
-                addVirtualFolder(folderId, strings.tagList.tags, 'lucide-tags');
+                addVirtualFolder(folderId, strings.tagList.tags, 'lucide-tags', {
+                    tagCollectionId: TAGGED_TAG_ID,
+                    showFileCount: settings.showNoteCount,
+                    noteCount: taggedCollectionCount
+                });
 
                 if (expansionState.expandedVirtualFolders.has(folderId)) {
                     resolvedRootTagKeys.forEach(key => {
@@ -478,7 +589,7 @@ export function useNavigationPaneData({
             });
         }
 
-        return { tagItems: items, hasTagContent: hasContent, resolvedRootTagKeys };
+        return { tagItems: items, resolvedRootTagKeys, tagsVirtualFolderHasChildren };
     }, [
         settings.showTags,
         settings.showAllTagsFolder,
@@ -486,8 +597,10 @@ export function useNavigationPaneData({
         settings.showUntagged,
         hiddenTagMatcher,
         hiddenMatcherHasRules,
-        tagTree,
+        visibleTagTree,
+        visibleTaggedCount,
         untaggedCount,
+        settings.showNoteCount,
         settings.rootTagOrder,
         expansionState.expandedTags,
         expansionState.expandedVirtualFolders,
@@ -937,26 +1050,36 @@ export function useNavigationPaneData({
      * Create a map for O(1) item lookups by path
      * Build from filtered items so indices match what's displayed
      */
+    const itemsWithRootSpacing = useMemo(() => {
+        const tagRootLevel = settings.showAllTagsFolder ? 1 : 0;
+        return insertRootSpacing(filteredItems, settings.rootLevelSpacing, {
+            showRootFolder: settings.showRootFolder,
+            tagRootLevel
+        });
+    }, [filteredItems, settings.rootLevelSpacing, settings.showRootFolder, settings.showAllTagsFolder]);
+
     const pathToIndex = useMemo(() => {
         const indexMap = new Map<string, number>();
 
-        filteredItems.forEach((item, index) => {
+        itemsWithRootSpacing.forEach((item, index) => {
             if (item.type === NavigationPaneItemType.FOLDER) {
                 setNavigationIndex(indexMap, ItemType.FOLDER, item.data.path, index);
             } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
                 const tagNode = item.data;
                 setNavigationIndex(indexMap, ItemType.TAG, tagNode.path, index);
+            } else if (item.type === NavigationPaneItemType.VIRTUAL_FOLDER && item.tagCollectionId) {
+                setNavigationIndex(indexMap, ItemType.TAG, item.tagCollectionId, index);
             }
         });
 
         return indexMap;
-    }, [filteredItems]);
+    }, [itemsWithRootSpacing]);
 
     // Build index map for shortcuts to enable scrolling to specific shortcuts
     const shortcutIndex = useMemo(() => {
         const indexMap = new Map<string, number>();
 
-        const source = pinShortcuts ? shortcutItemsWithMetadata : filteredItems;
+        const source = pinShortcuts ? shortcutItemsWithMetadata : itemsWithRootSpacing;
 
         source.forEach((item, index) => {
             if (
@@ -970,7 +1093,7 @@ export function useNavigationPaneData({
         });
 
         return indexMap;
-    }, [filteredItems, pinShortcuts, shortcutItemsWithMetadata]);
+    }, [itemsWithRootSpacing, pinShortcuts, shortcutItemsWithMetadata]);
 
     /**
      * Pre-compute tag counts to avoid expensive calculations during render
@@ -980,6 +1103,12 @@ export function useNavigationPaneData({
 
         // Skip computation if pane is not visible or not showing tags
         if (!isVisible || !settings.showTags) return counts;
+
+        counts.set(TAGGED_TAG_ID, {
+            current: visibleTaggedCount,
+            descendants: 0,
+            total: visibleTaggedCount
+        });
 
         // Add untagged count
         if (settings.showUntagged) {
@@ -1010,7 +1139,7 @@ export function useNavigationPaneData({
         });
 
         return counts;
-    }, [itemsWithMetadata, settings.showTags, settings.showUntagged, includeDescendantNotes, untaggedCount, isVisible]);
+    }, [itemsWithMetadata, settings.showTags, settings.showUntagged, includeDescendantNotes, visibleTaggedCount, untaggedCount, isVisible]);
 
     /**
      * Pre-compute folder file counts to avoid recursive counting during render
@@ -1092,9 +1221,9 @@ export function useNavigationPaneData({
     }, [app]);
 
     return {
-        items: filteredItems,
+        items: itemsWithRootSpacing,
         shortcutItems: shortcutItemsWithMetadata,
-        tagsVirtualFolderHasChildren: hasTagContent,
+        tagsVirtualFolderHasChildren,
         pathToIndex,
         shortcutIndex,
         tagCounts,

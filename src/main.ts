@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Plugin, TFile, FileView } from 'obsidian';
+import { Plugin, TFile, FileView, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab, updateFeatureImageSize } from './settings';
 import {
     LocalStorageKeys,
@@ -38,6 +38,7 @@ import { RecentNotesService } from './services/RecentNotesService';
 import RecentDataManager from './services/recent/RecentDataManager';
 import { ExternalIconProviderController } from './services/icons/external/ExternalIconProviderController';
 import { ExternalIconProviderId } from './services/icons/external/providerRegistry';
+import type { NavigateToFolderOptions } from './hooks/useNavigatorReveal';
 import ReleaseCheckService, { type ReleaseUpdateNotice } from './services/ReleaseCheckService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
@@ -47,6 +48,7 @@ import { initializeDatabase, shutdownDatabase } from './storage/fileOperations';
 import { ExtendedApp } from './types/obsidian-extended';
 import { getLeafSplitLocation } from './utils/workspaceSplit';
 import { sanitizeKeyboardShortcuts } from './utils/keyboardShortcuts';
+import { runAsyncAction } from './utils/async';
 import WorkspaceCoordinator from './services/workspace/WorkspaceCoordinator';
 import HomepageController from './services/workspace/HomepageController';
 import registerNavigatorCommands from './services/commands/registerNavigatorCommands';
@@ -67,6 +69,10 @@ export const enum CacheRebuildMode {
 }
 
 const UX_PREFERENCE_KEYS: (keyof UXPreferences)[] = ['searchActive', 'includeDescendantNotes', 'showHiddenItems', 'pinShortcuts'];
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
+}
 
 /**
  * Main plugin class for Notebook Navigator
@@ -129,11 +135,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      * Returns true if this is the first launch (no saved data)
      */
     async loadSettings(): Promise<boolean> {
-        const data = await this.loadData();
-        const isFirstLaunch = !data; // No saved data means first launch
+        const rawData: unknown = await this.loadData();
+        const storedData: Record<string, unknown> | null = isRecord(rawData) ? rawData : null;
+        const storedSettings = storedData as Partial<NotebookNavigatorSettings> | null;
+        const isFirstLaunch = storedData === null; // No saved data means first launch
 
         // Start with default settings
-        this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
+        this.settings = { ...DEFAULT_SETTINGS, ...(storedSettings ?? {}) };
         // Validate and normalize keyboard shortcuts to use standard modifier names
         this.settings.keyboardShortcuts = sanitizeKeyboardShortcuts(this.settings.keyboardShortcuts);
 
@@ -145,8 +153,39 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         delete mutableSettings.includeDescendantNotes;
         delete mutableSettings.showHiddenItems;
 
-        const storedData = data && typeof data === 'object' ? (data as Record<string, unknown>) : null;
         const storedNoteGrouping = storedData ? storedData['noteGrouping'] : undefined;
+
+        // Migrates legacy showIcons boolean to separate icon settings for sections, folders, tags, and pinned items
+        const legacyShowIcons = mutableSettings.showIcons;
+        if (typeof legacyShowIcons === 'boolean') {
+            if (typeof storedData?.['showSectionIcons'] === 'undefined') {
+                this.settings.showSectionIcons = legacyShowIcons;
+            }
+            if (typeof storedData?.['showFolderIcons'] === 'undefined') {
+                this.settings.showFolderIcons = legacyShowIcons;
+            }
+            if (typeof storedData?.['showTagIcons'] === 'undefined') {
+                this.settings.showTagIcons = legacyShowIcons;
+            }
+            if (typeof storedData?.['showPinnedIcon'] === 'undefined') {
+                this.settings.showPinnedIcon = legacyShowIcons;
+            }
+        }
+        delete mutableSettings.showIcons;
+
+        // Migrate legacy parent folder visibility flag
+        const legacyShowParentFolderNames = mutableSettings['showParentFolderNames'];
+        if (typeof legacyShowParentFolderNames === 'boolean' && typeof storedData?.['showParentFolder'] === 'undefined') {
+            this.settings.showParentFolder = legacyShowParentFolderNames;
+        }
+        delete mutableSettings['showParentFolderNames'];
+
+        // Migrate legacy parent folder color toggle
+        const legacyShowParentFolderColors = mutableSettings['showParentFolderColors'];
+        if (typeof legacyShowParentFolderColors === 'boolean' && typeof storedData?.['showParentFolderColor'] === 'undefined') {
+            this.settings.showParentFolderColor = legacyShowParentFolderColors;
+        }
+        delete mutableSettings['showParentFolderColors'];
 
         // Migrate legacy groupByDate boolean to noteGrouping dropdown
         const legacyGroupByDate = mutableSettings.groupByDate;
@@ -421,9 +460,14 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.homepageController = new HomepageController(this, this.workspaceCoordinator);
 
         // Initialize services
-        this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
-        this.tagOperations = new TagOperations(this.app, () => this.settings);
         this.tagTreeService = new TagTreeService();
+        this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
+        this.tagOperations = new TagOperations(
+            this.app,
+            () => this.settings,
+            () => this.tagTreeService,
+            () => this.metadataService
+        );
         this.commandQueue = new CommandQueueService(this.app);
         this.fileSystemOps = new FileSystemOperations(
             this.app,
@@ -441,10 +485,16 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const iconService = getIconService();
         this.externalIconController = new ExternalIconProviderController(this.app, iconService, this);
         await this.externalIconController.initialize();
-        void this.externalIconController.syncWithSettings();
+        const iconController = this.externalIconController;
+        if (iconController) {
+            runAsyncAction(() => iconController.syncWithSettings());
+        }
 
         this.registerSettingsUpdateListener('external-icon-controller', () => {
-            void this.externalIconController?.syncWithSettings();
+            const controller = this.externalIconController;
+            if (controller) {
+                runAsyncAction(() => controller.syncWithSettings());
+            }
         });
 
         // Register view
@@ -480,7 +530,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
             // Check for new GitHub releases if enabled
             if (this.settings.checkForUpdatesOnStart) {
-                void this.runReleaseUpdateCheck();
+                runAsyncAction(() => this.runReleaseUpdateCheck());
             }
         });
     }
@@ -842,7 +892,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     private clearAllLocalStorage() {
         // Clear all known localStorage keys
-        Object.values(STORAGE_KEYS).forEach(key => {
+        const storageKeyNames = Object.keys(STORAGE_KEYS) as (keyof LocalStorageKeys)[];
+        storageKeyNames.forEach(storageKey => {
+            const key = STORAGE_KEYS[storageKey];
             localStorage.remove(key);
         });
     }
@@ -996,6 +1048,25 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
+     * Opens the navigator view, focuses the navigation pane, and selects the given folder
+     * @param folder - Folder instance to highlight
+     */
+    async navigateToFolder(folder: TFolder, options?: NavigateToFolderOptions): Promise<void> {
+        await this.activateView();
+
+        const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+        if (navigatorLeaves.length === 0) {
+            return;
+        }
+
+        const leaf = navigatorLeaves[0];
+        const view = leaf.view;
+        if (view instanceof NotebookNavigatorView) {
+            view.navigateToFolder(folder, options);
+        }
+    }
+
+    /**
      * Navigates to a specific file in the navigator
      * Expands parent folders and scrolls to make the file visible
      * Note: This does NOT activate/show the view - callers must do that if needed
@@ -1140,9 +1211,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             // Show the info modal when version changes
             new WhatsNewModal(this.app, releaseNotes, this.settings.dateFormat, () => {
                 // Save version after 1 second delay when user closes the modal
-                setTimeout(async () => {
-                    this.settings.lastShownVersion = currentVersion;
-                    await this.saveSettingsAndUpdate();
+                setTimeout(() => {
+                    runAsyncAction(async () => {
+                        this.settings.lastShownVersion = currentVersion;
+                        await this.saveSettingsAndUpdate();
+                    });
                 }, 1000);
             }).open();
         }
