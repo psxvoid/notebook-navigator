@@ -82,7 +82,7 @@ export class MemoryFileCache {
     /**
      * Get multiple files synchronously.
      */
-    getFiles(paths: string[]): Map<string, FileDataCache> {
+    getFiles(paths: readonly string[]): Map<string, FileDataCache> {
         const result = new Map<string, FileDataCache>();
         for (const path of paths) {
             const file = this.memoryMap.get(path);

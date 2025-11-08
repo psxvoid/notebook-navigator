@@ -10,6 +10,7 @@ import { isFolderNote, isSupportedFolderNoteExtension } from '../../utils/folder
 import { isFolderInExcludedFolder, shouldExcludeFile } from '../../utils/fileFilters';
 import { getEffectiveFrontmatterExclusions, isFileHiddenBySettings } from '../../utils/exclusionUtils';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
+import { CacheRebuildMode } from '../../main';
 
 /**
  * Reveals the navigator view and focuses whichever pane is currently visible
@@ -348,7 +349,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         name: strings.commands.rebuildCache,
         callback: async () => {
             try {
-                await plugin.rebuildCache();
+                await plugin.rebuildCache(CacheRebuildMode.DropDatabaseSlow)
             } catch (error) {
                 console.error('Failed to rebuild cache:', error);
             }

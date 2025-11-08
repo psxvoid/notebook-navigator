@@ -20,6 +20,7 @@ import { ButtonComponent, Notice, Setting } from 'obsidian';
 import { strings } from '../../i18n';
 import type { MetadataCleanupSummary } from '../../services/MetadataService';
 import type { SettingsTabContext } from './SettingsTabContext';
+import { CacheRebuildMode } from 'src/main';
 
 /** Renders the advanced settings tab */
 export function renderAdvancedTab(context: SettingsTabContext): void {
@@ -122,13 +123,31 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
     void refreshMetadataCleanupSummary();
 
     new Setting(containerEl)
+        .setName(`${strings.settings.items.rebuildCache.name}`)
+        .setDesc(strings.settings.items.rebuildCache.desc)
+        .addButton(button =>
+            button.setButtonText(`${strings.settings.items.rebuildCache.buttonText} (FAST)`).onClick(async () => {
+                button.setDisabled(true);
+                try {
+                    await plugin.rebuildCache(CacheRebuildMode.RescanFast);
+                    new Notice(strings.settings.items.rebuildCache.success);
+                } catch (error) {
+                    console.error('Failed to rebuild cache from settings:', error);
+                    new Notice(strings.settings.items.rebuildCache.error);
+                } finally {
+                    button.setDisabled(false);
+                }
+            })
+        );
+
+    new Setting(containerEl)
         .setName(strings.settings.items.rebuildCache.name)
         .setDesc(strings.settings.items.rebuildCache.desc)
         .addButton(button =>
             button.setButtonText(strings.settings.items.rebuildCache.buttonText).onClick(async () => {
                 button.setDisabled(true);
                 try {
-                    await plugin.rebuildCache();
+                    await plugin.rebuildCache(CacheRebuildMode.DropDatabaseSlow);
                     new Notice(strings.settings.items.rebuildCache.success);
                 } catch (error) {
                     console.error('Failed to rebuild cache from settings:', error);

@@ -176,6 +176,19 @@ export class NotebookNavigatorView extends ItemView {
     }
 
     /**
+     * Triggers a partial cache rebuild through the component hierarchy.
+     * Updates only changed data. Much faster than ordinary rebuildCache.
+     */
+    async rebuildCacheFast(): Promise<void> {
+        // Delegate to the main component which handles the actual rebuild
+        const handle = this.componentRef.current;
+        if (!handle) {
+            throw new Error('Navigator not ready');
+        }
+        await handle.rebuildCacheFast();
+    }
+
+    /**
      * Navigates to a file by revealing it in its actual parent folder
      */
     navigateToFile(file: TFile, options?: RevealFileOptions) {

@@ -201,22 +201,26 @@ export async function recordFileChanges(
  *
  * @param files - Array of Obsidian files to mark for regeneration
  */
-export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
+export async function markFilesForRegeneration(files: readonly TFile[]): Promise<void> {
     if (isShuttingDown) return;
-    const db = getDBInstance();
     const paths = files.map(f => f.path);
+    return markPathsForRegeneration(paths, files)
+}
+
+export async function markPathsForRegeneration(paths: readonly string[], files?: readonly TFile[]): Promise<void> {
+    const db = getDBInstance();
     const existingData = db.getFiles(paths);
     const updates: { path: string; data: FileDataCache }[] = [];
     const mtimeOnlyUpdates: { path: string; mtime: number }[] = [];
 
-    for (const file of files) {
-        const existing = existingData.get(file.path);
+    const setUpdate = (path: string, mtime: number) => {
+        const existing = existingData.get(path);
         if (!existing) {
             // File not in database yet, record it
             updates.push({
-                path: file.path,
+                path: path,
                 data: {
-                    mtime: file.stat.mtime,
+                    mtime: mtime,
                     tags: null,
                     preview: null,
                     featureImage: null,
@@ -227,8 +231,14 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
             });
         } else {
             // Force regeneration by setting mtime to 0, without overwriting other fields
-            mtimeOnlyUpdates.push({ path: file.path, mtime: 0 });
+            mtimeOnlyUpdates.push({ path, mtime: 0 });
         }
+    }
+
+    if (files != null) {
+        files.forEach(file => setUpdate(file.path, file.stat.mtime))
+    } else {
+        paths.forEach(path => setUpdate(path, 0))
     }
 
     if (updates.length > 0) {
