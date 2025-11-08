@@ -958,11 +958,7 @@ export class FileSystemOperations {
      * @param confirmBeforeDelete - Whether to show confirmation dialog
      * @param preDeleteAction - Optional action to run BEFORE files are deleted
      */
-    async deleteMultipleFiles(
-        files: TFile[],
-        confirmBeforeDelete = true,
-        preDeleteAction?: () => void | Promise<void>
-    ): Promise<void> {
+    async deleteMultipleFiles(files: TFile[], confirmBeforeDelete = true, preDeleteAction?: () => void | Promise<void>): Promise<void> {
         if (files.length === 0) return;
 
         const performDeleteCore = async () => {
@@ -1006,7 +1002,6 @@ export class FileSystemOperations {
                         : strings.fileSystem.errors.failedToDeleteMultipleFiles.replace('{count}', errors.length.toString());
                 new Notice(errorMsg);
             }
-
         };
 
         if (confirmBeforeDelete) {
