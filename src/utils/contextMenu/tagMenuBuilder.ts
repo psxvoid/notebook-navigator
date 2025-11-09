@@ -39,23 +39,8 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
         });
     }
 
-    // Add rename option for user-created tags
+    // Add rename/delete options only for real tags (not virtual aggregations)
     const isVirtualTag = tagPath === UNTAGGED_TAG_ID || tagPath === TAGGED_TAG_ID;
-    if (!isVirtualTag) {
-        menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.modals.tagOperation.confirmRename).setIcon('lucide-pencil'), async () => {
-                await services.tagOperations.promptRenameTag(tagPath);
-            });
-        });
-
-        menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.modals.tagOperation.confirmDelete).setIcon('lucide-trash-2'), async () => {
-                await services.tagOperations.promptDeleteTag(tagPath);
-            });
-        });
-
-        menu.addSeparator();
-    }
 
     if (services.shortcuts) {
         const { tagShortcutKeysByPath, addTagShortcut, removeShortcut } = services.shortcuts;
@@ -104,53 +89,68 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
         });
     });
 
-    // Don't show hide tag option for the Untagged virtual tag
-    if (tagPath !== UNTAGGED_TAG_ID) {
+    const canHideTag = tagPath !== UNTAGGED_TAG_ID;
+    if (canHideTag || !isVirtualTag) {
         menu.addSeparator();
 
-        const hiddenMatcher = createHiddenTagMatcher(settings.hiddenTags);
-        const hasHiddenRules =
-            hiddenMatcher.prefixes.length > 0 || hiddenMatcher.startsWithNames.length > 0 || hiddenMatcher.endsWithNames.length > 0;
-        const tagName = tagPath.split('/').pop() ?? tagPath;
-        const isHidden = hasHiddenRules && matchesHiddenTagPattern(tagPath, tagName, hiddenMatcher);
+        if (canHideTag) {
+            const hiddenMatcher = createHiddenTagMatcher(settings.hiddenTags);
+            const hasHiddenRules =
+                hiddenMatcher.prefixes.length > 0 || hiddenMatcher.startsWithNames.length > 0 || hiddenMatcher.endsWithNames.length > 0;
+            const tagName = tagPath.split('/').pop() ?? tagPath;
+            const isHidden = hasHiddenRules && matchesHiddenTagPattern(tagPath, tagName, hiddenMatcher);
 
-        const normalizedTagPath = normalizeTagPath(tagPath);
-        const hasDirectHiddenEntry =
-            normalizedTagPath !== null &&
-            settings.hiddenTags.some(pattern => {
-                const normalizedPattern = normalizeTagPath(pattern);
-                return normalizedPattern !== null && !normalizedPattern.includes('*') && normalizedPattern === normalizedTagPath;
-            });
+            const normalizedTagPath = normalizeTagPath(tagPath);
+            const hasDirectHiddenEntry =
+                normalizedTagPath !== null &&
+                settings.hiddenTags.some(pattern => {
+                    const normalizedPattern = normalizeTagPath(pattern);
+                    return normalizedPattern !== null && !normalizedPattern.includes('*') && normalizedPattern === normalizedTagPath;
+                });
 
-        if (!isHidden) {
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.tag.hideTag).setIcon('lucide-eye-off'), async () => {
-                    // Clean up redundant entries when adding new hidden tag
-                    const cleanedHiddenTags = cleanupTagPatterns(settings.hiddenTags, tagPath);
+            if (!isHidden) {
+                menu.addItem((item: MenuItem) => {
+                    setAsyncOnClick(item.setTitle(strings.contextMenu.tag.hideTag).setIcon('lucide-eye-off'), async () => {
+                        const cleanedHiddenTags = cleanupTagPatterns(settings.hiddenTags, tagPath);
 
-                    plugin.settings.hiddenTags = cleanedHiddenTags;
-                    resetHiddenToggleIfNoSources({
-                        settings: plugin.settings,
-                        showHiddenItems: services.visibility.showHiddenItems,
-                        setShowHiddenItems: value => plugin.setShowHiddenItems(value)
+                        plugin.settings.hiddenTags = cleanedHiddenTags;
+                        resetHiddenToggleIfNoSources({
+                            settings: plugin.settings,
+                            showHiddenItems: services.visibility.showHiddenItems,
+                            setShowHiddenItems: value => plugin.setShowHiddenItems(value)
+                        });
+                        await plugin.saveSettingsAndUpdate();
                     });
-                    await plugin.saveSettingsAndUpdate();
+                });
+            } else if (hasDirectHiddenEntry && normalizedTagPath) {
+                menu.addItem((item: MenuItem) => {
+                    setAsyncOnClick(item.setTitle(strings.contextMenu.tag.showTag).setIcon('lucide-eye'), async () => {
+                        plugin.settings.hiddenTags = settings.hiddenTags.filter(pattern => {
+                            const normalizedPattern = normalizeTagPath(pattern);
+                            return !(normalizedPattern && !normalizedPattern.includes('*') && normalizedPattern === normalizedTagPath);
+                        });
+
+                        resetHiddenToggleIfNoSources({
+                            settings: plugin.settings,
+                            showHiddenItems: services.visibility.showHiddenItems,
+                            setShowHiddenItems: value => plugin.setShowHiddenItems(value)
+                        });
+                        await plugin.saveSettingsAndUpdate();
+                    });
+                });
+            }
+        }
+
+        if (!isVirtualTag) {
+            menu.addItem((item: MenuItem) => {
+                setAsyncOnClick(item.setTitle(strings.modals.tagOperation.confirmRename).setIcon('lucide-pencil'), async () => {
+                    await services.tagOperations.promptRenameTag(tagPath);
                 });
             });
-        } else if (hasDirectHiddenEntry && normalizedTagPath) {
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.tag.showTag).setIcon('lucide-eye'), async () => {
-                    plugin.settings.hiddenTags = settings.hiddenTags.filter(pattern => {
-                        const normalizedPattern = normalizeTagPath(pattern);
-                        return !(normalizedPattern && !normalizedPattern.includes('*') && normalizedPattern === normalizedTagPath);
-                    });
 
-                    resetHiddenToggleIfNoSources({
-                        settings: plugin.settings,
-                        showHiddenItems: services.visibility.showHiddenItems,
-                        setShowHiddenItems: value => plugin.setShowHiddenItems(value)
-                    });
-                    await plugin.saveSettingsAndUpdate();
+            menu.addItem((item: MenuItem) => {
+                setAsyncOnClick(item.setTitle(strings.modals.tagOperation.confirmDelete).setIcon('lucide-trash-2'), async () => {
+                    await services.tagOperations.promptDeleteTag(tagPath);
                 });
             });
         }

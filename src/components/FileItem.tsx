@@ -693,7 +693,7 @@ export const FileItem = React.memo(function FileItem({
         const shouldShowParentLabel =
             selectionType === ItemType.TAG || (includeDescendantNotes && parentFolder && parentFolderSource.path !== parentFolder);
 
-        if (shouldShowParentLabel) {
+        if (shouldShowParentLabel && parentFolderSource.path !== '/') {
             // Use custom icon if set, otherwise use default folder icon
             const customParentIcon = metadataService.getFolderIcon(parentFolderSource.path);
             const fallbackParentIcon = parentFolderSource.path === '/' ? 'vault' : 'lucide-folder-closed';
