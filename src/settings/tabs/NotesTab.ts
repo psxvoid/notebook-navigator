@@ -267,24 +267,25 @@ export function renderNotesTab(context: SettingsTabContext): void {
     );
 
     const dateFormatSetting = createDebouncedTextSetting(
-        frontmatterSettingsEl,
-        strings.settings.items.frontmatterDateFormat.name,
-        strings.settings.items.frontmatterDateFormat.desc,
-        ISO_DATE_FORMAT,
-        () => plugin.settings.frontmatterDateFormat,
-        value => {
-            plugin.settings.frontmatterDateFormat = value;
-        },
-        undefined,
-        requestStatisticsRefresh
-    ).addExtraButton(button =>
-        button
-            .setIcon('lucide-help-circle')
-            .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
-            .onClick(() => {
-                new Notice(strings.settings.items.frontmatterDateFormat.help, TIMEOUTS.NOTICE_HELP);
-            })
-    );
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterDateFormat.name,
+            strings.settings.items.frontmatterDateFormat.desc,
+            ISO_DATE_FORMAT,
+            () => plugin.settings.frontmatterDateFormat,
+            value => {
+                plugin.settings.frontmatterDateFormat = value;
+            },
+            undefined,
+            requestStatisticsRefresh
+        )
+        .addExtraButton(button =>
+            button
+                .setIcon('lucide-help-circle')
+                .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
+                .onClick(() => {
+                    new Notice(strings.settings.items.frontmatterDateFormat.help, TIMEOUTS.NOTICE_HELP);
+                })
+        );
     dateFormatSetting.controlEl.addClass('nn-setting-wide-input');
 
     const metadataInfoContainer = frontmatterSettingsEl.createDiv('nn-setting-info-container');

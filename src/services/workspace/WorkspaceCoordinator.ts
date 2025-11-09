@@ -45,13 +45,13 @@ export default class WorkspaceCoordinator {
         if (leaves.length > 0) {
             // Navigator exists, reveal the first instance
             leaf = leaves[0];
-            workspace.revealLeaf(leaf);
+            await workspace.revealLeaf(leaf);
         } else {
             // Create navigator in left sidebar
             leaf = workspace.getLeftLeaf(false);
             if (leaf) {
                 await leaf.setViewState({ type: NOTEBOOK_NAVIGATOR_VIEW, active: true });
-                workspace.revealLeaf(leaf);
+                await workspace.revealLeaf(leaf);
             }
         }
 

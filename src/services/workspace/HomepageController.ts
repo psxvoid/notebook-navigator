@@ -133,7 +133,7 @@ export default class HomepageController {
             const existingLeaf = this.findExistingHomepageLeaf(homepageFile);
             if (existingLeaf) {
                 const { workspace } = this.plugin.app;
-                workspace.revealLeaf(existingLeaf);
+                await workspace.revealLeaf(existingLeaf);
                 workspace.setActiveLeaf(existingLeaf, { focus: true });
                 if (shouldRevealInNavigator) {
                     this.workspace.revealFileInNearestFolder(homepageFile, revealOptions);

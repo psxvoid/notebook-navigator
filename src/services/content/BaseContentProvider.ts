@@ -22,6 +22,7 @@ import { NotebookNavigatorSettings } from '../../settings';
 import { FileData, FileDataCache } from '../../storage/IndexedDBStorage';
 import { getDBInstance, isShutdownInProgress } from '../../storage/fileOperations';
 import { TIMEOUTS } from '../../types/obsidian-extended';
+import { runAsyncAction } from '../../utils/async';
 
 export interface ContentJob {
     file: TFile;
@@ -120,7 +121,7 @@ export abstract class BaseContentProvider implements IContentProvider {
         this.queueDebounceTimer = window.setTimeout(() => {
             this.queueDebounceTimer = null;
             if (!this.stopped && !this.isProcessing && this.queue.length > 0) {
-                this.processNextBatch();
+                runAsyncAction(() => this.processNextBatch());
             }
         }, TIMEOUTS.DEBOUNCE_CONTENT);
     }
@@ -148,20 +149,18 @@ export abstract class BaseContentProvider implements IContentProvider {
             batch.forEach(job => this.queuedFiles.delete(job.file.path));
 
             // Filter jobs based on current settings and database state
-            const jobsWithData = await Promise.all(
-                batch.map(async job => {
-                    const fileData = await db.getFile(job.file.path);
-                    const needsProcessing = this.needsProcessing(fileData, job.file, settings);
-                    return { job, fileData, needsProcessing };
-                })
-            );
+            const jobsWithData = batch.map(job => {
+                const fileData = db.getFile(job.file.path);
+                const needsProcessing = this.needsProcessing(fileData, job.file, settings);
+                return { job, fileData, needsProcessing };
+            });
 
             activeJobs = jobsWithData.filter(item => item.needsProcessing);
 
             if (activeJobs.length === 0) {
                 this.isProcessing = false;
                 if (this.queue.length > 0) {
-                    this.processNextBatch();
+                    runAsyncAction(() => this.processNextBatch());
                 }
                 return;
             }
@@ -231,8 +230,9 @@ export abstract class BaseContentProvider implements IContentProvider {
                     }
                 }
             }
-        } catch (error) {
-            if (error.name !== 'AbortError') {
+        } catch (error: unknown) {
+            const isAbortError = error instanceof DOMException && error.name === 'AbortError';
+            if (!isAbortError) {
                 console.error('Error processing batch:', error);
             }
         } finally {
@@ -245,7 +245,9 @@ export abstract class BaseContentProvider implements IContentProvider {
 
             if (this.queue.length > 0 && !(this.stopped || this.abortController?.signal.aborted)) {
                 // Process next batch
-                requestAnimationFrame(() => this.processNextBatch());
+                requestAnimationFrame(() => {
+                    runAsyncAction(() => this.processNextBatch());
+                });
             }
         }
     }

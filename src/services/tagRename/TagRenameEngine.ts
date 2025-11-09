@@ -88,18 +88,18 @@ export function isDescendantRename(source: TagDescriptor, target: TagDescriptor)
  * (e.g., original casing, lowercase, nested paths).
  */
 export class TagReplacement {
-    private readonly cache: Record<string, string>;
+    private readonly cache: Map<string, string>;
 
     constructor(
         private readonly fromTag: TagDescriptor,
         private readonly toTag: TagDescriptor
     ) {
-        this.cache = Object.create(null);
-        this.cache[this.fromTag.tag] = this.toTag.tag;
-        this.cache[this.fromTag.name] = this.toTag.name;
-        this.cache[this.fromTag.tag.toLowerCase()] = this.toTag.tag;
+        this.cache = new Map();
+        this.cache.set(this.fromTag.tag, this.toTag.tag);
+        this.cache.set(this.fromTag.name, this.toTag.name);
+        this.cache.set(this.fromTag.tag.toLowerCase(), this.toTag.tag);
         if (this.fromTag.name.length > 0) {
-            this.cache[this.fromTag.name.toLowerCase()] = this.toTag.name;
+            this.cache.set(this.fromTag.name.toLowerCase(), this.toTag.name);
         }
     }
 
@@ -192,12 +192,12 @@ export class TagReplacement {
     }
 
     private lookup(key: string): string {
-        return Object.prototype.hasOwnProperty.call(this.cache, key) ? this.cache[key] : key;
+        return this.cache.get(key) ?? key;
     }
 
     private cacheValue(original: string, lowercase: string, value: string): string {
-        this.cache[original] = value;
-        this.cache[lowercase] = value;
+        this.cache.set(original, value);
+        this.cache.set(lowercase, value);
         return value;
     }
 }
@@ -355,7 +355,7 @@ export function collectRenameFiles(app: App, tag: TagDescriptor, tagTreeProvider
 
         const frontmatter = cache.frontmatter;
         const frontmatterTags = (parseFrontMatterTags(frontmatter) ?? []).map(value => TagDescriptor.ensureHashPrefix(value));
-        const aliasValues = (parseFrontMatterAliases(frontmatter) ?? []).filter(TagDescriptor.isTag);
+        const aliasValues = (parseFrontMatterAliases(frontmatter) ?? []).filter(value => TagDescriptor.isTag(value));
 
         const frontmatterMatches = frontmatterTags.filter(value => tag.matches(value));
         const aliasMatches = aliasValues.filter(value => tag.matches(value));

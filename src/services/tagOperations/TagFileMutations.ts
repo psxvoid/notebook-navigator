@@ -27,6 +27,8 @@ type TextRange = {
     end: number;
 };
 
+type TagsFrontmatter = Record<string, unknown> & { tags?: unknown };
+
 /**
  * Low-level tag mutation operations for individual files
  * Handles both frontmatter and inline tag modifications
@@ -129,7 +131,7 @@ export class TagFileMutations {
         await this.removeDescendantTagsFromFile(file, tag);
 
         try {
-            await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
+            await this.app.fileManager.processFrontMatter(file, (frontmatter: TagsFrontmatter) => {
                 const rawTags = frontmatter.tags;
                 const isEmptyString = typeof rawTags === 'string' && rawTags.trim().length === 0;
 
@@ -148,15 +150,15 @@ export class TagFileMutations {
                     const tags = rawTags
                         .split(',')
                         .map((value: string) => value.trim())
-                        .filter(Boolean);
+                        .filter((value): value is string => value.length > 0);
                     tags.push(tag);
-                    frontmatter.tags = [...new Set(tags)];
+                    frontmatter.tags = Array.from(new Set(tags));
                     return;
                 }
 
                 frontmatter.tags = [tag];
             });
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('[Notebook Navigator] Error adding tag to frontmatter', error);
             throw error;
         }
@@ -556,7 +558,7 @@ export class TagFileMutations {
             frontmatter.tags = [];
             return;
         }
-        if (Object.prototype.hasOwnProperty.call(frontmatter, 'tags')) {
+        if (Reflect.has(frontmatter, 'tags')) {
             delete frontmatter.tags;
         }
     }
@@ -574,15 +576,15 @@ export class TagFileMutations {
 
         let hasInlineMatch = false;
         let cachedContent: string | undefined;
-        const vaultRead = (this.app.vault as { read?: (file: TFile) => Promise<string> }).read;
-        if (typeof vaultRead === 'function') {
+        const vaultWithRead = this.app.vault as { read?: (file: TFile) => Promise<string> };
+        if (typeof vaultWithRead.read === 'function') {
             try {
-                cachedContent = await vaultRead.call(this.app.vault, file);
+                cachedContent = await vaultWithRead.read(file);
                 if (typeof cachedContent === 'string') {
                     const contentToCheck = cachedContent;
                     hasInlineMatch = tagPatterns.some(({ pattern }) => this.matchesPattern(contentToCheck, pattern));
                 }
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error('[Notebook Navigator] Failed to read file while stripping inline tags', error);
                 throw error instanceof Error ? error : new Error('[Notebook Navigator] Failed to read file while stripping inline tags');
             }
@@ -595,53 +597,52 @@ export class TagFileMutations {
         }
 
         if (typeof cachedContent === 'string') {
-            let updatedContent = cachedContent;
-            let changed = false;
-            // Calculate ranges where tags should not be removed (code blocks, inline code, HTML)
-            let exclusionRanges = this.computeInlineTagExclusionRanges(updatedContent);
-            for (const { pattern } of tagPatterns) {
-                const { content: nextContent, exclusionRanges: nextRanges } = this.removeInlineTagsWithPattern(
-                    updatedContent,
-                    pattern,
-                    exclusionRanges
-                );
-                if (nextContent !== updatedContent) {
-                    changed = true;
-                    updatedContent = nextContent;
-                    // Update exclusion ranges after content modification
-                    exclusionRanges = nextRanges;
-                }
-            }
-
-            if (!changed) {
+            const result = this.applyInlineTagRemoval(cachedContent, tagPatterns);
+            if (!result.changed) {
                 return false;
             }
 
-            await this.app.vault.modify(file, updatedContent);
+            await this.app.vault.modify(file, result.content);
             return true;
         }
 
         let changed = false;
         await this.app.vault.process(file, content => {
-            let nextContent = content;
-            // Calculate ranges where tags should not be removed (code blocks, inline code, HTML)
-            let exclusionRanges = this.computeInlineTagExclusionRanges(nextContent);
-            for (const { pattern } of tagPatterns) {
-                const { content: updated, exclusionRanges: nextRanges } = this.removeInlineTagsWithPattern(
-                    nextContent,
-                    pattern,
-                    exclusionRanges
-                );
-                if (updated !== nextContent) {
-                    changed = true;
-                    nextContent = updated;
-                    // Update exclusion ranges after content modification
-                    exclusionRanges = nextRanges;
-                }
+            const result = this.applyInlineTagRemoval(content, tagPatterns);
+            if (result.changed) {
+                changed = true;
             }
-            return nextContent;
+            return result.content;
         });
         return changed;
+    }
+
+    private applyInlineTagRemoval(
+        content: string,
+        tagPatterns: { tag: string; pattern: RegExp }[]
+    ): { content: string; changed: boolean } {
+        if (tagPatterns.length === 0) {
+            return { content, changed: false };
+        }
+
+        let updatedContent = content;
+        let changed = false;
+        let exclusionRanges = this.computeInlineTagExclusionRanges(updatedContent);
+
+        for (const { pattern } of tagPatterns) {
+            const { content: nextContent, exclusionRanges: nextRanges } = this.removeInlineTagsWithPattern(
+                updatedContent,
+                pattern,
+                exclusionRanges
+            );
+            if (nextContent !== updatedContent) {
+                changed = true;
+                updatedContent = nextContent;
+            }
+            exclusionRanges = nextRanges;
+        }
+
+        return { content: updatedContent, changed };
     }
 
     private removeAllInlineTags(content: string): string {
