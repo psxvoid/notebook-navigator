@@ -3271,21 +3271,15 @@ body.nn-resizing {
     border-left: 2px solid var(--background-modifier-border);
 }
 
-/* Settings layout root to keep tab header fixed */
+/* Settings layout root */
 .nn-settings-tab-root {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+    display: block;
     min-height: 0;
-    overflow: hidden;
 }
 
 /* Settings tabs layout and navigation */
 .nn-settings-tabs {
-    display: flex;
-    flex-direction: column;
-    gap: var(--size-4-4);
-    flex: 1;
+    display: block;
     min-height: 0;
 }
 
@@ -3293,8 +3287,8 @@ body.nn-resizing {
     display: flex;
     flex-wrap: wrap;
     gap: var(--size-2-3);
-    padding-bottom: var(--size-2-2);
     flex-shrink: 0;
+    margin-bottom: var(--size-4-4);
 }
 
 .nn-settings-tab-button {
@@ -3306,13 +3300,11 @@ body.nn-resizing {
 }
 
 .nn-settings-tabs-content {
-    position: relative;
-    flex: 1;
+    position: static;
     min-height: 0;
-    overflow-y: auto;
+    overflow: visible;
     box-sizing: border-box;
-    scrollbar-gutter: stable;
-    padding-inline-end: var(--nn-scroller-padding);
+    padding-inline-end: 0;
 }
 
 /* Hide tabs by default, show only active tab */
