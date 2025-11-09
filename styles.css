@@ -3354,7 +3354,13 @@ body.nn-resizing {
 }
 
 .nn-setting-profile-dropdown select {
-    width: min(240px, 100%);
+    width: 160px;
+    max-width: 100%;
+}
+
+.is-mobile .nn-setting-profile-dropdown select {
+    width: 100%;
+    max-width: none;
 }
 
 .nn-slider-value {

@@ -57,6 +57,7 @@ export function NavigationPaneHeader({
     const profileNameFallback = getLocalizedDefaultVaultProfileName();
     const activeProfileName = activeProfile?.name?.trim().length ? activeProfile.name : profileNameFallback;
     const hasProfiles = vaultProfiles.length > 0;
+    const hasMultipleProfiles = vaultProfiles.length > 1;
 
     // Hook providing shared navigation actions (expand/collapse, folder creation, toggle visibility)
     const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
@@ -121,7 +122,7 @@ export function NavigationPaneHeader({
     }
 
     // Clickable element that displays the active profile name and opens the profile menu on interaction
-    const profileTrigger = (
+    const profileTrigger = hasMultipleProfiles ? (
         <div
             className="nn-pane-header-title nn-pane-header-profile"
             aria-label={strings.navigationPane.profileMenuAria}
@@ -133,9 +134,12 @@ export function NavigationPaneHeader({
             <span className="nn-pane-header-text">{activeProfileName}</span>
             <ObsidianIcon className="nn-pane-header-profile-chevron" name="lucide-chevron-down" aria-hidden={true} />
         </div>
-    );
+    ) : null;
 
     if (isMobile) {
+        if (!profileTrigger) {
+            return null;
+        }
         return <div className="nn-pane-header nn-pane-header-simple">{profileTrigger}</div>;
     }
 

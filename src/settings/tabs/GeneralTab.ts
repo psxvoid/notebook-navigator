@@ -321,7 +321,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         return button;
     });
 
-    // Apply custom styling to limit dropdown width
     profileSetting.controlEl.addClass('nn-setting-profile-dropdown');
 
     new Setting(containerEl)
