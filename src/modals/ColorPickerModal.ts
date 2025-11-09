@@ -368,7 +368,7 @@ export class ColorPickerModal extends Modal {
         };
 
         this.domDisposers.push(addAsyncEventListener(closeButton, 'click', handleClose));
-        this.domDisposers.push(addAsyncEventListener<PointerEvent>(closeButton, 'pointerdown', handleClose));
+        this.domDisposers.push(addAsyncEventListener(closeButton, 'pointerdown', handleClose));
     }
 
     /**

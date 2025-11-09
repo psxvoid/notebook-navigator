@@ -34,7 +34,7 @@ import { generateUniqueFilename } from '../utils/fileCreationUtils';
 import { createDragGhostManager } from '../utils/dragGhost';
 import { normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 import { runAsyncAction } from '../utils/async';
-import { extractFilePathsFromDataTransfer, parseObsidianFilesPayload } from '../utils/dragData';
+import { extractFilePathsFromDataTransfer } from '../utils/dragData';
 
 /**
  * Enables drag and drop for files and folders using event delegation.
@@ -601,7 +601,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 }
             }
         },
-        [app, tagOperations, getFilesFromPaths]
+        [tagOperations, getFilesFromPaths]
     );
 
     /**

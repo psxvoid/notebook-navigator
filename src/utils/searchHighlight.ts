@@ -18,8 +18,8 @@
 
 export type SearchMatchState = 'include' | 'exclude';
 
-export const SEARCH_MATCH_INCLUDE_CLASS = 'nn-navitem-content--search-include';
-export const SEARCH_MATCH_EXCLUDE_CLASS = 'nn-navitem-content--search-exclude';
+const SEARCH_MATCH_INCLUDE_CLASS = 'nn-navitem-content--search-include';
+const SEARCH_MATCH_EXCLUDE_CLASS = 'nn-navitem-content--search-exclude';
 
 /**
  * Build the class name for navigation item content that may be search-highlighted.

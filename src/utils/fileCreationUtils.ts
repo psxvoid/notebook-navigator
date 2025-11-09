@@ -109,10 +109,11 @@ export async function createFileWithOptions(parent: TFolder, app: App, options: 
         }
 
         return file;
-    } catch (error) {
+    } catch (error: unknown) {
         // Type-safe error message lookup
         const errorMessages = strings.fileSystem.errors as Record<string, string>;
-        const errorMessage = errorMessages[errorKey]?.replace('{error}', error.message) || `Failed to create file: ${error.message}`;
+        const errorText = error instanceof Error ? error.message : String(error);
+        const errorMessage = errorMessages[errorKey]?.replace('{error}', errorText) || `Failed to create file: ${errorText}`;
         new Notice(errorMessage);
         return null;
     }

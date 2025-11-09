@@ -255,7 +255,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                             if (!metadataService.isFilePinned(createdNote.path, 'folder')) {
                                 await metadataService.togglePin(createdNote.path, 'folder');
                             }
-                        } catch (error) {
+                        } catch (error: unknown) {
                             console.error('Failed to pin created folder note', {
                                 path: createdNote.path,
                                 error

@@ -82,7 +82,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New check box in "Add tag" modal: **Allow creating new tags**. Disable to only allow selecting existing tags in the "Add tag" modal.'
         ],
         improved: ['Text preview filter now also removes code blocks with tilde fencing (~~~).'],
-        changed: [],
+        changed: ['Upgraded the Obsidian eslint code verification plugin to 0.1.8 with additional async-safety and type-safety checks. Lots of code changes and improvements under the hood, but no user-visible changes.'],
         fixed: [
             'Fixed a performance issue with Group by subfolder, it is now much faster with larger number of subfolders.',
             'Fixed an issue where "Remove tag" would remove hashtags from HTML blocks and code blocks.'

@@ -37,7 +37,6 @@ interface NavigationListRowProps {
     role?: 'treeitem' | 'listitem';
     tabIndex?: number;
     ariaDisabled?: boolean;
-    ariaGrabbed?: boolean;
     isDisabled?: boolean;
     isExcluded?: boolean;
     onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -87,7 +86,6 @@ export function NavigationListRow({
     role = 'treeitem',
     tabIndex,
     ariaDisabled,
-    ariaGrabbed,
     labelClassName,
     onLabelClick,
     trailingAccessory,

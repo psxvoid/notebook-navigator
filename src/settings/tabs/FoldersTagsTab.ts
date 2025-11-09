@@ -26,14 +26,7 @@ import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 
 /** Renders the folders and tags settings tab */
 export function renderFoldersTagsTab(context: SettingsTabContext): void {
-    const {
-        containerEl,
-        plugin,
-        createDebouncedTextSetting,
-        createDebouncedTextAreaSetting,
-        notifyShowTagsVisibility,
-        registerShowTagsListener
-    } = context;
+    const { containerEl, plugin } = context;
 
     if (!Platform.isMobile) {
         new Setting(containerEl)
@@ -121,7 +114,7 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
                 });
         });
 
-    createDebouncedTextSetting(
+    context.createDebouncedTextSetting(
         folderNotesSettingsEl,
         strings.settings.items.folderNoteName.name,
         strings.settings.items.folderNoteName.desc,
@@ -132,7 +125,7 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         }
     );
 
-    const folderNotePropertiesSetting = createDebouncedTextAreaSetting(
+    const folderNotePropertiesSetting = context.createDebouncedTextAreaSetting(
         folderNotesSettingsEl,
         strings.settings.items.folderNoteProperties.name,
         strings.settings.items.folderNoteProperties.desc,
@@ -187,7 +180,7 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
                 plugin.settings.showTags = value;
                 await plugin.saveSettingsAndUpdate();
                 tagSubSettingsEl.toggle(value);
-                notifyShowTagsVisibility(value);
+                context.notifyShowTagsVisibility(value);
             })
         );
 
@@ -264,7 +257,7 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
             })
         );
 
-    const hiddenTagsSetting = createDebouncedTextSetting(
+    const hiddenTagsSetting = context.createDebouncedTextSetting(
         tagSubSettingsEl,
         strings.settings.items.hiddenTags.name,
         strings.settings.items.hiddenTags.desc,
@@ -291,7 +284,7 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         tagSubSettingsEl.toggle(visible);
     };
 
-    registerShowTagsListener(updateTagSection);
+    context.registerShowTagsListener(updateTagSection);
     updateTagSection(plugin.settings.showTags);
     folderNotesSettingsEl.toggle(plugin.settings.enableFolderNotes);
 }

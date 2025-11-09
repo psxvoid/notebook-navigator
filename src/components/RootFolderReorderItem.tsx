@@ -117,7 +117,6 @@ export function RootFolderReorderItem({
             showCount={false}
             className={rowClassName}
             tabIndex={-1}
-            ariaGrabbed={isDragSource}
             dragHandleConfig={handleConfig}
             chevronIcon={chevronIcon}
             trailingAccessory={trailingAccessory}
