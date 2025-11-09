@@ -65,7 +65,9 @@ export const STRINGS_PL = {
         resetRootToFrequency: 'Przywróć sortowanie według częstotliwości',
         dragHandleLabel: 'Przeciągnij aby zmienić kolejność',
         pinShortcuts: 'Przypnij skróty',
-        unpinShortcuts: 'Odepnij skróty'
+        unpinShortcuts: 'Odepnij skróty',
+        profileMenuLabel: 'Profil',
+        profileMenuAria: 'Zmień profil sejfu'
     },
 
     shortcuts: {
@@ -773,6 +775,21 @@ export const STRINGS_PL = {
                 name: 'Ukryj notatki',
                 desc: 'Lista właściwości frontmatter oddzielonych przecinkami. Notatki zawierające którekolwiek z tych właściwości będą ukryte (np. draft, private, archived).',
                 placeholder: 'draft, private'
+            },
+            vaultProfiles: {
+                name: 'Profil sejfu',
+                desc: 'Profile przechowują widoczność typów plików, ukryte foldery, ukryte tagi i ukryte notatki. Zmień profil z nagłówka panelu nawigacji.',
+                defaultName: 'Domyślny',
+                addButton: 'Dodaj profil',
+                deleteButton: 'Usuń profil',
+                addModalTitle: 'Dodaj profil',
+                addModalPlaceholder: 'Nazwa profilu',
+                deleteModalTitle: 'Usuń {name}',
+                deleteModalMessage: 'Usunąć {name}? Filtry ukrytych folderów, tagów i notatek zapisane w tym profilu zostaną usunięte.',
+                errors: {
+                    emptyName: 'Wprowadź nazwę profilu',
+                    duplicateName: 'Nazwa profilu już istnieje'
+                }
             },
             excludedFolders: {
                 name: 'Ukryj foldery',

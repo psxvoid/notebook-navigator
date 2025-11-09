@@ -65,7 +65,9 @@ export const STRINGS_ES = {
         resetRootToFrequency: 'Restablecer al orden por frecuencia',
         dragHandleLabel: 'Arrastrar para reordenar',
         pinShortcuts: 'Fijar accesos directos',
-        unpinShortcuts: 'Desfijar accesos directos'
+        unpinShortcuts: 'Desfijar accesos directos',
+        profileMenuLabel: 'Perfil',
+        profileMenuAria: 'Cambiar perfil de bóveda'
     },
 
     shortcuts: {
@@ -751,6 +753,22 @@ export const STRINGS_ES = {
                 name: 'Ocultar notas',
                 desc: 'Lista de propiedades del frontmatter separadas por comas. Las notas que contengan cualquiera de estas propiedades se ocultarán (ej.: draft, private, archived).',
                 placeholder: 'draft, private'
+            },
+            vaultProfiles: {
+                name: 'Perfil de bóveda',
+                desc: 'Los perfiles almacenan visibilidad de tipos de archivo, carpetas ocultas, etiquetas ocultas y notas ocultas. Cambia de perfil desde el encabezado del panel de navegación.',
+                defaultName: 'Predeterminado',
+                addButton: 'Añadir perfil',
+                deleteButton: 'Eliminar perfil',
+                addModalTitle: 'Añadir perfil',
+                addModalPlaceholder: 'Nombre del perfil',
+                deleteModalTitle: 'Eliminar {name}',
+                deleteModalMessage:
+                    '¿Eliminar {name}? Se eliminarán los filtros de carpetas, etiquetas y notas ocultas guardados en este perfil.',
+                errors: {
+                    emptyName: 'Introduce un nombre de perfil',
+                    duplicateName: 'El nombre del perfil ya existe'
+                }
             },
             excludedFolders: {
                 name: 'Ocultar carpetas',

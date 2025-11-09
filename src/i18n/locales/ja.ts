@@ -65,7 +65,9 @@ export const STRINGS_JA = {
         resetRootToFrequency: '頻度順にリセット',
         dragHandleLabel: 'ドラッグして並び替え',
         pinShortcuts: 'ショートカットを固定',
-        unpinShortcuts: 'ショートカットの固定を解除'
+        unpinShortcuts: 'ショートカットの固定を解除',
+        profileMenuLabel: 'プロファイル',
+        profileMenuAria: '保管庫のプロファイルを変更'
     },
 
     shortcuts: {
@@ -751,6 +753,22 @@ export const STRINGS_JA = {
                 name: 'ノートを非表示',
                 desc: 'カンマ区切りのフロントマター属性のリスト。これらの属性を含むノートは非表示になります（例：draft, private, archived）。',
                 placeholder: 'draft, private'
+            },
+            vaultProfiles: {
+                name: '保管庫プロファイル',
+                desc: 'プロファイルは、ファイルタイプの表示、非表示フォルダ、非表示タグ、非表示ノートを保存します。ナビゲーションペインのヘッダーからプロファイルを切り替えます。',
+                defaultName: 'デフォルト',
+                addButton: 'プロファイルを追加',
+                deleteButton: 'プロファイルを削除',
+                addModalTitle: 'プロファイルを追加',
+                addModalPlaceholder: 'プロファイル名',
+                deleteModalTitle: '{name}を削除',
+                deleteModalMessage:
+                    '{name}を削除しますか？このプロファイルに保存されている非表示フォルダ、タグ、ノートのフィルタが削除されます。',
+                errors: {
+                    emptyName: 'プロファイル名を入力してください',
+                    duplicateName: 'プロファイル名は既に存在します'
+                }
             },
             excludedFolders: {
                 name: 'フォルダを非表示',

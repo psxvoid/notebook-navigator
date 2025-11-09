@@ -23,6 +23,7 @@ import { FileData } from '../../storage/IndexedDBStorage';
 import { getDBInstance } from '../../storage/fileOperations';
 import { extractMetadataFromCache } from '../../utils/metadataExtractor';
 import { shouldExcludeFile } from '../../utils/fileFilters';
+import { getActiveHiddenFiles } from '../../utils/vaultProfiles';
 import { BaseContentProvider } from './BaseContentProvider';
 
 // Compares two arrays for same members regardless of order
@@ -65,12 +66,15 @@ export class MetadataContentProvider extends BaseContentProvider {
             'frontmatterCreatedField',
             'frontmatterModifiedField',
             'frontmatterDateFormat',
-            'excludedFiles'
+            'vaultProfile',
+            'vaultProfiles'
         ];
     }
 
     shouldRegenerate(oldSettings: NotebookNavigatorSettings, newSettings: NotebookNavigatorSettings): boolean {
-        const excludedFilesChanged = !haveSameMembers(oldSettings.excludedFiles, newSettings.excludedFiles);
+        const previousHiddenFiles = getActiveHiddenFiles(oldSettings);
+        const nextHiddenFiles = getActiveHiddenFiles(newSettings);
+        const excludedFilesChanged = !haveSameMembers(previousHiddenFiles, nextHiddenFiles);
         if (excludedFilesChanged) {
             return true;
         }
@@ -104,7 +108,7 @@ export class MetadataContentProvider extends BaseContentProvider {
 
     onSettingsChanged(settings: NotebookNavigatorSettings): void {
         super.onSettingsChanged(settings);
-        if (settings.excludedFiles.length === 0) {
+        if (getActiveHiddenFiles(settings).length === 0) {
             this.clearPendingHiddenStates();
         }
     }
@@ -115,12 +119,13 @@ export class MetadataContentProvider extends BaseContentProvider {
     }
 
     protected needsProcessing(fileData: FileData | null, file: TFile, settings: NotebookNavigatorSettings): boolean {
-        const requiresMetadata = settings.useFrontmatterMetadata || settings.excludedFiles.length > 0;
+        const hiddenFiles = getActiveHiddenFiles(settings);
+        const requiresMetadata = settings.useFrontmatterMetadata || hiddenFiles.length > 0;
         if (!requiresMetadata) {
             return false;
         }
 
-        const shouldTrackHidden = settings.excludedFiles.length > 0 && file.extension === 'md';
+        const shouldTrackHidden = hiddenFiles.length > 0 && file.extension === 'md';
         // Lazy computation pattern - only check frontmatter when actually needed
         let hiddenStateComputed = false;
         let hiddenState = false;
@@ -129,7 +134,7 @@ export class MetadataContentProvider extends BaseContentProvider {
             if (hiddenStateComputed || !shouldTrackHidden) {
                 return;
             }
-            hiddenState = shouldExcludeFile(file, settings.excludedFiles, this.app);
+            hiddenState = shouldExcludeFile(file, hiddenFiles, this.app);
             hiddenStateComputed = true;
         };
         // Saves computed hidden state to cache for later retrieval in processFile
@@ -175,8 +180,9 @@ export class MetadataContentProvider extends BaseContentProvider {
         featureImage?: string;
         metadata?: FileData['metadata'];
     } | null> {
+        const hiddenFiles = getActiveHiddenFiles(settings);
         const shouldExtractMetadata = settings.useFrontmatterMetadata;
-        const shouldTrackHidden = settings.excludedFiles.length > 0;
+        const shouldTrackHidden = hiddenFiles.length > 0;
         if (!shouldExtractMetadata && !shouldTrackHidden) {
             return null;
         }
@@ -200,7 +206,7 @@ export class MetadataContentProvider extends BaseContentProvider {
                     hiddenValue = this.pendingHiddenStates.get(job.file.path) as boolean;
                     this.pendingHiddenStates.delete(job.file.path);
                 } else {
-                    hiddenValue = shouldExcludeFile(job.file, settings.excludedFiles, this.app);
+                    hiddenValue = shouldExcludeFile(job.file, hiddenFiles, this.app);
                 }
                 fileMetadata.hidden = hiddenValue;
             }

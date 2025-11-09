@@ -66,7 +66,9 @@ export const STRINGS_EN = {
         resetRootToFrequency: 'Reset to frequency order',
         dragHandleLabel: 'Drag to reorder',
         pinShortcuts: 'Pin shortcuts',
-        unpinShortcuts: 'Unpin shortcuts'
+        unpinShortcuts: 'Unpin shortcuts',
+        profileMenuLabel: 'Profile',
+        profileMenuAria: 'Change vault profile'
     },
 
     shortcuts: {
@@ -771,6 +773,21 @@ export const STRINGS_EN = {
                 name: 'Hide notes',
                 desc: 'Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).',
                 placeholder: 'draft, private'
+            },
+            vaultProfiles: {
+                name: 'Vault profile',
+                desc: 'Profiles store file type visibility, hidden folders, hidden tags, and hidden notes. Switch profiles from the navigation pane header.',
+                defaultName: 'Default',
+                addButton: 'Add profile',
+                deleteButton: 'Delete profile',
+                addModalTitle: 'Add profile',
+                addModalPlaceholder: 'Profile name',
+                deleteModalTitle: 'Delete {name}',
+                deleteModalMessage: 'Remove {name}? Hidden folder, tag, and note filters saved in this profile will be deleted.',
+                errors: {
+                    emptyName: 'Enter a profile name',
+                    duplicateName: 'Profile name already exists'
+                }
             },
             excludedFolders: {
                 name: 'Hide folders',

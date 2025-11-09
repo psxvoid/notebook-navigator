@@ -65,7 +65,9 @@ export const STRINGS_DE = {
         resetRootToFrequency: 'Auf Häufigkeitsreihenfolge zurücksetzen',
         dragHandleLabel: 'Ziehen zum Neuanordnen',
         pinShortcuts: 'Lesezeichen anheften',
-        unpinShortcuts: 'Lesezeichen lösen'
+        unpinShortcuts: 'Lesezeichen lösen',
+        profileMenuLabel: 'Profil',
+        profileMenuAria: 'Tresorprofil ändern'
     },
 
     shortcuts: {
@@ -754,6 +756,21 @@ export const STRINGS_DE = {
                 name: 'Notizen verstecken',
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften. Notizen mit diesen Eigenschaften werden ausgeblendet (z.B. Entwurf, privat, archiviert).',
                 placeholder: 'entwurf, privat'
+            },
+            vaultProfiles: {
+                name: 'Tresorprofil',
+                desc: 'Profile speichern Dateityp-Sichtbarkeit, versteckte Ordner, versteckte Tags und versteckte Notizen. Profile können über die Kopfzeile des Navigationsbereichs gewechselt werden.',
+                defaultName: 'Standard',
+                addButton: 'Profil hinzufügen',
+                deleteButton: 'Profil löschen',
+                addModalTitle: 'Profil hinzufügen',
+                addModalPlaceholder: 'Profilname',
+                deleteModalTitle: '{name} löschen',
+                deleteModalMessage: '{name} entfernen? Versteckte Ordner-, Tag- und Notizfilter in diesem Profil werden gelöscht.',
+                errors: {
+                    emptyName: 'Profilnamen eingeben',
+                    duplicateName: 'Profilname bereits vorhanden'
+                }
             },
             excludedFolders: {
                 name: 'Ordner verstecken',

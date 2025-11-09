@@ -50,6 +50,16 @@ export type ListNoteGroupingOption = 'none' | 'date' | 'folder';
 /** Date source to display when alphabetical sorting is active */
 export type AlphabeticalDateMode = 'created' | 'modified';
 
+/** Vault profile storing hidden folder, tag, and note patterns */
+export interface VaultProfile {
+    id: string;
+    name: string;
+    fileVisibility: FileVisibility;
+    hiddenFolders: string[];
+    hiddenTags: string[];
+    hiddenFiles: string[];
+}
+
 /**
  * Plugin settings interface defining all configurable options
  * Settings are organized by tab for easier maintenance
@@ -57,8 +67,9 @@ export type AlphabeticalDateMode = 'created' | 'modified';
 export interface NotebookNavigatorSettings {
     // General tab - Filtering
     fileVisibility: FileVisibility;
-    excludedFolders: string[];
-    excludedFiles: string[];
+    hiddenTags: string[];
+    vaultProfiles: VaultProfile[];
+    vaultProfile: string;
 
     // General tab - Behavior
     autoRevealActiveFile: boolean;
@@ -121,7 +132,6 @@ export interface NotebookNavigatorSettings {
     showAllTagsFolder: boolean;
     showUntagged: boolean;
     tagSortOrder: TagSortOrder;
-    hiddenTags: string[];
     keepEmptyTagsProperty: boolean;
     allowTagCreationInAddTagModal: boolean;
 

@@ -66,7 +66,9 @@ export const STRINGS_NL = {
         resetRootToFrequency: 'Terugzetten naar frequentievolgorde',
         dragHandleLabel: 'Sleep om te herschikken',
         pinShortcuts: 'Snelkoppelingen vastpinnen',
-        unpinShortcuts: 'Snelkoppelingen losmaken'
+        unpinShortcuts: 'Snelkoppelingen losmaken',
+        profileMenuLabel: 'Profiel',
+        profileMenuAria: 'Kluis profiel wijzigen'
     },
 
     shortcuts: {
@@ -773,6 +775,22 @@ export const STRINGS_NL = {
                 name: 'Notities verbergen',
                 desc: 'Kommagescheiden lijst van frontmatter-eigenschappen. Notities met een van deze eigenschappen worden verborgen (bijv. draft, private, archived).',
                 placeholder: 'draft, private'
+            },
+            vaultProfiles: {
+                name: 'Kluis profiel',
+                desc: 'Profielen bewaren bestandstypezichtbaarheid, verborgen mappen, verborgen labels en verborgen notities. Wissel van profiel via de koptekst van het navigatiepaneel.',
+                defaultName: 'Standaard',
+                addButton: 'Profiel toevoegen',
+                deleteButton: 'Profiel verwijderen',
+                addModalTitle: 'Profiel toevoegen',
+                addModalPlaceholder: 'Profielnaam',
+                deleteModalTitle: '{name} verwijderen',
+                deleteModalMessage:
+                    '{name} verwijderen? Verborgen map-, label- en notitiefilters opgeslagen in dit profiel worden verwijderd.',
+                errors: {
+                    emptyName: 'Voer een profielnaam in',
+                    duplicateName: 'Profielnaam bestaat al'
+                }
             },
             excludedFolders: {
                 name: 'Mappen verbergen',

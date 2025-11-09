@@ -50,6 +50,14 @@ import { getLeafSplitLocation } from './utils/workspaceSplit';
 import { sanitizeKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isRecord } from './utils/typeGuards';
 import { runAsyncAction } from './utils/async';
+import { resetHiddenToggleIfNoSources } from './utils/exclusionUtils';
+import {
+    applyActiveVaultProfileToSettings,
+    applyVaultProfileValues,
+    ensureVaultProfiles,
+    syncVaultProfileFromSettings,
+    DEFAULT_VAULT_PROFILE_ID
+} from './utils/vaultProfiles';
 import WorkspaceCoordinator from './services/workspace/WorkspaceCoordinator';
 import HomepageController from './services/workspace/HomepageController';
 import registerNavigatorCommands from './services/commands/registerNavigatorCommands';
@@ -64,6 +72,13 @@ const DEFAULT_UX_PREFERENCES: UXPreferences = {
 };
 
 const UX_PREFERENCE_KEYS: (keyof UXPreferences)[] = ['searchActive', 'includeDescendantNotes', 'showHiddenItems', 'pinShortcuts'];
+
+interface LegacyVisibilityMigration {
+    hiddenFolders: string[];
+    hiddenFiles: string[];
+    hiddenTags: string[];
+    shouldApplyToProfiles: boolean;
+}
 
 /**
  * Main plugin class for Notebook Navigator
@@ -253,6 +268,14 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const storedOrientation = localStorage.get<unknown>(this.keys.dualPaneOrientationKey);
         const parsedOrientation = this.parseDualPaneOrientation(storedOrientation);
         this.dualPaneOrientationPreference = parsedOrientation ?? 'horizontal';
+
+        // Extract legacy exclusion settings and migrate to vault profile system
+        const legacyVisibility = this.extractLegacyVisibilitySettings(storedData);
+
+        // Initialize vault profiles and apply legacy settings to the active profile
+        ensureVaultProfiles(this.settings);
+        this.applyLegacyVisibilityMigration(legacyVisibility);
+        applyActiveVaultProfileToSettings(this.settings);
 
         return isFirstLaunch;
     }
@@ -584,6 +607,32 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.notifySettingsUpdate();
     }
 
+    /**
+     * Sets the active vault profile and synchronizes hidden folder, tag, and note patterns.
+     */
+    public async setVaultProfile(profileId: string): Promise<void> {
+        ensureVaultProfiles(this.settings);
+        const nextProfile =
+            this.settings.vaultProfiles.find(profile => profile.id === profileId) ??
+            this.settings.vaultProfiles.find(profile => profile.id === DEFAULT_VAULT_PROFILE_ID) ??
+            this.settings.vaultProfiles[0];
+
+        if (!nextProfile) {
+            return;
+        }
+
+        this.settings.vaultProfile = nextProfile.id;
+        applyVaultProfileValues(this.settings, nextProfile);
+
+        resetHiddenToggleIfNoSources({
+            settings: this.settings,
+            showHiddenItems: this.getUXPreferences().showHiddenItems,
+            setShowHiddenItems: value => this.setShowHiddenItems(value)
+        });
+
+        await this.saveSettingsAndUpdate();
+    }
+
     public getUXPreferences(): UXPreferences {
         return { ...this.uxPreferences };
     }
@@ -877,6 +926,68 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
     }
 
+    // Extracts legacy exclusion settings from old format and prepares them for migration to vault profiles
+    private extractLegacyVisibilitySettings(storedData: Record<string, unknown> | null): LegacyVisibilityMigration {
+        // Converts unknown value to a deduplicated list of non-empty strings
+        const toUniqueStringList = (value: unknown): string[] => {
+            if (!Array.isArray(value)) {
+                return [];
+            }
+            const sanitized = value.map(entry => (typeof entry === 'string' ? entry.trim() : '')).filter(entry => entry.length > 0);
+            return Array.from(new Set(sanitized));
+        };
+
+        const mutableSettings = this.settings as unknown as Record<string, unknown>;
+        const legacyHiddenFolders = toUniqueStringList(mutableSettings['excludedFolders']);
+        const legacyHiddenFiles = toUniqueStringList(mutableSettings['excludedFiles']);
+        delete mutableSettings['excludedFolders'];
+        delete mutableSettings['excludedFiles'];
+
+        const storedHiddenTags = toUniqueStringList(storedData?.['hiddenTags']);
+        if (storedHiddenTags.length > 0) {
+            this.settings.hiddenTags = [...storedHiddenTags];
+        }
+
+        return {
+            hiddenFolders: legacyHiddenFolders,
+            hiddenFiles: legacyHiddenFiles,
+            hiddenTags: storedHiddenTags,
+            shouldApplyToProfiles: !Array.isArray(storedData?.['vaultProfiles'])
+        };
+    }
+
+    // Applies legacy hidden folder, file, and tag settings to the active vault profile
+    private applyLegacyVisibilityMigration(migration: LegacyVisibilityMigration): void {
+        if (
+            !migration.shouldApplyToProfiles ||
+            (migration.hiddenFolders.length === 0 && migration.hiddenFiles.length === 0 && migration.hiddenTags.length === 0)
+        ) {
+            return;
+        }
+
+        const targetProfile =
+            this.settings.vaultProfiles.find(profile => profile.id === this.settings.vaultProfile) ??
+            this.settings.vaultProfiles.find(profile => profile.id === DEFAULT_VAULT_PROFILE_ID) ??
+            this.settings.vaultProfiles[0];
+
+        if (!targetProfile) {
+            return;
+        }
+
+        if (migration.hiddenFolders.length > 0) {
+            targetProfile.hiddenFolders = [...migration.hiddenFolders];
+        }
+
+        if (migration.hiddenFiles.length > 0) {
+            targetProfile.hiddenFiles = [...migration.hiddenFiles];
+        }
+
+        if (migration.hiddenTags.length > 0) {
+            targetProfile.hiddenTags = [...migration.hiddenTags];
+            this.settings.hiddenTags = [...migration.hiddenTags];
+        }
+    }
+
     /**
      * Normalizes tag-related settings to use lowercase keys
      * Ensures consistency regardless of manual edits or external changes
@@ -932,6 +1043,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      * Called whenever settings are modified
      */
     async saveSettingsAndUpdate() {
+        ensureVaultProfiles(this.settings);
+        syncVaultProfileFromSettings(this.settings);
         await this.saveData(this.settings);
         // Notify all listeners that settings have been updated
         this.onSettingsUpdate();

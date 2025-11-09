@@ -10,6 +10,7 @@ import { isFolderInExcludedFolder, shouldExcludeFile } from '../../utils/fileFil
 import { getEffectiveFrontmatterExclusions, isFileHiddenBySettings } from '../../utils/exclusionUtils';
 import { runAsyncAction } from '../../utils/async';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
+import { getActiveHiddenFolders } from '../../utils/vaultProfiles';
 
 /**
  * Reveals the navigator view and focuses whichever pane is currently visible
@@ -303,6 +304,8 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
             // Resolves frontmatter exclusions, returns empty array when hidden items are shown
             const { showHiddenItems } = plugin.getUXPreferences();
             const effectiveExcludedFiles = getEffectiveFrontmatterExclusions(plugin.settings, showHiddenItems);
+            // Gets the list of folders hidden by the active vault profile
+            const hiddenFolders = getActiveHiddenFolders(plugin.settings);
 
             // Find all eligible folder notes in vault
             plugin.app.vault.getAllLoadedFiles().forEach(file => {
@@ -323,7 +326,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                 }
 
                 // Skip folder notes in excluded folders when hidden items are disabled
-                if (!plugin.getUXPreferences().showHiddenItems && isFolderInExcludedFolder(parent, plugin.settings.excludedFolders)) {
+                if (!plugin.getUXPreferences().showHiddenItems && isFolderInExcludedFolder(parent, hiddenFolders)) {
                     return;
                 }
 

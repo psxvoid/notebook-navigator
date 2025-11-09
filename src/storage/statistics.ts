@@ -18,6 +18,7 @@
 
 import type { NotebookNavigatorSettings } from '../settings';
 import { isPathInExcludedFolder } from '../utils/fileFilters';
+import { getActiveHiddenFolders } from '../utils/vaultProfiles';
 import { getDBInstance } from './fileOperations';
 import { METADATA_SENTINEL } from './IndexedDBStorage';
 
@@ -71,7 +72,9 @@ export function calculateCacheStatistics(settings: NotebookNavigatorSettings, sh
     try {
         const db = getDBInstance();
 
-        const excludedFolderPatterns = showHiddenItems ? [] : settings.excludedFolders;
+        // Retrieves folders hidden by the active vault profile
+        const hiddenFolders = getActiveHiddenFolders(settings);
+        const excludedFolderPatterns = showHiddenItems ? [] : hiddenFolders;
 
         const stats: CacheStatistics = {
             totalItems: 0,

@@ -37,6 +37,7 @@ import { METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { getFileDisplayName as getDisplayName } from './fileNameUtils';
 import { isFolderNote } from './folderNotes';
 import { createHiddenTagVisibility, normalizeTagPathValue } from './tagPrefixMatcher';
+import { getActiveHiddenFiles, getActiveHiddenFolders } from './vaultProfiles';
 
 interface CollectPinnedPathsOptions {
     restrictToFolderPath?: string;
@@ -128,7 +129,8 @@ export function getFilesForFolder(
     app: App
 ): TFile[] {
     const files: TFile[] = [];
-    const excludedFolderPatterns = settings.excludedFolders;
+    const excludedFolderPatterns = getActiveHiddenFolders(settings);
+    const excludedFileProperties = getActiveHiddenFiles(settings);
 
     // Check if hidden folders should be shown based on UX preference
     const showHiddenFolders = visibility.showHiddenItems;
@@ -162,8 +164,8 @@ export function getFilesForFolder(
 
     collectFiles(folder, folderHiddenInitially);
     let allFiles: TFile[] = files;
-    if (!visibility.showHiddenItems && settings.excludedFiles.length > 0) {
-        allFiles = files.filter(file => file.extension !== 'md' || !shouldExcludeFile(file, settings.excludedFiles, app));
+    if (!visibility.showHiddenItems && excludedFileProperties.length > 0) {
+        allFiles = files.filter(file => file.extension !== 'md' || !shouldExcludeFile(file, excludedFileProperties, app));
     }
 
     // Filter out folder notes if enabled and set to hide
@@ -256,7 +258,7 @@ export function getFilesForTag(
         allFiles = getFilteredFiles(app, settings, { showHiddenItems: visibility.showHiddenItems });
     }
 
-    const excludedFolderPatterns = settings.excludedFolders;
+    const excludedFolderPatterns = getActiveHiddenFolders(settings);
     // For tag views, exclude files in excluded folders only when hidden items are not shown
     // When showing hidden items, include files from excluded folders to match the tag tree
     const baseFiles = visibility.showHiddenItems

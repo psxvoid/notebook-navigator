@@ -66,7 +66,9 @@ export const STRINGS_ZH_TW = {
         resetRootToFrequency: '重設為頻率排序',
         dragHandleLabel: '拖曳以重新排序',
         pinShortcuts: '釘選捷徑',
-        unpinShortcuts: '取消釘選捷徑'
+        unpinShortcuts: '取消釘選捷徑',
+        profileMenuLabel: '設定檔',
+        profileMenuAria: '更改倉庫設定檔'
     },
 
     shortcuts: {
@@ -770,6 +772,21 @@ export const STRINGS_ZH_TW = {
                 name: '隱藏筆記',
                 desc: '以逗號分隔的 frontmatter 屬性清單。包含任何這些屬性的筆記將被隱藏 (例如 draft, private, archived)。',
                 placeholder: 'draft, private'
+            },
+            vaultProfiles: {
+                name: '倉庫設定檔',
+                desc: '設定檔儲存檔案類型可見性、隱藏資料夾、隱藏標籤和隱藏筆記。從導覽窗格標題切換設定檔。',
+                defaultName: '預設',
+                addButton: '新增設定檔',
+                deleteButton: '刪除設定檔',
+                addModalTitle: '新增設定檔',
+                addModalPlaceholder: '設定檔名稱',
+                deleteModalTitle: '刪除 {name}',
+                deleteModalMessage: '刪除 {name}？儲存在此設定檔中的隱藏資料夾、標籤和筆記篩選器將被刪除。',
+                errors: {
+                    emptyName: '請輸入設定檔名稱',
+                    duplicateName: '設定檔名稱已存在'
+                }
             },
             excludedFolders: {
                 name: '隱藏資料夾',

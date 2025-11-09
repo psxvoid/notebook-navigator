@@ -12,8 +12,8 @@ import { isFolderNote, type FolderNoteDetectionSettings } from './folderNotes';
 export interface FolderNoteCountOptions {
     app: App;
     fileVisibility: NotebookNavigatorSettings['fileVisibility'];
-    excludedFiles: NotebookNavigatorSettings['excludedFiles'];
-    excludedFolders: NotebookNavigatorSettings['excludedFolders'];
+    excludedFiles: string[];
+    excludedFolders: string[];
     includeDescendants: boolean;
     showHiddenFolders: boolean;
     hideFolderNoteInList: boolean;

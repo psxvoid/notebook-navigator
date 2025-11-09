@@ -58,6 +58,7 @@ import { shouldDisplayFile, FILE_VISIBILITY, isImageFile } from '../utils/fileTy
 import { isExcalidrawFile } from '../utils/fileNameUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree, findTagNode } from '../utils/tagTree';
+import { getActiveHiddenFolders } from '../utils/vaultProfiles';
 import { flattenFolderTree, flattenTagTree, compareTagOrderWithFallback } from '../utils/treeFlattener';
 import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
 import { setNavigationIndex } from '../utils/navigationIndex';
@@ -309,6 +310,8 @@ export function useNavigationPaneData({
     const showHiddenItems = uxPreferences.showHiddenItems;
     // Resolves frontmatter exclusions, returns empty array when hidden items are shown
     const effectiveFrontmatterExclusions = getEffectiveFrontmatterExclusions(settings, showHiddenItems);
+    // Memoized list of folders hidden by the active vault profile
+    const hiddenFolders = useMemo(() => getActiveHiddenFolders(settings), [settings]);
 
     // Version counter that increments when vault files change
     const [fileChangeVersion, setFileChangeVersion] = useState(0);
@@ -382,10 +385,10 @@ export function useNavigationPaneData({
      * Build folder items from vault structure
      */
     const folderItems = useMemo(() => {
-        return flattenFolderTree(rootFolders, expansionState.expandedFolders, settings.excludedFolders, 0, new Set(), {
+        return flattenFolderTree(rootFolders, expansionState.expandedFolders, hiddenFolders, 0, new Set(), {
             rootOrderMap: rootFolderOrderMap
         });
-    }, [rootFolders, expansionState.expandedFolders, settings.excludedFolders, rootFolderOrderMap]);
+    }, [rootFolders, expansionState.expandedFolders, hiddenFolders, rootFolderOrderMap]);
 
     /**
      * Build tag items with a single tag tree
@@ -612,7 +615,7 @@ export function useNavigationPaneData({
     /**
      * Pre-compute parsed excluded folders to avoid repeated parsing
      */
-    const parsedExcludedFolders = useMemo(() => settings.excludedFolders, [settings.excludedFolders]);
+    const parsedExcludedFolders = hiddenFolders;
 
     // Build list of shortcut items with proper hierarchy
     const shortcutItems = useMemo(() => {
@@ -661,7 +664,7 @@ export function useNavigationPaneData({
                     return;
                 }
 
-                const isExcluded = settings.excludedFolders.length > 0 && isFolderInExcludedFolder(folder, settings.excludedFolders);
+                const isExcluded = hiddenFolders.length > 0 && isFolderInExcludedFolder(folder, hiddenFolders);
                 if (isExcluded && !showHiddenItems) {
                     return;
                 }
@@ -746,7 +749,7 @@ export function useNavigationPaneData({
         });
 
         return items;
-    }, [app, hydratedShortcuts, tagTree, settings.excludedFolders, showHiddenItems, settings.showShortcuts, shortcutsExpanded]);
+    }, [app, hydratedShortcuts, tagTree, hiddenFolders, showHiddenItems, settings.showShortcuts, shortcutsExpanded]);
 
     // Build list of recent notes items with proper hierarchy
     const recentNotesItems = useMemo(() => {
@@ -1014,7 +1017,7 @@ export function useNavigationPaneData({
         });
         // NOTE TO REVIEWER: Including **metadataVersion** to detect settings mutations
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [items, parsedExcludedFolders, metadataService, metadataVersion]);
+    }, [items, hiddenFolders, metadataService, metadataVersion]);
 
     // Extract shortcut items when pinning is enabled for display in pinned area
     const shortcutItemsWithMetadata = useMemo(() => {
@@ -1153,7 +1156,7 @@ export function useNavigationPaneData({
         }
 
         const excludedProperties = effectiveFrontmatterExclusions;
-        const excludedFolderPatterns = settings.excludedFolders;
+        const excludedFolderPatterns = hiddenFolders;
         const folderNoteSettings: FolderNoteDetectionSettings = {
             enableFolderNotes: settings.enableFolderNotes,
             folderNoteName: settings.folderNoteName
@@ -1187,7 +1190,7 @@ export function useNavigationPaneData({
         settings.showNoteCount,
         includeDescendantNotes,
         effectiveFrontmatterExclusions,
-        settings.excludedFolders,
+        hiddenFolders,
         showHiddenItems,
         settings.fileVisibility,
         settings.enableFolderNotes,

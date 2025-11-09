@@ -66,7 +66,9 @@ export const STRINGS_IT = {
         resetRootToFrequency: 'Ripristina ordine per frequenza',
         dragHandleLabel: 'Trascina per riordinare',
         pinShortcuts: 'Fissa collegamenti',
-        unpinShortcuts: 'Rimuovi fissaggio collegamenti'
+        unpinShortcuts: 'Rimuovi fissaggio collegamenti',
+        profileMenuLabel: 'Profilo',
+        profileMenuAria: 'Cambia profilo del vault'
     },
 
     shortcuts: {
@@ -772,6 +774,22 @@ export const STRINGS_IT = {
                 name: 'Nascondi note',
                 desc: 'Lista separata da virgole di proprietà frontmatter. Le note contenenti una di queste proprietà saranno nascoste (es. draft, private, archived).',
                 placeholder: 'draft, private'
+            },
+            vaultProfiles: {
+                name: 'Profilo vault',
+                desc: "I profili memorizzano la visibilità dei tipi di file, cartelle nascoste, tag nascosti e note nascoste. Cambia profilo dall'intestazione del pannello di navigazione.",
+                defaultName: 'Predefinito',
+                addButton: 'Aggiungi profilo',
+                deleteButton: 'Elimina profilo',
+                addModalTitle: 'Aggiungi profilo',
+                addModalPlaceholder: 'Nome profilo',
+                deleteModalTitle: 'Elimina {name}',
+                deleteModalMessage:
+                    'Rimuovere {name}? I filtri per cartelle, tag e note nascosti salvati in questo profilo verranno eliminati.',
+                errors: {
+                    emptyName: 'Inserisci un nome profilo',
+                    duplicateName: 'Nome profilo già esistente'
+                }
             },
             excludedFolders: {
                 name: 'Nascondi cartelle',

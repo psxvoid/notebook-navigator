@@ -65,7 +65,9 @@ export const STRINGS_FR = {
         resetRootToFrequency: 'Réinitialiser selon la fréquence',
         dragHandleLabel: 'Faire glisser pour réorganiser',
         pinShortcuts: 'Épingler les raccourcis',
-        unpinShortcuts: 'Détacher les raccourcis'
+        unpinShortcuts: 'Détacher les raccourcis',
+        profileMenuLabel: 'Profil',
+        profileMenuAria: 'Changer le profil du coffre'
     },
 
     shortcuts: {
@@ -752,6 +754,22 @@ export const STRINGS_FR = {
                 name: 'Masquer les notes',
                 desc: "Liste de propriétés de métadonnées séparées par des virgules. Les notes contenant l'une de ces propriétés seront masquées (ex. : draft, private, archived).",
                 placeholder: 'draft, private'
+            },
+            vaultProfiles: {
+                name: 'Profil du coffre',
+                desc: "Les profils stockent la visibilité des types de fichiers, les dossiers cachés, les étiquettes cachées et les notes cachées. Changez de profil depuis l'en-tête du panneau de navigation.",
+                defaultName: 'Par défaut',
+                addButton: 'Ajouter un profil',
+                deleteButton: 'Supprimer le profil',
+                addModalTitle: 'Ajouter un profil',
+                addModalPlaceholder: 'Nom du profil',
+                deleteModalTitle: 'Supprimer {name}',
+                deleteModalMessage:
+                    'Supprimer {name} ? Les filtres de dossiers, étiquettes et notes cachés enregistrés dans ce profil seront supprimés.',
+                errors: {
+                    emptyName: 'Entrez un nom de profil',
+                    duplicateName: 'Le nom du profil existe déjà'
+                }
             },
             excludedFolders: {
                 name: 'Masquer les dossiers',

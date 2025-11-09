@@ -30,8 +30,18 @@ import type { NotebookNavigatorSettings } from './types';
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Filtering
     fileVisibility: FILE_VISIBILITY.SUPPORTED,
-    excludedFolders: [],
-    excludedFiles: [],
+    hiddenTags: [],
+    vaultProfiles: [
+        {
+            id: 'default',
+            name: '',
+            fileVisibility: FILE_VISIBILITY.SUPPORTED,
+            hiddenFolders: [],
+            hiddenTags: [],
+            hiddenFiles: []
+        }
+    ],
+    vaultProfile: 'default',
 
     // General tab - Behavior
     autoRevealActiveFile: true,
@@ -94,7 +104,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showAllTagsFolder: true,
     showUntagged: false,
     tagSortOrder: 'alpha-asc',
-    hiddenTags: [],
     keepEmptyTagsProperty: false,
     allowTagCreationInAddTagModal: true,
 

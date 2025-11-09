@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, Notice, Platform, Setting, SliderComponent } from 'obsidian';
+import { ButtonComponent, DropdownComponent, Notice, Platform, Setting, SliderComponent } from 'obsidian';
 import { HomepageModal } from '../../modals/HomepageModal';
 import { strings } from '../../i18n';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
@@ -25,6 +25,8 @@ import type { BackgroundMode } from '../../types';
 import type { MultiSelectModifier } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
+import { InputModal } from '../../modals/InputModal';
+import { ConfirmModal } from '../../modals/ConfirmModal';
 import {
     DEFAULT_UI_SCALE,
     formatUIScalePercent,
@@ -36,11 +38,14 @@ import {
     percentToScale
 } from '../../utils/uiScale';
 import { runAsyncAction } from '../../utils/async';
+import { createVaultProfile, DEFAULT_VAULT_PROFILE_ID, ensureVaultProfiles } from '../../utils/vaultProfiles';
+import { normalizeTagPath } from '../../utils/tagUtils';
 
 /** Renders the general settings tab */
 export function renderGeneralTab(context: SettingsTabContext): void {
     const { containerEl, plugin, createDebouncedTextSetting } = context;
     const pluginVersion = plugin.manifest.version;
+    ensureVaultProfiles(plugin.settings);
 
     let updateStatusEl: HTMLDivElement | null = null;
 
@@ -103,10 +108,172 @@ export function renderGeneralTab(context: SettingsTabContext): void {
 
     new Setting(containerEl).setName(strings.settings.groups.general.filtering).setHeading();
 
+    const fallbackProfileName = strings.settings.items.vaultProfiles.defaultName || 'Default';
+    const getProfileDisplayName = (name?: string): string => {
+        const trimmed = name?.trim();
+        return trimmed && trimmed.length > 0 ? trimmed : fallbackProfileName;
+    };
+    const getActiveProfile = () => {
+        return (
+            plugin.settings.vaultProfiles.find(profile => profile.id === plugin.settings.vaultProfile) ??
+            plugin.settings.vaultProfiles[0] ??
+            null
+        );
+    };
+
+    let profileDropdown: DropdownComponent | null = null;
+    let deleteProfileButton: ButtonComponent | null = null;
+    let fileVisibilityDropdown: DropdownComponent | null = null;
+    let excludedFoldersInput: HTMLInputElement | null = null;
+    let hiddenTagsInput: HTMLInputElement | null = null;
+    let excludedFilesInput: HTMLInputElement | null = null;
+
+    // Updates all profile-related UI controls with current settings values
+    const refreshProfileControls = () => {
+        if (profileDropdown) {
+            const selectEl = profileDropdown.selectEl;
+            while (selectEl.firstChild) {
+                selectEl.removeChild(selectEl.firstChild);
+            }
+            plugin.settings.vaultProfiles.forEach(profile => {
+                selectEl.createEl('option', {
+                    value: profile.id,
+                    text: getProfileDisplayName(profile.name)
+                });
+            });
+            selectEl.value = plugin.settings.vaultProfile;
+        }
+        if (deleteProfileButton) {
+            deleteProfileButton.setDisabled(plugin.settings.vaultProfile === DEFAULT_VAULT_PROFILE_ID);
+        }
+        const activeProfile = getActiveProfile();
+        if (fileVisibilityDropdown) {
+            fileVisibilityDropdown.setValue(plugin.settings.fileVisibility);
+        }
+        if (excludedFoldersInput) {
+            excludedFoldersInput.value = activeProfile ? activeProfile.hiddenFolders.join(', ') : '';
+        }
+        if (hiddenTagsInput) {
+            hiddenTagsInput.value = plugin.settings.hiddenTags.join(', ');
+        }
+        if (excludedFilesInput) {
+            excludedFilesInput.value = activeProfile ? activeProfile.hiddenFiles.join(', ') : '';
+        }
+    };
+
+    // Creates a new vault profile with the given name and switches to it
+    const handleAddProfile = async (profileName: string) => {
+        const trimmedName = profileName.trim();
+        if (!trimmedName) {
+            new Notice(strings.settings.items.vaultProfiles.errors.emptyName);
+            return;
+        }
+
+        const hasDuplicate = plugin.settings.vaultProfiles.some(profile => profile.name.toLowerCase() === trimmedName.toLowerCase());
+        if (hasDuplicate) {
+            new Notice(strings.settings.items.vaultProfiles.errors.duplicateName);
+            return;
+        }
+
+        const activeProfile = getActiveProfile();
+        const newProfile = createVaultProfile(trimmedName, {
+            hiddenFolders: activeProfile?.hiddenFolders,
+            hiddenFiles: activeProfile?.hiddenFiles,
+            hiddenTags: plugin.settings.hiddenTags,
+            fileVisibility: plugin.settings.fileVisibility
+        });
+        plugin.settings.vaultProfiles.push(newProfile);
+        await plugin.setVaultProfile(newProfile.id);
+        refreshProfileControls();
+    };
+
+    // Deletes the current profile and switches to a fallback profile
+    const handleDeleteActiveProfile = async () => {
+        const activeProfileId = plugin.settings.vaultProfile;
+        if (activeProfileId === DEFAULT_VAULT_PROFILE_ID) {
+            return;
+        }
+        const profiles = plugin.settings.vaultProfiles;
+        const currentIndex = profiles.findIndex(profile => profile.id === activeProfileId);
+        if (currentIndex === -1) {
+            return;
+        }
+        profiles.splice(currentIndex, 1);
+        const fallbackProfile =
+            profiles[currentIndex] ??
+            profiles[currentIndex - 1] ??
+            profiles.find(profile => profile.id === DEFAULT_VAULT_PROFILE_ID) ??
+            profiles[0];
+        const fallbackId = fallbackProfile?.id ?? DEFAULT_VAULT_PROFILE_ID;
+        await plugin.setVaultProfile(fallbackId);
+        refreshProfileControls();
+    };
+
+    // Shows a confirmation modal for deleting the active profile
+    const openDeleteProfileModal = () => {
+        const activeProfile = plugin.settings.vaultProfiles.find(profile => profile.id === plugin.settings.vaultProfile);
+        if (!activeProfile || activeProfile.id === DEFAULT_VAULT_PROFILE_ID) {
+            return;
+        }
+        const profileName = getProfileDisplayName(activeProfile.name);
+        const modal = new ConfirmModal(
+            context.app,
+            strings.settings.items.vaultProfiles.deleteModalTitle.replace('{name}', profileName),
+            strings.settings.items.vaultProfiles.deleteModalMessage.replace('{name}', profileName),
+            async () => {
+                await handleDeleteActiveProfile();
+            }
+        );
+        modal.open();
+    };
+
+    const profileSetting = new Setting(containerEl)
+        .setName(strings.settings.items.vaultProfiles.name)
+        .setDesc(strings.settings.items.vaultProfiles.desc);
+
+    profileSetting.addDropdown(dropdown => {
+        profileDropdown = dropdown;
+        refreshProfileControls();
+        dropdown.onChange(value => {
+            runAsyncAction(async () => {
+                await plugin.setVaultProfile(value);
+                refreshProfileControls();
+            });
+        });
+        return dropdown;
+    });
+
+    profileSetting.addButton(button => {
+        button.setButtonText(strings.settings.items.vaultProfiles.addButton).onClick(() => {
+            const modal = new InputModal(
+                context.app,
+                strings.settings.items.vaultProfiles.addModalTitle,
+                strings.settings.items.vaultProfiles.addModalPlaceholder,
+                async profileName => {
+                    await handleAddProfile(profileName);
+                }
+            );
+            modal.open();
+        });
+        return button;
+    });
+
+    profileSetting.addButton(button => {
+        deleteProfileButton = button;
+        button
+            .setButtonText(strings.settings.items.vaultProfiles.deleteButton)
+            .setDisabled(plugin.settings.vaultProfile === DEFAULT_VAULT_PROFILE_ID)
+            .onClick(() => {
+                openDeleteProfileModal();
+            });
+        return button;
+    });
+
     new Setting(containerEl)
         .setName(strings.settings.items.fileVisibility.name)
         .setDesc(strings.settings.items.fileVisibility.desc)
-        .addDropdown(dropdown =>
+        .addDropdown(dropdown => {
+            fileVisibilityDropdown = dropdown;
             dropdown
                 .addOption(FILE_VISIBILITY.DOCUMENTS, strings.settings.items.fileVisibility.options.documents)
                 .addOption(FILE_VISIBILITY.SUPPORTED, strings.settings.items.fileVisibility.options.supported)
@@ -114,21 +281,32 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 .setValue(plugin.settings.fileVisibility)
                 .onChange(async (value: FileVisibility) => {
                     plugin.settings.fileVisibility = value;
+                    const activeProfile = plugin.settings.vaultProfiles.find(profile => profile.id === plugin.settings.vaultProfile);
+                    if (activeProfile) {
+                        activeProfile.fileVisibility = value;
+                    }
                     await plugin.saveSettingsAndUpdate();
-                })
-        );
+                    refreshProfileControls();
+                });
+            return dropdown;
+        });
 
     const excludedFoldersSetting = createDebouncedTextSetting(
         containerEl,
         strings.settings.items.excludedFolders.name,
         strings.settings.items.excludedFolders.desc,
         strings.settings.items.excludedFolders.placeholder,
-        () => plugin.settings.excludedFolders.join(', '),
+        () => getActiveProfile()?.hiddenFolders.join(', ') ?? '',
         value => {
-            plugin.settings.excludedFolders = value
+            const activeProfile = getActiveProfile();
+            if (!activeProfile) {
+                return;
+            }
+            const nextHiddenFolders = value
                 .split(',')
                 .map(folder => folder.trim())
                 .filter(folder => folder.length > 0);
+            activeProfile.hiddenFolders = Array.from(new Set(nextHiddenFolders));
             resetHiddenToggleIfNoSources({
                 settings: plugin.settings,
                 showHiddenItems: plugin.getUXPreferences().showHiddenItems,
@@ -137,18 +315,47 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         }
     );
     excludedFoldersSetting.controlEl.addClass('nn-setting-wide-input');
+    excludedFoldersInput = excludedFoldersSetting.controlEl.querySelector('input');
+
+    const hiddenTagsSetting = createDebouncedTextSetting(
+        containerEl,
+        strings.settings.items.hiddenTags.name,
+        strings.settings.items.hiddenTags.desc,
+        strings.settings.items.hiddenTags.placeholder,
+        () => plugin.settings.hiddenTags.join(', '),
+        value => {
+            const normalizedHiddenTags = value
+                .split(',')
+                .map(entry => normalizeTagPath(entry))
+                .filter((entry): entry is string => entry !== null);
+
+            plugin.settings.hiddenTags = Array.from(new Set(normalizedHiddenTags));
+            resetHiddenToggleIfNoSources({
+                settings: plugin.settings,
+                showHiddenItems: plugin.getUXPreferences().showHiddenItems,
+                setShowHiddenItems: value => plugin.setShowHiddenItems(value)
+            });
+        }
+    );
+    hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');
+    hiddenTagsInput = hiddenTagsSetting.controlEl.querySelector('input');
 
     const excludedFilesSetting = createDebouncedTextSetting(
         containerEl,
         strings.settings.items.excludedNotes.name,
         strings.settings.items.excludedNotes.desc,
         strings.settings.items.excludedNotes.placeholder,
-        () => plugin.settings.excludedFiles.join(', '),
+        () => getActiveProfile()?.hiddenFiles.join(', ') ?? '',
         value => {
-            plugin.settings.excludedFiles = value
+            const activeProfile = getActiveProfile();
+            if (!activeProfile) {
+                return;
+            }
+            const nextHiddenFiles = value
                 .split(',')
                 .map(file => file.trim())
                 .filter(file => file.length > 0);
+            activeProfile.hiddenFiles = Array.from(new Set(nextHiddenFiles));
             resetHiddenToggleIfNoSources({
                 settings: plugin.settings,
                 showHiddenItems: plugin.getUXPreferences().showHiddenItems,
@@ -157,6 +364,8 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         }
     );
     excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');
+    excludedFilesInput = excludedFilesSetting.controlEl.querySelector('input');
+    refreshProfileControls();
 
     new Setting(containerEl).setName(strings.settings.groups.general.behavior).setHeading();
 

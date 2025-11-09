@@ -27,6 +27,7 @@ import { ItemType } from '../../types';
 import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 import { runAsyncAction } from '../async';
 import { setAsyncOnClick } from './menuAsyncHelpers';
+import { getActiveVaultProfile } from '../../utils/vaultProfiles';
 
 const normalizeVaultPath = (value: string): string => {
     if (!value) {
@@ -304,8 +305,9 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // Hide/Unhide folder (not available for root folder)
     if (folder.path !== '/') {
         const { showHiddenItems } = services.visibility;
-        // Check if folder is already excluded using proper wildcard pattern matching
-        const excludedPatterns = services.plugin.settings.excludedFolders;
+        // Get the active vault profile to access its hidden folder patterns
+        const activeProfile = getActiveVaultProfile(services.plugin.settings);
+        const excludedPatterns = activeProfile.hiddenFolders;
         const isExcluded = isFolderInExcludedFolder(folder, excludedPatterns);
         const normalizedFolderPath = normalizeVaultPath(folder.path);
         const exactPathExclusion = excludedPatterns.find(pattern => {
@@ -318,8 +320,8 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         if (exactPathExclusion) {
             menu.addItem((item: MenuItem) => {
                 setAsyncOnClick(item.setTitle(strings.contextMenu.folder.unhideFolder).setIcon('lucide-eye'), async () => {
-                    const currentExcluded = services.plugin.settings.excludedFolders;
-                    services.plugin.settings.excludedFolders = currentExcluded.filter(pattern => pattern !== exactPathExclusion);
+                    const currentExcluded = activeProfile.hiddenFolders;
+                    activeProfile.hiddenFolders = currentExcluded.filter(pattern => pattern !== exactPathExclusion);
                     resetHiddenToggleIfNoSources({
                         settings: services.plugin.settings,
                         showHiddenItems,
@@ -333,7 +335,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         } else if (!isExcluded) {
             menu.addItem((item: MenuItem) => {
                 setAsyncOnClick(item.setTitle(strings.contextMenu.folder.excludeFolder).setIcon('lucide-eye-off'), async () => {
-                    const currentExcluded = services.plugin.settings.excludedFolders;
+                    const currentExcluded = activeProfile.hiddenFolders;
                     // Ensure path starts with / for path-based exclusion
                     // Obsidian folder paths don't start with /, so we add it
                     const folderPath = folder.path.startsWith('/') ? folder.path : `/${folder.path}`;
@@ -341,7 +343,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                     // Clean up redundant patterns and add the new one
                     const cleanedPatterns = cleanupExclusionPatterns(currentExcluded, folderPath);
 
-                    services.plugin.settings.excludedFolders = cleanedPatterns;
+                    activeProfile.hiddenFolders = cleanedPatterns;
                     resetHiddenToggleIfNoSources({
                         settings: services.plugin.settings,
                         showHiddenItems,

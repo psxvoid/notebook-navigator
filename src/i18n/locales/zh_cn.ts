@@ -65,7 +65,9 @@ export const STRINGS_ZH_CN = {
         resetRootToFrequency: '重置为频率排序',
         dragHandleLabel: '拖拽重新排列',
         pinShortcuts: '固定快捷方式',
-        unpinShortcuts: '取消固定快捷方式'
+        unpinShortcuts: '取消固定快捷方式',
+        profileMenuLabel: '配置文件',
+        profileMenuAria: '更改仓库配置文件'
     },
 
     shortcuts: {
@@ -750,6 +752,21 @@ export const STRINGS_ZH_CN = {
                 name: '隐藏笔记',
                 desc: '逗号分隔的前置元数据属性列表。包含任何这些属性的笔记将被隐藏（例如：draft, private, archived）。',
                 placeholder: 'draft, private'
+            },
+            vaultProfiles: {
+                name: '仓库配置文件',
+                desc: '配置文件存储文件类型可见性、隐藏文件夹、隐藏标签和隐藏笔记。从导航窗格标题切换配置文件。',
+                defaultName: '默认',
+                addButton: '添加配置文件',
+                deleteButton: '删除配置文件',
+                addModalTitle: '添加配置文件',
+                addModalPlaceholder: '配置文件名称',
+                deleteModalTitle: '删除 {name}',
+                deleteModalMessage: '删除 {name}？保存在此配置文件中的隐藏文件夹、标签和笔记过滤器将被删除。',
+                errors: {
+                    emptyName: '请输入配置文件名称',
+                    duplicateName: '配置文件名称已存在'
+                }
             },
             excludedFolders: {
                 name: '隐藏文件夹',
