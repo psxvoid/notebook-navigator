@@ -66,7 +66,9 @@ export const STRINGS_EN = {
         resetRootToFrequency: 'Reset to frequency order',
         dragHandleLabel: 'Drag to reorder',
         pinShortcuts: 'Pin shortcuts',
-        unpinShortcuts: 'Unpin shortcuts'
+        unpinShortcuts: 'Unpin shortcuts',
+        profileMenuLabel: 'Profile',
+        profileMenuAria: 'Change vault profile'
     },
 
     shortcuts: {
@@ -776,6 +778,23 @@ export const STRINGS_EN = {
                 desc: 'Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            vaultProfiles: {
+                name: 'Vault profile',
+                desc: 'Profiles store file type visibility, hidden folders, hidden tags, and hidden notes. Switch profiles from the navigation pane header.',
+                defaultName: 'Default',
+                addButton: 'Add profile',
+                editButton: 'Edit profile',
+                deleteButton: 'Delete profile',
+                addModalTitle: 'Add profile',
+                editModalTitle: 'Edit profile',
+                addModalPlaceholder: 'Profile name',
+                deleteModalTitle: 'Delete {name}',
+                deleteModalMessage: 'Remove {name}? Hidden folder, tag, and note filters saved in this profile will be deleted.',
+                errors: {
+                    emptyName: 'Enter a profile name',
+                    duplicateName: 'Profile name already exists'
+                }
+            },
             excludedFolders: {
                 name: 'Hide folders',
                 desc: 'Comma-separated list of folders to hide. Name patterns: assets* (folders starting with assets), *_temp (ending with _temp). Path patterns: /archive (root archive only), /res* (root folders starting with res), /*/temp (temp folders one level deep), /projects/* (all folders inside projects).',
@@ -1135,7 +1154,7 @@ export const STRINGS_EN = {
                 name: 'Timestamp format',
                 desc: 'Format used to parse timestamps in frontmatter. Leave empty to use ISO 8601 format',
                 helpTooltip: 'See date-fns format documentation',
-                help: "Common formats:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "Common formats:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Support development',

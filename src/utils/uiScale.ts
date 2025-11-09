@@ -16,10 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export const MIN_UI_SCALE = 0.75;
-export const MAX_UI_SCALE = 1.5;
+const MIN_UI_SCALE = 0.75;
+const MAX_UI_SCALE = 1.5;
 export const DEFAULT_UI_SCALE = 1;
-export const UI_SCALE_STEP = 0.05;
+const UI_SCALE_STEP = 0.05;
 export const MIN_UI_SCALE_PERCENT = Math.round(MIN_UI_SCALE * 100);
 export const MAX_UI_SCALE_PERCENT = Math.round(MAX_UI_SCALE * 100);
 export const UI_SCALE_PERCENT_STEP = Math.round(UI_SCALE_STEP * 100);

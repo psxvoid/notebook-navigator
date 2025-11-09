@@ -164,7 +164,6 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             className={classNames}
             tabIndex={-1}
             ariaDisabled={shouldDisableRow || isMissing}
-            ariaGrabbed={isDragSource}
             dragHandleConfig={dragHandleConfig}
             labelClassName={hasFolderNote ? 'nn-has-folder-note' : undefined}
             onLabelClick={labelClickHandler}

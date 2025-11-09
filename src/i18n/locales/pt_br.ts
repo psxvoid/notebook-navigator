@@ -66,7 +66,9 @@ export const STRINGS_PT_BR = {
         resetRootToFrequency: 'Redefinir para ordem de frequência',
         dragHandleLabel: 'Arraste para reordenar',
         pinShortcuts: 'Fixar atalhos',
-        unpinShortcuts: 'Desafixar atalhos'
+        unpinShortcuts: 'Desafixar atalhos',
+        profileMenuLabel: 'Perfil',
+        profileMenuAria: 'Alterar perfil do cofre'
     },
 
     shortcuts: {
@@ -773,6 +775,23 @@ export const STRINGS_PT_BR = {
                 desc: 'Lista separada por vírgulas de propriedades do frontmatter. Notas contendo qualquer uma dessas propriedades serão ocultadas (por exemplo, rascunho, privado, arquivado).',
                 placeholder: 'rascunho, privado'
             },
+            vaultProfiles: {
+                name: 'Perfil do cofre',
+                desc: 'Perfis armazenam visibilidade de tipos de arquivo, pastas ocultas, tags ocultas e notas ocultas. Alterne perfis pelo cabeçalho do painel de navegação.',
+                defaultName: 'Padrão',
+                addButton: 'Adicionar perfil',
+                editButton: 'Editar perfil',
+                deleteButton: 'Excluir perfil',
+                addModalTitle: 'Adicionar perfil',
+                editModalTitle: 'Editar perfil',
+                addModalPlaceholder: 'Nome do perfil',
+                deleteModalTitle: 'Excluir {name}',
+                deleteModalMessage: 'Remover {name}? Os filtros de pastas, tags e notas ocultas salvos neste perfil serão excluídos.',
+                errors: {
+                    emptyName: 'Digite um nome de perfil',
+                    duplicateName: 'Nome do perfil já existe'
+                }
+            },
             excludedFolders: {
                 name: 'Ocultar pastas',
                 desc: 'Lista separada por vírgulas de pastas a ocultar. Padrões de nome: assets* (pastas que começam com assets), *_temp (terminam com _temp). Padrões de caminho: /arquivo (apenas arquivo raiz), /res* (pastas raiz que começam com res), /*/temp (pastas temp um nível abaixo), /projetos/* (todas as pastas dentro de projetos).',
@@ -1097,7 +1116,7 @@ export const STRINGS_PT_BR = {
                 name: 'Formato de timestamp',
                 desc: 'Formato usado para analisar timestamps no frontmatter. Deixe em branco para usar formato ISO 8601',
                 helpTooltip: 'Veja documentação de formato date-fns',
-                help: "Formatos comuns:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "Formatos comuns:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Apoiar o desenvolvimento',

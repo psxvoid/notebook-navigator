@@ -65,7 +65,9 @@ export const STRINGS_KO = {
         resetRootToFrequency: '빈도 순으로 리셋',
         dragHandleLabel: '드래그하여 순서 변경',
         pinShortcuts: '바로가기를 고정',
-        unpinShortcuts: '바로가기 고정을 해제'
+        unpinShortcuts: '바로가기 고정을 해제',
+        profileMenuLabel: '프로필',
+        profileMenuAria: '보관소 프로필 변경'
     },
 
     shortcuts: {
@@ -776,6 +778,23 @@ export const STRINGS_KO = {
                 desc: '쉼표로 구분된 frontmatter 속성 목록입니다. 이러한 속성 중 하나라도 포함된 노트는 숨겨집니다 (예: draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            vaultProfiles: {
+                name: '보관소 프로필',
+                desc: '프로필은 파일 유형 가시성, 숨겨진 폴더, 숨겨진 태그, 숨겨진 노트를 저장합니다. 탐색 창 헤더에서 프로필을 전환합니다.',
+                defaultName: '기본',
+                addButton: '프로필 추가',
+                editButton: '프로필 편집',
+                deleteButton: '프로필 삭제',
+                addModalTitle: '프로필 추가',
+                editModalTitle: '프로필 편집',
+                addModalPlaceholder: '프로필 이름',
+                deleteModalTitle: '{name} 삭제',
+                deleteModalMessage: '{name}을(를) 제거하시겠습니까? 이 프로필에 저장된 숨겨진 폴더, 태그 및 노트 필터가 삭제됩니다.',
+                errors: {
+                    emptyName: '프로필 이름을 입력하세요',
+                    duplicateName: '프로필 이름이 이미 존재합니다'
+                }
+            },
             excludedFolders: {
                 name: '폴더 숨기기',
                 desc: '숨길 폴더의 쉼표로 구분된 목록입니다. 이름 패턴: assets* (assets로 시작하는 폴더), *_temp (_temp로 끝나는). 경로 패턴: /archive (루트 archive만), /res* (res로 시작하는 루트 폴더), /*/temp (한 레벨 깊이의 temp 폴더), /projects/* (projects 내부의 모든 폴더).',
@@ -1135,7 +1154,7 @@ export const STRINGS_KO = {
                 name: '타임스탬프 형식',
                 desc: 'frontmatter에서 타임스탬프를 구문 분석하는 데 사용되는 형식입니다. ISO 8601 형식을 사용하려면 비워 두세요',
                 helpTooltip: 'date-fns 형식 문서 참조',
-                help: "일반적인 형식:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "일반적인 형식:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: '개발 지원',

@@ -58,6 +58,15 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
             ...plugin.settings,
             dualPaneOrientation: plugin.getDualPaneOrientation()
         };
+        // Deep copy vault profiles to prevent mutations from affecting the original settings
+        if (Array.isArray(plugin.settings.vaultProfiles)) {
+            nextSettings.vaultProfiles = plugin.settings.vaultProfiles.map(profile => ({
+                ...profile,
+                hiddenFolders: [...profile.hiddenFolders],
+                hiddenFiles: [...profile.hiddenFiles],
+                hiddenTags: [...profile.hiddenTags]
+            }));
+        }
         void version; // Keep dependency so settings snapshot recreates when updates are published
         return nextSettings;
     }, [plugin, version]);

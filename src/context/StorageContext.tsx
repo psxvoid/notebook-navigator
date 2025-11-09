@@ -63,6 +63,8 @@ import { useUXPreferences } from './UXPreferencesContext';
 import { NotebookNavigatorSettings } from '../settings';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { ContentType } from '../interfaces/IContentProvider';
+import { getActiveHiddenFiles, getActiveHiddenFolders } from '../utils/vaultProfiles';
+
 import { EMPTY_ARRAY } from 'src/utils/empty';
 import { transformTitle } from 'src/services/content/common/TextReplacerTransform';
 import { CacheRebuildMode } from 'src/main';
@@ -79,7 +81,8 @@ function getMetadataDependentTypes(settings: NotebookNavigatorSettings): Content
     if (settings.showFeatureImage) {
         types.push('featureImage');
     }
-    if (settings.useFrontmatterMetadata || settings.excludedFiles.length > 0) {
+    const hiddenFiles = getActiveHiddenFiles(settings);
+    if (settings.useFrontmatterMetadata || hiddenFiles.length > 0) {
         types.push('metadata');
     }
     return types;
@@ -98,7 +101,7 @@ function resolveMetadataDependentTypes(settings: NotebookNavigatorSettings, requ
             return settings.showFeatureImage;
         }
         if (type === 'metadata') {
-            return settings.useFrontmatterMetadata || settings.excludedFiles.length > 0;
+            return settings.useFrontmatterMetadata || getActiveHiddenFiles(settings).length > 0;
         }
         return false;
     });
@@ -133,7 +136,7 @@ function filterFilesRequiringMetadataSources(files: TFile[], types: ContentType[
 
     const db = getDBInstance();
     const records = db.getFiles(files.map(file => file.path));
-    const requiresHiddenState = settings.excludedFiles.length > 0;
+    const requiresHiddenState = getActiveHiddenFiles(settings).length > 0;
     const needsTags = types.includes('tags');
     const needsFeatureImage = types.includes('featureImage');
     const needsMetadata = types.includes('metadata');
@@ -225,6 +228,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const settings = useSettingsState();
     const uxPreferences = useUXPreferences();
     const showHiddenItems = uxPreferences.showHiddenItems;
+    // Memoized list of folders hidden by the active vault profile
+    const hiddenFolders = useMemo(() => getActiveHiddenFolders(settings), [settings]);
+    // Memoized list of files hidden by the active vault profile
+    const hiddenFiles = useMemo(() => getActiveHiddenFiles(settings), [settings]);
     const { tagTreeService } = useServices();
     const [fileData, setFileData] = useState<FileData>({ tagTree: new Map(), tagged: 0, untagged: 0, hiddenRootTags: new Map() });
 
@@ -270,7 +277,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
         // Hidden items override: when enabled, include all folders in tag tree regardless of exclusions
-        const excludedFolderPatterns = showHiddenItems ? [] : settings.excludedFolders;
+        const excludedFolderPatterns = showHiddenItems ? [] : hiddenFolders;
         // Filter database results to only include files matching current visibility settings
         const includedPaths = new Set(getVisibleMarkdownFiles().map(f => f.path));
         const {
@@ -289,7 +296,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         return tagTree;
-    }, [settings.excludedFolders, settings.hiddenTags, showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
+    }, [hiddenFolders, settings.hiddenTags, showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
 
     /**
      * Effect: Rebuild tag tree when hidden items visibility changes
@@ -1566,8 +1573,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         runAsyncAction(() => handleSettingsChanges(previousSettings, settings));
 
         // Detect exclusion setting changes and resync cache / tag tree
-        const excludedFoldersChanged = haveStringArraysChanged(previousSettings.excludedFolders, settings.excludedFolders);
-        const excludedFilesChanged = haveStringArraysChanged(previousSettings.excludedFiles, settings.excludedFiles);
+        const previousHiddenFolders = getActiveHiddenFolders(previousSettings);
+        const excludedFoldersChanged = haveStringArraysChanged(previousHiddenFolders, hiddenFolders);
+        const previousHiddenFiles = getActiveHiddenFiles(previousSettings);
+        const excludedFilesChanged = haveStringArraysChanged(previousHiddenFiles, hiddenFiles);
 
         if (excludedFoldersChanged || excludedFilesChanged) {
             runAsyncAction(async () => {
@@ -1656,7 +1665,15 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         prevSettings.current = settings;
-    }, [settings, handleSettingsChanges, rebuildTagTree, getIndexableMarkdownFiles, queueMetadataContentWhenReady]);
+    }, [
+        settings,
+        hiddenFolders,
+        hiddenFiles,
+        handleSettingsChanges,
+        rebuildTagTree,
+        getIndexableMarkdownFiles,
+        queueMetadataContentWhenReady
+    ]);
 
     /**
      * Augment context with control methods

@@ -20,20 +20,11 @@ import { Platform, Setting } from 'obsidian';
 import { strings } from '../../i18n';
 import { isFolderNoteCreationPreference } from '../../types/folderNote';
 import { isTagSortOrder } from '../types';
-import { normalizeTagPath } from '../../utils/tagUtils';
 import type { SettingsTabContext } from './SettingsTabContext';
-import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 
 /** Renders the folders and tags settings tab */
 export function renderFoldersTagsTab(context: SettingsTabContext): void {
-    const {
-        containerEl,
-        plugin,
-        createDebouncedTextSetting,
-        createDebouncedTextAreaSetting,
-        notifyShowTagsVisibility,
-        registerShowTagsListener
-    } = context;
+    const { containerEl, plugin } = context;
 
     if (!Platform.isMobile) {
         new Setting(containerEl)
@@ -121,7 +112,7 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
                 });
         });
 
-    createDebouncedTextSetting(
+    context.createDebouncedTextSetting(
         folderNotesSettingsEl,
         strings.settings.items.folderNoteName.name,
         strings.settings.items.folderNoteName.desc,
@@ -132,7 +123,7 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         }
     );
 
-    const folderNotePropertiesSetting = createDebouncedTextAreaSetting(
+    const folderNotePropertiesSetting = context.createDebouncedTextAreaSetting(
         folderNotesSettingsEl,
         strings.settings.items.folderNoteProperties.name,
         strings.settings.items.folderNoteProperties.desc,
@@ -187,7 +178,7 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
                 plugin.settings.showTags = value;
                 await plugin.saveSettingsAndUpdate();
                 tagSubSettingsEl.toggle(value);
-                notifyShowTagsVisibility(value);
+                context.notifyShowTagsVisibility(value);
             })
         );
 
@@ -264,34 +255,12 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
             })
         );
 
-    const hiddenTagsSetting = createDebouncedTextSetting(
-        tagSubSettingsEl,
-        strings.settings.items.hiddenTags.name,
-        strings.settings.items.hiddenTags.desc,
-        strings.settings.items.hiddenTags.placeholder,
-        () => plugin.settings.hiddenTags.join(', '),
-        value => {
-            const normalizedHiddenTags = value
-                .split(',')
-                .map(entry => normalizeTagPath(entry))
-                .filter((entry): entry is string => entry !== null);
-
-            plugin.settings.hiddenTags = Array.from(new Set(normalizedHiddenTags));
-            resetHiddenToggleIfNoSources({
-                settings: plugin.settings,
-                showHiddenItems: plugin.getUXPreferences().showHiddenItems,
-                setShowHiddenItems: value => plugin.setShowHiddenItems(value)
-            });
-        }
-    );
-    hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');
-
     /** Toggles visibility of tag sub-settings based on show tags setting */
     const updateTagSection = (visible: boolean) => {
         tagSubSettingsEl.toggle(visible);
     };
 
-    registerShowTagsListener(updateTagSection);
+    context.registerShowTagsListener(updateTagSection);
     updateTagSection(plugin.settings.showTags);
     folderNotesSettingsEl.toggle(plugin.settings.enableFolderNotes);
 }

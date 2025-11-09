@@ -27,7 +27,7 @@ import { CacheRebuildMode } from 'src/main';
 
 /** Renders the advanced settings tab */
 export function renderAdvancedTab(context: SettingsTabContext): void {
-    const { containerEl, plugin, registerStatsTextElement, requestStatisticsRefresh, ensureStatisticsInterval } = context;
+    const { containerEl, plugin } = context;
 
     new Setting(containerEl)
         .setName(strings.settings.items.updateCheckOnStart.name)
@@ -190,7 +190,7 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
         cls: 'nn-stats-text'
     });
 
-    registerStatsTextElement(statsTextEl);
-    requestStatisticsRefresh();
-    ensureStatisticsInterval();
+    context.registerStatsTextElement(statsTextEl);
+    context.requestStatisticsRefresh();
+    context.ensureStatisticsInterval();
 }

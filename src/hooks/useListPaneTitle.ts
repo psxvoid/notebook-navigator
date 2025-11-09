@@ -9,6 +9,7 @@ import { strings } from '../i18n';
 import { ItemType, TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import { hasSubfolders } from '../utils/fileFilters';
 import { getVirtualTagCollection, VIRTUAL_TAG_COLLECTION_IDS } from '../utils/virtualTagCollections';
+import { getActiveHiddenFolders } from '../utils/vaultProfiles';
 
 export type BreadcrumbTargetType = 'folder' | 'tag' | 'none';
 
@@ -32,6 +33,8 @@ export function useListPaneTitle(): UseListPaneTitleResult {
     const settings = useSettingsState();
     const uxPreferences = useUXPreferences();
     const showHiddenItems = uxPreferences.showHiddenItems;
+    // Memoized list of folders hidden by the active vault profile
+    const hiddenFolders = useMemo(() => getActiveHiddenFolders(settings), [settings]);
     const selectionState = useSelectionState();
     const { getTagDisplayPath } = useFileCache();
     const expansionState = useExpansionState();
@@ -49,7 +52,7 @@ export function useListPaneTitle(): UseListPaneTitleResult {
                 return customIcon;
             }
 
-            const excludedFolders = settings.excludedFolders;
+            const excludedFolders = hiddenFolders;
             const showHiddenFolders = showHiddenItems;
             const hasChildren = hasSubfolders(folder, excludedFolders, showHiddenFolders);
             const isExpanded = expansionState.expandedFolders.has(folder.path);
@@ -70,7 +73,7 @@ export function useListPaneTitle(): UseListPaneTitleResult {
         selectionState.selectedFolder,
         selectionState.selectedTag,
         selectionState.selectionType,
-        settings.excludedFolders,
+        hiddenFolders,
         showHiddenItems,
         settings.showFolderIcons,
         settings.showTagIcons

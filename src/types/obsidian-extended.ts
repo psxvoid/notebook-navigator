@@ -105,6 +105,10 @@ export interface AppWithDragManager extends App {
     dragManager: DragManagerState;
 }
 
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
+}
+
 /**
  * Type guard that detects if the Obsidian app exposes the drag manager.
  * Uses reflection to safely check for the presence of internal drag manager API.
@@ -122,8 +126,8 @@ export function hasDragManager(app: App): app is AppWithDragManager {
     }
 
     // Validate dragManager is an object
-    const dragManager = Reflect.get(candidate, 'dragManager');
-    if (typeof dragManager !== 'object' || dragManager === null) {
+    const dragManager: unknown = Reflect.get(candidate, 'dragManager');
+    if (!isObjectRecord(dragManager)) {
         return false;
     }
 
@@ -133,7 +137,7 @@ export function hasDragManager(app: App): app is AppWithDragManager {
     }
 
     // Validate draggable is null or an object (the payload)
-    const draggableValue = Reflect.get(dragManager, 'draggable');
+    const draggableValue: unknown = Reflect.get(dragManager, 'draggable');
     return draggableValue === null || typeof draggableValue === 'object';
 }
 

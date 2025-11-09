@@ -66,7 +66,9 @@ export const STRINGS_IT = {
         resetRootToFrequency: 'Ripristina ordine per frequenza',
         dragHandleLabel: 'Trascina per riordinare',
         pinShortcuts: 'Fissa collegamenti',
-        unpinShortcuts: 'Rimuovi fissaggio collegamenti'
+        unpinShortcuts: 'Rimuovi fissaggio collegamenti',
+        profileMenuLabel: 'Profilo',
+        profileMenuAria: 'Cambia profilo del vault'
     },
 
     shortcuts: {
@@ -773,6 +775,24 @@ export const STRINGS_IT = {
                 desc: 'Lista separata da virgole di proprietà frontmatter. Le note contenenti una di queste proprietà saranno nascoste (es. draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            vaultProfiles: {
+                name: 'Profilo vault',
+                desc: "I profili memorizzano la visibilità dei tipi di file, cartelle nascoste, tag nascosti e note nascoste. Cambia profilo dall'intestazione del pannello di navigazione.",
+                defaultName: 'Predefinito',
+                addButton: 'Aggiungi profilo',
+                editButton: 'Modifica profilo',
+                deleteButton: 'Elimina profilo',
+                addModalTitle: 'Aggiungi profilo',
+                editModalTitle: 'Modifica profilo',
+                addModalPlaceholder: 'Nome profilo',
+                deleteModalTitle: 'Elimina {name}',
+                deleteModalMessage:
+                    'Rimuovere {name}? I filtri per cartelle, tag e note nascosti salvati in questo profilo verranno eliminati.',
+                errors: {
+                    emptyName: 'Inserisci un nome profilo',
+                    duplicateName: 'Nome profilo già esistente'
+                }
+            },
             excludedFolders: {
                 name: 'Nascondi cartelle',
                 desc: 'Lista separata da virgole di cartelle da nascondere. Pattern nome: assets* (cartelle che iniziano con assets), *_temp (finiscono con _temp). Pattern percorso: /archive (solo archive radice), /res* (cartelle radice che iniziano con res), /*/temp (cartelle temp un livello sotto), /projects/* (tutte le cartelle dentro projects).',
@@ -1097,7 +1117,7 @@ export const STRINGS_IT = {
                 name: 'Formato timestamp',
                 desc: 'Formato usato per analizzare timestamp nel frontmatter. Lascia vuoto per usare formato ISO 8601',
                 helpTooltip: 'Vedi documentazione formato date-fns',
-                help: "Formati comuni:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "Formati comuni:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Sostieni lo sviluppo',
