@@ -19,6 +19,7 @@
 import { TFile, TFolder, App } from 'obsidian';
 import type { NotebookNavigatorSettings } from '../settings';
 import { shouldDisplayFile } from './fileTypeUtils';
+import { getActiveHiddenFiles, getActiveHiddenFolders } from './vaultProfiles';
 
 interface FileFilterOptions {
     showHiddenItems?: boolean;
@@ -305,8 +306,8 @@ export function hasSubfolders(folder: TFolder, excludePatterns: string[], showHi
  * - Optionally excludes files in excluded folders when indexing is configured to skip them
  */
 function passesExclusionFilters(file: TFile, settings: NotebookNavigatorSettings, app: App, options?: FileFilterOptions): boolean {
-    const excludedProperties = settings.excludedFiles;
-    const excludedFolderPatterns = settings.excludedFolders;
+    const excludedProperties = getActiveHiddenFiles(settings);
+    const excludedFolderPatterns = getActiveHiddenFolders(settings);
     // Skip frontmatter-based exclusion when showHiddenItems override is provided from options
     const includeHiddenFiles = options?.showHiddenItems ?? false;
 

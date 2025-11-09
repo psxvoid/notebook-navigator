@@ -65,7 +65,9 @@ export const STRINGS_JA = {
         resetRootToFrequency: '頻度順にリセット',
         dragHandleLabel: 'ドラッグして並び替え',
         pinShortcuts: 'ショートカットを固定',
-        unpinShortcuts: 'ショートカットの固定を解除'
+        unpinShortcuts: 'ショートカットの固定を解除',
+        profileMenuLabel: 'プロファイル',
+        profileMenuAria: '保管庫のプロファイルを変更'
     },
 
     shortcuts: {
@@ -756,6 +758,24 @@ export const STRINGS_JA = {
                 desc: 'カンマ区切りのフロントマター属性のリスト。これらの属性を含むノートは非表示になります（例：draft, private, archived）。',
                 placeholder: 'draft, private'
             },
+            vaultProfiles: {
+                name: '保管庫プロファイル',
+                desc: 'プロファイルは、ファイルタイプの表示、非表示フォルダ、非表示タグ、非表示ノートを保存します。ナビゲーションペインのヘッダーからプロファイルを切り替えます。',
+                defaultName: 'デフォルト',
+                addButton: 'プロファイルを追加',
+                editButton: 'プロファイルを編集',
+                deleteButton: 'プロファイルを削除',
+                addModalTitle: 'プロファイルを追加',
+                editModalTitle: 'プロファイルを編集',
+                addModalPlaceholder: 'プロファイル名',
+                deleteModalTitle: '{name}を削除',
+                deleteModalMessage:
+                    '{name}を削除しますか？このプロファイルに保存されている非表示フォルダ、タグ、ノートのフィルタが削除されます。',
+                errors: {
+                    emptyName: 'プロファイル名を入力してください',
+                    duplicateName: 'プロファイル名は既に存在します'
+                }
+            },
             excludedFolders: {
                 name: 'フォルダを非表示',
                 desc: '非表示にするフォルダのカンマ区切りリスト。名前パターン: assets*（assetsで始まるフォルダ）、*_temp（_tempで終わる）。パスパターン: /archive（ルートのアーカイブのみ）、/res*（resで始まるルートフォルダ）、/*/temp（1階層下のtempフォルダ）、/projects/*（projects内のすべてのフォルダ）。',
@@ -1137,7 +1157,7 @@ export const STRINGS_JA = {
                 name: 'タイムスタンプ形式',
                 desc: 'フロントマター内のタイムスタンプを解析するために使用される形式。空のままにするとISO 8601形式を使用',
                 helpTooltip: 'date-fnsフォーマットのドキュメントを参照',
-                help: "一般的な形式:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "一般的な形式:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: '開発をサポート',

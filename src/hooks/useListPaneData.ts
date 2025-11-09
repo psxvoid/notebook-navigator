@@ -38,6 +38,7 @@ import type { VisibilityPreferences } from '../types';
 import type { ListPaneItem } from '../types/virtualization';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { DateUtils } from '../utils/dateUtils';
+import { getActiveHiddenFiles, getActiveHiddenFolders } from '../utils/vaultProfiles';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { shouldExcludeFile, isFolderInExcludedFolder } from '../utils/fileFilters';
 import { getDateField, getEffectiveSortOption, naturalCompare } from '../utils/sortUtils';
@@ -141,6 +142,10 @@ export function useListPaneData({
     const isOmnisearchAvailable = omnisearchService?.isAvailable() ?? false;
     // Use Omnisearch only when selected, available, and there's a query
     const useOmnisearch = settings.searchProvider === 'omnisearch' && isOmnisearchAvailable && hasSearchQuery;
+    // Memoized list of folders hidden by the active vault profile
+    const hiddenFolders = useMemo(() => getActiveHiddenFolders(settings), [settings]);
+    // Memoized list of files hidden by the active vault profile
+    const hiddenFiles = useMemo(() => getActiveHiddenFiles(settings), [settings]);
 
     const sortOption = useMemo(() => {
         if (selectionType === ItemType.TAG && selectedTag) {
@@ -375,8 +380,8 @@ export function useListPaneData({
 
         const db = getDB();
         const records = db.getFiles(files.map(file => file.path));
-        const shouldCheckFolders = settings.excludedFolders.length > 0;
-        const shouldCheckFrontmatter = settings.excludedFiles.length > 0;
+        const shouldCheckFolders = hiddenFolders.length > 0;
+        const shouldCheckFrontmatter = hiddenFiles.length > 0;
         const folderHiddenCache = shouldCheckFolders ? new Map<string, boolean>() : null;
         const result = new Map<string, boolean>();
 
@@ -388,7 +393,7 @@ export function useListPaneData({
             if (folderHiddenCache.has(folder.path)) {
                 return folderHiddenCache.get(folder.path) ?? false;
             }
-            const hidden = isFolderInExcludedFolder(folder, settings.excludedFolders);
+            const hidden = isFolderInExcludedFolder(folder, hiddenFolders);
             folderHiddenCache.set(folder.path, hidden);
             return hidden;
         };
@@ -398,7 +403,7 @@ export function useListPaneData({
             let hiddenByFrontmatter = false;
             if (shouldCheckFrontmatter && file.extension === 'md') {
                 if (record?.metadata?.hidden === undefined) {
-                    hiddenByFrontmatter = shouldExcludeFile(file, settings.excludedFiles, app);
+                    hiddenByFrontmatter = shouldExcludeFile(file, hiddenFiles, app);
                 } else {
                     hiddenByFrontmatter = Boolean(record.metadata?.hidden);
                 }
@@ -410,7 +415,7 @@ export function useListPaneData({
         });
 
         return result;
-    }, [files, getDB, settings.excludedFolders, settings.excludedFiles, showHiddenItems, app]);
+    }, [files, getDB, hiddenFolders, hiddenFiles, showHiddenItems, app]);
 
     /**
      * Build the complete list of items for rendering, including:
@@ -966,11 +971,11 @@ export function useListPaneData({
             }
 
             // Check if file's hidden state changed (frontmatter property added/removed) to trigger rebuild
-            if (settings.excludedFiles.length > 0 && file.extension === 'md') {
+            if (hiddenFiles.length > 0 && file.extension === 'md') {
                 const db = getDB();
                 const record = db.getFile(file.path);
                 const wasExcluded = Boolean(record?.metadata?.hidden);
-                const isCurrentlyExcluded = shouldExcludeFile(file, settings.excludedFiles, app);
+                const isCurrentlyExcluded = shouldExcludeFile(file, hiddenFiles, app);
 
                 if (isCurrentlyExcluded === wasExcluded) {
                     return;
@@ -1005,7 +1010,7 @@ export function useListPaneData({
             }
 
             // React to metadata changes that may update hidden-state styling
-            if (!shouldRefresh && settings.excludedFiles.length > 0 && showHiddenItems) {
+            if (!shouldRefresh && hiddenFiles.length > 0 && showHiddenItems) {
                 const metadataPaths = changes.filter(change => change.changes.metadata !== undefined).map(change => change.path);
                 if (metadataPaths.length > 0) {
                     shouldRefresh = metadataPaths.some(path => basePathSet.has(path));
@@ -1037,8 +1042,8 @@ export function useListPaneData({
         selectedTag,
         selectedFolder,
         includeDescendantNotes,
-        settings.excludedFiles,
-        settings.excludedFolders,
+        hiddenFiles,
+        hiddenFolders,
         showHiddenItems,
         getDB,
         commandQueue,

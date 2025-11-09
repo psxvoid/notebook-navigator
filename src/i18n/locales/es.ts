@@ -65,7 +65,9 @@ export const STRINGS_ES = {
         resetRootToFrequency: 'Restablecer al orden por frecuencia',
         dragHandleLabel: 'Arrastrar para reordenar',
         pinShortcuts: 'Fijar accesos directos',
-        unpinShortcuts: 'Desfijar accesos directos'
+        unpinShortcuts: 'Desfijar accesos directos',
+        profileMenuLabel: 'Perfil',
+        profileMenuAria: 'Cambiar perfil de bóveda'
     },
 
     shortcuts: {
@@ -756,6 +758,24 @@ export const STRINGS_ES = {
                 desc: 'Lista de propiedades del frontmatter separadas por comas. Las notas que contengan cualquiera de estas propiedades se ocultarán (ej.: draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            vaultProfiles: {
+                name: 'Perfil de bóveda',
+                desc: 'Los perfiles almacenan visibilidad de tipos de archivo, carpetas ocultas, etiquetas ocultas y notas ocultas. Cambia de perfil desde el encabezado del panel de navegación.',
+                defaultName: 'Predeterminado',
+                addButton: 'Añadir perfil',
+                editButton: 'Editar perfil',
+                deleteButton: 'Eliminar perfil',
+                addModalTitle: 'Añadir perfil',
+                editModalTitle: 'Editar perfil',
+                addModalPlaceholder: 'Nombre del perfil',
+                deleteModalTitle: 'Eliminar {name}',
+                deleteModalMessage:
+                    '¿Eliminar {name}? Se eliminarán los filtros de carpetas, etiquetas y notas ocultas guardados en este perfil.',
+                errors: {
+                    emptyName: 'Introduce un nombre de perfil',
+                    duplicateName: 'El nombre del perfil ya existe'
+                }
+            },
             excludedFolders: {
                 name: 'Ocultar carpetas',
                 desc: 'Lista de carpetas a ocultar separadas por comas. Patrones de nombre: assets* (carpetas que comienzan con assets), *_temp (terminan con _temp). Patrones de ruta: /archive (solo archivo raíz), /res* (carpetas raíz que comienzan con res), /*/temp (carpetas temp un nivel abajo), /projects/* (todas las carpetas dentro de projects).',
@@ -1136,7 +1156,7 @@ export const STRINGS_ES = {
                 name: 'Formato de marca de tiempo',
                 desc: 'Formato utilizado para analizar marcas de tiempo en el frontmatter. Dejar vacío para usar formato ISO 8601',
                 helpTooltip: 'Ver documentación de formato date-fns',
-                help: "Formatos comunes:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "Formatos comunes:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Apoyar el desarrollo',

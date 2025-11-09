@@ -65,7 +65,9 @@ export const STRINGS_FR = {
         resetRootToFrequency: 'Réinitialiser selon la fréquence',
         dragHandleLabel: 'Faire glisser pour réorganiser',
         pinShortcuts: 'Épingler les raccourcis',
-        unpinShortcuts: 'Détacher les raccourcis'
+        unpinShortcuts: 'Détacher les raccourcis',
+        profileMenuLabel: 'Profil',
+        profileMenuAria: 'Changer le profil du coffre'
     },
 
     shortcuts: {
@@ -757,6 +759,24 @@ export const STRINGS_FR = {
                 desc: "Liste de propriétés de métadonnées séparées par des virgules. Les notes contenant l'une de ces propriétés seront masquées (ex. : draft, private, archived).",
                 placeholder: 'draft, private'
             },
+            vaultProfiles: {
+                name: 'Profil du coffre',
+                desc: "Les profils stockent la visibilité des types de fichiers, les dossiers cachés, les étiquettes cachées et les notes cachées. Changez de profil depuis l'en-tête du panneau de navigation.",
+                defaultName: 'Par défaut',
+                addButton: 'Ajouter un profil',
+                editButton: 'Modifier le profil',
+                deleteButton: 'Supprimer le profil',
+                addModalTitle: 'Ajouter un profil',
+                editModalTitle: 'Modifier le profil',
+                addModalPlaceholder: 'Nom du profil',
+                deleteModalTitle: 'Supprimer {name}',
+                deleteModalMessage:
+                    'Supprimer {name} ? Les filtres de dossiers, étiquettes et notes cachés enregistrés dans ce profil seront supprimés.',
+                errors: {
+                    emptyName: 'Entrez un nom de profil',
+                    duplicateName: 'Le nom du profil existe déjà'
+                }
+            },
             excludedFolders: {
                 name: 'Masquer les dossiers',
                 desc: 'Liste de dossiers à masquer séparés par des virgules. Modèles de nom : assets* (dossiers commençant par assets), *_temp (finissant par _temp). Modèles de chemin : /archive (archive racine uniquement), /res* (dossiers racine commençant par res), /*/temp (dossiers temp un niveau plus bas), /projects/* (tous les dossiers dans projects).',
@@ -1138,7 +1158,7 @@ export const STRINGS_FR = {
                 name: "Format d'horodatage",
                 desc: 'Format utilisé pour analyser les horodatages dans le frontmatter. Laisser vide pour utiliser le format ISO 8601',
                 helpTooltip: 'Voir la documentation du format date-fns',
-                help: "Formats courants :\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "Formats courants :\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Soutenir le développement',

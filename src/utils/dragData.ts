@@ -21,7 +21,7 @@ function filterStringArray(values: unknown[]): string[] {
  * Parses the Obsidian multi-file drag payload and returns all non-empty file paths.
  * Returns null if the payload is malformed or contains no usable paths.
  */
-export function parseObsidianFilesPayload(payload: string): string[] | null {
+function parseObsidianFilesPayload(payload: string): string[] | null {
     const trimmed = payload.trim();
     if (!trimmed) {
         return null;

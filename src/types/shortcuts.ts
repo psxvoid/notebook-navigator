@@ -124,6 +124,20 @@ export function getShortcutKey(shortcut: ShortcutEntry): string {
     }
 
     // Exhaustive check - ensures compiler warns if new shortcut type is added
-    const exhaustiveCheck: never = shortcut;
-    throw new Error(`Unsupported shortcut type: ${exhaustiveCheck}`);
+    return assertNever(shortcut);
+}
+
+function describeShortcut(value: never): string {
+    if (typeof value === 'object' && value !== null) {
+        try {
+            return JSON.stringify(value);
+        } catch {
+            return '[object Object]';
+        }
+    }
+    return String(value);
+}
+
+function assertNever(value: never): never {
+    throw new Error(`Unsupported shortcut type: ${describeShortcut(value)}`);
 }

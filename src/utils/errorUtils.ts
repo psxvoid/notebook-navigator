@@ -3,7 +3,7 @@ import { isRecord } from './typeGuards';
 
 const DEFAULT_UNKNOWN_ERROR = strings.common.unknownError;
 
-export function toError(error: unknown, fallback: string = DEFAULT_UNKNOWN_ERROR): Error {
+function toError(error: unknown, fallback: string = DEFAULT_UNKNOWN_ERROR): Error {
     if (error instanceof Error) {
         return error;
     }

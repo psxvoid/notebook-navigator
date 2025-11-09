@@ -56,15 +56,7 @@ function countMarkdownMetadataEntries(records: Record<string, string> | undefine
 
 /** Renders the notes settings tab */
 export function renderNotesTab(context: SettingsTabContext): void {
-    const {
-        app,
-        containerEl,
-        plugin,
-        createDebouncedTextSetting,
-        registerMetadataInfoElement,
-        requestStatisticsRefresh,
-        registerShowTagsListener
-    } = context;
+    const { app, containerEl, plugin } = context;
 
     new Setting(containerEl).setName(strings.settings.groups.notes.frontmatter).setHeading();
 
@@ -76,7 +68,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 plugin.settings.useFrontmatterMetadata = value;
                 await plugin.saveSettingsAndUpdate();
                 frontmatterSettingsEl.toggle(value);
-                requestStatisticsRefresh();
+                context.requestStatisticsRefresh();
             })
         );
 
@@ -85,7 +77,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
     let updateFrontmatterSaveVisibility: (() => void) | null = null;
     let frontmatterIconizeSetting: Setting | null = null;
 
-    const frontmatterIconSetting = createDebouncedTextSetting(
+    const frontmatterIconSetting = context.createDebouncedTextSetting(
         frontmatterSettingsEl,
         strings.settings.items.frontmatterIconField.name,
         strings.settings.items.frontmatterIconField.desc,
@@ -96,11 +88,11 @@ export function renderNotesTab(context: SettingsTabContext): void {
             updateFrontmatterSaveVisibility?.();
         },
         undefined,
-        requestStatisticsRefresh
+        () => context.requestStatisticsRefresh()
     );
     frontmatterIconSetting.controlEl.addClass('nn-setting-wide-input');
 
-    const frontmatterColorSetting = createDebouncedTextSetting(
+    const frontmatterColorSetting = context.createDebouncedTextSetting(
         frontmatterSettingsEl,
         strings.settings.items.frontmatterColorField.name,
         strings.settings.items.frontmatterColorField.desc,
@@ -111,7 +103,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
             updateFrontmatterSaveVisibility?.();
         },
         undefined,
-        requestStatisticsRefresh
+        () => context.requestStatisticsRefresh()
     );
     frontmatterColorSetting.controlEl.addClass('nn-setting-wide-input');
 
@@ -200,7 +192,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
                     button.setButtonText(strings.settings.items.frontmatterMigration.button);
                     button.setDisabled(false);
                     updateMigrationDescription();
-                    requestStatisticsRefresh();
+                    context.requestStatisticsRefresh();
                 }
             });
         });
@@ -227,7 +219,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
 
     updateMigrationDescription();
 
-    createDebouncedTextSetting(
+    context.createDebouncedTextSetting(
         frontmatterSettingsEl,
         strings.settings.items.frontmatterNameField.name,
         strings.settings.items.frontmatterNameField.desc,
@@ -237,10 +229,10 @@ export function renderNotesTab(context: SettingsTabContext): void {
             plugin.settings.frontmatterNameField = value || '';
         },
         undefined,
-        requestStatisticsRefresh
+        () => context.requestStatisticsRefresh()
     );
 
-    createDebouncedTextSetting(
+    context.createDebouncedTextSetting(
         frontmatterSettingsEl,
         strings.settings.items.frontmatterCreatedField.name,
         strings.settings.items.frontmatterCreatedField.desc,
@@ -250,10 +242,10 @@ export function renderNotesTab(context: SettingsTabContext): void {
             plugin.settings.frontmatterCreatedField = value;
         },
         undefined,
-        requestStatisticsRefresh
+        () => context.requestStatisticsRefresh()
     );
 
-    createDebouncedTextSetting(
+    context.createDebouncedTextSetting(
         frontmatterSettingsEl,
         strings.settings.items.frontmatterModifiedField.name,
         strings.settings.items.frontmatterModifiedField.desc,
@@ -263,10 +255,11 @@ export function renderNotesTab(context: SettingsTabContext): void {
             plugin.settings.frontmatterModifiedField = value;
         },
         undefined,
-        requestStatisticsRefresh
+        () => context.requestStatisticsRefresh()
     );
 
-    const dateFormatSetting = createDebouncedTextSetting(
+    const dateFormatSetting = context
+        .createDebouncedTextSetting(
             frontmatterSettingsEl,
             strings.settings.items.frontmatterDateFormat.name,
             strings.settings.items.frontmatterDateFormat.desc,
@@ -276,7 +269,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 plugin.settings.frontmatterDateFormat = value;
             },
             undefined,
-            requestStatisticsRefresh
+            () => context.requestStatisticsRefresh()
         )
         .addExtraButton(button =>
             button
@@ -292,7 +285,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
     const metadataInfoEl = metadataInfoContainer.createEl('div', {
         cls: 'setting-item-description'
     });
-    registerMetadataInfoElement(metadataInfoEl);
+    context.registerMetadataInfoElement(metadataInfoEl);
 
     new Setting(containerEl).setName(strings.settings.groups.notes.display).setHeading();
 
@@ -481,7 +474,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 })
         );
 
-    const previewPropertiesSetting = createDebouncedTextSetting(
+    const previewPropertiesSetting = context.createDebouncedTextSetting(
         previewSettingsEl,
         strings.settings.items.previewProperties.name,
         strings.settings.items.previewProperties.desc,
@@ -522,7 +515,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
 
     const featureImageSettingsEl = containerEl.createDiv('nn-sub-settings');
 
-    const featurePropertiesSetting = createDebouncedTextSetting(
+    const featurePropertiesSetting = context.createDebouncedTextSetting(
         featureImageSettingsEl,
         strings.settings.items.featureImageProperties.name,
         strings.settings.items.featureImageProperties.desc,
@@ -593,9 +586,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
     featureImageSettingsEl.toggle(plugin.settings.showFeatureImage);
     frontmatterSettingsEl.toggle(plugin.settings.useFrontmatterMetadata);
 
-    registerShowTagsListener(visible => {
+    context.registerShowTagsListener(visible => {
         showFileTagsSetting.settingEl.toggle(visible);
     });
 
-    requestStatisticsRefresh();
+    context.requestStatisticsRefresh();
 }

@@ -118,6 +118,7 @@ import type { NoteCountInfo } from '../types/noteCounts';
 import type { SearchTagFilterState } from '../types/search';
 import type { InclusionOperator } from '../utils/filterSearch';
 import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
+import { getActiveHiddenFolders } from '../utils/vaultProfiles';
 import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { normalizeNavigationSectionOrderInput } from '../utils/navigationSections';
 import { getPathBaseName } from '../utils/pathUtils';
@@ -184,6 +185,8 @@ export const NavigationPane = React.memo(
         const uxPreferences = useUXPreferences();
         const includeDescendantNotes = uxPreferences.includeDescendantNotes;
         const showHiddenItems = uxPreferences.showHiddenItems;
+        // Retrieves the list of folders to hide based on the active vault profile
+        const hiddenFolders = useMemo(() => getActiveHiddenFolders(settings), [settings]);
         // Resolves frontmatter exclusions, returns empty array when hidden items are shown
         const effectiveFrontmatterExclusions = getEffectiveFrontmatterExclusions(settings, showHiddenItems);
         const updateSettings = useSettingsUpdate();
@@ -1603,7 +1606,7 @@ export const NavigationPane = React.memo(
                     app,
                     fileVisibility: settings.fileVisibility,
                     excludedFiles: effectiveFrontmatterExclusions,
-                    excludedFolders: settings.excludedFolders,
+                    excludedFolders: hiddenFolders,
                     includeDescendants: includeDescendantNotes,
                     showHiddenFolders: showHiddenItems,
                     hideFolderNoteInList: settings.hideFolderNoteInList,
@@ -1616,7 +1619,7 @@ export const NavigationPane = React.memo(
                 settings.showNoteCount,
                 settings.fileVisibility,
                 effectiveFrontmatterExclusions,
-                settings.excludedFolders,
+                hiddenFolders,
                 includeDescendantNotes,
                 showHiddenItems,
                 settings.hideFolderNoteInList,

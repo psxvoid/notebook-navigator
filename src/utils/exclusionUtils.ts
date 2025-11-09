@@ -1,6 +1,7 @@
 import type { NotebookNavigatorSettings } from '../settings';
 import type { App, TFile } from 'obsidian';
 import { isFolderInExcludedFolder, shouldExcludeFile } from './fileFilters';
+import { getActiveHiddenFiles, getActiveHiddenFolders } from './vaultProfiles';
 
 // Shared empty array used when hidden items are shown to signal no exclusions should apply
 const NO_EXCLUSIONS: string[] = [];
@@ -12,7 +13,10 @@ Object.freeze(NO_EXCLUSIONS);
  * exclusions should be ignored, so we return a shared empty array to signal no exclusions.
  */
 export function getEffectiveFrontmatterExclusions(settings: NotebookNavigatorSettings, showHiddenItems: boolean): string[] {
-    return showHiddenItems ? NO_EXCLUSIONS : settings.excludedFiles;
+    if (showHiddenItems) {
+        return NO_EXCLUSIONS;
+    }
+    return getActiveHiddenFiles(settings);
 }
 
 /**
@@ -20,7 +24,9 @@ export function getEffectiveFrontmatterExclusions(settings: NotebookNavigatorSet
  * if the toggle button should be shown.
  */
 export function hasHiddenItemSources(settings: NotebookNavigatorSettings): boolean {
-    return settings.excludedFolders.length > 0 || settings.hiddenTags.length > 0 || settings.excludedFiles.length > 0;
+    const hiddenFolders = getActiveHiddenFolders(settings);
+    const hiddenFiles = getActiveHiddenFiles(settings);
+    return hiddenFolders.length > 0 || settings.hiddenTags.length > 0 || hiddenFiles.length > 0;
 }
 
 /**
@@ -44,16 +50,16 @@ export function isFileHiddenBySettings(file: TFile, settings: NotebookNavigatorS
     if (!file || showHiddenItems) {
         return false;
     }
-
-    const hasHiddenFrontmatter =
-        file.extension === 'md' && settings.excludedFiles.length > 0 && shouldExcludeFile(file, settings.excludedFiles, app);
+    const hiddenFiles = getActiveHiddenFiles(settings);
+    const hiddenFolders = getActiveHiddenFolders(settings);
+    const hasHiddenFrontmatter = file.extension === 'md' && hiddenFiles.length > 0 && shouldExcludeFile(file, hiddenFiles, app);
     if (hasHiddenFrontmatter) {
         return true;
     }
 
-    if (settings.excludedFolders.length === 0 || !file.parent) {
+    if (hiddenFolders.length === 0 || !file.parent) {
         return false;
     }
 
-    return isFolderInExcludedFolder(file.parent, settings.excludedFolders);
+    return isFolderInExcludedFolder(file.parent, hiddenFolders);
 }

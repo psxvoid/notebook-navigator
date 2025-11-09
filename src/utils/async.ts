@@ -42,7 +42,3 @@ export function runAsyncAction(action: AsyncAction, options?: RunAsyncActionOpti
         handleError(error);
     }
 }
-
-export function getAsyncErrorHistory(): AsyncErrorRecord[] {
-    return [...asyncErrorHistory];
-}

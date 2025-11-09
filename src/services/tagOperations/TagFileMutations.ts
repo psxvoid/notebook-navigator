@@ -141,7 +141,11 @@ export class TagFileMutations {
                 }
 
                 if (Array.isArray(rawTags)) {
-                    const nextTags = Array.from(new Set([...rawTags, tag]));
+                    const normalizedTags = rawTags
+                        .filter((value): value is string => typeof value === 'string')
+                        .map(value => value.trim())
+                        .filter((value): value is string => value.length > 0);
+                    const nextTags = Array.from(new Set([...normalizedTags, tag]));
                     frontmatter.tags = nextTags;
                     return;
                 }
@@ -617,10 +621,7 @@ export class TagFileMutations {
         return changed;
     }
 
-    private applyInlineTagRemoval(
-        content: string,
-        tagPatterns: { tag: string; pattern: RegExp }[]
-    ): { content: string; changed: boolean } {
+    private applyInlineTagRemoval(content: string, tagPatterns: { tag: string; pattern: RegExp }[]): { content: string; changed: boolean } {
         if (tagPatterns.length === 0) {
             return { content, changed: false };
         }
