@@ -73,11 +73,12 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
-        version: '1.7.4',
+        version: '1.8.0',
         date: '2025-11-10',
         showOnUpdate: true,
         new: [
             '==Tag rename, tag delete, tag drag-and-drop==! You can now rename tags, delete tags (removes from all notes), and drag-and-drop tags to reorganize them in navigation pane.',
+            '==Vault profiles==! Hidden folders, hidden tags, hidden notes and file visibility settings can now be saved per vault profile. Quickly switch between different vault profiles in the navigation pane header!',
             'Two new folder menu items: **Copy path** and **Copy relative path**.',
             'New check box in "Add tag" modal: **Allow creating new tags**. Disable to only allow selecting existing tags in the "Add tag" modal.'
         ],
