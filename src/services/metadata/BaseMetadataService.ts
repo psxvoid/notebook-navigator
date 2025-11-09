@@ -461,7 +461,7 @@ export abstract class BaseMetadataService {
                 continue;
             }
 
-            const newPathExists = Object.prototype.hasOwnProperty.call(metadata, update.newPath);
+            const newPathExists = Boolean(Object.prototype.hasOwnProperty.call(metadata, update.newPath));
             if (newPathExists && preserveExisting) {
                 if (update.oldPath !== update.newPath) {
                     delete metadata[update.oldPath];
