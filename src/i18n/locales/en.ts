@@ -779,8 +779,10 @@ export const STRINGS_EN = {
                 desc: 'Profiles store file type visibility, hidden folders, hidden tags, and hidden notes. Switch profiles from the navigation pane header.',
                 defaultName: 'Default',
                 addButton: 'Add profile',
+                editButton: 'Edit profile',
                 deleteButton: 'Delete profile',
                 addModalTitle: 'Add profile',
+                editModalTitle: 'Edit profile',
                 addModalPlaceholder: 'Profile name',
                 deleteModalTitle: 'Delete {name}',
                 deleteModalMessage: 'Remove {name}? Hidden folder, tag, and note filters saved in this profile will be deleted.',
@@ -1117,7 +1119,7 @@ export const STRINGS_EN = {
                 name: 'Timestamp format',
                 desc: 'Format used to parse timestamps in frontmatter. Leave empty to use ISO 8601 format',
                 helpTooltip: 'See date-fns format documentation',
-                help: "Common formats:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "Common formats:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Support development',

@@ -759,8 +759,10 @@ export const STRINGS_JA = {
                 desc: 'プロファイルは、ファイルタイプの表示、非表示フォルダ、非表示タグ、非表示ノートを保存します。ナビゲーションペインのヘッダーからプロファイルを切り替えます。',
                 defaultName: 'デフォルト',
                 addButton: 'プロファイルを追加',
+                editButton: 'プロファイルを編集',
                 deleteButton: 'プロファイルを削除',
                 addModalTitle: 'プロファイルを追加',
+                editModalTitle: 'プロファイルを編集',
                 addModalPlaceholder: 'プロファイル名',
                 deleteModalTitle: '{name}を削除',
                 deleteModalMessage:
@@ -1120,7 +1122,7 @@ export const STRINGS_JA = {
                 name: 'タイムスタンプ形式',
                 desc: 'フロントマター内のタイムスタンプを解析するために使用される形式。空のままにするとISO 8601形式を使用',
                 helpTooltip: 'date-fnsフォーマットのドキュメントを参照',
-                help: "一般的な形式:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "一般的な形式:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: '開発をサポート',

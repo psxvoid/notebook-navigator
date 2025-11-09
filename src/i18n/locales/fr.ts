@@ -760,8 +760,10 @@ export const STRINGS_FR = {
                 desc: "Les profils stockent la visibilité des types de fichiers, les dossiers cachés, les étiquettes cachées et les notes cachées. Changez de profil depuis l'en-tête du panneau de navigation.",
                 defaultName: 'Par défaut',
                 addButton: 'Ajouter un profil',
+                editButton: 'Modifier le profil',
                 deleteButton: 'Supprimer le profil',
                 addModalTitle: 'Ajouter un profil',
+                editModalTitle: 'Modifier le profil',
                 addModalPlaceholder: 'Nom du profil',
                 deleteModalTitle: 'Supprimer {name}',
                 deleteModalMessage:
@@ -1121,7 +1123,7 @@ export const STRINGS_FR = {
                 name: "Format d'horodatage",
                 desc: 'Format utilisé pour analyser les horodatages dans le frontmatter. Laisser vide pour utiliser le format ISO 8601',
                 helpTooltip: 'Voir la documentation du format date-fns',
-                help: "Formats courants :\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "Formats courants :\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Soutenir le développement',

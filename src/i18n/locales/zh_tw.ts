@@ -778,8 +778,10 @@ export const STRINGS_ZH_TW = {
                 desc: '設定檔儲存檔案類型可見性、隱藏資料夾、隱藏標籤和隱藏筆記。從導覽窗格標題切換設定檔。',
                 defaultName: '預設',
                 addButton: '新增設定檔',
+                editButton: '編輯設定檔',
                 deleteButton: '刪除設定檔',
                 addModalTitle: '新增設定檔',
+                editModalTitle: '編輯設定檔',
                 addModalPlaceholder: '設定檔名稱',
                 deleteModalTitle: '刪除 {name}',
                 deleteModalMessage: '刪除 {name}？儲存在此設定檔中的隱藏資料夾、標籤和筆記篩選器將被刪除。',
@@ -1116,7 +1118,7 @@ export const STRINGS_ZH_TW = {
                 name: '時間戳格式',
                 desc: '用於解析 frontmatter 中時間戳的格式。留空以使用 ISO 8601 格式',
                 helpTooltip: '請參閱 date-fns 格式文件',
-                help: "常用格式：\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "常用格式：\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: '支持開發',

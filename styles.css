@@ -3361,6 +3361,10 @@ body.nn-resizing {
     max-width: 100%;
 }
 
+.nn-setting-profile-dropdown select {
+    width: min(240px, 100%);
+}
+
 .nn-slider-value {
     margin-left: 12px;
     font-size: var(--font-ui-smaller);
@@ -3518,6 +3522,10 @@ body.nn-resizing {
     color: var(--nn-theme-mobile-list-header-breadcrumb-color);
     width: 100%;
     text-align: center;
+}
+
+.notebook-navigator-mobile .nn-pane-header-simple .nn-pane-header-profile .nn-pane-header-text {
+    color: var(--nn-theme-mobile-list-header-breadcrumb-color);
 }
 
 /* Mobile header container */

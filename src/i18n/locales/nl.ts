@@ -781,8 +781,10 @@ export const STRINGS_NL = {
                 desc: 'Profielen bewaren bestandstypezichtbaarheid, verborgen mappen, verborgen labels en verborgen notities. Wissel van profiel via de koptekst van het navigatiepaneel.',
                 defaultName: 'Standaard',
                 addButton: 'Profiel toevoegen',
+                editButton: 'Profiel bewerken',
                 deleteButton: 'Profiel verwijderen',
                 addModalTitle: 'Profiel toevoegen',
+                editModalTitle: 'Profiel bewerken',
                 addModalPlaceholder: 'Profielnaam',
                 deleteModalTitle: '{name} verwijderen',
                 deleteModalMessage:
@@ -1120,7 +1122,7 @@ export const STRINGS_NL = {
                 name: 'Tijdstempelformaat',
                 desc: 'Formaat gebruikt om tijdstempels in frontmatter te parseren. Laat leeg om ISO 8601 formaat te gebruiken',
                 helpTooltip: 'Zie date-fns formaatdocumentatie',
-                help: "Veelvoorkomende formaten:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "Veelvoorkomende formaten:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Ontwikkeling ondersteunen',

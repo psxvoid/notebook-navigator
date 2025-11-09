@@ -762,8 +762,10 @@ export const STRINGS_DE = {
                 desc: 'Profile speichern Dateityp-Sichtbarkeit, versteckte Ordner, versteckte Tags und versteckte Notizen. Profile können über die Kopfzeile des Navigationsbereichs gewechselt werden.',
                 defaultName: 'Standard',
                 addButton: 'Profil hinzufügen',
+                editButton: 'Profil bearbeiten',
                 deleteButton: 'Profil löschen',
                 addModalTitle: 'Profil hinzufügen',
+                editModalTitle: 'Profil bearbeiten',
                 addModalPlaceholder: 'Profilname',
                 deleteModalTitle: '{name} löschen',
                 deleteModalMessage: '{name} entfernen? Versteckte Ordner-, Tag- und Notizfilter in diesem Profil werden gelöscht.',
@@ -1121,7 +1123,7 @@ export const STRINGS_DE = {
                 name: 'Zeitstempelformat',
                 desc: 'Format zum Parsen von Zeitstempeln im Frontmatter. Leer lassen, um ISO 8601-Format zu verwenden',
                 helpTooltip: 'Siehe date-fns Formatdokumentation',
-                help: "Häufige Formate:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "Häufige Formate:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Entwicklung unterstützen',

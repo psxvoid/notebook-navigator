@@ -781,8 +781,10 @@ export const STRINGS_PL = {
                 desc: 'Profile przechowują widoczność typów plików, ukryte foldery, ukryte tagi i ukryte notatki. Zmień profil z nagłówka panelu nawigacji.',
                 defaultName: 'Domyślny',
                 addButton: 'Dodaj profil',
+                editButton: 'Edytuj profil',
                 deleteButton: 'Usuń profil',
                 addModalTitle: 'Dodaj profil',
+                editModalTitle: 'Edytuj profil',
                 addModalPlaceholder: 'Nazwa profilu',
                 deleteModalTitle: 'Usuń {name}',
                 deleteModalMessage: 'Usunąć {name}? Filtry ukrytych folderów, tagów i notatek zapisane w tym profilu zostaną usunięte.',
@@ -1119,7 +1121,7 @@ export const STRINGS_PL = {
                 name: 'Format znacznika czasu',
                 desc: 'Format używany do parsowania znaczników czasu w frontmatter. Zostaw puste aby użyć formatu ISO 8601',
                 helpTooltip: 'Zobacz dokumentację formatu date-fns',
-                help: "Popularne formaty:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "Popularne formaty:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Wspieraj rozwój',

@@ -758,8 +758,10 @@ export const STRINGS_ZH_CN = {
                 desc: '配置文件存储文件类型可见性、隐藏文件夹、隐藏标签和隐藏笔记。从导航窗格标题切换配置文件。',
                 defaultName: '默认',
                 addButton: '添加配置文件',
+                editButton: '编辑配置文件',
                 deleteButton: '删除配置文件',
                 addModalTitle: '添加配置文件',
+                editModalTitle: '编辑配置文件',
                 addModalPlaceholder: '配置文件名称',
                 deleteModalTitle: '删除 {name}',
                 deleteModalMessage: '删除 {name}？保存在此配置文件中的隐藏文件夹、标签和笔记过滤器将被删除。',
@@ -1118,7 +1120,7 @@ export const STRINGS_ZH_CN = {
                 name: '时间戳格式',
                 desc: '用于解析前言中时间戳的格式。留空使用 ISO 8601 格式',
                 helpTooltip: '查看 date-fns 格式文档',
-                help: "常用格式:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "常用格式:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: '支持开发',

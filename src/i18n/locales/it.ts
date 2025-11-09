@@ -780,8 +780,10 @@ export const STRINGS_IT = {
                 desc: "I profili memorizzano la visibilità dei tipi di file, cartelle nascoste, tag nascosti e note nascoste. Cambia profilo dall'intestazione del pannello di navigazione.",
                 defaultName: 'Predefinito',
                 addButton: 'Aggiungi profilo',
+                editButton: 'Modifica profilo',
                 deleteButton: 'Elimina profilo',
                 addModalTitle: 'Aggiungi profilo',
+                editModalTitle: 'Modifica profilo',
                 addModalPlaceholder: 'Nome profilo',
                 deleteModalTitle: 'Elimina {name}',
                 deleteModalMessage:
@@ -1115,7 +1117,7 @@ export const STRINGS_IT = {
                 name: 'Formato timestamp',
                 desc: 'Formato usato per analizzare timestamp nel frontmatter. Lascia vuoto per usare formato ISO 8601',
                 helpTooltip: 'Vedi documentazione formato date-fns',
-                help: "Formati comuni:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+                help: "Formati comuni:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Sostieni lo sviluppo',
