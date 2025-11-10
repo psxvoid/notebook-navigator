@@ -16,14 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, DropdownComponent, Platform, Setting, SliderComponent } from 'obsidian';
+import { ButtonComponent, DropdownComponent, Platform, Setting, SliderComponent, setIcon } from 'obsidian';
 import { HomepageModal } from '../../modals/HomepageModal';
 import { strings } from '../../i18n';
 import { showNotice } from '../../utils/noticeUtils';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { BackgroundMode } from '../../types';
-import type { MultiSelectModifier } from '../types';
+import type { ListToolbarButtonId, MultiSelectModifier, NavigationToolbarButtonId } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 import { InputModal } from '../../modals/InputModal';
@@ -42,6 +42,7 @@ import {
 import { runAsyncAction } from '../../utils/async';
 import { createVaultProfile, DEFAULT_VAULT_PROFILE_ID, ensureVaultProfiles } from '../../utils/vaultProfiles';
 import { normalizeTagPath } from '../../utils/tagUtils';
+import type NotebookNavigatorPlugin from '../../main';
 
 /** Renders the general settings tab */
 export function renderGeneralTab(context: SettingsTabContext): void {
@@ -771,6 +772,8 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             })
         );
 
+    renderToolbarVisibilitySetting(containerEl, plugin);
+
     new Setting(containerEl).setName(strings.settings.groups.general.formatting).setHeading();
 
     const dateFormatSetting = createDebouncedTextSetting(
@@ -812,4 +815,101 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             })
     );
     timeFormatSetting.controlEl.addClass('nn-setting-wide-input');
+}
+
+interface ToolbarButtonConfig<T extends string> {
+    id: T;
+    icon: string;
+    label: string;
+}
+
+const NAVIGATION_TOOLBAR_BUTTONS: ToolbarButtonConfig<NavigationToolbarButtonId>[] = [
+    { id: 'shortcuts', icon: 'lucide-bookmark', label: strings.navigationPane.pinShortcuts },
+    { id: 'expandCollapse', icon: 'lucide-chevrons-up-down', label: strings.paneHeader.expandAllFolders },
+    { id: 'hiddenItems', icon: 'lucide-eye', label: strings.paneHeader.showExcludedItems },
+    { id: 'rootReorder', icon: 'lucide-list-tree', label: strings.paneHeader.reorderRootFolders },
+    { id: 'newFolder', icon: 'lucide-folder-plus', label: strings.paneHeader.newFolder }
+];
+
+const LIST_TOOLBAR_BUTTONS: ToolbarButtonConfig<ListToolbarButtonId>[] = [
+    { id: 'search', icon: 'lucide-search', label: strings.paneHeader.search },
+    { id: 'descendants', icon: 'lucide-layers', label: strings.paneHeader.toggleDescendantNotes },
+    { id: 'sort', icon: 'lucide-arrow-down-up', label: strings.paneHeader.changeSortOrder },
+    { id: 'appearance', icon: 'lucide-palette', label: strings.paneHeader.changeAppearance },
+    { id: 'newNote', icon: 'lucide-pen-box', label: strings.paneHeader.newNote }
+];
+
+function renderToolbarVisibilitySetting(containerEl: HTMLElement, plugin: NotebookNavigatorPlugin): void {
+    const setting = new Setting(containerEl)
+        .setName(strings.settings.items.toolbarButtons.name)
+        .setDesc(strings.settings.items.toolbarButtons.desc);
+
+    setting.controlEl.addClass('nn-toolbar-visibility-control');
+    const sectionsEl = setting.controlEl.createDiv({ cls: 'nn-toolbar-visibility-sections' });
+
+    createToolbarButtonGroup({
+        containerEl: sectionsEl,
+        label: strings.settings.items.toolbarButtons.navigationLabel,
+        buttons: NAVIGATION_TOOLBAR_BUTTONS,
+        state: plugin.settings.toolbarVisibility.navigation,
+        onToggle: () => {
+            runAsyncAction(async () => {
+                await plugin.saveSettingsAndUpdate();
+            });
+        }
+    });
+
+    createToolbarButtonGroup({
+        containerEl: sectionsEl,
+        label: strings.settings.items.toolbarButtons.listLabel,
+        buttons: LIST_TOOLBAR_BUTTONS,
+        state: plugin.settings.toolbarVisibility.list,
+        onToggle: () => {
+            runAsyncAction(async () => {
+                await plugin.saveSettingsAndUpdate();
+            });
+        }
+    });
+}
+
+interface ToolbarButtonGroupProps<T extends string> {
+    containerEl: HTMLElement;
+    label: string;
+    buttons: ToolbarButtonConfig<T>[];
+    state: Record<T, boolean>;
+    onToggle: () => void;
+}
+
+function createToolbarButtonGroup<T extends string>({ containerEl, label, buttons, state, onToggle }: ToolbarButtonGroupProps<T>): void {
+    const groupEl = containerEl.createDiv({ cls: 'nn-toolbar-visibility-group' });
+    groupEl.createDiv({ cls: 'nn-toolbar-visibility-group-label', text: label });
+    const gridEl = groupEl.createDiv({ cls: 'nn-toolbar-visibility-grid' });
+
+    buttons.forEach(button => {
+        const buttonEl = gridEl.createEl('button', {
+            cls: ['nn-toolbar-visibility-toggle', 'nn-mobile-toolbar-button'],
+            attr: { type: 'button' }
+        });
+        buttonEl.setAttr('aria-pressed', state[button.id] ? 'true' : 'false');
+        buttonEl.setAttr('aria-label', button.label);
+        buttonEl.setAttr('title', button.label);
+
+        const iconEl = buttonEl.createSpan({ cls: 'nn-toolbar-visibility-icon' });
+        setIcon(iconEl, button.icon);
+
+        const applyState = () => {
+            const isEnabled = Boolean(state[button.id]);
+            buttonEl.classList.toggle('is-active', isEnabled);
+            buttonEl.classList.toggle('nn-mobile-toolbar-button-active', isEnabled);
+            buttonEl.setAttr('aria-pressed', isEnabled ? 'true' : 'false');
+        };
+
+        buttonEl.addEventListener('click', () => {
+            state[button.id] = !state[button.id];
+            applyState();
+            onToggle();
+        });
+
+        applyState();
+    });
 }

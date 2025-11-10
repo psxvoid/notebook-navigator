@@ -688,6 +688,12 @@ export const STRINGS_JA = {
                     files: 'リストペイン'
                 }
             },
+            toolbarButtons: {
+                name: 'ツールバーボタン',
+                desc: 'ツールバーに表示するボタンを選択します。非表示のボタンはコマンドとメニューから引き続き利用できます。',
+                navigationLabel: 'ナビゲーションツールバー',
+                listLabel: 'リストツールバー'
+            },
             autoRevealActiveNote: {
                 name: 'アクティブなノートを自動表示',
                 desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示します。'

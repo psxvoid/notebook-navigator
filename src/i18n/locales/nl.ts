@@ -689,6 +689,12 @@ export const STRINGS_NL = {
                     files: 'Lijstpaneel'
                 }
             },
+            toolbarButtons: {
+                name: 'Werkbalkknoppen',
+                desc: "Kies welke knoppen in de werkbalk worden weergegeven. Verborgen knoppen blijven toegankelijk via opdrachten en menu's.",
+                navigationLabel: 'Navigatiewerkbalk',
+                listLabel: 'Lijstwerkbalk'
+            },
             autoRevealActiveNote: {
                 name: 'Actieve notitie automatisch tonen',
                 desc: 'Notities automatisch tonen wanneer geopend vanuit Snelle Wisselaar, links of zoeken.'

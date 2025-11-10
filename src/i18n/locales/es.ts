@@ -688,6 +688,12 @@ export const STRINGS_ES = {
                     files: 'Panel de lista'
                 }
             },
+            toolbarButtons: {
+                name: 'Botones de la barra de herramientas',
+                desc: 'Elige qué botones aparecen en la barra de herramientas. Los botones ocultos siguen siendo accesibles mediante comandos y menús.',
+                navigationLabel: 'Barra de navegación',
+                listLabel: 'Barra de lista'
+            },
             autoRevealActiveNote: {
                 name: 'Mostrar automáticamente la nota activa',
                 desc: 'Muestra automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.'

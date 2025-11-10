@@ -687,6 +687,12 @@ export const STRINGS_EN = {
                     files: 'List pane'
                 }
             },
+            toolbarButtons: {
+                name: 'Toolbar buttons',
+                desc: 'Choose which buttons appear in the toolbar. Hidden buttons remain accessible via commands and menus.',
+                navigationLabel: 'Navigation toolbar',
+                listLabel: 'List toolbar'
+            },
             autoRevealActiveNote: {
                 name: 'Auto-reveal active note',
                 desc: 'Automatically reveal notes when opened from Quick Switcher, links, or search.'

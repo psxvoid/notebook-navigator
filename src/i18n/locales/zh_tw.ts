@@ -686,6 +686,12 @@ export const STRINGS_ZH_TW = {
                     files: '列表窗格'
                 }
             },
+            toolbarButtons: {
+                name: '工具列按鈕',
+                desc: '選擇在工具列中顯示哪些按鈕。隱藏的按鈕仍可透過指令和選單存取。',
+                navigationLabel: '導覽工具列',
+                listLabel: '清單工具列'
+            },
             autoRevealActiveNote: {
                 name: '自動顯示活動筆記',
                 desc: '從快速切換器、連結或搜尋開啟筆記時自動顯示。'

@@ -688,6 +688,12 @@ export const STRINGS_IT = {
                     files: 'Pannello lista'
                 }
             },
+            toolbarButtons: {
+                name: 'Pulsanti della barra degli strumenti',
+                desc: 'Scegli quali pulsanti appaiono nella barra degli strumenti. I pulsanti nascosti rimangono accessibili tramite comandi e menu.',
+                navigationLabel: 'Barra di navigazione',
+                listLabel: 'Barra elenco'
+            },
             autoRevealActiveNote: {
                 name: 'Mostra automaticamente nota attiva',
                 desc: 'Mostra automaticamente note quando aperte da Quick Switcher, link o ricerca.'

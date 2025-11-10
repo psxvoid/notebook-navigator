@@ -81,6 +81,35 @@ interface LegacyVisibilityMigration {
     shouldApplyToProfiles: boolean;
 }
 
+type ToolbarVisibilitySnapshot = NotebookNavigatorSettings['toolbarVisibility'];
+
+function mergeButtonVisibility<T extends string>(defaults: Record<T, boolean>, stored: unknown): Record<T, boolean> {
+    const next: Record<T, boolean> = { ...defaults };
+    if (!stored || typeof stored !== 'object') {
+        return next;
+    }
+
+    const entries = stored as Partial<Record<T, unknown>>;
+    (Object.keys(defaults) as T[]).forEach(key => {
+        const value = entries[key];
+        if (typeof value === 'boolean') {
+            next[key] = value;
+        }
+    });
+
+    return next;
+}
+
+function mergeToolbarVisibility(stored: unknown): ToolbarVisibilitySnapshot {
+    const defaults = DEFAULT_SETTINGS.toolbarVisibility;
+    const record = stored && typeof stored === 'object' ? (stored as Record<string, unknown>) : undefined;
+
+    return {
+        navigation: mergeButtonVisibility(defaults.navigation, record?.navigation),
+        list: mergeButtonVisibility(defaults.list, record?.list)
+    };
+}
+
 /**
  * Main plugin class for Notebook Navigator
  * Provides a Notes-style file explorer for Obsidian with two-pane layout
@@ -152,6 +181,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.settings = { ...DEFAULT_SETTINGS, ...(storedSettings ?? {}) };
         // Validate and normalize keyboard shortcuts to use standard modifier names
         this.settings.keyboardShortcuts = sanitizeKeyboardShortcuts(this.settings.keyboardShortcuts);
+        this.settings.toolbarVisibility = mergeToolbarVisibility(storedSettings?.toolbarVisibility);
 
         // Remove deprecated fields from settings object
         const mutableSettings = this.settings as unknown as Record<string, unknown>;

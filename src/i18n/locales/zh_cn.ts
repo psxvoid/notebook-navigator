@@ -687,6 +687,12 @@ export const STRINGS_ZH_CN = {
                     files: '列表窗格'
                 }
             },
+            toolbarButtons: {
+                name: '工具栏按钮',
+                desc: '选择在工具栏中显示哪些按钮。隐藏的按钮仍可通过命令和菜单访问。',
+                navigationLabel: '导航工具栏',
+                listLabel: '列表工具栏'
+            },
             autoRevealActiveNote: {
                 name: '自动定位活动笔记',
                 desc: '从快速切换器、链接或搜索打开笔记时自动显示。'

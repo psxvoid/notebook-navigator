@@ -80,6 +80,22 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     collapseBehavior: 'all',
     smartCollapse: true,
     colorIconOnly: false,
+    toolbarVisibility: {
+        navigation: {
+            shortcuts: true,
+            expandCollapse: true,
+            hiddenItems: true,
+            rootReorder: true,
+            newFolder: true
+        },
+        list: {
+            search: true,
+            descendants: true,
+            sort: true,
+            appearance: true,
+            newNote: true
+        }
+    },
     showNoteCount: true,
     separateNoteCounts: true,
     navIndent: NAVPANE_MEASUREMENTS.defaultIndent,

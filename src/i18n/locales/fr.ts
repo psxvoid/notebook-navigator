@@ -689,6 +689,12 @@ export const STRINGS_FR = {
                     files: 'Panneau de liste'
                 }
             },
+            toolbarButtons: {
+                name: "Boutons de la barre d'outils",
+                desc: "Choisissez quels boutons apparaissent dans la barre d'outils. Les boutons masqués restent accessibles via les commandes et les menus.",
+                navigationLabel: 'Barre de navigation',
+                listLabel: 'Barre de liste'
+            },
             autoRevealActiveNote: {
                 name: 'Révéler automatiquement la note active',
                 desc: "Révéler automatiquement les notes lorsqu'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche."

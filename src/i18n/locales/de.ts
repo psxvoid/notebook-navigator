@@ -691,6 +691,12 @@ export const STRINGS_DE = {
                     files: 'Listenbereich'
                 }
             },
+            toolbarButtons: {
+                name: 'Symbolleisten-Schaltflächen',
+                desc: 'Wählen Sie aus, welche Schaltflächen in der Symbolleiste angezeigt werden. Ausgeblendete Schaltflächen bleiben über Befehle und Menüs zugänglich.',
+                navigationLabel: 'Navigationssymbolleiste',
+                listLabel: 'Listensymbolleiste'
+            },
             autoRevealActiveNote: {
                 name: 'Aktive Notiz automatisch anzeigen',
                 desc: 'Notizen automatisch anzeigen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.'

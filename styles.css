@@ -3353,6 +3353,119 @@ body.nn-resizing {
     max-width: 100%;
 }
 
+.nn-toolbar-visibility-control {
+    width: 100%;
+}
+
+.nn-toolbar-visibility-sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-4-4);
+}
+
+.nn-toolbar-visibility-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-2-2);
+}
+
+.nn-toolbar-visibility-group-label {
+    font-size: var(--font-ui-small);
+    font-weight: var(--font-semibold);
+    color: var(--text-muted);
+}
+
+.nn-toolbar-visibility-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--size-2-3);
+}
+
+.nn-toolbar-visibility-toggle {
+    position: relative;
+    padding: 0;
+    /* Override mobile toolbar button dimensions for settings */
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+}
+
+.nn-toolbar-visibility-toggle:not(.nn-mobile-toolbar-button-active) {
+    opacity: 0.6;
+}
+
+.nn-toolbar-visibility-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    color: var(--text-normal);
+}
+
+.nn-toolbar-visibility-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 1.5;
+}
+
+/* Mobile-specific toolbar visibility button styles */
+.is-mobile .nn-toolbar-visibility-control {
+    width: 100%;
+}
+
+.is-mobile .nn-toolbar-visibility-sections {
+    width: 100%;
+}
+
+.is-mobile .nn-toolbar-visibility-group {
+    width: 100%;
+}
+
+.is-mobile .nn-toolbar-visibility-grid {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0;
+    justify-content: space-between;
+}
+
+.is-mobile .nn-toolbar-visibility-toggle {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+}
+
+.is-mobile .nn-toolbar-visibility-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.is-mobile .nn-toolbar-visibility-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Android-specific adjustments for smaller buttons */
+.notebook-navigator-android .nn-toolbar-visibility-toggle {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+}
+
+.notebook-navigator-android .nn-toolbar-visibility-icon {
+    width: 22px;
+    height: 22px;
+}
+
+.notebook-navigator-android .nn-toolbar-visibility-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
 .nn-setting-profile-dropdown select {
     width: 160px;
     max-width: 100%;

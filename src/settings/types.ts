@@ -50,6 +50,18 @@ export type ListNoteGroupingOption = 'none' | 'date' | 'folder';
 /** Date source to display when alphabetical sorting is active */
 export type AlphabeticalDateMode = 'created' | 'modified';
 
+/** Buttons available in the navigation toolbar */
+export type NavigationToolbarButtonId = 'shortcuts' | 'expandCollapse' | 'hiddenItems' | 'rootReorder' | 'newFolder';
+
+/** Buttons available in the list toolbar */
+export type ListToolbarButtonId = 'search' | 'descendants' | 'sort' | 'appearance' | 'newNote';
+
+/** Visibility toggles for toolbar buttons */
+export interface ToolbarVisibilitySettings {
+    navigation: Record<NavigationToolbarButtonId, boolean>;
+    list: Record<ListToolbarButtonId, boolean>;
+}
+
 /** Vault profile storing hidden folder, tag, and note patterns */
 export interface VaultProfile {
     id: string;
@@ -108,6 +120,7 @@ export interface NotebookNavigatorSettings {
     collapseBehavior: ItemScope;
     smartCollapse: boolean;
     colorIconOnly: boolean;
+    toolbarVisibility: ToolbarVisibilitySettings;
     showNoteCount: boolean;
     separateNoteCounts: boolean;
     navIndent: number;

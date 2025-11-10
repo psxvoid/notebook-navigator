@@ -689,6 +689,12 @@ export const STRINGS_PL = {
                     files: 'Panel listy'
                 }
             },
+            toolbarButtons: {
+                name: 'Przyciski paska narzędzi',
+                desc: 'Wybierz, które przyciski mają być wyświetlane na pasku narzędzi. Ukryte przyciski pozostają dostępne przez polecenia i menu.',
+                navigationLabel: 'Pasek nawigacji',
+                listLabel: 'Pasek listy'
+            },
             autoRevealActiveNote: {
                 name: 'Automatycznie odkryj aktywną notatkę',
                 desc: 'Automatycznie odkrywaj notatki po otwarciu z Quick Switcher, linków lub wyszukiwania.'
