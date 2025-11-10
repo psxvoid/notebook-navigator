@@ -92,8 +92,8 @@ export class TagDeleteWorkflow {
                 .replace('{count}', usage.total.toString())
                 .replace('{files}', countLabel),
             () => {
-                // Execute tag deletion with error handling
-                runAsyncAction(() => this.runTagDelete(displayPath, uniquePreview));
+                // Execute tag deletion with error handling using latest tag data
+                runAsyncAction(() => this.runTagDelete(displayPath));
             },
             strings.modals.tagOperation.confirmDelete,
             {

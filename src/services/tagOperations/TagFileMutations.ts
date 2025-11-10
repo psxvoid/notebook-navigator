@@ -256,11 +256,6 @@ export class TagFileMutations {
         }
 
         let hadTags = false;
-        const db = getDBInstance();
-        const cachedTags = db.getCachedTags(file.path);
-        if (cachedTags.length === 0) {
-            return false;
-        }
 
         try {
             await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
