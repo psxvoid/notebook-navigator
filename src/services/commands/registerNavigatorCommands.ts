@@ -2,7 +2,7 @@
  * Notebook Navigator - Plugin for Obsidian
  */
 
-import { Notice, TFile, TFolder, type WorkspaceLeaf } from 'obsidian';
+import { TFile, TFolder, type WorkspaceLeaf } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 import { strings } from '../../i18n';
 import { isFolderNote, isSupportedFolderNoteExtension } from '../../utils/folderNotes';
@@ -11,6 +11,7 @@ import { getEffectiveFrontmatterExclusions, isFileHiddenBySettings } from '../..
 import { runAsyncAction } from '../../utils/async';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 import { getActiveHiddenFolders } from '../../utils/vaultProfiles';
+import { showNotice } from '../../utils/noticeUtils';
 
 /**
  * Reveals the navigator view and focuses whichever pane is currently visible
@@ -105,7 +106,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                     runAsyncAction(async () => {
                         await plugin.activateView();
                         if (isFileHiddenBySettings(activeFile, plugin.settings, plugin.app, plugin.getUXPreferences().showHiddenItems)) {
-                            new Notice(strings.fileSystem.notifications.hiddenFileReveal);
+                            showNotice(strings.fileSystem.notifications.hiddenFileReveal, { variant: 'warning' });
                         }
                         await plugin.revealFileInActualFolder(activeFile);
                     });
@@ -370,7 +371,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                     }
 
                     // Show notification with count of pinned folder notes
-                    new Notice(strings.shortcuts.folderNotesPinned.replace('{count}', eligible.length.toString()));
+                    showNotice(strings.shortcuts.folderNotesPinned.replace('{count}', eligible.length.toString()), { variant: 'success' });
                 });
             }
 

@@ -16,8 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, ButtonComponent, Notice, PluginSettingTab, Setting } from 'obsidian';
+import { App, ButtonComponent, PluginSettingTab, Setting } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
+import { showNotice } from './utils/noticeUtils';
 import { strings } from './i18n';
 import { TIMEOUTS } from './types/obsidian-extended';
 import { calculateCacheStatistics, CacheStatistics } from './storage/statistics';
@@ -546,10 +547,10 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         try {
             // Create the file in vault root
             await this.app.vault.create(filename, content);
-            new Notice(strings.settings.metadataReport.exportSuccess.replace('{filename}', filename));
+            showNotice(strings.settings.metadataReport.exportSuccess.replace('{filename}', filename), { variant: 'success' });
         } catch (error) {
             console.error('Failed to export metadata report:', error);
-            new Notice(strings.settings.metadataReport.exportFailed);
+            showNotice(strings.settings.metadataReport.exportFailed, { variant: 'warning' });
         }
     }
 

@@ -16,10 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, Notice, TFile, parseFrontMatterAliases, parseFrontMatterTags, TagCache } from 'obsidian';
+import { App, TFile, parseFrontMatterAliases, parseFrontMatterTags, TagCache } from 'obsidian';
 import { normalizeTagPathValue } from '../../utils/tagPrefixMatcher';
 import type { TagTreeService } from '../TagTreeService';
 import { mutateFrontmatterTagFields } from './frontmatterTagMutator';
+import { showNotice } from '../../utils/noticeUtils';
 
 /**
  * Describes a tag and provides helper utilities for normalization.
@@ -249,7 +250,7 @@ export class RenameFile {
             const matchesCache = typeof cacheTag === 'string' ? sourceTag.matches(cacheTag) : false;
             if (!matchesExtracted || !matchesCache) {
                 const message = `File ${this.path} changed before rename; skipping`;
-                new Notice(message);
+                showNotice(message, { variant: 'warning' });
                 console.error(message);
                 return false;
             }

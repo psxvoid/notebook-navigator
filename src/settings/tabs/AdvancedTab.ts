@@ -16,13 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, Notice, Platform, Setting } from 'obsidian';
+import { ButtonComponent, Platform, Setting } from 'obsidian';
 import { strings } from '../../i18n';
 import type { MetadataCleanupSummary } from '../../services/MetadataService';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { getNavigationPaneSizing } from '../../utils/paneSizing';
 import { localStorage } from '../../utils/localStorage';
 import { runAsyncAction } from '../../utils/async';
+import { showNotice } from '../../utils/noticeUtils';
 
 /** Renders the advanced settings tab */
 export function renderAdvancedTab(context: SettingsTabContext): void {
@@ -63,7 +64,7 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
                     const orientation = plugin.getDualPaneOrientation();
                     const { storageKey } = getNavigationPaneSizing(orientation);
                     localStorage.remove(storageKey);
-                    new Notice(strings.settings.items.resetPaneSeparator.notice);
+                    showNotice(strings.settings.items.resetPaneSeparator.notice);
                 })
             );
     }
@@ -126,7 +127,7 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
                     await plugin.runMetadataCleanup();
                 } catch (error) {
                     console.error('Metadata cleanup failed', error);
-                    new Notice(strings.settings.items.metadataCleanup.error);
+                    showNotice(strings.settings.items.metadataCleanup.error, { variant: 'warning' });
                 } finally {
                     await refreshMetadataCleanupSummary();
                 }
@@ -152,10 +153,10 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
                     button.setDisabled(true);
                     try {
                         await plugin.rebuildCache();
-                        new Notice(strings.settings.items.rebuildCache.success);
+                        showNotice(strings.settings.items.rebuildCache.success, { variant: 'success' });
                     } catch (error) {
                         console.error('Failed to rebuild cache from settings:', error);
-                        new Notice(strings.settings.items.rebuildCache.error);
+                        showNotice(strings.settings.items.rebuildCache.error, { variant: 'warning' });
                     } finally {
                         button.setDisabled(false);
                     }

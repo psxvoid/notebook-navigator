@@ -16,9 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, DropdownComponent, Notice, Platform, Setting, SliderComponent } from 'obsidian';
+import { ButtonComponent, DropdownComponent, Platform, Setting, SliderComponent } from 'obsidian';
 import { HomepageModal } from '../../modals/HomepageModal';
 import { strings } from '../../i18n';
+import { showNotice } from '../../utils/noticeUtils';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { BackgroundMode } from '../../types';
@@ -167,13 +168,13 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     const handleAddProfile = async (profileName: string) => {
         const trimmedName = profileName.trim();
         if (!trimmedName) {
-            new Notice(strings.settings.items.vaultProfiles.errors.emptyName);
+            showNotice(strings.settings.items.vaultProfiles.errors.emptyName, { variant: 'warning' });
             return;
         }
 
         const hasDuplicate = plugin.settings.vaultProfiles.some(profile => profile.name.toLowerCase() === trimmedName.toLowerCase());
         if (hasDuplicate) {
-            new Notice(strings.settings.items.vaultProfiles.errors.duplicateName);
+            showNotice(strings.settings.items.vaultProfiles.errors.duplicateName, { variant: 'warning' });
             return;
         }
 
@@ -194,7 +195,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         // Validate that the profile name is not empty
         const trimmedName = profileName.trim();
         if (!trimmedName) {
-            new Notice(strings.settings.items.vaultProfiles.errors.emptyName);
+            showNotice(strings.settings.items.vaultProfiles.errors.emptyName, { variant: 'warning' });
             return;
         }
         const normalizedName = trimmedName.toLowerCase();
@@ -208,7 +209,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             return candidate === normalizedName;
         });
         if (hasDuplicate) {
-            new Notice(strings.settings.items.vaultProfiles.errors.duplicateName);
+            showNotice(strings.settings.items.vaultProfiles.errors.duplicateName, { variant: 'warning' });
             return;
         }
         // Find the profile to rename and update its name
@@ -787,7 +788,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             .setIcon('lucide-help-circle')
             .setTooltip(strings.settings.items.dateFormat.helpTooltip)
             .onClick(() => {
-                new Notice(strings.settings.items.dateFormat.help, TIMEOUTS.NOTICE_HELP);
+                showNotice(strings.settings.items.dateFormat.help, { timeout: TIMEOUTS.NOTICE_HELP });
             })
     );
     dateFormatSetting.controlEl.addClass('nn-setting-wide-input');
@@ -807,7 +808,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             .setIcon('lucide-help-circle')
             .setTooltip(strings.settings.items.timeFormat.helpTooltip)
             .onClick(() => {
-                new Notice(strings.settings.items.timeFormat.help, TIMEOUTS.NOTICE_HELP);
+                showNotice(strings.settings.items.timeFormat.help, { timeout: TIMEOUTS.NOTICE_HELP });
             })
     );
     timeFormatSetting.controlEl.addClass('nn-setting-wide-input');

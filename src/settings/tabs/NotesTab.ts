@@ -16,8 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Notice, Setting, ButtonComponent, App, TAbstractFile, TFile } from 'obsidian';
+import { Setting, ButtonComponent, App, TAbstractFile, TFile } from 'obsidian';
 import { strings } from '../../i18n';
+import { showNotice } from '../../utils/noticeUtils';
 import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
@@ -172,9 +173,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
                     const { iconsBefore, colorsBefore, migratedIcons, migratedColors, failures } = result;
 
                     if (iconsBefore === 0 && colorsBefore === 0) {
-                        new Notice(strings.settings.items.frontmatterMigration.noticeNone);
+                        showNotice(strings.settings.items.frontmatterMigration.noticeNone);
                     } else if (migratedIcons === 0 && migratedColors === 0) {
-                        new Notice(strings.settings.items.frontmatterMigration.noticeNone);
+                        showNotice(strings.settings.items.frontmatterMigration.noticeNone);
                     } else {
                         let message = strings.settings.items.frontmatterMigration.noticeDone
                             .replace('{migratedIcons}', migratedIcons.toString())
@@ -184,11 +185,14 @@ export function renderNotesTab(context: SettingsTabContext): void {
                         if (failures > 0) {
                             message += ` ${strings.settings.items.frontmatterMigration.noticeFailures.replace('{failures}', failures.toString())}`;
                         }
-                        new Notice(message);
+                        showNotice(message, { variant: 'success' });
                     }
                 } catch (error) {
                     console.error('Failed to migrate icon/color metadata to frontmatter', error);
-                    new Notice(strings.settings.items.frontmatterMigration.noticeError, TIMEOUTS.NOTICE_ERROR);
+                    showNotice(strings.settings.items.frontmatterMigration.noticeError, {
+                        timeout: TIMEOUTS.NOTICE_ERROR,
+                        variant: 'warning'
+                    });
                 } finally {
                     button.setButtonText(strings.settings.items.frontmatterMigration.button);
                     button.setDisabled(false);
@@ -277,7 +281,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 .setIcon('lucide-help-circle')
                 .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
                 .onClick(() => {
-                    new Notice(strings.settings.items.frontmatterDateFormat.help, TIMEOUTS.NOTICE_HELP);
+                    showNotice(strings.settings.items.frontmatterDateFormat.help, { timeout: TIMEOUTS.NOTICE_HELP });
                 })
         );
     dateFormatSetting.controlEl.addClass('nn-setting-wide-input');

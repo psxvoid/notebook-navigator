@@ -16,10 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, TFolder, Notice, normalizePath } from 'obsidian';
+import { App, TFile, TFolder, normalizePath } from 'obsidian';
 import { strings } from '../i18n';
 import { TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { executeCommand } from './typeGuards';
+import { showNotice } from './noticeUtils';
 
 /**
  * Options for creating a new file
@@ -115,7 +116,7 @@ export async function createFileWithOptions(parent: TFolder, app: App, options: 
         // Safely extract error message handling non-Error exceptions
         const errorText = error instanceof Error ? error.message : String(error);
         const errorMessage = errorMessages[errorKey]?.replace('{error}', errorText) || `Failed to create file: ${errorText}`;
-        new Notice(errorMessage);
+        showNotice(errorMessage, { variant: 'warning' });
         return null;
     }
 }

@@ -18,7 +18,7 @@
 
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback, useLayoutEffect } from 'react';
-import { TFile, TFolder, Notice } from 'obsidian';
+import { TFile, TFolder } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
@@ -57,6 +57,7 @@ import type { NavigationPaneHandle } from './NavigationPane';
 import type { SearchShortcut } from '../types/shortcuts';
 import { UpdateNoticeBanner } from './UpdateNoticeBanner';
 import { UpdateNoticeIndicator } from './UpdateNoticeIndicator';
+import { showNotice } from '../utils/noticeUtils';
 import { EMPTY_SEARCH_TAG_FILTER_STATE, type SearchTagFilterState } from '../types/search';
 
 // Checks if two string arrays have identical content in the same order
@@ -532,7 +533,7 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 createNoteInSelectedFolder: async () => {
                     if (!selectionState.selectedFolder) {
-                        new Notice(strings.fileSystem.errors.noFolderSelected);
+                        showNotice(strings.fileSystem.errors.noFolderSelected, { variant: 'warning' });
                         return;
                     }
 
@@ -544,7 +545,7 @@ export const NotebookNavigatorComponent = React.memo(
                     const selectedFiles = getSelectedFiles();
 
                     if (selectedFiles.length === 0) {
-                        new Notice(strings.fileSystem.errors.noFileSelected);
+                        showNotice(strings.fileSystem.errors.noFileSelected, { variant: 'warning' });
                         return;
                     }
 
@@ -595,7 +596,7 @@ export const NotebookNavigatorComponent = React.memo(
                     }
 
                     // Show error if nothing is selected
-                    new Notice(strings.common.noSelection);
+                    showNotice(strings.common.noSelection, { variant: 'warning' });
                 },
                 navigateToFolder,
                 navigateToFolderWithModal: () => {
@@ -629,20 +630,20 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 addTagToSelectedFiles: async () => {
                     if (!tagOperations) {
-                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
+                        showNotice(strings.fileSystem.notifications.tagOperationsNotAvailable, { variant: 'warning' });
                         return;
                     }
 
                     // Get selected files
                     const selectedFiles = getSelectedFiles();
                     if (selectedFiles.length === 0) {
-                        new Notice(strings.fileSystem.notifications.noFilesSelected);
+                        showNotice(strings.fileSystem.notifications.noFilesSelected, { variant: 'warning' });
                         return;
                     }
 
                     // Verify all selected files are markdown (tags only work with markdown)
                     if (!selectedFiles.every(item => item.extension === 'md')) {
-                        new Notice(strings.fileSystem.notifications.tagsRequireMarkdown);
+                        showNotice(strings.fileSystem.notifications.tagsRequireMarkdown, { variant: 'warning' });
                         return;
                     }
 
@@ -657,7 +658,7 @@ export const NotebookNavigatorComponent = React.memo(
                                     result.added === 1
                                         ? strings.fileSystem.notifications.tagAddedToNote
                                         : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', result.added.toString());
-                                new Notice(message);
+                                showNotice(message, { variant: 'success' });
                             });
                         },
                         strings.modals.tagSuggest.addPlaceholder,
@@ -669,27 +670,27 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 removeTagFromSelectedFiles: async () => {
                     if (!tagOperations) {
-                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
+                        showNotice(strings.fileSystem.notifications.tagOperationsNotAvailable, { variant: 'warning' });
                         return;
                     }
 
                     // Get selected files
                     const selectedFiles = getSelectedFiles();
                     if (selectedFiles.length === 0) {
-                        new Notice(strings.fileSystem.notifications.noFilesSelected);
+                        showNotice(strings.fileSystem.notifications.noFilesSelected, { variant: 'warning' });
                         return;
                     }
 
                     // Verify all selected files are markdown (tags only work with markdown)
                     if (!selectedFiles.every(item => item.extension === 'md')) {
-                        new Notice(strings.fileSystem.notifications.tagsRequireMarkdown);
+                        showNotice(strings.fileSystem.notifications.tagsRequireMarkdown, { variant: 'warning' });
                         return;
                     }
 
                     // Get tags from selected files
                     const existingTags = tagOperations.getTagsFromFiles(selectedFiles);
                     if (existingTags.length === 0) {
-                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
+                        showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
                         return;
                     }
 
@@ -700,7 +701,7 @@ export const NotebookNavigatorComponent = React.memo(
                             result === 1
                                 ? strings.fileSystem.notifications.tagRemovedFromNote
                                 : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                        new Notice(message);
+                        showNotice(message, { variant: 'success' });
                         return;
                     }
 
@@ -712,34 +713,34 @@ export const NotebookNavigatorComponent = React.memo(
                                 result === 1
                                     ? strings.fileSystem.notifications.tagRemovedFromNote
                                     : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                            new Notice(message);
+                            showNotice(message, { variant: 'success' });
                         });
                     });
                     modal.open();
                 },
                 removeAllTagsFromSelectedFiles: async () => {
                     if (!tagOperations) {
-                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
+                        showNotice(strings.fileSystem.notifications.tagOperationsNotAvailable, { variant: 'warning' });
                         return;
                     }
 
                     // Get selected files
                     const selectedFiles = getSelectedFiles();
                     if (selectedFiles.length === 0) {
-                        new Notice(strings.fileSystem.notifications.noFilesSelected);
+                        showNotice(strings.fileSystem.notifications.noFilesSelected, { variant: 'warning' });
                         return;
                     }
 
                     // Verify all selected files are markdown (tags only work with markdown)
                     if (!selectedFiles.every(item => item.extension === 'md')) {
-                        new Notice(strings.fileSystem.notifications.tagsRequireMarkdown);
+                        showNotice(strings.fileSystem.notifications.tagsRequireMarkdown, { variant: 'warning' });
                         return;
                     }
 
                     // Check if files have tags
                     const existingTags = tagOperations.getTagsFromFiles(selectedFiles);
                     if (existingTags.length === 0) {
-                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
+                        showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
                         return;
                     }
 
@@ -757,7 +758,7 @@ export const NotebookNavigatorComponent = React.memo(
                                     result === 1
                                         ? strings.fileSystem.notifications.tagsClearedFromNote
                                         : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
-                                new Notice(message);
+                                showNotice(message, { variant: 'success' });
                             });
                         },
                         strings.common.remove

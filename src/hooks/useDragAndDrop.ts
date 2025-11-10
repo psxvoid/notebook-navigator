@@ -18,13 +18,14 @@
 
 // src/hooks/useDragAndDrop.ts
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { TFile, TFolder, Notice, normalizePath } from 'obsidian';
+import { TFile, TFolder, normalizePath } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { strings } from '../i18n';
+import { showNotice } from '../utils/noticeUtils';
 import { ItemType, TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import { SHORTCUT_DRAG_MIME } from '../types/shortcuts';
 import { DragManagerPayload, TAG_DRAG_MIME, hasDragManager, TIMEOUTS } from '../types/obsidian-extended';
@@ -557,7 +558,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             // Verify all files are markdown (tags only work with markdown)
             if (files.some(file => file.extension !== 'md')) {
-                new Notice(strings.fileSystem.notifications.tagsRequireMarkdown);
+                showNotice(strings.fileSystem.notifications.tagsRequireMarkdown, { variant: 'warning' });
                 return;
             }
 
@@ -570,13 +571,13 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                             clearedCount === 1
                                 ? strings.fileSystem.notifications.tagsClearedFromNote
                                 : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', clearedCount.toString());
-                        new Notice(message);
+                        showNotice(message, { variant: 'success' });
                     } else {
-                        new Notice(strings.dragDrop.notifications.noTagsToClear);
+                        showNotice(strings.dragDrop.notifications.noTagsToClear, { variant: 'warning' });
                     }
                 } catch (error) {
                     console.error('Error clearing tags:', error);
-                    new Notice(strings.dragDrop.errors.failedToClearTags);
+                    showNotice(strings.dragDrop.errors.failedToClearTags, { variant: 'warning' });
                 }
             } else {
                 // Add tag to files
@@ -588,17 +589,17 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                             added === 1
                                 ? strings.fileSystem.notifications.tagAddedToNote
                                 : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', added.toString());
-                        new Notice(message);
+                        showNotice(message, { variant: 'success' });
                     }
                     if (skipped > 0) {
-                        new Notice(
-                            strings.dragDrop.notifications.filesAlreadyHaveTag.replace('{count}', skipped.toString()),
-                            TIMEOUTS.NOTICE_ERROR
-                        );
+                        showNotice(strings.dragDrop.notifications.filesAlreadyHaveTag.replace('{count}', skipped.toString()), {
+                            timeout: TIMEOUTS.NOTICE_ERROR,
+                            variant: 'warning'
+                        });
                     }
                 } catch (error) {
                     console.error('Error adding tag:', error);
-                    new Notice(strings.dragDrop.errors.failedToAddTag.replace('{tag}', targetTag));
+                    showNotice(strings.dragDrop.errors.failedToAddTag.replace('{tag}', targetTag), { variant: 'warning' });
                 }
             }
         },
@@ -670,12 +671,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     importedCount.success === 1
                         ? strings.dragDrop.notifications.fileImported
                         : strings.dragDrop.notifications.filesImported.replace('{count}', importedCount.success.toString());
-                new Notice(message);
+                showNotice(message, { variant: 'success' });
             }
 
             if (importedCount.failed > 0) {
                 const errorMessage = strings.dragDrop.errors.failedToImportFiles.replace('{names}', errors.join(', '));
-                new Notice(errorMessage, TIMEOUTS.NOTICE_ERROR);
+                showNotice(errorMessage, { timeout: TIMEOUTS.NOTICE_ERROR, variant: 'warning' });
             }
         },
         [app]
@@ -779,7 +780,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         }
                         // Reject drops that would create descendant rename
                         if (targetCanonical.startsWith(`${sourceCanonical}/`)) {
-                            new Notice(strings.modals.tagOperation.descendantRenameError);
+                            showNotice(strings.modals.tagOperation.descendantRenameError, { variant: 'warning' });
                             return;
                         }
                         await tagOperations.renameTagByDrag(sourceDisplay, targetPath);
@@ -791,7 +792,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
 
                     if (isExternalOnly) {
-                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable, TIMEOUTS.NOTICE_ERROR);
+                        showNotice(strings.fileSystem.notifications.tagOperationsNotAvailable, {
+                            timeout: TIMEOUTS.NOTICE_ERROR,
+                            variant: 'warning'
+                        });
                         return;
                     }
 
@@ -838,7 +842,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     await moveFilesWithContext([sourceItem], targetFolder);
                 } else if (sourceItem instanceof TFolder) {
                     if (targetFolder.path === sourceItem.path || targetFolder.path.startsWith(`${sourceItem.path}/`)) {
-                        new Notice(strings.dragDrop.errors.cannotMoveIntoSelf);
+                        showNotice(strings.dragDrop.errors.cannotMoveIntoSelf, { variant: 'warning' });
                         return;
                     }
 
@@ -850,10 +854,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         const base = targetFolder.path === '/' ? '' : `${targetFolder.path}/`;
                         const newPath = normalizePath(`${base}${sourceItem.name}`);
                         await app.fileManager.renameFile(sourceItem, newPath);
-                        new Notice(strings.fileSystem.notifications.folderMoved.replace('{name}', sourceItem.name));
+                        showNotice(strings.fileSystem.notifications.folderMoved.replace('{name}', sourceItem.name), { variant: 'success' });
                     } catch (error) {
                         console.error('Error moving folder:', error);
-                        new Notice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', sourceItem.name));
+                        showNotice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', sourceItem.name), { variant: 'warning' });
                     }
                 }
             } finally {

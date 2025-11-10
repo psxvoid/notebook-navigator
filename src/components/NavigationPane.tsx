@@ -55,7 +55,7 @@
  */
 
 import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo, useState, useReducer } from 'react';
-import { TFolder, TFile, Platform, Menu, Notice } from 'obsidian';
+import { TFolder, TFile, Platform, Menu } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -63,6 +63,7 @@ import { useServices, useCommandQueue, useFileSystemOps, useMetadataService, use
 import { useRecentData } from '../context/RecentDataContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
+import { showNotice } from '../utils/noticeUtils';
 import { useFileCache } from '../context/StorageContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useNavigationPaneKeyboard } from '../hooks/useNavigationPaneKeyboard';
@@ -598,10 +599,10 @@ export const NavigationPane = React.memo(
 
                 // Notify user of duplicate shortcuts
                 if (duplicateFolderCount > 0) {
-                    new Notice(strings.shortcuts.folderExists);
+                    showNotice(strings.shortcuts.folderExists, { variant: 'warning' });
                 }
                 if (duplicateNoteCount > 0) {
-                    new Notice(strings.shortcuts.noteExists);
+                    showNotice(strings.shortcuts.noteExists, { variant: 'warning' });
                 }
 
                 if (additions.length === 0) {
