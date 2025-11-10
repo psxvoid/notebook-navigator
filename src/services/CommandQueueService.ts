@@ -16,7 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, TFolder, PaneType } from 'obsidian';
+import { App, TFile, TFolder, PaneType, normalizePath } from 'obsidian';
+import { getBaseNameFromPath } from 'src/utils/pathUtils';
 
 /**
  * Types of operations that can be tracked by the command queue
@@ -247,7 +248,7 @@ export class CommandQueueService {
         return false;
     }
 
-    /**
+     /**
      * Execute a file move operation with proper context tracking
      */
     async executeMoveFiles(
@@ -274,15 +275,49 @@ export class CommandQueueService {
             // First, collect all valid moves (non-conflicting files)
             const filesToMove: { file: TFile; newPath: string }[] = [];
 
+            const pathBaseName = new Map<string, string>()
+
             for (const file of files) {
                 const base = targetFolder.path === '/' ? '' : `${targetFolder.path}/`;
-                const newPath = `${base}${file.name}`;
+                let newPath = normalizePath(`${base}${file.name}`);
+                let newPathLowerCased = normalizePath(newPath.toLowerCase())
 
                 // Check for name conflicts
-                if (this.app.vault.getFileByPath(newPath)) {
-                    skippedCount++;
-                    continue;
+                let existingFile: TFile | null = null
+                let fileBaseName: string | undefined
+                let lastFileBaseName: string | undefined
+
+                const getBaseName = async () => {
+                    existingFile = this.app.vault.getFileByPath(newPath)
+
+                    if (existingFile == null && pathBaseName.has(newPathLowerCased)) {
+                        fileBaseName = pathBaseName.get(newPathLowerCased)
+                    } else if (existingFile == null && await this.app.vault.adapter.exists(newPath)) {
+                        fileBaseName = getBaseNameFromPath(newPath)
+                    } else {
+                        fileBaseName = existingFile?.basename
+                    }
                 }
+
+                await getBaseName()
+
+                while(fileBaseName != null) {
+                    const matches = /(.*?)(?:-)(\d+)$/gu.exec(fileBaseName)
+
+                    const hasPostfix = matches != null && matches.length > 2
+
+                    const baseNameNoPostfix = hasPostfix ? matches[1] : fileBaseName
+
+                    const nextDuplicateIndex = hasPostfix ? Number.parseInt(matches[2]) + 1 : 1;
+
+                    lastFileBaseName = `${baseNameNoPostfix}-${nextDuplicateIndex}`
+                    newPath = normalizePath(`${base}${lastFileBaseName}.${file.extension}`)
+                    newPathLowerCased = normalizePath(newPath.toLowerCase())
+
+                    await getBaseName()
+                }
+
+                pathBaseName.set(newPathLowerCased, lastFileBaseName ?? file.basename)
 
                 filesToMove.push({ file, newPath });
             }
