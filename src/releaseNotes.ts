@@ -78,17 +78,21 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [
             '==Tag rename, tag delete, tag drag-and-drop==! You can now rename tags, delete tags (removes from all notes), and drag-and-drop tags to reorganize them in navigation pane.',
-            '==Vault profiles==! Hidden folders, hidden tags, hidden notes and file visibility settings can now be saved per vault profile. Quickly switch between different vault profiles in the navigation pane header!',
+            '==Vault profiles==! Hidden folders, hidden tags, hidden notes and file visibility settings can now be saved per vault profile. Quickly switch between different vault profiles in the navigation pane header! Create new vault profiles in **Settings > Filtering > Vault profile**.',
             'Two new folder menu items: **Copy path** and **Copy relative path**.',
-            'New check box in "Add tag" modal: **Allow creating new tags**. Disable to only allow selecting existing tags in the "Add tag" modal.'
+            'New check box in "Add tag" modal: **Allow creating new tags**. Disable to only allow selecting existing tags in the "Add tag" modal. You can also disable in **Settings > Folders & Tags > Tags > Allow creating tags in Add tag modal**.'
         ],
-        improved: ['Text preview filter now also removes code blocks with tilde fencing (~~~).'],
+        improved: [
+            'Text preview filter now also removes code blocks with tilde fencing (~~~).',
+            'All notices now use Obsidian styling such as "Success", "Warning" and "Error".'
+        ],
         changed: [
             'Upgraded the Obsidian eslint code verification plugin to 0.1.8 with additional async-safety and type-safety checks. Lots of code changes and improvements under the hood, but no user-visible changes.'
         ],
         fixed: [
+            'Fixed an issue where "Remove tag" would remove hashtags within HTML blocks and within code blocks.',
             'Fixed a performance issue with Group by subfolder, it is now much faster with larger number of subfolders.',
-            'Fixed an issue where "Remove tag" would remove hashtags from HTML blocks and code blocks.'
+            'Fixed an issue where horizontal rules with spaces (_ _ _, * * *) were showing one character in text preview.'
         ]
     },
     {
