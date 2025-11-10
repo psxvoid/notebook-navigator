@@ -708,8 +708,8 @@ export const STRINGS_ZH_CN = {
                 desc: '选择文件夹和标签时自动展开它们。'
             },
             navigationBanner: {
-                name: '导航横幅',
-                desc: '在导航窗格顶部显示一张图片。',
+                name: '导航横幅（仓库配置文件）',
+                desc: '在导航窗格顶部显示一张图片。随所选仓库配置文件而变化。',
                 current: '当前横幅：{path}',
                 chooseButton: '选择图片',
                 clearButton: '清除'

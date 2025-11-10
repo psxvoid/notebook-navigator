@@ -117,6 +117,7 @@ export class NotebookNavigatorView extends ItemView {
                                                 app={this.plugin.app}
                                                 api={this.plugin.api}
                                                 tagTreeService={this.plugin.tagTreeService}
+                                                // Wrap bound methods in arrow functions to maintain proper this context and satisfy eslint @typescript-eslint/unbound-method
                                                 onFileRename={(listenerId, callback) =>
                                                     this.plugin.registerFileRenameListener(listenerId, callback)
                                                 }

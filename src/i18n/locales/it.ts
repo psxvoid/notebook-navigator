@@ -709,8 +709,8 @@ export const STRINGS_IT = {
                 desc: 'Espandi automaticamente cartelle e tag quando vengono selezionati.'
             },
             navigationBanner: {
-                name: 'Banner navigazione',
-                desc: "Visualizza un'immagine sopra il pannello navigazione.",
+                name: 'Banner navigazione (profilo vault)',
+                desc: "Visualizza un'immagine sopra il pannello navigazione. Cambia con il profilo vault selezionato.",
                 current: 'Banner attuale: {path}',
                 chooseButton: 'Scegli immagine',
                 clearButton: 'Cancella'
@@ -978,7 +978,7 @@ export const STRINGS_IT = {
                 desc: 'Mantieni la proprietà tag frontmatter quando tutti i tag sono rimossi. Quando disabilitato, la proprietà tag è eliminata dal frontmatter.'
             },
             hiddenTags: {
-                name: 'Tag nascosti',
+                name: 'Nascondi tag',
                 desc: 'Lista separata da virgole di prefissi tag o wildcard nome. Usa tag* o *tag per abbinare nomi tag. Nascondere un tag nasconde anche tutti i suoi sotto-tag (es. "archivio" nasconde "archivio/2024/docs").',
                 placeholder: 'interno, temp/bozze, archivio/2024'
             },

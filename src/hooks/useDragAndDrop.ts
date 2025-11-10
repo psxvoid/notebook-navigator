@@ -547,6 +547,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         async (e: DragEvent, targetTag: string) => {
             let files: TFile[] = [];
 
+            // Extract file paths from drag event data (handles both single and multiple files)
             const selectedPaths = extractFilePathsFromDataTransfer(e.dataTransfer ?? null);
             if (selectedPaths && selectedPaths.length > 0) {
                 files = getFilesFromPaths(selectedPaths);
@@ -813,6 +814,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     return;
                 }
 
+                // Extract file paths from drag event data for folder move
                 const selectedPaths = extractFilePathsFromDataTransfer(e.dataTransfer ?? null);
                 if (selectedPaths && selectedPaths.length > 0) {
                     const filesToMove = getFilesFromPaths(selectedPaths);
@@ -950,6 +952,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 dragGhostManager.hideGhost();
             }
         };
+        // Wrap handleDrop to catch async errors properly
         const handleDropListener = (event: DragEvent) => {
             runAsyncAction(() => handleDrop(event));
         };

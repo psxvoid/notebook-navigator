@@ -461,6 +461,7 @@ export abstract class BaseMetadataService {
                 continue;
             }
 
+            // Check if the new path already has metadata (converts to boolean for clarity)
             const newPathExists = Boolean(Object.prototype.hasOwnProperty.call(metadata, update.newPath));
             if (newPathExists && preserveExisting) {
                 if (update.oldPath !== update.newPath) {

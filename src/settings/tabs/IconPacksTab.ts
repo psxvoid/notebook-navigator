@@ -71,6 +71,7 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
             setting.addButton(button => {
                 button.setButtonText(strings.settings.items.externalIcons.removeButton);
                 button.setDisabled(isDownloading);
+                // Remove icon pack without blocking the UI
                 button.onClick(() => {
                     runAsyncAction(async () => {
                         button.setDisabled(true);
@@ -93,6 +94,7 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
                         : strings.settings.items.externalIcons.downloadButton
                 );
                 button.setDisabled(isDownloading);
+                // Download icon pack without blocking the UI
                 button.onClick(() => {
                     runAsyncAction(async () => {
                         button.setDisabled(true);

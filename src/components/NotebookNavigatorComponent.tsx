@@ -490,8 +490,10 @@ export const NotebookNavigatorComponent = React.memo(
                     // A no-op update will increment the version and force a re-render
                     runAsyncAction(() => updateSettings(() => {}));
                 },
+                // Delete focused file based on current pane (files or navigation)
                 deleteActiveFile: () => {
                     runAsyncAction(async () => {
+                        // Delete files from list pane
                         if (uiState.focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
                             await deleteSelectedFiles({
                                 app,
@@ -508,6 +510,7 @@ export const NotebookNavigatorComponent = React.memo(
                             return;
                         }
 
+                        // Delete folder from navigation pane
                         if (
                             uiState.focusedPane === 'navigation' &&
                             selectionState.selectionType === ItemType.FOLDER &&

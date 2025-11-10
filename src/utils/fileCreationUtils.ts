@@ -112,6 +112,7 @@ export async function createFileWithOptions(parent: TFolder, app: App, options: 
     } catch (error: unknown) {
         // Type-safe error message lookup
         const errorMessages = strings.fileSystem.errors as Record<string, string>;
+        // Safely extract error message handling non-Error exceptions
         const errorText = error instanceof Error ? error.message : String(error);
         const errorMessage = errorMessages[errorKey]?.replace('{error}', errorText) || `Failed to create file: ${errorText}`;
         new Notice(errorMessage);

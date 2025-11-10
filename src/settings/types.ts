@@ -58,6 +58,7 @@ export interface VaultProfile {
     hiddenFolders: string[];
     hiddenTags: string[];
     hiddenFiles: string[];
+    navigationBanner: string | null;
 }
 
 /**
@@ -100,7 +101,6 @@ export interface NotebookNavigatorSettings {
 
     // Navigation pane tab
     skipAutoScroll: boolean;
-    navigationBanner: string | null;
     showSectionIcons: boolean;
     showShortcuts: boolean;
     showRecentNotes: boolean;

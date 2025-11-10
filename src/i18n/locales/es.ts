@@ -709,8 +709,8 @@ export const STRINGS_ES = {
                 desc: 'Expandir automáticamente carpetas y etiquetas cuando se seleccionan.'
             },
             navigationBanner: {
-                name: 'Banner de navegación',
-                desc: 'Mostrar una imagen encima del panel de navegación.',
+                name: 'Banner de navegación (perfil de bóveda)',
+                desc: 'Mostrar una imagen encima del panel de navegación. Cambia con el perfil de bóveda seleccionado.',
                 current: 'Banner actual: {path}',
                 chooseButton: 'Elegir imagen',
                 clearButton: 'Limpiar'
@@ -982,7 +982,7 @@ export const STRINGS_ES = {
                 desc: 'Mostrar opción de crear etiqueta al añadir etiquetas. El interruptor aparece en el modal.'
             },
             hiddenTags: {
-                name: 'Etiquetas ocultas',
+                name: 'Ocultar etiquetas',
                 desc: 'Lista separada por comas de prefijos de etiquetas o comodines de nombre. Usa `tag*` o `*tag` para coincidir con nombres de etiquetas. Ocultar una etiqueta también oculta todas sus sub-etiquetas (ej. "archivo" oculta "archivo/2024/docs").',
                 placeholder: 'interno, temp/borradores, archivo/2024'
             },

@@ -339,17 +339,20 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         [updateSettings]
     );
 
+    // Adds multiple shortcuts, validating each type and showing notices for duplicates or invalid entries
     const addShortcutsBatch = useCallback(
         async (entries: ShortcutEntry[], options?: { index?: number }) => {
             if (entries.length === 0) {
                 return 0;
             }
 
+            // Create sets of existing paths/names for O(1) duplicate checking
             const folderPaths = new Set(folderShortcutKeysByPath.keys());
             const notePaths = new Set(noteShortcutKeysByPath.keys());
             const tagPaths = new Set(tagShortcutKeysByPath.keys());
             const searchNames = new Set(searchShortcutsByName.keys());
 
+            // Track validation errors to show notices after processing all entries
             let duplicateFolder = false;
             let duplicateNote = false;
             let duplicateTag = false;
@@ -358,6 +361,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
             let emptySearchName = false;
             let emptySearchQuery = false;
 
+            // Validate and normalize each entry, tracking errors
             const normalizedEntries: ShortcutEntry[] = [];
             entries.forEach(entry => {
                 if (entry.type === ShortcutType.FOLDER) {
@@ -423,6 +427,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
                 }
             });
 
+            // Show notices for any validation errors found
             if (duplicateFolder) {
                 new Notice(strings.shortcuts.folderExists);
             }
@@ -449,6 +454,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
                 return 0;
             }
 
+            // Insert normalized entries at specified index, shifting subsequent items
             await updateSettings(current => {
                 const existing = current.shortcuts ?? [];
                 const next = [...existing];

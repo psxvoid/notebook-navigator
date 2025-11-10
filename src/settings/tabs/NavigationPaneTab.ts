@@ -23,10 +23,12 @@ import { DEFAULT_SETTINGS } from '../defaultSettings';
 import type { ItemScope } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { runAsyncAction } from '../../utils/async';
+import { getActiveVaultProfile } from '../../utils/vaultProfiles';
 
 /** Renders the navigation pane settings tab */
 export function renderNavigationPaneTab(context: SettingsTabContext): void {
     const { containerEl, plugin } = context;
+    const getActiveProfile = () => getActiveVaultProfile(plugin.settings);
 
     new Setting(containerEl).setName(strings.settings.groups.navigation.behavior).setHeading();
 
@@ -78,7 +80,7 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
     let clearNavigationBannerButton: ButtonComponent | null = null;
 
     const renderNavigationBannerValue = () => {
-        const { navigationBanner } = plugin.settings;
+        const navigationBanner = getActiveProfile().navigationBanner;
         navigationBannerValueEl.setText('');
         if (navigationBanner) {
             navigationBannerValueEl.setText(strings.settings.items.navigationBanner.current.replace('{path}', navigationBanner));
@@ -93,8 +95,9 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
         button.setButtonText(strings.settings.items.navigationBanner.chooseButton);
         button.onClick(() => {
             new NavigationBannerModal(context.app, file => {
-                plugin.settings.navigationBanner = file.path;
+                getActiveProfile().navigationBanner = file.path;
                 renderNavigationBannerValue();
+                // Save navigation banner setting without blocking the UI
                 runAsyncAction(() => plugin.saveSettingsAndUpdate());
             }).open();
         });
@@ -103,13 +106,15 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
     navigationBannerSetting.addButton(button => {
         button.setButtonText(strings.settings.items.navigationBanner.clearButton);
         clearNavigationBannerButton = button;
-        button.setDisabled(!plugin.settings.navigationBanner);
+        button.setDisabled(!getActiveProfile().navigationBanner);
+        // Clear navigation banner without blocking the UI
         button.onClick(() => {
             runAsyncAction(async () => {
-                if (!plugin.settings.navigationBanner) {
+                const activeProfile = getActiveProfile();
+                if (!activeProfile.navigationBanner) {
                     return;
                 }
-                plugin.settings.navigationBanner = null;
+                activeProfile.navigationBanner = null;
                 renderNavigationBannerValue();
                 await plugin.saveSettingsAndUpdate();
             });
@@ -230,6 +235,7 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
                 .setIcon('lucide-rotate-ccw')
                 .setTooltip('Restore to default (16px)')
                 .onClick(() => {
+                    // Reset indentation to default without blocking the UI
                     runAsyncAction(async () => {
                         const defaultValue = DEFAULT_SETTINGS.navIndent;
                         indentationSlider.setValue(defaultValue);
@@ -259,6 +265,7 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
                 .setIcon('lucide-rotate-ccw')
                 .setTooltip('Restore to default (28px)')
                 .onClick(() => {
+                    // Reset line height to default without blocking the UI
                     runAsyncAction(async () => {
                         const defaultValue = DEFAULT_SETTINGS.navItemHeight;
                         lineHeightSlider.setValue(defaultValue);
@@ -300,6 +307,7 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
                 .setIcon('lucide-rotate-ccw')
                 .setTooltip('Restore to default (0px)')
                 .onClick(() => {
+                    // Reset root spacing to default without blocking the UI
                     runAsyncAction(async () => {
                         const defaultValue = DEFAULT_SETTINGS.rootLevelSpacing;
                         rootSpacingSlider.setValue(defaultValue);

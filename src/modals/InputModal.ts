@@ -103,6 +103,9 @@ export class InputModal extends Modal {
         }
     }
 
+    /**
+     * Executes the submit callback asynchronously with the input value
+     */
     private submitValue(value: string): void {
         runAsyncAction(() => this.onSubmit(value));
     }

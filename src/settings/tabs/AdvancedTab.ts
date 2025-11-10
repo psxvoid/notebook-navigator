@@ -118,6 +118,7 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
         metadataCleanupButton = button;
         button.setButtonText(strings.settings.items.metadataCleanup.buttonText);
         button.setDisabled(true);
+        // Run metadata cleanup without blocking the UI
         button.onClick(() => {
             runAsyncAction(async () => {
                 setMetadataCleanupLoadingState();
@@ -138,6 +139,7 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
         text: strings.settings.items.metadataCleanup.loading
     });
 
+    // Load initial metadata cleanup summary without blocking
     runAsyncAction(() => refreshMetadataCleanupSummary());
 
     new Setting(containerEl)
@@ -145,6 +147,7 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
         .setDesc(strings.settings.items.rebuildCache.desc)
         .addButton(button =>
             button.setButtonText(strings.settings.items.rebuildCache.buttonText).onClick(() => {
+                // Rebuild cache without blocking the UI
                 runAsyncAction(async () => {
                     button.setDisabled(true);
                     try {
@@ -169,6 +172,7 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
         cls: 'nn-stats-text'
     });
 
+    // Use context directly to satisfy eslint exhaustive-deps requirements
     context.registerStatsTextElement(statsTextEl);
     context.requestStatisticsRefresh();
     context.ensureStatisticsInterval();

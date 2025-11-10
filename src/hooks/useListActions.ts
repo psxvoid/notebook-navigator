@@ -113,6 +113,7 @@ export function useListActions() {
                 )
                     .setChecked(!isCustomSort)
                     .onClick(() => {
+                        // Reset to default sort
                         runAsyncAction(async () => {
                             if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                                 await metadataService.removeFolderSortOverride(selectionState.selectedFolder.path);
@@ -138,6 +139,7 @@ export function useListActions() {
                     item.setTitle(strings.settings.items.sortNotesBy.options[option])
                         .setChecked(!!isCustomSort && currentSort === option)
                         .onClick(() => {
+                            // Apply sort option
                             runAsyncAction(async () => {
                                 if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                                     await metadataService.setFolderSortOverride(selectionState.selectedFolder.path, option);

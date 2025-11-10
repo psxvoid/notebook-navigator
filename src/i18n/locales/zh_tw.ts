@@ -707,8 +707,8 @@ export const STRINGS_ZH_TW = {
                 desc: '選取資料夾和標籤時自動展開。'
             },
             navigationBanner: {
-                name: '導覽橫幅',
-                desc: '在導覽窗格上方顯示圖片。',
+                name: '導覽橫幅（倉庫設定檔）',
+                desc: '在導覽窗格上方顯示圖片。隨所選倉庫設定檔而變化。',
                 current: '目前橫幅：{path}',
                 chooseButton: '選擇圖片',
                 clearButton: '清除'

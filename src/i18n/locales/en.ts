@@ -708,8 +708,8 @@ export const STRINGS_EN = {
                 desc: 'Automatically expand folders and tags when they are selected.'
             },
             navigationBanner: {
-                name: 'Navigation banner',
-                desc: 'Display an image above the navigation pane.',
+                name: 'Navigation banner (vault profile)',
+                desc: 'Display an image above the navigation pane. Changes with the selected vault profile.',
                 current: 'Current banner: {path}',
                 chooseButton: 'Choose image',
                 clearButton: 'Clear'
@@ -980,7 +980,7 @@ export const STRINGS_EN = {
                 desc: 'Show create tag option when adding tags. Toggle appears in the modal.'
             },
             hiddenTags: {
-                name: 'Hidden tags',
+                name: 'Hide tags',
                 desc: 'Comma-separated list of tag prefixes or name wildcards. Use tag* or *tag to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

@@ -134,6 +134,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setPlaceholder(placeholder)
                     .setValue(getValue())
                     .onChange(value => {
+                        // Schedule debounced update to ensure async operations complete safely
                         this.scheduleDebouncedSettingUpdate(name, async () => {
                             const isValid = !validator || validator(value);
                             if (!isValid) {
@@ -180,6 +181,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 textArea.setValue(getValue());
                 textArea.inputEl.rows = rows;
                 textArea.onChange(value => {
+                    // Schedule debounced update to ensure async operations complete safely
                     this.scheduleDebouncedSettingUpdate(name, async () => {
                         const validator = options?.validator;
                         const isValid = !validator || validator(value);

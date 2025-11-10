@@ -199,6 +199,7 @@ export function useListPaneData({
         const token = ++searchTokenRef.current;
         let disposed = false;
 
+        // Execute omnisearch
         runAsyncAction(async () => {
             try {
                 const hits = await omnisearchService.search(trimmedQuery);

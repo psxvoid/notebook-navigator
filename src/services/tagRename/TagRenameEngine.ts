@@ -95,6 +95,7 @@ export class TagReplacement {
         private readonly toTag: TagDescriptor
     ) {
         this.cache = new Map();
+        // Pre-cache common transformations for faster lookup
         this.cache.set(this.fromTag.tag, this.toTag.tag);
         this.cache.set(this.fromTag.name, this.toTag.name);
         this.cache.set(this.fromTag.tag.toLowerCase(), this.toTag.tag);
@@ -191,10 +192,16 @@ export class TagReplacement {
         return null;
     }
 
+    /**
+     * Looks up a replacement value from the cache, returning the original key if not found
+     */
     private lookup(key: string): string {
         return this.cache.get(key) ?? key;
     }
 
+    /**
+     * Caches a replacement value for both original and lowercase versions
+     */
     private cacheValue(original: string, lowercase: string, value: string): string {
         this.cache.set(original, value);
         this.cache.set(lowercase, value);

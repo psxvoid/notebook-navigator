@@ -88,8 +88,15 @@ interface MoveFolderResult {
     targetFolder: TFolder;
 }
 
+/**
+ * Result of a folder move operation initiated via modal
+ */
 type MoveFolderModalResult = { status: 'success'; data: MoveFolderResult } | { status: 'cancelled' } | { status: 'error'; error: unknown };
 
+/**
+ * Folder suggest modal that handles cancellation events.
+ * Invokes a callback when the modal is closed without selection.
+ */
 class CancelAwareFolderSuggestModal extends FolderSuggestModal {
     constructor(
         app: App,
@@ -102,6 +109,9 @@ class CancelAwareFolderSuggestModal extends FolderSuggestModal {
         super(app, onChooseFolder, placeholderText, actionText, excludePaths);
     }
 
+    /**
+     * Invokes the cancellation callback when modal is closed
+     */
     onClose(): void {
         super.onClose();
         this.onCancel();
@@ -127,6 +137,9 @@ export class FileSystemOperations {
         private getVisibilityPreferences: () => VisibilityPreferences // Function to get current visibility preferences for descendant/hidden items state
     ) {}
 
+    /**
+     * Shows a notification with a formatted error message
+     */
     private notifyError(template: string, error: unknown, fallback?: string): void {
         const message = template.replace('{error}', getErrorMessage(error, fallback ?? strings.common.unknownError));
         new Notice(message);

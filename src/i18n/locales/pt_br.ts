@@ -709,8 +709,8 @@ export const STRINGS_PT_BR = {
                 desc: 'Expandir automaticamente pastas e tags quando forem selecionadas.'
             },
             navigationBanner: {
-                name: 'Banner de navegação',
-                desc: 'Exibir uma imagem acima do painel de navegação.',
+                name: 'Banner de navegação (perfil de cofre)',
+                desc: 'Exibir uma imagem acima do painel de navegação. Muda com o perfil de cofre selecionado.',
                 current: 'Banner atual: {path}',
                 chooseButton: 'Escolher imagem',
                 clearButton: 'Limpar'
@@ -977,7 +977,7 @@ export const STRINGS_PT_BR = {
                 desc: 'Manter a propriedade de tags do frontmatter quando todas as tags forem removidas. Quando desativado, a propriedade de tags é excluída do frontmatter.'
             },
             hiddenTags: {
-                name: 'Tags ocultas',
+                name: 'Ocultar tags',
                 desc: 'Lista separada por vírgulas de prefixos de tag ou curingas de nome. Use tag* ou *tag para corresponder nomes de tags. Ocultar uma tag também oculta todas as suas sub-tags (por exemplo, "arquivo" oculta "arquivo/2024/docs").',
                 placeholder: 'interno, temp/rascunhos, arquivo/2024'
             },

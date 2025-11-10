@@ -72,6 +72,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         .setDesc(strings.settings.items.whatsNew.desc)
         .addButton(button =>
             button.setButtonText(strings.settings.items.whatsNew.buttonText).onClick(() => {
+                // Load and display release notes without blocking the UI
                 runAsyncAction(async () => {
                     const { WhatsNewModal } = await import('../../modals/WhatsNewModal');
                     const { getLatestReleaseNotes } = await import('../../releaseNotes');
@@ -498,6 +499,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                     .setIcon('lucide-rotate-ccw')
                     .setTooltip('Restore to default (100%)')
                     .onClick(() => {
+                        // Reset desktop scale to default without blocking the UI
                         runAsyncAction(async () => {
                             const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
                             desktopScaleSlider.setValue(defaultPercent);
@@ -622,6 +624,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                     .setIcon('lucide-rotate-ccw')
                     .setTooltip('Restore to default (100%)')
                     .onClick(() => {
+                        // Reset mobile scale to default without blocking the UI
                         runAsyncAction(async () => {
                             const defaultPercent = scaleToPercent(DEFAULT_UI_SCALE);
                             mobileScaleSlider.setValue(defaultPercent);
@@ -714,6 +717,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                     plugin.settings.homepage = file.path;
                 }
                 renderHomepageValue();
+                // Save homepage setting without blocking the UI
                 runAsyncAction(() => plugin.saveSettingsAndUpdate());
             }).open();
         });
@@ -722,6 +726,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     homepageSetting.addButton(button => {
         button.setButtonText(strings.settings.items.homepage.clearButton);
         clearHomepageButton = button;
+        // Clear homepage file without blocking the UI
         button.onClick(() => {
             runAsyncAction(async () => {
                 if (Platform.isMobile && plugin.settings.useMobileHomepage) {

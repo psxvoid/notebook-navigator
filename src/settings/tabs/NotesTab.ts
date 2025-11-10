@@ -67,6 +67,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 plugin.settings.useFrontmatterMetadata = value;
                 await plugin.saveSettingsAndUpdate();
                 frontmatterSettingsEl.toggle(value);
+                // Use context directly to satisfy eslint exhaustive-deps requirements
                 context.requestStatisticsRefresh();
             })
         );
@@ -154,6 +155,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
         migrateButton = button;
         button.setButtonText(strings.settings.items.frontmatterMigration.button);
         button.setCta();
+        // Migrate metadata to frontmatter without blocking the UI
         button.onClick(() => {
             runAsyncAction(async () => {
                 if (!plugin.metadataService) {
