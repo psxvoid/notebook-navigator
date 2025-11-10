@@ -56,3 +56,15 @@ export function doesFolderContainPath(folderPath: string, candidatePath: string)
     const normalizedFolderPath = folderPath.endsWith('/') ? folderPath : `${folderPath}/`;
     return candidatePath.startsWith(normalizedFolderPath);
 }
+
+export function getBaseNameFromPath(path: string): string {
+    const pathParts = path.split('/')
+    const nameParts = pathParts[pathParts.length - 1].split('.')
+
+    if (nameParts.length > 2) {
+        nameParts.pop()
+        return nameParts.join('.')
+    }
+
+    return nameParts[0]
+}
