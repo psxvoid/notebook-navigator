@@ -42,3 +42,15 @@ export function getPathBaseName(path: string): string {
 
     return segments[segments.length - 1];
 }
+
+export function getBaseNameFromPath(path: string): string {
+    const pathParts = path.split('/')
+    const nameParts = pathParts[pathParts.length - 1].split('.')
+
+    if (nameParts.length > 2) {
+        nameParts.pop()
+        return nameParts.join('.')
+    }
+
+    return nameParts[0]
+}
