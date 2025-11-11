@@ -256,6 +256,11 @@ export const STRINGS_EN = {
                 stone: 'Stone'
             }
         },
+        selectVaultProfile: {
+            title: 'Select vault profile',
+            currentBadge: 'Active',
+            emptyState: 'No vault profiles available.'
+        },
         tagOperation: {
             renameTitle: 'Rename tag {tag}',
             deleteTitle: 'Delete tag {tag}',
@@ -457,6 +462,7 @@ export const STRINGS_EN = {
         revealFile: 'Reveal file', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: 'Search', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Toggle dual pane layout', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
+        selectVaultProfile: 'Select vault profile', // Command palette: Opens a modal to choose a different vault profile (English: Select vault profile)
         deleteFile: 'Delete files', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)

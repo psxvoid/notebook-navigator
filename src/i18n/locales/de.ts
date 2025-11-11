@@ -258,6 +258,11 @@ export const STRINGS_DE = {
                 stone: 'Stein'
             }
         },
+        selectVaultProfile: {
+            title: 'Tresorprofil wechseln',
+            currentBadge: 'Aktiv',
+            emptyState: 'Keine Tresorprofile verfügbar.'
+        },
         tagOperation: {
             renameTitle: 'Tag {tag} umbenennen',
             deleteTitle: 'Tag {tag} löschen',
@@ -460,6 +465,7 @@ export const STRINGS_DE = {
         revealFile: 'Datei anzeigen', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: 'Suchen', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Doppelbereichslayout umschalten', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
+        selectVaultProfile: 'Tresorprofil wechseln', // Command palette: Opens a modal to choose a different vault profile (English: Switch vault profile)
         deleteFile: 'Dateien löschen', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)

@@ -256,6 +256,11 @@ export const STRINGS_JA = {
                 stone: 'ストーン'
             }
         },
+        selectVaultProfile: {
+            title: '保管庫のプロファイルを変更',
+            currentBadge: 'アクティブ',
+            emptyState: '利用できる保管庫プロファイルがありません。'
+        },
         tagOperation: {
             renameTitle: 'タグの名前を変更',
             deleteTitle: 'タグを削除',
@@ -458,6 +463,7 @@ export const STRINGS_JA = {
         revealFile: 'ファイルを表示', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: '検索', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'デュアルペインレイアウトを切り替え', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
+        selectVaultProfile: '保管庫のプロファイルを変更', // Command palette: Opens a modal to choose a different vault profile (English: Switch vault profile)
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)

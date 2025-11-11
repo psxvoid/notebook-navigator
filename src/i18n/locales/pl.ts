@@ -257,6 +257,11 @@ export const STRINGS_PL = {
                 stone: 'Kamienny'
             }
         },
+        selectVaultProfile: {
+            title: 'Zmień profil sejfu',
+            currentBadge: 'Aktywny',
+            emptyState: 'Brak dostępnych profili sejfu.'
+        },
         tagOperation: {
             renameTitle: 'Zmień nazwę tagu {tag}',
             deleteTitle: 'Usuń tag {tag}',
@@ -459,6 +464,7 @@ export const STRINGS_PL = {
         revealFile: 'Pokaż plik', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: 'Szukaj', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Przełącz układ podwójnego panelu', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
+        selectVaultProfile: 'Zmień profil sejfu', // Command palette: Opens a modal to choose a different vault profile (English: Switch vault profile)
         deleteFile: 'Usuń pliki', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Utwórz nową notatkę', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Przenieś pliki', // Command palette: Move selected files to another folder (English: Move files)

@@ -257,6 +257,11 @@ export const STRINGS_NL = {
                 stone: 'Steen'
             }
         },
+        selectVaultProfile: {
+            title: 'Kluisprofiel wijzigen',
+            currentBadge: 'Actief',
+            emptyState: 'Geen kluisprofielen beschikbaar.'
+        },
         tagOperation: {
             renameTitle: 'Tag {tag} hernoemen',
             deleteTitle: 'Tag {tag} verwijderen',
@@ -459,6 +464,7 @@ export const STRINGS_NL = {
         revealFile: 'Bestand tonen',
         search: 'Zoeken',
         toggleDualPane: 'Dubbel paneel in-/uitschakelen',
+        selectVaultProfile: 'Kluisprofiel wijzigen',
         deleteFile: 'Bestanden verwijderen',
         createNewNote: 'Nieuwe notitie maken',
         moveFiles: 'Bestanden verplaatsen',

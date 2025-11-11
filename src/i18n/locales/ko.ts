@@ -255,6 +255,11 @@ export const STRINGS_KO = {
                 stone: '돌'
             }
         },
+        selectVaultProfile: {
+            title: '보관소 프로필 변경',
+            currentBadge: '활성',
+            emptyState: '사용 가능한 보관소 프로필이 없습니다.'
+        },
         tagOperation: {
             renameTitle: '태그 {tag} 이름 변경',
             deleteTitle: '태그 {tag} 삭제',
@@ -457,6 +462,7 @@ export const STRINGS_KO = {
         revealFile: '파일 표시', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: '검색', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: '이중 창 레이아웃 전환', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
+        selectVaultProfile: '보관소 프로필 변경', // Command palette: Opens a modal to choose a different vault profile (English: Switch vault profile)
         deleteFile: '파일 삭제', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '새 노트 만들기', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '파일 이동', // Command palette: Move selected files to another folder (English: Move files)

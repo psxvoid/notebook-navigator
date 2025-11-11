@@ -12,6 +12,7 @@ import { runAsyncAction } from '../../utils/async';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 import { getActiveHiddenFolders } from '../../utils/vaultProfiles';
 import { showNotice } from '../../utils/noticeUtils';
+import { SelectVaultProfileModal } from '../../modals/SelectVaultProfileModal';
 
 /**
  * Reveals the navigator view and focuses whichever pane is currently visible
@@ -167,6 +168,20 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                 await plugin.activateView();
                 plugin.toggleDualPanePreference();
             });
+        }
+    });
+
+    // Command to select the active vault profile via modal picker
+    plugin.addCommand({
+        id: 'select-profile',
+        name: strings.commands.selectVaultProfile,
+        callback: () => {
+            const modal = new SelectVaultProfileModal(plugin.app, {
+                profiles: plugin.settings.vaultProfiles ?? [],
+                activeProfileId: plugin.settings.vaultProfile,
+                onSelect: profileId => plugin.setVaultProfile(profileId)
+            });
+            modal.open();
         }
     });
 

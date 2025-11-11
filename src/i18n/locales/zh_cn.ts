@@ -256,6 +256,11 @@ export const STRINGS_ZH_CN = {
                 stone: '石灰色'
             }
         },
+        selectVaultProfile: {
+            title: '更改仓库配置文件',
+            currentBadge: '活动',
+            emptyState: '没有可用的仓库配置文件。'
+        },
         tagOperation: {
             renameTitle: '重命名标签',
             deleteTitle: '删除标签',
@@ -458,6 +463,7 @@ export const STRINGS_ZH_CN = {
         revealFile: '显示文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: '搜索', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: '切换双窗格布局', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
+        selectVaultProfile: '更改仓库配置文件', // Command palette: Opens a modal to choose a different vault profile (English: Switch vault profile)
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)

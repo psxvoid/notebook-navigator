@@ -257,6 +257,11 @@ export const STRINGS_IT = {
                 stone: 'Pietra'
             }
         },
+        selectVaultProfile: {
+            title: 'Cambia profilo del vault',
+            currentBadge: 'Attivo',
+            emptyState: 'Nessun profilo del vault disponibile.'
+        },
         tagOperation: {
             renameTitle: 'Rinomina tag {tag}',
             deleteTitle: 'Elimina tag {tag}',
@@ -459,6 +464,7 @@ export const STRINGS_IT = {
         revealFile: 'Mostra file',
         search: 'Cerca',
         toggleDualPane: 'Attiva/disattiva layout pannello doppio',
+        selectVaultProfile: 'Cambia profilo del vault',
         deleteFile: 'Elimina file',
         createNewNote: 'Crea nuova nota',
         moveFiles: 'Sposta file',

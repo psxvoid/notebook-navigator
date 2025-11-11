@@ -257,6 +257,11 @@ export const STRINGS_PT_BR = {
                 stone: 'Pedra'
             }
         },
+        selectVaultProfile: {
+            title: 'Alterar perfil do cofre',
+            currentBadge: 'Ativo',
+            emptyState: 'Nenhum perfil de cofre disponível.'
+        },
         tagOperation: {
             renameTitle: 'Renomear tag {tag}',
             deleteTitle: 'Excluir tag {tag}',
@@ -459,6 +464,7 @@ export const STRINGS_PT_BR = {
         revealFile: 'Revelar arquivo',
         search: 'Pesquisar',
         toggleDualPane: 'Alternar layout de painel duplo',
+        selectVaultProfile: 'Alterar perfil do cofre',
         deleteFile: 'Excluir arquivos',
         createNewNote: 'Criar nova nota',
         moveFiles: 'Mover arquivos',

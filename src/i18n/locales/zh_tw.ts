@@ -256,6 +256,11 @@ export const STRINGS_ZH_TW = {
                 stone: '石色'
             }
         },
+        selectVaultProfile: {
+            title: '更改倉庫設定檔',
+            currentBadge: '使用中',
+            emptyState: '沒有可用的倉庫設定檔。'
+        },
         tagOperation: {
             renameTitle: '重新命名標籤 {tag}',
             deleteTitle: '刪除標籤 {tag}',
@@ -457,6 +462,7 @@ export const STRINGS_ZH_TW = {
         revealFile: '顯示檔案', // 指令面板：在導覽器中顯示並選取目前活動的檔案 (英文: Reveal file)
         search: '搜尋', // 指令面板：在檔案清單中切換搜尋 (英文: Search)
         toggleDualPane: '切換雙窗格佈局', // 指令面板：在單一窗格和雙窗格佈局之間切換 (英文: Toggle dual pane layout)
+        selectVaultProfile: '更改倉庫設定檔', // 指令面板：開啟對話框以選擇不同的倉庫設定檔 (英文: Switch vault profile)
         deleteFile: '刪除檔案', // 指令面板：刪除目前活動的檔案 (英文: Delete file)
         createNewNote: '建立新筆記', // 指令面板：在目前選取的資料夾中建立新筆記 (英文: Create new note)
         moveFiles: '移動檔案', // 指令面板：將選取的檔案移動至另一個資料夾 (英文: Move files)

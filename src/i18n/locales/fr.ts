@@ -256,6 +256,11 @@ export const STRINGS_FR = {
                 stone: 'Pierre'
             }
         },
+        selectVaultProfile: {
+            title: 'Changer le profil du coffre',
+            currentBadge: 'Actif',
+            emptyState: 'Aucun profil de coffre disponible.'
+        },
         tagOperation: {
             renameTitle: "Renommer l'étiquette",
             deleteTitle: "Supprimer l'étiquette",
@@ -458,6 +463,7 @@ export const STRINGS_FR = {
         revealFile: 'Révéler le fichier', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: 'Rechercher', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Basculer la disposition à double panneau', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
+        selectVaultProfile: 'Changer le profil du coffre', // Command palette: Opens a modal to choose a different vault profile (English: Switch vault profile)
         deleteFile: 'Supprimer les fichiers', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Créer une nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Déplacer les fichiers', // Command palette: Move selected files to another folder (English: Move files)
