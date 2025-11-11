@@ -139,6 +139,9 @@ const REGEX_STRIP_MARKDOWN = new RegExp(BASE_PATTERNS.join('|'), 'gm');
 // Both regexes are now the same since heading handling is in the replacement logic
 const REGEX_STRIP_MARKDOWN_WITH_HEADINGS = REGEX_STRIP_MARKDOWN;
 
+/**
+ * Calculates the number of capture groups from regex replacement arguments
+ */
 function getCaptureLength(args: unknown[]): number {
     if (args.length === 0) {
         return 0;
@@ -149,6 +152,9 @@ function getCaptureLength(args: unknown[]): number {
     return Math.max(args.length - metadataCount, 0);
 }
 
+/**
+ * Extracts a string value from a frontmatter property that could be a string or array
+ */
 function resolvePreviewPropertyValue(value: unknown): string | null {
     if (typeof value === 'string') {
         const trimmed = value.trim();
@@ -170,6 +176,9 @@ function resolvePreviewPropertyValue(value: unknown): string | null {
     return null;
 }
 
+/**
+ * Checks if a frontmatter value indicates the file is an Excalidraw drawing
+ */
 function isTruthyExcalidrawPluginFlag(value: unknown): boolean {
     if (typeof value === 'boolean') {
         return value;
@@ -274,13 +283,23 @@ export class PreviewTextUtils {
             // Italic with stars - preserve prefix and content
             const italicStarMatch = match.match(/(^|[^*\d])\*([^*\n]+)\*(?![*\d])/);
             if (italicStarMatch) {
-                return `${italicStarMatch[1]}${italicStarMatch[2]}`;
+                const italicStarContent = italicStarMatch[2];
+                if (typeof italicStarContent !== 'string' || !italicStarContent.trim()) {
+                    return match;
+                }
+                const italicStarPrefix = italicStarMatch[1] ?? '';
+                return `${italicStarPrefix}${italicStarContent}`;
             }
 
             // Italic with underscores - preserve prefix and content
             const italicUnderscoreMatch = match.match(/(^|[^_a-zA-Z0-9])_([^_\n]+)_(?![_a-zA-Z0-9])/);
             if (italicUnderscoreMatch) {
-                return `${italicUnderscoreMatch[1]}${italicUnderscoreMatch[2]}`;
+                const italicUnderscoreContent = italicUnderscoreMatch[2];
+                if (typeof italicUnderscoreContent !== 'string' || !italicUnderscoreContent.trim()) {
+                    return match;
+                }
+                const italicUnderscorePrefix = italicUnderscoreMatch[1] ?? '';
+                return `${italicUnderscorePrefix}${italicUnderscoreContent}`;
             }
 
             // Headings - always strip # symbols

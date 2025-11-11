@@ -16,9 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { FileSystemAdapter, MenuItem, Notice, Platform, TFolder, TFile } from 'obsidian';
+import { FileSystemAdapter, MenuItem, Platform, TFolder, TFile } from 'obsidian';
 import { FolderMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
+import { showNotice } from '../noticeUtils';
 import { getInternalPlugin, isFolderAncestor } from '../../utils/typeGuards';
 import { getFolderNote, createFolderNote } from '../../utils/folderNotes';
 import { ExtendedApp } from '../../types/obsidian-extended';
@@ -212,7 +213,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             setAsyncOnClick(item.setTitle(strings.contextMenu.folder.copyPath).setIcon('lucide-clipboard'), async () => {
                 const absolutePath = adapter.getFullPath(folder.path);
                 await navigator.clipboard.writeText(absolutePath);
-                new Notice(strings.fileSystem.notifications.pathCopied);
+                showNotice(strings.fileSystem.notifications.pathCopied, { variant: 'success' });
             });
         });
     }
@@ -220,7 +221,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     menu.addItem((item: MenuItem) => {
         setAsyncOnClick(item.setTitle(strings.contextMenu.folder.copyRelativePath).setIcon('lucide-clipboard-list'), async () => {
             await navigator.clipboard.writeText(folder.path);
-            new Notice(strings.fileSystem.notifications.relativePathCopied);
+            showNotice(strings.fileSystem.notifications.relativePathCopied, { variant: 'success' });
         });
     });
 
@@ -329,7 +330,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                     });
                     await services.plugin.saveSettingsAndUpdate();
 
-                    new Notice(strings.fileSystem.notices.showFolder.replace('{name}', folder.name));
+                    showNotice(strings.fileSystem.notices.showFolder.replace('{name}', folder.name), { variant: 'success' });
                 });
             });
         } else if (!isExcluded) {
@@ -351,7 +352,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                     });
                     await services.plugin.saveSettingsAndUpdate();
 
-                    new Notice(strings.fileSystem.notices.hideFolder.replace('{name}', folder.name));
+                    showNotice(strings.fileSystem.notices.hideFolder.replace('{name}', folder.name), { variant: 'success' });
                 });
             });
         }

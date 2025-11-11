@@ -16,9 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, Modal, Setting, Notice } from 'obsidian';
+import { App, Modal, Setting } from 'obsidian';
 import { strings } from '../i18n';
 import { runAsyncAction } from '../utils/async';
+import { showNotice } from '../utils/noticeUtils';
 
 /**
  * Options for initializing the SaveSearchShortcutModal
@@ -92,7 +93,7 @@ export class SaveSearchShortcutModal extends Modal {
     private async handleSubmit(): Promise<void> {
         const trimmedName = this.name.trim();
         if (trimmedName.length === 0) {
-            new Notice(strings.shortcuts.emptySearchName);
+            showNotice(strings.shortcuts.emptySearchName, { variant: 'warning' });
             return;
         }
 

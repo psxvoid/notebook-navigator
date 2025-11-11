@@ -27,6 +27,9 @@ type TextRange = {
     end: number;
 };
 
+/**
+ * Type for frontmatter objects that may contain a tags property
+ */
 type TagsFrontmatter = Record<string, unknown> & { tags?: unknown };
 
 /**
@@ -141,6 +144,7 @@ export class TagFileMutations {
                 }
 
                 if (Array.isArray(rawTags)) {
+                    // Filter out non-string values and empty strings from the tags array
                     const normalizedTags = rawTags
                         .filter((value): value is string => typeof value === 'string')
                         .map(value => value.trim())
@@ -154,6 +158,7 @@ export class TagFileMutations {
                     const tags = rawTags
                         .split(',')
                         .map((value: string) => value.trim())
+                        // Filter out empty strings and ensure type safety
                         .filter((value): value is string => value.length > 0);
                     tags.push(tag);
                     frontmatter.tags = Array.from(new Set(tags));
@@ -251,11 +256,6 @@ export class TagFileMutations {
         }
 
         let hadTags = false;
-        const db = getDBInstance();
-        const cachedTags = db.getCachedTags(file.path);
-        if (cachedTags.length === 0) {
-            return false;
-        }
 
         try {
             await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
@@ -562,6 +562,7 @@ export class TagFileMutations {
             frontmatter.tags = [];
             return;
         }
+        // Safely delete the tags property if it exists
         if (Reflect.has(frontmatter, 'tags')) {
             delete frontmatter.tags;
         }
@@ -580,6 +581,7 @@ export class TagFileMutations {
 
         let hasInlineMatch = false;
         let cachedContent: string | undefined;
+        // Access the vault's read method if it exists (not all vault implementations have it)
         const vaultWithRead = this.app.vault as { read?: (file: TFile) => Promise<string> };
         if (typeof vaultWithRead.read === 'function') {
             try {
@@ -621,6 +623,10 @@ export class TagFileMutations {
         return changed;
     }
 
+    /**
+     * Removes inline tags from content based on provided patterns.
+     * Returns the modified content and whether any changes were made.
+     */
     private applyInlineTagRemoval(content: string, tagPatterns: { tag: string; pattern: RegExp }[]): { content: string; changed: boolean } {
         if (tagPatterns.length === 0) {
             return { content, changed: false };
@@ -628,6 +634,7 @@ export class TagFileMutations {
 
         let updatedContent = content;
         let changed = false;
+        // Calculate ranges where tags should not be removed (code blocks, inline code, HTML)
         let exclusionRanges = this.computeInlineTagExclusionRanges(updatedContent);
 
         for (const { pattern } of tagPatterns) {

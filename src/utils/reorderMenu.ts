@@ -72,6 +72,7 @@ export function showReorderMenu(options: ShowReorderMenuOptions): boolean {
             item.setTitle(moveUpLabel)
                 .setIcon(moveUpIcon)
                 .onClick(() => {
+                    // Execute move action through runAsyncAction for error handling
                     runAsyncAction(() => {
                         onMoveUp();
                     });
@@ -83,6 +84,7 @@ export function showReorderMenu(options: ShowReorderMenuOptions): boolean {
             item.setTitle(moveDownLabel)
                 .setIcon(moveDownIcon)
                 .onClick(() => {
+                    // Execute move action through runAsyncAction for error handling
                     runAsyncAction(() => {
                         onMoveDown();
                     });

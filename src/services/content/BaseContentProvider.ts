@@ -121,6 +121,7 @@ export abstract class BaseContentProvider implements IContentProvider {
         this.queueDebounceTimer = window.setTimeout(() => {
             this.queueDebounceTimer = null;
             if (!this.stopped && !this.isProcessing && this.queue.length > 0) {
+                // Run batch processing asynchronously without blocking
                 runAsyncAction(() => this.processNextBatch());
             }
         }, TIMEOUTS.DEBOUNCE_CONTENT);
@@ -149,6 +150,7 @@ export abstract class BaseContentProvider implements IContentProvider {
             batch.forEach(job => this.queuedFiles.delete(job.file.path));
 
             // Filter jobs based on current settings and database state
+            // Uses synchronous database access for immediate results
             const jobsWithData = batch.map(job => {
                 const fileData = db.getFile(job.file.path);
                 const needsProcessing = this.needsProcessing(fileData, job.file, settings);
@@ -160,6 +162,7 @@ export abstract class BaseContentProvider implements IContentProvider {
             if (activeJobs.length === 0) {
                 this.isProcessing = false;
                 if (this.queue.length > 0) {
+                    // Continue processing remaining items in queue
                     runAsyncAction(() => this.processNextBatch());
                 }
                 return;
@@ -231,6 +234,7 @@ export abstract class BaseContentProvider implements IContentProvider {
                 }
             }
         } catch (error: unknown) {
+            // Check if error is an abort operation (user-initiated cancellation)
             const isAbortError = error instanceof DOMException && error.name === 'AbortError';
             if (!isAbortError) {
                 console.error('Error processing batch:', error);
@@ -245,6 +249,7 @@ export abstract class BaseContentProvider implements IContentProvider {
 
             if (this.queue.length > 0 && !(this.stopped || this.abortController?.signal.aborted)) {
                 // Process next batch
+                // Defers execution to next animation frame and runs asynchronously
                 requestAnimationFrame(() => {
                     runAsyncAction(() => this.processNextBatch());
                 });

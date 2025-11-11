@@ -67,6 +67,18 @@ describe('PreviewTextUtils.extractPreviewText', () => {
         expect(preview).toBe('Sentence continues');
     });
 
+    it('removes spaced underscore horizontal rules without leaving stray characters', () => {
+        const content = ['Alpha line', '_ _ _', 'Omega line'].join('\n');
+        const preview = PreviewTextUtils.extractPreviewText(content, skipCodeSettings);
+        expect(preview).toBe('Alpha line Omega line');
+    });
+
+    it('removes spaced star horizontal rules without leaving stray characters', () => {
+        const content = ['Top section', '* * * * *', 'Bottom section'].join('\n');
+        const preview = PreviewTextUtils.extractPreviewText(content, skipCodeSettings);
+        expect(preview).toBe('Top section Bottom section');
+    });
+
     it('removes footnote references and definitions', () => {
         const content = 'Reference[^1] continues.\n\n[^1]: Footnote details';
         const preview = PreviewTextUtils.extractPreviewText(content, skipCodeSettings);
