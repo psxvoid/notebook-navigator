@@ -233,12 +233,15 @@ export class FeatureImageContentProvider extends BaseContentProvider {
 
         // Try each property in order until we find an image
         for (const property of settings.featureImageProperties) {
+            // Extract property value from frontmatter with unknown type
             const imageValue: unknown = metadata?.frontmatter?.[property];
 
+            // Skip non-string values (arrays, objects, numbers, etc.)
             if (typeof imageValue !== 'string') {
                 continue;
             }
 
+            // Remove leading/trailing whitespace from the path
             const imagePath = imageValue.trim();
 
             if (!imagePath) {

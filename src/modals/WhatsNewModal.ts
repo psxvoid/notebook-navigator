@@ -234,6 +234,7 @@ export class WhatsNewModal extends Modal {
             this.close();
         };
 
+        // Close modal on click or pointer down
         this.domDisposers.push(addAsyncEventListener(closeButton, 'click', handleClose));
         this.domDisposers.push(addAsyncEventListener(closeButton, 'pointerdown', handleClose));
     }

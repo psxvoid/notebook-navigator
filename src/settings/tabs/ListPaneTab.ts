@@ -155,6 +155,7 @@ export function renderListPaneTab(context: SettingsTabContext): void {
                 .setIcon('lucide-rotate-ccw')
                 .setTooltip(strings.settings.items.slimItemHeight.resetTooltip)
                 .onClick(() => {
+                    // Reset item height to default without blocking the UI
                     runAsyncAction(async () => {
                         const defaultValue = DEFAULT_SETTINGS.slimItemHeight;
                         slimItemHeightSlider.setValue(defaultValue);

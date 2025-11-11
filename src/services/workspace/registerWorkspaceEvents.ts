@@ -24,6 +24,7 @@ export default function registerWorkspaceEvents(plugin: NotebookNavigatorPlugin)
                 item.setTitle(strings.plugin.revealInNavigator)
                     .setIcon('lucide-folder-open')
                     .onClick(() => {
+                        // Wrap file reveal with error handling
                         runAsyncAction(async () => {
                             await plugin.activateView();
                             await plugin.revealFileInActualFolder(file);
@@ -42,6 +43,7 @@ export default function registerWorkspaceEvents(plugin: NotebookNavigatorPlugin)
                     item.setTitle(strings.plugin.revealInNavigator)
                         .setIcon('lucide-notebook')
                         .onClick(() => {
+                            // Wrap folder navigation with error handling
                             runAsyncAction(async () => {
                                 await plugin.navigateToFolder(file, { preserveNavigationFocus: true });
                             });
@@ -53,6 +55,7 @@ export default function registerWorkspaceEvents(plugin: NotebookNavigatorPlugin)
 
     // Add ribbon icon to open the navigator
     plugin.ribbonIconEl = plugin.addRibbonIcon('lucide-notebook', strings.plugin.ribbonTooltip, () => {
+        // Activate navigator view with error handling
         runAsyncAction(() => plugin.activateView());
     });
 

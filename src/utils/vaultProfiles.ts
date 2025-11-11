@@ -30,6 +30,7 @@ interface VaultProfileInitOptions {
     hiddenFiles?: string[];
     hiddenTags?: string[];
     fileVisibility?: FileVisibility;
+    navigationBanner?: string | null;
 }
 
 // Creates a clean copy of pattern array, trimming and filtering out empty strings
@@ -70,7 +71,9 @@ export function createVaultProfile(name: string, options: VaultProfileInitOption
         fileVisibility: resolveFileVisibility(options.fileVisibility),
         hiddenFolders: clonePatterns(options.hiddenFolders),
         hiddenTags: clonePatterns(options.hiddenTags),
-        hiddenFiles: clonePatterns(options.hiddenFiles)
+        hiddenFiles: clonePatterns(options.hiddenFiles),
+        navigationBanner:
+            typeof options.navigationBanner === 'string' && options.navigationBanner.length > 0 ? options.navigationBanner : null
     };
 }
 
@@ -117,6 +120,8 @@ export function ensureVaultProfiles(settings: NotebookNavigatorSettings): void {
         const hiddenTagSource = Array.isArray(profile.hiddenTags) ? profile.hiddenTags : settings.hiddenTags;
         profile.hiddenTags = clonePatterns(hiddenTagSource);
         profile.hiddenFiles = clonePatterns(profile.hiddenFiles);
+        profile.navigationBanner =
+            typeof profile.navigationBanner === 'string' && profile.navigationBanner.length > 0 ? profile.navigationBanner : null;
     });
 
     const hasActiveProfile = settings.vaultProfiles.some(profile => profile.id === settings.vaultProfile);
@@ -143,6 +148,10 @@ export function getActiveHiddenFolders(settings: NotebookNavigatorSettings): str
 // Returns the list of hidden file patterns from the active profile
 export function getActiveHiddenFiles(settings: NotebookNavigatorSettings): string[] {
     return getActiveVaultProfile(settings).hiddenFiles;
+}
+
+export function getActiveNavigationBanner(settings: NotebookNavigatorSettings): string | null {
+    return getActiveVaultProfile(settings).navigationBanner ?? null;
 }
 
 // Applies the values from a vault profile to the main settings object

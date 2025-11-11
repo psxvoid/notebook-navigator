@@ -695,6 +695,12 @@ export const STRINGS_DE = {
                     files: 'Listenbereich'
                 }
             },
+            toolbarButtons: {
+                name: 'Symbolleisten-Schaltflächen',
+                desc: 'Wählen Sie aus, welche Schaltflächen in der Symbolleiste angezeigt werden. Ausgeblendete Schaltflächen bleiben über Befehle und Menüs zugänglich.',
+                navigationLabel: 'Navigationssymbolleiste',
+                listLabel: 'Listensymbolleiste'
+            },
             autoRevealActiveNote: {
                 name: 'Aktive Notiz automatisch anzeigen',
                 desc: 'Notizen automatisch anzeigen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.'
@@ -716,8 +722,8 @@ export const STRINGS_DE = {
                 desc: 'Ordner und Tags automatisch erweitern, wenn sie ausgewählt werden.'
             },
             navigationBanner: {
-                name: 'Navigationsbanner',
-                desc: 'Bild oberhalb des Navigationsbereichs anzeigen.',
+                name: 'Navigationsbanner (Tresorprofil)',
+                desc: 'Bild oberhalb des Navigationsbereichs anzeigen. Ändert sich mit dem ausgewählten Tresorprofil.',
                 current: 'Aktuelles Banner: {path}',
                 chooseButton: 'Bild auswählen',
                 clearButton: 'Zurücksetzen'
@@ -1012,7 +1018,7 @@ export const STRINGS_DE = {
                 desc: 'Option zum Erstellen von Tags beim Hinzufügen anzeigen. Umschalter erscheint im Dialog.'
             },
             hiddenTags: {
-                name: 'Versteckte Tags',
+                name: 'Tags verstecken',
                 desc: 'Kommagetrennte Liste von Tag-Präfixen oder Namensplatzhaltern zum Ausblenden. Verwende `tag*` oder `*tag`, um Tagnamen abzugleichen. Ein versteckter Tag blendet auch alle Unter-Tags aus (z.B. "archiv" blendet "archiv/2024/docs" aus).',
                 placeholder: 'intern, temp/entwürfe, archiv/2024'
             },

@@ -450,6 +450,7 @@ export function useListReorder<T extends ReorderItemDescriptor>({
                 onDragStart: event => handleDragStart(event, key),
                 onDragOver: event => handleDragOver(event, key),
                 onDragLeave: handleDragLeave,
+                // Wrap drop handler to catch async errors
                 onDrop: event => {
                     runAsyncAction(() => handleDrop(event, key));
                 },

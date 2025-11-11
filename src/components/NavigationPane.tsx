@@ -55,7 +55,7 @@
  */
 
 import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo, useState, useReducer } from 'react';
-import { TFolder, TFile, Platform, Menu, Notice } from 'obsidian';
+import { TFolder, TFile, Platform, Menu } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -63,6 +63,7 @@ import { useServices, useCommandQueue, useFileSystemOps, useMetadataService, use
 import { useRecentData } from '../context/RecentDataContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
+import { showNotice } from '../utils/noticeUtils';
 import { useFileCache } from '../context/StorageContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useNavigationPaneKeyboard } from '../hooks/useNavigationPaneKeyboard';
@@ -379,13 +380,6 @@ export const NavigationPane = React.memo(
             };
         }, [app.metadataCache, hydratedShortcuts, settings.useFrontmatterMetadata, forceMetadataRefresh]);
 
-        // Reset banner height when banner is disabled in settings
-        useEffect(() => {
-            if (!settings.navigationBanner) {
-                setBannerHeight(0);
-            }
-        }, [settings.navigationBanner]);
-
         // Determine if drag and drop should be enabled for shortcuts
         const shortcutCount = hydratedShortcuts.length;
         const isShortcutDnDEnabled = shortcutsExpanded && shortcutCount > 0 && settings.showShortcuts;
@@ -578,12 +572,14 @@ export const NavigationPane = React.memo(
                     return false;
                 }
 
+                // Track valid additions and count duplicates
                 const additions: ShortcutEntry[] = [];
                 let duplicateFolderCount = 0;
                 let duplicateNoteCount = 0;
                 orderedPaths.forEach(path => {
                     const target = app.vault.getAbstractFileByPath(path);
                     if (target instanceof TFolder) {
+                        // Skip root folder
                         if (target.path === '/') {
                             return;
                         }
@@ -601,11 +597,12 @@ export const NavigationPane = React.memo(
                     }
                 });
 
+                // Notify user of duplicate shortcuts
                 if (duplicateFolderCount > 0) {
-                    new Notice(strings.shortcuts.folderExists);
+                    showNotice(strings.shortcuts.folderExists, { variant: 'warning' });
                 }
                 if (duplicateNoteCount > 0) {
-                    new Notice(strings.shortcuts.noteExists);
+                    showNotice(strings.shortcuts.noteExists, { variant: 'warning' });
                 }
 
                 if (additions.length === 0) {
@@ -878,7 +875,8 @@ export const NavigationPane = React.memo(
             resolvedRootTagKeys,
             rootOrderingTagTree,
             missingRootTagPaths,
-            vaultChangeVersion
+            vaultChangeVersion,
+            navigationBannerPath
         } = useNavigationPaneData({
             settings,
             isVisible,
@@ -888,16 +886,21 @@ export const NavigationPane = React.memo(
             sectionOrder
         });
 
+        // Reset banner height when banner is disabled in settings
+        useEffect(() => {
+            if (!navigationBannerPath) {
+                setBannerHeight(0);
+            }
+        }, [navigationBannerPath]);
+
         // Extract shortcut items to display in pinned area when pinning is enabled
         const pinnedShortcutItems = shouldPinShortcuts ? shortcutItems : [];
-        // Path to the banner file to display above pinned shortcuts
-        const navigationBannerPath = settings.navigationBanner;
         // Banner should be shown in pinned area only when shortcuts are pinned and banner is configured
         const shouldShowPinnedBanner = Boolean(navigationBannerPath && pinnedShortcutItems.length > 0);
         // We only reserve gutter space when a banner exists because Windows scrollbars
         // change container width by ~7px when they appear. That width change used to
         // feed back into the virtualizer via ResizeObserver and trigger infinite reflows.
-        const hasNavigationBannerConfigured = Boolean(settings.navigationBanner);
+        const hasNavigationBannerConfigured = Boolean(navigationBannerPath);
 
         const {
             reorderableRootFolders,
@@ -1054,6 +1057,7 @@ export const NavigationPane = React.memo(
                         // Set folder as selected without auto-selecting first file
                         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, autoSelectedFile: null });
 
+                        // Open folder note with proper command queue context
                         runAsyncAction(async () => {
                             await commandQueue.executeOpenFolderNote(folder.path, () => app.workspace.getLeaf().openFile(folderNote));
                         });
@@ -1315,6 +1319,7 @@ export const NavigationPane = React.memo(
                     onRevealFile(note);
                 }
 
+                // Open file in background leaf without activating it
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
                     runAsyncAction(() => leaf.openFile(note, { active: false }));
@@ -1349,7 +1354,6 @@ export const NavigationPane = React.memo(
                 event.preventDefault();
                 event.stopPropagation();
 
-                // Use command queue if available to ensure proper focus and context handling
                 runAsyncAction(() => openFileInContext({ app, commandQueue, file: note, context: 'tab' }));
             },
             [app, commandQueue]
@@ -1363,6 +1367,7 @@ export const NavigationPane = React.memo(
                     onRevealFile(note);
                 }
 
+                // Open file in background leaf without activating it
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
                     runAsyncAction(() => leaf.openFile(note, { active: false }));

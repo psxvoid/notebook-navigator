@@ -112,6 +112,7 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
                 });
         });
 
+    // Use context directly to satisfy eslint exhaustive-deps requirements
     context.createDebouncedTextSetting(
         folderNotesSettingsEl,
         strings.settings.items.folderNoteName.name,
