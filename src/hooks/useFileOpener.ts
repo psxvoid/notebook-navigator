@@ -51,10 +51,12 @@ export function useFileOpener() {
             };
 
             if (commandQueue) {
+                // Use command queue to serialize file operations
                 runAsyncAction(() => commandQueue.executeOpenActiveFile(file, openFile));
                 return;
             }
 
+            // Open file directly with async error handling
             runAsyncAction(() => openFile());
         },
         [app.workspace, commandQueue]

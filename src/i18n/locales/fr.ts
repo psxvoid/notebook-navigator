@@ -693,6 +693,12 @@ export const STRINGS_FR = {
                     files: 'Panneau de liste'
                 }
             },
+            toolbarButtons: {
+                name: "Boutons de la barre d'outils",
+                desc: "Choisissez quels boutons apparaissent dans la barre d'outils. Les boutons masqués restent accessibles via les commandes et les menus.",
+                navigationLabel: 'Barre de navigation',
+                listLabel: 'Barre de liste'
+            },
             autoRevealActiveNote: {
                 name: 'Révéler automatiquement la note active',
                 desc: "Révéler automatiquement les notes lorsqu'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche."
@@ -714,8 +720,8 @@ export const STRINGS_FR = {
                 desc: "Développer automatiquement les dossiers et les étiquettes lorsqu'ils sont sélectionnés."
             },
             navigationBanner: {
-                name: 'Bannière de navigation',
-                desc: 'Afficher une image au-dessus du panneau de navigation.',
+                name: 'Bannière de navigation (profil de coffre)',
+                desc: 'Afficher une image au-dessus du panneau de navigation. Change avec le profil de coffre sélectionné.',
                 current: 'Bannière actuelle : {path}',
                 chooseButton: 'Choisir une image',
                 clearButton: 'Effacer'
@@ -1012,7 +1018,7 @@ export const STRINGS_FR = {
                 desc: "Afficher l'option de création d'étiquette lors de l'ajout d'étiquettes. Le bouton apparaît dans le modal."
             },
             hiddenTags: {
-                name: 'Étiquettes cachées',
+                name: 'Masquer les étiquettes',
                 desc: 'Liste séparée par des virgules de préfixes ou de jokers de nom d\'étiquettes à masquer. Utilisez `tag*` ou `*tag` pour faire correspondre les noms d\'étiquette. Masquer une étiquette masque aussi toutes ses sous-étiquettes (par ex. "archive" masque "archive/2024/docs").',
                 placeholder: 'interne, temp/brouillons, archive/2024'
             },

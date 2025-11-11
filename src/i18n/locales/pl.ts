@@ -693,6 +693,12 @@ export const STRINGS_PL = {
                     files: 'Panel listy'
                 }
             },
+            toolbarButtons: {
+                name: 'Przyciski paska narzędzi',
+                desc: 'Wybierz, które przyciski mają być wyświetlane na pasku narzędzi. Ukryte przyciski pozostają dostępne przez polecenia i menu.',
+                navigationLabel: 'Pasek nawigacji',
+                listLabel: 'Pasek listy'
+            },
             autoRevealActiveNote: {
                 name: 'Automatycznie odkryj aktywną notatkę',
                 desc: 'Automatycznie odkrywaj notatki po otwarciu z Quick Switcher, linków lub wyszukiwania.'
@@ -714,8 +720,8 @@ export const STRINGS_PL = {
                 desc: 'Automatycznie rozwijaj foldery i tagi gdy są wybrane.'
             },
             navigationBanner: {
-                name: 'Baner nawigacji',
-                desc: 'Wyświetl obraz nad panelem nawigacji.',
+                name: 'Baner nawigacji (profil sejfu)',
+                desc: 'Wyświetl obraz nad panelem nawigacji. Zmienia się wraz z wybranym profilem sejfu.',
                 current: 'Aktualny baner: {path}',
                 chooseButton: 'Wybierz obraz',
                 clearButton: 'Wyczyść'
@@ -1010,7 +1016,7 @@ export const STRINGS_PL = {
                 desc: 'Pokaż opcję tworzenia tagów podczas dodawania tagów. Przełącznik pojawia się w oknie modalnym.'
             },
             hiddenTags: {
-                name: 'Ukryte tagi',
+                name: 'Ukryj tagi',
                 desc: 'Lista prefiksów tagów lub symboli wieloznacznych nazw oddzielonych przecinkami. Użyj `tag*` lub `*tag`, aby dopasować nazwy tagów. Ukrycie tagu ukrywa też wszystkie jego pod-tagi (np. "archive" ukrywa "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

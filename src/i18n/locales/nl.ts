@@ -693,6 +693,12 @@ export const STRINGS_NL = {
                     files: 'Lijstpaneel'
                 }
             },
+            toolbarButtons: {
+                name: 'Werkbalkknoppen',
+                desc: "Kies welke knoppen in de werkbalk worden weergegeven. Verborgen knoppen blijven toegankelijk via opdrachten en menu's.",
+                navigationLabel: 'Navigatiewerkbalk',
+                listLabel: 'Lijstwerkbalk'
+            },
             autoRevealActiveNote: {
                 name: 'Actieve notitie automatisch tonen',
                 desc: 'Notities automatisch tonen wanneer geopend vanuit Snelle Wisselaar, links of zoeken.'
@@ -714,8 +720,8 @@ export const STRINGS_NL = {
                 desc: 'Mappen en tags automatisch uitklappen wanneer ze worden geselecteerd.'
             },
             navigationBanner: {
-                name: 'Navigatiebanner',
-                desc: 'Een afbeelding weergeven boven het navigatiepaneel.',
+                name: 'Navigatiebanner (kluisprofiel)',
+                desc: 'Een afbeelding weergeven boven het navigatiepaneel. Verandert met het geselecteerde kluisprofiel.',
                 current: 'Huidige banner: {path}',
                 chooseButton: 'Afbeelding kiezen',
                 clearButton: 'Wissen'
@@ -1011,7 +1017,7 @@ export const STRINGS_NL = {
                 desc: 'Optie om tags te maken weergeven bij het toevoegen van tags. Schakelaar verschijnt in het dialoogvenster.'
             },
             hiddenTags: {
-                name: 'Verborgen tags',
+                name: 'Tags verbergen',
                 desc: 'Kommagescheiden lijst van tag-prefixen of naam-wildcards. Gebruik tag* of *tag om tagnamen te matchen. Het verbergen van een tag verbergt ook al zijn subtags (bijv. "archive" verbergt "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

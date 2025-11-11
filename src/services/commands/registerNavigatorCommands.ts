@@ -2,7 +2,7 @@
  * Notebook Navigator - Plugin for Obsidian
  */
 
-import { Notice, TFile, TFolder, type WorkspaceLeaf } from 'obsidian';
+import { TFile, TFolder, type WorkspaceLeaf } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 import { strings } from '../../i18n';
 import { isFolderNote, isSupportedFolderNoteExtension } from '../../utils/folderNotes';
@@ -11,6 +11,7 @@ import { getEffectiveFrontmatterExclusions, isFileHiddenBySettings } from '../..
 import { runAsyncAction } from '../../utils/async';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 import { getActiveHiddenFolders } from '../../utils/vaultProfiles';
+import { showNotice } from '../../utils/noticeUtils';
 
 import { CacheRebuildMode } from '../../main';
 
@@ -64,6 +65,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'open',
         name: strings.commands.open,
         callback: () => {
+            // Wrap async operations with error handling
             runAsyncAction(async () => {
                 const navigatorLeaves = plugin.getNavigatorLeaves();
                 if (navigatorLeaves.length > 0) {
@@ -86,6 +88,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
             }
 
             if (!checking) {
+                // Execute homepage opening with error handling
                 runAsyncAction(() => plugin.openHomepage('command'));
             }
 
@@ -101,10 +104,11 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
             const activeFile = plugin.app.workspace.getActiveFile();
             if (activeFile && activeFile.parent) {
                 if (!checking) {
+                    // Wrap file reveal with error handling
                     runAsyncAction(async () => {
                         await plugin.activateView();
                         if (isFileHiddenBySettings(activeFile, plugin.settings, plugin.app, plugin.getUXPreferences().showHiddenItems)) {
-                            new Notice(strings.fileSystem.notifications.hiddenFileReveal);
+                            showNotice(strings.fileSystem.notifications.hiddenFileReveal, { variant: 'warning' });
                         }
                         await plugin.revealFileInActualFolder(activeFile);
                     });
@@ -120,6 +124,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'toggle-descendants',
         name: strings.commands.toggleDescendants,
         callback: () => {
+            // Wrap toggle with error handling
             runAsyncAction(async () => {
                 await plugin.activateView();
                 plugin.toggleIncludeDescendantNotes();
@@ -132,6 +137,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'toggle-hidden',
         name: strings.commands.toggleHidden,
         callback: () => {
+            // Wrap toggle with error handling
             runAsyncAction(async () => {
                 await plugin.activateView();
                 plugin.toggleShowHiddenItems();
@@ -144,6 +150,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'toggle-tag-sort',
         name: strings.commands.toggleTagSort,
         callback: () => {
+            // Wrap sort toggle with error handling
             runAsyncAction(async () => {
                 await plugin.activateView();
                 plugin.settings.tagSortOrder = plugin.settings.tagSortOrder === 'frequency-desc' ? 'alpha-asc' : 'frequency-desc';
@@ -157,6 +164,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'toggle-dual-pane',
         name: strings.commands.toggleDualPane,
         callback: () => {
+            // Wrap pane toggle with error handling
             runAsyncAction(async () => {
                 await plugin.activateView();
                 plugin.toggleDualPanePreference();
@@ -169,6 +177,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'collapse-expand',
         name: strings.commands.collapseExpand,
         callback: () => {
+            // Wrap collapse/expand with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {
@@ -183,6 +192,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'new-note',
         name: strings.commands.createNewNote,
         callback: () => {
+            // Wrap note creation with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {
@@ -197,6 +207,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'move-files',
         name: strings.commands.moveFiles,
         callback: () => {
+            // Wrap move operation with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {
@@ -211,6 +222,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'select-next-file',
         name: strings.commands.selectNextFile,
         callback: () => {
+            // Wrap file selection with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {
@@ -225,6 +237,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'select-previous-file',
         name: strings.commands.selectPreviousFile,
         callback: () => {
+            // Wrap file selection with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {
@@ -275,6 +288,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                 return true;
             }
 
+            // Convert file to folder note with error handling
             runAsyncAction(() => fileSystemOps.convertFileToFolderNote(activeFile, plugin.settings));
             return true;
         }
@@ -352,13 +366,14 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
 
             // Pin all eligible folder notes
             if (!checking) {
+                // Pin all folder notes with error handling
                 runAsyncAction(async () => {
                     for (const note of eligible) {
                         await metadataService.togglePin(note.path, 'folder');
                     }
 
                     // Show notification with count of pinned folder notes
-                    new Notice(strings.shortcuts.folderNotesPinned.replace('{count}', eligible.length.toString()));
+                    showNotice(strings.shortcuts.folderNotesPinned.replace('{count}', eligible.length.toString()), { variant: 'success' });
                 });
             }
 
@@ -371,6 +386,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'delete-files',
         name: strings.commands.deleteFile,
         callback: () => {
+            // Wrap delete operation with error handling
             runAsyncAction(async () => {
                 await plugin.activateView();
 
@@ -390,6 +406,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'rebuild-cache',
         name: strings.commands.rebuildCache,
         callback: () => {
+            // Wrap cache rebuild with error handling and logging
             runAsyncAction(async () => {
                 try {
                     await plugin.rebuildCache(CacheRebuildMode.DropDatabaseSlow)
@@ -405,6 +422,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'add-tag',
         name: strings.commands.addTag,
         callback: () => {
+            // Wrap tag addition with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {
@@ -419,6 +437,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'remove-tag',
         name: strings.commands.removeTag,
         callback: () => {
+            // Wrap tag removal with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {
@@ -433,6 +452,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'remove-all-tags',
         name: strings.commands.removeAllTags,
         callback: () => {
+            // Wrap tag removal with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {
@@ -447,6 +467,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'navigate-to-folder',
         name: strings.commands.navigateToFolder,
         callback: () => {
+            // Wrap folder navigation with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {
@@ -461,6 +482,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'navigate-to-tag',
         name: strings.commands.navigateToTag,
         callback: () => {
+            // Wrap tag navigation with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {
@@ -475,6 +497,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'add-shortcut',
         name: strings.commands.addShortcut,
         callback: () => {
+            // Wrap shortcut creation with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {
@@ -489,6 +512,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'search',
         name: strings.commands.search,
         callback: () => {
+            // Wrap search toggle with error handling
             runAsyncAction(async () => {
                 const view = await ensureNavigatorOpen(plugin);
                 if (view) {

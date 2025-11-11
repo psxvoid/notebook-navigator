@@ -54,6 +54,12 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
     // Use the shared actions hook
     const { handleNewFile, handleAppearanceMenu, handleSortMenu, handleToggleDescendants, getSortIcon, isCustomSort, hasCustomAppearance } =
         useListActions();
+    const listToolbarVisibility = settings.toolbarVisibility.list;
+    const showSearchButton = listToolbarVisibility.search;
+    const showDescendantsButton = listToolbarVisibility.descendants;
+    const showSortButton = listToolbarVisibility.sort;
+    const showAppearanceButton = listToolbarVisibility.appearance;
+    const showNewNoteButton = listToolbarVisibility.newNote;
 
     const shouldRenderBreadcrumbSegments = isMobile;
     const shouldShowHeaderTitle = !isMobile && listPaneTitlePreference === 'header';
@@ -200,53 +206,63 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                     {shouldShowHeaderTitle && <span className="nn-pane-header-text">{breadcrumbContent}</span>}
                 </span>
                 <div className="nn-header-actions">
-                    <button
-                        className={`nn-icon-button ${isSearchActive ? 'nn-icon-button-active' : ''}`}
-                        aria-label={strings.paneHeader.search}
-                        onClick={onSearchToggle}
-                        disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="lucide-search" />
-                    </button>
-                    <button
-                        className={`nn-icon-button ${includeDescendantNotes ? 'nn-icon-button-active' : ''}`}
-                        aria-label={strings.paneHeader.toggleDescendantNotes}
-                        onClick={handleToggleDescendants}
-                        disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="lucide-layers" />
-                    </button>
-                    <button
-                        className={`nn-icon-button ${isCustomSort ? 'nn-icon-button-active' : ''}`}
-                        aria-label={strings.paneHeader.changeSortOrder}
-                        onClick={handleSortMenu}
-                        disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name={getSortIcon()} />
-                    </button>
-                    <button
-                        className={`nn-icon-button ${hasCustomAppearance ? 'nn-icon-button-active' : ''}`}
-                        aria-label={strings.paneHeader.changeAppearance}
-                        onClick={handleAppearanceMenu}
-                        disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="lucide-palette" />
-                    </button>
-                    <button
-                        className="nn-icon-button"
-                        aria-label={strings.paneHeader.newNote}
-                        onClick={() => {
-                            runAsyncAction(() => handleNewFile());
-                        }}
-                        disabled={!selectionState.selectedFolder}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="lucide-pen-box" />
-                    </button>
+                    {showSearchButton ? (
+                        <button
+                            className={`nn-icon-button ${isSearchActive ? 'nn-icon-button-active' : ''}`}
+                            aria-label={strings.paneHeader.search}
+                            onClick={onSearchToggle}
+                            disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="lucide-search" />
+                        </button>
+                    ) : null}
+                    {showDescendantsButton ? (
+                        <button
+                            className={`nn-icon-button ${includeDescendantNotes ? 'nn-icon-button-active' : ''}`}
+                            aria-label={strings.paneHeader.toggleDescendantNotes}
+                            onClick={handleToggleDescendants}
+                            disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="lucide-layers" />
+                        </button>
+                    ) : null}
+                    {showSortButton ? (
+                        <button
+                            className={`nn-icon-button ${isCustomSort ? 'nn-icon-button-active' : ''}`}
+                            aria-label={strings.paneHeader.changeSortOrder}
+                            onClick={handleSortMenu}
+                            disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name={getSortIcon()} />
+                        </button>
+                    ) : null}
+                    {showAppearanceButton ? (
+                        <button
+                            className={`nn-icon-button ${hasCustomAppearance ? 'nn-icon-button-active' : ''}`}
+                            aria-label={strings.paneHeader.changeAppearance}
+                            onClick={handleAppearanceMenu}
+                            disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="lucide-palette" />
+                        </button>
+                    ) : null}
+                    {showNewNoteButton ? (
+                        <button
+                            className="nn-icon-button"
+                            aria-label={strings.paneHeader.newNote}
+                            onClick={() => {
+                                runAsyncAction(() => handleNewFile());
+                            }}
+                            disabled={!selectionState.selectedFolder}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="lucide-pen-box" />
+                        </button>
+                    ) : null}
                 </div>
             </div>
         </div>

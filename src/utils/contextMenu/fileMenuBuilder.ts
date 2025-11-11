@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { MenuItem, TFile, Notice, Menu, App, Platform, FileSystemAdapter } from 'obsidian';
+import { MenuItem, TFile, Menu, App, Platform, FileSystemAdapter } from 'obsidian';
 import { FileMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin } from '../../utils/typeGuards';
@@ -33,6 +33,7 @@ import { CommandQueueService } from '../../services/CommandQueueService';
 import { runAsyncAction } from '../async';
 import { setAsyncOnClick } from './menuAsyncHelpers';
 import { openFileInContext } from '../openFileInContext';
+import { showNotice } from '../noticeUtils';
 
 /**
  * Builds the context menu for a file
@@ -202,7 +203,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                                 result.added === 1
                                     ? strings.fileSystem.notifications.tagAddedToNote
                                     : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', result.added.toString());
-                            new Notice(message);
+                            showNotice(message, { variant: 'success' });
                         });
                     },
                     strings.modals.tagSuggest.addPlaceholder,
@@ -221,7 +222,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     const tagsToRemove = services.tagOperations.getTagsFromFiles(filesForTagOps);
 
                     if (tagsToRemove.length === 0) {
-                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
+                        showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
                         return;
                     }
 
@@ -232,7 +233,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                             result === 1
                                 ? strings.fileSystem.notifications.tagRemovedFromNote
                                 : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                        new Notice(message);
+                        showNotice(message, { variant: 'success' });
                         return;
                     }
 
@@ -244,7 +245,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                                 result === 1
                                     ? strings.fileSystem.notifications.tagRemovedFromNote
                                     : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                            new Notice(message);
+                            showNotice(message, { variant: 'success' });
                         });
                     });
                     modal.open();
@@ -258,7 +259,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                         const tagsToRemove = services.tagOperations.getTagsFromFiles(filesForTagOps);
 
                         if (tagsToRemove.length === 0) {
-                            new Notice(strings.fileSystem.notifications.noTagsToRemove);
+                            showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
                             return;
                         }
 
@@ -276,7 +277,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                                         result === 1
                                             ? strings.fileSystem.notifications.tagsClearedFromNote
                                             : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
-                                    new Notice(message);
+                                    showNotice(message, { variant: 'success' });
                                 });
                             },
                             strings.common.remove
@@ -304,7 +305,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
 
                 await navigator.clipboard.writeText(deepLink);
-                new Notice(strings.fileSystem.notifications.deepLinkCopied);
+                showNotice(strings.fileSystem.notifications.deepLinkCopied, { variant: 'success' });
             });
         });
 
@@ -315,7 +316,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     // Get full system path from the file system adapter
                     const absolutePath = adapter.getFullPath(file.path);
                     await navigator.clipboard.writeText(absolutePath);
-                    new Notice(strings.fileSystem.notifications.pathCopied);
+                    showNotice(strings.fileSystem.notifications.pathCopied, { variant: 'success' });
                 });
             });
         }
@@ -324,7 +325,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         menu.addItem((item: MenuItem) => {
             setAsyncOnClick(item.setTitle(strings.contextMenu.file.copyRelativePath).setIcon('lucide-clipboard-list'), async () => {
                 await navigator.clipboard.writeText(file.path);
-                new Notice(strings.fileSystem.notifications.relativePathCopied);
+                showNotice(strings.fileSystem.notifications.relativePathCopied, { variant: 'success' });
             });
         });
     }
