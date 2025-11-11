@@ -9,6 +9,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Change to project root directory
 cd "$SCRIPT_DIR/.."
 
+# Run icon pack updater before other checks
+echo "Running icon pack updater..."
+"$SCRIPT_DIR/update-icon-packs.sh"
+
 # Track overall status
 BUILD_WARNINGS=0
 BUILD_ERRORS=0
@@ -157,4 +161,3 @@ else
     fi
     exit 1
 fi
-
