@@ -764,7 +764,7 @@ export const STRINGS_DE = {
             },
             vaultProfiles: {
                 name: 'Tresorprofil',
-                desc: 'Profile speichern Dateityp-Sichtbarkeit, versteckte Ordner, versteckte Tags und versteckte Notizen. Profile können über die Kopfzeile des Navigationsbereichs gewechselt werden.',
+                desc: 'Profile speichern Dateityp-Sichtbarkeit, versteckte Ordner, versteckte Tags, versteckte Notizen, Verknüpfungen und Navigationsbanner. Profile können über die Kopfzeile des Navigationsbereichs gewechselt werden.',
                 defaultName: 'Standard',
                 addButton: 'Profil hinzufügen',
                 editButton: 'Profil bearbeiten',

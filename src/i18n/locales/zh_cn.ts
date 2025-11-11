@@ -760,7 +760,7 @@ export const STRINGS_ZH_CN = {
             },
             vaultProfiles: {
                 name: '仓库配置文件',
-                desc: '配置文件存储文件类型可见性、隐藏文件夹、隐藏标签和隐藏笔记。从导航窗格标题切换配置文件。',
+                desc: '配置文件存储文件类型可见性、隐藏文件夹、隐藏标签、隐藏笔记、快捷方式和导航横幅。从导航窗格标题切换配置文件。',
                 defaultName: '默认',
                 addButton: '添加配置文件',
                 editButton: '编辑配置文件',

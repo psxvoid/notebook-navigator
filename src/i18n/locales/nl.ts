@@ -783,7 +783,7 @@ export const STRINGS_NL = {
             },
             vaultProfiles: {
                 name: 'Kluis profiel',
-                desc: 'Profielen bewaren bestandstypezichtbaarheid, verborgen mappen, verborgen labels en verborgen notities. Wissel van profiel via de koptekst van het navigatiepaneel.',
+                desc: 'Profielen bewaren bestandstypezichtbaarheid, verborgen mappen, verborgen labels, verborgen notities, snelkoppelingen en navigatiebanner. Wissel van profiel via de koptekst van het navigatiepaneel.',
                 defaultName: 'Standaard',
                 addButton: 'Profiel toevoegen',
                 editButton: 'Profiel bewerken',

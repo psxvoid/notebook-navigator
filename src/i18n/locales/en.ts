@@ -781,7 +781,7 @@ export const STRINGS_EN = {
             },
             vaultProfiles: {
                 name: 'Vault profile',
-                desc: 'Profiles store file type visibility, hidden folders, hidden tags, and hidden notes. Switch profiles from the navigation pane header.',
+                desc: 'Profiles store file type visibility, hidden folders, hidden tags, hidden notes, shortcuts, and navigation banner. Switch profiles from the navigation pane header.',
                 defaultName: 'Default',
                 addButton: 'Add profile',
                 editButton: 'Edit profile',

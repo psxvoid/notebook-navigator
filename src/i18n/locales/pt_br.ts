@@ -783,7 +783,7 @@ export const STRINGS_PT_BR = {
             },
             vaultProfiles: {
                 name: 'Perfil do cofre',
-                desc: 'Perfis armazenam visibilidade de tipos de arquivo, pastas ocultas, tags ocultas e notas ocultas. Alterne perfis pelo cabeçalho do painel de navegação.',
+                desc: 'Perfis armazenam visibilidade de tipos de arquivo, pastas ocultas, tags ocultas, notas ocultas, atalhos e banner de navegação. Alterne perfis pelo cabeçalho do painel de navegação.',
                 defaultName: 'Padrão',
                 addButton: 'Adicionar perfil',
                 editButton: 'Editar perfil',

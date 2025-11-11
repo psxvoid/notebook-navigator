@@ -783,7 +783,7 @@ export const STRINGS_IT = {
             },
             vaultProfiles: {
                 name: 'Profilo vault',
-                desc: "I profili memorizzano la visibilità dei tipi di file, cartelle nascoste, tag nascosti e note nascoste. Cambia profilo dall'intestazione del pannello di navigazione.",
+                desc: "I profili memorizzano la visibilità dei tipi di file, cartelle nascoste, tag nascosti, note nascoste, collegamenti e banner di navigazione. Cambia profilo dall'intestazione del pannello di navigazione.",
                 defaultName: 'Predefinito',
                 addButton: 'Aggiungi profilo',
                 editButton: 'Modifica profilo',
