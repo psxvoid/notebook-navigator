@@ -30,6 +30,7 @@ import { naturalCompare } from '../utils/sortUtils';
  */
 export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
     private includeUntagged: boolean;
+    private allowTagCreation: boolean;
     private untaggedNode: TagTreeNode;
     private plugin: NotebookNavigatorPlugin;
     private currentInput: string = '';
@@ -43,6 +44,7 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
      * @param placeholderText - Placeholder text for the search input
      * @param actionText - Action text for the enter key instruction
      * @param includeUntagged - Whether to include "Untagged" option
+     * @param allowTagCreation - Whether to show the create-tag option for new inputs
      */
     constructor(
         app: App,
@@ -50,7 +52,8 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
         onChooseTag: (tag: string) => void,
         placeholderText: string,
         actionText: string,
-        includeUntagged: boolean = true
+        includeUntagged: boolean = true,
+        allowTagCreation: boolean = true
     ) {
         // Pass tag node to base, but store the string callback separately
         super(
@@ -75,6 +78,7 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
         );
         this.plugin = plugin;
         this.includeUntagged = includeUntagged;
+        this.allowTagCreation = allowTagCreation;
 
         // Create special untagged node
         this.untaggedNode = {
@@ -111,7 +115,7 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
         const suggestions = super.getSuggestions(query);
 
         // If query is empty or invalid, don't show create option
-        if (!this.currentInput || !this.isValidTagName(this.currentInput)) {
+        if (!this.allowTagCreation || !this.currentInput || !this.isValidTagName(this.currentInput)) {
             return suggestions;
         }
 

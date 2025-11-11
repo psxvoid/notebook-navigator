@@ -76,12 +76,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.8.1',
         date: '2025-11-11',
         showOnUpdate: true,
-        new: [
-            '==Shortcuts are now also part of vault profiles==. Each vault profile will now have its own set of shortcuts.',
-        ],
+        new: ['==Shortcuts are now also part of vault profiles==. Each vault profile will now have its own set of shortcuts.'],
         improved: [],
-        changed: [],
-        fixed: ['Fixed an issue where **drag and drop folders** no longer worked due to the tag drag and drop functionality introduced with 1.8.0.']
+        changed: ['The command **Navigate to tag** no longer shows the option to create new tags.'],
+        fixed: [
+            'Fixed an issue where **drag and drop folders** no longer worked due to the tag drag and drop functionality introduced with 1.8.0.'
+        ]
     },
     {
         version: '1.8.0',
