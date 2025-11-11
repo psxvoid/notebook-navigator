@@ -63,6 +63,12 @@ export function NavigationPaneHeader({
     const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
     // Detects if any hidden folders, tags, or files are configured to determine if toggle should be shown
     const hasHiddenItems = hasHiddenItemSources(settings);
+    const navigationVisibility = settings.toolbarVisibility.navigation;
+    const showShortcutsButton = settings.showShortcuts && navigationVisibility.shortcuts;
+    const showExpandCollapseButton = navigationVisibility.expandCollapse;
+    const showHiddenItemsButton = navigationVisibility.hiddenItems && hasHiddenItems;
+    const showRootReorderButton = navigationVisibility.rootReorder;
+    const showNewFolderButton = navigationVisibility.newFolder;
 
     // Creates a dropdown menu displaying all available vault profiles
     const createProfileMenu = () => {
@@ -161,7 +167,7 @@ export function NavigationPaneHeader({
                     {profileTrigger}
                 </div>
                 <div className="nn-header-actions">
-                    {settings.showShortcuts ? (
+                    {showShortcutsButton ? (
                         <button
                             className="nn-icon-button"
                             aria-label={uiState.pinShortcuts ? strings.navigationPane.unpinShortcuts : strings.navigationPane.pinShortcuts}
@@ -175,23 +181,25 @@ export function NavigationPaneHeader({
                             <ObsidianIcon name={uiState.pinShortcuts ? 'lucide-bookmark-minus' : 'lucide-bookmark'} />
                         </button>
                     ) : null}
-                    <button
-                        className="nn-icon-button"
-                        aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
-                        onClick={() => {
-                            handleExpandCollapseAll();
-                            if (onTreeUpdateComplete) {
-                                // Defer callback until after DOM updates complete
-                                requestAnimationFrame(() => {
-                                    onTreeUpdateComplete();
-                                });
-                            }
-                        }}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name={shouldCollapseItems() ? 'lucide-chevrons-down-up' : 'lucide-chevrons-up-down'} />
-                    </button>
-                    {hasHiddenItems ? (
+                    {showExpandCollapseButton ? (
+                        <button
+                            className="nn-icon-button"
+                            aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                            onClick={() => {
+                                handleExpandCollapseAll();
+                                if (onTreeUpdateComplete) {
+                                    // Defer callback until after DOM updates complete
+                                    requestAnimationFrame(() => {
+                                        onTreeUpdateComplete();
+                                    });
+                                }
+                            }}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name={shouldCollapseItems() ? 'lucide-chevrons-down-up' : 'lucide-chevrons-up-down'} />
+                        </button>
+                    ) : null}
+                    {showHiddenItemsButton ? (
                         <button
                             className={`nn-icon-button ${showHiddenItems ? 'nn-icon-button-active' : ''}`}
                             aria-label={showHiddenItems ? strings.paneHeader.hideExcludedItems : strings.paneHeader.showExcludedItems}
@@ -210,26 +218,32 @@ export function NavigationPaneHeader({
                             <ObsidianIcon name="lucide-eye" />
                         </button>
                     ) : null}
-                    <button
-                        className={`nn-icon-button ${rootReorderActive ? 'nn-icon-button-active' : ''}`}
-                        aria-label={rootReorderActive ? strings.paneHeader.finishRootFolderReorder : strings.paneHeader.reorderRootFolders}
-                        onClick={onToggleRootFolderReorder}
-                        disabled={rootReorderDisabled}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="lucide-list-tree" />
-                    </button>
-                    <button
-                        className="nn-icon-button"
-                        aria-label={strings.paneHeader.newFolder}
-                        onClick={() => {
-                            runAsyncAction(() => handleNewFolder());
-                        }}
-                        disabled={!selectionState.selectedFolder}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="lucide-folder-plus" />
-                    </button>
+                    {showRootReorderButton ? (
+                        <button
+                            className={`nn-icon-button ${rootReorderActive ? 'nn-icon-button-active' : ''}`}
+                            aria-label={
+                                rootReorderActive ? strings.paneHeader.finishRootFolderReorder : strings.paneHeader.reorderRootFolders
+                            }
+                            onClick={onToggleRootFolderReorder}
+                            disabled={rootReorderDisabled}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="lucide-list-tree" />
+                        </button>
+                    ) : null}
+                    {showNewFolderButton ? (
+                        <button
+                            className="nn-icon-button"
+                            aria-label={strings.paneHeader.newFolder}
+                            onClick={() => {
+                                runAsyncAction(() => handleNewFolder());
+                            }}
+                            disabled={!selectionState.selectedFolder}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="lucide-folder-plus" />
+                        </button>
+                    ) : null}
                 </div>
             </div>
         </div>

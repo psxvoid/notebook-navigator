@@ -772,6 +772,7 @@ export const FileItem = React.memo(function FileItem({
             file.extension === 'canvas' ||
             file.extension === 'base');
 
+    // Reset image hidden state when the feature image URL changes
     useEffect(() => {
         setIsFeatureImageHidden(false);
     }, [featureImageUrl]);
@@ -783,6 +784,7 @@ export const FileItem = React.memo(function FileItem({
         } else {
             classes.push('nn-feature-image--natural');
         }
+        // Hide container if image failed to load
         if (isFeatureImageHidden) {
             classes.push('nn-feature-image--hidden');
         }
@@ -995,6 +997,7 @@ export const FileItem = React.memo(function FileItem({
         runAsyncAction(() => openFileInContext({ app, commandQueue, file, context: 'tab' }));
     };
 
+    // Toggle pin status for the file in the current context
     const handlePinClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
@@ -1004,6 +1007,7 @@ export const FileItem = React.memo(function FileItem({
         });
     };
 
+    // Reveal the file in its actual folder in the navigator
     const handleRevealClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
@@ -1276,6 +1280,7 @@ export const FileItem = React.memo(function FileItem({
                                             className="nn-feature-image-img"
                                             draggable={false}
                                             onDragStart={e => e.preventDefault()}
+                                            // Hide the image container when image fails to load
                                             onError={() => {
                                                 setIsFeatureImageHidden(true);
                                             }}

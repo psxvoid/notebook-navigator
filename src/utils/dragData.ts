@@ -3,10 +3,12 @@ interface TagDragPayload {
     displayPath?: unknown;
 }
 
+// Determines if a value is a non-empty string
 function isNonEmptyString(value: unknown): value is string {
     return typeof value === 'string' && value.length > 0;
 }
 
+// Filters array to include only non-empty strings
 function filterStringArray(values: unknown[]): string[] {
     const filtered: string[] = [];
     for (const value of values) {
@@ -20,6 +22,7 @@ function filterStringArray(values: unknown[]): string[] {
 /**
  * Parses the Obsidian multi-file drag payload and returns all non-empty file paths.
  * Returns null if the payload is malformed or contains no usable paths.
+ * Internal helper - not exported to prevent unused exports
  */
 function parseObsidianFilesPayload(payload: string): string[] | null {
     const trimmed = payload.trim();
