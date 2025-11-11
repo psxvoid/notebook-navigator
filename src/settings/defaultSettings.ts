@@ -39,7 +39,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
             hiddenFolders: [],
             hiddenTags: [],
             hiddenFiles: [],
-            navigationBanner: null
+            navigationBanner: null,
+            shortcuts: []
         }
     ],
     vaultProfile: 'default',
@@ -174,7 +175,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Search & hotkeys tab
     searchProvider: 'internal',
     keyboardShortcuts: getDefaultKeyboardShortcuts(),
-    shortcuts: [],
 
     // Advanced tab
     checkForUpdatesOnStart: true,

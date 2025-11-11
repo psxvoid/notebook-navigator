@@ -73,6 +73,17 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.8.1',
+        date: '2025-11-11',
+        showOnUpdate: true,
+        new: [
+            '==Shortcuts are now also part of Vault profiles / virtual vaults==. Each vault profile will now have its own set of shortcuts.'
+        ],
+        improved: [],
+        changed: [],
+        fixed: []
+    },
+    {
         version: '1.8.0',
         date: '2025-11-10',
         showOnUpdate: true,

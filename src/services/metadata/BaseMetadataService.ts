@@ -22,6 +22,7 @@ import { ItemType } from '../../types';
 import { ISettingsProvider } from '../../interfaces/ISettingsProvider';
 import { FolderAppearance, TagAppearance } from '../../hooks/useListPaneAppearance';
 import type { ShortcutEntry } from '../../types/shortcuts';
+import { mutateVaultProfileShortcuts } from '../../utils/vaultProfiles';
 
 /**
  * Type helper for metadata fields in settings
@@ -103,32 +104,28 @@ export abstract class BaseMetadataService {
         settings: NotebookNavigatorSettings,
         mutate: (shortcut: ShortcutEntry) => ShortcutEntry | null | undefined
     ): boolean {
-        const shortcuts = settings.shortcuts;
-        if (!Array.isArray(shortcuts) || shortcuts.length === 0) {
-            return false;
-        }
+        // Updates shortcuts across all vault profiles using the mutation function
+        return mutateVaultProfileShortcuts(settings.vaultProfiles, shortcuts => {
+            let changed = false;
+            const next: ShortcutEntry[] = [];
 
-        let changed = false;
-        const next: ShortcutEntry[] = [];
+            for (const shortcut of shortcuts) {
+                const result = mutate(shortcut);
+                // undefined means keep the shortcut unchanged
+                if (result === undefined) {
+                    next.push(shortcut);
+                    continue;
+                }
 
-        for (const shortcut of shortcuts) {
-            const result = mutate(shortcut);
-            if (result === undefined) {
-                next.push(shortcut);
-                continue;
+                changed = true;
+                // null means remove the shortcut, otherwise replace it
+                if (result !== null) {
+                    next.push(result);
+                }
             }
 
-            changed = true;
-            if (result !== null) {
-                next.push(result);
-            }
-        }
-
-        if (changed) {
-            settings.shortcuts = next;
-        }
-
-        return changed;
+            return changed ? next : null;
+        });
     }
 
     /**

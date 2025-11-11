@@ -71,6 +71,7 @@ export interface VaultProfile {
     hiddenTags: string[];
     hiddenFiles: string[];
     navigationBanner: string | null;
+    shortcuts: ShortcutEntry[];
 }
 
 /**
@@ -198,7 +199,6 @@ export interface NotebookNavigatorSettings {
     // Search & hotkeys tab
     searchProvider: SearchProvider | null;
     keyboardShortcuts: KeyboardShortcutConfig;
-    shortcuts: ShortcutEntry[];
 
     // Advanced tab
     checkForUpdatesOnStart: boolean;
