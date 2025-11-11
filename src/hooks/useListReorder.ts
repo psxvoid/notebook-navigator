@@ -236,7 +236,7 @@ export function useListReorder<T extends ReorderItemDescriptor>({
             try {
                 const success = await reorderItems(nextOrder);
                 if (!success) {
-                    console.warn('List reorder returned false, no changes applied');
+                    console.log('List reorder returned false, no changes applied');
                 }
             } catch (error) {
                 console.error('Failed to reorder list', error);
@@ -413,7 +413,7 @@ export function useListReorder<T extends ReorderItemDescriptor>({
             try {
                 const success = await reorderItems(nextOrder);
                 if (!success) {
-                    console.warn('List reorder returned false, no changes applied');
+                    console.log('List reorder returned false, no changes applied');
                 }
                 return success;
             } catch (error) {

@@ -56,13 +56,16 @@ import {
     applyVaultProfileValues,
     ensureVaultProfiles,
     syncVaultProfileFromSettings,
-    DEFAULT_VAULT_PROFILE_ID
+    DEFAULT_VAULT_PROFILE_ID,
+    cloneShortcuts
 } from './utils/vaultProfiles';
 import WorkspaceCoordinator from './services/workspace/WorkspaceCoordinator';
 import HomepageController from './services/workspace/HomepageController';
 import registerNavigatorCommands from './services/commands/registerNavigatorCommands';
 import registerWorkspaceEvents from './services/workspace/registerWorkspaceEvents';
 import type { RevealFileOptions } from './hooks/useNavigatorReveal';
+import { ShortcutType, type ShortcutEntry } from './types/shortcuts';
+
 import { AssertId, assertNever } from './utils/asserts';
 
 const DEFAULT_UX_PREFERENCES: UXPreferences = {
@@ -308,10 +311,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Extract legacy exclusion settings and migrate to vault profile system
         const legacyVisibility = this.extractLegacyVisibilitySettings(storedData);
+        const legacyShortcuts = this.extractLegacyShortcuts(storedData);
 
         // Initialize vault profiles and apply legacy settings to the active profile
         ensureVaultProfiles(this.settings);
         this.applyLegacyVisibilityMigration(legacyVisibility);
+        this.applyLegacyShortcutsMigration(legacyShortcuts);
         applyActiveVaultProfileToSettings(this.settings);
 
         return isFirstLaunch;
@@ -973,6 +978,65 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         storageKeyNames.forEach(storageKey => {
             const key = STORAGE_KEYS[storageKey];
             localStorage.remove(key);
+        });
+    }
+
+    // Extracts legacy shortcuts from old settings format for migration to vault profiles
+    private extractLegacyShortcuts(storedData: Record<string, unknown> | null): ShortcutEntry[] | null {
+        if (!storedData) {
+            return null;
+        }
+
+        const raw = storedData['shortcuts'];
+        if (!Array.isArray(raw)) {
+            return null;
+        }
+
+        const entries: ShortcutEntry[] = [];
+        raw.forEach(value => {
+            if (!value || typeof value !== 'object') {
+                return;
+            }
+            const typed = value as ShortcutEntry;
+            const shortcutType = (typed as { type?: unknown }).type;
+            // Validates that shortcut type is one of the recognized types
+            if (
+                shortcutType !== ShortcutType.FOLDER &&
+                shortcutType !== ShortcutType.NOTE &&
+                shortcutType !== ShortcutType.TAG &&
+                shortcutType !== ShortcutType.SEARCH
+            ) {
+                return;
+            }
+            entries.push({ ...typed });
+        });
+
+        if (entries.length === 0) {
+            return [];
+        }
+
+        return entries;
+    }
+
+    // Migrates legacy shortcuts to vault profile system
+    private applyLegacyShortcutsMigration(legacyShortcuts: ShortcutEntry[] | null): void {
+        // Removes legacy shortcuts property from settings object
+        const settingsRecord = this.settings as unknown as Record<string, unknown>;
+        if (Object.prototype.hasOwnProperty.call(settingsRecord, 'shortcuts')) {
+            delete settingsRecord['shortcuts'];
+        }
+
+        if (!legacyShortcuts || legacyShortcuts.length === 0) {
+            return;
+        }
+
+        // Copies legacy shortcuts to all vault profiles that don't have shortcuts yet
+        const template = cloneShortcuts(legacyShortcuts);
+        this.settings.vaultProfiles.forEach(profile => {
+            if (Array.isArray(profile.shortcuts) && profile.shortcuts.length > 0) {
+                return;
+            }
+            profile.shortcuts = cloneShortcuts(template);
         });
     }
 

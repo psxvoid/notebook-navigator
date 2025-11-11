@@ -2801,26 +2801,6 @@ body.nn-resizing {
     margin-top: 16px;
 }
 
-/* Tag suggest modal create toggle */
-.nn-tag-suggest-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin: 0 0 8px;
-    padding: 0 4px;
-}
-
-.nn-tag-suggest-toggle-label {
-    font-size: var(--font-ui-small);
-    color: var(--text-muted);
-}
-
-.nn-tag-suggest-toggle-control {
-    display: flex;
-    align-items: center;
-}
-
 .nn-folder-note-type-modal .modal-content {
     padding-top: 16px;
 }
@@ -2845,6 +2825,75 @@ body.nn-resizing {
 
 .nn-folder-note-type-buttons button {
     width: 100%;
+}
+
+/* ========================================================================
+   Select Vault Profile Modal
+   ======================================================================== */
+
+.modal.nn-select-profile-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-2-3);
+    padding: var(--size-4-4);
+}
+
+.nn-select-profile-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-2-2);
+    width: 100%;
+}
+
+.nn-select-profile-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--size-2-3) var(--size-4-2);
+    border-radius: var(--radius-m);
+    background-color: transparent;
+    color: var(--text-normal);
+    cursor: pointer;
+    transition: background-color 120ms ease;
+}
+
+.nn-select-profile-item:focus {
+    outline: none;
+}
+
+.nn-select-profile-item:focus-visible {
+    box-shadow: 0 0 0 2px var(--interactive-accent);
+}
+
+.nn-select-profile-item:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+.nn-select-profile-item.is-selected {
+    background-color: var(--background-modifier-hover);
+}
+
+.nn-select-profile-item.is-current .nn-select-profile-item-name {
+    color: var(--interactive-accent);
+}
+
+.nn-select-profile-item-name {
+    font-size: var(--font-ui-medium);
+}
+
+.nn-select-profile-item-badge {
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+    font-weight: var(--font-semibold);
+}
+
+.nn-select-profile-empty {
+    margin: 0;
+    padding: var(--size-4-4) 0;
+    color: var(--text-muted);
+    font-size: var(--font-ui-small);
+    text-align: center;
 }
 
 /* ========================================================================
@@ -3421,6 +3470,10 @@ body.nn-resizing {
 
 .is-mobile .nn-toolbar-visibility-group {
     width: 100%;
+}
+
+.is-mobile .nn-toolbar-visibility-group-label {
+    text-align: center;
 }
 
 .is-mobile .nn-toolbar-visibility-grid {

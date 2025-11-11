@@ -20,6 +20,7 @@ import React, { createContext, useContext, useState, useCallback, ReactNode, use
 import NotebookNavigatorPlugin from '../main';
 import { NotebookNavigatorSettings } from '../settings';
 import type { DualPaneOrientation } from '../types';
+import { cloneShortcuts } from '../utils/vaultProfiles';
 
 // Separate contexts for state and update function
 type SettingsStateValue = NotebookNavigatorSettings & { dualPaneOrientation: DualPaneOrientation };
@@ -60,11 +61,13 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
         };
         // Deep copy vault profiles to prevent mutations from affecting the original settings
         if (Array.isArray(plugin.settings.vaultProfiles)) {
+            // Create deep copies of profile arrays to prevent shared references
             nextSettings.vaultProfiles = plugin.settings.vaultProfiles.map(profile => ({
                 ...profile,
                 hiddenFolders: [...profile.hiddenFolders],
                 hiddenFiles: [...profile.hiddenFiles],
-                hiddenTags: [...profile.hiddenTags]
+                hiddenTags: [...profile.hiddenTags],
+                shortcuts: cloneShortcuts(profile.shortcuts)
             }));
         }
         void version; // Keep dependency so settings snapshot recreates when updates are published

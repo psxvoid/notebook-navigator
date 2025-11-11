@@ -26,7 +26,7 @@ import { MetadataService } from '../../services/MetadataService';
 import { FileSystemOperations } from '../../services/FileSystemService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
 import { NotebookNavigatorSettings } from '../../settings';
-import { TagSuggestModal, createTagCreationOptions } from '../../modals/TagSuggestModal';
+import { TagSuggestModal } from '../../modals/TagSuggestModal';
 import { RemoveTagModal } from '../../modals/RemoveTagModal';
 import { ConfirmModal } from '../../modals/ConfirmModal';
 import { CommandQueueService } from '../../services/CommandQueueService';
@@ -208,8 +208,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     },
                     strings.modals.tagSuggest.addPlaceholder,
                     strings.modals.tagSuggest.instructions.add,
-                    false, // Don't include untagged
-                    createTagCreationOptions(services.plugin)
+                    false // Don't include untagged
                 );
                 modal.open();
             });

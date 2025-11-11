@@ -3,7 +3,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCRIPT_PATH="${SCRIPT_DIR}/scripts/update-icon-packs.ts"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SCRIPT_PATH="${REPO_ROOT}/icon-assets/scripts/update-icon-packs.ts"
 
 # Display usage information when no parameters are provided
 if [[ $# -eq 0 ]]; then
@@ -23,10 +24,10 @@ if [[ $# -eq 0 ]]; then
     echo "  simple-icons     Simple Icons (brand logos)"
     echo ""
     echo "Examples:"
-    echo "  ./update-icon-packs.sh                     # Update all packs"
-    echo "  ./update-icon-packs.sh --check-only        # Check for updates"
-    echo "  ./update-icon-packs.sh phosphor --force    # Force update Phosphor"
-    echo "  ./update-icon-packs.sh bootstrap-icons phosphor  # Update specific packs"
+    echo "  ./scripts/update-icon-packs.sh                     # Update all packs"
+    echo "  ./scripts/update-icon-packs.sh --check-only        # Check for updates"
+    echo "  ./scripts/update-icon-packs.sh phosphor --force    # Force update Phosphor"
+    echo "  ./scripts/update-icon-packs.sh bootstrap-icons phosphor  # Update specific packs"
     echo ""
     echo "Starting update process..."
     echo "----------------------------------------"
