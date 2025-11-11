@@ -114,6 +114,7 @@ export class FileMetadataService extends BaseMetadataService {
                     return;
                 }
 
+                // Remove the field if it exists and new value is empty
                 if (Reflect.has(frontmatter, trimmedField)) {
                     delete frontmatter[trimmedField];
                 }

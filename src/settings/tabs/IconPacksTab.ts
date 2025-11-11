@@ -16,11 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Notice, Setting } from 'obsidian';
+import { Setting } from 'obsidian';
 import { strings } from '../../i18n';
 import { EXTERNAL_ICON_PROVIDERS, type ExternalIconProviderId } from '../../services/icons/external/providerRegistry';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { runAsyncAction } from '../../utils/async';
+import { showNotice } from '../../utils/noticeUtils';
 
 /** Renders the icon packs settings tab */
 export function renderIconPacksTab(context: SettingsTabContext): void {
@@ -71,6 +72,7 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
             setting.addButton(button => {
                 button.setButtonText(strings.settings.items.externalIcons.removeButton);
                 button.setDisabled(isDownloading);
+                // Remove icon pack without blocking the UI
                 button.onClick(() => {
                     runAsyncAction(async () => {
                         button.setDisabled(true);
@@ -79,7 +81,9 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
                             renderIconPacksTab(context);
                         } catch (error) {
                             console.error('Failed to remove icon provider', error);
-                            new Notice(strings.settings.items.externalIcons.removeFailed.replace('{name}', config.name));
+                            showNotice(strings.settings.items.externalIcons.removeFailed.replace('{name}', config.name), {
+                                variant: 'warning'
+                            });
                             button.setDisabled(false);
                         }
                     });
@@ -93,6 +97,7 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
                         : strings.settings.items.externalIcons.downloadButton
                 );
                 button.setDisabled(isDownloading);
+                // Download icon pack without blocking the UI
                 button.onClick(() => {
                     runAsyncAction(async () => {
                         button.setDisabled(true);
@@ -101,7 +106,9 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
                             renderIconPacksTab(context);
                         } catch (error) {
                             console.error('Failed to download icon provider', error);
-                            new Notice(strings.settings.items.externalIcons.downloadFailed.replace('{name}', config.name));
+                            showNotice(strings.settings.items.externalIcons.downloadFailed.replace('{name}', config.name), {
+                                variant: 'warning'
+                            });
                             button.setDisabled(false);
                         }
                     });

@@ -1,6 +1,6 @@
 {
   "name": "notebook-navigator",
-  "version": "1.7.3",
+  "version": "1.8.0",
   "description": "Replace the default file explorer with a clean two-pane interface featuring folder tree, tag browsing, file previews, keyboard navigation, drag-and-drop, pinned notes, and customizable display options.",
   "main": "main.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "@eslint/compat": "^1.3.2",
     "@eslint/js": "^9.32.0",
     "@types/jscodeshift": "^17.3.0",
-    "@types/node": "^18.19.120",
+    "@types/node": "^20.19.0",
     "@types/pica": "^9.0.5",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",

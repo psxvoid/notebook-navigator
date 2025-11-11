@@ -691,6 +691,12 @@ export const STRINGS_KO = {
                     files: '목록 창'
                 }
             },
+            toolbarButtons: {
+                name: '도구 모음 버튼',
+                desc: '도구 모음에 표시할 버튼을 선택하세요. 숨겨진 버튼은 명령과 메뉴를 통해 계속 사용할 수 있습니다.',
+                navigationLabel: '탐색 도구 모음',
+                listLabel: '목록 도구 모음'
+            },
             autoRevealActiveNote: {
                 name: '활성 노트 자동 표시',
                 desc: '빠른 전환기, 링크 또는 검색에서 열 때 노트를 자동으로 표시합니다.'
@@ -712,8 +718,8 @@ export const STRINGS_KO = {
                 desc: '폴더와 태그가 선택되면 자동으로 펼칩니다.'
             },
             navigationBanner: {
-                name: '탐색 배너',
-                desc: '탐색 창 상단에 이미지를 표시합니다.',
+                name: '탐색 배너 (저장소 프로필)',
+                desc: '탐색 창 상단에 이미지를 표시합니다. 선택한 저장소 프로필에 따라 변경됩니다.',
                 current: '현재 배너: {path}',
                 chooseButton: '이미지 선택',
                 clearButton: '지우기'
@@ -1008,7 +1014,7 @@ export const STRINGS_KO = {
                 desc: '태그 추가 시 생성 옵션을 표시합니다. 토글이 모달에 나타납니다.'
             },
             hiddenTags: {
-                name: '숨겨진 태그',
+                name: '태그 숨기기',
                 desc: '숨길 태그 접두사 또는 이름 와일드카드의 쉼표로 구분된 목록입니다. `tag*` 또는 `*tag` 로 태그 이름을 일치시킵니다. 태그를 숨기면 모든 하위 태그도 숨겨집니다 (예: "archive"는 "archive/2024/docs" 숨김).',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

@@ -107,6 +107,7 @@ function resolveMetadataDependentTypes(settings: NotebookNavigatorSettings, requ
     });
 }
 
+// Compares two string arrays for deep equality, handling null/undefined cases
 function haveStringArraysChanged(prev?: string[] | null, next?: string[] | null): boolean {
     if (prev === next) {
         return false;
@@ -1419,6 +1420,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             rebuildFileCache();
         };
 
+        /**
+         * Queues a file for content regeneration by all registered content providers.
+         * Separates metadata-dependent providers to be queued after metadata is ready.
+         */
         const queueFileContentRefresh = (file: TFile) => {
             if (stoppedRef.current || !contentRegistry.current) {
                 return;
@@ -1426,10 +1431,14 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
             try {
                 const liveSettings = latestSettingsRef.current;
+                // Identify content providers that depend on metadata (e.g., feature images from frontmatter)
                 const metadataDependentTypes = getMetadataDependentTypes(liveSettings);
+                // Exclude metadata-dependent providers from immediate processing if any exist
                 const options = metadataDependentTypes.length > 0 ? { exclude: metadataDependentTypes } : undefined;
+                // Queue file for all non-metadata-dependent content providers
                 contentRegistry.current.queueFilesForAllProviders([file], liveSettings, options);
                 if (metadataDependentTypes.length > 0) {
+                    // Queue metadata-dependent providers to run after metadata cache is ready
                     queueMetadataContentWhenReady([file], metadataDependentTypes, liveSettings);
                 }
             } catch (error: unknown) {
@@ -1437,6 +1446,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             }
         };
 
+        /**
+         * Handles vault file modification events.
+         * Records file changes in the database and queues content regeneration.
+         */
         const handleModify = (file: TAbstractFile) => {
             if (stoppedRef.current) {
                 return;
@@ -1445,16 +1458,19 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 return;
             }
 
+            // Process file change asynchronously to avoid blocking the UI
             runAsyncAction(async () => {
                 try {
                     const db = getDBInstance();
                     const existingData = db.getFiles([file.path]);
+                    // Update file metadata in the database (tracks new files and stat changes)
                     await recordFileChanges([file], existingData, pendingRenameDataRef.current);
                 } catch (error: unknown) {
                     console.error('Failed to record file change on modify:', error);
                     return;
                 }
 
+                // Trigger content regeneration for all registered providers
                 queueFileContentRefresh(file);
             });
         };
@@ -1485,14 +1501,17 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                 return;
             }
 
+            // Process metadata change asynchronously to avoid blocking the UI
             runAsyncAction(async () => {
                 try {
+                    // Force content regeneration by marking the file's cache as stale
                     await markFilesForRegeneration([file]);
                 } catch (error: unknown) {
                     console.error('Failed to mark file for regeneration:', error);
                     return;
                 }
 
+                // Trigger content regeneration for all registered providers
                 queueFileContentRefresh(file);
             });
         };
@@ -1570,6 +1589,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             return;
         }
         // Settings UIs debounce excluded folders/files edits, so this effect only runs after the user stops typing
+        // Use captured previousSettings variable instead of ref to ensure consistent comparison
         runAsyncAction(() => handleSettingsChanges(previousSettings, settings));
 
         // Detect exclusion setting changes and resync cache / tag tree

@@ -31,6 +31,7 @@ import { addAsyncEventListener } from '../utils/domEventListeners';
 const GRID_COLUMNS = 5;
 const MAX_SEARCH_RESULTS = 50;
 
+// Type guard to validate emoji keywords from emojilib are strings
 function isStringArray(value: unknown): value is string[] {
     return Array.isArray(value) && value.every(item => typeof item === 'string');
 }
@@ -120,7 +121,7 @@ export class IconPickerModal extends Modal {
         }
         this.domDisposers.push(addAsyncEventListener(removeButton, 'click', () => this.removeIcon()));
 
-        // Set up search functionality with debouncing
+        // Search input with debouncing
         this.domDisposers.push(
             addAsyncEventListener(this.searchInput, 'input', () => {
                 if (this.searchDebounceTimer) {
@@ -300,7 +301,7 @@ export class IconPickerModal extends Modal {
             // Special handling for emoji provider - create icon definition on the fly
             if (provider.id === 'emoji') {
                 let displayName = '';
-                // Look up emoji keywords from emojilib
+                // Look up emoji keywords from emojilib with type safety
                 const emojiEntries = Object.entries(emojilib as Record<string, unknown>);
                 for (const [emoji, keywords] of emojiEntries) {
                     if (emoji === parsed.identifier && isStringArray(keywords)) {
@@ -379,7 +380,6 @@ export class IconPickerModal extends Modal {
         const iconName = iconItem.createDiv('nn-icon-item-name');
         iconName.setText(iconDef.displayName);
 
-        // Click handler
         this.domDisposers.push(addAsyncEventListener(iconItem, 'click', () => this.selectIcon(fullIconId)));
 
         // Make focusable
@@ -685,6 +685,7 @@ export class IconPickerModal extends Modal {
             this.close();
         };
 
+        // Close modal on click or pointer down
         this.domDisposers.push(addAsyncEventListener(closeButton, 'click', handleClose));
         this.domDisposers.push(addAsyncEventListener(closeButton, 'pointerdown', handleClose));
     }
