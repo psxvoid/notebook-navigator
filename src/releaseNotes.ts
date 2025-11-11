@@ -76,7 +76,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.8.1',
         date: '2025-11-11',
         showOnUpdate: true,
-        new: ['==Shortcuts are now also part of vault profiles==. Each vault profile will now have its own set of shortcuts.'],
+        new: [
+            '==Shortcuts are now also part of vault profiles==. Each vault profile will now have its own set of shortcuts.',
+            'New command: ==Select vault profile== to quickly change the current vault profile.'
+        ],
         improved: [],
         changed: ['The command **Navigate to tag** no longer shows the option to create new tags.'],
         fixed: [

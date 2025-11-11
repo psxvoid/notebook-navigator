@@ -72,6 +72,41 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - Drag shortcuts to reorder them
 - Drag root folders when in reorder mode
 
+### Vault profiles (new in version 1.8.0)
+
+Vault profiles create multiple filtered views of your vault. Each profile stores its own set of hidden folders, hidden tags, hidden notes, file visibility settings, navigation banner, and shortcuts. Switch between profiles to change what content appears in the navigator.
+
+**Creating profiles:**
+
+1. Go to Settings → General → Filtering → Vault profile
+2. Click "Add profile" and enter a name
+3. Configure hidden folders, tags, and notes in the profile settings
+4. The new profile inherits settings from the currently active profile
+
+**Switching profiles:**
+
+- **Desktop:** Click the profile name in the navigation pane header to open a dropdown menu
+- **Command palette:** Use "Notebook Navigator: Select vault profile"
+- **Mobile:** Tap the profile name at the top of the navigation pane
+
+**What profiles store:**
+
+- File visibility (documents, supported files, or all files)
+- Hidden folder patterns (e.g., `archive*`, `/projects/old`)
+- Hidden tag patterns (e.g., `archive`, `*draft`)
+- Hidden note properties (e.g., `draft`, `private`)
+- Navigation banner image
+- Shortcuts (files, folders, tags, saved searches)
+
+**Common uses:**
+
+- Work and personal content separation
+- Project-based views with relevant folders and shortcuts
+- Clean writing view with archived content hidden
+- Client-specific profiles with separate shortcuts and filters
+
+**Note:** The default profile cannot be deleted. Profile switching preserves the current folder or tag selection when possible.
+
 ### Search modes (new in version 1.7.3)
 
 The search field operates in two modes depending on what you type:
@@ -334,6 +369,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - `Notebook Navigator: Open` Opens Notebook Navigator in left sidebar. If already open, focuses the file list pane. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+E` to move keyboard focus to the list pane - **this is essential for full keyboard navigation**
 - `Notebook Navigator: Open homepage` Opens the Notebook Navigator view and loads the homepage file configured in settings
+- `Notebook Navigator: Select vault profile` Opens modal to switch between vault profiles
 - `Notebook Navigator: Reveal file` Reveals current file in navigator. Expands parent folders and scrolls to file. This command is useful if you have the setting `Auto-reveal active note` switched off and want to reveal notes manually
 - `Notebook Navigator: Navigate to folder` Search dialog to jump to any folder
 - `Notebook Navigator: Navigate to tag` Search dialog to jump to any tag
@@ -379,6 +415,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 | ------------------------------------------- | -------------------------------------------------------------- |
 | `notebook-navigator:open`                   | Notebook Navigator: Open                                       |
 | `notebook-navigator:open-homepage`          | Notebook Navigator: Open homepage                              |
+| `notebook-navigator:select-profile`         | Notebook Navigator: Select vault profile                       |
 | `notebook-navigator:reveal-file`            | Notebook Navigator: Reveal file                                |
 | `notebook-navigator:navigate-to-folder`     | Notebook Navigator: Navigate to folder                         |
 | `notebook-navigator:navigate-to-tag`        | Notebook Navigator: Navigate to tag                            |
