@@ -3403,6 +3403,10 @@ body.nn-resizing {
     width: 100%;
 }
 
+.is-mobile .nn-toolbar-visibility-group-label {
+    text-align: center;
+}
+
 .is-mobile .nn-toolbar-visibility-grid {
     width: 100%;
     display: flex;
