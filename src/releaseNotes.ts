@@ -91,8 +91,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==Tag rename, tag delete, tag drag-and-drop==! You can now rename tags, delete tags (removes from all notes), and drag-and-drop tags to reorganize them in the navigation pane.',
             '==Vault profiles / virtual vaults==! Hidden folders, hidden tags, hidden notes, file visibility and banner image can now be saved per vault profile. Quickly switch between different vault profiles in the navigation pane header. This allows you to have several "virtual vaults" within the same vault. Create new vault profiles in **Settings > Filtering > Vault profile**.',
             '==Hide toolbar buttons==! You can hide toolbar buttons you do not use in **Settings > General > Appearance > Toolbar buttons**.',
-            'Two new folder menu items were added: **Copy path** and **Copy relative path**.',
-            'New check box in "Add tag" modal: **Allow creating new tags**. Disable to only allow selecting existing tags in the "Add tag" modal. You can also disable creating new tags in **Settings > Folders & Tags > Tags > Allow creating tags in Add tag modal**.'
+            'Two new folder menu items were added: **Copy path** and **Copy relative path**.'
         ],
         improved: [
             '**Text preview filter** now also removes code blocks with tilde fencing (~~~).',

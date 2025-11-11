@@ -147,7 +147,6 @@ export interface NotebookNavigatorSettings {
     showUntagged: boolean;
     tagSortOrder: TagSortOrder;
     keepEmptyTagsProperty: boolean;
-    allowTagCreationInAddTagModal: boolean;
 
     // List pane tab
     defaultFolderSort: SortOption;

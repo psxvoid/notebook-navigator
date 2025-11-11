@@ -16,31 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, FuzzyMatch, ToggleComponent } from 'obsidian';
+import { App, FuzzyMatch } from 'obsidian';
 import { strings } from '../i18n';
 import { TagTreeNode } from '../types/storage';
 import { getTotalNoteCount } from '../utils/tagTree';
 import { BaseSuggestModal } from './BaseSuggestModal';
 import NotebookNavigatorPlugin from '../main';
 import { naturalCompare } from '../utils/sortUtils';
-import { runAsyncAction } from '../utils/async';
-
-export interface TagSuggestModalOptions {
-    allowCreateNewTags?: boolean;
-    showCreationToggle?: boolean;
-    onAllowCreateChange?: (value: boolean) => void;
-}
-
-export function createTagCreationOptions(plugin: NotebookNavigatorPlugin): TagSuggestModalOptions {
-    return {
-        allowCreateNewTags: plugin.settings.allowTagCreationInAddTagModal,
-        showCreationToggle: true,
-        onAllowCreateChange: value => {
-            plugin.settings.allowTagCreationInAddTagModal = value;
-            runAsyncAction(() => plugin.saveSettingsAndUpdate());
-        }
-    };
-}
 
 /**
  * Modal for selecting a tag to navigate to
@@ -52,10 +34,6 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
     private plugin: NotebookNavigatorPlugin;
     private currentInput: string = '';
     private createNewNode: TagTreeNode | null = null;
-    private allowCreateNewTags: boolean;
-    private showCreationToggle: boolean;
-    private onAllowCreateChange?: (value: boolean) => void;
-    private toggleContainerEl: HTMLElement | null = null;
 
     /**
      * Creates a new TagSuggestModal
@@ -65,7 +43,6 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
      * @param placeholderText - Placeholder text for the search input
      * @param actionText - Action text for the enter key instruction
      * @param includeUntagged - Whether to include "Untagged" option
-     * @param options - Optional configuration for tag creation and toggle visibility
      */
     constructor(
         app: App,
@@ -73,8 +50,7 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
         onChooseTag: (tag: string) => void,
         placeholderText: string,
         actionText: string,
-        includeUntagged: boolean = true,
-        options: TagSuggestModalOptions = {}
+        includeUntagged: boolean = true
     ) {
         // Pass tag node to base, but store the string callback separately
         super(
@@ -99,10 +75,6 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
         );
         this.plugin = plugin;
         this.includeUntagged = includeUntagged;
-        // Initialize tag creation options with defaults
-        this.allowCreateNewTags = options.allowCreateNewTags ?? true;
-        this.showCreationToggle = options.showCreationToggle ?? false;
-        this.onAllowCreateChange = options.onAllowCreateChange;
 
         // Create special untagged node
         this.untaggedNode = {
@@ -134,15 +106,9 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
      */
     getSuggestions(query: string): FuzzyMatch<TagTreeNode>[] {
         this.currentInput = query.trim();
-        this.createNewNode = null;
 
         // Get the default suggestions
         const suggestions = super.getSuggestions(query);
-
-        // Skip create option if tag creation is disabled
-        if (!this.allowCreateNewTags) {
-            return suggestions;
-        }
 
         // If query is empty or invalid, don't show create option
         if (!this.currentInput || !this.isValidTagName(this.currentInput)) {
@@ -212,29 +178,6 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
     }
 
     /**
-     * Called when modal opens
-     * Renders the creation toggle if enabled
-     */
-    onOpen(): void {
-        super.onOpen();
-        if (this.showCreationToggle) {
-            this.renderCreationToggle();
-        }
-    }
-
-    /**
-     * Called when modal closes
-     * Cleans up the toggle element
-     */
-    onClose(): void {
-        if (this.toggleContainerEl) {
-            this.toggleContainerEl.remove();
-            this.toggleContainerEl = null;
-        }
-        super.onClose();
-    }
-
-    /**
      * Gets the display text for a tag
      * Shows the full path with # prefix and note count
      * @param tag - The tag node to get text for
@@ -299,54 +242,5 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
                 cls: 'nn-tag-suggest-count'
             });
         }
-    }
-
-    /**
-     * Renders the toggle for enabling/disabling tag creation
-     * Inserts the toggle above the instructions or at the end of the modal
-     */
-    private renderCreationToggle(): void {
-        const instructionsEl = this.modalEl?.querySelector('.prompt-instructions');
-        const container = document.createElement('div');
-        container.classList.add('nn-tag-suggest-toggle');
-
-        // Insert before instructions if present, otherwise append to content
-        if (instructionsEl?.parentElement) {
-            instructionsEl.parentElement.insertBefore(container, instructionsEl);
-        } else {
-            this.contentEl.appendChild(container);
-        }
-
-        container.createSpan({
-            text: strings.modals.tagSuggest.allowCreationToggle,
-            cls: 'nn-tag-suggest-toggle-label'
-        });
-
-        const toggleWrapper = container.createDiv({
-            cls: 'nn-tag-suggest-toggle-control'
-        });
-        const toggle = new ToggleComponent(toggleWrapper);
-        toggle.setValue(this.allowCreateNewTags);
-        toggle.onChange(value => {
-            this.allowCreateNewTags = value;
-            if (this.onAllowCreateChange) {
-                this.onAllowCreateChange(value);
-            }
-            this.refreshSuggestions();
-        });
-
-        this.toggleContainerEl = container;
-    }
-
-    /**
-     * Triggers a refresh of the suggestion list
-     * Dispatches an input event to re-run the getSuggestions method
-     */
-    private refreshSuggestions(): void {
-        if (!this.inputEl) {
-            return;
-        }
-        const event = new Event('input', { bubbles: true });
-        this.inputEl.dispatchEvent(event);
     }
 }
