@@ -824,8 +824,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     const filesToMove = getFilesFromPaths(selectedPaths);
                     if (filesToMove.length > 0) {
                         await moveFilesWithContext(filesToMove, targetFolder);
+                        return;
                     }
-                    return;
                 }
 
                 const singleItemData = e.dataTransfer?.getData('obsidian/file');
