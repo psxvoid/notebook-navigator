@@ -80,20 +80,17 @@ export class IconAssetDatabase {
             const request = store.get(id);
 
             request.onsuccess = () => {
-                // Validate the result from IndexedDB
                 const result: unknown = request.result;
                 if (result === null || result === undefined) {
                     resolve(null);
                     return;
                 }
 
-                // Ensure the record has the expected structure
                 if (isIconAssetRecord(result)) {
                     resolve(result);
                     return;
                 }
 
-                // Invalid record found in database, return null instead
                 console.log('[IconAssetDatabase] Ignoring invalid icon asset record', { id });
                 resolve(null);
             };
@@ -154,7 +151,6 @@ export class IconAssetDatabase {
             const request = store.getAll();
 
             request.onsuccess = () => {
-                // Validate that getAll returned an array
                 const result: unknown = request.result;
                 if (!Array.isArray(result)) {
                     console.log('[IconAssetDatabase] Unexpected result when fetching all icon assets');
@@ -162,7 +158,6 @@ export class IconAssetDatabase {
                     return;
                 }
 
-                // Filter out any invalid records from the database
                 const records: IconAssetRecord[] = [];
                 for (const entry of result) {
                     if (isIconAssetRecord(entry)) {
@@ -217,10 +212,6 @@ export class IconAssetDatabase {
     }
 }
 
-/**
- * Converts IndexedDB request errors to standard Error objects.
- * Returns the original error if it's already an Error, otherwise creates a new Error with the fallback message.
- */
 function getRequestError(domError: DOMException | null, fallbackMessage: string): Error {
     if (domError instanceof Error) {
         return domError;
@@ -228,10 +219,6 @@ function getRequestError(domError: DOMException | null, fallbackMessage: string)
     return new Error(fallbackMessage);
 }
 
-/**
- * Type guard that validates whether a value matches the expected IconAssetRecord structure.
- * Checks all required properties and their types to ensure data integrity from IndexedDB.
- */
 function isIconAssetRecord(value: unknown): value is IconAssetRecord {
     if (!value || typeof value !== 'object') {
         return false;

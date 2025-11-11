@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Internal constants, only derived/step values exported
 const MIN_UI_SCALE = 0.75;
 const MAX_UI_SCALE = 1.5;
 export const DEFAULT_UI_SCALE = 1;

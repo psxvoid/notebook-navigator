@@ -61,7 +61,6 @@ export function extractMetadataFromCache(metadata: CachedMetadata | null, settin
     }
 
     const result: ProcessedMetadata = {};
-    // Validate frontmatter is a record before accessing properties
     const frontmatterValue: unknown = frontmatter;
     if (!isRecord(frontmatterValue)) {
         return {};

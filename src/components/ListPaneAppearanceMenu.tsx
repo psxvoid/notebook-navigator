@@ -43,7 +43,6 @@ export function showListPaneAppearanceMenu({
                     const currentAppearance = newAppearances[selectedTag] || {};
                     newAppearances[selectedTag] = { ...currentAppearance, ...updates };
 
-                    // Remove tag entry if all settings are cleared (back to defaults)
                     const hasDefinedValues = Object.values(newAppearances[selectedTag]).some(value => value !== undefined);
                     if (!hasDefinedValues) {
                         delete newAppearances[selectedTag];
@@ -59,9 +58,9 @@ export function showListPaneAppearanceMenu({
                 updateSettings(s => {
                     const newAppearances = { ...s.folderAppearances };
                     const currentAppearance = newAppearances[folderPath] || {};
+
                     newAppearances[folderPath] = { ...currentAppearance, ...updates };
 
-                    // Remove folder entry if all settings are cleared (back to defaults)
                     const hasDefinedValues = Object.values(newAppearances[folderPath]).some(value => value !== undefined);
                     if (!hasDefinedValues) {
                         delete newAppearances[folderPath];

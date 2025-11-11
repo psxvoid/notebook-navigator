@@ -692,12 +692,6 @@ export const STRINGS_ES = {
                     files: 'Panel de lista'
                 }
             },
-            toolbarButtons: {
-                name: 'Botones de la barra de herramientas',
-                desc: 'Elige qué botones aparecen en la barra de herramientas. Los botones ocultos siguen siendo accesibles mediante comandos y menús.',
-                navigationLabel: 'Barra de navegación',
-                listLabel: 'Barra de lista'
-            },
             autoRevealActiveNote: {
                 name: 'Mostrar automáticamente la nota activa',
                 desc: 'Muestra automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.'
@@ -719,8 +713,8 @@ export const STRINGS_ES = {
                 desc: 'Expandir automáticamente carpetas y etiquetas cuando se seleccionan.'
             },
             navigationBanner: {
-                name: 'Banner de navegación (perfil de bóveda)',
-                desc: 'Mostrar una imagen encima del panel de navegación. Cambia con el perfil de bóveda seleccionado.',
+                name: 'Banner de navegación',
+                desc: 'Mostrar una imagen encima del panel de navegación.',
                 current: 'Banner actual: {path}',
                 chooseButton: 'Elegir imagen',
                 clearButton: 'Limpiar'
@@ -1016,7 +1010,7 @@ export const STRINGS_ES = {
                 desc: 'Mostrar opción de crear etiqueta al añadir etiquetas. El interruptor aparece en el modal.'
             },
             hiddenTags: {
-                name: 'Ocultar etiquetas',
+                name: 'Etiquetas ocultas',
                 desc: 'Lista separada por comas de prefijos de etiquetas o comodines de nombre. Usa `tag*` o `*tag` para coincidir con nombres de etiquetas. Ocultar una etiqueta también oculta todas sus sub-etiquetas (ej. "archivo" oculta "archivo/2024/docs").',
                 placeholder: 'interno, temp/borradores, archivo/2024'
             },

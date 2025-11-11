@@ -16,9 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Setting, ButtonComponent, App, TAbstractFile, TFile } from 'obsidian';
+import { Notice, Setting, ButtonComponent, App, TAbstractFile, TFile } from 'obsidian';
 import { strings } from '../../i18n';
-import { showNotice } from '../../utils/noticeUtils';
 import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
@@ -69,7 +68,6 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 plugin.settings.useFrontmatterMetadata = value;
                 await plugin.saveSettingsAndUpdate();
                 frontmatterSettingsEl.toggle(value);
-                // Use context directly to satisfy eslint exhaustive-deps requirements
                 context.requestStatisticsRefresh();
             })
         );
@@ -157,7 +155,6 @@ export function renderNotesTab(context: SettingsTabContext): void {
         migrateButton = button;
         button.setButtonText(strings.settings.items.frontmatterMigration.button);
         button.setCta();
-        // Migrate metadata to frontmatter without blocking the UI
         button.onClick(() => {
             runAsyncAction(async () => {
                 if (!plugin.metadataService) {
@@ -174,9 +171,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
                     const { iconsBefore, colorsBefore, migratedIcons, migratedColors, failures } = result;
 
                     if (iconsBefore === 0 && colorsBefore === 0) {
-                        showNotice(strings.settings.items.frontmatterMigration.noticeNone);
+                        new Notice(strings.settings.items.frontmatterMigration.noticeNone);
                     } else if (migratedIcons === 0 && migratedColors === 0) {
-                        showNotice(strings.settings.items.frontmatterMigration.noticeNone);
+                        new Notice(strings.settings.items.frontmatterMigration.noticeNone);
                     } else {
                         let message = strings.settings.items.frontmatterMigration.noticeDone
                             .replace('{migratedIcons}', migratedIcons.toString())
@@ -186,14 +183,11 @@ export function renderNotesTab(context: SettingsTabContext): void {
                         if (failures > 0) {
                             message += ` ${strings.settings.items.frontmatterMigration.noticeFailures.replace('{failures}', failures.toString())}`;
                         }
-                        showNotice(message, { variant: 'success' });
+                        new Notice(message);
                     }
                 } catch (error) {
                     console.error('Failed to migrate icon/color metadata to frontmatter', error);
-                    showNotice(strings.settings.items.frontmatterMigration.noticeError, {
-                        timeout: TIMEOUTS.NOTICE_ERROR,
-                        variant: 'warning'
-                    });
+                    new Notice(strings.settings.items.frontmatterMigration.noticeError, TIMEOUTS.NOTICE_ERROR);
                 } finally {
                     button.setButtonText(strings.settings.items.frontmatterMigration.button);
                     button.setDisabled(false);
@@ -282,7 +276,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 .setIcon('lucide-help-circle')
                 .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
                 .onClick(() => {
-                    showNotice(strings.settings.items.frontmatterDateFormat.help, { timeout: TIMEOUTS.NOTICE_HELP });
+                    new Notice(strings.settings.items.frontmatterDateFormat.help, TIMEOUTS.NOTICE_HELP);
                 })
         );
     dateFormatSetting.controlEl.addClass('nn-setting-wide-input');

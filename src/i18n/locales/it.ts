@@ -688,12 +688,6 @@ export const STRINGS_IT = {
                     files: 'Pannello lista'
                 }
             },
-            toolbarButtons: {
-                name: 'Pulsanti della barra degli strumenti',
-                desc: 'Scegli quali pulsanti appaiono nella barra degli strumenti. I pulsanti nascosti rimangono accessibili tramite comandi e menu.',
-                navigationLabel: 'Barra di navigazione',
-                listLabel: 'Barra elenco'
-            },
             autoRevealActiveNote: {
                 name: 'Mostra automaticamente nota attiva',
                 desc: 'Mostra automaticamente note quando aperte da Quick Switcher, link o ricerca.'
@@ -715,8 +709,8 @@ export const STRINGS_IT = {
                 desc: 'Espandi automaticamente cartelle e tag quando vengono selezionati.'
             },
             navigationBanner: {
-                name: 'Banner navigazione (profilo vault)',
-                desc: "Visualizza un'immagine sopra il pannello navigazione. Cambia con il profilo vault selezionato.",
+                name: 'Banner navigazione',
+                desc: "Visualizza un'immagine sopra il pannello navigazione.",
                 current: 'Banner attuale: {path}',
                 chooseButton: 'Scegli immagine',
                 clearButton: 'Cancella'
@@ -984,7 +978,7 @@ export const STRINGS_IT = {
                 desc: 'Mantieni la proprietà tag frontmatter quando tutti i tag sono rimossi. Quando disabilitato, la proprietà tag è eliminata dal frontmatter.'
             },
             hiddenTags: {
-                name: 'Nascondi tag',
+                name: 'Tag nascosti',
                 desc: 'Lista separata da virgole di prefissi tag o wildcard nome. Usa tag* o *tag per abbinare nomi tag. Nascondere un tag nasconde anche tutti i suoi sotto-tag (es. "archivio" nasconde "archivio/2024/docs").',
                 placeholder: 'interno, temp/bozze, archivio/2024'
             },

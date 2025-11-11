@@ -180,7 +180,6 @@ export abstract class BaseSuggestModal<T> extends FuzzySuggestModal<T> {
      * @param evt - The triggering event
      */
     onChooseItem(item: T, _evt: MouseEvent | KeyboardEvent): void {
-        // Execute the callback asynchronously to support async handlers
         runAsyncAction(() => this.onChooseCallback(item));
     }
 }

@@ -16,9 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, ButtonComponent, PluginSettingTab, Setting } from 'obsidian';
+import { App, ButtonComponent, Notice, PluginSettingTab, Setting } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
-import { showNotice } from './utils/noticeUtils';
 import { strings } from './i18n';
 import { TIMEOUTS } from './types/obsidian-extended';
 import { calculateCacheStatistics, CacheStatistics } from './storage/statistics';
@@ -135,7 +134,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setPlaceholder(placeholder)
                     .setValue(getValue())
                     .onChange(value => {
-                        // Schedule debounced update to ensure async operations complete safely
                         this.scheduleDebouncedSettingUpdate(name, async () => {
                             const isValid = !validator || validator(value);
                             if (!isValid) {
@@ -182,7 +180,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 textArea.setValue(getValue());
                 textArea.inputEl.rows = rows;
                 textArea.onChange(value => {
-                    // Schedule debounced update to ensure async operations complete safely
                     this.scheduleDebouncedSettingUpdate(name, async () => {
                         const validator = options?.validator;
                         const isValid = !validator || validator(value);
@@ -547,10 +544,10 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         try {
             // Create the file in vault root
             await this.app.vault.create(filename, content);
-            showNotice(strings.settings.metadataReport.exportSuccess.replace('{filename}', filename), { variant: 'success' });
+            new Notice(strings.settings.metadataReport.exportSuccess.replace('{filename}', filename));
         } catch (error) {
             console.error('Failed to export metadata report:', error);
-            showNotice(strings.settings.metadataReport.exportFailed, { variant: 'warning' });
+            new Notice(strings.settings.metadataReport.exportFailed);
         }
     }
 

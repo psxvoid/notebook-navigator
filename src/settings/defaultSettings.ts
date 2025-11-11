@@ -38,8 +38,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
             fileVisibility: FILE_VISIBILITY.SUPPORTED,
             hiddenFolders: [],
             hiddenTags: [],
-            hiddenFiles: [],
-            navigationBanner: null
+            hiddenFiles: []
         }
     ],
     vaultProfile: 'default',
@@ -73,6 +72,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
 
     // Navigation pane tab
     skipAutoScroll: false,
+    navigationBanner: null,
     showSectionIcons: true,
     showShortcuts: true,
     showRecentNotes: true,
@@ -80,22 +80,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     collapseBehavior: 'all',
     smartCollapse: true,
     colorIconOnly: false,
-    toolbarVisibility: {
-        navigation: {
-            shortcuts: true,
-            expandCollapse: true,
-            hiddenItems: true,
-            rootReorder: true,
-            newFolder: true
-        },
-        list: {
-            search: true,
-            descendants: true,
-            sort: true,
-            appearance: true,
-            newNote: true
-        }
-    },
     showNoteCount: true,
     separateNoteCounts: true,
     navIndent: NAVPANE_MEASUREMENTS.defaultIndent,

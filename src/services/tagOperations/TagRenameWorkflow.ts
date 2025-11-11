@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { Notice } from 'obsidian';
 import type { App } from 'obsidian';
 import { strings } from '../../i18n';
 import type { TagTreeService } from '../TagTreeService';
@@ -25,7 +26,6 @@ import { TagRenameModal } from '../../modals/TagRenameModal';
 import { buildUsageSummary, buildUsageSummaryFromPaths, collectPreviewPaths, yieldToEventLoop } from './TagOperationUtils';
 import type { TagRenameEventPayload, TagUsageSummary } from './types';
 import { TagFileMutations } from './TagFileMutations';
-import { showNotice } from '../../utils/noticeUtils';
 
 const RENAME_BATCH_SIZE = 10;
 
@@ -84,7 +84,7 @@ export class TagRenameWorkflow {
         }
 
         if (usage.total === 0) {
-            showNotice(`#${displayPath}: ${strings.listPane.emptyStateNoNotes}`, { variant: 'warning' });
+            new Notice(`#${displayPath}: ${strings.listPane.emptyStateNoNotes}`);
             return;
         }
 
@@ -95,12 +95,12 @@ export class TagRenameWorkflow {
             onSubmit: async newName => {
                 const trimmedName = newName.startsWith('#') ? newName.slice(1) : newName;
                 if (!this.fileMutations.isValidTagName(trimmedName)) {
-                    showNotice(strings.modals.tagOperation.invalidTagName, { variant: 'warning' });
+                    new Notice(strings.modals.tagOperation.invalidTagName);
                     return false;
                 }
                 const newDescriptor = new TagDescriptor(trimmedName);
                 if (isDescendantRename(oldTagDescriptor, newDescriptor)) {
-                    showNotice(strings.modals.tagOperation.descendantRenameError, { variant: 'warning' });
+                    new Notice(strings.modals.tagOperation.descendantRenameError);
                     return false;
                 }
                 return this.runTagRename(displayPath, trimmedName, presetTargets ?? null);
@@ -132,7 +132,7 @@ export class TagRenameWorkflow {
         const conflict = analysis.mergeConflict;
         if (conflict) {
             const [origin, clash] = conflict;
-            showNotice(`${origin.tag} merges into ${clash.tag}`, { variant: 'warning' });
+            new Notice(`${origin.tag} merges into ${clash.tag}`);
         }
 
         let renamed = 0;
@@ -181,28 +181,27 @@ export class TagRenameWorkflow {
         const analysis = this.buildRenameAnalysis(oldTagPath, newTagPath, presetTargets);
 
         if (isDescendantRename(analysis.oldTag, analysis.newTag)) {
-            showNotice(strings.modals.tagOperation.descendantRenameError, { variant: 'warning' });
+            new Notice(strings.modals.tagOperation.descendantRenameError);
             return false;
         }
 
         if (analysis.oldTag.tag === analysis.newTag.tag) {
-            showNotice(strings.modals.tagOperation.renameUnchanged.replace('{tag}', analysis.oldTag.tag), { variant: 'warning' });
+            new Notice(strings.modals.tagOperation.renameUnchanged.replace('{tag}', analysis.oldTag.tag));
             return false;
         }
 
         if (analysis.targets.length === 0) {
-            showNotice(`#${analysis.oldTag.name}: ${strings.listPane.emptyStateNoNotes}`, { variant: 'warning' });
+            new Notice(`#${analysis.oldTag.name}: ${strings.listPane.emptyStateNoNotes}`);
             return false;
         }
 
         const result = await hooks.executeRename(analysis);
         if (result.renamed === 0) {
-            showNotice(
+            new Notice(
                 strings.modals.tagOperation.renameNoChanges
                     .replace('{oldTag}', analysis.oldTag.tag)
                     .replace('{newTag}', analysis.newTag.tag)
-                    .replace('{countLabel}', strings.listPane.emptyStateNoNotes),
-                { variant: 'warning' }
+                    .replace('{countLabel}', strings.listPane.emptyStateNoNotes)
             );
             return false;
         }
@@ -218,9 +217,8 @@ export class TagRenameWorkflow {
             mergedIntoExisting: Boolean(analysis.mergeConflict)
         });
 
-        showNotice(
-            `${strings.modals.tagOperation.confirmRename}: ${analysis.oldTag.tag} → ${analysis.newTag.tag} (${result.renamed}/${result.total})`,
-            { variant: 'success' }
+        new Notice(
+            `${strings.modals.tagOperation.confirmRename}: ${analysis.oldTag.tag} → ${analysis.newTag.tag} (${result.renamed}/${result.total})`
         );
         return true;
     }

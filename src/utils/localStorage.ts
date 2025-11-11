@@ -34,7 +34,6 @@ export const localStorage = {
      * This enables vault-specific storage isolation
      */
     init(app: App) {
-        // Use localStorage object literal directly to ensure proper this binding (eslint @typescript-eslint/unbound-method)
         localStorage._app = app;
     },
     /**

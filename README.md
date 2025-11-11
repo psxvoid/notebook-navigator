@@ -124,11 +124,9 @@ The search field operates in two modes depending on what you type:
 - Tags are automatically added in the correct format
 - Click tags again to remove them from search
 
-### Tag drag and drop, tag rename and tag deletion (new in version 1.8.0)
+### Tag renaming and deletion (new in version 1.7.4)
 
 Tag renaming and deletion operations update tag references across all files in your vault, including inline tags, frontmatter tags, and nested subtags.
-
-<img width="402" height="226" alt="vlcsnap-2025-11-10-12h53m30s551" src="https://github.com/user-attachments/assets/2223b810-a87a-4a53-b96d-09c6459f5156" />
 
 **Using the context menu:**
 
@@ -153,8 +151,6 @@ Tag renaming and deletion operations update tag references across all files in y
 ### Tag multi-selection and search (new in version 1.7.3)
 
 The search field filters notes by name and tags using logical operators. Click tags in the navigation pane with modifier keys to build complex tag queries.
-
-<img width="368" height="201" alt="Screenshot 2025-11-02 at 10 00 45" src="https://github.com/user-attachments/assets/3a99b1ce-d84a-4687-973b-a7294f32fbed" />
 
 **Adding tags to search:**
 

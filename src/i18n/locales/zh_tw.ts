@@ -690,12 +690,6 @@ export const STRINGS_ZH_TW = {
                     files: '列表窗格'
                 }
             },
-            toolbarButtons: {
-                name: '工具列按鈕',
-                desc: '選擇在工具列中顯示哪些按鈕。隱藏的按鈕仍可透過指令和選單存取。',
-                navigationLabel: '導覽工具列',
-                listLabel: '清單工具列'
-            },
             autoRevealActiveNote: {
                 name: '自動顯示活動筆記',
                 desc: '從快速切換器、連結或搜尋開啟筆記時自動顯示。'
@@ -717,8 +711,8 @@ export const STRINGS_ZH_TW = {
                 desc: '選取資料夾和標籤時自動展開。'
             },
             navigationBanner: {
-                name: '導覽橫幅（倉庫設定檔）',
-                desc: '在導覽窗格上方顯示圖片。隨所選倉庫設定檔而變化。',
+                name: '導覽橫幅',
+                desc: '在導覽窗格上方顯示圖片。',
                 current: '目前橫幅：{path}',
                 chooseButton: '選擇圖片',
                 clearButton: '清除'

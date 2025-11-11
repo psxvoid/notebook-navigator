@@ -688,12 +688,6 @@ export const STRINGS_PT_BR = {
                     files: 'Painel de lista'
                 }
             },
-            toolbarButtons: {
-                name: 'Botões da barra de ferramentas',
-                desc: 'Escolha quais botões aparecem na barra de ferramentas. Botões ocultos permanecem acessíveis via comandos e menus.',
-                navigationLabel: 'Barra de navegação',
-                listLabel: 'Barra de lista'
-            },
             autoRevealActiveNote: {
                 name: 'Revelar automaticamente a nota ativa',
                 desc: 'Revelar automaticamente notas quando abertas pelo Alternador Rápido, links ou pesquisa.'
@@ -715,8 +709,8 @@ export const STRINGS_PT_BR = {
                 desc: 'Expandir automaticamente pastas e tags quando forem selecionadas.'
             },
             navigationBanner: {
-                name: 'Banner de navegação (perfil de cofre)',
-                desc: 'Exibir uma imagem acima do painel de navegação. Muda com o perfil de cofre selecionado.',
+                name: 'Banner de navegação',
+                desc: 'Exibir uma imagem acima do painel de navegação.',
                 current: 'Banner atual: {path}',
                 chooseButton: 'Escolher imagem',
                 clearButton: 'Limpar'
@@ -983,7 +977,7 @@ export const STRINGS_PT_BR = {
                 desc: 'Manter a propriedade de tags do frontmatter quando todas as tags forem removidas. Quando desativado, a propriedade de tags é excluída do frontmatter.'
             },
             hiddenTags: {
-                name: 'Ocultar tags',
+                name: 'Tags ocultas',
                 desc: 'Lista separada por vírgulas de prefixos de tag ou curingas de nome. Use tag* ou *tag para corresponder nomes de tags. Ocultar uma tag também oculta todas as suas sub-tags (por exemplo, "arquivo" oculta "arquivo/2024/docs").',
                 placeholder: 'interno, temp/rascunhos, arquivo/2024'
             },

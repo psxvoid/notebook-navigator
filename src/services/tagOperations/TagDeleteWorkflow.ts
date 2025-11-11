@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile } from 'obsidian';
+import { Notice, TFile } from 'obsidian';
 import type { App } from 'obsidian';
 import { strings } from '../../i18n';
 import type { TagTreeService } from '../TagTreeService';
@@ -28,7 +28,6 @@ import { TagFileMutations } from './TagFileMutations';
 import { collectPreviewPaths, yieldToEventLoop, buildUsageSummaryFromPaths } from './TagOperationUtils';
 import type { TagDeleteEventPayload } from './types';
 import { runAsyncAction } from '../../utils/async';
-import { showNotice } from '../../utils/noticeUtils';
 
 const DELETE_BATCH_SIZE = 10;
 
@@ -72,14 +71,14 @@ export class TagDeleteWorkflow {
         const descriptor = new TagDescriptor(displayPath);
         const previewPaths = collectPreviewPaths(descriptor, tagTree);
         if (previewPaths === null) {
-            showNotice(strings.fileSystem.notifications.tagOperationsNotAvailable, { variant: 'warning' });
+            new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
             return;
         }
 
         const uniquePreview = Array.from(new Set(previewPaths));
         const usage = buildUsageSummaryFromPaths(this.app, uniquePreview);
         if (usage.total === 0) {
-            showNotice(`#${displayPath}: ${strings.listPane.emptyStateNoNotes}`, { variant: 'warning' });
+            new Notice(`#${displayPath}: ${strings.listPane.emptyStateNoNotes}`);
             return;
         }
 
@@ -92,8 +91,7 @@ export class TagDeleteWorkflow {
                 .replace('{count}', usage.total.toString())
                 .replace('{files}', countLabel),
             () => {
-                // Execute tag deletion with error handling using latest tag data
-                runAsyncAction(() => this.runTagDelete(displayPath));
+                runAsyncAction(() => this.runTagDelete(displayPath, uniquePreview));
             },
             strings.modals.tagOperation.confirmDelete,
             {
@@ -139,7 +137,7 @@ export class TagDeleteWorkflow {
             const tagTree = this.getTagTreeService();
             const previewPaths = collectPreviewPaths(descriptor, tagTree);
             if (previewPaths === null) {
-                showNotice(strings.fileSystem.notifications.tagOperationsNotAvailable, { variant: 'warning' });
+                new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
                 return false;
             }
             previewPaths.forEach(path => {
@@ -150,7 +148,7 @@ export class TagDeleteWorkflow {
         }
 
         if (targetPathsSet.size === 0) {
-            showNotice(`#${descriptor.name}: ${strings.listPane.emptyStateNoNotes}`, { variant: 'warning' });
+            new Notice(`#${descriptor.name}: ${strings.listPane.emptyStateNoNotes}`);
             return false;
         }
 
@@ -179,7 +177,7 @@ export class TagDeleteWorkflow {
         }
 
         if (removed === 0) {
-            showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
+            new Notice(strings.fileSystem.notifications.noTagsToRemove);
             return false;
         }
 
@@ -192,11 +190,9 @@ export class TagDeleteWorkflow {
         });
 
         if (removed === 1) {
-            showNotice(strings.fileSystem.notifications.tagRemovedFromNote, { variant: 'success' });
+            new Notice(strings.fileSystem.notifications.tagRemovedFromNote);
         } else {
-            showNotice(strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', removed.toString()), {
-                variant: 'success'
-            });
+            new Notice(strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', removed.toString()));
         }
 
         return true;

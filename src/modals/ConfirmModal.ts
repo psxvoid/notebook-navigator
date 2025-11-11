@@ -100,9 +100,6 @@ export class ConfirmModal extends Modal {
         }
     }
 
-    /**
-     * Executes the confirmation callback asynchronously
-     */
     private triggerConfirm(): void {
         runAsyncAction(() => this.onConfirm());
     }

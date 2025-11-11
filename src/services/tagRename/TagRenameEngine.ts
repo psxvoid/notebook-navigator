@@ -16,11 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, parseFrontMatterAliases, parseFrontMatterTags, TagCache } from 'obsidian';
+import { App, Notice, TFile, parseFrontMatterAliases, parseFrontMatterTags, TagCache } from 'obsidian';
 import { normalizeTagPathValue } from '../../utils/tagPrefixMatcher';
 import type { TagTreeService } from '../TagTreeService';
 import { mutateFrontmatterTagFields } from './frontmatterTagMutator';
-import { showNotice } from '../../utils/noticeUtils';
 
 /**
  * Describes a tag and provides helper utilities for normalization.
@@ -96,7 +95,6 @@ export class TagReplacement {
         private readonly toTag: TagDescriptor
     ) {
         this.cache = new Map();
-        // Pre-cache common transformations for faster lookup
         this.cache.set(this.fromTag.tag, this.toTag.tag);
         this.cache.set(this.fromTag.name, this.toTag.name);
         this.cache.set(this.fromTag.tag.toLowerCase(), this.toTag.tag);
@@ -193,16 +191,10 @@ export class TagReplacement {
         return null;
     }
 
-    /**
-     * Looks up a replacement value from the cache, returning the original key if not found
-     */
     private lookup(key: string): string {
         return this.cache.get(key) ?? key;
     }
 
-    /**
-     * Caches a replacement value for both original and lowercase versions
-     */
     private cacheValue(original: string, lowercase: string, value: string): string {
         this.cache.set(original, value);
         this.cache.set(lowercase, value);
@@ -250,7 +242,7 @@ export class RenameFile {
             const matchesCache = typeof cacheTag === 'string' ? sourceTag.matches(cacheTag) : false;
             if (!matchesExtracted || !matchesCache) {
                 const message = `File ${this.path} changed before rename; skipping`;
-                showNotice(message, { variant: 'warning' });
+                new Notice(message);
                 console.error(message);
                 return false;
             }

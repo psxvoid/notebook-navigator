@@ -127,7 +127,6 @@ export function getShortcutKey(shortcut: ShortcutEntry): string {
     return assertNever(shortcut);
 }
 
-// Safely converts a value to string for error messages, handling JSON serialization failures
 function describeShortcut(value: never): string {
     if (typeof value === 'object' && value !== null) {
         try {
@@ -139,7 +138,6 @@ function describeShortcut(value: never): string {
     return String(value);
 }
 
-// Exhaustive type check helper that throws with descriptive error message
 function assertNever(value: never): never {
     throw new Error(`Unsupported shortcut type: ${describeShortcut(value)}`);
 }

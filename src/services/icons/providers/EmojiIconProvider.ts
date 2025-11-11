@@ -20,10 +20,6 @@ import { IconProvider, IconDefinition } from '../types';
 import { isValidEmoji, extractFirstEmoji } from '../../../utils/emojiUtils';
 import * as emojilib from 'emojilib';
 
-/**
- * Type guard to check if a value is an array of strings.
- * Used to validate emoji keyword data from the emojilib library.
- */
 function isKeywordList(value: unknown): value is string[] {
     return Array.isArray(value) && value.every(entry => typeof entry === 'string');
 }
@@ -108,7 +104,6 @@ export class EmojiIconProvider implements IconProvider {
 
         // Search through emojilib
         for (const [emoji, keywords] of Object.entries(emojilib)) {
-            // Skip non-emoji entries and entries without keywords
             if (!isKeywordList(keywords) || keywords.length === 0) {
                 continue;
             }

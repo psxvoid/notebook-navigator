@@ -3,9 +3,6 @@ import { isRecord } from './typeGuards';
 
 const DEFAULT_UNKNOWN_ERROR = strings.common.unknownError;
 
-/**
- * Converts any value to an Error object
- */
 function toError(error: unknown, fallback: string = DEFAULT_UNKNOWN_ERROR): Error {
     if (error instanceof Error) {
         return error;
@@ -35,9 +32,6 @@ function toError(error: unknown, fallback: string = DEFAULT_UNKNOWN_ERROR): Erro
     return new Error(fallback);
 }
 
-/**
- * Extracts a readable error message from any value
- */
 export function getErrorMessage(error: unknown, fallback: string = DEFAULT_UNKNOWN_ERROR): string {
     if (error instanceof Error && error.message) {
         return error.message;

@@ -77,23 +77,18 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-10',
         showOnUpdate: true,
         new: [
-            '==Tag rename, tag delete, tag drag-and-drop==! You can now rename tags, delete tags (removes from all notes), and drag-and-drop tags to reorganize them in the navigation pane.',
-            '==Vault profiles / virtual vaults==! Hidden folders, hidden tags, hidden notes, file visibility and banner image can now be saved per vault profile. Quickly switch between different vault profiles in the navigation pane header. This allows you to have several "virtual vaults" within the same vault. Create new vault profiles in **Settings > Filtering > Vault profile**.',
-            '==Hide toolbar buttons==! You can hide toolbar buttons you do not use in **Settings > General > Appearance > Toolbar buttons**.',
-            'Two new folder menu items were added: **Copy path** and **Copy relative path**.',
-            'New check box in "Add tag" modal: **Allow creating new tags**. Disable to only allow selecting existing tags in the "Add tag" modal. You can also disable creating new tags in **Settings > Folders & Tags > Tags > Allow creating tags in Add tag modal**.'
+            '==Tag rename, tag delete, tag drag-and-drop==! You can now rename tags, delete tags (removes from all notes), and drag-and-drop tags to reorganize them in navigation pane.',
+            '==Vault profiles==! Hidden folders, hidden tags, hidden notes and file visibility settings can now be saved per vault profile. Quickly switch between different vault profiles in the navigation pane header!',
+            'Two new folder menu items: **Copy path** and **Copy relative path**.',
+            'New check box in "Add tag" modal: **Allow creating new tags**. Disable to only allow selecting existing tags in the "Add tag" modal.'
         ],
-        improved: [
-            '**Text preview filter** now also removes code blocks with tilde fencing (~~~).',
-            '**Notices** now use Obsidian styling such as "Success", "Warning" and "Error".'
-        ],
+        improved: ['Text preview filter now also removes code blocks with tilde fencing (~~~).'],
         changed: [
-            'Upgraded the **Obsidian eslint code verification plugin** to 0.1.8 with additional async-safety and type-safety checks. Lots of code changes and improvements under the hood, but no user-visible changes.'
+            'Upgraded the Obsidian eslint code verification plugin to 0.1.8 with additional async-safety and type-safety checks. Lots of code changes and improvements under the hood, but no user-visible changes.'
         ],
         fixed: [
-            'Fixed an issue where **"Remove tag"** would remove hashtags within HTML blocks and within code blocks.',
-            'Fixed a performance issue with **"Group by subfolder"**, it is now much faster with larger number of subfolders.',
-            'Fixed an issue where **horizontal rules with spaces** (_ _ _, * * *) were showing one character in text preview.'
+            'Fixed a performance issue with Group by subfolder, it is now much faster with larger number of subfolders.',
+            'Fixed an issue where "Remove tag" would remove hashtags from HTML blocks and code blocks.'
         ]
     },
     {

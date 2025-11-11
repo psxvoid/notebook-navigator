@@ -691,12 +691,6 @@ export const STRINGS_ZH_CN = {
                     files: '列表窗格'
                 }
             },
-            toolbarButtons: {
-                name: '工具栏按钮',
-                desc: '选择在工具栏中显示哪些按钮。隐藏的按钮仍可通过命令和菜单访问。',
-                navigationLabel: '导航工具栏',
-                listLabel: '列表工具栏'
-            },
             autoRevealActiveNote: {
                 name: '自动定位活动笔记',
                 desc: '从快速切换器、链接或搜索打开笔记时自动显示。'
@@ -718,8 +712,8 @@ export const STRINGS_ZH_CN = {
                 desc: '选择文件夹和标签时自动展开它们。'
             },
             navigationBanner: {
-                name: '导航横幅（仓库配置文件）',
-                desc: '在导航窗格顶部显示一张图片。随所选仓库配置文件而变化。',
+                name: '导航横幅',
+                desc: '在导航窗格顶部显示一张图片。',
                 current: '当前横幅：{path}',
                 chooseButton: '选择图片',
                 clearButton: '清除'

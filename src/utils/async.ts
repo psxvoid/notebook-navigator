@@ -5,7 +5,6 @@ export interface AsyncErrorRecord {
     timestamp: number;
 }
 
-// Determines if a value has a Promise-like then method
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
     return typeof value === 'object' && value !== null && typeof (value as PromiseLike<unknown>).then === 'function';
 }
@@ -19,7 +18,6 @@ interface RunAsyncActionOptions {
 const MAX_ASYNC_ERROR_HISTORY = 20;
 const asyncErrorHistory: AsyncErrorRecord[] = [];
 
-// Records async errors to history, keeping only the most recent entries
 function recordAsyncError(error: unknown) {
     asyncErrorHistory.push({ error, timestamp: Date.now() });
     if (asyncErrorHistory.length > MAX_ASYNC_ERROR_HISTORY) {
@@ -27,13 +25,11 @@ function recordAsyncError(error: unknown) {
     }
 }
 
-// Logs unhandled async errors and records them to history
 const defaultErrorHandler = (error: unknown) => {
     console.error('Unhandled async action error', error);
     recordAsyncError(error);
 };
 
-// Executes an async action with error handling for both sync and async failures
 export function runAsyncAction(action: AsyncAction, options?: RunAsyncActionOptions): void {
     const handleError = options?.onError ?? defaultErrorHandler;
 

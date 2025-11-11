@@ -18,7 +18,7 @@
 
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback, useLayoutEffect } from 'react';
-import { TFile, TFolder } from 'obsidian';
+import { TFile, TFolder, Notice } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
@@ -57,7 +57,6 @@ import type { NavigationPaneHandle } from './NavigationPane';
 import type { SearchShortcut } from '../types/shortcuts';
 import { UpdateNoticeBanner } from './UpdateNoticeBanner';
 import { UpdateNoticeIndicator } from './UpdateNoticeIndicator';
-import { showNotice } from '../utils/noticeUtils';
 import { EMPTY_SEARCH_TAG_FILTER_STATE, type SearchTagFilterState } from '../types/search';
 
 // Checks if two string arrays have identical content in the same order
@@ -500,10 +499,8 @@ export const NotebookNavigatorComponent = React.memo(
                     // A no-op update will increment the version and force a re-render
                     runAsyncAction(() => updateSettings(() => {}));
                 },
-                // Delete focused file based on current pane (files or navigation)
                 deleteActiveFile: () => {
                     runAsyncAction(async () => {
-                        // Delete files from list pane
                         if (uiState.focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
                             await deleteSelectedFiles({
                                 app,
@@ -520,7 +517,6 @@ export const NotebookNavigatorComponent = React.memo(
                             return;
                         }
 
-                        // Delete folder from navigation pane
                         if (
                             uiState.focusedPane === 'navigation' &&
                             selectionState.selectionType === ItemType.FOLDER &&
@@ -542,7 +538,7 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 createNoteInSelectedFolder: async () => {
                     if (!selectionState.selectedFolder) {
-                        showNotice(strings.fileSystem.errors.noFolderSelected, { variant: 'warning' });
+                        new Notice(strings.fileSystem.errors.noFolderSelected);
                         return;
                     }
 
@@ -554,7 +550,7 @@ export const NotebookNavigatorComponent = React.memo(
                     const selectedFiles = getSelectedFiles();
 
                     if (selectedFiles.length === 0) {
-                        showNotice(strings.fileSystem.errors.noFileSelected, { variant: 'warning' });
+                        new Notice(strings.fileSystem.errors.noFileSelected);
                         return;
                     }
 
@@ -605,7 +601,7 @@ export const NotebookNavigatorComponent = React.memo(
                     }
 
                     // Show error if nothing is selected
-                    showNotice(strings.common.noSelection, { variant: 'warning' });
+                    new Notice(strings.common.noSelection);
                 },
                 navigateToFolder,
                 navigateToFolderWithModal: () => {
@@ -639,20 +635,20 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 addTagToSelectedFiles: async () => {
                     if (!tagOperations) {
-                        showNotice(strings.fileSystem.notifications.tagOperationsNotAvailable, { variant: 'warning' });
+                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
                         return;
                     }
 
                     // Get selected files
                     const selectedFiles = getSelectedFiles();
                     if (selectedFiles.length === 0) {
-                        showNotice(strings.fileSystem.notifications.noFilesSelected, { variant: 'warning' });
+                        new Notice(strings.fileSystem.notifications.noFilesSelected);
                         return;
                     }
 
                     // Verify all selected files are markdown (tags only work with markdown)
                     if (!selectedFiles.every(item => item.extension === 'md')) {
-                        showNotice(strings.fileSystem.notifications.tagsRequireMarkdown, { variant: 'warning' });
+                        new Notice(strings.fileSystem.notifications.tagsRequireMarkdown);
                         return;
                     }
 
@@ -667,7 +663,7 @@ export const NotebookNavigatorComponent = React.memo(
                                     result.added === 1
                                         ? strings.fileSystem.notifications.tagAddedToNote
                                         : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', result.added.toString());
-                                showNotice(message, { variant: 'success' });
+                                new Notice(message);
                             });
                         },
                         strings.modals.tagSuggest.addPlaceholder,
@@ -679,27 +675,27 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 removeTagFromSelectedFiles: async () => {
                     if (!tagOperations) {
-                        showNotice(strings.fileSystem.notifications.tagOperationsNotAvailable, { variant: 'warning' });
+                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
                         return;
                     }
 
                     // Get selected files
                     const selectedFiles = getSelectedFiles();
                     if (selectedFiles.length === 0) {
-                        showNotice(strings.fileSystem.notifications.noFilesSelected, { variant: 'warning' });
+                        new Notice(strings.fileSystem.notifications.noFilesSelected);
                         return;
                     }
 
                     // Verify all selected files are markdown (tags only work with markdown)
                     if (!selectedFiles.every(item => item.extension === 'md')) {
-                        showNotice(strings.fileSystem.notifications.tagsRequireMarkdown, { variant: 'warning' });
+                        new Notice(strings.fileSystem.notifications.tagsRequireMarkdown);
                         return;
                     }
 
                     // Get tags from selected files
                     const existingTags = tagOperations.getTagsFromFiles(selectedFiles);
                     if (existingTags.length === 0) {
-                        showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
+                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
                         return;
                     }
 
@@ -710,7 +706,7 @@ export const NotebookNavigatorComponent = React.memo(
                             result === 1
                                 ? strings.fileSystem.notifications.tagRemovedFromNote
                                 : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                        showNotice(message, { variant: 'success' });
+                        new Notice(message);
                         return;
                     }
 
@@ -722,34 +718,34 @@ export const NotebookNavigatorComponent = React.memo(
                                 result === 1
                                     ? strings.fileSystem.notifications.tagRemovedFromNote
                                     : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                            showNotice(message, { variant: 'success' });
+                            new Notice(message);
                         });
                     });
                     modal.open();
                 },
                 removeAllTagsFromSelectedFiles: async () => {
                     if (!tagOperations) {
-                        showNotice(strings.fileSystem.notifications.tagOperationsNotAvailable, { variant: 'warning' });
+                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
                         return;
                     }
 
                     // Get selected files
                     const selectedFiles = getSelectedFiles();
                     if (selectedFiles.length === 0) {
-                        showNotice(strings.fileSystem.notifications.noFilesSelected, { variant: 'warning' });
+                        new Notice(strings.fileSystem.notifications.noFilesSelected);
                         return;
                     }
 
                     // Verify all selected files are markdown (tags only work with markdown)
                     if (!selectedFiles.every(item => item.extension === 'md')) {
-                        showNotice(strings.fileSystem.notifications.tagsRequireMarkdown, { variant: 'warning' });
+                        new Notice(strings.fileSystem.notifications.tagsRequireMarkdown);
                         return;
                     }
 
                     // Check if files have tags
                     const existingTags = tagOperations.getTagsFromFiles(selectedFiles);
                     if (existingTags.length === 0) {
-                        showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
+                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
                         return;
                     }
 
@@ -767,7 +763,7 @@ export const NotebookNavigatorComponent = React.memo(
                                     result === 1
                                         ? strings.fileSystem.notifications.tagsClearedFromNote
                                         : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
-                                showNotice(message, { variant: 'success' });
+                                new Notice(message);
                             });
                         },
                         strings.common.remove

@@ -83,37 +83,7 @@ interface LegacyVisibilityMigration {
     hiddenFolders: string[];
     hiddenFiles: string[];
     hiddenTags: string[];
-    navigationBanner: string | null;
     shouldApplyToProfiles: boolean;
-}
-
-type ToolbarVisibilitySnapshot = NotebookNavigatorSettings['toolbarVisibility'];
-
-function mergeButtonVisibility<T extends string>(defaults: Record<T, boolean>, stored: unknown): Record<T, boolean> {
-    const next: Record<T, boolean> = { ...defaults };
-    if (!stored || typeof stored !== 'object') {
-        return next;
-    }
-
-    const entries = stored as Partial<Record<T, unknown>>;
-    (Object.keys(defaults) as T[]).forEach(key => {
-        const value = entries[key];
-        if (typeof value === 'boolean') {
-            next[key] = value;
-        }
-    });
-
-    return next;
-}
-
-function mergeToolbarVisibility(stored: unknown): ToolbarVisibilitySnapshot {
-    const defaults = DEFAULT_SETTINGS.toolbarVisibility;
-    const record = stored && typeof stored === 'object' ? (stored as Record<string, unknown>) : undefined;
-
-    return {
-        navigation: mergeButtonVisibility(defaults.navigation, record?.navigation),
-        list: mergeButtonVisibility(defaults.list, record?.list)
-    };
 }
 
 /**
@@ -177,7 +147,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      * Returns true if this is the first launch (no saved data)
      */
     async loadSettings(): Promise<boolean> {
-        // Load raw data and validate it is a plain object before treating as settings
         const rawData: unknown = await this.loadData();
         const storedData: Record<string, unknown> | null = isRecord(rawData) ? rawData : null;
         const storedSettings = storedData as Partial<NotebookNavigatorSettings> | null;
@@ -187,7 +156,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.settings = { ...DEFAULT_SETTINGS, ...(storedSettings ?? {}) };
         // Validate and normalize keyboard shortcuts to use standard modifier names
         this.settings.keyboardShortcuts = sanitizeKeyboardShortcuts(this.settings.keyboardShortcuts);
-        this.settings.toolbarVisibility = mergeToolbarVisibility(storedSettings?.toolbarVisibility);
 
         // Remove deprecated fields from settings object
         const mutableSettings = this.settings as unknown as Record<string, unknown>;
@@ -248,6 +216,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             this.settings.colorFileTags = legacyColorFileTags;
         }
         delete mutableSettings['applyTagColorsToFileTags'];
+
+        // Migrate legacy navigationBannerPath field to navigationBanner
+        const legacyBanner = storedData ? storedData['navigationBannerPath'] : undefined;
+        if (!this.settings.navigationBanner && typeof legacyBanner === 'string' && legacyBanner.length > 0) {
+            this.settings.navigationBanner = legacyBanner;
+        }
+        delete mutableSettings.navigationBannerPath;
 
         // Set language-specific date/time formats if not already set
         if (!this.settings.dateFormat) {
@@ -530,13 +505,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const iconService = getIconService();
         this.externalIconController = new ExternalIconProviderController(this.app, iconService, this);
         await this.externalIconController.initialize();
-        // Sync icon settings with external providers without blocking
         const iconController = this.externalIconController;
         if (iconController) {
             runAsyncAction(() => iconController.syncWithSettings());
         }
 
-        // Re-sync icon settings when settings update
         this.registerSettingsUpdateListener('external-icon-controller', () => {
             const controller = this.externalIconController;
             if (controller) {
@@ -563,7 +536,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const shouldActivateOnStartup = isFirstLaunch;
 
         this.app.workspace.onLayoutReady(() => {
-            // Execute startup tasks asynchronously to avoid blocking the layout
             runAsyncAction(async () => {
                 if (this.isUnloading) {
                     return;
@@ -577,7 +549,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 // Trigger Style Settings plugin to parse our settings
                 this.app.workspace.trigger('parse-style-settings');
 
-                // Check for new GitHub releases if enabled, without blocking startup
+                // Check for new GitHub releases if enabled
                 if (this.settings.checkForUpdatesOnStart) {
                     runAsyncAction(() => this.runReleaseUpdateCheck());
                 }
@@ -968,7 +940,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     private clearAllLocalStorage() {
         // Clear all known localStorage keys
-        // Get key names to enable proper TypeScript typing and avoid losing type information
         const storageKeyNames = Object.keys(STORAGE_KEYS) as (keyof LocalStorageKeys)[];
         storageKeyNames.forEach(storageKey => {
             const key = STORAGE_KEYS[storageKey];
@@ -998,39 +969,19 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             this.settings.hiddenTags = [...storedHiddenTags];
         }
 
-        const rawNavigationBanner = mutableSettings['navigationBanner'];
-        const legacyNavigationBanner = typeof rawNavigationBanner === 'string' ? rawNavigationBanner : null;
-        const storedNavigationBannerPath = storedData?.['navigationBannerPath'];
-        const legacyBannerPath = typeof storedNavigationBannerPath === 'string' ? storedNavigationBannerPath : null;
-        const navigationBanner =
-            legacyNavigationBanner && legacyNavigationBanner.length > 0
-                ? legacyNavigationBanner
-                : legacyBannerPath && legacyBannerPath.length > 0
-                  ? legacyBannerPath
-                  : null;
-
-        delete mutableSettings['navigationBanner'];
-        delete mutableSettings['navigationBannerPath'];
-
         return {
             hiddenFolders: legacyHiddenFolders,
             hiddenFiles: legacyHiddenFiles,
             hiddenTags: storedHiddenTags,
-            navigationBanner,
             shouldApplyToProfiles: !Array.isArray(storedData?.['vaultProfiles'])
         };
     }
 
     // Applies legacy hidden folder, file, and tag settings to the active vault profile
     private applyLegacyVisibilityMigration(migration: LegacyVisibilityMigration): void {
-        const hasNavigationBanner = typeof migration.navigationBanner === 'string' && migration.navigationBanner.length > 0;
-
         if (
             !migration.shouldApplyToProfiles ||
-            (!hasNavigationBanner &&
-                migration.hiddenFolders.length === 0 &&
-                migration.hiddenFiles.length === 0 &&
-                migration.hiddenTags.length === 0)
+            (migration.hiddenFolders.length === 0 && migration.hiddenFiles.length === 0 && migration.hiddenTags.length === 0)
         ) {
             return;
         }
@@ -1055,10 +1006,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         if (migration.hiddenTags.length > 0) {
             targetProfile.hiddenTags = [...migration.hiddenTags];
             this.settings.hiddenTags = [...migration.hiddenTags];
-        }
-
-        if (hasNavigationBanner) {
-            targetProfile.navigationBanner = migration.navigationBanner;
         }
     }
 
@@ -1212,9 +1159,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         return this.workspaceCoordinator?.activateNavigatorView() ?? null;
     }
 
-    /**
-     * Gets all workspace leaves containing the navigator view
-     */
     public getNavigatorLeaves(): WorkspaceLeaf[] {
         return this.workspaceCoordinator?.getNavigatorLeaves() ?? this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
     }
@@ -1384,7 +1328,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             new WhatsNewModal(this.app, releaseNotes, this.settings.dateFormat, () => {
                 // Save version after 1 second delay when user closes the modal
                 setTimeout(() => {
-                    // Wrap in runAsyncAction to handle async without blocking callback
                     runAsyncAction(async () => {
                         this.settings.lastShownVersion = currentVersion;
                         await this.saveSettingsAndUpdate();

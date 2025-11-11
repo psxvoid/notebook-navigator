@@ -320,7 +320,7 @@ export class ColorPickerModal extends Modal {
         this.loadPresetColors();
         this.updateFromHex(this.selectedColor);
 
-        // Hex input real-time validation and update
+        // Hex input real-time update
         this.domDisposers.push(
             addAsyncEventListener(this.hexInput, 'input', () => {
                 const sanitized = this.sanitizeHexInput(this.hexInput.value);
@@ -367,7 +367,6 @@ export class ColorPickerModal extends Modal {
             this.close();
         };
 
-        // Close modal on click or pointer down
         this.domDisposers.push(addAsyncEventListener(closeButton, 'click', handleClose));
         this.domDisposers.push(addAsyncEventListener(closeButton, 'pointerdown', handleClose));
     }
@@ -425,7 +424,6 @@ export class ColorPickerModal extends Modal {
                 }
             });
             removeButton.createSpan({ text: '×', cls: 'nn-recent-remove-glyph', attr: { 'aria-hidden': 'true' } });
-            // Remove recent color with event suppression
             this.domDisposers.push(
                 addAsyncEventListener(removeButton, 'click', event => {
                     event.stopPropagation();

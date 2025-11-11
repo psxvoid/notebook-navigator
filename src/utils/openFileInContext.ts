@@ -13,7 +13,6 @@ interface OpenFileInContextParams {
  * Opens a file in a new workspace context (tab, split, window) while respecting the command queue.
  */
 export async function openFileInContext({ app, commandQueue, file, context, active = true }: OpenFileInContextParams): Promise<void> {
-    // Define the file opening operation
     const openFile = async () => {
         const leaf = app.workspace.getLeaf(context);
         if (!leaf) {
@@ -22,12 +21,10 @@ export async function openFileInContext({ app, commandQueue, file, context, acti
         await leaf.openFile(file, { active });
     };
 
-    // Execute through command queue if available to track file open context
     if (commandQueue) {
         await commandQueue.executeOpenInNewContext(file, context, openFile);
         return;
     }
 
-    // Otherwise open directly
     await openFile();
 }

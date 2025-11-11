@@ -16,13 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, TFolder, normalizePath } from 'obsidian';
+import { App, Notice, TFile, TFolder, normalizePath } from 'obsidian';
 import { strings } from '../i18n';
 import { FolderNoteType, FOLDER_NOTE_TYPE_EXTENSIONS, FolderNoteCreationPreference } from '../types/folderNote';
 import { createDatabaseContent } from './fileCreationUtils';
 import { CommandQueueService } from '../services/CommandQueueService';
 import { promptForFolderNoteType } from '../modals/FolderNoteTypeModal';
-import { showNotice } from './noticeUtils';
 
 /**
  * Settings required for detecting folder notes
@@ -130,7 +129,7 @@ export async function createFolderNote(
     });
 
     if (existingNote) {
-        showNotice(strings.fileSystem.errors.folderNoteAlreadyExists, { variant: 'warning' });
+        new Notice(strings.fileSystem.errors.folderNoteAlreadyExists);
         return null;
     }
 
@@ -152,7 +151,7 @@ export async function createFolderNote(
 
     const conflictingItem = app.vault.getAbstractFileByPath(notePath);
     if (conflictingItem) {
-        showNotice(strings.fileSystem.errors.folderNoteAlreadyExists, { variant: 'warning' });
+        new Notice(strings.fileSystem.errors.folderNoteAlreadyExists);
         return null;
     }
 
@@ -182,7 +181,7 @@ export async function createFolderNote(
         return file;
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        showNotice(strings.fileSystem.errors.createFile.replace('{error}', message), { variant: 'warning' });
+        new Notice(strings.fileSystem.errors.createFile.replace('{error}', message));
     }
     return null;
 }

@@ -406,7 +406,6 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.DELETE_SELECTED)) {
                 if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                     e.preventDefault();
-                    // Delete selected folder
                     runAsyncAction(() =>
                         deleteSelectedFolder({
                             app,

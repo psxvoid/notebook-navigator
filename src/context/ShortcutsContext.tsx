@@ -17,7 +17,7 @@
  */
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { TAbstractFile, TFile, TFolder } from 'obsidian';
+import { Notice, TAbstractFile, TFile, TFolder } from 'obsidian';
 import { useSettingsState, useSettingsUpdate } from './SettingsContext';
 import { useServices } from './ServicesContext';
 import {
@@ -32,7 +32,6 @@ import {
 } from '../types/shortcuts';
 import type { SearchProvider } from '../types/search';
 import { strings } from '../i18n';
-import { showNotice } from '../utils/noticeUtils';
 import { normalizeTagPath } from '../utils/tagUtils';
 import { runAsyncAction } from '../utils/async';
 
@@ -340,20 +339,17 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         [updateSettings]
     );
 
-    // Adds multiple shortcuts, validating each type and showing notices for duplicates or invalid entries
     const addShortcutsBatch = useCallback(
         async (entries: ShortcutEntry[], options?: { index?: number }) => {
             if (entries.length === 0) {
                 return 0;
             }
 
-            // Create sets of existing paths/names for O(1) duplicate checking
             const folderPaths = new Set(folderShortcutKeysByPath.keys());
             const notePaths = new Set(noteShortcutKeysByPath.keys());
             const tagPaths = new Set(tagShortcutKeysByPath.keys());
             const searchNames = new Set(searchShortcutsByName.keys());
 
-            // Track validation errors to show notices after processing all entries
             let duplicateFolder = false;
             let duplicateNote = false;
             let duplicateTag = false;
@@ -362,7 +358,6 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
             let emptySearchName = false;
             let emptySearchQuery = false;
 
-            // Validate and normalize each entry, tracking errors
             const normalizedEntries: ShortcutEntry[] = [];
             entries.forEach(entry => {
                 if (entry.type === ShortcutType.FOLDER) {
@@ -428,34 +423,32 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
                 }
             });
 
-            // Show notices for any validation errors found
             if (duplicateFolder) {
-                showNotice(strings.shortcuts.folderExists, { variant: 'warning' });
+                new Notice(strings.shortcuts.folderExists);
             }
             if (duplicateNote) {
-                showNotice(strings.shortcuts.noteExists, { variant: 'warning' });
+                new Notice(strings.shortcuts.noteExists);
             }
             if (duplicateTag) {
-                showNotice(strings.shortcuts.tagExists, { variant: 'warning' });
+                new Notice(strings.shortcuts.tagExists);
             }
             if (invalidTag) {
-                showNotice(strings.modals.tagOperation.invalidTagName, { variant: 'warning' });
+                new Notice(strings.modals.tagOperation.invalidTagName);
             }
             if (duplicateSearch) {
-                showNotice(strings.shortcuts.searchExists, { variant: 'warning' });
+                new Notice(strings.shortcuts.searchExists);
             }
             if (emptySearchName) {
-                showNotice(strings.shortcuts.emptySearchName, { variant: 'warning' });
+                new Notice(strings.shortcuts.emptySearchName);
             }
             if (emptySearchQuery) {
-                showNotice(strings.shortcuts.emptySearchQuery, { variant: 'warning' });
+                new Notice(strings.shortcuts.emptySearchQuery);
             }
 
             if (normalizedEntries.length === 0) {
                 return 0;
             }
 
-            // Insert normalized entries at specified index, shifting subsequent items
             await updateSettings(current => {
                 const existing = current.shortcuts ?? [];
                 const next = [...existing];
@@ -478,7 +471,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     const addFolderShortcut = useCallback(
         async (path: string, options?: { index?: number }) => {
             if (folderShortcutKeysByPath.has(path)) {
-                showNotice(strings.shortcuts.folderExists, { variant: 'warning' });
+                new Notice(strings.shortcuts.folderExists);
                 return false;
             }
             return insertShortcut({ type: ShortcutType.FOLDER, path }, options?.index);
@@ -490,7 +483,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     const addNoteShortcut = useCallback(
         async (path: string, options?: { index?: number }) => {
             if (noteShortcutKeysByPath.has(path)) {
-                showNotice(strings.shortcuts.noteExists, { variant: 'warning' });
+                new Notice(strings.shortcuts.noteExists);
                 return false;
             }
             return insertShortcut({ type: ShortcutType.NOTE, path }, options?.index);
@@ -506,7 +499,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
                 return false;
             }
             if (tagShortcutKeysByPath.has(normalizedPath)) {
-                showNotice(strings.shortcuts.tagExists, { variant: 'warning' });
+                new Notice(strings.shortcuts.tagExists);
                 return false;
             }
             return insertShortcut({ type: ShortcutType.TAG, tagPath: normalizedPath }, options?.index);
@@ -519,19 +512,19 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         async ({ name, query, provider }: { name: string; query: string; provider: SearchProvider }, options?: { index?: number }) => {
             const normalizedQuery = query.trim();
             if (!normalizedQuery) {
-                showNotice(strings.shortcuts.emptySearchQuery, { variant: 'warning' });
+                new Notice(strings.shortcuts.emptySearchQuery);
                 return false;
             }
 
             const normalizedName = name.trim();
             if (!normalizedName) {
-                showNotice(strings.shortcuts.emptySearchName, { variant: 'warning' });
+                new Notice(strings.shortcuts.emptySearchName);
                 return false;
             }
 
             const nameKey = normalizedName.toLowerCase();
             if (searchShortcutsByName.has(nameKey)) {
-                showNotice(strings.shortcuts.searchExists, { variant: 'warning' });
+                new Notice(strings.shortcuts.searchExists);
                 return false;
             }
 

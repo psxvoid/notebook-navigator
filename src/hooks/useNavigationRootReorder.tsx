@@ -241,7 +241,6 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                     event.stopPropagation();
                     const nativeEvent = event.nativeEvent;
                     const mouseEvent = nativeEvent instanceof MouseEvent ? nativeEvent : undefined;
-                    // Open reorder menu on right-click
                     runAsyncAction(() => {
                         openRootReorderMenu(
                             event.currentTarget,

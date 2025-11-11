@@ -285,18 +285,10 @@ export class IndexedDBStorage {
         });
     }
 
-    /**
-     * Converts unknown error types to Error instances for consistent error handling.
-     * IndexedDB errors can be DOMExceptions, null, or undefined - this normalizes them.
-     */
     private normalizeIdbError(error: unknown, fallbackMessage: string): Error {
         return error instanceof Error ? error : new Error(fallbackMessage);
     }
 
-    /**
-     * Rejects a promise with a normalized error from either the transaction or the last request.
-     * Prefers the transaction error if available, otherwise uses the last request error.
-     */
     private rejectWithTransactionError(
         reject: (reason?: unknown) => void,
         transaction: IDBTransaction,
@@ -363,13 +355,11 @@ export class IndexedDBStorage {
                             cursorRequest.onsuccess = () => {
                                 const cursor = cursorRequest.result;
                                 if (!cursor) {
-                                    // All data loaded, mark cache as ready
                                     this.cache.markInitialized();
                                     resolveCursor();
                                     return;
                                 }
 
-                                // Stream each file directly into the cache without intermediate storage
                                 const path = cursor.key as string;
                                 this.cache.updateFile(path, cursor.value as FileData);
                                 cursor.continue();

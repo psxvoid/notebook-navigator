@@ -314,7 +314,6 @@ export function useListPaneKeyboard({
             } else if (matchesShortcut(e, shortcuts, KeyboardShortcutAction.DELETE_SELECTED)) {
                 if (selectionState.selectedFile || selectionState.selectedFiles.size > 0) {
                     e.preventDefault();
-                    // Delete selected files
                     runAsyncAction(() =>
                         deleteSelectedFiles({
                             app,
