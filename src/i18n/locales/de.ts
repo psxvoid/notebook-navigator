@@ -258,6 +258,11 @@ export const STRINGS_DE = {
                 stone: 'Stein'
             }
         },
+        selectVaultProfile: {
+            title: 'Tresorprofil wechseln',
+            currentBadge: 'Aktiv',
+            emptyState: 'Keine Tresorprofile verfügbar.'
+        },
         tagOperation: {
             renameTitle: 'Tag {tag} umbenennen',
             deleteTitle: 'Tag {tag} löschen',
@@ -329,7 +334,6 @@ export const STRINGS_DE = {
             addPlaceholder: 'Nach hinzuzufügendem Tag suchen...',
             removePlaceholder: 'Tag zum Entfernen auswählen...',
             createNewTag: 'Neuen Tag erstellen: #{tag}',
-            allowCreationToggle: 'Erstellung neuer Tags erlauben',
             instructions: {
                 navigate: 'zum Navigieren',
                 select: 'zum Auswählen',
@@ -461,6 +465,7 @@ export const STRINGS_DE = {
         revealFile: 'Datei anzeigen', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: 'Suchen', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Doppelbereichslayout umschalten', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
+        selectVaultProfile: 'Tresorprofil wechseln', // Command palette: Opens a modal to choose a different vault profile (English: Switch vault profile)
         deleteFile: 'Dateien löschen', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
@@ -769,7 +774,7 @@ export const STRINGS_DE = {
             },
             vaultProfiles: {
                 name: 'Tresorprofil',
-                desc: 'Profile speichern Dateityp-Sichtbarkeit, versteckte Ordner, versteckte Tags und versteckte Notizen. Profile können über die Kopfzeile des Navigationsbereichs gewechselt werden.',
+                desc: 'Profile speichern Dateityp-Sichtbarkeit, versteckte Ordner, versteckte Tags, versteckte Notizen, Verknüpfungen und Navigationsbanner. Profile können über die Kopfzeile des Navigationsbereichs gewechselt werden.',
                 defaultName: 'Standard',
                 addButton: 'Profil hinzufügen',
                 editButton: 'Profil bearbeiten',
@@ -1012,10 +1017,6 @@ export const STRINGS_DE = {
             keepEmptyTagsProperty: {
                 name: 'Tags-Eigenschaft nach Entfernen des letzten Tags beibehalten',
                 desc: 'Behält die Tags-Frontmatter-Eigenschaft, wenn alle Tags entfernt werden. Wenn deaktiviert, wird die Tags-Eigenschaft aus dem Frontmatter gelöscht.'
-            },
-            allowTagCreationInAddTagModal: {
-                name: 'Tag-Erstellung im Tag-Hinzufügen-Dialog erlauben',
-                desc: 'Option zum Erstellen von Tags beim Hinzufügen anzeigen. Umschalter erscheint im Dialog.'
             },
             hiddenTags: {
                 name: 'Tags verstecken',

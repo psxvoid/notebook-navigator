@@ -257,6 +257,11 @@ export const STRINGS_IT = {
                 stone: 'Pietra'
             }
         },
+        selectVaultProfile: {
+            title: 'Cambia profilo del vault',
+            currentBadge: 'Attivo',
+            emptyState: 'Nessun profilo del vault disponibile.'
+        },
         tagOperation: {
             renameTitle: 'Rinomina tag {tag}',
             deleteTitle: 'Elimina tag {tag}',
@@ -459,6 +464,7 @@ export const STRINGS_IT = {
         revealFile: 'Mostra file',
         search: 'Cerca',
         toggleDualPane: 'Attiva/disattiva layout pannello doppio',
+        selectVaultProfile: 'Cambia profilo del vault',
         deleteFile: 'Elimina file',
         createNewNote: 'Crea nuova nota',
         moveFiles: 'Sposta file',
@@ -783,7 +789,7 @@ export const STRINGS_IT = {
             },
             vaultProfiles: {
                 name: 'Profilo vault',
-                desc: "I profili memorizzano la visibilità dei tipi di file, cartelle nascoste, tag nascosti e note nascoste. Cambia profilo dall'intestazione del pannello di navigazione.",
+                desc: "I profili memorizzano la visibilità dei tipi di file, cartelle nascoste, tag nascosti, note nascoste, collegamenti e banner di navigazione. Cambia profilo dall'intestazione del pannello di navigazione.",
                 defaultName: 'Predefinito',
                 addButton: 'Aggiungi profilo',
                 editButton: 'Modifica profilo',

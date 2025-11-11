@@ -255,6 +255,11 @@ export const STRINGS_KO = {
                 stone: '돌'
             }
         },
+        selectVaultProfile: {
+            title: '보관소 프로필 변경',
+            currentBadge: '활성',
+            emptyState: '사용 가능한 보관소 프로필이 없습니다.'
+        },
         tagOperation: {
             renameTitle: '태그 {tag} 이름 변경',
             deleteTitle: '태그 {tag} 삭제',
@@ -326,7 +331,6 @@ export const STRINGS_KO = {
             addPlaceholder: '추가할 태그 검색...',
             removePlaceholder: '제거할 태그 선택...',
             createNewTag: '새 태그 생성: #{tag}',
-            allowCreationToggle: '새 태그 생성 허용',
             instructions: {
                 navigate: '이동',
                 select: '선택',
@@ -458,6 +462,7 @@ export const STRINGS_KO = {
         revealFile: '파일 표시', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: '검색', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: '이중 창 레이아웃 전환', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
+        selectVaultProfile: '보관소 프로필 변경', // Command palette: Opens a modal to choose a different vault profile (English: Switch vault profile)
         deleteFile: '파일 삭제', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '새 노트 만들기', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '파일 이동', // Command palette: Move selected files to another folder (English: Move files)
@@ -786,7 +791,7 @@ export const STRINGS_KO = {
             },
             vaultProfiles: {
                 name: '보관소 프로필',
-                desc: '프로필은 파일 유형 가시성, 숨겨진 폴더, 숨겨진 태그, 숨겨진 노트를 저장합니다. 탐색 창 헤더에서 프로필을 전환합니다.',
+                desc: '프로필은 파일 유형 가시성, 숨겨진 폴더, 숨겨진 태그, 숨겨진 노트, 바로가기, 탐색 배너를 저장합니다. 탐색 창 헤더에서 프로필을 전환합니다.',
                 defaultName: '기본',
                 addButton: '프로필 추가',
                 editButton: '프로필 편집',
@@ -1008,10 +1013,6 @@ export const STRINGS_KO = {
             keepEmptyTagsProperty: {
                 name: '마지막 태그 제거 후 tags 속성 유지',
                 desc: '모든 태그가 제거될 때 frontmatter 의 tags 속성을 유지합니다. 비활성화하면 tags 속성이 frontmatter 에서 삭제됩니다.'
-            },
-            allowTagCreationInAddTagModal: {
-                name: '태그 추가 모달에서 태그 생성 허용',
-                desc: '태그 추가 시 생성 옵션을 표시합니다. 토글이 모달에 나타납니다.'
             },
             hiddenTags: {
                 name: '태그 숨기기',

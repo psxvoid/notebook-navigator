@@ -19,6 +19,7 @@
 import { normalizeTagPath } from '../../utils/tagUtils';
 import type { ShortcutEntry } from '../../types/shortcuts';
 import { isTagShortcut } from '../../types/shortcuts';
+import { mutateVaultProfileShortcuts } from '../../utils/vaultProfiles';
 import type { MetadataService } from '../MetadataService';
 
 /**
@@ -143,17 +144,16 @@ export class TagShortcutMutations {
             return;
         }
 
-        const shortcuts = settingsProvider.settings.shortcuts;
-        if (!Array.isArray(shortcuts) || shortcuts.length === 0) {
+        // Applies shortcut transformation to all vault profiles
+        const didChange = mutateVaultProfileShortcuts(settingsProvider.settings.vaultProfiles, shortcuts => {
+            const { changed, next } = apply(shortcuts);
+            return changed ? next : null;
+        });
+
+        if (!didChange) {
             return;
         }
 
-        const { changed, next } = apply(shortcuts);
-        if (!changed) {
-            return;
-        }
-
-        settingsProvider.settings.shortcuts = next;
         try {
             await settingsProvider.saveSettingsAndUpdate();
         } catch (error) {

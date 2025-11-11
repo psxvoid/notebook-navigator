@@ -256,6 +256,11 @@ export const STRINGS_FR = {
                 stone: 'Pierre'
             }
         },
+        selectVaultProfile: {
+            title: 'Changer le profil du coffre',
+            currentBadge: 'Actif',
+            emptyState: 'Aucun profil de coffre disponible.'
+        },
         tagOperation: {
             renameTitle: "Renommer l'étiquette",
             deleteTitle: "Supprimer l'étiquette",
@@ -327,7 +332,6 @@ export const STRINGS_FR = {
             addPlaceholder: 'Rechercher une étiquette à ajouter...',
             removePlaceholder: "Sélectionner l'étiquette à supprimer...",
             createNewTag: 'Créer une nouvelle étiquette : #{tag}',
-            allowCreationToggle: 'Autoriser la création de nouvelles étiquettes',
             instructions: {
                 navigate: 'pour naviguer',
                 select: 'pour sélectionner',
@@ -459,6 +463,7 @@ export const STRINGS_FR = {
         revealFile: 'Révéler le fichier', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: 'Rechercher', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Basculer la disposition à double panneau', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
+        selectVaultProfile: 'Changer le profil du coffre', // Command palette: Opens a modal to choose a different vault profile (English: Switch vault profile)
         deleteFile: 'Supprimer les fichiers', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Créer une nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Déplacer les fichiers', // Command palette: Move selected files to another folder (English: Move files)
@@ -767,7 +772,7 @@ export const STRINGS_FR = {
             },
             vaultProfiles: {
                 name: 'Profil du coffre',
-                desc: "Les profils stockent la visibilité des types de fichiers, les dossiers cachés, les étiquettes cachées et les notes cachées. Changez de profil depuis l'en-tête du panneau de navigation.",
+                desc: "Les profils stockent la visibilité des types de fichiers, les dossiers cachés, les étiquettes cachées, les notes cachées, les raccourcis et la bannière de navigation. Changez de profil depuis l'en-tête du panneau de navigation.",
                 defaultName: 'Par défaut',
                 addButton: 'Ajouter un profil',
                 editButton: 'Modifier le profil',
@@ -1012,10 +1017,6 @@ export const STRINGS_FR = {
             keepEmptyTagsProperty: {
                 name: 'Conserver la propriété tags après suppression de la dernière étiquette',
                 desc: 'Conserve la propriété tags dans le frontmatter lorsque toutes les étiquettes sont supprimées. Si désactivé, la propriété tags est supprimée du frontmatter.'
-            },
-            allowTagCreationInAddTagModal: {
-                name: "Autoriser la création d'étiquettes dans le modal d'ajout",
-                desc: "Afficher l'option de création d'étiquette lors de l'ajout d'étiquettes. Le bouton apparaît dans le modal."
             },
             hiddenTags: {
                 name: 'Masquer les étiquettes',

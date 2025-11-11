@@ -39,7 +39,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
             hiddenFolders: [],
             hiddenTags: [],
             hiddenFiles: [],
-            navigationBanner: null
+            navigationBanner: null,
+            shortcuts: []
         }
     ],
     vaultProfile: 'default',
@@ -121,7 +122,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showUntagged: false,
     tagSortOrder: 'alpha-asc',
     keepEmptyTagsProperty: false,
-    allowTagCreationInAddTagModal: true,
 
     // List pane tab
     defaultFolderSort: 'modified-desc',
@@ -180,7 +180,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Search & hotkeys tab
     searchProvider: 'internal',
     keyboardShortcuts: getDefaultKeyboardShortcuts(),
-    shortcuts: [],
 
     // Advanced tab
     checkForUpdatesOnStart: true,

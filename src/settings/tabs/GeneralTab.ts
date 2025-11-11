@@ -166,7 +166,8 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             hiddenFolders: activeProfile?.hiddenFolders,
             hiddenFiles: activeProfile?.hiddenFiles,
             hiddenTags: plugin.settings.hiddenTags,
-            fileVisibility: plugin.settings.fileVisibility
+            fileVisibility: plugin.settings.fileVisibility,
+            shortcuts: activeProfile?.shortcuts
         });
         plugin.settings.vaultProfiles.push(newProfile);
         await plugin.setVaultProfile(newProfile.id);

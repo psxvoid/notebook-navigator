@@ -38,7 +38,7 @@ import { strings } from '../i18n';
 import { runAsyncAction } from '../utils/async';
 import { useUpdateNotice } from '../hooks/useUpdateNotice';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
-import { TagSuggestModal, createTagCreationOptions } from '../modals/TagSuggestModal';
+import { TagSuggestModal } from '../modals/TagSuggestModal';
 import { RemoveTagModal } from '../modals/RemoveTagModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { FILE_PANE_DIMENSIONS, ItemType, NAVPANE_MEASUREMENTS, type BackgroundMode, type DualPaneOrientation } from '../types';
@@ -633,7 +633,8 @@ export const NotebookNavigatorComponent = React.memo(
                         },
                         strings.modals.tagSuggest.navigatePlaceholder,
                         strings.modals.tagSuggest.instructions.select,
-                        true // Include untagged option
+                        true, // Include untagged option
+                        false // Do not allow creating tags for navigation
                     );
                     modal.open();
                 },
@@ -672,8 +673,7 @@ export const NotebookNavigatorComponent = React.memo(
                         },
                         strings.modals.tagSuggest.addPlaceholder,
                         strings.modals.tagSuggest.instructions.add,
-                        false, // Don't include untagged
-                        createTagCreationOptions(plugin)
+                        false // Don't include untagged
                     );
                     modal.open();
                 },

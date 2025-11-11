@@ -3,13 +3,15 @@ import type { App } from 'obsidian';
 import { TFile } from 'obsidian';
 import * as TagRenameModule from '../../src/services/tagRename/TagRenameEngine';
 import { TagOperations } from '../../src/services/TagOperations';
-import { ShortcutType } from '../../src/types/shortcuts';
+import { ShortcutType, type ShortcutEntry } from '../../src/types/shortcuts';
 import { TAGGED_TAG_ID } from '../../src/types';
 import type { NotebookNavigatorSettings } from '../../src/settings';
 import { DEFAULT_SETTINGS } from '../../src/settings/defaultSettings';
 import type { ISettingsProvider } from '../../src/interfaces/ISettingsProvider';
 import type { TagTreeService } from '../../src/services/TagTreeService';
 import type { MetadataService } from '../../src/services/MetadataService';
+import { createVaultProfile, getActiveVaultProfile } from '../../src/utils/vaultProfiles';
+import type { VaultProfile } from '../../src/settings/types';
 
 vi.mock('obsidian', () => {
     class Modal {}
@@ -71,8 +73,28 @@ vi.mock('../../src/storage/fileOperations', () => ({
 function createSettings(): NotebookNavigatorSettings {
     return {
         ...DEFAULT_SETTINGS,
-        shortcuts: []
+        vaultProfiles: DEFAULT_SETTINGS.vaultProfiles.map(profile =>
+            createVaultProfile(profile.name, {
+                id: profile.id,
+                hiddenFolders: profile.hiddenFolders,
+                hiddenFiles: profile.hiddenFiles,
+                hiddenTags: profile.hiddenTags,
+                fileVisibility: profile.fileVisibility,
+                navigationBanner: profile.navigationBanner,
+                shortcuts: profile.shortcuts
+            })
+        )
     };
+}
+
+function createVaultProfileStub(id: string, shortcuts: ShortcutEntry[]): VaultProfile {
+    return createVaultProfile(id, {
+        id,
+        hiddenFolders: [],
+        hiddenFiles: [],
+        hiddenTags: [],
+        shortcuts
+    });
 }
 
 function createSettingsProvider(settings: NotebookNavigatorSettings): ISettingsProvider & {
@@ -181,7 +203,8 @@ describe('TagReplacement', () => {
 describe('TagOperations shortcut migration', () => {
     it('renames tag shortcuts that match the renamed tag', async () => {
         const settings = createSettings();
-        settings.shortcuts = [
+        const profile = getActiveVaultProfile(settings);
+        profile.shortcuts = [
             { type: ShortcutType.TAG, tagPath: 'projects' },
             { type: ShortcutType.NOTE, path: 'Notes.md' },
             { type: ShortcutType.TAG, tagPath: 'projects/client' }
@@ -190,7 +213,7 @@ describe('TagOperations shortcut migration', () => {
 
         await (tagOperations as any).updateTagShortcutsAfterRename('projects', 'areas');
 
-        expect(settings.shortcuts).toEqual([
+        expect(profile.shortcuts).toEqual([
             { type: ShortcutType.TAG, tagPath: 'areas' },
             { type: ShortcutType.NOTE, path: 'Notes.md' },
             { type: ShortcutType.TAG, tagPath: 'areas/client' }
@@ -200,7 +223,8 @@ describe('TagOperations shortcut migration', () => {
 
     it('drops shortcuts when rename collides with existing destination', async () => {
         const settings = createSettings();
-        settings.shortcuts = [
+        const profile = getActiveVaultProfile(settings);
+        profile.shortcuts = [
             { type: ShortcutType.TAG, tagPath: 'areas' },
             { type: ShortcutType.TAG, tagPath: 'projects' }
         ];
@@ -208,18 +232,19 @@ describe('TagOperations shortcut migration', () => {
 
         await (tagOperations as any).updateTagShortcutsAfterRename('projects', 'areas');
 
-        expect(settings.shortcuts).toEqual([{ type: ShortcutType.TAG, tagPath: 'areas' }]);
+        expect(profile.shortcuts).toEqual([{ type: ShortcutType.TAG, tagPath: 'areas' }]);
         expect(provider.saveSettingsAndUpdate).toHaveBeenCalledTimes(1);
     });
 
     it('leaves shortcuts untouched when new path matches old path after normalization', async () => {
         const settings = createSettings();
-        settings.shortcuts = [{ type: ShortcutType.TAG, tagPath: 'projects' }];
+        const profile = getActiveVaultProfile(settings);
+        profile.shortcuts = [{ type: ShortcutType.TAG, tagPath: 'projects' }];
         const { tagOperations, provider } = createTagOperations(settings);
 
         await (tagOperations as any).updateTagShortcutsAfterRename('Projects', 'projects');
 
-        expect(settings.shortcuts).toEqual([{ type: ShortcutType.TAG, tagPath: 'projects' }]);
+        expect(profile.shortcuts).toEqual([{ type: ShortcutType.TAG, tagPath: 'projects' }]);
         expect(provider.saveSettingsAndUpdate).not.toHaveBeenCalled();
     });
 });
@@ -227,7 +252,8 @@ describe('TagOperations shortcut migration', () => {
 describe('TagOperations shortcut cleanup on delete', () => {
     it('removes tag shortcuts for deleted tag hierarchy', async () => {
         const settings = createSettings();
-        settings.shortcuts = [
+        const profile = getActiveVaultProfile(settings);
+        profile.shortcuts = [
             { type: ShortcutType.TAG, tagPath: 'projects' },
             { type: ShortcutType.TAG, tagPath: 'projects/client' },
             { type: ShortcutType.NOTE, path: 'Notes.md' }
@@ -236,19 +262,74 @@ describe('TagOperations shortcut cleanup on delete', () => {
 
         await (tagOperations as any).removeTagShortcutsAfterDelete('projects');
 
-        expect(settings.shortcuts).toEqual([{ type: ShortcutType.NOTE, path: 'Notes.md' }]);
+        expect(profile.shortcuts).toEqual([{ type: ShortcutType.NOTE, path: 'Notes.md' }]);
         expect(provider.saveSettingsAndUpdate).toHaveBeenCalledTimes(1);
     });
 
     it('skips saving when no shortcuts reference deleted tag', async () => {
         const settings = createSettings();
-        settings.shortcuts = [{ type: ShortcutType.NOTE, path: 'Notes.md' }];
+        const profile = getActiveVaultProfile(settings);
+        profile.shortcuts = [{ type: ShortcutType.NOTE, path: 'Notes.md' }];
         const { tagOperations, provider } = createTagOperations(settings);
 
         await (tagOperations as any).removeTagShortcutsAfterDelete('projects');
 
-        expect(settings.shortcuts).toEqual([{ type: ShortcutType.NOTE, path: 'Notes.md' }]);
+        expect(profile.shortcuts).toEqual([{ type: ShortcutType.NOTE, path: 'Notes.md' }]);
         expect(provider.saveSettingsAndUpdate).not.toHaveBeenCalled();
+    });
+});
+
+describe('TagOperations multi-profile shortcuts', () => {
+    it('renames tag shortcuts across every vault profile', async () => {
+        const settings = createSettings();
+        const primary = getActiveVaultProfile(settings);
+        primary.shortcuts = [
+            { type: ShortcutType.TAG, tagPath: 'projects' },
+            { type: ShortcutType.TAG, tagPath: 'projects/delta' }
+        ];
+        const secondary = createVaultProfileStub('secondary', [
+            { type: ShortcutType.TAG, tagPath: 'projects' },
+            { type: ShortcutType.NOTE, path: 'Other.md' },
+            { type: ShortcutType.TAG, tagPath: 'projects/beta' }
+        ]);
+        settings.vaultProfiles.push(secondary);
+
+        const { tagOperations, provider } = createTagOperations(settings);
+
+        await (tagOperations as any).updateTagShortcutsAfterRename('projects', 'areas');
+
+        expect(primary.shortcuts).toEqual([
+            { type: ShortcutType.TAG, tagPath: 'areas' },
+            { type: ShortcutType.TAG, tagPath: 'areas/delta' }
+        ]);
+        expect(secondary.shortcuts).toEqual([
+            { type: ShortcutType.TAG, tagPath: 'areas' },
+            { type: ShortcutType.NOTE, path: 'Other.md' },
+            { type: ShortcutType.TAG, tagPath: 'areas/beta' }
+        ]);
+        expect(provider.saveSettingsAndUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    it('removes deleted tag shortcuts from every vault profile', async () => {
+        const settings = createSettings();
+        const primary = getActiveVaultProfile(settings);
+        primary.shortcuts = [
+            { type: ShortcutType.TAG, tagPath: 'projects' },
+            { type: ShortcutType.NOTE, path: 'Notes.md' }
+        ];
+        const secondary = createVaultProfileStub('secondary', [
+            { type: ShortcutType.TAG, tagPath: 'projects/child' },
+            { type: ShortcutType.NOTE, path: 'Archive.md' }
+        ]);
+        settings.vaultProfiles.push(secondary);
+
+        const { tagOperations, provider } = createTagOperations(settings);
+
+        await (tagOperations as any).removeTagShortcutsAfterDelete('projects');
+
+        expect(primary.shortcuts).toEqual([{ type: ShortcutType.NOTE, path: 'Notes.md' }]);
+        expect(secondary.shortcuts).toEqual([{ type: ShortcutType.NOTE, path: 'Archive.md' }]);
+        expect(provider.saveSettingsAndUpdate).toHaveBeenCalledTimes(1);
     });
 });
 

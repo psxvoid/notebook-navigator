@@ -6,16 +6,16 @@ Icon font files and metadata for external icon providers.
 
 ```bash
 # Update all icon packs
-./icon-assets/update-icon-packs.sh
+../scripts/update-icon-packs.sh
 
 # Check for updates without downloading
-./icon-assets/update-icon-packs.sh --check-only
+../scripts/update-icon-packs.sh --check-only
 
 # Update specific packs
-./icon-assets/update-icon-packs.sh fontawesome simple-icons
+../scripts/update-icon-packs.sh fontawesome simple-icons
 
 # Force update even if already up to date
-./icon-assets/update-icon-packs.sh --force
+../scripts/update-icon-packs.sh --force
 ```
 
 ## Structure

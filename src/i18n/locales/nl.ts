@@ -257,6 +257,11 @@ export const STRINGS_NL = {
                 stone: 'Steen'
             }
         },
+        selectVaultProfile: {
+            title: 'Kluisprofiel wijzigen',
+            currentBadge: 'Actief',
+            emptyState: 'Geen kluisprofielen beschikbaar.'
+        },
         tagOperation: {
             renameTitle: 'Tag {tag} hernoemen',
             deleteTitle: 'Tag {tag} verwijderen',
@@ -328,7 +333,6 @@ export const STRINGS_NL = {
             addPlaceholder: 'Zoeken naar tag om toe te voegen...',
             removePlaceholder: 'Selecteer tag om te verwijderen...',
             createNewTag: 'Nieuwe tag maken: #{tag}',
-            allowCreationToggle: 'Nieuwe tags aanmaken toestaan',
             instructions: {
                 navigate: 'om te navigeren',
                 select: 'om te selecteren',
@@ -460,6 +464,7 @@ export const STRINGS_NL = {
         revealFile: 'Bestand tonen',
         search: 'Zoeken',
         toggleDualPane: 'Dubbel paneel in-/uitschakelen',
+        selectVaultProfile: 'Kluisprofiel wijzigen',
         deleteFile: 'Bestanden verwijderen',
         createNewNote: 'Nieuwe notitie maken',
         moveFiles: 'Bestanden verplaatsen',
@@ -788,7 +793,7 @@ export const STRINGS_NL = {
             },
             vaultProfiles: {
                 name: 'Kluis profiel',
-                desc: 'Profielen bewaren bestandstypezichtbaarheid, verborgen mappen, verborgen labels en verborgen notities. Wissel van profiel via de koptekst van het navigatiepaneel.',
+                desc: 'Profielen bewaren bestandstypezichtbaarheid, verborgen mappen, verborgen labels, verborgen notities, snelkoppelingen en navigatiebanner. Wissel van profiel via de koptekst van het navigatiepaneel.',
                 defaultName: 'Standaard',
                 addButton: 'Profiel toevoegen',
                 editButton: 'Profiel bewerken',
@@ -1011,10 +1016,6 @@ export const STRINGS_NL = {
             keepEmptyTagsProperty: {
                 name: 'Tags-eigenschap behouden na verwijderen laatste tag',
                 desc: 'De tags frontmatter-eigenschap behouden wanneer alle tags worden verwijderd. Indien uitgeschakeld, wordt de tags-eigenschap verwijderd uit frontmatter.'
-            },
-            allowTagCreationInAddTagModal: {
-                name: 'Tags aanmaken in Tag toevoegen-dialoog toestaan',
-                desc: 'Optie om tags te maken weergeven bij het toevoegen van tags. Schakelaar verschijnt in het dialoogvenster.'
             },
             hiddenTags: {
                 name: 'Tags verbergen',

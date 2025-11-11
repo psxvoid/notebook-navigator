@@ -38,7 +38,7 @@ async function updateConfigVersion(configPath: string, newVersion: string): Prom
 }
 
 async function processIconPack(pack: IconPackConfig): Promise<void> {
-    const configPath = path.join(__dirname, 'config', `${pack.id.replace(/-/g, '')}.ts`);
+    const configPath = path.join(__dirname, 'config', `${pack.id}.ts`);
 
     // Check for updates
     const latestVersion = pack.checkVersion ? await pack.checkVersion() : pack.version;

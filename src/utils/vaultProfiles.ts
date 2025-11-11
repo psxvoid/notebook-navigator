@@ -18,6 +18,7 @@
 
 import type { NotebookNavigatorSettings } from '../settings';
 import type { VaultProfile } from '../settings/types';
+import type { ShortcutEntry } from '../types/shortcuts';
 import { strings } from '../i18n';
 import { FILE_VISIBILITY, type FileVisibility } from './fileTypeUtils';
 
@@ -31,6 +32,7 @@ interface VaultProfileInitOptions {
     hiddenTags?: string[];
     fileVisibility?: FileVisibility;
     navigationBanner?: string | null;
+    shortcuts?: ShortcutEntry[];
 }
 
 // Creates a clean copy of pattern array, trimming and filtering out empty strings
@@ -39,6 +41,42 @@ const clonePatterns = (patterns: string[] | undefined): string[] => {
         return [];
     }
     return patterns.map(pattern => pattern.trim()).filter(pattern => pattern.length > 0);
+};
+
+// Creates a clone of shortcuts array to prevent shared references
+export const cloneShortcuts = (shortcuts: ShortcutEntry[] | undefined): ShortcutEntry[] => {
+    if (!Array.isArray(shortcuts)) {
+        return [];
+    }
+    return shortcuts.map(shortcut => ({ ...shortcut }));
+};
+
+// Applies a transformation function to shortcuts for every profile that has entries
+export const mutateVaultProfileShortcuts = (
+    profiles: VaultProfile[] | undefined,
+    transform: (shortcuts: ShortcutEntry[]) => ShortcutEntry[] | null | undefined
+): boolean => {
+    if (!Array.isArray(profiles) || profiles.length === 0) {
+        return false;
+    }
+
+    let didChange = false;
+
+    profiles.forEach(profile => {
+        if (!Array.isArray(profile.shortcuts) || profile.shortcuts.length === 0) {
+            return;
+        }
+
+        const next = transform(profile.shortcuts);
+        if (!next) {
+            return;
+        }
+
+        profile.shortcuts = next;
+        didChange = true;
+    });
+
+    return didChange;
 };
 
 // Generates a unique profile ID using timestamp and random string
@@ -73,7 +111,8 @@ export function createVaultProfile(name: string, options: VaultProfileInitOption
         hiddenTags: clonePatterns(options.hiddenTags),
         hiddenFiles: clonePatterns(options.hiddenFiles),
         navigationBanner:
-            typeof options.navigationBanner === 'string' && options.navigationBanner.length > 0 ? options.navigationBanner : null
+            typeof options.navigationBanner === 'string' && options.navigationBanner.length > 0 ? options.navigationBanner : null,
+        shortcuts: cloneShortcuts(options.shortcuts)
     };
 }
 
@@ -122,6 +161,7 @@ export function ensureVaultProfiles(settings: NotebookNavigatorSettings): void {
         profile.hiddenFiles = clonePatterns(profile.hiddenFiles);
         profile.navigationBanner =
             typeof profile.navigationBanner === 'string' && profile.navigationBanner.length > 0 ? profile.navigationBanner : null;
+        profile.shortcuts = cloneShortcuts(profile.shortcuts);
     });
 
     const hasActiveProfile = settings.vaultProfiles.some(profile => profile.id === settings.vaultProfile);
@@ -138,6 +178,20 @@ export function getActiveVaultProfile(settings: NotebookNavigatorSettings): Vaul
         throw new Error('No vault profiles configured');
     }
     return profile;
+}
+
+// Finds a vault profile by ID or returns the first profile as fallback
+export function findVaultProfileById(profiles: VaultProfile[] | undefined, profileId: string | null | undefined): VaultProfile {
+    if (!Array.isArray(profiles) || profiles.length === 0) {
+        throw new Error('No vault profiles configured');
+    }
+    if (profileId) {
+        const match = profiles.find(profile => profile.id === profileId);
+        if (match) {
+            return match;
+        }
+    }
+    return profiles[0];
 }
 
 // Returns the list of hidden folder patterns from the active profile
