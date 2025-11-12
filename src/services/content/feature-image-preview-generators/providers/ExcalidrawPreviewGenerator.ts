@@ -16,15 +16,53 @@ interface ElementsDictImage {
     height: number
 }
 
+interface FrameRenderingOptions {
+    enabled: boolean;
+    name: boolean;
+    outline: boolean;
+    clip: boolean;
+}
+
+interface ExportSettings {
+    withBackground: boolean;
+    withTheme: boolean;
+    isMask: boolean;
+    frameRendering?: FrameRenderingOptions; //optional, overrides relevant appState settings for rendering the frame
+    skipInliningFonts?: boolean;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface EmbeddedFilesLoader {
+}
+
+const exportSettings: ExportSettings = {
+    frameRendering: {
+        enabled: false,
+        name: false,
+        outline: false,
+        clip: false
+    },
+    withBackground: true,
+    withTheme: true,
+    isMask: false
+}
+
 interface ExcalidrawAutomateGlobal {
     elementsDict: readonly ElementsDictImage[]
     imagesDict: { [key: string]: unknown }
     getAPI(): ExcalidrawAutomateGlobal & {
         getSceneFromFile(excalidrawFile: TFile): ExcalidrawScene;
         copyViewElementsToEAforEditing(scene: SceneElements, copyImages?: boolean): unknown;
-        createPNG(): Promise<Blob>;
+        createPNG(
+            templatePath?: string,
+            scale?: number,
+            exportSettings?: ExportSettings,
+            loader?: EmbeddedFilesLoader,
+            theme?: string,
+            padding?: number,
+        ): Promise<Blob>
+        destroy(): void
     }
-    destroy(): void
 }
 
 declare global {
@@ -60,7 +98,7 @@ export interface ToDataUriResult {
     dispose: () => void,
 }
 
-const EMPTY_DISPOSE = function emptyDispose() {}
+const EMPTY_DISPOSE = function emptyDispose() { }
 const EMPTY_TO_DATA_URI_RESULT = { dispose: EMPTY_DISPOSE }
 
 async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: number, height: number }, app: App): Promise<ToDataUriResult> {
@@ -177,7 +215,7 @@ async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, e
     }));
 
     return () => {
-        for(const disposeFunc of disposeFuncs) {
+        for (const disposeFunc of disposeFuncs) {
             disposeFunc()
         }
     }
@@ -191,8 +229,9 @@ export async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, a
     const scene = await ea.getSceneFromFile(excalidrawFile)
 
     async function createNewBlobResult(dispose?: Dispose): Promise<ProviderPreviewResult> {
+        // the frame around the preview is still rendered if padding=0 is not provided
         return {
-            blob: await ea.createPNG(),
+            blob: await ea.createPNG(undefined, 1, exportSettings, undefined, undefined, 0),
             dispose: () => { ea.destroy(); (dispose ?? EMPTY_DISPOSE)(); }
         }
     }
