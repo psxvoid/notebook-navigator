@@ -106,7 +106,7 @@ async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: numb
         return EMPTY_TO_DATA_URI_RESULT;
     }
 
-    const metadata: CachedMetadata | null = this.app.metadataCache.getFileCache(tFile);
+    const metadata: CachedMetadata | null = app.metadataCache.getFileCache(tFile);
 
     let previewPngBlob: ProviderPreviewResult | undefined
     if (getExcalidrawAttachmentType(outlink, metadata) === 'raw') {
