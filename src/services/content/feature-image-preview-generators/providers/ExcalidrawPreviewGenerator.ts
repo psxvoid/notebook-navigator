@@ -150,7 +150,7 @@ async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: numb
     const pngBlob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((blob: Blob | null) => {
             if (blob == null) {
-                reject(`Unable to create image preview for "${tFile.path}"`);
+                reject(new Error(`Unable to create image preview for "${tFile.path}"`));
                 return;
             }
 
