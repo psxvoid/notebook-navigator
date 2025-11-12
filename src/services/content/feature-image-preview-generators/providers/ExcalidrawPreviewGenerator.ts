@@ -51,7 +51,7 @@ interface ExcalidrawAutomateGlobal {
     elementsDict: readonly ElementsDictImage[]
     imagesDict: { [key: string]: unknown }
     getAPI(): ExcalidrawAutomateGlobal & {
-        getSceneFromFile(excalidrawFile: TFile): ExcalidrawScene;
+        getSceneFromFile(excalidrawFile: TFile): Promise<ExcalidrawScene>;
         copyViewElementsToEAforEditing(scene: SceneElements, copyImages?: boolean): unknown;
         createPNG(
             templatePath?: string,
@@ -101,7 +101,7 @@ export interface ToDataUriResult {
 const EMPTY_DISPOSE = function emptyDispose() { }
 const EMPTY_TO_DATA_URI_RESULT = { dispose: EMPTY_DISPOSE }
 
-async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: number, height: number }, app: App): Promise<ToDataUriResult> {
+async function toDataURI(tFile: TFile | null, outlink: LinkCache, params: { width: number, height: number }, app: App): Promise<ToDataUriResult> {
     if (tFile == null) {
         return EMPTY_TO_DATA_URI_RESULT;
     }
