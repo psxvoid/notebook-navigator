@@ -172,7 +172,7 @@ export type Dispose = () => void;
 export type DisposeArray = Dispose[];
 
 async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, excalidrawFile: TFile, app: App): Promise<Dispose> {
-    const outlinks = this.app.metadataCache.getFileCache(excalidrawFile)?.links as LinkCache[];
+    const outlinks = app.metadataCache.getFileCache(excalidrawFile)?.links as LinkCache[];
 
     if (outlinks == null || outlinks.length === 0) return EMPTY_DISPOSE;
 
@@ -180,7 +180,7 @@ async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, e
 
     if (sceneImages.length === 0) return EMPTY_DISPOSE;
 
-    const content = await this.app.vault.read(excalidrawFile);
+    const content = await app.vault.read(excalidrawFile);
     const lines = content.split('\n')
     const disposeFuncs: DisposeArray = []
 
@@ -194,7 +194,7 @@ async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, e
         const fileId = fileParams.fileId
 
         const embedPath = outlink.link;
-        const embedFile = this.app.metadataCache.getFirstLinkpathDest(embedPath, excalidrawFile.path);
+        const embedFile = app.metadataCache.getFirstLinkpathDest(embedPath, excalidrawFile.path);
 
         const imageData: ToDataUriResult = await toDataURI(embedFile, outlink, fileParams, app);
 
