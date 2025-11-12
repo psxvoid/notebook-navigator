@@ -136,7 +136,8 @@ async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: numb
 
     await new Promise<void>((resolve, reject) => {
         imgEl.onload = () => resolve();
-        imgEl.onerror = (e) => reject(e);
+        imgEl.onerror = (event: Event | string, source?: string, lineno?: number, colno?: number, error?: Error) =>
+            reject(error ?? new Error(`Image onload error: source: ${source}, lineno: ${lineno}, colno: ${colno}, event: ${typeof event === 'string' ? event : event.type}`));
     });
 
     const canvas = document.createElement('canvas')
