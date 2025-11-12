@@ -16,15 +16,53 @@ interface ElementsDictImage {
     height: number
 }
 
+interface FrameRenderingOptions {
+    enabled: boolean;
+    name: boolean;
+    outline: boolean;
+    clip: boolean;
+}
+
+interface ExportSettings {
+    withBackground: boolean;
+    withTheme: boolean;
+    isMask: boolean;
+    frameRendering?: FrameRenderingOptions; //optional, overrides relevant appState settings for rendering the frame
+    skipInliningFonts?: boolean;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface EmbeddedFilesLoader {
+}
+
+const exportSettings: ExportSettings = {
+    frameRendering: {
+        enabled: false,
+        name: false,
+        outline: false,
+        clip: false
+    },
+    withBackground: true,
+    withTheme: true,
+    isMask: false
+}
+
 interface ExcalidrawAutomateGlobal {
     elementsDict: readonly ElementsDictImage[]
     imagesDict: { [key: string]: unknown }
     getAPI(): ExcalidrawAutomateGlobal & {
-        getSceneFromFile(excalidrawFile: TFile): ExcalidrawScene;
+        getSceneFromFile(excalidrawFile: TFile): Promise<ExcalidrawScene>;
         copyViewElementsToEAforEditing(scene: SceneElements, copyImages?: boolean): unknown;
-        createPNG(): Promise<Blob>;
+        createPNG(
+            templatePath?: string,
+            scale?: number,
+            exportSettings?: ExportSettings,
+            loader?: EmbeddedFilesLoader,
+            theme?: string,
+            padding?: number,
+        ): Promise<Blob>
+        destroy(): void
     }
-    destroy(): void
 }
 
 declare global {
@@ -60,15 +98,15 @@ export interface ToDataUriResult {
     dispose: () => void,
 }
 
-const EMPTY_DISPOSE = function emptyDispose() {}
+const EMPTY_DISPOSE = function emptyDispose() { }
 const EMPTY_TO_DATA_URI_RESULT = { dispose: EMPTY_DISPOSE }
 
-async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: number, height: number }, app: App): Promise<ToDataUriResult> {
+async function toDataURI(tFile: TFile | null, outlink: LinkCache, params: { width: number, height: number }, app: App): Promise<ToDataUriResult> {
     if (tFile == null) {
         return EMPTY_TO_DATA_URI_RESULT;
     }
 
-    const metadata: CachedMetadata | null = this.app.metadataCache.getFileCache(tFile);
+    const metadata: CachedMetadata | null = app.metadataCache.getFileCache(tFile);
 
     let previewPngBlob: ProviderPreviewResult | undefined
     if (getExcalidrawAttachmentType(outlink, metadata) === 'raw') {
@@ -98,7 +136,8 @@ async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: numb
 
     await new Promise<void>((resolve, reject) => {
         imgEl.onload = () => resolve();
-        imgEl.onerror = (e) => reject(e);
+        imgEl.onerror = (event: Event | string, source?: string, lineno?: number, colno?: number, error?: Error) =>
+            reject(error ?? new Error(`Image onload error: source: ${source}, lineno: ${lineno}, colno: ${colno}, event: ${typeof event === 'string' ? event : event.type}`));
     });
 
     const canvas = document.createElement('canvas')
@@ -111,7 +150,7 @@ async function toDataURI(tFile: TFile, outlink: LinkCache, params: { width: numb
     const pngBlob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((blob: Blob | null) => {
             if (blob == null) {
-                reject(`Unable to create image preview for "${tFile.path}"`);
+                reject(new Error(`Unable to create image preview for "${tFile.path}"`));
                 return;
             }
 
@@ -133,7 +172,7 @@ export type Dispose = () => void;
 export type DisposeArray = Dispose[];
 
 async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, excalidrawFile: TFile, app: App): Promise<Dispose> {
-    const outlinks = this.app.metadataCache.getFileCache(excalidrawFile)?.links as LinkCache[];
+    const outlinks = app.metadataCache.getFileCache(excalidrawFile)?.links as LinkCache[];
 
     if (outlinks == null || outlinks.length === 0) return EMPTY_DISPOSE;
 
@@ -141,7 +180,7 @@ async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, e
 
     if (sceneImages.length === 0) return EMPTY_DISPOSE;
 
-    const content = await this.app.vault.read(excalidrawFile);
+    const content = await app.vault.read(excalidrawFile);
     const lines = content.split('\n')
     const disposeFuncs: DisposeArray = []
 
@@ -155,7 +194,7 @@ async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, e
         const fileId = fileParams.fileId
 
         const embedPath = outlink.link;
-        const embedFile = this.app.metadataCache.getFirstLinkpathDest(embedPath, excalidrawFile.path);
+        const embedFile = app.metadataCache.getFirstLinkpathDest(embedPath, excalidrawFile.path);
 
         const imageData: ToDataUriResult = await toDataURI(embedFile, outlink, fileParams, app);
 
@@ -177,7 +216,7 @@ async function loadEmbeddedOutlinksForExcalidraw(ea: ExcalidrawAutomateGlobal, e
     }));
 
     return () => {
-        for(const disposeFunc of disposeFuncs) {
+        for (const disposeFunc of disposeFuncs) {
             disposeFunc()
         }
     }
@@ -191,8 +230,9 @@ export async function generatePreview(excalidrawFile: TFile, loadRaw: boolean, a
     const scene = await ea.getSceneFromFile(excalidrawFile)
 
     async function createNewBlobResult(dispose?: Dispose): Promise<ProviderPreviewResult> {
+        // the frame around the preview is still rendered if padding=0 is not provided
         return {
-            blob: await ea.createPNG(),
+            blob: await ea.createPNG(undefined, 1, exportSettings, undefined, undefined, 0),
             dispose: () => { ea.destroy(); (dispose ?? EMPTY_DISPOSE)(); }
         }
     }
