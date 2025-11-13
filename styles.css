@@ -1040,7 +1040,13 @@ body {
     top: 50%;
     transform: translateY(-0.5px);
     height: 1px;
-    background-color: var(--nn-theme-nav-separator-color);
+    background-image: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--nn-theme-nav-separator-color) 15%,
+        var(--nn-theme-nav-separator-color) 85%,
+        transparent 100%
+    );
     opacity: 0.3;
 }
 
