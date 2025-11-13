@@ -1103,7 +1103,7 @@ export const STRINGS_NL = {
             },
             frontmatterIconizeFormat: {
                 name: 'Opslaan in Iconize-formaat',
-                desc: 'Pictogrammen opslaan met Iconize-formaat (bijv. LiHome, FasUser, SiGithub) in plaats van plugin-formaat (bijv. home, fontawesome-solid:user, simple-icons:github).'
+                desc: 'Pictogrammen opslaan met Iconize-formaat (bijv. LiHome, FasUser, SiGithub) in plaats van plugin-formaat (bijv. lucide-home, fontawesome-solid:user, simple-icons:github).'
             },
             frontmatterMigration: {
                 name: 'Pictogrammen en kleuren migreren vanuit instellingen',

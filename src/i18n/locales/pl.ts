@@ -1107,7 +1107,7 @@ export const STRINGS_PL = {
             },
             frontmatterIconizeFormat: {
                 name: 'Zapisz w formacie Iconize',
-                desc: 'Zapisz ikony używając formatu Iconize (np. LiHome, FasUser, SiGithub) zamiast formatu wtyczki (np. home, fontawesome-solid:user, simple-icons:github).'
+                desc: 'Zapisz ikony używając formatu Iconize (np. LiHome, FasUser, SiGithub) zamiast formatu wtyczki (np. lucide-home, fontawesome-solid:user, simple-icons:github).'
             },
             frontmatterMigration: {
                 name: 'Migruj ikony i kolory z ustawień',

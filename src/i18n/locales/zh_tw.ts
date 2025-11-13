@@ -1103,7 +1103,7 @@ export const STRINGS_ZH_TW = {
             },
             frontmatterIconizeFormat: {
                 name: '以 Iconize 格式儲存',
-                desc: '使用 Iconize 格式（例如 LiHome, FasUser, SiGithub）儲存圖示，而不是外掛格式（例如 home, fontawesome-solid:user, simple-icons:github）。'
+                desc: '使用 Iconize 格式（例如 LiHome, FasUser, SiGithub）儲存圖示，而不是外掛格式（例如 lucide-home, fontawesome-solid:user, simple-icons:github）。'
             },
             frontmatterMigration: {
                 name: '從設定移轉圖示和顏色',

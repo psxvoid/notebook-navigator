@@ -1105,7 +1105,7 @@ export const STRINGS_ZH_CN = {
             },
             frontmatterIconizeFormat: {
                 name: '以 Iconize 格式保存',
-                desc: '使用 Iconize 格式（例如 LiHome, FasUser, SiGithub）保存图标，而不是插件格式（例如 home, fontawesome-solid:user, simple-icons:github）。'
+                desc: '使用 Iconize 格式（例如 LiHome, FasUser, SiGithub）保存图标，而不是插件格式（例如 lucide-home, fontawesome-solid:user, simple-icons:github）。'
             },
             frontmatterMigration: {
                 name: '从设置迁移图标和颜色',

@@ -1104,7 +1104,7 @@ export const STRINGS_KO = {
             },
             frontmatterIconizeFormat: {
                 name: 'Iconize 형식으로 저장',
-                desc: '플러그인 형식(예: home, fontawesome-solid:user, simple-icons:github) 대신 Iconize 형식(예: LiHome, FasUser, SiGithub)으로 아이콘을 저장합니다.'
+                desc: '플러그인 형식(예: lucide-home, fontawesome-solid:user, simple-icons:github) 대신 Iconize 형식(예: LiHome, FasUser, SiGithub)으로 아이콘을 저장합니다.'
             },
             frontmatterMigration: {
                 name: '설정에서 아이콘과 색상 이동',

@@ -1107,7 +1107,7 @@ export const STRINGS_JA = {
             },
             frontmatterIconizeFormat: {
                 name: 'Iconize形式で保存',
-                desc: 'アイコンをプラグイン形式（例: home, fontawesome-solid:user, simple-icons:github）ではなく、Iconize形式（例: LiHome, FasUser, SiGithub）で保存します。'
+                desc: 'アイコンをプラグイン形式（例: lucide-home, fontawesome-solid:user, simple-icons:github）ではなく、Iconize形式（例: LiHome, FasUser, SiGithub）で保存します。'
             },
             frontmatterMigration: {
                 name: '設定からアイコンと色を移行',

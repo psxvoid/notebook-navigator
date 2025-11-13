@@ -1101,7 +1101,7 @@ export const STRINGS_PT_BR = {
             },
             frontmatterIconizeFormat: {
                 name: 'Salvar no formato Iconize',
-                desc: 'Salvar ícones usando formato Iconize (por exemplo, LiHome, FasUser, SiGithub) em vez do formato do plugin (por exemplo, home, fontawesome-solid:user, simple-icons:github).'
+                desc: 'Salvar ícones usando formato Iconize (por exemplo, LiHome, FasUser, SiGithub) em vez do formato do plugin (por exemplo, lucide-home, fontawesome-solid:user, simple-icons:github).'
             },
             frontmatterMigration: {
                 name: 'Migrar ícones e cores das configurações',
