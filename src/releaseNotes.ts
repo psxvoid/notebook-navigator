@@ -82,7 +82,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         improved: [],
         changed: [],
-        fixed: []
+        fixed: ['Fixed an issue where icons saved to frontmatter in "Iconize" format were saved as "icon: LiLucideChartLine" instead of just "icon: LiChartLine". This has been fixed. If you used this setting then please just do a search and replace in your vault for "icon: LiLucide" and replace with "icon: Li" to fix the icon names.']
     },
     {
         version: '1.8.1',
