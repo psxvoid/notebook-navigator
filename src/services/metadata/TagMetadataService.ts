@@ -26,6 +26,8 @@ import type { CleanupValidators } from '../MetadataService';
 import { TagTreeNode } from '../../types/storage';
 import { normalizeTagPath } from '../../utils/tagUtils';
 
+type SettingsMutation = (settings: NotebookNavigatorSettings) => boolean;
+
 /**
  * Service for managing tag-specific metadata operations
  * Handles tag colors, icons, sort overrides, and cleanup operations
@@ -299,40 +301,46 @@ export class TagMetadataService extends BaseMetadataService {
      * Updates all tag metadata entries when a tag is renamed.
      * Migrates direct entries and nested descendants to the new path.
      */
-    async handleTagRename(oldPath: string, newPath: string, preserveExisting = false): Promise<void> {
+    async handleTagRename(oldPath: string, newPath: string, preserveExisting = false, extraMutation?: SettingsMutation): Promise<void> {
         const normalizedOld = normalizeTagPath(oldPath);
         const normalizedNew = normalizeTagPath(newPath);
         if (!normalizedOld || !normalizedNew || normalizedOld === normalizedNew) {
+            if (extraMutation) {
+                await this.saveAndUpdate(settings => (extraMutation(settings) ? true : false));
+            }
             return;
         }
 
         const settingsSnapshot = this.settingsProvider.settings;
-        if (!this.hasTagMetadataForPath(settingsSnapshot, normalizedOld)) {
-            return;
-        }
+        const hasMetadata = this.hasTagMetadataForPath(settingsSnapshot, normalizedOld);
 
-        const requiresUpdate =
-            this.willUpdateNestedPaths(settingsSnapshot.tagColors, normalizedOld, normalizedNew, preserveExisting) ||
-            this.willUpdateNestedPaths(settingsSnapshot.tagBackgroundColors, normalizedOld, normalizedNew, preserveExisting) ||
-            this.willUpdateNestedPaths(settingsSnapshot.tagIcons, normalizedOld, normalizedNew, preserveExisting) ||
-            this.willUpdateNestedPaths(settingsSnapshot.tagSortOverrides, normalizedOld, normalizedNew, preserveExisting) ||
-            this.willUpdateNestedPaths(settingsSnapshot.tagAppearances, normalizedOld, normalizedNew, preserveExisting);
+        const requiresUpdate = hasMetadata
+            ? this.willUpdateNestedPaths(settingsSnapshot.tagColors, normalizedOld, normalizedNew, preserveExisting) ||
+              this.willUpdateNestedPaths(settingsSnapshot.tagBackgroundColors, normalizedOld, normalizedNew, preserveExisting) ||
+              this.willUpdateNestedPaths(settingsSnapshot.tagIcons, normalizedOld, normalizedNew, preserveExisting) ||
+              this.willUpdateNestedPaths(settingsSnapshot.tagSortOverrides, normalizedOld, normalizedNew, preserveExisting) ||
+              this.willUpdateNestedPaths(settingsSnapshot.tagAppearances, normalizedOld, normalizedNew, preserveExisting)
+            : false;
 
-        if (!requiresUpdate) {
+        if (!requiresUpdate && !extraMutation) {
             return;
         }
 
         await this.saveAndUpdate(settings => {
             let changed = false;
-            changed = this.updateNestedPaths(settings.tagColors, normalizedOld, normalizedNew, preserveExisting) || changed;
-            changed = this.updateNestedPaths(settings.tagBackgroundColors, normalizedOld, normalizedNew, preserveExisting) || changed;
-            changed = this.updateNestedPaths(settings.tagIcons, normalizedOld, normalizedNew, preserveExisting) || changed;
-            changed = this.updateNestedPaths(settings.tagSortOverrides, normalizedOld, normalizedNew, preserveExisting) || changed;
-            changed = this.updateNestedPaths(settings.tagAppearances, normalizedOld, normalizedNew, preserveExisting) || changed;
-
-            if (!changed) {
-                return;
+            if (requiresUpdate) {
+                changed = this.updateNestedPaths(settings.tagColors, normalizedOld, normalizedNew, preserveExisting) || changed;
+                changed = this.updateNestedPaths(settings.tagBackgroundColors, normalizedOld, normalizedNew, preserveExisting) || changed;
+                changed = this.updateNestedPaths(settings.tagIcons, normalizedOld, normalizedNew, preserveExisting) || changed;
+                changed = this.updateNestedPaths(settings.tagSortOverrides, normalizedOld, normalizedNew, preserveExisting) || changed;
+                changed = this.updateNestedPaths(settings.tagAppearances, normalizedOld, normalizedNew, preserveExisting) || changed;
             }
+
+            if (extraMutation) {
+                changed = extraMutation(settings) || changed;
+            }
+
+            return changed;
         });
     }
 
@@ -340,14 +348,20 @@ export class TagMetadataService extends BaseMetadataService {
      * Removes all metadata associated with a tag and its descendants
      * Clears colors, icons, sort overrides, appearances, and hidden tag entries
      */
-    async handleTagDelete(tagPath: string): Promise<void> {
+    async handleTagDelete(tagPath: string, extraMutation?: SettingsMutation): Promise<void> {
         const normalized = normalizeTagPath(tagPath);
         if (!normalized) {
+            if (extraMutation) {
+                await this.saveAndUpdate(settings => (extraMutation(settings) ? true : false));
+            }
             return;
         }
 
         const settingsSnapshot = this.settingsProvider.settings;
-        if (!this.hasTagMetadataForPath(settingsSnapshot, normalized) && !this.hasHiddenTagForPath(settingsSnapshot, normalized)) {
+        const hasMetadata =
+            this.hasTagMetadataForPath(settingsSnapshot, normalized) || this.hasHiddenTagForPath(settingsSnapshot, normalized);
+
+        if (!hasMetadata && !extraMutation) {
             return;
         }
 
@@ -355,30 +369,34 @@ export class TagMetadataService extends BaseMetadataService {
 
         await this.saveAndUpdate(settings => {
             let changed = false;
-            changed = this.removeTagMetadataForPath(settings.tagColors, normalized, prefix) || changed;
-            changed = this.removeTagMetadataForPath(settings.tagBackgroundColors, normalized, prefix) || changed;
-            changed = this.removeTagMetadataForPath(settings.tagIcons, normalized, prefix) || changed;
-            changed = this.removeTagMetadataForPath(settings.tagSortOverrides, normalized, prefix) || changed;
-            changed = this.removeTagMetadataForPath(settings.tagAppearances, normalized, prefix) || changed;
+            if (hasMetadata) {
+                changed = this.removeTagMetadataForPath(settings.tagColors, normalized, prefix) || changed;
+                changed = this.removeTagMetadataForPath(settings.tagBackgroundColors, normalized, prefix) || changed;
+                changed = this.removeTagMetadataForPath(settings.tagIcons, normalized, prefix) || changed;
+                changed = this.removeTagMetadataForPath(settings.tagSortOverrides, normalized, prefix) || changed;
+                changed = this.removeTagMetadataForPath(settings.tagAppearances, normalized, prefix) || changed;
 
-            if (Array.isArray(settings.hiddenTags) && settings.hiddenTags.length > 0) {
-                const filtered = settings.hiddenTags.filter(tag => {
-                    const normalizedTag = normalizeTagPath(tag);
-                    if (!normalizedTag) {
-                        return true;
+                if (Array.isArray(settings.hiddenTags) && settings.hiddenTags.length > 0) {
+                    const filtered = settings.hiddenTags.filter(tag => {
+                        const normalizedTag = normalizeTagPath(tag);
+                        if (!normalizedTag) {
+                            return true;
+                        }
+                        return normalizedTag !== normalized && !normalizedTag.startsWith(prefix);
+                    });
+
+                    if (filtered.length !== settings.hiddenTags.length) {
+                        settings.hiddenTags = filtered;
+                        changed = true;
                     }
-                    return normalizedTag !== normalized && !normalizedTag.startsWith(prefix);
-                });
-
-                if (filtered.length !== settings.hiddenTags.length) {
-                    settings.hiddenTags = filtered;
-                    changed = true;
                 }
             }
 
-            if (!changed) {
-                return false;
+            if (extraMutation) {
+                changed = extraMutation(settings) || changed;
             }
+
+            return changed;
         });
     }
 

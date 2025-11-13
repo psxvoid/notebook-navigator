@@ -75,6 +75,7 @@ interface VirtualFolderItemProps {
         allowInternalDrop?: boolean;
         allowExternalDrop?: boolean;
     };
+    onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 /**
@@ -106,7 +107,8 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
     onDragOver,
     onDrop,
     onDragLeave,
-    dropConfig
+    dropConfig,
+    onContextMenu
 }: VirtualFolderItemProps) {
     const settings = useSettingsState();
     const uxPreferences = useUXPreferences();
@@ -217,6 +219,7 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
             onDragOver={onDragOver}
             onDrop={onDrop}
             onDragLeave={onDragLeave}
+            onContextMenu={onContextMenu}
         >
             <div className={contentClassName} onClick={handleContentClick} onDoubleClick={handleDoubleClick}>
                 <div

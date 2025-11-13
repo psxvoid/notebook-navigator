@@ -194,6 +194,10 @@ export const STRINGS_IT = {
             changeBackground: 'Cambia sfondo',
             showTag: 'Mostra tag',
             hideTag: 'Nascondi tag'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1037,7 +1041,7 @@ export const STRINGS_IT = {
                 error: 'Pulizia impostazioni fallita',
                 loading: 'Controllo metadati...',
                 statusClean: 'Nessun metadato da pulire',
-                statusCounts: 'Elementi orfani: {folders} cartelle, {tags} tag, {files} file, {pinned} fissaggi'
+                statusCounts: 'Elementi orfani: {folders} cartelle, {tags} tag, {files} file, {pinned} fissaggi, {separators} separatori'
             },
             rebuildCache: {
                 name: 'Ricostruisci cache',

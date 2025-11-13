@@ -193,6 +193,10 @@ export const STRINGS_ZH_TW = {
             changeBackground: '變更背景',
             showTag: '顯示標籤',
             hideTag: '隱藏標籤'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1033,7 +1037,7 @@ export const STRINGS_ZH_TW = {
                 error: '設定清理失敗',
                 loading: '正在檢查中繼資料...',
                 statusClean: '沒有要清理的中繼資料',
-                statusCounts: '孤立項目：{folders} 個資料夾、{tags} 個標籤、{files} 個檔案、{pinned} 個釘選'
+                statusCounts: '孤立項目：{folders} 個資料夾、{tags} 個標籤、{files} 個檔案、{pinned} 個釘選、{separators} 個分隔符'
             },
             rebuildCache: {
                 name: '重建快取',

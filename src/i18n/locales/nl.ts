@@ -194,6 +194,10 @@ export const STRINGS_NL = {
             changeBackground: 'Achtergrond wijzigen',
             showTag: 'Tag tonen',
             hideTag: 'Tag verbergen'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1037,7 +1041,8 @@ export const STRINGS_NL = {
                 error: 'Opschonen van instellingen mislukt',
                 loading: 'Metadata controleren...',
                 statusClean: 'Geen metadata om op te schonen',
-                statusCounts: 'Verweesde items: {folders} mappen, {tags} tags, {files} bestanden, {pinned} pins'
+                statusCounts:
+                    'Verweesde items: {folders} mappen, {tags} tags, {files} bestanden, {pinned} pins, {separators} scheidingslijnen'
             },
             rebuildCache: {
                 name: 'Cache opnieuw opbouwen',

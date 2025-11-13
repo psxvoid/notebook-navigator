@@ -301,6 +301,20 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         });
     });
 
+    const folderSeparatorTarget = { type: 'folder', path: folder.path } as const;
+    const hasSeparator = metadataService.hasNavigationSeparator(folderSeparatorTarget);
+
+    menu.addItem((item: MenuItem) => {
+        const title = hasSeparator ? strings.contextMenu.navigation.removeSeparator : strings.contextMenu.navigation.addSeparator;
+        setAsyncOnClick(item.setTitle(title).setIcon('lucide-separator-horizontal'), async () => {
+            if (hasSeparator) {
+                await metadataService.removeNavigationSeparator(folderSeparatorTarget);
+                return;
+            }
+            await metadataService.addNavigationSeparator(folderSeparatorTarget);
+        });
+    });
+
     menu.addSeparator();
 
     // Hide/Unhide folder (not available for root folder)

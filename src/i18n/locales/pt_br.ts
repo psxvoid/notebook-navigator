@@ -194,6 +194,10 @@ export const STRINGS_PT_BR = {
             changeBackground: 'Alterar plano de fundo',
             showTag: 'Mostrar tag',
             hideTag: 'Ocultar tag'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1036,7 +1040,7 @@ export const STRINGS_PT_BR = {
                 error: 'Falha na limpeza de configurações',
                 loading: 'Verificando metadados...',
                 statusClean: 'Sem metadados para limpar',
-                statusCounts: 'Itens órfãos: {folders} pastas, {tags} tags, {files} arquivos, {pinned} fixações'
+                statusCounts: 'Itens órfãos: {folders} pastas, {tags} tags, {files} arquivos, {pinned} fixações, {separators} separadores'
             },
             rebuildCache: {
                 name: 'Reconstruir cache',

@@ -193,6 +193,10 @@ export const STRINGS_FR = {
             changeBackground: 'Changer l’arrière-plan',
             showTag: 'Afficher l’étiquette',
             hideTag: 'Masquer l’étiquette'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1038,7 +1042,8 @@ export const STRINGS_FR = {
                 error: 'Échec du nettoyage des paramètres',
                 loading: 'Vérification des métadonnées...',
                 statusClean: 'Aucune métadonnée à nettoyer',
-                statusCounts: 'Éléments orphelins: {folders} dossiers, {tags} étiquettes, {files} fichiers, {pinned} épingles'
+                statusCounts:
+                    'Éléments orphelins: {folders} dossiers, {tags} étiquettes, {files} fichiers, {pinned} épingles, {separators} séparateurs'
             },
             rebuildCache: {
                 name: 'Reconstruire le cache',

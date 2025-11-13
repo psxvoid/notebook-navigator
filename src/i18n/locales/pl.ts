@@ -192,6 +192,10 @@ export const STRINGS_PL = {
             changeBackground: 'Zmień tło',
             showTag: 'Pokaż tag',
             hideTag: 'Ukryj tag'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1036,7 +1040,8 @@ export const STRINGS_PL = {
                 error: 'Czyszczenie ustawień nie powiodło się',
                 loading: 'Sprawdzanie metadanych...',
                 statusClean: 'Brak metadanych do wyczyszczenia',
-                statusCounts: 'Osierocone elementy: {folders} folderów, {tags} tagów, {files} plików, {pinned} przypiętych'
+                statusCounts:
+                    'Osierocone elementy: {folders} folderów, {tags} tagów, {files} plików, {pinned} przypiętych, {separators} separatorów'
             },
             rebuildCache: {
                 name: 'Odbuduj pamięć podręczną',

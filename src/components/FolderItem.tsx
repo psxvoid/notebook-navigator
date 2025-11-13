@@ -81,6 +81,7 @@ interface FolderItemProps {
     countInfo?: NoteCountInfo;
     excludedFolders: string[];
     vaultChangeVersion: number;
+    disableContextMenu?: boolean;
 }
 
 /**
@@ -112,7 +113,8 @@ export const FolderItem = React.memo(function FolderItem({
     backgroundColor,
     countInfo,
     excludedFolders,
-    vaultChangeVersion
+    vaultChangeVersion,
+    disableContextMenu
 }: FolderItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
@@ -327,7 +329,7 @@ export const FolderItem = React.memo(function FolderItem({
     }, [isExpanded, icon, hasChildren, settings.showFolderIcons, folder.path, iconVersion]);
 
     // Enable context menu
-    useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });
+    useContextMenu(folderRef, disableContextMenu ? null : { type: ItemType.FOLDER, item: folder });
 
     // Don't allow dragging the root vault folder
     const isRootFolder = folder.path === '/';

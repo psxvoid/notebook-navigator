@@ -79,7 +79,7 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
     };
 
     /** Updates the metadata cleanup information display based on cleanup summary */
-    const updateMetadataCleanupInfo = ({ folders, tags, files, pinnedNotes, total }: MetadataCleanupSummary) => {
+    const updateMetadataCleanupInfo = ({ folders, tags, files, pinnedNotes, separators, total }: MetadataCleanupSummary) => {
         if (!metadataCleanupInfoText) {
             return;
         }
@@ -94,7 +94,8 @@ export function renderAdvancedTab(context: SettingsTabContext): void {
             .replace('{folders}', folders.toString())
             .replace('{tags}', tags.toString())
             .replace('{files}', files.toString())
-            .replace('{pinned}', pinnedNotes.toString());
+            .replace('{pinned}', pinnedNotes.toString())
+            .replace('{separators}', separators.toString());
         metadataCleanupInfoText.setText(infoText);
         metadataCleanupButton?.setDisabled(false);
     };

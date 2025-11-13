@@ -193,6 +193,10 @@ export const STRINGS_ES = {
             changeBackground: 'Cambiar fondo',
             showTag: 'Mostrar etiqueta',
             hideTag: 'Ocultar etiqueta'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1036,7 +1040,8 @@ export const STRINGS_ES = {
                 error: 'Falló la limpieza de configuración',
                 loading: 'Verificando metadatos...',
                 statusClean: 'No hay metadatos para limpiar',
-                statusCounts: 'Elementos huérfanos: {folders} carpetas, {tags} etiquetas, {files} archivos, {pinned} fijados'
+                statusCounts:
+                    'Elementos huérfanos: {folders} carpetas, {tags} etiquetas, {files} archivos, {pinned} fijados, {separators} separadores'
             },
             rebuildCache: {
                 name: 'Reconstruir caché',
