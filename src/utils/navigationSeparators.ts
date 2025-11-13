@@ -22,16 +22,16 @@ import { NavigationSectionId } from '../types';
 const SECTION_KEY_BY_ID: Record<NavigationSectionId, string> = {
     [NavigationSectionId.SHORTCUTS]: 'shortcuts',
     [NavigationSectionId.RECENT]: 'recent',
-    [NavigationSectionId.NOTES]: 'notes',
+    [NavigationSectionId.FOLDERS]: 'folders',
     [NavigationSectionId.TAGS]: 'tags'
 };
 
-/** Accepts both canonical keys and documented aliases when parsing section entries */
+/** Accepts canonical keys and documented aliases when parsing section entries */
 const SECTION_ID_BY_KEY: Record<string, NavigationSectionId> = {
     shortcuts: NavigationSectionId.SHORTCUTS,
     recent: NavigationSectionId.RECENT,
     recents: NavigationSectionId.RECENT,
-    notes: NavigationSectionId.NOTES,
+    folders: NavigationSectionId.FOLDERS,
     tags: NavigationSectionId.TAGS
 };
 

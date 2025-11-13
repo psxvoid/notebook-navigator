@@ -21,9 +21,17 @@ import { DEFAULT_NAVIGATION_SECTION_ORDER, NavigationSectionId } from '../types'
 // Set of valid navigation section identifiers for quick lookup
 const NAVIGATION_SECTION_VALUES = new Set<NavigationSectionId>(DEFAULT_NAVIGATION_SECTION_ORDER);
 
-// Type guard to check if a value is a valid NavigationSectionId
-function isNavigationSectionId(value: unknown): value is NavigationSectionId {
-    return typeof value === 'string' && NAVIGATION_SECTION_VALUES.has(value as NavigationSectionId);
+// Returns a valid NavigationSectionId when input matches a known identifier, otherwise null
+function coerceNavigationSectionId(value: unknown): NavigationSectionId | null {
+    if (typeof value !== 'string') {
+        return null;
+    }
+
+    if (NAVIGATION_SECTION_VALUES.has(value as NavigationSectionId)) {
+        return value as NavigationSectionId;
+    }
+
+    return null;
 }
 
 // Ensures all navigation sections are present in the order array and removes duplicates
@@ -61,7 +69,7 @@ export function normalizeNavigationSectionOrderInput(input: unknown): Navigation
         return [...DEFAULT_NAVIGATION_SECTION_ORDER];
     }
 
-    const parsed = input.filter(isNavigationSectionId);
+    const parsed = input.map(coerceNavigationSectionId).filter((identifier): identifier is NavigationSectionId => Boolean(identifier));
     return sanitizeNavigationSectionOrder(parsed);
 }
 
@@ -71,14 +79,15 @@ export function mergeNavigationSectionOrder(orderedKeys: string[], previous: Nav
     const seen = new Set<NavigationSectionId>();
 
     orderedKeys.forEach(key => {
-        if (!isNavigationSectionId(key)) {
+        const identifier = coerceNavigationSectionId(key);
+        if (!identifier) {
             return;
         }
-        if (seen.has(key)) {
+        if (seen.has(identifier)) {
             return;
         }
-        seen.add(key);
-        merged.push(key);
+        seen.add(identifier);
+        merged.push(identifier);
     });
 
     previous.forEach(identifier => {

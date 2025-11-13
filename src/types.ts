@@ -124,7 +124,7 @@ export type NavigationPaneItemType = (typeof NavigationPaneItemType)[keyof typeo
 export const NavigationSectionId = {
     SHORTCUTS: 'shortcuts',
     RECENT: 'recent',
-    NOTES: 'notes',
+    FOLDERS: 'folders',
     TAGS: 'tags'
 } as const;
 
@@ -139,7 +139,7 @@ export type NavigationSectionId = (typeof NavigationSectionId)[keyof typeof Navi
 export const DEFAULT_NAVIGATION_SECTION_ORDER: NavigationSectionId[] = [
     NavigationSectionId.SHORTCUTS,
     NavigationSectionId.RECENT,
-    NavigationSectionId.NOTES,
+    NavigationSectionId.FOLDERS,
     NavigationSectionId.TAGS
 ];
 

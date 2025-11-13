@@ -950,7 +950,7 @@ export function useNavigationPaneData({
         // Determines which sections should be displayed based on settings and available items
         const shouldIncludeShortcutsSection = settings.showShortcuts && shortcutItems.length > 0 && !pinShortcuts;
         const shouldIncludeRecentSection = settings.showRecentNotes && recentNotesItems.length > 0;
-        const shouldIncludeNotesSection = folderItems.length > 0;
+        const shouldIncludeFoldersSection = folderItems.length > 0;
         const shouldIncludeTagsSection = settings.showTags && tagItems.length > 0;
 
         // Builds sections in the user-specified order
@@ -969,9 +969,9 @@ export function useNavigationPaneData({
                         orderedSections.push({ id: NavigationSectionId.RECENT, items: recentNotesItems });
                     }
                     break;
-                case NavigationSectionId.NOTES:
-                    if (shouldIncludeNotesSection) {
-                        orderedSections.push({ id: NavigationSectionId.NOTES, items: folderItems });
+                case NavigationSectionId.FOLDERS:
+                    if (shouldIncludeFoldersSection) {
+                        orderedSections.push({ id: NavigationSectionId.FOLDERS, items: folderItems });
                     }
                     break;
                 case NavigationSectionId.TAGS:
@@ -1149,9 +1149,9 @@ export function useNavigationPaneData({
         // - Either shortcuts are not pinned OR the first section is not NOTES
         // This ensures proper separation between pinned shortcuts and main navigation sections
         const shouldIncludeRootSectionSeparator =
-            useSectionSpacerForRootFolder && (!pinShortcuts || firstSectionId !== NavigationSectionId.NOTES);
+            useSectionSpacerForRootFolder && (!pinShortcuts || firstSectionId !== NavigationSectionId.FOLDERS);
         if (shouldIncludeRootSectionSeparator) {
-            const spacerKey = sectionSpacerMap.get(NavigationSectionId.NOTES);
+            const spacerKey = sectionSpacerMap.get(NavigationSectionId.FOLDERS);
             if (spacerKey) {
                 spacerKeysWithSeparators.add(spacerKey);
             }
