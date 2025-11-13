@@ -81,7 +81,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Four new theming parameters for separators: **--nn-theme-nav-separator-color**, **--nn-theme-nav-separator-background**, **--nn-theme-nav-separator-height** and **--nn-theme-nav-separator-opacity**. Use these to set any style, color and thickness to the separators.'
         ],
         improved: [],
-        changed: [],
+        changed: ['Icons saved to frontmatter are now always saved in "Iconize" format like LiHome, SiApple, etc. The old setting "Save in Iconize format" was removed.'],
         fixed: [
             'Fixed an issue where icons saved to frontmatter in "Iconize" format were saved as "icon: LiLucideChartLine" instead of just "icon: LiChartLine". This has been fixed. If you used this setting then please just do a search and replace in your vault for "icon: LiLucide" and replace with "icon: Li" to fix the icon names.'
         ]
