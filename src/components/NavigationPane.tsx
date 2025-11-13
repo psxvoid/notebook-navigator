@@ -2012,9 +2012,9 @@ export const NavigationPane = React.memo(
                     case NavigationPaneItemType.FOLDER: {
                         const folderPath = item.data.path;
                         const countInfo = folderCounts.get(folderPath);
-                        // Disable context menu (including separator options) for the first inline folder when shortcuts are pinned
+                        // Hide separator actions for the first inline folder when shortcuts are pinned
                         // This prevents users from adding/removing separators on the first item after pinned shortcuts
-                        const shouldDisableFolderContextMenu =
+                        const shouldHideFolderSeparatorActions =
                             shouldPinShortcuts && firstInlineFolderPath !== null && folderPath === firstInlineFolderPath;
 
                         return (
@@ -2054,7 +2054,7 @@ export const NavigationPane = React.memo(
                                 countInfo={countInfo}
                                 excludedFolders={item.parsedExcludedFolders || []}
                                 vaultChangeVersion={vaultChangeVersion}
-                                disableContextMenu={shouldDisableFolderContextMenu}
+                                disableNavigationSeparatorActions={shouldHideFolderSeparatorActions}
                             />
                         );
                     }

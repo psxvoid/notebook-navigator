@@ -128,7 +128,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         services,
                         settings,
                         state,
-                        dispatchers
+                        dispatchers,
+                        options: config.options
                     });
                 };
             } else if (config.type === ItemType.TAG) {

@@ -45,6 +45,7 @@ export type MenuConfig =
     | {
           type: typeof ItemType.FOLDER;
           item: TFolder;
+          options?: FolderMenuOptions;
       }
     | {
           type: typeof ItemType.TAG;
@@ -100,11 +101,16 @@ export interface MenuBuilderParams {
     dispatchers: MenuDispatchers;
 }
 
+export interface FolderMenuOptions {
+    disableNavigationSeparatorActions?: boolean;
+}
+
 /**
  * Parameters for folder menu builder
  */
 export interface FolderMenuBuilderParams extends MenuBuilderParams {
     folder: TFolder;
+    options?: FolderMenuOptions;
 }
 
 /**
