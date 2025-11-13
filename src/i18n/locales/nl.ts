@@ -1101,10 +1101,6 @@ export const STRINGS_NL = {
                 name: 'Pictogrammen en kleuren opslaan in frontmatter',
                 desc: 'Bestandspictogrammen en -kleuren automatisch naar frontmatter schrijven met behulp van de hierboven geconfigureerde velden.'
             },
-            frontmatterIconizeFormat: {
-                name: 'Opslaan in Iconize-formaat',
-                desc: 'Pictogrammen opslaan met Iconize-formaat (bijv. LiHome, FasUser, SiGithub) in plaats van plugin-formaat (bijv. lucide-home, fontawesome-solid:user, simple-icons:github).'
-            },
             frontmatterMigration: {
                 name: 'Pictogrammen en kleuren migreren vanuit instellingen',
                 desc: 'Opgeslagen in instellingen: {icons} pictogrammen, {colors} kleuren.',

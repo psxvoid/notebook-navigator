@@ -1100,10 +1100,6 @@ export const STRINGS_IT = {
                 name: 'Salva icone e colori in frontmatter',
                 desc: 'Scrivi automaticamente icone e colori file in frontmatter usando i campi configurati sopra.'
             },
-            frontmatterIconizeFormat: {
-                name: 'Salva in formato Iconize',
-                desc: 'Salva icone usando formato Iconize (es. LiHome, FasUser, SiGithub) invece del formato plugin (es. lucide-home, fontawesome-solid:user, simple-icons:github).'
-            },
             frontmatterMigration: {
                 name: 'Migra icone e colori dalle impostazioni',
                 desc: 'Memorizzato nelle impostazioni: {icons} icone, {colors} colori.',

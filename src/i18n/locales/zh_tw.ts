@@ -1101,10 +1101,6 @@ export const STRINGS_ZH_TW = {
                 name: '將圖示和顏色儲存至 frontmatter',
                 desc: '使用上方設定的欄位自動將檔案圖示和顏色寫入 frontmatter。'
             },
-            frontmatterIconizeFormat: {
-                name: '以 Iconize 格式儲存',
-                desc: '使用 Iconize 格式（例如 LiHome, FasUser, SiGithub）儲存圖示，而不是外掛格式（例如 lucide-home, fontawesome-solid:user, simple-icons:github）。'
-            },
             frontmatterMigration: {
                 name: '從設定移轉圖示和顏色',
                 desc: '儲存在設定中：{icons} 個圖示、{colors} 種顏色。',
