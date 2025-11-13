@@ -77,7 +77,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-13',
         showOnUpdate: true,
         new: [
-            '==Separators in navigation pane==! You can now right click any section, folder or tag to add a separator above it. Use this to visually group related items in navigation pane.'
+            '==Separators in navigation pane==! You can now right click any section, folder or tag to add a separator above it. Use this to visually group related items in navigation pane.',
+            'Four new theming parameters for separators: **--nn-theme-nav-separator-color**, **--nn-theme-nav-separator-background**, **--nn-theme-nav-separator-height** and **--nn-theme-nav-separator-opacity**. Use these to set any style, color and thickness to the separators.'
         ],
         improved: [],
         changed: [],

@@ -28,10 +28,13 @@ The theming variables use the `--nn-theme-` prefix and should be defined at the 
 
 ### Navigation pane
 
-| Variable                         | Default                       | Description                                                  |
-| -------------------------------- | ----------------------------- | ------------------------------------------------------------ |
-| `--nn-theme-nav-bg`              | `var(--background-secondary)` | Navigation pane background (desktop only, see mobile styles) |
-| `--nn-theme-nav-separator-color` | `var(--text-muted)`           | Separator line color inside navigation spacers               |
+| Variable                              | Default                                                                                                                                      | Description                                                                         |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `--nn-theme-nav-bg`                   | `var(--background-secondary)`                                                                                                                | Navigation pane background (desktop only, see mobile styles)                        |
+| `--nn-theme-nav-separator-color`      | `var(--text-muted)`                                                                                                                          | Separator line color inside navigation spacers                                      |
+| `--nn-theme-nav-separator-background` | `linear-gradient(90deg, transparent 0%, var(--nn-theme-nav-separator-color) 15%, var(--nn-theme-nav-separator-color) 85%, transparent 100%)` | Fill for navigation separators; override to supply your own gradient or solid color |
+| `--nn-theme-nav-separator-height`     | `1px`                                                                                                                                        | Thickness for navigation separators                                                 |
+| `--nn-theme-nav-separator-opacity`    | `0.3`                                                                                                                                        | Opacity for navigation separators                                                   |
 
 #### Pinned shortcuts
 
@@ -190,6 +193,9 @@ body {
   /* Pane background */
   --nn-theme-nav-bg: #3c3f41; /* Dark gray sidebar - navigation pane background */
   --nn-theme-nav-separator-color: #6e6e6e; /* Muted gray - separator lines */
+  --nn-theme-nav-separator-background: var(--nn-theme-nav-separator-color); /* Solid separator fill */
+  --nn-theme-nav-separator-height: 1px; /* Keep separators at 1px */
+  --nn-theme-nav-separator-opacity: 0.35; /* Slightly stronger separator */
 
   /* Folder & tag items */
   --nn-theme-navitem-chevron-color: #6e6e6e; /* Muted gray - expand/collapse arrows */

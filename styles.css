@@ -118,6 +118,15 @@ body {
     /* -- Navigation Pane -- */
     --nn-theme-nav-bg: var(--background-secondary);
     --nn-theme-nav-separator-color: var(--text-muted);
+    --nn-theme-nav-separator-background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--nn-theme-nav-separator-color) 15%,
+        var(--nn-theme-nav-separator-color) 85%,
+        transparent 100%
+    );
+    --nn-theme-nav-separator-height: 1px;
+    --nn-theme-nav-separator-opacity: 0.3;
     --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.05);
 
     /* -- Folder & Tag Items -- */
@@ -1037,17 +1046,19 @@ body {
     position: absolute;
     left: var(--nn-scroller-padding);
     right: var(--nn-scroller-padding);
-    top: 50%;
-    transform: translateY(-0.5px);
-    height: 1px;
-    background-image: linear-gradient(
-        90deg,
-        transparent 0%,
-        var(--nn-theme-nav-separator-color) 15%,
-        var(--nn-theme-nav-separator-color) 85%,
-        transparent 100%
+    top: calc(50% - (var(--nn-theme-nav-separator-height, 1px) / 2));
+    height: var(--nn-theme-nav-separator-height, 1px);
+    background: var(
+        --nn-theme-nav-separator-background,
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            var(--nn-theme-nav-separator-color) 15%,
+            var(--nn-theme-nav-separator-color) 85%,
+            transparent 100%
+        )
     );
-    opacity: 0.3;
+    opacity: var(--nn-theme-nav-separator-opacity, 0.3);
 }
 
 /* List pane spacers - match navigation pane for consistency */
