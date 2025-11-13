@@ -197,6 +197,12 @@ function decorateNavigationItems(
  */
 const CUSTOM_SEPARATOR_PREFIXES = ['folder:', 'tag:'];
 const isCustomSeparatorKey = (key: string): boolean => CUSTOM_SEPARATOR_PREFIXES.some(prefix => key.startsWith(prefix));
+const SPACER_ITEM_TYPES = new Set<NavigationPaneItemType>([
+    NavigationPaneItemType.TOP_SPACER,
+    NavigationPaneItemType.LIST_SPACER,
+    NavigationPaneItemType.BOTTOM_SPACER,
+    NavigationPaneItemType.ROOT_SPACER
+]);
 
 const insertRootSpacing = (items: CombinedNavigationItem[], spacing: number, options: RootSpacingOptions): CombinedNavigationItem[] => {
     if (spacing <= 0) {
@@ -350,8 +356,8 @@ interface UseNavigationPaneDataResult {
     items: CombinedNavigationItem[];
     /** First visible navigation section when shortcuts are inlined */
     firstSectionId: NavigationSectionId | null;
-    /** First folder path rendered in the main navigation list */
-    firstFolderPath: string | null;
+    /** First folder path rendered inline after spacers when shortcuts are pinned */
+    firstInlineFolderPath: string | null;
     /** Shortcuts rendered separately when pinShortcuts is enabled */
     shortcutItems: CombinedNavigationItem[];
     /** Whether the tags virtual folder has visible children */
@@ -1138,7 +1144,13 @@ export function useNavigationPaneData({
             }
         });
 
-        if (useSectionSpacerForRootFolder && !pinShortcuts) {
+        // Include root section separator when:
+        // - Section spacer for root folder is enabled AND
+        // - Either shortcuts are not pinned OR the first section is not NOTES
+        // This ensures proper separation between pinned shortcuts and main navigation sections
+        const shouldIncludeRootSectionSeparator =
+            useSectionSpacerForRootFolder && (!pinShortcuts || firstSectionId !== NavigationSectionId.NOTES);
+        if (shouldIncludeRootSectionSeparator) {
             const spacerKey = sectionSpacerMap.get(NavigationSectionId.NOTES);
             if (spacerKey) {
                 spacerKeysWithSeparators.add(spacerKey);
@@ -1224,29 +1236,60 @@ export function useNavigationPaneData({
         });
     }, [itemsWithMetadata, showHiddenItems, pinShortcuts]);
 
-    const firstVisibleFolderPath = useMemo(() => {
+    /**
+     * Find the first folder that appears inline (not in the pinned area) when shortcuts are pinned.
+     *
+     * Special behavior when shortcuts are pinned:
+     * - Shortcuts themselves cannot have separators added/removed (no context menu separator options)
+     * - The first item after pinned shortcuts cannot have separators added/removed
+     * - This maintains clean visual separation between pinned area and main navigation
+     * - Users must disable pinned shortcuts to manage separators on these items
+     */
+    const firstInlineFolderPath = useMemo(() => {
         if (!pinShortcuts) {
             return null;
         }
+
+        // Skip spacer items to find the first actual navigation item
+        let firstInlineItem: CombinedNavigationItem | null = null;
         for (const item of filteredItems) {
-            if (item.type === NavigationPaneItemType.FOLDER) {
-                return item.data.path;
+            if (SPACER_ITEM_TYPES.has(item.type)) {
+                continue;
             }
+            firstInlineItem = item;
+            break;
         }
+
+        if (!firstInlineItem) {
+            return null;
+        }
+
+        // Only return path if it's a folder (not a tag or other item type)
+        if (firstInlineItem.type === NavigationPaneItemType.FOLDER) {
+            return firstInlineItem.data.path;
+        }
+
         return null;
     }, [filteredItems, pinShortcuts]);
 
+    // Suppress the separator for the first inline folder when shortcuts are pinned
+    // This prevents visual separation between pinned shortcuts and the main navigation list
     const filteredItemsForDisplay = useMemo(() => {
-        if (!pinShortcuts || !firstVisibleFolderPath) {
+        if (!pinShortcuts) {
+            return filteredItems;
+        }
+        if (!firstInlineFolderPath) {
             return filteredItems;
         }
 
         const { folderSeparators } = parsedNavigationSeparators;
-        if (!folderSeparators.has(firstVisibleFolderPath)) {
+        const hasSeparator = folderSeparators.has(firstInlineFolderPath);
+        if (!hasSeparator) {
             return filteredItems;
         }
 
-        const suppressedKey = buildFolderSeparatorKey(firstVisibleFolderPath);
+        // Remove the separator spacer item for the first inline folder
+        const suppressedKey = buildFolderSeparatorKey(firstInlineFolderPath);
         let matchIndex = -1;
         for (let i = 0; i < filteredItems.length; i += 1) {
             const item = filteredItems[i];
@@ -1260,10 +1303,11 @@ export function useNavigationPaneData({
             return filteredItems;
         }
 
+        // Create new array without the suppressed separator
         const nextItems = filteredItems.slice();
         nextItems.splice(matchIndex, 1);
         return nextItems;
-    }, [filteredItems, firstVisibleFolderPath, parsedNavigationSeparators, pinShortcuts]);
+    }, [filteredItems, firstInlineFolderPath, parsedNavigationSeparators, pinShortcuts]);
 
     /**
      * Create a map for O(1) item lookups by path
@@ -1442,7 +1486,7 @@ export function useNavigationPaneData({
     return {
         items: itemsWithRootSpacing,
         firstSectionId,
-        firstFolderPath: firstVisibleFolderPath,
+        firstInlineFolderPath,
         shortcutItems: shortcutItemsWithMetadata,
         tagsVirtualFolderHasChildren,
         pathToIndex,

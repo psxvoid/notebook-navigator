@@ -865,7 +865,7 @@ export const NavigationPane = React.memo(
         const {
             items,
             firstSectionId,
-            firstFolderPath,
+            firstInlineFolderPath,
             shortcutItems,
             tagsVirtualFolderHasChildren,
             pathToIndex,
@@ -899,6 +899,7 @@ export const NavigationPane = React.memo(
         const pinnedShortcutItems = shouldPinShortcuts ? shortcutItems : [];
         // Banner should be shown in pinned area only when shortcuts are pinned and banner is configured
         const shouldShowPinnedBanner = Boolean(navigationBannerPath && pinnedShortcutItems.length > 0);
+
         // We only reserve gutter space when a banner exists because Windows scrollbars
         // change container width by ~7px when they appear. That width change used to
         // feed back into the virtualizer via ResizeObserver and trigger infinite reflows.
@@ -2011,8 +2012,10 @@ export const NavigationPane = React.memo(
                     case NavigationPaneItemType.FOLDER: {
                         const folderPath = item.data.path;
                         const countInfo = folderCounts.get(folderPath);
+                        // Disable context menu (including separator options) for the first inline folder when shortcuts are pinned
+                        // This prevents users from adding/removing separators on the first item after pinned shortcuts
                         const shouldDisableFolderContextMenu =
-                            shouldPinShortcuts && firstFolderPath !== null && folderPath === firstFolderPath;
+                            shouldPinShortcuts && firstInlineFolderPath !== null && folderPath === firstInlineFolderPath;
 
                         return (
                             <FolderItem
@@ -2258,7 +2261,7 @@ export const NavigationPane = React.memo(
                 handleTagCollectionClick,
                 handleSectionContextMenu,
                 firstSectionId,
-                firstFolderPath,
+                firstInlineFolderPath,
                 handleVirtualFolderToggle,
                 recentNotes.length,
                 getAllDescendantFolders,
