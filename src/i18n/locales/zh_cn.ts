@@ -1081,8 +1081,8 @@ export const STRINGS_ZH_CN = {
                 }
             },
             useFrontmatterDates: {
-                name: '从前言读取元数据',
-                desc: '如果可用，从前言读取笔记名称、时间戳、图标和颜色，否则使用文件系统值或设置'
+                name: '使用前言元数据',
+                desc: '使用前言设置笔记名称、时间戳、图标和颜色'
             },
             frontmatterNameField: {
                 name: '名称字段',

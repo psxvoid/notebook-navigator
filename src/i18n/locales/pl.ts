@@ -1083,8 +1083,8 @@ export const STRINGS_PL = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Czytaj metadane z frontmatter',
-                desc: 'Czytaj nazwy notatek, znaczniki czasu, ikony i kolory z frontmatter gdy dostępne, w przeciwnym razie używaj wartości systemu plików lub ustawień'
+                name: 'Używaj metadanych frontmatter',
+                desc: 'Używaj frontmatter dla nazwy notatki, znaczników czasu, ikon i kolorów'
             },
             frontmatterNameField: {
                 name: 'Pole nazwy',

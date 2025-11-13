@@ -1083,8 +1083,8 @@ export const STRINGS_ES = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Leer metadatos del frontmatter',
-                desc: 'Leer nombres de notas, marcas de tiempo, iconos y colores del frontmatter cuando estén disponibles, usando valores del sistema o ajustes como respaldo'
+                name: 'Usar metadatos del frontmatter',
+                desc: 'Usar frontmatter para nombre de nota, marcas de tiempo, iconos y colores'
             },
             frontmatterNameField: {
                 name: 'Campo de nombre',

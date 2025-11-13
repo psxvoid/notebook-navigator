@@ -1082,8 +1082,8 @@ export const STRINGS_PT_BR = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Ler metadados do frontmatter',
-                desc: 'Ler nomes de notas, timestamps, ícones e cores do frontmatter quando disponível, retornando aos valores do sistema de arquivos ou configurações'
+                name: 'Usar metadados do frontmatter',
+                desc: 'Usar frontmatter para nome da nota, timestamps, ícones e cores'
             },
             frontmatterIconField: {
                 name: 'Campo de ícone',

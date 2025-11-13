@@ -1084,8 +1084,8 @@ export const STRINGS_NL = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Metadata uit frontmatter lezen',
-                desc: 'Notitienamen, tijdstempels, pictogrammen en kleuren uit frontmatter lezen wanneer beschikbaar, met terugval naar bestandssysteemwaarden of instellingen'
+                name: 'Frontmatter metadata gebruiken',
+                desc: 'Frontmatter gebruiken voor notitienaam, tijdstempels, pictogrammen en kleuren'
             },
             frontmatterIconField: {
                 name: 'Pictogramveld',

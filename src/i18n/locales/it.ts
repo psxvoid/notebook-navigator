@@ -1083,8 +1083,8 @@ export const STRINGS_IT = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Leggi metadati dal frontmatter',
-                desc: 'Leggi nomi note, timestamp, icone e colori dal frontmatter quando disponibile, tornando ai valori del file system o impostazioni'
+                name: 'Usa metadati del frontmatter',
+                desc: 'Usa frontmatter per nome nota, timestamp, icone e colori'
             },
             frontmatterIconField: {
                 name: 'Campo icona',

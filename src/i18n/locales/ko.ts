@@ -1080,8 +1080,8 @@ export const STRINGS_KO = {
                 }
             },
             useFrontmatterDates: {
-                name: 'frontmatter에서 메타데이터 읽기',
-                desc: '사용 가능한 경우 frontmatter에서 노트 이름, 타임스탬프, 아이콘, 색상을 읽고, 파일 시스템 값 또는 설정으로 대체'
+                name: 'frontmatter 메타데이터 사용',
+                desc: '노트 이름, 타임스탬프, 아이콘, 색상에 frontmatter 사용'
             },
             frontmatterNameField: {
                 name: '이름 필드',

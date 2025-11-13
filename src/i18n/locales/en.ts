@@ -1080,8 +1080,8 @@ export const STRINGS_EN = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Read metadata from frontmatter',
-                desc: 'Read note names, timestamps, icons, and colors from frontmatter when available, falling back to file system values or settings'
+                name: 'Use frontmatter metadata',
+                desc: 'Use frontmatter for note name, timestamps, icons, and colors'
             },
             frontmatterIconField: {
                 name: 'Icon field',

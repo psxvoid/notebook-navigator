@@ -1084,8 +1084,8 @@ export const STRINGS_DE = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Metadaten aus Frontmatter lesen',
-                desc: 'Notiznamen, Zeitstempel, Icons und Farben aus dem Frontmatter lesen, falls vorhanden, ansonsten Dateisystemwerte oder Einstellungen verwenden'
+                name: 'Frontmatter-Metadaten verwenden',
+                desc: 'Frontmatter für Notizname, Zeitstempel, Icons und Farben verwenden'
             },
             frontmatterNameField: {
                 name: 'Namensfeld',

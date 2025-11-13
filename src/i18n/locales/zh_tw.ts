@@ -1079,8 +1079,8 @@ export const STRINGS_ZH_TW = {
                 }
             },
             useFrontmatterDates: {
-                name: '從 frontmatter 讀取中繼資料',
-                desc: '可用時從 frontmatter 讀取筆記名稱、時間戳、圖示和顏色，否則退回至檔案系統值或設定'
+                name: '使用 frontmatter 中繼資料',
+                desc: '使用 frontmatter 作為筆記名稱、時間戳、圖示和顏色'
             },
             frontmatterNameField: {
                 name: '名稱欄位',

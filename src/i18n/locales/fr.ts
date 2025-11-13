@@ -1085,8 +1085,8 @@ export const STRINGS_FR = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Lire les métadonnées du frontmatter',
-                desc: "Lire les noms de notes, horodatages, icônes et couleurs du frontmatter lorsqu'ils sont disponibles, sinon utiliser les valeurs du système ou les paramètres"
+                name: 'Utiliser les métadonnées du frontmatter',
+                desc: 'Utiliser le frontmatter pour le nom de note, horodatages, icônes et couleurs'
             },
             frontmatterNameField: {
                 name: 'Champ de nom',
