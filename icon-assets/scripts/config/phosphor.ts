@@ -41,7 +41,7 @@ export const phosphor: IconPackConfig = {
         while ((match = idPattern.exec(css)) !== null) {
             const slug = match[1];
             const unicode = match[2].toLowerCase();
-            const id = `ph-${slug}`;
+            const id = slug;
 
             if (seen.has(id)) {
                 continue;
