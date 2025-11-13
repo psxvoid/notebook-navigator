@@ -1095,6 +1095,9 @@ export function useNavigationPaneData({
             }
 
             if (descriptor.type === 'section') {
+                if (descriptor.id === NavigationSectionId.TAGS && !settings.showAllTagsFolder) {
+                    return;
+                }
                 sectionSeparatorIds.add(descriptor.id);
                 return;
             }
@@ -1117,7 +1120,7 @@ export function useNavigationPaneData({
             folderSeparators.size > 0 || tagSeparators.size > 0 || sectionSeparatorIds.size > 0 || useSectionSpacerForRootFolder;
 
         return { folderSeparators, tagSeparators, sectionSeparatorIds, useSectionSpacerForRootFolder, hasAnySeparators };
-    }, [navigationSeparatorSnapshot, settings.showRootFolder]);
+    }, [navigationSeparatorSnapshot, settings.showRootFolder, settings.showAllTagsFolder]);
 
     const itemsWithSeparators = useMemo(() => {
         const { folderSeparators, tagSeparators, sectionSeparatorIds, useSectionSpacerForRootFolder, hasAnySeparators } =
