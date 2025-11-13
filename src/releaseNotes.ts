@@ -73,6 +73,17 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.8.2',
+        date: '2025-11-13',
+        showOnUpdate: true,
+        new: [
+            '==Separators in navigation pane==! You can now right click any section, folder or tag to add a separator above it. Use this to visually group related items in navigation pane.'
+        ],
+        improved: [],
+        changed: [],
+        fixed: []
+    },
+    {
         version: '1.8.1',
         date: '2025-11-11',
         showOnUpdate: true,
