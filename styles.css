@@ -146,6 +146,10 @@ body {
     --nn-theme-navitem-selected-count-bg: var(--nn-theme-navitem-count-bg);
     --nn-theme-navitem-selected-inactive-bg: var(--background-modifier-hover);
     --nn-theme-navitem-selected-inactive-name-color: var(--nn-theme-navitem-name-color);
+    --nn-theme-navitem-selected-inactive-chevron-color: var(--nn-theme-navitem-selected-chevron-color);
+    --nn-theme-navitem-selected-inactive-icon-color: var(--nn-theme-navitem-selected-icon-color);
+    --nn-theme-navitem-selected-inactive-count-color: var(--nn-theme-navitem-selected-count-color);
+    --nn-theme-navitem-selected-inactive-count-bg: var(--nn-theme-navitem-selected-count-bg);
     --nn-theme-tag-positive-bg: #00800033;
     --nn-theme-tag-negative-bg: #ff000033;
 
@@ -195,6 +199,11 @@ body {
     --nn-theme-file-selected-tag-bg: var(--nn-theme-file-tag-bg);
     --nn-theme-file-selected-inactive-bg: var(--background-modifier-hover);
     --nn-theme-file-selected-inactive-name-color: var(--nn-theme-file-selected-name-color);
+    --nn-theme-file-selected-inactive-preview-color: var(--nn-theme-file-selected-preview-color);
+    --nn-theme-file-selected-inactive-date-color: var(--nn-theme-file-selected-date-color);
+    --nn-theme-file-selected-inactive-parent-color: var(--nn-theme-file-selected-parent-color);
+    --nn-theme-file-selected-inactive-tag-color: var(--nn-theme-file-selected-tag-color);
+    --nn-theme-file-selected-inactive-tag-bg: var(--nn-theme-file-selected-tag-bg);
 
     /* -- File Item Text Styling -- */
     --nn-theme-list-group-header-font-weight: 600;
@@ -275,6 +284,38 @@ body {
     height: 100%;
     overflow: hidden;
     position: relative;
+    --nn-selected-file-bg-color: var(--nn-theme-file-selected-bg-solid, var(--nn-theme-file-selected-bg));
+    --nn-selected-file-name-color: var(--nn-theme-file-selected-name-color);
+    --nn-selected-file-preview-color: var(--nn-theme-file-selected-preview-color);
+    --nn-selected-file-date-color: var(--nn-theme-file-selected-date-color);
+    --nn-selected-file-parent-color: var(--nn-theme-file-selected-parent-color);
+    --nn-selected-file-tag-color: var(--nn-theme-file-selected-tag-color);
+    --nn-selected-file-tag-bg: var(--nn-theme-file-selected-tag-bg);
+    --nn-selected-navitem-bg-color: var(--nn-theme-navitem-selected-bg-solid, var(--nn-theme-navitem-selected-bg));
+    --nn-selected-navitem-name-color: var(--nn-theme-navitem-selected-name-color);
+    --nn-selected-navitem-chevron-color: var(--nn-theme-navitem-selected-chevron-color);
+    --nn-selected-navitem-icon-color: var(--nn-theme-navitem-selected-icon-color);
+    --nn-selected-navitem-count-color: var(--nn-theme-navitem-selected-count-color);
+    --nn-selected-navitem-count-bg: var(--nn-theme-navitem-selected-count-bg);
+}
+
+.nn-split-container:is([data-navigator-focused='false'], [data-focus-pane='navigation'], [data-focus-pane='search']) {
+    --nn-selected-file-bg-color: var(--nn-theme-file-selected-inactive-bg-solid, var(--nn-theme-file-selected-inactive-bg));
+    --nn-selected-file-name-color: var(--nn-theme-file-selected-inactive-name-color);
+    --nn-selected-file-preview-color: var(--nn-theme-file-selected-inactive-preview-color);
+    --nn-selected-file-date-color: var(--nn-theme-file-selected-inactive-date-color);
+    --nn-selected-file-parent-color: var(--nn-theme-file-selected-inactive-parent-color);
+    --nn-selected-file-tag-color: var(--nn-theme-file-selected-inactive-tag-color);
+    --nn-selected-file-tag-bg: var(--nn-theme-file-selected-inactive-tag-bg);
+}
+
+.nn-split-container:is([data-navigator-focused='false'], [data-focus-pane='files'], [data-focus-pane='search']) {
+    --nn-selected-navitem-bg-color: var(--nn-theme-navitem-selected-inactive-bg-solid, var(--nn-theme-navitem-selected-inactive-bg));
+    --nn-selected-navitem-name-color: var(--nn-theme-navitem-selected-inactive-name-color);
+    --nn-selected-navitem-chevron-color: var(--nn-theme-navitem-selected-inactive-chevron-color);
+    --nn-selected-navitem-icon-color: var(--nn-theme-navitem-selected-inactive-icon-color);
+    --nn-selected-navitem-count-color: var(--nn-theme-navitem-selected-inactive-count-color);
+    --nn-selected-navitem-count-bg: var(--nn-theme-navitem-selected-inactive-count-bg);
 }
 
 .nn-scale-wrapper {
@@ -2142,8 +2183,8 @@ body {
 
 /* Selected file tag styles - only for tags without custom colors */
 .nn-file.nn-selected .nn-file-tag:not([style*='background-color']) {
-    background-color: var(--nn-theme-file-selected-tag-bg);
-    color: var(--nn-theme-file-selected-tag-color);
+    background-color: var(--nn-selected-file-tag-bg);
+    color: var(--nn-selected-file-tag-color);
 }
 
 /* Ensure custom color tags keep their text color when selected */
@@ -2153,7 +2194,7 @@ body {
 
 /* Selected file text colors */
 .nn-file.nn-selected .nn-file-name {
-    color: var(--nn-theme-file-selected-name-color);
+    color: var(--nn-selected-file-name-color);
 }
 
 .nn-file.nn-selected .nn-file-name[data-has-color='true'] {
@@ -2161,15 +2202,15 @@ body {
 }
 
 .nn-file.nn-selected .nn-file-preview {
-    color: var(--nn-theme-file-selected-preview-color);
+    color: var(--nn-selected-file-preview-color);
 }
 
 .nn-file.nn-selected .nn-file-date {
-    color: var(--nn-theme-file-selected-date-color);
+    color: var(--nn-selected-file-date-color);
 }
 
 .nn-file.nn-selected .nn-file-folder {
-    color: var(--nn-theme-file-selected-parent-color);
+    color: var(--nn-selected-file-parent-color);
 }
 
 /* ========================================================================
@@ -2208,23 +2249,12 @@ body {
 
 /* Selected slim file - maintain selection styles */
 .nn-file.nn-slim.nn-selected .nn-file-name {
-    color: var(--nn-theme-file-selected-name-color);
+    color: var(--nn-selected-file-name-color);
 }
 
 /* Preserve custom color for colored file names even when selected in slim mode */
 .nn-file.nn-slim.nn-selected .nn-file-name[data-has-color='true'] {
     color: var(--nn-file-name-custom-color);
-}
-
-/* Inactive file name color when list pane is not focused */
-.nn-split-container[data-navigator-focused='false'] .nn-file.nn-selected .nn-file-name:not([data-has-color='true']),
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation']
-    .nn-file.nn-selected
-    .nn-file-name:not([data-has-color='true']),
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='search']
-    .nn-file.nn-selected
-    .nn-file-name:not([data-has-color='true']) {
-    color: var(--nn-theme-file-selected-inactive-name-color);
 }
 
 /* ========================================================================
@@ -2480,7 +2510,7 @@ body {
     /* Extend slightly beyond bottom item bounds (height rounding issue) to prevent hairline gaps when zoomed */
     bottom: -0.2px;
     /* Pre-composited solid color prevents hairlines by blending alpha with pane background */
-    background-color: var(--nn-theme-file-selected-bg-solid, var(--nn-theme-file-selected-bg));
+    background-color: var(--nn-selected-file-bg-color);
     border-radius: min(16px, var(--nn-theme-file-border-radius));
     z-index: 0; /* Below separator lines */
 }
@@ -2514,7 +2544,7 @@ body {
     /* Extend slightly beyond bottom item bounds (height rounding issue) to prevent hairline gaps when zoomed */
     bottom: -0.2px;
     /* Pre-composited solid color prevents hairlines by blending alpha with pane background */
-    background-color: var(--nn-theme-navitem-selected-bg-solid, var(--nn-theme-navitem-selected-bg));
+    background-color: var(--nn-selected-navitem-bg-color);
     border-top-left-radius: var(--nn-navitem-top-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
     border-top-right-radius: var(--nn-navitem-top-right-radius, min(14px, var(--nn-theme-navitem-border-radius)));
     border-bottom-left-radius: var(--nn-navitem-bottom-left-radius, min(14px, var(--nn-theme-navitem-border-radius)));
@@ -2539,47 +2569,22 @@ body {
    Focus States
    ======================================================================== */
 
-/* Dimmed selections - apply to all these cases:
-   1. Navigator unfocused (all selections dimmed)
-   2. Navigator focused but inactive pane (cross-pane dimming)
-   3. Search field is focused (both panes dimmed) */
-/* Pre-composited solid colors for inactive selection states */
-.nn-split-container[data-navigator-focused='false'] .nn-file.nn-selected .nn-file-content::before,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file.nn-selected .nn-file-content::before,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-file.nn-selected .nn-file-content::before {
-    background-color: var(--nn-theme-file-selected-inactive-bg-solid, var(--nn-theme-file-selected-inactive-bg));
+/* Navigation selection adornments follow the container focus state */
+.nn-navitem.nn-selected .nn-navitem-chevron {
+    color: var(--nn-selected-navitem-chevron-color);
 }
 
-/* Pre-composited solid colors for inactive navigation selection states */
-.nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::after,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::after,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-navitem.nn-selected::after {
-    background-color: var(--nn-theme-navitem-selected-inactive-bg-solid, var(--nn-theme-navitem-selected-inactive-bg));
+.nn-navitem.nn-selected .nn-navitem-icon {
+    color: var(--nn-selected-navitem-icon-color);
 }
 
-/* Inactive navigation item name color when navigation pane is not focused */
-.nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected .nn-navitem-name,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected .nn-navitem-name,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-navitem.nn-selected .nn-navitem-name {
-    color: var(--nn-theme-navitem-selected-inactive-name-color);
+.nn-navitem.nn-selected .nn-navitem-name {
+    color: var(--nn-selected-navitem-name-color);
 }
 
-/* Active navigation item selection styles - only when navigation pane is focused */
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-navitem.nn-selected .nn-navitem-chevron {
-    color: var(--nn-theme-navitem-selected-chevron-color);
-}
-
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-navitem.nn-selected .nn-navitem-icon {
-    color: var(--nn-theme-navitem-selected-icon-color);
-}
-
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-navitem.nn-selected .nn-navitem-name {
-    color: var(--nn-theme-navitem-selected-name-color);
-}
-
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-navitem.nn-selected .nn-navitem-count {
-    color: var(--nn-theme-navitem-selected-count-color);
-    background-color: var(--nn-theme-navitem-selected-count-bg);
+.nn-navitem.nn-selected .nn-navitem-count {
+    color: var(--nn-selected-navitem-count-color);
+    background-color: var(--nn-selected-navitem-count-bg);
 }
 
 /* ========================================================================
@@ -4948,6 +4953,42 @@ settings:
         default-dark: '#'
     -
     -
+        id: nn-theme-navitem-selected-inactive-chevron-color
+        title: Selected chevron color (inactive)
+        description: Expand/collapse arrow color when item is selected and pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-navitem-selected-inactive-icon-color
+        title: Selected icon color (inactive)
+        description: Icon color when item is selected and pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-navitem-selected-inactive-count-color
+        title: Selected count text color (inactive)
+        description: File count text color when item is selected and pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-navitem-selected-inactive-count-bg
+        title: Selected count background (inactive)
+        description: File count background color when item is selected and pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
         id: nn-theme-navitem-selected-inactive-bg
         title: Selection background (inactive)
         description: Selected item background color when pane is inactive.
@@ -5067,6 +5108,22 @@ settings:
           -
             label: Dotted underline
             value: underline dotted
+    -
+    -
+        id: nn-pinned-shortcuts-heading
+        title: Pinned shortcuts
+        type: heading
+        level: 2
+        collapsed: false
+    -
+    -
+        id: nn-theme-pinned-shortcut-shadow-color
+        title: Pinned shortcut shadow color
+        description: Gradient overlay color rendered beneath pinned shortcuts.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
     -
     -
         id: nn-theme-pane-divider-heading
@@ -5368,6 +5425,51 @@ settings:
         id: nn-theme-file-selected-tag-bg
         title: Selected file tag background
         description: Background color for tag pills when selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-file-selected-inactive-preview-color
+        title: Selected file preview color (inactive)
+        description: Content preview color when file is selected and pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-file-selected-inactive-date-color
+        title: Selected file date color (inactive)
+        description: File date color when selected and pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-file-selected-inactive-parent-color
+        title: Selected file parent folder color (inactive)
+        description: Parent folder color when file is selected and pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-file-selected-inactive-tag-color
+        title: Selected file tag text color (inactive)
+        description: Tag text color when file is selected and pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-file-selected-inactive-tag-bg
+        title: Selected file tag background (inactive)
+        description: Tag background color when file is selected and pane is inactive.
         type: variable-themed-color
         format: hex
         default-light: '#'
