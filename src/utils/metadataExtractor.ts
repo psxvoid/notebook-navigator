@@ -20,8 +20,7 @@ import { App, TFile, CachedMetadata } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { DateUtils } from './dateUtils';
-import { convertIconizeToIconId } from './iconizeFormat';
-import { extractFirstEmoji } from './emojiUtils';
+import { deserializeIconFromFrontmatter } from './iconizeFormat';
 import { isRecord } from './typeGuards';
 
 /**
@@ -106,19 +105,9 @@ export function extractMetadataFromCache(metadata: CachedMetadata | null, settin
             if (!trimmed) {
                 return undefined;
             }
-            // Convert from Iconize format (e.g. LiHome) to canonical format (e.g. home)
-            const converted = convertIconizeToIconId(trimmed);
-            if (converted) {
-                return converted;
-            }
 
-            // Normalize plain emoji values (🔭 -> emoji:🔭)
-            const emojiOnly = extractFirstEmoji(trimmed);
-            if (emojiOnly && emojiOnly === trimmed) {
-                return `emoji:${emojiOnly}`;
-            }
-
-            return trimmed;
+            const parsed = deserializeIconFromFrontmatter(trimmed);
+            return parsed ?? undefined;
         };
 
         if (typeof iconValue === 'string') {

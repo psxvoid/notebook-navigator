@@ -172,7 +172,6 @@ export interface NotebookNavigatorSettings {
     frontmatterModifiedField: string;
     frontmatterDateFormat: string;
     saveMetadataToFrontmatter: boolean;
-    iconizeFormat: boolean;
     fileNameRows: number;
     showFileDate: boolean;
     alphabeticalDateMode: AlphabeticalDateMode;

@@ -23,6 +23,7 @@ import { ISettingsProvider } from '../../interfaces/ISettingsProvider';
 import { FolderAppearance, TagAppearance } from '../../hooks/useListPaneAppearance';
 import type { ShortcutEntry } from '../../types/shortcuts';
 import { mutateVaultProfileShortcuts } from '../../utils/vaultProfiles';
+import { normalizeCanonicalIconId } from '../../utils/iconizeFormat';
 
 /**
  * Type helper for metadata fields in settings
@@ -260,22 +261,27 @@ export abstract class BaseMetadataService {
      * @param iconId - Lucide icon identifier
      */
     protected async setEntityIcon(entityType: EntityType, path: string, iconId: string): Promise<void> {
+        const normalizedIcon = normalizeCanonicalIconId(iconId);
+        if (!normalizedIcon) {
+            return;
+        }
+
         await this.saveAndUpdate(settings => {
             if (entityType === ItemType.FOLDER) {
                 if (!settings.folderIcons) {
                     settings.folderIcons = {};
                 }
-                settings.folderIcons[path] = iconId;
+                settings.folderIcons[path] = normalizedIcon;
             } else if (entityType === ItemType.TAG) {
                 if (!settings.tagIcons) {
                     settings.tagIcons = {};
                 }
-                settings.tagIcons[path] = iconId;
+                settings.tagIcons[path] = normalizedIcon;
             } else {
                 if (!settings.fileIcons) {
                     settings.fileIcons = {};
                 }
-                settings.fileIcons[path] = iconId;
+                settings.fileIcons[path] = normalizedIcon;
             }
         });
     }
@@ -315,12 +321,15 @@ export abstract class BaseMetadataService {
      */
     protected getEntityIcon(entityType: EntityType, path: string): string | undefined {
         if (entityType === ItemType.FOLDER) {
-            return this.settingsProvider.settings.folderIcons?.[path];
+            const icon = this.settingsProvider.settings.folderIcons?.[path];
+            return icon ? normalizeCanonicalIconId(icon) : undefined;
         }
         if (entityType === ItemType.TAG) {
-            return this.settingsProvider.settings.tagIcons?.[path];
+            const icon = this.settingsProvider.settings.tagIcons?.[path];
+            return icon ? normalizeCanonicalIconId(icon) : undefined;
         }
-        return this.settingsProvider.settings.fileIcons?.[path];
+        const icon = this.settingsProvider.settings.fileIcons?.[path];
+        return icon ? normalizeCanonicalIconId(icon) : undefined;
     }
 
     // ========== Generic Sort Override Management ==========

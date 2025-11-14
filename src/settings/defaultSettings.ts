@@ -147,7 +147,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     frontmatterModifiedField: '',
     frontmatterDateFormat: '',
     saveMetadataToFrontmatter: false,
-    iconizeFormat: false,
     fileNameRows: 1,
     showFileDate: true,
     // Default to showing modified date when sorting alphabetically

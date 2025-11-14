@@ -23,6 +23,7 @@ import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
 import { getFolderNote, type FolderNoteDetectionSettings } from '../../utils/folderNotes';
 import { getDBInstance } from '../../storage/fileOperations';
+import { normalizeCanonicalIconId } from '../../utils/iconizeFormat';
 
 /**
  * Service for managing folder-specific metadata operations
@@ -340,7 +341,7 @@ export class FolderMetadataService extends BaseMetadataService {
             return null;
         }
 
-        const iconValue = typeof fileData.metadata.icon === 'string' ? fileData.metadata.icon.trim() : undefined;
+        const iconValue = typeof fileData.metadata.icon === 'string' ? normalizeCanonicalIconId(fileData.metadata.icon.trim()) : undefined;
         const colorValue = typeof fileData.metadata.color === 'string' ? fileData.metadata.color.trim() : undefined;
 
         if (!iconValue && !colorValue) {

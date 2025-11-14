@@ -38,7 +38,7 @@ export class IconService {
     private providers = new Map<string, IconProvider>();
     private config: IconServiceConfig;
     private static readonly DEFAULT_PROVIDER = 'lucide';
-    private static readonly FALLBACK_ICON_ID = 'lucide-image-off';
+    private static readonly FALLBACK_ICON_ID = 'image-off';
     private version = 0;
     private listeners = new Set<() => void>();
 

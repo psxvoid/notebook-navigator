@@ -48,6 +48,7 @@ import { initializeDatabase, shutdownDatabase } from './storage/fileOperations';
 import { ExtendedApp } from './types/obsidian-extended';
 import { getLeafSplitLocation } from './utils/workspaceSplit';
 import { sanitizeKeyboardShortcuts } from './utils/keyboardShortcuts';
+import { normalizeCanonicalIconId } from './utils/iconizeFormat';
 import { isRecord } from './utils/typeGuards';
 import { runAsyncAction } from './utils/async';
 import { resetHiddenToggleIfNoSources } from './utils/exclusionUtils';
@@ -304,6 +305,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         ensureVaultProfiles(this.settings);
         this.applyLegacyVisibilityMigration(legacyVisibility);
         this.applyLegacyShortcutsMigration(legacyShortcuts);
+        this.normalizeIconSettings(this.settings);
         applyActiveVaultProfileToSettings(this.settings);
 
         return isFirstLaunch;
@@ -1016,6 +1018,31 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
             profile.shortcuts = cloneShortcuts(template);
         });
+    }
+
+    private normalizeIconSettings(settings: NotebookNavigatorSettings): void {
+        const normalizeRecord = (record?: Record<string, string>): void => {
+            if (!record) {
+                return;
+            }
+            for (const key of Object.keys(record)) {
+                const value = record[key];
+                if (typeof value !== 'string') {
+                    delete record[key];
+                    continue;
+                }
+                const normalized = normalizeCanonicalIconId(value);
+                if (!normalized) {
+                    delete record[key];
+                    continue;
+                }
+                record[key] = normalized;
+            }
+        };
+
+        normalizeRecord(settings.folderIcons);
+        normalizeRecord(settings.tagIcons);
+        normalizeRecord(settings.fileIcons);
     }
 
     // Extracts legacy exclusion settings from old format and prepares them for migration to vault profiles
