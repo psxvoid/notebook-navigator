@@ -74,6 +74,13 @@ import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
 import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { sanitizeNavigationSectionOrder } from '../utils/navigationSections';
 import { getVirtualTagCollection, VIRTUAL_TAG_COLLECTION_IDS } from '../utils/virtualTagCollections';
+import {
+    buildFolderSeparatorKey,
+    buildSectionSeparatorKey,
+    buildTagSeparatorKey,
+    parseNavigationSeparatorKey
+} from '../utils/navigationSeparators';
+import type { MetadataService } from '../services/MetadataService';
 
 // Checks if a navigation item is a shortcut-related item (virtual folder, shortcut, or header)
 const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
@@ -108,11 +115,95 @@ const isRootSpacingCandidate = (item: CombinedNavigationItem, options: RootSpaci
     return false;
 };
 
+function decorateNavigationItems(
+    source: CombinedNavigationItem[],
+    metadataService: MetadataService,
+    parsedExcludedFolders: string[],
+    _metadataVersion: string
+): CombinedNavigationItem[] {
+    void _metadataVersion;
+    return source.map(item => {
+        if (item.type === NavigationPaneItemType.FOLDER) {
+            return {
+                ...item,
+                color: metadataService.getFolderColor(item.data.path),
+                backgroundColor: metadataService.getFolderBackgroundColor(item.data.path),
+                icon: metadataService.getFolderIcon(item.data.path),
+                parsedExcludedFolders
+            };
+        }
+        if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
+            const tagNode = item.data;
+            return {
+                ...item,
+                color: metadataService.getTagColor(tagNode.path),
+                backgroundColor: metadataService.getTagBackgroundColor(tagNode.path),
+                icon: metadataService.getTagIcon(tagNode.path)
+            };
+        }
+        if (item.type === NavigationPaneItemType.SHORTCUT_FOLDER) {
+            const folderPath = item.folder?.path;
+            const folderColor = folderPath ? metadataService.getFolderColor(folderPath) : undefined;
+            const folderBackground = folderPath ? metadataService.getFolderBackgroundColor(folderPath) : undefined;
+            const customIcon = folderPath ? metadataService.getFolderIcon(folderPath) : undefined;
+            const defaultIcon = folderPath === '/' ? 'vault' : 'lucide-folder';
+            return {
+                ...item,
+                icon: customIcon || defaultIcon,
+                color: folderColor,
+                backgroundColor: folderBackground
+            };
+        }
+        if (item.type === NavigationPaneItemType.SHORTCUT_TAG) {
+            const tagColor = metadataService.getTagColor(item.tagPath);
+            const tagBackground = metadataService.getTagBackgroundColor(item.tagPath);
+            return {
+                ...item,
+                icon: metadataService.getTagIcon(item.tagPath) || 'lucide-tags',
+                color: tagColor,
+                backgroundColor: tagBackground
+            };
+        }
+        if (item.type === NavigationPaneItemType.SHORTCUT_NOTE) {
+            const note = item.note;
+            if (!note) {
+                return item;
+            }
+            const customIcon = metadataService.getFileIcon(note.path);
+            const color = metadataService.getFileColor(note.path);
+            return {
+                ...item,
+                icon: customIcon ?? item.icon,
+                color
+            };
+        }
+        if (item.type === NavigationPaneItemType.RECENT_NOTE) {
+            const customIcon = metadataService.getFileIcon(item.note.path);
+            const color = metadataService.getFileColor(item.note.path);
+            return {
+                ...item,
+                icon: customIcon ?? item.icon,
+                color
+            };
+        }
+        return item;
+    });
+}
+
 /**
  * Inserts spacer items between consecutive root-level folders or tags
  * @param items Navigation items to augment with spacing
  * @param spacing Spacing value in pixels
  */
+const CUSTOM_SEPARATOR_PREFIXES = ['folder:', 'tag:'];
+const isCustomSeparatorKey = (key: string): boolean => CUSTOM_SEPARATOR_PREFIXES.some(prefix => key.startsWith(prefix));
+const SPACER_ITEM_TYPES = new Set<NavigationPaneItemType>([
+    NavigationPaneItemType.TOP_SPACER,
+    NavigationPaneItemType.LIST_SPACER,
+    NavigationPaneItemType.BOTTOM_SPACER,
+    NavigationPaneItemType.ROOT_SPACER
+]);
+
 const insertRootSpacing = (items: CombinedNavigationItem[], spacing: number, options: RootSpacingOptions): CombinedNavigationItem[] => {
     if (spacing <= 0) {
         return items;
@@ -123,13 +214,20 @@ const insertRootSpacing = (items: CombinedNavigationItem[], spacing: number, opt
     let spacerId = 0;
 
     const shouldResetSection = (item: CombinedNavigationItem): boolean => {
-        return (
+        if (
             item.type === NavigationPaneItemType.TOP_SPACER ||
             item.type === NavigationPaneItemType.BOTTOM_SPACER ||
-            item.type === NavigationPaneItemType.LIST_SPACER ||
             item.type === NavigationPaneItemType.BANNER ||
             item.type === NavigationPaneItemType.VIRTUAL_FOLDER
-        );
+        ) {
+            return true;
+        }
+
+        if (item.type === NavigationPaneItemType.LIST_SPACER) {
+            return !isCustomSeparatorKey(item.key);
+        }
+
+        return false;
     };
 
     for (const item of items) {
@@ -256,6 +354,10 @@ interface UseNavigationPaneDataParams {
 interface UseNavigationPaneDataResult {
     /** Combined list of navigation items (folders and tags) */
     items: CombinedNavigationItem[];
+    /** First visible navigation section when shortcuts are inlined */
+    firstSectionId: NavigationSectionId | null;
+    /** First folder path rendered inline after spacers when shortcuts are pinned */
+    firstInlineFolderPath: string | null;
     /** Shortcuts rendered separately when pinShortcuts is enabled */
     shortcutItems: CombinedNavigationItem[];
     /** Whether the tags virtual folder has visible children */
@@ -817,8 +919,10 @@ export function useNavigationPaneData({
      * Combine shortcut, folder, and tag items based on display order settings
      */
     // Combine all navigation items in the correct order with spacers
-    const items = useMemo(() => {
+    const { items, sectionSpacerMap, firstSectionId } = useMemo(() => {
         const allItems: CombinedNavigationItem[] = [];
+        const sectionSpacerMap = new Map<NavigationSectionId, string>();
+        let firstVisibleSectionId: NavigationSectionId | null = null;
 
         // Path to the banner file configured in the active vault profile
         const bannerPath = navigationBannerPath;
@@ -844,35 +948,35 @@ export function useNavigationPaneData({
         });
 
         // Determines which sections should be displayed based on settings and available items
-        const shouldIncludeShortcutsSection = settings.showShortcuts && shortcutItems.length > 0;
+        const shouldIncludeShortcutsSection = settings.showShortcuts && shortcutItems.length > 0 && !pinShortcuts;
         const shouldIncludeRecentSection = settings.showRecentNotes && recentNotesItems.length > 0;
-        const shouldIncludeNotesSection = folderItems.length > 0;
+        const shouldIncludeFoldersSection = folderItems.length > 0;
         const shouldIncludeTagsSection = settings.showTags && tagItems.length > 0;
 
         // Builds sections in the user-specified order
-        const orderedSections: CombinedNavigationItem[][] = [];
+        const orderedSections: { id: NavigationSectionId; items: CombinedNavigationItem[] }[] = [];
 
         // Adds sections to the display based on user-specified order and visibility conditions
         normalizedSectionOrder.forEach(identifier => {
             switch (identifier) {
                 case NavigationSectionId.SHORTCUTS:
                     if (shouldIncludeShortcutsSection) {
-                        orderedSections.push(shortcutItems);
+                        orderedSections.push({ id: NavigationSectionId.SHORTCUTS, items: shortcutItems });
                     }
                     break;
                 case NavigationSectionId.RECENT:
                     if (shouldIncludeRecentSection) {
-                        orderedSections.push(recentNotesItems);
+                        orderedSections.push({ id: NavigationSectionId.RECENT, items: recentNotesItems });
                     }
                     break;
-                case NavigationSectionId.NOTES:
-                    if (shouldIncludeNotesSection) {
-                        orderedSections.push(folderItems);
+                case NavigationSectionId.FOLDERS:
+                    if (shouldIncludeFoldersSection) {
+                        orderedSections.push({ id: NavigationSectionId.FOLDERS, items: folderItems });
                     }
                     break;
                 case NavigationSectionId.TAGS:
                     if (shouldIncludeTagsSection) {
-                        orderedSections.push(tagItems);
+                        orderedSections.push({ id: NavigationSectionId.TAGS, items: tagItems });
                     }
                     break;
                 default:
@@ -881,15 +985,24 @@ export function useNavigationPaneData({
         });
 
         // Filters out empty sections that have no items to display
-        const visibleSections = orderedSections.filter(section => section.length > 0);
+        const visibleSections = orderedSections.filter(section => section.items.length > 0);
+
+        if (visibleSections.length > 0) {
+            firstVisibleSectionId = visibleSections[0].id;
+            // Track the spacer key used for the first section so pinned shortcuts can hide its separator
+            sectionSpacerMap.set(visibleSections[0].id, 'top-spacer');
+        }
 
         // Assembles final item list with spacers between sections
         visibleSections.forEach((section, index) => {
-            allItems.push(...section);
+            allItems.push(...section.items);
             if (index < visibleSections.length - 1) {
+                const nextSection = visibleSections[index + 1];
+                const spacerKey = buildSectionSeparatorKey(nextSection.id);
+                sectionSpacerMap.set(nextSection.id, spacerKey);
                 allItems.push({
                     type: NavigationPaneItemType.LIST_SPACER,
-                    key: `section-spacer-${index}`
+                    key: spacerKey
                 });
             }
         });
@@ -899,7 +1012,7 @@ export function useNavigationPaneData({
             key: 'bottom-spacer'
         });
 
-        return allItems;
+        return { items: allItems, sectionSpacerMap, firstSectionId: firstVisibleSectionId };
     }, [
         folderItems,
         tagItems,
@@ -950,86 +1063,160 @@ export function useNavigationPaneData({
         return `${settingsSignature}::${frontmatterMetadataVersion}`;
     }, [settings, frontmatterMetadataVersion]); // Depend on entire settings object to catch mutations
 
+    const [navigationSeparatorVersion, setNavigationSeparatorVersion] = useState(() => metadataService.getNavigationSeparatorsVersion());
+
+    useEffect(() => {
+        return metadataService.subscribeToNavigationSeparatorChanges(version => {
+            setNavigationSeparatorVersion(version);
+        });
+    }, [metadataService]);
+    const navigationSeparatorSnapshot = useMemo(() => {
+        return {
+            version: navigationSeparatorVersion,
+            record: settings.navigationSeparators || {}
+        };
+    }, [navigationSeparatorVersion, settings.navigationSeparators]);
+
+    const parsedNavigationSeparators = useMemo(() => {
+        const separatorRecord = navigationSeparatorSnapshot.record;
+        const folderSeparators = new Set<string>();
+        const tagSeparators = new Set<string>();
+        const sectionSeparatorIds = new Set<NavigationSectionId>();
+        let useSectionSpacerForRootFolder = false;
+
+        Object.entries(separatorRecord || {}).forEach(([key, enabled]) => {
+            if (!enabled) {
+                return;
+            }
+
+            const descriptor = parseNavigationSeparatorKey(key);
+            if (!descriptor) {
+                return;
+            }
+
+            if (descriptor.type === 'section') {
+                if (descriptor.id === NavigationSectionId.TAGS && !settings.showAllTagsFolder) {
+                    return;
+                }
+                sectionSeparatorIds.add(descriptor.id);
+                return;
+            }
+
+            if (descriptor.type === 'folder') {
+                if (descriptor.path === '/') {
+                    useSectionSpacerForRootFolder = settings.showRootFolder;
+                } else {
+                    folderSeparators.add(descriptor.path);
+                }
+                return;
+            }
+
+            if (descriptor.type === 'tag') {
+                tagSeparators.add(descriptor.path);
+            }
+        });
+
+        const hasAnySeparators =
+            folderSeparators.size > 0 || tagSeparators.size > 0 || sectionSeparatorIds.size > 0 || useSectionSpacerForRootFolder;
+
+        return { folderSeparators, tagSeparators, sectionSeparatorIds, useSectionSpacerForRootFolder, hasAnySeparators };
+    }, [navigationSeparatorSnapshot, settings.showRootFolder, settings.showAllTagsFolder]);
+
+    const itemsWithSeparators = useMemo(() => {
+        const { folderSeparators, tagSeparators, sectionSeparatorIds, useSectionSpacerForRootFolder, hasAnySeparators } =
+            parsedNavigationSeparators;
+
+        if (!hasAnySeparators) {
+            return items;
+        }
+
+        const spacerKeysWithSeparators = new Set<string>();
+        const effectiveSectionIds = new Set(sectionSeparatorIds);
+        if (pinShortcuts) {
+            effectiveSectionIds.delete(NavigationSectionId.SHORTCUTS);
+            if (firstSectionId) {
+                // When shortcuts are pinned the first inlined section should never draw its separator line
+                effectiveSectionIds.delete(firstSectionId);
+            }
+        }
+
+        effectiveSectionIds.forEach(sectionId => {
+            const spacerKey = sectionSpacerMap.get(sectionId);
+            if (spacerKey) {
+                spacerKeysWithSeparators.add(spacerKey);
+            }
+        });
+
+        // Include root section separator when:
+        // - Section spacer for root folder is enabled AND
+        // - Either shortcuts are not pinned OR the first section is not NOTES
+        // This ensures proper separation between pinned shortcuts and main navigation sections
+        const shouldIncludeRootSectionSeparator =
+            useSectionSpacerForRootFolder && (!pinShortcuts || firstSectionId !== NavigationSectionId.FOLDERS);
+        if (shouldIncludeRootSectionSeparator) {
+            const spacerKey = sectionSpacerMap.get(NavigationSectionId.FOLDERS);
+            if (spacerKey) {
+                spacerKeysWithSeparators.add(spacerKey);
+            }
+        }
+
+        if (spacerKeysWithSeparators.size === 0 && folderSeparators.size === 0 && tagSeparators.size === 0) {
+            return items;
+        }
+
+        const createCustomSeparator = (key: string): CombinedNavigationItem => ({
+            type: NavigationPaneItemType.LIST_SPACER,
+            key,
+            hasSeparator: true
+        });
+
+        const result: CombinedNavigationItem[] = [];
+
+        items.forEach(item => {
+            if (item.type === NavigationPaneItemType.TOP_SPACER || item.type === NavigationPaneItemType.LIST_SPACER) {
+                if (spacerKeysWithSeparators.has(item.key)) {
+                    result.push({ ...item, hasSeparator: true });
+                } else {
+                    result.push(item);
+                }
+                return;
+            }
+
+            const shouldHideFolderSeparator = item.type === NavigationPaneItemType.FOLDER && item.isExcluded && !showHiddenItems;
+
+            if (item.type === NavigationPaneItemType.FOLDER) {
+                if (!shouldHideFolderSeparator && folderSeparators.has(item.data.path)) {
+                    result.push(createCustomSeparator(buildFolderSeparatorKey(item.data.path)));
+                }
+            } else if (
+                (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) &&
+                tagSeparators.has(item.data.path)
+            ) {
+                result.push(createCustomSeparator(buildTagSeparatorKey(item.data.path)));
+            }
+
+            result.push(item);
+        });
+
+        return result;
+    }, [firstSectionId, items, parsedNavigationSeparators, sectionSpacerMap, showHiddenItems, pinShortcuts]);
+
     /**
      * Add metadata (colors, icons) and excluded folders to items
      * This pre-computation avoids calling these functions during render
      */
-    const itemsWithMetadata = useMemo(() => {
-        return items.map(item => {
-            if (item.type === NavigationPaneItemType.FOLDER) {
-                return {
-                    ...item,
-                    color: metadataService.getFolderColor(item.data.path),
-                    backgroundColor: metadataService.getFolderBackgroundColor(item.data.path),
-                    icon: metadataService.getFolderIcon(item.data.path),
-                    parsedExcludedFolders
-                };
-            } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
-                const tagNode = item.data;
-                return {
-                    ...item,
-                    color: metadataService.getTagColor(tagNode.path),
-                    backgroundColor: metadataService.getTagBackgroundColor(tagNode.path),
-                    icon: metadataService.getTagIcon(tagNode.path)
-                };
-            } else if (item.type === NavigationPaneItemType.SHORTCUT_FOLDER) {
-                // Apply custom folder icon to shortcut if available
-                const folderPath = item.folder?.path;
-                const folderColor = folderPath ? metadataService.getFolderColor(folderPath) : undefined;
-                const folderBackground = folderPath ? metadataService.getFolderBackgroundColor(folderPath) : undefined;
-                const customIcon = folderPath ? metadataService.getFolderIcon(folderPath) : undefined;
-                const defaultIcon = folderPath === '/' ? 'vault' : 'lucide-folder';
-                return {
-                    ...item,
-                    icon: customIcon || defaultIcon,
-                    color: folderColor,
-                    backgroundColor: folderBackground
-                };
-            } else if (item.type === NavigationPaneItemType.SHORTCUT_TAG) {
-                // Apply custom tag icon to shortcut if available
-                const tagColor = metadataService.getTagColor(item.tagPath);
-                const tagBackground = metadataService.getTagBackgroundColor(item.tagPath);
-                return {
-                    ...item,
-                    icon: metadataService.getTagIcon(item.tagPath) || 'lucide-tags',
-                    color: tagColor,
-                    backgroundColor: tagBackground
-                };
-            } else if (item.type === NavigationPaneItemType.SHORTCUT_NOTE) {
-                const note = item.note;
-                if (!note) {
-                    return item;
-                }
-                const customIcon = metadataService.getFileIcon(note.path);
-                const color = metadataService.getFileColor(note.path);
-                return {
-                    ...item,
-                    icon: customIcon ?? item.icon,
-                    color
-                };
-            } else if (item.type === NavigationPaneItemType.RECENT_NOTE) {
-                const customIcon = metadataService.getFileIcon(item.note.path);
-                const color = metadataService.getFileColor(item.note.path);
-                return {
-                    ...item,
-                    icon: customIcon ?? item.icon,
-                    color
-                };
-            }
-            return item;
-        });
-        // NOTE TO REVIEWER: Including **metadataVersion** to detect settings mutations
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [items, hiddenFolders, metadataService, metadataVersion]);
+    const itemsWithMetadata = useMemo(
+        () => decorateNavigationItems(itemsWithSeparators, metadataService, parsedExcludedFolders, metadataVersion),
+        [itemsWithSeparators, metadataService, metadataVersion, parsedExcludedFolders]
+    );
 
     // Extract shortcut items when pinning is enabled for display in pinned area
     const shortcutItemsWithMetadata = useMemo(() => {
         if (!pinShortcuts) {
             return [] as CombinedNavigationItem[];
         }
-
-        return itemsWithMetadata.filter(isShortcutNavigationItem);
-    }, [itemsWithMetadata, pinShortcuts]);
+        return decorateNavigationItems(shortcutItems, metadataService, parsedExcludedFolders, metadataVersion);
+    }, [metadataService, metadataVersion, parsedExcludedFolders, pinShortcuts, shortcutItems]);
 
     /**
      * Filter items based on showHiddenItems setting
@@ -1053,16 +1240,89 @@ export function useNavigationPaneData({
     }, [itemsWithMetadata, showHiddenItems, pinShortcuts]);
 
     /**
+     * Find the first folder that appears inline (not in the pinned area) when shortcuts are pinned.
+     *
+     * Special behavior when shortcuts are pinned:
+     * - Shortcuts themselves cannot have separators added/removed (no context menu separator options)
+     * - The first item after pinned shortcuts cannot have separators added/removed
+     * - This maintains clean visual separation between pinned area and main navigation
+     * - Users must disable pinned shortcuts to manage separators on these items
+     */
+    const firstInlineFolderPath = useMemo(() => {
+        if (!pinShortcuts) {
+            return null;
+        }
+
+        // Skip spacer items to find the first actual navigation item
+        let firstInlineItem: CombinedNavigationItem | null = null;
+        for (const item of filteredItems) {
+            if (SPACER_ITEM_TYPES.has(item.type)) {
+                continue;
+            }
+            firstInlineItem = item;
+            break;
+        }
+
+        if (!firstInlineItem) {
+            return null;
+        }
+
+        // Only return path if it's a folder (not a tag or other item type)
+        if (firstInlineItem.type === NavigationPaneItemType.FOLDER) {
+            return firstInlineItem.data.path;
+        }
+
+        return null;
+    }, [filteredItems, pinShortcuts]);
+
+    // Suppress the separator for the first inline folder when shortcuts are pinned
+    // This prevents visual separation between pinned shortcuts and the main navigation list
+    const filteredItemsForDisplay = useMemo(() => {
+        if (!pinShortcuts) {
+            return filteredItems;
+        }
+        if (!firstInlineFolderPath) {
+            return filteredItems;
+        }
+
+        const { folderSeparators } = parsedNavigationSeparators;
+        const hasSeparator = folderSeparators.has(firstInlineFolderPath);
+        if (!hasSeparator) {
+            return filteredItems;
+        }
+
+        // Remove the separator spacer item for the first inline folder
+        const suppressedKey = buildFolderSeparatorKey(firstInlineFolderPath);
+        let matchIndex = -1;
+        for (let i = 0; i < filteredItems.length; i += 1) {
+            const item = filteredItems[i];
+            if (item.type === NavigationPaneItemType.LIST_SPACER && item.key === suppressedKey) {
+                matchIndex = i;
+                break;
+            }
+        }
+
+        if (matchIndex === -1) {
+            return filteredItems;
+        }
+
+        // Create new array without the suppressed separator
+        const nextItems = filteredItems.slice();
+        nextItems.splice(matchIndex, 1);
+        return nextItems;
+    }, [filteredItems, firstInlineFolderPath, parsedNavigationSeparators, pinShortcuts]);
+
+    /**
      * Create a map for O(1) item lookups by path
      * Build from filtered items so indices match what's displayed
      */
     const itemsWithRootSpacing = useMemo(() => {
         const tagRootLevel = settings.showAllTagsFolder ? 1 : 0;
-        return insertRootSpacing(filteredItems, settings.rootLevelSpacing, {
+        return insertRootSpacing(filteredItemsForDisplay, settings.rootLevelSpacing, {
             showRootFolder: settings.showRootFolder,
             tagRootLevel
         });
-    }, [filteredItems, settings.rootLevelSpacing, settings.showRootFolder, settings.showAllTagsFolder]);
+    }, [filteredItemsForDisplay, settings.rootLevelSpacing, settings.showRootFolder, settings.showAllTagsFolder]);
 
     const pathToIndex = useMemo(() => {
         const indexMap = new Map<string, number>();
@@ -1228,6 +1488,8 @@ export function useNavigationPaneData({
 
     return {
         items: itemsWithRootSpacing,
+        firstSectionId,
+        firstInlineFolderPath,
         shortcutItems: shortcutItemsWithMetadata,
         tagsVirtualFolderHasChildren,
         pathToIndex,

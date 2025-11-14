@@ -194,6 +194,10 @@ export const STRINGS_PT_BR = {
             changeBackground: 'Alterar plano de fundo',
             showTag: 'Mostrar tag',
             hideTag: 'Ocultar tag'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1036,7 +1040,7 @@ export const STRINGS_PT_BR = {
                 error: 'Falha na limpeza de configurações',
                 loading: 'Verificando metadados...',
                 statusClean: 'Sem metadados para limpar',
-                statusCounts: 'Itens órfãos: {folders} pastas, {tags} tags, {files} arquivos, {pinned} fixações'
+                statusCounts: 'Itens órfãos: {folders} pastas, {tags} tags, {files} arquivos, {pinned} fixações, {separators} separadores'
             },
             rebuildCache: {
                 name: 'Reconstruir cache',
@@ -1078,8 +1082,8 @@ export const STRINGS_PT_BR = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Ler metadados do frontmatter',
-                desc: 'Ler nomes de notas, timestamps, ícones e cores do frontmatter quando disponível, retornando aos valores do sistema de arquivos ou configurações'
+                name: 'Usar metadados do frontmatter',
+                desc: 'Usar frontmatter para nome da nota, timestamps, ícones e cores'
             },
             frontmatterIconField: {
                 name: 'Campo de ícone',
@@ -1094,10 +1098,6 @@ export const STRINGS_PT_BR = {
             frontmatterSaveMetadata: {
                 name: 'Salvar ícones e cores no frontmatter',
                 desc: 'Escrever automaticamente ícones e cores de arquivo no frontmatter usando os campos configurados acima.'
-            },
-            frontmatterIconizeFormat: {
-                name: 'Salvar no formato Iconize',
-                desc: 'Salvar ícones usando formato Iconize (por exemplo, LiHome, FasUser, SiGithub) em vez do formato do plugin (por exemplo, home, fontawesome-solid:user, simple-icons:github).'
             },
             frontmatterMigration: {
                 name: 'Migrar ícones e cores das configurações',

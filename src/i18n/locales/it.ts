@@ -194,6 +194,10 @@ export const STRINGS_IT = {
             changeBackground: 'Cambia sfondo',
             showTag: 'Mostra tag',
             hideTag: 'Nascondi tag'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1037,7 +1041,7 @@ export const STRINGS_IT = {
                 error: 'Pulizia impostazioni fallita',
                 loading: 'Controllo metadati...',
                 statusClean: 'Nessun metadato da pulire',
-                statusCounts: 'Elementi orfani: {folders} cartelle, {tags} tag, {files} file, {pinned} fissaggi'
+                statusCounts: 'Elementi orfani: {folders} cartelle, {tags} tag, {files} file, {pinned} fissaggi, {separators} separatori'
             },
             rebuildCache: {
                 name: 'Ricostruisci cache',
@@ -1079,8 +1083,8 @@ export const STRINGS_IT = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Leggi metadati dal frontmatter',
-                desc: 'Leggi nomi note, timestamp, icone e colori dal frontmatter quando disponibile, tornando ai valori del file system o impostazioni'
+                name: 'Usa metadati del frontmatter',
+                desc: 'Usa frontmatter per nome nota, timestamp, icone e colori'
             },
             frontmatterIconField: {
                 name: 'Campo icona',
@@ -1095,10 +1099,6 @@ export const STRINGS_IT = {
             frontmatterSaveMetadata: {
                 name: 'Salva icone e colori in frontmatter',
                 desc: 'Scrivi automaticamente icone e colori file in frontmatter usando i campi configurati sopra.'
-            },
-            frontmatterIconizeFormat: {
-                name: 'Salva in formato Iconize',
-                desc: 'Salva icone usando formato Iconize (es. LiHome, FasUser, SiGithub) invece del formato plugin (es. home, fontawesome-solid:user, simple-icons:github).'
             },
             frontmatterMigration: {
                 name: 'Migra icone e colori dalle impostazioni',

@@ -195,6 +195,10 @@ export const STRINGS_DE = {
             changeBackground: 'Hintergrund ändern',
             showTag: 'Tag anzeigen',
             hideTag: 'Tag ausblenden'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1066,7 +1070,7 @@ export const STRINGS_DE = {
                 error: 'Einstellungen-Bereinigung fehlgeschlagen',
                 loading: 'Metadaten werden überprüft...',
                 statusClean: 'Keine Metadaten zu bereinigen',
-                statusCounts: 'Verwaiste Elemente: {folders} Ordner, {tags} Tags, {files} Dateien, {pinned} Pins'
+                statusCounts: 'Verwaiste Elemente: {folders} Ordner, {tags} Tags, {files} Dateien, {pinned} Pins, {separators} Trennlinien'
             },
             rebuildCacheFast: {
                 name: 'Cache aktualisieren',
@@ -1115,8 +1119,8 @@ export const STRINGS_DE = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Metadaten aus Frontmatter lesen',
-                desc: 'Notiznamen, Zeitstempel, Icons und Farben aus dem Frontmatter lesen, falls vorhanden, ansonsten Dateisystemwerte oder Einstellungen verwenden'
+                name: 'Frontmatter-Metadaten verwenden',
+                desc: 'Frontmatter für Notizname, Zeitstempel, Icons und Farben verwenden'
             },
             frontmatterNameField: {
                 name: 'Namensfeld',
@@ -1136,10 +1140,6 @@ export const STRINGS_DE = {
             frontmatterSaveMetadata: {
                 name: 'Icons und Farben im Frontmatter speichern',
                 desc: 'Schreibt Datei-Icons und Farben automatisch ins Frontmatter über die oben konfigurierten Felder.'
-            },
-            frontmatterIconizeFormat: {
-                name: 'Im Iconize-Format speichern',
-                desc: 'Icons im Iconize-Format speichern (z.B. LiHome, FasUser, SiGithub) statt im Plugin-Format (z.B. home, fontawesome-solid:user, simple-icons:github).'
             },
             frontmatterMigration: {
                 name: 'Icons und Farben aus Einstellungen migrieren',

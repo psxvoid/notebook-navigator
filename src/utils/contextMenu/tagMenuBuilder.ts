@@ -89,6 +89,20 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
         });
     });
 
+    const tagSeparatorTarget = { type: 'tag', path: tagPath } as const;
+    const hasSeparator = metadataService.hasNavigationSeparator(tagSeparatorTarget);
+
+    menu.addItem((item: MenuItem) => {
+        const title = hasSeparator ? strings.contextMenu.navigation.removeSeparator : strings.contextMenu.navigation.addSeparator;
+        setAsyncOnClick(item.setTitle(title).setIcon('lucide-separator-horizontal'), async () => {
+            if (hasSeparator) {
+                await metadataService.removeNavigationSeparator(tagSeparatorTarget);
+                return;
+            }
+            await metadataService.addNavigationSeparator(tagSeparatorTarget);
+        });
+    });
+
     const canHideTag = tagPath !== UNTAGGED_TAG_ID;
     if (canHideTag || !isVirtualTag) {
         menu.addSeparator();

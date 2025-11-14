@@ -193,6 +193,10 @@ export const STRINGS_EN = {
             changeBackground: 'Change background',
             showTag: 'Show tag',
             hideTag: 'Hide tag'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1062,7 +1066,7 @@ export const STRINGS_EN = {
                 error: 'Settings cleanup failed',
                 loading: 'Checking metadata...',
                 statusClean: 'No metadata to clean',
-                statusCounts: 'Orphaned items: {folders} folders, {tags} tags, {files} files, {pinned} pins'
+                statusCounts: 'Orphaned items: {folders} folders, {tags} tags, {files} files, {pinned} pins, {separators} separators'
             },
             rebuildCacheFast: {
                 name: 'Refresh cache',
@@ -1111,8 +1115,8 @@ export const STRINGS_EN = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Read metadata from frontmatter',
-                desc: 'Read note names, timestamps, icons, and colors from frontmatter when available, falling back to file system values or settings'
+                name: 'Use frontmatter metadata',
+                desc: 'Use frontmatter for note name, timestamps, icons, and colors'
             },
             frontmatterIconField: {
                 name: 'Icon field',
@@ -1127,10 +1131,6 @@ export const STRINGS_EN = {
             frontmatterSaveMetadata: {
                 name: 'Save icons and colors to frontmatter',
                 desc: 'Automatically write file icons and colors to frontmatter using the configured fields above.'
-            },
-            frontmatterIconizeFormat: {
-                name: 'Save in Iconize format',
-                desc: 'Save icons using Iconize format (e.g. LiHome, FasUser, SiGithub) instead of plugin format (e.g. home, fontawesome-solid:user, simple-icons:github).'
             },
             frontmatterMigration: {
                 name: 'Migrate icons and colors from settings',

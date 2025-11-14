@@ -154,6 +154,23 @@ export interface RootSpacerItem {
     spacing: number;
 }
 
+export interface TopSpacerItem {
+    type: typeof NavigationPaneItemType.TOP_SPACER;
+    key: string;
+    hasSeparator?: boolean;
+}
+
+export interface BottomSpacerItem {
+    type: typeof NavigationPaneItemType.BOTTOM_SPACER;
+    key: string;
+}
+
+export interface ListSpacerItem {
+    type: typeof NavigationPaneItemType.LIST_SPACER;
+    key: string;
+    hasSeparator?: boolean;
+}
+
 export type CombinedNavigationItem =
     | FolderTreeItem
     | VirtualFolderItem
@@ -167,6 +184,6 @@ export type CombinedNavigationItem =
     | ShortcutTagNavItem
     | NavigationBannerItem
     | RootSpacerItem
-    | { type: typeof NavigationPaneItemType.TOP_SPACER; key: string }
-    | { type: typeof NavigationPaneItemType.BOTTOM_SPACER; key: string }
-    | { type: typeof NavigationPaneItemType.LIST_SPACER; key: string };
+    | TopSpacerItem
+    | BottomSpacerItem
+    | ListSpacerItem;

@@ -119,9 +119,9 @@ export interface UseNavigationRootReorderOptions {
     metadataService: MetadataService;
     withDragGhost: (handlers: ListReorderHandlers, options: DragGhostOptions) => ListReorderHandlers;
     isRootReorderMode: boolean;
-    notesSectionExpanded: boolean;
+    foldersSectionExpanded: boolean;
     tagsSectionExpanded: boolean;
-    handleToggleNotesSection: (event: React.MouseEvent<HTMLDivElement>) => void;
+    handleToggleFoldersSection: (event: React.MouseEvent<HTMLDivElement>) => void;
     handleToggleTagsSection: (event: React.MouseEvent<HTMLDivElement>) => void;
     useReorderMenu: boolean;
 }
@@ -160,9 +160,9 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         metadataService,
         withDragGhost,
         isRootReorderMode,
-        notesSectionExpanded,
+        foldersSectionExpanded,
         tagsSectionExpanded,
-        handleToggleNotesSection,
+        handleToggleFoldersSection,
         handleToggleTagsSection,
         useReorderMenu
     } = options;
@@ -390,7 +390,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         const includeMap = new Map<NavigationSectionId, boolean>([
             [NavigationSectionId.SHORTCUTS, showShortcuts],
             [NavigationSectionId.RECENT, showRecentNotes],
-            [NavigationSectionId.NOTES, rootFolderDescriptors.length > 0],
+            [NavigationSectionId.FOLDERS, rootFolderDescriptors.length > 0],
             [NavigationSectionId.TAGS, showTags && reorderableRootTags.length > 0]
         ]);
 
@@ -865,22 +865,22 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                     fileVisibility === FILE_VISIBILITY.DOCUMENTS
                         ? strings.navigationPane.recentNotesHeader
                         : strings.navigationPane.recentFilesHeader;
-            } else if (identifier === NavigationSectionId.NOTES) {
+            } else if (identifier === NavigationSectionId.FOLDERS) {
                 if (vaultRootDescriptor) {
                     const vaultIcon = rootFolderIconMap.get(vaultRootDescriptor.key);
                     color = rootFolderColorMap.get(vaultRootDescriptor.key);
                     if (vaultIcon) {
                         icon = vaultIcon;
                     } else {
-                        icon = notesSectionExpanded ? 'open-vault' : 'vault';
+                        icon = foldersSectionExpanded ? 'open-vault' : 'vault';
                     }
                     label = customVaultName || app.vault.getName();
                 } else {
                     icon = 'lucide-notebook';
-                    label = strings.listPane.notesSection;
+                    label = strings.settings.sections.folders;
                 }
-                chevronIcon = notesSectionExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right';
-                onClick = handleToggleNotesSection;
+                chevronIcon = foldersSectionExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right';
+                onClick = handleToggleFoldersSection;
             } else if (identifier === NavigationSectionId.TAGS) {
                 icon = 'lucide-tags';
                 label = strings.settings.sections.tags;
@@ -935,9 +935,9 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         rootFolderColorMap,
         customVaultName,
         app.vault,
-        notesSectionExpanded,
+        foldersSectionExpanded,
         tagsSectionExpanded,
-        handleToggleNotesSection,
+        handleToggleFoldersSection,
         handleToggleTagsSection,
         withDragGhost,
         getRootReorderHandleConfig,

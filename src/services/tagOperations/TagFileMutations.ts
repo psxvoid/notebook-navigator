@@ -280,11 +280,11 @@ export class TagFileMutations {
         const content = await this.app.vault.read(file);
         if (this.hasInlineTags(content)) {
             await this.app.vault.process(file, current => {
-                const next = this.removeAllInlineTags(current);
-                if (next !== current) {
+                const { content: nextContent } = this.removeInlineTagsWithPattern(current, TagFileMutations.INLINE_TAG_PATTERN);
+                if (nextContent !== current) {
                     hadTags = true;
                 }
-                return next;
+                return nextContent;
             });
         }
 
@@ -651,10 +651,6 @@ export class TagFileMutations {
         }
 
         return { content: updatedContent, changed };
-    }
-
-    private removeAllInlineTags(content: string): string {
-        return content.replace(TagFileMutations.INLINE_TAG_PATTERN, '');
     }
 
     private hasInlineTags(content: string): boolean {
