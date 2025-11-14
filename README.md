@@ -416,6 +416,9 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 | `notebook-navigator:open`                   | Notebook Navigator: Open                                       |
 | `notebook-navigator:open-homepage`          | Notebook Navigator: Open homepage                              |
 | `notebook-navigator:select-profile`         | Notebook Navigator: Select vault profile                       |
+| `notebook-navigator:select-profile-1`       | Notebook Navigator: Select vault profile 1                     |
+| `notebook-navigator:select-profile-2`       | Notebook Navigator: Select vault profile 2                     |
+| `notebook-navigator:select-profile-3`       | Notebook Navigator: Select vault profile 3                     |
 | `notebook-navigator:reveal-file`            | Notebook Navigator: Reveal file                                |
 | `notebook-navigator:navigate-to-folder`     | Notebook Navigator: Navigate to folder                         |
 | `notebook-navigator:navigate-to-tag`        | Notebook Navigator: Navigate to tag                            |
