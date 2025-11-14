@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, Plugin, View, WorkspaceLeaf, TFile } from 'obsidian';
+import type { App, Plugin, View, WorkspaceLeaf, TFile } from 'obsidian';
 
 /** MIME type identifier for tag drag-and-drop operations */
 export const TAG_DRAG_MIME = 'application/x-notebook-navigator-tag';
@@ -206,6 +206,12 @@ export const OBSIDIAN_COMMANDS = {
     EDIT_FILE_TITLE: 'workspace:edit-file-title',
     VERSION_HISTORY: 'sync:view-version-history'
 } as const;
+
+declare module 'obsidian' {
+    interface FileManager {
+        createNewMarkdownFile(folder: import('obsidian').TFolder, fileName: string): Promise<TFile>;
+    }
+}
 
 /**
  * Extend the global Window interface for plugin state

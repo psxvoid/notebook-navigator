@@ -86,6 +86,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Icons saved to frontmatter are now always saved in "Iconize" format like LiHome, SiApple, etc. The old setting "Save in Iconize format" was removed.'
         ],
         fixed: [
+            'New markdown files created through Notebook Navigator now use Obsidian **app.fileManager.createNewMarkdownFile** instead of **app.vault.create**. This should make it work better with third party plugins like Templater.',
             'Fixed an issue where icons saved to frontmatter in "Iconize" format were saved as "icon: LiLucideChartLine" instead of just "icon: LiChartLine". This has been fixed. If you used this setting and want to clean up your notes you can simply search for "icon: LiLucide" in your vault and replace with "icon: Li" to fix the icon names.',
             'If Untagged section was added to shortcuts it previously displayed incorrectly.'
         ]
