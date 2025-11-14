@@ -998,7 +998,7 @@ export const FileItem = React.memo(function FileItem({
         }
         const iconService = getIconService();
         iconService.renderIcon(iconContainer, iconId);
-    }, [effectiveFileIconId, iconServiceVersion, shouldShowFileIcon]);
+    }, [effectiveFileIconId, iconServiceVersion, shouldShowFileIcon, isSlimMode]);
 
     // Render external file indicator icon (shown next to filename in non-slim mode)
     useEffect(() => {
