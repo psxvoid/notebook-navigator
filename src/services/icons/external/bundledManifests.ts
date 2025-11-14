@@ -27,7 +27,7 @@ export const BUNDLED_ICON_MANIFESTS: Record<ExternalIconProviderId, ExternalIcon
     },
 
     phosphor: {
-        version: '2.1.2',
+        version: '2.1.2.1',
         font: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/phosphor/phosphor-regular.woff2',
         metadata: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/phosphor/icons.json',
         fontMimeType: 'font/woff2',
@@ -35,7 +35,7 @@ export const BUNDLED_ICON_MANIFESTS: Record<ExternalIconProviderId, ExternalIcon
     },
 
     'rpg-awesome': {
-        version: '0.2.0',
+        version: '0.2.0.1',
         font: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/rpg-awesome/rpgawesome-webfont.woff',
         metadata: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/rpg-awesome/icons.json',
         fontMimeType: 'font/woff',
