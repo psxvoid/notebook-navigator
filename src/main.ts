@@ -1216,7 +1216,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     public async getMetadataCleanupSummary(): Promise<MetadataCleanupSummary> {
         if (!this.metadataService || this.isUnloading) {
-            return { folders: 0, tags: 0, files: 0, pinnedNotes: 0, total: 0 };
+            return { folders: 0, tags: 0, files: 0, pinnedNotes: 0, separators: 0, total: 0 };
         }
 
         return this.metadataService.getCleanupSummary();

@@ -29,7 +29,7 @@ interface NavigationRootReorderPanelProps {
     tagItems: RootReorderRenderItem[];
     showRootFolderSection: boolean;
     showRootTagSection: boolean;
-    notesSectionExpanded: boolean;
+    foldersSectionExpanded: boolean;
     tagsSectionExpanded: boolean;
     showRootFolderReset: boolean;
     showRootTagReset: boolean;
@@ -61,7 +61,7 @@ export function NavigationRootReorderPanel({
     tagItems,
     showRootFolderSection,
     showRootTagSection,
-    notesSectionExpanded,
+    foldersSectionExpanded,
     tagsSectionExpanded,
     showRootFolderReset,
     showRootTagReset,
@@ -121,7 +121,7 @@ export function NavigationRootReorderPanel({
         sectionItems.forEach((sectionItem, index) => {
             const { showDropIndicatorBefore, showDropIndicatorAfter, dragHandlers, ...rowProps } = sectionItem.props;
             const shouldRenderFolders =
-                sectionItem.sectionId === NavigationSectionId.NOTES && notesSectionExpanded && showRootFolderSection;
+                sectionItem.sectionId === NavigationSectionId.FOLDERS && foldersSectionExpanded && showRootFolderSection;
             const shouldRenderTags = sectionItem.sectionId === NavigationSectionId.TAGS && tagsSectionExpanded && showRootTagSection;
             const hasExpandedContent = (shouldRenderFolders && folderItems.length > 0) || (shouldRenderTags && tagItems.length > 0);
             const headerShowsDropAfter = Boolean(showDropIndicatorAfter && !hasExpandedContent);

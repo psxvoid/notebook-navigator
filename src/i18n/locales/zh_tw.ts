@@ -193,6 +193,10 @@ export const STRINGS_ZH_TW = {
             changeBackground: '變更背景',
             showTag: '顯示標籤',
             hideTag: '隱藏標籤'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1061,7 +1065,7 @@ export const STRINGS_ZH_TW = {
                 error: '設定清理失敗',
                 loading: '正在檢查中繼資料...',
                 statusClean: '沒有要清理的中繼資料',
-                statusCounts: '孤立項目：{folders} 個資料夾、{tags} 個標籤、{files} 個檔案、{pinned} 個釘選'
+                statusCounts: '孤立項目：{folders} 個資料夾、{tags} 個標籤、{files} 個檔案、{pinned} 個釘選、{separators} 個分隔符'
             },
             rebuildCacheFast: {
                 name: '刷新快取',
@@ -1110,8 +1114,8 @@ export const STRINGS_ZH_TW = {
                 }
             },
             useFrontmatterDates: {
-                name: '從 frontmatter 讀取中繼資料',
-                desc: '可用時從 frontmatter 讀取筆記名稱、時間戳、圖示和顏色，否則退回至檔案系統值或設定'
+                name: '使用 frontmatter 中繼資料',
+                desc: '使用 frontmatter 作為筆記名稱、時間戳、圖示和顏色'
             },
             frontmatterNameField: {
                 name: '名稱欄位',
@@ -1131,10 +1135,6 @@ export const STRINGS_ZH_TW = {
             frontmatterSaveMetadata: {
                 name: '將圖示和顏色儲存至 frontmatter',
                 desc: '使用上方設定的欄位自動將檔案圖示和顏色寫入 frontmatter。'
-            },
-            frontmatterIconizeFormat: {
-                name: '以 Iconize 格式儲存',
-                desc: '使用 Iconize 格式（例如 LiHome, FasUser, SiGithub）儲存圖示，而不是外掛格式（例如 home, fontawesome-solid:user, simple-icons:github）。'
             },
             frontmatterMigration: {
                 name: '從設定移轉圖示和顏色',

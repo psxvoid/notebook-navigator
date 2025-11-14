@@ -28,9 +28,13 @@ The theming variables use the `--nn-theme-` prefix and should be defined at the 
 
 ### Navigation pane
 
-| Variable            | Default                       | Description                                                  |
-| ------------------- | ----------------------------- | ------------------------------------------------------------ |
-| `--nn-theme-nav-bg` | `var(--background-secondary)` | Navigation pane background (desktop only, see mobile styles) |
+| Variable                              | Default                                                                                                                                      | Description                                                                         |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `--nn-theme-nav-bg`                   | `var(--background-secondary)`                                                                                                                | Navigation pane background (desktop only, see mobile styles)                        |
+| `--nn-theme-nav-separator-color`      | `var(--text-muted)`                                                                                                                          | Separator line color inside navigation spacers                                      |
+| `--nn-theme-nav-separator-background` | `linear-gradient(90deg, transparent 0%, var(--nn-theme-nav-separator-color) 15%, var(--nn-theme-nav-separator-color) 85%, transparent 100%)` | Fill for navigation separators; override to supply your own gradient or solid color |
+| `--nn-theme-nav-separator-height`     | `1px`                                                                                                                                        | Thickness for navigation separators                                                 |
+| `--nn-theme-nav-separator-opacity`    | `0.3`                                                                                                                                        | Opacity for navigation separators                                                   |
 
 #### Pinned shortcuts
 
@@ -188,6 +192,10 @@ body {
 
   /* Pane background */
   --nn-theme-nav-bg: #3c3f41; /* Dark gray sidebar - navigation pane background */
+  --nn-theme-nav-separator-color: #6e6e6e; /* Muted gray - separator lines */
+  --nn-theme-nav-separator-background: var(--nn-theme-nav-separator-color); /* Solid separator fill */
+  --nn-theme-nav-separator-height: 1px; /* Keep separators at 1px */
+  --nn-theme-nav-separator-opacity: 0.35; /* Slightly stronger separator */
 
   /* Folder & tag items */
   --nn-theme-navitem-chevron-color: #6e6e6e; /* Muted gray - expand/collapse arrows */
@@ -314,6 +322,7 @@ To support both light and dark modes, define your variables under `.theme-light`
 .theme-light {
   /* Navigation pane */
   --nn-theme-nav-bg: #ffeeff; /* Light pink */
+  --nn-theme-nav-separator-color: #ff99cc; /* Pink separator lines */
   --nn-theme-navitem-name-color: #ff66cc; /* Pink text */
   --nn-theme-navitem-hover-bg: #ffddff; /* Very light pink */
   --nn-theme-navitem-selected-bg: #ffccff; /* Pastel purple */
@@ -335,6 +344,7 @@ To support both light and dark modes, define your variables under `.theme-light`
 .theme-dark {
   /* Navigation pane */
   --nn-theme-nav-bg: #330033; /* Dark purple */
+  --nn-theme-nav-separator-color: #ff66ff; /* Bright separator lines */
   --nn-theme-navitem-name-color: #ffaaff; /* Light pink text */
   --nn-theme-navitem-hover-bg: #442244; /* Dark purple hover */
   --nn-theme-navitem-selected-bg: #663366; /* Muted purple */

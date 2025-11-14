@@ -193,6 +193,10 @@ export const STRINGS_ZH_CN = {
             changeBackground: '更改背景',
             showTag: '显示标签',
             hideTag: '隐藏标签'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1063,7 +1067,7 @@ export const STRINGS_ZH_CN = {
                 error: '设置清理失败',
                 loading: '正在检查元数据...',
                 statusClean: '没有需要清理的元数据',
-                statusCounts: '孤立项目：{folders} 文件夹，{tags} 标签，{files} 文件，{pinned} 置顶'
+                statusCounts: '孤立项目：{folders} 文件夹，{tags} 标签，{files} 文件，{pinned} 置顶，{separators} 分隔符'
             },
             rebuildCacheFast: {
                 name: '刷新缓存',
@@ -1112,8 +1116,8 @@ export const STRINGS_ZH_CN = {
                 }
             },
             useFrontmatterDates: {
-                name: '从前言读取元数据',
-                desc: '如果可用，从前言读取笔记名称、时间戳、图标和颜色，否则使用文件系统值或设置'
+                name: '使用前言元数据',
+                desc: '使用前言设置笔记名称、时间戳、图标和颜色'
             },
             frontmatterNameField: {
                 name: '名称字段',
@@ -1133,10 +1137,6 @@ export const STRINGS_ZH_CN = {
             frontmatterSaveMetadata: {
                 name: '将图标和颜色保存到前言',
                 desc: '使用上面配置的字段自动将文件图标和颜色写入前言。'
-            },
-            frontmatterIconizeFormat: {
-                name: '以 Iconize 格式保存',
-                desc: '使用 Iconize 格式（例如 LiHome, FasUser, SiGithub）保存图标，而不是插件格式（例如 home, fontawesome-solid:user, simple-icons:github）。'
             },
             frontmatterMigration: {
                 name: '从设置迁移图标和颜色',

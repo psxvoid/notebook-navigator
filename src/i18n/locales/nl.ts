@@ -194,6 +194,10 @@ export const STRINGS_NL = {
             changeBackground: 'Achtergrond wijzigen',
             showTag: 'Tag tonen',
             hideTag: 'Tag verbergen'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1065,7 +1069,8 @@ export const STRINGS_NL = {
                 error: 'Opschonen van instellingen mislukt',
                 loading: 'Metadata controleren...',
                 statusClean: 'Geen metadata om op te schonen',
-                statusCounts: 'Verweesde items: {folders} mappen, {tags} tags, {files} bestanden, {pinned} pins'
+                statusCounts:
+                    'Verweesde items: {folders} mappen, {tags} tags, {files} bestanden, {pinned} pins, {separators} scheidingslijnen'
             },
             rebuildCacheFast: {
                 name: 'Cache vernieuwen',
@@ -1114,8 +1119,8 @@ export const STRINGS_NL = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Metadata uit frontmatter lezen',
-                desc: 'Notitienamen, tijdstempels, pictogrammen en kleuren uit frontmatter lezen wanneer beschikbaar, met terugval naar bestandssysteemwaarden of instellingen'
+                name: 'Frontmatter metadata gebruiken',
+                desc: 'Frontmatter gebruiken voor notitienaam, tijdstempels, pictogrammen en kleuren'
             },
             frontmatterIconField: {
                 name: 'Pictogramveld',
@@ -1130,10 +1135,6 @@ export const STRINGS_NL = {
             frontmatterSaveMetadata: {
                 name: 'Pictogrammen en kleuren opslaan in frontmatter',
                 desc: 'Bestandspictogrammen en -kleuren automatisch naar frontmatter schrijven met behulp van de hierboven geconfigureerde velden.'
-            },
-            frontmatterIconizeFormat: {
-                name: 'Opslaan in Iconize-formaat',
-                desc: 'Pictogrammen opslaan met Iconize-formaat (bijv. LiHome, FasUser, SiGithub) in plaats van plugin-formaat (bijv. home, fontawesome-solid:user, simple-icons:github).'
             },
             frontmatterMigration: {
                 name: 'Pictogrammen en kleuren migreren vanuit instellingen',

@@ -16,9 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { NotebookNavigatorSettings } from '../settings';
+import type { NotebookNavigatorSettings } from '../settings/types';
 import type { LocalStorageKeys } from '../types';
-import { DEFAULT_SETTINGS } from '../settings';
+import { DEFAULT_SETTINGS } from '../settings/defaultSettings';
 import { localStorage } from '../utils/localStorage';
 import { RECENT_ICONS_PER_PROVIDER_LIMIT } from './icons/types';
 
@@ -56,7 +56,7 @@ export class RecentStorageService {
     }
 
     getRecentNotes(): string[] {
-        return this.notesCache;
+        return [...this.notesCache];
     }
 
     setRecentNotes(recentNotes: string[]): void {
@@ -70,7 +70,7 @@ export class RecentStorageService {
     }
 
     getRecentIcons(): Record<string, string[]> {
-        return this.iconsCache;
+        return this.cloneIconMap(this.iconsCache);
     }
 
     setRecentIcons(recentIcons: Record<string, string[]>): void {

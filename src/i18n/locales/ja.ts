@@ -193,6 +193,10 @@ export const STRINGS_JA = {
             changeBackground: '背景色を変更',
             showTag: 'タグを表示',
             hideTag: 'タグを非表示'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1065,7 +1069,7 @@ export const STRINGS_JA = {
                 error: '設定のクリーンアップに失敗しました',
                 loading: 'メタデータを確認中...',
                 statusClean: 'クリーンアップするメタデータはありません',
-                statusCounts: '孤立した項目: {folders} フォルダ, {tags} タグ, {files} ファイル, {pinned} ピン'
+                statusCounts: '孤立した項目: {folders} フォルダ, {tags} タグ, {files} ファイル, {pinned} ピン, {separators} セパレーター'
             },
             rebuildCacheFast: {
                 name: 'キャッシュを更新',
@@ -1114,8 +1118,8 @@ export const STRINGS_JA = {
                 }
             },
             useFrontmatterDates: {
-                name: 'フロントマターからメタデータを読み込む',
-                desc: '利用可能な場合、フロントマターからノート名、タイムスタンプ、アイコン、色を読み取り、それ以外はファイルシステムの値または設定を使用'
+                name: 'フロントマターメタデータを使用',
+                desc: 'ノート名、タイムスタンプ、アイコン、色にフロントマターを使用'
             },
             frontmatterNameField: {
                 name: '名前フィールド',
@@ -1135,10 +1139,6 @@ export const STRINGS_JA = {
             frontmatterSaveMetadata: {
                 name: 'フロントマターにアイコンと色を保存',
                 desc: '上記で設定したフィールドを使ってファイルのアイコンと色を自動的にフロントマターに書き込みます。'
-            },
-            frontmatterIconizeFormat: {
-                name: 'Iconize形式で保存',
-                desc: 'アイコンをプラグイン形式（例: home, fontawesome-solid:user, simple-icons:github）ではなく、Iconize形式（例: LiHome, FasUser, SiGithub）で保存します。'
             },
             frontmatterMigration: {
                 name: '設定からアイコンと色を移行',

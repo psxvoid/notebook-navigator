@@ -192,6 +192,10 @@ export const STRINGS_PL = {
             changeBackground: 'Zmień tło',
             showTag: 'Pokaż tag',
             hideTag: 'Ukryj tag'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1064,7 +1068,8 @@ export const STRINGS_PL = {
                 error: 'Czyszczenie ustawień nie powiodło się',
                 loading: 'Sprawdzanie metadanych...',
                 statusClean: 'Brak metadanych do wyczyszczenia',
-                statusCounts: 'Osierocone elementy: {folders} folderów, {tags} tagów, {files} plików, {pinned} przypiętych'
+                statusCounts:
+                    'Osierocone elementy: {folders} folderów, {tags} tagów, {files} plików, {pinned} przypiętych, {separators} separatorów'
             },
             rebuildCacheFast: {
                 name: 'Odśwież pamięć podręczną',
@@ -1113,8 +1118,8 @@ export const STRINGS_PL = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Czytaj metadane z frontmatter',
-                desc: 'Czytaj nazwy notatek, znaczniki czasu, ikony i kolory z frontmatter gdy dostępne, w przeciwnym razie używaj wartości systemu plików lub ustawień'
+                name: 'Używaj metadanych frontmatter',
+                desc: 'Używaj frontmatter dla nazwy notatki, znaczników czasu, ikon i kolorów'
             },
             frontmatterNameField: {
                 name: 'Pole nazwy',
@@ -1134,10 +1139,6 @@ export const STRINGS_PL = {
             frontmatterSaveMetadata: {
                 name: 'Zapisz ikony i kolory w frontmatter',
                 desc: 'Automatycznie zapisuje ikony i kolory plików w frontmatter przy użyciu skonfigurowanych powyżej pól.'
-            },
-            frontmatterIconizeFormat: {
-                name: 'Zapisz w formacie Iconize',
-                desc: 'Zapisz ikony używając formatu Iconize (np. LiHome, FasUser, SiGithub) zamiast formatu wtyczki (np. home, fontawesome-solid:user, simple-icons:github).'
             },
             frontmatterMigration: {
                 name: 'Migruj ikony i kolory z ustawień',

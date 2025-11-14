@@ -192,6 +192,10 @@ export const STRINGS_KO = {
             changeBackground: '배경색 변경',
             showTag: '태그 표시',
             hideTag: '태그 숨기기'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1062,7 +1066,7 @@ export const STRINGS_KO = {
                 error: '설정 정리에 실패했습니다',
                 loading: '메타데이터 확인 중...',
                 statusClean: '정리할 메타데이터가 없습니다',
-                statusCounts: '고아 항목: {folders} 폴더, {tags} 태그, {files} 파일, {pinned} 고정'
+                statusCounts: '고아 항목: {folders} 폴더, {tags} 태그, {files} 파일, {pinned} 고정, {separators} 구분선'
             },
             rebuildCacheFast: {
                 name: '캐시 새로 고침',
@@ -1111,8 +1115,8 @@ export const STRINGS_KO = {
                 }
             },
             useFrontmatterDates: {
-                name: 'frontmatter에서 메타데이터 읽기',
-                desc: '사용 가능한 경우 frontmatter에서 노트 이름, 타임스탬프, 아이콘, 색상을 읽고, 파일 시스템 값 또는 설정으로 대체'
+                name: 'frontmatter 메타데이터 사용',
+                desc: '노트 이름, 타임스탬프, 아이콘, 색상에 frontmatter 사용'
             },
             frontmatterNameField: {
                 name: '이름 필드',
@@ -1132,10 +1136,6 @@ export const STRINGS_KO = {
             frontmatterSaveMetadata: {
                 name: 'frontmatter에 아이콘과 색상 저장',
                 desc: '위에서 구성한 필드를 사용하여 파일 아이콘과 색상을 frontmatter에 자동으로 기록합니다.'
-            },
-            frontmatterIconizeFormat: {
-                name: 'Iconize 형식으로 저장',
-                desc: '플러그인 형식(예: home, fontawesome-solid:user, simple-icons:github) 대신 Iconize 형식(예: LiHome, FasUser, SiGithub)으로 아이콘을 저장합니다.'
             },
             frontmatterMigration: {
                 name: '설정에서 아이콘과 색상 이동',

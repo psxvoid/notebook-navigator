@@ -261,4 +261,34 @@ describe('TagFileMutations', () => {
         expect(descendants?.tags.sort()).toEqual(['project/research', 'project/research/notes']);
         expect(descendants?.normalizedSet.has('project/research')).toBe(true);
     });
+
+    it('preserves code and html contexts when clearing all tags', async () => {
+        const file = createFile(
+            'Notes/Inline.md',
+            { tags: ['ai', 'research'] },
+            [
+                'First line #ai tag',
+                '```',
+                '#ai inside fenced block',
+                '```',
+                '<span style="color: #0009D1">prova</span>',
+                '`#ai` inline code sample',
+                'Final #research line'
+            ].join('\n')
+        );
+        cachedTagsByPath.set(file.path, ['ai', 'research']);
+
+        const cleared = await fileMutations.clearAllTagsFromFile(file);
+
+        expect(cleared).toBe(true);
+        expect(Reflect.has(file.frontmatter, 'tags')).toBe(false);
+        const [textLine, openingFence, fencedLine, closingFence, spanLine, inlineCodeLine, finalLine] = file.content.split('\n');
+        expect(textLine).toBe('First line tag');
+        expect(openingFence).toBe('```');
+        expect(fencedLine).toBe('#ai inside fenced block');
+        expect(closingFence).toBe('```');
+        expect(spanLine).toContain('#0009D1');
+        expect(inlineCodeLine).toBe('`#ai` inline code sample');
+        expect(finalLine).toBe('Final line');
+    });
 });

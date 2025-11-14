@@ -200,6 +200,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     tagBackgroundColors: {},
     tagSortOverrides: {},
     tagAppearances: {} as Record<string, TagAppearance>,
+    navigationSeparators: {},
     recentColors: [],
     lastShownVersion: '',
     latestKnownRelease: '',

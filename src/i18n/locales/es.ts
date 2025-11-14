@@ -193,6 +193,10 @@ export const STRINGS_ES = {
             changeBackground: 'Cambiar fondo',
             showTag: 'Mostrar etiqueta',
             hideTag: 'Ocultar etiqueta'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1064,7 +1068,8 @@ export const STRINGS_ES = {
                 error: 'Falló la limpieza de configuración',
                 loading: 'Verificando metadatos...',
                 statusClean: 'No hay metadatos para limpiar',
-                statusCounts: 'Elementos huérfanos: {folders} carpetas, {tags} etiquetas, {files} archivos, {pinned} fijados'
+                statusCounts:
+                    'Elementos huérfanos: {folders} carpetas, {tags} etiquetas, {files} archivos, {pinned} fijados, {separators} separadores'
             },
             rebuildCacheFast: {
                 name: 'Actualizar caché',
@@ -1113,8 +1118,8 @@ export const STRINGS_ES = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Leer metadatos del frontmatter',
-                desc: 'Leer nombres de notas, marcas de tiempo, iconos y colores del frontmatter cuando estén disponibles, usando valores del sistema o ajustes como respaldo'
+                name: 'Usar metadatos del frontmatter',
+                desc: 'Usar frontmatter para nombre de nota, marcas de tiempo, iconos y colores'
             },
             frontmatterNameField: {
                 name: 'Campo de nombre',
@@ -1134,10 +1139,6 @@ export const STRINGS_ES = {
             frontmatterSaveMetadata: {
                 name: 'Guardar iconos y colores en el frontmatter',
                 desc: 'Escribe automáticamente los iconos y colores de archivo en el frontmatter usando los campos configurados arriba.'
-            },
-            frontmatterIconizeFormat: {
-                name: 'Guardar en formato Iconize',
-                desc: 'Guarda iconos usando el formato Iconize (ej. LiHome, FasUser, SiGithub) en lugar del formato del plugin (ej. home, fontawesome-solid:user, simple-icons:github).'
             },
             frontmatterMigration: {
                 name: 'Migrar iconos y colores desde los ajustes',

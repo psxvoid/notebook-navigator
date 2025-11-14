@@ -225,6 +225,7 @@ export interface NotebookNavigatorSettings {
     tagBackgroundColors: Record<string, string>;
     tagSortOverrides: Record<string, SortOption>;
     tagAppearances: Record<string, TagAppearance>;
+    navigationSeparators: Record<string, boolean>;
     recentColors: string[];
     lastShownVersion: string;
     latestKnownRelease: string;

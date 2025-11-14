@@ -193,6 +193,10 @@ export const STRINGS_FR = {
             changeBackground: 'Changer l’arrière-plan',
             showTag: 'Afficher l’étiquette',
             hideTag: 'Masquer l’étiquette'
+        },
+        navigation: {
+            addSeparator: 'Add separator',
+            removeSeparator: 'Remove separator'
         }
     },
 
@@ -1066,7 +1070,8 @@ export const STRINGS_FR = {
                 error: 'Échec du nettoyage des paramètres',
                 loading: 'Vérification des métadonnées...',
                 statusClean: 'Aucune métadonnée à nettoyer',
-                statusCounts: 'Éléments orphelins: {folders} dossiers, {tags} étiquettes, {files} fichiers, {pinned} épingles'
+                statusCounts:
+                    'Éléments orphelins: {folders} dossiers, {tags} étiquettes, {files} fichiers, {pinned} épingles, {separators} séparateurs'
             },
             rebuildCacheFast: {
                 name: 'Actualiser le cache',
@@ -1115,8 +1120,8 @@ export const STRINGS_FR = {
                 }
             },
             useFrontmatterDates: {
-                name: 'Lire les métadonnées du frontmatter',
-                desc: "Lire les noms de notes, horodatages, icônes et couleurs du frontmatter lorsqu'ils sont disponibles, sinon utiliser les valeurs du système ou les paramètres"
+                name: 'Utiliser les métadonnées du frontmatter',
+                desc: 'Utiliser le frontmatter pour le nom de note, horodatages, icônes et couleurs'
             },
             frontmatterNameField: {
                 name: 'Champ de nom',
@@ -1136,10 +1141,6 @@ export const STRINGS_FR = {
             frontmatterSaveMetadata: {
                 name: 'Enregistrer les icônes et couleurs dans le frontmatter',
                 desc: 'Écrit automatiquement les icônes et couleurs de fichier dans le frontmatter via les champs configurés ci-dessus.'
-            },
-            frontmatterIconizeFormat: {
-                name: 'Enregistrer au format Iconize',
-                desc: 'Enregistre les icônes au format Iconize (ex. LiHome, FasUser, SiGithub) au lieu du format du plugin (ex. home, fontawesome-solid:user, simple-icons:github).'
             },
             frontmatterMigration: {
                 name: 'Migrer les icônes et couleurs depuis les paramètres',

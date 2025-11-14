@@ -20,3 +20,4 @@ export type { EntityType } from './BaseMetadataService';
 export { FolderMetadataService } from './FolderMetadataService';
 export { TagMetadataService } from './TagMetadataService';
 export { FileMetadataService, type FileMetadataMigrationResult } from './FileMetadataService';
+export { NavigationSeparatorService } from './NavigationSeparatorService';
