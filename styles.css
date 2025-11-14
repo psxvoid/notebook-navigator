@@ -1085,8 +1085,8 @@ body {
 .nn-nav-spacer--with-separator::after {
     content: '';
     position: absolute;
-    left: var(--nn-scroller-padding);
-    right: var(--nn-scroller-padding);
+    left: calc(-1 * var(--nn-scroller-padding));
+    right: calc(-1 * var(--nn-scroller-padding));
     top: calc(50% - (var(--nn-theme-nav-separator-height, 1px) / 2));
     height: var(--nn-theme-nav-separator-height, 1px);
     background: var(
