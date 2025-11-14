@@ -195,8 +195,8 @@ export const STRINGS_FR = {
             hideTag: 'Masquer l’étiquette'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: 'Ajouter un séparateur',
+            removeSeparator: 'Supprimer le séparateur'
         }
     },
 

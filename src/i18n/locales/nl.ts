@@ -196,8 +196,8 @@ export const STRINGS_NL = {
             hideTag: 'Tag verbergen'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: 'Scheidingslijn toevoegen',
+            removeSeparator: 'Scheidingslijn verwijderen'
         }
     },
 

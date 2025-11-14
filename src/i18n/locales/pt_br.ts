@@ -196,8 +196,8 @@ export const STRINGS_PT_BR = {
             hideTag: 'Ocultar tag'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: 'Adicionar separador',
+            removeSeparator: 'Remover separador'
         }
     },
 

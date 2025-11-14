@@ -195,8 +195,8 @@ export const STRINGS_JA = {
             hideTag: 'タグを非表示'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: '区切り線を追加',
+            removeSeparator: '区切り線を削除'
         }
     },
 

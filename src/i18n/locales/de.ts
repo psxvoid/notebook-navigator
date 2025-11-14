@@ -197,8 +197,8 @@ export const STRINGS_DE = {
             hideTag: 'Tag ausblenden'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: 'Trennlinie hinzufügen',
+            removeSeparator: 'Trennlinie entfernen'
         }
     },
 

@@ -195,8 +195,8 @@ export const STRINGS_ZH_TW = {
             hideTag: '隱藏標籤'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: '新增分隔線',
+            removeSeparator: '移除分隔線'
         }
     },
 

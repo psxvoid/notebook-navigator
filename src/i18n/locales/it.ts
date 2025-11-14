@@ -196,8 +196,8 @@ export const STRINGS_IT = {
             hideTag: 'Nascondi tag'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: 'Aggiungi separatore',
+            removeSeparator: 'Rimuovi separatore'
         }
     },
 

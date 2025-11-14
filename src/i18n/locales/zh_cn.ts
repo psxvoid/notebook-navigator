@@ -195,8 +195,8 @@ export const STRINGS_ZH_CN = {
             hideTag: '隐藏标签'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: '添加分隔符',
+            removeSeparator: '移除分隔符'
         }
     },
 

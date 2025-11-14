@@ -194,8 +194,8 @@ export const STRINGS_KO = {
             hideTag: '태그 숨기기'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: '구분선 추가',
+            removeSeparator: '구분선 제거'
         }
     },
 

@@ -195,8 +195,8 @@ export const STRINGS_ES = {
             hideTag: 'Ocultar etiqueta'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: 'Agregar separador',
+            removeSeparator: 'Eliminar separador'
         }
     },
 
