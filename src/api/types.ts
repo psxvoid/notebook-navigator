@@ -31,10 +31,22 @@ import { TFile, TFolder } from 'obsidian';
 // ============================================================================
 
 /**
- * Icon string format for type-safe icon specifications
- * Must be either 'lucide:<icon-name>' or 'emoji:<emoji>'
+ * Icon provider identifiers supported by the public API
  */
-export type IconString = `lucide:${string}` | `emoji:${string}`;
+export type IconProviderId =
+    | 'lucide'
+    | 'bootstrap-icons'
+    | 'fontawesome-solid'
+    | 'material-icons'
+    | 'phosphor'
+    | 'rpg-awesome'
+    | 'simple-icons';
+
+/**
+ * Icon string format for type-safe icon specifications
+ * Must be provider-prefixed (e.g. 'phosphor:folder') or an emoji literal
+ */
+export type IconString = `${IconProviderId}:${string}` | `emoji:${string}`;
 
 // ============================================================================
 // METADATA TYPES

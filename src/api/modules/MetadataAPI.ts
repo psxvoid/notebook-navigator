@@ -21,6 +21,7 @@ import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import type { FolderMetadata, TagMetadata, IconString, PinContext, Pinned } from '../types';
 import type { NotebookNavigatorSettings } from '../../settings';
 import { PinnedNotes } from '../../types';
+import { normalizeCanonicalIconId } from '../../utils/iconizeFormat';
 
 /**
  * Metadata API - Manage folder and tag appearance, icons, colors, and pinned files
@@ -295,13 +296,15 @@ export class MetadataAPI {
         // Update icon if provided
         if (meta.icon !== undefined) {
             if (meta.icon === null) {
-                // Clear icon
                 delete iconStore[key];
-            } else {
-                // Set icon
-                iconStore[key] = meta.icon;
+                changed = true;
+            } else if (typeof meta.icon === 'string') {
+                const normalizedIcon = normalizeCanonicalIconId(meta.icon);
+                if (normalizedIcon) {
+                    iconStore[key] = normalizedIcon;
+                    changed = true;
+                }
             }
-            changed = true;
         }
 
         // Save settings if anything changed

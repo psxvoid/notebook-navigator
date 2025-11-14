@@ -77,7 +77,6 @@ export function renderNotesTab(context: SettingsTabContext): void {
     const frontmatterSettingsEl = containerEl.createDiv('nn-sub-settings');
     // Function to update visibility of frontmatter save setting based on field values
     let updateFrontmatterSaveVisibility: (() => void) | null = null;
-    let frontmatterIconizeSetting: Setting | null = null;
 
     const frontmatterIconSetting = context.createDebouncedTextSetting(
         frontmatterSettingsEl,

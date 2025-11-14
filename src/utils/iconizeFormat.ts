@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { extractFirstEmoji } from './emojiUtils';
+
 /**
  * Base mapping between icon providers and their pack names
  */
@@ -24,6 +26,13 @@ interface IconizeMapping {
     packName: string;
     isDefaultProvider?: boolean;
     prefix: string;
+}
+
+const LUCIDE_PROVIDER_ID = 'lucide';
+const LUCIDE_ICON_PREFIX = 'lucide-';
+
+interface IdentifierNormalizationRule {
+    redundantPrefixes: string[];
 }
 
 /**
@@ -35,7 +44,7 @@ const ICONIZE_MAPPINGS: IconizeMapping[] = [
     { providerId: 'fontawesome-solid', packName: 'font-awesome-regular', prefix: generateIconizePrefix('font-awesome-regular') },
     { providerId: 'fontawesome-brands', packName: 'font-awesome-brands', prefix: generateIconizePrefix('font-awesome-brands') },
     // Iconize built-in packs
-    { providerId: 'lucide', packName: 'lucide-icons', prefix: generateIconizePrefix('lucide-icons'), isDefaultProvider: true },
+    { providerId: LUCIDE_PROVIDER_ID, packName: 'lucide-icons', prefix: generateIconizePrefix('lucide-icons'), isDefaultProvider: true },
     { providerId: 'remix-icons', packName: 'remix-icons', prefix: generateIconizePrefix('remix-icons') },
     { providerId: 'icon-brew', packName: 'icon-brew', prefix: generateIconizePrefix('icon-brew') },
     { providerId: 'simple-icons', packName: 'simple-icons', prefix: generateIconizePrefix('simple-icons') },
@@ -102,6 +111,75 @@ const PREFIX_SORTED_MAPPINGS = [...ICONIZE_MAPPINGS].sort((a, b) => b.prefix.len
 PREFIX_SORTED_MAPPINGS.forEach(mapping => {
     PREFIX_TO_MAPPING.set(mapping.prefix, mapping);
 });
+
+const IDENTIFIER_NORMALIZATION_RULES = new Map<string, IdentifierNormalizationRule>([
+    [
+        LUCIDE_PROVIDER_ID,
+        {
+            redundantPrefixes: [LUCIDE_ICON_PREFIX]
+        }
+    ],
+    [
+        'phosphor',
+        {
+            redundantPrefixes: ['ph-']
+        }
+    ],
+    [
+        'rpg-awesome',
+        {
+            redundantPrefixes: ['ra-']
+        }
+    ]
+]);
+
+function stripProviderPrefixForIconize(identifier: string, providerId: string): string {
+    const rule = IDENTIFIER_NORMALIZATION_RULES.get(providerId);
+    if (!rule) {
+        return identifier;
+    }
+    return stripAllLeadingPrefixes(identifier, rule.redundantPrefixes);
+}
+
+function stripAllLeadingPrefixes(identifier: string, prefixes: string[]): string {
+    let normalized = identifier;
+    if (normalized.length === 0 || prefixes.length === 0) {
+        return normalized;
+    }
+
+    const loweredPrefixes = prefixes.map(prefix => prefix.toLowerCase());
+
+    let removed = true;
+    while (removed && normalized.length > 0) {
+        removed = false;
+        for (let i = 0; i < prefixes.length; i++) {
+            const prefix = prefixes[i];
+            if (!prefix) {
+                continue;
+            }
+            const loweredPrefix = loweredPrefixes[i];
+            if (normalized.toLowerCase().startsWith(loweredPrefix)) {
+                normalized = normalized.substring(prefix.length);
+                removed = true;
+                break;
+            }
+        }
+    }
+
+    return normalized;
+}
+
+function normalizeIdentifierFromIconize(identifier: string, providerId: string): string {
+    const rule = IDENTIFIER_NORMALIZATION_RULES.get(providerId);
+    if (!rule) {
+        return identifier;
+    }
+    return stripAllLeadingPrefixes(identifier, rule.redundantPrefixes);
+}
+
+function normalizeIdentifierForProvider(identifier: string, providerId: string): string {
+    return normalizeIdentifierFromIconize(identifier, providerId);
+}
 
 /**
  * Determines the prefix length in an Iconize identifier using Iconize's original logic.
@@ -179,6 +257,9 @@ function kebabToPascal(value: string): string {
  *
  * Examples:
  * - "LiHome" -> "home" (lucide is default)
+ * - "LiLucideUser" -> "user" (removes redundant lucide prefix)
+ * - "PhPhAppleLogo" -> "phosphor:apple-logo" (collapses duplicate phosphor prefix)
+ * - "RaRaHarpoonTrident" -> "rpg-awesome:harpoon-trident"
  * - "FasUser" -> "fontawesome-solid:user"
  * - "SiGithub" -> "simple-icons:github"
  * - "invalid" -> null (no matching prefix)
@@ -207,11 +288,16 @@ export function convertIconizeToIconId(value: string): string | null {
         return null;
     }
 
-    if (mapping.isDefaultProvider) {
-        return identifier;
+    const normalizedIdentifier = normalizeIdentifierFromIconize(identifier, mapping.providerId);
+    if (!normalizedIdentifier) {
+        return null;
     }
 
-    return `${mapping.providerId}:${identifier}`;
+    if (mapping.isDefaultProvider) {
+        return normalizedIdentifier;
+    }
+
+    return `${mapping.providerId}:${normalizedIdentifier}`;
 }
 
 /**
@@ -219,7 +305,8 @@ export function convertIconizeToIconId(value: string): string | null {
  * Returns null when no Iconize mapping exists for the provider.
  *
  * Examples:
- * - "home" -> "LiHome" (assumes lucide as default)
+ * - "lucide-home" -> "LiHome" (legacy default identifiers)
+ * - "home" -> "LiHome" (legacy identifiers without prefix)
  * - "fontawesome-solid:user" -> "FasUser"
  * - "simple-icons:github" -> "SiGithub"
  * - "unknown-provider:icon" -> null (no mapping for provider)
@@ -232,7 +319,7 @@ export function convertIconIdToIconize(iconId: string): string | null {
 
     // Parse provider and icon identifier
     const colonIndex = trimmed.indexOf(':');
-    const providerId = colonIndex === -1 ? 'lucide' : trimmed.substring(0, colonIndex);
+    const providerId = colonIndex === -1 ? LUCIDE_PROVIDER_ID : trimmed.substring(0, colonIndex);
     const identifier = colonIndex === -1 ? trimmed : trimmed.substring(colonIndex + 1);
 
     if (identifier.length === 0) {
@@ -250,11 +337,95 @@ export function convertIconIdToIconize(iconId: string): string | null {
     }
 
     // Convert kebab-case to PascalCase
-    const pascalName = kebabToPascal(identifier);
+    const normalizedIdentifier = stripProviderPrefixForIconize(identifier, providerId);
+
+    if (normalizedIdentifier.length === 0) {
+        return null;
+    }
+
+    const pascalName = kebabToPascal(normalizedIdentifier);
     if (!pascalName) {
         return null;
     }
 
     // Combine prefix and icon name
     return `${mapping.prefix}${pascalName}`;
+}
+
+/**
+ * Normalizes canonical icon identifiers to remove redundant provider prefixes.
+ * Ensures phosphor/rpg-awesome icons use slug-only identifiers and lucide icons
+ * drop the `lucide-` prefix when stored in canonical form.
+ */
+export function normalizeCanonicalIconId(iconId: string): string {
+    const trimmed = iconId.trim();
+    if (!trimmed) {
+        return trimmed;
+    }
+
+    const colonIndex = trimmed.indexOf(':');
+    if (colonIndex === -1) {
+        const normalized = normalizeIdentifierForProvider(trimmed, LUCIDE_PROVIDER_ID);
+        return normalized && normalized.length > 0 ? normalized : trimmed;
+    }
+
+    const providerId = trimmed.substring(0, colonIndex);
+    const identifier = trimmed.substring(colonIndex + 1);
+    const normalized = normalizeIdentifierForProvider(identifier, providerId);
+
+    if (!normalized || normalized.length === 0 || normalized === identifier) {
+        return trimmed;
+    }
+
+    return `${providerId}:${normalized}`;
+}
+
+/**
+ * Serializes a canonical icon identifier to the value stored in frontmatter.
+ * Returns null when the icon cannot be normalized.
+ */
+export function serializeIconForFrontmatter(iconId: string): string | null {
+    const canonical = normalizeCanonicalIconId(iconId);
+    if (!canonical) {
+        return null;
+    }
+
+    const trimmed = canonical.trim();
+    if (!trimmed) {
+        return null;
+    }
+
+    const emojiPrefix = 'emoji:';
+    const emojiCandidate = trimmed.startsWith(emojiPrefix) ? trimmed.substring(emojiPrefix.length).trim() : trimmed;
+    const emojiOnly = extractFirstEmoji(emojiCandidate);
+
+    if (emojiOnly && emojiCandidate === emojiOnly) {
+        return emojiOnly;
+    }
+
+    return convertIconIdToIconize(trimmed) ?? trimmed;
+}
+
+/**
+ * Deserializes an icon value from frontmatter back into canonical format.
+ * Supports Iconize identifiers, emojis, and legacy provider-prefixed strings.
+ */
+export function deserializeIconFromFrontmatter(value: string): string | null {
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return null;
+    }
+
+    const converted = convertIconizeToIconId(trimmed);
+    if (converted) {
+        return converted;
+    }
+
+    const emojiOnly = extractFirstEmoji(trimmed);
+    if (emojiOnly && emojiOnly === trimmed) {
+        return `emoji:${emojiOnly}`;
+    }
+
+    const normalized = normalizeCanonicalIconId(trimmed);
+    return normalized && normalized.length > 0 ? normalized : null;
 }

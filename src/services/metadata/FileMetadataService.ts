@@ -23,8 +23,7 @@ import { ItemType, NavigatorContext } from '../../types';
 import { isNoteShortcut } from '../../types/shortcuts';
 import type { NotebookNavigatorSettings } from '../../settings';
 import { getDBInstance } from '../../storage/fileOperations';
-import { convertIconIdToIconize } from '../../utils/iconizeFormat';
-import { extractFirstEmoji } from '../../utils/emojiUtils';
+import { normalizeCanonicalIconId, serializeIconForFrontmatter } from '../../utils/iconizeFormat';
 
 /**
  * Service for managing file-specific metadata operations
@@ -82,35 +81,30 @@ export class FileMetadataService extends BaseMetadataService {
             return { success: false, normalized: null };
         }
 
-        // Store the canonical internal icon format
-        const canonicalValue = value === null ? null : value.trim();
-        const settings = this.settingsProvider.settings;
-        let frontmatterValue = canonicalValue;
+        let canonicalValue: string | null = null;
+        let frontmatterValue: string | null = null;
 
-        // Convert icon to Iconize format if enabled for frontmatter storage
-        if (metadataKey === 'icon' && canonicalValue && settings.iconizeFormat) {
-            const trimmedValue = canonicalValue.trim();
-            const emojiPrefix = 'emoji:';
-            const emojiCandidate = trimmedValue.startsWith(emojiPrefix) ? trimmedValue.substring(emojiPrefix.length).trim() : trimmedValue;
-            const emojiOnly = extractFirstEmoji(emojiCandidate);
-
-            if (emojiOnly && emojiCandidate === emojiOnly) {
-                frontmatterValue = emojiOnly;
-            } else {
-                const iconizeFormat = convertIconIdToIconize(canonicalValue);
-                if (iconizeFormat) {
-                    frontmatterValue = iconizeFormat;
+        if (value !== null) {
+            if (metadataKey === 'icon') {
+                const normalizedIcon = normalizeCanonicalIconId(value.trim());
+                canonicalValue = normalizedIcon && normalizedIcon.length > 0 ? normalizedIcon : null;
+                if (canonicalValue) {
+                    frontmatterValue = serializeIconForFrontmatter(canonicalValue) ?? canonicalValue;
                 }
+            } else {
+                const trimmedColor = value.trim();
+                canonicalValue = trimmedColor.length > 0 ? trimmedColor : null;
+                frontmatterValue = canonicalValue;
             }
         }
 
-        const normalizedValue = frontmatterValue === null ? null : frontmatterValue.trim();
+        const normalizedFrontmatterValue = frontmatterValue === null ? null : frontmatterValue.trim();
 
         try {
             // Update the frontmatter in the file
             await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
-                if (normalizedValue && normalizedValue.length > 0) {
-                    frontmatter[trimmedField] = normalizedValue;
+                if (normalizedFrontmatterValue && normalizedFrontmatterValue.length > 0) {
+                    frontmatter[trimmedField] = normalizedFrontmatterValue;
                     return;
                 }
 
@@ -129,7 +123,7 @@ export class FileMetadataService extends BaseMetadataService {
                 metadataUpdate.color = canonicalValue && canonicalValue.length > 0 ? canonicalValue : undefined;
             }
             await db.updateFileMetadata(file.path, metadataUpdate);
-            return { success: true, normalized: normalizedValue ?? null };
+            return { success: true, normalized: normalizedFrontmatterValue ?? null };
         } catch (error: unknown) {
             console.error('Failed to update frontmatter metadata', {
                 path: file.path,

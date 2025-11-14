@@ -1,3460 +1,3460 @@
 [
   {
-    "id": "ra-acid",
+    "id": "acid",
     "name": "Acid",
     "unicode": "e900",
-    "keywords": ["ra-acid", "acid"],
+    "keywords": ["acid"],
     "categories": []
   },
   {
-    "id": "ra-acorn",
+    "id": "acorn",
     "name": "Acorn",
     "unicode": "e901",
-    "keywords": ["ra-acorn", "acorn"],
+    "keywords": ["acorn"],
     "categories": []
   },
   {
-    "id": "ra-alien-fire",
+    "id": "alien-fire",
     "name": "Alien Fire",
     "unicode": "e902",
-    "keywords": ["ra-alien-fire", "alien", "fire", "alien fire"],
+    "keywords": ["alien", "fire", "alien fire", "alien-fire"],
     "categories": []
   },
   {
-    "id": "ra-all-for-one",
+    "id": "all-for-one",
     "name": "All For One",
     "unicode": "e903",
-    "keywords": ["ra-all-for-one", "all", "for", "one", "all for one"],
+    "keywords": ["all", "for", "one", "all for one", "all-for-one"],
     "categories": []
   },
   {
-    "id": "ra-alligator-clip",
+    "id": "alligator-clip",
     "name": "Alligator Clip",
     "unicode": "e904",
-    "keywords": ["ra-alligator-clip", "alligator", "clip", "alligator clip"],
+    "keywords": ["alligator", "clip", "alligator clip", "alligator-clip"],
     "categories": []
   },
   {
-    "id": "ra-ammo-bag",
+    "id": "ammo-bag",
     "name": "Ammo Bag",
     "unicode": "e905",
-    "keywords": ["ra-ammo-bag", "ammo", "bag", "ammo bag"],
+    "keywords": ["ammo", "bag", "ammo bag", "ammo-bag"],
     "categories": []
   },
   {
-    "id": "ra-anchor",
+    "id": "anchor",
     "name": "Anchor",
     "unicode": "e906",
-    "keywords": ["ra-anchor", "anchor"],
+    "keywords": ["anchor"],
     "categories": []
   },
   {
-    "id": "ra-angel-wings",
+    "id": "angel-wings",
     "name": "Angel Wings",
     "unicode": "e907",
-    "keywords": ["ra-angel-wings", "angel", "wings", "angel wings"],
+    "keywords": ["angel", "wings", "angel wings", "angel-wings"],
     "categories": []
   },
   {
-    "id": "ra-ankh",
+    "id": "ankh",
     "name": "Ankh",
     "unicode": "e908",
-    "keywords": ["ra-ankh", "ankh"],
+    "keywords": ["ankh"],
     "categories": []
   },
   {
-    "id": "ra-anvil",
+    "id": "anvil",
     "name": "Anvil",
     "unicode": "e909",
-    "keywords": ["ra-anvil", "anvil"],
+    "keywords": ["anvil"],
     "categories": []
   },
   {
-    "id": "ra-apple",
+    "id": "apple",
     "name": "Apple",
     "unicode": "e90a",
-    "keywords": ["ra-apple", "apple"],
+    "keywords": ["apple"],
     "categories": []
   },
   {
-    "id": "ra-aquarius",
+    "id": "aquarius",
     "name": "Aquarius",
     "unicode": "e90b",
-    "keywords": ["ra-aquarius", "aquarius"],
+    "keywords": ["aquarius"],
     "categories": []
   },
   {
-    "id": "ra-arcane-mask",
+    "id": "arcane-mask",
     "name": "Arcane Mask",
     "unicode": "e90c",
-    "keywords": ["ra-arcane-mask", "arcane", "mask", "arcane mask"],
+    "keywords": ["arcane", "mask", "arcane mask", "arcane-mask"],
     "categories": []
   },
   {
-    "id": "ra-archer",
+    "id": "archer",
     "name": "Archer",
     "unicode": "e90d",
-    "keywords": ["ra-archer", "archer"],
+    "keywords": ["archer"],
     "categories": []
   },
   {
-    "id": "ra-archery-target",
+    "id": "archery-target",
     "name": "Archery Target",
     "unicode": "e90e",
-    "keywords": ["ra-archery-target", "archery", "target", "archery target"],
+    "keywords": ["archery", "target", "archery target", "archery-target"],
     "categories": []
   },
   {
-    "id": "ra-arena",
+    "id": "arena",
     "name": "Arena",
     "unicode": "e90f",
-    "keywords": ["ra-arena", "arena"],
+    "keywords": ["arena"],
     "categories": []
   },
   {
-    "id": "ra-aries",
+    "id": "aries",
     "name": "Aries",
     "unicode": "e910",
-    "keywords": ["ra-aries", "aries"],
+    "keywords": ["aries"],
     "categories": []
   },
   {
-    "id": "ra-arrow-cluster",
+    "id": "arrow-cluster",
     "name": "Arrow Cluster",
     "unicode": "e911",
-    "keywords": ["ra-arrow-cluster", "arrow", "cluster", "arrow cluster"],
+    "keywords": ["arrow", "cluster", "arrow cluster", "arrow-cluster"],
     "categories": []
   },
   {
-    "id": "ra-arrow-flights",
+    "id": "arrow-flights",
     "name": "Arrow Flights",
     "unicode": "e912",
-    "keywords": ["ra-arrow-flights", "arrow", "flights", "arrow flights"],
+    "keywords": ["arrow", "flights", "arrow flights", "arrow-flights"],
     "categories": []
   },
   {
-    "id": "ra-arson",
+    "id": "arson",
     "name": "Arson",
     "unicode": "e913",
-    "keywords": ["ra-arson", "arson"],
+    "keywords": ["arson"],
     "categories": []
   },
   {
-    "id": "ra-aura",
+    "id": "aura",
     "name": "Aura",
     "unicode": "e914",
-    "keywords": ["ra-aura", "aura"],
+    "keywords": ["aura"],
     "categories": []
   },
   {
-    "id": "ra-aware",
+    "id": "aware",
     "name": "Aware",
     "unicode": "e915",
-    "keywords": ["ra-aware", "aware"],
+    "keywords": ["aware"],
     "categories": []
   },
   {
-    "id": "ra-axe",
+    "id": "axe",
     "name": "Axe",
     "unicode": "e917",
-    "keywords": ["ra-axe", "axe"],
+    "keywords": ["axe"],
     "categories": []
   },
   {
-    "id": "ra-axe-swing",
+    "id": "axe-swing",
     "name": "Axe Swing",
     "unicode": "e916",
-    "keywords": ["ra-axe-swing", "axe", "swing", "axe swing"],
+    "keywords": ["axe", "swing", "axe swing", "axe-swing"],
     "categories": []
   },
   {
-    "id": "ra-ball",
+    "id": "ball",
     "name": "Ball",
     "unicode": "e918",
-    "keywords": ["ra-ball", "ball"],
+    "keywords": ["ball"],
     "categories": []
   },
   {
-    "id": "ra-barbed-arrow",
+    "id": "barbed-arrow",
     "name": "Barbed Arrow",
     "unicode": "e919",
-    "keywords": ["ra-barbed-arrow", "barbed", "arrow", "barbed arrow"],
+    "keywords": ["barbed", "arrow", "barbed arrow", "barbed-arrow"],
     "categories": []
   },
   {
-    "id": "ra-barrier",
+    "id": "barrier",
     "name": "Barrier",
     "unicode": "e91a",
-    "keywords": ["ra-barrier", "barrier"],
+    "keywords": ["barrier"],
     "categories": []
   },
   {
-    "id": "ra-bat-sword",
+    "id": "bat-sword",
     "name": "Bat Sword",
     "unicode": "e91b",
-    "keywords": ["ra-bat-sword", "bat", "sword", "bat sword"],
+    "keywords": ["bat", "sword", "bat sword", "bat-sword"],
     "categories": []
   },
   {
-    "id": "ra-battered-axe",
+    "id": "battered-axe",
     "name": "Battered Axe",
     "unicode": "e91c",
-    "keywords": ["ra-battered-axe", "battered", "axe", "battered axe"],
+    "keywords": ["battered", "axe", "battered axe", "battered-axe"],
     "categories": []
   },
   {
-    "id": "ra-batteries",
+    "id": "batteries",
     "name": "Batteries",
     "unicode": "e91d",
-    "keywords": ["ra-batteries", "batteries"],
+    "keywords": ["batteries"],
     "categories": []
   },
   {
-    "id": "ra-battery-0",
+    "id": "battery-0",
     "name": "Battery 0",
     "unicode": "e91e",
-    "keywords": ["ra-battery-0", "battery", "0", "battery 0"],
+    "keywords": ["battery", "0", "battery 0", "battery-0"],
     "categories": []
   },
   {
-    "id": "ra-battery-100",
+    "id": "battery-100",
     "name": "Battery 100",
     "unicode": "e922",
-    "keywords": ["ra-battery-100", "battery", "100", "battery 100"],
+    "keywords": ["battery", "100", "battery 100", "battery-100"],
     "categories": []
   },
   {
-    "id": "ra-battery-25",
+    "id": "battery-25",
     "name": "Battery 25",
     "unicode": "e91f",
-    "keywords": ["ra-battery-25", "battery", "25", "battery 25"],
+    "keywords": ["battery", "25", "battery 25", "battery-25"],
     "categories": []
   },
   {
-    "id": "ra-battery-50",
+    "id": "battery-50",
     "name": "Battery 50",
     "unicode": "e920",
-    "keywords": ["ra-battery-50", "battery", "50", "battery 50"],
+    "keywords": ["battery", "50", "battery 50", "battery-50"],
     "categories": []
   },
   {
-    "id": "ra-battery-75",
+    "id": "battery-75",
     "name": "Battery 75",
     "unicode": "e921",
-    "keywords": ["ra-battery-75", "battery", "75", "battery 75"],
+    "keywords": ["battery", "75", "battery 75", "battery-75"],
     "categories": []
   },
   {
-    "id": "ra-battery-black",
+    "id": "battery-black",
     "name": "Battery Black",
     "unicode": "e923",
-    "keywords": ["ra-battery-black", "battery", "black", "battery black"],
+    "keywords": ["battery", "black", "battery black", "battery-black"],
     "categories": []
   },
   {
-    "id": "ra-battery-negative",
+    "id": "battery-negative",
     "name": "Battery Negative",
     "unicode": "e924",
-    "keywords": ["ra-battery-negative", "battery", "negative", "battery negative"],
+    "keywords": ["battery", "negative", "battery negative", "battery-negative"],
     "categories": []
   },
   {
-    "id": "ra-battery-positive",
+    "id": "battery-positive",
     "name": "Battery Positive",
     "unicode": "e925",
-    "keywords": ["ra-battery-positive", "battery", "positive", "battery positive"],
+    "keywords": ["battery", "positive", "battery positive", "battery-positive"],
     "categories": []
   },
   {
-    "id": "ra-battery-white",
+    "id": "battery-white",
     "name": "Battery White",
     "unicode": "e926",
-    "keywords": ["ra-battery-white", "battery", "white", "battery white"],
+    "keywords": ["battery", "white", "battery white", "battery-white"],
     "categories": []
   },
   {
-    "id": "ra-batwings",
+    "id": "batwings",
     "name": "Batwings",
     "unicode": "e927",
-    "keywords": ["ra-batwings", "batwings"],
+    "keywords": ["batwings"],
     "categories": []
   },
   {
-    "id": "ra-beam-wake",
+    "id": "beam-wake",
     "name": "Beam Wake",
     "unicode": "e928",
-    "keywords": ["ra-beam-wake", "beam", "wake", "beam wake"],
+    "keywords": ["beam", "wake", "beam wake", "beam-wake"],
     "categories": []
   },
   {
-    "id": "ra-bear-trap",
+    "id": "bear-trap",
     "name": "Bear Trap",
     "unicode": "e929",
-    "keywords": ["ra-bear-trap", "bear", "trap", "bear trap"],
+    "keywords": ["bear", "trap", "bear trap", "bear-trap"],
     "categories": []
   },
   {
-    "id": "ra-beer",
+    "id": "beer",
     "name": "Beer",
     "unicode": "e92a",
-    "keywords": ["ra-beer", "beer"],
+    "keywords": ["beer"],
     "categories": []
   },
   {
-    "id": "ra-beetle",
+    "id": "beetle",
     "name": "Beetle",
     "unicode": "e92b",
-    "keywords": ["ra-beetle", "beetle"],
+    "keywords": ["beetle"],
     "categories": []
   },
   {
-    "id": "ra-bell",
+    "id": "bell",
     "name": "Bell",
     "unicode": "e92c",
-    "keywords": ["ra-bell", "bell"],
+    "keywords": ["bell"],
     "categories": []
   },
   {
-    "id": "ra-biohazard",
+    "id": "biohazard",
     "name": "Biohazard",
     "unicode": "e92d",
-    "keywords": ["ra-biohazard", "biohazard"],
+    "keywords": ["biohazard"],
     "categories": []
   },
   {
-    "id": "ra-bird-claw",
+    "id": "bird-claw",
     "name": "Bird Claw",
     "unicode": "e92e",
-    "keywords": ["ra-bird-claw", "bird", "claw", "bird claw"],
+    "keywords": ["bird", "claw", "bird claw", "bird-claw"],
     "categories": []
   },
   {
-    "id": "ra-bird-mask",
+    "id": "bird-mask",
     "name": "Bird Mask",
     "unicode": "e92f",
-    "keywords": ["ra-bird-mask", "bird", "mask", "bird mask"],
+    "keywords": ["bird", "mask", "bird mask", "bird-mask"],
     "categories": []
   },
   {
-    "id": "ra-blade-bite",
+    "id": "blade-bite",
     "name": "Blade Bite",
     "unicode": "e930",
-    "keywords": ["ra-blade-bite", "blade", "bite", "blade bite"],
+    "keywords": ["blade", "bite", "blade bite", "blade-bite"],
     "categories": []
   },
   {
-    "id": "ra-blast",
+    "id": "blast",
     "name": "Blast",
     "unicode": "e931",
-    "keywords": ["ra-blast", "blast"],
+    "keywords": ["blast"],
     "categories": []
   },
   {
-    "id": "ra-blaster",
+    "id": "blaster",
     "name": "Blaster",
     "unicode": "e932",
-    "keywords": ["ra-blaster", "blaster"],
+    "keywords": ["blaster"],
     "categories": []
   },
   {
-    "id": "ra-bleeding-eye",
+    "id": "bleeding-eye",
     "name": "Bleeding Eye",
     "unicode": "e933",
-    "keywords": ["ra-bleeding-eye", "bleeding", "eye", "bleeding eye"],
+    "keywords": ["bleeding", "eye", "bleeding eye", "bleeding-eye"],
     "categories": []
   },
   {
-    "id": "ra-bleeding-hearts",
+    "id": "bleeding-hearts",
     "name": "Bleeding Hearts",
     "unicode": "e934",
-    "keywords": ["ra-bleeding-hearts", "bleeding", "hearts", "bleeding hearts"],
+    "keywords": ["bleeding", "hearts", "bleeding hearts", "bleeding-hearts"],
     "categories": []
   },
   {
-    "id": "ra-bolt-shield",
+    "id": "bolt-shield",
     "name": "Bolt Shield",
     "unicode": "e935",
-    "keywords": ["ra-bolt-shield", "bolt", "shield", "bolt shield"],
+    "keywords": ["bolt", "shield", "bolt shield", "bolt-shield"],
     "categories": []
   },
   {
-    "id": "ra-bomb-explosion",
+    "id": "bomb-explosion",
     "name": "Bomb Explosion",
     "unicode": "e936",
-    "keywords": ["ra-bomb-explosion", "bomb", "explosion", "bomb explosion"],
+    "keywords": ["bomb", "explosion", "bomb explosion", "bomb-explosion"],
     "categories": []
   },
   {
-    "id": "ra-bombs",
+    "id": "bombs",
     "name": "Bombs",
     "unicode": "e937",
-    "keywords": ["ra-bombs", "bombs"],
+    "keywords": ["bombs"],
     "categories": []
   },
   {
-    "id": "ra-bone-bite",
+    "id": "bone-bite",
     "name": "Bone Bite",
     "unicode": "e938",
-    "keywords": ["ra-bone-bite", "bone", "bite", "bone bite"],
+    "keywords": ["bone", "bite", "bone bite", "bone-bite"],
     "categories": []
   },
   {
-    "id": "ra-bone-knife",
+    "id": "bone-knife",
     "name": "Bone Knife",
     "unicode": "e939",
-    "keywords": ["ra-bone-knife", "bone", "knife", "bone knife"],
+    "keywords": ["bone", "knife", "bone knife", "bone-knife"],
     "categories": []
   },
   {
-    "id": "ra-book",
+    "id": "book",
     "name": "Book",
     "unicode": "e93a",
-    "keywords": ["ra-book", "book"],
+    "keywords": ["book"],
     "categories": []
   },
   {
-    "id": "ra-boomerang",
+    "id": "boomerang",
     "name": "Boomerang",
     "unicode": "e93b",
-    "keywords": ["ra-boomerang", "boomerang"],
+    "keywords": ["boomerang"],
     "categories": []
   },
   {
-    "id": "ra-boot-stomp",
+    "id": "boot-stomp",
     "name": "Boot Stomp",
     "unicode": "e93c",
-    "keywords": ["ra-boot-stomp", "boot", "stomp", "boot stomp"],
+    "keywords": ["boot", "stomp", "boot stomp", "boot-stomp"],
     "categories": []
   },
   {
-    "id": "ra-bottle-vapors",
+    "id": "bottle-vapors",
     "name": "Bottle Vapors",
     "unicode": "e93d",
-    "keywords": ["ra-bottle-vapors", "bottle", "vapors", "bottle vapors"],
+    "keywords": ["bottle", "vapors", "bottle vapors", "bottle-vapors"],
     "categories": []
   },
   {
-    "id": "ra-bottled-bolt",
+    "id": "bottled-bolt",
     "name": "Bottled Bolt",
     "unicode": "e93e",
-    "keywords": ["ra-bottled-bolt", "bottled", "bolt", "bottled bolt"],
+    "keywords": ["bottled", "bolt", "bottled bolt", "bottled-bolt"],
     "categories": []
   },
   {
-    "id": "ra-bottom-right",
+    "id": "bottom-right",
     "name": "Bottom Right",
     "unicode": "e93f",
-    "keywords": ["ra-bottom-right", "bottom", "right", "bottom right"],
+    "keywords": ["bottom", "right", "bottom right", "bottom-right"],
     "categories": []
   },
   {
-    "id": "ra-bowie-knife",
+    "id": "bowie-knife",
     "name": "Bowie Knife",
     "unicode": "e940",
-    "keywords": ["ra-bowie-knife", "bowie", "knife", "bowie knife"],
+    "keywords": ["bowie", "knife", "bowie knife", "bowie-knife"],
     "categories": []
   },
   {
-    "id": "ra-bowling-pin",
+    "id": "bowling-pin",
     "name": "Bowling Pin",
     "unicode": "e941",
-    "keywords": ["ra-bowling-pin", "bowling", "pin", "bowling pin"],
+    "keywords": ["bowling", "pin", "bowling pin", "bowling-pin"],
     "categories": []
   },
   {
-    "id": "ra-brain-freeze",
+    "id": "brain-freeze",
     "name": "Brain Freeze",
     "unicode": "e942",
-    "keywords": ["ra-brain-freeze", "brain", "freeze", "brain freeze"],
+    "keywords": ["brain", "freeze", "brain freeze", "brain-freeze"],
     "categories": []
   },
   {
-    "id": "ra-brandy-bottle",
+    "id": "brandy-bottle",
     "name": "Brandy Bottle",
     "unicode": "e943",
-    "keywords": ["ra-brandy-bottle", "brandy", "bottle", "brandy bottle"],
+    "keywords": ["brandy", "bottle", "brandy bottle", "brandy-bottle"],
     "categories": []
   },
   {
-    "id": "ra-bridge",
+    "id": "bridge",
     "name": "Bridge",
     "unicode": "e944",
-    "keywords": ["ra-bridge", "bridge"],
+    "keywords": ["bridge"],
     "categories": []
   },
   {
-    "id": "ra-broadhead-arrow",
+    "id": "broadhead-arrow",
     "name": "Broadhead Arrow",
     "unicode": "e945",
-    "keywords": ["ra-broadhead-arrow", "broadhead", "arrow", "broadhead arrow"],
+    "keywords": ["broadhead", "arrow", "broadhead arrow", "broadhead-arrow"],
     "categories": []
   },
   {
-    "id": "ra-broken-bone",
+    "id": "broken-bone",
     "name": "Broken Bone",
     "unicode": "e947",
-    "keywords": ["ra-broken-bone", "broken", "bone", "broken bone"],
+    "keywords": ["broken", "bone", "broken bone", "broken-bone"],
     "categories": []
   },
   {
-    "id": "ra-broken-heart",
+    "id": "broken-heart",
     "name": "Broken Heart",
     "unicode": "e948",
-    "keywords": ["ra-broken-heart", "broken", "heart", "broken heart"],
+    "keywords": ["broken", "heart", "broken heart", "broken-heart"],
     "categories": []
   },
   {
-    "id": "ra-broken-shield",
+    "id": "broken-shield",
     "name": "Broken Shield",
     "unicode": "e94a",
-    "keywords": ["ra-broken-shield", "broken", "shield", "broken shield"],
+    "keywords": ["broken", "shield", "broken shield", "broken-shield"],
     "categories": []
   },
   {
-    "id": "ra-broken-skull",
+    "id": "broken-skull",
     "name": "Broken Skull",
     "unicode": "e94b",
-    "keywords": ["ra-broken-skull", "broken", "skull", "broken skull"],
+    "keywords": ["broken", "skull", "broken skull", "broken-skull"],
     "categories": []
   },
   {
-    "id": "ra-bubbling-potion",
+    "id": "bubbling-potion",
     "name": "Bubbling Potion",
     "unicode": "e94c",
-    "keywords": ["ra-bubbling-potion", "bubbling", "potion", "bubbling potion"],
+    "keywords": ["bubbling", "potion", "bubbling potion", "bubbling-potion"],
     "categories": []
   },
   {
-    "id": "ra-bullets",
+    "id": "bullets",
     "name": "Bullets",
     "unicode": "e94d",
-    "keywords": ["ra-bullets", "bullets"],
+    "keywords": ["bullets"],
     "categories": []
   },
   {
-    "id": "ra-burning-book",
+    "id": "burning-book",
     "name": "Burning Book",
     "unicode": "e94e",
-    "keywords": ["ra-burning-book", "burning", "book", "burning book"],
+    "keywords": ["burning", "book", "burning book", "burning-book"],
     "categories": []
   },
   {
-    "id": "ra-burning-embers",
+    "id": "burning-embers",
     "name": "Burning Embers",
     "unicode": "e94f",
-    "keywords": ["ra-burning-embers", "burning", "embers", "burning embers"],
+    "keywords": ["burning", "embers", "burning embers", "burning-embers"],
     "categories": []
   },
   {
-    "id": "ra-burning-eye",
+    "id": "burning-eye",
     "name": "Burning Eye",
     "unicode": "e950",
-    "keywords": ["ra-burning-eye", "burning", "eye", "burning eye"],
+    "keywords": ["burning", "eye", "burning eye", "burning-eye"],
     "categories": []
   },
   {
-    "id": "ra-burning-meteor",
+    "id": "burning-meteor",
     "name": "Burning Meteor",
     "unicode": "e951",
-    "keywords": ["ra-burning-meteor", "burning", "meteor", "burning meteor"],
+    "keywords": ["burning", "meteor", "burning meteor", "burning-meteor"],
     "categories": []
   },
   {
-    "id": "ra-burst-blob",
+    "id": "burst-blob",
     "name": "Burst Blob",
     "unicode": "e952",
-    "keywords": ["ra-burst-blob", "burst", "blob", "burst blob"],
+    "keywords": ["burst", "blob", "burst blob", "burst-blob"],
     "categories": []
   },
   {
-    "id": "ra-butterfly",
+    "id": "butterfly",
     "name": "Butterfly",
     "unicode": "e953",
-    "keywords": ["ra-butterfly", "butterfly"],
+    "keywords": ["butterfly"],
     "categories": []
   },
   {
-    "id": "ra-campfire",
+    "id": "campfire",
     "name": "Campfire",
     "unicode": "e954",
-    "keywords": ["ra-campfire", "campfire"],
+    "keywords": ["campfire"],
     "categories": []
   },
   {
-    "id": "ra-cancel",
+    "id": "cancel",
     "name": "Cancel",
     "unicode": "e955",
-    "keywords": ["ra-cancel", "cancel"],
+    "keywords": ["cancel"],
     "categories": []
   },
   {
-    "id": "ra-cancer",
+    "id": "cancer",
     "name": "Cancer",
     "unicode": "e956",
-    "keywords": ["ra-cancer", "cancer"],
+    "keywords": ["cancer"],
     "categories": []
   },
   {
-    "id": "ra-candle",
+    "id": "candle",
     "name": "Candle",
     "unicode": "e958",
-    "keywords": ["ra-candle", "candle"],
+    "keywords": ["candle"],
     "categories": []
   },
   {
-    "id": "ra-candle-fire",
+    "id": "candle-fire",
     "name": "Candle Fire",
     "unicode": "e957",
-    "keywords": ["ra-candle-fire", "candle", "fire", "candle fire"],
+    "keywords": ["candle", "fire", "candle fire", "candle-fire"],
     "categories": []
   },
   {
-    "id": "ra-cannon-shot",
+    "id": "cannon-shot",
     "name": "Cannon Shot",
     "unicode": "e959",
-    "keywords": ["ra-cannon-shot", "cannon", "shot", "cannon shot"],
+    "keywords": ["cannon", "shot", "cannon shot", "cannon-shot"],
     "categories": []
   },
   {
-    "id": "ra-capitol",
+    "id": "capitol",
     "name": "Capitol",
     "unicode": "e95a",
-    "keywords": ["ra-capitol", "capitol"],
+    "keywords": ["capitol"],
     "categories": []
   },
   {
-    "id": "ra-capricorn",
+    "id": "capricorn",
     "name": "Capricorn",
     "unicode": "e95b",
-    "keywords": ["ra-capricorn", "capricorn"],
+    "keywords": ["capricorn"],
     "categories": []
   },
   {
-    "id": "ra-carrot",
+    "id": "carrot",
     "name": "Carrot",
     "unicode": "e95c",
-    "keywords": ["ra-carrot", "carrot"],
+    "keywords": ["carrot"],
     "categories": []
   },
   {
-    "id": "ra-castle-emblem",
+    "id": "castle-emblem",
     "name": "Castle Emblem",
     "unicode": "e95d",
-    "keywords": ["ra-castle-emblem", "castle", "emblem", "castle emblem"],
+    "keywords": ["castle", "emblem", "castle emblem", "castle-emblem"],
     "categories": []
   },
   {
-    "id": "ra-castle-flag",
+    "id": "castle-flag",
     "name": "Castle Flag",
     "unicode": "e95e",
-    "keywords": ["ra-castle-flag", "castle", "flag", "castle flag"],
+    "keywords": ["castle", "flag", "castle flag", "castle-flag"],
     "categories": []
   },
   {
-    "id": "ra-cat",
+    "id": "cat",
     "name": "Cat",
     "unicode": "e95f",
-    "keywords": ["ra-cat", "cat"],
+    "keywords": ["cat"],
     "categories": []
   },
   {
-    "id": "ra-chain",
+    "id": "chain",
     "name": "Chain",
     "unicode": "e960",
-    "keywords": ["ra-chain", "chain"],
+    "keywords": ["chain"],
     "categories": []
   },
   {
-    "id": "ra-cheese",
+    "id": "cheese",
     "name": "Cheese",
     "unicode": "e961",
-    "keywords": ["ra-cheese", "cheese"],
+    "keywords": ["cheese"],
     "categories": []
   },
   {
-    "id": "ra-chemical-arrow",
+    "id": "chemical-arrow",
     "name": "Chemical Arrow",
     "unicode": "e962",
-    "keywords": ["ra-chemical-arrow", "chemical", "arrow", "chemical arrow"],
+    "keywords": ["chemical", "arrow", "chemical arrow", "chemical-arrow"],
     "categories": []
   },
   {
-    "id": "ra-chessboard",
+    "id": "chessboard",
     "name": "Chessboard",
     "unicode": "e963",
-    "keywords": ["ra-chessboard", "chessboard"],
+    "keywords": ["chessboard"],
     "categories": []
   },
   {
-    "id": "ra-chicken-leg",
+    "id": "chicken-leg",
     "name": "Chicken Leg",
     "unicode": "e964",
-    "keywords": ["ra-chicken-leg", "chicken", "leg", "chicken leg"],
+    "keywords": ["chicken", "leg", "chicken leg", "chicken-leg"],
     "categories": []
   },
   {
-    "id": "ra-circle-of-circles",
+    "id": "circle-of-circles",
     "name": "Circle Of Circles",
     "unicode": "e965",
-    "keywords": ["ra-circle-of-circles", "circle", "of", "circles", "circle of circles"],
+    "keywords": ["circle", "of", "circles", "circle of circles", "circle-of-circles"],
     "categories": []
   },
   {
-    "id": "ra-circular-saw",
+    "id": "circular-saw",
     "name": "Circular Saw",
     "unicode": "e966",
-    "keywords": ["ra-circular-saw", "circular", "saw", "circular saw"],
+    "keywords": ["circular", "saw", "circular saw", "circular-saw"],
     "categories": []
   },
   {
-    "id": "ra-circular-shield",
+    "id": "circular-shield",
     "name": "Circular Shield",
     "unicode": "e967",
-    "keywords": ["ra-circular-shield", "circular", "shield", "circular shield"],
+    "keywords": ["circular", "shield", "circular shield", "circular-shield"],
     "categories": []
   },
   {
-    "id": "ra-cloak-and-dagger",
+    "id": "cloak-and-dagger",
     "name": "Cloak And Dagger",
     "unicode": "e968",
-    "keywords": ["ra-cloak-and-dagger", "cloak", "and", "dagger", "cloak and dagger"],
+    "keywords": ["cloak", "and", "dagger", "cloak and dagger", "cloak-and-dagger"],
     "categories": []
   },
   {
-    "id": "ra-clockwork",
+    "id": "clockwork",
     "name": "Clockwork",
     "unicode": "e969",
-    "keywords": ["ra-clockwork", "clockwork"],
+    "keywords": ["clockwork"],
     "categories": []
   },
   {
-    "id": "ra-clover",
+    "id": "clover",
     "name": "Clover",
     "unicode": "e96a",
-    "keywords": ["ra-clover", "clover"],
+    "keywords": ["clover"],
     "categories": []
   },
   {
-    "id": "ra-clovers",
+    "id": "clovers",
     "name": "Clovers",
     "unicode": "e96c",
-    "keywords": ["ra-clovers", "clovers"],
+    "keywords": ["clovers"],
     "categories": []
   },
   {
-    "id": "ra-clovers-card",
+    "id": "clovers-card",
     "name": "Clovers Card",
     "unicode": "e96b",
-    "keywords": ["ra-clovers-card", "clovers", "card", "clovers card"],
+    "keywords": ["clovers", "card", "clovers card", "clovers-card"],
     "categories": []
   },
   {
-    "id": "ra-cluster-bomb",
+    "id": "cluster-bomb",
     "name": "Cluster Bomb",
     "unicode": "e96d",
-    "keywords": ["ra-cluster-bomb", "cluster", "bomb", "cluster bomb"],
+    "keywords": ["cluster", "bomb", "cluster bomb", "cluster-bomb"],
     "categories": []
   },
   {
-    "id": "ra-coffee-mug",
+    "id": "coffee-mug",
     "name": "Coffee Mug",
     "unicode": "e96e",
-    "keywords": ["ra-coffee-mug", "coffee", "mug", "coffee mug"],
+    "keywords": ["coffee", "mug", "coffee mug", "coffee-mug"],
     "categories": []
   },
   {
-    "id": "ra-cog",
+    "id": "cog",
     "name": "Cog",
     "unicode": "e970",
-    "keywords": ["ra-cog", "cog"],
+    "keywords": ["cog"],
     "categories": []
   },
   {
-    "id": "ra-cog-wheel",
+    "id": "cog-wheel",
     "name": "Cog Wheel",
     "unicode": "e96f",
-    "keywords": ["ra-cog-wheel", "cog", "wheel", "cog wheel"],
+    "keywords": ["cog", "wheel", "cog wheel", "cog-wheel"],
     "categories": []
   },
   {
-    "id": "ra-cold-heart",
+    "id": "cold-heart",
     "name": "Cold Heart",
     "unicode": "e971",
-    "keywords": ["ra-cold-heart", "cold", "heart", "cold heart"],
+    "keywords": ["cold", "heart", "cold heart", "cold-heart"],
     "categories": []
   },
   {
-    "id": "ra-compass",
+    "id": "compass",
     "name": "Compass",
     "unicode": "e972",
-    "keywords": ["ra-compass", "compass"],
+    "keywords": ["compass"],
     "categories": []
   },
   {
-    "id": "ra-corked-tube",
+    "id": "corked-tube",
     "name": "Corked Tube",
     "unicode": "e973",
-    "keywords": ["ra-corked-tube", "corked", "tube", "corked tube"],
+    "keywords": ["corked", "tube", "corked tube", "corked-tube"],
     "categories": []
   },
   {
-    "id": "ra-crab-claw",
+    "id": "crab-claw",
     "name": "Crab Claw",
     "unicode": "e974",
-    "keywords": ["ra-crab-claw", "crab", "claw", "crab claw"],
+    "keywords": ["crab", "claw", "crab claw", "crab-claw"],
     "categories": []
   },
   {
-    "id": "ra-cracked-helm",
+    "id": "cracked-helm",
     "name": "Cracked Helm",
     "unicode": "e975",
-    "keywords": ["ra-cracked-helm", "cracked", "helm", "cracked helm"],
+    "keywords": ["cracked", "helm", "cracked helm", "cracked-helm"],
     "categories": []
   },
   {
-    "id": "ra-cracked-shield",
+    "id": "cracked-shield",
     "name": "Cracked Shield",
     "unicode": "e976",
-    "keywords": ["ra-cracked-shield", "cracked", "shield", "cracked shield"],
+    "keywords": ["cracked", "shield", "cracked shield", "cracked-shield"],
     "categories": []
   },
   {
-    "id": "ra-croc-sword",
+    "id": "croc-sword",
     "name": "Croc Sword",
     "unicode": "e977",
-    "keywords": ["ra-croc-sword", "croc", "sword", "croc sword"],
+    "keywords": ["croc", "sword", "croc sword", "croc-sword"],
     "categories": []
   },
   {
-    "id": "ra-crossbow",
+    "id": "crossbow",
     "name": "Crossbow",
     "unicode": "e978",
-    "keywords": ["ra-crossbow", "crossbow"],
+    "keywords": ["crossbow"],
     "categories": []
   },
   {
-    "id": "ra-crossed-axes",
+    "id": "crossed-axes",
     "name": "Crossed Axes",
     "unicode": "e979",
-    "keywords": ["ra-crossed-axes", "crossed", "axes", "crossed axes"],
+    "keywords": ["crossed", "axes", "crossed axes", "crossed-axes"],
     "categories": []
   },
   {
-    "id": "ra-crossed-bones",
+    "id": "crossed-bones",
     "name": "Crossed Bones",
     "unicode": "e97a",
-    "keywords": ["ra-crossed-bones", "crossed", "bones", "crossed bones"],
+    "keywords": ["crossed", "bones", "crossed bones", "crossed-bones"],
     "categories": []
   },
   {
-    "id": "ra-crossed-pistols",
+    "id": "crossed-pistols",
     "name": "Crossed Pistols",
     "unicode": "e97b",
-    "keywords": ["ra-crossed-pistols", "crossed", "pistols", "crossed pistols"],
+    "keywords": ["crossed", "pistols", "crossed pistols", "crossed-pistols"],
     "categories": []
   },
   {
-    "id": "ra-crossed-sabres",
+    "id": "crossed-sabres",
     "name": "Crossed Sabres",
     "unicode": "e97c",
-    "keywords": ["ra-crossed-sabres", "crossed", "sabres", "crossed sabres"],
+    "keywords": ["crossed", "sabres", "crossed sabres", "crossed-sabres"],
     "categories": []
   },
   {
-    "id": "ra-crossed-swords",
+    "id": "crossed-swords",
     "name": "Crossed Swords",
     "unicode": "e97d",
-    "keywords": ["ra-crossed-swords", "crossed", "swords", "crossed swords"],
+    "keywords": ["crossed", "swords", "crossed swords", "crossed-swords"],
     "categories": []
   },
   {
-    "id": "ra-crown",
+    "id": "crown",
     "name": "Crown",
     "unicode": "e97f",
-    "keywords": ["ra-crown", "crown"],
+    "keywords": ["crown"],
     "categories": []
   },
   {
-    "id": "ra-crown-of-thorns",
+    "id": "crown-of-thorns",
     "name": "Crown Of Thorns",
     "unicode": "e97e",
-    "keywords": ["ra-crown-of-thorns", "crown", "of", "thorns", "crown of thorns"],
+    "keywords": ["crown", "of", "thorns", "crown of thorns", "crown-of-thorns"],
     "categories": []
   },
   {
-    "id": "ra-crowned-heart",
+    "id": "crowned-heart",
     "name": "Crowned Heart",
     "unicode": "e980",
-    "keywords": ["ra-crowned-heart", "crowned", "heart", "crowned heart"],
+    "keywords": ["crowned", "heart", "crowned heart", "crowned-heart"],
     "categories": []
   },
   {
-    "id": "ra-crush",
+    "id": "crush",
     "name": "Crush",
     "unicode": "e981",
-    "keywords": ["ra-crush", "crush"],
+    "keywords": ["crush"],
     "categories": []
   },
   {
-    "id": "ra-crystal-ball",
+    "id": "crystal-ball",
     "name": "Crystal Ball",
     "unicode": "e982",
-    "keywords": ["ra-crystal-ball", "crystal", "ball", "crystal ball"],
+    "keywords": ["crystal", "ball", "crystal ball", "crystal-ball"],
     "categories": []
   },
   {
-    "id": "ra-crystal-cluster",
+    "id": "crystal-cluster",
     "name": "Crystal Cluster",
     "unicode": "e983",
-    "keywords": ["ra-crystal-cluster", "crystal", "cluster", "crystal cluster"],
+    "keywords": ["crystal", "cluster", "crystal cluster", "crystal-cluster"],
     "categories": []
   },
   {
-    "id": "ra-crystal-wand",
+    "id": "crystal-wand",
     "name": "Crystal Wand",
     "unicode": "e984",
-    "keywords": ["ra-crystal-wand", "crystal", "wand", "crystal wand"],
+    "keywords": ["crystal", "wand", "crystal wand", "crystal-wand"],
     "categories": []
   },
   {
-    "id": "ra-crystals",
+    "id": "crystals",
     "name": "Crystals",
     "unicode": "e985",
-    "keywords": ["ra-crystals", "crystals"],
+    "keywords": ["crystals"],
     "categories": []
   },
   {
-    "id": "ra-cubes",
+    "id": "cubes",
     "name": "Cubes",
     "unicode": "e986",
-    "keywords": ["ra-cubes", "cubes"],
+    "keywords": ["cubes"],
     "categories": []
   },
   {
-    "id": "ra-cut-palm",
+    "id": "cut-palm",
     "name": "Cut Palm",
     "unicode": "e987",
-    "keywords": ["ra-cut-palm", "cut", "palm", "cut palm"],
+    "keywords": ["cut", "palm", "cut palm", "cut-palm"],
     "categories": []
   },
   {
-    "id": "ra-cycle",
+    "id": "cycle",
     "name": "Cycle",
     "unicode": "e988",
-    "keywords": ["ra-cycle", "cycle"],
+    "keywords": ["cycle"],
     "categories": []
   },
   {
-    "id": "ra-daggers",
+    "id": "daggers",
     "name": "Daggers",
     "unicode": "e989",
-    "keywords": ["ra-daggers", "daggers"],
+    "keywords": ["daggers"],
     "categories": []
   },
   {
-    "id": "ra-daisy",
+    "id": "daisy",
     "name": "Daisy",
     "unicode": "e98a",
-    "keywords": ["ra-daisy", "daisy"],
+    "keywords": ["daisy"],
     "categories": []
   },
   {
-    "id": "ra-dead-tree",
+    "id": "dead-tree",
     "name": "Dead Tree",
     "unicode": "e98b",
-    "keywords": ["ra-dead-tree", "dead", "tree", "dead tree"],
+    "keywords": ["dead", "tree", "dead tree", "dead-tree"],
     "categories": []
   },
   {
-    "id": "ra-death-skull",
+    "id": "death-skull",
     "name": "Death Skull",
     "unicode": "e98c",
-    "keywords": ["ra-death-skull", "death", "skull", "death skull"],
+    "keywords": ["death", "skull", "death skull", "death-skull"],
     "categories": []
   },
   {
-    "id": "ra-decapitation",
+    "id": "decapitation",
     "name": "Decapitation",
     "unicode": "e98d",
-    "keywords": ["ra-decapitation", "decapitation"],
+    "keywords": ["decapitation"],
     "categories": []
   },
   {
-    "id": "ra-defibrillate",
+    "id": "defibrillate",
     "name": "Defibrillate",
     "unicode": "e98e",
-    "keywords": ["ra-defibrillate", "defibrillate"],
+    "keywords": ["defibrillate"],
     "categories": []
   },
   {
-    "id": "ra-demolish",
+    "id": "demolish",
     "name": "Demolish",
     "unicode": "e98f",
-    "keywords": ["ra-demolish", "demolish"],
+    "keywords": ["demolish"],
     "categories": []
   },
   {
-    "id": "ra-dervish-swords",
+    "id": "dervish-swords",
     "name": "Dervish Swords",
     "unicode": "e990",
-    "keywords": ["ra-dervish-swords", "dervish", "swords", "dervish swords"],
+    "keywords": ["dervish", "swords", "dervish swords", "dervish-swords"],
     "categories": []
   },
   {
-    "id": "ra-desert-skull",
+    "id": "desert-skull",
     "name": "Desert Skull",
     "unicode": "e991",
-    "keywords": ["ra-desert-skull", "desert", "skull", "desert skull"],
+    "keywords": ["desert", "skull", "desert skull", "desert-skull"],
     "categories": []
   },
   {
-    "id": "ra-diamond",
+    "id": "diamond",
     "name": "Diamond",
     "unicode": "e992",
-    "keywords": ["ra-diamond", "diamond"],
+    "keywords": ["diamond"],
     "categories": []
   },
   {
-    "id": "ra-diamonds",
+    "id": "diamonds",
     "name": "Diamonds",
     "unicode": "e994",
-    "keywords": ["ra-diamonds", "diamonds"],
+    "keywords": ["diamonds"],
     "categories": []
   },
   {
-    "id": "ra-diamonds-card",
+    "id": "diamonds-card",
     "name": "Diamonds Card",
     "unicode": "e993",
-    "keywords": ["ra-diamonds-card", "diamonds", "card", "diamonds card"],
+    "keywords": ["diamonds", "card", "diamonds card", "diamonds-card"],
     "categories": []
   },
   {
-    "id": "ra-dice-five",
+    "id": "dice-five",
     "name": "Dice Five",
     "unicode": "e995",
-    "keywords": ["ra-dice-five", "dice", "five", "dice five"],
+    "keywords": ["dice", "five", "dice five", "dice-five"],
     "categories": []
   },
   {
-    "id": "ra-dice-four",
+    "id": "dice-four",
     "name": "Dice Four",
     "unicode": "e996",
-    "keywords": ["ra-dice-four", "dice", "four", "dice four"],
+    "keywords": ["dice", "four", "dice four", "dice-four"],
     "categories": []
   },
   {
-    "id": "ra-dice-one",
+    "id": "dice-one",
     "name": "Dice One",
     "unicode": "e997",
-    "keywords": ["ra-dice-one", "dice", "one", "dice one"],
+    "keywords": ["dice", "one", "dice one", "dice-one"],
     "categories": []
   },
   {
-    "id": "ra-dice-six",
+    "id": "dice-six",
     "name": "Dice Six",
     "unicode": "e998",
-    "keywords": ["ra-dice-six", "dice", "six", "dice six"],
+    "keywords": ["dice", "six", "dice six", "dice-six"],
     "categories": []
   },
   {
-    "id": "ra-dice-three",
+    "id": "dice-three",
     "name": "Dice Three",
     "unicode": "e999",
-    "keywords": ["ra-dice-three", "dice", "three", "dice three"],
+    "keywords": ["dice", "three", "dice three", "dice-three"],
     "categories": []
   },
   {
-    "id": "ra-dice-two",
+    "id": "dice-two",
     "name": "Dice Two",
     "unicode": "e99a",
-    "keywords": ["ra-dice-two", "dice", "two", "dice two"],
+    "keywords": ["dice", "two", "dice two", "dice-two"],
     "categories": []
   },
   {
-    "id": "ra-dinosaur",
+    "id": "dinosaur",
     "name": "Dinosaur",
     "unicode": "e99b",
-    "keywords": ["ra-dinosaur", "dinosaur"],
+    "keywords": ["dinosaur"],
     "categories": []
   },
   {
-    "id": "ra-divert",
+    "id": "divert",
     "name": "Divert",
     "unicode": "e99c",
-    "keywords": ["ra-divert", "divert"],
+    "keywords": ["divert"],
     "categories": []
   },
   {
-    "id": "ra-diving-dagger",
+    "id": "diving-dagger",
     "name": "Diving Dagger",
     "unicode": "e99d",
-    "keywords": ["ra-diving-dagger", "diving", "dagger", "diving dagger"],
+    "keywords": ["diving", "dagger", "diving dagger", "diving-dagger"],
     "categories": []
   },
   {
-    "id": "ra-double-team",
+    "id": "double-team",
     "name": "Double Team",
     "unicode": "e99e",
-    "keywords": ["ra-double-team", "double", "team", "double team"],
+    "keywords": ["double", "team", "double team", "double-team"],
     "categories": []
   },
   {
-    "id": "ra-doubled",
+    "id": "doubled",
     "name": "Doubled",
     "unicode": "e99f",
-    "keywords": ["ra-doubled", "doubled"],
+    "keywords": ["doubled"],
     "categories": []
   },
   {
-    "id": "ra-dragon",
+    "id": "dragon",
     "name": "Dragon",
     "unicode": "e9a2",
-    "keywords": ["ra-dragon", "dragon"],
+    "keywords": ["dragon"],
     "categories": []
   },
   {
-    "id": "ra-dragon-breath",
+    "id": "dragon-breath",
     "name": "Dragon Breath",
     "unicode": "e9a0",
-    "keywords": ["ra-dragon-breath", "dragon", "breath", "dragon breath"],
+    "keywords": ["dragon", "breath", "dragon breath", "dragon-breath"],
     "categories": []
   },
   {
-    "id": "ra-dragon-wing",
+    "id": "dragon-wing",
     "name": "Dragon Wing",
     "unicode": "e9a1",
-    "keywords": ["ra-dragon-wing", "dragon", "wing", "dragon wing"],
+    "keywords": ["dragon", "wing", "dragon wing", "dragon-wing"],
     "categories": []
   },
   {
-    "id": "ra-dragonfly",
+    "id": "dragonfly",
     "name": "Dragonfly",
     "unicode": "e9a3",
-    "keywords": ["ra-dragonfly", "dragonfly"],
+    "keywords": ["dragonfly"],
     "categories": []
   },
   {
-    "id": "ra-drill",
+    "id": "drill",
     "name": "Drill",
     "unicode": "e9a4",
-    "keywords": ["ra-drill", "drill"],
+    "keywords": ["drill"],
     "categories": []
   },
   {
-    "id": "ra-dripping-blade",
+    "id": "dripping-blade",
     "name": "Dripping Blade",
     "unicode": "e9a5",
-    "keywords": ["ra-dripping-blade", "dripping", "blade", "dripping blade"],
+    "keywords": ["dripping", "blade", "dripping blade", "dripping-blade"],
     "categories": []
   },
   {
-    "id": "ra-dripping-knife",
+    "id": "dripping-knife",
     "name": "Dripping Knife",
     "unicode": "e9a6",
-    "keywords": ["ra-dripping-knife", "dripping", "knife", "dripping knife"],
+    "keywords": ["dripping", "knife", "dripping knife", "dripping-knife"],
     "categories": []
   },
   {
-    "id": "ra-dripping-sword",
+    "id": "dripping-sword",
     "name": "Dripping Sword",
     "unicode": "e9a7",
-    "keywords": ["ra-dripping-sword", "dripping", "sword", "dripping sword"],
+    "keywords": ["dripping", "sword", "dripping sword", "dripping-sword"],
     "categories": []
   },
   {
-    "id": "ra-droplet",
+    "id": "droplet",
     "name": "Droplet",
     "unicode": "e9a9",
-    "keywords": ["ra-droplet", "droplet"],
+    "keywords": ["droplet"],
     "categories": []
   },
   {
-    "id": "ra-droplet-splash",
+    "id": "droplet-splash",
     "name": "Droplet Splash",
     "unicode": "e9a8",
-    "keywords": ["ra-droplet-splash", "droplet", "splash", "droplet splash"],
+    "keywords": ["droplet", "splash", "droplet splash", "droplet-splash"],
     "categories": []
   },
   {
-    "id": "ra-droplets",
+    "id": "droplets",
     "name": "Droplets",
     "unicode": "e9aa",
-    "keywords": ["ra-droplets", "droplets"],
+    "keywords": ["droplets"],
     "categories": []
   },
   {
-    "id": "ra-duel",
+    "id": "duel",
     "name": "Duel",
     "unicode": "e9ab",
-    "keywords": ["ra-duel", "duel"],
+    "keywords": ["duel"],
     "categories": []
   },
   {
-    "id": "ra-egg",
+    "id": "egg",
     "name": "Egg",
     "unicode": "e9ad",
-    "keywords": ["ra-egg", "egg"],
+    "keywords": ["egg"],
     "categories": []
   },
   {
-    "id": "ra-egg-pod",
+    "id": "egg-pod",
     "name": "Egg Pod",
     "unicode": "e9ac",
-    "keywords": ["ra-egg-pod", "egg", "pod", "egg pod"],
+    "keywords": ["egg", "pod", "egg pod", "egg-pod"],
     "categories": []
   },
   {
-    "id": "ra-eggplant",
+    "id": "eggplant",
     "name": "Eggplant",
     "unicode": "e9ae",
-    "keywords": ["ra-eggplant", "eggplant"],
+    "keywords": ["eggplant"],
     "categories": []
   },
   {
-    "id": "ra-emerald",
+    "id": "emerald",
     "name": "Emerald",
     "unicode": "e9af",
-    "keywords": ["ra-emerald", "emerald"],
+    "keywords": ["emerald"],
     "categories": []
   },
   {
-    "id": "ra-energise",
+    "id": "energise",
     "name": "Energise",
     "unicode": "e9b0",
-    "keywords": ["ra-energise", "energise"],
+    "keywords": ["energise"],
     "categories": []
   },
   {
-    "id": "ra-explosion",
+    "id": "explosion",
     "name": "Explosion",
     "unicode": "e9b1",
-    "keywords": ["ra-explosion", "explosion"],
+    "keywords": ["explosion"],
     "categories": []
   },
   {
-    "id": "ra-explosive-materials",
+    "id": "explosive-materials",
     "name": "Explosive Materials",
     "unicode": "e9b2",
-    "keywords": ["ra-explosive-materials", "explosive", "materials", "explosive materials"],
+    "keywords": ["explosive", "materials", "explosive materials", "explosive-materials"],
     "categories": []
   },
   {
-    "id": "ra-eye-monster",
+    "id": "eye-monster",
     "name": "Eye Monster",
     "unicode": "e9b3",
-    "keywords": ["ra-eye-monster", "eye", "monster", "eye monster"],
+    "keywords": ["eye", "monster", "eye monster", "eye-monster"],
     "categories": []
   },
   {
-    "id": "ra-eye-shield",
+    "id": "eye-shield",
     "name": "Eye Shield",
     "unicode": "e9b4",
-    "keywords": ["ra-eye-shield", "eye", "shield", "eye shield"],
+    "keywords": ["eye", "shield", "eye shield", "eye-shield"],
     "categories": []
   },
   {
-    "id": "ra-eyeball",
+    "id": "eyeball",
     "name": "Eyeball",
     "unicode": "e9b5",
-    "keywords": ["ra-eyeball", "eyeball"],
+    "keywords": ["eyeball"],
     "categories": []
   },
   {
-    "id": "ra-fairy",
+    "id": "fairy",
     "name": "Fairy",
     "unicode": "e9b7",
-    "keywords": ["ra-fairy", "fairy"],
+    "keywords": ["fairy"],
     "categories": []
   },
   {
-    "id": "ra-fairy-wand",
+    "id": "fairy-wand",
     "name": "Fairy Wand",
     "unicode": "e9b6",
-    "keywords": ["ra-fairy-wand", "fairy", "wand", "fairy wand"],
+    "keywords": ["fairy", "wand", "fairy wand", "fairy-wand"],
     "categories": []
   },
   {
-    "id": "ra-fall-down",
+    "id": "fall-down",
     "name": "Fall Down",
     "unicode": "e9b8",
-    "keywords": ["ra-fall-down", "fall", "down", "fall down"],
+    "keywords": ["fall", "down", "fall down", "fall-down"],
     "categories": []
   },
   {
-    "id": "ra-falling",
+    "id": "falling",
     "name": "Falling",
     "unicode": "e9b9",
-    "keywords": ["ra-falling", "falling"],
+    "keywords": ["falling"],
     "categories": []
   },
   {
-    "id": "ra-fast-ship",
+    "id": "fast-ship",
     "name": "Fast Ship",
     "unicode": "e9ba",
-    "keywords": ["ra-fast-ship", "fast", "ship", "fast ship"],
+    "keywords": ["fast", "ship", "fast ship", "fast-ship"],
     "categories": []
   },
   {
-    "id": "ra-feather-wing",
+    "id": "feather-wing",
     "name": "Feather Wing",
     "unicode": "e9bb",
-    "keywords": ["ra-feather-wing", "feather", "wing", "feather wing"],
+    "keywords": ["feather", "wing", "feather wing", "feather-wing"],
     "categories": []
   },
   {
-    "id": "ra-feathered-wing",
+    "id": "feathered-wing",
     "name": "Feathered Wing",
     "unicode": "e9bc",
-    "keywords": ["ra-feathered-wing", "feathered", "wing", "feathered wing"],
+    "keywords": ["feathered", "wing", "feathered wing", "feathered-wing"],
     "categories": []
   },
   {
-    "id": "ra-fedora",
+    "id": "fedora",
     "name": "Fedora",
     "unicode": "e9bd",
-    "keywords": ["ra-fedora", "fedora"],
+    "keywords": ["fedora"],
     "categories": []
   },
   {
-    "id": "ra-fire",
+    "id": "fire",
     "name": "Fire",
     "unicode": "e9c3",
-    "keywords": ["ra-fire", "fire"],
+    "keywords": ["fire"],
     "categories": []
   },
   {
-    "id": "ra-fire-bomb",
+    "id": "fire-bomb",
     "name": "Fire Bomb",
     "unicode": "e9be",
-    "keywords": ["ra-fire-bomb", "fire", "bomb", "fire bomb"],
+    "keywords": ["fire", "bomb", "fire bomb", "fire-bomb"],
     "categories": []
   },
   {
-    "id": "ra-fire-breath",
+    "id": "fire-breath",
     "name": "Fire Breath",
     "unicode": "e9bf",
-    "keywords": ["ra-fire-breath", "fire", "breath", "fire breath"],
+    "keywords": ["fire", "breath", "fire breath", "fire-breath"],
     "categories": []
   },
   {
-    "id": "ra-fire-ring",
+    "id": "fire-ring",
     "name": "Fire Ring",
     "unicode": "e9c0",
-    "keywords": ["ra-fire-ring", "fire", "ring", "fire ring"],
+    "keywords": ["fire", "ring", "fire ring", "fire-ring"],
     "categories": []
   },
   {
-    "id": "ra-fire-shield",
+    "id": "fire-shield",
     "name": "Fire Shield",
     "unicode": "e9c1",
-    "keywords": ["ra-fire-shield", "fire", "shield", "fire shield"],
+    "keywords": ["fire", "shield", "fire shield", "fire-shield"],
     "categories": []
   },
   {
-    "id": "ra-fire-symbol",
+    "id": "fire-symbol",
     "name": "Fire Symbol",
     "unicode": "e9c2",
-    "keywords": ["ra-fire-symbol", "fire", "symbol", "fire symbol"],
+    "keywords": ["fire", "symbol", "fire symbol", "fire-symbol"],
     "categories": []
   },
   {
-    "id": "ra-fireball-sword",
+    "id": "fireball-sword",
     "name": "Fireball Sword",
     "unicode": "e9c4",
-    "keywords": ["ra-fireball-sword", "fireball", "sword", "fireball sword"],
+    "keywords": ["fireball", "sword", "fireball sword", "fireball-sword"],
     "categories": []
   },
   {
-    "id": "ra-fish",
+    "id": "fish",
     "name": "Fish",
     "unicode": "e9c5",
-    "keywords": ["ra-fish", "fish"],
+    "keywords": ["fish"],
     "categories": []
   },
   {
-    "id": "ra-fizzing-flask",
+    "id": "fizzing-flask",
     "name": "Fizzing Flask",
     "unicode": "e9c6",
-    "keywords": ["ra-fizzing-flask", "fizzing", "flask", "fizzing flask"],
+    "keywords": ["fizzing", "flask", "fizzing flask", "fizzing-flask"],
     "categories": []
   },
   {
-    "id": "ra-flame-symbol",
+    "id": "flame-symbol",
     "name": "Flame Symbol",
     "unicode": "e9c7",
-    "keywords": ["ra-flame-symbol", "flame", "symbol", "flame symbol"],
+    "keywords": ["flame", "symbol", "flame symbol", "flame-symbol"],
     "categories": []
   },
   {
-    "id": "ra-flaming-arrow",
+    "id": "flaming-arrow",
     "name": "Flaming Arrow",
     "unicode": "e9c8",
-    "keywords": ["ra-flaming-arrow", "flaming", "arrow", "flaming arrow"],
+    "keywords": ["flaming", "arrow", "flaming arrow", "flaming-arrow"],
     "categories": []
   },
   {
-    "id": "ra-flaming-claw",
+    "id": "flaming-claw",
     "name": "Flaming Claw",
     "unicode": "e9c9",
-    "keywords": ["ra-flaming-claw", "flaming", "claw", "flaming claw"],
+    "keywords": ["flaming", "claw", "flaming claw", "flaming-claw"],
     "categories": []
   },
   {
-    "id": "ra-flaming-trident",
+    "id": "flaming-trident",
     "name": "Flaming Trident",
     "unicode": "e9ca",
-    "keywords": ["ra-flaming-trident", "flaming", "trident", "flaming trident"],
+    "keywords": ["flaming", "trident", "flaming trident", "flaming-trident"],
     "categories": []
   },
   {
-    "id": "ra-flask",
+    "id": "flask",
     "name": "Flask",
     "unicode": "e9cb",
-    "keywords": ["ra-flask", "flask"],
+    "keywords": ["flask"],
     "categories": []
   },
   {
-    "id": "ra-flat-hammer",
+    "id": "flat-hammer",
     "name": "Flat Hammer",
     "unicode": "e9cc",
-    "keywords": ["ra-flat-hammer", "flat", "hammer", "flat hammer"],
+    "keywords": ["flat", "hammer", "flat hammer", "flat-hammer"],
     "categories": []
   },
   {
-    "id": "ra-flower",
+    "id": "flower",
     "name": "Flower",
     "unicode": "e9cd",
-    "keywords": ["ra-flower", "flower"],
+    "keywords": ["flower"],
     "categories": []
   },
   {
-    "id": "ra-flowers",
+    "id": "flowers",
     "name": "Flowers",
     "unicode": "e9ce",
-    "keywords": ["ra-flowers", "flowers"],
+    "keywords": ["flowers"],
     "categories": []
   },
   {
-    "id": "ra-fluffy-swirl",
+    "id": "fluffy-swirl",
     "name": "Fluffy Swirl",
     "unicode": "e9cf",
-    "keywords": ["ra-fluffy-swirl", "fluffy", "swirl", "fluffy swirl"],
+    "keywords": ["fluffy", "swirl", "fluffy swirl", "fluffy-swirl"],
     "categories": []
   },
   {
-    "id": "ra-focused-lightning",
+    "id": "focused-lightning",
     "name": "Focused Lightning",
     "unicode": "e9d0",
-    "keywords": ["ra-focused-lightning", "focused", "lightning", "focused lightning"],
+    "keywords": ["focused", "lightning", "focused lightning", "focused-lightning"],
     "categories": []
   },
   {
-    "id": "ra-food-chain",
+    "id": "food-chain",
     "name": "Food Chain",
     "unicode": "e9d1",
-    "keywords": ["ra-food-chain", "food", "chain", "food chain"],
+    "keywords": ["food", "chain", "food chain", "food-chain"],
     "categories": []
   },
   {
-    "id": "ra-footprint",
+    "id": "footprint",
     "name": "Footprint",
     "unicode": "e9d2",
-    "keywords": ["ra-footprint", "footprint"],
+    "keywords": ["footprint"],
     "categories": []
   },
   {
-    "id": "ra-forging",
+    "id": "forging",
     "name": "Forging",
     "unicode": "e9d3",
-    "keywords": ["ra-forging", "forging"],
+    "keywords": ["forging"],
     "categories": []
   },
   {
-    "id": "ra-forward",
+    "id": "forward",
     "name": "Forward",
     "unicode": "e9d4",
-    "keywords": ["ra-forward", "forward"],
+    "keywords": ["forward"],
     "categories": []
   },
   {
-    "id": "ra-fox",
+    "id": "fox",
     "name": "Fox",
     "unicode": "e9d5",
-    "keywords": ["ra-fox", "fox"],
+    "keywords": ["fox"],
     "categories": []
   },
   {
-    "id": "ra-frost-emblem",
+    "id": "frost-emblem",
     "name": "Frost Emblem",
     "unicode": "e9d6",
-    "keywords": ["ra-frost-emblem", "frost", "emblem", "frost emblem"],
+    "keywords": ["frost", "emblem", "frost emblem", "frost-emblem"],
     "categories": []
   },
   {
-    "id": "ra-frostfire",
+    "id": "frostfire",
     "name": "Frostfire",
     "unicode": "e9d7",
-    "keywords": ["ra-frostfire", "frostfire"],
+    "keywords": ["frostfire"],
     "categories": []
   },
   {
-    "id": "ra-frozen-arrow",
+    "id": "frozen-arrow",
     "name": "Frozen Arrow",
     "unicode": "e9d8",
-    "keywords": ["ra-frozen-arrow", "frozen", "arrow", "frozen arrow"],
+    "keywords": ["frozen", "arrow", "frozen arrow", "frozen-arrow"],
     "categories": []
   },
   {
-    "id": "ra-gamepad-cross",
+    "id": "gamepad-cross",
     "name": "Gamepad Cross",
     "unicode": "e9d9",
-    "keywords": ["ra-gamepad-cross", "gamepad", "cross", "gamepad cross"],
+    "keywords": ["gamepad", "cross", "gamepad cross", "gamepad-cross"],
     "categories": []
   },
   {
-    "id": "ra-gavel",
+    "id": "gavel",
     "name": "Gavel",
     "unicode": "e9da",
-    "keywords": ["ra-gavel", "gavel"],
+    "keywords": ["gavel"],
     "categories": []
   },
   {
-    "id": "ra-gear-hammer",
+    "id": "gear-hammer",
     "name": "Gear Hammer",
     "unicode": "e9db",
-    "keywords": ["ra-gear-hammer", "gear", "hammer", "gear hammer"],
+    "keywords": ["gear", "hammer", "gear hammer", "gear-hammer"],
     "categories": []
   },
   {
-    "id": "ra-gear-heart",
+    "id": "gear-heart",
     "name": "Gear Heart",
     "unicode": "e9dc",
-    "keywords": ["ra-gear-heart", "gear", "heart", "gear heart"],
+    "keywords": ["gear", "heart", "gear heart", "gear-heart"],
     "categories": []
   },
   {
-    "id": "ra-gears",
+    "id": "gears",
     "name": "Gears",
     "unicode": "e9dd",
-    "keywords": ["ra-gears", "gears"],
+    "keywords": ["gears"],
     "categories": []
   },
   {
-    "id": "ra-gecko",
+    "id": "gecko",
     "name": "Gecko",
     "unicode": "e9de",
-    "keywords": ["ra-gecko", "gecko"],
+    "keywords": ["gecko"],
     "categories": []
   },
   {
-    "id": "ra-gem",
+    "id": "gem",
     "name": "Gem",
     "unicode": "e9e0",
-    "keywords": ["ra-gem", "gem"],
+    "keywords": ["gem"],
     "categories": []
   },
   {
-    "id": "ra-gem-pendant",
+    "id": "gem-pendant",
     "name": "Gem Pendant",
     "unicode": "e9df",
-    "keywords": ["ra-gem-pendant", "gem", "pendant", "gem pendant"],
+    "keywords": ["gem", "pendant", "gem pendant", "gem-pendant"],
     "categories": []
   },
   {
-    "id": "ra-gemini",
+    "id": "gemini",
     "name": "Gemini",
     "unicode": "e9e1",
-    "keywords": ["ra-gemini", "gemini"],
+    "keywords": ["gemini"],
     "categories": []
   },
   {
-    "id": "ra-glass-heart",
+    "id": "glass-heart",
     "name": "Glass Heart",
     "unicode": "e9e2",
-    "keywords": ["ra-glass-heart", "glass", "heart", "glass heart"],
+    "keywords": ["glass", "heart", "glass heart", "glass-heart"],
     "categories": []
   },
   {
-    "id": "ra-gloop",
+    "id": "gloop",
     "name": "Gloop",
     "unicode": "e9e3",
-    "keywords": ["ra-gloop", "gloop"],
+    "keywords": ["gloop"],
     "categories": []
   },
   {
-    "id": "ra-gold-bar",
+    "id": "gold-bar",
     "name": "Gold Bar",
     "unicode": "e9e4",
-    "keywords": ["ra-gold-bar", "gold", "bar", "gold bar"],
+    "keywords": ["gold", "bar", "gold bar", "gold-bar"],
     "categories": []
   },
   {
-    "id": "ra-grappling-hook",
+    "id": "grappling-hook",
     "name": "Grappling Hook",
     "unicode": "e9e5",
-    "keywords": ["ra-grappling-hook", "grappling", "hook", "grappling hook"],
+    "keywords": ["grappling", "hook", "grappling hook", "grappling-hook"],
     "categories": []
   },
   {
-    "id": "ra-grass",
+    "id": "grass",
     "name": "Grass",
     "unicode": "e9e7",
-    "keywords": ["ra-grass", "grass"],
+    "keywords": ["grass"],
     "categories": []
   },
   {
-    "id": "ra-grass-patch",
+    "id": "grass-patch",
     "name": "Grass Patch",
     "unicode": "e9e6",
-    "keywords": ["ra-grass-patch", "grass", "patch", "grass patch"],
+    "keywords": ["grass", "patch", "grass patch", "grass-patch"],
     "categories": []
   },
   {
-    "id": "ra-grenade",
+    "id": "grenade",
     "name": "Grenade",
     "unicode": "e9e8",
-    "keywords": ["ra-grenade", "grenade"],
+    "keywords": ["grenade"],
     "categories": []
   },
   {
-    "id": "ra-groundbreaker",
+    "id": "groundbreaker",
     "name": "Groundbreaker",
     "unicode": "e9e9",
-    "keywords": ["ra-groundbreaker", "groundbreaker"],
+    "keywords": ["groundbreaker"],
     "categories": []
   },
   {
-    "id": "ra-guarded-tower",
+    "id": "guarded-tower",
     "name": "Guarded Tower",
     "unicode": "e9ea",
-    "keywords": ["ra-guarded-tower", "guarded", "tower", "guarded tower"],
+    "keywords": ["guarded", "tower", "guarded tower", "guarded-tower"],
     "categories": []
   },
   {
-    "id": "ra-guillotine",
+    "id": "guillotine",
     "name": "Guillotine",
     "unicode": "e9eb",
-    "keywords": ["ra-guillotine", "guillotine"],
+    "keywords": ["guillotine"],
     "categories": []
   },
   {
-    "id": "ra-halberd",
+    "id": "halberd",
     "name": "Halberd",
     "unicode": "e9ec",
-    "keywords": ["ra-halberd", "halberd"],
+    "keywords": ["halberd"],
     "categories": []
   },
   {
-    "id": "ra-hammer",
+    "id": "hammer",
     "name": "Hammer",
     "unicode": "e9ee",
-    "keywords": ["ra-hammer", "hammer"],
+    "keywords": ["hammer"],
     "categories": []
   },
   {
-    "id": "ra-hammer-drop",
+    "id": "hammer-drop",
     "name": "Hammer Drop",
     "unicode": "e9ed",
-    "keywords": ["ra-hammer-drop", "hammer", "drop", "hammer drop"],
+    "keywords": ["hammer", "drop", "hammer drop", "hammer-drop"],
     "categories": []
   },
   {
-    "id": "ra-hand",
+    "id": "hand",
     "name": "Hand",
     "unicode": "e9f1",
-    "keywords": ["ra-hand", "hand"],
+    "keywords": ["hand"],
     "categories": []
   },
   {
-    "id": "ra-hand-emblem",
+    "id": "hand-emblem",
     "name": "Hand Emblem",
     "unicode": "e9ef",
-    "keywords": ["ra-hand-emblem", "hand", "emblem", "hand emblem"],
+    "keywords": ["hand", "emblem", "hand emblem", "hand-emblem"],
     "categories": []
   },
   {
-    "id": "ra-hand-saw",
+    "id": "hand-saw",
     "name": "Hand Saw",
     "unicode": "e9f0",
-    "keywords": ["ra-hand-saw", "hand", "saw", "hand saw"],
+    "keywords": ["hand", "saw", "hand saw", "hand-saw"],
     "categories": []
   },
   {
-    "id": "ra-harpoon-trident",
+    "id": "harpoon-trident",
     "name": "Harpoon Trident",
     "unicode": "e9f2",
-    "keywords": ["ra-harpoon-trident", "harpoon", "trident", "harpoon trident"],
+    "keywords": ["harpoon", "trident", "harpoon trident", "harpoon-trident"],
     "categories": []
   },
   {
-    "id": "ra-health",
+    "id": "health",
     "name": "Health",
     "unicode": "e9f5",
-    "keywords": ["ra-health", "health"],
+    "keywords": ["health"],
     "categories": []
   },
   {
-    "id": "ra-health-decrease",
+    "id": "health-decrease",
     "name": "Health Decrease",
     "unicode": "e9f3",
-    "keywords": ["ra-health-decrease", "health", "decrease", "health decrease"],
+    "keywords": ["health", "decrease", "health decrease", "health-decrease"],
     "categories": []
   },
   {
-    "id": "ra-health-increase",
+    "id": "health-increase",
     "name": "Health Increase",
     "unicode": "e9f4",
-    "keywords": ["ra-health-increase", "health", "increase", "health increase"],
+    "keywords": ["health", "increase", "health increase", "health-increase"],
     "categories": []
   },
   {
-    "id": "ra-heart-bottle",
+    "id": "heart-bottle",
     "name": "Heart Bottle",
     "unicode": "e9f6",
-    "keywords": ["ra-heart-bottle", "heart", "bottle", "heart bottle"],
+    "keywords": ["heart", "bottle", "heart bottle", "heart-bottle"],
     "categories": []
   },
   {
-    "id": "ra-heart-tower",
+    "id": "heart-tower",
     "name": "Heart Tower",
     "unicode": "e9f7",
-    "keywords": ["ra-heart-tower", "heart", "tower", "heart tower"],
+    "keywords": ["heart", "tower", "heart tower", "heart-tower"],
     "categories": []
   },
   {
-    "id": "ra-heartburn",
+    "id": "heartburn",
     "name": "Heartburn",
     "unicode": "e9f8",
-    "keywords": ["ra-heartburn", "heartburn"],
+    "keywords": ["heartburn"],
     "categories": []
   },
   {
-    "id": "ra-hearts",
+    "id": "hearts",
     "name": "Hearts",
     "unicode": "e9fa",
-    "keywords": ["ra-hearts", "hearts"],
+    "keywords": ["hearts"],
     "categories": []
   },
   {
-    "id": "ra-hearts-card",
+    "id": "hearts-card",
     "name": "Hearts Card",
     "unicode": "e9f9",
-    "keywords": ["ra-hearts-card", "hearts", "card", "hearts card"],
+    "keywords": ["hearts", "card", "hearts card", "hearts-card"],
     "categories": []
   },
   {
-    "id": "ra-heat-haze",
+    "id": "heat-haze",
     "name": "Heat Haze",
     "unicode": "e9fb",
-    "keywords": ["ra-heat-haze", "heat", "haze", "heat haze"],
+    "keywords": ["heat", "haze", "heat haze", "heat-haze"],
     "categories": []
   },
   {
-    "id": "ra-heavy-fall",
+    "id": "heavy-fall",
     "name": "Heavy Fall",
     "unicode": "e9fc",
-    "keywords": ["ra-heavy-fall", "heavy", "fall", "heavy fall"],
+    "keywords": ["heavy", "fall", "heavy fall", "heavy-fall"],
     "categories": []
   },
   {
-    "id": "ra-heavy-shield",
+    "id": "heavy-shield",
     "name": "Heavy Shield",
     "unicode": "e9fd",
-    "keywords": ["ra-heavy-shield", "heavy", "shield", "heavy shield"],
+    "keywords": ["heavy", "shield", "heavy shield", "heavy-shield"],
     "categories": []
   },
   {
-    "id": "ra-helmet",
+    "id": "helmet",
     "name": "Helmet",
     "unicode": "e9fe",
-    "keywords": ["ra-helmet", "helmet"],
+    "keywords": ["helmet"],
     "categories": []
   },
   {
-    "id": "ra-help",
+    "id": "help",
     "name": "Help",
     "unicode": "e9ff",
-    "keywords": ["ra-help", "help"],
+    "keywords": ["help"],
     "categories": []
   },
   {
-    "id": "ra-hive-emblem",
+    "id": "hive-emblem",
     "name": "Hive Emblem",
     "unicode": "ea00",
-    "keywords": ["ra-hive-emblem", "hive", "emblem", "hive emblem"],
+    "keywords": ["hive", "emblem", "hive emblem", "hive-emblem"],
     "categories": []
   },
   {
-    "id": "ra-hole-ladder",
+    "id": "hole-ladder",
     "name": "Hole Ladder",
     "unicode": "ea01",
-    "keywords": ["ra-hole-ladder", "hole", "ladder", "hole ladder"],
+    "keywords": ["hole", "ladder", "hole ladder", "hole-ladder"],
     "categories": []
   },
   {
-    "id": "ra-honeycomb",
+    "id": "honeycomb",
     "name": "Honeycomb",
     "unicode": "ea02",
-    "keywords": ["ra-honeycomb", "honeycomb"],
+    "keywords": ["honeycomb"],
     "categories": []
   },
   {
-    "id": "ra-hood",
+    "id": "hood",
     "name": "Hood",
     "unicode": "ea03",
-    "keywords": ["ra-hood", "hood"],
+    "keywords": ["hood"],
     "categories": []
   },
   {
-    "id": "ra-horn-call",
+    "id": "horn-call",
     "name": "Horn Call",
     "unicode": "ea04",
-    "keywords": ["ra-horn-call", "horn", "call", "horn call"],
+    "keywords": ["horn", "call", "horn call", "horn-call"],
     "categories": []
   },
   {
-    "id": "ra-horns",
+    "id": "horns",
     "name": "Horns",
     "unicode": "ea05",
-    "keywords": ["ra-horns", "horns"],
+    "keywords": ["horns"],
     "categories": []
   },
   {
-    "id": "ra-horseshoe",
+    "id": "horseshoe",
     "name": "Horseshoe",
     "unicode": "ea06",
-    "keywords": ["ra-horseshoe", "horseshoe"],
+    "keywords": ["horseshoe"],
     "categories": []
   },
   {
-    "id": "ra-hospital-cross",
+    "id": "hospital-cross",
     "name": "Hospital Cross",
     "unicode": "ea07",
-    "keywords": ["ra-hospital-cross", "hospital", "cross", "hospital cross"],
+    "keywords": ["hospital", "cross", "hospital cross", "hospital-cross"],
     "categories": []
   },
   {
-    "id": "ra-hot-surface",
+    "id": "hot-surface",
     "name": "Hot Surface",
     "unicode": "ea08",
-    "keywords": ["ra-hot-surface", "hot", "surface", "hot surface"],
+    "keywords": ["hot", "surface", "hot surface", "hot-surface"],
     "categories": []
   },
   {
-    "id": "ra-hourglass",
+    "id": "hourglass",
     "name": "Hourglass",
     "unicode": "ea09",
-    "keywords": ["ra-hourglass", "hourglass"],
+    "keywords": ["hourglass"],
     "categories": []
   },
   {
-    "id": "ra-hydra",
+    "id": "hydra",
     "name": "Hydra",
     "unicode": "ea0b",
-    "keywords": ["ra-hydra", "hydra"],
+    "keywords": ["hydra"],
     "categories": []
   },
   {
-    "id": "ra-hydra-shot",
+    "id": "hydra-shot",
     "name": "Hydra Shot",
     "unicode": "ea0a",
-    "keywords": ["ra-hydra-shot", "hydra", "shot", "hydra shot"],
+    "keywords": ["hydra", "shot", "hydra shot", "hydra-shot"],
     "categories": []
   },
   {
-    "id": "ra-ice-cube",
+    "id": "ice-cube",
     "name": "Ice Cube",
     "unicode": "ea0c",
-    "keywords": ["ra-ice-cube", "ice", "cube", "ice cube"],
+    "keywords": ["ice", "cube", "ice cube", "ice-cube"],
     "categories": []
   },
   {
-    "id": "ra-implosion",
+    "id": "implosion",
     "name": "Implosion",
     "unicode": "ea0d",
-    "keywords": ["ra-implosion", "implosion"],
+    "keywords": ["implosion"],
     "categories": []
   },
   {
-    "id": "ra-incense",
+    "id": "incense",
     "name": "Incense",
     "unicode": "ea0e",
-    "keywords": ["ra-incense", "incense"],
+    "keywords": ["incense"],
     "categories": []
   },
   {
-    "id": "ra-insect-jaws",
+    "id": "insect-jaws",
     "name": "Insect Jaws",
     "unicode": "ea0f",
-    "keywords": ["ra-insect-jaws", "insect", "jaws", "insect jaws"],
+    "keywords": ["insect", "jaws", "insect jaws", "insect-jaws"],
     "categories": []
   },
   {
-    "id": "ra-interdiction",
+    "id": "interdiction",
     "name": "Interdiction",
     "unicode": "ea10",
-    "keywords": ["ra-interdiction", "interdiction"],
+    "keywords": ["interdiction"],
     "categories": []
   },
   {
-    "id": "ra-jetpack",
+    "id": "jetpack",
     "name": "Jetpack",
     "unicode": "ea11",
-    "keywords": ["ra-jetpack", "jetpack"],
+    "keywords": ["jetpack"],
     "categories": []
   },
   {
-    "id": "ra-jigsaw-piece",
+    "id": "jigsaw-piece",
     "name": "Jigsaw Piece",
     "unicode": "ea12",
-    "keywords": ["ra-jigsaw-piece", "jigsaw", "piece", "jigsaw piece"],
+    "keywords": ["jigsaw", "piece", "jigsaw piece", "jigsaw-piece"],
     "categories": []
   },
   {
-    "id": "ra-kaleidoscope",
+    "id": "kaleidoscope",
     "name": "Kaleidoscope",
     "unicode": "ea13",
-    "keywords": ["ra-kaleidoscope", "kaleidoscope"],
+    "keywords": ["kaleidoscope"],
     "categories": []
   },
   {
-    "id": "ra-kettlebell",
+    "id": "kettlebell",
     "name": "Kettlebell",
     "unicode": "ea14",
-    "keywords": ["ra-kettlebell", "kettlebell"],
+    "keywords": ["kettlebell"],
     "categories": []
   },
   {
-    "id": "ra-key",
+    "id": "key",
     "name": "Key",
     "unicode": "ea16",
-    "keywords": ["ra-key", "key"],
+    "keywords": ["key"],
     "categories": []
   },
   {
-    "id": "ra-key-basic",
+    "id": "key-basic",
     "name": "Key Basic",
     "unicode": "ea15",
-    "keywords": ["ra-key-basic", "key", "basic", "key basic"],
+    "keywords": ["key", "basic", "key basic", "key-basic"],
     "categories": []
   },
   {
-    "id": "ra-kitchen-knives",
+    "id": "kitchen-knives",
     "name": "Kitchen Knives",
     "unicode": "ea17",
-    "keywords": ["ra-kitchen-knives", "kitchen", "knives", "kitchen knives"],
+    "keywords": ["kitchen", "knives", "kitchen knives", "kitchen-knives"],
     "categories": []
   },
   {
-    "id": "ra-knife",
+    "id": "knife",
     "name": "Knife",
     "unicode": "ea19",
-    "keywords": ["ra-knife", "knife"],
+    "keywords": ["knife"],
     "categories": []
   },
   {
-    "id": "ra-knife-fork",
+    "id": "knife-fork",
     "name": "Knife Fork",
     "unicode": "ea18",
-    "keywords": ["ra-knife-fork", "knife", "fork", "knife fork"],
+    "keywords": ["knife", "fork", "knife fork", "knife-fork"],
     "categories": []
   },
   {
-    "id": "ra-knight-helmet",
+    "id": "knight-helmet",
     "name": "Knight Helmet",
     "unicode": "ea1a",
-    "keywords": ["ra-knight-helmet", "knight", "helmet", "knight helmet"],
+    "keywords": ["knight", "helmet", "knight helmet", "knight-helmet"],
     "categories": []
   },
   {
-    "id": "ra-kunai",
+    "id": "kunai",
     "name": "Kunai",
     "unicode": "ea1b",
-    "keywords": ["ra-kunai", "kunai"],
+    "keywords": ["kunai"],
     "categories": []
   },
   {
-    "id": "ra-lantern-flame",
+    "id": "lantern-flame",
     "name": "Lantern Flame",
     "unicode": "ea1c",
-    "keywords": ["ra-lantern-flame", "lantern", "flame", "lantern flame"],
+    "keywords": ["lantern", "flame", "lantern flame", "lantern-flame"],
     "categories": []
   },
   {
-    "id": "ra-large-hammer",
+    "id": "large-hammer",
     "name": "Large Hammer",
     "unicode": "ea1d",
-    "keywords": ["ra-large-hammer", "large", "hammer", "large hammer"],
+    "keywords": ["large", "hammer", "large hammer", "large-hammer"],
     "categories": []
   },
   {
-    "id": "ra-laser-blast",
+    "id": "laser-blast",
     "name": "Laser Blast",
     "unicode": "ea1e",
-    "keywords": ["ra-laser-blast", "laser", "blast", "laser blast"],
+    "keywords": ["laser", "blast", "laser blast", "laser-blast"],
     "categories": []
   },
   {
-    "id": "ra-laser-site",
+    "id": "laser-site",
     "name": "Laser Site",
     "unicode": "ea1f",
-    "keywords": ["ra-laser-site", "laser", "site", "laser site"],
+    "keywords": ["laser", "site", "laser site", "laser-site"],
     "categories": []
   },
   {
-    "id": "ra-lava",
+    "id": "lava",
     "name": "Lava",
     "unicode": "ea20",
-    "keywords": ["ra-lava", "lava"],
+    "keywords": ["lava"],
     "categories": []
   },
   {
-    "id": "ra-leaf",
+    "id": "leaf",
     "name": "Leaf",
     "unicode": "ea21",
-    "keywords": ["ra-leaf", "leaf"],
+    "keywords": ["leaf"],
     "categories": []
   },
   {
-    "id": "ra-leo",
+    "id": "leo",
     "name": "Leo",
     "unicode": "ea22",
-    "keywords": ["ra-leo", "leo"],
+    "keywords": ["leo"],
     "categories": []
   },
   {
-    "id": "ra-level-four",
+    "id": "level-four",
     "name": "Level Four",
     "unicode": "ea24",
-    "keywords": ["ra-level-four", "level", "four", "level four"],
+    "keywords": ["level", "four", "level four", "level-four"],
     "categories": []
   },
   {
-    "id": "ra-level-four-advanced",
+    "id": "level-four-advanced",
     "name": "Level Four Advanced",
     "unicode": "ea23",
-    "keywords": ["ra-level-four-advanced", "level", "four", "advanced", "level four advanced"],
+    "keywords": ["level", "four", "advanced", "level four advanced", "level-four-advanced"],
     "categories": []
   },
   {
-    "id": "ra-level-three",
+    "id": "level-three",
     "name": "Level Three",
     "unicode": "ea26",
-    "keywords": ["ra-level-three", "level", "three", "level three"],
+    "keywords": ["level", "three", "level three", "level-three"],
     "categories": []
   },
   {
-    "id": "ra-level-three-advanced",
+    "id": "level-three-advanced",
     "name": "Level Three Advanced",
     "unicode": "ea25",
-    "keywords": ["ra-level-three-advanced", "level", "three", "advanced", "level three advanced"],
+    "keywords": ["level", "three", "advanced", "level three advanced", "level-three-advanced"],
     "categories": []
   },
   {
-    "id": "ra-level-two",
+    "id": "level-two",
     "name": "Level Two",
     "unicode": "ea28",
-    "keywords": ["ra-level-two", "level", "two", "level two"],
+    "keywords": ["level", "two", "level two", "level-two"],
     "categories": []
   },
   {
-    "id": "ra-level-two-advanced",
+    "id": "level-two-advanced",
     "name": "Level Two Advanced",
     "unicode": "ea27",
-    "keywords": ["ra-level-two-advanced", "level", "two", "advanced", "level two advanced"],
+    "keywords": ["level", "two", "advanced", "level two advanced", "level-two-advanced"],
     "categories": []
   },
   {
-    "id": "ra-lever",
+    "id": "lever",
     "name": "Lever",
     "unicode": "ea29",
-    "keywords": ["ra-lever", "lever"],
+    "keywords": ["lever"],
     "categories": []
   },
   {
-    "id": "ra-libra",
+    "id": "libra",
     "name": "Libra",
     "unicode": "ea2a",
-    "keywords": ["ra-libra", "libra"],
+    "keywords": ["libra"],
     "categories": []
   },
   {
-    "id": "ra-light-bulb",
+    "id": "light-bulb",
     "name": "Light Bulb",
     "unicode": "ea2b",
-    "keywords": ["ra-light-bulb", "light", "bulb", "light bulb"],
+    "keywords": ["light", "bulb", "light bulb", "light-bulb"],
     "categories": []
   },
   {
-    "id": "ra-lighthouse",
+    "id": "lighthouse",
     "name": "Lighthouse",
     "unicode": "ea2c",
-    "keywords": ["ra-lighthouse", "lighthouse"],
+    "keywords": ["lighthouse"],
     "categories": []
   },
   {
-    "id": "ra-lightning",
+    "id": "lightning",
     "name": "Lightning",
     "unicode": "ea31",
-    "keywords": ["ra-lightning", "lightning"],
+    "keywords": ["lightning"],
     "categories": []
   },
   {
-    "id": "ra-lightning-bolt",
+    "id": "lightning-bolt",
     "name": "Lightning Bolt",
     "unicode": "ea2d",
-    "keywords": ["ra-lightning-bolt", "lightning", "bolt", "lightning bolt"],
+    "keywords": ["lightning", "bolt", "lightning bolt", "lightning-bolt"],
     "categories": []
   },
   {
-    "id": "ra-lightning-storm",
+    "id": "lightning-storm",
     "name": "Lightning Storm",
     "unicode": "ea2e",
-    "keywords": ["ra-lightning-storm", "lightning", "storm", "lightning storm"],
+    "keywords": ["lightning", "storm", "lightning storm", "lightning-storm"],
     "categories": []
   },
   {
-    "id": "ra-lightning-sword",
+    "id": "lightning-sword",
     "name": "Lightning Sword",
     "unicode": "ea2f",
-    "keywords": ["ra-lightning-sword", "lightning", "sword", "lightning sword"],
+    "keywords": ["lightning", "sword", "lightning sword", "lightning-sword"],
     "categories": []
   },
   {
-    "id": "ra-lightning-trio",
+    "id": "lightning-trio",
     "name": "Lightning Trio",
     "unicode": "ea30",
-    "keywords": ["ra-lightning-trio", "lightning", "trio", "lightning trio"],
+    "keywords": ["lightning", "trio", "lightning trio", "lightning-trio"],
     "categories": []
   },
   {
-    "id": "ra-lion",
+    "id": "lion",
     "name": "Lion",
     "unicode": "ea32",
-    "keywords": ["ra-lion", "lion"],
+    "keywords": ["lion"],
     "categories": []
   },
   {
-    "id": "ra-lit-candelabra",
+    "id": "lit-candelabra",
     "name": "Lit Candelabra",
     "unicode": "ea33",
-    "keywords": ["ra-lit-candelabra", "lit", "candelabra", "lit candelabra"],
+    "keywords": ["lit", "candelabra", "lit candelabra", "lit-candelabra"],
     "categories": []
   },
   {
-    "id": "ra-load",
+    "id": "load",
     "name": "Load",
     "unicode": "ea34",
-    "keywords": ["ra-load", "load"],
+    "keywords": ["load"],
     "categories": []
   },
   {
-    "id": "ra-locked-fortress",
+    "id": "locked-fortress",
     "name": "Locked Fortress",
     "unicode": "ea35",
-    "keywords": ["ra-locked-fortress", "locked", "fortress", "locked fortress"],
+    "keywords": ["locked", "fortress", "locked fortress", "locked-fortress"],
     "categories": []
   },
   {
-    "id": "ra-love-howl",
+    "id": "love-howl",
     "name": "Love Howl",
     "unicode": "ea36",
-    "keywords": ["ra-love-howl", "love", "howl", "love howl"],
+    "keywords": ["love", "howl", "love howl", "love-howl"],
     "categories": []
   },
   {
-    "id": "ra-maggot",
+    "id": "maggot",
     "name": "Maggot",
     "unicode": "ea37",
-    "keywords": ["ra-maggot", "maggot"],
+    "keywords": ["maggot"],
     "categories": []
   },
   {
-    "id": "ra-magnet",
+    "id": "magnet",
     "name": "Magnet",
     "unicode": "ea38",
-    "keywords": ["ra-magnet", "magnet"],
+    "keywords": ["magnet"],
     "categories": []
   },
   {
-    "id": "ra-mass-driver",
+    "id": "mass-driver",
     "name": "Mass Driver",
     "unicode": "ea39",
-    "keywords": ["ra-mass-driver", "mass", "driver", "mass driver"],
+    "keywords": ["mass", "driver", "mass driver", "mass-driver"],
     "categories": []
   },
   {
-    "id": "ra-match",
+    "id": "match",
     "name": "Match",
     "unicode": "ea3a",
-    "keywords": ["ra-match", "match"],
+    "keywords": ["match"],
     "categories": []
   },
   {
-    "id": "ra-meat",
+    "id": "meat",
     "name": "Meat",
     "unicode": "ea3c",
-    "keywords": ["ra-meat", "meat"],
+    "keywords": ["meat"],
     "categories": []
   },
   {
-    "id": "ra-meat-hook",
+    "id": "meat-hook",
     "name": "Meat Hook",
     "unicode": "ea3b",
-    "keywords": ["ra-meat-hook", "meat", "hook", "meat hook"],
+    "keywords": ["meat", "hook", "meat hook", "meat-hook"],
     "categories": []
   },
   {
-    "id": "ra-medical-pack",
+    "id": "medical-pack",
     "name": "Medical Pack",
     "unicode": "ea3d",
-    "keywords": ["ra-medical-pack", "medical", "pack", "medical pack"],
+    "keywords": ["medical", "pack", "medical pack", "medical-pack"],
     "categories": []
   },
   {
-    "id": "ra-metal-gate",
+    "id": "metal-gate",
     "name": "Metal Gate",
     "unicode": "ea3e",
-    "keywords": ["ra-metal-gate", "metal", "gate", "metal gate"],
+    "keywords": ["metal", "gate", "metal gate", "metal-gate"],
     "categories": []
   },
   {
-    "id": "ra-microphone",
+    "id": "microphone",
     "name": "Microphone",
     "unicode": "ea3f",
-    "keywords": ["ra-microphone", "microphone"],
+    "keywords": ["microphone"],
     "categories": []
   },
   {
-    "id": "ra-mine-wagon",
+    "id": "mine-wagon",
     "name": "Mine Wagon",
     "unicode": "ea40",
-    "keywords": ["ra-mine-wagon", "mine", "wagon", "mine wagon"],
+    "keywords": ["mine", "wagon", "mine wagon", "mine-wagon"],
     "categories": []
   },
   {
-    "id": "ra-mining-diamonds",
+    "id": "mining-diamonds",
     "name": "Mining Diamonds",
     "unicode": "ea41",
-    "keywords": ["ra-mining-diamonds", "mining", "diamonds", "mining diamonds"],
+    "keywords": ["mining", "diamonds", "mining diamonds", "mining-diamonds"],
     "categories": []
   },
   {
-    "id": "ra-mirror",
+    "id": "mirror",
     "name": "Mirror",
     "unicode": "ea42",
-    "keywords": ["ra-mirror", "mirror"],
+    "keywords": ["mirror"],
     "categories": []
   },
   {
-    "id": "ra-monster-skull",
+    "id": "monster-skull",
     "name": "Monster Skull",
     "unicode": "ea43",
-    "keywords": ["ra-monster-skull", "monster", "skull", "monster skull"],
+    "keywords": ["monster", "skull", "monster skull", "monster-skull"],
     "categories": []
   },
   {
-    "id": "ra-moon-sun",
+    "id": "moon-sun",
     "name": "Moon Sun",
     "unicode": "ea45",
-    "keywords": ["ra-moon-sun", "moon", "sun", "moon sun"],
+    "keywords": ["moon", "sun", "moon sun", "moon-sun"],
     "categories": []
   },
   {
-    "id": "ra-mountains",
+    "id": "mountains",
     "name": "Mountains",
     "unicode": "ea44",
-    "keywords": ["ra-mountains", "mountains"],
+    "keywords": ["mountains"],
     "categories": []
   },
   {
-    "id": "ra-mp5",
+    "id": "mp5",
     "name": "Mp5",
     "unicode": "ea46",
-    "keywords": ["ra-mp5", "mp5"],
+    "keywords": ["mp5"],
     "categories": []
   },
   {
-    "id": "ra-muscle-fat",
+    "id": "muscle-fat",
     "name": "Muscle Fat",
     "unicode": "ea47",
-    "keywords": ["ra-muscle-fat", "muscle", "fat", "muscle fat"],
+    "keywords": ["muscle", "fat", "muscle fat", "muscle-fat"],
     "categories": []
   },
   {
-    "id": "ra-muscle-up",
+    "id": "muscle-up",
     "name": "Muscle Up",
     "unicode": "ea48",
-    "keywords": ["ra-muscle-up", "muscle", "up", "muscle up"],
+    "keywords": ["muscle", "up", "muscle up", "muscle-up"],
     "categories": []
   },
   {
-    "id": "ra-musket",
+    "id": "musket",
     "name": "Musket",
     "unicode": "ea49",
-    "keywords": ["ra-musket", "musket"],
+    "keywords": ["musket"],
     "categories": []
   },
   {
-    "id": "ra-nails",
+    "id": "nails",
     "name": "Nails",
     "unicode": "ea4a",
-    "keywords": ["ra-nails", "nails"],
+    "keywords": ["nails"],
     "categories": []
   },
   {
-    "id": "ra-nodular",
+    "id": "nodular",
     "name": "Nodular",
     "unicode": "ea4b",
-    "keywords": ["ra-nodular", "nodular"],
+    "keywords": ["nodular"],
     "categories": []
   },
   {
-    "id": "ra-noose",
+    "id": "noose",
     "name": "Noose",
     "unicode": "ea4c",
-    "keywords": ["ra-noose", "noose"],
+    "keywords": ["noose"],
     "categories": []
   },
   {
-    "id": "ra-nuclear",
+    "id": "nuclear",
     "name": "Nuclear",
     "unicode": "ea4d",
-    "keywords": ["ra-nuclear", "nuclear"],
+    "keywords": ["nuclear"],
     "categories": []
   },
   {
-    "id": "ra-ocarina",
+    "id": "ocarina",
     "name": "Ocarina",
     "unicode": "ea4e",
-    "keywords": ["ra-ocarina", "ocarina"],
+    "keywords": ["ocarina"],
     "categories": []
   },
   {
-    "id": "ra-ocean-emblem",
+    "id": "ocean-emblem",
     "name": "Ocean Emblem",
     "unicode": "ea4f",
-    "keywords": ["ra-ocean-emblem", "ocean", "emblem", "ocean emblem"],
+    "keywords": ["ocean", "emblem", "ocean emblem", "ocean-emblem"],
     "categories": []
   },
   {
-    "id": "ra-octopus",
+    "id": "octopus",
     "name": "Octopus",
     "unicode": "ea50",
-    "keywords": ["ra-octopus", "octopus"],
+    "keywords": ["octopus"],
     "categories": []
   },
   {
-    "id": "ra-omega",
+    "id": "omega",
     "name": "Omega",
     "unicode": "ea51",
-    "keywords": ["ra-omega", "omega"],
+    "keywords": ["omega"],
     "categories": []
   },
   {
-    "id": "ra-on-target",
+    "id": "on-target",
     "name": "On Target",
     "unicode": "ea52",
-    "keywords": ["ra-on-target", "on", "target", "on target"],
+    "keywords": ["on", "target", "on target", "on-target"],
     "categories": []
   },
   {
-    "id": "ra-ophiuchus",
+    "id": "ophiuchus",
     "name": "Ophiuchus",
     "unicode": "ea53",
-    "keywords": ["ra-ophiuchus", "ophiuchus"],
+    "keywords": ["ophiuchus"],
     "categories": []
   },
   {
-    "id": "ra-overhead",
+    "id": "overhead",
     "name": "Overhead",
     "unicode": "ea54",
-    "keywords": ["ra-overhead", "overhead"],
+    "keywords": ["overhead"],
     "categories": []
   },
   {
-    "id": "ra-overmind",
+    "id": "overmind",
     "name": "Overmind",
     "unicode": "ea55",
-    "keywords": ["ra-overmind", "overmind"],
+    "keywords": ["overmind"],
     "categories": []
   },
   {
-    "id": "ra-palm-tree",
+    "id": "palm-tree",
     "name": "Palm Tree",
     "unicode": "ea56",
-    "keywords": ["ra-palm-tree", "palm", "tree", "palm tree"],
+    "keywords": ["palm", "tree", "palm tree", "palm-tree"],
     "categories": []
   },
   {
-    "id": "ra-pawn",
+    "id": "pawn",
     "name": "Pawn",
     "unicode": "ea57",
-    "keywords": ["ra-pawn", "pawn"],
+    "keywords": ["pawn"],
     "categories": []
   },
   {
-    "id": "ra-pawprint",
+    "id": "pawprint",
     "name": "Pawprint",
     "unicode": "ea58",
-    "keywords": ["ra-pawprint", "pawprint"],
+    "keywords": ["pawprint"],
     "categories": []
   },
   {
-    "id": "ra-perspective-dice-five",
+    "id": "perspective-dice-five",
     "name": "Perspective Dice Five",
     "unicode": "ea59",
-    "keywords": ["ra-perspective-dice-five", "perspective", "dice", "five", "perspective dice five"],
+    "keywords": ["perspective", "dice", "five", "perspective dice five", "perspective-dice-five"],
     "categories": []
   },
   {
-    "id": "ra-perspective-dice-four",
+    "id": "perspective-dice-four",
     "name": "Perspective Dice Four",
     "unicode": "ea5a",
-    "keywords": ["ra-perspective-dice-four", "perspective", "dice", "four", "perspective dice four"],
+    "keywords": ["perspective", "dice", "four", "perspective dice four", "perspective-dice-four"],
     "categories": []
   },
   {
-    "id": "ra-perspective-dice-one",
+    "id": "perspective-dice-one",
     "name": "Perspective Dice One",
     "unicode": "ea5b",
-    "keywords": ["ra-perspective-dice-one", "perspective", "dice", "one", "perspective dice one"],
+    "keywords": ["perspective", "dice", "one", "perspective dice one", "perspective-dice-one"],
     "categories": []
   },
   {
-    "id": "ra-perspective-dice-random",
+    "id": "perspective-dice-random",
     "name": "Perspective Dice Random",
     "unicode": "ea5c",
-    "keywords": ["ra-perspective-dice-random", "perspective", "dice", "random", "perspective dice random"],
+    "keywords": ["perspective", "dice", "random", "perspective dice random", "perspective-dice-random"],
     "categories": []
   },
   {
-    "id": "ra-perspective-dice-six",
+    "id": "perspective-dice-six",
     "name": "Perspective Dice Six",
     "unicode": "ea5e",
-    "keywords": ["ra-perspective-dice-six", "perspective", "dice", "six", "perspective dice six"],
+    "keywords": ["perspective", "dice", "six", "perspective dice six", "perspective-dice-six"],
     "categories": []
   },
   {
-    "id": "ra-perspective-dice-three",
+    "id": "perspective-dice-three",
     "name": "Perspective Dice Three",
     "unicode": "ea5f",
-    "keywords": ["ra-perspective-dice-three", "perspective", "dice", "three", "perspective dice three"],
+    "keywords": ["perspective", "dice", "three", "perspective dice three", "perspective-dice-three"],
     "categories": []
   },
   {
-    "id": "ra-perspective-dice-two",
+    "id": "perspective-dice-two",
     "name": "Perspective Dice Two",
     "unicode": "ea5d",
-    "keywords": ["ra-perspective-dice-two", "perspective", "dice", "two", "perspective dice two"],
+    "keywords": ["perspective", "dice", "two", "perspective dice two", "perspective-dice-two"],
     "categories": []
   },
   {
-    "id": "ra-pill",
+    "id": "pill",
     "name": "Pill",
     "unicode": "ea60",
-    "keywords": ["ra-pill", "pill"],
+    "keywords": ["pill"],
     "categories": []
   },
   {
-    "id": "ra-pills",
+    "id": "pills",
     "name": "Pills",
     "unicode": "ea61",
-    "keywords": ["ra-pills", "pills"],
+    "keywords": ["pills"],
     "categories": []
   },
   {
-    "id": "ra-pine-tree",
+    "id": "pine-tree",
     "name": "Pine Tree",
     "unicode": "ea62",
-    "keywords": ["ra-pine-tree", "pine", "tree", "pine tree"],
+    "keywords": ["pine", "tree", "pine tree", "pine-tree"],
     "categories": []
   },
   {
-    "id": "ra-ping-pong",
+    "id": "ping-pong",
     "name": "Ping Pong",
     "unicode": "ea63",
-    "keywords": ["ra-ping-pong", "ping", "pong", "ping pong"],
+    "keywords": ["ping", "pong", "ping pong", "ping-pong"],
     "categories": []
   },
   {
-    "id": "ra-pisces",
+    "id": "pisces",
     "name": "Pisces",
     "unicode": "ea64",
-    "keywords": ["ra-pisces", "pisces"],
+    "keywords": ["pisces"],
     "categories": []
   },
   {
-    "id": "ra-plain-dagger",
+    "id": "plain-dagger",
     "name": "Plain Dagger",
     "unicode": "ea65",
-    "keywords": ["ra-plain-dagger", "plain", "dagger", "plain dagger"],
+    "keywords": ["plain", "dagger", "plain dagger", "plain-dagger"],
     "categories": []
   },
   {
-    "id": "ra-player",
+    "id": "player",
     "name": "Player",
     "unicode": "ea6f",
-    "keywords": ["ra-player", "player"],
+    "keywords": ["player"],
     "categories": []
   },
   {
-    "id": "ra-player-despair",
+    "id": "player-despair",
     "name": "Player Despair",
     "unicode": "ea66",
-    "keywords": ["ra-player-despair", "player", "despair", "player despair"],
+    "keywords": ["player", "despair", "player despair", "player-despair"],
     "categories": []
   },
   {
-    "id": "ra-player-dodge",
+    "id": "player-dodge",
     "name": "Player Dodge",
     "unicode": "ea67",
-    "keywords": ["ra-player-dodge", "player", "dodge", "player dodge"],
+    "keywords": ["player", "dodge", "player dodge", "player-dodge"],
     "categories": []
   },
   {
-    "id": "ra-player-king",
+    "id": "player-king",
     "name": "Player King",
     "unicode": "ea68",
-    "keywords": ["ra-player-king", "player", "king", "player king"],
+    "keywords": ["player", "king", "player king", "player-king"],
     "categories": []
   },
   {
-    "id": "ra-player-lift",
+    "id": "player-lift",
     "name": "Player Lift",
     "unicode": "ea69",
-    "keywords": ["ra-player-lift", "player", "lift", "player lift"],
+    "keywords": ["player", "lift", "player lift", "player-lift"],
     "categories": []
   },
   {
-    "id": "ra-player-pain",
+    "id": "player-pain",
     "name": "Player Pain",
     "unicode": "ea6a",
-    "keywords": ["ra-player-pain", "player", "pain", "player pain"],
+    "keywords": ["player", "pain", "player pain", "player-pain"],
     "categories": []
   },
   {
-    "id": "ra-player-pyromaniac",
+    "id": "player-pyromaniac",
     "name": "Player Pyromaniac",
     "unicode": "ea6b",
-    "keywords": ["ra-player-pyromaniac", "player", "pyromaniac", "player pyromaniac"],
+    "keywords": ["player", "pyromaniac", "player pyromaniac", "player-pyromaniac"],
     "categories": []
   },
   {
-    "id": "ra-player-shot",
+    "id": "player-shot",
     "name": "Player Shot",
     "unicode": "ea6c",
-    "keywords": ["ra-player-shot", "player", "shot", "player shot"],
+    "keywords": ["player", "shot", "player shot", "player-shot"],
     "categories": []
   },
   {
-    "id": "ra-player-teleport",
+    "id": "player-teleport",
     "name": "Player Teleport",
     "unicode": "ea6d",
-    "keywords": ["ra-player-teleport", "player", "teleport", "player teleport"],
+    "keywords": ["player", "teleport", "player teleport", "player-teleport"],
     "categories": []
   },
   {
-    "id": "ra-player-thunder-struck",
+    "id": "player-thunder-struck",
     "name": "Player Thunder Struck",
     "unicode": "ea6e",
-    "keywords": ["ra-player-thunder-struck", "player", "thunder", "struck", "player thunder struck"],
+    "keywords": ["player", "thunder", "struck", "player thunder struck", "player-thunder-struck"],
     "categories": []
   },
   {
-    "id": "ra-podium",
+    "id": "podium",
     "name": "Podium",
     "unicode": "ea70",
-    "keywords": ["ra-podium", "podium"],
+    "keywords": ["podium"],
     "categories": []
   },
   {
-    "id": "ra-poison-cloud",
+    "id": "poison-cloud",
     "name": "Poison Cloud",
     "unicode": "ea71",
-    "keywords": ["ra-poison-cloud", "poison", "cloud", "poison cloud"],
+    "keywords": ["poison", "cloud", "poison cloud", "poison-cloud"],
     "categories": []
   },
   {
-    "id": "ra-potion",
+    "id": "potion",
     "name": "Potion",
     "unicode": "ea72",
-    "keywords": ["ra-potion", "potion"],
+    "keywords": ["potion"],
     "categories": []
   },
   {
-    "id": "ra-pyramids",
+    "id": "pyramids",
     "name": "Pyramids",
     "unicode": "ea73",
-    "keywords": ["ra-pyramids", "pyramids"],
+    "keywords": ["pyramids"],
     "categories": []
   },
   {
-    "id": "ra-queen-crown",
+    "id": "queen-crown",
     "name": "Queen Crown",
     "unicode": "ea74",
-    "keywords": ["ra-queen-crown", "queen", "crown", "queen crown"],
+    "keywords": ["queen", "crown", "queen crown", "queen-crown"],
     "categories": []
   },
   {
-    "id": "ra-quill-ink",
+    "id": "quill-ink",
     "name": "Quill Ink",
     "unicode": "ea75",
-    "keywords": ["ra-quill-ink", "quill", "ink", "quill ink"],
+    "keywords": ["quill", "ink", "quill ink", "quill-ink"],
     "categories": []
   },
   {
-    "id": "ra-rabbit",
+    "id": "rabbit",
     "name": "Rabbit",
     "unicode": "ea76",
-    "keywords": ["ra-rabbit", "rabbit"],
+    "keywords": ["rabbit"],
     "categories": []
   },
   {
-    "id": "ra-radar-dish",
+    "id": "radar-dish",
     "name": "Radar Dish",
     "unicode": "ea77",
-    "keywords": ["ra-radar-dish", "radar", "dish", "radar dish"],
+    "keywords": ["radar", "dish", "radar dish", "radar-dish"],
     "categories": []
   },
   {
-    "id": "ra-radial-balance",
+    "id": "radial-balance",
     "name": "Radial Balance",
     "unicode": "ea78",
-    "keywords": ["ra-radial-balance", "radial", "balance", "radial balance"],
+    "keywords": ["radial", "balance", "radial balance", "radial-balance"],
     "categories": []
   },
   {
-    "id": "ra-radioactive",
+    "id": "radioactive",
     "name": "Radioactive",
     "unicode": "ea79",
-    "keywords": ["ra-radioactive", "radioactive"],
+    "keywords": ["radioactive"],
     "categories": []
   },
   {
-    "id": "ra-raven",
+    "id": "raven",
     "name": "Raven",
     "unicode": "ea7a",
-    "keywords": ["ra-raven", "raven"],
+    "keywords": ["raven"],
     "categories": []
   },
   {
-    "id": "ra-reactor",
+    "id": "reactor",
     "name": "Reactor",
     "unicode": "ea7b",
-    "keywords": ["ra-reactor", "reactor"],
+    "keywords": ["reactor"],
     "categories": []
   },
   {
-    "id": "ra-recycle",
+    "id": "recycle",
     "name": "Recycle",
     "unicode": "ea7c",
-    "keywords": ["ra-recycle", "recycle"],
+    "keywords": ["recycle"],
     "categories": []
   },
   {
-    "id": "ra-regeneration",
+    "id": "regeneration",
     "name": "Regeneration",
     "unicode": "ea7d",
-    "keywords": ["ra-regeneration", "regeneration"],
+    "keywords": ["regeneration"],
     "categories": []
   },
   {
-    "id": "ra-relic-blade",
+    "id": "relic-blade",
     "name": "Relic Blade",
     "unicode": "ea7e",
-    "keywords": ["ra-relic-blade", "relic", "blade", "relic blade"],
+    "keywords": ["relic", "blade", "relic blade", "relic-blade"],
     "categories": []
   },
   {
-    "id": "ra-repair",
+    "id": "repair",
     "name": "Repair",
     "unicode": "ea7f",
-    "keywords": ["ra-repair", "repair"],
+    "keywords": ["repair"],
     "categories": []
   },
   {
-    "id": "ra-reverse",
+    "id": "reverse",
     "name": "Reverse",
     "unicode": "ea80",
-    "keywords": ["ra-reverse", "reverse"],
+    "keywords": ["reverse"],
     "categories": []
   },
   {
-    "id": "ra-revolver",
+    "id": "revolver",
     "name": "Revolver",
     "unicode": "ea81",
-    "keywords": ["ra-revolver", "revolver"],
+    "keywords": ["revolver"],
     "categories": []
   },
   {
-    "id": "ra-rifle",
+    "id": "rifle",
     "name": "Rifle",
     "unicode": "ea82",
-    "keywords": ["ra-rifle", "rifle"],
+    "keywords": ["rifle"],
     "categories": []
   },
   {
-    "id": "ra-ringing-bell",
+    "id": "ringing-bell",
     "name": "Ringing Bell",
     "unicode": "ea83",
-    "keywords": ["ra-ringing-bell", "ringing", "bell", "ringing bell"],
+    "keywords": ["ringing", "bell", "ringing bell", "ringing-bell"],
     "categories": []
   },
   {
-    "id": "ra-roast-chicken",
+    "id": "roast-chicken",
     "name": "Roast Chicken",
     "unicode": "ea84",
-    "keywords": ["ra-roast-chicken", "roast", "chicken", "roast chicken"],
+    "keywords": ["roast", "chicken", "roast chicken", "roast-chicken"],
     "categories": []
   },
   {
-    "id": "ra-robot-arm",
+    "id": "robot-arm",
     "name": "Robot Arm",
     "unicode": "ea85",
-    "keywords": ["ra-robot-arm", "robot", "arm", "robot arm"],
+    "keywords": ["robot", "arm", "robot arm", "robot-arm"],
     "categories": []
   },
   {
-    "id": "ra-round-bottom-flask",
+    "id": "round-bottom-flask",
     "name": "Round Bottom Flask",
     "unicode": "ea86",
-    "keywords": ["ra-round-bottom-flask", "round", "bottom", "flask", "round bottom flask"],
+    "keywords": ["round", "bottom", "flask", "round bottom flask", "round-bottom-flask"],
     "categories": []
   },
   {
-    "id": "ra-round-shield",
+    "id": "round-shield",
     "name": "Round Shield",
     "unicode": "ea87",
-    "keywords": ["ra-round-shield", "round", "shield", "round shield"],
+    "keywords": ["round", "shield", "round shield", "round-shield"],
     "categories": []
   },
   {
-    "id": "ra-rss",
+    "id": "rss",
     "name": "Rss",
     "unicode": "ea88",
-    "keywords": ["ra-rss", "rss"],
+    "keywords": ["rss"],
     "categories": []
   },
   {
-    "id": "ra-rune-stone",
+    "id": "rune-stone",
     "name": "Rune Stone",
     "unicode": "ea89",
-    "keywords": ["ra-rune-stone", "rune", "stone", "rune stone"],
+    "keywords": ["rune", "stone", "rune stone", "rune-stone"],
     "categories": []
   },
   {
-    "id": "ra-sagittarius",
+    "id": "sagittarius",
     "name": "Sagittarius",
     "unicode": "ea8a",
-    "keywords": ["ra-sagittarius", "sagittarius"],
+    "keywords": ["sagittarius"],
     "categories": []
   },
   {
-    "id": "ra-sapphire",
+    "id": "sapphire",
     "name": "Sapphire",
     "unicode": "ea8b",
-    "keywords": ["ra-sapphire", "sapphire"],
+    "keywords": ["sapphire"],
     "categories": []
   },
   {
-    "id": "ra-satellite",
+    "id": "satellite",
     "name": "Satellite",
     "unicode": "ea8c",
-    "keywords": ["ra-satellite", "satellite"],
+    "keywords": ["satellite"],
     "categories": []
   },
   {
-    "id": "ra-save",
+    "id": "save",
     "name": "Save",
     "unicode": "ea8d",
-    "keywords": ["ra-save", "save"],
+    "keywords": ["save"],
     "categories": []
   },
   {
-    "id": "ra-scorpio",
+    "id": "scorpio",
     "name": "Scorpio",
     "unicode": "ea8e",
-    "keywords": ["ra-scorpio", "scorpio"],
+    "keywords": ["scorpio"],
     "categories": []
   },
   {
-    "id": "ra-scroll-unfurled",
+    "id": "scroll-unfurled",
     "name": "Scroll Unfurled",
     "unicode": "ea8f",
-    "keywords": ["ra-scroll-unfurled", "scroll", "unfurled", "scroll unfurled"],
+    "keywords": ["scroll", "unfurled", "scroll unfurled", "scroll-unfurled"],
     "categories": []
   },
   {
-    "id": "ra-scythe",
+    "id": "scythe",
     "name": "Scythe",
     "unicode": "ea90",
-    "keywords": ["ra-scythe", "scythe"],
+    "keywords": ["scythe"],
     "categories": []
   },
   {
-    "id": "ra-sea-serpent",
+    "id": "sea-serpent",
     "name": "Sea Serpent",
     "unicode": "ea91",
-    "keywords": ["ra-sea-serpent", "sea", "serpent", "sea serpent"],
+    "keywords": ["sea", "serpent", "sea serpent", "sea-serpent"],
     "categories": []
   },
   {
-    "id": "ra-seagull",
+    "id": "seagull",
     "name": "Seagull",
     "unicode": "ea92",
-    "keywords": ["ra-seagull", "seagull"],
+    "keywords": ["seagull"],
     "categories": []
   },
   {
-    "id": "ra-shark",
+    "id": "shark",
     "name": "Shark",
     "unicode": "ea93",
-    "keywords": ["ra-shark", "shark"],
+    "keywords": ["shark"],
     "categories": []
   },
   {
-    "id": "ra-sheep",
+    "id": "sheep",
     "name": "Sheep",
     "unicode": "ea94",
-    "keywords": ["ra-sheep", "sheep"],
+    "keywords": ["sheep"],
     "categories": []
   },
   {
-    "id": "ra-sheriff",
+    "id": "sheriff",
     "name": "Sheriff",
     "unicode": "ea95",
-    "keywords": ["ra-sheriff", "sheriff"],
+    "keywords": ["sheriff"],
     "categories": []
   },
   {
-    "id": "ra-shield",
+    "id": "shield",
     "name": "Shield",
     "unicode": "ea96",
-    "keywords": ["ra-shield", "shield"],
+    "keywords": ["shield"],
     "categories": []
   },
   {
-    "id": "ra-ship-emblem",
+    "id": "ship-emblem",
     "name": "Ship Emblem",
     "unicode": "ea97",
-    "keywords": ["ra-ship-emblem", "ship", "emblem", "ship emblem"],
+    "keywords": ["ship", "emblem", "ship emblem", "ship-emblem"],
     "categories": []
   },
   {
-    "id": "ra-shoe-prints",
+    "id": "shoe-prints",
     "name": "Shoe Prints",
     "unicode": "ea98",
-    "keywords": ["ra-shoe-prints", "shoe", "prints", "shoe prints"],
+    "keywords": ["shoe", "prints", "shoe prints", "shoe-prints"],
     "categories": []
   },
   {
-    "id": "ra-shot-through-the-heart",
+    "id": "shot-through-the-heart",
     "name": "Shot Through The Heart",
     "unicode": "ea99",
-    "keywords": ["ra-shot-through-the-heart", "shot", "through", "the", "heart", "shot through the heart"],
+    "keywords": ["shot", "through", "the", "heart", "shot through the heart", "shot-through-the-heart"],
     "categories": []
   },
   {
-    "id": "ra-shotgun-shell",
+    "id": "shotgun-shell",
     "name": "Shotgun Shell",
     "unicode": "ea9a",
-    "keywords": ["ra-shotgun-shell", "shotgun", "shell", "shotgun shell"],
+    "keywords": ["shotgun", "shell", "shotgun shell", "shotgun-shell"],
     "categories": []
   },
   {
-    "id": "ra-shovel",
+    "id": "shovel",
     "name": "Shovel",
     "unicode": "ea9b",
-    "keywords": ["ra-shovel", "shovel"],
+    "keywords": ["shovel"],
     "categories": []
   },
   {
-    "id": "ra-shuriken",
+    "id": "shuriken",
     "name": "Shuriken",
     "unicode": "ea9c",
-    "keywords": ["ra-shuriken", "shuriken"],
+    "keywords": ["shuriken"],
     "categories": []
   },
   {
-    "id": "ra-sickle",
+    "id": "sickle",
     "name": "Sickle",
     "unicode": "ea9d",
-    "keywords": ["ra-sickle", "sickle"],
+    "keywords": ["sickle"],
     "categories": []
   },
   {
-    "id": "ra-sideswipe",
+    "id": "sideswipe",
     "name": "Sideswipe",
     "unicode": "ea9e",
-    "keywords": ["ra-sideswipe", "sideswipe"],
+    "keywords": ["sideswipe"],
     "categories": []
   },
   {
-    "id": "ra-site",
+    "id": "site",
     "name": "Site",
     "unicode": "ea9f",
-    "keywords": ["ra-site", "site"],
+    "keywords": ["site"],
     "categories": []
   },
   {
-    "id": "ra-skull",
+    "id": "skull",
     "name": "Skull",
     "unicode": "eaa1",
-    "keywords": ["ra-skull", "skull"],
+    "keywords": ["skull"],
     "categories": []
   },
   {
-    "id": "ra-skull-trophy",
+    "id": "skull-trophy",
     "name": "Skull Trophy",
     "unicode": "eaa0",
-    "keywords": ["ra-skull-trophy", "skull", "trophy", "skull trophy"],
+    "keywords": ["skull", "trophy", "skull trophy", "skull-trophy"],
     "categories": []
   },
   {
-    "id": "ra-slash-ring",
+    "id": "slash-ring",
     "name": "Slash Ring",
     "unicode": "eaa2",
-    "keywords": ["ra-slash-ring", "slash", "ring", "slash ring"],
+    "keywords": ["slash", "ring", "slash ring", "slash-ring"],
     "categories": []
   },
   {
-    "id": "ra-small-fire",
+    "id": "small-fire",
     "name": "Small Fire",
     "unicode": "eaa3",
-    "keywords": ["ra-small-fire", "small", "fire", "small fire"],
+    "keywords": ["small", "fire", "small fire", "small-fire"],
     "categories": []
   },
   {
-    "id": "ra-snail",
+    "id": "snail",
     "name": "Snail",
     "unicode": "eaa4",
-    "keywords": ["ra-snail", "snail"],
+    "keywords": ["snail"],
     "categories": []
   },
   {
-    "id": "ra-snake",
+    "id": "snake",
     "name": "Snake",
     "unicode": "eaa5",
-    "keywords": ["ra-snake", "snake"],
+    "keywords": ["snake"],
     "categories": []
   },
   {
-    "id": "ra-snorkel",
+    "id": "snorkel",
     "name": "Snorkel",
     "unicode": "eaa6",
-    "keywords": ["ra-snorkel", "snorkel"],
+    "keywords": ["snorkel"],
     "categories": []
   },
   {
-    "id": "ra-snowflake",
+    "id": "snowflake",
     "name": "Snowflake",
     "unicode": "eaa7",
-    "keywords": ["ra-snowflake", "snowflake"],
+    "keywords": ["snowflake"],
     "categories": []
   },
   {
-    "id": "ra-soccer-ball",
+    "id": "soccer-ball",
     "name": "Soccer Ball",
     "unicode": "eaa8",
-    "keywords": ["ra-soccer-ball", "soccer", "ball", "soccer ball"],
+    "keywords": ["soccer", "ball", "soccer ball", "soccer-ball"],
     "categories": []
   },
   {
-    "id": "ra-spades",
+    "id": "spades",
     "name": "Spades",
     "unicode": "eaaa",
-    "keywords": ["ra-spades", "spades"],
+    "keywords": ["spades"],
     "categories": []
   },
   {
-    "id": "ra-spades-card",
+    "id": "spades-card",
     "name": "Spades Card",
     "unicode": "eaa9",
-    "keywords": ["ra-spades-card", "spades", "card", "spades card"],
+    "keywords": ["spades", "card", "spades card", "spades-card"],
     "categories": []
   },
   {
-    "id": "ra-spawn-node",
+    "id": "spawn-node",
     "name": "Spawn Node",
     "unicode": "eaab",
-    "keywords": ["ra-spawn-node", "spawn", "node", "spawn node"],
+    "keywords": ["spawn", "node", "spawn node", "spawn-node"],
     "categories": []
   },
   {
-    "id": "ra-spear-head",
+    "id": "spear-head",
     "name": "Spear Head",
     "unicode": "eaac",
-    "keywords": ["ra-spear-head", "spear", "head", "spear head"],
+    "keywords": ["spear", "head", "spear head", "spear-head"],
     "categories": []
   },
   {
-    "id": "ra-speech-bubble",
+    "id": "speech-bubble",
     "name": "Speech Bubble",
     "unicode": "eaad",
-    "keywords": ["ra-speech-bubble", "speech", "bubble", "speech bubble"],
+    "keywords": ["speech", "bubble", "speech bubble", "speech-bubble"],
     "categories": []
   },
   {
-    "id": "ra-speech-bubbles",
+    "id": "speech-bubbles",
     "name": "Speech Bubbles",
     "unicode": "eaae",
-    "keywords": ["ra-speech-bubbles", "speech", "bubbles", "speech bubbles"],
+    "keywords": ["speech", "bubbles", "speech bubbles", "speech-bubbles"],
     "categories": []
   },
   {
-    "id": "ra-spider-face",
+    "id": "spider-face",
     "name": "Spider Face",
     "unicode": "eaaf",
-    "keywords": ["ra-spider-face", "spider", "face", "spider face"],
+    "keywords": ["spider", "face", "spider face", "spider-face"],
     "categories": []
   },
   {
-    "id": "ra-spikeball",
+    "id": "spikeball",
     "name": "Spikeball",
     "unicode": "eab0",
-    "keywords": ["ra-spikeball", "spikeball"],
+    "keywords": ["spikeball"],
     "categories": []
   },
   {
-    "id": "ra-spiked-mace",
+    "id": "spiked-mace",
     "name": "Spiked Mace",
     "unicode": "eab1",
-    "keywords": ["ra-spiked-mace", "spiked", "mace", "spiked mace"],
+    "keywords": ["spiked", "mace", "spiked mace", "spiked-mace"],
     "categories": []
   },
   {
-    "id": "ra-spiked-tentacle",
+    "id": "spiked-tentacle",
     "name": "Spiked Tentacle",
     "unicode": "eab2",
-    "keywords": ["ra-spiked-tentacle", "spiked", "tentacle", "spiked tentacle"],
+    "keywords": ["spiked", "tentacle", "spiked tentacle", "spiked-tentacle"],
     "categories": []
   },
   {
-    "id": "ra-spinning-sword",
+    "id": "spinning-sword",
     "name": "Spinning Sword",
     "unicode": "eab3",
-    "keywords": ["ra-spinning-sword", "spinning", "sword", "spinning sword"],
+    "keywords": ["spinning", "sword", "spinning sword", "spinning-sword"],
     "categories": []
   },
   {
-    "id": "ra-spiral-shell",
+    "id": "spiral-shell",
     "name": "Spiral Shell",
     "unicode": "eab4",
-    "keywords": ["ra-spiral-shell", "spiral", "shell", "spiral shell"],
+    "keywords": ["spiral", "shell", "spiral shell", "spiral-shell"],
     "categories": []
   },
   {
-    "id": "ra-splash",
+    "id": "splash",
     "name": "Splash",
     "unicode": "eab5",
-    "keywords": ["ra-splash", "splash"],
+    "keywords": ["splash"],
     "categories": []
   },
   {
-    "id": "ra-spray-can",
+    "id": "spray-can",
     "name": "Spray Can",
     "unicode": "eab6",
-    "keywords": ["ra-spray-can", "spray", "can", "spray can"],
+    "keywords": ["spray", "can", "spray can", "spray-can"],
     "categories": []
   },
   {
-    "id": "ra-sprout",
+    "id": "sprout",
     "name": "Sprout",
     "unicode": "eab8",
-    "keywords": ["ra-sprout", "sprout"],
+    "keywords": ["sprout"],
     "categories": []
   },
   {
-    "id": "ra-sprout-emblem",
+    "id": "sprout-emblem",
     "name": "Sprout Emblem",
     "unicode": "eab7",
-    "keywords": ["ra-sprout-emblem", "sprout", "emblem", "sprout emblem"],
+    "keywords": ["sprout", "emblem", "sprout emblem", "sprout-emblem"],
     "categories": []
   },
   {
-    "id": "ra-stopwatch",
+    "id": "stopwatch",
     "name": "Stopwatch",
     "unicode": "eab9",
-    "keywords": ["ra-stopwatch", "stopwatch"],
+    "keywords": ["stopwatch"],
     "categories": []
   },
   {
-    "id": "ra-suckered-tentacle",
+    "id": "suckered-tentacle",
     "name": "Suckered Tentacle",
     "unicode": "eaba",
-    "keywords": ["ra-suckered-tentacle", "suckered", "tentacle", "suckered tentacle"],
+    "keywords": ["suckered", "tentacle", "suckered tentacle", "suckered-tentacle"],
     "categories": []
   },
   {
-    "id": "ra-suits",
+    "id": "suits",
     "name": "Suits",
     "unicode": "eabb",
-    "keywords": ["ra-suits", "suits"],
+    "keywords": ["suits"],
     "categories": []
   },
   {
-    "id": "ra-sun",
+    "id": "sun",
     "name": "Sun",
     "unicode": "eabd",
-    "keywords": ["ra-sun", "sun"],
+    "keywords": ["sun"],
     "categories": []
   },
   {
-    "id": "ra-sun-symbol",
+    "id": "sun-symbol",
     "name": "Sun Symbol",
     "unicode": "eabc",
-    "keywords": ["ra-sun-symbol", "sun", "symbol", "sun symbol"],
+    "keywords": ["sun", "symbol", "sun symbol", "sun-symbol"],
     "categories": []
   },
   {
-    "id": "ra-sunbeams",
+    "id": "sunbeams",
     "name": "Sunbeams",
     "unicode": "eabe",
-    "keywords": ["ra-sunbeams", "sunbeams"],
+    "keywords": ["sunbeams"],
     "categories": []
   },
   {
-    "id": "ra-super-mushroom",
+    "id": "super-mushroom",
     "name": "Super Mushroom",
     "unicode": "eabf",
-    "keywords": ["ra-super-mushroom", "super", "mushroom", "super mushroom"],
+    "keywords": ["super", "mushroom", "super mushroom", "super-mushroom"],
     "categories": []
   },
   {
-    "id": "ra-supersonic-arrow",
+    "id": "supersonic-arrow",
     "name": "Supersonic Arrow",
     "unicode": "eac0",
-    "keywords": ["ra-supersonic-arrow", "supersonic", "arrow", "supersonic arrow"],
+    "keywords": ["supersonic", "arrow", "supersonic arrow", "supersonic-arrow"],
     "categories": []
   },
   {
-    "id": "ra-surveillance-camera",
+    "id": "surveillance-camera",
     "name": "Surveillance Camera",
     "unicode": "eac1",
-    "keywords": ["ra-surveillance-camera", "surveillance", "camera", "surveillance camera"],
+    "keywords": ["surveillance", "camera", "surveillance camera", "surveillance-camera"],
     "categories": []
   },
   {
-    "id": "ra-sword",
+    "id": "sword",
     "name": "Sword",
     "unicode": "e946",
-    "keywords": ["ra-sword", "sword"],
+    "keywords": ["sword"],
     "categories": []
   },
   {
-    "id": "ra-syringe",
+    "id": "syringe",
     "name": "Syringe",
     "unicode": "eac2",
-    "keywords": ["ra-syringe", "syringe"],
+    "keywords": ["syringe"],
     "categories": []
   },
   {
-    "id": "ra-target-arrows",
+    "id": "target-arrows",
     "name": "Target Arrows",
     "unicode": "eac3",
-    "keywords": ["ra-target-arrows", "target", "arrows", "target arrows"],
+    "keywords": ["target", "arrows", "target arrows", "target-arrows"],
     "categories": []
   },
   {
-    "id": "ra-target-laser",
+    "id": "target-laser",
     "name": "Target Laser",
     "unicode": "eac4",
-    "keywords": ["ra-target-laser", "target", "laser", "target laser"],
+    "keywords": ["target", "laser", "target laser", "target-laser"],
     "categories": []
   },
   {
-    "id": "ra-targeted",
+    "id": "targeted",
     "name": "Targeted",
     "unicode": "eac5",
-    "keywords": ["ra-targeted", "targeted"],
+    "keywords": ["targeted"],
     "categories": []
   },
   {
-    "id": "ra-taurus",
+    "id": "taurus",
     "name": "Taurus",
     "unicode": "eac6",
-    "keywords": ["ra-taurus", "taurus"],
+    "keywords": ["taurus"],
     "categories": []
   },
   {
-    "id": "ra-telescope",
+    "id": "telescope",
     "name": "Telescope",
     "unicode": "eac7",
-    "keywords": ["ra-telescope", "telescope"],
+    "keywords": ["telescope"],
     "categories": []
   },
   {
-    "id": "ra-tentacle",
+    "id": "tentacle",
     "name": "Tentacle",
     "unicode": "eac8",
-    "keywords": ["ra-tentacle", "tentacle"],
+    "keywords": ["tentacle"],
     "categories": []
   },
   {
-    "id": "ra-tesla",
+    "id": "tesla",
     "name": "Tesla",
     "unicode": "eac9",
-    "keywords": ["ra-tesla", "tesla"],
+    "keywords": ["tesla"],
     "categories": []
   },
   {
-    "id": "ra-thorn-arrow",
+    "id": "thorn-arrow",
     "name": "Thorn Arrow",
     "unicode": "eaca",
-    "keywords": ["ra-thorn-arrow", "thorn", "arrow", "thorn arrow"],
+    "keywords": ["thorn", "arrow", "thorn arrow", "thorn-arrow"],
     "categories": []
   },
   {
-    "id": "ra-thorny-vine",
+    "id": "thorny-vine",
     "name": "Thorny Vine",
     "unicode": "eacb",
-    "keywords": ["ra-thorny-vine", "thorny", "vine", "thorny vine"],
+    "keywords": ["thorny", "vine", "thorny vine", "thorny-vine"],
     "categories": []
   },
   {
-    "id": "ra-three-keys",
+    "id": "three-keys",
     "name": "Three Keys",
     "unicode": "eacc",
-    "keywords": ["ra-three-keys", "three", "keys", "three keys"],
+    "keywords": ["three", "keys", "three keys", "three-keys"],
     "categories": []
   },
   {
-    "id": "ra-tic-tac-toe",
+    "id": "tic-tac-toe",
     "name": "Tic Tac Toe",
     "unicode": "eacd",
-    "keywords": ["ra-tic-tac-toe", "tic", "tac", "toe", "tic tac toe"],
+    "keywords": ["tic", "tac", "toe", "tic tac toe", "tic-tac-toe"],
     "categories": []
   },
   {
-    "id": "ra-toast",
+    "id": "toast",
     "name": "Toast",
     "unicode": "eace",
-    "keywords": ["ra-toast", "toast"],
+    "keywords": ["toast"],
     "categories": []
   },
   {
-    "id": "ra-tombstone",
+    "id": "tombstone",
     "name": "Tombstone",
     "unicode": "eacf",
-    "keywords": ["ra-tombstone", "tombstone"],
+    "keywords": ["tombstone"],
     "categories": []
   },
   {
-    "id": "ra-tooth",
+    "id": "tooth",
     "name": "Tooth",
     "unicode": "ead0",
-    "keywords": ["ra-tooth", "tooth"],
+    "keywords": ["tooth"],
     "categories": []
   },
   {
-    "id": "ra-torch",
+    "id": "torch",
     "name": "Torch",
     "unicode": "ead1",
-    "keywords": ["ra-torch", "torch"],
+    "keywords": ["torch"],
     "categories": []
   },
   {
-    "id": "ra-tower",
+    "id": "tower",
     "name": "Tower",
     "unicode": "ead2",
-    "keywords": ["ra-tower", "tower"],
+    "keywords": ["tower"],
     "categories": []
   },
   {
-    "id": "ra-trail",
+    "id": "trail",
     "name": "Trail",
     "unicode": "ead3",
-    "keywords": ["ra-trail", "trail"],
+    "keywords": ["trail"],
     "categories": []
   },
   {
-    "id": "ra-trefoil-lily",
+    "id": "trefoil-lily",
     "name": "Trefoil Lily",
     "unicode": "ead4",
-    "keywords": ["ra-trefoil-lily", "trefoil", "lily", "trefoil lily"],
+    "keywords": ["trefoil", "lily", "trefoil lily", "trefoil-lily"],
     "categories": []
   },
   {
-    "id": "ra-trident",
+    "id": "trident",
     "name": "Trident",
     "unicode": "ead5",
-    "keywords": ["ra-trident", "trident"],
+    "keywords": ["trident"],
     "categories": []
   },
   {
-    "id": "ra-triforce",
+    "id": "triforce",
     "name": "Triforce",
     "unicode": "ead6",
-    "keywords": ["ra-triforce", "triforce"],
+    "keywords": ["triforce"],
     "categories": []
   },
   {
-    "id": "ra-trophy",
+    "id": "trophy",
     "name": "Trophy",
     "unicode": "ead7",
-    "keywords": ["ra-trophy", "trophy"],
+    "keywords": ["trophy"],
     "categories": []
   },
   {
-    "id": "ra-turd",
+    "id": "turd",
     "name": "Turd",
     "unicode": "ead8",
-    "keywords": ["ra-turd", "turd"],
+    "keywords": ["turd"],
     "categories": []
   },
   {
-    "id": "ra-two-dragons",
+    "id": "two-dragons",
     "name": "Two Dragons",
     "unicode": "ead9",
-    "keywords": ["ra-two-dragons", "two", "dragons", "two dragons"],
+    "keywords": ["two", "dragons", "two dragons", "two-dragons"],
     "categories": []
   },
   {
-    "id": "ra-two-hearts",
+    "id": "two-hearts",
     "name": "Two Hearts",
     "unicode": "eada",
-    "keywords": ["ra-two-hearts", "two", "hearts", "two hearts"],
+    "keywords": ["two", "hearts", "two hearts", "two-hearts"],
     "categories": []
   },
   {
-    "id": "ra-uncertainty",
+    "id": "uncertainty",
     "name": "Uncertainty",
     "unicode": "eadb",
-    "keywords": ["ra-uncertainty", "uncertainty"],
+    "keywords": ["uncertainty"],
     "categories": []
   },
   {
-    "id": "ra-underhand",
+    "id": "underhand",
     "name": "Underhand",
     "unicode": "eadc",
-    "keywords": ["ra-underhand", "underhand"],
+    "keywords": ["underhand"],
     "categories": []
   },
   {
-    "id": "ra-unplugged",
+    "id": "unplugged",
     "name": "Unplugged",
     "unicode": "eadd",
-    "keywords": ["ra-unplugged", "unplugged"],
+    "keywords": ["unplugged"],
     "categories": []
   },
   {
-    "id": "ra-vase",
+    "id": "vase",
     "name": "Vase",
     "unicode": "eade",
-    "keywords": ["ra-vase", "vase"],
+    "keywords": ["vase"],
     "categories": []
   },
   {
-    "id": "ra-venomous-snake",
+    "id": "venomous-snake",
     "name": "Venomous Snake",
     "unicode": "eadf",
-    "keywords": ["ra-venomous-snake", "venomous", "snake", "venomous snake"],
+    "keywords": ["venomous", "snake", "venomous snake", "venomous-snake"],
     "categories": []
   },
   {
-    "id": "ra-vest",
+    "id": "vest",
     "name": "Vest",
     "unicode": "eae0",
-    "keywords": ["ra-vest", "vest"],
+    "keywords": ["vest"],
     "categories": []
   },
   {
-    "id": "ra-vial",
+    "id": "vial",
     "name": "Vial",
     "unicode": "eae1",
-    "keywords": ["ra-vial", "vial"],
+    "keywords": ["vial"],
     "categories": []
   },
   {
-    "id": "ra-vine-whip",
+    "id": "vine-whip",
     "name": "Vine Whip",
     "unicode": "eae2",
-    "keywords": ["ra-vine-whip", "vine", "whip", "vine whip"],
+    "keywords": ["vine", "whip", "vine whip", "vine-whip"],
     "categories": []
   },
   {
-    "id": "ra-virgo",
+    "id": "virgo",
     "name": "Virgo",
     "unicode": "eae3",
-    "keywords": ["ra-virgo", "virgo"],
+    "keywords": ["virgo"],
     "categories": []
   },
   {
-    "id": "ra-water-drop",
+    "id": "water-drop",
     "name": "Water Drop",
     "unicode": "eae4",
-    "keywords": ["ra-water-drop", "water", "drop", "water drop"],
+    "keywords": ["water", "drop", "water drop", "water-drop"],
     "categories": []
   },
   {
-    "id": "ra-wifi",
+    "id": "wifi",
     "name": "Wifi",
     "unicode": "eae5",
-    "keywords": ["ra-wifi", "wifi"],
+    "keywords": ["wifi"],
     "categories": []
   },
   {
-    "id": "ra-wireless-signal",
+    "id": "wireless-signal",
     "name": "Wireless Signal",
     "unicode": "eae6",
-    "keywords": ["ra-wireless-signal", "wireless", "signal", "wireless signal"],
+    "keywords": ["wireless", "signal", "wireless signal", "wireless-signal"],
     "categories": []
   },
   {
-    "id": "ra-wolf-head",
+    "id": "wolf-head",
     "name": "Wolf Head",
     "unicode": "eae7",
-    "keywords": ["ra-wolf-head", "wolf", "head", "wolf head"],
+    "keywords": ["wolf", "head", "wolf head", "wolf-head"],
     "categories": []
   },
   {
-    "id": "ra-wolf-howl",
+    "id": "wolf-howl",
     "name": "Wolf Howl",
     "unicode": "eae8",
-    "keywords": ["ra-wolf-howl", "wolf", "howl", "wolf howl"],
+    "keywords": ["wolf", "howl", "wolf howl", "wolf-howl"],
     "categories": []
   },
   {
-    "id": "ra-wooden-sign",
+    "id": "wooden-sign",
     "name": "Wooden Sign",
     "unicode": "eae9",
-    "keywords": ["ra-wooden-sign", "wooden", "sign", "wooden sign"],
+    "keywords": ["wooden", "sign", "wooden sign", "wooden-sign"],
     "categories": []
   },
   {
-    "id": "ra-wrench",
+    "id": "wrench",
     "name": "Wrench",
     "unicode": "eaea",
-    "keywords": ["ra-wrench", "wrench"],
+    "keywords": ["wrench"],
     "categories": []
   },
   {
-    "id": "ra-wyvern",
+    "id": "wyvern",
     "name": "Wyvern",
     "unicode": "eaeb",
-    "keywords": ["ra-wyvern", "wyvern"],
+    "keywords": ["wyvern"],
     "categories": []
   },
   {
-    "id": "ra-x-mark",
+    "id": "x-mark",
     "name": "X Mark",
     "unicode": "eaec",
-    "keywords": ["ra-x-mark", "x", "mark", "x mark"],
+    "keywords": ["x", "mark", "x mark", "x-mark"],
     "categories": []
   },
   {
-    "id": "ra-zebra-shield",
+    "id": "zebra-shield",
     "name": "Zebra Shield",
     "unicode": "eaed",
-    "keywords": ["ra-zebra-shield", "zebra", "shield", "zebra shield"],
+    "keywords": ["zebra", "shield", "zebra shield", "zebra-shield"],
     "categories": []
   },
   {
-    "id": "ra-zigzag-leaf",
+    "id": "zigzag-leaf",
     "name": "Zigzag Leaf",
     "unicode": "eaee",
-    "keywords": ["ra-zigzag-leaf", "zigzag", "leaf", "zigzag leaf"],
+    "keywords": ["zigzag", "leaf", "zigzag leaf", "zigzag-leaf"],
     "categories": []
   }
 ]

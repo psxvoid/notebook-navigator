@@ -85,7 +85,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Icons saved to frontmatter are now always saved in "Iconize" format like LiHome, SiApple, etc. The old setting "Save in Iconize format" was removed.'
         ],
         fixed: [
-            'Fixed an issue where icons saved to frontmatter in "Iconize" format were saved as "icon: LiLucideChartLine" instead of just "icon: LiChartLine". This has been fixed. If you used this setting then please just do a search and replace in your vault for "icon: LiLucide" and replace with "icon: Li" to fix the icon names.'
+            'Fixed an issue where icons saved to frontmatter in "Iconize" format were saved as "icon: LiLucideChartLine" instead of just "icon: LiChartLine". This has been fixed. If you used this setting and want to clean up your notes you can simply search for "icon: LiLucide" in your vault and replace with "icon: Li" to fix the icon names.'
         ]
     },
     {
