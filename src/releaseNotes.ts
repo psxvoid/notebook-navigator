@@ -76,13 +76,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.8.5',
         date: '2025-11-17',
         showOnUpdate: true,
-        new: [
-        ],
+        new: [],
         improved: [],
         changed: [],
-        fixed: [
-            'Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in list pane.'
-        ]
+        fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in list pane.']
     },
     {
         version: '1.8.4',
