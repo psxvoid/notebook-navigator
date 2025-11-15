@@ -1935,8 +1935,9 @@ body {
     color: var(--nn-theme-navitem-icon-color);
 }
 
-.nn-file-name-wrapper[data-multiline='true'] .nn-file-icon {
+.nn-file-name-wrapper[data-multiline='true'] > .nn-file-icon {
     align-self: flex-start;
+    margin-top: max(0px, calc((var(--nn-file-title-line-height) - var(--nn-nav-icon-size)) / 2));
 }
 
 .nn-file-icon svg {
