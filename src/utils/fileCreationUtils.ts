@@ -86,11 +86,16 @@ export async function createFileWithOptions(parent: TFolder, app: App, options: 
         // Generate unique file path
         const baseName = strings.fileSystem.defaultNames.untitled;
         const fileName = generateUniqueFilename(parent.path, baseName, extension, app);
-        const base = parent.path === '/' ? '' : `${parent.path}/`;
-        const path = normalizePath(`${base}${fileName}.${extension}`);
+        let file: TFile;
 
-        // Create the file
-        const file = await app.vault.create(path, content);
+        if (extension === 'md' && content.length === 0) {
+            file = await app.fileManager.createNewMarkdownFile(parent, fileName);
+        } else {
+            const base = parent.path === '/' ? '' : `${parent.path}/`;
+            const suffix = extension ? `.${extension}` : '';
+            const path = normalizePath(`${base}${fileName}${suffix}`);
+            file = await app.vault.create(path, content);
+        }
 
         // Open the file if requested
         if (openFile) {

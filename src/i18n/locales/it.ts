@@ -196,8 +196,8 @@ export const STRINGS_IT = {
             hideTag: 'Nascondi tag'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: 'Aggiungi separatore',
+            removeSeparator: 'Rimuovi separatore'
         }
     },
 
@@ -469,6 +469,9 @@ export const STRINGS_IT = {
         search: 'Cerca',
         toggleDualPane: 'Attiva/disattiva layout pannello doppio',
         selectVaultProfile: 'Cambia profilo del vault',
+        selectVaultProfile1: 'Cambia al profilo del vault 1',
+        selectVaultProfile2: 'Cambia al profilo del vault 2',
+        selectVaultProfile3: 'Cambia al profilo del vault 3',
         deleteFile: 'Elimina file',
         createNewNote: 'Crea nuova nota',
         moveFiles: 'Sposta file',

@@ -196,8 +196,8 @@ export const STRINGS_PT_BR = {
             hideTag: 'Ocultar tag'
         },
         navigation: {
-            addSeparator: 'Add separator',
-            removeSeparator: 'Remove separator'
+            addSeparator: 'Adicionar separador',
+            removeSeparator: 'Remover separador'
         }
     },
 
@@ -469,6 +469,9 @@ export const STRINGS_PT_BR = {
         search: 'Pesquisar',
         toggleDualPane: 'Alternar layout de painel duplo',
         selectVaultProfile: 'Alterar perfil do cofre',
+        selectVaultProfile1: 'Alterar para o perfil do cofre 1',
+        selectVaultProfile2: 'Alterar para o perfil do cofre 2',
+        selectVaultProfile3: 'Alterar para o perfil do cofre 3',
         deleteFile: 'Excluir arquivos',
         createNewNote: 'Criar nova nota',
         moveFiles: 'Mover arquivos',
