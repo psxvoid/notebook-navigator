@@ -583,7 +583,6 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Icon field:** Frontmatter field for file icons. Leave empty to use icons stored in settings.
   - **Color field:** Frontmatter field for file colors. Leave empty to use colors stored in settings.
   - **Save icons and colors to frontmatter:** Automatically write file icons and colors to frontmatter using the configured fields above.
-  - **Save in Iconize format:** Save icons using Iconize format (e.g. `LiHome`, `FasUser`, `SiGithub`) instead of plugin format (e.g. `home`, `fontawesome-solid:user`, `simple-icons:github`).
   - **Migrate icons and colors from settings:** Stored in settings: `{icons}` icons, `{colors}` colors. Provides migration to frontmatter.
   - **Name field:** Frontmatter field to use as the note display name. Leave empty to use the file name.
   - **Created timestamp field:** Frontmatter field name for the created timestamp. Leave empty to only use file system date.

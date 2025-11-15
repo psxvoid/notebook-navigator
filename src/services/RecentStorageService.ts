@@ -20,6 +20,7 @@ import type { NotebookNavigatorSettings } from '../settings/types';
 import type { LocalStorageKeys } from '../types';
 import { DEFAULT_SETTINGS } from '../settings/defaultSettings';
 import { localStorage } from '../utils/localStorage';
+import { normalizeCanonicalIconId } from '../utils/iconizeFormat';
 import { RECENT_ICONS_PER_PROVIDER_LIMIT } from './icons/types';
 
 // Delay before persisting changes to local storage (milliseconds)
@@ -268,14 +269,19 @@ export class RecentStorageService {
                     continue;
                 }
 
+                const normalizedIdentifier = this.normalizeIconIdentifierForProvider(providerId, iconId);
+                if (!normalizedIdentifier) {
+                    continue;
+                }
+
                 // Skip duplicates
-                if (seen.has(iconId)) {
+                if (seen.has(normalizedIdentifier)) {
                     continue;
                 }
 
                 // Add to result
-                seen.add(iconId);
-                providerIcons.push(iconId);
+                seen.add(normalizedIdentifier);
+                providerIcons.push(normalizedIdentifier);
 
                 // Stop when per-provider limit reached
                 if (providerIcons.length >= RECENT_ICONS_PER_PROVIDER_LIMIT) {
@@ -290,6 +296,33 @@ export class RecentStorageService {
         }
 
         return normalized;
+    }
+
+    private normalizeIconIdentifierForProvider(providerId: string, identifier: string): string | null {
+        const trimmedIdentifier = identifier.trim();
+        if (!trimmedIdentifier) {
+            return null;
+        }
+
+        let canonical = trimmedIdentifier;
+        if (!canonical.includes(':') && providerId !== 'lucide') {
+            canonical = `${providerId}:${canonical}`;
+        }
+
+        const normalizedCanonical = normalizeCanonicalIconId(canonical);
+        if (!normalizedCanonical) {
+            return null;
+        }
+
+        const colonIndex = normalizedCanonical.indexOf(':');
+        const normalizedProvider = colonIndex === -1 ? 'lucide' : normalizedCanonical.substring(0, colonIndex);
+        const normalizedIdentifier = colonIndex === -1 ? normalizedCanonical : normalizedCanonical.substring(colonIndex + 1);
+
+        if (!normalizedIdentifier || normalizedProvider !== providerId) {
+            return null;
+        }
+
+        return providerId === 'lucide' ? normalizedIdentifier : `${providerId}:${normalizedIdentifier}`;
     }
 
     // Check if two string arrays are identical

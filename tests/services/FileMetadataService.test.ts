@@ -1,0 +1,100 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { App, CachedMetadata } from 'obsidian';
+import { TFile } from 'obsidian';
+import { FileMetadataService } from '../../src/services/metadata/FileMetadataService';
+import { DEFAULT_SETTINGS } from '../../src/settings/defaultSettings';
+import type { NotebookNavigatorSettings } from '../../src/settings';
+import type { ISettingsProvider } from '../../src/interfaces/ISettingsProvider';
+import { extractMetadataFromCache } from '../../src/utils/metadataExtractor';
+
+const updateFileMetadata = vi.fn();
+
+vi.mock('../../src/storage/fileOperations', () => ({
+    getDBInstance: () => ({
+        updateFileMetadata
+    })
+}));
+
+class TestSettingsProvider implements ISettingsProvider {
+    constructor(public settings: NotebookNavigatorSettings) {}
+
+    saveSettingsAndUpdate = vi.fn().mockResolvedValue(undefined);
+
+    notifySettingsUpdate(): void {}
+
+    getRecentNotes(): string[] {
+        return [];
+    }
+
+    setRecentNotes(): void {}
+
+    getRecentIcons(): Record<string, string[]> {
+        return {};
+    }
+
+    setRecentIcons(): void {}
+}
+
+function createSettings(): NotebookNavigatorSettings {
+    return {
+        ...DEFAULT_SETTINGS,
+        useFrontmatterMetadata: true,
+        saveMetadataToFrontmatter: true,
+        frontmatterIconField: 'icon',
+        fileIcons: {},
+        fileColors: {}
+    };
+}
+
+describe('FileMetadataService frontmatter integration', () => {
+    let app: App;
+    let service: FileMetadataService;
+    let settingsProvider: TestSettingsProvider;
+    let file: TFile;
+    let frontmatter: Record<string, unknown>;
+    const processFrontMatter = vi.fn();
+    const getAbstractFileByPath = vi.fn();
+
+    beforeEach(() => {
+        updateFileMetadata.mockReset();
+        updateFileMetadata.mockResolvedValue(undefined);
+        processFrontMatter.mockReset();
+        getAbstractFileByPath.mockReset();
+
+        const settings = createSettings();
+        settingsProvider = new TestSettingsProvider(settings);
+
+        file = new TFile();
+        file.path = 'Vault/Note.md';
+        file.extension = 'md';
+        frontmatter = {};
+
+        processFrontMatter.mockImplementation((_tfile: TFile, callback: (fm: Record<string, unknown>) => void) => {
+            callback(frontmatter);
+            return Promise.resolve();
+        });
+        getAbstractFileByPath.mockImplementation((path: string) => (path === file.path ? file : null));
+
+        app = {
+            vault: {
+                getAbstractFileByPath
+            },
+            fileManager: {
+                processFrontMatter
+            }
+        } as unknown as App;
+
+        service = new FileMetadataService(app, settingsProvider);
+    });
+
+    it('saves phosphor icons in Iconize format and extracts canonical metadata', async () => {
+        await service.setFileIcon(file.path, 'phosphor:ph-apple-logo');
+
+        expect(processFrontMatter).toHaveBeenCalledTimes(1);
+        expect(frontmatter.icon).toBe('PhAppleLogo');
+        expect(updateFileMetadata).toHaveBeenCalledWith(file.path, { icon: 'phosphor:apple-logo' });
+
+        const metadata = extractMetadataFromCache({ frontmatter: { icon: frontmatter.icon } } as CachedMetadata, settingsProvider.settings);
+        expect(metadata.icon).toBe('phosphor:apple-logo');
+    });
+});

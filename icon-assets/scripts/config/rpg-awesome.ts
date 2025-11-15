@@ -42,7 +42,7 @@ export const rpgAwesome: IconPackConfig = {
         while ((match = idPattern.exec(css)) !== null) {
             const slug = match[1];
             const contentValue = match[2];
-            const id = `ra-${slug}`;
+            const id = slug;
 
             if (seen.has(id)) {
                 continue;

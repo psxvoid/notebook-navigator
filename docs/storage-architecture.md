@@ -414,7 +414,7 @@ When content generation logic changes:
 3. Content regenerated for all files
 4. Gradual population via background processing
 
-Current values: `DB_SCHEMA_VERSION = 1`, `DB_CONTENT_VERSION = 5`.
+Current values: `DB_SCHEMA_VERSION = 1`, `DB_CONTENT_VERSION = 6`.
 
 ### Settings Updates
 

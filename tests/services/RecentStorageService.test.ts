@@ -63,8 +63,34 @@ describe('RecentStorageService', () => {
         service.flushPendingPersists();
 
         expect(localStorage.set).toHaveBeenCalledWith(STORAGE_KEYS.recentIconsKey, {
-            lucide: ['lucide-home']
+            lucide: ['home']
         });
         expect(notifyChange).toHaveBeenCalled();
+    });
+
+    it('normalizes legacy phosphor identifiers when persisting recent icons', () => {
+        const icons = service.getRecentIcons();
+        icons.phosphor = ['phosphor:ph-apple-logo', 'ph-apple-logo', 'phosphor:apple-logo'];
+
+        service.setRecentIcons(icons);
+        service.flushPendingPersists();
+
+        expect(localStorage.set).toHaveBeenCalledWith(STORAGE_KEYS.recentIconsKey, {
+            phosphor: ['phosphor:apple-logo']
+        });
+    });
+
+    it('cleans stored legacy identifiers on hydrate', () => {
+        mockLocalStorageStore.set(STORAGE_KEYS.recentIconsKey, {
+            phosphor: ['phosphor:ph-sword']
+        });
+
+        service.hydrate();
+
+        const icons = service.getRecentIcons();
+        expect(icons.phosphor).toEqual(['phosphor:sword']);
+        expect(localStorage.set).toHaveBeenCalledWith(STORAGE_KEYS.recentIconsKey, {
+            phosphor: ['phosphor:sword']
+        });
     });
 });

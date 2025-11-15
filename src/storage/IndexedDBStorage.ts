@@ -23,7 +23,7 @@ import { MemoryFileCache } from './MemoryFileCache';
 
 const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
-const DB_CONTENT_VERSION = 5.3; // Data format version
+const DB_CONTENT_VERSION = 6.3; // Data format version
 
 /**
  * Sentinel values for metadata date fields

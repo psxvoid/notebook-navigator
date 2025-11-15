@@ -72,8 +72,9 @@ Customize folder and tag appearance, manage pinned files.
 
 ### Runtime Behavior
 
-- **Icon format**: While TypeScript provides compile-time checking via `IconString` type, the API currently accepts any
-  string at runtime. Invalid formats are saved but may not render correctly.
+- **Icon format**: `IconString` accepts emoji literals (`emoji:📁`) and provider-prefixed values for `lucide`,
+  `bootstrap-icons`, `fontawesome-solid`, `material-icons`, `phosphor`, `rpg-awesome`, and `simple-icons`. The runtime
+  still accepts any string, but unsupported providers or malformed IDs will fail to render.
 - **Color values**: Any string is accepted and saved. Invalid CSS colors will not render correctly but won't throw
   errors.
 - **Tag normalization**: The `getTagMeta()` and `setTagMeta()` methods automatically normalize tags:
