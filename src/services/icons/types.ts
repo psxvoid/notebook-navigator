@@ -83,6 +83,10 @@ export interface IconProvider {
      * @returns True if the provider can be used
      */
     isAvailable(): boolean;
+    /**
+     * Optionally reports the provider version displayed to users.
+     */
+    getVersion?(): string | null;
 }
 
 /**

@@ -22,12 +22,14 @@ export abstract class BaseFontIconProvider implements IconProvider {
     private readonly fontFamily: string;
     private fontFace: FontFace | null = null;
     private fontLoadPromise: Promise<FontFace> | null = null;
+    private readonly version: string | null;
 
     protected iconDefinitions: IconDefinition[] = [];
     protected iconLookup: Map<string, IconLookupEntry> = new Map();
 
     constructor(options: BaseFontIconProviderOptions) {
         this.fontFamily = options.fontFamily;
+        this.version = options.record?.version ?? null;
         this.parseMetadata(options.record.metadata);
         this.ensureFontLoaded(options.record.data);
     }
@@ -134,6 +136,14 @@ export abstract class BaseFontIconProvider implements IconProvider {
 
     getAll(): IconDefinition[] {
         return this.iconDefinitions;
+    }
+
+    /**
+     * Returns the provider version from the loaded icon pack metadata
+     * @returns Version string or null if no version available
+     */
+    getVersion(): string | null {
+        return this.version;
     }
 
     protected abstract parseMetadata(raw: string): void;

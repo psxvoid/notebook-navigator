@@ -40,6 +40,14 @@ export class LucideIconProvider implements IconProvider {
     private iconCache: string[] | null = null;
 
     /**
+     * Lucide icons are bundled with Obsidian and have no separate version
+     * @returns Always null for Lucide provider
+     */
+    getVersion(): string | null {
+        return null;
+    }
+
+    /**
      * Checks if the Lucide provider is available.
      * Verifies that Obsidian's icon APIs are accessible.
      */

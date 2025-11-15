@@ -4653,6 +4653,27 @@ body.nn-resizing {
     padding-bottom: 2px;
 }
 
+.nn-icon-provider-link-row {
+    padding: 8px 12px 0 12px;
+    text-align: center;
+}
+
+.nn-icon-provider-link-row-hidden {
+    display: none;
+}
+
+.nn-icon-provider-link-row a {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-accent);
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.nn-icon-provider-link-row a:hover {
+    text-decoration: underline;
+}
+
 .nn-icon-provider-tab {
     padding: 4px 12px;
     border-radius: var(--radius-s);

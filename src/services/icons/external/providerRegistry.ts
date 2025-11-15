@@ -38,6 +38,7 @@ export interface ExternalIconProviderConfig {
     name: string;
     manifestUrl: string;
     fontFamily: string;
+    catalogUrl: string;
 }
 
 export const EXTERNAL_ICON_PROVIDERS: Record<ExternalIconProviderId, ExternalIconProviderConfig> = {
@@ -45,36 +46,42 @@ export const EXTERNAL_ICON_PROVIDERS: Record<ExternalIconProviderId, ExternalIco
         id: 'bootstrap-icons',
         name: 'Bootstrap Icons',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/bootstrap-icons/latest.json',
-        fontFamily: 'NotebookNavigatorBootstrapIcons'
+        fontFamily: 'NotebookNavigatorBootstrapIcons',
+        catalogUrl: 'https://icons.getbootstrap.com/'
     },
     'fontawesome-solid': {
         id: 'fontawesome-solid',
         name: 'Font Awesome',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/fontawesome/latest.json',
-        fontFamily: 'NotebookNavigatorFontAwesomeSolid'
+        fontFamily: 'NotebookNavigatorFontAwesomeSolid',
+        catalogUrl: 'https://fontawesome.com/'
     },
     'material-icons': {
         id: 'material-icons',
         name: 'Material Icons',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/material-icons/latest.json',
-        fontFamily: 'NotebookNavigatorMaterialIcons'
+        fontFamily: 'NotebookNavigatorMaterialIcons',
+        catalogUrl: 'https://fonts.google.com/icons'
     },
     phosphor: {
         id: 'phosphor',
         name: 'Phosphor Icons',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/phosphor/latest.json',
-        fontFamily: 'NotebookNavigatorPhosphorIcons'
+        fontFamily: 'NotebookNavigatorPhosphorIcons',
+        catalogUrl: 'https://phosphoricons.com/'
     },
     'rpg-awesome': {
         id: 'rpg-awesome',
         name: 'RPG Awesome',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/rpg-awesome/latest.json',
-        fontFamily: 'NotebookNavigatorRpgAwesome'
+        fontFamily: 'NotebookNavigatorRpgAwesome',
+        catalogUrl: 'https://nagoshiashumari.github.io/Rpg-Awesome/'
     },
     'simple-icons': {
         id: 'simple-icons',
         name: 'Simple Icons',
         manifestUrl: 'https://raw.githubusercontent.com/johansan/notebook-navigator/main/icon-assets/simple-icons/latest.json',
-        fontFamily: 'NotebookNavigatorSimpleIcons'
+        fontFamily: 'NotebookNavigatorSimpleIcons',
+        catalogUrl: 'https://simpleicons.org/'
     }
 };
