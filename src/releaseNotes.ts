@@ -73,6 +73,15 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.8.5',
+        date: '2025-11-17',
+        showOnUpdate: true,
+        new: [],
+        improved: [],
+        changed: [],
+        fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in list pane.']
+    },
+    {
         version: '1.8.4',
         date: '2025-11-14',
         showOnUpdate: true,
