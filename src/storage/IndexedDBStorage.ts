@@ -20,6 +20,7 @@ import { localStorage } from '../utils/localStorage';
  */
 
 import { MemoryFileCache } from './MemoryFileCache';
+import { contentMigrations } from './migrations';
 
 const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
@@ -251,11 +252,18 @@ export class IndexedDBStorage {
 
         // Clear and rebuild content if either version changed
         if (needsRebuild) {
-            if (contentChanged && !schemaChanged) {
+            if (!schemaChanged) {
+                await this.openDatabase(false)
                 console.log(`Content version changed from ${storedContentVersion} to ${currentContentVersion}. Rebuilding content.`);
             }
-            // Clear all data to force rebuild
-            await this.clear();
+
+            if (!schemaChanged && await contentMigrations.apply(this, Number.parseFloat(storedContentVersion ?? '0.0'), DB_CONTENT_VERSION)) {
+                console.log(`DB content successfully migrated from ${storedContentVersion} to ${currentContentVersion}`)
+            } else {
+                // Clear all data to force rebuild
+                await this.clear();
+                console.log(`DB content was successfully cleared`)
+            }
         }
     }
 

@@ -44,26 +44,30 @@ The theming variables use the `--nn-theme-` prefix and should be defined at the 
 
 #### Folder & tag items
 
-| Variable                                          | Default                                 | Description                                                         |
-| ------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------- |
-| `--nn-theme-navitem-chevron-color`                | `var(--text-muted)`                     | Color for expand/collapse arrows                                    |
-| `--nn-theme-navitem-icon-color`                   | `var(--text-muted)`                     | Icon color for folders and tags                                     |
-| `--nn-theme-navitem-name-color`                   | `var(--text-normal)`                    | Text color for folder and tag names                                 |
-| `--nn-theme-navitem-count-color`                  | `var(--text-muted)`                     | Text color for file count badges                                    |
-| `--nn-theme-navitem-count-bg`                     | `transparent`                           | Background color for file count badges                              |
-| `--nn-theme-navitem-count-border-radius`          | `8px`                                   | Corner radius for file count badges (0-8px)                         |
-| `--nn-theme-navitem-border-radius`                | `4px`                                   | Corner radius for folder and tag items (0-14px)                     |
-| `--nn-theme-navitem-hover-bg`                     | `var(--background-modifier-hover)`      | Item hover background color (desktop only)                          |
-| `--nn-theme-navitem-selected-bg`                  | `var(--text-selection)`                 | Selected item background color                                      |
-| `--nn-theme-navitem-selected-chevron-color`       | `var(--nn-theme-navitem-chevron-color)` | Expand/collapse arrow color when item is selected                   |
-| `--nn-theme-navitem-selected-icon-color`          | `var(--nn-theme-navitem-icon-color)`    | Icon color when item is selected                                    |
-| `--nn-theme-navitem-selected-name-color`          | `var(--nn-theme-navitem-name-color)`    | Folder/tag name color when selected                                 |
-| `--nn-theme-navitem-selected-count-color`         | `var(--nn-theme-navitem-count-color)`   | File count text color when item is selected                         |
-| `--nn-theme-navitem-selected-count-bg`            | `var(--nn-theme-navitem-count-bg)`      | File count background color when selected                           |
-| `--nn-theme-navitem-selected-inactive-bg`         | `var(--background-modifier-hover)`      | Selected item background when pane is inactive (desktop only)       |
-| `--nn-theme-navitem-selected-inactive-name-color` | `var(--nn-theme-navitem-name-color)`    | Folder/tag name color when selected and pane is inactive            |
-| `--nn-theme-tag-positive-bg`                      | `#00800033`                             | Background for positive tag highlights and tag drop targets         |
-| `--nn-theme-tag-negative-bg`                      | `#ff000033`                             | Background for negative tag highlights and the untagged drop target |
+| Variable                                             | Default                                          | Description                                                         |
+| ---------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------- |
+| `--nn-theme-navitem-chevron-color`                   | `var(--text-muted)`                              | Color for expand/collapse arrows                                    |
+| `--nn-theme-navitem-icon-color`                      | `var(--text-muted)`                              | Icon color for folders and tags                                     |
+| `--nn-theme-navitem-name-color`                      | `var(--text-normal)`                             | Text color for folder and tag names                                 |
+| `--nn-theme-navitem-count-color`                     | `var(--text-muted)`                              | Text color for file count badges                                    |
+| `--nn-theme-navitem-count-bg`                        | `transparent`                                    | Background color for file count badges                              |
+| `--nn-theme-navitem-count-border-radius`             | `8px`                                            | Corner radius for file count badges (0-8px)                         |
+| `--nn-theme-navitem-border-radius`                   | `4px`                                            | Corner radius for folder and tag items (0-14px)                     |
+| `--nn-theme-navitem-hover-bg`                        | `var(--background-modifier-hover)`               | Item hover background color (desktop only)                          |
+| `--nn-theme-navitem-selected-bg`                     | `var(--text-selection)`                          | Selected item background color                                      |
+| `--nn-theme-navitem-selected-chevron-color`          | `var(--nn-theme-navitem-chevron-color)`          | Expand/collapse arrow color when item is selected                   |
+| `--nn-theme-navitem-selected-icon-color`             | `var(--nn-theme-navitem-icon-color)`             | Icon color when item is selected                                    |
+| `--nn-theme-navitem-selected-name-color`             | `var(--nn-theme-navitem-name-color)`             | Folder/tag name color when selected                                 |
+| `--nn-theme-navitem-selected-count-color`            | `var(--nn-theme-navitem-count-color)`            | File count text color when item is selected                         |
+| `--nn-theme-navitem-selected-count-bg`               | `var(--nn-theme-navitem-count-bg)`               | File count background color when selected                           |
+| `--nn-theme-navitem-selected-inactive-bg`            | `var(--background-modifier-hover)`               | Selected item background when pane is inactive (desktop only)       |
+| `--nn-theme-navitem-selected-inactive-name-color`    | `var(--nn-theme-navitem-name-color)`             | Folder/tag name color when selected and pane is inactive            |
+| `--nn-theme-navitem-selected-inactive-chevron-color` | `var(--nn-theme-navitem-selected-chevron-color)` | Expand/collapse arrow color when selected and pane is inactive      |
+| `--nn-theme-navitem-selected-inactive-icon-color`    | `var(--nn-theme-navitem-selected-icon-color)`    | Icon color when selected and pane is inactive                       |
+| `--nn-theme-navitem-selected-inactive-count-color`   | `var(--nn-theme-navitem-selected-count-color)`   | File count text color when selected and pane is inactive            |
+| `--nn-theme-navitem-selected-inactive-count-bg`      | `var(--nn-theme-navitem-selected-count-bg)`      | File count background color when selected and pane is inactive      |
+| `--nn-theme-tag-positive-bg`                         | `#00800033`                                      | Background for positive tag highlights and tag drop targets         |
+| `--nn-theme-tag-negative-bg`                         | `#ff000033`                                      | Background for negative tag highlights and the untagged drop target |
 
 #### Text styling
 
@@ -102,27 +106,32 @@ Priority order: folder note styles override custom color styles, which override 
 
 #### File items
 
-| Variable                                       | Default                                    | Description                                                   |
-| ---------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------- |
-| `--nn-theme-file-name-color`                   | `var(--text-normal)`                       | Text color for file names                                     |
-| `--nn-theme-file-preview-color`                | `var(--text-muted)`                        | Text color for content preview                                |
-| `--nn-theme-file-feature-border-radius`        | `4px`                                      | Corner radius for feature images (0-32px)                     |
-| `--nn-theme-file-date-color`                   | `var(--text-normal)`                       | Text color for creation or modification dates                 |
-| `--nn-theme-file-parent-color`                 | `var(--text-muted)`                        | Text color for parent folder path (when showing subfolders)   |
-| `--nn-theme-file-tag-color`                    | `var(--text-muted)`                        | Text color for tag pills                                      |
-| `--nn-theme-file-tag-custom-color-text-color`  | `white`                                    | Text color for tags with custom colors                        |
-| `--nn-theme-file-tag-bg`                       | `var(--background-modifier-border)`        | Background color for tag pills                                |
-| `--nn-theme-file-tag-border-radius`            | `10px`                                     | Corner radius for tag pills (0-10px)                          |
-| `--nn-theme-file-border-radius`                | `8px`                                      | Corner radius for file items (0-16px)                         |
-| `--nn-theme-file-selected-bg`                  | `var(--text-selection)`                    | Selected file background color                                |
-| `--nn-theme-file-selected-name-color`          | `var(--nn-theme-file-name-color)`          | Text color for file names when selected                       |
-| `--nn-theme-file-selected-preview-color`       | `var(--nn-theme-file-preview-color)`       | Text color for content preview when selected                  |
-| `--nn-theme-file-selected-date-color`          | `var(--nn-theme-file-date-color)`          | Text color for file dates when selected                       |
-| `--nn-theme-file-selected-parent-color`        | `var(--nn-theme-file-parent-color)`        | Text color for parent folder path when selected               |
-| `--nn-theme-file-selected-tag-color`           | `var(--nn-theme-file-tag-color)`           | Text color for tag pills when selected                        |
-| `--nn-theme-file-selected-tag-bg`              | `var(--nn-theme-file-tag-bg)`              | Background color for tag pills when selected                  |
-| `--nn-theme-file-selected-inactive-bg`         | `var(--background-modifier-hover)`         | Selected file background when pane is inactive (desktop only) |
-| `--nn-theme-file-selected-inactive-name-color` | `var(--nn-theme-file-selected-name-color)` | File name color when selected and pane is inactive            |
+| Variable                                          | Default                                       | Description                                                   |
+| ------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------- |
+| `--nn-theme-file-name-color`                      | `var(--text-normal)`                          | Text color for file names                                     |
+| `--nn-theme-file-preview-color`                   | `var(--text-muted)`                           | Text color for content preview                                |
+| `--nn-theme-file-feature-border-radius`           | `4px`                                         | Corner radius for feature images (0-32px)                     |
+| `--nn-theme-file-date-color`                      | `var(--text-normal)`                          | Text color for creation or modification dates                 |
+| `--nn-theme-file-parent-color`                    | `var(--text-muted)`                           | Text color for parent folder path (when showing subfolders)   |
+| `--nn-theme-file-tag-color`                       | `var(--text-muted)`                           | Text color for tag pills                                      |
+| `--nn-theme-file-tag-custom-color-text-color`     | `white`                                       | Text color for tags with custom colors                        |
+| `--nn-theme-file-tag-bg`                          | `var(--background-modifier-border)`           | Background color for tag pills                                |
+| `--nn-theme-file-tag-border-radius`               | `10px`                                        | Corner radius for tag pills (0-10px)                          |
+| `--nn-theme-file-border-radius`                   | `8px`                                         | Corner radius for file items (0-16px)                         |
+| `--nn-theme-file-selected-bg`                     | `var(--text-selection)`                       | Selected file background color                                |
+| `--nn-theme-file-selected-name-color`             | `var(--nn-theme-file-name-color)`             | Text color for file names when selected                       |
+| `--nn-theme-file-selected-preview-color`          | `var(--nn-theme-file-preview-color)`          | Text color for content preview when selected                  |
+| `--nn-theme-file-selected-date-color`             | `var(--nn-theme-file-date-color)`             | Text color for file dates when selected                       |
+| `--nn-theme-file-selected-parent-color`           | `var(--nn-theme-file-parent-color)`           | Text color for parent folder path when selected               |
+| `--nn-theme-file-selected-tag-color`              | `var(--nn-theme-file-tag-color)`              | Text color for tag pills when selected                        |
+| `--nn-theme-file-selected-tag-bg`                 | `var(--nn-theme-file-tag-bg)`                 | Background color for tag pills when selected                  |
+| `--nn-theme-file-selected-inactive-bg`            | `var(--background-modifier-hover)`            | Selected file background when pane is inactive (desktop only) |
+| `--nn-theme-file-selected-inactive-name-color`    | `var(--nn-theme-file-selected-name-color)`    | File name color when selected and pane is inactive            |
+| `--nn-theme-file-selected-inactive-preview-color` | `var(--nn-theme-file-selected-preview-color)` | Content preview color when selected and pane is inactive      |
+| `--nn-theme-file-selected-inactive-date-color`    | `var(--nn-theme-file-selected-date-color)`    | File date color when selected and pane is inactive            |
+| `--nn-theme-file-selected-inactive-parent-color`  | `var(--nn-theme-file-selected-parent-color)`  | Parent folder color when selected and pane is inactive        |
+| `--nn-theme-file-selected-inactive-tag-color`     | `var(--nn-theme-file-selected-tag-color)`     | Tag text color when selected and pane is inactive             |
+| `--nn-theme-file-selected-inactive-tag-bg`        | `var(--nn-theme-file-selected-tag-bg)`        | Tag background color when selected and pane is inactive       |
 
 #### Text styling
 
@@ -213,6 +222,11 @@ body {
   --nn-theme-navitem-selected-count-color: #e6e6e6; /* Light gray - selected item count text */
   --nn-theme-navitem-selected-count-bg: rgba(0, 0, 0, 0.2); /* Subtle dark overlay - selected count bg */
   --nn-theme-navitem-selected-inactive-bg: #464c55; /* Dark gray - inactive selected background */
+  --nn-theme-navitem-selected-inactive-name-color: #cfd3da; /* Muted cool gray - inactive selected text */
+  --nn-theme-navitem-selected-inactive-chevron-color: #9da2ab; /* Dimmed arrow when pane is inactive */
+  --nn-theme-navitem-selected-inactive-icon-color: #b9bec6; /* Dimmed icon when pane is inactive */
+  --nn-theme-navitem-selected-inactive-count-color: #b9bec6; /* Dimmed count text when pane is inactive */
+  --nn-theme-navitem-selected-inactive-count-bg: rgba(0, 0, 0, 0.25); /* Slightly darker count bg when inactive */
 
   /* Pinned shortcuts */
   --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.2); /* Shadow gradient below pinned shortcuts */
@@ -257,13 +271,19 @@ body {
   --nn-theme-file-tag-border-radius: 3px; /* Subtle rounded tag pills */
   --nn-theme-file-tag-custom-color-text-color: #ffffff; /* White - text for custom colored tags */
   --nn-theme-file-selected-bg: #4a78c8; /* Blue accent - selected file background */
-  --nn-theme-file-selected-inactive-bg: #383c45; /* Dark gray - inactive selected file background */
   --nn-theme-file-selected-name-color: #ffffff; /* White - selected file names */
   --nn-theme-file-selected-preview-color: #c5c5c5; /* Light gray - selected preview text */
   --nn-theme-file-selected-date-color: #a5dc86; /* Bright green - selected file dates */
   --nn-theme-file-selected-parent-color: #ffd580; /* Bright orange - selected parent folder */
   --nn-theme-file-selected-tag-color: #ffffff; /* White - selected tag text */
   --nn-theme-file-selected-tag-bg: #5a5f66; /* Medium gray - selected tag background */
+  --nn-theme-file-selected-inactive-bg: #383c45; /* Dark gray - inactive selected file background */
+  --nn-theme-file-selected-inactive-name-color: #dfe3e8; /* Muted gray - inactive selected file name */
+  --nn-theme-file-selected-inactive-preview-color: #b9bec6; /* Dimmed gray - inactive preview text */
+  --nn-theme-file-selected-inactive-date-color: #8fb275; /* Muted green - inactive file dates */
+  --nn-theme-file-selected-inactive-parent-color: #e3b173; /* Muted amber - inactive parent folder text */
+  --nn-theme-file-selected-inactive-tag-color: #dfe3e8; /* Muted gray - inactive tag text */
+  --nn-theme-file-selected-inactive-tag-bg: #4c5058; /* Dark gray - inactive tag background */
 
   /* File text styling */
   --nn-theme-list-heading-font-weight: 600; /* Bold for list overlay heading */
@@ -370,6 +390,5 @@ theme through inline styles.
 
 ## Style Settings Support
 
-Notebook Navigator fully supports the Style Settings plugin. When users install Style Settings, they can customize all
-documented variables through a UI. `--nn-theme-pinned-shortcut-shadow-color` is not yet exposed and must be changed
-through custom CSS.
+Notebook Navigator fully supports the Style Settings plugin. All documented variables, including inactive selection
+colors for both panes, are configurable through the Style Settings UI.

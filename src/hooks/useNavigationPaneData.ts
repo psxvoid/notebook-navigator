@@ -73,7 +73,7 @@ import type { NoteCountInfo } from '../types/noteCounts';
 import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
 import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { sanitizeNavigationSectionOrder } from '../utils/navigationSections';
-import { getVirtualTagCollection, VIRTUAL_TAG_COLLECTION_IDS } from '../utils/virtualTagCollections';
+import { getVirtualTagCollection, isVirtualTagCollectionId, VIRTUAL_TAG_COLLECTION_IDS } from '../utils/virtualTagCollections';
 import {
     buildFolderSeparatorKey,
     buildSectionSeparatorKey,
@@ -837,8 +837,13 @@ export function useNavigationPaneData({
                 }
 
                 const tagNode = findTagNode(tagTree, canonicalPath);
-                const displayPath = tagNode?.displayPath ?? resolvedPath;
-                const isMissing = !tagNode;
+                let displayPath = tagNode?.displayPath ?? resolvedPath;
+                let isMissing = !tagNode;
+
+                if (isVirtualTagCollectionId(canonicalPath)) {
+                    displayPath = getVirtualTagCollection(canonicalPath).getLabel();
+                    isMissing = false;
+                }
 
                 items.push({
                     type: NavigationPaneItemType.SHORTCUT_TAG,

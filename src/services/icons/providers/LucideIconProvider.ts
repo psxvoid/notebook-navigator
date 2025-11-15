@@ -50,9 +50,9 @@ export class LucideIconProvider implements IconProvider {
     /**
      * Renders a Lucide icon into the specified container.
      *
-     * All callers pass canonical identifiers. The provider re-applies the
-     * "lucide-" prefix right before calling Obsidian's renderer so that
-     * the rest of the codebase stays prefix-agnostic.
+     * All callers pass canonical identifiers. Obsidian accepts these values
+     * directly (no prefix required), so we simply forward the normalized ID
+     * to keep the rest of the codebase prefix-agnostic.
      *
      * @param container - The HTML element to render the icon into
      * @param iconId - The Lucide icon identifier (e.g., 'folder', 'file-text')
@@ -61,8 +61,7 @@ export class LucideIconProvider implements IconProvider {
     render(container: HTMLElement, iconId: string, size?: number): void {
         container.empty();
         const canonicalId = this.normalizeIconId(iconId);
-        const externalId = this.formatExternalIconId(canonicalId);
-        setIcon(container, externalId);
+        setIcon(container, canonicalId);
 
         if (size) {
             // Using inline styles here because size is dynamic and passed as parameter
@@ -286,23 +285,6 @@ export class LucideIconProvider implements IconProvider {
         }
 
         return trimmed.startsWith(LUCIDE_PREFIX) ? trimmed.substring(LUCIDE_PREFIX.length) : trimmed;
-    }
-
-    /**
-     * Converts a canonical identifier back into the prefixed format required
-     * by Obsidian's setIcon() API. Call this only when rendering.
-     */
-    private formatExternalIconId(iconId: string): string {
-        if (!iconId) {
-            return iconId;
-        }
-
-        const trimmed = iconId.trim();
-        if (!trimmed) {
-            return trimmed;
-        }
-
-        return trimmed.startsWith(LUCIDE_PREFIX) ? trimmed : `${LUCIDE_PREFIX}${trimmed}`;
     }
 
     /**

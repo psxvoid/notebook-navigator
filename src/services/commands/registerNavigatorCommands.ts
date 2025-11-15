@@ -58,6 +58,30 @@ async function ensureNavigatorOpen(
 }
 
 /**
+ * Returns the profile ID at the specified zero-based index, or null if it doesn't exist
+ */
+function getVaultProfileIdAtIndex(plugin: NotebookNavigatorPlugin, index: number): string | null {
+    const profiles = Array.isArray(plugin.settings.vaultProfiles) ? plugin.settings.vaultProfiles : [];
+    if (index < 0 || index >= profiles.length) {
+        return null;
+    }
+    const profile = profiles[index];
+    return profile?.id ?? null;
+}
+
+/**
+ * Opens the modal that lists all vault profiles for manual selection
+ */
+function openVaultProfilePicker(plugin: NotebookNavigatorPlugin): void {
+    const modal = new SelectVaultProfileModal(plugin.app, {
+        profiles: plugin.settings.vaultProfiles ?? [],
+        activeProfileId: plugin.settings.vaultProfile,
+        onSelect: profileId => plugin.setVaultProfile(profileId)
+    });
+    modal.open();
+}
+
+/**
  * Registers all navigator commands with the plugin
  */
 export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugin): void {
@@ -178,14 +202,28 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         id: 'select-profile',
         name: strings.commands.selectVaultProfile,
         callback: () => {
-            const modal = new SelectVaultProfileModal(plugin.app, {
-                profiles: plugin.settings.vaultProfiles ?? [],
-                activeProfileId: plugin.settings.vaultProfile,
-                onSelect: profileId => plugin.setVaultProfile(profileId)
-            });
-            modal.open();
+            openVaultProfilePicker(plugin);
         }
     });
+
+    const registerQuickProfileCommand = (commandId: string, commandName: string, profileIndex: number): void => {
+        plugin.addCommand({
+            id: commandId,
+            name: commandName,
+            callback: () => {
+                const profileId = getVaultProfileIdAtIndex(plugin, profileIndex);
+                if (!profileId) {
+                    openVaultProfilePicker(plugin);
+                    return;
+                }
+                runAsyncAction(() => plugin.setVaultProfile(profileId));
+            }
+        });
+    };
+
+    registerQuickProfileCommand('select-profile-1', strings.commands.selectVaultProfile1, 0);
+    registerQuickProfileCommand('select-profile-2', strings.commands.selectVaultProfile2, 1);
+    registerQuickProfileCommand('select-profile-3', strings.commands.selectVaultProfile3, 2);
 
     // Command to collapse or expand all folders in the navigation pane
     plugin.addCommand({
