@@ -26,14 +26,11 @@ import { MetadataService } from '../../services/MetadataService';
 import { FileSystemOperations } from '../../services/FileSystemService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
 import { NotebookNavigatorSettings } from '../../settings';
-import { TagSuggestModal } from '../../modals/TagSuggestModal';
-import { RemoveTagModal } from '../../modals/RemoveTagModal';
-import { ConfirmModal } from '../../modals/ConfirmModal';
 import { CommandQueueService } from '../../services/CommandQueueService';
-import { runAsyncAction } from '../async';
 import { setAsyncOnClick } from './menuAsyncHelpers';
 import { openFileInContext } from '../openFileInContext';
 import { showNotice } from '../noticeUtils';
+import { confirmRemoveAllTagsFromFiles, openAddTagToFilesModal, removeTagFromFilesWithPrompt } from '../tagModalHelpers';
 
 /**
  * Builds the context menu for a file
@@ -129,25 +126,13 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
         // Add tag - shown when every selected file supports frontmatter
         menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.file.addTag).setIcon('lucide-plus'), async () => {
-                const modal = new TagSuggestModal(
+            setAsyncOnClick(item.setTitle(strings.contextMenu.file.addTag).setIcon('lucide-tag'), () => {
+                openAddTagToFilesModal({
                     app,
-                    services.plugin,
-                    (tag: string) => {
-                        runAsyncAction(async () => {
-                            const result = await services.tagOperations.addTagToFiles(tag, filesForTagOps);
-                            const message =
-                                result.added === 1
-                                    ? strings.fileSystem.notifications.tagAddedToNote
-                                    : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', result.added.toString());
-                            showNotice(message, { variant: 'success' });
-                        });
-                    },
-                    strings.modals.tagSuggest.addPlaceholder,
-                    strings.modals.tagSuggest.instructions.add,
-                    false // Don't include untagged
-                );
-                modal.open();
+                    plugin: services.plugin,
+                    tagOperations: services.tagOperations,
+                    files: filesForTagOps
+                });
             });
         });
 
@@ -155,70 +140,23 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         if (hasTags) {
             menu.addItem((item: MenuItem) => {
                 setAsyncOnClick(item.setTitle(strings.contextMenu.file.removeTag).setIcon('lucide-minus'), async () => {
-                    const tagsToRemove = services.tagOperations.getTagsFromFiles(filesForTagOps);
-
-                    if (tagsToRemove.length === 0) {
-                        showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
-                        return;
-                    }
-
-                    // If only one tag exists, remove it directly without showing modal
-                    if (tagsToRemove.length === 1) {
-                        const result = await services.tagOperations.removeTagFromFiles(tagsToRemove[0], filesForTagOps);
-                        const message =
-                            result === 1
-                                ? strings.fileSystem.notifications.tagRemovedFromNote
-                                : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                        showNotice(message, { variant: 'success' });
-                        return;
-                    }
-
-                    // Create modal to select which tag to remove
-                    const modal = new RemoveTagModal(app, tagsToRemove, (tag: string) => {
-                        runAsyncAction(async () => {
-                            const result = await services.tagOperations.removeTagFromFiles(tag, filesForTagOps);
-                            const message =
-                                result === 1
-                                    ? strings.fileSystem.notifications.tagRemovedFromNote
-                                    : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                            showNotice(message, { variant: 'success' });
-                        });
+                    await removeTagFromFilesWithPrompt({
+                        app,
+                        tagOperations: services.tagOperations,
+                        files: filesForTagOps
                     });
-                    modal.open();
                 });
             });
 
             // Remove all tags - only show if files have multiple tags
             if (hasMultipleTags) {
                 menu.addItem((item: MenuItem) => {
-                    setAsyncOnClick(item.setTitle(strings.contextMenu.file.removeAllTags).setIcon('lucide-x'), async () => {
-                        const tagsToRemove = services.tagOperations.getTagsFromFiles(filesForTagOps);
-
-                        if (tagsToRemove.length === 0) {
-                            showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
-                            return;
-                        }
-
-                        // Show confirmation dialog
-                        const confirmModal = new ConfirmModal(
+                    setAsyncOnClick(item.setTitle(strings.contextMenu.file.removeAllTags).setIcon('lucide-x'), () => {
+                        confirmRemoveAllTagsFromFiles({
                             app,
-                            strings.modals.fileSystem.removeAllTagsTitle,
-                            filesForTagOps.length === 1
-                                ? strings.modals.fileSystem.removeAllTagsFromNote
-                                : strings.modals.fileSystem.removeAllTagsFromNotes.replace('{count}', filesForTagOps.length.toString()),
-                            () => {
-                                runAsyncAction(async () => {
-                                    const result = await services.tagOperations.clearAllTagsFromFiles(filesForTagOps);
-                                    const message =
-                                        result === 1
-                                            ? strings.fileSystem.notifications.tagsClearedFromNote
-                                            : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
-                                    showNotice(message, { variant: 'success' });
-                                });
-                            },
-                            strings.common.remove
-                        );
-                        confirmModal.open();
+                            tagOperations: services.tagOperations,
+                            files: filesForTagOps
+                        });
                     });
                 });
             }

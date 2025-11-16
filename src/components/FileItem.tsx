@@ -70,6 +70,7 @@ import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
 import { areStringArraysEqual } from '../utils/arrayUtils';
+import { openAddTagToFilesModal } from '../utils/tagModalHelpers';
 
 const FEATURE_IMAGE_MAX_ASPECT_RATIO = 16 / 9;
 
@@ -259,7 +260,7 @@ export const FileItem = React.memo(function FileItem({
     isHidden = false
 }: FileItemProps) {
     // === Hooks (all hooks together at the top) ===
-    const { app, isMobile, plugin, commandQueue } = useServices();
+    const { app, isMobile, plugin, commandQueue, tagOperations } = useServices();
     const settings = useSettingsState();
     const uxPreferences = useUXPreferences();
     const includeDescendantNotes = uxPreferences.includeDescendantNotes;
@@ -327,6 +328,7 @@ export const FileItem = React.memo(function FileItem({
     // === Refs ===
     const fileRef = useRef<HTMLDivElement>(null);
     const revealInFolderIconRef = useRef<HTMLDivElement>(null);
+    const addTagIconRef = useRef<HTMLDivElement>(null);
     const addShortcutIconRef = useRef<HTMLDivElement>(null);
     const pinNoteIconRef = useRef<HTMLDivElement>(null);
     const openInNewTabIconRef = useRef<HTMLDivElement>(null);
@@ -345,9 +347,12 @@ export const FileItem = React.memo(function FileItem({
     const shouldShowPinNote = settings.showQuickActions && settings.quickActionPinNote;
     const shouldShowRevealIcon =
         settings.showQuickActions && settings.quickActionRevealInFolder && file.parent && file.parent.path !== parentFolder;
+    const canAddTagsToFile = file.extension === 'md';
+    const shouldShowAddTagAction = settings.showQuickActions && settings.quickActionAddTag && canAddTagsToFile && Boolean(tagOperations);
     const hasShortcut = hasNoteShortcut(file.path);
     const shouldShowShortcutAction = settings.showQuickActions && settings.quickActionAddToShortcuts;
-    const hasQuickActions = shouldShowOpenInNewTab || shouldShowPinNote || shouldShowRevealIcon || shouldShowShortcutAction;
+    const hasQuickActions =
+        shouldShowOpenInNewTab || shouldShowPinNote || shouldShowRevealIcon || shouldShowAddTagAction || shouldShowShortcutAction;
     const iconServiceVersion = useIconServiceVersion();
 
     // Get display name from RAM cache (handles frontmatter title)
@@ -986,6 +991,22 @@ export const FileItem = React.memo(function FileItem({
         });
     };
 
+    const handleAddTagClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (!tagOperations) {
+            return;
+        }
+
+        openAddTagToFilesModal({
+            app,
+            plugin,
+            tagOperations,
+            files: [file]
+        });
+    };
+
     // Handle middle mouse button click to open in new tab
     const handleMouseDown = (e: React.MouseEvent) => {
         if (e.button !== 1) {
@@ -1007,6 +1028,20 @@ export const FileItem = React.memo(function FileItem({
                     className="nn-quick-action-item"
                     onClick={handleRevealClick}
                     title={strings.contextMenu.file.revealInFolder}
+                />
+            )
+        });
+    }
+
+    if (shouldShowAddTagAction) {
+        quickActionItems.push({
+            key: 'add-tag',
+            element: (
+                <div
+                    ref={addTagIconRef}
+                    className="nn-quick-action-item"
+                    onClick={handleAddTagClick}
+                    title={strings.contextMenu.file.addTag}
                 />
             )
         });
@@ -1120,6 +1155,9 @@ export const FileItem = React.memo(function FileItem({
             if (revealInFolderIconRef.current && shouldShowRevealIcon) {
                 setIcon(revealInFolderIconRef.current, 'lucide-folder-search');
             }
+            if (addTagIconRef.current && shouldShowAddTagAction) {
+                setIcon(addTagIconRef.current, 'lucide-tag');
+            }
             if (addShortcutIconRef.current && shouldShowShortcutAction) {
                 setIcon(addShortcutIconRef.current, hasShortcut ? 'lucide-bookmark-x' : 'lucide-bookmark');
             }
@@ -1136,6 +1174,7 @@ export const FileItem = React.memo(function FileItem({
         shouldShowOpenInNewTab,
         shouldShowPinNote,
         shouldShowRevealIcon,
+        shouldShowAddTagAction,
         shouldShowShortcutAction,
         hasShortcut,
         isPinned

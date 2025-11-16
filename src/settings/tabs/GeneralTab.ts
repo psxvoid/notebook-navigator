@@ -884,7 +884,7 @@ interface ToolbarButtonGroupProps<T extends string> {
 function createToolbarButtonGroup<T extends string>({ containerEl, label, buttons, state, onToggle }: ToolbarButtonGroupProps<T>): void {
     const groupEl = containerEl.createDiv({ cls: 'nn-toolbar-visibility-group' });
     groupEl.createDiv({ cls: 'nn-toolbar-visibility-group-label', text: label });
-    const gridEl = groupEl.createDiv({ cls: 'nn-toolbar-visibility-grid' });
+    const gridEl = groupEl.createDiv({ cls: ['nn-toolbar-visibility-grid', 'nn-toolbar-visibility-grid-scroll'] });
 
     buttons.forEach(button => {
         const buttonEl = gridEl.createEl('button', {

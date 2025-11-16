@@ -23,7 +23,12 @@ import type { ListNoteGroupingOption, ListPaneTitleOption, SortOption } from '..
 import type { SettingsTabContext } from './SettingsTabContext';
 import { runAsyncAction } from '../../utils/async';
 
-type QuickActionSettingKey = 'quickActionRevealInFolder' | 'quickActionAddToShortcuts' | 'quickActionPinNote' | 'quickActionOpenInNewTab';
+type QuickActionSettingKey =
+    | 'quickActionRevealInFolder'
+    | 'quickActionAddTag'
+    | 'quickActionAddToShortcuts'
+    | 'quickActionPinNote'
+    | 'quickActionOpenInNewTab';
 
 interface QuickActionToggleConfig {
     key: QuickActionSettingKey;
@@ -93,6 +98,11 @@ export function renderListPaneTab(context: SettingsTabContext): void {
                 key: 'quickActionRevealInFolder',
                 icon: 'lucide-folder-search',
                 label: strings.contextMenu.file.revealInFolder
+            },
+            {
+                key: 'quickActionAddTag',
+                icon: 'lucide-tag',
+                label: strings.contextMenu.file.addTag
             },
             {
                 key: 'quickActionAddToShortcuts',

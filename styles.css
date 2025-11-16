@@ -3474,6 +3474,12 @@ body.nn-resizing {
     gap: 0;
 }
 
+.nn-quick-actions-buttons,
+.nn-toolbar-visibility-grid-scroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
 .nn-quick-actions-buttons.is-disabled {
     opacity: 0.4;
     pointer-events: none;
