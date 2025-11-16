@@ -396,7 +396,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Create new note` Create note in currently selected folder. **Suggestion:** Bind `Cmd/Ctrl+N` to this command (unbind from Obsidian's default "Create new note" first)
 - `Notebook Navigator: Move files` Move selected files to another folder. Selects next file in current folder
 - `Notebook Navigator: Convert to folder note` Create a folder matching the file name and move the file inside as the folder note
-- `Notebook Navigator: Pin all folder notes` Add all folder notes to shortcuts. Only available when folder notes are enabled
+- `Notebook Navigator: Pin all folder notes` Add all folder notes to shortcuts. Command only visible when folder notes are enabled and at least one unpinned folder note exists
 - `Notebook Navigator: Delete files` Delete selected files. Selects next file in current folder
 
 **Tag operations**
@@ -411,35 +411,35 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Command IDs
 
-| Command ID                                  | Command name                                                   |
-| ------------------------------------------- | -------------------------------------------------------------- |
-| `notebook-navigator:open`                   | Notebook Navigator: Open                                       |
-| `notebook-navigator:open-homepage`          | Notebook Navigator: Open homepage                              |
-| `notebook-navigator:select-profile`         | Notebook Navigator: Select vault profile                       |
-| `notebook-navigator:select-profile-1`       | Notebook Navigator: Select vault profile 1                     |
-| `notebook-navigator:select-profile-2`       | Notebook Navigator: Select vault profile 2                     |
-| `notebook-navigator:select-profile-3`       | Notebook Navigator: Select vault profile 3                     |
-| `notebook-navigator:reveal-file`            | Notebook Navigator: Reveal file                                |
-| `notebook-navigator:navigate-to-folder`     | Notebook Navigator: Navigate to folder                         |
-| `notebook-navigator:navigate-to-tag`        | Notebook Navigator: Navigate to tag                            |
-| `notebook-navigator:add-shortcut`           | Notebook Navigator: Add to shortcuts                           |
-| `notebook-navigator:search`                 | Notebook Navigator: Search                                     |
-| `notebook-navigator:toggle-dual-pane`       | Notebook Navigator: Toggle dual pane layout                    |
-| `notebook-navigator:toggle-descendants`     | Notebook Navigator: Toggle descendants                         |
-| `notebook-navigator:toggle-hidden`          | Notebook Navigator: Toggle hidden items (folders, tags, notes) |
-| `notebook-navigator:toggle-tag-sort`        | Notebook Navigator: Toggle tag sort                            |
-| `notebook-navigator:collapse-expand`        | Notebook Navigator: Collapse / expand all items                |
-| `notebook-navigator:new-note`               | Notebook Navigator: Create new note                            |
-| `notebook-navigator:move-files`             | Notebook Navigator: Move files                                 |
-| `notebook-navigator:select-next-file`       | Notebook Navigator: Select next file                           |
-| `notebook-navigator:select-previous-file`   | Notebook Navigator: Select previous file                       |
-| `notebook-navigator:convert-to-folder-note` | Notebook Navigator: Convert to folder note                     |
-| `notebook-navigator:pin-all-folder-notes`   | Notebook Navigator: Pin all folder notes                       |
-| `notebook-navigator:delete-files`           | Notebook Navigator: Delete files                               |
-| `notebook-navigator:add-tag`                | Notebook Navigator: Add tag to selected files                  |
-| `notebook-navigator:remove-tag`             | Notebook Navigator: Remove tag from selected files             |
-| `notebook-navigator:remove-all-tags`        | Notebook Navigator: Remove all tags from selected files        |
-| `notebook-navigator:rebuild-cache`          | Notebook Navigator: Rebuild cache                              |
+| Command ID                                  | Command name                                                                                         |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `notebook-navigator:open`                   | Notebook Navigator: Open                                                                             |
+| `notebook-navigator:open-homepage`          | Notebook Navigator: Open homepage                                                                    |
+| `notebook-navigator:select-profile`         | Notebook Navigator: Select vault profile                                                             |
+| `notebook-navigator:select-profile-1`       | Notebook Navigator: Select vault profile 1                                                           |
+| `notebook-navigator:select-profile-2`       | Notebook Navigator: Select vault profile 2                                                           |
+| `notebook-navigator:select-profile-3`       | Notebook Navigator: Select vault profile 3                                                           |
+| `notebook-navigator:reveal-file`            | Notebook Navigator: Reveal file                                                                      |
+| `notebook-navigator:navigate-to-folder`     | Notebook Navigator: Navigate to folder                                                               |
+| `notebook-navigator:navigate-to-tag`        | Notebook Navigator: Navigate to tag                                                                  |
+| `notebook-navigator:add-shortcut`           | Notebook Navigator: Add to shortcuts                                                                 |
+| `notebook-navigator:search`                 | Notebook Navigator: Search                                                                           |
+| `notebook-navigator:toggle-dual-pane`       | Notebook Navigator: Toggle dual pane layout                                                          |
+| `notebook-navigator:toggle-descendants`     | Notebook Navigator: Toggle descendants                                                               |
+| `notebook-navigator:toggle-hidden`          | Notebook Navigator: Toggle hidden items (folders, tags, notes)                                       |
+| `notebook-navigator:toggle-tag-sort`        | Notebook Navigator: Toggle tag sort                                                                  |
+| `notebook-navigator:collapse-expand`        | Notebook Navigator: Collapse / expand all items                                                      |
+| `notebook-navigator:new-note`               | Notebook Navigator: Create new note                                                                  |
+| `notebook-navigator:move-files`             | Notebook Navigator: Move files                                                                       |
+| `notebook-navigator:select-next-file`       | Notebook Navigator: Select next file                                                                 |
+| `notebook-navigator:select-previous-file`   | Notebook Navigator: Select previous file                                                             |
+| `notebook-navigator:convert-to-folder-note` | Notebook Navigator: Convert to folder note                                                           |
+| `notebook-navigator:pin-all-folder-notes`   | Notebook Navigator: Pin all folder notes (requires folder notes enabled and an unpinned folder note) |
+| `notebook-navigator:delete-files`           | Notebook Navigator: Delete files                                                                     |
+| `notebook-navigator:add-tag`                | Notebook Navigator: Add tag to selected files                                                        |
+| `notebook-navigator:remove-tag`             | Notebook Navigator: Remove tag from selected files                                                   |
+| `notebook-navigator:remove-all-tags`        | Notebook Navigator: Remove all tags from selected files                                              |
+| `notebook-navigator:rebuild-cache`          | Notebook Navigator: Rebuild cache                                                                    |
 
 <br>
 

@@ -78,8 +78,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [],
         improved: ['In the color picker, choosing a preset or recent color no longer closes the color picker.'],
-        changed: [],
-        fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in list pane.']
+        changed: ['Improved the menu structure for files and folders, things are now grouped more logically.'],
+        fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.']
     },
     {
         version: '1.8.4',

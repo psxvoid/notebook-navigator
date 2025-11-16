@@ -116,75 +116,12 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         menu.addSeparator();
     }
 
-    // Pin/Unpin note(s)
-    const pinContext: NavigatorContext = selectionState.selectionType === ItemType.TAG ? 'tag' : 'folder';
-    if (!shouldShowMultiOptions) {
-        addSingleFilePinOption(menu, file, metadataService, pinContext);
-    } else {
-        addMultipleFilesPinOption(menu, selectedCount, selectionState, app, metadataService, pinContext);
-    }
-
-    // Duplicate note(s)
-    if (!shouldShowMultiOptions) {
-        addSingleFileDuplicateOption(menu, file, fileSystemOps);
-    } else {
-        addMultipleFilesDuplicateOption(menu, selectedCount, selectionState, app, fileSystemOps);
-    }
-
-    // Move note(s) to folder
-    if (!shouldShowMultiOptions) {
-        menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.file.moveToFolder).setIcon('lucide-folder-input'), async () => {
-                await fileSystemOps.moveFilesWithModal([file], {
-                    selectedFile: selectionState.selectedFile,
-                    dispatch: selectionDispatch,
-                    allFiles: cachedFileList
-                });
-            });
-        });
-    } else {
-        menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(
-                item
-                    .setTitle(strings.contextMenu.file.moveMultipleToFolder.replace('{count}', selectedCount.toString()))
-                    .setIcon('lucide-folder-input'),
-                async () => {
-                    await fileSystemOps.moveFilesWithModal(cachedSelectedFiles, {
-                        selectedFile: selectionState.selectedFile,
-                        dispatch: selectionDispatch,
-                        allFiles: cachedFileList
-                    });
-                }
-            );
-        });
-    }
-
-    // Add to shortcuts / Remove from shortcuts
-    if (!shouldShowMultiOptions && services.shortcuts) {
-        const { noteShortcutKeysByPath, addNoteShortcut, removeShortcut } = services.shortcuts;
-        const existingShortcutKey = noteShortcutKeysByPath.get(file.path);
-
-        menu.addItem((item: MenuItem) => {
-            if (existingShortcutKey) {
-                setAsyncOnClick(item.setTitle(strings.shortcuts.remove).setIcon('lucide-bookmark-x'), async () => {
-                    await removeShortcut(existingShortcutKey);
-                });
-            } else {
-                setAsyncOnClick(item.setTitle(strings.shortcuts.add).setIcon('lucide-bookmark'), async () => {
-                    await addNoteShortcut(file.path);
-                });
-            }
-        });
-    }
-
     const filesForTagOps = shouldShowMultiOptions ? cachedSelectedFiles : [file];
     // Only show tag operations if all files are markdown (tags only work with markdown)
     const canManageTags = filesForTagOps.length > 0 && filesForTagOps.every(f => f.extension === 'md');
 
     if (canManageTags) {
         // Tag operations
-        menu.addSeparator();
-
         // Check if files have tags
         const existingTags = services.tagOperations.getTagsFromFiles(filesForTagOps);
         const hasTags = existingTags.length > 0;
@@ -286,25 +223,84 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 });
             }
         }
+
+        menu.addSeparator();
+    }
+
+    // Add to shortcuts / Remove from shortcuts and Pin/Unpin - single selection only
+    if (!shouldShowMultiOptions) {
+        if (services.shortcuts) {
+            const { noteShortcutKeysByPath, addNoteShortcut, removeShortcut } = services.shortcuts;
+            const existingShortcutKey = noteShortcutKeysByPath.get(file.path);
+
+            menu.addItem((item: MenuItem) => {
+                if (existingShortcutKey) {
+                    setAsyncOnClick(item.setTitle(strings.shortcuts.remove).setIcon('lucide-bookmark-x'), async () => {
+                        await removeShortcut(existingShortcutKey);
+                    });
+                } else {
+                    setAsyncOnClick(item.setTitle(strings.shortcuts.add).setIcon('lucide-bookmark'), async () => {
+                        await addNoteShortcut(file.path);
+                    });
+                }
+            });
+        }
+
+        const pinContext: NavigatorContext = selectionState.selectionType === ItemType.TAG ? 'tag' : 'folder';
+        addSingleFilePinOption(menu, file, metadataService, pinContext);
+
+        menu.addSeparator();
+    }
+
+    // Pin/Unpin for multiple files
+    if (shouldShowMultiOptions) {
+        const pinContext: NavigatorContext = selectionState.selectionType === ItemType.TAG ? 'tag' : 'folder';
+        addMultipleFilesPinOption(menu, selectedCount, selectionState, app, metadataService, pinContext);
+
+        menu.addSeparator();
+
+        // Move, Duplicate, Delete - grouped together
+        // Move note(s) to folder
+        menu.addItem((item: MenuItem) => {
+            setAsyncOnClick(
+                item
+                    .setTitle(strings.contextMenu.file.moveMultipleToFolder.replace('{count}', selectedCount.toString()))
+                    .setIcon('lucide-folder-input'),
+                async () => {
+                    await fileSystemOps.moveFilesWithModal(cachedSelectedFiles, {
+                        selectedFile: selectionState.selectedFile,
+                        dispatch: selectionDispatch,
+                        allFiles: cachedFileList
+                    });
+                }
+            );
+        });
+
+        // Duplicate note(s)
+        addMultipleFilesDuplicateOption(menu, selectedCount, selectionState, app, fileSystemOps);
+
+        // Delete note(s)
+        addMultipleFilesDeleteOption(
+            menu,
+            selectedCount,
+            selectionState,
+            settings,
+            fileSystemOps,
+            selectionDispatch,
+            cachedFileList,
+            cachedSelectedFiles
+        );
     }
 
     // Copy actions - single selection only
     if (!shouldShowMultiOptions) {
         const adapter = app.vault.adapter;
 
-        menu.addSeparator();
-
-        // Copy Obsidian URL
+        // Copy relative path
         menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.file.copyDeepLink).setIcon('lucide-link'), async () => {
-                const vaultName = app.vault.getName();
-                const encodedVault = encodeURIComponent(vaultName);
-                const encodedFile = encodeURIComponent(file.path);
-                // Construct Obsidian URL with encoded vault and file path
-                const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
-
-                await navigator.clipboard.writeText(deepLink);
-                showNotice(strings.fileSystem.notifications.deepLinkCopied, { variant: 'success' });
+            setAsyncOnClick(item.setTitle(strings.contextMenu.file.copyRelativePath).setIcon('lucide-clipboard-list'), async () => {
+                await navigator.clipboard.writeText(file.path);
+                showNotice(strings.fileSystem.notifications.relativePathCopied, { variant: 'success' });
             });
         });
 
@@ -320,26 +316,21 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
             });
         }
 
-        // Copy relative path
+        // Copy Obsidian URL
         menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.file.copyRelativePath).setIcon('lucide-clipboard-list'), async () => {
-                await navigator.clipboard.writeText(file.path);
-                showNotice(strings.fileSystem.notifications.relativePathCopied, { variant: 'success' });
+            setAsyncOnClick(item.setTitle(strings.contextMenu.file.copyDeepLink).setIcon('lucide-link'), async () => {
+                const vaultName = app.vault.getName();
+                const encodedVault = encodeURIComponent(vaultName);
+                const encodedFile = encodeURIComponent(file.path);
+                // Construct Obsidian URL with encoded vault and file path
+                const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
+
+                await navigator.clipboard.writeText(deepLink);
+                showNotice(strings.fileSystem.notifications.deepLinkCopied, { variant: 'success' });
             });
         });
-    }
 
-    // Open version history (if Sync is enabled) - single selection only
-    if (!shouldShowMultiOptions) {
-        const syncPlugin = getInternalPlugin(app, 'sync');
-        if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
-            menu.addSeparator();
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.file.openVersionHistory).setIcon('lucide-history'), async () => {
-                    await fileSystemOps.openVersionHistory(file);
-                });
-            });
-        }
+        menu.addSeparator();
     }
 
     // Reveal options - single selection only
@@ -351,10 +342,6 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         const canRevealInFolder = !isFileInSelectedFolder;
         // System explorer reveal is desktop-only
         const canRevealInSystemExplorer = !isMobile;
-
-        if (canRevealInFolder || canRevealInSystemExplorer) {
-            menu.addSeparator();
-        }
 
         if (canRevealInFolder) {
             menu.addItem((item: MenuItem) => {
@@ -377,12 +364,25 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 );
             });
         }
+
+        if (canRevealInFolder || canRevealInSystemExplorer) {
+            menu.addSeparator();
+        }
     }
 
-    menu.addSeparator();
-
-    // Rename note - single selection only
+    // Open version history, Rename, Move, Duplicate, Delete - single selection only
     if (!shouldShowMultiOptions) {
+        // Open version history (if Sync is enabled)
+        const syncPlugin = getInternalPlugin(app, 'sync');
+        if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
+            menu.addItem((item: MenuItem) => {
+                setAsyncOnClick(item.setTitle(strings.contextMenu.file.openVersionHistory).setIcon('lucide-history'), async () => {
+                    await fileSystemOps.openVersionHistory(file);
+                });
+            });
+        }
+
+        // Rename note
         menu.addItem((item: MenuItem) => {
             setAsyncOnClick(
                 item
@@ -393,22 +393,23 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 }
             );
         });
-    }
 
-    // Delete note(s)
-    if (!shouldShowMultiOptions) {
+        // Move to folder
+        menu.addItem((item: MenuItem) => {
+            setAsyncOnClick(item.setTitle(strings.contextMenu.file.moveToFolder).setIcon('lucide-folder-input'), async () => {
+                await fileSystemOps.moveFilesWithModal([file], {
+                    selectedFile: selectionState.selectedFile,
+                    dispatch: selectionDispatch,
+                    allFiles: cachedFileList
+                });
+            });
+        });
+
+        // Duplicate note
+        addSingleFileDuplicateOption(menu, file, fileSystemOps);
+
+        // Delete note
         addSingleFileDeleteOption(menu, file, selectionState, settings, fileSystemOps, selectionDispatch);
-    } else {
-        addMultipleFilesDeleteOption(
-            menu,
-            selectedCount,
-            selectionState,
-            settings,
-            fileSystemOps,
-            selectionDispatch,
-            cachedFileList,
-            cachedSelectedFiles
-        );
     }
 }
 

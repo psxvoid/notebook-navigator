@@ -146,133 +146,9 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     menu.addSeparator();
 
-    // Duplicate folder
-    menu.addItem((item: MenuItem) => {
-        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.duplicateFolder).setIcon('lucide-copy'), async () => {
-            await fileSystemOps.duplicateFolder(folder);
-        });
-    });
-
-    // Search in folder
-    menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.searchInFolder)
-            .setIcon('lucide-search')
-            .onClick(() => {
-                interface SearchPlugin {
-                    enabled: boolean;
-                    instance?: {
-                        openGlobalSearch(query: string): void;
-                    };
-                }
-                const searchPlugin = getInternalPlugin<SearchPlugin>(app, 'global-search');
-                if (searchPlugin?.instance) {
-                    searchPlugin.instance.openGlobalSearch(`path:"${folder.path}"`);
-                }
-            });
-    });
-
-    // Reveal in system explorer - desktop only
-    if (!services.isMobile) {
-        menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(
-                item
-                    .setTitle(fileSystemOps.getRevealInSystemExplorerText())
-                    .setIcon(Platform.isMacOS ? 'lucide-app-window-mac' : 'lucide-app-window'),
-                async () => {
-                    await fileSystemOps.revealInSystemExplorer(folder);
-                }
-            );
-        });
-    }
-
-    // Add to shortcuts / Remove from shortcuts
-    if (services.shortcuts) {
-        const { folderShortcutKeysByPath, addFolderShortcut, removeShortcut } = services.shortcuts;
-        const existingShortcutKey = folderShortcutKeysByPath.get(folder.path);
-
-        menu.addItem((item: MenuItem) => {
-            if (existingShortcutKey) {
-                setAsyncOnClick(item.setTitle(strings.shortcuts.remove).setIcon('lucide-bookmark-x'), async () => {
-                    await removeShortcut(existingShortcutKey);
-                });
-            } else {
-                setAsyncOnClick(item.setTitle(strings.shortcuts.add).setIcon('lucide-bookmark'), async () => {
-                    await addFolderShortcut(folder.path);
-                });
-            }
-        });
-    }
-
-    // Copy actions
-    menu.addSeparator();
-
-    const adapter = app.vault.adapter;
-
-    if (adapter instanceof FileSystemAdapter) {
-        menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.folder.copyPath).setIcon('lucide-clipboard'), async () => {
-                const absolutePath = adapter.getFullPath(folder.path);
-                await navigator.clipboard.writeText(absolutePath);
-                showNotice(strings.fileSystem.notifications.pathCopied, { variant: 'success' });
-            });
-        });
-    }
-
-    menu.addItem((item: MenuItem) => {
-        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.copyRelativePath).setIcon('lucide-clipboard-list'), async () => {
-            await navigator.clipboard.writeText(folder.path);
-            showNotice(strings.fileSystem.notifications.relativePathCopied, { variant: 'success' });
-        });
-    });
-
-    // Folder note operations
-    if (settings.enableFolderNotes) {
-        menu.addSeparator();
-
-        const folderNote = getFolderNote(folder, settings);
-
-        if (folderNote) {
-            // Delete folder note option
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.deleteFolderNote).setIcon('lucide-trash'), async () => {
-                    await fileSystemOps.deleteFile(folderNote, settings.confirmBeforeDelete);
-                });
-            });
-        } else {
-            // Create folder note option
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.createFolderNote).setIcon('lucide-pen-box'), async () => {
-                    const createdNote = await createFolderNote(
-                        app,
-                        folder,
-                        {
-                            folderNoteType: settings.folderNoteType,
-                            folderNoteName: settings.folderNoteName,
-                            folderNoteProperties: settings.folderNoteProperties
-                        },
-                        services.commandQueue
-                    );
-                    if (createdNote && settings.pinCreatedFolderNote) {
-                        try {
-                            if (!metadataService.isFilePinned(createdNote.path, 'folder')) {
-                                await metadataService.togglePin(createdNote.path, 'folder');
-                            }
-                        } catch (error: unknown) {
-                            console.error('Failed to pin created folder note', {
-                                path: createdNote.path,
-                                error
-                            });
-                        }
-                    }
-                });
-            });
-        }
-    }
-
+    // Customization options: icon, color, background, separator
     // Only show icon options if folder icons are enabled
     if (settings.showFolderIcons) {
-        menu.addSeparator();
-
         // Change icon
         menu.addItem((item: MenuItem) => {
             setAsyncOnClick(item.setTitle(strings.contextMenu.folder.changeIcon).setIcon('lucide-image'), async () => {
@@ -319,6 +195,126 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     }
 
     menu.addSeparator();
+
+    // Add to shortcuts / Remove from shortcuts
+    if (services.shortcuts) {
+        const { folderShortcutKeysByPath, addFolderShortcut, removeShortcut } = services.shortcuts;
+        const existingShortcutKey = folderShortcutKeysByPath.get(folder.path);
+
+        menu.addItem((item: MenuItem) => {
+            if (existingShortcutKey) {
+                setAsyncOnClick(item.setTitle(strings.shortcuts.remove).setIcon('lucide-bookmark-x'), async () => {
+                    await removeShortcut(existingShortcutKey);
+                });
+            } else {
+                setAsyncOnClick(item.setTitle(strings.shortcuts.add).setIcon('lucide-bookmark'), async () => {
+                    await addFolderShortcut(folder.path);
+                });
+            }
+        });
+    }
+
+    // Folder note operations
+    if (settings.enableFolderNotes) {
+        const folderNote = getFolderNote(folder, settings);
+
+        if (folderNote) {
+            // Delete folder note option
+            menu.addItem((item: MenuItem) => {
+                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.deleteFolderNote).setIcon('lucide-trash'), async () => {
+                    await fileSystemOps.deleteFile(folderNote, settings.confirmBeforeDelete);
+                });
+            });
+        } else {
+            // Create folder note option
+            menu.addItem((item: MenuItem) => {
+                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.createFolderNote).setIcon('lucide-pen-box'), async () => {
+                    const createdNote = await createFolderNote(
+                        app,
+                        folder,
+                        {
+                            folderNoteType: settings.folderNoteType,
+                            folderNoteName: settings.folderNoteName,
+                            folderNoteProperties: settings.folderNoteProperties
+                        },
+                        services.commandQueue
+                    );
+                    if (createdNote && settings.pinCreatedFolderNote) {
+                        try {
+                            if (!metadataService.isFilePinned(createdNote.path, 'folder')) {
+                                await metadataService.togglePin(createdNote.path, 'folder');
+                            }
+                        } catch (error: unknown) {
+                            console.error('Failed to pin created folder note', {
+                                path: createdNote.path,
+                                error
+                            });
+                        }
+                    }
+                });
+            });
+        }
+    }
+
+    menu.addSeparator();
+
+    // Search in folder
+    menu.addItem((item: MenuItem) => {
+        item.setTitle(strings.contextMenu.folder.searchInFolder)
+            .setIcon('lucide-search')
+            .onClick(() => {
+                interface SearchPlugin {
+                    enabled: boolean;
+                    instance?: {
+                        openGlobalSearch(query: string): void;
+                    };
+                }
+                const searchPlugin = getInternalPlugin<SearchPlugin>(app, 'global-search');
+                if (searchPlugin?.instance) {
+                    searchPlugin.instance.openGlobalSearch(`path:"${folder.path}"`);
+                }
+            });
+    });
+
+    menu.addSeparator();
+
+    // Copy actions
+    const adapter = app.vault.adapter;
+
+    menu.addItem((item: MenuItem) => {
+        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.copyRelativePath).setIcon('lucide-clipboard-list'), async () => {
+            await navigator.clipboard.writeText(folder.path);
+            showNotice(strings.fileSystem.notifications.relativePathCopied, { variant: 'success' });
+        });
+    });
+
+    if (adapter instanceof FileSystemAdapter) {
+        menu.addItem((item: MenuItem) => {
+            setAsyncOnClick(item.setTitle(strings.contextMenu.folder.copyPath).setIcon('lucide-clipboard'), async () => {
+                const absolutePath = adapter.getFullPath(folder.path);
+                await navigator.clipboard.writeText(absolutePath);
+                showNotice(strings.fileSystem.notifications.pathCopied, { variant: 'success' });
+            });
+        });
+    }
+
+    menu.addSeparator();
+
+    // Reveal in system explorer - desktop only
+    if (!services.isMobile) {
+        menu.addItem((item: MenuItem) => {
+            setAsyncOnClick(
+                item
+                    .setTitle(fileSystemOps.getRevealInSystemExplorerText())
+                    .setIcon(Platform.isMacOS ? 'lucide-app-window-mac' : 'lucide-app-window'),
+                async () => {
+                    await fileSystemOps.revealInSystemExplorer(folder);
+                }
+            );
+        });
+
+        menu.addSeparator();
+    }
 
     // Hide/Unhide folder (not available for root folder)
     if (folder.path !== '/') {
@@ -457,6 +453,13 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             });
         });
     }
+
+    // Duplicate folder
+    menu.addItem((item: MenuItem) => {
+        setAsyncOnClick(item.setTitle(strings.contextMenu.folder.duplicateFolder).setIcon('lucide-copy'), async () => {
+            await fileSystemOps.duplicateFolder(folder);
+        });
+    });
 
     // Delete folder (not available for vault root)
     if (folder.path !== '/') {
