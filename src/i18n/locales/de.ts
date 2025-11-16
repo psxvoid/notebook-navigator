@@ -611,7 +611,7 @@ export const STRINGS_DE = {
             },
             limitPinnedToCurrentFolder: {
                 name: 'Angeheftete Notizen auf ihren Ordner beschränken',
-                desc: 'Angeheftete Notizen erscheinen nur beim Anzeigen des Ordners oder Tags, in dem sie angeheftet wurden'
+                desc: 'Angeheftete Notizen erscheinen nur beim Anzeigen des Ordners oder Tags, in dem sie angeheftet wurden.'
             },
             separateNoteCounts: {
                 name: 'Aktuelle und Nachkommen-Anzahl getrennt anzeigen',

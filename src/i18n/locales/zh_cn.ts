@@ -607,7 +607,7 @@ export const STRINGS_ZH_CN = {
             },
             limitPinnedToCurrentFolder: {
                 name: '将固定笔记限制在其文件夹',
-                desc: '固定笔记仅在查看其固定的文件夹或标签时显示'
+                desc: '固定笔记仅在查看其固定的文件夹或标签时显示。'
             },
             separateNoteCounts: {
                 name: '分别显示当前和后代计数',

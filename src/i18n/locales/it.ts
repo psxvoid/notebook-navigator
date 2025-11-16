@@ -609,7 +609,7 @@ export const STRINGS_IT = {
             },
             limitPinnedToCurrentFolder: {
                 name: 'Limita note fissate alla loro cartella',
-                desc: 'Le note fissate appaiono solo quando si visualizza la cartella o il tag in cui sono state fissate'
+                desc: 'Le note fissate appaiono solo quando si visualizza la cartella o il tag in cui sono state fissate.'
             },
             separateNoteCounts: {
                 name: 'Mostra conteggi attuali e discendenti separatamente',

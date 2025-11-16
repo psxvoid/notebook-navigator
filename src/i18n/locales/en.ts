@@ -607,7 +607,7 @@ export const STRINGS_EN = {
             },
             limitPinnedToCurrentFolder: {
                 name: 'Limit pinned notes to their folder',
-                desc: 'Pinned notes appear only when viewing the folder or tag where they were pinned'
+                desc: 'Pinned notes appear only when viewing the folder or tag where they were pinned.'
             },
             separateNoteCounts: {
                 name: 'Show current and descendant counts separately',

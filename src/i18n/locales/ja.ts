@@ -608,7 +608,7 @@ export const STRINGS_JA = {
             },
             limitPinnedToCurrentFolder: {
                 name: 'ピン留めノートをそのフォルダに制限',
-                desc: 'ピン留めノートは、ピン留めされたフォルダまたはタグを表示している時のみ表示されます'
+                desc: 'ピン留めノートは、ピン留めされたフォルダまたはタグを表示している時のみ表示されます。'
             },
             separateNoteCounts: {
                 name: '現在と子孫のカウントを個別に表示',

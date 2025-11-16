@@ -609,7 +609,7 @@ export const STRINGS_PT_BR = {
             },
             limitPinnedToCurrentFolder: {
                 name: 'Limitar notas fixadas à sua pasta',
-                desc: 'Notas fixadas aparecem apenas ao visualizar a pasta ou tag onde foram fixadas'
+                desc: 'Notas fixadas aparecem apenas ao visualizar a pasta ou tag onde foram fixadas.'
             },
             separateNoteCounts: {
                 name: 'Mostrar contagens atuais e descendentes separadamente',

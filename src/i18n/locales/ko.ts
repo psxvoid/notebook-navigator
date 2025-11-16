@@ -607,7 +607,7 @@ export const STRINGS_KO = {
             },
             limitPinnedToCurrentFolder: {
                 name: '고정된 노트를 해당 폴더로 제한',
-                desc: '고정된 노트는 고정된 폴더나 태그를 볼 때만 표시됩니다'
+                desc: '고정된 노트는 고정된 폴더나 태그를 볼 때만 표시됩니다.'
             },
             separateNoteCounts: {
                 name: '현재와 하위 항목 수를 별도로 표시',

@@ -609,7 +609,7 @@ export const STRINGS_PL = {
             },
             limitPinnedToCurrentFolder: {
                 name: 'Ogranicz przypięte notatki do ich folderu',
-                desc: 'Przypięte notatki pojawiają się tylko podczas przeglądania folderu lub tagu, w którym zostały przypięte'
+                desc: 'Przypięte notatki pojawiają się tylko podczas przeglądania folderu lub tagu, w którym zostały przypięte.'
             },
             separateNoteCounts: {
                 name: 'Pokaż bieżące i potomne liczniki osobno',

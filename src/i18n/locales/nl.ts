@@ -609,7 +609,7 @@ export const STRINGS_NL = {
             },
             limitPinnedToCurrentFolder: {
                 name: 'Vastgepinde notities beperken tot hun map',
-                desc: 'Vastgepinde notities verschijnen alleen bij het bekijken van de map of tag waar ze zijn vastgepind'
+                desc: 'Vastgepinde notities verschijnen alleen bij het bekijken van de map of tag waar ze zijn vastgepind.'
             },
             separateNoteCounts: {
                 name: 'Huidige en afstammeling-tellingen apart tonen',

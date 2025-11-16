@@ -609,7 +609,7 @@ export const STRINGS_FR = {
             },
             limitPinnedToCurrentFolder: {
                 name: 'Limiter les notes épinglées à leur dossier',
-                desc: "Les notes épinglées apparaissent uniquement lors de la visualisation du dossier ou de l'étiquette où elles ont été épinglées"
+                desc: "Les notes épinglées apparaissent uniquement lors de la visualisation du dossier ou de l'étiquette où elles ont été épinglées."
             },
             separateNoteCounts: {
                 name: 'Afficher les comptes actuels et descendants séparément',

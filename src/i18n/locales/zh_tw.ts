@@ -606,7 +606,7 @@ export const STRINGS_ZH_TW = {
             },
             limitPinnedToCurrentFolder: {
                 name: '將固定筆記限制在其資料夾',
-                desc: '固定筆記僅在查看其固定的資料夾或標籤時顯示'
+                desc: '固定筆記僅在查看其固定的資料夾或標籤時顯示。'
             },
             separateNoteCounts: {
                 name: '分別顯示當前和後代計數',

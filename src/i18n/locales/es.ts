@@ -608,7 +608,7 @@ export const STRINGS_ES = {
             },
             limitPinnedToCurrentFolder: {
                 name: 'Limitar notas fijadas a su carpeta',
-                desc: 'Las notas fijadas aparecen solo al ver la carpeta o etiqueta donde fueron fijadas'
+                desc: 'Las notas fijadas aparecen solo al ver la carpeta o etiqueta donde fueron fijadas.'
             },
             separateNoteCounts: {
                 name: 'Mostrar conteos actuales y descendientes por separado',
