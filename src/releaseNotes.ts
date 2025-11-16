@@ -80,7 +80,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Two new quick actions: **Add tag** and **Add to shortcuts**. ==Important!== If you do not want to show all five quick actions you can easily disable quick links in Settings > List pane > Show quick actions.',
             'New setting: Settings > Notes > Show parent folder > ==Click parent folder to reveal file==. You can now click the parent folder name to reveal a file.'
         ],
-        improved: ['In the color picker, choosing a preset or recent color no longer closes the color picker.'],
+        improved: [
+            'In the color picker, choosing a preset or recent color no longer closes the color picker.',
+            'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.'
+        ],
         changed: ['Improved the menu structure for files and folders, things are now grouped more logically.'],
         fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.']
     },
