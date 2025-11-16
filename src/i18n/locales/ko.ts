@@ -540,6 +540,7 @@ export const STRINGS_KO = {
             },
             list: {
                 display: '모양',
+                pinnedNotes: '고정된 노트',
                 quickActions: '빠른 작업'
             },
             notes: {
@@ -605,8 +606,8 @@ export const STRINGS_KO = {
                 desc: '폴더나 태그를 볼 때 중첩된 하위 폴더와 태그 하위 항목의 노트를 포함합니다.'
             },
             limitPinnedToCurrentFolder: {
-                name: '상위 폴더에서만 고정된 노트 표시',
-                desc: '고정된 노트는 해당 폴더를 볼 때만 표시됩니다'
+                name: '고정된 노트를 해당 폴더로 제한',
+                desc: '고정된 노트는 고정된 폴더나 태그를 볼 때만 표시됩니다'
             },
             separateNoteCounts: {
                 name: '현재와 하위 항목 수를 별도로 표시',
@@ -652,19 +653,7 @@ export const STRINGS_KO = {
             },
             showQuickActions: {
                 name: '빠른 작업 표시 (데스크톱 전용)',
-                desc: '파일 항목에 호버 작업을 표시합니다.'
-            },
-            quickActionsRevealInFolder: {
-                name: '폴더에서 표시',
-                desc: '빠른 작업: 노트를 상위 폴더에서 표시합니다. 하위 폴더나 태그에서 노트를 볼 때만 표시됩니다 (노트의 실제 폴더에서는 표시되지 않음).'
-            },
-            quickActionsPinNote: {
-                name: '노트 고정',
-                desc: '빠른 작업: 목록 상단에 노트를 고정하거나 고정 해제합니다.'
-            },
-            quickActionsOpenInNewTab: {
-                name: '새 탭에서 열기',
-                desc: '빠른 작업: 새 탭에서 노트를 엽니다.'
+                desc: '파일 위에 마우스를 올리면 작업 버튼을 표시합니다. 버튼 컨트롤로 표시할 작업을 선택합니다.'
             },
             dualPane: {
                 name: '이중 창 레이아웃 (동기화되지 않음)',

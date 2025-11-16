@@ -542,6 +542,7 @@ export const STRINGS_PT_BR = {
             },
             list: {
                 display: 'Aparência',
+                pinnedNotes: 'Notas fixadas',
                 quickActions: 'Ações rápidas'
             },
             notes: {
@@ -607,8 +608,8 @@ export const STRINGS_PT_BR = {
                 desc: 'Incluir notas de subpastas aninhadas e descendentes de tags ao visualizar uma pasta ou tag.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Mostrar notas fixadas apenas na pasta pai',
-                desc: 'Notas fixadas aparecem apenas ao visualizar sua pasta'
+                name: 'Limitar notas fixadas à sua pasta',
+                desc: 'Notas fixadas aparecem apenas ao visualizar a pasta ou tag onde foram fixadas'
             },
             separateNoteCounts: {
                 name: 'Mostrar contagens atuais e descendentes separadamente',
@@ -654,19 +655,7 @@ export const STRINGS_PT_BR = {
             },
             showQuickActions: {
                 name: 'Mostrar ações rápidas (apenas desktop)',
-                desc: 'Mostrar ações de passar o mouse em itens de arquivo.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Revelar na pasta',
-                desc: 'Ação rápida: Revelar nota em sua pasta pai. Visível apenas ao visualizar notas de subpastas ou em tags (não mostrado na pasta real da nota).'
-            },
-            quickActionsPinNote: {
-                name: 'Fixar nota',
-                desc: 'Ação rápida: Fixar ou desafixar nota no topo da lista.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Abrir em nova aba',
-                desc: 'Ação rápida: Abrir nota em nova aba.'
+                desc: 'Mostrar botões de ação ao passar sobre arquivos. Controles de botão selecionam quais ações aparecem.'
             },
             dualPane: {
                 name: 'Layout de painel duplo (não sincronizado)',

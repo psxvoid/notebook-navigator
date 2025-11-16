@@ -540,6 +540,7 @@ export const STRINGS_ZH_TW = {
             },
             list: {
                 display: '外觀',
+                pinnedNotes: '釘選筆記',
                 quickActions: '快速操作'
             },
             notes: {
@@ -604,8 +605,8 @@ export const STRINGS_ZH_TW = {
                 desc: '檢視資料夾或標籤時，包含巢狀子資料夾和標籤後代的筆記。'
             },
             limitPinnedToCurrentFolder: {
-                name: '僅在父資料夾中顯示固定筆記',
-                desc: '固定筆記僅在查看其資料夾時顯示'
+                name: '將固定筆記限制在其資料夾',
+                desc: '固定筆記僅在查看其固定的資料夾或標籤時顯示'
             },
             separateNoteCounts: {
                 name: '分別顯示當前和後代計數',
@@ -651,19 +652,7 @@ export const STRINGS_ZH_TW = {
             },
             showQuickActions: {
                 name: '顯示快速操作 (僅限桌面版)',
-                desc: '在檔案項目上顯示懸停操作。'
-            },
-            quickActionsRevealInFolder: {
-                name: '在資料夾中顯示',
-                desc: '快速操作：在其父資料夾中顯示筆記。僅在檢視子資料夾或標籤中的筆記時可見 (在筆記的實際資料夾中不顯示)。'
-            },
-            quickActionsPinNote: {
-                name: '釘選筆記',
-                desc: '快速操作：在清單頂部釘選或取消釘選筆記。'
-            },
-            quickActionsOpenInNewTab: {
-                name: '在新分頁中開啟',
-                desc: '快速操作：在新分頁中開啟筆記。'
+                desc: '懸停在檔案上時顯示操作按鈕。按鈕控制項選擇顯示哪些操作。'
             },
             dualPane: {
                 name: '雙窗格佈局 (不同步)',

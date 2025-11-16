@@ -3468,6 +3468,21 @@ body.nn-resizing {
     gap: var(--size-2-3);
 }
 
+.nn-quick-actions-control {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.nn-quick-actions-buttons.is-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.nn-quick-actions-master-toggle {
+    margin-inline-start: auto;
+}
+
 .nn-toolbar-visibility-toggle {
     position: relative;
     padding: 0;

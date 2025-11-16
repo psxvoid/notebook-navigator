@@ -541,6 +541,7 @@ export const STRINGS_ZH_CN = {
             },
             list: {
                 display: '外观',
+                pinnedNotes: '固定笔记',
                 quickActions: '快捷操作'
             },
             notes: {
@@ -605,8 +606,8 @@ export const STRINGS_ZH_CN = {
                 desc: '在查看文件夹或标签时包含嵌套子文件夹和标签后代中的笔记。'
             },
             limitPinnedToCurrentFolder: {
-                name: '仅在父文件夹中显示固定笔记',
-                desc: '固定笔记仅在查看其文件夹时显示'
+                name: '将固定笔记限制在其文件夹',
+                desc: '固定笔记仅在查看其固定的文件夹或标签时显示'
             },
             separateNoteCounts: {
                 name: '分别显示当前和后代计数',
@@ -652,19 +653,7 @@ export const STRINGS_ZH_CN = {
             },
             showQuickActions: {
                 name: '显示快速操作（仅桌面版）',
-                desc: '在文件项上显示悬停操作。'
-            },
-            quickActionsRevealInFolder: {
-                name: '在文件夹中显示',
-                desc: '快速操作：在父文件夹中显示笔记。仅在从子文件夹或在标签中查看笔记时显示（在笔记的实际文件夹中不显示）。'
-            },
-            quickActionsPinNote: {
-                name: '固定笔记',
-                desc: '快速操作：在列表顶部固定或取消固定笔记。'
-            },
-            quickActionsOpenInNewTab: {
-                name: '在新标签页中打开',
-                desc: '快速操作：在新标签页中打开笔记。'
+                desc: '悬停在文件上时显示操作按钮。按钮控件选择显示哪些操作。'
             },
             dualPane: {
                 name: '双窗格布局（不同步）',

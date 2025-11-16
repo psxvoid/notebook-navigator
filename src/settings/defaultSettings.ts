@@ -134,6 +134,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     slimItemHeight: LISTPANE_MEASUREMENTS.defaultSlimItemHeight,
     slimItemHeightScaleText: true,
     showQuickActions: true,
+    quickActionAddToShortcuts: true,
     quickActionRevealInFolder: true,
     quickActionPinNote: true,
     quickActionOpenInNewTab: true,

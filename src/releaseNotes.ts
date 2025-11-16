@@ -76,7 +76,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.8.5',
         date: '2025-11-17',
         showOnUpdate: true,
-        new: [],
+        new: [
+            'Two new quick actions: **Add tag** and **Add to shortcuts**. If you do not want to show all five quick actions you can easily disable them in Settings > List pane > Show quick actions.'
+        ],
         improved: ['In the color picker, choosing a preset or recent color no longer closes the color picker.'],
         changed: ['Improved the menu structure for files and folders, things are now grouped more logically.'],
         fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.']

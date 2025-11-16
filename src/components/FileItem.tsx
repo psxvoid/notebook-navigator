@@ -57,6 +57,7 @@ import { useFileCache } from '../context/StorageContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { useTagNavigation } from '../hooks/useTagNavigation';
 import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
+import { useShortcuts } from '../context/ShortcutsContext';
 import { strings } from '../i18n';
 import { SortOption } from '../settings';
 import { ItemType } from '../types';
@@ -267,6 +268,7 @@ export const FileItem = React.memo(function FileItem({
     const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime } = useFileCache();
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
+    const { addNoteShortcut, hasNoteShortcut, noteShortcutKeysByPath, removeShortcut } = useShortcuts();
     const hiddenTagVisibility = useMemo(
         () => createHiddenTagVisibility(settings.hiddenTags, showHiddenItems),
         [settings.hiddenTags, showHiddenItems]
@@ -325,6 +327,7 @@ export const FileItem = React.memo(function FileItem({
     // === Refs ===
     const fileRef = useRef<HTMLDivElement>(null);
     const revealInFolderIconRef = useRef<HTMLDivElement>(null);
+    const addShortcutIconRef = useRef<HTMLDivElement>(null);
     const pinNoteIconRef = useRef<HTMLDivElement>(null);
     const openInNewTabIconRef = useRef<HTMLDivElement>(null);
     const fileIconRef = useRef<HTMLSpanElement>(null);
@@ -342,7 +345,9 @@ export const FileItem = React.memo(function FileItem({
     const shouldShowPinNote = settings.showQuickActions && settings.quickActionPinNote;
     const shouldShowRevealIcon =
         settings.showQuickActions && settings.quickActionRevealInFolder && file.parent && file.parent.path !== parentFolder;
-    const hasQuickActions = shouldShowOpenInNewTab || shouldShowPinNote || shouldShowRevealIcon;
+    const hasShortcut = hasNoteShortcut(file.path);
+    const shouldShowShortcutAction = settings.showQuickActions && settings.quickActionAddToShortcuts;
+    const hasQuickActions = shouldShowOpenInNewTab || shouldShowPinNote || shouldShowRevealIcon || shouldShowShortcutAction;
     const iconServiceVersion = useIconServiceVersion();
 
     // Get display name from RAM cache (handles frontmatter title)
@@ -958,6 +963,19 @@ export const FileItem = React.memo(function FileItem({
         });
     };
 
+    const handleShortcutToggle = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        runAsyncAction(async () => {
+            const shortcutKey = noteShortcutKeysByPath.get(file.path);
+            if (shortcutKey) {
+                await removeShortcut(shortcutKey);
+            } else {
+                await addNoteShortcut(file.path);
+            }
+        });
+    };
+
     // Reveal the file in its actual folder in the navigator
     const handleRevealClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -977,6 +995,72 @@ export const FileItem = React.memo(function FileItem({
         e.stopPropagation();
         runAsyncAction(() => openFileInContext({ app, commandQueue, file, context: 'tab' }));
     };
+
+    const quickActionItems: { key: string; element: React.ReactNode }[] = [];
+
+    if (shouldShowRevealIcon) {
+        quickActionItems.push({
+            key: 'reveal',
+            element: (
+                <div
+                    ref={revealInFolderIconRef}
+                    className="nn-quick-action-item"
+                    onClick={handleRevealClick}
+                    title={strings.contextMenu.file.revealInFolder}
+                />
+            )
+        });
+    }
+
+    if (shouldShowShortcutAction) {
+        quickActionItems.push({
+            key: 'shortcut',
+            element: (
+                <div
+                    ref={addShortcutIconRef}
+                    className="nn-quick-action-item"
+                    onClick={handleShortcutToggle}
+                    title={hasShortcut ? strings.shortcuts.remove : strings.shortcuts.add}
+                />
+            )
+        });
+    }
+
+    if (shouldShowPinNote) {
+        quickActionItems.push({
+            key: 'pin',
+            element: (
+                <div
+                    ref={pinNoteIconRef}
+                    className="nn-quick-action-item"
+                    onClick={handlePinClick}
+                    title={
+                        isPinned
+                            ? file.extension === 'md'
+                                ? strings.contextMenu.file.unpinNote
+                                : strings.contextMenu.file.unpinFile
+                            : file.extension === 'md'
+                              ? strings.contextMenu.file.pinNote
+                              : strings.contextMenu.file.pinFile
+                    }
+                />
+            )
+        });
+    }
+
+    if (shouldShowOpenInNewTab) {
+        quickActionItems.push({
+            key: 'new-tab',
+            element: (
+                <div
+                    ref={openInNewTabIconRef}
+                    className="nn-quick-action-item"
+                    onClick={handleOpenInNewTab}
+                    title={strings.contextMenu.file.openInNewTab}
+                />
+            )
+        });
+    }
 
     // === Effects ===
 
@@ -1034,7 +1118,10 @@ export const FileItem = React.memo(function FileItem({
     useEffect(() => {
         if (isHovered && !isMobile) {
             if (revealInFolderIconRef.current && shouldShowRevealIcon) {
-                setIcon(revealInFolderIconRef.current, 'lucide-folder');
+                setIcon(revealInFolderIconRef.current, 'lucide-folder-search');
+            }
+            if (addShortcutIconRef.current && shouldShowShortcutAction) {
+                setIcon(addShortcutIconRef.current, hasShortcut ? 'lucide-bookmark-x' : 'lucide-bookmark');
             }
             if (pinNoteIconRef.current && shouldShowPinNote) {
                 setIcon(pinNoteIconRef.current, isPinned ? 'lucide-pin-off' : 'lucide-pin');
@@ -1043,7 +1130,16 @@ export const FileItem = React.memo(function FileItem({
                 setIcon(openInNewTabIconRef.current, 'lucide-file-plus');
             }
         }
-    }, [isHovered, isMobile, shouldShowOpenInNewTab, shouldShowPinNote, shouldShowRevealIcon, isPinned]);
+    }, [
+        isHovered,
+        isMobile,
+        shouldShowOpenInNewTab,
+        shouldShowPinNote,
+        shouldShowRevealIcon,
+        shouldShowShortcutAction,
+        hasShortcut,
+        isPinned
+    ]);
 
     // Enable context menu
     useContextMenu(fileRef, { type: ItemType.FILE, item: file });
@@ -1087,40 +1183,12 @@ export const FileItem = React.memo(function FileItem({
                         data-title-rows={appearanceSettings.titleRows}
                         data-has-tags={shouldShowFileTags ? 'true' : 'false'}
                     >
-                        {shouldShowRevealIcon && (
-                            <div
-                                ref={revealInFolderIconRef}
-                                className="nn-quick-action-item"
-                                onClick={handleRevealClick}
-                                title={strings.contextMenu.file.revealInFolder}
-                            />
-                        )}
-                        {shouldShowRevealIcon && shouldShowPinNote && <div className="nn-quick-action-separator" />}
-                        {shouldShowPinNote && (
-                            <div
-                                ref={pinNoteIconRef}
-                                className="nn-quick-action-item"
-                                onClick={handlePinClick}
-                                title={
-                                    isPinned
-                                        ? file.extension === 'md'
-                                            ? strings.contextMenu.file.unpinNote
-                                            : strings.contextMenu.file.unpinFile
-                                        : file.extension === 'md'
-                                          ? strings.contextMenu.file.pinNote
-                                          : strings.contextMenu.file.pinFile
-                                }
-                            />
-                        )}
-                        {shouldShowPinNote && shouldShowOpenInNewTab && <div className="nn-quick-action-separator" />}
-                        {shouldShowOpenInNewTab && (
-                            <div
-                                ref={openInNewTabIconRef}
-                                className="nn-quick-action-item"
-                                onClick={handleOpenInNewTab}
-                                title={strings.contextMenu.file.openInNewTab}
-                            />
-                        )}
+                        {quickActionItems.map((action, index) => (
+                            <React.Fragment key={action.key}>
+                                {index > 0 && <div className="nn-quick-action-separator" />}
+                                {action.element}
+                            </React.Fragment>
+                        ))}
                     </div>
                 )}
                 <div className="nn-file-inner-content">

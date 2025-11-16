@@ -345,7 +345,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
         if (canRevealInFolder) {
             menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.file.revealInFolder).setIcon('lucide-folder'), async () => {
+                setAsyncOnClick(item.setTitle(strings.contextMenu.file.revealInFolder).setIcon('lucide-folder-search'), async () => {
                     await services.plugin.activateView();
                     await services.plugin.revealFileInActualFolder(file);
                 });

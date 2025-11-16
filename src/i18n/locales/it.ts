@@ -542,6 +542,7 @@ export const STRINGS_IT = {
             },
             list: {
                 display: 'Aspetto',
+                pinnedNotes: 'Note fissate',
                 quickActions: 'Azioni rapide'
             },
             notes: {
@@ -607,8 +608,8 @@ export const STRINGS_IT = {
                 desc: 'Includi note da sottocartelle nidificate e discendenti di tag quando visualizzi una cartella o un tag.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Mostra note fissate solo nella cartella genitore',
-                desc: 'Le note fissate appaiono solo quando si visualizza la loro cartella'
+                name: 'Limita note fissate alla loro cartella',
+                desc: 'Le note fissate appaiono solo quando si visualizza la cartella o il tag in cui sono state fissate'
             },
             separateNoteCounts: {
                 name: 'Mostra conteggi attuali e discendenti separatamente',
@@ -654,19 +655,7 @@ export const STRINGS_IT = {
             },
             showQuickActions: {
                 name: 'Mostra azioni rapide (solo desktop)',
-                desc: 'Mostra azioni al passaggio del mouse su elementi file.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Mostra nella cartella',
-                desc: 'Azione rapida: Mostra nota nella sua cartella genitore. Visibile solo quando si visualizzano note da sottocartelle o in tag (non mostrata nella cartella reale della nota).'
-            },
-            quickActionsPinNote: {
-                name: 'Fissa nota',
-                desc: 'Azione rapida: Fissa o rimuovi fissaggio nota in cima alla lista.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Apri in nuova scheda',
-                desc: 'Azione rapida: Apri nota in nuova scheda.'
+                desc: 'Mostra pulsanti di azione al passaggio sui file. I controlli dei pulsanti selezionano quali azioni appaiono.'
             },
             dualPane: {
                 name: 'Layout pannello doppio (non sincronizzato)',

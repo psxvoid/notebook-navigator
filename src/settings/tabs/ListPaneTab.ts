@@ -16,12 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Platform, Setting, SliderComponent } from 'obsidian';
+import { Platform, Setting, SliderComponent, setIcon } from 'obsidian';
 import { strings } from '../../i18n';
 import { DEFAULT_SETTINGS } from '../defaultSettings';
 import type { ListNoteGroupingOption, ListPaneTitleOption, SortOption } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { runAsyncAction } from '../../utils/async';
+
+type QuickActionSettingKey = 'quickActionRevealInFolder' | 'quickActionAddToShortcuts' | 'quickActionPinNote' | 'quickActionOpenInNewTab';
+
+interface QuickActionToggleConfig {
+    key: QuickActionSettingKey;
+    icon: string;
+    label: string;
+}
 
 /** Renders the list pane settings tab */
 export function renderListPaneTab(context: SettingsTabContext): void {
@@ -62,17 +70,89 @@ export function renderListPaneTab(context: SettingsTabContext): void {
                 })
         );
 
-    new Setting(containerEl).setName(strings.settings.groups.list.display).setHeading();
+    if (!Platform.isMobile) {
+        const quickActionsSetting = new Setting(containerEl)
+            .setName(strings.settings.items.showQuickActions.name)
+            .setDesc(strings.settings.items.showQuickActions.desc);
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.includeDescendantNotes.name)
-        .setDesc(strings.settings.items.includeDescendantNotes.desc)
-        .addToggle(toggle => {
-            const preferences = plugin.getUXPreferences();
-            toggle.setValue(preferences.includeDescendantNotes).onChange(value => {
-                plugin.setIncludeDescendantNotes(value);
-            });
+        quickActionsSetting.controlEl.addClass('nn-quick-actions-control');
+
+        const quickActionsButtonsEl = quickActionsSetting.controlEl.createDiv({
+            cls: ['nn-toolbar-visibility-grid', 'nn-quick-actions-buttons']
         });
+
+        const updateButtonsDisabledState = (enabled: boolean) => {
+            quickActionsButtonsEl.classList.toggle('is-disabled', !enabled);
+            quickActionsButtonsEl.querySelectorAll('button').forEach(button => {
+                button.toggleAttribute('disabled', !enabled);
+            });
+        };
+
+        const quickActionButtons: QuickActionToggleConfig[] = [
+            {
+                key: 'quickActionRevealInFolder',
+                icon: 'lucide-folder-search',
+                label: strings.contextMenu.file.revealInFolder
+            },
+            {
+                key: 'quickActionAddToShortcuts',
+                icon: 'lucide-bookmark',
+                label: strings.shortcuts.add
+            },
+            {
+                key: 'quickActionPinNote',
+                icon: 'lucide-pin',
+                label: strings.contextMenu.file.pinNote
+            },
+            {
+                key: 'quickActionOpenInNewTab',
+                icon: 'lucide-file-plus',
+                label: strings.contextMenu.file.openInNewTab
+            }
+        ];
+
+        quickActionButtons.forEach(buttonConfig => {
+            const buttonEl = quickActionsButtonsEl.createEl('button', {
+                cls: ['nn-toolbar-visibility-toggle', 'nn-mobile-toolbar-button'],
+                attr: { type: 'button' }
+            });
+            buttonEl.setAttr('aria-label', buttonConfig.label);
+            buttonEl.setAttr('title', buttonConfig.label);
+
+            const iconEl = buttonEl.createSpan({ cls: 'nn-toolbar-visibility-icon' });
+            setIcon(iconEl, buttonConfig.icon);
+
+            const applyState = () => {
+                const isEnabled = Boolean(plugin.settings[buttonConfig.key]);
+                buttonEl.classList.toggle('is-active', isEnabled);
+                buttonEl.classList.toggle('nn-mobile-toolbar-button-active', isEnabled);
+                buttonEl.setAttr('aria-pressed', isEnabled ? 'true' : 'false');
+            };
+
+            buttonEl.addEventListener('click', () => {
+                plugin.settings[buttonConfig.key] = !plugin.settings[buttonConfig.key];
+                applyState();
+                runAsyncAction(async () => {
+                    await plugin.saveSettingsAndUpdate();
+                });
+            });
+
+            applyState();
+        });
+
+        quickActionsSetting.addToggle(toggle => {
+            toggle.setValue(plugin.settings.showQuickActions).onChange(async value => {
+                plugin.settings.showQuickActions = value;
+                updateButtonsDisabledState(value);
+                await plugin.saveSettingsAndUpdate();
+            });
+            toggle.toggleEl.addClass('nn-quick-actions-master-toggle');
+        });
+
+        updateButtonsDisabledState(plugin.settings.showQuickActions);
+    }
+
+    new Setting(containerEl).setName(strings.settings.groups.list.pinnedNotes).setHeading();
 
     new Setting(containerEl)
         .setName(strings.settings.items.limitPinnedToCurrentFolder.name)
@@ -108,6 +188,18 @@ export function renderListPaneTab(context: SettingsTabContext): void {
         );
 
     pinnedGroupSettingsEl.toggle(plugin.settings.showPinnedGroupHeader);
+
+    new Setting(containerEl).setName(strings.settings.groups.list.display).setHeading();
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.includeDescendantNotes.name)
+        .setDesc(strings.settings.items.includeDescendantNotes.desc)
+        .addToggle(toggle => {
+            const preferences = plugin.getUXPreferences();
+            toggle.setValue(preferences.includeDescendantNotes).onChange(value => {
+                plugin.setIncludeDescendantNotes(value);
+            });
+        });
 
     new Setting(containerEl)
         .setName(strings.settings.items.groupNotes.name)
@@ -178,53 +270,4 @@ export function renderListPaneTab(context: SettingsTabContext): void {
                 await plugin.saveSettingsAndUpdate();
             })
         );
-
-    if (!Platform.isMobile) {
-        new Setting(containerEl).setName(strings.settings.groups.list.quickActions).setHeading();
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.showQuickActions.name)
-            .setDesc(strings.settings.items.showQuickActions.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.settings.showQuickActions).onChange(async value => {
-                    plugin.settings.showQuickActions = value;
-                    await plugin.saveSettingsAndUpdate();
-                    quickActionsEl.toggle(value);
-                })
-            );
-
-        const quickActionsEl = containerEl.createDiv('nn-sub-settings');
-
-        new Setting(quickActionsEl)
-            .setName(strings.settings.items.quickActionsRevealInFolder.name)
-            .setDesc(strings.settings.items.quickActionsRevealInFolder.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.settings.quickActionRevealInFolder).onChange(async value => {
-                    plugin.settings.quickActionRevealInFolder = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-            );
-
-        new Setting(quickActionsEl)
-            .setName(strings.settings.items.quickActionsPinNote.name)
-            .setDesc(strings.settings.items.quickActionsPinNote.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.settings.quickActionPinNote).onChange(async value => {
-                    plugin.settings.quickActionPinNote = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-            );
-
-        new Setting(quickActionsEl)
-            .setName(strings.settings.items.quickActionsOpenInNewTab.name)
-            .setDesc(strings.settings.items.quickActionsOpenInNewTab.desc)
-            .addToggle(toggle =>
-                toggle.setValue(plugin.settings.quickActionOpenInNewTab).onChange(async value => {
-                    plugin.settings.quickActionOpenInNewTab = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-            );
-
-        quickActionsEl.toggle(plugin.settings.showQuickActions);
-    }
 }

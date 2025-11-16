@@ -541,6 +541,7 @@ export const STRINGS_ES = {
             },
             list: {
                 display: 'Apariencia',
+                pinnedNotes: 'Notas fijadas',
                 quickActions: 'Acciones rápidas'
             },
             notes: {
@@ -606,8 +607,8 @@ export const STRINGS_ES = {
                 desc: 'Incluir notas de subcarpetas y descendientes de etiquetas al ver una carpeta o etiqueta.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Mostrar notas fijadas solo en la carpeta principal',
-                desc: 'Las notas fijadas aparecen solo al ver su carpeta'
+                name: 'Limitar notas fijadas a su carpeta',
+                desc: 'Las notas fijadas aparecen solo al ver la carpeta o etiqueta donde fueron fijadas'
             },
             separateNoteCounts: {
                 name: 'Mostrar conteos actuales y descendientes por separado',
@@ -653,19 +654,7 @@ export const STRINGS_ES = {
             },
             showQuickActions: {
                 name: 'Mostrar acciones rápidas (solo escritorio)',
-                desc: 'Mostrar acciones al pasar el cursor sobre los elementos de archivo.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Revelar en carpeta',
-                desc: 'Acción rápida: Revelar nota en su carpeta principal. Solo visible al ver notas de subcarpetas o en etiquetas (no se muestra en la carpeta real de la nota).'
-            },
-            quickActionsPinNote: {
-                name: 'Fijar nota',
-                desc: 'Acción rápida: Fijar o desfijar nota en la parte superior de la lista.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Abrir en nueva pestaña',
-                desc: 'Acción rápida: Abrir nota en nueva pestaña.'
+                desc: 'Mostrar botones de acción al pasar sobre archivos. Los controles de botones seleccionan qué acciones aparecen.'
             },
             dualPane: {
                 name: 'Diseño de doble panel (no sincronizado)',
