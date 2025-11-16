@@ -77,7 +77,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-17',
         showOnUpdate: true,
         new: [],
-        improved: [],
+        improved: ['In the color picker, choosing a preset or recent color no longer closes the color picker.'],
         changed: [],
         fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in list pane.']
     },

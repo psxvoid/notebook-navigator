@@ -1106,15 +1106,7 @@ export const STRINGS_ZH_TW = {
                 downloadFailed: '下載 {name} 失敗。請檢查您的網路連線並再試一次。',
                 removeFailed: '移除 {name} 失敗。',
                 infoNote:
-                    '下載的圖示包會在裝置間同步安裝狀態。圖示包保留在每個裝置的本地資料庫中；同步僅追蹤是下載還是移除它們。圖示包從 Notebook Navigator 儲存庫下載 (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)。',
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    '下載的圖示包會在裝置間同步安裝狀態。圖示包保留在每個裝置的本地資料庫中；同步僅追蹤是下載還是移除它們。圖示包從 Notebook Navigator 儲存庫下載 (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)。'
             },
             useFrontmatterDates: {
                 name: '使用 frontmatter 中繼資料',

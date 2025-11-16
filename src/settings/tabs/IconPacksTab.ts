@@ -18,7 +18,7 @@
 
 import { Setting } from 'obsidian';
 import { strings } from '../../i18n';
-import { EXTERNAL_ICON_PROVIDERS, type ExternalIconProviderId } from '../../services/icons/external/providerRegistry';
+import { EXTERNAL_ICON_PROVIDERS } from '../../services/icons/external/providerRegistry';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { runAsyncAction } from '../../utils/async';
 import { showNotice } from '../../utils/noticeUtils';
@@ -27,15 +27,6 @@ import { showNotice } from '../../utils/noticeUtils';
 export function renderIconPacksTab(context: SettingsTabContext): void {
     const { containerEl, plugin } = context;
     containerEl.empty();
-
-    const providerLinks: Record<ExternalIconProviderId, string> = {
-        'bootstrap-icons': strings.settings.items.externalIcons.providers.bootstrapIconsDesc,
-        'fontawesome-solid': strings.settings.items.externalIcons.providers.fontAwesomeDesc,
-        'material-icons': strings.settings.items.externalIcons.providers.materialIconsDesc,
-        phosphor: strings.settings.items.externalIcons.providers.phosphorDesc,
-        'rpg-awesome': strings.settings.items.externalIcons.providers.rpgAwesomeDesc,
-        'simple-icons': strings.settings.items.externalIcons.providers.simpleIconsDesc
-    };
 
     const infoContainer = containerEl.createDiv('nn-setting-info-container');
     const infoContent = infoContainer.createEl('div', { cls: 'setting-item-description' });
@@ -59,9 +50,10 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
         descriptionEl.empty();
 
         const linkRow = descriptionEl.createDiv();
+        const catalogUrl = config.catalogUrl;
         const linkEl = linkRow.createEl('a', {
-            text: providerLinks[config.id],
-            href: providerLinks[config.id]
+            text: catalogUrl,
+            href: catalogUrl
         });
         linkEl.setAttr('rel', 'noopener noreferrer');
         linkEl.setAttr('target', '_blank');
