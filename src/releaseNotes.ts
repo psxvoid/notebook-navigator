@@ -84,7 +84,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'In the color picker, choosing a preset or recent color no longer closes the color picker.',
             'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.'
         ],
-        changed: ['Improved the menu structure for files and folders, things are now grouped more logically.'],
+        changed: [
+            'Improved the menu structure for files and folders, things are now grouped more logically.',
+            'When deleting non-selected files, list pane will now scroll to the selected file. This was unfortunately necessary to keep scroll-to-item working in other areas like pin/unpin note. I might investigate more time into this in the future, but for now this is how it needs to work.'
+        ],
         fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.']
     },
     {
