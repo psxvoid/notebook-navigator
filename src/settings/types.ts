@@ -182,6 +182,7 @@ export interface NotebookNavigatorSettings {
     colorFileTags: boolean;
     showFileTagsInSlimMode: boolean;
     showParentFolder: boolean;
+    parentFolderClickRevealsFile: boolean;
     showParentFolderColor: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;

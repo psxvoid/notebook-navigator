@@ -581,6 +581,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Color file tags:** Apply tag colors to tag badges on file items.
   - **Show file tags in slim mode:** Display tags when date, preview, and image are hidden.
 - **Show parent folder:** Display the parent folder name for notes in subfolders or tags.
+  - **Click parent folder to reveal file:** Clicking the parent folder label reveals the file.
   - **Show parent folder color:** Use folder colors on parent folder labels.
 - **Show note preview:** Display preview text beneath note names.
   - **Skip headings in preview:** Skip heading lines when generating preview text.

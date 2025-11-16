@@ -649,6 +649,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż folder nadrzędny',
                 desc: 'Wyświetl nazwę folderu nadrzędnego dla notatek w podfolderach lub tagach.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Kliknięcie folderu nadrzędnego ujawnia notatkę',
+                desc: 'Kliknięcie etykiety folderu nadrzędnego pokazuje notatkę.'
+            },
             showParentFolderColor: {
                 name: 'Pokaż kolor folderu nadrzędnego',
                 desc: 'Używaj kolorów folderów na etykietach folderów nadrzędnych.'

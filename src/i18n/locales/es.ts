@@ -648,6 +648,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar carpeta principal',
                 desc: 'Muestra el nombre de la carpeta principal para las notas en subcarpetas o etiquetas.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Clic en carpeta principal revela nota',
+                desc: 'Al hacer clic en la etiqueta de la carpeta principal se revela la nota.'
+            },
             showParentFolderColor: {
                 name: 'Mostrar color de carpeta principal',
                 desc: 'Usar colores de carpeta en etiquetas de carpetas principales.'

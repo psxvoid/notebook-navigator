@@ -185,17 +185,32 @@ interface ParentFolderLabelProps {
     color?: string;
     showIcon: boolean;
     applyColorToName: boolean;
+    onReveal?: () => void;
 }
 
 /**
  * Renders a parent folder label with icon for display in file items.
  */
-function ParentFolderLabel({ iconId, label, iconVersion, color, showIcon, applyColorToName }: ParentFolderLabelProps) {
+function ParentFolderLabel({ iconId, label, iconVersion, color, showIcon, applyColorToName, onReveal }: ParentFolderLabelProps) {
     const iconRef = useRef<HTMLSpanElement>(null);
     const hasColor = Boolean(color);
     const iconStyle: React.CSSProperties | undefined = color ? { color } : undefined;
     const labelStyle: React.CSSProperties | undefined = applyColorToName && color ? { color } : undefined;
-    const labelClassName = applyColorToName ? 'nn-file-folder-label nn-file-folder-label--colored' : 'nn-file-folder-label';
+    const labelClassName = applyColorToName ? 'nn-parent-folder-label nn-parent-folder-label--colored' : 'nn-parent-folder-label';
+    const isRevealEnabled = Boolean(onReveal);
+
+    // Handles click on parent folder label to reveal the file when enabled
+    const handleClick = useCallback(
+        (event: React.MouseEvent<HTMLDivElement>) => {
+            if (!onReveal) {
+                return;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            onReveal();
+        },
+        [onReveal]
+    );
 
     // Render the folder icon when iconId or iconVersion changes
     useEffect(() => {
@@ -214,19 +229,25 @@ function ParentFolderLabel({ iconId, label, iconVersion, color, showIcon, applyC
     }, [iconId, iconVersion, showIcon]);
 
     return (
-        <div className="nn-file-folder">
-            {showIcon ? (
-                <span
-                    className="nn-file-folder-icon"
-                    ref={iconRef}
-                    aria-hidden="true"
-                    data-has-color={hasColor ? 'true' : 'false'}
-                    style={iconStyle}
-                />
-            ) : null}
-            <span className={labelClassName} style={labelStyle} data-has-color={applyColorToName ? 'true' : 'false'}>
-                {label}
-            </span>
+        <div className="nn-parent-folder">
+            <div
+                className="nn-parent-folder-content"
+                data-reveal={isRevealEnabled ? 'true' : 'false'}
+                onClick={isRevealEnabled ? handleClick : undefined}
+            >
+                {showIcon ? (
+                    <span
+                        className="nn-parent-folder-icon"
+                        ref={iconRef}
+                        aria-hidden="true"
+                        data-has-color={hasColor ? 'true' : 'false'}
+                        style={iconStyle}
+                    />
+                ) : null}
+                <span className={labelClassName} style={labelStyle} data-has-color={applyColorToName ? 'true' : 'false'}>
+                    {label}
+                </span>
+            </div>
         </div>
     );
 }
@@ -728,6 +749,7 @@ export const FileItem = React.memo(function FileItem({
                 color={parentFolderMeta.color}
                 showIcon={parentFolderMeta.showIcon}
                 applyColorToName={parentFolderMeta.applyColorToName}
+                onReveal={settings.parentFolderClickRevealsFile ? revealFileInNavigation : undefined}
             />
         ) : null;
 
@@ -948,6 +970,14 @@ export const FileItem = React.memo(function FileItem({
         file.name
     ]);
 
+    // Reveals the file by selecting its folder in navigation pane and showing the file in list pane
+    const revealFileInNavigation = () => {
+        runAsyncAction(async () => {
+            await plugin.activateView();
+            await plugin.revealFileInActualFolder(file);
+        });
+    };
+
     // Quick action handlers - these don't need memoization because:
     // 1. They're only attached to DOM elements that appear on hover
     // 2. They're not passed as props to child components
@@ -985,10 +1015,7 @@ export const FileItem = React.memo(function FileItem({
     const handleRevealClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        runAsyncAction(async () => {
-            await plugin.activateView();
-            await plugin.revealFileInActualFolder(file);
-        });
+        revealFileInNavigation();
     };
 
     const handleAddTagClick = (e: React.MouseEvent) => {

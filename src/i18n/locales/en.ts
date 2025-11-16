@@ -647,6 +647,10 @@ export const STRINGS_EN = {
                 name: 'Show parent folder',
                 desc: 'Display the parent folder name for notes in subfolders or tags.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Click parent folder to reveal file',
+                desc: 'Clicking the parent folder label reveals the file.'
+            },
             showParentFolderColor: {
                 name: 'Show parent folder color',
                 desc: 'Use folder colors on parent folder labels.'

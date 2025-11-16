@@ -649,6 +649,10 @@ export const STRINGS_NL = {
                 name: 'Bovenliggende map tonen',
                 desc: 'De naam van de bovenliggende map weergeven voor notities in submappen of tags.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Klik op bovenliggende map toont notitie',
+                desc: 'Klik op het label van de bovenliggende map om de notitie te tonen.'
+            },
             showParentFolderColor: {
                 name: 'Bovenliggende mapkleur tonen',
                 desc: 'Mapkleuren gebruiken voor labels van bovenliggende mappen.'

@@ -77,7 +77,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-17',
         showOnUpdate: true,
         new: [
-            'Two new quick actions: **Add tag** and **Add to shortcuts**. If you do not want to show all five quick actions you can easily disable them in Settings > List pane > Show quick actions.'
+            'Two new quick actions: **Add tag** and **Add to shortcuts**. ==Important!== If you do not want to show all five quick actions you can easily disable quick links in Settings > List pane > Show quick actions.',
+            'New setting: Settings > Notes > Show parent folder > ==Click parent folder to reveal file==. You can now click the parent folder name to reveal a file.'
         ],
         improved: ['In the color picker, choosing a preset or recent color no longer closes the color picker.'],
         changed: ['Improved the menu structure for files and folders, things are now grouped more logically.'],

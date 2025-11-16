@@ -649,6 +649,10 @@ export const STRINGS_PT_BR = {
                 name: 'Mostrar pasta pai',
                 desc: 'Exibir o nome da pasta pai para notas em subpastas ou tags.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Clique na pasta pai revela nota',
+                desc: 'Clicar no rótulo da pasta pai revela a nota.'
+            },
             showParentFolderColor: {
                 name: 'Mostrar cor de pasta pai',
                 desc: 'Usar cores de pasta em rótulos de pastas pai.'
