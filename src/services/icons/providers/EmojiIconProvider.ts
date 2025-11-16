@@ -45,6 +45,14 @@ export class EmojiIconProvider implements IconProvider {
     name = 'Emoji';
 
     /**
+     * Emojis have no version information
+     * @returns Always null for emoji provider
+     */
+    getVersion(): string | null {
+        return null;
+    }
+
+    /**
      * Checks if the emoji provider is available.
      * Always returns true as emojis are universally supported.
      */
