@@ -51,6 +51,7 @@ export function buildFolderCreationMenu(params: FolderMenuBuilderParams): void {
     const { app, fileSystemOps } = services;
     const { selectionState, expandedFolders } = state;
     const { selectionDispatch, expansionDispatch, uiDispatch } = dispatchers;
+    const isVaultRoot = folder.path === '/';
 
     const ensureFolderSelected = () => {
         if (
@@ -123,6 +124,56 @@ export function buildFolderCreationMenu(params: FolderMenuBuilderParams): void {
                 handleFileCreation(createdDrawing);
             });
         });
+    }
+
+    // Folder note operations
+    const { settings } = params;
+    const { metadataService } = services;
+    if (settings.enableFolderNotes) {
+        const folderNote = getFolderNote(folder, settings);
+        const canDeleteFolderNote = Boolean(folderNote);
+        const canCreateFolderNote = !folderNote && !isVaultRoot;
+
+        if (canDeleteFolderNote || canCreateFolderNote) {
+            menu.addSeparator();
+        }
+
+        if (folderNote) {
+            // Delete folder note option
+            menu.addItem((item: MenuItem) => {
+                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.deleteFolderNote).setIcon('lucide-trash'), async () => {
+                    await fileSystemOps.deleteFile(folderNote, settings.confirmBeforeDelete);
+                });
+            });
+        } else if (canCreateFolderNote) {
+            // Create folder note option
+            menu.addItem((item: MenuItem) => {
+                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.createFolderNote).setIcon('lucide-pen-box'), async () => {
+                    const createdNote = await createFolderNote(
+                        app,
+                        folder,
+                        {
+                            folderNoteType: settings.folderNoteType,
+                            folderNoteName: settings.folderNoteName,
+                            folderNoteProperties: settings.folderNoteProperties
+                        },
+                        services.commandQueue
+                    );
+                    if (createdNote && settings.pinCreatedFolderNote) {
+                        try {
+                            if (!metadataService.isFilePinned(createdNote.path, 'folder')) {
+                                await metadataService.togglePin(createdNote.path, 'folder');
+                            }
+                        } catch (error: unknown) {
+                            console.error('Failed to pin created folder note', {
+                                path: createdNote.path,
+                                error
+                            });
+                        }
+                    }
+                });
+            });
+        }
     }
 }
 
@@ -212,48 +263,6 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                 });
             }
         });
-    }
-
-    // Folder note operations
-    if (settings.enableFolderNotes) {
-        const folderNote = getFolderNote(folder, settings);
-
-        if (folderNote) {
-            // Delete folder note option
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.deleteFolderNote).setIcon('lucide-trash'), async () => {
-                    await fileSystemOps.deleteFile(folderNote, settings.confirmBeforeDelete);
-                });
-            });
-        } else {
-            // Create folder note option
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.createFolderNote).setIcon('lucide-pen-box'), async () => {
-                    const createdNote = await createFolderNote(
-                        app,
-                        folder,
-                        {
-                            folderNoteType: settings.folderNoteType,
-                            folderNoteName: settings.folderNoteName,
-                            folderNoteProperties: settings.folderNoteProperties
-                        },
-                        services.commandQueue
-                    );
-                    if (createdNote && settings.pinCreatedFolderNote) {
-                        try {
-                            if (!metadataService.isFilePinned(createdNote.path, 'folder')) {
-                                await metadataService.togglePin(createdNote.path, 'folder');
-                            }
-                        } catch (error: unknown) {
-                            console.error('Failed to pin created folder note', {
-                                path: createdNote.path,
-                                error
-                            });
-                        }
-                    }
-                });
-            });
-        }
     }
 
     menu.addSeparator();
