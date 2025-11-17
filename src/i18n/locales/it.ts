@@ -603,6 +603,10 @@ export const STRINGS_IT = {
                     'title-desc': 'Titolo (Z in alto)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Scorri al file selezionato quando cambia la lista',
+                desc: "Scorri al file selezionato quando si bloccano note, si mostrano note discendenti, si cambia l'aspetto delle cartelle o si eseguono operazioni sui file."
+            },
             includeDescendantNotes: {
                 name: 'Mostra note da sottocartelle / discendenti',
                 desc: 'Includi note da sottocartelle nidificate e discendenti di tag quando visualizzi una cartella o un tag.'

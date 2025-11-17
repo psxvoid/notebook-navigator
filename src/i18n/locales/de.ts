@@ -605,6 +605,10 @@ export const STRINGS_DE = {
                     'title-desc': 'Titel (Z oben)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Zu ausgewählter Datei bei Listenänderungen scrollen',
+                desc: 'Zur ausgewählten Datei scrollen beim Anheften von Notizen, Anzeigen von Unternotizen, Ändern der Ordnerdarstellung oder bei Dateioperationen.'
+            },
             includeDescendantNotes: {
                 name: 'Notizen aus Unterordnern / Nachkommen anzeigen',
                 desc: 'Beim Anzeigen eines Ordners oder Tags Notizen aus Unterordnern und Tag-Nachkommen einbeziehen.'

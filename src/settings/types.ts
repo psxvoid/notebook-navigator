@@ -150,6 +150,7 @@ export interface NotebookNavigatorSettings {
 
     // List pane tab
     defaultFolderSort: SortOption;
+    revealFileOnListChanges: boolean;
     listPaneTitle: ListPaneTitleOption;
     noteGrouping: ListNoteGroupingOption;
     filterPinnedByFolder: boolean;

@@ -603,6 +603,10 @@ export const STRINGS_PL = {
                     'title-desc': 'Tytuł (Z na górze)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Przewiń do wybranego pliku przy zmianach listy',
+                desc: 'Przewiń do wybranego pliku przy przypinaniu notatek, pokazywaniu notatek potomnych, zmianie wyglądu folderów lub wykonywaniu operacji na plikach.'
+            },
             includeDescendantNotes: {
                 name: 'Pokaż notatki z podfolderów / potomnych',
                 desc: 'Podczas przeglądania folderu lub tagu uwzględnij notatki z zagnieżdżonych podfolderów i potomnych tagów.'

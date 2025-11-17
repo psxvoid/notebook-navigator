@@ -600,6 +600,10 @@ export const STRINGS_ZH_TW = {
                     'title-desc': '標題 (降冪)'
                 }
             },
+            revealFileOnListChanges: {
+                name: '列表變更時捲動至選定檔案',
+                desc: '在釘選筆記、顯示後代筆記、變更資料夾外觀或執行檔案操作時捲動至選定的檔案。'
+            },
             includeDescendantNotes: {
                 name: '顯示子資料夾/後代中的筆記',
                 desc: '檢視資料夾或標籤時，包含巢狀子資料夾和標籤後代的筆記。'

@@ -75,6 +75,16 @@ export function renderListPaneTab(context: SettingsTabContext): void {
                 })
         );
 
+    new Setting(containerEl)
+        .setName(strings.settings.items.revealFileOnListChanges.name)
+        .setDesc(strings.settings.items.revealFileOnListChanges.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.revealFileOnListChanges).onChange(async value => {
+                plugin.settings.revealFileOnListChanges = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
     if (!Platform.isMobile) {
         const quickActionsSetting = new Setting(containerEl)
             .setName(strings.settings.items.showQuickActions.name)

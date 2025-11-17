@@ -603,6 +603,10 @@ export const STRINGS_NL = {
                     'title-desc': 'Titel (Z bovenaan)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Scroll naar geselecteerd bestand bij lijstwijzigingen',
+                desc: 'Scroll naar het geselecteerde bestand bij het vastpinnen van notities, tonen van afstammelingen-notities, wijzigen van mapweergave of uitvoeren van bestandsoperaties.'
+            },
             includeDescendantNotes: {
                 name: 'Notities uit submappen / afstammelingen tonen',
                 desc: 'Notities uit geneste submappen en tag-afstammelingen opnemen bij het bekijken van een map of tag.'

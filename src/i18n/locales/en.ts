@@ -601,6 +601,10 @@ export const STRINGS_EN = {
                     'title-desc': 'Title (Z on top)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Scroll to selected file on list changes',
+                desc: 'Scroll to the selected file when pinning notes, showing descendant notes, changing folder appearance, or running file operations.'
+            },
             includeDescendantNotes: {
                 name: 'Show notes from subfolders / descendants',
                 desc: 'Include notes from nested subfolders and tag descendants when viewing a folder or tag.'

@@ -602,6 +602,10 @@ export const STRINGS_JA = {
                     'title-desc': 'タイトル（降順）'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'リスト変更時に選択ファイルへスクロール',
+                desc: 'ノートのピン留め、子孫ノートの表示、フォルダ外観の変更、ファイル操作の実行時に選択したファイルへスクロールします。'
+            },
             includeDescendantNotes: {
                 name: 'サブフォルダ / 子孫のノートを表示',
                 desc: 'フォルダまたはタグを表示するとき、入れ子のサブフォルダとタグの子孫にあるノートを含めます。'

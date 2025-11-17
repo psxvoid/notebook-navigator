@@ -602,6 +602,10 @@ export const STRINGS_ES = {
                     'title-desc': 'Título (Z arriba)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Desplazar al archivo seleccionado cuando cambia la lista',
+                desc: 'Desplazar al archivo seleccionado al anclar notas, mostrar notas descendientes, cambiar la apariencia de carpetas o ejecutar operaciones de archivos.'
+            },
             includeDescendantNotes: {
                 name: 'Mostrar notas de subcarpetas / descendientes',
                 desc: 'Incluir notas de subcarpetas y descendientes de etiquetas al ver una carpeta o etiqueta.'

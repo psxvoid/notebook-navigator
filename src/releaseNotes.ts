@@ -78,7 +78,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [
             'Two new quick actions: **Add tag** and **Add to shortcuts**. ==Important!== If you do not want to show all five quick actions you can easily disable quick links in Settings > List pane > Show quick actions.',
-            'New setting: Settings > Notes > Show parent folder > ==Click parent folder to reveal file==. You can now click the parent folder name to reveal a file.'
+            'New setting: Notes > Show parent folder > ==Click parent folder to reveal file==. You can now click the parent folder name to open a file in its folder. Default disabled.',
+            'New setting: List pane > ==Scroll to selected file on list changes==. When enabled, list pane will scroll to the active file when pinning notes, showing descendant notes, changing folder appearance, or file operations. Default enabled, disable for full control over scroll position.'
         ],
         improved: [
             'In the color picker, choosing a preset or recent color no longer closes the color picker.',

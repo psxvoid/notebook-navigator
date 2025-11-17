@@ -603,6 +603,10 @@ export const STRINGS_FR = {
                     'title-desc': 'Titre (Z en haut)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Défiler vers le fichier sélectionné lors des changements de liste',
+                desc: "Défiler vers le fichier sélectionné lors de l'épinglage de notes, l'affichage de notes descendantes, le changement d'apparence de dossier ou l'exécution d'opérations sur les fichiers."
+            },
             includeDescendantNotes: {
                 name: 'Afficher les notes des sous-dossiers / descendants',
                 desc: "Inclure les notes des sous-dossiers imbriqués et des descendants d'étiquettes lors de l'affichage d'un dossier ou d'une étiquette."

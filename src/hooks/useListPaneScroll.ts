@@ -183,6 +183,7 @@ export function useListPaneScroll({
 
     // Check if we're in slim mode
     const isSlimMode = !folderSettings.showDate && !folderSettings.showPreview && !folderSettings.showImage;
+    const revealFileOnListChanges = settings.revealFileOnListChanges;
 
     /**
      * Initialize TanStack Virtual virtualizer with dynamic height calculation.
@@ -538,7 +539,14 @@ export function useListPaneScroll({
         if (pending.type === 'file') {
             const isStructuralChange = pending.reason === 'list-structure-change';
 
-            if (isStructuralChange && pending.filePath && selectedFilePathRef.current && pending.filePath !== selectedFilePathRef.current) {
+            if (!revealFileOnListChanges && isStructuralChange) {
+                shouldClearPending = true;
+            } else if (
+                isStructuralChange &&
+                pending.filePath &&
+                selectedFilePathRef.current &&
+                pending.filePath !== selectedFilePathRef.current
+            ) {
                 shouldClearPending = true;
             } else if (pending.filePath) {
                 const index = getSelectionIndex(pending.filePath);
@@ -555,7 +563,7 @@ export function useListPaneScroll({
                         const usedPath = pending.filePath;
                         requestAnimationFrame(() => {
                             const newIndex = usedPath ? getSelectionIndex(usedPath) : -1;
-                            if (usedPath && newIndex >= 0 && newIndex !== usedIndex) {
+                            if (usedPath && newIndex >= 0 && newIndex !== usedIndex && revealFileOnListChanges) {
                                 setPending({
                                     type: 'file',
                                     filePath: usedPath,
@@ -588,6 +596,7 @@ export function useListPaneScroll({
         getSelectionIndex,
         isMobile,
         setPending,
+        revealFileOnListChanges,
         selectionState.revealSource
     ]);
 
@@ -734,7 +743,7 @@ export function useListPaneScroll({
         prevConfigKeyRef.current = configKey;
 
         // Set a pending scroll to maintain position on selected file when config changes
-        if (selectedFile) {
+        if (revealFileOnListChanges && selectedFile) {
             setPending({
                 type: 'file',
                 filePath: selectedFile.path,
@@ -754,6 +763,7 @@ export function useListPaneScroll({
         rowVirtualizer,
         selectedFile,
         includeDescendantNotes,
+        revealFileOnListChanges,
         settings.optimizeNoteHeight,
         settings.noteGrouping,
         folderSettings,
@@ -783,7 +793,7 @@ export function useListPaneScroll({
 
             // Only queue a file scroll if the selected file exists in the current index
             const inList = !!(selectedFile && filePathToIndex.has(selectedFile.path));
-            if (inList && selectedFile) {
+            if (revealFileOnListChanges && inList && selectedFile) {
                 setPending({
                     type: 'file',
                     filePath: selectedFile.path,
@@ -800,7 +810,8 @@ export function useListPaneScroll({
         filePathToIndex,
         filePathToIndex.size,
         selectedFile,
-        setPending
+        setPending,
+        revealFileOnListChanges
     ]);
 
     /**

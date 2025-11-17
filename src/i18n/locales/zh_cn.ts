@@ -601,6 +601,10 @@ export const STRINGS_ZH_CN = {
                     'title-desc': '标题（降序）'
                 }
             },
+            revealFileOnListChanges: {
+                name: '列表变更时滚动到选定文件',
+                desc: '在固定笔记、显示后代笔记、更改文件夹外观或执行文件操作时滚动到选定的文件。'
+            },
             includeDescendantNotes: {
                 name: '显示子文件夹/后代的笔记',
                 desc: '在查看文件夹或标签时包含嵌套子文件夹和标签后代中的笔记。'

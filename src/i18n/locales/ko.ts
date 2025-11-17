@@ -601,6 +601,10 @@ export const STRINGS_KO = {
                     'title-desc': '제목 (역순 상위)'
                 }
             },
+            revealFileOnListChanges: {
+                name: '목록 변경 시 선택된 파일로 스크롤',
+                desc: '노트 고정, 하위 노트 표시, 폴더 모양 변경 또는 파일 작업 실행 시 선택된 파일로 스크롤합니다.'
+            },
             includeDescendantNotes: {
                 name: '하위 폴더 / 하위 항목 노트 표시',
                 desc: '폴더나 태그를 볼 때 중첩된 하위 폴더와 태그 하위 항목의 노트를 포함합니다.'

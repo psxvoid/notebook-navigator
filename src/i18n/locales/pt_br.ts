@@ -603,6 +603,10 @@ export const STRINGS_PT_BR = {
                     'title-desc': 'Título (Z no topo)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Rolar para o arquivo selecionado em mudanças da lista',
+                desc: 'Rolar para o arquivo selecionado ao fixar notas, mostrar notas descendentes, mudar aparência de pastas ou executar operações de arquivo.'
+            },
             includeDescendantNotes: {
                 name: 'Mostrar notas de subpastas / descendentes',
                 desc: 'Incluir notas de subpastas aninhadas e descendentes de tags ao visualizar uma pasta ou tag.'
