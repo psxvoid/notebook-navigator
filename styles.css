@@ -2076,29 +2076,52 @@ body {
     line-height: var(--nn-file-single-text-line-height);
 }
 
-/* Folder indicator - shows parent folder for files from subfolders */
-.nn-file-folder {
+/* Parent folder indicator shown under file names */
+.nn-parent-folder {
     font-size: var(--nn-file-small-size);
     font-weight: var(--nn-theme-file-parent-font-weight);
     color: var(--nn-theme-file-parent-color);
     display: flex;
     align-items: center;
-    gap: 4px;
     overflow: hidden;
     line-height: var(--nn-file-single-text-line-height); /* Use second line height for consistent spacing */
     flex: 1;
     min-width: 0;
 }
 
+.nn-parent-folder-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 1 auto;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.nn-parent-folder-content[data-reveal='true'] {
+    cursor: pointer;
+    user-select: none;
+}
+
+.nn-parent-folder-content[data-reveal='true']:hover .nn-parent-folder-label,
+.nn-parent-folder-content[data-reveal='true']:focus-visible .nn-parent-folder-label {
+    text-decoration: underline;
+}
+
+.nn-parent-folder-content[data-reveal='true']:focus-visible {
+    outline: 1px solid var(--interactive-accent);
+    outline-offset: 2px;
+}
+
 /* Folder indicator text */
-.nn-file-folder span {
+.nn-parent-folder span {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 /* Folder icon styling */
-.nn-file-folder-icon {
+.nn-parent-folder-icon {
     width: calc(var(--icon-size) * 0.8);
     height: calc(var(--icon-size) * 0.8);
     display: flex;
@@ -2107,15 +2130,15 @@ body {
     flex-shrink: 0;
 }
 
-.nn-file-folder-icon[data-has-color='true'] svg {
+.nn-parent-folder-icon[data-has-color='true'] svg {
     stroke-width: 2.4;
 }
 
-.nn-file-folder-label {
+.nn-parent-folder-label {
     font-weight: var(--nn-theme-file-parent-font-weight);
 }
 
-.nn-file-folder-label.nn-file-folder-label--colored {
+.nn-parent-folder-label.nn-parent-folder-label--colored {
     font-weight: var(--nn-theme-navitem-custom-color-name-font-weight);
 }
 
@@ -2210,7 +2233,7 @@ body {
     color: var(--nn-selected-file-date-color);
 }
 
-.nn-file.nn-selected .nn-file-folder {
+.nn-file.nn-selected .nn-parent-folder {
     color: var(--nn-selected-file-parent-color);
 }
 
@@ -3468,6 +3491,27 @@ body.nn-resizing {
     gap: var(--size-2-3);
 }
 
+.nn-quick-actions-control {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.nn-quick-actions-buttons,
+.nn-toolbar-visibility-grid-scroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+.nn-quick-actions-buttons.is-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.nn-quick-actions-master-toggle {
+    margin-inline-start: auto;
+}
+
 .nn-toolbar-visibility-toggle {
     position: relative;
     padding: 0;
@@ -4531,7 +4575,7 @@ body.nn-resizing {
 /* Ensure proper text direction for file preview and dates */
 .nn-file-preview,
 .nn-file-date,
-.nn-file-folder,
+.nn-parent-folder,
 .nn-date-group-header {
     unicode-bidi: plaintext;
 }

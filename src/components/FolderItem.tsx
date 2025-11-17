@@ -74,6 +74,7 @@ interface FolderItemProps {
     onToggle: () => void;
     onClick: () => void;
     onNameClick?: (event: React.MouseEvent<HTMLSpanElement>) => void;
+    onNameMouseDown?: (event: React.MouseEvent<HTMLSpanElement>) => void;
     onToggleAllSiblings?: () => void;
     icon?: string;
     color?: string;
@@ -108,6 +109,7 @@ export const FolderItem = React.memo(function FolderItem({
     onToggle,
     onClick,
     onNameClick,
+    onNameMouseDown,
     onToggleAllSiblings,
     icon,
     color,
@@ -268,6 +270,16 @@ export const FolderItem = React.memo(function FolderItem({
         [onNameClick]
     );
 
+    const handleNameMouseDown = useCallback(
+        (e: React.MouseEvent<HTMLSpanElement>) => {
+            if (onNameMouseDown) {
+                e.stopPropagation();
+                onNameMouseDown(e);
+            }
+        },
+        [onNameMouseDown]
+    );
+
     // Add Obsidian tooltip
     useEffect(() => {
         if (!folderRef.current) return;
@@ -394,6 +406,7 @@ export const FolderItem = React.memo(function FolderItem({
                     className={folderNameClassName}
                     style={applyColorToName ? { color: customColor } : undefined}
                     onClick={handleNameClick}
+                    onMouseDown={handleNameMouseDown}
                 >
                     {folder.path === '/' ? settings.customVaultName || app.vault.getName() : folder.name}
                 </span>

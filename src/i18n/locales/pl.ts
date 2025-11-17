@@ -149,8 +149,8 @@ export const STRINGS_PL = {
             revealInFinder: 'Pokaż w Finderze',
             showInExplorer: 'Pokaż w eksploratorze systemowym',
             copyDeepLink: 'Kopiuj adres URL Obsidian',
-            copyPath: 'Kopiuj ścieżkę',
-            copyRelativePath: 'Kopiuj ścieżkę względną',
+            copyPath: 'Kopiuj ścieżkę systemu plików',
+            copyRelativePath: 'Kopiuj ścieżkę skarbca',
             renameNote: 'Zmień nazwę notatki',
             renameFile: 'Zmień nazwę pliku',
             deleteNote: 'Usuń notatkę',
@@ -173,8 +173,8 @@ export const STRINGS_PL = {
             newDrawing: 'Nowy rysunek',
             duplicateFolder: 'Duplikuj folder',
             searchInFolder: 'Szukaj w folderze',
-            copyPath: 'Kopiuj ścieżkę',
-            copyRelativePath: 'Kopiuj ścieżkę względną',
+            copyPath: 'Kopiuj ścieżkę systemu plików',
+            copyRelativePath: 'Kopiuj ścieżkę skarbca',
             createFolderNote: 'Utwórz notatkę folderu',
             deleteFolderNote: 'Usuń notatkę folderu',
             changeIcon: 'Zmień ikonę',
@@ -542,6 +542,7 @@ export const STRINGS_PL = {
             },
             list: {
                 display: 'Wygląd',
+                pinnedNotes: 'Przypięte notatki',
                 quickActions: 'Szybkie akcje'
             },
             notes: {
@@ -611,8 +612,8 @@ export const STRINGS_PL = {
                 desc: 'Podczas przeglądania folderu lub tagu uwzględnij notatki z zagnieżdżonych podfolderów i potomnych tagów.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Pokaż przypięte notatki tylko w folderze nadrzędnym',
-                desc: 'Przypięte notatki pojawiają się tylko podczas przeglądania ich folderu'
+                name: 'Ogranicz przypięte notatki do ich folderu',
+                desc: 'Przypięte notatki pojawiają się tylko podczas przeglądania folderu lub tagu, w którym zostały przypięte.'
             },
             separateNoteCounts: {
                 name: 'Pokaż bieżące i potomne liczniki osobno',
@@ -652,25 +653,17 @@ export const STRINGS_PL = {
                 name: 'Pokaż folder nadrzędny',
                 desc: 'Wyświetl nazwę folderu nadrzędnego dla notatek w podfolderach lub tagach.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Kliknięcie folderu nadrzędnego ujawnia notatkę',
+                desc: 'Kliknięcie etykiety folderu nadrzędnego pokazuje notatkę.'
+            },
             showParentFolderColor: {
                 name: 'Pokaż kolor folderu nadrzędnego',
                 desc: 'Używaj kolorów folderów na etykietach folderów nadrzędnych.'
             },
             showQuickActions: {
                 name: 'Pokaż szybkie akcje (tylko desktop)',
-                desc: 'Pokaż akcje przy najechaniu na elementy plików.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Pokaż w folderze',
-                desc: 'Szybka akcja: Pokaż notatkę w jej folderze nadrzędnym. Widoczne tylko podczas przeglądania notatek z podfolderów lub w tagach (nie pokazywane w rzeczywistym folderze notatki).'
-            },
-            quickActionsPinNote: {
-                name: 'Przypnij notatkę',
-                desc: 'Szybka akcja: Przypnij lub odepnij notatkę na górze listy.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Otwórz w nowej karcie',
-                desc: 'Szybka akcja: Otwórz notatkę w nowej karcie.'
+                desc: 'Pokaż przyciski akcji przy najechaniu na pliki. Kontrolki przycisków wybierają, które akcje się pojawiają.'
             },
             dualPane: {
                 name: 'Układ podwójnego panelu (nie synchronizowany)',

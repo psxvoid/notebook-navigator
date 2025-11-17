@@ -150,8 +150,8 @@ export const STRINGS_EN = {
             revealInFinder: 'Reveal in Finder',
             showInExplorer: 'Show in system explorer',
             copyDeepLink: 'Copy Obsidian URL',
-            copyPath: 'Copy path',
-            copyRelativePath: 'Copy relative path',
+            copyPath: 'Copy file system path',
+            copyRelativePath: 'Copy vault path',
             renameNote: 'Rename note',
             renameFile: 'Rename file',
             deleteNote: 'Delete note',
@@ -174,8 +174,8 @@ export const STRINGS_EN = {
             newDrawing: 'New drawing',
             duplicateFolder: 'Duplicate folder',
             searchInFolder: 'Search in folder',
-            copyPath: 'Copy path',
-            copyRelativePath: 'Copy relative path',
+            copyPath: 'Copy file system path',
+            copyRelativePath: 'Copy vault path',
             createFolderNote: 'Create folder note',
             deleteFolderNote: 'Delete folder note',
             changeIcon: 'Change icon',
@@ -540,6 +540,7 @@ export const STRINGS_EN = {
             },
             list: {
                 display: 'Appearance',
+                pinnedNotes: 'Pinned notes',
                 quickActions: 'Quick actions'
             },
             notes: {
@@ -609,8 +610,8 @@ export const STRINGS_EN = {
                 desc: 'Include notes from nested subfolders and tag descendants when viewing a folder or tag.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Show pinned notes in parent folder only',
-                desc: 'Pinned notes appear only when viewing their folder'
+                name: 'Limit pinned notes to their folder',
+                desc: 'Pinned notes appear only when viewing the folder or tag where they were pinned.'
             },
             separateNoteCounts: {
                 name: 'Show current and descendant counts separately',
@@ -650,25 +651,17 @@ export const STRINGS_EN = {
                 name: 'Show parent folder',
                 desc: 'Display the parent folder name for notes in subfolders or tags.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Click parent folder to reveal file',
+                desc: 'Clicking the parent folder label reveals the file.'
+            },
             showParentFolderColor: {
                 name: 'Show parent folder color',
                 desc: 'Use folder colors on parent folder labels.'
             },
             showQuickActions: {
                 name: 'Show quick actions (desktop only)',
-                desc: 'Show hover actions on file items.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Reveal in folder',
-                desc: "Quick action: Reveal note in its parent folder. Only visible when viewing notes from subfolders or in tags (not shown in the note's actual folder)."
-            },
-            quickActionsPinNote: {
-                name: 'Pin note',
-                desc: 'Quick action: Pin or unpin note at top of list.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Open in new tab',
-                desc: 'Quick action: Open note in new tab.'
+                desc: 'Show action buttons when hovering over files. Button controls select which actions appear.'
             },
             dualPane: {
                 name: 'Dual pane layout (not synced)',

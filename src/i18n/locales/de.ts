@@ -140,8 +140,8 @@ export const STRINGS_DE = {
             revealInFinder: 'Im Finder anzeigen',
             showInExplorer: 'Im Explorer anzeigen',
             copyDeepLink: 'Obsidian-URL kopieren',
-            copyPath: 'Pfad kopieren',
-            copyRelativePath: 'Relativen Pfad kopieren',
+            copyPath: 'Dateisystempfad kopieren',
+            copyRelativePath: 'Vault-Pfad kopieren',
             renameNote: 'Notiz umbenennen',
             deleteNote: 'Notiz löschen',
             deleteMultipleNotes: '{count} Notizen löschen',
@@ -176,8 +176,8 @@ export const STRINGS_DE = {
             newDrawing: 'Neue Zeichnung',
             duplicateFolder: 'Ordner duplizieren',
             searchInFolder: 'In Ordner suchen',
-            copyPath: 'Pfad kopieren',
-            copyRelativePath: 'Relativen Pfad kopieren',
+            copyPath: 'Dateisystempfad kopieren',
+            copyRelativePath: 'Vault-Pfad kopieren',
             createFolderNote: 'Ordnernotiz erstellen',
             deleteFolderNote: 'Ordnernotiz löschen',
             changeIcon: 'Symbol ändern',
@@ -543,6 +543,7 @@ export const STRINGS_DE = {
             },
             list: {
                 display: 'Darstellung',
+                pinnedNotes: 'Angeheftete Notizen',
                 quickActions: 'Schnellaktionen'
             },
             notes: {
@@ -613,8 +614,8 @@ export const STRINGS_DE = {
                 desc: 'Beim Anzeigen eines Ordners oder Tags Notizen aus Unterordnern und Tag-Nachkommen einbeziehen.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Angeheftete Notizen nur im übergeordneten Ordner anzeigen',
-                desc: 'Angeheftete Notizen erscheinen nur beim Anzeigen ihres Ordners'
+                name: 'Angeheftete Notizen auf ihren Ordner beschränken',
+                desc: 'Angeheftete Notizen erscheinen nur beim Anzeigen des Ordners oder Tags, in dem sie angeheftet wurden.'
             },
             separateNoteCounts: {
                 name: 'Aktuelle und Nachkommen-Anzahl getrennt anzeigen',
@@ -654,25 +655,17 @@ export const STRINGS_DE = {
                 name: 'Übergeordneten Ordner anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen in Unterordnern oder Tags anzeigen.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Überordnerklick zeigt Datei',
+                desc: 'Klicken auf den übergeordneten Ordner blendet die Datei ein.'
+            },
             showParentFolderColor: {
                 name: 'Übergeordnete Ordnerfarbe anzeigen',
                 desc: 'Ordnerfarben auf übergeordnete Ordnerlabels anwenden.'
             },
             showQuickActions: {
                 name: 'Schnellaktionen anzeigen (nur Desktop)',
-                desc: 'Zeige Hover-Aktionen auf Dateielementen.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Im Ordner anzeigen',
-                desc: 'Schnellaktion: Notiz im übergeordneten Ordner anzeigen. Nur sichtbar bei Notizen aus Unterordnern oder in Tags (nicht im eigentlichen Ordner der Notiz).'
-            },
-            quickActionsPinNote: {
-                name: 'Notiz anheften',
-                desc: 'Schnellaktion: Notiz oben in der Liste anheften oder lösen.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'In neuem Tab öffnen',
-                desc: 'Schnellaktion: Notiz in neuem Tab öffnen.'
+                desc: 'Aktionsschaltflächen beim Überfahren von Dateien anzeigen. Schaltflächensteuerung wählt aus, welche Aktionen erscheinen.'
             },
             dualPane: {
                 name: 'Doppelbereichslayout (nicht synchronisiert)',

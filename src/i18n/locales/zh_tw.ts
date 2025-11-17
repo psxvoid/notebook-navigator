@@ -150,8 +150,8 @@ export const STRINGS_ZH_TW = {
             revealInFinder: '在 Finder 中顯示',
             showInExplorer: '在系統檔案總管中顯示',
             copyDeepLink: '複製 Obsidian URL',
-            copyPath: '複製路徑',
-            copyRelativePath: '複製相對路徑',
+            copyPath: '複製檔案系統路徑',
+            copyRelativePath: '複製保險庫路徑',
             renameNote: '重新命名筆記',
             renameFile: '重新命名檔案',
             deleteNote: '刪除筆記',
@@ -174,8 +174,8 @@ export const STRINGS_ZH_TW = {
             newDrawing: '新繪圖',
             duplicateFolder: '複製資料夾',
             searchInFolder: '在此資料夾中搜尋',
-            copyPath: '複製路徑',
-            copyRelativePath: '複製相對路徑',
+            copyPath: '複製檔案系統路徑',
+            copyRelativePath: '複製保險庫路徑',
             createFolderNote: '建立資料夾筆記',
             deleteFolderNote: '刪除資料夾筆記',
             changeIcon: '變更圖示',
@@ -540,6 +540,7 @@ export const STRINGS_ZH_TW = {
             },
             list: {
                 display: '外觀',
+                pinnedNotes: '釘選筆記',
                 quickActions: '快速操作'
             },
             notes: {
@@ -608,8 +609,8 @@ export const STRINGS_ZH_TW = {
                 desc: '檢視資料夾或標籤時，包含巢狀子資料夾和標籤後代的筆記。'
             },
             limitPinnedToCurrentFolder: {
-                name: '僅在父資料夾中顯示固定筆記',
-                desc: '固定筆記僅在查看其資料夾時顯示'
+                name: '將固定筆記限制在其資料夾',
+                desc: '固定筆記僅在查看其固定的資料夾或標籤時顯示。'
             },
             separateNoteCounts: {
                 name: '分別顯示當前和後代計數',
@@ -649,25 +650,17 @@ export const STRINGS_ZH_TW = {
                 name: '顯示父資料夾',
                 desc: '在子資料夾或標籤中顯示筆記的父資料夾名稱。'
             },
+            parentFolderClickRevealsFile: {
+                name: '點擊父資料夾顯示筆記',
+                desc: '點擊父資料夾標籤時顯示該筆記。'
+            },
             showParentFolderColor: {
                 name: '顯示父資料夾顏色',
                 desc: '在父資料夾標籤上使用資料夾顏色。'
             },
             showQuickActions: {
                 name: '顯示快速操作 (僅限桌面版)',
-                desc: '在檔案項目上顯示懸停操作。'
-            },
-            quickActionsRevealInFolder: {
-                name: '在資料夾中顯示',
-                desc: '快速操作：在其父資料夾中顯示筆記。僅在檢視子資料夾或標籤中的筆記時可見 (在筆記的實際資料夾中不顯示)。'
-            },
-            quickActionsPinNote: {
-                name: '釘選筆記',
-                desc: '快速操作：在清單頂部釘選或取消釘選筆記。'
-            },
-            quickActionsOpenInNewTab: {
-                name: '在新分頁中開啟',
-                desc: '快速操作：在新分頁中開啟筆記。'
+                desc: '懸停在檔案上時顯示操作按鈕。按鈕控制項選擇顯示哪些操作。'
             },
             dualPane: {
                 name: '雙窗格佈局 (不同步)',

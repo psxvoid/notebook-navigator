@@ -151,8 +151,8 @@ export const STRINGS_PT_BR = {
             revealInFinder: 'Revelar no Finder',
             showInExplorer: 'Mostrar no explorador de arquivos',
             copyDeepLink: 'Copiar URL do Obsidian',
-            copyPath: 'Copiar caminho',
-            copyRelativePath: 'Copiar caminho relativo',
+            copyPath: 'Copiar caminho do sistema de arquivos',
+            copyRelativePath: 'Copiar caminho do cofre',
             renameNote: 'Renomear nota',
             renameFile: 'Renomear arquivo',
             deleteNote: 'Excluir nota',
@@ -175,8 +175,8 @@ export const STRINGS_PT_BR = {
             newDrawing: 'Novo desenho',
             duplicateFolder: 'Duplicar pasta',
             searchInFolder: 'Pesquisar na pasta',
-            copyPath: 'Copiar caminho',
-            copyRelativePath: 'Copiar caminho relativo',
+            copyPath: 'Copiar caminho do sistema de arquivos',
+            copyRelativePath: 'Copiar caminho do cofre',
             createFolderNote: 'Criar nota de pasta',
             deleteFolderNote: 'Excluir nota de pasta',
             changeIcon: 'Alterar ícone',
@@ -542,6 +542,7 @@ export const STRINGS_PT_BR = {
             },
             list: {
                 display: 'Aparência',
+                pinnedNotes: 'Notas fixadas',
                 quickActions: 'Ações rápidas'
             },
             notes: {
@@ -607,8 +608,8 @@ export const STRINGS_PT_BR = {
                 desc: 'Incluir notas de subpastas aninhadas e descendentes de tags ao visualizar uma pasta ou tag.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Mostrar notas fixadas apenas na pasta pai',
-                desc: 'Notas fixadas aparecem apenas ao visualizar sua pasta'
+                name: 'Limitar notas fixadas à sua pasta',
+                desc: 'Notas fixadas aparecem apenas ao visualizar a pasta ou tag onde foram fixadas.'
             },
             separateNoteCounts: {
                 name: 'Mostrar contagens atuais e descendentes separadamente',
@@ -648,25 +649,17 @@ export const STRINGS_PT_BR = {
                 name: 'Mostrar pasta pai',
                 desc: 'Exibir o nome da pasta pai para notas em subpastas ou tags.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Clique na pasta pai revela nota',
+                desc: 'Clicar no rótulo da pasta pai revela a nota.'
+            },
             showParentFolderColor: {
                 name: 'Mostrar cor de pasta pai',
                 desc: 'Usar cores de pasta em rótulos de pastas pai.'
             },
             showQuickActions: {
                 name: 'Mostrar ações rápidas (apenas desktop)',
-                desc: 'Mostrar ações de passar o mouse em itens de arquivo.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Revelar na pasta',
-                desc: 'Ação rápida: Revelar nota em sua pasta pai. Visível apenas ao visualizar notas de subpastas ou em tags (não mostrado na pasta real da nota).'
-            },
-            quickActionsPinNote: {
-                name: 'Fixar nota',
-                desc: 'Ação rápida: Fixar ou desafixar nota no topo da lista.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Abrir em nova aba',
-                desc: 'Ação rápida: Abrir nota em nova aba.'
+                desc: 'Mostrar botões de ação ao passar sobre arquivos. Controles de botão selecionam quais ações aparecem.'
             },
             dualPane: {
                 name: 'Layout de painel duplo (não sincronizado)',

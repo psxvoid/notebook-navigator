@@ -140,8 +140,8 @@ export const STRINGS_FR = {
             revealInFinder: 'Afficher dans le Finder',
             showInExplorer: "Afficher dans l'explorateur système",
             copyDeepLink: "Copier l'URL Obsidian",
-            copyPath: 'Copier le chemin',
-            copyRelativePath: 'Copier le chemin relatif',
+            copyPath: 'Copier le chemin du système de fichiers',
+            copyRelativePath: 'Copier le chemin du coffre',
             renameNote: 'Renommer la note',
             deleteNote: 'Supprimer la note',
             deleteMultipleNotes: 'Supprimer {count} notes',
@@ -174,8 +174,8 @@ export const STRINGS_FR = {
             newDrawing: 'Nouveau dessin',
             duplicateFolder: 'Dupliquer le dossier',
             searchInFolder: 'Rechercher dans le dossier',
-            copyPath: 'Copier le chemin',
-            copyRelativePath: 'Copier le chemin relatif',
+            copyPath: 'Copier le chemin du système de fichiers',
+            copyRelativePath: 'Copier le chemin du coffre',
             createFolderNote: 'Créer une note de dossier',
             deleteFolderNote: 'Supprimer la note de dossier',
             changeIcon: "Changer l'icône",
@@ -541,6 +541,7 @@ export const STRINGS_FR = {
             },
             list: {
                 display: 'Apparence',
+                pinnedNotes: 'Notes épinglées',
                 quickActions: 'Actions rapides'
             },
             notes: {
@@ -611,8 +612,8 @@ export const STRINGS_FR = {
                 desc: "Inclure les notes des sous-dossiers imbriqués et des descendants d'étiquettes lors de l'affichage d'un dossier ou d'une étiquette."
             },
             limitPinnedToCurrentFolder: {
-                name: 'Afficher les notes épinglées uniquement dans le dossier parent',
-                desc: 'Les notes épinglées apparaissent uniquement lors de la visualisation de leur dossier'
+                name: 'Limiter les notes épinglées à leur dossier',
+                desc: "Les notes épinglées apparaissent uniquement lors de la visualisation du dossier ou de l'étiquette où elles ont été épinglées."
             },
             separateNoteCounts: {
                 name: 'Afficher les comptes actuels et descendants séparément',
@@ -652,25 +653,17 @@ export const STRINGS_FR = {
                 name: 'Afficher le dossier parent',
                 desc: 'Afficher le nom du dossier parent pour les notes dans les sous-dossiers ou étiquettes.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Clic sur dossier parent révèle la note',
+                desc: "Cliquer sur l'étiquette du dossier parent révèle la note."
+            },
             showParentFolderColor: {
                 name: 'Afficher la couleur du dossier parent',
                 desc: 'Utiliser les couleurs des dossiers sur les étiquettes des dossiers parents.'
             },
             showQuickActions: {
                 name: 'Afficher les actions rapides (bureau uniquement)',
-                desc: 'Afficher les actions au survol sur les éléments de fichier.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Révéler dans le dossier',
-                desc: "Action rapide : Révéler la note dans son dossier parent. Visible uniquement lors de l'affichage de notes depuis des sous-dossiers ou dans des étiquettes (non affiché dans le dossier réel de la note)."
-            },
-            quickActionsPinNote: {
-                name: 'Épingler la note',
-                desc: 'Action rapide : Épingler ou désépingler la note en haut de la liste.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Ouvrir dans un nouvel onglet',
-                desc: 'Action rapide : Ouvrir la note dans un nouvel onglet.'
+                desc: "Afficher les boutons d'action au survol des fichiers. Les contrôles des boutons sélectionnent les actions qui apparaissent."
             },
             dualPane: {
                 name: 'Disposition à double panneau (non synchronisé)',
