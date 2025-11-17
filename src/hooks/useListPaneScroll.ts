@@ -166,7 +166,6 @@ export function useListPaneScroll({
         filePath?: string; // Target file path (for type='file')
         reason?: ScrollReason; // Why this scroll was requested
         minIndexVersion?: number; // Don't execute until indexVersion >= this
-        skipScroll?: boolean; // Suppress execution while still clearing pending entry
     };
     const pendingScrollRef = useRef<PendingScroll | null>(null);
     const [pendingScrollVersion, setPendingScrollVersion] = useState(0); // Triggers effect re-run
@@ -468,7 +467,7 @@ export function useListPaneScroll({
      *
      * Priority order (lowest to highest):
      * 0. top - Scroll to top of list
-     * 1. list-config-change - Settings changed
+     * 1. list-structure-change - Settings/layout changes within current context
      * 2. visibility-change - Mobile drawer opened
      * 3. folder-navigation - User changed folders
      * 4. reveal - Show active file command
@@ -491,12 +490,6 @@ export function useListPaneScroll({
 
         const nextRank = rankListPending(next);
         const currentRank = rankListPending(current);
-
-        // Preserve non-skip pending when competing with skip pending of same priority
-        // Ensures actual scrolls take precedence over placeholder/suppression entries
-        if (currentRank === nextRank && !current.skipScroll && next.skipScroll) {
-            return;
-        }
 
         if (nextRank >= currentRank) {
             pendingScrollRef.current = next;
@@ -525,7 +518,8 @@ export function useListPaneScroll({
      * - folder-navigation: center on mobile, auto on desktop
      * - visibility-change: auto (minimal movement)
      * - reveal: auto (show if not visible)
-     * - list-config-change: auto (maintain position)
+     * - list-structure-change: auto (maintain position)
+     * - list-reorder: auto (maintain selection visibility)
      */
     useEffect(() => {
         if (!rowVirtualizer || !pendingScrollRef.current || !isScrollContainerReady) {
@@ -542,18 +536,9 @@ export function useListPaneScroll({
         }
 
         if (pending.type === 'file') {
-            const isListConfig = pending.reason === 'list-config-change';
-            // Clear pending without scrolling when explicitly suppressed
-            if (isListConfig && pending.skipScroll) {
-                shouldClearPending = true;
-            } else if (
-                // Skip stale list-config scrolls from previous file selections
-                // Occurs when selection changes before a pending scroll executes
-                isListConfig &&
-                pending.filePath &&
-                selectedFilePathRef.current &&
-                pending.filePath !== selectedFilePathRef.current
-            ) {
+            const isStructuralChange = pending.reason === 'list-structure-change';
+
+            if (isStructuralChange && pending.filePath && selectedFilePathRef.current && pending.filePath !== selectedFilePathRef.current) {
                 shouldClearPending = true;
             } else if (pending.filePath) {
                 const index = getSelectionIndex(pending.filePath);
@@ -564,10 +549,8 @@ export function useListPaneScroll({
                     }
                     rowVirtualizer.scrollToIndex(index, { align: alignment });
 
-                    if (isListConfig) {
+                    if (isStructuralChange) {
                         // Stabilization mechanism: Handle rapid consecutive rebuilds
-                        // Config changes can trigger multiple rebuilds. Check if
-                        // the index changed after execution and queue a follow-up if needed.
                         const usedIndex = index;
                         const usedPath = pending.filePath;
                         requestAnimationFrame(() => {
@@ -576,7 +559,7 @@ export function useListPaneScroll({
                                 setPending({
                                     type: 'file',
                                     filePath: usedPath,
-                                    reason: 'list-config-change',
+                                    reason: 'list-structure-change',
                                     minIndexVersion: indexVersionRef.current + 1
                                 });
                             }
@@ -755,14 +738,14 @@ export function useListPaneScroll({
             setPending({
                 type: 'file',
                 filePath: selectedFile.path,
-                reason: 'list-config-change',
+                reason: 'list-structure-change',
                 minIndexVersion: indexVersionRef.current + 1
             });
         } else if (wasShowingDescendants && !nowShowingDescendants) {
             // Special case: When disabling descendants and no file selected, scroll to top
             setPending({
                 type: 'top',
-                reason: 'list-config-change',
+                reason: 'list-structure-change',
                 minIndexVersion: indexVersionRef.current + 1
             });
         }
@@ -800,13 +783,12 @@ export function useListPaneScroll({
 
             // Only queue a file scroll if the selected file exists in the current index
             const inList = !!(selectedFile && filePathToIndex.has(selectedFile.path));
-            if (inList) {
+            if (inList && selectedFile) {
                 setPending({
                     type: 'file',
                     filePath: selectedFile.path,
-                    reason: 'list-config-change',
-                    minIndexVersion: indexVersionRef.current,
-                    skipScroll: true
+                    reason: 'list-structure-change',
+                    minIndexVersion: indexVersionRef.current
                 });
             }
         }
@@ -991,7 +973,7 @@ export function useListPaneScroll({
                 suppressSearchTopScrollRef.current = false;
                 return;
             }
-            setPending({ type: 'top', reason: 'list-config-change', minIndexVersion: indexVersionRef.current });
+            setPending({ type: 'top', reason: 'list-structure-change', minIndexVersion: indexVersionRef.current });
             return;
         }
 
