@@ -149,8 +149,8 @@ export const STRINGS_KO = {
             revealInFinder: 'Finder에서 표시',
             showInExplorer: '시스템 탐색기에서 표시',
             copyDeepLink: 'Obsidian URL 복사',
-            copyPath: '경로 복사',
-            copyRelativePath: '상대 경로 복사',
+            copyPath: '파일 시스템 경로 복사',
+            copyRelativePath: 'Vault 경로 복사',
             renameNote: '노트 이름 변경',
             renameFile: '파일 이름 변경',
             deleteNote: '노트 삭제',
@@ -173,8 +173,8 @@ export const STRINGS_KO = {
             newDrawing: '새 드로잉',
             duplicateFolder: '폴더 복제',
             searchInFolder: '폴더에서 검색',
-            copyPath: '경로 복사',
-            copyRelativePath: '상대 경로 복사',
+            copyPath: '파일 시스템 경로 복사',
+            copyRelativePath: 'Vault 경로 복사',
             createFolderNote: '폴더 노트 만들기',
             deleteFolderNote: '폴더 노트 삭제',
             changeIcon: '아이콘 변경',
@@ -540,6 +540,7 @@ export const STRINGS_KO = {
             },
             list: {
                 display: '모양',
+                pinnedNotes: '고정된 노트',
                 quickActions: '빠른 작업'
             },
             notes: {
@@ -609,8 +610,8 @@ export const STRINGS_KO = {
                 desc: '폴더나 태그를 볼 때 중첩된 하위 폴더와 태그 하위 항목의 노트를 포함합니다.'
             },
             limitPinnedToCurrentFolder: {
-                name: '상위 폴더에서만 고정된 노트 표시',
-                desc: '고정된 노트는 해당 폴더를 볼 때만 표시됩니다'
+                name: '고정된 노트를 해당 폴더로 제한',
+                desc: '고정된 노트는 고정된 폴더나 태그를 볼 때만 표시됩니다.'
             },
             separateNoteCounts: {
                 name: '현재와 하위 항목 수를 별도로 표시',
@@ -650,25 +651,17 @@ export const STRINGS_KO = {
                 name: '상위 폴더 표시',
                 desc: '하위 폴더나 태그의 노트에 상위 폴더 이름을 표시합니다.'
             },
+            parentFolderClickRevealsFile: {
+                name: '상위 폴더 클릭 시 노트 표시',
+                desc: '상위 폴더 레이블을 클릭하면 노트를 표시합니다.'
+            },
             showParentFolderColor: {
                 name: '상위 폴더 색상 표시',
                 desc: '상위 폴더 레이블에 폴더 색상을 사용합니다.'
             },
             showQuickActions: {
                 name: '빠른 작업 표시 (데스크톱 전용)',
-                desc: '파일 항목에 호버 작업을 표시합니다.'
-            },
-            quickActionsRevealInFolder: {
-                name: '폴더에서 표시',
-                desc: '빠른 작업: 노트를 상위 폴더에서 표시합니다. 하위 폴더나 태그에서 노트를 볼 때만 표시됩니다 (노트의 실제 폴더에서는 표시되지 않음).'
-            },
-            quickActionsPinNote: {
-                name: '노트 고정',
-                desc: '빠른 작업: 목록 상단에 노트를 고정하거나 고정 해제합니다.'
-            },
-            quickActionsOpenInNewTab: {
-                name: '새 탭에서 열기',
-                desc: '빠른 작업: 새 탭에서 노트를 엽니다.'
+                desc: '파일 위에 마우스를 올리면 작업 버튼을 표시합니다. 버튼 컨트롤로 표시할 작업을 선택합니다.'
             },
             dualPane: {
                 name: '이중 창 레이아웃 (동기화되지 않음)',

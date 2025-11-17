@@ -161,6 +161,8 @@ export interface NotebookNavigatorSettings {
     slimItemHeightScaleText: boolean;
     showQuickActions: boolean;
     quickActionRevealInFolder: boolean;
+    quickActionAddTag: boolean;
+    quickActionAddToShortcuts: boolean;
     quickActionPinNote: boolean;
     quickActionOpenInNewTab: boolean;
 
@@ -182,6 +184,7 @@ export interface NotebookNavigatorSettings {
     colorFileTags: boolean;
     showFileTagsInSlimMode: boolean;
     showParentFolder: boolean;
+    parentFolderClickRevealsFile: boolean;
     showParentFolderColor: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;

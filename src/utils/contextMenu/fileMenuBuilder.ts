@@ -26,14 +26,11 @@ import { MetadataService } from '../../services/MetadataService';
 import { FileSystemOperations } from '../../services/FileSystemService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
 import { NotebookNavigatorSettings } from '../../settings';
-import { TagSuggestModal } from '../../modals/TagSuggestModal';
-import { RemoveTagModal } from '../../modals/RemoveTagModal';
-import { ConfirmModal } from '../../modals/ConfirmModal';
 import { CommandQueueService } from '../../services/CommandQueueService';
-import { runAsyncAction } from '../async';
 import { setAsyncOnClick } from './menuAsyncHelpers';
 import { openFileInContext } from '../openFileInContext';
 import { showNotice } from '../noticeUtils';
+import { confirmRemoveAllTagsFromFiles, openAddTagToFilesModal, removeTagFromFilesWithPrompt } from '../tagModalHelpers';
 
 /**
  * Builds the context menu for a file
@@ -116,33 +113,92 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         menu.addSeparator();
     }
 
-    // Pin/Unpin note(s)
-    const pinContext: NavigatorContext = selectionState.selectionType === ItemType.TAG ? 'tag' : 'folder';
-    if (!shouldShowMultiOptions) {
-        addSingleFilePinOption(menu, file, metadataService, pinContext);
-    } else {
-        addMultipleFilesPinOption(menu, selectedCount, selectionState, app, metadataService, pinContext);
-    }
+    const filesForTagOps = shouldShowMultiOptions ? cachedSelectedFiles : [file];
+    // Only show tag operations if all files are markdown (tags only work with markdown)
+    const canManageTags = filesForTagOps.length > 0 && filesForTagOps.every(f => f.extension === 'md');
 
-    // Duplicate note(s)
-    if (!shouldShowMultiOptions) {
-        addSingleFileDuplicateOption(menu, file, fileSystemOps);
-    } else {
-        addMultipleFilesDuplicateOption(menu, selectedCount, selectionState, app, fileSystemOps);
-    }
+    if (canManageTags) {
+        // Tag operations
+        // Check if files have tags
+        const existingTags = services.tagOperations.getTagsFromFiles(filesForTagOps);
+        const hasTags = existingTags.length > 0;
+        const hasMultipleTags = existingTags.length > 1;
 
-    // Move note(s) to folder
-    if (!shouldShowMultiOptions) {
+        // Add tag - shown when every selected file supports frontmatter
         menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.file.moveToFolder).setIcon('lucide-folder-input'), async () => {
-                await fileSystemOps.moveFilesWithModal([file], {
-                    selectedFile: selectionState.selectedFile,
-                    dispatch: selectionDispatch,
-                    allFiles: cachedFileList
+            setAsyncOnClick(item.setTitle(strings.contextMenu.file.addTag).setIcon('lucide-tag'), () => {
+                openAddTagToFilesModal({
+                    app,
+                    plugin: services.plugin,
+                    tagOperations: services.tagOperations,
+                    files: filesForTagOps
                 });
             });
         });
-    } else {
+
+        // Remove tag - only show if files have tags
+        if (hasTags) {
+            menu.addItem((item: MenuItem) => {
+                setAsyncOnClick(item.setTitle(strings.contextMenu.file.removeTag).setIcon('lucide-minus'), async () => {
+                    await removeTagFromFilesWithPrompt({
+                        app,
+                        tagOperations: services.tagOperations,
+                        files: filesForTagOps
+                    });
+                });
+            });
+
+            // Remove all tags - only show if files have multiple tags
+            if (hasMultipleTags) {
+                menu.addItem((item: MenuItem) => {
+                    setAsyncOnClick(item.setTitle(strings.contextMenu.file.removeAllTags).setIcon('lucide-x'), () => {
+                        confirmRemoveAllTagsFromFiles({
+                            app,
+                            tagOperations: services.tagOperations,
+                            files: filesForTagOps
+                        });
+                    });
+                });
+            }
+        }
+
+        menu.addSeparator();
+    }
+
+    // Add to shortcuts / Remove from shortcuts and Pin/Unpin - single selection only
+    if (!shouldShowMultiOptions) {
+        if (services.shortcuts) {
+            const { noteShortcutKeysByPath, addNoteShortcut, removeShortcut } = services.shortcuts;
+            const existingShortcutKey = noteShortcutKeysByPath.get(file.path);
+
+            menu.addItem((item: MenuItem) => {
+                if (existingShortcutKey) {
+                    setAsyncOnClick(item.setTitle(strings.shortcuts.remove).setIcon('lucide-bookmark-x'), async () => {
+                        await removeShortcut(existingShortcutKey);
+                    });
+                } else {
+                    setAsyncOnClick(item.setTitle(strings.shortcuts.add).setIcon('lucide-bookmark'), async () => {
+                        await addNoteShortcut(file.path);
+                    });
+                }
+            });
+        }
+
+        const pinContext: NavigatorContext = selectionState.selectionType === ItemType.TAG ? 'tag' : 'folder';
+        addSingleFilePinOption(menu, file, metadataService, pinContext);
+
+        menu.addSeparator();
+    }
+
+    // Pin/Unpin for multiple files
+    if (shouldShowMultiOptions) {
+        const pinContext: NavigatorContext = selectionState.selectionType === ItemType.TAG ? 'tag' : 'folder';
+        addMultipleFilesPinOption(menu, selectedCount, selectionState, app, metadataService, pinContext);
+
+        menu.addSeparator();
+
+        // Move, Duplicate, Delete - grouped together
+        // Move note(s) to folder
         menu.addItem((item: MenuItem) => {
             setAsyncOnClick(
                 item
@@ -157,154 +213,32 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 }
             );
         });
-    }
 
-    // Add to shortcuts / Remove from shortcuts
-    if (!shouldShowMultiOptions && services.shortcuts) {
-        const { noteShortcutKeysByPath, addNoteShortcut, removeShortcut } = services.shortcuts;
-        const existingShortcutKey = noteShortcutKeysByPath.get(file.path);
+        // Duplicate note(s)
+        addMultipleFilesDuplicateOption(menu, selectedCount, selectionState, app, fileSystemOps);
 
-        menu.addItem((item: MenuItem) => {
-            if (existingShortcutKey) {
-                setAsyncOnClick(item.setTitle(strings.shortcuts.remove).setIcon('lucide-bookmark-x'), async () => {
-                    await removeShortcut(existingShortcutKey);
-                });
-            } else {
-                setAsyncOnClick(item.setTitle(strings.shortcuts.add).setIcon('lucide-bookmark'), async () => {
-                    await addNoteShortcut(file.path);
-                });
-            }
-        });
-    }
-
-    const filesForTagOps = shouldShowMultiOptions ? cachedSelectedFiles : [file];
-    // Only show tag operations if all files are markdown (tags only work with markdown)
-    const canManageTags = filesForTagOps.length > 0 && filesForTagOps.every(f => f.extension === 'md');
-
-    if (canManageTags) {
-        // Tag operations
-        menu.addSeparator();
-
-        // Check if files have tags
-        const existingTags = services.tagOperations.getTagsFromFiles(filesForTagOps);
-        const hasTags = existingTags.length > 0;
-        const hasMultipleTags = existingTags.length > 1;
-
-        // Add tag - shown when every selected file supports frontmatter
-        menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.file.addTag).setIcon('lucide-plus'), async () => {
-                const modal = new TagSuggestModal(
-                    app,
-                    services.plugin,
-                    (tag: string) => {
-                        runAsyncAction(async () => {
-                            const result = await services.tagOperations.addTagToFiles(tag, filesForTagOps);
-                            const message =
-                                result.added === 1
-                                    ? strings.fileSystem.notifications.tagAddedToNote
-                                    : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', result.added.toString());
-                            showNotice(message, { variant: 'success' });
-                        });
-                    },
-                    strings.modals.tagSuggest.addPlaceholder,
-                    strings.modals.tagSuggest.instructions.add,
-                    false // Don't include untagged
-                );
-                modal.open();
-            });
-        });
-
-        // Remove tag - only show if files have tags
-        if (hasTags) {
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.file.removeTag).setIcon('lucide-minus'), async () => {
-                    const tagsToRemove = services.tagOperations.getTagsFromFiles(filesForTagOps);
-
-                    if (tagsToRemove.length === 0) {
-                        showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
-                        return;
-                    }
-
-                    // If only one tag exists, remove it directly without showing modal
-                    if (tagsToRemove.length === 1) {
-                        const result = await services.tagOperations.removeTagFromFiles(tagsToRemove[0], filesForTagOps);
-                        const message =
-                            result === 1
-                                ? strings.fileSystem.notifications.tagRemovedFromNote
-                                : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                        showNotice(message, { variant: 'success' });
-                        return;
-                    }
-
-                    // Create modal to select which tag to remove
-                    const modal = new RemoveTagModal(app, tagsToRemove, (tag: string) => {
-                        runAsyncAction(async () => {
-                            const result = await services.tagOperations.removeTagFromFiles(tag, filesForTagOps);
-                            const message =
-                                result === 1
-                                    ? strings.fileSystem.notifications.tagRemovedFromNote
-                                    : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                            showNotice(message, { variant: 'success' });
-                        });
-                    });
-                    modal.open();
-                });
-            });
-
-            // Remove all tags - only show if files have multiple tags
-            if (hasMultipleTags) {
-                menu.addItem((item: MenuItem) => {
-                    setAsyncOnClick(item.setTitle(strings.contextMenu.file.removeAllTags).setIcon('lucide-x'), async () => {
-                        const tagsToRemove = services.tagOperations.getTagsFromFiles(filesForTagOps);
-
-                        if (tagsToRemove.length === 0) {
-                            showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
-                            return;
-                        }
-
-                        // Show confirmation dialog
-                        const confirmModal = new ConfirmModal(
-                            app,
-                            strings.modals.fileSystem.removeAllTagsTitle,
-                            filesForTagOps.length === 1
-                                ? strings.modals.fileSystem.removeAllTagsFromNote
-                                : strings.modals.fileSystem.removeAllTagsFromNotes.replace('{count}', filesForTagOps.length.toString()),
-                            () => {
-                                runAsyncAction(async () => {
-                                    const result = await services.tagOperations.clearAllTagsFromFiles(filesForTagOps);
-                                    const message =
-                                        result === 1
-                                            ? strings.fileSystem.notifications.tagsClearedFromNote
-                                            : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
-                                    showNotice(message, { variant: 'success' });
-                                });
-                            },
-                            strings.common.remove
-                        );
-                        confirmModal.open();
-                    });
-                });
-            }
-        }
+        // Delete note(s)
+        addMultipleFilesDeleteOption(
+            menu,
+            selectedCount,
+            selectionState,
+            settings,
+            fileSystemOps,
+            selectionDispatch,
+            cachedFileList,
+            cachedSelectedFiles
+        );
     }
 
     // Copy actions - single selection only
     if (!shouldShowMultiOptions) {
         const adapter = app.vault.adapter;
 
-        menu.addSeparator();
-
-        // Copy Obsidian URL
+        // Copy relative path
         menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.file.copyDeepLink).setIcon('lucide-link'), async () => {
-                const vaultName = app.vault.getName();
-                const encodedVault = encodeURIComponent(vaultName);
-                const encodedFile = encodeURIComponent(file.path);
-                // Construct Obsidian URL with encoded vault and file path
-                const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
-
-                await navigator.clipboard.writeText(deepLink);
-                showNotice(strings.fileSystem.notifications.deepLinkCopied, { variant: 'success' });
+            setAsyncOnClick(item.setTitle(strings.contextMenu.file.copyRelativePath).setIcon('lucide-clipboard-list'), async () => {
+                await navigator.clipboard.writeText(file.path);
+                showNotice(strings.fileSystem.notifications.relativePathCopied, { variant: 'success' });
             });
         });
 
@@ -320,26 +254,21 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
             });
         }
 
-        // Copy relative path
+        // Copy Obsidian URL
         menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.file.copyRelativePath).setIcon('lucide-clipboard-list'), async () => {
-                await navigator.clipboard.writeText(file.path);
-                showNotice(strings.fileSystem.notifications.relativePathCopied, { variant: 'success' });
+            setAsyncOnClick(item.setTitle(strings.contextMenu.file.copyDeepLink).setIcon('lucide-link'), async () => {
+                const vaultName = app.vault.getName();
+                const encodedVault = encodeURIComponent(vaultName);
+                const encodedFile = encodeURIComponent(file.path);
+                // Construct Obsidian URL with encoded vault and file path
+                const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
+
+                await navigator.clipboard.writeText(deepLink);
+                showNotice(strings.fileSystem.notifications.deepLinkCopied, { variant: 'success' });
             });
         });
-    }
 
-    // Open version history (if Sync is enabled) - single selection only
-    if (!shouldShowMultiOptions) {
-        const syncPlugin = getInternalPlugin(app, 'sync');
-        if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
-            menu.addSeparator();
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.file.openVersionHistory).setIcon('lucide-history'), async () => {
-                    await fileSystemOps.openVersionHistory(file);
-                });
-            });
-        }
+        menu.addSeparator();
     }
 
     // Reveal options - single selection only
@@ -352,13 +281,9 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         // System explorer reveal is desktop-only
         const canRevealInSystemExplorer = !isMobile;
 
-        if (canRevealInFolder || canRevealInSystemExplorer) {
-            menu.addSeparator();
-        }
-
         if (canRevealInFolder) {
             menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.file.revealInFolder).setIcon('lucide-folder'), async () => {
+                setAsyncOnClick(item.setTitle(strings.contextMenu.file.revealInFolder).setIcon('lucide-folder-search'), async () => {
                     await services.plugin.activateView();
                     await services.plugin.revealFileInActualFolder(file);
                 });
@@ -377,12 +302,25 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 );
             });
         }
+
+        if (canRevealInFolder || canRevealInSystemExplorer) {
+            menu.addSeparator();
+        }
     }
 
-    menu.addSeparator();
-
-    // Rename note - single selection only
+    // Open version history, Rename, Move, Duplicate, Delete - single selection only
     if (!shouldShowMultiOptions) {
+        // Open version history (if Sync is enabled)
+        const syncPlugin = getInternalPlugin(app, 'sync');
+        if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
+            menu.addItem((item: MenuItem) => {
+                setAsyncOnClick(item.setTitle(strings.contextMenu.file.openVersionHistory).setIcon('lucide-history'), async () => {
+                    await fileSystemOps.openVersionHistory(file);
+                });
+            });
+        }
+
+        // Rename note
         menu.addItem((item: MenuItem) => {
             setAsyncOnClick(
                 item
@@ -393,22 +331,23 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 }
             );
         });
-    }
 
-    // Delete note(s)
-    if (!shouldShowMultiOptions) {
+        // Move to folder
+        menu.addItem((item: MenuItem) => {
+            setAsyncOnClick(item.setTitle(strings.contextMenu.file.moveToFolder).setIcon('lucide-folder-input'), async () => {
+                await fileSystemOps.moveFilesWithModal([file], {
+                    selectedFile: selectionState.selectedFile,
+                    dispatch: selectionDispatch,
+                    allFiles: cachedFileList
+                });
+            });
+        });
+
+        // Duplicate note
+        addSingleFileDuplicateOption(menu, file, fileSystemOps);
+
+        // Delete note
         addSingleFileDeleteOption(menu, file, selectionState, settings, fileSystemOps, selectionDispatch);
-    } else {
-        addMultipleFilesDeleteOption(
-            menu,
-            selectedCount,
-            selectionState,
-            settings,
-            fileSystemOps,
-            selectionDispatch,
-            cachedFileList,
-            cachedSelectedFiles
-        );
     }
 }
 

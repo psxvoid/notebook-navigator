@@ -1049,30 +1049,71 @@ export const NavigationPane = React.memo(
             [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, expansionDispatch, setActiveShortcut]
         );
 
-        // Handle folder name click (for folder notes)
-        const handleFolderNameClick = useCallback(
-            (folder: TFolder) => {
-                // Check if we should open a folder note instead
-                if (settings.enableFolderNotes) {
-                    const folderNote = getFolderNote(folder, settings);
-
-                    if (folderNote) {
-                        // Set folder as selected without auto-selecting first file
-                        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, autoSelectedFile: null });
-
-                        // Open folder note with proper command queue context
-                        runAsyncAction(async () => {
-                            await commandQueue.executeOpenFolderNote(folder.path, () => app.workspace.getLeaf().openFile(folderNote));
-                        });
-
+        const openNavigationFolderNote = useCallback(
+            async ({ folder, folderNote, openInNewTab }: { folder: TFolder; folderNote: TFile; openInNewTab: boolean }) => {
+                const openFile = async () => {
+                    if (openInNewTab) {
+                        await openFileInContext({ app, commandQueue, file: folderNote, context: 'tab' });
                         return;
                     }
+
+                    const leaf = app.workspace.getLeaf();
+                    await leaf.openFile(folderNote);
+                };
+
+                if (commandQueue) {
+                    await commandQueue.executeOpenFolderNote(folder.path, openFile);
+                    return;
                 }
 
-                // If no folder note, fall back to normal folder click behavior
-                handleFolderClick(folder);
+                await openFile();
             },
-            [settings, app, selectionDispatch, handleFolderClick, commandQueue]
+            [app, commandQueue]
+        );
+
+        // Handle folder name click (for folder notes)
+        const handleFolderNameClick = useCallback(
+            (folder: TFolder, event?: React.MouseEvent<HTMLSpanElement>) => {
+                if (!settings.enableFolderNotes) {
+                    handleFolderClick(folder);
+                    return;
+                }
+
+                const folderNote = getFolderNote(folder, settings);
+                if (!folderNote) {
+                    handleFolderClick(folder);
+                    return;
+                }
+
+                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, autoSelectedFile: null });
+
+                const isCmdCtrlClick = Boolean(event && (event.metaKey || event.ctrlKey));
+                const shouldOpenInNewTab = !isMobile && settings.multiSelectModifier === 'optionAlt' && isCmdCtrlClick;
+
+                runAsyncAction(() => openNavigationFolderNote({ folder, folderNote, openInNewTab: shouldOpenInNewTab }));
+            },
+            [settings, handleFolderClick, selectionDispatch, isMobile, openNavigationFolderNote]
+        );
+
+        const handleFolderNameMouseDown = useCallback(
+            (folder: TFolder, event: React.MouseEvent<HTMLSpanElement>) => {
+                if (event.button !== 1 || !settings.enableFolderNotes) {
+                    return;
+                }
+
+                const folderNote = getFolderNote(folder, settings);
+                if (!folderNote) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, autoSelectedFile: null });
+
+                runAsyncAction(() => openNavigationFolderNote({ folder, folderNote, openInNewTab: true }));
+            },
+            [settings, selectionDispatch, openNavigationFolderNote]
         );
 
         // Handle tag toggle
@@ -1304,12 +1345,19 @@ export const NavigationPane = React.memo(
 
         // Opens folder note when clicking on a shortcut label with an associated folder note
         const handleShortcutFolderNoteClick = useCallback(
-            (folder: TFolder, shortcutKey: string) => {
+            (folder: TFolder, shortcutKey: string, event: React.MouseEvent<HTMLSpanElement>) => {
                 setActiveShortcut(shortcutKey);
-                handleFolderNameClick(folder);
+                handleFolderNameClick(folder, event);
                 scheduleShortcutRelease();
             },
             [handleFolderNameClick, scheduleShortcutRelease, setActiveShortcut]
+        );
+
+        const handleShortcutFolderNoteMouseDown = useCallback(
+            (folder: TFolder, event: React.MouseEvent<HTMLSpanElement>) => {
+                handleFolderNameMouseDown(folder, event);
+            },
+            [handleFolderNameMouseDown]
         );
 
         // Handles note shortcut activation - reveals file in list pane
@@ -1852,10 +1900,13 @@ export const NavigationPane = React.memo(
                                 hasFolderNote={!isMissing && Boolean(folderNote)}
                                 onLabelClick={
                                     folder && folderNote
-                                        ? () => {
-                                              handleShortcutFolderNoteClick(folder, item.key);
+                                        ? event => {
+                                              handleShortcutFolderNoteClick(folder, item.key, event);
                                           }
                                         : undefined
+                                }
+                                onLabelMouseDown={
+                                    folder && folderNote ? event => handleShortcutFolderNoteMouseDown(folder, event) : undefined
                                 }
                             />
                         );
@@ -2028,7 +2079,8 @@ export const NavigationPane = React.memo(
                                 isExcluded={item.isExcluded}
                                 onToggle={() => handleFolderToggle(item.data.path)}
                                 onClick={() => handleFolderClick(item.data)}
-                                onNameClick={() => handleFolderNameClick(item.data)}
+                                onNameClick={event => handleFolderNameClick(item.data, event)}
+                                onNameMouseDown={event => handleFolderNameMouseDown(item.data, event)}
                                 onToggleAllSiblings={() => {
                                     const isCurrentlyExpanded = expansionState.expandedFolders.has(item.data.path);
 
@@ -2256,6 +2308,7 @@ export const NavigationPane = React.memo(
                 handleFolderToggle,
                 handleFolderClick,
                 handleFolderNameClick,
+                handleFolderNameMouseDown,
                 handleTagToggle,
                 handleTagClick,
                 handleTagCollectionClick,
@@ -2297,6 +2350,7 @@ export const NavigationPane = React.memo(
                 allowEmptyShortcutDrop,
                 getMissingNoteLabel,
                 handleShortcutFolderNoteClick,
+                handleShortcutFolderNoteMouseDown,
                 isMobile,
                 useMobileReorderMenu,
                 tagsVirtualFolderHasChildren,

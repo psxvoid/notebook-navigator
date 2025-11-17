@@ -403,6 +403,16 @@ export function renderNotesTab(context: SettingsTabContext): void {
     const parentFolderSettingsEl = containerEl.createDiv('nn-sub-settings');
 
     new Setting(parentFolderSettingsEl)
+        .setName(strings.settings.items.parentFolderClickRevealsFile.name)
+        .setDesc(strings.settings.items.parentFolderClickRevealsFile.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.parentFolderClickRevealsFile).onChange(async value => {
+                plugin.settings.parentFolderClickRevealsFile = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(parentFolderSettingsEl)
         .setName(strings.settings.items.showParentFolderColor.name)
         .setDesc(strings.settings.items.showParentFolderColor.desc)
         .addToggle(toggle =>

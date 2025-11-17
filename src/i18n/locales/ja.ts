@@ -140,8 +140,8 @@ export const STRINGS_JA = {
             revealInFinder: 'Finderで表示',
             showInExplorer: 'システムエクスプローラーで表示',
             copyDeepLink: 'Obsidian URL をコピー',
-            copyPath: 'パスをコピー',
-            copyRelativePath: '相対パスをコピー',
+            copyPath: 'ファイルシステムパスをコピー',
+            copyRelativePath: 'Vaultパスをコピー',
             renameNote: 'ノートの名前を変更',
             deleteNote: 'ノートを削除',
             deleteMultipleNotes: '{count}個のノートを削除',
@@ -174,8 +174,8 @@ export const STRINGS_JA = {
             newDrawing: '新規図面',
             duplicateFolder: 'フォルダを複製',
             searchInFolder: 'フォルダ内を検索',
-            copyPath: 'パスをコピー',
-            copyRelativePath: '相対パスをコピー',
+            copyPath: 'ファイルシステムパスをコピー',
+            copyRelativePath: 'Vaultパスをコピー',
             createFolderNote: 'フォルダノートを作成',
             deleteFolderNote: 'フォルダーノートを削除',
             changeIcon: 'アイコンを変更',
@@ -541,6 +541,7 @@ export const STRINGS_JA = {
             },
             list: {
                 display: '外観',
+                pinnedNotes: 'ピン留めされたノート',
                 quickActions: 'クイック操作'
             },
             notes: {
@@ -610,8 +611,8 @@ export const STRINGS_JA = {
                 desc: 'フォルダまたはタグを表示するとき、入れ子のサブフォルダとタグの子孫にあるノートを含めます。'
             },
             limitPinnedToCurrentFolder: {
-                name: '親フォルダでのみピン留めノートを表示',
-                desc: 'ピン留めノートはフォルダを表示している時のみ表示されます'
+                name: 'ピン留めノートをそのフォルダに制限',
+                desc: 'ピン留めノートは、ピン留めされたフォルダまたはタグを表示している時のみ表示されます。'
             },
             separateNoteCounts: {
                 name: '現在と子孫のカウントを個別に表示',
@@ -651,25 +652,17 @@ export const STRINGS_JA = {
                 name: '親フォルダを表示',
                 desc: 'サブフォルダまたはタグ内のノートに親フォルダ名を表示します。'
             },
+            parentFolderClickRevealsFile: {
+                name: '親フォルダクリックでノートを表示',
+                desc: '親フォルダラベルをクリックするとノートを表示します。'
+            },
             showParentFolderColor: {
                 name: '親フォルダの色を表示',
                 desc: '親フォルダラベルにフォルダの色を使用します。'
             },
             showQuickActions: {
                 name: 'クイックアクションを表示 (デスクトップのみ)',
-                desc: 'ファイルアイテムにホバーアクションを表示します。'
-            },
-            quickActionsRevealInFolder: {
-                name: 'フォルダで表示',
-                desc: 'クイックアクション：ノートを親フォルダで表示。サブフォルダまたはタグ内でノートを表示している場合のみ表示されます（ノートの実際のフォルダでは表示されません）。'
-            },
-            quickActionsPinNote: {
-                name: 'ノートをピン留め',
-                desc: 'クイックアクション：ノートをリストの上部にピン留めまたは解除。'
-            },
-            quickActionsOpenInNewTab: {
-                name: '新しいタブで開く',
-                desc: 'クイックアクション：ノートを新しいタブで開く。'
+                desc: 'ファイルにホバーしたときにアクションボタンを表示します。ボタンコントロールで表示するアクションを選択します。'
             },
             dualPane: {
                 name: 'デュアルペインレイアウト（同期されません）',

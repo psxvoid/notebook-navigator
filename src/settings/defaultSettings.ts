@@ -134,9 +134,11 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     slimItemHeight: LISTPANE_MEASUREMENTS.defaultSlimItemHeight,
     slimItemHeightScaleText: true,
     showQuickActions: true,
-    quickActionRevealInFolder: true,
+    quickActionRevealInFolder: false,
+    quickActionAddTag: true,
+    quickActionAddToShortcuts: true,
     quickActionPinNote: true,
-    quickActionOpenInNewTab: true,
+    quickActionOpenInNewTab: false,
 
     // Notes tab
     useFrontmatterMetadata: false,
@@ -157,6 +159,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     colorFileTags: true,
     showFileTagsInSlimMode: false,
     showParentFolder: true,
+    parentFolderClickRevealsFile: true,
     showParentFolderColor: true,
     showFilePreview: true,
     skipHeadingsInPreview: true,

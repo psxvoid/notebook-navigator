@@ -76,10 +76,19 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.8.5',
         date: '2025-11-17',
         showOnUpdate: true,
-        new: [],
-        improved: ['In the color picker, choosing a preset or recent color no longer closes the color picker.'],
-        changed: [],
-        fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in list pane.']
+        new: [
+            'Two new quick actions: **Add tag** and **Add to shortcuts**. ==Important!== If you do not want to show all five quick actions you can easily disable quick links in Settings > List pane > Show quick actions.',
+            'New setting: Settings > Notes > Show parent folder > ==Click parent folder to reveal file==. You can now click the parent folder name to reveal a file.'
+        ],
+        improved: [
+            'In the color picker, choosing a preset or recent color no longer closes the color picker.',
+            'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.'
+        ],
+        changed: [
+            'Improved the menu structure for files and folders, things are now grouped more logically.',
+            'When deleting non-selected files, list pane will now scroll to the selected file. This was unfortunately necessary to keep scroll-to-item working in other areas like pin/unpin note. I might investigate more time into this in the future, but for now this is how it needs to work.'
+        ],
+        fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.']
     },
     {
         version: '1.8.4',

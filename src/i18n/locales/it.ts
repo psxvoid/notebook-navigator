@@ -151,8 +151,8 @@ export const STRINGS_IT = {
             revealInFinder: 'Mostra nel Finder',
             showInExplorer: 'Mostra in Esplora file',
             copyDeepLink: 'Copia URL Obsidian',
-            copyPath: 'Copia percorso',
-            copyRelativePath: 'Copia percorso relativo',
+            copyPath: 'Copia percorso del file system',
+            copyRelativePath: 'Copia percorso del vault',
             renameNote: 'Rinomina nota',
             renameFile: 'Rinomina file',
             deleteNote: 'Elimina nota',
@@ -175,8 +175,8 @@ export const STRINGS_IT = {
             newDrawing: 'Nuovo disegno',
             duplicateFolder: 'Duplica cartella',
             searchInFolder: 'Cerca nella cartella',
-            copyPath: 'Copia percorso',
-            copyRelativePath: 'Copia percorso relativo',
+            copyPath: 'Copia percorso del file system',
+            copyRelativePath: 'Copia percorso del vault',
             createFolderNote: 'Crea nota cartella',
             deleteFolderNote: 'Elimina nota cartella',
             changeIcon: 'Cambia icona',
@@ -542,6 +542,7 @@ export const STRINGS_IT = {
             },
             list: {
                 display: 'Aspetto',
+                pinnedNotes: 'Note fissate',
                 quickActions: 'Azioni rapide'
             },
             notes: {
@@ -607,8 +608,8 @@ export const STRINGS_IT = {
                 desc: 'Includi note da sottocartelle nidificate e discendenti di tag quando visualizzi una cartella o un tag.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Mostra note fissate solo nella cartella genitore',
-                desc: 'Le note fissate appaiono solo quando si visualizza la loro cartella'
+                name: 'Limita note fissate alla loro cartella',
+                desc: 'Le note fissate appaiono solo quando si visualizza la cartella o il tag in cui sono state fissate.'
             },
             separateNoteCounts: {
                 name: 'Mostra conteggi attuali e discendenti separatamente',
@@ -648,25 +649,17 @@ export const STRINGS_IT = {
                 name: 'Mostra cartella genitore',
                 desc: 'Visualizza il nome della cartella genitore per note in sottocartelle o tag.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Clic cartella genitore rivela nota',
+                desc: "Facendo clic sull'etichetta della cartella genitore la nota viene rivelata."
+            },
             showParentFolderColor: {
                 name: 'Mostra colore cartella genitore',
                 desc: 'Usa colori cartella su etichette cartelle genitore.'
             },
             showQuickActions: {
                 name: 'Mostra azioni rapide (solo desktop)',
-                desc: 'Mostra azioni al passaggio del mouse su elementi file.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Mostra nella cartella',
-                desc: 'Azione rapida: Mostra nota nella sua cartella genitore. Visibile solo quando si visualizzano note da sottocartelle o in tag (non mostrata nella cartella reale della nota).'
-            },
-            quickActionsPinNote: {
-                name: 'Fissa nota',
-                desc: 'Azione rapida: Fissa o rimuovi fissaggio nota in cima alla lista.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Apri in nuova scheda',
-                desc: 'Azione rapida: Apri nota in nuova scheda.'
+                desc: 'Mostra pulsanti di azione al passaggio sui file. I controlli dei pulsanti selezionano quali azioni appaiono.'
             },
             dualPane: {
                 name: 'Layout pannello doppio (non sincronizzato)',

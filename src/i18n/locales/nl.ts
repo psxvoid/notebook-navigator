@@ -151,8 +151,8 @@ export const STRINGS_NL = {
             revealInFinder: 'Tonen in Finder',
             showInExplorer: 'Tonen in systeemverkenner',
             copyDeepLink: 'Obsidian URL kopiëren',
-            copyPath: 'Pad kopiëren',
-            copyRelativePath: 'Relatief pad kopiëren',
+            copyPath: 'Bestandssysteempad kopiëren',
+            copyRelativePath: 'Vault-pad kopiëren',
             renameNote: 'Notitie hernoemen',
             renameFile: 'Bestand hernoemen',
             deleteNote: 'Notitie verwijderen',
@@ -175,8 +175,8 @@ export const STRINGS_NL = {
             newDrawing: 'Nieuwe tekening',
             duplicateFolder: 'Map dupliceren',
             searchInFolder: 'Zoeken in map',
-            copyPath: 'Pad kopiëren',
-            copyRelativePath: 'Relatief pad kopiëren',
+            copyPath: 'Bestandssysteempad kopiëren',
+            copyRelativePath: 'Vault-pad kopiëren',
             createFolderNote: 'Mapnotitie maken',
             deleteFolderNote: 'Mapnotitie verwijderen',
             changeIcon: 'Pictogram wijzigen',
@@ -542,6 +542,7 @@ export const STRINGS_NL = {
             },
             list: {
                 display: 'Uiterlijk',
+                pinnedNotes: 'Vastgezette notities',
                 quickActions: 'Snelle acties'
             },
             notes: {
@@ -611,8 +612,8 @@ export const STRINGS_NL = {
                 desc: 'Notities uit geneste submappen en tag-afstammelingen opnemen bij het bekijken van een map of tag.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Vastgepinde notities alleen in bovenliggende map tonen',
-                desc: 'Vastgepinde notities verschijnen alleen bij het bekijken van hun map'
+                name: 'Vastgepinde notities beperken tot hun map',
+                desc: 'Vastgepinde notities verschijnen alleen bij het bekijken van de map of tag waar ze zijn vastgepind.'
             },
             separateNoteCounts: {
                 name: 'Huidige en afstammeling-tellingen apart tonen',
@@ -652,25 +653,17 @@ export const STRINGS_NL = {
                 name: 'Bovenliggende map tonen',
                 desc: 'De naam van de bovenliggende map weergeven voor notities in submappen of tags.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Klik op bovenliggende map toont notitie',
+                desc: 'Klik op het label van de bovenliggende map om de notitie te tonen.'
+            },
             showParentFolderColor: {
                 name: 'Bovenliggende mapkleur tonen',
                 desc: 'Mapkleuren gebruiken voor labels van bovenliggende mappen.'
             },
             showQuickActions: {
                 name: 'Snelle acties tonen (alleen desktop)',
-                desc: 'Zweefacties op bestandsitems tonen.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Tonen in map',
-                desc: 'Snelle actie: Notitie tonen in bovenliggende map. Alleen zichtbaar bij het bekijken van notities uit submappen of in tags (niet weergegeven in de werkelijke map van de notitie).'
-            },
-            quickActionsPinNote: {
-                name: 'Notitie vastpinnen',
-                desc: 'Snelle actie: Notitie vastpinnen of losmaken bovenaan de lijst.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Openen in nieuw tabblad',
-                desc: 'Snelle actie: Notitie openen in nieuw tabblad.'
+                desc: 'Actieknoppen tonen bij zweven over bestanden. Knopbediening selecteert welke acties verschijnen.'
             },
             dualPane: {
                 name: 'Dubbel paneellay-out (niet gesynchroniseerd)',

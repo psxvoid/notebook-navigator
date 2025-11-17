@@ -57,6 +57,7 @@ import { useFileCache } from '../context/StorageContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { useTagNavigation } from '../hooks/useTagNavigation';
 import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
+import { useShortcuts } from '../context/ShortcutsContext';
 import { strings } from '../i18n';
 import { SortOption } from '../settings';
 import { ItemType } from '../types';
@@ -69,6 +70,8 @@ import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
 import { areStringArraysEqual } from '../utils/arrayUtils';
+import { openAddTagToFilesModal } from '../utils/tagModalHelpers';
+
 import { useSelectionState } from 'src/context/SelectionContext';
 import { EMPTY_ARRAY, EMPTY_STRING } from 'src/utils/empty';
 
@@ -185,17 +188,32 @@ interface ParentFolderLabelProps {
     color?: string;
     showIcon: boolean;
     applyColorToName: boolean;
+    onReveal?: () => void;
 }
 
 /**
  * Renders a parent folder label with icon for display in file items.
  */
-function ParentFolderLabel({ iconId, label, iconVersion, color, showIcon, applyColorToName }: ParentFolderLabelProps) {
+function ParentFolderLabel({ iconId, label, iconVersion, color, showIcon, applyColorToName, onReveal }: ParentFolderLabelProps) {
     const iconRef = useRef<HTMLSpanElement>(null);
     const hasColor = Boolean(color);
     const iconStyle: React.CSSProperties | undefined = color ? { color } : undefined;
     const labelStyle: React.CSSProperties | undefined = applyColorToName && color ? { color } : undefined;
-    const labelClassName = applyColorToName ? 'nn-file-folder-label nn-file-folder-label--colored' : 'nn-file-folder-label';
+    const labelClassName = applyColorToName ? 'nn-parent-folder-label nn-parent-folder-label--colored' : 'nn-parent-folder-label';
+    const isRevealEnabled = Boolean(onReveal);
+
+    // Handles click on parent folder label to reveal the file when enabled
+    const handleClick = useCallback(
+        (event: React.MouseEvent<HTMLDivElement>) => {
+            if (!onReveal) {
+                return;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            onReveal();
+        },
+        [onReveal]
+    );
 
     // Render the folder icon when iconId or iconVersion changes
     useEffect(() => {
@@ -214,19 +232,25 @@ function ParentFolderLabel({ iconId, label, iconVersion, color, showIcon, applyC
     }, [iconId, iconVersion, showIcon]);
 
     return (
-        <div className="nn-file-folder">
-            {showIcon ? (
-                <span
-                    className="nn-file-folder-icon"
-                    ref={iconRef}
-                    aria-hidden="true"
-                    data-has-color={hasColor ? 'true' : 'false'}
-                    style={iconStyle}
-                />
-            ) : null}
-            <span className={labelClassName} style={labelStyle} data-has-color={applyColorToName ? 'true' : 'false'}>
-                {label}
-            </span>
+        <div className="nn-parent-folder">
+            <div
+                className="nn-parent-folder-content"
+                data-reveal={isRevealEnabled ? 'true' : 'false'}
+                onClick={isRevealEnabled ? handleClick : undefined}
+            >
+                {showIcon ? (
+                    <span
+                        className="nn-parent-folder-icon"
+                        ref={iconRef}
+                        aria-hidden="true"
+                        data-has-color={hasColor ? 'true' : 'false'}
+                        style={iconStyle}
+                    />
+                ) : null}
+                <span className={labelClassName} style={labelStyle} data-has-color={applyColorToName ? 'true' : 'false'}>
+                    {label}
+                </span>
+            </div>
         </div>
     );
 }
@@ -260,7 +284,7 @@ export const FileItem = React.memo(function FileItem({
     isHidden = false
 }: FileItemProps) {
     // === Hooks (all hooks together at the top) ===
-    const { app, isMobile, plugin, commandQueue } = useServices();
+    const { app, isMobile, plugin, commandQueue, tagOperations } = useServices();
     const settings = useSettingsState();
     const uxPreferences = useUXPreferences();
     const includeDescendantNotes = uxPreferences.includeDescendantNotes;
@@ -269,6 +293,7 @@ export const FileItem = React.memo(function FileItem({
     const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime } = useFileCache();
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
+    const { addNoteShortcut, hasNoteShortcut, noteShortcutKeysByPath, removeShortcut } = useShortcuts();
     const hiddenTagVisibility = useMemo(
         () => createHiddenTagVisibility(settings.hiddenTags, showHiddenItems),
         [settings.hiddenTags, showHiddenItems]
@@ -328,6 +353,8 @@ export const FileItem = React.memo(function FileItem({
     // === Refs ===
     const fileRef = useRef<HTMLDivElement>(null);
     const revealInFolderIconRef = useRef<HTMLDivElement>(null);
+    const addTagIconRef = useRef<HTMLDivElement>(null);
+    const addShortcutIconRef = useRef<HTMLDivElement>(null);
     const pinNoteIconRef = useRef<HTMLDivElement>(null);
     const openInNewTabIconRef = useRef<HTMLDivElement>(null);
     const fileIconRef = useRef<HTMLSpanElement>(null);
@@ -345,7 +372,12 @@ export const FileItem = React.memo(function FileItem({
     const shouldShowPinNote = settings.showQuickActions && settings.quickActionPinNote;
     const shouldShowRevealIcon =
         settings.showQuickActions && settings.quickActionRevealInFolder && file.parent && file.parent.path !== parentFolder;
-    const hasQuickActions = shouldShowOpenInNewTab || shouldShowPinNote || shouldShowRevealIcon;
+    const canAddTagsToFile = file.extension === 'md';
+    const shouldShowAddTagAction = settings.showQuickActions && settings.quickActionAddTag && canAddTagsToFile && Boolean(tagOperations);
+    const hasShortcut = hasNoteShortcut(file.path);
+    const shouldShowShortcutAction = settings.showQuickActions && settings.quickActionAddToShortcuts;
+    const hasQuickActions =
+        shouldShowOpenInNewTab || shouldShowPinNote || shouldShowRevealIcon || shouldShowAddTagAction || shouldShowShortcutAction;
     const iconServiceVersion = useIconServiceVersion();
 
     // Get display name from RAM cache (handles frontmatter title)
@@ -762,6 +794,7 @@ export const FileItem = React.memo(function FileItem({
                 color={parentFolderMeta.color}
                 showIcon={parentFolderMeta.showIcon}
                 applyColorToName={parentFolderMeta.applyColorToName}
+                onReveal={settings.parentFolderClickRevealsFile ? revealFileInNavigation : undefined}
             />
         ) : null;
 
@@ -987,6 +1020,14 @@ export const FileItem = React.memo(function FileItem({
         file.name
     ]);
 
+    // Reveals the file by selecting its folder in navigation pane and showing the file in list pane
+    const revealFileInNavigation = () => {
+        runAsyncAction(async () => {
+            await plugin.activateView();
+            await plugin.revealFileInActualFolder(file);
+        });
+    };
+
     // Quick action handlers - these don't need memoization because:
     // 1. They're only attached to DOM elements that appear on hover
     // 2. They're not passed as props to child components
@@ -1007,13 +1048,39 @@ export const FileItem = React.memo(function FileItem({
         });
     };
 
+    const handleShortcutToggle = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        runAsyncAction(async () => {
+            const shortcutKey = noteShortcutKeysByPath.get(file.path);
+            if (shortcutKey) {
+                await removeShortcut(shortcutKey);
+            } else {
+                await addNoteShortcut(file.path);
+            }
+        });
+    };
+
     // Reveal the file in its actual folder in the navigator
     const handleRevealClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        runAsyncAction(async () => {
-            await plugin.activateView();
-            await plugin.revealFileInActualFolder(file);
+        revealFileInNavigation();
+    };
+
+    const handleAddTagClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (!tagOperations) {
+            return;
+        }
+
+        openAddTagToFilesModal({
+            app,
+            plugin,
+            tagOperations,
+            files: [file]
         });
     };
 
@@ -1026,6 +1093,86 @@ export const FileItem = React.memo(function FileItem({
         e.stopPropagation();
         runAsyncAction(() => openFileInContext({ app, commandQueue, file, context: 'tab' }));
     };
+
+    const quickActionItems: { key: string; element: React.ReactNode }[] = [];
+
+    if (shouldShowRevealIcon) {
+        quickActionItems.push({
+            key: 'reveal',
+            element: (
+                <div
+                    ref={revealInFolderIconRef}
+                    className="nn-quick-action-item"
+                    onClick={handleRevealClick}
+                    title={strings.contextMenu.file.revealInFolder}
+                />
+            )
+        });
+    }
+
+    if (shouldShowAddTagAction) {
+        quickActionItems.push({
+            key: 'add-tag',
+            element: (
+                <div
+                    ref={addTagIconRef}
+                    className="nn-quick-action-item"
+                    onClick={handleAddTagClick}
+                    title={strings.contextMenu.file.addTag}
+                />
+            )
+        });
+    }
+
+    if (shouldShowShortcutAction) {
+        quickActionItems.push({
+            key: 'shortcut',
+            element: (
+                <div
+                    ref={addShortcutIconRef}
+                    className="nn-quick-action-item"
+                    onClick={handleShortcutToggle}
+                    title={hasShortcut ? strings.shortcuts.remove : strings.shortcuts.add}
+                />
+            )
+        });
+    }
+
+    if (shouldShowPinNote) {
+        quickActionItems.push({
+            key: 'pin',
+            element: (
+                <div
+                    ref={pinNoteIconRef}
+                    className="nn-quick-action-item"
+                    onClick={handlePinClick}
+                    title={
+                        isPinned
+                            ? file.extension === 'md'
+                                ? strings.contextMenu.file.unpinNote
+                                : strings.contextMenu.file.unpinFile
+                            : file.extension === 'md'
+                              ? strings.contextMenu.file.pinNote
+                              : strings.contextMenu.file.pinFile
+                    }
+                />
+            )
+        });
+    }
+
+    if (shouldShowOpenInNewTab) {
+        quickActionItems.push({
+            key: 'new-tab',
+            element: (
+                <div
+                    ref={openInNewTabIconRef}
+                    className="nn-quick-action-item"
+                    onClick={handleOpenInNewTab}
+                    title={strings.contextMenu.file.openInNewTab}
+                />
+            )
+        });
+    }
 
     // === Effects ===
 
@@ -1083,7 +1230,13 @@ export const FileItem = React.memo(function FileItem({
     useEffect(() => {
         if (isHovered && !isMobile) {
             if (revealInFolderIconRef.current && shouldShowRevealIcon) {
-                setIcon(revealInFolderIconRef.current, 'lucide-folder');
+                setIcon(revealInFolderIconRef.current, 'lucide-folder-search');
+            }
+            if (addTagIconRef.current && shouldShowAddTagAction) {
+                setIcon(addTagIconRef.current, 'lucide-tag');
+            }
+            if (addShortcutIconRef.current && shouldShowShortcutAction) {
+                setIcon(addShortcutIconRef.current, hasShortcut ? 'lucide-bookmark-x' : 'lucide-bookmark');
             }
             if (pinNoteIconRef.current && shouldShowPinNote) {
                 setIcon(pinNoteIconRef.current, isPinned ? 'lucide-pin-off' : 'lucide-pin');
@@ -1092,7 +1245,17 @@ export const FileItem = React.memo(function FileItem({
                 setIcon(openInNewTabIconRef.current, 'lucide-file-plus');
             }
         }
-    }, [isHovered, isMobile, shouldShowOpenInNewTab, shouldShowPinNote, shouldShowRevealIcon, isPinned]);
+    }, [
+        isHovered,
+        isMobile,
+        shouldShowOpenInNewTab,
+        shouldShowPinNote,
+        shouldShowRevealIcon,
+        shouldShowAddTagAction,
+        shouldShowShortcutAction,
+        hasShortcut,
+        isPinned
+    ]);
 
     // Enable context menu
     useContextMenu(fileRef, { type: ItemType.FILE, item: file });
@@ -1136,40 +1299,12 @@ export const FileItem = React.memo(function FileItem({
                         data-title-rows={appearanceSettings.titleRows}
                         data-has-tags={shouldShowFileTags ? 'true' : 'false'}
                     >
-                        {shouldShowRevealIcon && (
-                            <div
-                                ref={revealInFolderIconRef}
-                                className="nn-quick-action-item"
-                                onClick={handleRevealClick}
-                                title={strings.contextMenu.file.revealInFolder}
-                            />
-                        )}
-                        {shouldShowRevealIcon && shouldShowPinNote && <div className="nn-quick-action-separator" />}
-                        {shouldShowPinNote && (
-                            <div
-                                ref={pinNoteIconRef}
-                                className="nn-quick-action-item"
-                                onClick={handlePinClick}
-                                title={
-                                    isPinned
-                                        ? file.extension === 'md'
-                                            ? strings.contextMenu.file.unpinNote
-                                            : strings.contextMenu.file.unpinFile
-                                        : file.extension === 'md'
-                                          ? strings.contextMenu.file.pinNote
-                                          : strings.contextMenu.file.pinFile
-                                }
-                            />
-                        )}
-                        {shouldShowPinNote && shouldShowOpenInNewTab && <div className="nn-quick-action-separator" />}
-                        {shouldShowOpenInNewTab && (
-                            <div
-                                ref={openInNewTabIconRef}
-                                className="nn-quick-action-item"
-                                onClick={handleOpenInNewTab}
-                                title={strings.contextMenu.file.openInNewTab}
-                            />
-                        )}
+                        {quickActionItems.map((action, index) => (
+                            <React.Fragment key={action.key}>
+                                {index > 0 && <div className="nn-quick-action-separator" />}
+                                {action.element}
+                            </React.Fragment>
+                        ))}
                     </div>
                 )}
                 <div className="nn-file-inner-content">

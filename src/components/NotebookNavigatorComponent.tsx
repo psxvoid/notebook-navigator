@@ -39,8 +39,6 @@ import { runAsyncAction } from '../utils/async';
 import { useUpdateNotice } from '../hooks/useUpdateNotice';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 import { TagSuggestModal } from '../modals/TagSuggestModal';
-import { RemoveTagModal } from '../modals/RemoveTagModal';
-import { ConfirmModal } from '../modals/ConfirmModal';
 import { FILE_PANE_DIMENSIONS, ItemType, NAVPANE_MEASUREMENTS, type BackgroundMode, type DualPaneOrientation } from '../types';
 import { getSelectedPath, getFilesForSelection } from '../utils/selectionUtils';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
@@ -49,6 +47,7 @@ import { localStorage } from '../utils/localStorage';
 import { calculateSlimListMetrics } from '../utils/listPaneMetrics';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
 import { getBackgroundClasses } from '../utils/paneLayout';
+import { confirmRemoveAllTagsFromFiles, openAddTagToFilesModal, removeTagFromFilesWithPrompt } from '../utils/tagModalHelpers';
 import { useNavigatorScale } from '../hooks/useNavigatorScale';
 import { ListPane } from './ListPane';
 import type { ListPaneHandle } from './ListPane';
@@ -651,31 +650,13 @@ export const NotebookNavigatorComponent = React.memo(
                         return;
                     }
 
-                    // Verify all selected files are markdown (tags only work with markdown)
-                    if (!selectedFiles.every(item => item.extension === 'md')) {
-                        showNotice(strings.fileSystem.notifications.tagsRequireMarkdown, { variant: 'warning' });
-                        return;
-                    }
-
                     // Show tag selection modal
-                    const modal = new TagSuggestModal(
+                    openAddTagToFilesModal({
                         app,
                         plugin,
-                        (tag: string) => {
-                            runAsyncAction(async () => {
-                                const result = await tagOperations.addTagToFiles(tag, selectedFiles);
-                                const message =
-                                    result.added === 1
-                                        ? strings.fileSystem.notifications.tagAddedToNote
-                                        : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', result.added.toString());
-                                showNotice(message, { variant: 'success' });
-                            });
-                        },
-                        strings.modals.tagSuggest.addPlaceholder,
-                        strings.modals.tagSuggest.instructions.add,
-                        false // Don't include untagged
-                    );
-                    modal.open();
+                        tagOperations,
+                        files: selectedFiles
+                    });
                 },
                 removeTagFromSelectedFiles: async () => {
                     if (!tagOperations) {
@@ -690,42 +671,11 @@ export const NotebookNavigatorComponent = React.memo(
                         return;
                     }
 
-                    // Verify all selected files are markdown (tags only work with markdown)
-                    if (!selectedFiles.every(item => item.extension === 'md')) {
-                        showNotice(strings.fileSystem.notifications.tagsRequireMarkdown, { variant: 'warning' });
-                        return;
-                    }
-
-                    // Get tags from selected files
-                    const existingTags = tagOperations.getTagsFromFiles(selectedFiles);
-                    if (existingTags.length === 0) {
-                        showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
-                        return;
-                    }
-
-                    // If only one tag exists, remove it directly without showing modal
-                    if (existingTags.length === 1) {
-                        const result = await tagOperations.removeTagFromFiles(existingTags[0], selectedFiles);
-                        const message =
-                            result === 1
-                                ? strings.fileSystem.notifications.tagRemovedFromNote
-                                : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                        showNotice(message, { variant: 'success' });
-                        return;
-                    }
-
-                    // Show modal to select which tag to remove
-                    const modal = new RemoveTagModal(app, existingTags, (tag: string) => {
-                        runAsyncAction(async () => {
-                            const result = await tagOperations.removeTagFromFiles(tag, selectedFiles);
-                            const message =
-                                result === 1
-                                    ? strings.fileSystem.notifications.tagRemovedFromNote
-                                    : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
-                            showNotice(message, { variant: 'success' });
-                        });
+                    await removeTagFromFilesWithPrompt({
+                        app,
+                        tagOperations,
+                        files: selectedFiles
                     });
-                    modal.open();
                 },
                 removeAllTagsFromSelectedFiles: async () => {
                     if (!tagOperations) {
@@ -740,39 +690,11 @@ export const NotebookNavigatorComponent = React.memo(
                         return;
                     }
 
-                    // Verify all selected files are markdown (tags only work with markdown)
-                    if (!selectedFiles.every(item => item.extension === 'md')) {
-                        showNotice(strings.fileSystem.notifications.tagsRequireMarkdown, { variant: 'warning' });
-                        return;
-                    }
-
-                    // Check if files have tags
-                    const existingTags = tagOperations.getTagsFromFiles(selectedFiles);
-                    if (existingTags.length === 0) {
-                        showNotice(strings.fileSystem.notifications.noTagsToRemove, { variant: 'warning' });
-                        return;
-                    }
-
-                    // Show confirmation dialog
-                    const confirmModal = new ConfirmModal(
+                    confirmRemoveAllTagsFromFiles({
                         app,
-                        strings.modals.fileSystem.removeAllTagsTitle,
-                        selectedFiles.length === 1
-                            ? strings.modals.fileSystem.removeAllTagsFromNote
-                            : strings.modals.fileSystem.removeAllTagsFromNotes.replace('{count}', selectedFiles.length.toString()),
-                        () => {
-                            runAsyncAction(async () => {
-                                const result = await tagOperations.clearAllTagsFromFiles(selectedFiles);
-                                const message =
-                                    result === 1
-                                        ? strings.fileSystem.notifications.tagsClearedFromNote
-                                        : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
-                                showNotice(message, { variant: 'success' });
-                            });
-                        },
-                        strings.common.remove
-                    );
-                    confirmModal.open();
+                        tagOperations,
+                        files: selectedFiles
+                    });
                 },
                 toggleSearch: () => {
                     listPaneRef.current?.toggleSearch();

@@ -140,8 +140,8 @@ export const STRINGS_ES = {
             revealInFinder: 'Mostrar en Finder',
             showInExplorer: 'Mostrar en el explorador del sistema',
             copyDeepLink: 'Copiar URL de Obsidian',
-            copyPath: 'Copiar ruta',
-            copyRelativePath: 'Copiar ruta relativa',
+            copyPath: 'Copiar ruta del sistema de archivos',
+            copyRelativePath: 'Copiar ruta del vault',
             renameNote: 'Renombrar nota',
             deleteNote: 'Eliminar nota',
             deleteMultipleNotes: 'Eliminar {count} notas',
@@ -174,8 +174,8 @@ export const STRINGS_ES = {
             newDrawing: 'Nuevo dibujo',
             duplicateFolder: 'Duplicar carpeta',
             searchInFolder: 'Buscar en carpeta',
-            copyPath: 'Copiar ruta',
-            copyRelativePath: 'Copiar ruta relativa',
+            copyPath: 'Copiar ruta del sistema de archivos',
+            copyRelativePath: 'Copiar ruta del vault',
             createFolderNote: 'Crear nota de carpeta',
             deleteFolderNote: 'Eliminar nota de carpeta',
             changeIcon: 'Cambiar icono',
@@ -541,6 +541,7 @@ export const STRINGS_ES = {
             },
             list: {
                 display: 'Apariencia',
+                pinnedNotes: 'Notas fijadas',
                 quickActions: 'Acciones rápidas'
             },
             notes: {
@@ -610,8 +611,8 @@ export const STRINGS_ES = {
                 desc: 'Incluir notas de subcarpetas y descendientes de etiquetas al ver una carpeta o etiqueta.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Mostrar notas fijadas solo en la carpeta principal',
-                desc: 'Las notas fijadas aparecen solo al ver su carpeta'
+                name: 'Limitar notas fijadas a su carpeta',
+                desc: 'Las notas fijadas aparecen solo al ver la carpeta o etiqueta donde fueron fijadas.'
             },
             separateNoteCounts: {
                 name: 'Mostrar conteos actuales y descendientes por separado',
@@ -651,25 +652,17 @@ export const STRINGS_ES = {
                 name: 'Mostrar carpeta principal',
                 desc: 'Muestra el nombre de la carpeta principal para las notas en subcarpetas o etiquetas.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Clic en carpeta principal revela nota',
+                desc: 'Al hacer clic en la etiqueta de la carpeta principal se revela la nota.'
+            },
             showParentFolderColor: {
                 name: 'Mostrar color de carpeta principal',
                 desc: 'Usar colores de carpeta en etiquetas de carpetas principales.'
             },
             showQuickActions: {
                 name: 'Mostrar acciones rápidas (solo escritorio)',
-                desc: 'Mostrar acciones al pasar el cursor sobre los elementos de archivo.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Revelar en carpeta',
-                desc: 'Acción rápida: Revelar nota en su carpeta principal. Solo visible al ver notas de subcarpetas o en etiquetas (no se muestra en la carpeta real de la nota).'
-            },
-            quickActionsPinNote: {
-                name: 'Fijar nota',
-                desc: 'Acción rápida: Fijar o desfijar nota en la parte superior de la lista.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Abrir en nueva pestaña',
-                desc: 'Acción rápida: Abrir nota en nueva pestaña.'
+                desc: 'Mostrar botones de acción al pasar sobre archivos. Los controles de botones seleccionan qué acciones aparecen.'
             },
             dualPane: {
                 name: 'Diseño de doble panel (no sincronizado)',
