@@ -25,6 +25,37 @@ import { findTagNode } from './tagTree';
 import type { TagTreeNode } from '../types/storage';
 import type { InclusionOperator } from './filterSearch';
 
+export const TAG_CHARACTER_CLASS = '[\\p{L}\\p{N}_\\-/]';
+export const TAG_NAME_PATTERN = new RegExp(`^${TAG_CHARACTER_CLASS}+$`, 'u');
+
+/**
+ * Checks if a tag value only contains allowed tag characters.
+ * Trims whitespace and rejects empty values.
+ */
+export function hasValidTagCharacters(tagValue: string | null | undefined): boolean {
+    if (!tagValue) {
+        return false;
+    }
+
+    const trimmed = tagValue.trim();
+    if (trimmed.length === 0) {
+        return false;
+    }
+
+    return TAG_NAME_PATTERN.test(trimmed);
+}
+
+/**
+ * Checks if a character is a valid preceding character for a tag.
+ * Tags can be preceded by whitespace, start of line, or certain punctuation.
+ */
+export function isValidTagPrecedingChar(char: string | null | undefined): boolean {
+    if (!char) {
+        return true; // Start of line/string
+    }
+    return /\s/.test(char) || char === '!';
+}
+
 /**
  * Normalizes tag paths for internal lookups.
  * Removes leading # when present and returns lowercase path.

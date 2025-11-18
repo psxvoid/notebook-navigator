@@ -19,6 +19,7 @@
 import { TagTreeNode } from '../types/storage';
 import { findTagNode, collectAllTagPaths, collectTagFilePaths } from '../utils/tagTree';
 import { ITagTreeProvider } from '../interfaces/ITagTreeProvider';
+import { naturalCompare } from '../utils/sortUtils';
 
 /**
  * Service that provides access to the tag tree from StorageContext
@@ -28,6 +29,8 @@ export class TagTreeService implements ITagTreeProvider {
     private tagTree: Map<string, TagTreeNode> = new Map();
     private taggedCount = 0;
     private untaggedCount = 0;
+    private flattenedTags: TagTreeNode[] = [];
+    private cachedTagPaths: string[] | null = null;
 
     /**
      * Updates the tag tree data from StorageContext
@@ -37,6 +40,8 @@ export class TagTreeService implements ITagTreeProvider {
         this.tagTree = tree;
         this.taggedCount = tagged;
         this.untaggedCount = untagged;
+        this.flattenedTags = this.flattenTagTree(tree);
+        this.cachedTagPaths = null;
     }
 
     /**
@@ -64,12 +69,17 @@ export class TagTreeService implements ITagTreeProvider {
      * Gets all tag paths in the tree
      */
     getAllTagPaths(): string[] {
-        const allPaths: string[] = [];
-        for (const rootNode of this.tagTree.values()) {
-            const paths = collectAllTagPaths(rootNode);
-            allPaths.push(...paths);
+        if (!this.cachedTagPaths) {
+            this.cachedTagPaths = this.flattenedTags.map(node => node.path);
         }
-        return allPaths;
+        return this.cachedTagPaths;
+    }
+
+    /**
+     * Gets all tag nodes in a flattened array, sorted alphabetically
+     */
+    getFlattenedTagNodes(): readonly TagTreeNode[] {
+        return this.flattenedTags;
     }
 
     /**
@@ -95,5 +105,47 @@ export class TagTreeService implements ITagTreeProvider {
      */
     getTaggedCount(): number {
         return this.taggedCount;
+    }
+
+    /**
+     * Flattens the tag tree into a sorted array of all tag nodes
+     * Traverses the tree depth-first and collects all nodes with valid display paths
+     */
+    private flattenTagTree(tree: Map<string, TagTreeNode>): TagTreeNode[] {
+        if (tree.size === 0) {
+            return [];
+        }
+
+        const nodes: TagTreeNode[] = [];
+        const stack: TagTreeNode[] = [];
+        const visited = new Set<TagTreeNode>();
+        // Initialize stack with all root nodes
+        for (const rootNode of tree.values()) {
+            stack.push(rootNode);
+        }
+
+        // Depth-first traversal to collect all nodes
+        while (stack.length > 0) {
+            const node = stack.pop();
+            if (!node) {
+                continue;
+            }
+            if (visited.has(node)) {
+                continue;
+            }
+            visited.add(node);
+            // Only include nodes with valid display paths
+            if (node.displayPath && node.displayPath.length > 0) {
+                nodes.push(node);
+            }
+            // Add children to stack for processing
+            node.children.forEach(child => {
+                stack.push(child);
+            });
+        }
+
+        // Sort all collected nodes alphabetically by display path
+        nodes.sort((a, b) => naturalCompare(a.displayPath, b.displayPath));
+        return nodes;
     }
 }
