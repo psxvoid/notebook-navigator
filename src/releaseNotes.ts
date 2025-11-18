@@ -82,9 +82,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: List pane > ==Scroll to selected file on list changes==. When enabled, list pane will scroll to the active file when pinning notes, showing descendant notes, changing folder appearance, or file operations. Default enabled, disable for full control over scroll position.'
         ],
         improved: [
+            'When creating a new folder, you can now check **Hide in other vault profiles** in the modal dialog.',
             'When renaming or moving a hidden folder, it will now update **Settings > Hide folders** and stay hidden.',
             'When deleting a hidden folder it will be removed from **Settings > Hide folders**.',
-            'When changing hidden folders (renaming, moving, deleting) all changes are now reflected in all vaults.',
+            'When changing hidden folders (renaming, moving, deleting) **all changes are now reflected in all vaults**.',
             'In the color picker, choosing a preset or recent color no longer closes the color picker.',
             'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.'
         ],
