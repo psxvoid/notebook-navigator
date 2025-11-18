@@ -74,7 +74,7 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.8.5',
-        date: '2025-11-17',
+        date: '2025-11-18',
         showOnUpdate: true,
         new: [
             'Two new quick actions: **Add tag** and **Add to shortcuts**. ==Important!== If you do not want to show all five quick actions you can easily disable quick links in Settings > List pane > Show quick actions.',
@@ -82,6 +82,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: List pane > ==Scroll to selected file on list changes==. When enabled, list pane will scroll to the active file when pinning notes, showing descendant notes, changing folder appearance, or file operations. Default enabled, disable for full control over scroll position.'
         ],
         improved: [
+            'When renaming or moving a hidden folder, it will now update **Settings > Hide folders** and stay hidden.',
+            'When deleting a hidden folder it will be removed from **Settings > Hide folders**.',
+            'When changing hidden folders (renaming, moving, deleting) all changes are now reflected in all vaults.',
             'In the color picker, choosing a preset or recent color no longer closes the color picker.',
             'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.'
         ],

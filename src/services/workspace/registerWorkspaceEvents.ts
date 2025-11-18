@@ -6,11 +6,38 @@ import { TFile, TFolder } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 import { strings } from '../../i18n';
 import { runAsyncAction } from '../../utils/async';
+import { removeHiddenFolderExactMatches, updateHiddenFolderExactMatches } from '../../utils/vaultProfiles';
 
 /**
  * Registers all workspace-related event listeners for the plugin
  */
 export default function registerWorkspaceEvents(plugin: NotebookNavigatorPlugin): void {
+    const syncHiddenFolderRename = async (previousPath: string, nextPath: string): Promise<void> => {
+        const updated = updateHiddenFolderExactMatches(plugin.settings, previousPath, nextPath);
+        if (!updated) {
+            return;
+        }
+
+        try {
+            await plugin.saveSettingsAndUpdate();
+        } catch (error) {
+            console.error('Failed to persist hidden folder rename updates', error);
+        }
+    };
+
+    const removeHiddenFolderPath = async (targetPath: string): Promise<void> => {
+        const removed = removeHiddenFolderExactMatches(plugin.settings, targetPath);
+        if (!removed) {
+            return;
+        }
+
+        try {
+            await plugin.saveSettingsAndUpdate();
+        } catch (error) {
+            console.error('Failed to persist hidden folder removal updates', error);
+        }
+    };
+
     // Add "Reveal in Navigator" to editor context menu
     plugin.registerEvent(
         plugin.app.workspace.on('editor-menu', (menu, _, view) => {
@@ -85,6 +112,7 @@ export default function registerWorkspaceEvents(plugin: NotebookNavigatorPlugin)
                 }
 
                 if (file instanceof TFolder) {
+                    await syncHiddenFolderRename(oldPath, file.path);
                     // Update folder metadata (colors, icons, etc.) to use new path
                     await plugin.metadataService?.handleFolderRename(oldPath, file.path);
                     return;
@@ -128,6 +156,7 @@ export default function registerWorkspaceEvents(plugin: NotebookNavigatorPlugin)
                 }
 
                 if (file instanceof TFolder) {
+                    await removeHiddenFolderPath(file.path);
                     // Clean up folder metadata (colors, icons, etc.)
                     await plugin.metadataService?.handleFolderDelete(file.path);
                     return;

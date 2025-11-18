@@ -28,20 +28,7 @@ import { ItemType } from '../../types';
 import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 import { runAsyncAction } from '../async';
 import { setAsyncOnClick } from './menuAsyncHelpers';
-import { getActiveVaultProfile } from '../../utils/vaultProfiles';
-
-const normalizeVaultPath = (value: string): string => {
-    if (!value) {
-        return value;
-    }
-
-    const withLeadingSlash = value.startsWith('/') ? value : `/${value}`;
-    if (withLeadingSlash.length > 1 && withLeadingSlash.endsWith('/')) {
-        return withLeadingSlash.slice(0, -1);
-    }
-
-    return withLeadingSlash;
-};
+import { getActiveVaultProfile, getHiddenFolderPatternMatch, normalizeHiddenFolderPath } from '../../utils/vaultProfiles';
 
 /**
  * Adds folder creation commands (new note/folder/canvas/base/drawing) to a menu.
@@ -332,19 +319,17 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         const activeProfile = getActiveVaultProfile(services.plugin.settings);
         const excludedPatterns = activeProfile.hiddenFolders;
         const isExcluded = isFolderInExcludedFolder(folder, excludedPatterns);
-        const normalizedFolderPath = normalizeVaultPath(folder.path);
-        const exactPathExclusion = excludedPatterns.find(pattern => {
-            if (!pattern.startsWith('/') || pattern.includes('*')) {
-                return false;
-            }
-            return normalizeVaultPath(pattern) === normalizedFolderPath;
+        const normalizedFolderPath = normalizeHiddenFolderPath(folder.path);
+        const matchingHiddenPattern = excludedPatterns.find(pattern => {
+            const match = getHiddenFolderPatternMatch(pattern);
+            return Boolean(match && match.normalizedPrefix === normalizedFolderPath);
         });
 
-        if (exactPathExclusion) {
+        if (matchingHiddenPattern) {
             menu.addItem((item: MenuItem) => {
                 setAsyncOnClick(item.setTitle(strings.contextMenu.folder.unhideFolder).setIcon('lucide-eye'), async () => {
                     const currentExcluded = activeProfile.hiddenFolders;
-                    activeProfile.hiddenFolders = currentExcluded.filter(pattern => pattern !== exactPathExclusion);
+                    activeProfile.hiddenFolders = currentExcluded.filter(pattern => pattern !== matchingHiddenPattern);
                     resetHiddenToggleIfNoSources({
                         settings: services.plugin.settings,
                         showHiddenItems,

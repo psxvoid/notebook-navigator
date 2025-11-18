@@ -36,6 +36,7 @@ import { createDragGhostManager } from '../utils/dragGhost';
 import { normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 import { runAsyncAction } from '../utils/async';
 import { extractFilePathsFromDataTransfer } from '../utils/dragData';
+import { FolderMoveError } from '../services/FileSystemService';
 
 /**
  * Enables drag and drop for files and folders using event delegation.
@@ -851,11 +852,21 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
 
                     try {
-                        const base = targetFolder.path === '/' ? '' : `${targetFolder.path}/`;
-                        const newPath = normalizePath(`${base}${sourceItem.name}`);
-                        await app.fileManager.renameFile(sourceItem, newPath);
+                        await fileSystemOps.moveFolderToTarget(sourceItem, targetFolder);
                         showNotice(strings.fileSystem.notifications.folderMoved.replace('{name}', sourceItem.name), { variant: 'success' });
                     } catch (error) {
+                        if (error instanceof FolderMoveError) {
+                            if (error.code === 'destination-exists') {
+                                showNotice(strings.fileSystem.errors.folderAlreadyExists.replace('{name}', sourceItem.name), {
+                                    variant: 'warning'
+                                });
+                                return;
+                            }
+                            if (error.code === 'invalid-target') {
+                                showNotice(strings.dragDrop.errors.cannotMoveIntoSelf, { variant: 'warning' });
+                                return;
+                            }
+                        }
                         console.error('Error moving folder:', error);
                         showNotice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', sourceItem.name), { variant: 'warning' });
                     }
@@ -876,7 +887,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             getFilesFromPaths,
             clearAutoExpandTimer,
             setDragManagerPayload,
-            tagOperations
+            tagOperations,
+            fileSystemOps
         ]
     );
 
