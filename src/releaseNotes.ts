@@ -92,7 +92,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'In the color picker, choosing a preset or recent color no longer closes the color picker.',
             'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.'
         ],
-        changed: ['Improved the menu structure for files and folders so things are grouped more logically.'],
+        changed: [
+            'Improved the menu structure for files and folders so things are grouped more logically.',
+            'Improved the list pane layout. Separators now align with file item width. And file items are now indented so icons can show to the left, making it easy to quickly find items with icons.'
+        ],
         fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.']
     },
     {
