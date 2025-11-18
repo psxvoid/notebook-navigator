@@ -77,6 +77,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-18',
         showOnUpdate: true,
         new: [
+            '==Fuzzy search for tags in the search field==! Typing part of a tag name will now show matching tags in the suggestions dropdown.',
             '==Two new quick actions==: **Add tag** and **Add to shortcuts**. **Important!** If you do not want to show all five quick actions you can easily disable quick links in Settings > List pane > Show quick actions.',
             'New setting: List pane > ==Scroll to selected file on list changes==. When enabled (default), list pane will always scroll to the selected file when pinning notes, showing descendant notes, changing folder appearance, or performing file operations. Disable for full control over the scroll position.',
             'New setting: Notes > Show parent folder > ==Click parent folder to reveal file==. You can now click the parent folder name to open a file in its folder. Default disabled.',
