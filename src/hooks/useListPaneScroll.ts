@@ -220,9 +220,6 @@ export function useListPaneScroll({
             if (item.type === ListPaneItemType.BOTTOM_SPACER) {
                 return heights.bottomSpacer;
             }
-            if (item.type === ListPaneItemType.GROUP_SPACER) {
-                return heights.groupSpacer;
-            }
 
             // For file items - calculate height including all components
 

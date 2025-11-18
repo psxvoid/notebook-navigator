@@ -829,12 +829,16 @@ export const STRINGS_KO = {
                 desc: '파일 항목에 클릭 가능한 태그를 표시합니다. 태그 색상을 사용하여 다른 태그 유형을 시각적으로 구분합니다.'
             },
             showFileTagAncestors: {
-                name: '상위 태그 표시',
-                desc: '태그 이름 앞에 상위 세그먼트를 표시합니다.'
+                name: '전체 태그 경로 표시',
+                desc: "태그의 전체 계층 경로를 표시합니다. 활성화: 'ai/openai', 'work/projects/2024'. 비활성화: 'openai', '2024'."
             },
             colorFileTags: {
                 name: '파일 태그 색상 지정',
                 desc: '파일 항목의 태그 배지에 태그 색상을 적용합니다.'
+            },
+            prioritizeColoredFileTags: {
+                name: '색상 태그 우선 표시',
+                desc: '색상 태그를 다른 태그보다 먼저 정렬합니다.'
             },
             showFileTagsInSlimMode: {
                 name: '슬림 모드에서 파일 태그 표시',

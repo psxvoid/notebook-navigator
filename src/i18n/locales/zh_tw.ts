@@ -828,12 +828,16 @@ export const STRINGS_ZH_TW = {
                 desc: '在檔案項目中顯示可點擊的標籤。使用標籤顏色來視覺上區分不同類型的標籤。'
             },
             showFileTagAncestors: {
-                name: '顯示父標籤',
-                desc: '在標籤名稱前顯示父級片段。'
+                name: '顯示完整標籤路徑',
+                desc: "顯示完整的標籤階層路徑。啟用：'ai/openai'，'工作/專案/2024'。停用：'openai'，'2024'。"
             },
             colorFileTags: {
                 name: '為檔案標籤著色',
                 desc: '將標籤顏色套用到檔案項目的標籤徽章。'
+            },
+            prioritizeColoredFileTags: {
+                name: '優先顯示彩色標籤',
+                desc: '將彩色標籤排序在其他標籤之前。'
             },
             showFileTagsInSlimMode: {
                 name: '在緊湊模式下顯示檔案標籤',

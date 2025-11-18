@@ -1056,7 +1056,6 @@ export const ListPane = React.memo(
                                             (virtualItem.index === listItems.length - 1 ||
                                                 (nextItem &&
                                                     (nextItem.type === ListPaneItemType.HEADER ||
-                                                        nextItem.type === ListPaneItemType.GROUP_SPACER ||
                                                         nextItem.type === ListPaneItemType.TOP_SPACER ||
                                                         nextItem.type === ListPaneItemType.BOTTOM_SPACER)));
 
@@ -1147,8 +1146,6 @@ export const ListPane = React.memo(
                                                     <div className="nn-list-top-spacer" style={{ height: `${topSpacerHeight}px` }} />
                                                 ) : item.type === ListPaneItemType.BOTTOM_SPACER ? (
                                                     <div className="nn-list-bottom-spacer" />
-                                                ) : item.type === ListPaneItemType.GROUP_SPACER ? (
-                                                    <div className="nn-group-spacer" />
                                                 ) : item.type === ListPaneItemType.FILE && item.data instanceof TFile ? (
                                                     <FileItem
                                                         key={item.key} // Ensures each file gets a fresh component instance, preventing stale data from previous files

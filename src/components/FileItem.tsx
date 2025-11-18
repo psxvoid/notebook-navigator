@@ -65,7 +65,7 @@ import { DateUtils } from '../utils/dateUtils';
 import { runAsyncAction } from '../utils/async';
 import { openFileInContext } from '../utils/openFileInContext';
 import { FILE_VISIBILITY, getExtensionSuffix, isImageFile, shouldDisplayFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
-import { getDateField } from '../utils/sortUtils';
+import { getDateField, naturalCompare } from '../utils/sortUtils';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
@@ -73,6 +73,9 @@ import { areStringArraysEqual } from '../utils/arrayUtils';
 import { openAddTagToFilesModal } from '../utils/tagModalHelpers';
 
 const FEATURE_IMAGE_MAX_ASPECT_RATIO = 16 / 9;
+const sortTagsAlphabetically = (tags: string[]): void => {
+    tags.sort((firstTag, secondTag) => naturalCompare(firstTag, secondTag));
+};
 
 interface FileItemProps {
     file: TFile;
@@ -547,6 +550,7 @@ export const FileItem = React.memo(function FileItem({
     );
 
     const colorFileTags = settings.colorFileTags;
+    const prioritizeColoredFileTags = settings.prioritizeColoredFileTags;
 
     const visibleTags = useMemo(() => {
         if (tags.length === 0) {
@@ -559,30 +563,34 @@ export const FileItem = React.memo(function FileItem({
         return tags.filter(tag => hiddenTagVisibility.isTagVisible(tag));
     }, [hiddenTagVisibility, tags]);
 
-    // Categorize tags by priority: colored tags first, then regular tags
+    // Sort tags alphabetically and optionally prioritize colored tags
     const categorizedTags = useMemo(() => {
         if (visibleTags.length === 0) {
             return visibleTags;
+        }
+
+        if (!prioritizeColoredFileTags || !colorFileTags) {
+            const sortedTags = [...visibleTags];
+            sortTagsAlphabetically(sortedTags);
+            return sortedTags;
         }
 
         const coloredTags: string[] = [];
         const regularTags: string[] = [];
 
         visibleTags.forEach(tag => {
-            if (colorFileTags && getTagColor(tag)) {
+            if (getTagColor(tag)) {
                 coloredTags.push(tag);
             } else {
                 regularTags.push(tag);
             }
         });
 
-        const tagSorter = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base' });
-
-        coloredTags.sort(tagSorter);
-        regularTags.sort(tagSorter);
+        sortTagsAlphabetically(coloredTags);
+        sortTagsAlphabetically(regularTags);
 
         return [...coloredTags, ...regularTags];
-    }, [colorFileTags, getTagColor, visibleTags]);
+    }, [colorFileTags, getTagColor, prioritizeColoredFileTags, visibleTags]);
 
     const shouldShowFileTags = useMemo(() => {
         if (!settings.showTags || !settings.showFileTags) {

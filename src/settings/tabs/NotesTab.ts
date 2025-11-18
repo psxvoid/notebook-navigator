@@ -335,6 +335,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
         );
 
     const fileTagsSubSettingsEl = containerEl.createDiv('nn-sub-settings');
+    let colorFileTagsSubSettingsEl: HTMLElement | null = null;
 
     new Setting(fileTagsSubSettingsEl)
         .setName(strings.settings.items.showFileTagAncestors.name)
@@ -353,8 +354,28 @@ export function renderNotesTab(context: SettingsTabContext): void {
             toggle.setValue(plugin.settings.colorFileTags).onChange(async value => {
                 plugin.settings.colorFileTags = value;
                 await plugin.saveSettingsAndUpdate();
+                if (colorFileTagsSubSettingsEl) {
+                    colorFileTagsSubSettingsEl.toggle(value);
+                }
             })
         );
+
+    colorFileTagsSubSettingsEl = fileTagsSubSettingsEl.createDiv('nn-sub-settings');
+
+    if (!colorFileTagsSubSettingsEl) {
+        throw new Error('Failed to create file tag color settings container');
+    }
+
+    new Setting(colorFileTagsSubSettingsEl)
+        .setName(strings.settings.items.prioritizeColoredFileTags.name)
+        .setDesc(strings.settings.items.prioritizeColoredFileTags.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.prioritizeColoredFileTags).onChange(async value => {
+                plugin.settings.prioritizeColoredFileTags = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+    colorFileTagsSubSettingsEl.toggle(plugin.settings.colorFileTags);
 
     new Setting(fileTagsSubSettingsEl)
         .setName(strings.settings.items.showFileTagsInSlimMode.name)

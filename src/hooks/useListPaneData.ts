@@ -654,17 +654,11 @@ export function useListPaneData({
                     return;
                 }
 
-                if (!group.isCurrentFolder) {
+                if (!group.isCurrentFolder || pinnedFiles.length > 0) {
                     items.push({
                         type: ListPaneItemType.HEADER,
                         data: group.label,
                         key: `header-${group.key}`
-                    });
-                } else if (pinnedFiles.length > 0) {
-                    items.push({
-                        type: ListPaneItemType.GROUP_SPACER,
-                        data: '',
-                        key: `spacer-${group.key}`
                     });
                 }
 

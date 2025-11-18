@@ -829,12 +829,16 @@ export const STRINGS_EN = {
                 desc: 'Display clickable tags in file items.'
             },
             showFileTagAncestors: {
-                name: 'Show parent tags',
-                desc: 'Display parent segments before the tag name.'
+                name: 'Show full tag paths',
+                desc: "Display complete tag hierarchy paths. When enabled: 'ai/openai', 'work/projects/2024'. When disabled: 'openai', '2024'."
             },
             colorFileTags: {
                 name: 'Color file tags',
                 desc: 'Apply tag colors to tag badges on file items.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Show colored tags first',
+                desc: 'Sort colored tags before other tags on file items.'
             },
             showFileTagsInSlimMode: {
                 name: 'Show file tags in slim mode',

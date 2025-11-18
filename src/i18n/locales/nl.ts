@@ -832,12 +832,16 @@ export const STRINGS_NL = {
                 desc: 'Klikbare tags weergeven in bestandsitems.'
             },
             showFileTagAncestors: {
-                name: 'Bovenliggende tags tonen',
-                desc: 'Bovenliggende segmenten weergeven vóór de tagnaam.'
+                name: 'Volledige tagpaden tonen',
+                desc: "Volledige tag-hiërarchie paden weergeven. Ingeschakeld: 'ai/openai', 'werk/projecten/2024'. Uitgeschakeld: 'openai', '2024'."
             },
             colorFileTags: {
                 name: 'Bestandstags kleuren',
                 desc: 'Tagkleuren toepassen op tagbadges op bestandsitems.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Gekleurde tags eerst tonen',
+                desc: 'Sorteert gekleurde tags vóór andere tags in bestandsitems.'
             },
             showFileTagsInSlimMode: {
                 name: 'Bestandstags tonen in compacte modus',

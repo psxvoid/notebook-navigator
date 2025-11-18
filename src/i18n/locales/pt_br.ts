@@ -831,12 +831,16 @@ export const STRINGS_PT_BR = {
                 desc: 'Exibir tags clicáveis em itens de arquivo.'
             },
             showFileTagAncestors: {
-                name: 'Mostrar tags pai',
-                desc: 'Exibir segmentos pai antes do nome da tag.'
+                name: 'Mostrar caminhos completos de tags',
+                desc: "Exibir caminhos completos da hierarquia de tags. Ativado: 'ai/openai', 'trabalho/projetos/2024'. Desativado: 'openai', '2024'."
             },
             colorFileTags: {
                 name: 'Colorir tags de arquivo',
                 desc: 'Aplicar cores de tag aos emblemas de tag em itens de arquivo.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Mostrar tags coloridas primeiro',
+                desc: 'Ordena as tags coloridas antes das outras tags nos itens de arquivo.'
             },
             showFileTagsInSlimMode: {
                 name: 'Mostrar tags de arquivo no modo simples',

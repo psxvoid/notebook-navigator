@@ -833,12 +833,16 @@ export const STRINGS_DE = {
                 desc: 'Zeigt klickbare Tags in Datei-Elementen an. Verwenden Sie Tag-Farben, um verschiedene Tag-Typen visuell zu unterscheiden.'
             },
             showFileTagAncestors: {
-                name: 'Übergeordnete Tags anzeigen',
-                desc: 'Übergeordnete Segmente vor dem Tag-Namen anzeigen.'
+                name: 'Vollständige Tag-Pfade anzeigen',
+                desc: "Vollständige Tag-Hierarchiepfade anzeigen. Aktiviert: 'ai/openai', 'arbeit/projekte/2024'. Deaktiviert: 'openai', '2024'."
             },
             colorFileTags: {
                 name: 'Datei-Tags einfärben',
                 desc: 'Tag-Farben auf Tag-Abzeichen in Datei-Elementen anwenden.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Farbige Tags zuerst anzeigen',
+                desc: 'Farbige Tags vor anderen Tags in Datei-Elementen sortieren.'
             },
             showFileTagsInSlimMode: {
                 name: 'Datei-Tags im schlanken Modus anzeigen',

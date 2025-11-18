@@ -832,12 +832,16 @@ export const STRINGS_JA = {
                 desc: 'ファイルアイテムにクリック可能なタグを表示します。タグの色を使用して、異なるタグタイプを視覚的に区別できます。'
             },
             showFileTagAncestors: {
-                name: '親タグを表示',
-                desc: 'タグ名の前に親セグメントを表示します。'
+                name: '完全なタグパスを表示',
+                desc: "タグの完全な階層パスを表示します。有効時: 'ai/openai', 'work/projects/2024'。無効時: 'openai', '2024'。"
             },
             colorFileTags: {
                 name: 'ファイルタグに色を付ける',
                 desc: 'ファイルアイテムのタグバッジにタグの色を適用します。'
+            },
+            prioritizeColoredFileTags: {
+                name: '色付きタグを先頭に配置',
+                desc: '色付きタグを他のタグより前に並べ替えます。'
             },
             showFileTagsInSlimMode: {
                 name: 'スリムモードでファイルタグを表示',

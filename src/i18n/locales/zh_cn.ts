@@ -830,12 +830,16 @@ export const STRINGS_ZH_CN = {
                 desc: '在文件项中显示可点击的标签。使用标签颜色来直观区分不同的标签类型。'
             },
             showFileTagAncestors: {
-                name: '显示父标签',
-                desc: '在标签名称前显示父级片段。'
+                name: '显示完整标签路径',
+                desc: "显示完整的标签层级路径。启用：'ai/openai'，'工作/项目/2024'。禁用：'openai'，'2024'。"
             },
             colorFileTags: {
                 name: '为文件标签着色',
                 desc: '将标签颜色应用于文件项中的标签徽章。'
+            },
+            prioritizeColoredFileTags: {
+                name: '优先显示彩色标签',
+                desc: '将彩色标签排列在其他标签之前。'
             },
             showFileTagsInSlimMode: {
                 name: '在精简模式中显示文件标签',

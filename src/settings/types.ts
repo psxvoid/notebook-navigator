@@ -181,6 +181,7 @@ export interface NotebookNavigatorSettings {
     showFileTags: boolean;
     showFileTagAncestors: boolean;
     colorFileTags: boolean;
+    prioritizeColoredFileTags: boolean;
     showFileTagsInSlimMode: boolean;
     showParentFolder: boolean;
     parentFolderClickRevealsFile: boolean;
