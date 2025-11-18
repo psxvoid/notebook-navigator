@@ -83,6 +83,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: Notes > Show file tags > Color file tags > ==Show colored tags first==. When enabled, colored tags appear before other tags on file items. Default enabled.'
         ],
         improved: [
+            'You can now **command + click** or **command + shift + click** file tags in list pane to automatically add them to the search field.',
             'When creating a new folder, you can now check **Hide in other vault profiles** in the modal dialog.',
             'When renaming or moving a hidden folder, Notebook Navigator will now automatically update the name in **Settings > Hide folders** so it stays hidden.',
             'When deleting a hidden folder Notebook Navigator will now automatically remove it from **Settings > Hide folders**.',
