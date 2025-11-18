@@ -292,6 +292,7 @@ export const STRINGS_PT_BR = {
             deleteFolderTitle: "Excluir '{name}'?",
             deleteFileTitle: "Excluir '{name}'?",
             folderNamePrompt: 'Digite o nome da pasta:',
+            hideInOtherVaultProfiles: 'Ocultar em outros perfis do cofre',
             renamePrompt: 'Digite o novo nome:',
             renameVaultTitle: 'Alterar nome de exibição do cofre',
             renameVaultPrompt: 'Digite um nome de exibição personalizado (deixe em branco para usar o padrão):',

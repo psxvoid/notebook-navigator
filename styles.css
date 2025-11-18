@@ -2854,6 +2854,19 @@ body.nn-resizing {
     border-color: var(--interactive-accent);
 }
 
+.nn-input-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    cursor: pointer;
+    font-size: var(--font-ui-small);
+}
+
+.nn-input-checkbox-row input[type='checkbox'] {
+    margin: 0;
+}
+
 /* Modal button container - right-aligned button group */
 .nn-button-container {
     display: flex;

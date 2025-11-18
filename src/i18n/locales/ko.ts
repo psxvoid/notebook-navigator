@@ -290,6 +290,7 @@ export const STRINGS_KO = {
             deleteFolderTitle: "'{name}'을(를) 삭제하시겠습니까?",
             deleteFileTitle: "'{name}'을(를) 삭제하시겠습니까?",
             folderNamePrompt: '폴더 이름 입력:',
+            hideInOtherVaultProfiles: '다른 보관소 프로필에서 숨기기',
             renamePrompt: '새 이름 입력:',
             renameVaultTitle: '보관함 표시 이름 변경',
             renameVaultPrompt: '사용자 정의 표시 이름 입력 (기본값을 사용하려면 비워두세요):',

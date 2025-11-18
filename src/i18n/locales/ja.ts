@@ -291,6 +291,7 @@ export const STRINGS_JA = {
             deleteFolderTitle: "'{name}'を削除しますか？",
             deleteFileTitle: "'{name}'を削除しますか？",
             folderNamePrompt: 'フォルダ名を入力：',
+            hideInOtherVaultProfiles: '他の保管庫プロファイルで非表示にする',
             renamePrompt: '新しい名前を入力：',
             renameVaultTitle: 'ボールトの表示名を変更',
             renameVaultPrompt: 'カスタム表示名を入力（空にするとデフォルトを使用）：',

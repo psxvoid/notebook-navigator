@@ -20,6 +20,19 @@ import { App, Modal } from 'obsidian';
 import { strings } from '../i18n';
 import { runAsyncAction, type MaybePromise } from '../utils/async';
 
+interface InputModalCheckboxOptions {
+    label: string;
+    defaultChecked?: boolean;
+}
+
+interface InputModalOptions {
+    checkbox?: InputModalCheckboxOptions;
+}
+
+export interface InputModalSubmitContext {
+    checkboxValue?: boolean;
+}
+
 /**
  * Modal dialog for accepting text input from the user
  * Used for file/folder creation and renaming operations
@@ -31,6 +44,7 @@ export class InputModal extends Modal {
     private inputEl: HTMLInputElement;
     private submitBtn: HTMLButtonElement;
     private submitHandler: () => void;
+    private checkboxEl: HTMLInputElement | null = null;
 
     /**
      * Creates an input modal with text field and submit/cancel buttons
@@ -44,8 +58,9 @@ export class InputModal extends Modal {
         app: App,
         title: string,
         placeholder: string,
-        private onSubmit: (value: string) => MaybePromise,
-        defaultValue: string = ''
+        private onSubmit: (value: string, context?: InputModalSubmitContext) => MaybePromise,
+        defaultValue: string = '',
+        options?: InputModalOptions
     ) {
         super(app);
         this.titleEl.setText(title);
@@ -66,12 +81,32 @@ export class InputModal extends Modal {
 
         // Use Obsidian scope for keyboard handling
         this.scope.register([], 'Enter', evt => {
-            if (document.activeElement === this.inputEl) {
-                evt.preventDefault();
-                this.close();
-                this.submitValue(this.inputEl.value);
+            const activeElement = document.activeElement as HTMLElement | null;
+            if (!activeElement) {
+                return;
             }
+
+            if (!this.contentEl.contains(activeElement)) {
+                return;
+            }
+
+            if (this.cancelBtn && activeElement === this.cancelBtn) {
+                return;
+            }
+
+            evt.preventDefault();
+            this.close();
+            this.submitValue(this.inputEl.value);
         });
+
+        if (options?.checkbox) {
+            const checkboxRow = this.contentEl.createEl('label', { cls: 'nn-input-checkbox-row' });
+            this.checkboxEl = checkboxRow.createEl('input', {
+                type: 'checkbox'
+            });
+            this.checkboxEl.checked = Boolean(options.checkbox.defaultChecked);
+            checkboxRow.createSpan({ text: options.checkbox.label });
+        }
 
         const buttonContainer = this.contentEl.createDiv('nn-button-container');
 
@@ -107,6 +142,7 @@ export class InputModal extends Modal {
      * Executes the submit callback asynchronously with the input value
      */
     private submitValue(value: string): void {
-        runAsyncAction(() => this.onSubmit(value));
+        const context: InputModalSubmitContext | undefined = this.checkboxEl ? { checkboxValue: this.checkboxEl.checked } : undefined;
+        runAsyncAction(() => this.onSubmit(value, context));
     }
 }

@@ -291,6 +291,7 @@ export const STRINGS_ZH_TW = {
             deleteFolderTitle: "刪除 '{name}'？",
             deleteFileTitle: "刪除 '{name}'？",
             folderNamePrompt: '輸入資料夾名稱：',
+            hideInOtherVaultProfiles: '在其他倉庫設定檔中隱藏',
             renamePrompt: '輸入新名稱：',
             renameVaultTitle: '變更儲存庫顯示名稱',
             renameVaultPrompt: '輸入自訂顯示名稱 (留空以使用預設值)：',

@@ -292,6 +292,7 @@ export const STRINGS_PL = {
             deleteFolderTitle: "Usunąć '{name}'?",
             deleteFileTitle: "Usunąć '{name}'?",
             folderNamePrompt: 'Wprowadź nazwę folderu:',
+            hideInOtherVaultProfiles: 'Ukryj w innych profilach skarbca',
             renamePrompt: 'Wprowadź nową nazwę:',
             renameVaultTitle: 'Zmień wyświetlaną nazwę magazynu',
             renameVaultPrompt: 'Wprowadź własną nazwę wyświetlaną (zostaw puste aby użyć domyślnej):',

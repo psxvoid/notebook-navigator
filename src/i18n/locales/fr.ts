@@ -291,6 +291,7 @@ export const STRINGS_FR = {
             deleteFolderTitle: "Supprimer '{name}' ?",
             deleteFileTitle: "Supprimer '{name}' ?",
             folderNamePrompt: 'Entrez le nom du dossier :',
+            hideInOtherVaultProfiles: 'Masquer dans les autres profils du coffre',
             renamePrompt: 'Entrez le nouveau nom :',
             renameVaultTitle: "Changer le nom d'affichage du coffre",
             renameVaultPrompt: "Entrez un nom d'affichage personnalisé (laissez vide pour utiliser le nom par défaut) :",

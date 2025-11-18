@@ -291,6 +291,7 @@ export const STRINGS_ZH_CN = {
             deleteFolderTitle: "删除 '{name}'？",
             deleteFileTitle: "删除 '{name}'？",
             folderNamePrompt: '输入文件夹名称：',
+            hideInOtherVaultProfiles: '在其他仓库配置中隐藏',
             renamePrompt: '输入新名称：',
             renameVaultTitle: '更改仓库显示名称',
             renameVaultPrompt: '输入自定义显示名称（留空使用默认值）：',

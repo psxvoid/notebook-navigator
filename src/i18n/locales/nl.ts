@@ -292,6 +292,7 @@ export const STRINGS_NL = {
             deleteFolderTitle: "'{name}' verwijderen?",
             deleteFileTitle: "'{name}' verwijderen?",
             folderNamePrompt: 'Voer mapnaam in:',
+            hideInOtherVaultProfiles: 'Verbergen in andere kluisprofielen',
             renamePrompt: 'Voer nieuwe naam in:',
             renameVaultTitle: 'Weergavenaam kluis wijzigen',
             renameVaultPrompt: 'Voer aangepaste weergavenaam in (laat leeg voor standaard):',

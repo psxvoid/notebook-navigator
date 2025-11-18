@@ -292,6 +292,7 @@ export const STRINGS_IT = {
             deleteFolderTitle: "Eliminare '{name}'?",
             deleteFileTitle: "Eliminare '{name}'?",
             folderNamePrompt: 'Inserisci nome cartella:',
+            hideInOtherVaultProfiles: 'Nascondi negli altri profili della vault',
             renamePrompt: 'Inserisci nuovo nome:',
             renameVaultTitle: 'Cambia nome visualizzato vault',
             renameVaultPrompt: 'Inserisci nome visualizzato personalizzato (lascia vuoto per usare predefinito):',

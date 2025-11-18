@@ -293,6 +293,7 @@ export const STRINGS_DE = {
             deleteFolderTitle: "'{name}' löschen?",
             deleteFileTitle: "'{name}' löschen?",
             folderNamePrompt: 'Ordnernamen eingeben:',
+            hideInOtherVaultProfiles: 'In anderen Tresorprofilen ausblenden',
             renamePrompt: 'Neuen Namen eingeben:',
             renameVaultTitle: 'Anzeigenamen des Tresors ändern',
             renameVaultPrompt: 'Benutzerdefinierten Anzeigenamen eingeben (leer lassen für Standard):',

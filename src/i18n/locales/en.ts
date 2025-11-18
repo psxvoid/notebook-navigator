@@ -291,6 +291,7 @@ export const STRINGS_EN = {
             deleteFolderTitle: "Delete '{name}'?",
             deleteFileTitle: "Delete '{name}'?",
             folderNamePrompt: 'Enter folder name:',
+            hideInOtherVaultProfiles: 'Hide in other vault profiles',
             renamePrompt: 'Enter new name:',
             renameVaultTitle: 'Change vault display name',
             renameVaultPrompt: 'Enter custom display name (leave empty to use default):',

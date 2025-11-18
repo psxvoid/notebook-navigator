@@ -291,6 +291,7 @@ export const STRINGS_ES = {
             deleteFolderTitle: "¿Eliminar '{name}'?",
             deleteFileTitle: "¿Eliminar '{name}'?",
             folderNamePrompt: 'Introduce el nombre de la carpeta:',
+            hideInOtherVaultProfiles: 'Ocultar en otros perfiles de bóveda',
             renamePrompt: 'Introduce el nuevo nombre:',
             renameVaultTitle: 'Cambiar nombre de visualización del vault',
             renameVaultPrompt: 'Introduce un nombre de visualización personalizado (deja vacío para usar el predeterminado):',
