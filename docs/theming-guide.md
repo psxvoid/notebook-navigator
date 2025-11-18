@@ -38,9 +38,9 @@ The theming variables use the `--nn-theme-` prefix and should be defined at the 
 
 #### Pinned shortcuts
 
-| Variable                                  | Default               | Description                                                                             |
-| ----------------------------------------- | --------------------- | --------------------------------------------------------------------------------------- |
-| `--nn-theme-pinned-shortcut-shadow-color` | `rgba(0, 0, 0, 0.05)` | Gradient overlay rendered beneath pinned shortcuts (defaults to `0.2` in `.theme-dark`) |
+| Variable                                  | Default               | Description                                                                              |
+| ----------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------- |
+| `--nn-theme-pinned-shortcut-shadow-color` | `rgba(0, 0, 0, 0.08)` | Gradient overlay rendered beneath pinned shortcuts (defaults to `0.25` in `.theme-dark`) |
 
 #### Folder & tag items
 

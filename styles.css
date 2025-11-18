@@ -130,7 +130,7 @@ body {
     );
     --nn-theme-nav-separator-height: 1px;
     --nn-theme-nav-separator-opacity: 0.3;
-    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.05);
+    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.08);
 
     /* -- Folder & Tag Items -- */
     --nn-theme-navitem-chevron-color: var(--text-muted);
@@ -247,7 +247,7 @@ body {
 }
 
 .theme-dark {
-    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.2);
+    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.25);
 }
 
 /* ========================================================================
@@ -1213,7 +1213,7 @@ body {
     left: 0;
     right: 0;
     top: calc(100% + 1px);
-    height: 8px;
+    height: 3px;
     pointer-events: none;
     background: linear-gradient(to bottom, var(--nn-theme-pinned-shortcut-shadow-color) 0%, transparent 100%);
 }
