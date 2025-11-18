@@ -1857,8 +1857,8 @@ body {
     content: '';
     position: absolute;
     bottom: 0;
-    inset-inline-start: 20px;
-    inset-inline-end: 20px;
+    inset-inline-start: var(--nn-file-item-padding-horizontal);
+    inset-inline-end: var(--nn-file-item-padding-horizontal);
     height: var(--nn-separator-height);
     background-color: var(--nn-theme-list-separator-color);
     z-index: 100; /* Very high to ensure it's always on top */
