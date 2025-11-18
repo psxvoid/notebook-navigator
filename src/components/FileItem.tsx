@@ -71,6 +71,8 @@ import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
 import { areStringArraysEqual } from '../utils/arrayUtils';
 import { openAddTagToFilesModal } from '../utils/tagModalHelpers';
+import { getTagSearchModifierOperator } from '../utils/tagUtils';
+import type { InclusionOperator } from '../utils/filterSearch';
 
 const FEATURE_IMAGE_MAX_ASPECT_RATIO = 16 / 9;
 const sortTagsAlphabetically = (tags: string[]): void => {
@@ -95,6 +97,8 @@ interface FileItemProps {
     searchMeta?: SearchResultMeta;
     /** Whether the file is normally hidden (frontmatter or excluded folder) */
     isHidden?: boolean;
+    /** Modifies the active search query with a tag token when modifier clicking */
+    onModifySearchWithTag?: (tag: string, operator: InclusionOperator) => void;
 }
 
 /**
@@ -281,7 +285,8 @@ export const FileItem = React.memo(function FileItem({
     selectionType,
     searchQuery,
     searchMeta,
-    isHidden = false
+    isHidden = false,
+    onModifySearchWithTag
 }: FileItemProps) {
     // === Hooks (all hooks together at the top) ===
     const { app, isMobile, plugin, commandQueue, tagOperations } = useServices();
@@ -532,13 +537,21 @@ export const FileItem = React.memo(function FileItem({
 
     // Handle tag click
     const handleTagClick = useCallback(
-        (e: React.MouseEvent, tag: string) => {
-            e.stopPropagation(); // Prevent file selection
+        (event: React.MouseEvent, tag: string) => {
+            event.stopPropagation();
 
-            // Use the shared tag navigation logic
+            if (onModifySearchWithTag) {
+                const operator = getTagSearchModifierOperator(event, settings.multiSelectModifier, isMobile);
+                if (operator) {
+                    event.preventDefault();
+                    onModifySearchWithTag(tag, operator);
+                    return;
+                }
+            }
+
             navigateToTag(tag);
         },
-        [navigateToTag]
+        [navigateToTag, onModifySearchWithTag, settings.multiSelectModifier, isMobile]
     );
 
     // Get tag color
