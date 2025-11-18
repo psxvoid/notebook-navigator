@@ -484,14 +484,6 @@ export const FileItem = React.memo(function FileItem({
                 data-title-rows={appearanceSettings.titleRows}
                 data-multiline={isMultiRowTitle ? 'true' : 'false'}
             >
-                {shouldShowFileIcon ? (
-                    <span
-                        ref={fileIconRef}
-                        className="nn-file-icon"
-                        data-has-color={fileColor ? 'true' : 'false'}
-                        style={fileColor ? { color: fileColor } : undefined}
-                    />
-                ) : null}
                 <div className="nn-file-name-content">
                     <div className="nn-file-name-row">
                         {!isSlimMode && isExternalFile ? (
@@ -529,7 +521,6 @@ export const FileItem = React.memo(function FileItem({
         isExternalFile,
         isSlimMode,
         isMultiRowTitle,
-        shouldShowFileIcon,
         showExtensionSuffix
     ]);
 
@@ -1279,6 +1270,16 @@ export const FileItem = React.memo(function FileItem({
                     </div>
                 )}
                 <div className="nn-file-inner-content">
+                    <div className="nn-file-icon-slot">
+                        {shouldShowFileIcon ? (
+                            <span
+                                ref={fileIconRef}
+                                className="nn-file-icon"
+                                data-has-color={fileColor ? 'true' : 'false'}
+                                style={fileColor ? { color: fileColor } : undefined}
+                            />
+                        ) : null}
+                    </div>
                     {isSlimMode ? (
                         // ========== SLIM MODE ==========
                         // Minimal layout: only file name + tags

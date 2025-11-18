@@ -46,6 +46,9 @@ body {
 
     /* File item padding */
     --nn-file-item-padding-horizontal: 12px; /* Horizontal padding for file items and date headers */
+    --nn-file-row-gap: 4px; /* Gap between columns inside a file row */
+    --nn-file-icon-slot-width: var(--nn-nav-icon-size); /* Leading icon slot width */
+    --nn-file-icon-slot-gap: 6px; /* Space between leading icon slot and text (matches pinned header) */
 
     /* ========================================================================
        Fixed Height Variables for Pixel-Perfect Rendering
@@ -1846,9 +1849,20 @@ body {
 .nn-file-inner-content {
     display: flex;
     flex-direction: row;
-    gap: 4px;
-    align-items: center; /* Center items vertically */
+    gap: var(--nn-file-row-gap);
+    align-items: flex-start;
     position: relative;
+}
+
+.nn-file-icon-slot {
+    width: var(--nn-file-icon-slot-width);
+    flex: 0 0 var(--nn-file-icon-slot-width);
+    display: flex;
+    align-items: center;
+    align-self: flex-start;
+    justify-content: center;
+    margin-inline-end: max(0px, calc(var(--nn-file-icon-slot-gap) - var(--nn-file-row-gap)));
+    margin-top: max(0px, calc((var(--nn-file-title-line-height) - var(--nn-nav-icon-size)) / 2));
 }
 
 /* Virtual list file separator */
@@ -1857,7 +1871,7 @@ body {
     content: '';
     position: absolute;
     bottom: 0;
-    inset-inline-start: var(--nn-file-item-padding-horizontal);
+    inset-inline-start: calc(var(--nn-file-item-padding-horizontal) + var(--nn-file-icon-slot-width) + var(--nn-file-icon-slot-gap));
     inset-inline-end: var(--nn-file-item-padding-horizontal);
     height: var(--nn-separator-height);
     background-color: var(--nn-theme-list-separator-color);
@@ -1967,11 +1981,6 @@ body {
     justify-content: center;
     flex-shrink: 0;
     color: var(--nn-theme-navitem-icon-color);
-}
-
-.nn-file-name-wrapper[data-multiline='true'] > .nn-file-icon {
-    align-self: flex-start;
-    margin-top: max(0px, calc((var(--nn-file-title-line-height) - var(--nn-nav-icon-size)) / 2));
 }
 
 .nn-file-icon svg {
