@@ -291,6 +291,7 @@ export const STRINGS_ZH_CN = {
             deleteFolderTitle: "删除 '{name}'？",
             deleteFileTitle: "删除 '{name}'？",
             folderNamePrompt: '输入文件夹名称：',
+            hideInOtherVaultProfiles: '在其他仓库配置中隐藏',
             renamePrompt: '输入新名称：',
             renameVaultTitle: '更改仓库显示名称',
             renameVaultPrompt: '输入自定义显示名称（留空使用默认值）：',
@@ -605,6 +606,10 @@ export const STRINGS_ZH_CN = {
                     'title-desc': '标题（降序）'
                 }
             },
+            revealFileOnListChanges: {
+                name: '列表变更时滚动到选定文件',
+                desc: '在固定笔记、显示后代笔记、更改文件夹外观或执行文件操作时滚动到选定的文件。'
+            },
             includeDescendantNotes: {
                 name: '显示子文件夹/后代的笔记',
                 desc: '在查看文件夹或标签时包含嵌套子文件夹和标签后代中的笔记。'
@@ -829,8 +834,8 @@ export const STRINGS_ZH_CN = {
                 desc: '在文件项中显示可点击的标签。使用标签颜色来直观区分不同的标签类型。'
             },
             showFileTagAncestors: {
-                name: '显示父标签',
-                desc: '在标签名称前显示父级片段。'
+                name: '显示完整标签路径',
+                desc: "显示完整的标签层级路径。启用：'ai/openai'，'工作/项目/2024'。禁用：'openai'，'2024'。"
             },
             collapseFileTagsToSelectedTag: {
                 name: '将标签折叠到选定的标签',
@@ -839,6 +844,10 @@ export const STRINGS_ZH_CN = {
             colorFileTags: {
                 name: '为文件标签着色',
                 desc: '将标签颜色应用于文件项中的标签徽章。'
+            },
+            prioritizeColoredFileTags: {
+                name: '优先显示彩色标签',
+                desc: '将彩色标签排列在其他标签之前。'
             },
             showFileTagsInSlimMode: {
                 name: '在精简模式中显示文件标签',

@@ -291,6 +291,7 @@ export const STRINGS_EN = {
             deleteFolderTitle: "Delete '{name}'?",
             deleteFileTitle: "Delete '{name}'?",
             folderNamePrompt: 'Enter folder name:',
+            hideInOtherVaultProfiles: 'Hide in other vault profiles',
             renamePrompt: 'Enter new name:',
             renameVaultTitle: 'Change vault display name',
             renameVaultPrompt: 'Enter custom display name (leave empty to use default):',
@@ -605,6 +606,10 @@ export const STRINGS_EN = {
                     'title-desc': 'Title (Z on top)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Scroll to selected file on list changes',
+                desc: 'Scroll to the selected file when pinning notes, showing descendant notes, changing folder appearance, or running file operations.'
+            },
             includeDescendantNotes: {
                 name: 'Show notes from subfolders / descendants',
                 desc: 'Include notes from nested subfolders and tag descendants when viewing a folder or tag.'
@@ -828,8 +833,8 @@ export const STRINGS_EN = {
                 desc: 'Display clickable tags in file items.'
             },
             showFileTagAncestors: {
-                name: 'Show parent tags',
-                desc: 'Display parent segments before the tag name.'
+                name: 'Show full tag paths',
+                desc: "Display complete tag hierarchy paths. When enabled: 'ai/openai', 'work/projects/2024'. When disabled: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Collapse tags to a selected tag',
@@ -838,6 +843,10 @@ export const STRINGS_EN = {
             colorFileTags: {
                 name: 'Color file tags',
                 desc: 'Apply tag colors to tag badges on file items.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Show colored tags first',
+                desc: 'Sort colored tags before other tags on file items.'
             },
             showFileTagsInSlimMode: {
                 name: 'Show file tags in slim mode',

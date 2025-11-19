@@ -528,7 +528,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             (): VisibilityPreferences => ({
                 includeDescendantNotes: this.uxPreferences.includeDescendantNotes,
                 showHiddenItems: this.uxPreferences.showHiddenItems
-            })
+            }),
+            this
         );
         this.omnisearchService = new OmnisearchService(this.app);
         this.api = new NotebookNavigatorAPI(this, this.app);

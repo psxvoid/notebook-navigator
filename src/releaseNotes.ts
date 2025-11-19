@@ -74,20 +74,25 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.8.5',
-        date: '2025-11-17',
+        date: '2025-11-18',
         showOnUpdate: true,
         new: [
-            'Two new quick actions: **Add tag** and **Add to shortcuts**. ==Important!== If you do not want to show all five quick actions you can easily disable quick links in Settings > List pane > Show quick actions.',
-            'New setting: Settings > Notes > Show parent folder > ==Click parent folder to reveal file==. You can now click the parent folder name to reveal a file.'
+            '==Fuzzy search for tags in the search field==! Typing part of a tag name will now show matching tags in the suggestions dropdown.',
+            '==Two new quick actions==: **Add tag** and **Add to shortcuts**. **Important!** If you do not want to show all five quick actions you can easily disable quick links in Settings > List pane > Show quick actions.',
+            'New setting: List pane > ==Scroll to selected file on list changes==. When enabled (default), list pane will always scroll to the selected file when pinning notes, showing descendant notes, changing folder appearance, or performing file operations. Disable for full control over the scroll position.',
+            'New setting: Notes > Show parent folder > ==Click parent folder to reveal file==. You can now click the parent folder name to open a file in its folder. Default disabled.',
+            'New setting: Notes > Show file tags > Color file tags > ==Show colored tags first==. When enabled, colored tags appear before other tags on file items. Default enabled.'
         ],
         improved: [
+            'You can now **command + click** or **command + shift + click** file tags in list pane to automatically add them to the search field.',
+            'When creating a new folder, you can now check **Hide in other vault profiles** in the modal dialog.',
+            'When renaming or moving a hidden folder, Notebook Navigator will now automatically update the name in **Settings > Hide folders** so it stays hidden.',
+            'When deleting a hidden folder Notebook Navigator will now automatically remove it from **Settings > Hide folders**.',
+            'When changing hidden folders (renaming, moving, deleting) **all changes are now reflected in all vaults**.',
             'In the color picker, choosing a preset or recent color no longer closes the color picker.',
             'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.'
         ],
-        changed: [
-            'Improved the menu structure for files and folders, things are now grouped more logically.',
-            'When deleting non-selected files, list pane will now scroll to the selected file. This was unfortunately necessary to keep scroll-to-item working in other areas like pin/unpin note. I might investigate more time into this in the future, but for now this is how it needs to work.'
-        ],
+        changed: ['Improved the menu structure for files and folders so things are grouped more logically.'],
         fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.']
     },
     {

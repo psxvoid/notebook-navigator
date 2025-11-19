@@ -292,6 +292,7 @@ export const STRINGS_NL = {
             deleteFolderTitle: "'{name}' verwijderen?",
             deleteFileTitle: "'{name}' verwijderen?",
             folderNamePrompt: 'Voer mapnaam in:',
+            hideInOtherVaultProfiles: 'Verbergen in andere kluisprofielen',
             renamePrompt: 'Voer nieuwe naam in:',
             renameVaultTitle: 'Weergavenaam kluis wijzigen',
             renameVaultPrompt: 'Voer aangepaste weergavenaam in (laat leeg voor standaard):',
@@ -607,6 +608,10 @@ export const STRINGS_NL = {
                     'title-desc': 'Titel (Z bovenaan)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Scroll naar geselecteerd bestand bij lijstwijzigingen',
+                desc: 'Scroll naar het geselecteerde bestand bij het vastpinnen van notities, tonen van afstammelingen-notities, wijzigen van mapweergave of uitvoeren van bestandsoperaties.'
+            },
             includeDescendantNotes: {
                 name: 'Notities uit submappen / afstammelingen tonen',
                 desc: 'Notities uit geneste submappen en tag-afstammelingen opnemen bij het bekijken van een map of tag.'
@@ -831,8 +836,8 @@ export const STRINGS_NL = {
                 desc: 'Klikbare tags weergeven in bestandsitems.'
             },
             showFileTagAncestors: {
-                name: 'Bovenliggende tags tonen',
-                desc: 'Bovenliggende segmenten weergeven vóór de tagnaam.'
+                name: 'Volledige tagpaden tonen',
+                desc: "Volledige tag-hiërarchie paden weergeven. Ingeschakeld: 'ai/openai', 'werk/projecten/2024'. Uitgeschakeld: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Tags samenvouwen tot een geselecteerde tag',
@@ -841,6 +846,10 @@ export const STRINGS_NL = {
             colorFileTags: {
                 name: 'Bestandstags kleuren',
                 desc: 'Tagkleuren toepassen op tagbadges op bestandsitems.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Gekleurde tags eerst tonen',
+                desc: 'Sorteert gekleurde tags vóór andere tags in bestandsitems.'
             },
             showFileTagsInSlimMode: {
                 name: 'Bestandstags tonen in compacte modus',

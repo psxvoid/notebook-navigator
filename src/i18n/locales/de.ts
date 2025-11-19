@@ -293,6 +293,7 @@ export const STRINGS_DE = {
             deleteFolderTitle: "'{name}' löschen?",
             deleteFileTitle: "'{name}' löschen?",
             folderNamePrompt: 'Ordnernamen eingeben:',
+            hideInOtherVaultProfiles: 'In anderen Tresorprofilen ausblenden',
             renamePrompt: 'Neuen Namen eingeben:',
             renameVaultTitle: 'Anzeigenamen des Tresors ändern',
             renameVaultPrompt: 'Benutzerdefinierten Anzeigenamen eingeben (leer lassen für Standard):',
@@ -609,6 +610,10 @@ export const STRINGS_DE = {
                     'title-desc': 'Titel (Z oben)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Zu ausgewählter Datei bei Listenänderungen scrollen',
+                desc: 'Zur ausgewählten Datei scrollen beim Anheften von Notizen, Anzeigen von Unternotizen, Ändern der Ordnerdarstellung oder bei Dateioperationen.'
+            },
             includeDescendantNotes: {
                 name: 'Notizen aus Unterordnern / Nachkommen anzeigen',
                 desc: 'Beim Anzeigen eines Ordners oder Tags Notizen aus Unterordnern und Tag-Nachkommen einbeziehen.'
@@ -832,8 +837,8 @@ export const STRINGS_DE = {
                 desc: 'Zeigt klickbare Tags in Datei-Elementen an. Verwenden Sie Tag-Farben, um verschiedene Tag-Typen visuell zu unterscheiden.'
             },
             showFileTagAncestors: {
-                name: 'Übergeordnete Tags anzeigen',
-                desc: 'Übergeordnete Segmente vor dem Tag-Namen anzeigen.'
+                name: 'Vollständige Tag-Pfade anzeigen',
+                desc: "Vollständige Tag-Hierarchiepfade anzeigen. Aktiviert: 'ai/openai', 'arbeit/projekte/2024'. Deaktiviert: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Tags auf ein ausgewähltes Tag reduzieren',
@@ -842,6 +847,10 @@ export const STRINGS_DE = {
             colorFileTags: {
                 name: 'Datei-Tags einfärben',
                 desc: 'Tag-Farben auf Tag-Abzeichen in Datei-Elementen anwenden.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Farbige Tags zuerst anzeigen',
+                desc: 'Farbige Tags vor anderen Tags in Datei-Elementen sortieren.'
             },
             showFileTagsInSlimMode: {
                 name: 'Datei-Tags im schlanken Modus anzeigen',

@@ -1111,11 +1111,6 @@ body {
     height: 20px;
 }
 
-.nn-group-spacer {
-    height: var(--nn-date-header-padding-top);
-    flex-shrink: 0;
-}
-
 /* ========================================================================
    Navigation Pane Scroller
    ======================================================================== */
@@ -2852,6 +2847,19 @@ body.nn-resizing {
 .nn-input:focus {
     outline: none;
     border-color: var(--interactive-accent);
+}
+
+.nn-input-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    cursor: pointer;
+    font-size: var(--font-ui-small);
+}
+
+.nn-input-checkbox-row input[type='checkbox'] {
+    margin: 0;
 }
 
 /* Modal button container - right-aligned button group */

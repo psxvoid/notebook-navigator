@@ -292,6 +292,7 @@ export const STRINGS_PL = {
             deleteFolderTitle: "Usunąć '{name}'?",
             deleteFileTitle: "Usunąć '{name}'?",
             folderNamePrompt: 'Wprowadź nazwę folderu:',
+            hideInOtherVaultProfiles: 'Ukryj w innych profilach skarbca',
             renamePrompt: 'Wprowadź nową nazwę:',
             renameVaultTitle: 'Zmień wyświetlaną nazwę magazynu',
             renameVaultPrompt: 'Wprowadź własną nazwę wyświetlaną (zostaw puste aby użyć domyślnej):',
@@ -607,6 +608,10 @@ export const STRINGS_PL = {
                     'title-desc': 'Tytuł (Z na górze)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Przewiń do wybranego pliku przy zmianach listy',
+                desc: 'Przewiń do wybranego pliku przy przypinaniu notatek, pokazywaniu notatek potomnych, zmianie wyglądu folderów lub wykonywaniu operacji na plikach.'
+            },
             includeDescendantNotes: {
                 name: 'Pokaż notatki z podfolderów / potomnych',
                 desc: 'Podczas przeglądania folderu lub tagu uwzględnij notatki z zagnieżdżonych podfolderów i potomnych tagów.'
@@ -830,8 +835,8 @@ export const STRINGS_PL = {
                 desc: 'Wyświetl klikalne tagi w elementach plików. Użyj kolorów tagów aby wizualnie odróżnić różne typy tagów.'
             },
             showFileTagAncestors: {
-                name: 'Pokaż tagi nadrzędne',
-                desc: 'Wyświetl segmenty nadrzędne przed nazwą tagu.'
+                name: 'Pokaż pełne ścieżki tagów',
+                desc: "Wyświetl pełne ścieżki hierarchii tagów. Włączone: 'ai/openai', 'praca/projekty/2024'. Wyłączone: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Zwiń tagi do wybranego tagu',
@@ -840,6 +845,10 @@ export const STRINGS_PL = {
             colorFileTags: {
                 name: 'Koloruj tagi plików',
                 desc: 'Zastosuj kolory tagów do odznak tagów w elementach plików.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Wyświetl kolorowe tagi jako pierwsze',
+                desc: 'Sortuje kolorowe tagi przed pozostałymi tagami w elementach plików.'
             },
             showFileTagsInSlimMode: {
                 name: 'Pokaż tagi plików w trybie kompaktowym',

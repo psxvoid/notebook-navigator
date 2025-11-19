@@ -291,6 +291,7 @@ export const STRINGS_ZH_TW = {
             deleteFolderTitle: "刪除 '{name}'？",
             deleteFileTitle: "刪除 '{name}'？",
             folderNamePrompt: '輸入資料夾名稱：',
+            hideInOtherVaultProfiles: '在其他倉庫設定檔中隱藏',
             renamePrompt: '輸入新名稱：',
             renameVaultTitle: '變更儲存庫顯示名稱',
             renameVaultPrompt: '輸入自訂顯示名稱 (留空以使用預設值)：',
@@ -604,6 +605,10 @@ export const STRINGS_ZH_TW = {
                     'title-desc': '標題 (降冪)'
                 }
             },
+            revealFileOnListChanges: {
+                name: '列表變更時捲動至選定檔案',
+                desc: '在釘選筆記、顯示後代筆記、變更資料夾外觀或執行檔案操作時捲動至選定的檔案。'
+            },
             includeDescendantNotes: {
                 name: '顯示子資料夾/後代中的筆記',
                 desc: '檢視資料夾或標籤時，包含巢狀子資料夾和標籤後代的筆記。'
@@ -827,8 +832,8 @@ export const STRINGS_ZH_TW = {
                 desc: '在檔案項目中顯示可點擊的標籤。使用標籤顏色來視覺上區分不同類型的標籤。'
             },
             showFileTagAncestors: {
-                name: '顯示父標籤',
-                desc: '在標籤名稱前顯示父級片段。'
+                name: '顯示完整標籤路徑',
+                desc: "顯示完整的標籤階層路徑。啟用：'ai/openai'，'工作/專案/2024'。停用：'openai'，'2024'。"
             },
             collapseFileTagsToSelectedTag: {
                 name: '將標籤折疊到選定的標籤',
@@ -837,6 +842,10 @@ export const STRINGS_ZH_TW = {
             colorFileTags: {
                 name: '為檔案標籤著色',
                 desc: '將標籤顏色套用到檔案項目的標籤徽章。'
+            },
+            prioritizeColoredFileTags: {
+                name: '優先顯示彩色標籤',
+                desc: '將彩色標籤排序在其他標籤之前。'
             },
             showFileTagsInSlimMode: {
                 name: '在緊湊模式下顯示檔案標籤',
