@@ -78,7 +78,7 @@ import { TagTreeNode } from '../types/storage';
 import { getFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
 import { findTagNode, getTotalNoteCount } from '../utils/tagTree';
 import { getExtensionSuffix, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
-import { resolveCanonicalTagPath } from '../utils/tagUtils';
+import { getTagSearchModifierOperator, resolveCanonicalTagPath } from '../utils/tagUtils';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';
 import { NavigationToolbar } from './NavigationToolbar';
@@ -1197,32 +1197,14 @@ export const NavigationPane = React.memo(
                     return;
                 }
 
-                // Check if modifier key is pressed to modify search instead of navigating
-                const shouldModifySearch = (() => {
-                    if (!event || isMobile) {
-                        return false;
-                    }
-                    if (settings.multiSelectModifier === 'cmdCtrl') {
-                        if (Platform.isMacOS) {
-                            return event.metaKey;
-                        }
-                        return event.metaKey || event.ctrlKey;
-                    }
-                    return event.altKey;
-                })();
                 const isVirtualCollection = isVirtualTagCollectionId(canonicalPath);
-                // Handle search modification mode
-                if (shouldModifySearch) {
+                const operator = getTagSearchModifierOperator(event ?? null, settings.multiSelectModifier, isMobile);
+                if (operator && !isVirtualCollection && canonicalPath !== UNTAGGED_TAG_ID) {
                     if (event) {
                         event.preventDefault();
                         event.stopPropagation();
                     }
-
-                    // Add tag to search query with AND or OR operator (shift key toggles)
-                    if (!isVirtualCollection && canonicalPath !== UNTAGGED_TAG_ID) {
-                        const operator: InclusionOperator = event?.shiftKey ? 'OR' : 'AND';
-                        onModifySearchWithTag(canonicalPath, operator);
-                    }
+                    onModifySearchWithTag(canonicalPath, operator);
                     return;
                 }
 

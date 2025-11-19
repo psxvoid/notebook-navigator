@@ -290,6 +290,7 @@ export const STRINGS_KO = {
             deleteFolderTitle: "'{name}'을(를) 삭제하시겠습니까?",
             deleteFileTitle: "'{name}'을(를) 삭제하시겠습니까?",
             folderNamePrompt: '폴더 이름 입력:',
+            hideInOtherVaultProfiles: '다른 보관소 프로필에서 숨기기',
             renamePrompt: '새 이름 입력:',
             renameVaultTitle: '보관함 표시 이름 변경',
             renameVaultPrompt: '사용자 정의 표시 이름 입력 (기본값을 사용하려면 비워두세요):',
@@ -605,6 +606,10 @@ export const STRINGS_KO = {
                     'title-desc': '제목 (역순 상위)'
                 }
             },
+            revealFileOnListChanges: {
+                name: '목록 변경 시 선택된 파일로 스크롤',
+                desc: '노트 고정, 하위 노트 표시, 폴더 모양 변경 또는 파일 작업 실행 시 선택된 파일로 스크롤합니다.'
+            },
             includeDescendantNotes: {
                 name: '하위 폴더 / 하위 항목 노트 표시',
                 desc: '폴더나 태그를 볼 때 중첩된 하위 폴더와 태그 하위 항목의 노트를 포함합니다.'
@@ -828,8 +833,8 @@ export const STRINGS_KO = {
                 desc: '파일 항목에 클릭 가능한 태그를 표시합니다. 태그 색상을 사용하여 다른 태그 유형을 시각적으로 구분합니다.'
             },
             showFileTagAncestors: {
-                name: '상위 태그 표시',
-                desc: '태그 이름 앞에 상위 세그먼트를 표시합니다.'
+                name: '전체 태그 경로 표시',
+                desc: "태그의 전체 계층 경로를 표시합니다. 활성화: 'ai/openai', 'work/projects/2024'. 비활성화: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: '선택한 태그로 태그 축소',
@@ -838,6 +843,10 @@ export const STRINGS_KO = {
             colorFileTags: {
                 name: '파일 태그 색상 지정',
                 desc: '파일 항목의 태그 배지에 태그 색상을 적용합니다.'
+            },
+            prioritizeColoredFileTags: {
+                name: '색상 태그 우선 표시',
+                desc: '색상 태그를 다른 태그보다 먼저 정렬합니다.'
             },
             showFileTagsInSlimMode: {
                 name: '슬림 모드에서 파일 태그 표시',

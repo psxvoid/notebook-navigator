@@ -292,6 +292,7 @@ export const STRINGS_PT_BR = {
             deleteFolderTitle: "Excluir '{name}'?",
             deleteFileTitle: "Excluir '{name}'?",
             folderNamePrompt: 'Digite o nome da pasta:',
+            hideInOtherVaultProfiles: 'Ocultar em outros perfis do cofre',
             renamePrompt: 'Digite o novo nome:',
             renameVaultTitle: 'Alterar nome de exibição do cofre',
             renameVaultPrompt: 'Digite um nome de exibição personalizado (deixe em branco para usar o padrão):',
@@ -603,6 +604,10 @@ export const STRINGS_PT_BR = {
                     'title-desc': 'Título (Z no topo)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Rolar para o arquivo selecionado em mudanças da lista',
+                desc: 'Rolar para o arquivo selecionado ao fixar notas, mostrar notas descendentes, mudar aparência de pastas ou executar operações de arquivo.'
+            },
             includeDescendantNotes: {
                 name: 'Mostrar notas de subpastas / descendentes',
                 desc: 'Incluir notas de subpastas aninhadas e descendentes de tags ao visualizar uma pasta ou tag.'
@@ -826,12 +831,16 @@ export const STRINGS_PT_BR = {
                 desc: 'Exibir tags clicáveis em itens de arquivo.'
             },
             showFileTagAncestors: {
-                name: 'Mostrar tags pai',
-                desc: 'Exibir segmentos pai antes do nome da tag.'
+                name: 'Mostrar caminhos completos de tags',
+                desc: "Exibir caminhos completos da hierarquia de tags. Ativado: 'ai/openai', 'trabalho/projetos/2024'. Desativado: 'openai', '2024'."
             },
             colorFileTags: {
                 name: 'Colorir tags de arquivo',
                 desc: 'Aplicar cores de tag aos emblemas de tag em itens de arquivo.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Mostrar tags coloridas primeiro',
+                desc: 'Ordena as tags coloridas antes das outras tags nos itens de arquivo.'
             },
             showFileTagsInSlimMode: {
                 name: 'Mostrar tags de arquivo no modo simples',

@@ -291,6 +291,7 @@ export const STRINGS_ES = {
             deleteFolderTitle: "¿Eliminar '{name}'?",
             deleteFileTitle: "¿Eliminar '{name}'?",
             folderNamePrompt: 'Introduce el nombre de la carpeta:',
+            hideInOtherVaultProfiles: 'Ocultar en otros perfiles de bóveda',
             renamePrompt: 'Introduce el nuevo nombre:',
             renameVaultTitle: 'Cambiar nombre de visualización del vault',
             renameVaultPrompt: 'Introduce un nombre de visualización personalizado (deja vacío para usar el predeterminado):',
@@ -606,6 +607,10 @@ export const STRINGS_ES = {
                     'title-desc': 'Título (Z arriba)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Desplazar al archivo seleccionado cuando cambia la lista',
+                desc: 'Desplazar al archivo seleccionado al anclar notas, mostrar notas descendientes, cambiar la apariencia de carpetas o ejecutar operaciones de archivos.'
+            },
             includeDescendantNotes: {
                 name: 'Mostrar notas de subcarpetas / descendientes',
                 desc: 'Incluir notas de subcarpetas y descendientes de etiquetas al ver una carpeta o etiqueta.'
@@ -830,8 +835,8 @@ export const STRINGS_ES = {
                 desc: 'Muestra etiquetas clicables en los elementos de archivo. Use colores de etiquetas para distinguir visualmente diferentes tipos de etiquetas.'
             },
             showFileTagAncestors: {
-                name: 'Mostrar etiquetas padre',
-                desc: 'Mostrar segmentos padre antes del nombre de la etiqueta.'
+                name: 'Mostrar rutas completas de etiquetas',
+                desc: "Mostrar rutas completas de jerarquía de etiquetas. Activado: 'ai/openai', 'trabajo/proyectos/2024'. Desactivado: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Contraer etiquetas a una etiqueta seleccionada',
@@ -840,6 +845,10 @@ export const STRINGS_ES = {
             colorFileTags: {
                 name: 'Colorear etiquetas de archivo',
                 desc: 'Aplicar colores de etiquetas a las insignias de etiquetas en elementos de archivo.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Mostrar primero las etiquetas coloreadas',
+                desc: 'Ordena las etiquetas coloreadas antes que otras etiquetas en los elementos de archivo.'
             },
             showFileTagsInSlimMode: {
                 name: 'Mostrar etiquetas de archivo en modo compacto',

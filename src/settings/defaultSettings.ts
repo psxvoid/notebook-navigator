@@ -125,6 +125,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
 
     // List pane tab
     defaultFolderSort: 'modified-desc',
+    revealFileOnListChanges: true,
     listPaneTitle: 'header',
     noteGrouping: 'date',
     filterPinnedByFolder: false,
@@ -157,9 +158,10 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFileTagAncestors: true,
     collapseFileTagsToSelectedTag: true,
     colorFileTags: true,
+    prioritizeColoredFileTags: true,
     showFileTagsInSlimMode: false,
     showParentFolder: true,
-    parentFolderClickRevealsFile: true,
+    parentFolderClickRevealsFile: false,
     showParentFolderColor: true,
     showFilePreview: true,
     skipHeadingsInPreview: true,

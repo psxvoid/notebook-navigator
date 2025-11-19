@@ -291,6 +291,7 @@ export const STRINGS_FR = {
             deleteFolderTitle: "Supprimer '{name}' ?",
             deleteFileTitle: "Supprimer '{name}' ?",
             folderNamePrompt: 'Entrez le nom du dossier :',
+            hideInOtherVaultProfiles: 'Masquer dans les autres profils du coffre',
             renamePrompt: 'Entrez le nouveau nom :',
             renameVaultTitle: "Changer le nom d'affichage du coffre",
             renameVaultPrompt: "Entrez un nom d'affichage personnalisé (laissez vide pour utiliser le nom par défaut) :",
@@ -607,6 +608,10 @@ export const STRINGS_FR = {
                     'title-desc': 'Titre (Z en haut)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Défiler vers le fichier sélectionné lors des changements de liste',
+                desc: "Défiler vers le fichier sélectionné lors de l'épinglage de notes, l'affichage de notes descendantes, le changement d'apparence de dossier ou l'exécution d'opérations sur les fichiers."
+            },
             includeDescendantNotes: {
                 name: 'Afficher les notes des sous-dossiers / descendants',
                 desc: "Inclure les notes des sous-dossiers imbriqués et des descendants d'étiquettes lors de l'affichage d'un dossier ou d'une étiquette."
@@ -832,8 +837,8 @@ export const STRINGS_FR = {
                 desc: 'Affiche les tags cliquables dans les éléments de fichier. Utilisez les couleurs de tags pour distinguer visuellement les différents types de tags.'
             },
             showFileTagAncestors: {
-                name: 'Afficher les tags parents',
-                desc: 'Afficher les segments parents avant le nom du tag.'
+                name: 'Afficher les chemins complets des tags',
+                desc: "Afficher les chemins complets de la hiérarchie des tags. Activé : 'ai/openai', 'travail/projets/2024'. Désactivé : 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Réduire les balises à une balise sélectionnée',
@@ -842,6 +847,10 @@ export const STRINGS_FR = {
             colorFileTags: {
                 name: 'Colorer les tags de fichier',
                 desc: 'Appliquer les couleurs de tags aux badges de tags sur les éléments de fichier.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Afficher les tags colorés en premier',
+                desc: 'Trie les tags colorés avant les autres tags dans les éléments de fichier.'
             },
             showFileTagsInSlimMode: {
                 name: 'Afficher les tags de fichier en mode compact',

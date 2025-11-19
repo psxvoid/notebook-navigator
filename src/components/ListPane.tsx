@@ -814,6 +814,46 @@ export const ListPane = React.memo(
         renderCountRef.current++;
 
         // Expose the virtualizer instance and file lookup method via the ref
+        const modifySearchWithTag = useCallback(
+            (tag: string, operator: InclusionOperator) => {
+                const normalizedTag = normalizeTagPath(tag);
+                if (!normalizedTag || normalizedTag === UNTAGGED_TAG_ID) {
+                    return;
+                }
+
+                if (!isSearchActive) {
+                    setIsSearchActive(true);
+                    if (uiState.singlePane) {
+                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                    }
+                }
+
+                setShouldFocusSearch(true);
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
+
+                let nextQueryValue: string | null = null;
+
+                setSearchQuery(prev => {
+                    const result = updateFilterQueryWithTag(prev, normalizedTag, operator);
+                    nextQueryValue = result.query;
+                    return result.query;
+                });
+
+                if (nextQueryValue !== null) {
+                    setDebouncedSearchQuery(nextQueryValue);
+                }
+            },
+            [
+                setIsSearchActive,
+                uiDispatch,
+                setShouldFocusSearch,
+                setSearchQuery,
+                setDebouncedSearchQuery,
+                isSearchActive,
+                uiState.singlePane
+            ]
+        );
+
         useImperativeHandle(
             ref,
             () => ({
@@ -825,37 +865,7 @@ export const ListPane = React.memo(
                 // Provide imperative adjacent navigation for command handlers
                 selectAdjacentFile,
                 // Toggle or modify search query to include/exclude a tag with AND/OR operator
-                modifySearchWithTag: (tag: string, operator: InclusionOperator) => {
-                    const normalizedTag = normalizeTagPath(tag);
-                    if (!normalizedTag || normalizedTag === UNTAGGED_TAG_ID) {
-                        return;
-                    }
-
-                    // Activate search if not already active
-                    if (!isSearchActive) {
-                        setIsSearchActive(true);
-                        if (uiState.singlePane) {
-                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                        }
-                    }
-
-                    setShouldFocusSearch(true);
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
-
-                    let nextQueryValue: string | null = null;
-
-                    // Update search query with the new tag token
-                    setSearchQuery(prev => {
-                        const result = updateFilterQueryWithTag(prev, normalizedTag, operator);
-                        nextQueryValue = result.query;
-                        return result.query;
-                    });
-
-                    // Synchronize debounced query immediately to show results
-                    if (nextQueryValue !== null) {
-                        setDebouncedSearchQuery(nextQueryValue);
-                    }
-                },
+                modifySearchWithTag,
                 // Toggle search mode on/off or focus existing search
                 toggleSearch: () => {
                     if (isSearchActive) {
@@ -887,14 +897,13 @@ export const ListPane = React.memo(
                 isSearchActive,
                 uiDispatch,
                 setIsSearchActive,
-                setDebouncedSearchQuery,
-                setSearchQuery,
                 setShouldFocusSearch,
                 props.rootContainerRef,
                 uiState.singlePane,
                 executeSearchShortcut,
                 selectFileFromList,
-                selectAdjacentFile
+                selectAdjacentFile,
+                modifySearchWithTag
             ]
         );
 
@@ -1056,7 +1065,6 @@ export const ListPane = React.memo(
                                             (virtualItem.index === listItems.length - 1 ||
                                                 (nextItem &&
                                                     (nextItem.type === ListPaneItemType.HEADER ||
-                                                        nextItem.type === ListPaneItemType.GROUP_SPACER ||
                                                         nextItem.type === ListPaneItemType.TOP_SPACER ||
                                                         nextItem.type === ListPaneItemType.BOTTOM_SPACER)));
 
@@ -1147,8 +1155,6 @@ export const ListPane = React.memo(
                                                     <div className="nn-list-top-spacer" style={{ height: `${topSpacerHeight}px` }} />
                                                 ) : item.type === ListPaneItemType.BOTTOM_SPACER ? (
                                                     <div className="nn-list-bottom-spacer" />
-                                                ) : item.type === ListPaneItemType.GROUP_SPACER ? (
-                                                    <div className="nn-group-spacer" />
                                                 ) : item.type === ListPaneItemType.FILE && item.data instanceof TFile ? (
                                                     <FileItem
                                                         key={item.key} // Ensures each file gets a fresh component instance, preventing stale data from previous files
@@ -1167,6 +1173,7 @@ export const ListPane = React.memo(
                                                         searchMeta={item.searchMeta}
                                                         // Pass hidden state for muted rendering style
                                                         isHidden={Boolean(item.isHidden)}
+                                                        onModifySearchWithTag={modifySearchWithTag}
                                                     />
                                                 ) : null}
                                             </div>

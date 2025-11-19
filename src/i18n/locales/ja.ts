@@ -291,6 +291,7 @@ export const STRINGS_JA = {
             deleteFolderTitle: "'{name}'を削除しますか？",
             deleteFileTitle: "'{name}'を削除しますか？",
             folderNamePrompt: 'フォルダ名を入力：',
+            hideInOtherVaultProfiles: '他の保管庫プロファイルで非表示にする',
             renamePrompt: '新しい名前を入力：',
             renameVaultTitle: 'ボールトの表示名を変更',
             renameVaultPrompt: 'カスタム表示名を入力（空にするとデフォルトを使用）：',
@@ -606,6 +607,10 @@ export const STRINGS_JA = {
                     'title-desc': 'タイトル（降順）'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'リスト変更時に選択ファイルへスクロール',
+                desc: 'ノートのピン留め、子孫ノートの表示、フォルダ外観の変更、ファイル操作の実行時に選択したファイルへスクロールします。'
+            },
             includeDescendantNotes: {
                 name: 'サブフォルダ / 子孫のノートを表示',
                 desc: 'フォルダまたはタグを表示するとき、入れ子のサブフォルダとタグの子孫にあるノートを含めます。'
@@ -831,8 +836,8 @@ export const STRINGS_JA = {
                 desc: 'ファイルアイテムにクリック可能なタグを表示します。タグの色を使用して、異なるタグタイプを視覚的に区別できます。'
             },
             showFileTagAncestors: {
-                name: '親タグを表示',
-                desc: 'タグ名の前に親セグメントを表示します。'
+                name: '完全なタグパスを表示',
+                desc: "タグの完全な階層パスを表示します。有効時: 'ai/openai', 'work/projects/2024'。無効時: 'openai', '2024'。"
             },
             collapseFileTagsToSelectedTag: {
                 name: '選択したタグにタグを折りたたむ',
@@ -841,6 +846,10 @@ export const STRINGS_JA = {
             colorFileTags: {
                 name: 'ファイルタグに色を付ける',
                 desc: 'ファイルアイテムのタグバッジにタグの色を適用します。'
+            },
+            prioritizeColoredFileTags: {
+                name: '色付きタグを先頭に配置',
+                desc: '色付きタグを他のタグより前に並べ替えます。'
             },
             showFileTagsInSlimMode: {
                 name: 'スリムモードでファイルタグを表示',

@@ -6,7 +6,7 @@ export type Align = 'auto' | 'center' | 'start' | 'end';
 export type NavScrollIntent = 'selection' | 'startup' | 'reveal' | 'visibilityToggle' | 'external' | 'mobile-visibility';
 
 // List pane scroll intents
-export type ListScrollIntent = 'folder-navigation' | 'visibility-change' | 'reveal' | 'list-config-change';
+export type ListScrollIntent = 'folder-navigation' | 'visibility-change' | 'reveal' | 'list-structure-change';
 
 // Determine alignment for navigation pane based on intent and explicit override
 export function getNavAlign(intent?: NavScrollIntent): Align {
@@ -33,7 +33,7 @@ export function getListAlign(reason?: ListScrollIntent): Align {
             return Platform.isMobile ? 'center' : 'auto';
         case 'visibility-change':
             return 'auto';
-        case 'list-config-change':
+        case 'list-structure-change':
             return 'auto';
         case 'reveal':
         default:
@@ -46,8 +46,8 @@ export function rankListPending(p?: { type: 'file' | 'top'; reason?: ListScrollI
     if (!p) return -1;
     if (p.type === 'top') return 0;
     switch (p.reason) {
-        case 'list-config-change':
-            return 1; // Maintain position after list settings changes
+        case 'list-structure-change':
+            return 1; // Maintain position after list changes
         case 'visibility-change':
             return 2; // Pane became visible on mobile
         case 'folder-navigation':
