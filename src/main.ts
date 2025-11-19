@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -723,25 +723,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      * Throws if plugin is unloading or view is not available.
      */
     public async rebuildCache(mode: CacheRebuildMode): Promise<void> {
-        // Prevent rebuild if plugin is being unloaded
-        if (this.isUnloading) {
-            throw new Error('Plugin is unloading');
-        }
-
-        // Ensure the Navigator view is active before rebuilding
-        await this.activateView();
-
-        // Find the Navigator view leaf in the workspace
-        const leaf = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW)[0];
-        if (!leaf) {
-            throw new Error('Notebook Navigator view not available');
-        }
-
-        // Get the view instance and delegate the rebuild operation
-        const { view } = leaf;
-        if (!(view instanceof NotebookNavigatorView)) {
-            throw new Error('Notebook Navigator view not found');
-        }
+        const view = await this.getActivatedView()
 
         switch (mode) {
             case CacheRebuildMode.DropDatabaseSlow:
@@ -1074,6 +1056,18 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         return this.homepageController?.open(trigger) ?? false;
     }
 
+    public async cmdJumpTop(): Promise<void> {
+        const view = await this.getActivatedView()
+
+        view.paneJumpTop()
+    }
+
+    public async cmdJumpBottom(): Promise<void> {
+        const view = await this.getActivatedView()
+
+        view.paneJumpBottom()
+    }
+
     /**
      * Checks for new GitHub releases and updates the pending notice if a newer version is found.
      * @param force - If true, bypasses the minimum check interval
@@ -1088,6 +1082,30 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     public dismissPendingUpdateNotice(): void {
         this.setPendingUpdateNotice(null);
     }
+
+    private async getActivatedView(): Promise<NotebookNavigatorView> {
+        if (this.isUnloading) {
+            throw new Error('Plugin is unloading');
+        }
+
+        await this.activateView();
+
+        // Find the Navigator view leaf in the workspace
+        const leaf = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW)[0];
+
+        if (!leaf) {
+            throw new Error('Notebook Navigator view not available');
+        }
+
+        const { view } = leaf;
+
+        if (!(view instanceof NotebookNavigatorView)) {
+            throw new Error('Notebook Navigator view not found');
+        }
+
+        return view
+    }
+
 
     /**
      * Performs the actual release check and updates the pending notice.

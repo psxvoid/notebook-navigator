@@ -1,5 +1,23 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/*
+ * Notebook Navigator Ex - Plugin for Obsidian
  */
 
 import { Notice, TFile, TFolder } from 'obsidian';
@@ -73,6 +91,30 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
 
             if (!checking) {
                 void plugin.openHomepage('command');
+            }
+
+            return true;
+        }
+    });
+
+    plugin.addCommand({
+        id: 'pane-jump-top',
+        name: 'Jump to the top of the list', // strings.commands.paneJumpBottom, // TODO: add translations
+        checkCallback: (checking: boolean) => {
+            if (!checking) {
+                void plugin.cmdJumpTop()
+            }
+
+            return true;
+        }
+    });
+
+    plugin.addCommand({
+        id: 'pane-jump-bottom',
+        name: 'Jump to the bottom of the list', // strings.commands.paneJumpBottom, // TODO: add translations
+        checkCallback: (checking: boolean) => {
+            if (!checking) {
+                void plugin.cmdJumpBottom()
             }
 
             return true;

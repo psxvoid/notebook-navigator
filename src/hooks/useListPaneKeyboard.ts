@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,11 +44,12 @@ import { useKeyboardNavigation, KeyboardNavigationHelpers } from './useKeyboardN
 import { useMultiSelection } from './useMultiSelection';
 import { useFileOpener } from './useFileOpener';
 import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
+import { onSelectFileCallback, useSelectItemAtIndex } from './list-pane/useSelectItemAtIndex';
 
 /**
  * Check if a list item is selectable (file, not header or spacer)
  */
-const isSelectableListItem = (item: ListPaneItem): boolean => {
+export const isSelectableListItem = (item: ListPaneItem): boolean => {
     return item.type === ListPaneItemType.FILE;
 };
 
@@ -66,7 +67,7 @@ interface UseListPaneKeyboardProps {
     /** Map from file paths to their position in files array */
     fileIndexMap: Map<string, number>;
     /** Handler for selecting a file from keyboard actions */
-    onSelectFile: (file: TFile, options?: { markKeyboardNavigation?: boolean }) => void;
+    onSelectFile: onSelectFileCallback;
 }
 
 /**
@@ -108,17 +109,7 @@ export function useListPaneKeyboard({
     /**
      * Select item at given index
      */
-    const selectItemAtIndex = useCallback(
-        (item: ListPaneItem) => {
-            if (item.type === ListPaneItemType.FILE) {
-                const file = item.data instanceof TFile ? item.data : null;
-                if (!file) return;
-
-                onSelectFile(file, { markKeyboardNavigation: true });
-            }
-        },
-        [onSelectFile]
-    );
+    const { selectItemAtIndex } = useSelectItemAtIndex(onSelectFile)
 
     /**
      * Handle range selection with Home/End
