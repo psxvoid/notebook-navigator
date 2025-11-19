@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -488,7 +488,9 @@ export const STRINGS_KO = {
         addTag: '선택한 파일에 태그 추가', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '선택한 파일에서 태그 제거', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: '선택한 파일에서 모든 태그 제거', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
-        rebuildCache: '캐시 다시 빌드' // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
+        rebuildCache: '캐시 다시 빌드', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
+        paneJumpTop: '목록의 맨 위로 이동',
+        paneJumpBottom: '목록 맨 아래로 이동',
     },
 
     // Plugin UI

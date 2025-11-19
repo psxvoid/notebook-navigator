@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useMultiSelection } from '../hooks/useMultiSelection';
-import { useListPaneKeyboard } from '../hooks/useListPaneKeyboard';
+import { isSelectableListItem, useListPaneKeyboard } from '../hooks/useListPaneKeyboard';
 import { useListPaneData } from '../hooks/useListPaneData';
 import { useListPaneScroll } from '../hooks/useListPaneScroll';
 import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
@@ -81,6 +81,11 @@ import { ObsidianIcon } from './ObsidianIcon';
 import { runAsyncAction } from '../utils/async';
 import { openFileInContext } from '../utils/openFileInContext';
 
+import { findNextSelectableIndex, findPreviousSelectableIndex } from 'src/hooks/useKeyboardNavigation';
+import { useSelectItemAtIndex } from 'src/hooks/list-pane/useSelectItemAtIndex';
+import { JumpTarget } from './NotebookNavigatorComponent';
+import { SelectFileOptions, useSelectFileFromList } from 'src/hooks/list-pane/useSelectFileFromList';
+
 /**
  * Renders the list pane displaying files from the selected folder.
  * Handles file sorting, grouping by date or folder, pinned notes, and auto-selection.
@@ -92,18 +97,6 @@ interface ExecuteSearchShortcutParams {
     searchShortcut: SearchShortcut;
 }
 
-/**
- * Options for selecting a file programmatically
- */
-export interface SelectFileOptions {
-    /** Mark the selection as keyboard navigation to prevent scroll interference */
-    markKeyboardNavigation?: boolean;
-    /** Mark the selection as user-initiated to track explicit user actions */
-    markUserSelection?: boolean;
-    /** Skip opening the file after selection */
-    suppressOpen?: boolean;
-}
-
 export interface ListPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
@@ -113,6 +106,8 @@ export interface ListPaneHandle {
     modifySearchWithTag: (tag: string, operator: InclusionOperator) => void;
     toggleSearch: () => void;
     executeSearchShortcut: (params: ExecuteSearchShortcutParams) => Promise<void>;
+    jumpTopSelectFirst: () => void
+    jumpBottomSelectLast: () => void
 }
 
 interface ListPaneProps {
@@ -206,6 +201,11 @@ export const ListPane = React.memo(
         // Debounced search query used for data filtering to avoid per-keystroke spikes
         const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
         const [shouldFocusSearch, setShouldFocusSearch] = useState(false);
+
+        /**
+         * Select item at given index
+         */
+        const { selectItemAtIndex } = useSelectItemAtIndex(file => selectFileFromList(file, { markKeyboardNavigation: true }))
         // Callback to notify parent component of tag filter changes
         const { onSearchTokensChange } = props;
 
@@ -362,30 +362,7 @@ export const ListPane = React.memo(
          * Selects a file from the list pane and opens it in the active leaf.
          * Shared between keyboard navigation and command handlers.
          */
-        const selectFileFromList = useCallback(
-            (file: TFile, options?: SelectFileOptions) => {
-                if (!file) {
-                    return;
-                }
-
-                // Track whether this selection originated from explicit user interaction
-                isUserSelectionRef.current = options?.markUserSelection ?? false;
-
-                // Update the selected file in global state
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
-
-                // Mark as keyboard-driven to prevent automatic scroll interference
-                if (options?.markKeyboardNavigation) {
-                    selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
-                }
-
-                // Open file in the active leaf without moving focus
-                if (!options?.suppressOpen) {
-                    openFileInWorkspace(file);
-                }
-            },
-            [selectionDispatch, openFileInWorkspace]
-        );
+        const { selectFileFromList } = useSelectFileFromList(isUserSelectionRef)
 
         // Track render count
         const renderCountRef = useRef(0);
@@ -813,6 +790,22 @@ export const ListPane = React.memo(
 
         renderCountRef.current++;
 
+        const scrollToIndex = useCallback((target: JumpTarget) => {
+            const isTop = target === JumpTarget.top 
+            const index = isTop ? 0 : listItems.length
+            const targetIndex = isTop
+                ? findNextSelectableIndex(listItems, index, isSelectableListItem, true)
+                : findPreviousSelectableIndex(listItems, index, isSelectableListItem, true)
+
+            const itemToSelect = safeGetItem(listItems, targetIndex)
+
+            if (itemToSelect != null) {
+                selectItemAtIndex(itemToSelect, false)
+            }
+
+            rowVirtualizer.scrollToIndex(targetIndex, { behavior: 'auto'})
+        }, [listItems, rowVirtualizer, selectItemAtIndex])
+
         // Expose the virtualizer instance and file lookup method via the ref
         const modifySearchWithTag = useCallback(
             (tag: string, operator: InclusionOperator) => {
@@ -888,7 +881,13 @@ export const ListPane = React.memo(
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
                     }
                 },
-                executeSearchShortcut
+                executeSearchShortcut,
+                jumpTopSelectFirst: () => {
+                    scrollToIndex(JumpTarget.top)
+                },
+                jumpBottomSelectLast: () => {
+                    scrollToIndex(JumpTarget.bottom)
+                }
             }),
             [
                 filePathToIndex,
@@ -903,7 +902,8 @@ export const ListPane = React.memo(
                 executeSearchShortcut,
                 selectFileFromList,
                 selectAdjacentFile,
-                modifySearchWithTag
+                modifySearchWithTag,
+                scrollToIndex,
             ]
         );
 

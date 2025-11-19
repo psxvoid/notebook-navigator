@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modification by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -490,7 +490,9 @@ export const STRINGS_NL = {
         addTag: 'Tag toevoegen aan geselecteerde bestanden',
         removeTag: 'Tag verwijderen van geselecteerde bestanden',
         removeAllTags: 'Alle tags verwijderen van geselecteerde bestanden',
-        rebuildCache: 'Cache opnieuw opbouwen'
+        rebuildCache: 'Cache opnieuw opbouwen',
+        paneJumpTop: 'Ga naar de bovenkant van de lijst',
+        paneJumpBottom: 'Spring naar het einde van de lijst',
     },
 
     // Plugin UI

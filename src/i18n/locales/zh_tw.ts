@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -488,7 +488,9 @@ export const STRINGS_ZH_TW = {
         addTag: '為選取檔案新增標籤', // 指令面板：開啟對話框為選取檔案新增標籤 (英文: Add tag to selected files)
         removeTag: '從選取檔案移除標籤', // 指令面板：開啟對話框從選取檔案移除標籤 (英文: Remove tag from selected files)
         removeAllTags: '從選取檔案移除所有標籤', // 指令面板：從選取檔案移除所有標籤 (英文: Remove all tags from selected files)
-        rebuildCache: '重建快取' // 指令面板：重建本地 Notebook Navigator 快取 (英文: Rebuild cache)
+        rebuildCache: '重建快取', // 指令面板：重建本地 Notebook Navigator 快取 (英文: Rebuild cache)
+        paneJumpTop: '跳到列表頂部',
+        paneJumpBottom: '跳轉至列表底部',
     },
 
     // 外掛 UI

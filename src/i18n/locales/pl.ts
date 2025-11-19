@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -490,7 +490,9 @@ export const STRINGS_PL = {
         addTag: 'Dodaj tag do wybranych plików', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Usuń tag z wybranych plików', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Usuń wszystkie tagi z wybranych plików', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
-        rebuildCache: 'Odbuduj pamięć podręczną' // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
+        rebuildCache: 'Odbuduj pamięć podręczną', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
+        paneJumpTop: 'Przejdź na górę listy',
+        paneJumpBottom: 'Przejdź na dół listy',
     },
 
     // Plugin UI
