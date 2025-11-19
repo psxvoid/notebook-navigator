@@ -47,7 +47,8 @@ body {
     /* File item padding */
     --nn-file-item-padding-horizontal: 12px; /* Horizontal padding for file items and date headers */
     --nn-file-row-gap: 4px; /* Gap between columns inside a file row */
-    --nn-file-icon-slot-width: var(--nn-nav-icon-size); /* Leading icon slot width */
+    --nn-file-icon-size: 16px; /* Leading icon size for file rows and pinned headers */
+    --nn-file-icon-slot-width: var(--nn-file-icon-size); /* Leading icon slot width */
     --nn-file-icon-slot-gap: 6px; /* Space between leading icon slot and text (matches pinned header) */
 
     /* ========================================================================
@@ -1862,7 +1863,7 @@ body {
     align-self: flex-start;
     justify-content: center;
     margin-inline-end: max(0px, calc(var(--nn-file-icon-slot-gap) - var(--nn-file-row-gap)));
-    margin-top: max(0px, calc((var(--nn-file-title-line-height) - var(--nn-nav-icon-size)) / 2));
+    margin-top: max(0px, calc((var(--nn-file-title-line-height) - var(--nn-file-icon-size)) / 2));
 }
 
 /* Virtual list file separator */
@@ -1974,8 +1975,8 @@ body {
 }
 
 .nn-file-icon {
-    width: var(--nn-nav-icon-size);
-    height: var(--nn-nav-icon-size);
+    width: var(--nn-file-icon-size);
+    height: var(--nn-file-icon-size);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1984,16 +1985,16 @@ body {
 }
 
 .nn-file-icon svg {
-    width: var(--nn-nav-icon-size);
-    height: var(--nn-nav-icon-size);
+    width: var(--nn-file-icon-size);
+    height: var(--nn-file-icon-size);
 }
 
 .nn-file-icon.nn-emoji-icon,
 .nn-file-icon .nn-emoji-icon {
-    font-size: var(--nn-nav-icon-size);
-    width: var(--nn-nav-icon-size);
-    height: var(--nn-nav-icon-size);
-    line-height: var(--nn-nav-icon-size);
+    font-size: var(--nn-file-icon-size);
+    width: var(--nn-file-icon-size);
+    height: var(--nn-file-icon-size);
+    line-height: var(--nn-file-icon-size);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2448,8 +2449,8 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: var(--nn-nav-icon-size);
-    height: var(--nn-nav-icon-size);
+    width: var(--nn-file-icon-size);
+    height: var(--nn-file-icon-size);
     color: var(--nn-theme-list-group-header-color);
     flex: 0 0 auto;
 }
