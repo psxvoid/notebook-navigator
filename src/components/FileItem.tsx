@@ -99,6 +99,8 @@ interface FileItemProps {
     isHidden?: boolean;
     /** Modifies the active search query with a tag token when modifier clicking */
     onModifySearchWithTag?: (tag: string, operator: InclusionOperator) => void;
+    /** Icon size for rendering file icons */
+    fileIconSize: number;
 }
 
 /**
@@ -286,7 +288,8 @@ export const FileItem = React.memo(function FileItem({
     searchQuery,
     searchMeta,
     isHidden = false,
-    onModifySearchWithTag
+    onModifySearchWithTag,
+    fileIconSize
 }: FileItemProps) {
     // === Hooks (all hooks together at the top) ===
     const { app, isMobile, plugin, commandQueue, tagOperations } = useServices();
@@ -1155,8 +1158,8 @@ export const FileItem = React.memo(function FileItem({
             return;
         }
         const iconService = getIconService();
-        iconService.renderIcon(iconContainer, iconId);
-    }, [effectiveFileIconId, iconServiceVersion, shouldShowFileIcon, isSlimMode]);
+        iconService.renderIcon(iconContainer, iconId, fileIconSize);
+    }, [effectiveFileIconId, iconServiceVersion, shouldShowFileIcon, isSlimMode, fileIconSize]);
 
     // Render external file indicator icon (shown next to filename in non-slim mode)
     useEffect(() => {

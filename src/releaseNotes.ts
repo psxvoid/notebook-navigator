@@ -90,12 +90,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'When deleting a hidden folder Notebook Navigator will now automatically remove it from **Settings > Hide folders**.',
             'When changing hidden folders (renaming, moving, deleting) **all changes are now reflected in all vaults**.',
             'In the color picker, choosing a preset or recent color no longer closes the color picker.',
-            'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.',
-            'Slightly increased mobile font size and icon size in list pane.'
+            'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.'
         ],
         changed: [
             'Improved the menu structure for files and folders so things are grouped more logically.',
-            'Improved the list pane layout. Separators now align with file item width. And file items are now indented so icons can show to the left, making it easy to quickly find items with icons.'
+            'Improved the list pane layout. Separators now align with file item width. File items are now indented so icons show to the left, making it easy to quickly find items with icons.',
+            'Slightly increased mobile font size and mobile icon size in the list pane.'
         ],
         fixed: [
             'Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.',
