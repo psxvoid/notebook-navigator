@@ -478,8 +478,10 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 **Filtering**
 
+- **Vault profile:** Profiles store file type visibility, hidden folders, hidden tags, hidden notes, shortcuts, and navigation banner. Switch profiles from the navigation pane header.
 - **Show file types:** Filter which file types are shown in the navigator. `Documents (.md, .canvas, .base)`, `Supported (opens in Obsidian)`, `All (may open externally)`.
 - **Hide folders:** Comma-separated list of folders to hide. Name patterns: `assets*` (folders starting with assets), `*_temp` (ending with \_temp). Path patterns: `/archive` (root archive only), `/res*` (root folders starting with res), `/*/temp` (temp folders one level deep), `/projects/*` (all folders inside projects).
+- **Hide tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., `archive` hides `archive/2024/docs`).
 - **Hide notes:** Comma-separated frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).
 
 **Behavior**
@@ -508,6 +510,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Homepage:** Choose the file that Notebook Navigator opens automatically, such as a dashboard.
   - **Separate mobile homepage:** Use a different homepage for mobile devices.
 - **Apply color to icons only:** When enabled, custom colors are applied only to icons. When disabled, colors are applied to both icons and text labels.
+- **Toolbar buttons:** Choose which buttons appear in the toolbar. Hidden buttons remain accessible via commands and menus.
 
 **Formatting**
 
@@ -525,10 +528,10 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 **Appearance**
 
 - **Navigation banner:** Display an image above the navigation pane.
+- **Show shortcut icons:** Display icons for navigation sections like Shortcuts and Recent files.
 - **Show shortcuts:** Display the shortcuts section in the navigation pane.
 - **Show recent notes:** Display the recent notes section in the navigation pane.
   - **Recent notes count:** Number of recent notes to display.
-- **Show shortcut icons:** Display icons for navigation sections like Shortcuts and Recent files.
 - **Show note count:** Display the number of notes next to each folder and tag.
   - **Show current and descendant counts separately:** Display note counts as "current ▾ descendants" format in folders and tags.
 - **Tree indentation:** Adjust the indentation width for nested folders and tags.
@@ -547,7 +550,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show root folder:** Display the vault name as the root folder in the tree.
 - **Inherit folder colors:** Child folders inherit color from parent folders.
 - **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links.
-  - **Folder note type:** Folder note type created from the context menu. `Ask when creating`, `Markdown`, `Canvas`, `Base`.
+  - **Default folder note type:** Folder note type created from the context menu. `Ask when creating`, `Markdown`, `Canvas`, `Base`.
   - **Folder note name:** Name of the folder note without extension. Leave empty to use the same name as the folder.
   - **Folder note properties:** YAML frontmatter added to new folder notes. --- markers are added automatically.
   - **Hide folder notes in list:** Hide the folder note from appearing in the folder's note list.
@@ -561,36 +564,41 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Show tags folder:** Display "Tags" as a collapsible folder.
   - **Show untagged notes:** Display "Untagged" item for notes without any tags.
   - **Retain tags property after removing last tag:** Keep the tags frontmatter property when all tags are removed. When disabled, the tags property is deleted from frontmatter.
-  - **Hidden tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., `archive` hides `archive/2024/docs`).
 
 ### List pane
 
 - **List pane title (desktop only):** Choose where the list pane title is shown. `Show in header`, `Show in list pane`, `Do not show`.
 - **Sort notes by:** Choose how notes are sorted in the note list. `Date edited (newest on top)`, `Date edited (oldest on top)`, `Date created (newest on top)`, `Date created (oldest on top)`, `Title (A on top)`, `Title (Z on top)`.
+- **Scroll to selected file on list changes:** Scroll to the selected file when pinning notes, showing descendant notes, changing folder appearance, or running file operations.
+
+**Quick actions (desktop only)**
+
+- **Show quick actions (desktop only):** Show action buttons when hovering over files. Button controls select which actions appear.
+  - **Reveal in folder:** Quick action: Reveal note in its parent folder. Only visible when viewing notes from subfolders or in tags (not shown in the note's actual folder).
+  - **Add tag:** Quick action: Add tag.
+  - **Add to shortcuts:** Quick action: Add to shortcuts.
+  - **Pin note:** Quick action: Pin or unpin note at top of list.
+  - **Open in new tab:** Quick action: Open note in new tab.
+
+**Pinned notes**
+
+- **Limit pinned notes to their folder:** Pinned notes appear only when viewing the folder or tag where they were pinned.
+- **Show pinned group header:** Display the pinned section header above pinned notes.
+  - **Show pinned icon:** Show the icon next to the pinned section header.
 
 **Appearance**
 
 - **Show notes from subfolders / descendants:** Include notes from nested subfolders and tag descendants when viewing a folder or tag.
-- **Show pinned notes in parent folder only:** Pinned notes appear only when viewing their folder.
-  - **Show pinned group header:** Display the pinned section header above pinned notes.
-    - **Show pinned icon:** Show the icon next to the pinned section header.
 - **Group notes:** Display headers between notes grouped by date or folder. `Don't group`, `Group by date`, `Group by folder`.
 - **Optimize note height:** Reduce height for pinned notes and notes without preview text.
 - **Slim item height:** Set the height of slim list items on desktop and mobile.
   - **Scale text with slim item height:** Scale slim list text when the item height is reduced.
 
-**Quick actions (desktop only)**
-
-- **Show quick actions (desktop only):** Show hover actions on file items.
-  - **Reveal in folder:** Quick action: Reveal note in its parent folder. Only visible when viewing notes from subfolders or in tags (not shown in the note's actual folder).
-  - **Pin note:** Quick action: Pin or unpin note at top of list.
-  - **Open in new tab:** Quick action: Open note in new tab.
-
 ### Notes
 
 **Frontmatter**
 
-- **Read metadata from frontmatter:** Read note names, timestamps, icons, and colors from frontmatter when available, falling back to file system values or settings.
+- **Use frontmatter metadata:** Use frontmatter for note name, timestamps, icons, and colors.
   - **Icon field:** Frontmatter field for file icons. Leave empty to use icons stored in settings.
   - **Color field:** Frontmatter field for file colors. Leave empty to use colors stored in settings.
   - **Save icons and colors to frontmatter:** Automatically write file icons and colors to frontmatter using the configured fields above.
@@ -606,8 +614,9 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show date:** Display the date below note names.
   - **When sorting by name:** Date to show when notes are alphabetically sorted. `Created date`, `Modified date`.
 - **Show file tags:** Display clickable tags in file items.
-  - **Show parent tags:** Display parent segments before the tag name.
+  - **Show full tag paths:** Display complete tag hierarchy paths. When enabled: 'ai/openai', 'work/projects/2024'. When disabled: 'openai', '2024'.
   - **Color file tags:** Apply tag colors to tag badges on file items.
+  - **Show colored tags first:** Sort colored tags before other tags on file items.
   - **Show file tags in slim mode:** Display tags when date, preview, and image are hidden.
 - **Show parent folder:** Display the parent folder name for notes in subfolders or tags.
   - **Click parent folder to reveal file:** Clicking the parent folder label reveals the file.
