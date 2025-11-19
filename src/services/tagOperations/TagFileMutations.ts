@@ -20,6 +20,7 @@ import { App, TFile, parseFrontMatterTags } from 'obsidian';
 import { getDBInstance } from '../../storage/fileOperations';
 import type { NotebookNavigatorSettings } from '../../settings/types';
 import { normalizeTagPathValue } from '../../utils/tagPrefixMatcher';
+import { TAG_CHARACTER_CLASS, hasValidTagCharacters } from '../../utils/tagUtils';
 import { mutateFrontmatterTagFields } from '../tagRename/frontmatterTagMutator';
 
 type TextRange = {
@@ -36,23 +37,16 @@ type TagsFrontmatter = Record<string, unknown> & { tags?: unknown };
  * Low-level tag mutation operations for individual files
  * Handles both frontmatter and inline tag modifications
  */
+const TAG_CHARACTER_CLASS_CONTENT = TAG_CHARACTER_CLASS.slice(1, -1);
+const INLINE_TAG_VALUE_PATTERN = `${TAG_CHARACTER_CLASS}+`;
+const INLINE_TAG_BOUNDARY_PATTERN = `(?=$|[^${TAG_CHARACTER_CLASS_CONTENT}])`;
+
 export class TagFileMutations {
-    // Pattern for valid tag characters: Unicode letters, numbers, underscore, hyphen, and forward slash
-    private static readonly TAG_CHAR_CLASS = '[\\p{L}\\p{N}_\\-/]+';
-    // Pattern for tag boundaries: matches when next character is whitespace, end of line, or not an allowed tag character
-    private static readonly TAG_BOUNDARY = '(?=$|[^\\p{L}\\p{N}_\\-/])';
+    private static readonly TAG_BOUNDARY = INLINE_TAG_BOUNDARY_PATTERN;
     // Complete pattern for matching any inline tag with optional leading space
-    private static readonly INLINE_TAG_PATTERN = new RegExp(
-        `(\\s)?#${TagFileMutations.TAG_CHAR_CLASS}${TagFileMutations.TAG_BOUNDARY}`,
-        'gu'
-    );
+    private static readonly INLINE_TAG_PATTERN = new RegExp(`(\\s)?#${INLINE_TAG_VALUE_PATTERN}${INLINE_TAG_BOUNDARY_PATTERN}`, 'gu');
     // Pattern for testing if content contains any inline tags (without global flag for test())
-    private static readonly INLINE_TAG_TEST_PATTERN = new RegExp(
-        `(\\s)?#${TagFileMutations.TAG_CHAR_CLASS}${TagFileMutations.TAG_BOUNDARY}`,
-        'u'
-    );
-    // Pattern for validating tag names
-    private static readonly TAG_NAME_PATTERN = new RegExp(`^${TagFileMutations.TAG_CHAR_CLASS}$`, 'u');
+    private static readonly INLINE_TAG_TEST_PATTERN = new RegExp(`(\\s)?#${INLINE_TAG_VALUE_PATTERN}${INLINE_TAG_BOUNDARY_PATTERN}`, 'u');
 
     constructor(
         private readonly app: App,
@@ -75,13 +69,16 @@ export class TagFileMutations {
         if (candidate.length === 0) {
             return false;
         }
+        if (!hasValidTagCharacters(candidate)) {
+            return false;
+        }
         if (candidate.startsWith('/') || candidate.endsWith('/')) {
             return false;
         }
         if (candidate.includes('//')) {
             return false;
         }
-        return TagFileMutations.TAG_NAME_PATTERN.test(candidate);
+        return true;
     }
 
     /**

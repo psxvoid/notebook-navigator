@@ -46,6 +46,9 @@ body {
 
     /* File item padding */
     --nn-file-item-padding-horizontal: 12px; /* Horizontal padding for file items and date headers */
+    --nn-file-row-gap: 4px; /* Gap between columns inside a file row */
+    --nn-file-icon-slot-width: var(--nn-nav-icon-size); /* Leading icon slot width */
+    --nn-file-icon-slot-gap: 6px; /* Space between leading icon slot and text (matches pinned header) */
 
     /* ========================================================================
        Fixed Height Variables for Pixel-Perfect Rendering
@@ -127,7 +130,7 @@ body {
     );
     --nn-theme-nav-separator-height: 1px;
     --nn-theme-nav-separator-opacity: 0.3;
-    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.05);
+    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.08);
 
     /* -- Folder & Tag Items -- */
     --nn-theme-navitem-chevron-color: var(--text-muted);
@@ -244,7 +247,7 @@ body {
 }
 
 .theme-dark {
-    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.2);
+    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.25);
 }
 
 /* ========================================================================
@@ -833,6 +836,45 @@ body {
     color: var(--nn-theme-list-header-breadcrumb-color) !important;
 }
 
+/* Search tag suggestion popover */
+.nn-search-tag-suggestion {
+    display: flex;
+    align-items: center;
+    padding: 4px 10px;
+    min-height: 28px;
+}
+
+.nn-search-tag-suggestion__label {
+    display: flex;
+    align-items: baseline;
+    width: 100%;
+    min-width: 0;
+    font-size: var(--nn-file-name-size);
+    color: var(--nn-theme-file-name-color);
+    gap: 6px;
+}
+
+.nn-search-tag-suggestion__prefix {
+    font-size: var(--nn-file-small-size);
+    color: var(--nn-theme-list-header-breadcrumb-color);
+    flex-shrink: 0;
+}
+
+.nn-search-tag-suggestion__text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.nn-search-tag-suggestion__text .suggestion-highlight {
+    background-color: var(--nn-theme-list-search-active-bg);
+    color: var(--nn-theme-file-name-color);
+    border-radius: 3px;
+    padding: 0 1px;
+}
+
 /* Clear button */
 /* Hide webkit search cancel button */
 .nn-search-input::-webkit-search-cancel-button {
@@ -1171,7 +1213,7 @@ body {
     left: 0;
     right: 0;
     top: calc(100% + 1px);
-    height: 8px;
+    height: 3px;
     pointer-events: none;
     background: linear-gradient(to bottom, var(--nn-theme-pinned-shortcut-shadow-color) 0%, transparent 100%);
 }
@@ -1807,9 +1849,20 @@ body {
 .nn-file-inner-content {
     display: flex;
     flex-direction: row;
-    gap: 4px;
-    align-items: center; /* Center items vertically */
+    gap: var(--nn-file-row-gap);
+    align-items: flex-start;
     position: relative;
+}
+
+.nn-file-icon-slot {
+    width: var(--nn-file-icon-slot-width);
+    flex: 0 0 var(--nn-file-icon-slot-width);
+    display: flex;
+    align-items: center;
+    align-self: flex-start;
+    justify-content: center;
+    margin-inline-end: max(0px, calc(var(--nn-file-icon-slot-gap) - var(--nn-file-row-gap)));
+    margin-top: max(0px, calc((var(--nn-file-title-line-height) - var(--nn-nav-icon-size)) / 2));
 }
 
 /* Virtual list file separator */
@@ -1818,8 +1871,8 @@ body {
     content: '';
     position: absolute;
     bottom: 0;
-    inset-inline-start: 20px;
-    inset-inline-end: 20px;
+    inset-inline-start: calc(var(--nn-file-item-padding-horizontal) + var(--nn-file-icon-slot-width) + var(--nn-file-icon-slot-gap));
+    inset-inline-end: var(--nn-file-item-padding-horizontal);
     height: var(--nn-separator-height);
     background-color: var(--nn-theme-list-separator-color);
     z-index: 100; /* Very high to ensure it's always on top */
@@ -1928,11 +1981,6 @@ body {
     justify-content: center;
     flex-shrink: 0;
     color: var(--nn-theme-navitem-icon-color);
-}
-
-.nn-file-name-wrapper[data-multiline='true'] > .nn-file-icon {
-    align-self: flex-start;
-    margin-top: max(0px, calc((var(--nn-file-title-line-height) - var(--nn-nav-icon-size)) / 2));
 }
 
 .nn-file-icon svg {

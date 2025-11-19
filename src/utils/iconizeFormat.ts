@@ -31,8 +31,11 @@ interface IconizeMapping {
 const LUCIDE_PROVIDER_ID = 'lucide';
 const LUCIDE_ICON_PREFIX = 'lucide-';
 
+type CanonicalDelimiter = 'kebab' | 'snake';
+
 interface IdentifierNormalizationRule {
-    redundantPrefixes: string[];
+    redundantPrefixes?: string[];
+    canonicalDelimiter?: CanonicalDelimiter;
 }
 
 /**
@@ -130,6 +133,13 @@ const IDENTIFIER_NORMALIZATION_RULES = new Map<string, IdentifierNormalizationRu
         {
             redundantPrefixes: ['ra-']
         }
+    ],
+    [
+        'material-icons',
+        {
+            redundantPrefixes: [],
+            canonicalDelimiter: 'snake'
+        }
     ]
 ]);
 
@@ -138,7 +148,7 @@ function stripProviderPrefixForIconize(identifier: string, providerId: string): 
     if (!rule) {
         return identifier;
     }
-    return stripAllLeadingPrefixes(identifier, rule.redundantPrefixes);
+    return stripAllLeadingPrefixes(identifier, rule.redundantPrefixes ?? []);
 }
 
 function stripAllLeadingPrefixes(identifier: string, prefixes: string[]): string {
@@ -174,7 +184,21 @@ function normalizeIdentifierFromIconize(identifier: string, providerId: string):
     if (!rule) {
         return identifier;
     }
-    return stripAllLeadingPrefixes(identifier, rule.redundantPrefixes);
+
+    const normalized = stripAllLeadingPrefixes(identifier, rule.redundantPrefixes ?? []);
+    if (!rule.canonicalDelimiter) {
+        return normalized;
+    }
+
+    if (rule.canonicalDelimiter === 'snake') {
+        return normalized.replace(/-/g, '_');
+    }
+
+    if (rule.canonicalDelimiter === 'kebab') {
+        return normalized.replace(/_/g, '-');
+    }
+
+    return normalized;
 }
 
 function normalizeIdentifierForProvider(identifier: string, providerId: string): string {
