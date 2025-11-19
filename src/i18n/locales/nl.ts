@@ -225,7 +225,8 @@ export const STRINGS_NL = {
             emptyStateNoResults: 'Geen pictogrammen gevonden',
             showingResultsInfo: '50 van {count} resultaten weergegeven. Typ meer om te verfijnen.',
             emojiInstructions: 'Typ of plak een emoji om deze als pictogram te gebruiken',
-            removeIcon: 'Pictogram verwijderen'
+            removeIcon: 'Pictogram verwijderen',
+            allTabLabel: 'Alle'
         },
         colorPicker: {
             currentColor: 'Huidig',

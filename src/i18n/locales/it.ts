@@ -225,7 +225,8 @@ export const STRINGS_IT = {
             emptyStateNoResults: 'Nessuna icona trovata',
             showingResultsInfo: 'Mostro 50 di {count} risultati. Digita di più per restringere.',
             emojiInstructions: 'Digita o incolla qualsiasi emoji per usarla come icona',
-            removeIcon: 'Rimuovi icona'
+            removeIcon: 'Rimuovi icona',
+            allTabLabel: 'Tutti'
         },
         colorPicker: {
             currentColor: 'Attuale',

@@ -224,7 +224,8 @@ export const STRINGS_ZH_TW = {
             emptyStateNoResults: '找不到圖示',
             showingResultsInfo: '顯示 {count} 個結果中的 50 個。輸入更多以縮小範圍。',
             emojiInstructions: '輸入或貼上任何表情符號以作為圖示',
-            removeIcon: '移除圖示'
+            removeIcon: '移除圖示',
+            allTabLabel: '全部'
         },
         colorPicker: {
             currentColor: '目前',

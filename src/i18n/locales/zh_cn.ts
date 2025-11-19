@@ -224,7 +224,8 @@ export const STRINGS_ZH_CN = {
             emptyStateNoResults: '未找到图标',
             showingResultsInfo: '显示 {count} 个结果中的 50 个。输入更多内容以缩小范围。',
             emojiInstructions: '输入或粘贴任何表情符号作为图标使用',
-            removeIcon: '移除图标'
+            removeIcon: '移除图标',
+            allTabLabel: '全部'
         },
         colorPicker: {
             currentColor: '当前',

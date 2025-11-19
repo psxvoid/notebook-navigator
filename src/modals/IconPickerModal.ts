@@ -31,6 +31,7 @@ import { addAsyncEventListener } from '../utils/domEventListeners';
 // Constants
 const GRID_COLUMNS = 5;
 const MAX_SEARCH_RESULTS = 50;
+const ALL_PROVIDERS_TAB_ID = 'all';
 
 // Type guard to validate emoji keywords from emojilib are strings
 function isStringArray(value: unknown): value is string[] {
@@ -42,7 +43,7 @@ function isStringArray(value: unknown): value is string[] {
  * Features tabs for different providers (Lucide, Emoji, etc.)
  */
 export class IconPickerModal extends Modal {
-    private currentProvider: string = 'lucide';
+    private currentProvider: string = ALL_PROVIDERS_TAB_ID;
     private static lastUsedProvider: string | null = null; // Shared session default
     private iconService = getIconService();
     private itemPath: string;
@@ -163,28 +164,38 @@ export class IconPickerModal extends Modal {
         this.currentProvider = resolvedProviderId;
         IconPickerModal.setLastUsedProvider(resolvedProviderId);
 
-        providers.forEach(provider => {
-            const tab = this.tabContainer.createDiv({
-                cls: 'nn-icon-provider-tab',
-                text: provider.name
-            });
-            tab.setAttribute('role', 'tab');
-            tab.setAttribute('tabindex', '-1');
-            tab.dataset.providerId = provider.id;
-            this.providerTabs.push(tab);
+        this.addProviderTab(ALL_PROVIDERS_TAB_ID, strings.modals.iconPicker.allTabLabel);
 
-            this.domDisposers.push(
-                addAsyncEventListener(tab, 'click', () => {
-                    this.setActiveProviderTab(provider.id);
-                    this.currentProvider = provider.id;
-                    IconPickerModal.setLastUsedProvider(provider.id);
-                    this.updateResults();
-                    this.resetResultsScroll();
-                })
-            );
+        providers.forEach(provider => {
+            this.addProviderTab(provider.id, provider.name);
         });
 
         this.setActiveProviderTab(resolvedProviderId);
+    }
+
+    private addProviderTab(providerId: string, label: string): void {
+        if (!this.tabContainer) {
+            return;
+        }
+
+        const tab = this.tabContainer.createDiv({
+            cls: 'nn-icon-provider-tab',
+            text: label
+        });
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('tabindex', '-1');
+        tab.dataset.providerId = providerId;
+        this.providerTabs.push(tab);
+
+        this.domDisposers.push(
+            addAsyncEventListener(tab, 'click', () => {
+                this.setActiveProviderTab(providerId);
+                this.currentProvider = providerId;
+                IconPickerModal.setLastUsedProvider(providerId);
+                this.updateResults();
+                this.resetResultsScroll();
+            })
+        );
     }
 
     /**
@@ -205,7 +216,7 @@ export class IconPickerModal extends Modal {
      */
     private sortProvidersForDisplay(providers: IconProvider[]): IconProvider[] {
         // Define providers that should appear first in the UI
-        const pinnedOrder = ['lucide', 'emoji'];
+        const pinnedOrder = ['emoji', 'lucide'];
         return providers.sort((a, b) => {
             const aPinnedIndex = pinnedOrder.indexOf(a.id);
             const bPinnedIndex = pinnedOrder.indexOf(b.id);
@@ -232,30 +243,36 @@ export class IconPickerModal extends Modal {
 
     private resolveInitialProvider(providers: IconProvider[]): string {
         if (!providers.length) {
-            return 'lucide';
+            return ALL_PROVIDERS_TAB_ID;
         }
 
         const providerIds = new Set(providers.map(provider => provider.id));
-        const fallbackProvider = providers.find(provider => provider.id === 'lucide')?.id ?? providers[0].id;
         const candidates = [IconPickerModal.getLastUsedProvider(), this.currentProvider]; // Prefer stored selection
 
         for (const candidate of candidates) {
-            if (candidate && providerIds.has(candidate)) {
+            if (!candidate) {
+                continue;
+            }
+            if (candidate === ALL_PROVIDERS_TAB_ID) {
+                return candidate;
+            }
+            if (providerIds.has(candidate)) {
                 return candidate;
             }
         }
 
-        return fallbackProvider;
+        return ALL_PROVIDERS_TAB_ID;
     }
 
     private updateResults() {
         this.resultsContainer.empty();
 
         const searchTerm = this.searchInput.value.toLowerCase().trim();
-        const provider = this.iconService.getProvider(this.currentProvider);
+        const isAllProvider = this.currentProvider === ALL_PROVIDERS_TAB_ID;
+        const provider = isAllProvider ? undefined : this.iconService.getProvider(this.currentProvider);
 
         if (searchTerm === '') {
-            const hasRecents = this.renderRecentIcons();
+            const hasRecents = isAllProvider ? false : this.renderRecentIcons();
 
             if (!hasRecents) {
                 if (this.currentProvider === 'emoji') {
@@ -268,9 +285,9 @@ export class IconPickerModal extends Modal {
             return;
         }
 
-        const results = this.iconService.search(searchTerm, this.currentProvider);
+        const results = isAllProvider ? this.iconService.search(searchTerm) : this.iconService.search(searchTerm, this.currentProvider);
 
-        if (results.length > 0 && provider) {
+        if (results.length > 0 && (isAllProvider || provider)) {
             const grid = this.resultsContainer.createDiv('nn-icon-grid');
 
             results.slice(0, MAX_SEARCH_RESULTS).forEach(iconDef => {
@@ -378,9 +395,22 @@ export class IconPickerModal extends Modal {
         emptyMessage.setText(isSearch ? strings.modals.iconPicker.emptyStateNoResults : strings.modals.iconPicker.emptyStateSearch);
     }
 
-    private createIconItem(iconDef: IconDefinition, container: HTMLElement, provider: IconProvider) {
+    private createIconItem(iconDef: IconDefinition, container: HTMLElement, provider?: IconProvider) {
+        let resolvedProvider = provider;
+        let fullIconId = iconDef.id;
+
+        if (resolvedProvider) {
+            fullIconId = this.iconService.formatIconId(resolvedProvider.id, iconDef.id);
+        } else {
+            const parsed = this.iconService.parseIconId(iconDef.id);
+            resolvedProvider = this.iconService.getProvider(parsed.provider);
+            if (!resolvedProvider) {
+                return;
+            }
+            fullIconId = iconDef.id;
+        }
+
         const iconItem = container.createDiv('nn-icon-item');
-        const fullIconId = this.iconService.formatIconId(provider.id, iconDef.id);
         iconItem.setAttribute('data-icon-id', fullIconId);
 
         // Icon preview
@@ -388,7 +418,7 @@ export class IconPickerModal extends Modal {
         this.iconService.renderIcon(iconPreview, fullIconId);
 
         // For emojis, also show the emoji as preview text if available
-        if (provider.id === 'emoji' && iconDef.preview) {
+        if (resolvedProvider.id === 'emoji' && iconDef.preview) {
             iconPreview.addClass('nn-emoji-preview');
         }
 

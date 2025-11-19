@@ -3309,8 +3309,8 @@ body.nn-resizing {
 
 /* Icon results scrollable container */
 .nn-icon-results-container {
-    height: 280px;
-    min-height: 280px;
+    height: 240px;
+    min-height: 240px;
     overflow-y: auto;
     padding: 8px;
     flex: 0 0 auto;

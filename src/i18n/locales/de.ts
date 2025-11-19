@@ -226,7 +226,8 @@ export const STRINGS_DE = {
             emptyStateNoResults: 'Keine Symbole gefunden',
             showingResultsInfo: 'Zeige 50 von {count} Ergebnissen. Geben Sie mehr ein, um die Suche einzugrenzen.',
             emojiInstructions: 'Geben Sie ein Emoji ein oder fügen Sie es ein, um es als Symbol zu verwenden',
-            removeIcon: 'Icon entfernen'
+            removeIcon: 'Icon entfernen',
+            allTabLabel: 'Alle'
         },
         colorPicker: {
             currentColor: 'Aktuell',
