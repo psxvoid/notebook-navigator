@@ -24,6 +24,7 @@ interface TagRenameModalOptions {
     tagPath: string;
     affectedCount: number;
     sampleFiles: string[];
+    initialValue?: string;
     onSubmit: (newName: string) => Promise<boolean> | boolean;
 }
 
@@ -35,6 +36,7 @@ export class TagRenameModal extends Modal {
     private readonly tagPath: string;
     private readonly affectedCount: number;
     private readonly sampleFiles: string[];
+    private readonly initialValue: string;
     private readonly onSubmit: (newName: string) => Promise<boolean> | boolean;
 
     private inputEl!: HTMLInputElement;
@@ -45,6 +47,7 @@ export class TagRenameModal extends Modal {
         this.tagPath = options.tagPath;
         this.affectedCount = options.affectedCount;
         this.sampleFiles = options.sampleFiles;
+        this.initialValue = options.initialValue ?? options.tagPath;
         this.onSubmit = options.onSubmit;
     }
 
@@ -72,7 +75,7 @@ export class TagRenameModal extends Modal {
         this.inputEl = inputContainer.createEl('input', {
             type: 'text',
             attr: { id: 'nn-tag-rename-input' },
-            value: this.tagPath,
+            value: this.initialValue,
             placeholder: strings.modals.tagOperation.newTagPlaceholder
         });
         this.inputEl.addClass('nn-input');

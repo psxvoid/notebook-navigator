@@ -107,7 +107,7 @@ export class TagOperations {
     }
 
     async promptRenameTag(tagPath: string): Promise<void> {
-        await this.renameWorkflow.promptRenameTag(tagPath);
+        await this.openRenameModal(tagPath);
     }
 
     /**
@@ -126,7 +126,7 @@ export class TagOperations {
         if (leaf.length === 0 || leaf === sourceDisplay) {
             return;
         }
-        await this.runTagRename(sourceDisplay, leaf);
+        await this.openRenameModal(sourceDisplay, leaf);
     }
 
     /**
@@ -141,11 +141,18 @@ export class TagOperations {
         const targetDisplay = this.resolveDisplayTagPath(targetTagPath);
         const leaf = this.fileMutations.getTagLeaf(sourceDisplay);
         const newPath = targetDisplay.length > 0 ? `${targetDisplay}/${leaf}` : leaf;
-        await this.runTagRename(sourceDisplay, newPath);
+        if (newPath === sourceDisplay) {
+            return;
+        }
+        await this.openRenameModal(sourceDisplay, newPath);
     }
 
     async promptDeleteTag(tagPath: string): Promise<void> {
         await this.deleteWorkflow.promptDeleteTag(tagPath);
+    }
+
+    private async openRenameModal(tagPath: string, initialValue?: string): Promise<void> {
+        await this.renameWorkflow.promptRenameTag(tagPath, initialValue);
     }
 
     protected resolveDisplayTagPath(tagPath: string): string {
