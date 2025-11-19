@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,11 +43,12 @@ import { getFilesInRange } from '../utils/selectionUtils';
 import { useKeyboardNavigation, KeyboardNavigationHelpers } from './useKeyboardNavigation';
 import { useMultiSelection } from './useMultiSelection';
 import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
+import { useSelectItemAtIndex } from './list-pane/useSelectItemAtIndex';
 
 /**
  * Check if a list item is selectable (file, not header or spacer)
  */
-const isSelectableListItem = (item: ListPaneItem): boolean => {
+export const isSelectableListItem = (item: ListPaneItem): boolean => {
     return item.type === ListPaneItemType.FILE;
 };
 
@@ -96,37 +97,7 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
     /**
      * Select item at given index
      */
-    const selectItemAtIndex = useCallback(
-        (item: ListPaneItem) => {
-            if (item.type === ListPaneItemType.FILE) {
-                const file = item.data instanceof TFile ? item.data : null;
-                if (!file) return;
-
-                // Normal navigation clears multi-selection
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
-
-                // Mark as keyboard navigation to prevent auto-scrolling on rapid navigation
-                selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
-
-                // Open the file in the editor without moving focus
-                const openFile = async () => {
-                    const leaf = app.workspace.getLeaf(false);
-                    if (!leaf) {
-                        return;
-                    }
-                    await leaf.openFile(file, { active: false });
-                };
-
-                // Queue the file open if command queue is available
-                if (commandQueue) {
-                    void commandQueue.executeOpenActiveFile(file, openFile);
-                } else {
-                    void openFile();
-                }
-            }
-        },
-        [selectionDispatch, app.workspace, commandQueue]
-    );
+    const { selectItemAtIndex } = useSelectItemAtIndex()
 
     /**
      * Handle range selection with Home/End

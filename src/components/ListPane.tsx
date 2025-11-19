@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useMultiSelection } from '../hooks/useMultiSelection';
-import { useListPaneKeyboard } from '../hooks/useListPaneKeyboard';
+import { isSelectableListItem, useListPaneKeyboard } from '../hooks/useListPaneKeyboard';
 import { useListPaneData } from '../hooks/useListPaneData';
 import { useListPaneScroll } from '../hooks/useListPaneScroll';
 import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
@@ -71,6 +71,9 @@ import { useShortcuts } from '../context/ShortcutsContext';
 import type { SearchShortcut } from '../types/shortcuts';
 import { EMPTY_LIST_MENU_TYPE } from '../utils/contextMenu';
 import { useUXPreferenceActions, useUXPreferences } from '../context/UXPreferencesContext';
+import { findNextSelectableIndex, findPreviousSelectableIndex } from 'src/hooks/useKeyboardNavigation';
+import { useSelectItemAtIndex } from 'src/hooks/list-pane/useSelectItemAtIndex';
+import { JumpTarget } from './NotebookNavigatorComponent';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -89,6 +92,8 @@ export interface ListPaneHandle {
     scrollContainerRef: HTMLDivElement | null;
     toggleSearch: () => void;
     executeSearchShortcut: (params: ExecuteSearchShortcutParams) => Promise<void>;
+    jumpTopSelectFirst: () => void
+    jumpBottomSelectLast: () => void
 }
 
 interface ListPaneProps {
@@ -137,6 +142,11 @@ export const ListPane = React.memo(
         // Debounced search query used for data filtering to avoid per-keystroke spikes
         const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
         const [shouldFocusSearch, setShouldFocusSearch] = useState(false);
+
+        /**
+         * Select item at given index
+         */
+        const { selectItemAtIndex } = useSelectItemAtIndex()
 
         // Check if the current search query matches any saved search
         const activeSearchShortcut = useMemo(() => {
@@ -602,6 +612,22 @@ export const ListPane = React.memo(
 
         renderCountRef.current++;
 
+        const scrollToIndex = useCallback((target: JumpTarget) => {
+            const isTop = target === JumpTarget.top 
+            const index = isTop ? 0 : listItems.length
+            const targetIndex = isTop
+                ? findNextSelectableIndex(listItems, index, isSelectableListItem, true)
+                : findPreviousSelectableIndex(listItems, index, isSelectableListItem, true)
+
+            const itemToSelect = safeGetItem(listItems, targetIndex)
+
+            if (itemToSelect != null) {
+                selectItemAtIndex(itemToSelect, false)
+            }
+
+            rowVirtualizer.scrollToIndex(targetIndex, { behavior: 'auto'})
+        }, [listItems, rowVirtualizer, selectItemAtIndex])
+
         // Expose the virtualizer instance and file lookup method via the ref
         useImperativeHandle(
             ref,
@@ -631,7 +657,13 @@ export const ListPane = React.memo(
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
                     }
                 },
-                executeSearchShortcut
+                executeSearchShortcut,
+                jumpTopSelectFirst: () => {
+                    scrollToIndex(JumpTarget.top)
+                },
+                jumpBottomSelectLast: () => {
+                    scrollToIndex(JumpTarget.bottom)
+                }
             }),
             [
                 filePathToIndex,
@@ -642,7 +674,8 @@ export const ListPane = React.memo(
                 setIsSearchActive,
                 props.rootContainerRef,
                 uiState.singlePane,
-                executeSearchShortcut
+                executeSearchShortcut,
+                scrollToIndex,
             ]
         );
 

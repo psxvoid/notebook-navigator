@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,6 +78,13 @@ export interface NotebookNavigatorHandle {
     stopContentProcessing: () => void;
     rebuildCache: () => Promise<void>;
     rebuildCacheFast: () => Promise<void>;
+    paneJumpTop: () => void;
+    paneJumpBottom: () => void;
+}
+
+export const enum JumpTarget {
+    top,
+    bottom
 }
 
 /**
@@ -345,6 +352,28 @@ export const NotebookNavigatorComponent = React.memo(
         // Get navigation actions
         const { handleExpandCollapseAll } = useNavigationActions();
 
+        const paneJump = useCallback((target: JumpTarget) => {
+            const isTopJump = target === JumpTarget.top;
+            const view = uiState.focusedPane === 'navigation' ? 'navigation' : 'files'
+            const pane = view
+
+            if (uiState.singlePane) {
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view });
+            }
+
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane });
+
+            if (uiState.focusedPane === 'navigation') {
+                const virtualizer = navigationPaneRef.current?.virtualizer
+                const index = isTopJump ? 0 : virtualizer?.getTotalSize() ?? 0
+                virtualizer?.scrollToIndex(index, { behavior: "smooth" })
+            } else if (isTopJump) {
+                listPaneRef.current?.jumpTopSelectFirst()
+            } else {
+                listPaneRef.current?.jumpBottomSelectLast()
+            }
+        }, [uiDispatch, uiState.focusedPane, uiState.singlePane])
+
         // Expose methods via ref
         useImperativeHandle(ref, () => {
             // Retrieves currently selected files or falls back to single selected file
@@ -401,6 +430,12 @@ export const NotebookNavigatorComponent = React.memo(
                 rebuildCacheFast: async () => {
                     // Trigger complete cache rebuild from storage context
                     await rebuildCacheFastRef.current?.();
+                },
+                paneJumpTop: () => {
+                    paneJump(JumpTarget.top)
+                },
+                paneJumpBottom: () => {
+                    paneJump(JumpTarget.bottom)
                 },
                 refresh: () => {
                     // A no-op update will increment the version and force a re-render
@@ -708,7 +743,8 @@ export const NotebookNavigatorComponent = React.memo(
             navigationPaneRef,
             addFolderShortcut,
             addNoteShortcut,
-            addTagShortcut
+            addTagShortcut,
+            paneJump
         ]);
 
         // Add platform class and background mode classes
