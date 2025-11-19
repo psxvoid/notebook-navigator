@@ -61,10 +61,6 @@ export class SearchTagInputSuggest extends AbstractInputSuggest<TagSuggestionIte
         this.searchInputEl = inputEl;
         this.limit = TAG_LIMIT;
         this.isMobile = options.isMobile;
-
-        if (this.isMobile) {
-            this.containerEl.addClass('nn-mobile');
-        }
     }
 
     getSuggestions(_input: string): TagSuggestionItem[] {
@@ -145,6 +141,19 @@ export class SearchTagInputSuggest extends AbstractInputSuggest<TagSuggestionIte
 
     dispose(): void {
         this.close();
+    }
+
+    onOpen(): void {
+        if (!this.isMobile) {
+            return;
+        }
+
+        if (!this.containerEl) {
+            console.error('[SearchTagInputSuggest] containerEl missing on open');
+            return;
+        }
+
+        this.containerEl.addClass('nn-mobile');
     }
 
     private resolveActiveRange(): ActiveTagRange | null {
