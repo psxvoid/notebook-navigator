@@ -74,14 +74,14 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.8.5',
-        date: '2025-11-18',
+        date: '2025-11-19',
         showOnUpdate: true,
         new: [
-            '==Fuzzy search for tags in the search field==! Typing part of a tag name will now show matching tags in the suggestions dropdown.',
+            '==Fuzzy search for tags in the search field==! Typing part of a tag name will now show matching tags in a suggestions dropdown.',
             '==Two new quick actions==: **Add tag** and **Add to shortcuts**. **Important!** If you do not want to show all five quick actions you can easily disable quick links in Settings > List pane > Show quick actions.',
-            'New setting: List pane > ==Scroll to selected file on list changes==. When enabled (default), list pane will always scroll to the selected file when pinning notes, showing descendant notes, changing folder appearance, or performing file operations. Disable for full control over the scroll position.',
-            'New setting: Notes > Show parent folder > ==Click parent folder to reveal file==. You can now click the parent folder name to open a file in its folder. Default disabled.',
-            'New setting: Notes > Show file tags > Color file tags > ==Show colored tags first==. When enabled, colored tags appear before other tags on file items. Default enabled.'
+            'New setting: Settings > List pane > ==Scroll to selected file on list changes==. When enabled (default), list pane will always scroll to the selected file when pinning notes, showing descendant notes, changing folder appearance, or performing file operations. Disable for full control over the scroll position.',
+            'New setting: Settings > Notes > Show parent folder > ==Click parent folder to reveal file==. You can now click the parent folder name to open a file in its folder. Default disabled.',
+            'New setting: Settings > Notes > Show file tags > Color file tags > ==Show colored tags first==. When enabled, colored tags appear before other tags on file items. Default enabled.'
         ],
         improved: [
             'You can now **command + click** or **command + shift + click** file tags in list pane to automatically add them to the search field.',
@@ -92,8 +92,14 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'In the color picker, choosing a preset or recent color no longer closes the color picker.',
             'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.'
         ],
-        changed: ['Improved the menu structure for files and folders so things are grouped more logically.'],
-        fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.']
+        changed: [
+            'Improved the menu structure for files and folders so things are grouped more logically.',
+            'Improved the list pane layout. Separators now align with file item width. And file items are now indented so icons can show to the left, making it easy to quickly find items with icons.'
+        ],
+        fixed: [
+            'Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.',
+            'Fixed an issue where some material icons read from frontmatter would not show correctly. If you use material icons in frontmatter please rebuild your cache after updating.'
+        ]
     },
     {
         version: '1.8.4',

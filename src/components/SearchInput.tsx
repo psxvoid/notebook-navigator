@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useUIDispatch, useUIState } from '../context/UIStateContext';
 import { useSettingsState } from '../context/SettingsContext';
@@ -24,6 +24,7 @@ import { useServices } from '../context/ServicesContext';
 import { strings } from '../i18n';
 import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
 import { runAsyncAction, type MaybePromise } from '../utils/async';
+import { SearchTagInputSuggest } from '../suggest/SearchTagInputSuggest';
 
 interface SearchInputProps {
     searchQuery: string;
@@ -54,7 +55,8 @@ export function SearchInput({
     isShortcutDisabled
 }: SearchInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
-    const { isMobile, omnisearchService } = useServices();
+    const tagSuggestRef = useRef<SearchTagInputSuggest | null>(null);
+    const { isMobile, omnisearchService, app, tagTreeService } = useServices();
     const settings = useSettingsState();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
@@ -80,6 +82,50 @@ export function SearchInput({
             }
         }
     }, [shouldFocus, onFocusComplete]);
+
+    const applyTagSuggestion = useCallback(
+        (value: string, cursor: number) => {
+            onSearchQueryChange(value);
+            requestAnimationFrame(() => {
+                const input = inputRef.current;
+                if (!input) {
+                    return;
+                }
+                input.focus();
+                input.setSelectionRange(cursor, cursor);
+            });
+        },
+        [onSearchQueryChange]
+    );
+
+    // Initialize Obsidian's tag suggest helper on the search input
+    useEffect(() => {
+        if (!settings.showTags) {
+            return;
+        }
+
+        const inputEl = inputRef.current;
+        if (!inputEl || !tagTreeService) {
+            return;
+        }
+
+        const suggest = new SearchTagInputSuggest(app, inputEl, {
+            getTags: () => tagTreeService.getFlattenedTagNodes() ?? [],
+            onApply: applyTagSuggestion
+        });
+        tagSuggestRef.current = suggest;
+        return () => {
+            tagSuggestRef.current = null;
+            suggest.dispose();
+        };
+    }, [app, tagTreeService, settings.showTags, applyTagSuggestion]);
+
+    useEffect(() => {
+        if (searchQuery.trim().length > 0) {
+            return;
+        }
+        tagSuggestRef.current?.close();
+    }, [searchQuery]);
 
     /**
      * Focuses the list pane scroll container to enable keyboard navigation.
