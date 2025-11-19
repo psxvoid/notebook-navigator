@@ -150,8 +150,8 @@ export const STRINGS_EN = {
             revealInFinder: 'Reveal in Finder',
             showInExplorer: 'Show in system explorer',
             copyDeepLink: 'Copy Obsidian URL',
-            copyPath: 'Copy path',
-            copyRelativePath: 'Copy relative path',
+            copyPath: 'Copy file system path',
+            copyRelativePath: 'Copy vault path',
             renameNote: 'Rename note',
             renameFile: 'Rename file',
             deleteNote: 'Delete note',
@@ -174,8 +174,8 @@ export const STRINGS_EN = {
             newDrawing: 'New drawing',
             duplicateFolder: 'Duplicate folder',
             searchInFolder: 'Search in folder',
-            copyPath: 'Copy path',
-            copyRelativePath: 'Copy relative path',
+            copyPath: 'Copy file system path',
+            copyRelativePath: 'Copy vault path',
             createFolderNote: 'Create folder note',
             deleteFolderNote: 'Delete folder note',
             changeIcon: 'Change icon',
@@ -291,6 +291,7 @@ export const STRINGS_EN = {
             deleteFolderTitle: "Delete '{name}'?",
             deleteFileTitle: "Delete '{name}'?",
             folderNamePrompt: 'Enter folder name:',
+            hideInOtherVaultProfiles: 'Hide in other vault profiles',
             renamePrompt: 'Enter new name:',
             renameVaultTitle: 'Change vault display name',
             renameVaultPrompt: 'Enter custom display name (leave empty to use default):',
@@ -542,6 +543,7 @@ export const STRINGS_EN = {
             },
             list: {
                 display: 'Appearance',
+                pinnedNotes: 'Pinned notes',
                 quickActions: 'Quick actions'
             },
             notes: {
@@ -606,13 +608,17 @@ export const STRINGS_EN = {
                     'title-desc': 'Title (Z on top)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Scroll to selected file on list changes',
+                desc: 'Scroll to the selected file when pinning notes, showing descendant notes, changing folder appearance, or running file operations.'
+            },
             includeDescendantNotes: {
                 name: 'Show notes from subfolders / descendants',
                 desc: 'Include notes from nested subfolders and tag descendants when viewing a folder or tag.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Show pinned notes in parent folder only',
-                desc: 'Pinned notes appear only when viewing their folder'
+                name: 'Limit pinned notes to their folder',
+                desc: 'Pinned notes appear only when viewing the folder or tag where they were pinned.'
             },
             separateNoteCounts: {
                 name: 'Show current and descendant counts separately',
@@ -652,25 +658,17 @@ export const STRINGS_EN = {
                 name: 'Show parent folder',
                 desc: 'Display the parent folder name for notes in subfolders or tags.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Click parent folder to reveal file',
+                desc: 'Clicking the parent folder label reveals the file.'
+            },
             showParentFolderColor: {
                 name: 'Show parent folder color',
                 desc: 'Use folder colors on parent folder labels.'
             },
             showQuickActions: {
                 name: 'Show quick actions (desktop only)',
-                desc: 'Show hover actions on file items.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Reveal in folder',
-                desc: "Quick action: Reveal note in its parent folder. Only visible when viewing notes from subfolders or in tags (not shown in the note's actual folder)."
-            },
-            quickActionsPinNote: {
-                name: 'Pin note',
-                desc: 'Quick action: Pin or unpin note at top of list.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Open in new tab',
-                desc: 'Quick action: Open note in new tab.'
+                desc: 'Show action buttons when hovering over files. Button controls select which actions appear.'
             },
             dualPane: {
                 name: 'Dual pane layout (not synced)',
@@ -837,8 +835,8 @@ export const STRINGS_EN = {
                 desc: 'Display clickable tags in file items.'
             },
             showFileTagAncestors: {
-                name: 'Show parent tags',
-                desc: 'Display parent segments before the tag name.'
+                name: 'Show full tag paths',
+                desc: "Display complete tag hierarchy paths. When enabled: 'ai/openai', 'work/projects/2024'. When disabled: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Collapse tags to a selected tag',
@@ -847,6 +845,10 @@ export const STRINGS_EN = {
             colorFileTags: {
                 name: 'Color file tags',
                 desc: 'Apply tag colors to tag badges on file items.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Show colored tags first',
+                desc: 'Sort colored tags before other tags on file items.'
             },
             showFileTagsInSlimMode: {
                 name: 'Show file tags in slim mode',
@@ -1109,15 +1111,7 @@ export const STRINGS_EN = {
                 downloadFailed: 'Failed to download {name}. Check your connection and try again.',
                 removeFailed: 'Failed to remove {name}.',
                 infoNote:
-                    'Downloaded icon packs sync installation state across devices. Icon packs stay in the local database on each device; sync only tracks whether to download or remove them. Icon packs download from the Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    'Downloaded icon packs sync installation state across devices. Icon packs stay in the local database on each device; sync only tracks whether to download or remove them. Icon packs download from the Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).'
             },
             useFrontmatterDates: {
                 name: 'Use frontmatter metadata',

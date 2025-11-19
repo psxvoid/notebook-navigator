@@ -149,8 +149,8 @@ export const STRINGS_KO = {
             revealInFinder: 'Finder에서 표시',
             showInExplorer: '시스템 탐색기에서 표시',
             copyDeepLink: 'Obsidian URL 복사',
-            copyPath: '경로 복사',
-            copyRelativePath: '상대 경로 복사',
+            copyPath: '파일 시스템 경로 복사',
+            copyRelativePath: 'Vault 경로 복사',
             renameNote: '노트 이름 변경',
             renameFile: '파일 이름 변경',
             deleteNote: '노트 삭제',
@@ -173,8 +173,8 @@ export const STRINGS_KO = {
             newDrawing: '새 드로잉',
             duplicateFolder: '폴더 복제',
             searchInFolder: '폴더에서 검색',
-            copyPath: '경로 복사',
-            copyRelativePath: '상대 경로 복사',
+            copyPath: '파일 시스템 경로 복사',
+            copyRelativePath: 'Vault 경로 복사',
             createFolderNote: '폴더 노트 만들기',
             deleteFolderNote: '폴더 노트 삭제',
             changeIcon: '아이콘 변경',
@@ -290,6 +290,7 @@ export const STRINGS_KO = {
             deleteFolderTitle: "'{name}'을(를) 삭제하시겠습니까?",
             deleteFileTitle: "'{name}'을(를) 삭제하시겠습니까?",
             folderNamePrompt: '폴더 이름 입력:',
+            hideInOtherVaultProfiles: '다른 보관소 프로필에서 숨기기',
             renamePrompt: '새 이름 입력:',
             renameVaultTitle: '보관함 표시 이름 변경',
             renameVaultPrompt: '사용자 정의 표시 이름 입력 (기본값을 사용하려면 비워두세요):',
@@ -542,6 +543,7 @@ export const STRINGS_KO = {
             },
             list: {
                 display: '모양',
+                pinnedNotes: '고정된 노트',
                 quickActions: '빠른 작업'
             },
             notes: {
@@ -606,13 +608,17 @@ export const STRINGS_KO = {
                     'title-desc': '제목 (역순 상위)'
                 }
             },
+            revealFileOnListChanges: {
+                name: '목록 변경 시 선택된 파일로 스크롤',
+                desc: '노트 고정, 하위 노트 표시, 폴더 모양 변경 또는 파일 작업 실행 시 선택된 파일로 스크롤합니다.'
+            },
             includeDescendantNotes: {
                 name: '하위 폴더 / 하위 항목 노트 표시',
                 desc: '폴더나 태그를 볼 때 중첩된 하위 폴더와 태그 하위 항목의 노트를 포함합니다.'
             },
             limitPinnedToCurrentFolder: {
-                name: '상위 폴더에서만 고정된 노트 표시',
-                desc: '고정된 노트는 해당 폴더를 볼 때만 표시됩니다'
+                name: '고정된 노트를 해당 폴더로 제한',
+                desc: '고정된 노트는 고정된 폴더나 태그를 볼 때만 표시됩니다.'
             },
             separateNoteCounts: {
                 name: '현재와 하위 항목 수를 별도로 표시',
@@ -652,25 +658,17 @@ export const STRINGS_KO = {
                 name: '상위 폴더 표시',
                 desc: '하위 폴더나 태그의 노트에 상위 폴더 이름을 표시합니다.'
             },
+            parentFolderClickRevealsFile: {
+                name: '상위 폴더 클릭 시 노트 표시',
+                desc: '상위 폴더 레이블을 클릭하면 노트를 표시합니다.'
+            },
             showParentFolderColor: {
                 name: '상위 폴더 색상 표시',
                 desc: '상위 폴더 레이블에 폴더 색상을 사용합니다.'
             },
             showQuickActions: {
                 name: '빠른 작업 표시 (데스크톱 전용)',
-                desc: '파일 항목에 호버 작업을 표시합니다.'
-            },
-            quickActionsRevealInFolder: {
-                name: '폴더에서 표시',
-                desc: '빠른 작업: 노트를 상위 폴더에서 표시합니다. 하위 폴더나 태그에서 노트를 볼 때만 표시됩니다 (노트의 실제 폴더에서는 표시되지 않음).'
-            },
-            quickActionsPinNote: {
-                name: '노트 고정',
-                desc: '빠른 작업: 목록 상단에 노트를 고정하거나 고정 해제합니다.'
-            },
-            quickActionsOpenInNewTab: {
-                name: '새 탭에서 열기',
-                desc: '빠른 작업: 새 탭에서 노트를 엽니다.'
+                desc: '파일 위에 마우스를 올리면 작업 버튼을 표시합니다. 버튼 컨트롤로 표시할 작업을 선택합니다.'
             },
             dualPane: {
                 name: '이중 창 레이아웃 (동기화되지 않음)',
@@ -837,8 +835,8 @@ export const STRINGS_KO = {
                 desc: '파일 항목에 클릭 가능한 태그를 표시합니다. 태그 색상을 사용하여 다른 태그 유형을 시각적으로 구분합니다.'
             },
             showFileTagAncestors: {
-                name: '상위 태그 표시',
-                desc: '태그 이름 앞에 상위 세그먼트를 표시합니다.'
+                name: '전체 태그 경로 표시',
+                desc: "태그의 전체 계층 경로를 표시합니다. 활성화: 'ai/openai', 'work/projects/2024'. 비활성화: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: '선택한 태그로 태그 축소',
@@ -847,6 +845,10 @@ export const STRINGS_KO = {
             colorFileTags: {
                 name: '파일 태그 색상 지정',
                 desc: '파일 항목의 태그 배지에 태그 색상을 적용합니다.'
+            },
+            prioritizeColoredFileTags: {
+                name: '색상 태그 우선 표시',
+                desc: '색상 태그를 다른 태그보다 먼저 정렬합니다.'
             },
             showFileTagsInSlimMode: {
                 name: '슬림 모드에서 파일 태그 표시',
@@ -1109,15 +1111,7 @@ export const STRINGS_KO = {
                 downloadFailed: '{name} 다운로드에 실패했습니다. 연결을 확인하고 다시 시도해주세요.',
                 removeFailed: '{name} 제거에 실패했습니다.',
                 infoNote:
-                    '다운로드된 아이콘 팩은 기기 간 설치 상태를 동기화합니다. 아이콘 팩은 각 기기의 로컬 데이터베이스에 남아 있습니다. 동기화는 다운로드 또는 제거 여부만 추적합니다. 아이콘 팩은 Notebook Navigator 저장소에서 다운로드됩니다 (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    '다운로드된 아이콘 팩은 기기 간 설치 상태를 동기화합니다. 아이콘 팩은 각 기기의 로컬 데이터베이스에 남아 있습니다. 동기화는 다운로드 또는 제거 여부만 추적합니다. 아이콘 팩은 Notebook Navigator 저장소에서 다운로드됩니다 (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).'
             },
             useFrontmatterDates: {
                 name: 'frontmatter 메타데이터 사용',

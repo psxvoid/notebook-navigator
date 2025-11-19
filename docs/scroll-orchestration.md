@@ -106,8 +106,8 @@ Intent metadata ties each request to its trigger and alignment policy.
 
 - **Navigation intents**: `selection`, `reveal`, `visibilityToggle`, `external`, `mobile-visibility`. `startup` exists
   in the type for future use but is not currently enqueued.
-- **List intents**: `folder-navigation`, `visibility-change`, `reveal`, `list-config-change`. `'top'` requests use the
-  same priority system with `type: 'top'`.
+- **List intents**: `folder-navigation`, `visibility-change`, `reveal`, `list-structure-change`. `'top'` requests use
+  the same priority system with `type: 'top'`.
 
 ### Version Gating
 
@@ -176,15 +176,16 @@ requests.
 - **Selected file tracking**: `selectedFilePathRef` avoids executing stale config scrolls for files that are no longer
   selected.
 - **Context tracking**: `contextIndexVersionRef` maintains the last version seen per folder/tag context. When the index
-  advances due to reorder operations, the hook sets a config-change pending scroll with `skipScroll: true` to remeasure
-  without moving the viewport.
+  advances within a folder or tag (pin/unpin, reorder, delete), the hook queues a `list-structure-change` scroll so the
+  selected file remains visible.
 - **Folder navigation**: When the list context changes or `isFolderNavigation` is true, the hook sets a pending request
   (file or top) and clears the navigation flag. Pending entries execute even if the pane is hidden, so the position is
   restored once visible.
 - **Reveal operations**: Reveal flows queue a `reveal` pending scroll. Startup reveals override alignment to `'center'`.
 - **Mobile drawer**: The `notebook-navigator-visible` event queues a visibility-change scroll when a file is selected.
-- **Settings and search**: Appearance changes and descendant toggles queue `list-config-change` entries. Search filters
-  queue a `top` scroll when the selected file drops out of the filtered list, respecting mobile suppression flags.
+- **Settings and search**: Appearance changes and descendant toggles queue `list-structure-change` entries. Search
+  filters queue a `top` scroll when the selected file drops out of the filtered list, respecting mobile suppression
+  flags.
 
 ## Common Scenarios
 
@@ -207,10 +208,10 @@ requests.
 
 1. Navigation line height or indentation updates trigger `rowVirtualizer.measure()` followed by a deferred selection
    scroll when auto-scroll is allowed.
-2. List appearance or descendant toggles queue a `list-config-change` scroll with `minIndexVersion = current + 1`. If no
-   file is selected and descendants are disabled, the hook scrolls to top instead.
-3. Reorders within the same folder or tag update `indexVersion` and enqueue a `skipScroll` config entry to force a fresh
-   measurement without moving the viewport.
+2. List appearance or descendant toggles queue a `list-structure-change` scroll with `minIndexVersion = current + 1`. If
+   no file is selected and descendants are disabled, the hook scrolls to top instead.
+3. Reorders within the same folder or tag update `indexVersion` and enqueue a `list-structure-change` scroll so pinned
+   files remain visible.
 
 ### Reveal Operations
 
@@ -230,7 +231,7 @@ requests.
 
 1. When search filters remove the selected file, the list pane detects that the file path is absent from
    `filePathToIndex`.
-2. Unless suppressed for mobile shortcuts, the hook queues a `top` scroll with reason `list-config-change`.
+2. Unless suppressed for mobile shortcuts, the hook queues a `top` scroll with reason `list-structure-change`.
 3. If the selected file remains in the results, folder navigation effects keep it visible without extra scroll requests.
 
 ## Implementation Details
@@ -244,7 +245,7 @@ export function rankListPending(p?: { type: 'file' | 'top'; reason?: ListScrollI
   if (!p) return -1;
   if (p.type === 'top') return 0;
   switch (p.reason) {
-    case 'list-config-change':
+    case 'list-structure-change':
       return 1;
     case 'visibility-change':
       return 2;

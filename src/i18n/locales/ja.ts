@@ -140,8 +140,8 @@ export const STRINGS_JA = {
             revealInFinder: 'Finderで表示',
             showInExplorer: 'システムエクスプローラーで表示',
             copyDeepLink: 'Obsidian URL をコピー',
-            copyPath: 'パスをコピー',
-            copyRelativePath: '相対パスをコピー',
+            copyPath: 'ファイルシステムパスをコピー',
+            copyRelativePath: 'Vaultパスをコピー',
             renameNote: 'ノートの名前を変更',
             deleteNote: 'ノートを削除',
             deleteMultipleNotes: '{count}個のノートを削除',
@@ -174,8 +174,8 @@ export const STRINGS_JA = {
             newDrawing: '新規図面',
             duplicateFolder: 'フォルダを複製',
             searchInFolder: 'フォルダ内を検索',
-            copyPath: 'パスをコピー',
-            copyRelativePath: '相対パスをコピー',
+            copyPath: 'ファイルシステムパスをコピー',
+            copyRelativePath: 'Vaultパスをコピー',
             createFolderNote: 'フォルダノートを作成',
             deleteFolderNote: 'フォルダーノートを削除',
             changeIcon: 'アイコンを変更',
@@ -291,6 +291,7 @@ export const STRINGS_JA = {
             deleteFolderTitle: "'{name}'を削除しますか？",
             deleteFileTitle: "'{name}'を削除しますか？",
             folderNamePrompt: 'フォルダ名を入力：',
+            hideInOtherVaultProfiles: '他の保管庫プロファイルで非表示にする',
             renamePrompt: '新しい名前を入力：',
             renameVaultTitle: 'ボールトの表示名を変更',
             renameVaultPrompt: 'カスタム表示名を入力（空にするとデフォルトを使用）：',
@@ -543,6 +544,7 @@ export const STRINGS_JA = {
             },
             list: {
                 display: '外観',
+                pinnedNotes: 'ピン留めされたノート',
                 quickActions: 'クイック操作'
             },
             notes: {
@@ -607,13 +609,17 @@ export const STRINGS_JA = {
                     'title-desc': 'タイトル（降順）'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'リスト変更時に選択ファイルへスクロール',
+                desc: 'ノートのピン留め、子孫ノートの表示、フォルダ外観の変更、ファイル操作の実行時に選択したファイルへスクロールします。'
+            },
             includeDescendantNotes: {
                 name: 'サブフォルダ / 子孫のノートを表示',
                 desc: 'フォルダまたはタグを表示するとき、入れ子のサブフォルダとタグの子孫にあるノートを含めます。'
             },
             limitPinnedToCurrentFolder: {
-                name: '親フォルダでのみピン留めノートを表示',
-                desc: 'ピン留めノートはフォルダを表示している時のみ表示されます'
+                name: 'ピン留めノートをそのフォルダに制限',
+                desc: 'ピン留めノートは、ピン留めされたフォルダまたはタグを表示している時のみ表示されます。'
             },
             separateNoteCounts: {
                 name: '現在と子孫のカウントを個別に表示',
@@ -653,25 +659,17 @@ export const STRINGS_JA = {
                 name: '親フォルダを表示',
                 desc: 'サブフォルダまたはタグ内のノートに親フォルダ名を表示します。'
             },
+            parentFolderClickRevealsFile: {
+                name: '親フォルダクリックでノートを表示',
+                desc: '親フォルダラベルをクリックするとノートを表示します。'
+            },
             showParentFolderColor: {
                 name: '親フォルダの色を表示',
                 desc: '親フォルダラベルにフォルダの色を使用します。'
             },
             showQuickActions: {
                 name: 'クイックアクションを表示 (デスクトップのみ)',
-                desc: 'ファイルアイテムにホバーアクションを表示します。'
-            },
-            quickActionsRevealInFolder: {
-                name: 'フォルダで表示',
-                desc: 'クイックアクション：ノートを親フォルダで表示。サブフォルダまたはタグ内でノートを表示している場合のみ表示されます（ノートの実際のフォルダでは表示されません）。'
-            },
-            quickActionsPinNote: {
-                name: 'ノートをピン留め',
-                desc: 'クイックアクション：ノートをリストの上部にピン留めまたは解除。'
-            },
-            quickActionsOpenInNewTab: {
-                name: '新しいタブで開く',
-                desc: 'クイックアクション：ノートを新しいタブで開く。'
+                desc: 'ファイルにホバーしたときにアクションボタンを表示します。ボタンコントロールで表示するアクションを選択します。'
             },
             dualPane: {
                 name: 'デュアルペインレイアウト（同期されません）',
@@ -840,8 +838,8 @@ export const STRINGS_JA = {
                 desc: 'ファイルアイテムにクリック可能なタグを表示します。タグの色を使用して、異なるタグタイプを視覚的に区別できます。'
             },
             showFileTagAncestors: {
-                name: '親タグを表示',
-                desc: 'タグ名の前に親セグメントを表示します。'
+                name: '完全なタグパスを表示',
+                desc: "タグの完全な階層パスを表示します。有効時: 'ai/openai', 'work/projects/2024'。無効時: 'openai', '2024'。"
             },
             collapseFileTagsToSelectedTag: {
                 name: '選択したタグにタグを折りたたむ',
@@ -850,6 +848,10 @@ export const STRINGS_JA = {
             colorFileTags: {
                 name: 'ファイルタグに色を付ける',
                 desc: 'ファイルアイテムのタグバッジにタグの色を適用します。'
+            },
+            prioritizeColoredFileTags: {
+                name: '色付きタグを先頭に配置',
+                desc: '色付きタグを他のタグより前に並べ替えます。'
             },
             showFileTagsInSlimMode: {
                 name: 'スリムモードでファイルタグを表示',
@@ -1112,15 +1114,7 @@ export const STRINGS_JA = {
                 downloadFailed: '{name}のダウンロードに失敗しました。接続を確認してもう一度お試しください。',
                 removeFailed: '{name}の削除に失敗しました。',
                 infoNote:
-                    'ダウンロードしたアイコンパックはデバイス間でインストール状態を同期します。アイコンパックは各デバイスのローカルデータベースに保存されます。同期はダウンロードまたは削除の必要性のみを追跡します。アイコンパックはNotebook Navigatorリポジトリからダウンロードされます (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)。',
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    'ダウンロードしたアイコンパックはデバイス間でインストール状態を同期します。アイコンパックは各デバイスのローカルデータベースに保存されます。同期はダウンロードまたは削除の必要性のみを追跡します。アイコンパックはNotebook Navigatorリポジトリからダウンロードされます (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)。'
             },
             useFrontmatterDates: {
                 name: 'フロントマターメタデータを使用',

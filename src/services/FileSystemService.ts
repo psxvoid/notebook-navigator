@@ -27,6 +27,7 @@ import { NavigationItemType, ItemType } from '../types';
 import type { VisibilityPreferences } from '../types';
 import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
+import { cleanupExclusionPatterns, isPathInExcludedFolder } from '../utils/fileFilters';
 import { EXCALIDRAW_BASENAME_SUFFIX, isExcalidrawFile, stripExcalidrawSuffix } from '../utils/fileNameUtils';
 import { getFolderNote, isFolderNote, isSupportedFolderNoteExtension } from '../utils/folderNotes';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
@@ -36,6 +37,13 @@ import { TagTreeService } from './TagTreeService';
 import { CommandQueueService } from './CommandQueueService';
 import type { MaybePromise } from '../utils/async';
 import { showNotice } from '../utils/noticeUtils';
+import type { ISettingsProvider } from '../interfaces/ISettingsProvider';
+import {
+    ensureVaultProfiles,
+    normalizeHiddenFolderPath,
+    removeHiddenFolderExactMatches,
+    updateHiddenFolderExactMatches
+} from '../utils/vaultProfiles';
 
 /**
  * Selection context for file operations
@@ -94,6 +102,16 @@ interface MoveFolderResult {
  */
 type MoveFolderModalResult = { status: 'success'; data: MoveFolderResult } | { status: 'cancelled' } | { status: 'error'; error: unknown };
 
+export class FolderMoveError extends Error {
+    constructor(
+        public readonly code: 'invalid-target' | 'destination-exists' | 'verification-failed',
+        message?: string
+    ) {
+        super(message ?? code);
+        this.name = 'FolderMoveError';
+    }
+}
+
 /**
  * Folder suggest modal that handles cancellation events.
  * Invokes a callback when the modal is closed without selection.
@@ -135,7 +153,8 @@ export class FileSystemOperations {
         private app: App,
         private getTagTreeService: () => TagTreeService | null,
         private getCommandQueue: () => CommandQueueService | null,
-        private getVisibilityPreferences: () => VisibilityPreferences // Function to get current visibility preferences for descendant/hidden items state
+        private getVisibilityPreferences: () => VisibilityPreferences, // Function to get current visibility preferences for descendant/hidden items state
+        private settingsProvider: ISettingsProvider
     ) {}
 
     /**
@@ -146,6 +165,85 @@ export class FileSystemOperations {
         showNotice(message, { variant: 'warning' });
     }
 
+    private async syncHiddenFolderPathChange(previousPath: string, nextPath: string): Promise<void> {
+        const updated = updateHiddenFolderExactMatches(this.settingsProvider.settings, previousPath, nextPath);
+        if (!updated) {
+            return;
+        }
+
+        try {
+            await this.settingsProvider.saveSettingsAndUpdate();
+        } catch (error) {
+            console.error('Failed to persist hidden folder path updates', error);
+        }
+    }
+
+    private async removeHiddenFolderPathMatch(targetPath: string): Promise<void> {
+        const removed = removeHiddenFolderExactMatches(this.settingsProvider.settings, targetPath);
+        if (!removed) {
+            return;
+        }
+
+        try {
+            await this.settingsProvider.saveSettingsAndUpdate();
+        } catch (error) {
+            console.error('Failed to persist hidden folder removal updates', error);
+        }
+    }
+
+    private isFolderHiddenInProfile(normalizedPath: string, patterns: string[]): boolean {
+        if (!normalizedPath || !Array.isArray(patterns) || patterns.length === 0) {
+            return false;
+        }
+
+        const trimmedPath = normalizedPath.startsWith('/') ? normalizedPath.slice(1) : normalizedPath;
+        if (!trimmedPath) {
+            return false;
+        }
+
+        const placeholderPath = `${trimmedPath}/__nn_new_folder__`;
+        return isPathInExcludedFolder(placeholderPath, patterns);
+    }
+
+    private async hideFolderInOtherVaultProfiles(folderPath: string): Promise<void> {
+        const normalizedPath = normalizeHiddenFolderPath(folderPath);
+        if (!normalizedPath) {
+            return;
+        }
+
+        const settings = this.settingsProvider.settings;
+        ensureVaultProfiles(settings);
+        const activeProfileId = settings.vaultProfile;
+        let didUpdate = false;
+
+        settings.vaultProfiles.forEach(profile => {
+            if (profile.id === activeProfileId) {
+                return;
+            }
+
+            if (!Array.isArray(profile.hiddenFolders)) {
+                profile.hiddenFolders = [];
+            }
+
+            if (this.isFolderHiddenInProfile(normalizedPath, profile.hiddenFolders)) {
+                return;
+            }
+
+            profile.hiddenFolders = cleanupExclusionPatterns(profile.hiddenFolders, normalizedPath);
+            didUpdate = true;
+        });
+
+        if (!didUpdate) {
+            return;
+        }
+
+        try {
+            await this.settingsProvider.saveSettingsAndUpdate();
+        } catch (error) {
+            console.error('Failed to persist hidden folder preference for other vault profiles', error);
+        }
+    }
+
     /**
      * Creates a new folder with user-provided name
      * Shows input modal for folder name and handles creation
@@ -153,11 +251,15 @@ export class FileSystemOperations {
      * @param onSuccess - Optional callback with the new folder path on successful creation
      */
     async createNewFolder(parent: TFolder, onSuccess?: (path: string) => void): Promise<void> {
+        const settings = this.settingsProvider.settings;
+        ensureVaultProfiles(settings);
+        const showHiddenOption = settings.vaultProfiles.length >= 2;
+
         const modal = new InputModal(
             this.app,
             strings.modals.fileSystem.newFolderTitle,
             strings.modals.fileSystem.folderNamePrompt,
-            async name => {
+            async (name, context) => {
                 if (!name) {
                     return;
                 }
@@ -166,13 +268,24 @@ export class FileSystemOperations {
                     const base = parent.path === '/' ? '' : `${parent.path}/`;
                     const path = normalizePath(`${base}${name}`);
                     await this.app.vault.createFolder(path);
+                    if (showHiddenOption && context?.checkboxValue) {
+                        await this.hideFolderInOtherVaultProfiles(path);
+                    }
                     if (onSuccess) {
                         onSuccess(path);
                     }
                 } catch (error) {
                     this.notifyError(strings.fileSystem.errors.createFolder, error);
                 }
-            }
+            },
+            '',
+            showHiddenOption
+                ? {
+                      checkbox: {
+                          label: strings.modals.fileSystem.hideInOtherVaultProfiles
+                      }
+                  }
+                : undefined
         );
         modal.open();
     }
@@ -211,6 +324,7 @@ export class FileSystemOperations {
                 }
 
                 try {
+                    const previousFolderPath = folder.path;
                     const useDefaultFolderNote = Boolean(settings?.enableFolderNotes && !settings.folderNoteName);
 
                     let folderNote: TFile | null = null;
@@ -237,6 +351,7 @@ export class FileSystemOperations {
 
                     // Rename the folder (moves contents including the folder note)
                     await this.app.fileManager.renameFile(folder, newFolderPath);
+                    await this.syncHiddenFolderPathChange(previousFolderPath, newFolderPath);
 
                     // Rename the folder note to match the new folder name when using default naming
                     if (folderNote) {
@@ -338,6 +453,15 @@ export class FileSystemOperations {
      * @param onSuccess - Optional callback on successful deletion
      */
     async deleteFolder(folder: TFolder, confirmBeforeDelete: boolean, onSuccess?: () => void): Promise<void> {
+        const deleteFolderWithCleanup = async () => {
+            const deletedPath = folder.path;
+            await this.app.fileManager.trashFile(folder);
+            await this.removeHiddenFolderPathMatch(deletedPath);
+            if (onSuccess) {
+                onSuccess();
+            }
+        };
+
         if (confirmBeforeDelete) {
             const confirmModal = new ConfirmModal(
                 this.app,
@@ -345,10 +469,7 @@ export class FileSystemOperations {
                 strings.modals.fileSystem.deleteFolderConfirm,
                 async () => {
                     try {
-                        await this.app.fileManager.trashFile(folder);
-                        if (onSuccess) {
-                            onSuccess();
-                        }
+                        await deleteFolderWithCleanup();
                     } catch (error) {
                         this.notifyError(strings.fileSystem.errors.deleteFolder, error);
                     }
@@ -358,10 +479,7 @@ export class FileSystemOperations {
         } else {
             // Direct deletion without confirmation
             try {
-                await this.app.fileManager.trashFile(folder);
-                if (onSuccess) {
-                    onSuccess();
-                }
+                await deleteFolderWithCleanup();
             } catch (error) {
                 this.notifyError(strings.fileSystem.errors.deleteFolder, error);
             }
@@ -698,35 +816,24 @@ export class FileSystemOperations {
                         return;
                     }
 
-                    const existingEntry = this.app.vault.getAbstractFileByPath(newPath);
-                    if (existingEntry) {
-                        showNotice(strings.fileSystem.errors.folderAlreadyExists.replace('{name}', folder.name), { variant: 'warning' });
-                        return;
-                    }
-
                     try {
-                        const oldPath = folder.path;
-                        await this.app.fileManager.renameFile(folder, newPath);
-
-                        const movedEntry = this.app.vault.getAbstractFileByPath(newPath);
-                        if (!movedEntry || !(movedEntry instanceof TFolder)) {
-                            showNotice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', folder.name), { variant: 'warning' });
-                            modal.close();
-                            finish({ status: 'error', error: new Error('Folder move verification failed') });
-                            return;
-                        }
-
-                        showNotice(strings.fileSystem.notifications.folderMoved.replace('{name}', movedEntry.name), { variant: 'success' });
+                        const moveData = await this.moveFolderToTarget(folder, targetFolder);
+                        showNotice(strings.fileSystem.notifications.folderMoved.replace('{name}', folder.name), { variant: 'success' });
                         modal.close();
-                        finish({
-                            status: 'success',
-                            data: {
-                                oldPath,
-                                newPath,
-                                targetFolder
-                            }
-                        });
+                        finish({ status: 'success', data: moveData });
                     } catch (error) {
+                        if (error instanceof FolderMoveError) {
+                            if (error.code === 'destination-exists') {
+                                showNotice(strings.fileSystem.errors.folderAlreadyExists.replace('{name}', folder.name), {
+                                    variant: 'warning'
+                                });
+                                return;
+                            }
+                            if (error.code === 'invalid-target') {
+                                showNotice(strings.dragDrop.errors.cannotMoveIntoSelf, { variant: 'warning' });
+                                return;
+                            }
+                        }
                         console.error('Failed to move folder via modal:', error);
                         showNotice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', folder.name), { variant: 'warning' });
                         modal.close();
@@ -741,6 +848,35 @@ export class FileSystemOperations {
 
             modal.open();
         });
+    }
+
+    async moveFolderToTarget(folder: TFolder, targetFolder: TFolder): Promise<MoveFolderResult> {
+        if (targetFolder.path === folder.path || targetFolder.path.startsWith(`${folder.path}/`)) {
+            throw new FolderMoveError('invalid-target');
+        }
+
+        const destinationBase = targetFolder.path === '/' ? '' : `${targetFolder.path}/`;
+        const newPath = normalizePath(`${destinationBase}${folder.name}`);
+        if (newPath === folder.path) {
+            throw new FolderMoveError('invalid-target');
+        }
+
+        const existingEntry = this.app.vault.getAbstractFileByPath(newPath);
+        if (existingEntry) {
+            throw new FolderMoveError('destination-exists');
+        }
+
+        const oldPath = folder.path;
+        await this.app.fileManager.renameFile(folder, newPath);
+
+        const movedEntry = this.app.vault.getAbstractFileByPath(newPath);
+        if (!movedEntry || !(movedEntry instanceof TFolder)) {
+            throw new FolderMoveError('verification-failed');
+        }
+
+        await this.syncHiddenFolderPathChange(oldPath, newPath);
+
+        return { oldPath, newPath, targetFolder };
     }
 
     /**

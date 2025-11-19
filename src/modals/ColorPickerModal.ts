@@ -414,7 +414,11 @@ export class ColorPickerModal extends Modal {
             const dot = this.recentColorsContainer.createDiv('nn-color-dot nn-recent-color nn-show-checkerboard');
             this.applySwatchColor(dot, color);
             dot.setAttribute('data-color', color);
-            this.domDisposers.push(addAsyncEventListener(dot, 'click', () => this.applyColorAndClose(color, false)));
+            this.domDisposers.push(
+                addAsyncEventListener(dot, 'click', () => {
+                    this.updateFromHex(color);
+                })
+            );
 
             const removeButton = dot.createEl('button', {
                 cls: 'nn-recent-remove-button',
@@ -475,7 +479,11 @@ export class ColorPickerModal extends Modal {
             this.applySwatchColor(dot, color.value);
             dot.setAttribute('data-color', color.value);
             dot.setAttribute('title', color.name);
-            this.domDisposers.push(addAsyncEventListener(dot, 'click', () => this.applyColorAndClose(color.value, false)));
+            this.domDisposers.push(
+                addAsyncEventListener(dot, 'click', () => {
+                    this.updateFromHex(color.value);
+                })
+            );
         });
     }
 
@@ -720,29 +728,6 @@ export class ColorPickerModal extends Modal {
 
     private isFile(): boolean {
         return this.itemType === ItemType.FILE;
-    }
-
-    /**
-     * Apply color and close modal
-     * Used by both preset and recent color clicks
-     */
-    private async applyColorAndClose(color: string, saveToRecent: boolean = true) {
-        this.updateFromHex(color);
-
-        // Save to recent if requested
-        const normalized = this.selectedColor;
-
-        if (saveToRecent) {
-            await this.saveToRecentColors(normalized);
-        }
-
-        await this.updateMetadataColor(normalized);
-
-        // Notify callback
-        this.onChooseColor?.(normalized);
-
-        // Close the modal
-        this.close();
     }
 
     /**

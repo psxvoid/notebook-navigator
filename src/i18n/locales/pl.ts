@@ -149,8 +149,8 @@ export const STRINGS_PL = {
             revealInFinder: 'Pokaż w Finderze',
             showInExplorer: 'Pokaż w eksploratorze systemowym',
             copyDeepLink: 'Kopiuj adres URL Obsidian',
-            copyPath: 'Kopiuj ścieżkę',
-            copyRelativePath: 'Kopiuj ścieżkę względną',
+            copyPath: 'Kopiuj ścieżkę systemu plików',
+            copyRelativePath: 'Kopiuj ścieżkę skarbca',
             renameNote: 'Zmień nazwę notatki',
             renameFile: 'Zmień nazwę pliku',
             deleteNote: 'Usuń notatkę',
@@ -173,8 +173,8 @@ export const STRINGS_PL = {
             newDrawing: 'Nowy rysunek',
             duplicateFolder: 'Duplikuj folder',
             searchInFolder: 'Szukaj w folderze',
-            copyPath: 'Kopiuj ścieżkę',
-            copyRelativePath: 'Kopiuj ścieżkę względną',
+            copyPath: 'Kopiuj ścieżkę systemu plików',
+            copyRelativePath: 'Kopiuj ścieżkę skarbca',
             createFolderNote: 'Utwórz notatkę folderu',
             deleteFolderNote: 'Usuń notatkę folderu',
             changeIcon: 'Zmień ikonę',
@@ -292,6 +292,7 @@ export const STRINGS_PL = {
             deleteFolderTitle: "Usunąć '{name}'?",
             deleteFileTitle: "Usunąć '{name}'?",
             folderNamePrompt: 'Wprowadź nazwę folderu:',
+            hideInOtherVaultProfiles: 'Ukryj w innych profilach skarbca',
             renamePrompt: 'Wprowadź nową nazwę:',
             renameVaultTitle: 'Zmień wyświetlaną nazwę magazynu',
             renameVaultPrompt: 'Wprowadź własną nazwę wyświetlaną (zostaw puste aby użyć domyślnej):',
@@ -544,6 +545,7 @@ export const STRINGS_PL = {
             },
             list: {
                 display: 'Wygląd',
+                pinnedNotes: 'Przypięte notatki',
                 quickActions: 'Szybkie akcje'
             },
             notes: {
@@ -608,13 +610,17 @@ export const STRINGS_PL = {
                     'title-desc': 'Tytuł (Z na górze)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Przewiń do wybranego pliku przy zmianach listy',
+                desc: 'Przewiń do wybranego pliku przy przypinaniu notatek, pokazywaniu notatek potomnych, zmianie wyglądu folderów lub wykonywaniu operacji na plikach.'
+            },
             includeDescendantNotes: {
                 name: 'Pokaż notatki z podfolderów / potomnych',
                 desc: 'Podczas przeglądania folderu lub tagu uwzględnij notatki z zagnieżdżonych podfolderów i potomnych tagów.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Pokaż przypięte notatki tylko w folderze nadrzędnym',
-                desc: 'Przypięte notatki pojawiają się tylko podczas przeglądania ich folderu'
+                name: 'Ogranicz przypięte notatki do ich folderu',
+                desc: 'Przypięte notatki pojawiają się tylko podczas przeglądania folderu lub tagu, w którym zostały przypięte.'
             },
             separateNoteCounts: {
                 name: 'Pokaż bieżące i potomne liczniki osobno',
@@ -654,25 +660,17 @@ export const STRINGS_PL = {
                 name: 'Pokaż folder nadrzędny',
                 desc: 'Wyświetl nazwę folderu nadrzędnego dla notatek w podfolderach lub tagach.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Kliknięcie folderu nadrzędnego ujawnia notatkę',
+                desc: 'Kliknięcie etykiety folderu nadrzędnego pokazuje notatkę.'
+            },
             showParentFolderColor: {
                 name: 'Pokaż kolor folderu nadrzędnego',
                 desc: 'Używaj kolorów folderów na etykietach folderów nadrzędnych.'
             },
             showQuickActions: {
                 name: 'Pokaż szybkie akcje (tylko desktop)',
-                desc: 'Pokaż akcje przy najechaniu na elementy plików.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Pokaż w folderze',
-                desc: 'Szybka akcja: Pokaż notatkę w jej folderze nadrzędnym. Widoczne tylko podczas przeglądania notatek z podfolderów lub w tagach (nie pokazywane w rzeczywistym folderze notatki).'
-            },
-            quickActionsPinNote: {
-                name: 'Przypnij notatkę',
-                desc: 'Szybka akcja: Przypnij lub odepnij notatkę na górze listy.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Otwórz w nowej karcie',
-                desc: 'Szybka akcja: Otwórz notatkę w nowej karcie.'
+                desc: 'Pokaż przyciski akcji przy najechaniu na pliki. Kontrolki przycisków wybierają, które akcje się pojawiają.'
             },
             dualPane: {
                 name: 'Układ podwójnego panelu (nie synchronizowany)',
@@ -839,8 +837,8 @@ export const STRINGS_PL = {
                 desc: 'Wyświetl klikalne tagi w elementach plików. Użyj kolorów tagów aby wizualnie odróżnić różne typy tagów.'
             },
             showFileTagAncestors: {
-                name: 'Pokaż tagi nadrzędne',
-                desc: 'Wyświetl segmenty nadrzędne przed nazwą tagu.'
+                name: 'Pokaż pełne ścieżki tagów',
+                desc: "Wyświetl pełne ścieżki hierarchii tagów. Włączone: 'ai/openai', 'praca/projekty/2024'. Wyłączone: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Zwiń tagi do wybranego tagu',
@@ -849,6 +847,10 @@ export const STRINGS_PL = {
             colorFileTags: {
                 name: 'Koloruj tagi plików',
                 desc: 'Zastosuj kolory tagów do odznak tagów w elementach plików.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Wyświetl kolorowe tagi jako pierwsze',
+                desc: 'Sortuje kolorowe tagi przed pozostałymi tagami w elementach plików.'
             },
             showFileTagsInSlimMode: {
                 name: 'Pokaż tagi plików w trybie kompaktowym',
@@ -1112,15 +1114,7 @@ export const STRINGS_PL = {
                 downloadFailed: 'Nie udało się pobrać {name}. Sprawdź połączenie i spróbuj ponownie.',
                 removeFailed: 'Nie udało się usunąć {name}.',
                 infoNote:
-                    'Pobrane pakiety ikon synchronizują stan instalacji między urządzeniami. Pakiety ikon pozostają w lokalnej bazie danych na każdym urządzeniu; synchronizacja śledzi tylko czy powinny być pobrane lub usunięte. Pakiety ikon są pobierane z repozytorium Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    'Pobrane pakiety ikon synchronizują stan instalacji między urządzeniami. Pakiety ikon pozostają w lokalnej bazie danych na każdym urządzeniu; synchronizacja śledzi tylko czy powinny być pobrane lub usunięte. Pakiety ikon są pobierane z repozytorium Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).'
             },
             useFrontmatterDates: {
                 name: 'Używaj metadanych frontmatter',

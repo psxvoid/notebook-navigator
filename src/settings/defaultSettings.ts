@@ -125,6 +125,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
 
     // List pane tab
     defaultFolderSort: 'modified-desc',
+    revealFileOnListChanges: true,
     listPaneTitle: 'header',
     noteGrouping: 'date',
     filterPinnedByFolder: false,
@@ -134,9 +135,11 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     slimItemHeight: LISTPANE_MEASUREMENTS.defaultSlimItemHeight,
     slimItemHeightScaleText: true,
     showQuickActions: true,
-    quickActionRevealInFolder: true,
+    quickActionRevealInFolder: false,
+    quickActionAddTag: true,
+    quickActionAddToShortcuts: true,
     quickActionPinNote: true,
-    quickActionOpenInNewTab: true,
+    quickActionOpenInNewTab: false,
 
     // Notes tab
     useFrontmatterMetadata: false,
@@ -155,8 +158,10 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFileTagAncestors: true,
     collapseFileTagsToSelectedTag: true,
     colorFileTags: true,
+    prioritizeColoredFileTags: true,
     showFileTagsInSlimMode: false,
     showParentFolder: true,
+    parentFolderClickRevealsFile: false,
     showParentFolderColor: true,
     showFilePreview: true,
     skipHeadingsInPreview: true,

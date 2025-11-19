@@ -140,8 +140,8 @@ export const STRINGS_DE = {
             revealInFinder: 'Im Finder anzeigen',
             showInExplorer: 'Im Explorer anzeigen',
             copyDeepLink: 'Obsidian-URL kopieren',
-            copyPath: 'Pfad kopieren',
-            copyRelativePath: 'Relativen Pfad kopieren',
+            copyPath: 'Dateisystempfad kopieren',
+            copyRelativePath: 'Vault-Pfad kopieren',
             renameNote: 'Notiz umbenennen',
             deleteNote: 'Notiz löschen',
             deleteMultipleNotes: '{count} Notizen löschen',
@@ -176,8 +176,8 @@ export const STRINGS_DE = {
             newDrawing: 'Neue Zeichnung',
             duplicateFolder: 'Ordner duplizieren',
             searchInFolder: 'In Ordner suchen',
-            copyPath: 'Pfad kopieren',
-            copyRelativePath: 'Relativen Pfad kopieren',
+            copyPath: 'Dateisystempfad kopieren',
+            copyRelativePath: 'Vault-Pfad kopieren',
             createFolderNote: 'Ordnernotiz erstellen',
             deleteFolderNote: 'Ordnernotiz löschen',
             changeIcon: 'Symbol ändern',
@@ -293,6 +293,7 @@ export const STRINGS_DE = {
             deleteFolderTitle: "'{name}' löschen?",
             deleteFileTitle: "'{name}' löschen?",
             folderNamePrompt: 'Ordnernamen eingeben:',
+            hideInOtherVaultProfiles: 'In anderen Tresorprofilen ausblenden',
             renamePrompt: 'Neuen Namen eingeben:',
             renameVaultTitle: 'Anzeigenamen des Tresors ändern',
             renameVaultPrompt: 'Benutzerdefinierten Anzeigenamen eingeben (leer lassen für Standard):',
@@ -545,6 +546,7 @@ export const STRINGS_DE = {
             },
             list: {
                 display: 'Darstellung',
+                pinnedNotes: 'Angeheftete Notizen',
                 quickActions: 'Schnellaktionen'
             },
             notes: {
@@ -610,13 +612,17 @@ export const STRINGS_DE = {
                     'title-desc': 'Titel (Z oben)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Zu ausgewählter Datei bei Listenänderungen scrollen',
+                desc: 'Zur ausgewählten Datei scrollen beim Anheften von Notizen, Anzeigen von Unternotizen, Ändern der Ordnerdarstellung oder bei Dateioperationen.'
+            },
             includeDescendantNotes: {
                 name: 'Notizen aus Unterordnern / Nachkommen anzeigen',
                 desc: 'Beim Anzeigen eines Ordners oder Tags Notizen aus Unterordnern und Tag-Nachkommen einbeziehen.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Angeheftete Notizen nur im übergeordneten Ordner anzeigen',
-                desc: 'Angeheftete Notizen erscheinen nur beim Anzeigen ihres Ordners'
+                name: 'Angeheftete Notizen auf ihren Ordner beschränken',
+                desc: 'Angeheftete Notizen erscheinen nur beim Anzeigen des Ordners oder Tags, in dem sie angeheftet wurden.'
             },
             separateNoteCounts: {
                 name: 'Aktuelle und Nachkommen-Anzahl getrennt anzeigen',
@@ -656,25 +662,17 @@ export const STRINGS_DE = {
                 name: 'Übergeordneten Ordner anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen in Unterordnern oder Tags anzeigen.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Überordnerklick zeigt Datei',
+                desc: 'Klicken auf den übergeordneten Ordner blendet die Datei ein.'
+            },
             showParentFolderColor: {
                 name: 'Übergeordnete Ordnerfarbe anzeigen',
                 desc: 'Ordnerfarben auf übergeordnete Ordnerlabels anwenden.'
             },
             showQuickActions: {
                 name: 'Schnellaktionen anzeigen (nur Desktop)',
-                desc: 'Zeige Hover-Aktionen auf Dateielementen.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Im Ordner anzeigen',
-                desc: 'Schnellaktion: Notiz im übergeordneten Ordner anzeigen. Nur sichtbar bei Notizen aus Unterordnern oder in Tags (nicht im eigentlichen Ordner der Notiz).'
-            },
-            quickActionsPinNote: {
-                name: 'Notiz anheften',
-                desc: 'Schnellaktion: Notiz oben in der Liste anheften oder lösen.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'In neuem Tab öffnen',
-                desc: 'Schnellaktion: Notiz in neuem Tab öffnen.'
+                desc: 'Aktionsschaltflächen beim Überfahren von Dateien anzeigen. Schaltflächensteuerung wählt aus, welche Aktionen erscheinen.'
             },
             dualPane: {
                 name: 'Doppelbereichslayout (nicht synchronisiert)',
@@ -841,8 +839,8 @@ export const STRINGS_DE = {
                 desc: 'Zeigt klickbare Tags in Datei-Elementen an. Verwenden Sie Tag-Farben, um verschiedene Tag-Typen visuell zu unterscheiden.'
             },
             showFileTagAncestors: {
-                name: 'Übergeordnete Tags anzeigen',
-                desc: 'Übergeordnete Segmente vor dem Tag-Namen anzeigen.'
+                name: 'Vollständige Tag-Pfade anzeigen',
+                desc: "Vollständige Tag-Hierarchiepfade anzeigen. Aktiviert: 'ai/openai', 'arbeit/projekte/2024'. Deaktiviert: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Tags auf ein ausgewähltes Tag reduzieren',
@@ -851,6 +849,10 @@ export const STRINGS_DE = {
             colorFileTags: {
                 name: 'Datei-Tags einfärben',
                 desc: 'Tag-Farben auf Tag-Abzeichen in Datei-Elementen anwenden.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Farbige Tags zuerst anzeigen',
+                desc: 'Farbige Tags vor anderen Tags in Datei-Elementen sortieren.'
             },
             showFileTagsInSlimMode: {
                 name: 'Datei-Tags im schlanken Modus anzeigen',
@@ -1113,15 +1115,7 @@ export const STRINGS_DE = {
                 downloadFailed: 'Fehler beim Herunterladen von {name}. Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
                 removeFailed: 'Fehler beim Entfernen von {name}.',
                 infoNote:
-                    'Heruntergeladene Icon-Pakete synchronisieren den Installationsstatus über Geräte hinweg. Icon-Pakete bleiben in der lokalen Datenbank auf jedem Gerät; die Synchronisierung verfolgt nur, ob sie heruntergeladen oder entfernt werden sollen. Icon-Pakete werden aus dem Notebook Navigator Repository heruntergeladen (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    'Heruntergeladene Icon-Pakete synchronisieren den Installationsstatus über Geräte hinweg. Icon-Pakete bleiben in der lokalen Datenbank auf jedem Gerät; die Synchronisierung verfolgt nur, ob sie heruntergeladen oder entfernt werden sollen. Icon-Pakete werden aus dem Notebook Navigator Repository heruntergeladen (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).'
             },
             useFrontmatterDates: {
                 name: 'Frontmatter-Metadaten verwenden',

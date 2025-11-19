@@ -140,8 +140,8 @@ export const STRINGS_FR = {
             revealInFinder: 'Afficher dans le Finder',
             showInExplorer: "Afficher dans l'explorateur système",
             copyDeepLink: "Copier l'URL Obsidian",
-            copyPath: 'Copier le chemin',
-            copyRelativePath: 'Copier le chemin relatif',
+            copyPath: 'Copier le chemin du système de fichiers',
+            copyRelativePath: 'Copier le chemin du coffre',
             renameNote: 'Renommer la note',
             deleteNote: 'Supprimer la note',
             deleteMultipleNotes: 'Supprimer {count} notes',
@@ -174,8 +174,8 @@ export const STRINGS_FR = {
             newDrawing: 'Nouveau dessin',
             duplicateFolder: 'Dupliquer le dossier',
             searchInFolder: 'Rechercher dans le dossier',
-            copyPath: 'Copier le chemin',
-            copyRelativePath: 'Copier le chemin relatif',
+            copyPath: 'Copier le chemin du système de fichiers',
+            copyRelativePath: 'Copier le chemin du coffre',
             createFolderNote: 'Créer une note de dossier',
             deleteFolderNote: 'Supprimer la note de dossier',
             changeIcon: "Changer l'icône",
@@ -291,6 +291,7 @@ export const STRINGS_FR = {
             deleteFolderTitle: "Supprimer '{name}' ?",
             deleteFileTitle: "Supprimer '{name}' ?",
             folderNamePrompt: 'Entrez le nom du dossier :',
+            hideInOtherVaultProfiles: 'Masquer dans les autres profils du coffre',
             renamePrompt: 'Entrez le nouveau nom :',
             renameVaultTitle: "Changer le nom d'affichage du coffre",
             renameVaultPrompt: "Entrez un nom d'affichage personnalisé (laissez vide pour utiliser le nom par défaut) :",
@@ -543,6 +544,7 @@ export const STRINGS_FR = {
             },
             list: {
                 display: 'Apparence',
+                pinnedNotes: 'Notes épinglées',
                 quickActions: 'Actions rapides'
             },
             notes: {
@@ -608,13 +610,17 @@ export const STRINGS_FR = {
                     'title-desc': 'Titre (Z en haut)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Défiler vers le fichier sélectionné lors des changements de liste',
+                desc: "Défiler vers le fichier sélectionné lors de l'épinglage de notes, l'affichage de notes descendantes, le changement d'apparence de dossier ou l'exécution d'opérations sur les fichiers."
+            },
             includeDescendantNotes: {
                 name: 'Afficher les notes des sous-dossiers / descendants',
                 desc: "Inclure les notes des sous-dossiers imbriqués et des descendants d'étiquettes lors de l'affichage d'un dossier ou d'une étiquette."
             },
             limitPinnedToCurrentFolder: {
-                name: 'Afficher les notes épinglées uniquement dans le dossier parent',
-                desc: 'Les notes épinglées apparaissent uniquement lors de la visualisation de leur dossier'
+                name: 'Limiter les notes épinglées à leur dossier',
+                desc: "Les notes épinglées apparaissent uniquement lors de la visualisation du dossier ou de l'étiquette où elles ont été épinglées."
             },
             separateNoteCounts: {
                 name: 'Afficher les comptes actuels et descendants séparément',
@@ -654,25 +660,17 @@ export const STRINGS_FR = {
                 name: 'Afficher le dossier parent',
                 desc: 'Afficher le nom du dossier parent pour les notes dans les sous-dossiers ou étiquettes.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Clic sur dossier parent révèle la note',
+                desc: "Cliquer sur l'étiquette du dossier parent révèle la note."
+            },
             showParentFolderColor: {
                 name: 'Afficher la couleur du dossier parent',
                 desc: 'Utiliser les couleurs des dossiers sur les étiquettes des dossiers parents.'
             },
             showQuickActions: {
                 name: 'Afficher les actions rapides (bureau uniquement)',
-                desc: 'Afficher les actions au survol sur les éléments de fichier.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Révéler dans le dossier',
-                desc: "Action rapide : Révéler la note dans son dossier parent. Visible uniquement lors de l'affichage de notes depuis des sous-dossiers ou dans des étiquettes (non affiché dans le dossier réel de la note)."
-            },
-            quickActionsPinNote: {
-                name: 'Épingler la note',
-                desc: 'Action rapide : Épingler ou désépingler la note en haut de la liste.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Ouvrir dans un nouvel onglet',
-                desc: 'Action rapide : Ouvrir la note dans un nouvel onglet.'
+                desc: "Afficher les boutons d'action au survol des fichiers. Les contrôles des boutons sélectionnent les actions qui apparaissent."
             },
             dualPane: {
                 name: 'Disposition à double panneau (non synchronisé)',
@@ -841,8 +839,8 @@ export const STRINGS_FR = {
                 desc: 'Affiche les tags cliquables dans les éléments de fichier. Utilisez les couleurs de tags pour distinguer visuellement les différents types de tags.'
             },
             showFileTagAncestors: {
-                name: 'Afficher les tags parents',
-                desc: 'Afficher les segments parents avant le nom du tag.'
+                name: 'Afficher les chemins complets des tags',
+                desc: "Afficher les chemins complets de la hiérarchie des tags. Activé : 'ai/openai', 'travail/projets/2024'. Désactivé : 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Réduire les balises à une balise sélectionnée',
@@ -851,6 +849,10 @@ export const STRINGS_FR = {
             colorFileTags: {
                 name: 'Colorer les tags de fichier',
                 desc: 'Appliquer les couleurs de tags aux badges de tags sur les éléments de fichier.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Afficher les tags colorés en premier',
+                desc: 'Trie les tags colorés avant les autres tags dans les éléments de fichier.'
             },
             showFileTagsInSlimMode: {
                 name: 'Afficher les tags de fichier en mode compact',
@@ -1114,15 +1116,7 @@ export const STRINGS_FR = {
                 downloadFailed: 'Échec du téléchargement de {name}. Vérifiez votre connexion et réessayez.',
                 removeFailed: 'Échec de la suppression de {name}.',
                 infoNote:
-                    "Les packs d'icônes téléchargés synchronisent l'état d'installation entre les appareils. Les packs d'icônes restent dans la base de données locale sur chaque appareil ; la synchronisation ne fait que suivre s'ils doivent être téléchargés ou supprimés. Les packs d'icônes sont téléchargés depuis le dépôt Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).",
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    "Les packs d'icônes téléchargés synchronisent l'état d'installation entre les appareils. Les packs d'icônes restent dans la base de données locale sur chaque appareil ; la synchronisation ne fait que suivre s'ils doivent être téléchargés ou supprimés. Les packs d'icônes sont téléchargés depuis le dépôt Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)."
             },
             useFrontmatterDates: {
                 name: 'Utiliser les métadonnées du frontmatter',

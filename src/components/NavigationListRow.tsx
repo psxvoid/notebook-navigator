@@ -53,6 +53,7 @@ interface NavigationListRowProps {
     chevronIcon?: string;
     labelClassName?: string;
     onLabelClick?: (event: React.MouseEvent<HTMLSpanElement>) => void;
+    onLabelMouseDown?: (event: React.MouseEvent<HTMLSpanElement>) => void;
     trailingAccessory?: React.ReactNode;
     showIcon?: boolean;
 }
@@ -88,6 +89,7 @@ export function NavigationListRow({
     ariaDisabled,
     labelClassName,
     onLabelClick,
+    onLabelMouseDown,
     trailingAccessory,
     showIcon = true
 }: NavigationListRowProps) {
@@ -218,6 +220,17 @@ export function NavigationListRow({
         [onLabelClick]
     );
 
+    const handleLabelMouseDown = useCallback(
+        (event: React.MouseEvent<HTMLSpanElement>) => {
+            if (!onLabelMouseDown) {
+                return;
+            }
+            event.stopPropagation();
+            onLabelMouseDown(event);
+        },
+        [onLabelMouseDown]
+    );
+
     const rowStyle = useMemo(() => {
         if (!backgroundColor) {
             return { '--level': level } as CSSProperties;
@@ -269,7 +282,11 @@ export function NavigationListRow({
                         style={color ? { color } : undefined}
                     />
                 ) : null}
-                <span className={labelClasses} onClick={onLabelClick ? handleLabelClick : undefined}>
+                <span
+                    className={labelClasses}
+                    onClick={onLabelClick ? handleLabelClick : undefined}
+                    onMouseDown={onLabelMouseDown ? handleLabelMouseDown : undefined}
+                >
                     <span className="nn-shortcut-label" data-has-color={applyColorToLabel ? 'true' : undefined} style={labelStyle}>
                         {label}
                     </span>

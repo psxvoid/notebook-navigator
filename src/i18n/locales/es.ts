@@ -140,8 +140,8 @@ export const STRINGS_ES = {
             revealInFinder: 'Mostrar en Finder',
             showInExplorer: 'Mostrar en el explorador del sistema',
             copyDeepLink: 'Copiar URL de Obsidian',
-            copyPath: 'Copiar ruta',
-            copyRelativePath: 'Copiar ruta relativa',
+            copyPath: 'Copiar ruta del sistema de archivos',
+            copyRelativePath: 'Copiar ruta del vault',
             renameNote: 'Renombrar nota',
             deleteNote: 'Eliminar nota',
             deleteMultipleNotes: 'Eliminar {count} notas',
@@ -174,8 +174,8 @@ export const STRINGS_ES = {
             newDrawing: 'Nuevo dibujo',
             duplicateFolder: 'Duplicar carpeta',
             searchInFolder: 'Buscar en carpeta',
-            copyPath: 'Copiar ruta',
-            copyRelativePath: 'Copiar ruta relativa',
+            copyPath: 'Copiar ruta del sistema de archivos',
+            copyRelativePath: 'Copiar ruta del vault',
             createFolderNote: 'Crear nota de carpeta',
             deleteFolderNote: 'Eliminar nota de carpeta',
             changeIcon: 'Cambiar icono',
@@ -291,6 +291,7 @@ export const STRINGS_ES = {
             deleteFolderTitle: "¿Eliminar '{name}'?",
             deleteFileTitle: "¿Eliminar '{name}'?",
             folderNamePrompt: 'Introduce el nombre de la carpeta:',
+            hideInOtherVaultProfiles: 'Ocultar en otros perfiles de bóveda',
             renamePrompt: 'Introduce el nuevo nombre:',
             renameVaultTitle: 'Cambiar nombre de visualización del vault',
             renameVaultPrompt: 'Introduce un nombre de visualización personalizado (deja vacío para usar el predeterminado):',
@@ -543,6 +544,7 @@ export const STRINGS_ES = {
             },
             list: {
                 display: 'Apariencia',
+                pinnedNotes: 'Notas fijadas',
                 quickActions: 'Acciones rápidas'
             },
             notes: {
@@ -607,13 +609,17 @@ export const STRINGS_ES = {
                     'title-desc': 'Título (Z arriba)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Desplazar al archivo seleccionado cuando cambia la lista',
+                desc: 'Desplazar al archivo seleccionado al anclar notas, mostrar notas descendientes, cambiar la apariencia de carpetas o ejecutar operaciones de archivos.'
+            },
             includeDescendantNotes: {
                 name: 'Mostrar notas de subcarpetas / descendientes',
                 desc: 'Incluir notas de subcarpetas y descendientes de etiquetas al ver una carpeta o etiqueta.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Mostrar notas fijadas solo en la carpeta principal',
-                desc: 'Las notas fijadas aparecen solo al ver su carpeta'
+                name: 'Limitar notas fijadas a su carpeta',
+                desc: 'Las notas fijadas aparecen solo al ver la carpeta o etiqueta donde fueron fijadas.'
             },
             separateNoteCounts: {
                 name: 'Mostrar conteos actuales y descendientes por separado',
@@ -653,25 +659,17 @@ export const STRINGS_ES = {
                 name: 'Mostrar carpeta principal',
                 desc: 'Muestra el nombre de la carpeta principal para las notas en subcarpetas o etiquetas.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Clic en carpeta principal revela nota',
+                desc: 'Al hacer clic en la etiqueta de la carpeta principal se revela la nota.'
+            },
             showParentFolderColor: {
                 name: 'Mostrar color de carpeta principal',
                 desc: 'Usar colores de carpeta en etiquetas de carpetas principales.'
             },
             showQuickActions: {
                 name: 'Mostrar acciones rápidas (solo escritorio)',
-                desc: 'Mostrar acciones al pasar el cursor sobre los elementos de archivo.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Revelar en carpeta',
-                desc: 'Acción rápida: Revelar nota en su carpeta principal. Solo visible al ver notas de subcarpetas o en etiquetas (no se muestra en la carpeta real de la nota).'
-            },
-            quickActionsPinNote: {
-                name: 'Fijar nota',
-                desc: 'Acción rápida: Fijar o desfijar nota en la parte superior de la lista.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Abrir en nueva pestaña',
-                desc: 'Acción rápida: Abrir nota en nueva pestaña.'
+                desc: 'Mostrar botones de acción al pasar sobre archivos. Los controles de botones seleccionan qué acciones aparecen.'
             },
             dualPane: {
                 name: 'Diseño de doble panel (no sincronizado)',
@@ -839,8 +837,8 @@ export const STRINGS_ES = {
                 desc: 'Muestra etiquetas clicables en los elementos de archivo. Use colores de etiquetas para distinguir visualmente diferentes tipos de etiquetas.'
             },
             showFileTagAncestors: {
-                name: 'Mostrar etiquetas padre',
-                desc: 'Mostrar segmentos padre antes del nombre de la etiqueta.'
+                name: 'Mostrar rutas completas de etiquetas',
+                desc: "Mostrar rutas completas de jerarquía de etiquetas. Activado: 'ai/openai', 'trabajo/proyectos/2024'. Desactivado: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Contraer etiquetas a una etiqueta seleccionada',
@@ -849,6 +847,10 @@ export const STRINGS_ES = {
             colorFileTags: {
                 name: 'Colorear etiquetas de archivo',
                 desc: 'Aplicar colores de etiquetas a las insignias de etiquetas en elementos de archivo.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Mostrar primero las etiquetas coloreadas',
+                desc: 'Ordena las etiquetas coloreadas antes que otras etiquetas en los elementos de archivo.'
             },
             showFileTagsInSlimMode: {
                 name: 'Mostrar etiquetas de archivo en modo compacto',
@@ -1112,15 +1114,7 @@ export const STRINGS_ES = {
                 downloadFailed: 'Error al descargar {name}. Verifica tu conexión e intenta nuevamente.',
                 removeFailed: 'Error al eliminar {name}.',
                 infoNote:
-                    'Los paquetes de iconos descargados sincronizan el estado de instalación entre dispositivos. Los paquetes de iconos permanecen en la base de datos local en cada dispositivo; la sincronización solo rastrea si deben descargarse o eliminarse. Los paquetes de iconos se descargan del repositorio de Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    'Los paquetes de iconos descargados sincronizan el estado de instalación entre dispositivos. Los paquetes de iconos permanecen en la base de datos local en cada dispositivo; la sincronización solo rastrea si deben descargarse o eliminarse. Los paquetes de iconos se descargan del repositorio de Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).'
             },
             useFrontmatterDates: {
                 name: 'Usar metadatos del frontmatter',

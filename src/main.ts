@@ -528,7 +528,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             (): VisibilityPreferences => ({
                 includeDescendantNotes: this.uxPreferences.includeDescendantNotes,
                 showHiddenItems: this.uxPreferences.showHiddenItems
-            })
+            }),
+            this
         );
         this.omnisearchService = new OmnisearchService(this.app);
         this.api = new NotebookNavigatorAPI(this, this.app);
@@ -564,6 +565,14 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Register editor context menu
         registerWorkspaceEvents(this);
+
+        // Handle Obsidian quit events to flush state before shutdown
+        this.registerEvent(
+            this.app.workspace.on('quit', () => {
+                // Obsidian is closing the window; flush critical state promptly
+                this.handleWorkspaceQuit();
+            })
+        );
 
         // Post-layout initialization
         // Only auto-create the navigator view on first launch; upgrades restore existing leaves themselves
@@ -890,13 +899,67 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
+     * Handles Obsidian's quit event. Performs a best-effort synchronous cleanup
+     * so pending preferences, caches, and database handles close before exit.
+     */
+    private handleWorkspaceQuit(): void {
+        this.initiateShutdown();
+    }
+
+    /**
+     * Guards against duplicate teardown and flushes critical services before
+     * either Obsidian quits or the plugin unloads.
+     */
+    private initiateShutdown(): void {
+        if (this.isUnloading) {
+            return;
+        }
+
+        this.isUnloading = true;
+
+        try {
+            // Ensure recent notes/icons hit disk before the process exits
+            this.recentDataManager?.flushPendingPersists();
+        } catch (error) {
+            console.error('Failed to flush recent data during shutdown:', error);
+        }
+
+        if (this.commandQueue) {
+            // Drop any queued operations so listeners stop reacting
+            this.commandQueue.clearAllOperations();
+        }
+
+        this.stopNavigatorContentProcessing();
+
+        shutdownDatabase();
+    }
+
+    /**
+     * Stops background processing inside every mounted navigator view to avoid
+     * running content providers while shutdown is in progress.
+     */
+    private stopNavigatorContentProcessing(): void {
+        try {
+            const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
+            for (const leaf of leaves) {
+                const view = leaf.view;
+                if (view instanceof NotebookNavigatorView) {
+                    // Halt preview/tag generation loops inside each React view
+                    view.stopContentProcessing();
+                }
+            }
+        } catch (error) {
+            console.error('Failed stopping content processing during shutdown:', error);
+        }
+    }
+
+    /**
      * Plugin cleanup - called when plugin is disabled or updated
      * Removes ribbon icon but preserves open views to maintain user workspace
      * Per Obsidian guidelines: leaves should not be detached in onunload
      */
     onunload() {
-        // Set unloading flag to prevent any new operations
-        this.isUnloading = true;
+        this.initiateShutdown();
 
         this.recentDataManager?.dispose();
 
@@ -923,21 +986,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Clean up the command queue service
         if (this.commandQueue) {
-            this.commandQueue.clearAllOperations();
             this.commandQueue = null;
-        }
-
-        // First, stop any background content processing in all navigator views
-        try {
-            const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
-            for (const leaf of leaves) {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    view.stopContentProcessing();
-                }
-            }
-        } catch (e) {
-            console.error('Failed stopping content processing during unload:', e);
         }
 
         // Clean up the ribbon icon
@@ -946,9 +995,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         this.omnisearchService = null;
         this.recentDataManager = null;
-
-        // Shutdown database after all processing is stopped
-        shutdownDatabase();
     }
 
     /**

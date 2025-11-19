@@ -151,8 +151,8 @@ export const STRINGS_PT_BR = {
             revealInFinder: 'Revelar no Finder',
             showInExplorer: 'Mostrar no explorador de arquivos',
             copyDeepLink: 'Copiar URL do Obsidian',
-            copyPath: 'Copiar caminho',
-            copyRelativePath: 'Copiar caminho relativo',
+            copyPath: 'Copiar caminho do sistema de arquivos',
+            copyRelativePath: 'Copiar caminho do cofre',
             renameNote: 'Renomear nota',
             renameFile: 'Renomear arquivo',
             deleteNote: 'Excluir nota',
@@ -175,8 +175,8 @@ export const STRINGS_PT_BR = {
             newDrawing: 'Novo desenho',
             duplicateFolder: 'Duplicar pasta',
             searchInFolder: 'Pesquisar na pasta',
-            copyPath: 'Copiar caminho',
-            copyRelativePath: 'Copiar caminho relativo',
+            copyPath: 'Copiar caminho do sistema de arquivos',
+            copyRelativePath: 'Copiar caminho do cofre',
             createFolderNote: 'Criar nota de pasta',
             deleteFolderNote: 'Excluir nota de pasta',
             changeIcon: 'Alterar ícone',
@@ -292,6 +292,7 @@ export const STRINGS_PT_BR = {
             deleteFolderTitle: "Excluir '{name}'?",
             deleteFileTitle: "Excluir '{name}'?",
             folderNamePrompt: 'Digite o nome da pasta:',
+            hideInOtherVaultProfiles: 'Ocultar em outros perfis do cofre',
             renamePrompt: 'Digite o novo nome:',
             renameVaultTitle: 'Alterar nome de exibição do cofre',
             renameVaultPrompt: 'Digite um nome de exibição personalizado (deixe em branco para usar o padrão):',
@@ -542,6 +543,7 @@ export const STRINGS_PT_BR = {
             },
             list: {
                 display: 'Aparência',
+                pinnedNotes: 'Notas fixadas',
                 quickActions: 'Ações rápidas'
             },
             notes: {
@@ -602,13 +604,17 @@ export const STRINGS_PT_BR = {
                     'title-desc': 'Título (Z no topo)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Rolar para o arquivo selecionado em mudanças da lista',
+                desc: 'Rolar para o arquivo selecionado ao fixar notas, mostrar notas descendentes, mudar aparência de pastas ou executar operações de arquivo.'
+            },
             includeDescendantNotes: {
                 name: 'Mostrar notas de subpastas / descendentes',
                 desc: 'Incluir notas de subpastas aninhadas e descendentes de tags ao visualizar uma pasta ou tag.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Mostrar notas fixadas apenas na pasta pai',
-                desc: 'Notas fixadas aparecem apenas ao visualizar sua pasta'
+                name: 'Limitar notas fixadas à sua pasta',
+                desc: 'Notas fixadas aparecem apenas ao visualizar a pasta ou tag onde foram fixadas.'
             },
             separateNoteCounts: {
                 name: 'Mostrar contagens atuais e descendentes separadamente',
@@ -648,25 +654,17 @@ export const STRINGS_PT_BR = {
                 name: 'Mostrar pasta pai',
                 desc: 'Exibir o nome da pasta pai para notas em subpastas ou tags.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Clique na pasta pai revela nota',
+                desc: 'Clicar no rótulo da pasta pai revela a nota.'
+            },
             showParentFolderColor: {
                 name: 'Mostrar cor de pasta pai',
                 desc: 'Usar cores de pasta em rótulos de pastas pai.'
             },
             showQuickActions: {
                 name: 'Mostrar ações rápidas (apenas desktop)',
-                desc: 'Mostrar ações de passar o mouse em itens de arquivo.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Revelar na pasta',
-                desc: 'Ação rápida: Revelar nota em sua pasta pai. Visível apenas ao visualizar notas de subpastas ou em tags (não mostrado na pasta real da nota).'
-            },
-            quickActionsPinNote: {
-                name: 'Fixar nota',
-                desc: 'Ação rápida: Fixar ou desafixar nota no topo da lista.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Abrir em nova aba',
-                desc: 'Ação rápida: Abrir nota em nova aba.'
+                desc: 'Mostrar botões de ação ao passar sobre arquivos. Controles de botão selecionam quais ações aparecem.'
             },
             dualPane: {
                 name: 'Layout de painel duplo (não sincronizado)',
@@ -833,12 +831,16 @@ export const STRINGS_PT_BR = {
                 desc: 'Exibir tags clicáveis em itens de arquivo.'
             },
             showFileTagAncestors: {
-                name: 'Mostrar tags pai',
-                desc: 'Exibir segmentos pai antes do nome da tag.'
+                name: 'Mostrar caminhos completos de tags',
+                desc: "Exibir caminhos completos da hierarquia de tags. Ativado: 'ai/openai', 'trabalho/projetos/2024'. Desativado: 'openai', '2024'."
             },
             colorFileTags: {
                 name: 'Colorir tags de arquivo',
                 desc: 'Aplicar cores de tag aos emblemas de tag em itens de arquivo.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Mostrar tags coloridas primeiro',
+                desc: 'Ordena as tags coloridas antes das outras tags nos itens de arquivo.'
             },
             showFileTagsInSlimMode: {
                 name: 'Mostrar tags de arquivo no modo simples',
@@ -1074,15 +1076,7 @@ export const STRINGS_PT_BR = {
                 downloadFailed: 'Falha ao baixar {name}. Verifique sua conexão e tente novamente.',
                 removeFailed: 'Falha ao remover {name}.',
                 infoNote:
-                    'Pacotes de ícones baixados sincronizam o estado de instalação entre dispositivos. Os pacotes de ícones permanecem no banco de dados local em cada dispositivo; a sincronização apenas rastreia se devem ser baixados ou removidos. Pacotes de ícones são baixados do repositório Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    'Pacotes de ícones baixados sincronizam o estado de instalação entre dispositivos. Os pacotes de ícones permanecem no banco de dados local em cada dispositivo; a sincronização apenas rastreia se devem ser baixados ou removidos. Pacotes de ícones são baixados do repositório Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).'
             },
             useFrontmatterDates: {
                 name: 'Usar metadados do frontmatter',

@@ -75,7 +75,8 @@ Below is the description from the original repository.
 1. **Install Obsidian** - Download and install from [obsidian.md](https://obsidian.md/)
 2. **Enable community plugins** - Go to Settings → Community plugins → Turn on community plugins
 3. **Install Notebook Navigator** - Click "Browse" → Search for "Notebook Navigator" → Install
-4. **Install Featured Image** - For automatic thumbnail generation, install [Featured Image](https://github.com/johansan/obsidian-featured-image) plugin to create optimized thumbnails for all your documents
+4. **Install Style Settings** - For customizing colors and appearance, install [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin by searching for "Style Settings" in Community plugins
+5. **Install Featured Image (optional)** - For automatic thumbnail generation, install [Featured Image](https://github.com/johansan/obsidian-featured-image) plugin to create optimized thumbnails for all your documents
 
 For precise image management, consider also installing [Pixel Perfect Image](https://github.com/johansan/pixel-perfect-image) which lets you resize images to exact pixel dimensions and perform advanced image operations.
 
@@ -90,6 +91,34 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
    - **Not supported by default:** Code files (.js, .css, .py), config files (.json, .yml), archives (.zip), and other external formats
 
 2. **Pane sizing:** If you've enabled dual-pane layout but don't see the file list, you may need to resize the navigation pane. Drag the divider between the left pane and editor to reveal the file list.
+
+### Customizing colors
+
+Notebook Navigator supports extensive color customization through the Style Settings plugin. Here's how to set it up:
+
+1. **Install Style Settings:**
+   - Go to Settings → Community plugins → Browse
+   - Search for "Style Settings"
+   - Click Install, then Enable
+
+2. **Access color settings:**
+   - Go to Settings → Style Settings
+   - Find "Notebook Navigator" in the list
+   - Click to expand all available customization options
+
+3. **What you can customize:**
+   - **Colors:** Backgrounds, text, icons, selection states, folder colors, tag colors
+   - **Borders & corners:** Rounded corners for items, badges, and panels
+   - **Font weights:** Text weights for folders, tags, files, and UI elements
+   - **Mobile styles:** Separate customizations for mobile interface
+
+4. **How to customize colors:**
+   - Click any color setting to open the color picker
+   - Choose from the palette or enter custom hex/RGB values
+   - Changes apply immediately - no restart needed
+   - Use the reset button to restore defaults
+
+**Tip:** You can also set individual colors for specific folders and tags by right-clicking them in Notebook Navigator and selecting "Change color".
 
 ### Navigation pane toolbar
 
@@ -446,7 +475,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Create new note` Create note in currently selected folder. **Suggestion:** Bind `Cmd/Ctrl+N` to this command (unbind from Obsidian's default "Create new note" first)
 - `Notebook Navigator: Move files` Move selected files to another folder. Selects next file in current folder
 - `Notebook Navigator: Convert to folder note` Create a folder matching the file name and move the file inside as the folder note
-- `Notebook Navigator: Pin all folder notes` Add all folder notes to shortcuts. Only available when folder notes are enabled
+- `Notebook Navigator: Pin all folder notes` Add all folder notes to shortcuts. Command only visible when folder notes are enabled and at least one unpinned folder note exists
 - `Notebook Navigator: Delete files` Delete selected files. Selects next file in current folder
 
 **Tag operations**
@@ -461,35 +490,35 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Command IDs
 
-| Command ID                                  | Command name                                                   |
-| ------------------------------------------- | -------------------------------------------------------------- |
-| `notebook-navigator:open`                   | Notebook Navigator: Open                                       |
-| `notebook-navigator:open-homepage`          | Notebook Navigator: Open homepage                              |
-| `notebook-navigator:select-profile`         | Notebook Navigator: Select vault profile                       |
-| `notebook-navigator:select-profile-1`       | Notebook Navigator: Select vault profile 1                     |
-| `notebook-navigator:select-profile-2`       | Notebook Navigator: Select vault profile 2                     |
-| `notebook-navigator:select-profile-3`       | Notebook Navigator: Select vault profile 3                     |
-| `notebook-navigator:reveal-file`            | Notebook Navigator: Reveal file                                |
-| `notebook-navigator:navigate-to-folder`     | Notebook Navigator: Navigate to folder                         |
-| `notebook-navigator:navigate-to-tag`        | Notebook Navigator: Navigate to tag                            |
-| `notebook-navigator:add-shortcut`           | Notebook Navigator: Add to shortcuts                           |
-| `notebook-navigator:search`                 | Notebook Navigator: Search                                     |
-| `notebook-navigator:toggle-dual-pane`       | Notebook Navigator: Toggle dual pane layout                    |
-| `notebook-navigator:toggle-descendants`     | Notebook Navigator: Toggle descendants                         |
-| `notebook-navigator:toggle-hidden`          | Notebook Navigator: Toggle hidden items (folders, tags, notes) |
-| `notebook-navigator:toggle-tag-sort`        | Notebook Navigator: Toggle tag sort                            |
-| `notebook-navigator:collapse-expand`        | Notebook Navigator: Collapse / expand all items                |
-| `notebook-navigator:new-note`               | Notebook Navigator: Create new note                            |
-| `notebook-navigator:move-files`             | Notebook Navigator: Move files                                 |
-| `notebook-navigator:select-next-file`       | Notebook Navigator: Select next file                           |
-| `notebook-navigator:select-previous-file`   | Notebook Navigator: Select previous file                       |
-| `notebook-navigator:convert-to-folder-note` | Notebook Navigator: Convert to folder note                     |
-| `notebook-navigator:pin-all-folder-notes`   | Notebook Navigator: Pin all folder notes                       |
-| `notebook-navigator:delete-files`           | Notebook Navigator: Delete files                               |
-| `notebook-navigator:add-tag`                | Notebook Navigator: Add tag to selected files                  |
-| `notebook-navigator:remove-tag`             | Notebook Navigator: Remove tag from selected files             |
-| `notebook-navigator:remove-all-tags`        | Notebook Navigator: Remove all tags from selected files        |
-| `notebook-navigator:rebuild-cache`          | Notebook Navigator: Rebuild cache                              |
+| Command ID                                  | Command name                                                                                         |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `notebook-navigator:open`                   | Notebook Navigator: Open                                                                             |
+| `notebook-navigator:open-homepage`          | Notebook Navigator: Open homepage                                                                    |
+| `notebook-navigator:select-profile`         | Notebook Navigator: Select vault profile                                                             |
+| `notebook-navigator:select-profile-1`       | Notebook Navigator: Select vault profile 1                                                           |
+| `notebook-navigator:select-profile-2`       | Notebook Navigator: Select vault profile 2                                                           |
+| `notebook-navigator:select-profile-3`       | Notebook Navigator: Select vault profile 3                                                           |
+| `notebook-navigator:reveal-file`            | Notebook Navigator: Reveal file                                                                      |
+| `notebook-navigator:navigate-to-folder`     | Notebook Navigator: Navigate to folder                                                               |
+| `notebook-navigator:navigate-to-tag`        | Notebook Navigator: Navigate to tag                                                                  |
+| `notebook-navigator:add-shortcut`           | Notebook Navigator: Add to shortcuts                                                                 |
+| `notebook-navigator:search`                 | Notebook Navigator: Search                                                                           |
+| `notebook-navigator:toggle-dual-pane`       | Notebook Navigator: Toggle dual pane layout                                                          |
+| `notebook-navigator:toggle-descendants`     | Notebook Navigator: Toggle descendants                                                               |
+| `notebook-navigator:toggle-hidden`          | Notebook Navigator: Toggle hidden items (folders, tags, notes)                                       |
+| `notebook-navigator:toggle-tag-sort`        | Notebook Navigator: Toggle tag sort                                                                  |
+| `notebook-navigator:collapse-expand`        | Notebook Navigator: Collapse / expand all items                                                      |
+| `notebook-navigator:new-note`               | Notebook Navigator: Create new note                                                                  |
+| `notebook-navigator:move-files`             | Notebook Navigator: Move files                                                                       |
+| `notebook-navigator:select-next-file`       | Notebook Navigator: Select next file                                                                 |
+| `notebook-navigator:select-previous-file`   | Notebook Navigator: Select previous file                                                             |
+| `notebook-navigator:convert-to-folder-note` | Notebook Navigator: Convert to folder note                                                           |
+| `notebook-navigator:pin-all-folder-notes`   | Notebook Navigator: Pin all folder notes (requires folder notes enabled and an unpinned folder note) |
+| `notebook-navigator:delete-files`           | Notebook Navigator: Delete files                                                                     |
+| `notebook-navigator:add-tag`                | Notebook Navigator: Add tag to selected files                                                        |
+| `notebook-navigator:remove-tag`             | Notebook Navigator: Remove tag from selected files                                                   |
+| `notebook-navigator:remove-all-tags`        | Notebook Navigator: Remove all tags from selected files                                              |
+| `notebook-navigator:rebuild-cache`          | Notebook Navigator: Rebuild cache                                                                    |
 
 <br>
 
@@ -631,6 +660,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Color file tags:** Apply tag colors to tag badges on file items.
   - **Show file tags in slim mode:** Display tags when date, preview, and image are hidden.
 - **Show parent folder:** Display the parent folder name for notes in subfolders or tags.
+  - **Click parent folder to reveal file:** Clicking the parent folder label reveals the file.
   - **Show parent folder color:** Use folder colors on parent folder labels.
 - **Show note preview:** Display preview text beneath note names.
   - **Skip headings in preview:** Skip heading lines when generating preview text.

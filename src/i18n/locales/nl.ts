@@ -151,8 +151,8 @@ export const STRINGS_NL = {
             revealInFinder: 'Tonen in Finder',
             showInExplorer: 'Tonen in systeemverkenner',
             copyDeepLink: 'Obsidian URL kopiëren',
-            copyPath: 'Pad kopiëren',
-            copyRelativePath: 'Relatief pad kopiëren',
+            copyPath: 'Bestandssysteempad kopiëren',
+            copyRelativePath: 'Vault-pad kopiëren',
             renameNote: 'Notitie hernoemen',
             renameFile: 'Bestand hernoemen',
             deleteNote: 'Notitie verwijderen',
@@ -175,8 +175,8 @@ export const STRINGS_NL = {
             newDrawing: 'Nieuwe tekening',
             duplicateFolder: 'Map dupliceren',
             searchInFolder: 'Zoeken in map',
-            copyPath: 'Pad kopiëren',
-            copyRelativePath: 'Relatief pad kopiëren',
+            copyPath: 'Bestandssysteempad kopiëren',
+            copyRelativePath: 'Vault-pad kopiëren',
             createFolderNote: 'Mapnotitie maken',
             deleteFolderNote: 'Mapnotitie verwijderen',
             changeIcon: 'Pictogram wijzigen',
@@ -292,6 +292,7 @@ export const STRINGS_NL = {
             deleteFolderTitle: "'{name}' verwijderen?",
             deleteFileTitle: "'{name}' verwijderen?",
             folderNamePrompt: 'Voer mapnaam in:',
+            hideInOtherVaultProfiles: 'Verbergen in andere kluisprofielen',
             renamePrompt: 'Voer nieuwe naam in:',
             renameVaultTitle: 'Weergavenaam kluis wijzigen',
             renameVaultPrompt: 'Voer aangepaste weergavenaam in (laat leeg voor standaard):',
@@ -544,6 +545,7 @@ export const STRINGS_NL = {
             },
             list: {
                 display: 'Uiterlijk',
+                pinnedNotes: 'Vastgezette notities',
                 quickActions: 'Snelle acties'
             },
             notes: {
@@ -608,13 +610,17 @@ export const STRINGS_NL = {
                     'title-desc': 'Titel (Z bovenaan)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Scroll naar geselecteerd bestand bij lijstwijzigingen',
+                desc: 'Scroll naar het geselecteerde bestand bij het vastpinnen van notities, tonen van afstammelingen-notities, wijzigen van mapweergave of uitvoeren van bestandsoperaties.'
+            },
             includeDescendantNotes: {
                 name: 'Notities uit submappen / afstammelingen tonen',
                 desc: 'Notities uit geneste submappen en tag-afstammelingen opnemen bij het bekijken van een map of tag.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Vastgepinde notities alleen in bovenliggende map tonen',
-                desc: 'Vastgepinde notities verschijnen alleen bij het bekijken van hun map'
+                name: 'Vastgepinde notities beperken tot hun map',
+                desc: 'Vastgepinde notities verschijnen alleen bij het bekijken van de map of tag waar ze zijn vastgepind.'
             },
             separateNoteCounts: {
                 name: 'Huidige en afstammeling-tellingen apart tonen',
@@ -654,25 +660,17 @@ export const STRINGS_NL = {
                 name: 'Bovenliggende map tonen',
                 desc: 'De naam van de bovenliggende map weergeven voor notities in submappen of tags.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Klik op bovenliggende map toont notitie',
+                desc: 'Klik op het label van de bovenliggende map om de notitie te tonen.'
+            },
             showParentFolderColor: {
                 name: 'Bovenliggende mapkleur tonen',
                 desc: 'Mapkleuren gebruiken voor labels van bovenliggende mappen.'
             },
             showQuickActions: {
                 name: 'Snelle acties tonen (alleen desktop)',
-                desc: 'Zweefacties op bestandsitems tonen.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Tonen in map',
-                desc: 'Snelle actie: Notitie tonen in bovenliggende map. Alleen zichtbaar bij het bekijken van notities uit submappen of in tags (niet weergegeven in de werkelijke map van de notitie).'
-            },
-            quickActionsPinNote: {
-                name: 'Notitie vastpinnen',
-                desc: 'Snelle actie: Notitie vastpinnen of losmaken bovenaan de lijst.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Openen in nieuw tabblad',
-                desc: 'Snelle actie: Notitie openen in nieuw tabblad.'
+                desc: 'Actieknoppen tonen bij zweven over bestanden. Knopbediening selecteert welke acties verschijnen.'
             },
             dualPane: {
                 name: 'Dubbel paneellay-out (niet gesynchroniseerd)',
@@ -840,8 +838,8 @@ export const STRINGS_NL = {
                 desc: 'Klikbare tags weergeven in bestandsitems.'
             },
             showFileTagAncestors: {
-                name: 'Bovenliggende tags tonen',
-                desc: 'Bovenliggende segmenten weergeven vóór de tagnaam.'
+                name: 'Volledige tagpaden tonen',
+                desc: "Volledige tag-hiërarchie paden weergeven. Ingeschakeld: 'ai/openai', 'werk/projecten/2024'. Uitgeschakeld: 'openai', '2024'."
             },
             collapseFileTagsToSelectedTag: {
                 name: 'Tags samenvouwen tot een geselecteerde tag',
@@ -850,6 +848,10 @@ export const STRINGS_NL = {
             colorFileTags: {
                 name: 'Bestandstags kleuren',
                 desc: 'Tagkleuren toepassen op tagbadges op bestandsitems.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Gekleurde tags eerst tonen',
+                desc: 'Sorteert gekleurde tags vóór andere tags in bestandsitems.'
             },
             showFileTagsInSlimMode: {
                 name: 'Bestandstags tonen in compacte modus',
@@ -1113,15 +1115,7 @@ export const STRINGS_NL = {
                 downloadFailed: 'Kan {name} niet downloaden. Controleer uw verbinding en probeer opnieuw.',
                 removeFailed: 'Kan {name} niet verwijderen.',
                 infoNote:
-                    'Gedownloade pictogrampakketten synchroniseren installatiestatus tussen apparaten. Pictogrampakketten blijven in de lokale database op elk apparaat; synchronisatie houdt alleen bij of ze moeten worden gedownload of verwijderd. Pictogrampakketten downloaden van de Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    'Gedownloade pictogrampakketten synchroniseren installatiestatus tussen apparaten. Pictogrampakketten blijven in de lokale database op elk apparaat; synchronisatie houdt alleen bij of ze moeten worden gedownload of verwijderd. Pictogrampakketten downloaden van de Notebook Navigator repository (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).'
             },
             useFrontmatterDates: {
                 name: 'Frontmatter metadata gebruiken',

@@ -151,8 +151,8 @@ export const STRINGS_IT = {
             revealInFinder: 'Mostra nel Finder',
             showInExplorer: 'Mostra in Esplora file',
             copyDeepLink: 'Copia URL Obsidian',
-            copyPath: 'Copia percorso',
-            copyRelativePath: 'Copia percorso relativo',
+            copyPath: 'Copia percorso del file system',
+            copyRelativePath: 'Copia percorso del vault',
             renameNote: 'Rinomina nota',
             renameFile: 'Rinomina file',
             deleteNote: 'Elimina nota',
@@ -175,8 +175,8 @@ export const STRINGS_IT = {
             newDrawing: 'Nuovo disegno',
             duplicateFolder: 'Duplica cartella',
             searchInFolder: 'Cerca nella cartella',
-            copyPath: 'Copia percorso',
-            copyRelativePath: 'Copia percorso relativo',
+            copyPath: 'Copia percorso del file system',
+            copyRelativePath: 'Copia percorso del vault',
             createFolderNote: 'Crea nota cartella',
             deleteFolderNote: 'Elimina nota cartella',
             changeIcon: 'Cambia icona',
@@ -292,6 +292,7 @@ export const STRINGS_IT = {
             deleteFolderTitle: "Eliminare '{name}'?",
             deleteFileTitle: "Eliminare '{name}'?",
             folderNamePrompt: 'Inserisci nome cartella:',
+            hideInOtherVaultProfiles: 'Nascondi negli altri profili della vault',
             renamePrompt: 'Inserisci nuovo nome:',
             renameVaultTitle: 'Cambia nome visualizzato vault',
             renameVaultPrompt: 'Inserisci nome visualizzato personalizzato (lascia vuoto per usare predefinito):',
@@ -542,6 +543,7 @@ export const STRINGS_IT = {
             },
             list: {
                 display: 'Aspetto',
+                pinnedNotes: 'Note fissate',
                 quickActions: 'Azioni rapide'
             },
             notes: {
@@ -602,13 +604,17 @@ export const STRINGS_IT = {
                     'title-desc': 'Titolo (Z in alto)'
                 }
             },
+            revealFileOnListChanges: {
+                name: 'Scorri al file selezionato quando cambia la lista',
+                desc: "Scorri al file selezionato quando si bloccano note, si mostrano note discendenti, si cambia l'aspetto delle cartelle o si eseguono operazioni sui file."
+            },
             includeDescendantNotes: {
                 name: 'Mostra note da sottocartelle / discendenti',
                 desc: 'Includi note da sottocartelle nidificate e discendenti di tag quando visualizzi una cartella o un tag.'
             },
             limitPinnedToCurrentFolder: {
-                name: 'Mostra note fissate solo nella cartella genitore',
-                desc: 'Le note fissate appaiono solo quando si visualizza la loro cartella'
+                name: 'Limita note fissate alla loro cartella',
+                desc: 'Le note fissate appaiono solo quando si visualizza la cartella o il tag in cui sono state fissate.'
             },
             separateNoteCounts: {
                 name: 'Mostra conteggi attuali e discendenti separatamente',
@@ -648,25 +654,17 @@ export const STRINGS_IT = {
                 name: 'Mostra cartella genitore',
                 desc: 'Visualizza il nome della cartella genitore per note in sottocartelle o tag.'
             },
+            parentFolderClickRevealsFile: {
+                name: 'Clic cartella genitore rivela nota',
+                desc: "Facendo clic sull'etichetta della cartella genitore la nota viene rivelata."
+            },
             showParentFolderColor: {
                 name: 'Mostra colore cartella genitore',
                 desc: 'Usa colori cartella su etichette cartelle genitore.'
             },
             showQuickActions: {
                 name: 'Mostra azioni rapide (solo desktop)',
-                desc: 'Mostra azioni al passaggio del mouse su elementi file.'
-            },
-            quickActionsRevealInFolder: {
-                name: 'Mostra nella cartella',
-                desc: 'Azione rapida: Mostra nota nella sua cartella genitore. Visibile solo quando si visualizzano note da sottocartelle o in tag (non mostrata nella cartella reale della nota).'
-            },
-            quickActionsPinNote: {
-                name: 'Fissa nota',
-                desc: 'Azione rapida: Fissa o rimuovi fissaggio nota in cima alla lista.'
-            },
-            quickActionsOpenInNewTab: {
-                name: 'Apri in nuova scheda',
-                desc: 'Azione rapida: Apri nota in nuova scheda.'
+                desc: 'Mostra pulsanti di azione al passaggio sui file. I controlli dei pulsanti selezionano quali azioni appaiono.'
             },
             dualPane: {
                 name: 'Layout pannello doppio (non sincronizzato)',
@@ -834,12 +832,16 @@ export const STRINGS_IT = {
                 desc: 'Visualizza tag cliccabili negli elementi file.'
             },
             showFileTagAncestors: {
-                name: 'Mostra tag genitore',
-                desc: 'Visualizza segmenti genitore prima del nome tag.'
+                name: 'Mostra percorsi completi dei tag',
+                desc: "Visualizza percorsi completi della gerarchia dei tag. Attivato: 'ai/openai', 'lavoro/progetti/2024'. Disattivato: 'openai', '2024'."
             },
             colorFileTags: {
                 name: 'Colora tag file',
                 desc: 'Applica colori tag ai badge tag su elementi file.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Mostra prima i tag colorati',
+                desc: 'Ordina i tag colorati prima degli altri tag negli elementi file.'
             },
             showFileTagsInSlimMode: {
                 name: 'Mostra tag file in modalità sottile',
@@ -1075,15 +1077,7 @@ export const STRINGS_IT = {
                 downloadFailed: 'Impossibile scaricare {name}. Controlla la connessione e riprova.',
                 removeFailed: 'Impossibile rimuovere {name}.',
                 infoNote:
-                    'I pacchetti icone scaricati sincronizzano lo stato installazione tra dispositivi. I pacchetti icone rimangono nel database locale su ogni dispositivo; la sincronizzazione traccia solo se scaricarli o rimuoverli. I pacchetti icone si scaricano dal repository Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).',
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    'I pacchetti icone scaricati sincronizzano lo stato installazione tra dispositivi. I pacchetti icone rimangono nel database locale su ogni dispositivo; la sincronizzazione traccia solo se scaricarli o rimuoverli. I pacchetti icone si scaricano dal repository Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).'
             },
             useFrontmatterDates: {
                 name: 'Usa metadati del frontmatter',

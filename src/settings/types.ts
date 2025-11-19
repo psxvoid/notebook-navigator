@@ -151,6 +151,7 @@ export interface NotebookNavigatorSettings {
 
     // List pane tab
     defaultFolderSort: SortOption;
+    revealFileOnListChanges: boolean;
     listPaneTitle: ListPaneTitleOption;
     noteGrouping: ListNoteGroupingOption;
     filterPinnedByFolder: boolean;
@@ -161,6 +162,8 @@ export interface NotebookNavigatorSettings {
     slimItemHeightScaleText: boolean;
     showQuickActions: boolean;
     quickActionRevealInFolder: boolean;
+    quickActionAddTag: boolean;
+    quickActionAddToShortcuts: boolean;
     quickActionPinNote: boolean;
     quickActionOpenInNewTab: boolean;
 
@@ -180,8 +183,10 @@ export interface NotebookNavigatorSettings {
     showFileTagAncestors: boolean;
     collapseFileTagsToSelectedTag: boolean;
     colorFileTags: boolean;
+    prioritizeColoredFileTags: boolean;
     showFileTagsInSlimMode: boolean;
     showParentFolder: boolean;
+    parentFolderClickRevealsFile: boolean;
     showParentFolderColor: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;

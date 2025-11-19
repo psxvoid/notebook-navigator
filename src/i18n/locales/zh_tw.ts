@@ -150,8 +150,8 @@ export const STRINGS_ZH_TW = {
             revealInFinder: '在 Finder 中顯示',
             showInExplorer: '在系統檔案總管中顯示',
             copyDeepLink: '複製 Obsidian URL',
-            copyPath: '複製路徑',
-            copyRelativePath: '複製相對路徑',
+            copyPath: '複製檔案系統路徑',
+            copyRelativePath: '複製保險庫路徑',
             renameNote: '重新命名筆記',
             renameFile: '重新命名檔案',
             deleteNote: '刪除筆記',
@@ -174,8 +174,8 @@ export const STRINGS_ZH_TW = {
             newDrawing: '新繪圖',
             duplicateFolder: '複製資料夾',
             searchInFolder: '在此資料夾中搜尋',
-            copyPath: '複製路徑',
-            copyRelativePath: '複製相對路徑',
+            copyPath: '複製檔案系統路徑',
+            copyRelativePath: '複製保險庫路徑',
             createFolderNote: '建立資料夾筆記',
             deleteFolderNote: '刪除資料夾筆記',
             changeIcon: '變更圖示',
@@ -291,6 +291,7 @@ export const STRINGS_ZH_TW = {
             deleteFolderTitle: "刪除 '{name}'？",
             deleteFileTitle: "刪除 '{name}'？",
             folderNamePrompt: '輸入資料夾名稱：',
+            hideInOtherVaultProfiles: '在其他倉庫設定檔中隱藏',
             renamePrompt: '輸入新名稱：',
             renameVaultTitle: '變更儲存庫顯示名稱',
             renameVaultPrompt: '輸入自訂顯示名稱 (留空以使用預設值)：',
@@ -542,6 +543,7 @@ export const STRINGS_ZH_TW = {
             },
             list: {
                 display: '外觀',
+                pinnedNotes: '釘選筆記',
                 quickActions: '快速操作'
             },
             notes: {
@@ -605,13 +607,17 @@ export const STRINGS_ZH_TW = {
                     'title-desc': '標題 (降冪)'
                 }
             },
+            revealFileOnListChanges: {
+                name: '列表變更時捲動至選定檔案',
+                desc: '在釘選筆記、顯示後代筆記、變更資料夾外觀或執行檔案操作時捲動至選定的檔案。'
+            },
             includeDescendantNotes: {
                 name: '顯示子資料夾/後代中的筆記',
                 desc: '檢視資料夾或標籤時，包含巢狀子資料夾和標籤後代的筆記。'
             },
             limitPinnedToCurrentFolder: {
-                name: '僅在父資料夾中顯示固定筆記',
-                desc: '固定筆記僅在查看其資料夾時顯示'
+                name: '將固定筆記限制在其資料夾',
+                desc: '固定筆記僅在查看其固定的資料夾或標籤時顯示。'
             },
             separateNoteCounts: {
                 name: '分別顯示當前和後代計數',
@@ -651,25 +657,17 @@ export const STRINGS_ZH_TW = {
                 name: '顯示父資料夾',
                 desc: '在子資料夾或標籤中顯示筆記的父資料夾名稱。'
             },
+            parentFolderClickRevealsFile: {
+                name: '點擊父資料夾顯示筆記',
+                desc: '點擊父資料夾標籤時顯示該筆記。'
+            },
             showParentFolderColor: {
                 name: '顯示父資料夾顏色',
                 desc: '在父資料夾標籤上使用資料夾顏色。'
             },
             showQuickActions: {
                 name: '顯示快速操作 (僅限桌面版)',
-                desc: '在檔案項目上顯示懸停操作。'
-            },
-            quickActionsRevealInFolder: {
-                name: '在資料夾中顯示',
-                desc: '快速操作：在其父資料夾中顯示筆記。僅在檢視子資料夾或標籤中的筆記時可見 (在筆記的實際資料夾中不顯示)。'
-            },
-            quickActionsPinNote: {
-                name: '釘選筆記',
-                desc: '快速操作：在清單頂部釘選或取消釘選筆記。'
-            },
-            quickActionsOpenInNewTab: {
-                name: '在新分頁中開啟',
-                desc: '快速操作：在新分頁中開啟筆記。'
+                desc: '懸停在檔案上時顯示操作按鈕。按鈕控制項選擇顯示哪些操作。'
             },
             dualPane: {
                 name: '雙窗格佈局 (不同步)',
@@ -836,8 +834,8 @@ export const STRINGS_ZH_TW = {
                 desc: '在檔案項目中顯示可點擊的標籤。使用標籤顏色來視覺上區分不同類型的標籤。'
             },
             showFileTagAncestors: {
-                name: '顯示父標籤',
-                desc: '在標籤名稱前顯示父級片段。'
+                name: '顯示完整標籤路徑',
+                desc: "顯示完整的標籤階層路徑。啟用：'ai/openai'，'工作/專案/2024'。停用：'openai'，'2024'。"
             },
             collapseFileTagsToSelectedTag: {
                 name: '將標籤折疊到選定的標籤',
@@ -846,6 +844,10 @@ export const STRINGS_ZH_TW = {
             colorFileTags: {
                 name: '為檔案標籤著色',
                 desc: '將標籤顏色套用到檔案項目的標籤徽章。'
+            },
+            prioritizeColoredFileTags: {
+                name: '優先顯示彩色標籤',
+                desc: '將彩色標籤排序在其他標籤之前。'
             },
             showFileTagsInSlimMode: {
                 name: '在緊湊模式下顯示檔案標籤',
@@ -1108,15 +1110,7 @@ export const STRINGS_ZH_TW = {
                 downloadFailed: '下載 {name} 失敗。請檢查您的網路連線並再試一次。',
                 removeFailed: '移除 {name} 失敗。',
                 infoNote:
-                    '下載的圖示包會在裝置間同步安裝狀態。圖示包保留在每個裝置的本地資料庫中；同步僅追蹤是下載還是移除它們。圖示包從 Notebook Navigator 儲存庫下載 (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)。',
-                providers: {
-                    bootstrapIconsDesc: 'https://icons.getbootstrap.com/',
-                    fontAwesomeDesc: 'https://fontawesome.com/',
-                    materialIconsDesc: 'https://fonts.google.com/icons',
-                    phosphorDesc: 'https://phosphoricons.com/',
-                    rpgAwesomeDesc: 'https://nagoshiashumari.github.io/Rpg-Awesome/',
-                    simpleIconsDesc: 'https://simpleicons.org/'
-                }
+                    '下載的圖示包會在裝置間同步安裝狀態。圖示包保留在每個裝置的本地資料庫中；同步僅追蹤是下載還是移除它們。圖示包從 Notebook Navigator 儲存庫下載 (https://github.com/johansan/notebook-navigator/tree/main/icon-assets)。'
             },
             useFrontmatterDates: {
                 name: '使用 frontmatter 中繼資料',
