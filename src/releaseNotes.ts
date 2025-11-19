@@ -96,7 +96,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Improved the menu structure for files and folders so things are grouped more logically.',
             'Improved the list pane layout. Separators now align with file item width. And file items are now indented so icons can show to the left, making it easy to quickly find items with icons.'
         ],
-        fixed: ['Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.']
+        fixed: [
+            'Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.',
+            'Fixed an issue where some material icons read from frontmatter would not show correctly. If you use material icons in frontmatter please rebuild your cache after updating.'
+        ]
     },
     {
         version: '1.8.4',
