@@ -489,7 +489,9 @@ export const STRINGS_NL = {
         addTag: 'Tag toevoegen aan geselecteerde bestanden',
         removeTag: 'Tag verwijderen van geselecteerde bestanden',
         removeAllTags: 'Alle tags verwijderen van geselecteerde bestanden',
-        rebuildCache: 'Cache opnieuw opbouwen'
+        rebuildCache: 'Cache opnieuw opbouwen',
+        paneJumpTop: 'Ga naar de bovenkant van de lijst',
+        paneJumpBottom: 'Spring naar het einde van de lijst',
     },
 
     // Plugin UI

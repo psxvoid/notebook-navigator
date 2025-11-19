@@ -1,8 +1,6 @@
-import React from 'react';
-import { Root, createRoot } from 'react-dom/client';
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +16,8 @@ import { Root, createRoot } from 'react-dom/client';
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// src/view/NotebookNavigatorView.tsx
+import React from 'react';
+import { Root, createRoot } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf, TFile, Platform, TFolder } from 'obsidian';
 import { NotebookNavigatorContainer } from '../components/NotebookNavigatorContainer';
 import type { NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
@@ -210,6 +209,16 @@ export class NotebookNavigatorView extends ItemView {
      */
     revealFileInNearestFolder(file: TFile, options?: RevealFileOptions) {
         this.componentRef.current?.revealFileInNearestFolder(file, options);
+    }
+
+    paneJumpTop() {
+        this.focusVisiblePane()
+        this.componentRef.current?.paneJumpTop()
+    }
+
+    paneJumpBottom() {
+        this.focusVisiblePane()
+        this.componentRef.current?.paneJumpBottom()
     }
 
     /**

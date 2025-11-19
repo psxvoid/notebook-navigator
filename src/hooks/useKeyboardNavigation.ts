@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ export interface VirtualItem {
 /**
  * Helper function for safe array access
  */
-const safeGetItem = <T>(array: T[], index: number): T | undefined => {
+export const safeGetItem = <T>(array: T[], index: number): T | undefined => {
     return index >= 0 && index < array.length ? array[index] : undefined;
 };
 
@@ -61,7 +61,7 @@ export type IsSelectableFunction<T> = (item: T) => boolean;
 /**
  * Find next selectable item in the list
  */
-const findNextSelectableIndex = <T>(
+export const findNextSelectableIndex = <T>(
     items: T[],
     currentIndex: number,
     isSelectable: IsSelectableFunction<T>,
@@ -95,7 +95,7 @@ const findNextSelectableIndex = <T>(
 /**
  * Find previous selectable item in the list
  */
-const findPreviousSelectableIndex = <T>(
+export const findPreviousSelectableIndex = <T>(
     items: T[],
     currentIndex: number,
     isSelectable: IsSelectableFunction<T>,
