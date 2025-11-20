@@ -50,9 +50,9 @@ const DESKTOP_MEASUREMENTS: ListPaneMeasurements = Object.freeze({
 
 const MOBILE_MEASUREMENTS: ListPaneMeasurements = Object.freeze({
     basePadding: 24, // 12px padding on each side
-    titleLineHeight: 20,
-    singleTextLineHeight: 19,
-    multilineTextLineHeight: 18,
+    titleLineHeight: 21,
+    singleTextLineHeight: 20,
+    multilineTextLineHeight: 19,
     tagRowHeight: 32, // 26px row + 6px gap
     featureImageHeight: 42,
     firstHeader: 43, // 35px + 8px mobile increment

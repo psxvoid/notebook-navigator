@@ -4484,6 +4484,9 @@ body.nn-resizing {
     --nn-file-padding-total-mobile: calc(var(--nn-file-padding-vertical-mobile) * 2);
     --nn-file-icon-size-mobile: calc(var(--nn-file-icon-size) + 4px);
     --nn-file-icon-slot-width-mobile: var(--nn-file-icon-size-mobile);
+    --nn-file-title-line-height: 21px;
+    --nn-file-single-text-line-height: 20px;
+    --nn-file-multiline-text-line-height: 19px;
     --nn-date-header-height-mobile: calc(var(--nn-date-header-height) + 8px);
     --nn-date-header-height-subsequent-mobile: calc(var(--nn-date-header-height-subsequent) + 8px);
     --nn-date-header-padding-top-mobile: calc(var(--nn-date-header-padding-top) + 4px);
