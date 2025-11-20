@@ -47,8 +47,15 @@ body {
     /* File item padding */
     --nn-file-item-padding-horizontal: 12px; /* Horizontal padding for file items and date headers */
     --nn-file-row-gap: 4px; /* Gap between columns inside a file row */
-    --nn-file-icon-slot-width: var(--nn-nav-icon-size); /* Leading icon slot width */
+    --nn-file-icon-size: 16px; /* Leading icon size for file rows and pinned headers */
+    --nn-file-icon-slot-width: var(--nn-file-icon-size); /* Leading icon slot width */
     --nn-file-icon-slot-gap: 6px; /* Space between leading icon slot and text (matches pinned header) */
+    --nn-file-name-size-mobile: var(--nn-file-name-size); /* Mobile font size override */
+    --nn-file-small-size-mobile: var(--nn-file-small-size); /* Mobile small font override */
+    --nn-file-padding-vertical-mobile: var(--nn-file-padding-vertical); /* Mobile padding per side */
+    --nn-file-padding-total-mobile: var(--nn-file-padding-total); /* Mobile total padding */
+    --nn-file-icon-size-mobile: var(--nn-file-icon-size); /* Mobile icon size */
+    --nn-file-icon-slot-width-mobile: var(--nn-file-icon-slot-width); /* Mobile icon slot width */
 
     /* ========================================================================
        Fixed Height Variables for Pixel-Perfect Rendering
@@ -76,6 +83,10 @@ body {
     --nn-date-header-height-subsequent: 50px; /* Headers with margin */
     --nn-date-header-padding-top: 24px; /* Top padding for subsequent headers */
     --nn-date-header-padding-bottom: 6px; /* Bottom padding for subsequent headers */
+    --nn-date-header-height-mobile: var(--nn-date-header-height);
+    --nn-date-header-height-subsequent-mobile: var(--nn-date-header-height-subsequent);
+    --nn-date-header-padding-top-mobile: var(--nn-date-header-padding-top);
+    --nn-date-header-padding-bottom-mobile: var(--nn-date-header-padding-bottom);
 
     /* Navigation item heights - fixed pixel values to prevent fractional rendering */
     --nn-nav-line-height: 18px; /* Fixed line height for folder/tag names */
@@ -95,6 +106,10 @@ body {
     /* List title area */
     --nn-list-title-padding-block: 12px; /* Vertical padding around list title */
     --nn-list-title-font-size: 16px; /* Desktop list title text size */
+    --nn-file-tag-row-height-base: 22px;
+    --nn-file-tag-row-gap-base: 4px;
+    --nn-file-tag-row-height: var(--nn-file-tag-row-height-base);
+    --nn-file-tag-row-gap: var(--nn-file-tag-row-gap-base);
 
     /* ========================================================================
        Header Font Sizes
@@ -345,7 +360,7 @@ body {
 
 .nn-update-banner {
     position: absolute;
-    top: calc(var(--nn-date-header-height) + 8px);
+    top: calc(var(--nn-date-header-height-mobile, var(--nn-date-header-height)) + 8px);
     left: 50%;
     transform: translate(-50%, 0);
     z-index: 10;
@@ -849,13 +864,13 @@ body {
     align-items: baseline;
     width: 100%;
     min-width: 0;
-    font-size: var(--nn-file-name-size);
+    font-size: var(--nn-file-name-size-mobile, var(--nn-file-name-size));
     color: var(--nn-theme-file-name-color);
     gap: 6px;
 }
 
 .nn-search-tag-suggestion__prefix {
-    font-size: var(--nn-file-small-size);
+    font-size: var(--nn-file-small-size-mobile, var(--nn-file-small-size));
     color: var(--nn-theme-list-header-breadcrumb-color);
     flex-shrink: 0;
 }
@@ -1838,7 +1853,7 @@ body {
 
 /* File content wrapper - contains all file information */
 .nn-file-content {
-    padding: var(--nn-file-padding-vertical) var(--nn-file-item-padding-horizontal);
+    padding: var(--nn-file-padding-vertical-mobile, var(--nn-file-padding-vertical)) var(--nn-file-item-padding-horizontal);
     margin: 0;
     border-radius: min(16px, var(--nn-theme-file-border-radius));
     background: transparent;
@@ -1855,14 +1870,14 @@ body {
 }
 
 .nn-file-icon-slot {
-    width: var(--nn-file-icon-slot-width);
-    flex: 0 0 var(--nn-file-icon-slot-width);
+    width: var(--nn-file-icon-slot-width-mobile, var(--nn-file-icon-slot-width));
+    flex: 0 0 var(--nn-file-icon-slot-width-mobile, var(--nn-file-icon-slot-width));
     display: flex;
     align-items: center;
     align-self: flex-start;
     justify-content: center;
     margin-inline-end: max(0px, calc(var(--nn-file-icon-slot-gap) - var(--nn-file-row-gap)));
-    margin-top: max(0px, calc((var(--nn-file-title-line-height) - var(--nn-nav-icon-size)) / 2));
+    margin-top: max(0px, calc((var(--nn-file-title-line-height) - var(--nn-file-icon-size-mobile, var(--nn-file-icon-size))) / 2));
 }
 
 /* Virtual list file separator */
@@ -1871,7 +1886,10 @@ body {
     content: '';
     position: absolute;
     bottom: 0;
-    inset-inline-start: calc(var(--nn-file-item-padding-horizontal) + var(--nn-file-icon-slot-width) + var(--nn-file-icon-slot-gap));
+    inset-inline-start: calc(
+        var(--nn-file-item-padding-horizontal) + var(--nn-file-icon-slot-width-mobile, var(--nn-file-icon-slot-width)) +
+            var(--nn-file-icon-slot-gap)
+    );
     inset-inline-end: var(--nn-file-item-padding-horizontal);
     height: var(--nn-separator-height);
     background-color: var(--nn-theme-list-separator-color);
@@ -1916,7 +1934,7 @@ body {
 
 /* File name - primary text with ellipsis overflow */
 .nn-file-name {
-    font-size: var(--nn-file-name-size);
+    font-size: var(--nn-file-name-size-mobile, var(--nn-file-name-size));
     font-weight: var(--nn-theme-file-name-font-weight);
     color: var(--nn-theme-file-name-color);
     overflow: hidden;
@@ -1974,8 +1992,8 @@ body {
 }
 
 .nn-file-icon {
-    width: var(--nn-nav-icon-size);
-    height: var(--nn-nav-icon-size);
+    width: var(--nn-file-icon-size-mobile, var(--nn-file-icon-size));
+    height: var(--nn-file-icon-size-mobile, var(--nn-file-icon-size));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1984,16 +2002,16 @@ body {
 }
 
 .nn-file-icon svg {
-    width: var(--nn-nav-icon-size);
-    height: var(--nn-nav-icon-size);
+    width: var(--nn-file-icon-size-mobile, var(--nn-file-icon-size));
+    height: var(--nn-file-icon-size-mobile, var(--nn-file-icon-size));
 }
 
 .nn-file-icon.nn-emoji-icon,
 .nn-file-icon .nn-emoji-icon {
-    font-size: var(--nn-nav-icon-size);
-    width: var(--nn-nav-icon-size);
-    height: var(--nn-nav-icon-size);
-    line-height: var(--nn-nav-icon-size);
+    font-size: var(--nn-file-icon-size-mobile, var(--nn-file-icon-size));
+    width: var(--nn-file-icon-size-mobile, var(--nn-file-icon-size));
+    height: var(--nn-file-icon-size-mobile, var(--nn-file-icon-size));
+    line-height: var(--nn-file-icon-size-mobile, var(--nn-file-icon-size));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2081,7 +2099,7 @@ body {
 
 /* File date - modification date display */
 .nn-file-date {
-    font-size: var(--nn-file-small-size);
+    font-size: var(--nn-file-small-size-mobile, var(--nn-file-small-size));
     font-weight: var(--nn-theme-file-date-font-weight);
     color: var(--nn-theme-file-date-color);
     flex-shrink: 0;
@@ -2095,7 +2113,7 @@ body {
 
 /* File preview text - secondary line showing file content */
 .nn-file-preview {
-    font-size: var(--nn-file-small-size);
+    font-size: var(--nn-file-small-size-mobile, var(--nn-file-small-size));
     font-weight: var(--nn-theme-file-preview-font-weight);
     color: var(--nn-theme-file-preview-color);
     line-height: var(--nn-file-multiline-text-line-height);
@@ -2121,7 +2139,7 @@ body {
 
 /* Parent folder indicator shown under file names */
 .nn-parent-folder {
-    font-size: var(--nn-file-small-size);
+    font-size: var(--nn-file-small-size-mobile, var(--nn-file-small-size));
     font-weight: var(--nn-theme-file-parent-font-weight);
     color: var(--nn-theme-file-parent-color);
     display: flex;
@@ -2193,11 +2211,11 @@ body {
 .nn-file-tags {
     display: flex;
     flex-wrap: nowrap;
-    gap: 4px;
-    margin-top: 4px;
+    gap: var(--nn-file-tag-row-gap);
+    margin-top: var(--nn-file-tag-row-gap);
     overflow-x: auto;
     overflow-y: hidden;
-    height: 22px; /* Fixed height for single row */
+    height: var(--nn-file-tag-row-height);
     position: relative;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -2292,7 +2310,7 @@ body {
 
 /* Slim file name - no bold, smaller font like folder items */
 .nn-file.nn-slim .nn-file-name {
-    font-size: var(--nn-slim-font-size, var(--nn-file-small-size));
+    font-size: var(--nn-slim-font-size, var(--nn-file-small-size-mobile, var(--nn-file-small-size)));
     font-weight: var(--nn-theme-file-slim-name-font-weight);
     margin-bottom: 0;
     line-height: var(--nn-file-title-line-height);
@@ -2358,7 +2376,7 @@ body {
     /* Size based on item height minus total padding */
     --image-size: clamp(
         var(--nn-feature-image-min-size),
-        calc(var(--item-height) - var(--nn-file-padding-total)),
+        calc(var(--item-height) - var(--nn-file-padding-total-mobile, var(--nn-file-padding-total))),
         var(--nn-feature-image-max-size)
     );
 }
@@ -2421,11 +2439,11 @@ body {
 
 /* Date group headers - sticky headers for grouped files */
 .nn-date-group-header {
-    height: var(--nn-date-header-height-subsequent);
+    height: var(--nn-date-header-height-subsequent-mobile, var(--nn-date-header-height-subsequent));
     box-sizing: border-box;
-    padding: var(--nn-date-header-padding-top) var(--nn-file-item-padding-horizontal) var(--nn-date-header-padding-bottom)
-        var(--nn-file-item-padding-horizontal);
-    font-size: var(--nn-file-small-size);
+    padding: var(--nn-date-header-padding-top-mobile, var(--nn-date-header-padding-top)) var(--nn-file-item-padding-horizontal)
+        var(--nn-date-header-padding-bottom-mobile, var(--nn-date-header-padding-bottom)) var(--nn-file-item-padding-horizontal);
+    font-size: var(--nn-file-small-size-mobile, var(--nn-file-small-size));
     font-weight: var(--nn-theme-list-group-header-font-weight);
     color: var(--nn-theme-list-group-header-color);
     background-color: transparent !important;
@@ -2439,7 +2457,7 @@ body {
 
 /* First date header - no top margin or extra padding for first group */
 .nn-date-group-header.nn-first-header {
-    height: var(--nn-date-header-height);
+    height: var(--nn-date-header-height-mobile, var(--nn-date-header-height));
     padding: 0 var(--nn-file-item-padding-horizontal);
     align-items: center;
 }
@@ -2448,10 +2466,15 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: var(--nn-nav-icon-size);
-    height: var(--nn-nav-icon-size);
+    width: var(--nn-date-header-icon-size, var(--nn-file-icon-size-mobile, var(--nn-file-icon-size)));
+    height: var(--nn-date-header-icon-size, var(--nn-file-icon-size-mobile, var(--nn-file-icon-size)));
     color: var(--nn-theme-list-group-header-color);
     flex: 0 0 auto;
+}
+
+.nn-date-group-header-icon svg {
+    width: 100%;
+    height: 100%;
 }
 
 .nn-date-group-header-text {
@@ -3286,8 +3309,8 @@ body.nn-resizing {
 
 /* Icon results scrollable container */
 .nn-icon-results-container {
-    height: 280px;
-    min-height: 280px;
+    height: 240px;
+    min-height: 240px;
     overflow-y: auto;
     padding: 8px;
     flex: 0 0 auto;
@@ -4453,8 +4476,20 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Mobile root variables */
-.notebook-navigator-mobile {
+.nn-mobile {
     --nn-nav-icon-size: 20px;
+    --nn-file-name-size-mobile: calc(var(--nn-file-name-size) + 2px);
+    --nn-file-small-size-mobile: calc(var(--nn-file-small-size) + 2px);
+    --nn-file-padding-vertical-mobile: calc(var(--nn-file-padding-vertical) + 4px);
+    --nn-file-padding-total-mobile: calc(var(--nn-file-padding-vertical-mobile) * 2);
+    --nn-file-icon-size-mobile: calc(var(--nn-file-icon-size) + 4px);
+    --nn-file-icon-slot-width-mobile: var(--nn-file-icon-size-mobile);
+    --nn-date-header-height-mobile: calc(var(--nn-date-header-height) + 8px);
+    --nn-date-header-height-subsequent-mobile: calc(var(--nn-date-header-height-subsequent) + 8px);
+    --nn-date-header-padding-top-mobile: calc(var(--nn-date-header-padding-top) + 4px);
+    --nn-date-header-padding-bottom-mobile: calc(var(--nn-date-header-padding-bottom) + 2px);
+    --nn-file-tag-row-height: calc(var(--nn-file-tag-row-height-base) + 4px);
+    --nn-file-tag-row-gap: calc(var(--nn-file-tag-row-gap-base) + 2px);
 }
 
 /* Folder text size on mobile */

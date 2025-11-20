@@ -223,7 +223,8 @@ export const STRINGS_KO = {
             emptyStateNoResults: '아이콘을 찾을 수 없음',
             showingResultsInfo: '{count}개 중 50개 결과 표시. 더 좁혀서 검색하세요.',
             emojiInstructions: '이모지를 입력하거나 붙여넣어 아이콘으로 사용하세요',
-            removeIcon: '아이콘 제거'
+            removeIcon: '아이콘 제거',
+            allTabLabel: '모두'
         },
         colorPicker: {
             currentColor: '현재',

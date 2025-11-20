@@ -60,7 +60,7 @@ import { useContextMenu } from '../hooks/useContextMenu';
 import { useFileOpener } from '../hooks/useFileOpener';
 import { strings } from '../i18n';
 import { TIMEOUTS } from '../types/obsidian-extended';
-import { ListPaneItemType, LISTPANE_MEASUREMENTS, PINNED_SECTION_HEADER_KEY, UNTAGGED_TAG_ID } from '../types';
+import { ListPaneItemType, PINNED_SECTION_HEADER_KEY, UNTAGGED_TAG_ID } from '../types';
 import { getEffectiveSortOption } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
@@ -80,6 +80,7 @@ import { LIST_PANE_SURFACE_COLOR_MAPPINGS } from '../constants/surfaceColorMappi
 import { ObsidianIcon } from './ObsidianIcon';
 import { runAsyncAction } from '../utils/async';
 import { openFileInContext } from '../utils/openFileInContext';
+import { getListPaneMeasurements } from '../utils/listPaneMeasurements';
 
 import { findNextSelectableIndex, findPreviousSelectableIndex } from 'src/hooks/useKeyboardNavigation';
 import { useSelectItemAtIndex } from 'src/hooks/list-pane/useSelectItemAtIndex';
@@ -192,8 +193,9 @@ export const ListPane = React.memo(
         const currentSearchProvider = settings.searchProvider ?? 'internal';
         const listPaneTitle = settings.listPaneTitle ?? 'header';
         const shouldShowDesktopTitleArea = !isMobile && listPaneTitle === 'list';
-        const topSpacerHeight = shouldShowDesktopTitleArea ? 0 : LISTPANE_MEASUREMENTS.topSpacer;
+        const listMeasurements = getListPaneMeasurements(isMobile);
         const [pinnedSectionIcon, setPinnedSectionIcon] = useState(DEFAULT_PINNED_SECTION_ICON);
+        const topSpacerHeight = shouldShowDesktopTitleArea ? 0 : listMeasurements.topSpacer;
 
         // Search state - use directly from settings for sync across devices
         const isSearchActive = uxPreferences.searchActive;
@@ -1174,6 +1176,7 @@ export const ListPane = React.memo(
                                                         // Pass hidden state for muted rendering style
                                                         isHidden={Boolean(item.isHidden)}
                                                         onModifySearchWithTag={modifySearchWithTag}
+                                                        fileIconSize={listMeasurements.fileIconSize}
                                                     />
                                                 ) : null}
                                             </div>

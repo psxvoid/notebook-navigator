@@ -26,7 +26,7 @@ import type { TagTreeNode } from '../types/storage';
 import type { InclusionOperator } from './filterSearch';
 
 export const TAG_CHARACTER_CLASS = '[\\p{L}\\p{N}_\\-/]';
-export const TAG_NAME_PATTERN = new RegExp(`^${TAG_CHARACTER_CLASS}+$`, 'u');
+const TAG_NAME_PATTERN = new RegExp(`^${TAG_CHARACTER_CLASS}+$`, 'u');
 
 /**
  * Checks if a tag value only contains allowed tag characters.

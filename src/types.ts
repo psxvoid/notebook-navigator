@@ -182,25 +182,7 @@ export const LISTPANE_MEASUREMENTS = {
     defaultSlimFontSize: 13, // Desktop slim mode font size
     mobileHeightIncrement: 8, // Mobile slim item height is desktop + 8px
     mobileFontSizeIncrement: 2, // Mobile slim font size is desktop + 2px
-    minSlimPaddingVerticalMobile: 6, // Minimum mobile padding per side
-
-    // Date group headers
-    firstHeader: 35, // var(--nn-date-header-height)
-    subsequentHeader: 50, // var(--nn-date-header-height-subsequent)
-
-    // File item components
-    basePadding: 16, // var(--nn-file-padding-total) = var(--nn-file-padding-vertical) * 2
-    slimPadding: 8, // var(--nn-file-padding-vertical-slim) * 2
-    slimPaddingMobile: 16, // var(--nn-file-padding-vertical-slim-mobile) * 2
-    titleLineHeight: 20, // var(--nn-file-title-line-height)
-    singleTextLineHeight: 19, // var(--nn-file-single-text-line-height)
-    multilineTextLineHeight: 18, // var(--nn-file-multiline-text-line-height)
-    tagRowHeight: 26, // Height of tag row (20px container + 4px margin-top)
-    featureImageHeight: 42, // var(--nn-feature-image-min-size)
-
-    // Spacers
-    bottomSpacer: 20,
-    topSpacer: 8
+    minSlimPaddingVerticalMobile: 6 // Minimum mobile padding per side
 };
 
 /**

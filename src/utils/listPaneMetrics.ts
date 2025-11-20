@@ -30,21 +30,16 @@ export interface SlimListMetrics {
 interface SlimListMetricsInput {
     slimItemHeight: number;
     scaleText: boolean;
+    titleLineHeight: number;
 }
 
 /**
  * Calculates slim list typography and spacing based on height settings.
  * Keeps CSS custom properties and virtualization estimates in sync.
  */
-export function calculateSlimListMetrics({ slimItemHeight, scaleText }: SlimListMetricsInput): SlimListMetrics {
-    const {
-        titleLineHeight,
-        defaultSlimItemHeight,
-        defaultSlimFontSize,
-        mobileHeightIncrement,
-        mobileFontSizeIncrement,
-        minSlimPaddingVerticalMobile
-    } = LISTPANE_MEASUREMENTS;
+export function calculateSlimListMetrics({ slimItemHeight, scaleText, titleLineHeight }: SlimListMetricsInput): SlimListMetrics {
+    const { defaultSlimItemHeight, defaultSlimFontSize, mobileHeightIncrement, mobileFontSizeIncrement, minSlimPaddingVerticalMobile } =
+        LISTPANE_MEASUREMENTS;
 
     // Calculate desktop padding to center title line within item height
     const desktopPadding = Math.max((slimItemHeight - titleLineHeight) / 2, 0);

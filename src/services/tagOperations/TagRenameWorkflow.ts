@@ -67,7 +67,7 @@ export class TagRenameWorkflow {
      * Prompts user to rename a tag with validation
      * Shows affected files and prevents invalid renames
      */
-    async promptRenameTag(tagPath: string): Promise<void> {
+    async promptRenameTag(tagPath: string, initialValue?: string): Promise<void> {
         const tagTree = this.getTagTreeService();
         const displayPath = this.resolveDisplayTagPathInternal(tagPath);
         const oldTagDescriptor = new TagDescriptor(displayPath);
@@ -92,6 +92,7 @@ export class TagRenameWorkflow {
             tagPath: displayPath,
             affectedCount: usage.total,
             sampleFiles: usage.sample,
+            initialValue: this.getInitialInputValue(initialValue, displayPath),
             onSubmit: async newName => {
                 const trimmedName = newName.startsWith('#') ? newName.slice(1) : newName;
                 if (!this.fileMutations.isValidTagName(trimmedName)) {
@@ -107,6 +108,19 @@ export class TagRenameWorkflow {
             }
         });
         modal.open();
+    }
+
+    /**
+     * Determines the starting value for the rename input
+     * Falls back to the current tag path when no override provided
+     */
+    private getInitialInputValue(initialValue: string | undefined, displayPath: string): string {
+        const sourceValue = initialValue ?? displayPath;
+        const trimmed = sourceValue.trim();
+        if (trimmed.length === 0) {
+            return displayPath;
+        }
+        return trimmed.startsWith('#') ? trimmed.slice(1) : trimmed;
     }
 
     /**

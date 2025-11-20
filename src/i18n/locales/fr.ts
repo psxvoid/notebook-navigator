@@ -224,7 +224,8 @@ export const STRINGS_FR = {
             emptyStateNoResults: 'Aucune icône trouvée',
             showingResultsInfo: 'Affichage de 50 résultats sur {count}. Tapez plus pour affiner.',
             emojiInstructions: "Tapez ou collez n'importe quel emoji pour l'utiliser comme icône",
-            removeIcon: "Supprimer l'icône"
+            removeIcon: "Supprimer l'icône",
+            allTabLabel: 'Tous'
         },
         colorPicker: {
             currentColor: 'Actuelle',
