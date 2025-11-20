@@ -49,12 +49,13 @@ import { TFile, TFolder } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useServices } from '../context/ServicesContext';
 import { useFileCache } from '../context/StorageContext';
-import { ListPaneItemType, LISTPANE_MEASUREMENTS, OVERSCAN } from '../types';
+import { ListPaneItemType, OVERSCAN } from '../types';
 import { Align, ListScrollIntent, getListAlign, rankListPending } from '../types/scroll';
 import type { ListPaneItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { SelectionState } from '../context/SelectionContext';
 import { calculateSlimListMetrics } from '../utils/listPaneMetrics';
+import { getListPaneMeasurements } from '../utils/listPaneMeasurements';
 
 /**
  * Parameters for the useListPaneScroll hook
@@ -134,6 +135,7 @@ export function useListPaneScroll({
     includeDescendantNotes
 }: UseListPaneScrollParams): UseListPaneScrollResult {
     const { isMobile } = useServices();
+    const listMeasurements = getListPaneMeasurements(isMobile);
     const { hasPreview, getDB, isStorageReady } = useFileCache();
 
     // Calculate slim list padding for height estimation in virtualization
@@ -141,9 +143,10 @@ export function useListPaneScroll({
         () =>
             calculateSlimListMetrics({
                 slimItemHeight: settings.slimItemHeight,
-                scaleText: settings.slimItemHeightScaleText
+                scaleText: settings.slimItemHeightScaleText,
+                titleLineHeight: listMeasurements.titleLineHeight
             }),
-        [settings.slimItemHeight, settings.slimItemHeightScaleText]
+        [listMeasurements.titleLineHeight, settings.slimItemHeight, settings.slimItemHeightScaleText]
     );
 
     // Reference to the scroll container DOM element
@@ -202,7 +205,7 @@ export function useListPaneScroll({
         scrollPaddingStart: 0,
         estimateSize: index => {
             const item = listItems[index];
-            const heights = LISTPANE_MEASUREMENTS;
+            const heights = listMeasurements;
 
             if (item.type === ListPaneItemType.HEADER) {
                 // Date group headers have fixed heights from CSS
@@ -218,7 +221,7 @@ export function useListPaneScroll({
                 return topSpacerHeight;
             }
             if (item.type === ListPaneItemType.BOTTOM_SPACER) {
-                return heights.bottomSpacer;
+                return listMeasurements.bottomSpacer;
             }
 
             // For file items - calculate height including all components
@@ -683,6 +686,7 @@ export function useListPaneScroll({
         settings.slimItemHeight,
         settings.slimItemHeightScaleText,
         folderSettings,
+        listMeasurements,
         rowVirtualizer
     ]);
 

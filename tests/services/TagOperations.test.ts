@@ -749,21 +749,21 @@ describe('TagOperations drag-based tag renames', () => {
             }
             return path;
         });
-        const renameSpy = vi.spyOn(tagOperations as any, 'runTagRename').mockResolvedValue(true);
+        const modalSpy = vi.spyOn(tagOperations as any, 'openRenameModal').mockResolvedValue(undefined);
 
         await tagOperations.promoteTagToRoot('sourceTag');
 
-        expect(renameSpy).toHaveBeenCalledWith('projects/client', 'client');
+        expect(modalSpy).toHaveBeenCalledWith('projects/client', 'client');
     });
 
     it('skips promotion when tag already at root', async () => {
         const tagOperations = createTagOperationsInstance();
         vi.spyOn(tagOperations as any, 'resolveDisplayTagPath').mockReturnValue('projects');
-        const renameSpy = vi.spyOn(tagOperations as any, 'runTagRename').mockResolvedValue(true);
+        const modalSpy = vi.spyOn(tagOperations as any, 'openRenameModal').mockResolvedValue(undefined);
 
         await tagOperations.promoteTagToRoot('projects');
 
-        expect(renameSpy).not.toHaveBeenCalled();
+        expect(modalSpy).not.toHaveBeenCalled();
     });
 
     it('renames dragged tag under target hierarchy', async () => {
@@ -777,11 +777,11 @@ describe('TagOperations drag-based tag renames', () => {
             }
             return path;
         });
-        const renameSpy = vi.spyOn(tagOperations as any, 'runTagRename').mockResolvedValue(true);
+        const modalSpy = vi.spyOn(tagOperations as any, 'openRenameModal').mockResolvedValue(undefined);
 
         await tagOperations.renameTagByDrag('sourceTag', 'targetTag');
 
-        expect(renameSpy).toHaveBeenCalledWith('projects/client', 'areas/client');
+        expect(modalSpy).toHaveBeenCalledWith('projects/client', 'areas/client');
     });
 
     it('renames dragged tag to root when dropping on empty target', async () => {
@@ -795,21 +795,39 @@ describe('TagOperations drag-based tag renames', () => {
             }
             return path;
         });
-        const renameSpy = vi.spyOn(tagOperations as any, 'runTagRename').mockResolvedValue(true);
+        const modalSpy = vi.spyOn(tagOperations as any, 'openRenameModal').mockResolvedValue(undefined);
 
         await tagOperations.renameTagByDrag('sourceTag', 'targetTag');
 
-        expect(renameSpy).toHaveBeenCalledWith('projects/client', 'client');
+        expect(modalSpy).toHaveBeenCalledWith('projects/client', 'client');
     });
 
     it('skips drag rename when target is virtual tag collection', async () => {
         const tagOperations = createTagOperationsInstance();
         const resolveSpy = vi.spyOn(tagOperations as any, 'resolveDisplayTagPath');
-        const renameSpy = vi.spyOn(tagOperations as any, 'runTagRename').mockResolvedValue(true);
+        const modalSpy = vi.spyOn(tagOperations as any, 'openRenameModal').mockResolvedValue(undefined);
 
         await tagOperations.renameTagByDrag('sourceTag', TAGGED_TAG_ID);
 
         expect(resolveSpy).not.toHaveBeenCalled();
-        expect(renameSpy).not.toHaveBeenCalled();
+        expect(modalSpy).not.toHaveBeenCalled();
+    });
+
+    it('skips drag rename when target resolves to same path', async () => {
+        const tagOperations = createTagOperationsInstance();
+        vi.spyOn(tagOperations as any, 'resolveDisplayTagPath').mockImplementation((path: string) => {
+            if (path === 'sourceTag') {
+                return 'projects/client';
+            }
+            if (path === 'targetTag') {
+                return 'projects';
+            }
+            return path;
+        });
+        const modalSpy = vi.spyOn(tagOperations as any, 'openRenameModal').mockResolvedValue(undefined);
+
+        await tagOperations.renameTagByDrag('sourceTag', 'targetTag');
+
+        expect(modalSpy).not.toHaveBeenCalled();
     });
 });

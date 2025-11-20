@@ -111,14 +111,15 @@ export function SearchInput({
 
         const suggest = new SearchTagInputSuggest(app, inputEl, {
             getTags: () => tagTreeService.getFlattenedTagNodes() ?? [],
-            onApply: applyTagSuggestion
+            onApply: applyTagSuggestion,
+            isMobile
         });
         tagSuggestRef.current = suggest;
         return () => {
             tagSuggestRef.current = null;
             suggest.dispose();
         };
-    }, [app, tagTreeService, settings.showTags, applyTagSuggestion]);
+    }, [app, tagTreeService, settings.showTags, applyTagSuggestion, isMobile]);
 
     useEffect(() => {
         if (searchQuery.trim().length > 0) {

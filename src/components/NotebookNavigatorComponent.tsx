@@ -58,6 +58,7 @@ import { UpdateNoticeBanner } from './UpdateNoticeBanner';
 import { UpdateNoticeIndicator } from './UpdateNoticeIndicator';
 import { showNotice } from '../utils/noticeUtils';
 import { EMPTY_SEARCH_TAG_FILTER_STATE, type SearchTagFilterState } from '../types/search';
+import { getListPaneMeasurements } from '../utils/listPaneMeasurements';
 
 // Checks if two string arrays have identical content in the same order
 const arraysEqual = (a: string[], b: string[]): boolean => {
@@ -840,9 +841,11 @@ export const NotebookNavigatorComponent = React.memo(
                 containerRef.current.style.setProperty('--nn-nav-root-spacing', `${settings.rootLevelSpacing}px`);
 
                 // Calculate slim list padding and font sizes based on configured item height
+                const { titleLineHeight } = getListPaneMeasurements(isMobile);
                 const slimMetrics = calculateSlimListMetrics({
                     slimItemHeight: settings.slimItemHeight,
-                    scaleText: settings.slimItemHeightScaleText
+                    scaleText: settings.slimItemHeightScaleText,
+                    titleLineHeight
                 });
 
                 // Apply slim list metrics to CSS custom properties
@@ -857,7 +860,8 @@ export const NotebookNavigatorComponent = React.memo(
             settings.navIndent,
             settings.rootLevelSpacing,
             settings.slimItemHeight,
-            settings.slimItemHeightScaleText
+            settings.slimItemHeightScaleText,
+            isMobile
         ]);
 
         // Compute navigation pane style based on orientation and single pane mode

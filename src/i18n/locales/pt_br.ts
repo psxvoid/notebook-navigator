@@ -225,7 +225,8 @@ export const STRINGS_PT_BR = {
             emptyStateNoResults: 'Nenhum ícone encontrado',
             showingResultsInfo: 'Mostrando 50 de {count} resultados. Digite mais para refinar.',
             emojiInstructions: 'Digite ou cole qualquer emoji para usá-lo como ícone',
-            removeIcon: 'Remover ícone'
+            removeIcon: 'Remover ícone',
+            allTabLabel: 'Todos'
         },
         colorPicker: {
             currentColor: 'Atual',

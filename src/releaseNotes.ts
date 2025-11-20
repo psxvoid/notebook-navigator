@@ -81,7 +81,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '==Two new quick actions==: **Add tag** and **Add to shortcuts**. **Important!** If you do not want to show all five quick actions you can easily disable quick links in Settings > List pane > Show quick actions.',
             'New setting: Settings > List pane > ==Scroll to selected file on list changes==. When enabled (default), list pane will always scroll to the selected file when pinning notes, showing descendant notes, changing folder appearance, or performing file operations. Disable for full control over the scroll position.',
             'New setting: Settings > Notes > Show parent folder > ==Click parent folder to reveal file==. You can now click the parent folder name to open a file in its folder. Default disabled.',
-            'New setting: Settings > Notes > Show file tags > Color file tags > ==Show colored tags first==. When enabled, colored tags appear before other tags on file items. Default enabled.'
+            'New setting: Settings > Notes > Show file tags > Color file tags > ==Show colored tags first==. When enabled, colored tags appear before other tags on file items. Default enabled.',
+            'New icon category in the icon picker modal: =="All icons"==. Use it to see all icons from all providers in one place.'
         ],
         improved: [
             'You can now **command + click** or **command + shift + click** file tags in list pane to automatically add them to the search field.',
@@ -90,11 +91,13 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'When deleting a hidden folder Notebook Navigator will now automatically remove it from **Settings > Hide folders**.',
             'When changing hidden folders (renaming, moving, deleting) **all changes are now reflected in all vaults**.',
             'In the color picker, choosing a preset or recent color no longer closes the color picker.',
-            'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.'
+            'You can now middle click / command + click folder notes in navigation pane to open them in a new tab. To use command + click first change multi-select modifier in settings to Alt/Option.',
+            'Dragging to rename tags in navigation pane now shows a confirmation modal before committing.'
         ],
         changed: [
             'Improved the menu structure for files and folders so things are grouped more logically.',
-            'Improved the list pane layout. Separators now align with file item width. And file items are now indented so icons can show to the left, making it easy to quickly find items with icons.'
+            'Improved the list pane layout. Separators now align with file item width. File items are now indented so icons show to the left, making it easy to quickly find items with icons.',
+            'Slightly increased mobile font size and mobile icon size in the list pane.'
         ],
         fixed: [
             'Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.',

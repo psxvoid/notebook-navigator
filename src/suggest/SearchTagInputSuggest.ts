@@ -35,6 +35,7 @@ interface ActiveTagRange {
 interface SearchTagInputSuggestOptions {
     getTags: () => readonly TagTreeNode[];
     onApply: (nextValue: string, cursor: number) => void;
+    isMobile: boolean;
 }
 
 const TAG_LIMIT = 50;
@@ -46,9 +47,11 @@ const TAG_FRAGMENT_PREFIX = new RegExp(`^${TAG_CHARACTER_CLASS}*`, 'u');
  * Uses Obsidian's built-in suggest popover so the UI matches the rest of the app.
  */
 export class SearchTagInputSuggest extends AbstractInputSuggest<TagSuggestionItem> {
+    declare containerEl: HTMLElement;
     private readonly getTags: SearchTagInputSuggestOptions['getTags'];
     private readonly applySuggestion: SearchTagInputSuggestOptions['onApply'];
     private readonly searchInputEl: HTMLInputElement;
+    private readonly isMobile: boolean;
     private activeRange: ActiveTagRange | null = null;
 
     constructor(app: App, inputEl: HTMLInputElement, options: SearchTagInputSuggestOptions) {
@@ -57,6 +60,7 @@ export class SearchTagInputSuggest extends AbstractInputSuggest<TagSuggestionIte
         this.applySuggestion = options.onApply;
         this.searchInputEl = inputEl;
         this.limit = TAG_LIMIT;
+        this.isMobile = options.isMobile;
     }
 
     getSuggestions(_input: string): TagSuggestionItem[] {
@@ -137,6 +141,19 @@ export class SearchTagInputSuggest extends AbstractInputSuggest<TagSuggestionIte
 
     dispose(): void {
         this.close();
+    }
+
+    onOpen(): void {
+        if (!this.isMobile) {
+            return;
+        }
+
+        if (!this.containerEl) {
+            console.error('[SearchTagInputSuggest] containerEl missing on open');
+            return;
+        }
+
+        this.containerEl.addClass('nn-mobile');
     }
 
     private resolveActiveRange(): ActiveTagRange | null {
