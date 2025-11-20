@@ -141,7 +141,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
 
     plugin.addCommand({
         id: 'pane-jump-top',
-        name: 'Jump to the top of the list', // strings.commands.paneJumpBottom, // TODO: add translations
+        name: strings.commands.paneJumpTop,
         checkCallback: (checking: boolean) => {
             if (!checking) {
                 void plugin.cmdJumpTop()
@@ -153,7 +153,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
 
     plugin.addCommand({
         id: 'pane-jump-bottom',
-        name: 'Jump to the bottom of the list', // strings.commands.paneJumpBottom, // TODO: add translations
+        name: strings.commands.paneJumpBottom,
         checkCallback: (checking: boolean) => {
             if (!checking) {
                 void plugin.cmdJumpBottom()
