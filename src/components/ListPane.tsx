@@ -792,7 +792,7 @@ export const ListPane = React.memo(
 
         renderCountRef.current++;
 
-        const scrollToIndex = useCallback((target: JumpTarget) => {
+        const scrollToTarget = useCallback((target: JumpTarget) => {
             const isTop = target === JumpTarget.top 
             const index = isTop ? 0 : listItems.length
             const targetIndex = isTop
@@ -885,10 +885,10 @@ export const ListPane = React.memo(
                 },
                 executeSearchShortcut,
                 jumpTopSelectFirst: () => {
-                    scrollToIndex(JumpTarget.top)
+                    scrollToTarget(JumpTarget.top)
                 },
                 jumpBottomSelectLast: () => {
-                    scrollToIndex(JumpTarget.bottom)
+                    scrollToTarget(JumpTarget.bottom)
                 }
             }),
             [
@@ -905,7 +905,7 @@ export const ListPane = React.memo(
                 selectFileFromList,
                 selectAdjacentFile,
                 modifySearchWithTag,
-                scrollToIndex,
+                scrollToTarget,
             ]
         );
 
