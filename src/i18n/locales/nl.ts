@@ -638,6 +638,10 @@ export const STRINGS_NL = {
                 name: 'Vastgepind pictogram tonen',
                 desc: 'Pictogram naast vastgepinde sectiekop weergeven.'
             },
+            showFileIcons: {
+                name: 'Bestandspictogrammen tonen',
+                desc: 'Bestandspictogrammen tonen met links uitgelijnde ruimte. Uitschakelen verwijdert zowel pictogrammen als inspringing.'
+            },
             optimizeNoteHeight: {
                 name: 'Notitiehoogte optimaliseren',
                 desc: 'Hoogte verminderen voor vastgepinde notities en notities zonder voorbeeldtekst.'

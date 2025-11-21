@@ -638,6 +638,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż ikonę przypiętych',
                 desc: 'Wyświetl ikonę obok nagłówka sekcji przypiętych.'
             },
+            showFileIcons: {
+                name: 'Pokaż ikony plików',
+                desc: 'Wyświetl ikony plików z wyrównaniem do lewej. Wyłączenie usuwa zarówno ikony, jak i wcięcie.'
+            },
             optimizeNoteHeight: {
                 name: 'Optymalizuj wysokość notatek',
                 desc: 'Zmniejsz wysokość dla przypiętych notatek i notatek bez tekstu podglądu.'

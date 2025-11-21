@@ -201,6 +201,16 @@ export const ListPane = React.memo(
         const listMeasurements = getListPaneMeasurements(isMobile);
         const [pinnedSectionIcon, setPinnedSectionIcon] = useState(DEFAULT_PINNED_SECTION_ICON);
         const topSpacerHeight = shouldShowDesktopTitleArea ? 0 : listMeasurements.topSpacer;
+        const iconColumnStyle = useMemo(() => {
+            if (settings.showFileIcons) {
+                return undefined;
+            }
+            return {
+                '--nn-file-icon-slot-width': '0px',
+                '--nn-file-icon-slot-width-mobile': '0px',
+                '--nn-file-icon-slot-gap': '0px'
+            } as React.CSSProperties;
+        }, [settings.showFileIcons]);
 
         // Search state - use directly from settings for sync across devices
         const isSearchActive = uxPreferences.searchActive;
@@ -929,7 +939,11 @@ export const ListPane = React.memo(
 
         // Single return with conditional content
         return (
-            <div ref={listPaneRef} className={`nn-list-pane ${isSearchActive ? 'nn-search-active' : ''}`}>
+            <div
+                ref={listPaneRef}
+                className={`nn-list-pane ${isSearchActive ? 'nn-search-active' : ''}`}
+                style={iconColumnStyle ?? undefined}
+            >
                 {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                 <ListPaneHeader
                     onHeaderClick={handleScrollToTop}

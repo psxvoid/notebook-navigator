@@ -637,6 +637,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar icono de anclados',
                 desc: 'Muestra el icono junto al encabezado de la sección anclada.'
             },
+            showFileIcons: {
+                name: 'Mostrar iconos de archivo',
+                desc: 'Mostrar iconos de archivo con espaciado alineado a la izquierda. Desactivar elimina tanto iconos como sangría.'
+            },
             optimizeNoteHeight: {
                 name: 'Optimizar altura de notas',
                 desc: 'Reducir altura para notas ancladas y notas sin texto de vista previa.'

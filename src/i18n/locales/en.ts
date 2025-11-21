@@ -636,6 +636,10 @@ export const STRINGS_EN = {
                 name: 'Show pinned icon',
                 desc: 'Show the icon next to the pinned section header.'
             },
+            showFileIcons: {
+                name: 'Show file icons',
+                desc: 'Display file icons with left-aligned spacing. Disabling removes both icons and indentation.'
+            },
             optimizeNoteHeight: {
                 name: 'Optimize note height',
                 desc: 'Reduce height for pinned notes and notes without preview text.'

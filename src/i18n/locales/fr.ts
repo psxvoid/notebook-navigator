@@ -638,6 +638,10 @@ export const STRINGS_FR = {
                 name: "Afficher l'icône épinglée",
                 desc: "Afficher l'icône à côté de l'en-tête de la section épinglée."
             },
+            showFileIcons: {
+                name: 'Afficher les icônes de fichier',
+                desc: "Afficher les icônes de fichier avec espacement aligné à gauche. La désactivation supprime les icônes et l'indentation."
+            },
             optimizeNoteHeight: {
                 name: 'Optimiser la hauteur des notes',
                 desc: "Réduire la hauteur pour les notes épinglées et les notes sans texte d'aperçu."

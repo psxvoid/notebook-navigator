@@ -73,6 +73,17 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.8.6',
+        date: '2025-11-24',
+        showOnUpdate: true,
+        new: [
+            'New setting: ==List pane > Appearance > Show file icons==. When enabled Notebook Navigator shows file icons such as external file indicator or custom icons in a separate column. When disabled, file icons are not shown and files are not indented in the list pane. Default enabled.'
+        ],
+        improved: [],
+        changed: [],
+        fixed: []
+    },
+    {
         version: '1.8.5',
         date: '2025-11-19',
         showOnUpdate: true,

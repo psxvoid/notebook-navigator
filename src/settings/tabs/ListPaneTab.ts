@@ -212,6 +212,16 @@ export function renderListPaneTab(context: SettingsTabContext): void {
     new Setting(containerEl).setName(strings.settings.groups.list.display).setHeading();
 
     new Setting(containerEl)
+        .setName(strings.settings.items.showFileIcons.name)
+        .setDesc(strings.settings.items.showFileIcons.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showFileIcons).onChange(async value => {
+                plugin.settings.showFileIcons = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(containerEl)
         .setName(strings.settings.items.includeDescendantNotes.name)
         .setDesc(strings.settings.items.includeDescendantNotes.desc)
         .addToggle(toggle => {

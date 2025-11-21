@@ -365,10 +365,6 @@ export const FileItem = React.memo(function FileItem({
     const pinNoteIconRef = useRef<HTMLDivElement>(null);
     const openInNewTabIconRef = useRef<HTMLDivElement>(null);
     const fileIconRef = useRef<HTMLSpanElement>(null);
-    // Icon shown next to filename for files not natively supported by Obsidian
-    const fileExternalIconRef = useRef<HTMLSpanElement>(null);
-    // Icon shown in slim mode to indicate file type (canvas, base, or external)
-    const slimModeIconRef = useRef<HTMLSpanElement>(null);
     // Unique ID for linking screen reader description to the file item
     const hiddenDescriptionId = useId();
 
@@ -386,6 +382,7 @@ export const FileItem = React.memo(function FileItem({
     const hasQuickActions =
         shouldShowOpenInNewTab || shouldShowPinNote || shouldShowRevealIcon || shouldShowAddTagAction || shouldShowShortcutAction;
     const iconServiceVersion = useIconServiceVersion();
+    const showFileIcons = settings.showFileIcons;
 
     // Get display name from RAM cache (handles frontmatter title)
     const displayName = useMemo(() => {
@@ -406,13 +403,15 @@ export const FileItem = React.memo(function FileItem({
     const fileIconId = metadataService.getFileIcon(file.path);
     const fileColor = metadataService.getFileColor(file.path);
     const fileExtension = file.extension;
+    const isBaseFile = fileExtension === 'base';
+    const isCanvasFile = fileExtension === 'canvas';
     const isImageDocument = isImageFile(file);
     // Determine the default icon to use based on file type
     const defaultTypeIconId = useMemo(() => {
-        if (fileExtension === 'canvas') {
+        if (isCanvasFile) {
             return 'lucide-layout-grid';
         }
-        if (fileExtension === 'base') {
+        if (isBaseFile) {
             return 'lucide-database';
         }
         if (isImageDocument) {
@@ -422,21 +421,26 @@ export const FileItem = React.memo(function FileItem({
             return 'lucide-file-text';
         }
         return 'lucide-file';
-    }, [fileExtension, isImageDocument]);
+    }, [fileExtension, isBaseFile, isCanvasFile, isImageDocument]);
+    // Check if file is not natively supported by Obsidian (e.g., Office files, archives)
+    const isExternalFile = useMemo(() => {
+        return !shouldDisplayFile(file, FILE_VISIBILITY.SUPPORTED, app);
+    }, [app, file]);
     // Determine the actual icon to display, considering custom icon and colorIconOnly setting
     const effectiveFileIconId = useMemo(() => {
         if (fileIconId) {
             return fileIconId;
         }
+        if (isExternalFile) {
+            return 'lucide-external-link';
+        }
         if (settings.colorIconOnly && fileColor) {
             return defaultTypeIconId;
         }
         return null;
-    }, [defaultTypeIconId, fileColor, fileIconId, settings.colorIconOnly]);
+    }, [defaultTypeIconId, fileColor, fileIconId, isExternalFile, settings.colorIconOnly]);
     // Determine whether to apply color to the file name instead of the icon
     const applyColorToName = Boolean(fileColor) && !settings.colorIconOnly;
-    // Check if using a fallback type icon because colorIconOnly is enabled
-    const usingFallbackIcon = !fileIconId && Boolean(fileColor) && settings.colorIconOnly;
     // Icon to use when dragging the file
     const dragIconId = useMemo(() => {
         if (effectiveFileIconId) {
@@ -445,38 +449,19 @@ export const FileItem = React.memo(function FileItem({
         return defaultTypeIconId;
     }, [defaultTypeIconId, effectiveFileIconId]);
 
-    // Check if file is not natively supported by Obsidian (e.g., Office files, archives)
-    const isExternalFile = useMemo(() => {
-        return !shouldDisplayFile(file, FILE_VISIBILITY.SUPPORTED, app);
-    }, [app, file]);
-
-    // Determine which icon to show in slim mode based on file type
-    const slimModeTypeIconId = useMemo(() => {
-        if (fileExtension === 'base') {
-            return 'lucide-database';
-        }
-        if (fileExtension === 'canvas') {
-            return 'lucide-layout-grid';
-        }
-        if (isExternalFile) {
-            return 'lucide-external-link';
-        }
-        return null;
-    }, [fileExtension, isExternalFile]);
-
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
-    // Determines whether to display the file icon based on icon availability and external file handling
-    // External files with fallback icons are hidden in non-slim mode to avoid visual clutter
+    // Determines whether to display the file icon based on icon availability
     const shouldShowFileIcon = useMemo(() => {
+        if (!showFileIcons) {
+            return false;
+        }
         if (!effectiveFileIconId) {
             return false;
         }
-        if (usingFallbackIcon && isExternalFile && !isSlimMode) {
-            return false;
-        }
         return true;
-    }, [effectiveFileIconId, isExternalFile, isSlimMode, usingFallbackIcon]);
+    }, [effectiveFileIconId, showFileIcons]);
+    const shouldShowSlimExtensionBadge = isSlimMode && (isBaseFile || isCanvasFile);
 
     const isMultiRowTitle = appearanceSettings.titleRows > 1;
 
@@ -489,15 +474,6 @@ export const FileItem = React.memo(function FileItem({
             >
                 <div className="nn-file-name-content">
                     <div className="nn-file-name-row">
-                        {!isSlimMode && isExternalFile ? (
-                            <span
-                                className="nn-file-icon nn-file-external-icon"
-                                ref={fileExternalIconRef}
-                                aria-hidden="true"
-                                data-has-color={fileColor ? 'true' : 'false'}
-                                style={fileColor ? { color: fileColor } : undefined}
-                            />
-                        ) : null}
                         <div
                             className="nn-file-name"
                             data-has-color={applyColorToName ? 'true' : 'false'}
@@ -515,17 +491,7 @@ export const FileItem = React.memo(function FileItem({
                 </div>
             </div>
         );
-    }, [
-        appearanceSettings.titleRows,
-        extensionSuffix,
-        fileColor,
-        applyColorToName,
-        highlightedName,
-        isExternalFile,
-        isSlimMode,
-        isMultiRowTitle,
-        showExtensionSuffix
-    ]);
+    }, [appearanceSettings.titleRows, extensionSuffix, fileColor, applyColorToName, highlightedName, isMultiRowTitle, showExtensionSuffix]);
 
     // === Callbacks ===
 
@@ -1161,36 +1127,6 @@ export const FileItem = React.memo(function FileItem({
         iconService.renderIcon(iconContainer, iconId, fileIconSize);
     }, [effectiveFileIconId, iconServiceVersion, shouldShowFileIcon, isSlimMode, fileIconSize]);
 
-    // Render external file indicator icon (shown next to filename in non-slim mode)
-    useEffect(() => {
-        const indicator = fileExternalIconRef.current;
-        if (!indicator) {
-            return;
-        }
-
-        indicator.innerHTML = '';
-        if (isSlimMode || !isExternalFile) {
-            return;
-        }
-
-        setIcon(indicator, 'lucide-external-link');
-    }, [iconServiceVersion, isExternalFile, isSlimMode]);
-
-    // Render file type icon in slim mode (canvas, base, or external file indicator)
-    useEffect(() => {
-        const indicator = slimModeIconRef.current;
-        if (!indicator) {
-            return;
-        }
-
-        indicator.innerHTML = '';
-        if (!isSlimMode || !slimModeTypeIconId) {
-            return;
-        }
-
-        setIcon(indicator, slimModeTypeIconId);
-    }, [iconServiceVersion, isSlimMode, slimModeTypeIconId]);
-
     // Set up the icons when quick actions panel is shown
     useEffect(() => {
         if (isHovered && !isMobile) {
@@ -1273,16 +1209,18 @@ export const FileItem = React.memo(function FileItem({
                     </div>
                 )}
                 <div className="nn-file-inner-content">
-                    <div className="nn-file-icon-slot">
-                        {shouldShowFileIcon ? (
-                            <span
-                                ref={fileIconRef}
-                                className="nn-file-icon"
-                                data-has-color={fileColor ? 'true' : 'false'}
-                                style={fileColor ? { color: fileColor } : undefined}
-                            />
-                        ) : null}
-                    </div>
+                    {showFileIcons ? (
+                        <div className="nn-file-icon-slot">
+                            {shouldShowFileIcon ? (
+                                <span
+                                    ref={fileIconRef}
+                                    className="nn-file-icon"
+                                    data-has-color={fileColor ? 'true' : 'false'}
+                                    style={fileColor ? { color: fileColor } : undefined}
+                                />
+                            ) : null}
+                        </div>
+                    ) : null}
                     {isSlimMode ? (
                         // ========== SLIM MODE ==========
                         // Minimal layout: only file name + tags
@@ -1290,13 +1228,12 @@ export const FileItem = React.memo(function FileItem({
                         <div className="nn-slim-file-text-content">
                             <div className="nn-slim-file-header">
                                 {fileTitleElement}
-                                {slimModeTypeIconId ? (
-                                    <span
-                                        ref={slimModeIconRef}
-                                        className="nn-file-icon nn-slim-file-type-icon"
-                                        aria-hidden="true"
-                                        data-has-color="false"
-                                    />
+                                {shouldShowSlimExtensionBadge ? (
+                                    <div className="nn-slim-extension-badge" aria-hidden="true">
+                                        <div className="nn-file-icon-rectangle">
+                                            <span className="nn-file-icon-rectangle-text">{fileExtension}</span>
+                                        </div>
+                                    </div>
                                 ) : null}
                             </div>
                             {renderTags()}

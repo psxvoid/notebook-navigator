@@ -636,6 +636,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示固定图标',
                 desc: '在固定部分标题旁显示图标。'
             },
+            showFileIcons: {
+                name: '显示文件图标',
+                desc: '显示文件图标并保留左对齐间距。禁用后将移除图标和缩进。'
+            },
             optimizeNoteHeight: {
                 name: '优化笔记高度',
                 desc: '减少固定笔记和无预览文本笔记的高度。'

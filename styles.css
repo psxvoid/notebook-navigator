@@ -1880,6 +1880,28 @@ body {
     margin-top: max(0px, calc((var(--nn-file-title-line-height) - var(--nn-file-icon-size-mobile, var(--nn-file-icon-size))) / 2));
 }
 
+.nn-file-icon-rectangle {
+    min-width: 18px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 4px;
+    border-radius: 4px;
+    background-color: var(--background-secondary);
+    box-sizing: border-box;
+}
+
+.nn-file-icon-rectangle-text {
+    font-family: var(--font-monospace);
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1px;
+    line-height: 1;
+}
+
 /* Virtual list file separator */
 
 .nn-virtual-file-item:not(.nn-last-file)::after {
@@ -2330,6 +2352,11 @@ body {
 .nn-slim-file-header .nn-file-name-wrapper {
     flex: 1;
     min-width: 0;
+}
+
+.nn-slim-extension-badge {
+    margin-left: auto;
+    display: flex;
 }
 
 /* Selected slim file - maintain selection styles */

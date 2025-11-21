@@ -638,6 +638,10 @@ export const STRINGS_IT = {
                 name: 'Mostra icona fissata',
                 desc: "Visualizza l'icona accanto all'intestazione della sezione fissata."
             },
+            showFileIcons: {
+                name: 'Mostra icone file',
+                desc: 'Mostra icone file con spaziatura allineata a sinistra. Disattivando si rimuovono sia icone che rientro.'
+            },
             optimizeNoteHeight: {
                 name: 'Ottimizza altezza nota',
                 desc: 'Riduci altezza per note fissate e note senza testo anteprima.'

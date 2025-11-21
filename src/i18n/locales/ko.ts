@@ -636,6 +636,10 @@ export const STRINGS_KO = {
                 name: '고정 아이콘 표시',
                 desc: '고정 섹션 헤더 옆에 아이콘을 표시합니다.'
             },
+            showFileIcons: {
+                name: '파일 아이콘 표시',
+                desc: '파일 아이콘을 왼쪽 정렬 간격과 함께 표시. 비활성화하면 아이콘과 들여쓰기가 모두 제거됩니다.'
+            },
             optimizeNoteHeight: {
                 name: '노트 높이 최적화',
                 desc: '고정된 노트와 미리보기 텍스트가 없는 노트의 높이를 줄입니다.'

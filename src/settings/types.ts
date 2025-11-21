@@ -156,6 +156,7 @@ export interface NotebookNavigatorSettings {
     filterPinnedByFolder: boolean;
     showPinnedGroupHeader: boolean;
     showPinnedIcon: boolean;
+    showFileIcons: boolean;
     optimizeNoteHeight: boolean;
     slimItemHeight: number;
     slimItemHeightScaleText: boolean;

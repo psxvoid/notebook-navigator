@@ -640,6 +640,10 @@ export const STRINGS_DE = {
                 name: 'Icon für angeheftete Notizen anzeigen',
                 desc: 'Icon neben der Überschrift für angeheftete Notizen anzeigen.'
             },
+            showFileIcons: {
+                name: 'Dateisymbole anzeigen',
+                desc: 'Dateisymbole mit linksbündigem Abstand anzeigen. Deaktivierung entfernt sowohl Symbole als auch Einrückung.'
+            },
             optimizeNoteHeight: {
                 name: 'Notizenhöhe optimieren',
                 desc: 'Höhe für angeheftete Notizen und Notizen ohne Vorschautext reduzieren.'

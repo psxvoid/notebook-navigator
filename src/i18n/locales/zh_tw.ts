@@ -635,6 +635,10 @@ export const STRINGS_ZH_TW = {
                 name: '顯示釘選圖示',
                 desc: '在釘選區段標題旁顯示圖示。'
             },
+            showFileIcons: {
+                name: '顯示檔案圖示',
+                desc: '顯示檔案圖示並保留靠左對齊間距。停用後將移除圖示和縮排。'
+            },
             optimizeNoteHeight: {
                 name: '最佳化筆記高度',
                 desc: '減少釘選筆記和無預覽文字筆記的高度。'
