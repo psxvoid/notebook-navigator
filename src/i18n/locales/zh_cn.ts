@@ -136,7 +136,7 @@ export const STRINGS_ZH_CN = {
             duplicateNote: '复制笔记',
             duplicateMultipleNotes: '复制 {count} 个笔记',
             openVersionHistory: '打开版本历史',
-            revealInFolder: '在文件夹中显示',
+            revealInFolder: '在文件夹中定位',
             revealInFinder: '在访达中显示',
             showInExplorer: '在资源管理器中显示',
             copyDeepLink: '复制 Obsidian URL',
@@ -364,7 +364,7 @@ export const STRINGS_ZH_CN = {
             duplicateFolder: '复制文件夹失败：{error}',
             openVersionHistory: '打开版本历史失败：{error}',
             versionHistoryNotFound: '未找到版本历史命令。请确保已启用 Obsidian 同步。',
-            revealInExplorer: '在系统资源管理器中显示文件失败：{error}',
+            revealInExplorer: '在系统资源管理器中定位文件失败：{error}',
             folderNoteAlreadyExists: '文件夹笔记已存在',
             folderAlreadyExists: '文件夹"{name}"已存在',
             folderNotesDisabled: '请在设置中启用文件夹笔记以转换文件',
@@ -466,7 +466,7 @@ export const STRINGS_ZH_CN = {
     commands: {
         open: '打开', // Command palette: Opens the Notebook Navigator view (English: Open)
         openHomepage: '打开主页', // Command palette: Opens the Notebook Navigator view and loads the homepage file (English: Open homepage)
-        revealFile: '显示文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        revealFile: '定位文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: '搜索', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: '切换双窗格布局', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         selectVaultProfile: '更改仓库配置文件', // Command palette: Opens a modal to choose a different vault profile (English: Switch vault profile)
@@ -497,7 +497,7 @@ export const STRINGS_ZH_CN = {
     plugin: {
         viewName: '笔记本导航器', // Name shown in the view header/tab (English: Notebook Navigator)
         ribbonTooltip: '笔记本导航器', // Tooltip for the ribbon icon in the left sidebar (English: Notebook Navigator)
-        revealInNavigator: '在笔记本导航器中显示' // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
+        revealInNavigator: '在笔记本导航器中定位' // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
     },
 
     // Tooltips
@@ -658,8 +658,8 @@ export const STRINGS_ZH_CN = {
                 desc: '为子文件夹或标签中的笔记显示父文件夹名称。'
             },
             parentFolderClickRevealsFile: {
-                name: '点击父文件夹显示笔记',
-                desc: '点击父文件夹标签时显示该笔记。'
+                name: '点击父文件夹定位笔记',
+                desc: '点击父文件夹名称时，在文件夹中显示该笔记。'
             },
             showParentFolderColor: {
                 name: '显示父文件夹颜色',

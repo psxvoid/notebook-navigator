@@ -146,7 +146,7 @@ export const STRINGS_ZH_TW = {
             duplicateMultipleNotes: '複製 {count} 則筆記',
             duplicateMultipleFiles: '複製 {count} 個檔案',
             openVersionHistory: '開啟版本歷史',
-            revealInFolder: '在資料夾中顯示',
+            revealInFolder: '在資料夾中定位',
             revealInFinder: '在 Finder 中顯示',
             showInExplorer: '在系統檔案總管中顯示',
             copyDeepLink: '複製 Obsidian URL',
@@ -363,7 +363,7 @@ export const STRINGS_ZH_TW = {
             duplicateFolder: '複製資料夾失敗：{error}',
             openVersionHistory: '開啟版本歷史失敗：{error}',
             versionHistoryNotFound: '找不到版本歷史指令。請確保已啟用 Obsidian Sync。',
-            revealInExplorer: '在系統檔案總管中顯示檔案失敗：{error}',
+            revealInExplorer: '在系統檔案總管中定位檔案失敗：{error}',
             folderNoteAlreadyExists: '資料夾筆記已存在',
             folderAlreadyExists: '資料夾「{name}」已存在',
             folderNotesDisabled: '請在設定中啟用資料夾筆記以轉換檔案',
@@ -465,7 +465,7 @@ export const STRINGS_ZH_TW = {
     commands: {
         open: '開啟', // 指令面板：開啟 Notebook Navigator 檢視 (英文: Open)
         openHomepage: '開啟首頁', // 指令面板：開啟 Notebook Navigator 檢視並載入首頁檔案 (英文: Open homepage)
-        revealFile: '顯示檔案', // 指令面板：在導覽器中顯示並選取目前活動的檔案 (英文: Reveal file)
+        revealFile: '定位檔案', // 指令面板：在導覽器中顯示並選取目前活動的檔案 (英文: Reveal file)
         search: '搜尋', // 指令面板：在檔案清單中切換搜尋 (英文: Search)
         toggleDualPane: '切換雙窗格佈局', // 指令面板：在單一窗格和雙窗格佈局之間切換 (英文: Toggle dual pane layout)
         selectVaultProfile: '更改倉庫設定檔', // 指令面板：開啟對話框以選擇不同的倉庫設定檔 (英文: Switch vault profile)
@@ -496,7 +496,7 @@ export const STRINGS_ZH_TW = {
     plugin: {
         viewName: 'Notebook Navigator', // 檢視標頭/分頁中顯示的名稱 (英文: Notebook Navigator)
         ribbonTooltip: 'Notebook Navigator', // 左側邊欄功能區圖示的工具提示 (英文: Notebook Navigator)
-        revealInNavigator: '在 Notebook Navigator 中顯示' // 右鍵選單項目，在導覽器中顯示檔案 (英文: Reveal in Notebook Navigator)
+        revealInNavigator: '在 Notebook Navigator 中定位' // 右鍵選單項目，在導覽器中顯示檔案 (英文: Reveal in Notebook Navigator)
     },
 
     // 工具提示
@@ -657,8 +657,8 @@ export const STRINGS_ZH_TW = {
                 desc: '在子資料夾或標籤中顯示筆記的父資料夾名稱。'
             },
             parentFolderClickRevealsFile: {
-                name: '點擊父資料夾顯示筆記',
-                desc: '點擊父資料夾標籤時顯示該筆記。'
+                name: '點擊父資料夾定位筆記',
+                desc: '點擊父資料夾名稱時，在資料夾中顯示該筆記。'
             },
             showParentFolderColor: {
                 name: '顯示父資料夾顏色',
@@ -708,8 +708,8 @@ export const STRINGS_ZH_TW = {
                 listLabel: '清單工具列'
             },
             autoRevealActiveNote: {
-                name: '自動顯示活動筆記',
-                desc: '從快速切換器、連結或搜尋開啟筆記時自動顯示。'
+                name: '自動定位活動筆記',
+                desc: '從快速切換器、連結或搜尋開啟筆記時自動定位。'
             },
             autoRevealIgnoreRightSidebar: {
                 name: '忽略右側邊欄事件',

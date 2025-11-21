@@ -81,7 +81,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         improved: [],
         changed: [],
-        fixed: []
+        fixed: [
+            'Improved Chinese translation for "Reveal" functionality. Now uses "定位" (locate) instead of "显示" (show) to better convey the meaning of revealing/locating files in folders.'
+        ]
     },
     {
         version: '1.8.5',
