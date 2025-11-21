@@ -16,7 +16,10 @@ function createMockDb(files: MockFile[]): IndexedDBStorage {
     }));
 
     return {
-        getAllFiles: () => payload
+        getAllFiles: () => payload,
+        forEachFile: (callback: (path: string, data: FileData) => void) => {
+            payload.forEach(({ path, data }) => callback(path, data));
+        }
     } as unknown as IndexedDBStorage;
 }
 

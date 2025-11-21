@@ -60,16 +60,18 @@ export async function calculateFileDiff(
     const toAdd: TFile[] = [];
     const toUpdate: TFile[] = [];
     const toRemove: string[] = [];
+    let cachedFilesMap: Map<string, FileData>;
 
     // Get cached files from database if not provided
-    if (!cachedFiles) {
+    if (cachedFiles) {
+        cachedFilesMap = cachedFiles;
+    } else {
         const db = getDBInstance();
-        cachedFiles = new Map<string, FileData>();
+        cachedFilesMap = new Map<string, FileData>();
         // Get all files from cache
-        const allFiles = db.getAllFiles();
-        for (const { path, data } of allFiles) {
-            cachedFiles.set(path, data);
-        }
+        db.forEachFile((path, data) => {
+            cachedFilesMap.set(path, data);
+        });
     }
 
     // Create a set of current file paths for quick lookup
@@ -80,7 +82,7 @@ export async function calculateFileDiff(
 
     // Check each current file
     for (const file of currentFiles) {
-        const cached = cachedFiles.get(file.path);
+        const cached = cachedFilesMap.get(file.path);
 
         if (!cached) {
             // New file not in cache
@@ -92,11 +94,11 @@ export async function calculateFileDiff(
     }
 
     // Check for deleted files
-    for (const [path] of cachedFiles) {
+    for (const [path] of cachedFilesMap) {
         if (!currentPaths.has(path)) {
             toRemove.push(path);
         }
     }
 
-    return { toAdd, toUpdate, toRemove, cachedFiles };
+    return { toAdd, toUpdate, toRemove, cachedFiles: cachedFilesMap };
 }
