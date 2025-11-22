@@ -203,7 +203,7 @@ export const STRINGS_JA = {
     // Folder appearance menu
     folderAppearance: {
         defaultPreset: 'デフォルトの外観',
-        slimPreset: 'スリム（日付/プレビュー/画像なし）',
+        compactPreset: 'スリム（日付/プレビュー/画像なし）',
         titleRows: 'タイトル行数',
         previewRows: 'プレビュー行数',
         groupBy: 'グループ分け',
@@ -645,12 +645,12 @@ export const STRINGS_JA = {
                 name: 'ノートの高さを最適化',
                 desc: 'ピン留めされたノートとプレビューテキストのないノートの高さを削減。'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: 'スリム表示の項目高さ',
                 desc: 'デスクトップとモバイルのスリム表示項目の高さを設定します。',
                 resetTooltip: 'デフォルトに戻す (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: 'スリム表示の文字サイズを高さに合わせる',
                 desc: '項目の高さを下げたときにスリム表示の文字サイズを調整します。'
             },
@@ -848,7 +848,7 @@ export const STRINGS_JA = {
                 name: '色付きタグを先頭に配置',
                 desc: '色付きタグを他のタグより前に並べ替えます。'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: 'スリムモードでファイルタグを表示',
                 desc: '日付、プレビュー、画像が非表示のときにタグを表示します。'
             },

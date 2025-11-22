@@ -177,12 +177,12 @@ export const OVERSCAN = 10;
  * Used by ListPane component for calculating item heights
  */
 export const LISTPANE_MEASUREMENTS = {
-    // Default slim mode metrics
-    defaultSlimItemHeight: 28, // Desktop slim item height
-    defaultSlimFontSize: 13, // Desktop slim mode font size
-    mobileHeightIncrement: 8, // Mobile slim item height is desktop + 8px
-    mobileFontSizeIncrement: 2, // Mobile slim font size is desktop + 2px
-    minSlimPaddingVerticalMobile: 6 // Minimum mobile padding per side
+    // Default compact mode metrics
+    defaultCompactItemHeight: 28, // Desktop compact item height
+    defaultCompactFontSize: 13, // Desktop compact mode font size
+    mobileHeightIncrement: 8, // Mobile compact item height is desktop + 8px
+    mobileFontSizeIncrement: 2, // Mobile compact font size is desktop + 2px
+    minCompactPaddingVerticalMobile: 6 // Minimum mobile padding per side
 };
 
 /**

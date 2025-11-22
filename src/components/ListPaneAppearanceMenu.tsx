@@ -104,8 +104,8 @@ export function showListPaneAppearanceMenu({
 
     const isUsingDefaults = !hasAnyCustomValues;
 
-    // Check if we're in slim mode
-    const isSlim = !showDate && !showPreview && !showImage;
+    // Check if we're in compact mode
+    const isCompact = !showDate && !showPreview && !showImage;
 
     // Default preset
     menu.addItem(item => {
@@ -123,10 +123,10 @@ export function showListPaneAppearanceMenu({
             });
     });
 
-    // Slim preset
+    // Compact preset
     menu.addItem(item => {
-        item.setTitle(strings.folderAppearance.slimPreset)
-            .setChecked(isSlim)
+        item.setTitle(strings.folderAppearance.compactPreset)
+            .setChecked(isCompact)
             .onClick(() => {
                 updateAppearance({
                     showDate: false,
@@ -179,10 +179,10 @@ export function showListPaneAppearanceMenu({
         const hasCustomPreviewRows = appearance?.previewRows !== undefined;
         const isDefaultPreview = previewRows === settings.previewRows && !hasCustomPreviewRows;
         item.setTitle(`    ${strings.folderAppearance.defaultPreviewOption(settings.previewRows)}`)
-            .setChecked(isDefaultPreview && !isSlim)
+            .setChecked(isDefaultPreview && !isCompact)
             .onClick(() => {
-                if (isSlim) {
-                    // Exit slim mode and reset to default preview rows
+                if (isCompact) {
+                    // Exit compact mode and reset to default preview rows
                     updateAppearance({
                         previewRows: undefined,
                         showDate: undefined,
@@ -199,12 +199,12 @@ export function showListPaneAppearanceMenu({
     [1, 2, 3, 4, 5].forEach(rows => {
         menu.addItem(item => {
             const hasCustomPreviewRows = appearance?.previewRows !== undefined;
-            const isChecked = previewRows === rows && hasCustomPreviewRows && !isSlim;
+            const isChecked = previewRows === rows && hasCustomPreviewRows && !isCompact;
             item.setTitle(`    ${strings.folderAppearance.previewRowOption(rows)}`)
                 .setChecked(isChecked)
                 .onClick(() => {
-                    if (isSlim) {
-                        // Exit slim mode and apply the selected preview rows
+                    if (isCompact) {
+                        // Exit compact mode and apply the selected preview rows
                         updateAppearance({
                             previewRows: rows,
                             showDate: undefined,

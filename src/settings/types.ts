@@ -158,8 +158,8 @@ export interface NotebookNavigatorSettings {
     showPinnedIcon: boolean;
     showFileIcons: boolean;
     optimizeNoteHeight: boolean;
-    slimItemHeight: number;
-    slimItemHeightScaleText: boolean;
+    compactItemHeight: number;
+    compactItemHeightScaleText: boolean;
     showQuickActions: boolean;
     quickActionRevealInFolder: boolean;
     quickActionAddTag: boolean;
@@ -183,7 +183,7 @@ export interface NotebookNavigatorSettings {
     showFileTagAncestors: boolean;
     colorFileTags: boolean;
     prioritizeColoredFileTags: boolean;
-    showFileTagsInSlimMode: boolean;
+    showFileTagsInCompactMode: boolean;
     showParentFolder: boolean;
     parentFolderClickRevealsFile: boolean;
     showParentFolderColor: boolean;

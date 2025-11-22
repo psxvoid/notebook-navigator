@@ -203,7 +203,7 @@ export const STRINGS_ZH_CN = {
     // Folder appearance menu
     folderAppearance: {
         defaultPreset: '默认外观',
-        slimPreset: '精简（无日期/预览/图片）',
+        compactPreset: '精简（无日期/预览/图片）',
         titleRows: '标题行数',
         previewRows: '预览行数',
         groupBy: '分组依据',
@@ -644,12 +644,12 @@ export const STRINGS_ZH_CN = {
                 name: '优化笔记高度',
                 desc: '减少固定笔记和无预览文本笔记的高度。'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: '精简项目高度',
                 desc: '设置桌面和移动端的紧凑列表项高度。',
                 resetTooltip: '恢复默认值 (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: '随精简高度缩放文本',
                 desc: '当减小紧凑列表项高度时同步缩放文本。'
             },
@@ -846,7 +846,7 @@ export const STRINGS_ZH_CN = {
                 name: '优先显示彩色标签',
                 desc: '将彩色标签排列在其他标签之前。'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: '在精简模式中显示文件标签',
                 desc: '当日期、预览和图像被隐藏时显示标签。'
             },

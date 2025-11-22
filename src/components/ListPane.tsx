@@ -452,8 +452,8 @@ export const ListPane = React.memo(
         // Attach context menu to empty areas in the list pane for file creation
         useContextMenu(scrollContainerRef, selectedFolder ? { type: EMPTY_LIST_MENU_TYPE, item: selectedFolder } : null);
 
-        // Check if we're in slim mode
-        const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
+        // Check if we're in compact mode
+        const isCompactMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
         // Ensure the list has a valid selection for the current filter
         const ensureSelectionForCurrentFilter = useCallback(
@@ -1038,7 +1038,7 @@ export const ListPane = React.memo(
                         {shouldShowDesktopTitleArea && <ListPaneTitleArea isVisible={shouldShowDesktopTitleArea} />}
                         <div
                             ref={scrollContainerRefCallback}
-                            className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
+                            className={`nn-list-pane-scroller ${isCompactMode ? 'nn-compact-mode' : ''}`}
                             // Drop zone type (folder or tag)
                             data-drop-zone={activeFolderDropPath ? 'folder' : undefined}
                             // Target path for the drop operation

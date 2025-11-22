@@ -203,7 +203,7 @@ export const STRINGS_ES = {
     // Folder appearance menu
     folderAppearance: {
         defaultPreset: 'Apariencia predeterminada',
-        slimPreset: 'Compacto (sin fecha/vista previa/imagen)',
+        compactPreset: 'Compacto (sin fecha/vista previa/imagen)',
         titleRows: 'Filas de título',
         previewRows: 'Filas de vista previa',
         groupBy: 'Agrupar por',
@@ -645,12 +645,12 @@ export const STRINGS_ES = {
                 name: 'Optimizar altura de notas',
                 desc: 'Reducir altura para notas ancladas y notas sin texto de vista previa.'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: 'Altura de elementos compactos',
                 desc: 'Define la altura de los elementos compactos en escritorio y móvil.',
                 resetTooltip: 'Restablecer al valor predeterminado (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: 'Escalar texto con altura compacta',
                 desc: 'Escala el texto de los elementos compactos cuando se reduce la altura.'
             },
@@ -847,7 +847,7 @@ export const STRINGS_ES = {
                 name: 'Mostrar primero las etiquetas coloreadas',
                 desc: 'Ordena las etiquetas coloreadas antes que otras etiquetas en los elementos de archivo.'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: 'Mostrar etiquetas de archivo en modo compacto',
                 desc: 'Mostrar etiquetas cuando la fecha, vista previa e imagen están ocultas.'
             },

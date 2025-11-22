@@ -54,7 +54,7 @@ import { Align, ListScrollIntent, getListAlign, rankListPending } from '../types
 import type { ListPaneItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { SelectionState } from '../context/SelectionContext';
-import { calculateSlimListMetrics } from '../utils/listPaneMetrics';
+import { calculateCompactListMetrics } from '../utils/listPaneMetrics';
 import { getListPaneMeasurements } from '../utils/listPaneMeasurements';
 
 /**
@@ -138,15 +138,15 @@ export function useListPaneScroll({
     const listMeasurements = getListPaneMeasurements(isMobile);
     const { hasPreview, getDB, isStorageReady } = useFileCache();
 
-    // Calculate slim list padding for height estimation in virtualization
-    const slimListMetrics = useMemo(
+    // Calculate compact list padding for height estimation in virtualization
+    const compactListMetrics = useMemo(
         () =>
-            calculateSlimListMetrics({
-                slimItemHeight: settings.slimItemHeight,
-                scaleText: settings.slimItemHeightScaleText,
+            calculateCompactListMetrics({
+                compactItemHeight: settings.compactItemHeight,
+                scaleText: settings.compactItemHeightScaleText,
                 titleLineHeight: listMeasurements.titleLineHeight
             }),
-        [listMeasurements.titleLineHeight, settings.slimItemHeight, settings.slimItemHeightScaleText]
+        [listMeasurements.titleLineHeight, settings.compactItemHeight, settings.compactItemHeightScaleText]
     );
 
     // Reference to the scroll container DOM element
@@ -184,8 +184,8 @@ export function useListPaneScroll({
     // Context tracking for index-version based reorder detection within a list context
     const contextIndexVersionRef = useRef<{ key: string; version: number } | null>(null);
 
-    // Check if we're in slim mode
-    const isSlimMode = !folderSettings.showDate && !folderSettings.showPreview && !folderSettings.showImage;
+    // Check if we're in compact mode
+    const isCompactMode = !folderSettings.showDate && !folderSettings.showPreview && !folderSettings.showImage;
     const revealFileOnListChanges = settings.revealFileOnListChanges;
 
     /**
@@ -255,8 +255,8 @@ export function useListPaneScroll({
             // Start with base padding
             let textContentHeight = 0;
 
-            if (isSlimMode) {
-                // Slim mode: only shows file name
+            if (isCompactMode) {
+                // Compact mode: only shows file name
                 textContentHeight = heights.titleLineHeight * (folderSettings.titleRows || 1);
             } else {
                 // Normal mode
@@ -323,23 +323,23 @@ export function useListPaneScroll({
             }
 
             // Add space for tags if file has tags and they are visible in this mode
-            const shouldShowFileTags = settings.showTags && settings.showFileTags && (!isSlimMode || settings.showFileTagsInSlimMode);
+            const shouldShowFileTags = settings.showTags && settings.showFileTags && (!isCompactMode || settings.showFileTagsInCompactMode);
 
             if (shouldShowFileTags && item.type === ListPaneItemType.FILE && item.hasTags) {
                 textContentHeight += heights.tagRowHeight;
             }
 
-            // Apply min-height constraint AFTER including all content (but not in slim mode)
+            // Apply min-height constraint AFTER including all content (but not in compact mode)
             // This ensures text content aligns with feature image height when shown
-            if (!isSlimMode && textContentHeight < heights.featureImageHeight) {
+            if (!isCompactMode && textContentHeight < heights.featureImageHeight) {
                 textContentHeight = heights.featureImageHeight;
             }
 
-            // Use reduced padding for slim mode (with mobile-specific padding)
-            const padding = isSlimMode
+            // Use reduced padding for compact mode (with mobile-specific padding)
+            const padding = isCompactMode
                 ? isMobile
-                    ? slimListMetrics.mobilePaddingTotal
-                    : slimListMetrics.desktopPaddingTotal
+                    ? compactListMetrics.mobilePaddingTotal
+                    : compactListMetrics.desktopPaddingTotal
                 : heights.basePadding;
             return padding + textContentHeight;
         },
@@ -681,10 +681,10 @@ export function useListPaneScroll({
         settings.showParentFolder,
         settings.showTags,
         settings.showFileTags,
-        settings.showFileTagsInSlimMode,
+        settings.showFileTagsInCompactMode,
         settings.optimizeNoteHeight,
-        settings.slimItemHeight,
-        settings.slimItemHeightScaleText,
+        settings.compactItemHeight,
+        settings.compactItemHeightScaleText,
         folderSettings,
         listMeasurements,
         rowVirtualizer

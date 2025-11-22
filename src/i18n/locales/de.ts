@@ -205,7 +205,7 @@ export const STRINGS_DE = {
     // Folder appearance menu
     folderAppearance: {
         defaultPreset: 'Standard-Aussehen',
-        slimPreset: 'Schmal (ohne Datum/Vorschau/Bild)',
+        compactPreset: 'Schmal (ohne Datum/Vorschau/Bild)',
         titleRows: 'Titelzeilen',
         previewRows: 'Vorschauzeilen',
         groupBy: 'Gruppieren nach',
@@ -648,12 +648,12 @@ export const STRINGS_DE = {
                 name: 'Notizenhöhe optimieren',
                 desc: 'Höhe für angeheftete Notizen und Notizen ohne Vorschautext reduzieren.'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: 'Höhe schlanker Elemente',
                 desc: 'Legt die Höhe schlanker Listenelemente auf Desktop und Mobilgeräten fest.',
                 resetTooltip: 'Auf Standard zurücksetzen (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: 'Text an schlanke Elementhöhe anpassen',
                 desc: 'Skaliert den Text schlanker Listenelemente bei reduzierter Höhe.'
             },
@@ -849,7 +849,7 @@ export const STRINGS_DE = {
                 name: 'Farbige Tags zuerst anzeigen',
                 desc: 'Farbige Tags vor anderen Tags in Datei-Elementen sortieren.'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: 'Datei-Tags im schlanken Modus anzeigen',
                 desc: 'Tags anzeigen, wenn Datum, Vorschau und Bild ausgeblendet sind.'
             },

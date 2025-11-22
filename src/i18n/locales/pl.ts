@@ -202,7 +202,7 @@ export const STRINGS_PL = {
     // Folder appearance menu
     folderAppearance: {
         defaultPreset: 'Domyślny wygląd',
-        slimPreset: 'Szczupły (bez daty/podglądu/obrazu)',
+        compactPreset: 'Szczupły (bez daty/podglądu/obrazu)',
         titleRows: 'Wiersze tytułu',
         previewRows: 'Wiersze podglądu',
         groupBy: 'Grupuj według',
@@ -646,14 +646,14 @@ export const STRINGS_PL = {
                 name: 'Optymalizuj wysokość notatek',
                 desc: 'Zmniejsz wysokość dla przypiętych notatek i notatek bez tekstu podglądu.'
             },
-            slimItemHeight: {
-                name: 'Wysokość elementów w trybie slim',
-                desc: 'Ustawia wysokość elementów listy w trybie slim na komputerze i urządzeniach mobilnych.',
+            compactItemHeight: {
+                name: 'Wysokość elementów w trybie kompaktowym',
+                desc: 'Ustawia wysokość elementów listy w trybie kompaktowym na komputerze i urządzeniach mobilnych.',
                 resetTooltip: 'Przywróć wartość domyślną (28px)'
             },
-            slimItemHeightScaleText: {
-                name: 'Skalowanie tekstu z wysokością trybu slim',
-                desc: 'Skaluje tekst elementów listy w trybie slim po zmniejszeniu wysokości.'
+            compactItemHeightScaleText: {
+                name: 'Skalowanie tekstu z wysokością trybu kompaktowego',
+                desc: 'Skaluje tekst elementów listy w trybie kompaktowym po zmniejszeniu wysokości.'
             },
             showParentFolder: {
                 name: 'Pokaż folder nadrzędny',
@@ -847,7 +847,7 @@ export const STRINGS_PL = {
                 name: 'Wyświetl kolorowe tagi jako pierwsze',
                 desc: 'Sortuje kolorowe tagi przed pozostałymi tagami w elementach plików.'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: 'Pokaż tagi plików w trybie kompaktowym',
                 desc: 'Wyświetl tagi, gdy data, podgląd i obraz są ukryte.'
             },

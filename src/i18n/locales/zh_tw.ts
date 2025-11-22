@@ -203,7 +203,7 @@ export const STRINGS_ZH_TW = {
     // 資料夾外觀選單
     folderAppearance: {
         defaultPreset: '預設外觀',
-        slimPreset: '緊湊 (無日期/預覽/圖片)',
+        compactPreset: '緊湊 (無日期/預覽/圖片)',
         titleRows: '標題列數',
         previewRows: '預覽列數',
         groupBy: '分組依據',
@@ -643,12 +643,12 @@ export const STRINGS_ZH_TW = {
                 name: '最佳化筆記高度',
                 desc: '減少釘選筆記和無預覽文字筆記的高度。'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: '精簡項目高度',
                 desc: '設定桌面與行動裝置的精簡清單項目高度。',
                 resetTooltip: '恢復預設值 (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: '精簡高度同步縮放文字',
                 desc: '降低精簡清單項目高度時同步調整文字大小。'
             },
@@ -844,7 +844,7 @@ export const STRINGS_ZH_TW = {
                 name: '優先顯示彩色標籤',
                 desc: '將彩色標籤排序在其他標籤之前。'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: '在緊湊模式下顯示檔案標籤',
                 desc: '隱藏日期、預覽和圖片時顯示標籤。'
             },

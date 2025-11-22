@@ -44,7 +44,7 @@ import { getSelectedPath, getFilesForSelection } from '../utils/selectionUtils';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { localStorage } from '../utils/localStorage';
-import { calculateSlimListMetrics } from '../utils/listPaneMetrics';
+import { calculateCompactListMetrics } from '../utils/listPaneMetrics';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
 import { getBackgroundClasses } from '../utils/paneLayout';
 import { confirmRemoveAllTagsFromFiles, openAddTagToFilesModal, removeTagFromFilesWithPrompt } from '../utils/tagModalHelpers';
@@ -795,27 +795,27 @@ export const NotebookNavigatorComponent = React.memo(
                 containerRef.current.style.setProperty('--nn-setting-nav-indent', `${settings.navIndent}px`);
                 containerRef.current.style.setProperty('--nn-nav-root-spacing', `${settings.rootLevelSpacing}px`);
 
-                // Calculate slim list padding and font sizes based on configured item height
+                // Calculate compact list padding and font sizes based on configured item height
                 const { titleLineHeight } = getListPaneMeasurements(isMobile);
-                const slimMetrics = calculateSlimListMetrics({
-                    slimItemHeight: settings.slimItemHeight,
-                    scaleText: settings.slimItemHeightScaleText,
+                const compactMetrics = calculateCompactListMetrics({
+                    compactItemHeight: settings.compactItemHeight,
+                    scaleText: settings.compactItemHeightScaleText,
                     titleLineHeight
                 });
 
-                // Apply slim list metrics to CSS custom properties
-                containerRef.current.style.setProperty('--nn-file-padding-vertical-slim', `${slimMetrics.desktopPadding}px`);
-                containerRef.current.style.setProperty('--nn-file-padding-vertical-slim-mobile', `${slimMetrics.mobilePadding}px`);
-                containerRef.current.style.setProperty('--nn-slim-font-size', `${slimMetrics.fontSize}px`);
-                containerRef.current.style.setProperty('--nn-slim-font-size-mobile', `${slimMetrics.mobileFontSize}px`);
+                // Apply compact list metrics to CSS custom properties
+                containerRef.current.style.setProperty('--nn-file-padding-vertical-compact', `${compactMetrics.desktopPadding}px`);
+                containerRef.current.style.setProperty('--nn-file-padding-vertical-compact-mobile', `${compactMetrics.mobilePadding}px`);
+                containerRef.current.style.setProperty('--nn-compact-font-size', `${compactMetrics.fontSize}px`);
+                containerRef.current.style.setProperty('--nn-compact-font-size-mobile', `${compactMetrics.mobileFontSize}px`);
             }
         }, [
             settings.navItemHeight,
             settings.navItemHeightScaleText,
             settings.navIndent,
             settings.rootLevelSpacing,
-            settings.slimItemHeight,
-            settings.slimItemHeightScaleText,
+            settings.compactItemHeight,
+            settings.compactItemHeightScaleText,
             isMobile
         ]);
 

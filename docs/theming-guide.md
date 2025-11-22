@@ -141,7 +141,7 @@ Priority order: folder note styles override custom color styles, which override 
 | `--nn-theme-list-heading-font-weight`           | `600`   | Font weight for the list pane overlay heading        |
 | `--nn-theme-list-group-header-font-weight`      | `600`   | Font weight for date groups and pinned section       |
 | `--nn-theme-file-name-font-weight`              | `600`   | Font weight for file names                           |
-| `--nn-theme-file-slim-name-font-weight`         | `400`   | Font weight for file names in slim mode              |
+| `--nn-theme-file-compact-name-font-weight`      | `400`   | Font weight for file names in compact mode           |
 | `--nn-theme-file-preview-font-weight`           | `400`   | Font weight for file preview text                    |
 | `--nn-theme-file-date-font-weight`              | `400`   | Font weight for file dates                           |
 | `--nn-theme-file-parent-font-weight`            | `400`   | Font weight for parent folder path                   |
@@ -289,7 +289,7 @@ body {
   --nn-theme-list-heading-font-weight: 600; /* Bold for list overlay heading */
   --nn-theme-list-group-header-font-weight: 600; /* Bold for date groups */
   --nn-theme-file-name-font-weight: 600; /* Bold for file names */
-  --nn-theme-file-slim-name-font-weight: 400; /* Regular for slim file names */
+  --nn-theme-file-compact-name-font-weight: 400; /* Regular for compact file names */
   --nn-theme-file-preview-font-weight: 400; /* Regular for preview text */
   --nn-theme-file-date-font-weight: 400; /* Regular weight for dates */
   --nn-theme-file-parent-font-weight: 400; /* Regular for parent folder */

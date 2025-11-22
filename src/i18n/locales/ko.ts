@@ -202,7 +202,7 @@ export const STRINGS_KO = {
     // Folder appearance menu
     folderAppearance: {
         defaultPreset: '기본 모양',
-        slimPreset: '슬림 (날짜/미리보기/이미지 없음)',
+        compactPreset: '슬림 (날짜/미리보기/이미지 없음)',
         titleRows: '제목 행',
         previewRows: '미리보기 행',
         groupBy: '그룹화 기준',
@@ -644,12 +644,12 @@ export const STRINGS_KO = {
                 name: '노트 높이 최적화',
                 desc: '고정된 노트와 미리보기 텍스트가 없는 노트의 높이를 줄입니다.'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: '슬림 항목 높이',
                 desc: '데스크톱과 모바일에서 슬림 목록 항목 높이를 설정합니다.',
                 resetTooltip: '기본값으로 복원 (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: '슬림 항목 높이에 맞춰 텍스트 크기 조정',
                 desc: '항목 높이를 줄이면 슬림 목록 텍스트 크기를 조정합니다.'
             },
@@ -845,7 +845,7 @@ export const STRINGS_KO = {
                 name: '색상 태그 우선 표시',
                 desc: '색상 태그를 다른 태그보다 먼저 정렬합니다.'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: '슬림 모드에서 파일 태그 표시',
                 desc: '날짜, 미리보기, 이미지가 숨겨져 있을 때 태그를 표시합니다.'
             },

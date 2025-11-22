@@ -246,6 +246,30 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
         delete mutableSettings['applyTagColorsToFileTags'];
 
+        const legacySlimItemHeight = mutableSettings['slimItemHeight'];
+        if (typeof legacySlimItemHeight === 'number' && Number.isFinite(legacySlimItemHeight)) {
+            if (typeof storedData?.['compactItemHeight'] === 'undefined') {
+                this.settings.compactItemHeight = legacySlimItemHeight;
+            }
+        }
+        delete mutableSettings['slimItemHeight'];
+
+        const legacySlimItemHeightScaleText = mutableSettings['slimItemHeightScaleText'];
+        if (typeof legacySlimItemHeightScaleText === 'boolean') {
+            if (typeof storedData?.['compactItemHeightScaleText'] === 'undefined') {
+                this.settings.compactItemHeightScaleText = legacySlimItemHeightScaleText;
+            }
+        }
+        delete mutableSettings['slimItemHeightScaleText'];
+
+        const legacyShowFileTagsInSlimMode = mutableSettings['showFileTagsInSlimMode'];
+        if (typeof legacyShowFileTagsInSlimMode === 'boolean') {
+            if (typeof storedData?.['showFileTagsInCompactMode'] === 'undefined') {
+                this.settings.showFileTagsInCompactMode = legacyShowFileTagsInSlimMode;
+            }
+        }
+        delete mutableSettings['showFileTagsInSlimMode'];
+
         // Set language-specific date/time formats if not already set
         if (!this.settings.dateFormat) {
             this.settings.dateFormat = getDefaultDateFormat();

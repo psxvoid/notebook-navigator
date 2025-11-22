@@ -204,7 +204,7 @@ export const STRINGS_IT = {
     // Folder appearance menu
     folderAppearance: {
         defaultPreset: 'Aspetto predefinito',
-        slimPreset: 'Sottile (senza data/anteprima/immagine)',
+        compactPreset: 'Sottile (senza data/anteprima/immagine)',
         titleRows: 'Righe titolo',
         previewRows: 'Righe anteprima',
         groupBy: 'Raggruppa per',
@@ -646,12 +646,12 @@ export const STRINGS_IT = {
                 name: 'Ottimizza altezza nota',
                 desc: 'Riduci altezza per note fissate e note senza testo anteprima.'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: 'Altezza elemento sottile',
                 desc: "Imposta l'altezza degli elementi lista sottili su desktop e mobile.",
                 resetTooltip: 'Ripristina predefinito (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: 'Scala testo con altezza elemento sottile',
                 desc: "Scala testo lista sottile quando l'altezza elemento è ridotta."
             },
@@ -848,7 +848,7 @@ export const STRINGS_IT = {
                 name: 'Mostra prima i tag colorati',
                 desc: 'Ordina i tag colorati prima degli altri tag negli elementi file.'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: 'Mostra tag file in modalità sottile',
                 desc: 'Visualizza tag quando data, anteprima e immagine sono nascoste.'
             },

@@ -256,18 +256,18 @@ export function renderListPaneTab(context: SettingsTabContext): void {
             })
         );
 
-    // Slider to configure slim list item height with reset button
-    let slimItemHeightSlider: SliderComponent;
+    // Slider to configure compact list item height with reset button
+    let compactItemHeightSlider: SliderComponent;
     new Setting(containerEl)
-        .setName(strings.settings.items.slimItemHeight.name)
-        .setDesc(strings.settings.items.slimItemHeight.desc)
+        .setName(strings.settings.items.compactItemHeight.name)
+        .setDesc(strings.settings.items.compactItemHeight.desc)
         .addSlider(slider => {
-            slimItemHeightSlider = slider
+            compactItemHeightSlider = slider
                 .setLimits(20, 28, 1)
-                .setValue(plugin.settings.slimItemHeight)
+                .setValue(plugin.settings.compactItemHeight)
                 .setDynamicTooltip()
                 .onChange(async value => {
-                    plugin.settings.slimItemHeight = value;
+                    plugin.settings.compactItemHeight = value;
                     await plugin.saveSettingsAndUpdate();
                 });
             return slider;
@@ -275,28 +275,28 @@ export function renderListPaneTab(context: SettingsTabContext): void {
         .addExtraButton(button =>
             button
                 .setIcon('lucide-rotate-ccw')
-                .setTooltip(strings.settings.items.slimItemHeight.resetTooltip)
+                .setTooltip(strings.settings.items.compactItemHeight.resetTooltip)
                 .onClick(() => {
                     // Reset item height to default without blocking the UI
                     runAsyncAction(async () => {
-                        const defaultValue = DEFAULT_SETTINGS.slimItemHeight;
-                        slimItemHeightSlider.setValue(defaultValue);
-                        plugin.settings.slimItemHeight = defaultValue;
+                        const defaultValue = DEFAULT_SETTINGS.compactItemHeight;
+                        compactItemHeightSlider.setValue(defaultValue);
+                        plugin.settings.compactItemHeight = defaultValue;
                         await plugin.saveSettingsAndUpdate();
                     });
                 })
         );
 
-    // Sub-setting container for slim item height options
-    const slimItemHeightSettingsEl = containerEl.createDiv('nn-sub-settings');
+    // Sub-setting container for compact item height options
+    const compactItemHeightSettingsEl = containerEl.createDiv('nn-sub-settings');
 
-    // Toggle to scale text proportionally with slim item height
-    new Setting(slimItemHeightSettingsEl)
-        .setName(strings.settings.items.slimItemHeightScaleText.name)
-        .setDesc(strings.settings.items.slimItemHeightScaleText.desc)
+    // Toggle to scale text proportionally with compact item height
+    new Setting(compactItemHeightSettingsEl)
+        .setName(strings.settings.items.compactItemHeightScaleText.name)
+        .setDesc(strings.settings.items.compactItemHeightScaleText.desc)
         .addToggle(toggle =>
-            toggle.setValue(plugin.settings.slimItemHeightScaleText).onChange(async value => {
-                plugin.settings.slimItemHeightScaleText = value;
+            toggle.setValue(plugin.settings.compactItemHeightScaleText).onChange(async value => {
+                plugin.settings.compactItemHeightScaleText = value;
                 await plugin.saveSettingsAndUpdate();
             })
         );

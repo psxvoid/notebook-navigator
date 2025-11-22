@@ -449,7 +449,7 @@ export const FileItem = React.memo(function FileItem({
         return defaultTypeIconId;
     }, [defaultTypeIconId, effectiveFileIconId]);
 
-    const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
+    const isCompactMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
     // Determines whether to display the file icon based on icon availability
     const shouldShowFileIcon = useMemo(() => {
@@ -461,7 +461,7 @@ export const FileItem = React.memo(function FileItem({
         }
         return true;
     }, [effectiveFileIconId, showFileIcons]);
-    const shouldShowSlimExtensionBadge = isSlimMode && (isBaseFile || isCanvasFile);
+    const shouldShowCompactExtensionBadge = isCompactMode && (isBaseFile || isCanvasFile);
 
     const isMultiRowTitle = appearanceSettings.titleRows > 1;
 
@@ -572,11 +572,11 @@ export const FileItem = React.memo(function FileItem({
         if (categorizedTags.length === 0) {
             return false;
         }
-        if (isSlimMode && !settings.showFileTagsInSlimMode) {
+        if (isCompactMode && !settings.showFileTagsInCompactMode) {
             return false;
         }
         return true;
-    }, [categorizedTags, isSlimMode, settings.showFileTags, settings.showFileTagsInSlimMode, settings.showTags]);
+    }, [categorizedTags, isCompactMode, settings.showFileTags, settings.showFileTagsInCompactMode, settings.showTags]);
 
     const getTagDisplayName = useCallback(
         (tag: string): string => {
@@ -775,13 +775,13 @@ export const FileItem = React.memo(function FileItem({
     const className = useMemo(() => {
         const classes = ['nn-file'];
         if (isSelected) classes.push('nn-selected');
-        if (isSlimMode) classes.push('nn-slim');
+        if (isCompactMode) classes.push('nn-compact');
         if (isSelected && hasSelectedAbove) classes.push('nn-has-selected-above');
         if (isSelected && hasSelectedBelow) classes.push('nn-has-selected-below');
         // Apply muted style when file is normally hidden but shown via "show hidden items"
         if (isHidden) classes.push('nn-hidden-file');
         return classes.join(' ');
-    }, [isSelected, isSlimMode, hasSelectedAbove, hasSelectedBelow, isHidden]);
+    }, [isSelected, isCompactMode, hasSelectedAbove, hasSelectedBelow, isHidden]);
 
     // Screen reader description for files shown via "show hidden items" toggle
     const hiddenDescription = useMemo(() => {
@@ -1125,7 +1125,7 @@ export const FileItem = React.memo(function FileItem({
         }
         const iconService = getIconService();
         iconService.renderIcon(iconContainer, iconId, fileIconSize);
-    }, [effectiveFileIconId, iconServiceVersion, shouldShowFileIcon, isSlimMode, fileIconSize]);
+    }, [effectiveFileIconId, iconServiceVersion, shouldShowFileIcon, isCompactMode, fileIconSize]);
 
     // Set up the icons when quick actions panel is shown
     useEffect(() => {
@@ -1196,7 +1196,7 @@ export const FileItem = React.memo(function FileItem({
                 {/* Quick actions panel - appears on hover */}
                 {isHovered && !isMobile && hasQuickActions && (
                     <div
-                        className={`nn-quick-actions-panel ${isSlimMode ? 'nn-slim-mode' : ''}`}
+                        className={`nn-quick-actions-panel ${isCompactMode ? 'nn-compact-mode' : ''}`}
                         data-title-rows={appearanceSettings.titleRows}
                         data-has-tags={shouldShowFileTags ? 'true' : 'false'}
                     >
@@ -1221,15 +1221,15 @@ export const FileItem = React.memo(function FileItem({
                             ) : null}
                         </div>
                     ) : null}
-                    {isSlimMode ? (
-                        // ========== SLIM MODE ==========
+                    {isCompactMode ? (
+                        // ========== COMPACT MODE ==========
                         // Minimal layout: only file name + tags
                         // Used when date, preview, and image are all disabled
-                        <div className="nn-slim-file-text-content">
-                            <div className="nn-slim-file-header">
+                        <div className="nn-compact-file-text-content">
+                            <div className="nn-compact-file-header">
                                 {fileTitleElement}
-                                {shouldShowSlimExtensionBadge ? (
-                                    <div className="nn-slim-extension-badge" aria-hidden="true">
+                                {shouldShowCompactExtensionBadge ? (
+                                    <div className="nn-compact-extension-badge" aria-hidden="true">
                                         <div className="nn-file-icon-rectangle">
                                             <span className="nn-file-icon-rectangle-text">{fileExtension}</span>
                                         </div>

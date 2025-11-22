@@ -204,7 +204,7 @@ export const STRINGS_NL = {
     // Folder appearance menu
     folderAppearance: {
         defaultPreset: 'Standaard uiterlijk',
-        slimPreset: 'Compact (geen datum/voorbeeld/afbeelding)',
+        compactPreset: 'Compact (geen datum/voorbeeld/afbeelding)',
         titleRows: 'Titelrijen',
         previewRows: 'Voorbeeldrijen',
         groupBy: 'Groeperen op',
@@ -646,12 +646,12 @@ export const STRINGS_NL = {
                 name: 'Notitiehoogte optimaliseren',
                 desc: 'Hoogte verminderen voor vastgepinde notities en notities zonder voorbeeldtekst.'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: 'Compacte itemhoogte',
                 desc: 'Stel de hoogte van compacte lijstitems in op desktop en mobiel.',
                 resetTooltip: 'Herstellen naar standaard (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: 'Tekst schalen met compacte itemhoogte',
                 desc: 'Compacte lijsttekst schalen wanneer de itemhoogte wordt verminderd.'
             },
@@ -848,7 +848,7 @@ export const STRINGS_NL = {
                 name: 'Gekleurde tags eerst tonen',
                 desc: 'Sorteert gekleurde tags vóór andere tags in bestandsitems.'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: 'Bestandstags tonen in compacte modus',
                 desc: 'Tags weergeven wanneer datum, voorbeeld en afbeelding verborgen zijn.'
             },

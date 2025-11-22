@@ -87,7 +87,7 @@ Notebook Navigator supports extensive color customization through the Style Sett
 1. **Search** - Filter files by name or tag or search full-text with Omnisearch (if installed). Check plugin settings for details how to use search
 2. **Show descendants** - Toggle display of notes from subfolders and subtags. Disable this to only see notes and files in the current folder or tag
 3. **Sort** - Change sort order (date modified, date created, or title)
-4. **Appearance** - Customize display settings for current folder/tag (preview rows, title rows, slim mode)
+4. **Appearance** - Customize display settings for current folder/tag (preview rows, title rows, compact mode)
 5. **New note** - Create a new note in the currently selected folder
 
 ### Drag and drop
@@ -306,7 +306,7 @@ AND has higher precedence than OR. Use this to create complex filters:
 - **Custom icons** - Choose Lucide icons, emojis, or from 8 icon packs for files, folders, and tags
 - **File customization** - Set custom icons and colors for individual files
 - **Custom sort order** - Override global sort settings per folder or tag
-- **Custom appearances** - Configure display settings per folder or tag (title rows, preview rows, slim mode)
+- **Custom appearances** - Configure display settings per folder or tag (title rows, preview rows, compact mode)
 - **Hidden tags** - Hide tags by prefix or name wildcards
 - **Toggle hidden items** - Show or hide hidden folders, tags, and notes with toolbar button
 - **Untagged notes** - Find and organize notes without tags
@@ -318,7 +318,7 @@ AND has higher precedence than OR. Use this to create complex filters:
 - **Date grouping** - Group notes by Today, Yesterday, This Week when sorted by date
 - **Frontmatter support** - Read note names and timestamps from frontmatter fields
 - **Note metadata** - Show modification date and tags in the file list
-- **Slim mode** - Compact display when preview, date, and images are disabled
+- **Compact mode** - Compact display when preview, date, and images are disabled
 - **Clickable tags** - Tags in file list navigate directly to that tag
 
 ### Productivity
@@ -591,8 +591,8 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show notes from subfolders / descendants:** Include notes from nested subfolders and tag descendants when viewing a folder or tag.
 - **Group notes:** Display headers between notes grouped by date or folder. `Don't group`, `Group by date`, `Group by folder`.
 - **Optimize note height:** Reduce height for pinned notes and notes without preview text.
-- **Slim item height:** Set the height of slim list items on desktop and mobile.
-  - **Scale text with slim item height:** Scale slim list text when the item height is reduced.
+- **Compact item height:** Set the height of compact list items on desktop and mobile.
+  - **Scale text with compact item height:** Scale compact list text when the item height is reduced.
 
 ### Notes
 
@@ -617,7 +617,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Show full tag paths:** Display complete tag hierarchy paths. When enabled: 'ai/openai', 'work/projects/2024'. When disabled: 'openai', '2024'.
   - **Color file tags:** Apply tag colors to tag badges on file items.
   - **Show colored tags first:** Sort colored tags before other tags on file items.
-  - **Show file tags in slim mode:** Display tags when date, preview, and image are hidden.
+  - **Show file tags in compact mode:** Display tags when date, preview, and image are hidden.
 - **Show parent folder:** Display the parent folder name for notes in subfolders or tags.
   - **Click parent folder to reveal file:** Clicking the parent folder label reveals the file.
   - **Show parent folder color:** Use folder colors on parent folder labels.
@@ -631,7 +631,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Force square feature image:** Render feature images as square thumbnails.
   - **Use embedded image fallback:** Use the first embedded image in the document as a fallback when no thumbnail is found in frontmatter properties (requires Obsidian 1.9.4+). Disable this to verify thumbnail configuration.
 
-**Note:** When date, preview, and feature image are disabled, list pane displays in compact "slim mode" with only note names.
+**Note:** When date, preview, and feature image are disabled, list pane displays in compact "compact mode" with only note names.
 
 ### Icon packs
 
@@ -798,11 +798,11 @@ Use cases:
    - **Preview rows**: 1-5 rows or default
 4. Presets:
    - **Default appearance**: Reset to global settings
-   - **Slim mode**: Disable date, preview, and images
+   - **Compact mode**: Disable date, preview, and images
 
 Use cases:
 
-- **Slim mode**: Maximum file density
+- **Compact mode**: Maximum file density
 - **5 preview rows**: Folders where preview text matters
 - **1-2 preview rows**: Quick scanning
 

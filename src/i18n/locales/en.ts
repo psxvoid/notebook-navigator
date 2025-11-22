@@ -203,7 +203,7 @@ export const STRINGS_EN = {
     // Folder appearance menu
     folderAppearance: {
         defaultPreset: 'Default appearance',
-        slimPreset: 'Slim (no date/preview/image)',
+        compactPreset: 'Compact (no date/preview/image)',
         titleRows: 'Title rows',
         previewRows: 'Preview rows',
         groupBy: 'Group by',
@@ -644,14 +644,14 @@ export const STRINGS_EN = {
                 name: 'Optimize note height',
                 desc: 'Reduce height for pinned notes and notes without preview text.'
             },
-            slimItemHeight: {
-                name: 'Slim item height',
-                desc: 'Set the height of slim list items on desktop and mobile.',
+            compactItemHeight: {
+                name: 'Compact item height',
+                desc: 'Set the height of compact list items on desktop and mobile.',
                 resetTooltip: 'Restore to default (28px)'
             },
-            slimItemHeightScaleText: {
-                name: 'Scale text with slim item height',
-                desc: 'Scale slim list text when the item height is reduced.'
+            compactItemHeightScaleText: {
+                name: 'Scale text with compact item height',
+                desc: 'Scale compact list text when the item height is reduced.'
             },
             showParentFolder: {
                 name: 'Show parent folder',
@@ -845,8 +845,8 @@ export const STRINGS_EN = {
                 name: 'Show colored tags first',
                 desc: 'Sort colored tags before other tags on file items.'
             },
-            showFileTagsInSlimMode: {
-                name: 'Show file tags in slim mode',
+            showFileTagsInCompactMode: {
+                name: 'Show file tags in compact mode',
                 desc: 'Display tags when date, preview, and image are hidden.'
             },
             dateFormat: {
