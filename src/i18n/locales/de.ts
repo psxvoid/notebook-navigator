@@ -643,7 +643,7 @@ export const STRINGS_DE = {
             },
             defaultListMode: {
                 name: 'Standardmodus für Listen',
-                desc: 'Layout verwenden, wenn kein Ordner- oder Tag-Override gesetzt ist.',
+                desc: 'Standardlistenlayout auswählen. Standard zeigt Titel, Datum, Beschreibung und Vorschautext. Kompakt zeigt nur den Titel. Ansicht kann pro Ordner überschrieben werden.',
                 options: {
                     standard: 'Standard',
                     compact: 'Kompakt'

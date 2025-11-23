@@ -639,7 +639,7 @@ export const STRINGS_EN = {
             },
             defaultListMode: {
                 name: 'Default list mode',
-                desc: 'Choose the layout used when no folder or tag override is set.',
+                desc: 'Select the default list layout. Standard shows title, date, description, and preview text. Compact shows title only. Override appearance per folder.',
                 options: {
                     standard: 'Standard',
                     compact: 'Compact'

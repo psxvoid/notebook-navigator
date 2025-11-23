@@ -640,7 +640,7 @@ export const STRINGS_ES = {
             },
             defaultListMode: {
                 name: 'Modo de lista predeterminado',
-                desc: 'Diseño usado cuando no hay configuración personalizada de carpeta o etiqueta.',
+                desc: 'Selecciona el diseño de lista predeterminado. Estándar muestra título, fecha, descripción y texto de vista previa. Compacto muestra solo el título. La apariencia se puede sobrescribir por carpeta.',
                 options: {
                     standard: 'Estándar',
                     compact: 'Compacto'

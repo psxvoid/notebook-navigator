@@ -639,7 +639,7 @@ export const STRINGS_ZH_CN = {
             },
             defaultListMode: {
                 name: '默认列表模式',
-                desc: '在没有文件夹或标签覆盖时使用的布局。',
+                desc: '选择默认列表布局。标准显示标题、日期、描述和预览文本。紧凑只显示标题。外观可按文件夹覆盖。',
                 options: {
                     standard: '标准',
                     compact: '紧凑'

@@ -638,7 +638,7 @@ export const STRINGS_ZH_TW = {
             },
             defaultListMode: {
                 name: '預設列表模式',
-                desc: '在沒有資料夾或標籤覆蓋時使用的版面。',
+                desc: '選擇預設列表版面。標準會顯示標題、日期、描述和預覽文字。緊湊只顯示標題。外觀可依資料夾覆蓋。',
                 options: {
                     standard: '標準',
                     compact: '緊湊'

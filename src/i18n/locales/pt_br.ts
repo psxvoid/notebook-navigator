@@ -641,7 +641,7 @@ export const STRINGS_PT_BR = {
             },
             defaultListMode: {
                 name: 'Modo padrão da lista',
-                desc: 'Layout usado quando não há substituição de pasta ou tag.',
+                desc: 'Selecione o layout padrão da lista. Padrão mostra título, data, descrição e texto de visualização. Compacto mostra apenas o título. A aparência pode ser substituída por pasta.',
                 options: {
                     standard: 'Padrão',
                     compact: 'Compacto'

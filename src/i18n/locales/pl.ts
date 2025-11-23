@@ -641,7 +641,7 @@ export const STRINGS_PL = {
             },
             defaultListMode: {
                 name: 'Domyślny tryb listy',
-                desc: 'Układ używany, gdy brak nadpisania dla folderu lub tagu.',
+                desc: 'Wybierz domyślny układ listy. Standard pokazuje tytuł, datę, opis i tekst podglądu. Kompaktowy pokazuje tylko tytuł. Wygląd można nadpisać dla każdego folderu.',
                 options: {
                     standard: 'Standard',
                     compact: 'Kompaktowy'

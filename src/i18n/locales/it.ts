@@ -641,7 +641,7 @@ export const STRINGS_IT = {
             },
             defaultListMode: {
                 name: 'Modalità lista predefinita',
-                desc: 'Layout usato quando non ci sono override di cartella o tag.',
+                desc: "Seleziona il layout elenco predefinito. Standard mostra titolo, data, descrizione e testo di anteprima. Compatta mostra solo il titolo. L'aspetto può essere sovrascritto per cartella.",
                 options: {
                     standard: 'Standard',
                     compact: 'Compatta'

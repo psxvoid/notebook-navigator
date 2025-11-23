@@ -641,7 +641,7 @@ export const STRINGS_FR = {
             },
             defaultListMode: {
                 name: 'Mode de liste par défaut',
-                desc: "Mise en page utilisée lorsqu'aucune substitution de dossier ou d'étiquette n'est définie.",
+                desc: "Sélectionner la mise en page de liste par défaut. Standard affiche le titre, la date, la description et le texte d'aperçu. Compact affiche uniquement le titre. L'apparence peut être remplacée par dossier.",
                 options: {
                     standard: 'Standard',
                     compact: 'Compact'

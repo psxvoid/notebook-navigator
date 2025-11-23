@@ -639,7 +639,7 @@ export const STRINGS_KO = {
             },
             defaultListMode: {
                 name: '기본 목록 모드',
-                desc: '폴더나 태그별 오버라이드가 없을 때 사용하는 레이아웃을 선택합니다.',
+                desc: '기본 목록 레이아웃을 선택합니다. 표준은 제목, 날짜, 설명, 미리보기 텍스트를 표시합니다. 컴팩트는 제목만 표시합니다. 외형은 폴더별로 덮어쓸 수 있습니다.',
                 options: {
                     standard: '표준',
                     compact: '컴팩트'

@@ -77,6 +77,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-24',
         showOnUpdate: true,
         new: [
+            'New setting: ==List pane > Appearance > Default list mode==. Select the default list layout between **standard** and **compact**. **Standard** shows title, date, description, and preview text. **Compact** shows title only. Override appearance per folder.',
             'New setting: ==List pane > Appearance > Show file icons==. When enabled Notebook Navigator shows file icons such as external file indicator or custom icons in a separate column. When disabled, file icons are not shown and files are not indented in the list pane. Default enabled.'
         ],
         improved: [],

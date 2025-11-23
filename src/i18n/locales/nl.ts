@@ -641,7 +641,7 @@ export const STRINGS_NL = {
             },
             defaultListMode: {
                 name: 'Standaard lijstmodus',
-                desc: 'Layout gebruiken wanneer er geen map- of tagoverride is.',
+                desc: 'Selecteer de standaard lijstindeling. Standaard toont titel, datum, beschrijving en voorbeeldtekst. Compact toont alleen de titel. Uiterlijk kan per map worden overschreven.',
                 options: {
                     standard: 'Standaard',
                     compact: 'Compact'
