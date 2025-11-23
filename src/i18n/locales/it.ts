@@ -203,8 +203,9 @@ export const STRINGS_IT = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Aspetto predefinito',
-        compactPreset: 'Sottile (senza data/anteprima/immagine)',
+        standardPreset: 'Standard',
+        compactPreset: 'Compatta',
+        defaultSuffix: '(predefinito)',
         titleRows: 'Righe titolo',
         previewRows: 'Righe anteprima',
         groupBy: 'Raggruppa per',
@@ -637,6 +638,14 @@ export const STRINGS_IT = {
             showPinnedIcon: {
                 name: 'Mostra icona fissata',
                 desc: "Visualizza l'icona accanto all'intestazione della sezione fissata."
+            },
+            defaultListMode: {
+                name: 'Modalità lista predefinita',
+                desc: 'Layout usato quando non ci sono override di cartella o tag.',
+                options: {
+                    standard: 'Standard',
+                    compact: 'Compatta'
+                }
             },
             showFileIcons: {
                 name: 'Mostra icone file',

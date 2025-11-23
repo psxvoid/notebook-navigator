@@ -204,8 +204,9 @@ export const STRINGS_DE = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Standard-Aussehen',
-        compactPreset: 'Schmal (ohne Datum/Vorschau/Bild)',
+        standardPreset: 'Standard',
+        compactPreset: 'Kompakt',
+        defaultSuffix: '(Standard)',
         titleRows: 'Titelzeilen',
         previewRows: 'Vorschauzeilen',
         groupBy: 'Gruppieren nach',
@@ -639,6 +640,14 @@ export const STRINGS_DE = {
             showPinnedIcon: {
                 name: 'Icon für angeheftete Notizen anzeigen',
                 desc: 'Icon neben der Überschrift für angeheftete Notizen anzeigen.'
+            },
+            defaultListMode: {
+                name: 'Standardmodus für Listen',
+                desc: 'Layout verwenden, wenn kein Ordner- oder Tag-Override gesetzt ist.',
+                options: {
+                    standard: 'Standard',
+                    compact: 'Kompakt'
+                }
             },
             showFileIcons: {
                 name: 'Dateisymbole anzeigen',

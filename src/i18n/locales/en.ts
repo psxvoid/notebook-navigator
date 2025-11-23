@@ -202,8 +202,9 @@ export const STRINGS_EN = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Default appearance',
-        compactPreset: 'Compact (no date/preview/image)',
+        standardPreset: 'Standard',
+        compactPreset: 'Compact',
+        defaultSuffix: '(default)',
         titleRows: 'Title rows',
         previewRows: 'Preview rows',
         groupBy: 'Group by',
@@ -635,6 +636,14 @@ export const STRINGS_EN = {
             showPinnedIcon: {
                 name: 'Show pinned icon',
                 desc: 'Show the icon next to the pinned section header.'
+            },
+            defaultListMode: {
+                name: 'Default list mode',
+                desc: 'Choose the layout used when no folder or tag override is set.',
+                options: {
+                    standard: 'Standard',
+                    compact: 'Compact'
+                }
             },
             showFileIcons: {
                 name: 'Show file icons',

@@ -66,6 +66,7 @@ import registerNavigatorCommands from './services/commands/registerNavigatorComm
 import registerWorkspaceEvents from './services/workspace/registerWorkspaceEvents';
 import type { RevealFileOptions } from './hooks/useNavigatorReveal';
 import { ShortcutType, type ShortcutEntry } from './types/shortcuts';
+import type { FolderAppearance } from './hooks/useListPaneAppearance';
 
 const DEFAULT_UX_PREFERENCES: UXPreferences = {
     searchActive: false,
@@ -239,6 +240,50 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         if (this.settings.noteGrouping !== 'none' && this.settings.noteGrouping !== 'date' && this.settings.noteGrouping !== 'folder') {
             this.settings.noteGrouping = DEFAULT_SETTINGS.noteGrouping;
         }
+
+        type LegacyAppearance = FolderAppearance & {
+            showDate?: boolean;
+            showPreview?: boolean;
+            showImage?: boolean;
+        };
+
+        const migrateLegacyAppearanceMode = (appearance: LegacyAppearance | undefined): FolderAppearance | undefined => {
+            if (!appearance) {
+                return appearance;
+            }
+
+            const isLegacyCompact =
+                appearance.mode === undefined &&
+                appearance.showDate === false &&
+                appearance.showPreview === false &&
+                appearance.showImage === false;
+
+            if (isLegacyCompact) {
+                const migrated: FolderAppearance = { ...appearance, mode: 'compact' };
+                delete (migrated as LegacyAppearance).showDate;
+                delete (migrated as LegacyAppearance).showPreview;
+                delete (migrated as LegacyAppearance).showImage;
+                return migrated;
+            }
+
+            return appearance;
+        };
+
+        const migrateLegacyAppearances = (collection: Record<string, FolderAppearance> | undefined) => {
+            if (!collection) {
+                return;
+            }
+
+            Object.entries(collection).forEach(([key, appearance]) => {
+                const migratedAppearance = migrateLegacyAppearanceMode(appearance);
+                if (migratedAppearance) {
+                    collection[key] = migratedAppearance;
+                }
+            });
+        };
+
+        migrateLegacyAppearances(this.settings.folderAppearances);
+        migrateLegacyAppearances(this.settings.tagAppearances);
 
         const legacyColorFileTags = mutableSettings['applyTagColorsToFileTags'];
         if (typeof legacyColorFileTags === 'boolean') {

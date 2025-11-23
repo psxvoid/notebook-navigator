@@ -44,6 +44,9 @@ export type MultiSelectModifier = 'cmdCtrl' | 'optionAlt';
 /** Display options for list pane title */
 export type ListPaneTitleOption = 'header' | 'list' | 'hidden';
 
+/** Default display modes for list items */
+export type ListDisplayMode = 'standard' | 'compact';
+
 /** Grouping options for list pane notes */
 export type ListNoteGroupingOption = 'none' | 'date' | 'folder';
 
@@ -149,6 +152,7 @@ export interface NotebookNavigatorSettings {
     keepEmptyTagsProperty: boolean;
 
     // List pane tab
+    defaultListMode: ListDisplayMode;
     defaultFolderSort: SortOption;
     revealFileOnListChanges: boolean;
     listPaneTitle: ListPaneTitleOption;

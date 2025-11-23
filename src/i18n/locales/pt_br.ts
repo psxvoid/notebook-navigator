@@ -203,8 +203,9 @@ export const STRINGS_PT_BR = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Aparência padrão',
-        compactPreset: 'Simples (sem data/visualização/imagem)',
+        standardPreset: 'Padrão',
+        compactPreset: 'Compacto',
+        defaultSuffix: '(padrão)',
         titleRows: 'Linhas do título',
         previewRows: 'Linhas de visualização',
         groupBy: 'Agrupar por',
@@ -637,6 +638,14 @@ export const STRINGS_PT_BR = {
             showPinnedIcon: {
                 name: 'Mostrar ícone fixado',
                 desc: 'Exibir o ícone ao lado do cabeçalho da seção fixada.'
+            },
+            defaultListMode: {
+                name: 'Modo padrão da lista',
+                desc: 'Layout usado quando não há substituição de pasta ou tag.',
+                options: {
+                    standard: 'Padrão',
+                    compact: 'Compacto'
+                }
             },
             showFileIcons: {
                 name: 'Mostrar ícones de arquivo',

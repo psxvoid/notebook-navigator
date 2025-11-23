@@ -19,7 +19,7 @@
 import { Platform, Setting, SliderComponent, setIcon } from 'obsidian';
 import { strings } from '../../i18n';
 import { DEFAULT_SETTINGS } from '../defaultSettings';
-import type { ListNoteGroupingOption, ListPaneTitleOption, SortOption } from '../types';
+import type { ListDisplayMode, ListNoteGroupingOption, ListPaneTitleOption, SortOption } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { runAsyncAction } from '../../utils/async';
 
@@ -210,6 +210,20 @@ export function renderListPaneTab(context: SettingsTabContext): void {
     pinnedGroupSettingsEl.toggle(plugin.settings.showPinnedGroupHeader);
 
     new Setting(containerEl).setName(strings.settings.groups.list.display).setHeading();
+
+    new Setting(containerEl)
+        .setName(strings.settings.items.defaultListMode.name)
+        .setDesc(strings.settings.items.defaultListMode.desc)
+        .addDropdown(dropdown =>
+            dropdown
+                .addOption('standard', strings.settings.items.defaultListMode.options.standard)
+                .addOption('compact', strings.settings.items.defaultListMode.options.compact)
+                .setValue(plugin.settings.defaultListMode)
+                .onChange(async (value: ListDisplayMode) => {
+                    plugin.settings.defaultListMode = value === 'compact' ? 'compact' : 'standard';
+                    await plugin.saveSettingsAndUpdate();
+                })
+        );
 
     new Setting(containerEl)
         .setName(strings.settings.items.showFileIcons.name)

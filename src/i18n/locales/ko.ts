@@ -201,8 +201,9 @@ export const STRINGS_KO = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: '기본 모양',
-        compactPreset: '슬림 (날짜/미리보기/이미지 없음)',
+        standardPreset: '표준',
+        compactPreset: '컴팩트',
+        defaultSuffix: '(기본값)',
         titleRows: '제목 행',
         previewRows: '미리보기 행',
         groupBy: '그룹화 기준',
@@ -635,6 +636,14 @@ export const STRINGS_KO = {
             showPinnedIcon: {
                 name: '고정 아이콘 표시',
                 desc: '고정 섹션 헤더 옆에 아이콘을 표시합니다.'
+            },
+            defaultListMode: {
+                name: '기본 목록 모드',
+                desc: '폴더나 태그별 오버라이드가 없을 때 사용하는 레이아웃을 선택합니다.',
+                options: {
+                    standard: '표준',
+                    compact: '컴팩트'
+                }
             },
             showFileIcons: {
                 name: '파일 아이콘 표시',

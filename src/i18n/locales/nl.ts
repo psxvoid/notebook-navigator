@@ -203,8 +203,9 @@ export const STRINGS_NL = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Standaard uiterlijk',
-        compactPreset: 'Compact (geen datum/voorbeeld/afbeelding)',
+        standardPreset: 'Standaard',
+        compactPreset: 'Compact',
+        defaultSuffix: '(standaard)',
         titleRows: 'Titelrijen',
         previewRows: 'Voorbeeldrijen',
         groupBy: 'Groeperen op',
@@ -637,6 +638,14 @@ export const STRINGS_NL = {
             showPinnedIcon: {
                 name: 'Vastgepind pictogram tonen',
                 desc: 'Pictogram naast vastgepinde sectiekop weergeven.'
+            },
+            defaultListMode: {
+                name: 'Standaard lijstmodus',
+                desc: 'Layout gebruiken wanneer er geen map- of tagoverride is.',
+                options: {
+                    standard: 'Standaard',
+                    compact: 'Compact'
+                }
             },
             showFileIcons: {
                 name: 'Bestandspictogrammen tonen',

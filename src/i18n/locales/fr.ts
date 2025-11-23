@@ -202,8 +202,9 @@ export const STRINGS_FR = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Apparence par défaut',
-        compactPreset: 'Compact (sans date/aperçu/image)',
+        standardPreset: 'Standard',
+        compactPreset: 'Compact',
+        defaultSuffix: '(par défaut)',
         titleRows: 'Lignes de titre',
         previewRows: "Lignes d'aperçu",
         groupBy: 'Grouper par',
@@ -637,6 +638,14 @@ export const STRINGS_FR = {
             showPinnedIcon: {
                 name: "Afficher l'icône épinglée",
                 desc: "Afficher l'icône à côté de l'en-tête de la section épinglée."
+            },
+            defaultListMode: {
+                name: 'Mode de liste par défaut',
+                desc: "Mise en page utilisée lorsqu'aucune substitution de dossier ou d'étiquette n'est définie.",
+                options: {
+                    standard: 'Standard',
+                    compact: 'Compact'
+                }
             },
             showFileIcons: {
                 name: 'Afficher les icônes de fichier',

@@ -202,8 +202,9 @@ export const STRINGS_ES = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Apariencia predeterminada',
-        compactPreset: 'Compacto (sin fecha/vista previa/imagen)',
+        standardPreset: 'Estándar',
+        compactPreset: 'Compacto',
+        defaultSuffix: '(predeterminado)',
         titleRows: 'Filas de título',
         previewRows: 'Filas de vista previa',
         groupBy: 'Agrupar por',
@@ -636,6 +637,14 @@ export const STRINGS_ES = {
             showPinnedIcon: {
                 name: 'Mostrar icono de anclados',
                 desc: 'Muestra el icono junto al encabezado de la sección anclada.'
+            },
+            defaultListMode: {
+                name: 'Modo de lista predeterminado',
+                desc: 'Diseño usado cuando no hay configuración personalizada de carpeta o etiqueta.',
+                options: {
+                    standard: 'Estándar',
+                    compact: 'Compacto'
+                }
             },
             showFileIcons: {
                 name: 'Mostrar iconos de archivo',

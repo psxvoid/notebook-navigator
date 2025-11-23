@@ -202,8 +202,9 @@ export const STRINGS_ZH_CN = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: '默认外观',
-        compactPreset: '精简（无日期/预览/图片）',
+        standardPreset: '标准',
+        compactPreset: '紧凑',
+        defaultSuffix: '(默认)',
         titleRows: '标题行数',
         previewRows: '预览行数',
         groupBy: '分组依据',
@@ -635,6 +636,14 @@ export const STRINGS_ZH_CN = {
             showPinnedIcon: {
                 name: '显示固定图标',
                 desc: '在固定部分标题旁显示图标。'
+            },
+            defaultListMode: {
+                name: '默认列表模式',
+                desc: '在没有文件夹或标签覆盖时使用的布局。',
+                options: {
+                    standard: '标准',
+                    compact: '紧凑'
+                }
             },
             showFileIcons: {
                 name: '显示文件图标',

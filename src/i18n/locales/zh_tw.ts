@@ -202,8 +202,9 @@ export const STRINGS_ZH_TW = {
 
     // 資料夾外觀選單
     folderAppearance: {
-        defaultPreset: '預設外觀',
-        compactPreset: '緊湊 (無日期/預覽/圖片)',
+        standardPreset: '標準',
+        compactPreset: '緊湊',
+        defaultSuffix: '(預設)',
         titleRows: '標題列數',
         previewRows: '預覽列數',
         groupBy: '分組依據',
@@ -634,6 +635,14 @@ export const STRINGS_ZH_TW = {
             showPinnedIcon: {
                 name: '顯示釘選圖示',
                 desc: '在釘選區段標題旁顯示圖示。'
+            },
+            defaultListMode: {
+                name: '預設列表模式',
+                desc: '在沒有資料夾或標籤覆蓋時使用的版面。',
+                options: {
+                    standard: '標準',
+                    compact: '緊湊'
+                }
             },
             showFileIcons: {
                 name: '顯示檔案圖示',

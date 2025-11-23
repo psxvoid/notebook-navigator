@@ -124,6 +124,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     keepEmptyTagsProperty: false,
 
     // List pane tab
+    defaultListMode: 'standard',
     defaultFolderSort: 'modified-desc',
     revealFileOnListChanges: true,
     listPaneTitle: 'header',

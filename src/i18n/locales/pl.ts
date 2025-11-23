@@ -201,8 +201,9 @@ export const STRINGS_PL = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Domyślny wygląd',
-        compactPreset: 'Szczupły (bez daty/podglądu/obrazu)',
+        standardPreset: 'Standard',
+        compactPreset: 'Kompaktowy',
+        defaultSuffix: '(domyślne)',
         titleRows: 'Wiersze tytułu',
         previewRows: 'Wiersze podglądu',
         groupBy: 'Grupuj według',
@@ -637,6 +638,14 @@ export const STRINGS_PL = {
             showPinnedIcon: {
                 name: 'Pokaż ikonę przypiętych',
                 desc: 'Wyświetl ikonę obok nagłówka sekcji przypiętych.'
+            },
+            defaultListMode: {
+                name: 'Domyślny tryb listy',
+                desc: 'Układ używany, gdy brak nadpisania dla folderu lub tagu.',
+                options: {
+                    standard: 'Standard',
+                    compact: 'Kompaktowy'
+                }
             },
             showFileIcons: {
                 name: 'Pokaż ikony plików',

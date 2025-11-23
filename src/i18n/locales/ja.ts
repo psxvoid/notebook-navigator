@@ -202,8 +202,9 @@ export const STRINGS_JA = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'デフォルトの外観',
-        compactPreset: 'スリム（日付/プレビュー/画像なし）',
+        standardPreset: '標準',
+        compactPreset: 'コンパクト',
+        defaultSuffix: '(デフォルト)',
         titleRows: 'タイトル行数',
         previewRows: 'プレビュー行数',
         groupBy: 'グループ分け',
@@ -636,6 +637,14 @@ export const STRINGS_JA = {
             showPinnedIcon: {
                 name: 'ピン留めアイコンを表示',
                 desc: 'ピン留めセクションヘッダーの横にアイコンを表示します。'
+            },
+            defaultListMode: {
+                name: 'リストのデフォルトモード',
+                desc: 'フォルダやタグの上書きがないときのレイアウトを選択します。',
+                options: {
+                    standard: '標準',
+                    compact: 'コンパクト'
+                }
             },
             showFileIcons: {
                 name: 'ファイルアイコンを表示',
