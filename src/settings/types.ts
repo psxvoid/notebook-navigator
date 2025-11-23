@@ -27,6 +27,14 @@ import type { SearchProvider } from '../types/search';
 /** Available sort options for file listing */
 export type SortOption = 'modified-desc' | 'modified-asc' | 'created-desc' | 'created-asc' | 'title-asc' | 'title-desc';
 
+/** Ordered list of sort options for validation and UI choices */
+export const SORT_OPTIONS: SortOption[] = ['modified-desc', 'modified-asc', 'created-desc', 'created-asc', 'title-asc', 'title-desc'];
+
+/** Type guard for validating sort option values */
+export function isSortOption(value: unknown): value is SortOption {
+    return typeof value === 'string' && SORT_OPTIONS.includes(value as SortOption);
+}
+
 /** Available orderings for tags in the navigation pane */
 export type TagSortOrder = 'alpha-asc' | 'alpha-desc' | 'frequency-asc' | 'frequency-desc';
 

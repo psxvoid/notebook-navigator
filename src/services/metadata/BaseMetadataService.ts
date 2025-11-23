@@ -24,6 +24,7 @@ import { FolderAppearance, TagAppearance } from '../../hooks/useListPaneAppearan
 import type { ShortcutEntry } from '../../types/shortcuts';
 import { mutateVaultProfileShortcuts } from '../../utils/vaultProfiles';
 import { normalizeCanonicalIconId } from '../../utils/iconizeFormat';
+import { ensureRecord, isStringRecordValue } from '../../utils/recordUtils';
 
 /**
  * Type helper for metadata fields in settings
@@ -211,10 +212,10 @@ export abstract class BaseMetadataService {
 
     // Ensures a color record exists in settings and returns it
     private ensureColorRecord(settings: NotebookNavigatorSettings, key: ColorRecordKey): Record<string, string> {
-        if (!settings[key]) {
-            settings[key] = {};
-        }
-        return settings[key];
+        // Converts to null prototype and validates all values are strings
+        const record = ensureRecord(settings[key], isStringRecordValue);
+        settings[key] = record;
+        return record;
     }
 
     // Sets a color or background color for an entity after validation
@@ -268,23 +269,20 @@ export abstract class BaseMetadataService {
 
         await this.saveAndUpdate(settings => {
             if (entityType === ItemType.FOLDER) {
-                if (!settings.folderIcons) {
-                    // Create object without prototype to prevent collisions with built-in names like "constructor"
-                    settings.folderIcons = Object.create(null) as Record<string, string>;
-                }
-                settings.folderIcons[path] = normalizedIcon;
+                // Ensure null prototype and validate string values before adding icon
+                const icons = ensureRecord(settings.folderIcons, isStringRecordValue);
+                icons[path] = normalizedIcon;
+                settings.folderIcons = icons;
             } else if (entityType === ItemType.TAG) {
-                if (!settings.tagIcons) {
-                    // Create object without prototype to prevent collisions with built-in names like "constructor"
-                    settings.tagIcons = Object.create(null) as Record<string, string>;
-                }
-                settings.tagIcons[path] = normalizedIcon;
+                // Ensure null prototype and validate string values before adding icon
+                const icons = ensureRecord(settings.tagIcons, isStringRecordValue);
+                icons[path] = normalizedIcon;
+                settings.tagIcons = icons;
             } else {
-                if (!settings.fileIcons) {
-                    // Create object without prototype to prevent collisions with built-in names like "constructor"
-                    settings.fileIcons = Object.create(null) as Record<string, string>;
-                }
-                settings.fileIcons[path] = normalizedIcon;
+                // Ensure null prototype and validate string values before adding icon
+                const icons = ensureRecord(settings.fileIcons, isStringRecordValue);
+                icons[path] = normalizedIcon;
+                settings.fileIcons = icons;
             }
         });
     }
@@ -316,6 +314,20 @@ export abstract class BaseMetadataService {
         }
     }
 
+    // Reads an icon entry while ignoring inherited properties and non-string values
+    private readIconRecord(record: Record<string, string> | undefined, path: string): string | undefined {
+        // Check if property exists as own property to prevent reading from prototype chain
+        if (!record || !Object.prototype.hasOwnProperty.call(record, path)) {
+            return undefined;
+        }
+        const icon = record[path];
+        // Validate that stored value is a string to handle corrupted data
+        if (typeof icon !== 'string') {
+            return undefined;
+        }
+        return normalizeCanonicalIconId(icon);
+    }
+
     /**
      * Gets the custom icon for an entity
      * @param entityType - Type of entity ('folder' or 'tag')
@@ -324,49 +336,12 @@ export abstract class BaseMetadataService {
      */
     protected getEntityIcon(entityType: EntityType, path: string): string | undefined {
         if (entityType === ItemType.FOLDER) {
-            const icons = this.settingsProvider.settings.folderIcons;
-            // Use hasOwnProperty to avoid reading inherited properties like "constructor" or "toString"
-            // Without this check, paths matching built-in property names would return functions instead of undefined
-            if (!icons || !Object.prototype.hasOwnProperty.call(icons, path)) {
-                return undefined;
-            }
-            const icon = icons[path];
-            if (icon === undefined) {
-                return undefined;
-            }
-            if (typeof icon !== 'string') {
-                return undefined;
-            }
-            return normalizeCanonicalIconId(icon);
+            return this.readIconRecord(this.settingsProvider.settings.folderIcons, path);
         }
         if (entityType === ItemType.TAG) {
-            const icons = this.settingsProvider.settings.tagIcons;
-            // Use hasOwnProperty to avoid reading inherited properties like "constructor" or "toString"
-            if (!icons || !Object.prototype.hasOwnProperty.call(icons, path)) {
-                return undefined;
-            }
-            const icon = icons[path];
-            if (icon === undefined) {
-                return undefined;
-            }
-            if (typeof icon !== 'string') {
-                return undefined;
-            }
-            return normalizeCanonicalIconId(icon);
+            return this.readIconRecord(this.settingsProvider.settings.tagIcons, path);
         }
-        const icons = this.settingsProvider.settings.fileIcons;
-        // Use hasOwnProperty to avoid reading inherited properties like "constructor" or "toString"
-        if (!icons || !Object.prototype.hasOwnProperty.call(icons, path)) {
-            return undefined;
-        }
-        const icon = icons[path];
-        if (icon === undefined) {
-            return undefined;
-        }
-        if (typeof icon !== 'string') {
-            return undefined;
-        }
-        return normalizeCanonicalIconId(icon);
+        return this.readIconRecord(this.settingsProvider.settings.fileIcons, path);
     }
 
     // ========== Generic Sort Override Management ==========
@@ -380,15 +355,15 @@ export abstract class BaseMetadataService {
     protected async setEntitySortOverride(entityType: EntityType, path: string, sortOption: SortOption): Promise<void> {
         await this.saveAndUpdate(settings => {
             if (entityType === ItemType.FOLDER) {
-                if (!settings.folderSortOverrides) {
-                    settings.folderSortOverrides = {};
-                }
-                settings.folderSortOverrides[path] = sortOption;
+                // Ensure null prototype before adding sort override
+                const overrides = ensureRecord(settings.folderSortOverrides);
+                overrides[path] = sortOption;
+                settings.folderSortOverrides = overrides;
             } else {
-                if (!settings.tagSortOverrides) {
-                    settings.tagSortOverrides = {};
-                }
-                settings.tagSortOverrides[path] = sortOption;
+                // Ensure null prototype before adding sort override
+                const overrides = ensureRecord(settings.tagSortOverrides);
+                overrides[path] = sortOption;
+                settings.tagSortOverrides = overrides;
             }
         });
     }

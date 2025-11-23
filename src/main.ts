@@ -49,6 +49,7 @@ import { ExtendedApp } from './types/obsidian-extended';
 import { getLeafSplitLocation } from './utils/workspaceSplit';
 import { sanitizeKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { normalizeCanonicalIconId } from './utils/iconizeFormat';
+import { isBooleanRecordValue, isPlainObjectRecordValue, isStringRecordValue, sanitizeRecord } from './utils/recordUtils';
 import { isRecord } from './utils/typeGuards';
 import { runAsyncAction } from './utils/async';
 import { resetHiddenToggleIfNoSources } from './utils/exclusionUtils';
@@ -67,6 +68,7 @@ import registerWorkspaceEvents from './services/workspace/registerWorkspaceEvent
 import type { RevealFileOptions } from './hooks/useNavigatorReveal';
 import { ShortcutType, type ShortcutEntry } from './types/shortcuts';
 import type { FolderAppearance } from './hooks/useListPaneAppearance';
+import { isSortOption, type SortOption } from './settings/types';
 
 const DEFAULT_UX_PREFERENCES: UXPreferences = {
     searchActive: false,
@@ -314,6 +316,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
         }
         delete mutableSettings['showFileTagsInSlimMode'];
+
+        this.sanitizeSettingsRecords();
 
         // Set language-specific date/time formats if not already set
         if (!this.settings.dateFormat) {
@@ -1135,27 +1139,43 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
     }
 
+    // Rebuilds all settings records with null prototypes to prevent prototype pollution attacks
+    private sanitizeSettingsRecords(): void {
+        // Type-specific sanitizers that validate values match expected types
+        const sanitizeStringMap = (record?: Record<string, string>): Record<string, string> => sanitizeRecord(record, isStringRecordValue);
+        const sanitizeSortMap = (record?: Record<string, SortOption>): Record<string, SortOption> => sanitizeRecord(record, isSortOption);
+        const isAppearanceValue = (value: unknown): value is FolderAppearance => isPlainObjectRecordValue(value);
+        const sanitizeAppearanceMap = (record?: Record<string, FolderAppearance>): Record<string, FolderAppearance> =>
+            sanitizeRecord(record, isAppearanceValue);
+        const sanitizeBooleanMap = (record?: Record<string, boolean>): Record<string, boolean> =>
+            sanitizeRecord(record, isBooleanRecordValue);
+
+        // Rebuild maps with null prototypes so keys like "constructor" never resolve to Object.prototype
+        this.settings.folderColors = sanitizeStringMap(this.settings.folderColors);
+        this.settings.folderBackgroundColors = sanitizeStringMap(this.settings.folderBackgroundColors);
+        this.settings.fileColors = sanitizeStringMap(this.settings.fileColors);
+        this.settings.tagColors = sanitizeStringMap(this.settings.tagColors);
+        this.settings.tagBackgroundColors = sanitizeStringMap(this.settings.tagBackgroundColors);
+        this.settings.folderSortOverrides = sanitizeSortMap(this.settings.folderSortOverrides);
+        this.settings.tagSortOverrides = sanitizeSortMap(this.settings.tagSortOverrides);
+        this.settings.folderAppearances = sanitizeAppearanceMap(this.settings.folderAppearances);
+        this.settings.tagAppearances = sanitizeAppearanceMap(this.settings.tagAppearances);
+        this.settings.navigationSeparators = sanitizeBooleanMap(this.settings.navigationSeparators);
+        this.settings.externalIconProviders = sanitizeBooleanMap(this.settings.externalIconProviders);
+    }
+
     private normalizeIconSettings(settings: NotebookNavigatorSettings): void {
         const normalizeRecord = (record?: Record<string, string>): Record<string, string> => {
-            // Create object without prototype to prevent collisions with built-in property names
-            // Without this, tag names like "constructor" or "toString" would return the built-in
-            // function instead of undefined, causing a crash when calling .trim() on the function
-            const normalized = Object.create(null) as Record<string, string>;
-            if (!record) {
-                return normalized;
-            }
-            for (const key of Object.keys(record)) {
-                const value = record[key];
-                if (typeof value !== 'string') {
-                    continue;
-                }
-                const canonical = normalizeCanonicalIconId(value);
+            const sanitized = sanitizeRecord(record, isStringRecordValue);
+            Object.keys(sanitized).forEach(key => {
+                const canonical = normalizeCanonicalIconId(sanitized[key]);
                 if (!canonical) {
-                    continue;
+                    delete sanitized[key];
+                    return;
                 }
-                normalized[key] = canonical;
-            }
-            return normalized;
+                sanitized[key] = canonical;
+            });
+            return sanitized;
         };
 
         settings.folderIcons = normalizeRecord(settings.folderIcons);
@@ -1256,10 +1276,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     private normalizeTagSettings() {
         const normalizeRecord = <T>(record: Record<string, T> | undefined): Record<string, T> => {
-            if (!record) return {};
+            if (!record) return Object.create(null) as Record<string, T>;
 
-            const normalized: Record<string, T> = {};
-            for (const [key, value] of Object.entries(record)) {
+            const normalized = Object.create(null) as Record<string, T>;
+            // Remove inherited properties before normalizing to lowercase
+            const sanitized = sanitizeRecord(record);
+            for (const [key, value] of Object.entries(sanitized)) {
                 const lowerKey = key.toLowerCase();
                 // If there's a conflict (e.g., both "TODO" and "todo"), last one wins
                 normalized[lowerKey] = value;

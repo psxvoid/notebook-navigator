@@ -16,10 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Platform, Setting, SliderComponent, setIcon } from 'obsidian';
+import { DropdownComponent, Platform, Setting, SliderComponent, setIcon } from 'obsidian';
 import { strings } from '../../i18n';
 import { DEFAULT_SETTINGS } from '../defaultSettings';
 import type { ListDisplayMode, ListNoteGroupingOption, ListPaneTitleOption, SortOption } from '../types';
+import { SORT_OPTIONS } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { runAsyncAction } from '../../utils/async';
 
@@ -60,20 +61,15 @@ export function renderListPaneTab(context: SettingsTabContext): void {
     new Setting(containerEl)
         .setName(strings.settings.items.sortNotesBy.name)
         .setDesc(strings.settings.items.sortNotesBy.desc)
-        .addDropdown(dropdown =>
-            dropdown
-                .addOption('modified-desc', strings.settings.items.sortNotesBy.options['modified-desc'])
-                .addOption('modified-asc', strings.settings.items.sortNotesBy.options['modified-asc'])
-                .addOption('created-desc', strings.settings.items.sortNotesBy.options['created-desc'])
-                .addOption('created-asc', strings.settings.items.sortNotesBy.options['created-asc'])
-                .addOption('title-asc', strings.settings.items.sortNotesBy.options['title-asc'])
-                .addOption('title-desc', strings.settings.items.sortNotesBy.options['title-desc'])
-                .setValue(plugin.settings.defaultFolderSort)
-                .onChange(async (value: SortOption) => {
-                    plugin.settings.defaultFolderSort = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-        );
+        .addDropdown((dropdown: DropdownComponent) => {
+            SORT_OPTIONS.forEach(option => {
+                dropdown.addOption(option, strings.settings.items.sortNotesBy.options[option]);
+            });
+            return dropdown.setValue(plugin.settings.defaultFolderSort).onChange(async (value: SortOption) => {
+                plugin.settings.defaultFolderSort = value;
+                await plugin.saveSettingsAndUpdate();
+            });
+        });
 
     new Setting(containerEl)
         .setName(strings.settings.items.revealFileOnListChanges.name)
