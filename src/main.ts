@@ -1136,28 +1136,31 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     private normalizeIconSettings(settings: NotebookNavigatorSettings): void {
-        const normalizeRecord = (record?: Record<string, string>): void => {
+        const normalizeRecord = (record?: Record<string, string>): Record<string, string> => {
+            // Create object without prototype to prevent collisions with built-in property names
+            // Without this, tag names like "constructor" or "toString" would return the built-in
+            // function instead of undefined, causing a crash when calling .trim() on the function
+            const normalized = Object.create(null) as Record<string, string>;
             if (!record) {
-                return;
+                return normalized;
             }
             for (const key of Object.keys(record)) {
                 const value = record[key];
                 if (typeof value !== 'string') {
-                    delete record[key];
                     continue;
                 }
-                const normalized = normalizeCanonicalIconId(value);
-                if (!normalized) {
-                    delete record[key];
+                const canonical = normalizeCanonicalIconId(value);
+                if (!canonical) {
                     continue;
                 }
-                record[key] = normalized;
+                normalized[key] = canonical;
             }
+            return normalized;
         };
 
-        normalizeRecord(settings.folderIcons);
-        normalizeRecord(settings.tagIcons);
-        normalizeRecord(settings.fileIcons);
+        settings.folderIcons = normalizeRecord(settings.folderIcons);
+        settings.tagIcons = normalizeRecord(settings.tagIcons);
+        settings.fileIcons = normalizeRecord(settings.fileIcons);
     }
 
     // Extracts legacy exclusion settings from old format and prepares them for migration to vault profiles

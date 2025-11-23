@@ -83,7 +83,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         improved: [],
         changed: [],
         fixed: [
-            'Improved Chinese translation for "Reveal" functionality. Now uses "定位" (locate) instead of "显示" (show) to better convey the meaning of revealing/locating files in folders.'
+            'Improved Chinese translation for "Reveal" functionality. Now uses "定位" (locate) instead of "显示" (show) to better convey the meaning of revealing/locating files in folders.',
+            'Fixed a crash when using tags named "constructor", "toString", or other special JavaScript words. These tag names now work correctly without causing the view to blank out.'
         ]
     },
     {

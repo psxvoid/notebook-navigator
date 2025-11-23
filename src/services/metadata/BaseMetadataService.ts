@@ -269,17 +269,20 @@ export abstract class BaseMetadataService {
         await this.saveAndUpdate(settings => {
             if (entityType === ItemType.FOLDER) {
                 if (!settings.folderIcons) {
-                    settings.folderIcons = {};
+                    // Create object without prototype to prevent collisions with built-in names like "constructor"
+                    settings.folderIcons = Object.create(null) as Record<string, string>;
                 }
                 settings.folderIcons[path] = normalizedIcon;
             } else if (entityType === ItemType.TAG) {
                 if (!settings.tagIcons) {
-                    settings.tagIcons = {};
+                    // Create object without prototype to prevent collisions with built-in names like "constructor"
+                    settings.tagIcons = Object.create(null) as Record<string, string>;
                 }
                 settings.tagIcons[path] = normalizedIcon;
             } else {
                 if (!settings.fileIcons) {
-                    settings.fileIcons = {};
+                    // Create object without prototype to prevent collisions with built-in names like "constructor"
+                    settings.fileIcons = Object.create(null) as Record<string, string>;
                 }
                 settings.fileIcons[path] = normalizedIcon;
             }
@@ -321,15 +324,49 @@ export abstract class BaseMetadataService {
      */
     protected getEntityIcon(entityType: EntityType, path: string): string | undefined {
         if (entityType === ItemType.FOLDER) {
-            const icon = this.settingsProvider.settings.folderIcons?.[path];
-            return icon ? normalizeCanonicalIconId(icon) : undefined;
+            const icons = this.settingsProvider.settings.folderIcons;
+            // Use hasOwnProperty to avoid reading inherited properties like "constructor" or "toString"
+            // Without this check, paths matching built-in property names would return functions instead of undefined
+            if (!icons || !Object.prototype.hasOwnProperty.call(icons, path)) {
+                return undefined;
+            }
+            const icon = icons[path];
+            if (icon === undefined) {
+                return undefined;
+            }
+            if (typeof icon !== 'string') {
+                return undefined;
+            }
+            return normalizeCanonicalIconId(icon);
         }
         if (entityType === ItemType.TAG) {
-            const icon = this.settingsProvider.settings.tagIcons?.[path];
-            return icon ? normalizeCanonicalIconId(icon) : undefined;
+            const icons = this.settingsProvider.settings.tagIcons;
+            // Use hasOwnProperty to avoid reading inherited properties like "constructor" or "toString"
+            if (!icons || !Object.prototype.hasOwnProperty.call(icons, path)) {
+                return undefined;
+            }
+            const icon = icons[path];
+            if (icon === undefined) {
+                return undefined;
+            }
+            if (typeof icon !== 'string') {
+                return undefined;
+            }
+            return normalizeCanonicalIconId(icon);
         }
-        const icon = this.settingsProvider.settings.fileIcons?.[path];
-        return icon ? normalizeCanonicalIconId(icon) : undefined;
+        const icons = this.settingsProvider.settings.fileIcons;
+        // Use hasOwnProperty to avoid reading inherited properties like "constructor" or "toString"
+        if (!icons || !Object.prototype.hasOwnProperty.call(icons, path)) {
+            return undefined;
+        }
+        const icon = icons[path];
+        if (icon === undefined) {
+            return undefined;
+        }
+        if (typeof icon !== 'string') {
+            return undefined;
+        }
+        return normalizeCanonicalIconId(icon);
     }
 
     // ========== Generic Sort Override Management ==========
