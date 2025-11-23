@@ -77,10 +77,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-24',
         showOnUpdate: true,
         new: [
-            'New setting: ==List pane > Appearance > Default list mode==. Select the default list layout between **standard** and **compact**. **Standard** shows title, date, description, and preview text. **Compact** shows title only. Override appearance per folder.',
-            'New setting: ==List pane > Appearance > Show file icons==. When enabled Notebook Navigator shows file icons such as external file indicator or custom icons in a separate column. When disabled, file icons are not shown and files are not indented in the list pane. Default enabled.'
+            'New setting: ==List pane > Appearance > Default list mode==. Choose the default list layout between **standard** and **compact**. **Standard** shows title, date, description, and preview text. **Compact** only shows title. You can override the appearance for each folder or tag.',
+            'New setting: ==List pane > Appearance > Show file icons==. Disable to hide all file icons and avoid the indentation in the list pane.'
         ],
-        improved: [],
+        improved: ['If you change filename color in Style Settings, that color is now also used in shortcuts and recent notes.'],
         changed: [],
         fixed: [
             'Improved Chinese translation for "Reveal" functionality. Now uses "定位" (locate) instead of "显示" (show) to better convey the meaning of revealing/locating files in folders.',

@@ -1467,6 +1467,10 @@ body {
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
+.nn-navitem[data-nav-item-type='note'] .nn-navitem-name {
+    color: var(--nn-theme-file-name-color);
+}
+
 /* Custom colored folder names */
 .nn-navitem-name.nn-has-custom-color {
     font-weight: var(--nn-theme-navitem-custom-color-name-font-weight) !important;
@@ -2697,6 +2701,10 @@ body {
 
 .nn-navitem.nn-selected .nn-navitem-name {
     color: var(--nn-selected-navitem-name-color);
+}
+
+.nn-navitem.nn-selected[data-nav-item-type='note'] .nn-navitem-name {
+    color: var(--nn-selected-file-name-color);
 }
 
 .nn-navitem.nn-selected .nn-navitem-count {
