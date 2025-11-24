@@ -273,34 +273,38 @@ export class FileSystemOperations {
     }
 
     /**
-     * Filters input name by removing invalid characters and normalizing
-     * Removes invalid link characters if setting enabled, strips leading dots, and trims whitespace
+     * Filters input name by removing invalid characters
+     * Removes invalid link characters if setting enabled and strips leading dots
+     * Does NOT trim whitespace during live filtering to allow typing spaces
      * @param value - The input name to filter
-     * @returns Object with filtered value and trimmed version (currently identical)
+     * @returns Filtered value without invalid characters
      */
-    private filterNameInput(value: string): { value: string; trimmed: string } {
+    private filterNameInputLive(value: string): string {
         if (!value) {
-            return { value: '', trimmed: '' };
+            return '';
         }
 
         // Remove invalid link characters if setting enabled
         const withoutInvalidCharacters = this.shouldFilterInvalidNames() ? stripInvalidLinkCharacters(value) : value;
         // Remove leading dots
-        const withoutLeadingDots = withoutInvalidCharacters.replace(/^\.+/u, '');
-        const normalized = withoutLeadingDots.trim();
+        return withoutInvalidCharacters.replace(/^\.+/u, '');
+    }
 
-        return {
-            value: normalized,
-            trimmed: normalized
-        };
+    /**
+     * Filters and trims input name for final submission
+     * @param value - The input name to filter
+     * @returns Trimmed and filtered value
+     */
+    private filterNameInputFinal(value: string): string {
+        return this.filterNameInputLive(value).trim();
     }
 
     /**
      * Returns a function that filters input names for use in InputModal
-     * @returns Filter function that removes invalid characters and normalizes input
+     * @returns Filter function that removes invalid characters (no trim for live typing)
      */
     private getNameInputFilter(): (value: string) => string {
-        return (input: string) => this.filterNameInput(input).value;
+        return (input: string) => this.filterNameInputLive(input);
     }
 
     /**
@@ -353,7 +357,7 @@ export class FileSystemOperations {
             strings.modals.fileSystem.newFolderTitle,
             strings.modals.fileSystem.folderNamePrompt,
             async (name, context) => {
-                const { trimmed: filteredName } = this.filterNameInput(name);
+                const filteredName = this.filterNameInputFinal(name);
                 if (!filteredName) {
                     return;
                 }
@@ -409,7 +413,7 @@ export class FileSystemOperations {
             strings.modals.fileSystem.renameFolderTitle,
             strings.modals.fileSystem.renamePrompt,
             async newName => {
-                const { trimmed: filteredName } = this.filterNameInput(newName);
+                const filteredName = this.filterNameInputFinal(newName);
                 if (!filteredName || filteredName === folder.name) {
                     return;
                 }
@@ -481,8 +485,7 @@ export class FileSystemOperations {
             strings.modals.fileSystem.renameFileTitle,
             strings.modals.fileSystem.renamePrompt,
             async rawInput => {
-                const { trimmed } = this.filterNameInput(rawInput);
-                const trimmedInput = trimmed;
+                const trimmedInput = this.filterNameInputFinal(rawInput);
                 if (!trimmedInput) {
                     return;
                 }
