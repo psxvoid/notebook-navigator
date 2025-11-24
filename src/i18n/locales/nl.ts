@@ -309,7 +309,8 @@ export const STRINGS_NL = {
             folderLabel: 'Map: {name}'
         },
         folderSuggest: {
-            placeholder: 'Verplaatsen naar map...',
+            placeholder: (name: string) => `Verplaats ${name} naar map...`,
+            multipleFilesLabel: (count: number) => `${count} bestanden`,
             navigatePlaceholder: 'Navigeren naar map...',
             instructions: {
                 navigate: 'om te navigeren',

@@ -310,7 +310,8 @@ export const STRINGS_DE = {
             folderLabel: 'Ordner: {name}'
         },
         folderSuggest: {
-            placeholder: 'In Ordner verschieben...',
+            placeholder: (name: string) => `In Ordner verschieben: ${name}...`,
+            multipleFilesLabel: (count: number) => `${count} Dateien`,
             navigatePlaceholder: 'Zu Ordner navigieren...',
             instructions: {
                 navigate: 'zum Navigieren',

@@ -308,7 +308,8 @@ export const STRINGS_ZH_CN = {
             folderLabel: '文件夹：{name}'
         },
         folderSuggest: {
-            placeholder: '移动到文件夹...',
+            placeholder: (name: string) => `将 ${name} 移动到文件夹...`,
+            multipleFilesLabel: (count: number) => `${count} 个文件`,
             navigatePlaceholder: '导航到文件夹...',
             instructions: {
                 navigate: '导航',

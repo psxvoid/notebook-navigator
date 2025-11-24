@@ -309,7 +309,8 @@ export const STRINGS_PL = {
             folderLabel: 'Folder: {name}'
         },
         folderSuggest: {
-            placeholder: 'Przenieś do folderu...',
+            placeholder: (name: string) => `Przenieś ${name} do folderu...`,
+            multipleFilesLabel: (count: number) => `${count} plików`,
             navigatePlaceholder: 'Przejdź do folderu...',
             instructions: {
                 navigate: 'aby nawigować',

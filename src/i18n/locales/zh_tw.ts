@@ -308,7 +308,8 @@ export const STRINGS_ZH_TW = {
             folderLabel: '資料夾：{name}'
         },
         folderSuggest: {
-            placeholder: '移動至資料夾...',
+            placeholder: (name: string) => `將 ${name} 移動至資料夾...`,
+            multipleFilesLabel: (count: number) => `${count} 個檔案`,
             navigatePlaceholder: '導覽至資料夾...',
             instructions: {
                 navigate: '導覽',

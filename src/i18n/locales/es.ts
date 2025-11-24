@@ -308,7 +308,8 @@ export const STRINGS_ES = {
             folderLabel: 'Carpeta: {name}'
         },
         folderSuggest: {
-            placeholder: 'Mover a carpeta...',
+            placeholder: (name: string) => `Mover ${name} a carpeta...`,
+            multipleFilesLabel: (count: number) => `${count} archivos`,
             navigatePlaceholder: 'Navegar a carpeta...',
             instructions: {
                 navigate: 'para navegar',

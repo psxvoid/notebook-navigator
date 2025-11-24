@@ -307,7 +307,8 @@ export const STRINGS_KO = {
             folderLabel: '폴더: {name}'
         },
         folderSuggest: {
-            placeholder: '폴더로 이동...',
+            placeholder: (name: string) => `${name}를 폴더로 이동...`,
+            multipleFilesLabel: (count: number) => `${count}개의 파일`,
             navigatePlaceholder: '폴더로 이동...',
             instructions: {
                 navigate: '이동',

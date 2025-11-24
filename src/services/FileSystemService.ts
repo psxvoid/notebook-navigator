@@ -245,6 +245,27 @@ export class FileSystemOperations {
     }
 
     /**
+     * Generates placeholder text for folder move modal
+     * Optionally wraps the target name in single quotes
+     */
+    private getMovePlaceholder(targetName: string, shouldQuote: boolean): string {
+        const label = shouldQuote ? `'${targetName}'` : targetName;
+        return strings.modals.folderSuggest.placeholder(label);
+    }
+
+    /**
+     * Returns label text for files being moved
+     * Returns file name for single file, or count label for multiple files
+     */
+    private getMoveTargetLabelForFiles(files: TFile[]): string {
+        if (files.length === 1) {
+            return files[0].name;
+        }
+
+        return strings.modals.folderSuggest.multipleFilesLabel(files.length);
+    }
+
+    /**
      * Checks whether invalid character filtering is enabled in settings
      */
     private shouldFilterInvalidNames(): boolean {
@@ -280,6 +301,29 @@ export class FileSystemOperations {
      */
     private getNameInputFilter(): (value: string) => string {
         return (input: string) => this.filterNameInput(input).value;
+    }
+
+    /**
+     * Returns display title for file deletion modal
+     * Uses full path for folder notes, basename for regular notes
+     */
+    private getDeleteFileTitle(file: TFile): string {
+        const settings = this.settingsProvider.settings;
+        const parent = file.parent;
+        if (!parent || !(parent instanceof TFolder)) {
+            return file.basename;
+        }
+
+        const detectionSettings = {
+            enableFolderNotes: settings.enableFolderNotes,
+            folderNoteName: settings.folderNoteName
+        };
+
+        if (!isFolderNote(file, parent, detectionSettings)) {
+            return file.basename;
+        }
+
+        return file.path;
     }
 
     /**
@@ -555,6 +599,7 @@ export class FileSystemOperations {
         onSuccess?: () => void,
         preDeleteAction?: () => Promise<void>
     ): Promise<void> {
+        const deleteTitle = this.getDeleteFileTitle(file);
         const performDeleteCore = async () => {
             try {
                 // Run pre-delete action if provided
@@ -575,7 +620,7 @@ export class FileSystemOperations {
         if (confirmBeforeDelete) {
             const confirmModal = new ConfirmModal(
                 this.app,
-                strings.modals.fileSystem.deleteFileTitle.replace('{name}', file.basename),
+                strings.modals.fileSystem.deleteFileTitle.replace('{name}', deleteTitle),
                 strings.modals.fileSystem.deleteFileConfirm,
                 async () => {
                     const commandQueue = this.getCommandQueue();
@@ -791,6 +836,9 @@ export class FileSystemOperations {
             excludePaths.add(files[0].parent.path);
         }
 
+        const isMultiple = files.length > 1;
+        const placeholderText = this.getMovePlaceholder(this.getMoveTargetLabelForFiles(files), !isMultiple);
+
         // Show the folder selection modal
         const modal = new FolderSuggestModal(
             this.app,
@@ -813,7 +861,7 @@ export class FileSystemOperations {
                     );
                 }
             },
-            strings.modals.folderSuggest.placeholder,
+            placeholderText,
             strings.modals.folderSuggest.instructions.move,
             excludePaths
         );
@@ -895,7 +943,7 @@ export class FileSystemOperations {
                         finish({ status: 'error', error });
                     }
                 },
-                strings.modals.folderSuggest.placeholder,
+                this.getMovePlaceholder(folder.name, true),
                 strings.modals.folderSuggest.instructions.move,
                 excludePaths,
                 () => finish({ status: 'cancelled' })

@@ -308,7 +308,8 @@ export const STRINGS_JA = {
             folderLabel: 'フォルダ: {name}'
         },
         folderSuggest: {
-            placeholder: 'フォルダに移動...',
+            placeholder: (name: string) => `${name} をフォルダに移動...`,
+            multipleFilesLabel: (count: number) => `${count} 個のファイル`,
             navigatePlaceholder: 'フォルダにナビゲート...',
             instructions: {
                 navigate: 'でナビゲート',
