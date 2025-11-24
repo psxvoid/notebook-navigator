@@ -210,7 +210,12 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     )
                     .setIcon('lucide-folder-input'),
                 async () => {
-                    await fileSystemOps.moveFilesWithModal(cachedSelectedFiles, {
+                    // Re-resolve files at action time to handle sync deletions
+                    const currentFiles = Array.from(selectionState.selectedFiles)
+                        .map(path => app.vault.getFileByPath(path))
+                        .filter((f): f is TFile => !!f);
+
+                    await fileSystemOps.moveFilesWithModal(currentFiles, {
                         selectedFile: selectionState.selectedFile,
                         dispatch: selectionDispatch,
                         allFiles: cachedFileList
