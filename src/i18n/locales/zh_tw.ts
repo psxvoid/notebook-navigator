@@ -871,6 +871,10 @@ export const STRINGS_ZH_TW = {
                 help: '常用格式：\nh:mm a = 2:30 PM (12 小時制)\nHH:mm = 14:30 (24 小時制)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\n符號：\nHH/H = 24 小時\nhh/h = 12 小時\nmm = 分鐘\nss = 秒\na = AM/PM',
                 helpTooltip: '點擊查看格式參考'
             },
+            preventInvalidCharacters: {
+                name: 'Prevent invalid characters',
+                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+            },
             showFilePreview: {
                 name: '顯示筆記預覽',
                 desc: '在筆記名稱下方顯示預覽文字。'

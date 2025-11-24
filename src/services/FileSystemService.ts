@@ -28,7 +28,7 @@ import type { VisibilityPreferences } from '../types';
 import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
 import { cleanupExclusionPatterns, isPathInExcludedFolder } from '../utils/fileFilters';
-import { EXCALIDRAW_BASENAME_SUFFIX, isExcalidrawFile, stripExcalidrawSuffix } from '../utils/fileNameUtils';
+import { EXCALIDRAW_BASENAME_SUFFIX, isExcalidrawFile, stripExcalidrawSuffix, stripInvalidLinkCharacters } from '../utils/fileNameUtils';
 import { getFolderNote, isFolderNote, isSupportedFolderNoteExtension } from '../utils/folderNotes';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 import { executeCommand } from '../utils/typeGuards';
@@ -245,6 +245,44 @@ export class FileSystemOperations {
     }
 
     /**
+     * Checks whether invalid character filtering is enabled in settings
+     */
+    private shouldFilterInvalidNames(): boolean {
+        return Boolean(this.settingsProvider.settings.preventInvalidCharacters);
+    }
+
+    /**
+     * Filters input name by removing invalid characters and normalizing
+     * Removes invalid link characters if setting enabled, strips leading dots, and trims whitespace
+     * @param value - The input name to filter
+     * @returns Object with filtered value and trimmed version (currently identical)
+     */
+    private filterNameInput(value: string): { value: string; trimmed: string } {
+        if (!value) {
+            return { value: '', trimmed: '' };
+        }
+
+        // Remove invalid link characters if setting enabled
+        const withoutInvalidCharacters = this.shouldFilterInvalidNames() ? stripInvalidLinkCharacters(value) : value;
+        // Remove leading dots
+        const withoutLeadingDots = withoutInvalidCharacters.replace(/^\.+/u, '');
+        const normalized = withoutLeadingDots.trim();
+
+        return {
+            value: normalized,
+            trimmed: normalized
+        };
+    }
+
+    /**
+     * Returns a function that filters input names for use in InputModal
+     * @returns Filter function that removes invalid characters and normalizes input
+     */
+    private getNameInputFilter(): (value: string) => string {
+        return (input: string) => this.filterNameInput(input).value;
+    }
+
+    /**
      * Creates a new folder with user-provided name
      * Shows input modal for folder name and handles creation
      * @param parent - The parent folder to create the new folder in
@@ -254,19 +292,31 @@ export class FileSystemOperations {
         const settings = this.settingsProvider.settings;
         ensureVaultProfiles(settings);
         const showHiddenOption = settings.vaultProfiles.length >= 2;
+        const inputFilter = this.getNameInputFilter();
+        const modalOptions = showHiddenOption
+            ? {
+                  checkbox: {
+                      label: strings.modals.fileSystem.hideInOtherVaultProfiles
+                  },
+                  inputFilter
+              }
+            : {
+                  inputFilter
+              };
 
         const modal = new InputModal(
             this.app,
             strings.modals.fileSystem.newFolderTitle,
             strings.modals.fileSystem.folderNamePrompt,
             async (name, context) => {
-                if (!name) {
+                const { trimmed: filteredName } = this.filterNameInput(name);
+                if (!filteredName) {
                     return;
                 }
 
                 try {
                     const base = parent.path === '/' ? '' : `${parent.path}/`;
-                    const path = normalizePath(`${base}${name}`);
+                    const path = normalizePath(`${base}${filteredName}`);
                     await this.app.vault.createFolder(path);
                     if (showHiddenOption && context?.checkboxValue) {
                         await this.hideFolderInOtherVaultProfiles(path);
@@ -279,13 +329,7 @@ export class FileSystemOperations {
                 }
             },
             '',
-            showHiddenOption
-                ? {
-                      checkbox: {
-                          label: strings.modals.fileSystem.hideInOtherVaultProfiles
-                      }
-                  }
-                : undefined
+            modalOptions
         );
         modal.open();
     }
@@ -314,12 +358,15 @@ export class FileSystemOperations {
      * @param settings - The plugin settings (optional)
      */
     async renameFolder(folder: TFolder, settings?: NotebookNavigatorSettings): Promise<void> {
+        const inputFilter = this.getNameInputFilter();
+
         const modal = new InputModal(
             this.app,
             strings.modals.fileSystem.renameFolderTitle,
             strings.modals.fileSystem.renamePrompt,
             async newName => {
-                if (!newName || newName === folder.name) {
+                const { trimmed: filteredName } = this.filterNameInput(newName);
+                if (!filteredName || filteredName === folder.name) {
                     return;
                 }
 
@@ -333,7 +380,7 @@ export class FileSystemOperations {
                     }
 
                     if (folderNote) {
-                        const newNoteName = `${newName}.${folderNote.extension}`;
+                        const newNoteName = `${filteredName}.${folderNote.extension}`;
                         const folderBase = folder.path === '/' ? '' : `${folder.path}/`;
                         const conflictPath = normalizePath(`${folderBase}${newNoteName}`);
                         const conflict = this.app.vault.getFileByPath(conflictPath);
@@ -347,7 +394,7 @@ export class FileSystemOperations {
 
                     const parentPath = folder.parent?.path ?? '/';
                     const base = parentPath === '/' ? '' : `${parentPath}/`;
-                    const newFolderPath = normalizePath(`${base}${newName}`);
+                    const newFolderPath = normalizePath(`${base}${filteredName}`);
 
                     // Rename the folder (moves contents including the folder note)
                     await this.app.fileManager.renameFile(folder, newFolderPath);
@@ -355,14 +402,17 @@ export class FileSystemOperations {
 
                     // Rename the folder note to match the new folder name when using default naming
                     if (folderNote) {
-                        const newNotePath = normalizePath(`${newFolderPath}/${newName}.${folderNote.extension}`);
+                        const newNotePath = normalizePath(`${newFolderPath}/${filteredName}.${folderNote.extension}`);
                         await this.app.fileManager.renameFile(folderNote, newNotePath);
                     }
                 } catch (error) {
                     this.notifyError(strings.fileSystem.errors.renameFolder, error);
                 }
             },
-            folder.name
+            folder.name,
+            {
+                inputFilter
+            }
         );
         modal.open();
     }
@@ -380,13 +430,15 @@ export class FileSystemOperations {
         const extensionSuffix = extension ? `.${extension}` : '';
         // Strip .excalidraw suffix from default value for Excalidraw files
         const defaultValue = isExcalidraw ? stripExcalidrawSuffix(file.basename) : file.basename;
+        const inputFilter = this.getNameInputFilter();
 
         const modal = new InputModal(
             this.app,
             strings.modals.fileSystem.renameFileTitle,
             strings.modals.fileSystem.renamePrompt,
             async rawInput => {
-                const trimmedInput = rawInput.trim();
+                const { trimmed } = this.filterNameInput(rawInput);
+                const trimmedInput = trimmed;
                 if (!trimmedInput) {
                     return;
                 }
@@ -439,7 +491,10 @@ export class FileSystemOperations {
                     this.notifyError(strings.fileSystem.errors.renameFile, error);
                 }
             },
-            defaultValue
+            defaultValue,
+            {
+                inputFilter
+            }
         );
         modal.open();
     }

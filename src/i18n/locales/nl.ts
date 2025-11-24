@@ -875,6 +875,10 @@ export const STRINGS_NL = {
                 help: 'Veelvoorkomende formaten:\nHH:mm = 14:30 (24-uurs)\nh:mm a = 2:30 PM (12-uurs)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nTokens:\nHH/H = 24-uurs\nhh/h = 12-uurs\nmm = minuten\nss = seconden\na = AM/PM',
                 helpTooltip: 'Klik voor formaatverwijzing'
             },
+            preventInvalidCharacters: {
+                name: 'Prevent invalid characters',
+                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+            },
             showFilePreview: {
                 name: 'Notitievoorbeeld tonen',
                 desc: 'Voorbeeldtekst onder notitienamen weergeven.'

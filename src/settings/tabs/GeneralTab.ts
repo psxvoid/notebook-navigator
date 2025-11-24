@@ -777,6 +777,16 @@ export function renderGeneralTab(context: SettingsTabContext): void {
 
     new Setting(containerEl).setName(strings.settings.groups.general.formatting).setHeading();
 
+    new Setting(containerEl)
+        .setName(strings.settings.items.preventInvalidCharacters.name)
+        .setDesc(strings.settings.items.preventInvalidCharacters.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.preventInvalidCharacters).onChange(async value => {
+                plugin.settings.preventInvalidCharacters = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
     const dateFormatSetting = createDebouncedTextSetting(
         containerEl,
         strings.settings.items.dateFormat.name,

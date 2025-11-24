@@ -872,6 +872,10 @@ export const STRINGS_KO = {
                 help: '일반적인 형식:\nh:mm a = 2:30 PM (12시간)\nHH:mm = 14:30 (24시간)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\n토큰:\nHH/H = 24시간\nhh/h = 12시간\nmm = 분\nss = 초\na = AM/PM',
                 helpTooltip: '형식 참조를 보려면 클릭'
             },
+            preventInvalidCharacters: {
+                name: 'Prevent invalid characters',
+                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+            },
             showFilePreview: {
                 name: '노트 미리보기 표시',
                 desc: '노트 이름 아래에 미리보기 텍스트를 표시합니다.'

@@ -77,6 +77,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-24',
         showOnUpdate: true,
         new: [
+            'New setting: ==General > Formatting > Prevent invalid characters==. Blocks #, |, ^, :, %%, [[, ]] when creating or renaming files and folders to prevent broken links and unexpected behavior. Default enabled.',
             'New setting: ==List pane > Appearance > Default list mode==. Choose the default list layout between **standard** and **compact**. **Standard** shows title, date, description, and preview text. **Compact** only shows title. You can override the appearance for each folder or tag.',
             'New setting: ==List pane > Appearance > Show file icons==. Disable to hide all file icons and avoid the indentation in the list pane.'
         ],

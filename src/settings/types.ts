@@ -120,6 +120,7 @@ export interface NotebookNavigatorSettings {
     mobileScale: number;
 
     // General tab - Formatting
+    preventInvalidCharacters: boolean;
     dateFormat: string;
     timeFormat: string;
 

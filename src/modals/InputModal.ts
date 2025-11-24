@@ -27,6 +27,7 @@ interface InputModalCheckboxOptions {
 
 interface InputModalOptions {
     checkbox?: InputModalCheckboxOptions;
+    inputFilter?: (value: string) => string;
 }
 
 export interface InputModalSubmitContext {
@@ -65,10 +66,14 @@ export class InputModal extends Modal {
         super(app);
         this.titleEl.setText(title);
 
+        // Apply input filter to default value if provided
+        const inputFilter = options?.inputFilter;
+        const initialValue = inputFilter ? inputFilter(defaultValue) : defaultValue;
+
         this.inputEl = this.contentEl.createEl('input', {
             type: 'text',
             placeholder: placeholder,
-            value: defaultValue
+            value: initialValue
         });
         this.inputEl.addClass('nn-input');
 
@@ -122,6 +127,31 @@ export class InputModal extends Modal {
         this.inputEl.focus();
         if (defaultValue) {
             this.inputEl.select();
+        }
+
+        // Attach input filter listener if provided
+        if (inputFilter) {
+            this.inputEl.addEventListener('input', () => {
+                const currentValue = this.inputEl.value;
+                const filteredValue = inputFilter(currentValue);
+
+                // Skip if no filtering occurred
+                if (filteredValue === currentValue) {
+                    return;
+                }
+
+                // Calculate cursor positions and how many characters were removed before them
+                const selectionStart = this.inputEl.selectionStart ?? currentValue.length;
+                const selectionEnd = this.inputEl.selectionEnd ?? selectionStart;
+                const removedBeforeStart = selectionStart - inputFilter(currentValue.slice(0, selectionStart)).length;
+                const removedBeforeEnd = selectionEnd - inputFilter(currentValue.slice(0, selectionEnd)).length;
+
+                // Update value and adjust cursor position to account for removed characters
+                this.inputEl.value = filteredValue;
+                const newSelectionStart = Math.min(filteredValue.length, Math.max(0, selectionStart - removedBeforeStart));
+                const newSelectionEnd = Math.min(filteredValue.length, Math.max(0, selectionEnd - removedBeforeEnd));
+                this.inputEl.setSelectionRange(newSelectionStart, newSelectionEnd);
+            });
         }
     }
 

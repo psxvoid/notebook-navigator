@@ -69,6 +69,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     mobileScale: DEFAULT_UI_SCALE,
 
     // General tab - Formatting
+    preventInvalidCharacters: true,
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
 
