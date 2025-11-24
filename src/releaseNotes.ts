@@ -73,7 +73,7 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
-        version: '1.8.6',
+        version: '1.8.7',
         date: '2025-11-24',
         showOnUpdate: true,
         new: [
@@ -94,7 +94,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ]
     },
     {
-        version: '1.8.5',
+        version: '1.8.6',
         date: '2025-11-19',
         showOnUpdate: true,
         new: [
