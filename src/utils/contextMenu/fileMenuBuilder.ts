@@ -603,12 +603,12 @@ function addMultipleFilesDuplicateOption(
                 )
                 .setIcon('lucide-copy'),
             async () => {
-                // Duplicate all selected files
-                const selectedFiles = Array.from(selectionState.selectedFiles)
+                // Re-resolve files at action time to handle sync deletions
+                const currentFiles = Array.from(selectionState.selectedFiles)
                     .map(path => app.vault.getFileByPath(path))
                     .filter((f): f is TFile => !!f);
 
-                for (const selectedFile of selectedFiles) {
+                for (const selectedFile of currentFiles) {
                     await fileSystemOps.duplicateNote(selectedFile);
                 }
             }
