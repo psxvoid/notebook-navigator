@@ -528,7 +528,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 **Appearance**
 
 - **Navigation banner:** Display an image above the navigation pane.
-- **Show shortcut icons:** Display icons for navigation sections like Shortcuts and Recent files.
+- **Show icons for shortcuts and recent items:** Display icons for navigation sections like Shortcuts and Recent files.
 - **Show shortcuts:** Display the shortcuts section in the navigation pane.
 - **Show recent notes:** Display the recent notes section in the navigation pane.
   - **Recent notes count:** Number of recent notes to display.

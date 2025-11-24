@@ -734,8 +734,8 @@ export const STRINGS_ZH_CN = {
                 desc: '点击快捷方式中的项目时不滚动导航面板。'
             },
             autoExpandFoldersTags: {
-                name: '自动展开文件夹和标签',
-                desc: '选择文件夹和标签时自动展开它们。'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: '导航横幅（仓库配置文件）',
@@ -944,7 +944,7 @@ export const STRINGS_ZH_CN = {
                 desc: '在每个文件夹和标签旁显示笔记数量。'
             },
             showSectionIcons: {
-                name: '显示快捷方式图标',
+                name: '显示快捷方式和最近项目的图标',
                 desc: '显示导航分区（如快捷方式和最近文件）的图标。'
             },
             showIconsColorOnly: {

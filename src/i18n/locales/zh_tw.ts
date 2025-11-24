@@ -733,8 +733,8 @@ export const STRINGS_ZH_TW = {
                 desc: '點選捷徑中的項目時不捲動導覽面板。'
             },
             autoExpandFoldersTags: {
-                name: '自動展開資料夾和標籤',
-                desc: '選取資料夾和標籤時自動展開。'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: '導覽橫幅（倉庫設定檔）',
@@ -942,7 +942,7 @@ export const STRINGS_ZH_TW = {
                 desc: '在每個資料夾和標籤旁邊顯示筆記數量。'
             },
             showSectionIcons: {
-                name: '顯示捷徑圖示',
+                name: '顯示捷徑和最近項目的圖示',
                 desc: '顯示導覽區段（如捷徑和最近檔案）的圖示。'
             },
             showIconsColorOnly: {

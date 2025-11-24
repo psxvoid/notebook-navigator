@@ -735,8 +735,8 @@ export const STRINGS_JA = {
                 desc: 'ショートカット内のアイテムをクリックしてもナビゲーションパネルをスクロールしない。'
             },
             autoExpandFoldersTags: {
-                name: 'フォルダとタグを自動展開',
-                desc: 'フォルダやタグを選択した際に自動的に展開します。'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'ナビゲーションバナー（保管庫プロファイル）',
@@ -946,7 +946,7 @@ export const STRINGS_JA = {
                 desc: '各フォルダとタグの横にノート数を表示します。'
             },
             showSectionIcons: {
-                name: 'ショートカットアイコンを表示',
+                name: 'ショートカットと最近の項目のアイコンを表示',
                 desc: 'ショートカットや最近使用したファイルなどのナビゲーションセクションのアイコンを表示します。'
             },
             showIconsColorOnly: {

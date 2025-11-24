@@ -735,8 +735,8 @@ export const STRINGS_ES = {
                 desc: 'No desplazar el panel de navegación al hacer clic en elementos de accesos directos.'
             },
             autoExpandFoldersTags: {
-                name: 'Expandir carpetas y etiquetas automáticamente',
-                desc: 'Expandir automáticamente carpetas y etiquetas cuando se seleccionan.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Banner de navegación (perfil de bóveda)',
@@ -945,7 +945,7 @@ export const STRINGS_ES = {
                 desc: 'Muestra el número de notas junto a cada carpeta y etiqueta.'
             },
             showSectionIcons: {
-                name: 'Mostrar iconos de atajo',
+                name: 'Mostrar iconos para atajos y elementos recientes',
                 desc: 'Muestra iconos para secciones de navegación como Atajos y Archivos recientes.'
             },
             showIconsColorOnly: {

@@ -736,8 +736,8 @@ export const STRINGS_PL = {
                 desc: 'Nie przewijaj panelu nawigacji przy klikaniu elementów w skrótach.'
             },
             autoExpandFoldersTags: {
-                name: 'Automatycznie rozwijaj foldery i tagi',
-                desc: 'Automatycznie rozwijaj foldery i tagi gdy są wybrane.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Baner nawigacji (profil sejfu)',
@@ -945,7 +945,7 @@ export const STRINGS_PL = {
                 desc: 'Wyświetl liczbę notatek obok każdego folderu i tagu.'
             },
             showSectionIcons: {
-                name: 'Pokaż ikony skrótów',
+                name: 'Pokaż ikony skrótów i ostatnich elementów',
                 desc: 'Wyświetl ikony dla sekcji nawigacji takich jak Skróty i Ostatnie pliki.'
             },
             showIconsColorOnly: {

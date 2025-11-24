@@ -734,8 +734,8 @@ export const STRINGS_KO = {
                 desc: '바로가기 내 항목을 클릭할 때 탐색 패널을 스크롤하지 않습니다.'
             },
             autoExpandFoldersTags: {
-                name: '폴더 및 태그 자동 펼치기',
-                desc: '폴더와 태그가 선택되면 자동으로 펼칩니다.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: '탐색 배너 (저장소 프로필)',
@@ -943,7 +943,7 @@ export const STRINGS_KO = {
                 desc: '각 폴더와 태그 옆에 노트 수를 표시합니다.'
             },
             showSectionIcons: {
-                name: '바로 가기 아이콘 표시',
+                name: '바로 가기 및 최근 항목 아이콘 표시',
                 desc: '바로 가기 및 최근 파일과 같은 탐색 섹션의 아이콘을 표시합니다.'
             },
             showIconsColorOnly: {

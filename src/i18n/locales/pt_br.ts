@@ -736,8 +736,8 @@ export const STRINGS_PT_BR = {
                 desc: 'Não rolar o painel de navegação ao clicar em itens nos atalhos.'
             },
             autoExpandFoldersTags: {
-                name: 'Expandir automaticamente pastas e tags',
-                desc: 'Expandir automaticamente pastas e tags quando forem selecionadas.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Banner de navegação (perfil de cofre)',
@@ -945,7 +945,7 @@ export const STRINGS_PT_BR = {
                 desc: 'Exibir o número de notas ao lado de cada pasta e tag.'
             },
             showSectionIcons: {
-                name: 'Mostrar ícones de atalho',
+                name: 'Mostrar ícones para atalhos e itens recentes',
                 desc: 'Exibir ícones para seções de navegação como Atalhos e Arquivos recentes.'
             },
             showIconsColorOnly: {

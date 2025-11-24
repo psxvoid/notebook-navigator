@@ -101,7 +101,7 @@ export const STRINGS_EN = {
         reorderRootFolders: 'Reorder root folders and tags',
         finishRootFolderReorder: 'Finish root reorder',
         toggleDescendantNotes: 'Show notes from subfolders / descendants', // Tooltip: include descendants for folders and tags
-        autoExpandFoldersTags: 'Auto-expand folders and tags', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
+        autoExpandFoldersTags: 'Expand on selection', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Show hidden folders, tags, and notes', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Hide hidden folders, tags, and notes', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'Show dual panes', // Tooltip for button to show dual-pane layout (English: Show dual panes)
@@ -734,8 +734,8 @@ export const STRINGS_EN = {
                 desc: "Don't scroll the navigation pane when clicking items in shortcuts."
             },
             autoExpandFoldersTags: {
-                name: 'Auto-expand folders and tags',
-                desc: 'Automatically expand folders and tags when they are selected.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Navigation banner (vault profile)',
@@ -943,7 +943,7 @@ export const STRINGS_EN = {
                 desc: 'Display the number of notes next to each folder and tag.'
             },
             showSectionIcons: {
-                name: 'Show shortcut icons',
+                name: 'Show icons for shortcuts and recent items',
                 desc: 'Display icons for navigation sections like Shortcuts and Recent files.'
             },
             showIconsColorOnly: {

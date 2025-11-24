@@ -736,8 +736,8 @@ export const STRINGS_NL = {
                 desc: 'Het navigatiepaneel niet scrollen bij klikken op items in snelkoppelingen.'
             },
             autoExpandFoldersTags: {
-                name: 'Mappen en tags automatisch uitklappen',
-                desc: 'Mappen en tags automatisch uitklappen wanneer ze worden geselecteerd.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Navigatiebanner (kluisprofiel)',
@@ -946,7 +946,7 @@ export const STRINGS_NL = {
                 desc: 'Het aantal notities naast elke map en tag weergeven.'
             },
             showSectionIcons: {
-                name: 'Snelkoppeling-pictogrammen tonen',
+                name: 'Pictogrammen tonen voor snelkoppelingen en recente items',
                 desc: 'Pictogrammen voor navigatiesecties zoals Snelkoppelingen en Recente bestanden weergeven.'
             },
             showIconsColorOnly: {

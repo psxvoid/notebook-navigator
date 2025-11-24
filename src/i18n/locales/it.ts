@@ -736,8 +736,8 @@ export const STRINGS_IT = {
                 desc: 'Non scorrere il pannello navigazione quando si fa clic su elementi nei collegamenti.'
             },
             autoExpandFoldersTags: {
-                name: 'Espandi automaticamente cartelle e tag',
-                desc: 'Espandi automaticamente cartelle e tag quando vengono selezionati.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Banner navigazione (profilo vault)',
@@ -946,7 +946,7 @@ export const STRINGS_IT = {
                 desc: 'Visualizza il numero di note accanto a ogni cartella e tag.'
             },
             showSectionIcons: {
-                name: 'Mostra icone collegamento',
+                name: 'Mostra icone per collegamenti e elementi recenti',
                 desc: 'Visualizza icone per sezioni navigazione come Collegamenti e File recenti.'
             },
             showIconsColorOnly: {

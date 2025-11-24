@@ -736,8 +736,8 @@ export const STRINGS_FR = {
                 desc: 'Ne pas faire défiler le panneau de navigation lors du clic sur les éléments de raccourcis.'
             },
             autoExpandFoldersTags: {
-                name: 'Développer automatiquement les dossiers et les étiquettes',
-                desc: "Développer automatiquement les dossiers et les étiquettes lorsqu'ils sont sélectionnés."
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Bannière de navigation (profil de coffre)',
@@ -947,7 +947,7 @@ export const STRINGS_FR = {
                 desc: 'Afficher le nombre de notes à côté de chaque dossier et étiquette.'
             },
             showSectionIcons: {
-                name: 'Afficher les icônes de raccourci',
+                name: 'Afficher les icônes pour les raccourcis et les éléments récents',
                 desc: 'Afficher les icônes pour les sections de navigation comme Raccourcis et Fichiers récents.'
             },
             showIconsColorOnly: {

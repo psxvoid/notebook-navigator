@@ -738,8 +738,8 @@ export const STRINGS_DE = {
                 desc: 'Navigationsbereich nicht scrollen beim Klicken auf Elemente in Verknüpfungen.'
             },
             autoExpandFoldersTags: {
-                name: 'Ordner und Tags automatisch erweitern',
-                desc: 'Ordner und Tags automatisch erweitern, wenn sie ausgewählt werden.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Navigationsbanner (Tresorprofil)',
@@ -947,7 +947,7 @@ export const STRINGS_DE = {
                 desc: 'Die Anzahl der Notizen neben jedem Ordner und Tag anzeigen.'
             },
             showSectionIcons: {
-                name: 'Shortcut-Icons anzeigen',
+                name: 'Icons für Shortcuts und kürzliche Elemente anzeigen',
                 desc: 'Icons für Navigationsbereiche wie Shortcuts und Zuletzt verwendete Dateien anzeigen.'
             },
             showIconsColorOnly: {

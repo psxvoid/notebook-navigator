@@ -1029,24 +1029,47 @@ export const NavigationPane = React.memo(
                     setActiveShortcut(null);
                 }
 
+                // Auto-expand behavior in single-pane mode:
+                // When autoExpandFoldersTags is enabled:
+                //   1. First click on a collapsed folder with children → Expands it, stays in navigation pane
+                //   2. Second click (now expanded) or click on folder without children → Shows files pane
+                // When autoExpandFoldersTags is disabled:
+                //   - Click always shows files pane immediately
+                const hasChildFolders = folder.children.some(child => child instanceof TFolder);
+                const isExpanded = expansionState.expandedFolders.has(folder.path);
+                const shouldExpandOnly = uiState.singlePane && settings.autoExpandFoldersTags && hasChildFolders && !isExpanded;
+
                 selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
 
-                // Auto-expand/collapse if enabled and folder has children
-                if (settings.autoExpandFoldersTags && folder.children.some(child => child instanceof TFolder)) {
-                    // Toggle expansion state - expand if collapsed, collapse if expanded
+                // Expand collapsed folder when auto-expand is enabled
+                if (settings.autoExpandFoldersTags && hasChildFolders && !isExpanded) {
                     expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
                 }
 
-                // Switch to files view in single pane mode
+                // In single-pane mode: either expand-only or show files
                 if (uiState.singlePane) {
-                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    if (shouldExpandOnly) {
+                        // First click on collapsed folder: expand and stay in navigation pane
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                    } else {
+                        // Second click or folder without children: show files pane
+                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    }
                 } else {
-                    // In dual-pane mode, keep focus on folders for direct interactions
+                    // In dual-pane mode: always stay focused on navigation
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                 }
             },
-            [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, expansionDispatch, setActiveShortcut]
+            [
+                selectionDispatch,
+                uiDispatch,
+                uiState.singlePane,
+                settings.autoExpandFoldersTags,
+                expansionDispatch,
+                setActiveShortcut,
+                expansionState.expandedFolders
+            ]
         );
 
         const openNavigationFolderNote = useCallback(
@@ -1193,6 +1216,8 @@ export const NavigationPane = React.memo(
             (tagPath: string, event?: React.MouseEvent, options?: { fromShortcut?: boolean }) => {
                 const tagNode = findTagNode(tagTree, tagPath);
                 const canonicalPath = resolveCanonicalTagPath(tagPath, tagTree);
+                // Check if tag is currently expanded (used for auto-expand logic below)
+                const isExpanded = tagNode ? expansionState.expandedTags.has(tagNode.path) : false;
                 if (!canonicalPath) {
                     return;
                 }
@@ -1232,16 +1257,35 @@ export const NavigationPane = React.memo(
 
                 selectionDispatch({ type: 'SET_SELECTED_TAG', tag: canonicalPath });
 
-                if (settings.autoExpandFoldersTags && tagNode && tagNode.children.size > 0) {
+                // Auto-expand behavior in single-pane mode (same logic as folders):
+                // When autoExpandFoldersTags is enabled:
+                //   1. First click on a collapsed tag with children → Expands it, stays in navigation pane
+                //   2. Second click (now expanded) or click on tag without children → Shows files pane
+                // When autoExpandFoldersTags is disabled:
+                //   - Click always shows files pane immediately
+                const hasChildren = Boolean(tagNode && tagNode.children.size > 0);
+                const shouldExpandOnly = uiState.singlePane && settings.autoExpandFoldersTags && hasChildren && !isExpanded;
+
+                // Expand collapsed tag when auto-expand is enabled
+                if (settings.autoExpandFoldersTags && hasChildren && !isExpanded && tagNode) {
                     expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path });
                 }
 
+                // In single-pane mode: either expand-only or show files
                 if (uiState.singlePane) {
-                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    if (shouldExpandOnly) {
+                        // First click on collapsed tag: expand and stay in navigation pane
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                    } else {
+                        // Second click or tag without children: show files pane
+                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    }
                 } else if (options?.fromShortcut) {
+                    // In dual-pane mode with shortcut: focus files pane
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                 } else {
+                    // In dual-pane mode: stay focused on navigation
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                 }
 
@@ -1256,6 +1300,7 @@ export const NavigationPane = React.memo(
                 settings.autoExpandFoldersTags,
                 tagTree,
                 expansionDispatch,
+                expansionState.expandedTags,
                 selectionState.selectedTag,
                 selectionState.selectionType,
                 setActiveShortcut,
