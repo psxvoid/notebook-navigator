@@ -199,10 +199,15 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
         // Move, Duplicate, Delete - grouped together
         // Move note(s) to folder
+        const allMarkdownForMove = cachedSelectedFiles.every(f => f.extension === 'md');
         menu.addItem((item: MenuItem) => {
             setAsyncOnClick(
                 item
-                    .setTitle(strings.contextMenu.file.moveMultipleToFolder.replace('{count}', selectedCount.toString()))
+                    .setTitle(
+                        allMarkdownForMove
+                            ? strings.contextMenu.file.moveMultipleNotesToFolder.replace('{count}', selectedCount.toString())
+                            : strings.contextMenu.file.moveMultipleFilesToFolder.replace('{count}', selectedCount.toString())
+                    )
                     .setIcon('lucide-folder-input'),
                 async () => {
                     await fileSystemOps.moveFilesWithModal(cachedSelectedFiles, {
@@ -334,13 +339,18 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
         // Move to folder
         menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.file.moveToFolder).setIcon('lucide-folder-input'), async () => {
-                await fileSystemOps.moveFilesWithModal([file], {
-                    selectedFile: selectionState.selectedFile,
-                    dispatch: selectionDispatch,
-                    allFiles: cachedFileList
-                });
-            });
+            setAsyncOnClick(
+                item
+                    .setTitle(isMarkdown ? strings.contextMenu.file.moveNoteToFolder : strings.contextMenu.file.moveFileToFolder)
+                    .setIcon('lucide-folder-input'),
+                async () => {
+                    await fileSystemOps.moveFilesWithModal([file], {
+                        selectedFile: selectionState.selectedFile,
+                        dispatch: selectionDispatch,
+                        allFiles: cachedFileList
+                    });
+                }
+            );
         });
 
         // Duplicate note
