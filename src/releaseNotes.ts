@@ -77,10 +77,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-25',
         showOnUpdate: true,
         new: [
-            '==Customizable user colors in the color picker==. The color picker now has 20 editable color slots. Click a slot to select it, then use the picker to change it. Your colors are saved automatically. Use the toolbar buttons to copy, paste, or reset the palette.'
+            '==Customizable user colors in the color picker==. The color picker now has 20 editable color slots. Click a slot to select it, then use the picker to change it. Your colors are saved and synced automatically. Use the new toolbar buttons to copy, paste, or reset the palette.',
+            'Notebook Navigator has been translated to Arabic (ar).'
         ],
         fixed: [
-            'Fixed an issue where Obsidian sends workspace "quit" to all plugins when receiving obsidian://open-url requests, causing unpredictable behavior.'
+            'Notebook Navigator no longer listens to Obsidian workspace "quit" commands, since they apparantly are sent to all plugins when receiving obsidian://open-url requests. This means the plugin thought it was going to quit while Obsidian never shut it down.',
+            'Fixed an issue with font scaling on Android devices overriding plugin font sizes.'
         ]
     },
     {
