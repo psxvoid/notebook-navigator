@@ -289,6 +289,9 @@ body {
     flex-direction: column;
     background-color: var(--background-primary);
     font-family: var(--font-interface);
+    /* Keep font sizes at the defined values to avoid platform inflation */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 /* Removes focus outline on main container for cleaner appearance */
@@ -1464,7 +1467,6 @@ body {
     text-overflow: ellipsis;
     line-height: var(--nn-nav-line-height);
     color: var(--nn-theme-navitem-name-color);
-    unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
 .nn-navitem[data-nav-item-type='note'] .nn-navitem-name {
@@ -1970,7 +1972,6 @@ body {
     -webkit-line-clamp: var(--filename-rows, 1);
     -webkit-box-orient: vertical;
     word-break: break-word;
-    unicode-bidi: plaintext; /* Proper bidirectional text handling */
     flex: 1;
 }
 
@@ -4687,7 +4688,14 @@ body.nn-resizing {
     transform: translateX(0%);
 }
 
-/* Ensure proper text direction for file preview and dates */
+.mod-rtl .nn-file-name,
+.mod-rtl .nn-file-preview {
+    text-align: right;
+}
+
+/* Bidi-safe text runs */
+.nn-navitem-name,
+.nn-file-name,
 .nn-file-preview,
 .nn-file-date,
 .nn-parent-folder,
