@@ -1965,7 +1965,9 @@ body {
     color: var(--nn-theme-file-name-color);
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-bottom: 0;
+    /* Extra space for descenders on Android without changing measured height */
+    padding-bottom: 2px;
+    margin-bottom: -2px;
     display: -webkit-box;
     -webkit-line-clamp: var(--filename-rows, 1);
     -webkit-box-orient: vertical;
