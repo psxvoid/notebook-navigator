@@ -793,7 +793,7 @@ export class IndexedDBStorage {
         if (!this.cache.isReady()) {
             return 0;
         }
-        return this.cache.getAllFiles().length;
+        return this.cache.getFileCount();
     }
 
     /**
@@ -810,6 +810,18 @@ export class IndexedDBStorage {
     }
 
     /**
+     * Stream all files with their paths without allocating an array.
+     *
+     * @param callback - Function to call for each file
+     */
+    forEachFile(callback: (path: string, data: FileData) => void): void {
+        if (!this.cache.isReady()) {
+            return;
+        }
+        this.cache.forEachFile(callback);
+    }
+
+    /**
      * Get files that need content generation.
      * Returns paths of files where the specified content type is null.
      *
@@ -821,8 +833,7 @@ export class IndexedDBStorage {
             return new Set();
         }
         const result = new Set<string>();
-        const allFiles = this.cache.getAllFilesWithPaths();
-        for (const { path, data } of allFiles) {
+        this.cache.forEachFile((path, data) => {
             if (
                 (type === 'tags' && data.tags === null) ||
                 (type === 'preview' && data.preview === null) ||
@@ -831,7 +842,7 @@ export class IndexedDBStorage {
             ) {
                 result.add(path);
             }
-        }
+        });
         return result;
     }
 
@@ -842,11 +853,15 @@ export class IndexedDBStorage {
      * @returns Object with item count and size in MB
      */
     getDatabaseStats(): { itemCount: number; sizeMB: number } {
-        const itemCount = this.cache.getAllFilesWithPaths().length;
-        let totalSize = 0;
-        for (const { path, data } of this.cache.getAllFilesWithPaths()) {
-            totalSize += path.length + JSON.stringify(data).length;
+        if (!this.cache.isReady()) {
+            return { itemCount: 0, sizeMB: 0 };
         }
+        let itemCount = 0;
+        let totalSize = 0;
+        this.cache.forEachFile((path, data) => {
+            itemCount++;
+            totalSize += path.length + JSON.stringify(data).length;
+        });
         const sizeMB = totalSize / 1024 / 1024;
         return { itemCount, sizeMB };
     }

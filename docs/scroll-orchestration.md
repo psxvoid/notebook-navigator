@@ -170,7 +170,7 @@ requests.
 `useListPaneScroll` manages article lists, pinned groups, spacers, and date headers.
 
 - **Virtualizer setup**: Height estimation mirrors `FileItem` logic, looking up preview availability synchronously and
-  respecting slim mode.
+  respecting compact mode.
 - **Priority queue**: `setPending` wraps `rankListPending`, replacing lower-ranked requests and preventing skip-only
   updates from clobbering real scrolls.
 - **Selected file tracking**: `selectedFilePathRef` avoids executing stale config scrolls for files that are no longer

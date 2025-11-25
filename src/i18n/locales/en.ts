@@ -101,7 +101,7 @@ export const STRINGS_EN = {
         reorderRootFolders: 'Reorder root folders and tags',
         finishRootFolderReorder: 'Finish root reorder',
         toggleDescendantNotes: 'Show notes from subfolders / descendants', // Tooltip: include descendants for folders and tags
-        autoExpandFoldersTags: 'Auto-expand folders and tags', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
+        autoExpandFoldersTags: 'Expand on selection', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Show hidden folders, tags, and notes', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Hide hidden folders, tags, and notes', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'Show dual panes', // Tooltip for button to show dual-pane layout (English: Show dual panes)
@@ -202,8 +202,9 @@ export const STRINGS_EN = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Default appearance',
-        slimPreset: 'Slim (no date/preview/image)',
+        standardPreset: 'Standard',
+        compactPreset: 'Compact',
+        defaultSuffix: '(default)',
         titleRows: 'Title rows',
         previewRows: 'Preview rows',
         groupBy: 'Group by',
@@ -307,7 +308,8 @@ export const STRINGS_EN = {
             folderLabel: 'Folder: {name}'
         },
         folderSuggest: {
-            placeholder: 'Move to folder...',
+            placeholder: (name: string) => `Move ${name} to folder...`,
+            multipleFilesLabel: (count: number) => `${count} files`,
             navigatePlaceholder: 'Navigate to folder...',
             instructions: {
                 navigate: 'to navigate',
@@ -642,18 +644,30 @@ export const STRINGS_EN = {
                 name: 'Show pinned icon',
                 desc: 'Show the icon next to the pinned section header.'
             },
+            defaultListMode: {
+                name: 'Default list mode',
+                desc: 'Select the default list layout. Standard shows title, date, description, and preview text. Compact shows title only. Override appearance per folder.',
+                options: {
+                    standard: 'Standard',
+                    compact: 'Compact'
+                }
+            },
+            showFileIcons: {
+                name: 'Show file icons',
+                desc: 'Display file icons with left-aligned spacing. Disabling removes both icons and indentation.'
+            },
             optimizeNoteHeight: {
                 name: 'Optimize note height',
                 desc: 'Reduce height for pinned notes and notes without preview text.'
             },
-            slimItemHeight: {
-                name: 'Slim item height',
-                desc: 'Set the height of slim list items on desktop and mobile.',
+            compactItemHeight: {
+                name: 'Compact item height',
+                desc: 'Set the height of compact list items on desktop and mobile.',
                 resetTooltip: 'Restore to default (28px)'
             },
-            slimItemHeightScaleText: {
-                name: 'Scale text with slim item height',
-                desc: 'Scale slim list text when the item height is reduced.'
+            compactItemHeightScaleText: {
+                name: 'Scale text with compact item height',
+                desc: 'Scale compact list text when the item height is reduced.'
             },
             showParentFolder: {
                 name: 'Show parent folder',
@@ -727,8 +741,8 @@ export const STRINGS_EN = {
                 desc: "Don't scroll the navigation pane when clicking items in shortcuts."
             },
             autoExpandFoldersTags: {
-                name: 'Auto-expand folders and tags',
-                desc: 'Automatically expand folders and tags when they are selected.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Navigation banner (vault profile)',
@@ -851,8 +865,8 @@ export const STRINGS_EN = {
                 name: 'Show colored tags first',
                 desc: 'Sort colored tags before other tags on file items.'
             },
-            showFileTagsInSlimMode: {
-                name: 'Show file tags in slim mode',
+            showFileTagsInCompactMode: {
+                name: 'Show file tags in compact mode',
                 desc: 'Display tags when date, preview, and image are hidden.'
             },
             dateFormat: {
@@ -868,6 +882,10 @@ export const STRINGS_EN = {
                 placeholder: 'h:mm a',
                 help: 'Common formats:\nh:mm a = 2:30 PM (12-hour)\nHH:mm = 14:30 (24-hour)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nTokens:\nHH/H = 24-hour\nhh/h = 12-hour\nmm = minutes\nss = seconds\na = AM/PM',
                 helpTooltip: 'Click for format reference'
+            },
+            preventInvalidCharacters: {
+                name: 'Prevent invalid characters',
+                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
             },
             showFilePreview: {
                 name: 'Show note preview',
@@ -960,7 +978,7 @@ export const STRINGS_EN = {
                 desc: 'Display the number of notes next to each folder and tag.'
             },
             showSectionIcons: {
-                name: 'Show shortcut icons',
+                name: 'Show icons for shortcuts and recent items',
                 desc: 'Display icons for navigation sections like Shortcuts and Recent files.'
             },
             showIconsColorOnly: {

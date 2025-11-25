@@ -28,6 +28,14 @@ import type { PatternReplaceSource } from 'src/services/content/common/TextRepla
 /** Available sort options for file listing */
 export type SortOption = 'modified-desc' | 'modified-asc' | 'created-desc' | 'created-asc' | 'title-asc' | 'title-desc';
 
+/** Ordered list of sort options for validation and UI choices */
+export const SORT_OPTIONS: SortOption[] = ['modified-desc', 'modified-asc', 'created-desc', 'created-asc', 'title-asc', 'title-desc'];
+
+/** Type guard for validating sort option values */
+export function isSortOption(value: unknown): value is SortOption {
+    return typeof value === 'string' && SORT_OPTIONS.includes(value as SortOption);
+}
+
 /** Available orderings for tags in the navigation pane */
 export type TagSortOrder = 'alpha-asc' | 'alpha-desc' | 'frequency-asc' | 'frequency-desc';
 
@@ -44,6 +52,9 @@ export type MultiSelectModifier = 'cmdCtrl' | 'optionAlt';
 
 /** Display options for list pane title */
 export type ListPaneTitleOption = 'header' | 'list' | 'hidden';
+
+/** Default display modes for list items */
+export type ListDisplayMode = 'standard' | 'compact';
 
 /** Grouping options for list pane notes */
 export type ListNoteGroupingOption = 'none' | 'date' | 'folder';
@@ -110,6 +121,7 @@ export interface NotebookNavigatorSettings {
     mobileScale: number;
 
     // General tab - Formatting
+    preventInvalidCharacters: boolean;
     dateFormat: string;
     timeFormat: string;
 
@@ -150,6 +162,7 @@ export interface NotebookNavigatorSettings {
     keepEmptyTagsProperty: boolean;
 
     // List pane tab
+    defaultListMode: ListDisplayMode;
     defaultFolderSort: SortOption;
     revealFileOnListChanges: boolean;
     listPaneTitle: ListPaneTitleOption;
@@ -157,9 +170,10 @@ export interface NotebookNavigatorSettings {
     filterPinnedByFolder: boolean;
     showPinnedGroupHeader: boolean;
     showPinnedIcon: boolean;
+    showFileIcons: boolean;
     optimizeNoteHeight: boolean;
-    slimItemHeight: number;
-    slimItemHeightScaleText: boolean;
+    compactItemHeight: number;
+    compactItemHeightScaleText: boolean;
     showQuickActions: boolean;
     quickActionRevealInFolder: boolean;
     quickActionAddTag: boolean;
@@ -184,7 +198,7 @@ export interface NotebookNavigatorSettings {
     collapseFileTagsToSelectedTag: boolean;
     colorFileTags: boolean;
     prioritizeColoredFileTags: boolean;
-    showFileTagsInSlimMode: boolean;
+    showFileTagsInCompactMode: boolean;
     showParentFolder: boolean;
     parentFolderClickRevealsFile: boolean;
     showParentFolderColor: boolean;

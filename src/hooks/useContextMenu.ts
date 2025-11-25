@@ -40,6 +40,9 @@ import {
 } from '../utils/contextMenu';
 import { TFolder } from 'obsidian';
 
+// Tracks the currently open navigator context menu so it can be closed before opening another
+let activeNavigatorMenu: Menu | null = null;
+
 /**
  * Custom hook that attaches a context menu to an element.
  * Provides right-click context menu functionality for files, folders, and tags.
@@ -163,7 +166,12 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             e.preventDefault();
             e.stopPropagation();
 
+            if (activeNavigatorMenu) {
+                activeNavigatorMenu.hide();
+            }
+
             const menu = new Menu();
+            activeNavigatorMenu = menu;
 
             // Add context menu active class to show outline immediately
             elementRef.current.classList.add('nn-context-menu-active');
@@ -221,6 +229,9 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
 
             // Remove the class when THIS menu is hidden
             menu.onHide(() => {
+                if (activeNavigatorMenu === menu) {
+                    activeNavigatorMenu = null;
+                }
                 if (elementRef.current) {
                     elementRef.current.classList.remove('nn-context-menu-active');
 

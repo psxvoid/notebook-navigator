@@ -146,7 +146,7 @@ export const STRINGS_ZH_TW = {
             duplicateMultipleNotes: '複製 {count} 則筆記',
             duplicateMultipleFiles: '複製 {count} 個檔案',
             openVersionHistory: '開啟版本歷史',
-            revealInFolder: '在資料夾中顯示',
+            revealInFolder: '在資料夾中定位',
             revealInFinder: '在 Finder 中顯示',
             showInExplorer: '在系統檔案總管中顯示',
             copyDeepLink: '複製 Obsidian URL',
@@ -202,8 +202,9 @@ export const STRINGS_ZH_TW = {
 
     // 資料夾外觀選單
     folderAppearance: {
-        defaultPreset: '預設外觀',
-        slimPreset: '緊湊 (無日期/預覽/圖片)',
+        standardPreset: '標準',
+        compactPreset: '緊湊',
+        defaultSuffix: '(預設)',
         titleRows: '標題列數',
         previewRows: '預覽列數',
         groupBy: '分組依據',
@@ -307,7 +308,8 @@ export const STRINGS_ZH_TW = {
             folderLabel: '資料夾：{name}'
         },
         folderSuggest: {
-            placeholder: '移動至資料夾...',
+            placeholder: (name: string) => `將 ${name} 移動至資料夾...`,
+            multipleFilesLabel: (count: number) => `${count} 個檔案`,
             navigatePlaceholder: '導覽至資料夾...',
             instructions: {
                 navigate: '導覽',
@@ -363,7 +365,7 @@ export const STRINGS_ZH_TW = {
             duplicateFolder: '複製資料夾失敗：{error}',
             openVersionHistory: '開啟版本歷史失敗：{error}',
             versionHistoryNotFound: '找不到版本歷史指令。請確保已啟用 Obsidian Sync。',
-            revealInExplorer: '在系統檔案總管中顯示檔案失敗：{error}',
+            revealInExplorer: '在系統檔案總管中定位檔案失敗：{error}',
             folderNoteAlreadyExists: '資料夾筆記已存在',
             folderAlreadyExists: '資料夾「{name}」已存在',
             folderNotesDisabled: '請在設定中啟用資料夾筆記以轉換檔案',
@@ -465,7 +467,7 @@ export const STRINGS_ZH_TW = {
     commands: {
         open: '開啟', // 指令面板：開啟 Notebook Navigator 檢視 (英文: Open)
         openHomepage: '開啟首頁', // 指令面板：開啟 Notebook Navigator 檢視並載入首頁檔案 (英文: Open homepage)
-        revealFile: '顯示檔案', // 指令面板：在導覽器中顯示並選取目前活動的檔案 (英文: Reveal file)
+        revealFile: '定位檔案', // 指令面板：在導覽器中顯示並選取目前活動的檔案 (英文: Reveal file)
         search: '搜尋', // 指令面板：在檔案清單中切換搜尋 (英文: Search)
         toggleDualPane: '切換雙窗格佈局', // 指令面板：在單一窗格和雙窗格佈局之間切換 (英文: Toggle dual pane layout)
         selectVaultProfile: '更改倉庫設定檔', // 指令面板：開啟對話框以選擇不同的倉庫設定檔 (英文: Switch vault profile)
@@ -498,7 +500,7 @@ export const STRINGS_ZH_TW = {
     plugin: {
         viewName: 'Notebook Navigator', // 檢視標頭/分頁中顯示的名稱 (英文: Notebook Navigator)
         ribbonTooltip: 'Notebook Navigator', // 左側邊欄功能區圖示的工具提示 (英文: Notebook Navigator)
-        revealInNavigator: '在 Notebook Navigator 中顯示' // 右鍵選單項目，在導覽器中顯示檔案 (英文: Reveal in Notebook Navigator)
+        revealInNavigator: '在 Notebook Navigator 中定位' // 右鍵選單項目，在導覽器中顯示檔案 (英文: Reveal in Notebook Navigator)
     },
 
     // 工具提示
@@ -641,16 +643,28 @@ export const STRINGS_ZH_TW = {
                 name: '顯示釘選圖示',
                 desc: '在釘選區段標題旁顯示圖示。'
             },
+            defaultListMode: {
+                name: '預設列表模式',
+                desc: '選擇預設列表版面。標準會顯示標題、日期、描述和預覽文字。緊湊只顯示標題。外觀可依資料夾覆蓋。',
+                options: {
+                    standard: '標準',
+                    compact: '緊湊'
+                }
+            },
+            showFileIcons: {
+                name: '顯示檔案圖示',
+                desc: '顯示檔案圖示並保留靠左對齊間距。停用後將移除圖示和縮排。'
+            },
             optimizeNoteHeight: {
                 name: '最佳化筆記高度',
                 desc: '減少釘選筆記和無預覽文字筆記的高度。'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: '精簡項目高度',
                 desc: '設定桌面與行動裝置的精簡清單項目高度。',
                 resetTooltip: '恢復預設值 (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: '精簡高度同步縮放文字',
                 desc: '降低精簡清單項目高度時同步調整文字大小。'
             },
@@ -659,8 +673,8 @@ export const STRINGS_ZH_TW = {
                 desc: '在子資料夾或標籤中顯示筆記的父資料夾名稱。'
             },
             parentFolderClickRevealsFile: {
-                name: '點擊父資料夾顯示筆記',
-                desc: '點擊父資料夾標籤時顯示該筆記。'
+                name: '點擊父資料夾定位筆記',
+                desc: '點擊父資料夾名稱時，在資料夾中顯示該筆記。'
             },
             showParentFolderColor: {
                 name: '顯示父資料夾顏色',
@@ -710,8 +724,8 @@ export const STRINGS_ZH_TW = {
                 listLabel: '清單工具列'
             },
             autoRevealActiveNote: {
-                name: '自動顯示活動筆記',
-                desc: '從快速切換器、連結或搜尋開啟筆記時自動顯示。'
+                name: '自動定位活動筆記',
+                desc: '從快速切換器、連結或搜尋開啟筆記時自動定位。'
             },
             autoRevealIgnoreRightSidebar: {
                 name: '忽略右側邊欄事件',
@@ -726,8 +740,8 @@ export const STRINGS_ZH_TW = {
                 desc: '點選捷徑中的項目時不捲動導覽面板。'
             },
             autoExpandFoldersTags: {
-                name: '自動展開資料夾和標籤',
-                desc: '選取資料夾和標籤時自動展開。'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: '導覽橫幅（倉庫設定檔）',
@@ -850,7 +864,7 @@ export const STRINGS_ZH_TW = {
                 name: '優先顯示彩色標籤',
                 desc: '將彩色標籤排序在其他標籤之前。'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: '在緊湊模式下顯示檔案標籤',
                 desc: '隱藏日期、預覽和圖片時顯示標籤。'
             },
@@ -867,6 +881,10 @@ export const STRINGS_ZH_TW = {
                 placeholder: 'HH:mm',
                 help: '常用格式：\nh:mm a = 2:30 PM (12 小時制)\nHH:mm = 14:30 (24 小時制)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\n符號：\nHH/H = 24 小時\nhh/h = 12 小時\nmm = 分鐘\nss = 秒\na = AM/PM',
                 helpTooltip: '點擊查看格式參考'
+            },
+            preventInvalidCharacters: {
+                name: 'Prevent invalid characters',
+                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
             },
             showFilePreview: {
                 name: '顯示筆記預覽',
@@ -959,7 +977,7 @@ export const STRINGS_ZH_TW = {
                 desc: '在每個資料夾和標籤旁邊顯示筆記數量。'
             },
             showSectionIcons: {
-                name: '顯示捷徑圖示',
+                name: '顯示捷徑和最近項目的圖示',
                 desc: '顯示導覽區段（如捷徑和最近檔案）的圖示。'
             },
             showIconsColorOnly: {

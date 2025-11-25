@@ -1,7 +1,7 @@
 import { Menu, TFolder } from 'obsidian';
 import { strings } from '../i18n';
-import { FolderAppearance } from '../hooks/useListPaneAppearance';
-import type { ListNoteGroupingOption } from '../settings/types';
+import { FolderAppearance, getDefaultListMode, resolveListMode } from '../hooks/useListPaneAppearance';
+import type { ListDisplayMode, ListNoteGroupingOption } from '../settings/types';
 import { NotebookNavigatorSettings } from '../settings';
 import { ItemType } from '../types';
 import { resolveListGrouping } from '../utils/listGrouping';
@@ -9,11 +9,6 @@ import { runAsyncAction } from '../utils/async';
 
 interface AppearanceMenuProps {
     event: MouseEvent;
-    titleRows: number;
-    previewRows: number;
-    showDate: boolean;
-    showPreview: boolean;
-    showImage: boolean;
     settings: NotebookNavigatorSettings;
     selectedFolder: TFolder | null;
     selectedTag?: string | null;
@@ -23,27 +18,31 @@ interface AppearanceMenuProps {
 
 export function showListPaneAppearanceMenu({
     event,
-    titleRows,
-    previewRows,
-    showDate,
-    showPreview,
-    showImage,
     settings,
     selectedFolder,
     selectedTag,
     selectionType,
     updateSettings
 }: AppearanceMenuProps) {
+    const defaultMode: ListDisplayMode = getDefaultListMode(settings);
+
     const updateAppearance = (updates: Partial<FolderAppearance>) => {
+        const normalizeAppearance = (appearance: FolderAppearance) => {
+            const normalized = { ...appearance };
+            if (normalized.mode === defaultMode) {
+                delete normalized.mode;
+            }
+            return normalized;
+        };
+
         if (selectionType === ItemType.TAG && selectedTag) {
             // Update tag appearance
             runAsyncAction(() =>
                 updateSettings(s => {
                     const newAppearances = { ...s.tagAppearances };
                     const currentAppearance = newAppearances[selectedTag] || {};
-                    newAppearances[selectedTag] = { ...currentAppearance, ...updates };
+                    newAppearances[selectedTag] = normalizeAppearance({ ...currentAppearance, ...updates });
 
-                    // Remove tag entry if all settings are cleared (back to defaults)
                     const hasDefinedValues = Object.values(newAppearances[selectedTag]).some(value => value !== undefined);
                     if (!hasDefinedValues) {
                         delete newAppearances[selectedTag];
@@ -59,9 +58,8 @@ export function showListPaneAppearanceMenu({
                 updateSettings(s => {
                     const newAppearances = { ...s.folderAppearances };
                     const currentAppearance = newAppearances[folderPath] || {};
-                    newAppearances[folderPath] = { ...currentAppearance, ...updates };
+                    newAppearances[folderPath] = normalizeAppearance({ ...currentAppearance, ...updates });
 
-                    // Remove folder entry if all settings are cleared (back to defaults)
                     const hasDefinedValues = Object.values(newAppearances[folderPath]).some(value => value !== undefined);
                     if (!hasDefinedValues) {
                         delete newAppearances[folderPath];
@@ -83,6 +81,7 @@ export function showListPaneAppearanceMenu({
     } else if (selectionType === ItemType.FOLDER && selectedFolder) {
         appearance = settings.folderAppearances?.[selectedFolder.path];
     }
+    const effectiveMode = resolveListMode({ appearance, defaultMode });
 
     // Resolve grouping settings to detect custom overrides for this folder/tag
     const groupingInfo = resolveListGrouping({
@@ -93,46 +92,32 @@ export function showListPaneAppearanceMenu({
     });
     const hasCustomGroupBy = groupingInfo.hasCustomOverride;
 
-    const hasAnyCustomValues =
-        appearance &&
-        (appearance.titleRows !== undefined ||
-            appearance.previewRows !== undefined ||
-            appearance.showDate !== undefined ||
-            appearance.showPreview !== undefined ||
-            appearance.showImage !== undefined ||
-            hasCustomGroupBy);
+    const isStandard = effectiveMode === 'standard';
+    const isCompact = effectiveMode === 'compact';
 
-    const isUsingDefaults = !hasAnyCustomValues;
-
-    // Check if we're in slim mode
-    const isSlim = !showDate && !showPreview && !showImage;
-
-    // Default preset
+    // Standard preset
     menu.addItem(item => {
-        item.setTitle(strings.folderAppearance.defaultPreset)
-            .setChecked(isUsingDefaults)
+        const label =
+            defaultMode === 'standard'
+                ? `${strings.folderAppearance.standardPreset} ${strings.folderAppearance.defaultSuffix}`
+                : strings.folderAppearance.standardPreset;
+        item.setTitle(label)
+            .setChecked(isStandard)
             .onClick(() => {
-                updateAppearance({
-                    titleRows: undefined,
-                    previewRows: undefined,
-                    showDate: undefined,
-                    showPreview: undefined,
-                    showImage: undefined,
-                    groupBy: undefined
-                });
+                updateAppearance({ mode: 'standard' });
             });
     });
 
-    // Slim preset
+    // Compact preset
     menu.addItem(item => {
-        item.setTitle(strings.folderAppearance.slimPreset)
-            .setChecked(isSlim)
+        const label =
+            defaultMode === 'compact'
+                ? `${strings.folderAppearance.compactPreset} ${strings.folderAppearance.defaultSuffix}`
+                : strings.folderAppearance.compactPreset;
+        item.setTitle(label)
+            .setChecked(isCompact)
             .onClick(() => {
-                updateAppearance({
-                    showDate: false,
-                    showPreview: false,
-                    showImage: false
-                });
+                updateAppearance({ mode: 'compact', previewRows: undefined });
             });
     });
 
@@ -146,7 +131,7 @@ export function showListPaneAppearanceMenu({
     // Default title rows option
     menu.addItem(item => {
         const hasCustomTitleRows = appearance?.titleRows !== undefined;
-        const isDefaultTitle = titleRows === settings.fileNameRows && !hasCustomTitleRows;
+        const isDefaultTitle = !hasCustomTitleRows;
         item.setTitle(`    ${strings.folderAppearance.defaultTitleOption(settings.fileNameRows)}`)
             .setChecked(isDefaultTitle)
             .onClick(() => {
@@ -157,8 +142,7 @@ export function showListPaneAppearanceMenu({
     // Title row options
     [1, 2].forEach(rows => {
         menu.addItem(item => {
-            const hasCustomTitleRows = appearance?.titleRows !== undefined;
-            const isChecked = titleRows === rows && hasCustomTitleRows;
+            const isChecked = appearance?.titleRows === rows;
             item.setTitle(`    ${strings.folderAppearance.titleRowOption(rows)}`)
                 .setChecked(isChecked)
                 .onClick(() => {
@@ -167,56 +151,38 @@ export function showListPaneAppearanceMenu({
         });
     });
 
-    menu.addSeparator();
+    if (settings.showFilePreview && !isCompact) {
+        menu.addSeparator();
 
-    // Preview rows header
-    menu.addItem(item => {
-        item.setTitle(strings.folderAppearance.previewRows).setIcon('lucide-file-text').setDisabled(true);
-    });
+        // Preview rows header
+        menu.addItem(item => {
+            item.setTitle(strings.folderAppearance.previewRows).setIcon('lucide-file-text').setDisabled(true);
+        });
 
-    // Default preview rows option
-    menu.addItem(item => {
-        const hasCustomPreviewRows = appearance?.previewRows !== undefined;
-        const isDefaultPreview = previewRows === settings.previewRows && !hasCustomPreviewRows;
-        item.setTitle(`    ${strings.folderAppearance.defaultPreviewOption(settings.previewRows)}`)
-            .setChecked(isDefaultPreview && !isSlim)
-            .onClick(() => {
-                if (isSlim) {
-                    // Exit slim mode and reset to default preview rows
-                    updateAppearance({
-                        previewRows: undefined,
-                        showDate: undefined,
-                        showPreview: undefined,
-                        showImage: undefined
-                    });
-                } else {
-                    updateAppearance({ previewRows: undefined });
-                }
-            });
-    });
-
-    // Preview row options
-    [1, 2, 3, 4, 5].forEach(rows => {
+        // Default preview rows option
         menu.addItem(item => {
             const hasCustomPreviewRows = appearance?.previewRows !== undefined;
-            const isChecked = previewRows === rows && hasCustomPreviewRows && !isSlim;
-            item.setTitle(`    ${strings.folderAppearance.previewRowOption(rows)}`)
-                .setChecked(isChecked)
+            const isDefaultPreview = !hasCustomPreviewRows;
+            item.setTitle(`    ${strings.folderAppearance.defaultPreviewOption(settings.previewRows)}`)
+                .setChecked(isDefaultPreview)
                 .onClick(() => {
-                    if (isSlim) {
-                        // Exit slim mode and apply the selected preview rows
-                        updateAppearance({
-                            previewRows: rows,
-                            showDate: undefined,
-                            showPreview: undefined,
-                            showImage: undefined
-                        });
-                    } else {
-                        updateAppearance({ previewRows: rows });
-                    }
+                    updateAppearance({ previewRows: undefined });
                 });
         });
-    });
+
+        // Preview row options
+        [1, 2, 3, 4, 5].forEach(rows => {
+            menu.addItem(item => {
+                const hasCustomPreviewRows = appearance?.previewRows !== undefined;
+                const isChecked = hasCustomPreviewRows && appearance?.previewRows === rows;
+                item.setTitle(`    ${strings.folderAppearance.previewRowOption(rows)}`)
+                    .setChecked(isChecked)
+                    .onClick(() => {
+                        updateAppearance({ previewRows: rows });
+                    });
+            });
+        });
+    }
 
     const isFolderSelection = selectionType === ItemType.FOLDER && selectedFolder;
     const isTagSelection = selectionType === ItemType.TAG && selectedTag;

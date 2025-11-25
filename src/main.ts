@@ -49,6 +49,7 @@ import { ExtendedApp } from './types/obsidian-extended';
 import { getLeafSplitLocation } from './utils/workspaceSplit';
 import { sanitizeKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { normalizeCanonicalIconId } from './utils/iconizeFormat';
+import { isBooleanRecordValue, isPlainObjectRecordValue, isStringRecordValue, sanitizeRecord } from './utils/recordUtils';
 import { isRecord } from './utils/typeGuards';
 import { runAsyncAction } from './utils/async';
 import { resetHiddenToggleIfNoSources } from './utils/exclusionUtils';
@@ -66,6 +67,8 @@ import registerNavigatorCommands from './services/commands/registerNavigatorComm
 import registerWorkspaceEvents from './services/workspace/registerWorkspaceEvents';
 import type { RevealFileOptions } from './hooks/useNavigatorReveal';
 import { ShortcutType, type ShortcutEntry } from './types/shortcuts';
+import type { FolderAppearance } from './hooks/useListPaneAppearance';
+import { isSortOption, type SortOption } from './settings/types';
 
 import { AssertId, assertNever } from './utils/asserts';
 
@@ -247,11 +250,81 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             this.settings.noteGrouping = DEFAULT_SETTINGS.noteGrouping;
         }
 
+        type LegacyAppearance = FolderAppearance & {
+            showDate?: boolean;
+            showPreview?: boolean;
+            showImage?: boolean;
+        };
+
+        const migrateLegacyAppearanceMode = (appearance: LegacyAppearance | undefined): FolderAppearance | undefined => {
+            if (!appearance) {
+                return appearance;
+            }
+
+            const isLegacyCompact =
+                appearance.mode === undefined &&
+                appearance.showDate === false &&
+                appearance.showPreview === false &&
+                appearance.showImage === false;
+
+            if (isLegacyCompact) {
+                const migrated: FolderAppearance = { ...appearance, mode: 'compact' };
+                delete (migrated as LegacyAppearance).showDate;
+                delete (migrated as LegacyAppearance).showPreview;
+                delete (migrated as LegacyAppearance).showImage;
+                return migrated;
+            }
+
+            return appearance;
+        };
+
+        const migrateLegacyAppearances = (collection: Record<string, FolderAppearance> | undefined) => {
+            if (!collection) {
+                return;
+            }
+
+            Object.entries(collection).forEach(([key, appearance]) => {
+                const migratedAppearance = migrateLegacyAppearanceMode(appearance);
+                if (migratedAppearance) {
+                    collection[key] = migratedAppearance;
+                }
+            });
+        };
+
+        migrateLegacyAppearances(this.settings.folderAppearances);
+        migrateLegacyAppearances(this.settings.tagAppearances);
+
         const legacyColorFileTags = mutableSettings['applyTagColorsToFileTags'];
         if (typeof legacyColorFileTags === 'boolean') {
             this.settings.colorFileTags = legacyColorFileTags;
         }
         delete mutableSettings['applyTagColorsToFileTags'];
+
+        const legacySlimItemHeight = mutableSettings['slimItemHeight'];
+        if (typeof legacySlimItemHeight === 'number' && Number.isFinite(legacySlimItemHeight)) {
+            if (typeof storedData?.['compactItemHeight'] === 'undefined') {
+                this.settings.compactItemHeight = legacySlimItemHeight;
+            }
+        }
+        delete mutableSettings['slimItemHeight'];
+
+        const legacySlimItemHeightScaleText = mutableSettings['slimItemHeightScaleText'];
+        if (typeof legacySlimItemHeightScaleText === 'boolean') {
+            if (typeof storedData?.['compactItemHeightScaleText'] === 'undefined') {
+                this.settings.compactItemHeightScaleText = legacySlimItemHeightScaleText;
+            }
+        }
+        delete mutableSettings['slimItemHeightScaleText'];
+
+        const legacyShowFileTagsInSlimMode = mutableSettings['showFileTagsInSlimMode'];
+        if (typeof legacyShowFileTagsInSlimMode === 'boolean') {
+            if (typeof storedData?.['showFileTagsInCompactMode'] === 'undefined') {
+                this.settings.showFileTagsInCompactMode = legacyShowFileTagsInSlimMode;
+            }
+        }
+        delete mutableSettings['showFileTagsInSlimMode'];
+
+        this.sanitizeSettingsRecords();
 
         // Set language-specific date/time formats if not already set
         if (!this.settings.dateFormat) {
@@ -1070,29 +1143,48 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
     }
 
+    // Rebuilds all settings records with null prototypes to prevent prototype pollution attacks
+    private sanitizeSettingsRecords(): void {
+        // Type-specific sanitizers that validate values match expected types
+        const sanitizeStringMap = (record?: Record<string, string>): Record<string, string> => sanitizeRecord(record, isStringRecordValue);
+        const sanitizeSortMap = (record?: Record<string, SortOption>): Record<string, SortOption> => sanitizeRecord(record, isSortOption);
+        const isAppearanceValue = (value: unknown): value is FolderAppearance => isPlainObjectRecordValue(value);
+        const sanitizeAppearanceMap = (record?: Record<string, FolderAppearance>): Record<string, FolderAppearance> =>
+            sanitizeRecord(record, isAppearanceValue);
+        const sanitizeBooleanMap = (record?: Record<string, boolean>): Record<string, boolean> =>
+            sanitizeRecord(record, isBooleanRecordValue);
+
+        // Rebuild maps with null prototypes so keys like "constructor" never resolve to Object.prototype
+        this.settings.folderColors = sanitizeStringMap(this.settings.folderColors);
+        this.settings.folderBackgroundColors = sanitizeStringMap(this.settings.folderBackgroundColors);
+        this.settings.fileColors = sanitizeStringMap(this.settings.fileColors);
+        this.settings.tagColors = sanitizeStringMap(this.settings.tagColors);
+        this.settings.tagBackgroundColors = sanitizeStringMap(this.settings.tagBackgroundColors);
+        this.settings.folderSortOverrides = sanitizeSortMap(this.settings.folderSortOverrides);
+        this.settings.tagSortOverrides = sanitizeSortMap(this.settings.tagSortOverrides);
+        this.settings.folderAppearances = sanitizeAppearanceMap(this.settings.folderAppearances);
+        this.settings.tagAppearances = sanitizeAppearanceMap(this.settings.tagAppearances);
+        this.settings.navigationSeparators = sanitizeBooleanMap(this.settings.navigationSeparators);
+        this.settings.externalIconProviders = sanitizeBooleanMap(this.settings.externalIconProviders);
+    }
+
     private normalizeIconSettings(settings: NotebookNavigatorSettings): void {
-        const normalizeRecord = (record?: Record<string, string>): void => {
-            if (!record) {
-                return;
-            }
-            for (const key of Object.keys(record)) {
-                const value = record[key];
-                if (typeof value !== 'string') {
-                    delete record[key];
-                    continue;
+        const normalizeRecord = (record?: Record<string, string>): Record<string, string> => {
+            const sanitized = sanitizeRecord(record, isStringRecordValue);
+            Object.keys(sanitized).forEach(key => {
+                const canonical = normalizeCanonicalIconId(sanitized[key]);
+                if (!canonical) {
+                    delete sanitized[key];
+                    return;
                 }
-                const normalized = normalizeCanonicalIconId(value);
-                if (!normalized) {
-                    delete record[key];
-                    continue;
-                }
-                record[key] = normalized;
-            }
+                sanitized[key] = canonical;
+            });
+            return sanitized;
         };
 
-        normalizeRecord(settings.folderIcons);
-        normalizeRecord(settings.tagIcons);
-        normalizeRecord(settings.fileIcons);
+        settings.folderIcons = normalizeRecord(settings.folderIcons);
+        settings.tagIcons = normalizeRecord(settings.tagIcons);
+        settings.fileIcons = normalizeRecord(settings.fileIcons);
     }
 
     // Extracts legacy exclusion settings from old format and prepares them for migration to vault profiles
@@ -1188,10 +1280,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     private normalizeTagSettings() {
         const normalizeRecord = <T>(record: Record<string, T> | undefined): Record<string, T> => {
-            if (!record) return {};
+            if (!record) return Object.create(null) as Record<string, T>;
 
-            const normalized: Record<string, T> = {};
-            for (const [key, value] of Object.entries(record)) {
+            const normalized = Object.create(null) as Record<string, T>;
+            // Remove inherited properties before normalizing to lowercase
+            const sanitized = sanitizeRecord(record);
+            for (const [key, value] of Object.entries(sanitized)) {
                 const lowerKey = key.toLowerCase();
                 // If there's a conflict (e.g., both "TODO" and "todo"), last one wins
                 normalized[lowerKey] = value;

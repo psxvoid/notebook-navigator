@@ -31,6 +31,7 @@ import {
 } from '../../utils/navigationSeparators';
 import { normalizeTagPath } from '../../utils/tagUtils';
 import { TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../../types';
+import { ensureRecord, isBooleanRecordValue } from '../../utils/recordUtils';
 
 const FOLDER_PREFIX = 'folder:';
 const TAG_PREFIX = 'tag:';
@@ -239,10 +240,9 @@ export class NavigationSeparatorService extends BaseMetadataService {
     }
 
     private ensureStore(settings: NotebookNavigatorSettings): Record<string, boolean> {
-        if (!settings.navigationSeparators) {
-            settings.navigationSeparators = {};
-        }
-        return settings.navigationSeparators;
+        const store = ensureRecord(settings.navigationSeparators, isBooleanRecordValue);
+        settings.navigationSeparators = store;
+        return store;
     }
 
     private updatePrefixedPaths(

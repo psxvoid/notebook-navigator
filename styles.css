@@ -64,8 +64,8 @@ body {
     /* File item heights - fixed pixel values to prevent fractional rendering */
     --nn-file-title-line-height: 20px; /* Height of file title text */
     --nn-file-padding-vertical: 8px; /* 8px */
-    --nn-file-padding-vertical-slim: 4px; /* Desktop slim mode padding */
-    --nn-file-padding-vertical-slim-mobile: 8px; /* Mobile slim mode padding */
+    --nn-file-padding-vertical-compact: 4px; /* Desktop compact mode padding */
+    --nn-file-padding-vertical-compact-mobile: 8px; /* Mobile compact mode padding */
     --nn-file-padding-total: calc(var(--nn-file-padding-vertical) * 2); /* Total vertical padding (top + bottom) */
     --nn-file-single-text-line-height: 19px; /* Height for single-line text (metadata, date, or single preview) */
     --nn-file-multiline-text-line-height: 18px; /* Height for multi-line preview text */
@@ -75,8 +75,8 @@ body {
     /* Font sizes - fixed pixel values to prevent scaling with Obsidian font size */
     --nn-file-name-size: 14px; /* Fixed 14px */
     --nn-file-small-size: 13px; /* Fixed 13px */
-    --nn-slim-font-size: 13px; /* Slim mode desktop font size */
-    --nn-slim-font-size-mobile: 15px; /* Slim mode mobile font size */
+    --nn-compact-font-size: 13px; /* Compact mode desktop font size */
+    --nn-compact-font-size-mobile: 15px; /* Compact mode mobile font size */
 
     /* Date header heights and padding */
     --nn-date-header-height: 35px; /* First header */
@@ -226,7 +226,7 @@ body {
     /* -- File Item Text Styling -- */
     --nn-theme-list-group-header-font-weight: 600;
     --nn-theme-file-name-font-weight: 600;
-    --nn-theme-file-slim-name-font-weight: 400;
+    --nn-theme-file-compact-name-font-weight: 400;
     --nn-theme-file-preview-font-weight: 400;
     --nn-theme-file-date-font-weight: 400;
     --nn-theme-file-parent-font-weight: 400;
@@ -1467,6 +1467,10 @@ body {
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
+.nn-navitem[data-nav-item-type='note'] .nn-navitem-name {
+    color: var(--nn-theme-file-name-color);
+}
+
 /* Custom colored folder names */
 .nn-navitem-name.nn-has-custom-color {
     font-weight: var(--nn-theme-navitem-custom-color-name-font-weight) !important;
@@ -1880,6 +1884,28 @@ body {
     margin-top: max(0px, calc((var(--nn-file-title-line-height) - var(--nn-file-icon-size-mobile, var(--nn-file-icon-size))) / 2));
 }
 
+.nn-file-icon-rectangle {
+    min-width: 18px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 4px;
+    border-radius: 4px;
+    background-color: var(--background-secondary);
+    box-sizing: border-box;
+}
+
+.nn-file-icon-rectangle-text {
+    font-family: var(--font-monospace);
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1px;
+    line-height: 1;
+}
+
 /* Virtual list file separator */
 
 .nn-virtual-file-item:not(.nn-last-file)::after {
@@ -1903,8 +1929,8 @@ body {
     display: none;
 }
 
-/* Hide separators in slim mode */
-.nn-slim-mode .nn-virtual-file-item::after {
+/* Hide separators in compact mode */
+.nn-compact-mode .nn-virtual-file-item::after {
     display: none;
 }
 
@@ -1921,8 +1947,8 @@ body {
     /* No align-self - let it stretch naturally */
 }
 
-/* Slim mode file text content - same as above but without min-height */
-.nn-slim-file-text-content {
+/* Compact mode file text content - same as above but without min-height */
+.nn-compact-file-text-content {
     flex: 1;
     min-width: 0; /* Enable text truncation */
     display: flex;
@@ -1986,7 +2012,7 @@ body {
 }
 
 .nn-file-external-icon svg,
-.nn-slim-file-type-icon svg {
+.nn-compact-file-type-icon svg {
     width: 14px;
     height: 14px;
 }
@@ -2073,15 +2099,15 @@ body {
     flex-shrink: 0;
 }
 
-/* Slim mode with 1 title row and no tags: center vertically */
-.nn-quick-actions-panel.nn-slim-mode[data-title-rows='1'][data-has-tags='false'] {
-    top: max(0px, calc((var(--nn-file-title-line-height) + var(--nn-file-padding-vertical-slim) * 2 - 20px) / 2));
+/* Compact mode with 1 title row and no tags: center vertically */
+.nn-quick-actions-panel.nn-compact-mode[data-title-rows='1'][data-has-tags='false'] {
+    top: max(0px, calc((var(--nn-file-title-line-height) + var(--nn-file-padding-vertical-compact) * 2 - 20px) / 2));
 }
 
-/* Slim mode with tags or 2 title rows: align with slim padding */
-.nn-quick-actions-panel.nn-slim-mode[data-title-rows='2'],
-.nn-quick-actions-panel.nn-slim-mode[data-has-tags='true'] {
-    top: var(--nn-file-padding-vertical-slim);
+/* Compact mode with tags or 2 title rows: align with compact padding */
+.nn-quick-actions-panel.nn-compact-mode[data-title-rows='2'],
+.nn-quick-actions-panel.nn-compact-mode[data-has-tags='true'] {
+    top: var(--nn-file-padding-vertical-compact);
 }
 
 /* Panel appears when hovering anywhere on file row */
@@ -2299,46 +2325,51 @@ body {
 }
 
 /* ========================================================================
-   Slim Mode Styles - When date, preview, and image are all disabled
+   Compact Mode Styles - When date, preview, and image are all disabled
    ======================================================================== */
 
-/* Slim file item - more compact list appearance */
-.nn-file.nn-slim .nn-file-content {
-    padding: var(--nn-file-padding-vertical-slim) var(--nn-file-item-padding-horizontal); /* Reduced vertical padding */
+/* Compact file item - more compact list appearance */
+.nn-file.nn-compact .nn-file-content {
+    padding: var(--nn-file-padding-vertical-compact) var(--nn-file-item-padding-horizontal); /* Reduced vertical padding */
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
-/* Slim file name - no bold, smaller font like folder items */
-.nn-file.nn-slim .nn-file-name {
-    font-size: var(--nn-slim-font-size, var(--nn-file-small-size-mobile, var(--nn-file-small-size)));
-    font-weight: var(--nn-theme-file-slim-name-font-weight);
+/* Compact file name - no bold, smaller font like folder items */
+.nn-file.nn-compact .nn-file-name {
+    font-size: var(--nn-compact-font-size, var(--nn-file-small-size-mobile, var(--nn-file-small-size)));
+    font-weight: var(--nn-theme-file-compact-name-font-weight);
     margin-bottom: 0;
     line-height: var(--nn-file-title-line-height);
 }
 
-/* Apply standard font weight to colored file names in slim mode */
-.nn-file.nn-slim .nn-file-name[data-has-color='true'] {
+/* Apply standard font weight to colored file names in compact mode */
+.nn-file.nn-compact .nn-file-name[data-has-color='true'] {
     font-weight: var(--nn-theme-file-name-font-weight);
 }
 
-.nn-slim-file-header {
+.nn-compact-file-header {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.nn-slim-file-header .nn-file-name-wrapper {
+.nn-compact-file-header .nn-file-name-wrapper {
     flex: 1;
     min-width: 0;
 }
 
-/* Selected slim file - maintain selection styles */
-.nn-file.nn-slim.nn-selected .nn-file-name {
+.nn-compact-extension-badge {
+    margin-left: auto;
+    display: flex;
+}
+
+/* Selected compact file - maintain selection styles */
+.nn-file.nn-compact.nn-selected .nn-file-name {
     color: var(--nn-selected-file-name-color);
 }
 
-/* Preserve custom color for colored file names even when selected in slim mode */
-.nn-file.nn-slim.nn-selected .nn-file-name[data-has-color='true'] {
+/* Preserve custom color for colored file names even when selected in compact mode */
+.nn-file.nn-compact.nn-selected .nn-file-name[data-has-color='true'] {
     color: var(--nn-file-name-custom-color);
 }
 
@@ -2605,7 +2636,7 @@ body {
     z-index: 0; /* Below separator lines */
 }
 
-.nn-file.nn-slim.nn-selected .nn-file-content::before {
+.nn-file.nn-compact.nn-selected .nn-file-content::before {
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
@@ -2670,6 +2701,10 @@ body {
 
 .nn-navitem.nn-selected .nn-navitem-name {
     color: var(--nn-selected-navitem-name-color);
+}
+
+.nn-navitem.nn-selected[data-nav-item-type='note'] .nn-navitem-name {
+    color: var(--nn-selected-file-name-color);
 }
 
 .nn-navitem.nn-selected .nn-navitem-count {
@@ -2877,7 +2912,7 @@ body.nn-resizing {
     z-index: 10;
 }
 
-.nn-file.nn-slim.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
+.nn-file.nn-compact.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
@@ -4484,6 +4519,9 @@ body.nn-resizing {
     --nn-file-padding-total-mobile: calc(var(--nn-file-padding-vertical-mobile) * 2);
     --nn-file-icon-size-mobile: calc(var(--nn-file-icon-size) + 4px);
     --nn-file-icon-slot-width-mobile: var(--nn-file-icon-size-mobile);
+    --nn-file-title-line-height: 21px;
+    --nn-file-single-text-line-height: 20px;
+    --nn-file-multiline-text-line-height: 19px;
     --nn-date-header-height-mobile: calc(var(--nn-date-header-height) + 8px);
     --nn-date-header-height-subsequent-mobile: calc(var(--nn-date-header-height-subsequent) + 8px);
     --nn-date-header-padding-top-mobile: calc(var(--nn-date-header-padding-top) + 4px);
@@ -4632,14 +4670,14 @@ body.nn-resizing {
     background-color: var(--nn-theme-list-bg); /* Opaque background on scroller for GPU scroll layer (see .nn-list-pane-scroller) */
 }
 
-/* Mobile slim file items - larger touch targets */
-.notebook-navigator-mobile .nn-file.nn-slim .nn-file-content {
-    padding: var(--nn-file-padding-vertical-slim-mobile) var(--nn-file-item-padding-horizontal);
+/* Mobile compact file items - larger touch targets */
+.notebook-navigator-mobile .nn-file.nn-compact .nn-file-content {
+    padding: var(--nn-file-padding-vertical-compact-mobile) var(--nn-file-item-padding-horizontal);
 }
 
-/* Mobile slim mode file names - use dedicated font variable */
-.notebook-navigator-mobile .nn-file.nn-slim .nn-file-name {
-    font-size: var(--nn-slim-font-size-mobile, var(--nn-slim-font-size, 15px));
+/* Mobile compact mode file names - use dedicated font variable */
+.notebook-navigator-mobile .nn-file.nn-compact .nn-file-name {
+    font-size: var(--nn-compact-font-size-mobile, var(--nn-compact-font-size, 15px));
 }
 
 /* ========================================================================
@@ -5679,9 +5717,9 @@ settings:
         step: 100
     -
     -
-        id: nn-theme-file-slim-name-font-weight
-        title: File name font weight (slim mode)
-        description: Font weight for file names in slim mode.
+        id: nn-theme-file-compact-name-font-weight
+        title: File name font weight (compact mode)
+        description: Font weight for file names in compact mode.
         type: variable-number-slider
         default: 400
         min: 100

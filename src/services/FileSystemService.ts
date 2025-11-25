@@ -28,7 +28,7 @@ import type { VisibilityPreferences } from '../types';
 import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
 import { cleanupExclusionPatterns, isPathInExcludedFolder } from '../utils/fileFilters';
-import { EXCALIDRAW_BASENAME_SUFFIX, isExcalidrawFile, stripExcalidrawSuffix } from '../utils/fileNameUtils';
+import { EXCALIDRAW_BASENAME_SUFFIX, isExcalidrawFile, stripExcalidrawSuffix, stripInvalidLinkCharacters } from '../utils/fileNameUtils';
 import { getFolderNote, isFolderNote, isSupportedFolderNoteExtension } from '../utils/folderNotes';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 import { executeCommand } from '../utils/typeGuards';
@@ -245,6 +245,92 @@ export class FileSystemOperations {
     }
 
     /**
+     * Generates placeholder text for folder move modal
+     * Optionally wraps the target name in single quotes
+     */
+    private getMovePlaceholder(targetName: string, shouldQuote: boolean): string {
+        const label = shouldQuote ? `'${targetName}'` : targetName;
+        return strings.modals.folderSuggest.placeholder(label);
+    }
+
+    /**
+     * Returns label text for files being moved
+     * Returns file name for single file, or count label for multiple files
+     */
+    private getMoveTargetLabelForFiles(files: TFile[]): string {
+        if (files.length === 1) {
+            return files[0].name;
+        }
+
+        return strings.modals.folderSuggest.multipleFilesLabel(files.length);
+    }
+
+    /**
+     * Checks whether invalid character filtering is enabled in settings
+     */
+    private shouldFilterInvalidNames(): boolean {
+        return Boolean(this.settingsProvider.settings.preventInvalidCharacters);
+    }
+
+    /**
+     * Filters input name by removing invalid characters
+     * Removes invalid link characters if setting enabled and strips leading dots
+     * Does NOT trim whitespace during live filtering to allow typing spaces
+     * @param value - The input name to filter
+     * @returns Filtered value without invalid characters
+     */
+    private filterNameInputLive(value: string): string {
+        if (!value) {
+            return '';
+        }
+
+        // Remove invalid link characters if setting enabled
+        const withoutInvalidCharacters = this.shouldFilterInvalidNames() ? stripInvalidLinkCharacters(value) : value;
+        // Remove leading dots
+        return withoutInvalidCharacters.replace(/^\.+/u, '');
+    }
+
+    /**
+     * Filters and trims input name for final submission
+     * @param value - The input name to filter
+     * @returns Trimmed and filtered value
+     */
+    private filterNameInputFinal(value: string): string {
+        return this.filterNameInputLive(value).trim();
+    }
+
+    /**
+     * Returns a function that filters input names for use in InputModal
+     * @returns Filter function that removes invalid characters (no trim for live typing)
+     */
+    private getNameInputFilter(): (value: string) => string {
+        return (input: string) => this.filterNameInputLive(input);
+    }
+
+    /**
+     * Returns display title for file deletion modal
+     * Uses full path for folder notes, basename for regular notes
+     */
+    private getDeleteFileTitle(file: TFile): string {
+        const settings = this.settingsProvider.settings;
+        const parent = file.parent;
+        if (!parent || !(parent instanceof TFolder)) {
+            return file.basename;
+        }
+
+        const detectionSettings = {
+            enableFolderNotes: settings.enableFolderNotes,
+            folderNoteName: settings.folderNoteName
+        };
+
+        if (!isFolderNote(file, parent, detectionSettings)) {
+            return file.basename;
+        }
+
+        return file.path;
+    }
+
+    /**
      * Creates a new folder with user-provided name
      * Shows input modal for folder name and handles creation
      * @param parent - The parent folder to create the new folder in
@@ -254,19 +340,31 @@ export class FileSystemOperations {
         const settings = this.settingsProvider.settings;
         ensureVaultProfiles(settings);
         const showHiddenOption = settings.vaultProfiles.length >= 2;
+        const inputFilter = this.getNameInputFilter();
+        const modalOptions = showHiddenOption
+            ? {
+                  checkbox: {
+                      label: strings.modals.fileSystem.hideInOtherVaultProfiles
+                  },
+                  inputFilter
+              }
+            : {
+                  inputFilter
+              };
 
         const modal = new InputModal(
             this.app,
             strings.modals.fileSystem.newFolderTitle,
             strings.modals.fileSystem.folderNamePrompt,
             async (name, context) => {
-                if (!name) {
+                const filteredName = this.filterNameInputFinal(name);
+                if (!filteredName) {
                     return;
                 }
 
                 try {
                     const base = parent.path === '/' ? '' : `${parent.path}/`;
-                    const path = normalizePath(`${base}${name}`);
+                    const path = normalizePath(`${base}${filteredName}`);
                     await this.app.vault.createFolder(path);
                     if (showHiddenOption && context?.checkboxValue) {
                         await this.hideFolderInOtherVaultProfiles(path);
@@ -279,13 +377,7 @@ export class FileSystemOperations {
                 }
             },
             '',
-            showHiddenOption
-                ? {
-                      checkbox: {
-                          label: strings.modals.fileSystem.hideInOtherVaultProfiles
-                      }
-                  }
-                : undefined
+            modalOptions
         );
         modal.open();
     }
@@ -314,12 +406,15 @@ export class FileSystemOperations {
      * @param settings - The plugin settings (optional)
      */
     async renameFolder(folder: TFolder, settings?: NotebookNavigatorSettings): Promise<void> {
+        const inputFilter = this.getNameInputFilter();
+
         const modal = new InputModal(
             this.app,
             strings.modals.fileSystem.renameFolderTitle,
             strings.modals.fileSystem.renamePrompt,
             async newName => {
-                if (!newName || newName === folder.name) {
+                const filteredName = this.filterNameInputFinal(newName);
+                if (!filteredName || filteredName === folder.name) {
                     return;
                 }
 
@@ -333,7 +428,7 @@ export class FileSystemOperations {
                     }
 
                     if (folderNote) {
-                        const newNoteName = `${newName}.${folderNote.extension}`;
+                        const newNoteName = `${filteredName}.${folderNote.extension}`;
                         const folderBase = folder.path === '/' ? '' : `${folder.path}/`;
                         const conflictPath = normalizePath(`${folderBase}${newNoteName}`);
                         const conflict = this.app.vault.getFileByPath(conflictPath);
@@ -347,7 +442,7 @@ export class FileSystemOperations {
 
                     const parentPath = folder.parent?.path ?? '/';
                     const base = parentPath === '/' ? '' : `${parentPath}/`;
-                    const newFolderPath = normalizePath(`${base}${newName}`);
+                    const newFolderPath = normalizePath(`${base}${filteredName}`);
 
                     // Rename the folder (moves contents including the folder note)
                     await this.app.fileManager.renameFile(folder, newFolderPath);
@@ -355,14 +450,17 @@ export class FileSystemOperations {
 
                     // Rename the folder note to match the new folder name when using default naming
                     if (folderNote) {
-                        const newNotePath = normalizePath(`${newFolderPath}/${newName}.${folderNote.extension}`);
+                        const newNotePath = normalizePath(`${newFolderPath}/${filteredName}.${folderNote.extension}`);
                         await this.app.fileManager.renameFile(folderNote, newNotePath);
                     }
                 } catch (error) {
                     this.notifyError(strings.fileSystem.errors.renameFolder, error);
                 }
             },
-            folder.name
+            folder.name,
+            {
+                inputFilter
+            }
         );
         modal.open();
     }
@@ -380,13 +478,14 @@ export class FileSystemOperations {
         const extensionSuffix = extension ? `.${extension}` : '';
         // Strip .excalidraw suffix from default value for Excalidraw files
         const defaultValue = isExcalidraw ? stripExcalidrawSuffix(file.basename) : file.basename;
+        const inputFilter = this.getNameInputFilter();
 
         const modal = new InputModal(
             this.app,
             strings.modals.fileSystem.renameFileTitle,
             strings.modals.fileSystem.renamePrompt,
             async rawInput => {
-                const trimmedInput = rawInput.trim();
+                const trimmedInput = this.filterNameInputFinal(rawInput);
                 if (!trimmedInput) {
                     return;
                 }
@@ -439,7 +538,10 @@ export class FileSystemOperations {
                     this.notifyError(strings.fileSystem.errors.renameFile, error);
                 }
             },
-            defaultValue
+            defaultValue,
+            {
+                inputFilter
+            }
         );
         modal.open();
     }
@@ -500,6 +602,7 @@ export class FileSystemOperations {
         onSuccess?: () => void,
         preDeleteAction?: () => Promise<void>
     ): Promise<void> {
+        const deleteTitle = this.getDeleteFileTitle(file);
         const performDeleteCore = async () => {
             try {
                 // Run pre-delete action if provided
@@ -520,7 +623,7 @@ export class FileSystemOperations {
         if (confirmBeforeDelete) {
             const confirmModal = new ConfirmModal(
                 this.app,
-                strings.modals.fileSystem.deleteFileTitle.replace('{name}', file.basename),
+                strings.modals.fileSystem.deleteFileTitle.replace('{name}', deleteTitle),
                 strings.modals.fileSystem.deleteFileConfirm,
                 async () => {
                     const commandQueue = this.getCommandQueue();
@@ -736,6 +839,9 @@ export class FileSystemOperations {
             excludePaths.add(files[0].parent.path);
         }
 
+        const isMultiple = files.length > 1;
+        const placeholderText = this.getMovePlaceholder(this.getMoveTargetLabelForFiles(files), !isMultiple);
+
         // Show the folder selection modal
         const modal = new FolderSuggestModal(
             this.app,
@@ -758,7 +864,7 @@ export class FileSystemOperations {
                     );
                 }
             },
-            strings.modals.folderSuggest.placeholder,
+            placeholderText,
             strings.modals.folderSuggest.instructions.move,
             excludePaths
         );
@@ -840,7 +946,7 @@ export class FileSystemOperations {
                         finish({ status: 'error', error });
                     }
                 },
-                strings.modals.folderSuggest.placeholder,
+                this.getMovePlaceholder(folder.name, true),
                 strings.modals.folderSuggest.instructions.move,
                 excludePaths,
                 () => finish({ status: 'cancelled' })

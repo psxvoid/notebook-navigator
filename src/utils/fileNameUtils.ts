@@ -21,6 +21,9 @@ import { NotebookNavigatorSettings } from '../settings';
 
 export const EXCALIDRAW_BASENAME_SUFFIX = '.excalidraw';
 
+// Pattern matching characters that break Obsidian links: [[, ]], %%, #, |, ^, :
+const INVALID_LINK_CHARACTERS_PATTERN = /(\[\[|\]\]|%%|[#|^:])/gu;
+
 /**
  * Checks whether a filename ends with the Excalidraw composite extension (.excalidraw.md).
  */
@@ -52,6 +55,17 @@ export function stripExcalidrawSuffix(value: string): string {
  */
 export function isExcalidrawFile(file: TFile): boolean {
     return isExcalidrawFileName(file.name);
+}
+
+/**
+ * Removes characters that break Obsidian links (#, |, ^, :, %%, [[, ]]).
+ */
+export function stripInvalidLinkCharacters(value: string): string {
+    if (!value) {
+        return value;
+    }
+    INVALID_LINK_CHARACTERS_PATTERN.lastIndex = 0;
+    return value.replace(INVALID_LINK_CHARACTERS_PATTERN, '');
 }
 
 /**
