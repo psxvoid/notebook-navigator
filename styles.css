@@ -1963,48 +1963,25 @@ body {
     font-size: var(--nn-file-name-size-mobile, var(--nn-file-name-size));
     font-weight: var(--nn-theme-file-name-font-weight);
     color: var(--nn-theme-file-name-color);
+    line-height: var(--nn-file-title-line-height);
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-bottom: 0;
     display: -webkit-box;
     -webkit-line-clamp: var(--filename-rows, 1);
     -webkit-box-orient: vertical;
-    line-height: var(--nn-file-title-line-height);
     word-break: break-word;
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
+    flex: 1;
+}
 
-    /* Fixed height: always take up configured number of lines */
+/* Multi-line file name - always take up configured number of lines */
+.nn-file-text-content > .nn-file-name {
     min-height: calc(var(--nn-file-title-line-height) * var(--filename-rows, 1));
     height: calc(var(--nn-file-title-line-height) * var(--filename-rows, 1));
 }
 
 .nn-file-name[data-has-color='true'] {
     color: var(--nn-file-name-custom-color);
-}
-
-.nn-file-name-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.nn-file-name-wrapper[data-multiline='true'] {
-    align-items: flex-start;
-}
-
-.nn-file-name-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.nn-file-name-row {
-    display: flex;
-    align-items: center;
-}
-
-.nn-file-name-row .nn-file-name {
-    flex: 1;
-    min-width: 0;
 }
 
 .nn-file-external-icon {
@@ -2353,7 +2330,7 @@ body {
     gap: 8px;
 }
 
-.nn-compact-file-header .nn-file-name-wrapper {
+.nn-compact-file-header .nn-file-name {
     flex: 1;
     min-width: 0;
 }
