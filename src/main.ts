@@ -626,14 +626,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Register editor context menu
         registerWorkspaceEvents(this);
 
-        // Handle Obsidian quit events to flush state before shutdown
-        this.registerEvent(
-            this.app.workspace.on('quit', () => {
-                // Obsidian is closing the window; flush critical state promptly
-                this.handleWorkspaceQuit();
-            })
-        );
-
         // Post-layout initialization
         // Only auto-create the navigator view on first launch; upgrades restore existing leaves themselves
         const shouldActivateOnStartup = isFirstLaunch;
@@ -965,14 +957,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 console.error('Error in file rename listener:', error);
             }
         });
-    }
-
-    /**
-     * Handles Obsidian's quit event. Performs a best-effort synchronous cleanup
-     * so pending preferences, caches, and database handles close before exit.
-     */
-    private handleWorkspaceQuit(): void {
-        this.initiateShutdown();
     }
 
     /**
