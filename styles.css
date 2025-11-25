@@ -2359,6 +2359,7 @@ body {
     background-color: transparent;
     position: relative;
     order: 2; /* Ensure it appears on the right */
+    align-self: center;
 }
 
 .nn-feature-image--square {

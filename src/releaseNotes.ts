@@ -76,6 +76,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.8.9',
         date: '2025-11-25',
         showOnUpdate: true,
+        info: 'Hi! Sorry for pushing this release so soon, but there is a bug in Obsidian where it sends out "quit" to all plugins when receiving an open url, and this causes Notebook Navigator to think it should quit. This has been fixed, and next update is coming as usual in a week.',
         new: [
             '==Customizable user colors in the color picker==. The color picker now has 20 editable color slots. Click a slot to select it, then use the picker to change it. Your colors are saved and synced automatically. Use the new toolbar buttons to copy, paste, or reset the palette.',
             'Notebook Navigator has been translated to Arabic (ar).'
