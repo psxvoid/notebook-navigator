@@ -1965,18 +1965,14 @@ body {
     font-size: var(--nn-file-name-size-mobile, var(--nn-file-name-size));
     font-weight: var(--nn-theme-file-name-font-weight);
     color: var(--nn-theme-file-name-color);
-    line-height: var(--nn-file-title-line-height);
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-bottom: 0;
     display: -webkit-box;
     -webkit-line-clamp: var(--filename-rows, 1);
     -webkit-box-orient: vertical;
+    line-height: var(--nn-file-title-line-height);
     word-break: break-word;
-    flex: 1;
-}
-
-/* Multi-line file name - always take up configured number of lines */
-.nn-file-text-content > .nn-file-name {
     min-height: calc(var(--nn-file-title-line-height) * var(--filename-rows, 1));
     height: calc(var(--nn-file-title-line-height) * var(--filename-rows, 1));
 }
