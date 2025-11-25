@@ -73,6 +73,17 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.8.9',
+        date: '2025-11-25',
+        showOnUpdate: true,
+        new: [
+            '==Customizable user colors in the color picker==. The color picker now has 20 editable color slots. Click a slot to select it, then use the picker to change it. Your colors are saved automatically. Use the toolbar buttons to copy, paste, or reset the palette.'
+        ],
+        fixed: [
+            'Fixed an issue where Obsidian sends workspace "quit" to all plugins when receiving obsidian://open-url requests, causing unpredictable behavior.'
+        ]
+    },
+    {
         version: '1.8.8',
         date: '2025-11-24',
         showOnUpdate: true,

@@ -18,37 +18,12 @@
 
 import { App, Modal, setIcon } from 'obsidian';
 import { strings } from '../i18n';
+import { DEFAULT_USER_COLORS, USER_COLOR_SLOT_COUNT } from '../constants/colorPalette';
 import { ItemType } from '../types';
 import { ISettingsProvider } from '../interfaces/ISettingsProvider';
 import { runAsyncAction } from '../utils/async';
 import { addAsyncEventListener } from '../utils/domEventListeners';
-
-/**
- * Color palette for folder colors
- * Carefully selected to work well in both light and dark themes
- */
-const COLOR_PALETTE = [
-    { name: strings.modals.colorPicker.colors.red, value: '#ef4444' },
-    { name: strings.modals.colorPicker.colors.orange, value: '#f97316' },
-    { name: strings.modals.colorPicker.colors.amber, value: '#f59e0b' },
-    { name: strings.modals.colorPicker.colors.yellow, value: '#eab308' },
-    { name: strings.modals.colorPicker.colors.lime, value: '#84cc16' },
-    { name: strings.modals.colorPicker.colors.green, value: '#22c55e' },
-    { name: strings.modals.colorPicker.colors.emerald, value: '#10b981' },
-    { name: strings.modals.colorPicker.colors.teal, value: '#14b8a6' },
-    { name: strings.modals.colorPicker.colors.cyan, value: '#06b6d4' },
-    { name: strings.modals.colorPicker.colors.sky, value: '#0ea5e9' },
-    { name: strings.modals.colorPicker.colors.blue, value: '#3b82f6' },
-    { name: strings.modals.colorPicker.colors.indigo, value: '#6366f1' },
-    { name: strings.modals.colorPicker.colors.violet, value: '#8b5cf6' },
-    { name: strings.modals.colorPicker.colors.purple, value: '#a855f7' },
-    { name: strings.modals.colorPicker.colors.fuchsia, value: '#d946ef' },
-    { name: strings.modals.colorPicker.colors.pink, value: '#ec4899' },
-    { name: strings.modals.colorPicker.colors.rose, value: '#f43f5e' },
-    { name: strings.modals.colorPicker.colors.gray, value: '#6b7280' },
-    { name: strings.modals.colorPicker.colors.slate, value: '#64748b' },
-    { name: strings.modals.colorPicker.colors.stone, value: '#78716c' }
-];
+import { showNotice } from '../utils/noticeUtils';
 
 const MAX_RECENT_COLORS = 10;
 const DEFAULT_COLOR = '#3b82f6';
@@ -103,7 +78,11 @@ export class ColorPickerModal extends Modal {
     private channelSliders: Record<ColorChannel, HTMLInputElement>;
     private channelValues: Record<ColorChannel, HTMLSpanElement>;
     private recentColorsContainer: HTMLDivElement;
-    private presetColorsContainer: HTMLDivElement;
+    private userColorsContainer: HTMLDivElement;
+    private userColorDots: HTMLDivElement[] = [];
+    private userColors: string[] = [];
+    private activeUserColorIndex: number | null = null;
+    private userColorsDirty = false;
     private isUpdating = false;
     private domDisposers: (() => void)[] = [];
 
@@ -132,6 +111,7 @@ export class ColorPickerModal extends Modal {
 
         // Access settings through the service (used for recent colors storage)
         this.settingsProvider = metadataService.getSettingsProvider();
+        this.userColors = [...DEFAULT_USER_COLORS];
 
         const initialColor = this.resolveInitialColor();
         if (initialColor) {
@@ -211,10 +191,47 @@ export class ColorPickerModal extends Modal {
         this.previewNew = newSection.createDiv('nn-preview-color nn-show-checkerboard');
         this.applySwatchColor(this.previewNew, this.selectedColor);
 
-        // Preset colors section
+        // User colors section
         const presetSection = leftColumn.createDiv('nn-preset-section');
-        presetSection.createEl('div', { text: strings.modals.colorPicker.presetColors, cls: 'nn-section-label' });
-        this.presetColorsContainer = presetSection.createDiv('nn-preset-colors');
+        const presetHeader = presetSection.createDiv('nn-preset-header');
+        presetHeader.createEl('div', { text: strings.modals.colorPicker.userColors, cls: 'nn-section-label' });
+
+        const presetButtons = presetHeader.createDiv('nn-preset-buttons');
+
+        const copyColorsButton = presetButtons.createEl('button', {
+            cls: 'nn-preset-action-button',
+            attr: {
+                type: 'button',
+                'aria-label': strings.modals.colorPicker.copyColors,
+                title: strings.modals.colorPicker.copyColors
+            }
+        });
+        setIcon(copyColorsButton, 'copy');
+        this.domDisposers.push(addAsyncEventListener(copyColorsButton, 'click', () => this.copyUserColors()));
+
+        const pasteColorsButton = presetButtons.createEl('button', {
+            cls: 'nn-preset-action-button',
+            attr: {
+                type: 'button',
+                'aria-label': strings.modals.colorPicker.pasteColors,
+                title: strings.modals.colorPicker.pasteColors
+            }
+        });
+        setIcon(pasteColorsButton, 'clipboard-paste');
+        this.domDisposers.push(addAsyncEventListener(pasteColorsButton, 'click', () => this.pasteUserColors()));
+
+        const resetUserColorsButton = presetButtons.createEl('button', {
+            cls: 'nn-preset-action-button',
+            attr: {
+                type: 'button',
+                'aria-label': strings.modals.colorPicker.resetUserColors,
+                title: strings.modals.colorPicker.resetUserColors
+            }
+        });
+        setIcon(resetUserColorsButton, 'refresh-ccw');
+        this.domDisposers.push(addAsyncEventListener(resetUserColorsButton, 'click', () => this.resetUserColors()));
+
+        this.userColorsContainer = presetSection.createDiv('nn-preset-colors');
 
         // Right column
         const rightColumn = mainContent.createDiv('nn-color-picker-right');
@@ -317,7 +334,7 @@ export class ColorPickerModal extends Modal {
         this.setupEventHandlers();
         this.registerKeyboardShortcuts();
         this.loadRecentColors();
-        this.loadPresetColors();
+        this.loadUserColors();
         this.updateFromHex(this.selectedColor);
 
         // Hex input real-time validation and update
@@ -342,6 +359,11 @@ export class ColorPickerModal extends Modal {
         const { contentEl } = this;
         contentEl.empty();
         this.modalEl.removeClass('nn-color-picker-modal');
+        if (this.userColorsDirty) {
+            this.settingsProvider.settings.userColors = [...this.userColors];
+            runAsyncAction(() => this.settingsProvider.saveSettingsAndUpdate());
+            this.userColorsDirty = false;
+        }
         // Cleanup DOM listeners
         if (this.domDisposers.length) {
             this.domDisposers.forEach(dispose => {
@@ -469,22 +491,196 @@ export class ColorPickerModal extends Modal {
     }
 
     /**
-     * Load preset color palette
+     * Load user color palette
      */
-    private loadPresetColors() {
-        this.presetColorsContainer.empty();
+    private loadUserColors() {
+        this.userColors = this.getNormalizedUserColors();
+        this.activeUserColorIndex = null;
+        this.userColorsContainer.empty();
+        this.userColorDots = [];
 
-        COLOR_PALETTE.forEach(color => {
-            const dot = this.presetColorsContainer.createDiv('nn-color-dot');
-            this.applySwatchColor(dot, color.value);
-            dot.setAttribute('data-color', color.value);
-            dot.setAttribute('title', color.name);
+        this.userColors.forEach((color, index) => {
+            const dot = this.userColorsContainer.createDiv('nn-color-dot nn-show-checkerboard');
+            this.userColorDots.push(dot);
+            this.applySwatchColor(dot, color);
+            dot.setAttribute('data-color', color);
+            dot.setAttribute('title', this.getUserColorSlotLabel(index));
+            if (this.activeUserColorIndex === index) {
+                dot.addClass('nn-user-color-selected');
+            }
             this.domDisposers.push(
                 addAsyncEventListener(dot, 'click', () => {
-                    this.updateFromHex(color.value);
+                    this.handleUserColorClick(index);
                 })
             );
         });
+    }
+
+    private getUserColorSlotLabel(index: number): string {
+        return strings.modals.colorPicker.userColorSlot.replace('{slot}', (index + 1).toString());
+    }
+
+    private getNormalizedUserColors(): string[] {
+        const storedColors = this.settingsProvider.settings.userColors ?? [];
+        const mergedColors = [...DEFAULT_USER_COLORS];
+
+        for (let i = 0; i < USER_COLOR_SLOT_COUNT; i++) {
+            const normalized = this.normalizeHexColor(storedColors[i]);
+            if (normalized) {
+                mergedColors[i] = normalized;
+            }
+        }
+
+        return mergedColors;
+    }
+
+    private handleUserColorClick(index: number) {
+        if (this.activeUserColorIndex === index) {
+            this.activeUserColorIndex = null;
+            this.updateUserColorSelection(null);
+            return;
+        }
+
+        const color = this.userColors[index];
+        this.activeUserColorIndex = index;
+        this.updateUserColorSelection(index);
+        this.updateFromHex(color, { userColorIndex: index });
+    }
+
+    private updateUserColorSelection(index: number | null) {
+        this.userColorDots.forEach((dot, dotIndex) => {
+            dot.toggleClass('nn-user-color-selected', dotIndex === index);
+        });
+    }
+
+    private updateActiveUserColor(color: string) {
+        if (this.activeUserColorIndex === null) {
+            return;
+        }
+
+        const slotIndex = this.activeUserColorIndex;
+        if (this.userColors[slotIndex] === color) {
+            return;
+        }
+
+        this.userColors[slotIndex] = color;
+        const swatch = this.userColorDots[slotIndex];
+        if (swatch) {
+            this.applySwatchColor(swatch, color);
+            swatch.setAttribute('data-color', color);
+        }
+        this.markUserColorsDirty();
+    }
+
+    private resetUserColors() {
+        this.userColors = [...DEFAULT_USER_COLORS];
+        this.activeUserColorIndex = this.findUserColorIndex(this.selectedColor);
+        this.userColors.forEach((color, index) => {
+            const swatch = this.userColorDots[index];
+            if (swatch) {
+                this.applySwatchColor(swatch, color);
+                swatch.setAttribute('data-color', color);
+            }
+        });
+        this.updateUserColorSelection(this.activeUserColorIndex);
+        this.markUserColorsDirty();
+    }
+
+    private async copyUserColors() {
+        const json = JSON.stringify(this.userColors);
+        try {
+            await navigator.clipboard.writeText(json);
+            showNotice(strings.modals.colorPicker.colorsCopied, { variant: 'success' });
+        } catch {
+            showNotice(strings.modals.colorPicker.copyClipboardError, { variant: 'warning' });
+        }
+    }
+
+    private async pasteUserColors() {
+        let text: string;
+        try {
+            text = await navigator.clipboard.readText();
+        } catch {
+            showNotice(strings.modals.colorPicker.pasteClipboardError, { variant: 'warning' });
+            return;
+        }
+
+        const result = this.parseUserColorsJson(text);
+        if (!result.ok) {
+            showNotice(result.error, { variant: 'warning' });
+            return;
+        }
+
+        this.userColors = result.colors;
+        this.activeUserColorIndex = this.findUserColorIndex(this.selectedColor);
+        this.userColors.forEach((color, index) => {
+            const swatch = this.userColorDots[index];
+            if (swatch) {
+                this.applySwatchColor(swatch, color);
+                swatch.setAttribute('data-color', color);
+            }
+        });
+        this.updateUserColorSelection(this.activeUserColorIndex);
+        this.markUserColorsDirty();
+        showNotice(strings.modals.colorPicker.colorsPasted, { variant: 'success' });
+    }
+
+    private parseUserColorsJson(text: string): { ok: true; colors: string[] } | { ok: false; error: string } {
+        let parsed: unknown;
+        try {
+            parsed = JSON.parse(text);
+        } catch {
+            return { ok: false, error: strings.modals.colorPicker.pasteInvalidJson };
+        }
+
+        if (!Array.isArray(parsed)) {
+            return { ok: false, error: strings.modals.colorPicker.pasteInvalidFormat };
+        }
+
+        const colors: string[] = [...DEFAULT_USER_COLORS];
+        for (let i = 0; i < USER_COLOR_SLOT_COUNT && i < parsed.length; i++) {
+            const item: unknown = parsed[i];
+            if (typeof item !== 'string') {
+                continue;
+            }
+            const normalized = this.normalizeHexColor(item);
+            if (normalized) {
+                colors[i] = normalized;
+            }
+        }
+
+        return { ok: true, colors };
+    }
+
+    private normalizeHexColor(color: string | null | undefined): string | null {
+        if (!color) {
+            return null;
+        }
+
+        const parsed = this.parseColorString(color);
+        if (!parsed) {
+            return null;
+        }
+
+        return this.rgbaToHex(parsed);
+    }
+
+    private findUserColorIndex(color: string | null): number | null {
+        const normalized = this.normalizeHexColor(color);
+        if (!normalized) {
+            return null;
+        }
+
+        const index = this.userColors.findIndex(userColor => userColor === normalized);
+        if (index === -1) {
+            return null;
+        }
+
+        return index;
+    }
+
+    private markUserColorsDirty() {
+        this.userColorsDirty = true;
     }
 
     /**
@@ -507,11 +703,17 @@ export class ColorPickerModal extends Modal {
     /**
      * Update all controls from hex value
      */
-    private updateFromHex(hex: string, { syncInput = true }: { syncInput?: boolean } = {}) {
+    private updateFromHex(hex: string, { syncInput = true, userColorIndex }: { syncInput?: boolean; userColorIndex?: number | null } = {}) {
+        if (typeof userColorIndex !== 'undefined') {
+            this.activeUserColorIndex = userColorIndex;
+            this.updateUserColorSelection(userColorIndex);
+        }
+
         this.isUpdating = true;
+        let normalizedHex: string | null = null;
         const rgba = this.hexToRgba(hex);
         if (rgba) {
-            const normalizedHex = this.rgbaToHex(rgba);
+            normalizedHex = this.rgbaToHex(rgba);
             this.selectedColor = normalizedHex;
             this.applySwatchColor(this.previewNew, normalizedHex);
             if (syncInput) {
@@ -529,6 +731,10 @@ export class ColorPickerModal extends Modal {
         }
 
         this.isUpdating = false;
+
+        if (normalizedHex) {
+            this.updateActiveUserColor(normalizedHex);
+        }
     }
 
     /**
@@ -553,6 +759,7 @@ export class ColorPickerModal extends Modal {
         // Update preview and hex input
         this.applySwatchColor(this.previewNew, hex);
         this.hexInput.value = hex.substring(1);
+        this.updateActiveUserColor(hex);
     }
 
     /**
@@ -660,9 +867,9 @@ export class ColorPickerModal extends Modal {
      * Save color to recent colors
      */
     private async saveToRecentColors(color: string) {
-        // Don't add preset colors to recent
-        const isPresetColor = COLOR_PALETTE.some(preset => preset.value === color);
-        if (isPresetColor) {
+        // Don't add saved user colors to recent
+        const isUserColor = this.userColors.some(userColor => userColor === color);
+        if (isUserColor) {
             return;
         }
 
