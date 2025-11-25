@@ -96,12 +96,9 @@ export function calculateCacheStatistics(settings: NotebookNavigatorSettings, sh
 
         let totalSize = 0;
 
-        // Get all files from cache
-        const allFiles = db.getAllFiles();
-
-        for (const { path, data: fileData } of allFiles) {
+        db.forEachFile((path, fileData) => {
             if (excludedFolderPatterns.length > 0 && isPathInExcludedFolder(path, excludedFolderPatterns)) {
-                continue;
+                return;
             }
 
             stats.totalItems++;
@@ -176,7 +173,7 @@ export function calculateCacheStatistics(settings: NotebookNavigatorSettings, sh
 
             // Estimate size including path
             totalSize += path.length + JSON.stringify(fileData).length;
-        }
+        });
 
         // Calculate cache size in MB
         stats.totalSizeMB = totalSize / 1024 / 1024;

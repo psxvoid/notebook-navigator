@@ -203,8 +203,9 @@ export const STRINGS_IT = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Aspetto predefinito',
-        slimPreset: 'Sottile (senza data/anteprima/immagine)',
+        standardPreset: 'Standard',
+        compactPreset: 'Compatta',
+        defaultSuffix: '(predefinito)',
         titleRows: 'Righe titolo',
         previewRows: 'Righe anteprima',
         groupBy: 'Raggruppa per',
@@ -638,16 +639,28 @@ export const STRINGS_IT = {
                 name: 'Mostra icona fissata',
                 desc: "Visualizza l'icona accanto all'intestazione della sezione fissata."
             },
+            defaultListMode: {
+                name: 'Modalità lista predefinita',
+                desc: "Seleziona il layout elenco predefinito. Standard mostra titolo, data, descrizione e testo di anteprima. Compatta mostra solo il titolo. L'aspetto può essere sovrascritto per cartella.",
+                options: {
+                    standard: 'Standard',
+                    compact: 'Compatta'
+                }
+            },
+            showFileIcons: {
+                name: 'Mostra icone file',
+                desc: 'Mostra icone file con spaziatura allineata a sinistra. Disattivando si rimuovono sia icone che rientro.'
+            },
             optimizeNoteHeight: {
                 name: 'Ottimizza altezza nota',
                 desc: 'Riduci altezza per note fissate e note senza testo anteprima.'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: 'Altezza elemento sottile',
                 desc: "Imposta l'altezza degli elementi lista sottili su desktop e mobile.",
                 resetTooltip: 'Ripristina predefinito (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: 'Scala testo con altezza elemento sottile',
                 desc: "Scala testo lista sottile quando l'altezza elemento è ridotta."
             },
@@ -723,8 +736,8 @@ export const STRINGS_IT = {
                 desc: 'Non scorrere il pannello navigazione quando si fa clic su elementi nei collegamenti.'
             },
             autoExpandFoldersTags: {
-                name: 'Espandi automaticamente cartelle e tag',
-                desc: 'Espandi automaticamente cartelle e tag quando vengono selezionati.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Banner navigazione (profilo vault)',
@@ -844,7 +857,7 @@ export const STRINGS_IT = {
                 name: 'Mostra prima i tag colorati',
                 desc: 'Ordina i tag colorati prima degli altri tag negli elementi file.'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: 'Mostra tag file in modalità sottile',
                 desc: 'Visualizza tag quando data, anteprima e immagine sono nascoste.'
             },
@@ -861,6 +874,10 @@ export const STRINGS_IT = {
                 placeholder: 'h:mm a',
                 help: 'Formati comuni:\nh:mm a = 2:30 PM (12 ore)\nHH:mm = 14:30 (24 ore)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nToken:\nHH/H = 24 ore\nhh/h = 12 ore\nmm = minuti\nss = secondi\na = AM/PM',
                 helpTooltip: 'Clicca per riferimento formato'
+            },
+            preventInvalidCharacters: {
+                name: 'Prevent invalid characters',
+                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
             },
             showFilePreview: {
                 name: 'Mostra anteprima nota',
@@ -933,7 +950,7 @@ export const STRINGS_IT = {
                 desc: 'Visualizza il numero di note accanto a ogni cartella e tag.'
             },
             showSectionIcons: {
-                name: 'Mostra icone collegamento',
+                name: 'Mostra icone per collegamenti e elementi recenti',
                 desc: 'Visualizza icone per sezioni navigazione come Collegamenti e File recenti.'
             },
             showIconsColorOnly: {

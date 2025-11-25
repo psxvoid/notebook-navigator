@@ -202,8 +202,9 @@ export const STRINGS_JA = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'デフォルトの外観',
-        slimPreset: 'スリム（日付/プレビュー/画像なし）',
+        standardPreset: '標準',
+        compactPreset: 'コンパクト',
+        defaultSuffix: '(デフォルト)',
         titleRows: 'タイトル行数',
         previewRows: 'プレビュー行数',
         groupBy: 'グループ分け',
@@ -307,7 +308,8 @@ export const STRINGS_JA = {
             folderLabel: 'フォルダ: {name}'
         },
         folderSuggest: {
-            placeholder: 'フォルダに移動...',
+            placeholder: (name: string) => `${name} をフォルダに移動...`,
+            multipleFilesLabel: (count: number) => `${count} 個のファイル`,
             navigatePlaceholder: 'フォルダにナビゲート...',
             instructions: {
                 navigate: 'でナビゲート',
@@ -643,16 +645,28 @@ export const STRINGS_JA = {
                 name: 'ピン留めアイコンを表示',
                 desc: 'ピン留めセクションヘッダーの横にアイコンを表示します。'
             },
+            defaultListMode: {
+                name: 'リストのデフォルトモード',
+                desc: '既定のリストレイアウトを選択します。標準はタイトル、日付、説明、プレビューテキストを表示します。コンパクトはタイトルのみを表示します。外観はフォルダごとに上書きできます。',
+                options: {
+                    standard: '標準',
+                    compact: 'コンパクト'
+                }
+            },
+            showFileIcons: {
+                name: 'ファイルアイコンを表示',
+                desc: 'ファイルアイコンを左寄せ間隔で表示。無効化するとアイコンとインデントの両方が削除されます。'
+            },
             optimizeNoteHeight: {
                 name: 'ノートの高さを最適化',
                 desc: 'ピン留めされたノートとプレビューテキストのないノートの高さを削減。'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: 'スリム表示の項目高さ',
                 desc: 'デスクトップとモバイルのスリム表示項目の高さを設定します。',
                 resetTooltip: 'デフォルトに戻す (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: 'スリム表示の文字サイズを高さに合わせる',
                 desc: '項目の高さを下げたときにスリム表示の文字サイズを調整します。'
             },
@@ -728,8 +742,8 @@ export const STRINGS_JA = {
                 desc: 'ショートカット内のアイテムをクリックしてもナビゲーションパネルをスクロールしない。'
             },
             autoExpandFoldersTags: {
-                name: 'フォルダとタグを自動展開',
-                desc: 'フォルダやタグを選択した際に自動的に展開します。'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'ナビゲーションバナー（保管庫プロファイル）',
@@ -854,7 +868,7 @@ export const STRINGS_JA = {
                 name: '色付きタグを先頭に配置',
                 desc: '色付きタグを他のタグより前に並べ替えます。'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: 'スリムモードでファイルタグを表示',
                 desc: '日付、プレビュー、画像が非表示のときにタグを表示します。'
             },
@@ -871,6 +885,10 @@ export const STRINGS_JA = {
                 placeholder: 'HH:mm',
                 help: '一般的な形式：\nHH:mm = 14:30（24時間制）\nh:mm a = 2:30 PM（12時間制）\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nトークン：\nHH/H = 24時間制\nhh/h = 12時間制\nmm = 分\nss = 秒\na = AM/PM',
                 helpTooltip: 'クリックして形式リファレンスを表示'
+            },
+            preventInvalidCharacters: {
+                name: 'Prevent invalid characters',
+                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
             },
             showFilePreview: {
                 name: 'ノートプレビューを表示',
@@ -963,7 +981,7 @@ export const STRINGS_JA = {
                 desc: '各フォルダとタグの横にノート数を表示します。'
             },
             showSectionIcons: {
-                name: 'ショートカットアイコンを表示',
+                name: 'ショートカットと最近の項目のアイコンを表示',
                 desc: 'ショートカットや最近使用したファイルなどのナビゲーションセクションのアイコンを表示します。'
             },
             showIconsColorOnly: {

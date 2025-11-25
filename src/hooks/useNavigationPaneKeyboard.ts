@@ -302,6 +302,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                     }
 
                     let shouldSwitchPane = false;
+                    let expandedInThisAction = false;
                     if (item.type === NavigationPaneItemType.FOLDER) {
                         if (!(item.data instanceof TFolder)) {
                             return;
@@ -312,6 +313,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
 
                         if (hasChildren && !isExpanded) {
                             handleExpandCollapse(item, true);
+                            expandedInThisAction = true;
                         } else {
                             shouldSwitchPane = true;
                         }
@@ -322,6 +324,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
 
                         if (hasChildren && !isExpanded) {
                             handleExpandCollapse(item, true);
+                            expandedInThisAction = true;
                         } else {
                             shouldSwitchPane = true;
                         }
@@ -329,7 +332,9 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                         shouldSwitchPane = true;
                     }
 
-                    if (shouldSwitchPane) {
+                    if (expandedInThisAction && uiState.singlePane && settings.autoExpandFoldersTags) {
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                    } else if (shouldSwitchPane) {
                         if (uiState.singlePane && !isMobile) {
                             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
                             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });

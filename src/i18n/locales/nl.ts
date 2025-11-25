@@ -203,8 +203,9 @@ export const STRINGS_NL = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Standaard uiterlijk',
-        slimPreset: 'Compact (geen datum/voorbeeld/afbeelding)',
+        standardPreset: 'Standaard',
+        compactPreset: 'Compact',
+        defaultSuffix: '(standaard)',
         titleRows: 'Titelrijen',
         previewRows: 'Voorbeeldrijen',
         groupBy: 'Groeperen op',
@@ -308,7 +309,8 @@ export const STRINGS_NL = {
             folderLabel: 'Map: {name}'
         },
         folderSuggest: {
-            placeholder: 'Verplaatsen naar map...',
+            placeholder: (name: string) => `Verplaats ${name} naar map...`,
+            multipleFilesLabel: (count: number) => `${count} bestanden`,
             navigatePlaceholder: 'Navigeren naar map...',
             instructions: {
                 navigate: 'om te navigeren',
@@ -644,16 +646,28 @@ export const STRINGS_NL = {
                 name: 'Vastgepind pictogram tonen',
                 desc: 'Pictogram naast vastgepinde sectiekop weergeven.'
             },
+            defaultListMode: {
+                name: 'Standaard lijstmodus',
+                desc: 'Selecteer de standaard lijstindeling. Standaard toont titel, datum, beschrijving en voorbeeldtekst. Compact toont alleen de titel. Uiterlijk kan per map worden overschreven.',
+                options: {
+                    standard: 'Standaard',
+                    compact: 'Compact'
+                }
+            },
+            showFileIcons: {
+                name: 'Bestandspictogrammen tonen',
+                desc: 'Bestandspictogrammen tonen met links uitgelijnde ruimte. Uitschakelen verwijdert zowel pictogrammen als inspringing.'
+            },
             optimizeNoteHeight: {
                 name: 'Notitiehoogte optimaliseren',
                 desc: 'Hoogte verminderen voor vastgepinde notities en notities zonder voorbeeldtekst.'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: 'Compacte itemhoogte',
                 desc: 'Stel de hoogte van compacte lijstitems in op desktop en mobiel.',
                 resetTooltip: 'Herstellen naar standaard (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: 'Tekst schalen met compacte itemhoogte',
                 desc: 'Compacte lijsttekst schalen wanneer de itemhoogte wordt verminderd.'
             },
@@ -729,8 +743,8 @@ export const STRINGS_NL = {
                 desc: 'Het navigatiepaneel niet scrollen bij klikken op items in snelkoppelingen.'
             },
             autoExpandFoldersTags: {
-                name: 'Mappen en tags automatisch uitklappen',
-                desc: 'Mappen en tags automatisch uitklappen wanneer ze worden geselecteerd.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Navigatiebanner (kluisprofiel)',
@@ -854,7 +868,7 @@ export const STRINGS_NL = {
                 name: 'Gekleurde tags eerst tonen',
                 desc: 'Sorteert gekleurde tags vóór andere tags in bestandsitems.'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: 'Bestandstags tonen in compacte modus',
                 desc: 'Tags weergeven wanneer datum, voorbeeld en afbeelding verborgen zijn.'
             },
@@ -871,6 +885,10 @@ export const STRINGS_NL = {
                 placeholder: 'HH:mm',
                 help: 'Veelvoorkomende formaten:\nHH:mm = 14:30 (24-uurs)\nh:mm a = 2:30 PM (12-uurs)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nTokens:\nHH/H = 24-uurs\nhh/h = 12-uurs\nmm = minuten\nss = seconden\na = AM/PM',
                 helpTooltip: 'Klik voor formaatverwijzing'
+            },
+            preventInvalidCharacters: {
+                name: 'Prevent invalid characters',
+                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
             },
             showFilePreview: {
                 name: 'Notitievoorbeeld tonen',
@@ -963,7 +981,7 @@ export const STRINGS_NL = {
                 desc: 'Het aantal notities naast elke map en tag weergeven.'
             },
             showSectionIcons: {
-                name: 'Snelkoppeling-pictogrammen tonen',
+                name: 'Pictogrammen tonen voor snelkoppelingen en recente items',
                 desc: 'Pictogrammen voor navigatiesecties zoals Snelkoppelingen en Recente bestanden weergeven.'
             },
             showIconsColorOnly: {

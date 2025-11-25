@@ -117,6 +117,24 @@ export class DateUtils {
         return localesMap[localeName] || locales.enUS;
     }
 
+    private static formatWithFallback(
+        date: Date,
+        formatString: string,
+        fallbackFormat: string,
+        locale: Locale,
+        formatType: 'date' | 'time'
+    ): string {
+        try {
+            return format(date, formatString, { locale });
+        } catch {
+            try {
+                return format(date, fallbackFormat, { locale });
+            } catch {
+                return formatType === 'time' ? date.toLocaleTimeString() : date.toLocaleDateString();
+            }
+        }
+    }
+
     /**
      * Format a timestamp into a human-readable date string
      * Uses date-fns with proper locale support
@@ -128,17 +146,7 @@ export class DateUtils {
         const date = new Date(timestamp);
         const locale = DateUtils.getDateFnsLocale();
 
-        try {
-            return format(date, dateFormat, { locale });
-        } catch {
-            // If invalid format string, fall back to a default format
-            try {
-                return format(date, 'PPP', { locale }); // localized date format
-            } catch {
-                // Last resort fallback
-                return date.toLocaleDateString();
-            }
-        }
+        return DateUtils.formatWithFallback(date, dateFormat, 'PPP', locale, 'date');
     }
 
     /**
@@ -222,7 +230,7 @@ export class DateUtils {
 
         // Today and Yesterday groups - show time only
         if (group === strings.dateGroups.today || group === strings.dateGroups.yesterday) {
-            return format(date, timeFormat, { locale });
+            return DateUtils.formatWithFallback(date, timeFormat, 'p', locale, 'time');
         }
 
         // Previous 7 days - show weekday name

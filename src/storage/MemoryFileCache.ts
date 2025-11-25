@@ -127,6 +127,22 @@ export class MemoryFileCache {
     }
 
     /**
+     * Get file count without allocating intermediate arrays.
+     */
+    getFileCount(): number {
+        return this.memoryMap.size;
+    }
+
+    /**
+     * Stream all files without creating copies.
+     */
+    forEachFile(callback: (path: string, data: FileData) => void): void {
+        this.memoryMap.forEach((data, path) => {
+            callback(path, data);
+        });
+    }
+
+    /**
      * Update or add a file in the cache.
      */
     updateFile(path: string, data: FileData): void {

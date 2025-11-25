@@ -401,11 +401,11 @@ export function renderNotesTab(context: SettingsTabContext): void {
     colorFileTagsSubSettingsEl.toggle(plugin.settings.colorFileTags);
 
     new Setting(fileTagsSubSettingsEl)
-        .setName(strings.settings.items.showFileTagsInSlimMode.name)
-        .setDesc(strings.settings.items.showFileTagsInSlimMode.desc)
+        .setName(strings.settings.items.showFileTagsInCompactMode.name)
+        .setDesc(strings.settings.items.showFileTagsInCompactMode.desc)
         .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showFileTagsInSlimMode).onChange(async value => {
-                plugin.settings.showFileTagsInSlimMode = value;
+            toggle.setValue(plugin.settings.showFileTagsInCompactMode).onChange(async value => {
+                plugin.settings.showFileTagsInCompactMode = value;
                 await plugin.saveSettingsAndUpdate();
             })
         );

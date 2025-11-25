@@ -73,7 +73,28 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
-        version: '1.8.5',
+        version: '1.8.8',
+        date: '2025-11-24',
+        showOnUpdate: true,
+        new: [
+            'New setting: ==General > Formatting > Prevent invalid characters==. Blocks #, |, ^, :, %%, [[, ]] when creating or renaming files and folders to prevent broken links and unexpected behavior. Default enabled.',
+            'New setting: ==List pane > Appearance > Default list mode==. Choose the default list layout between **standard** and **compact**. **Standard** shows title, date, description, and preview text. **Compact** only shows title. You can override the appearance for each folder or tag.',
+            'New setting: ==List pane > Appearance > Show file icons==. Disable to hide all file icons and avoid the indentation in the list pane.'
+        ],
+        improved: [
+            'If you change filename color in Style Settings, that color is now also used in shortcuts and recent notes.',
+            'In single pane mode with the setting **Folders & tags > Expand on selection** enabled, first click on a folder or tag with children now expands them in navigation pane, second click shows files pane. This makes it easier to navigate the trees on mobile devices.'
+        ],
+        changed: [],
+        fixed: [
+            'Improved Chinese translation for "Reveal" functionality. Now uses "定位" (locate) instead of "显示" (show) to better convey the meaning of revealing/locating files in folders.',
+            'Fixed a crash when using tags named "constructor", "toString", or other special JavaScript words. These tag names now work correctly without causing the view to blank out.',
+            'Fixed a crash when entering invalid date or time format strings in settings. Invalid formats now fall back to default formatting instead of crashing.',
+            'Fixed an issue where multiple menus would show if right clicking many times in the folder tree.'
+        ]
+    },
+    {
+        version: '1.8.6',
         date: '2025-11-19',
         showOnUpdate: true,
         new: [
@@ -100,7 +121,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Slightly increased mobile font size and mobile icon size in the list pane.'
         ],
         fixed: [
-            'Fixed an issue where file icons would temporarily disappear when switching to and from slim mode in the list pane.',
+            'Fixed an issue where file icons would temporarily disappear when switching to and from compact mode in the list pane.',
             'Fixed an issue where some material icons read from frontmatter would not show correctly. If you use material icons in frontmatter please rebuild your cache after updating.'
         ]
     },
@@ -165,12 +186,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.7.3',
         date: '2025-11-03',
         showOnUpdate: true,
-        info: 'This version has three main improvements: First: ==multi-tag selection==. If you love working with tasks this will improve your productivity a lot. Secondly: ==much better vertical split mode==. You can now choose to hide the pinned files header, you can reduce the line spacing in "slim" file mode, and the current folder name is not shown if you group by subfolders. You can now also **override group by** for every folder individually. Thirdly: ==much better background rendering in navigation pane==. This is a great improvement if you use "Inherit folder colors" and use different background colors for each root folder. A new setting **Root folder spacing** allows you to separate root items further, making for a very pleasing visual setup. Enjoy!',
+        info: 'This version has three main improvements: First: ==multi-tag selection==. If you love working with tasks this will improve your productivity a lot. Secondly: ==much better vertical split mode==. You can now choose to hide the pinned files header, you can reduce the line spacing in "compact" file mode, and the current folder name is not shown if you group by subfolders. You can now also **override group by** for every folder individually. Thirdly: ==much better background rendering in navigation pane==. This is a great improvement if you use "Inherit folder colors" and use different background colors for each root folder. A new setting **Root folder spacing** allows you to separate root items further, making for a very pleasing visual setup. Enjoy!',
         new: [
             '==Multi-tag selection!== This is huge! You can now command+click tags to select multiple tags in list pane with "AND", or shift+command+click to select multiple tags with "OR". This updates the search field, and you can save these filters for future use!',
             '==You can now override "Group by" for each tag and folder==. Just click the "Change appearance" toolbar button in list pane.',
             'New commands: ==Select next file== and ==Select previous file==. Bind them to something like Cmd+left and Cmd+right to quickly navigate between tags and folders.',
-            'New setting: ==List Pane > Appearance > Slim item height==. Reduce line spacing in list pane with slim mode enabled.',
+            'New setting: ==List Pane > Appearance > Compact item height==. Reduce line spacing in list pane with compact mode enabled.',
             'New setting: ==List Pane > Appearance > Show pinned group header==. Toggle to hide the section header above pinned notes.',
             'New setting: ==Navigation Pane > Appearance > Root folder spacing==. Use it to add extra spacing between root folders and tags in navigation pane. Especially useful when you use background colors with inheritance.',
             'New setting: ==Notes > Appearance > Show parent folder colors==. When enabled, parent folder names in list pane will use their text color from navigation pane. Enabled by default.',

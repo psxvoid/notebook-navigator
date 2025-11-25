@@ -107,29 +107,26 @@ export function buildTagTreeFromDatabase(
         node.notesWithTag.add(filePath);
     };
 
-    // Get all files from cache
-    const allFiles = db.getAllFiles();
-
     // First pass: collect all tags and their file associations
-    for (const { path, data: fileData } of allFiles) {
+    db.forEachFile((path, fileData) => {
         const isExcluded = excludedPatterns ? isPathInExcludedFolder(path, excludedPatterns) : false;
 
         // Defense-in-depth: skip files not in the included set (e.g., frontmatter-excluded)
         if (includedPaths && !includedPaths.has(path)) {
-            continue;
+            return;
         }
 
         // Process tags from excluded files for hidden root tag tracking
         if (isExcluded) {
             const tags = fileData.tags;
             if (!hasExcludedFolders || !tags || tags.length === 0) {
-                continue;
+                return;
             }
             // Record root tags from excluded files for reordering
             for (const tag of tags) {
                 recordHiddenRootTag(tag, path);
             }
-            continue;
+            return;
         }
 
         const tags = fileData.tags;
@@ -140,7 +137,7 @@ export function buildTagTreeFromDatabase(
             if (tags !== null && path.endsWith('.md')) {
                 untaggedCount++;
             }
-            continue;
+            return;
         }
 
         let hasVisibleTagForFile = false;
@@ -179,7 +176,7 @@ export function buildTagTreeFromDatabase(
         if (path.endsWith('.md') && hasVisibleTagForFile) {
             taggedCount++;
         }
-    }
+    });
 
     // Convert to list for building tree
     const tagList = Array.from(allTagsSet);

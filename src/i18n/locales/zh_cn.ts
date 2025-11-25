@@ -136,7 +136,7 @@ export const STRINGS_ZH_CN = {
             duplicateNote: '复制笔记',
             duplicateMultipleNotes: '复制 {count} 个笔记',
             openVersionHistory: '打开版本历史',
-            revealInFolder: '在文件夹中显示',
+            revealInFolder: '在文件夹中定位',
             revealInFinder: '在访达中显示',
             showInExplorer: '在资源管理器中显示',
             copyDeepLink: '复制 Obsidian URL',
@@ -202,8 +202,9 @@ export const STRINGS_ZH_CN = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: '默认外观',
-        slimPreset: '精简（无日期/预览/图片）',
+        standardPreset: '标准',
+        compactPreset: '紧凑',
+        defaultSuffix: '(默认)',
         titleRows: '标题行数',
         previewRows: '预览行数',
         groupBy: '分组依据',
@@ -307,7 +308,8 @@ export const STRINGS_ZH_CN = {
             folderLabel: '文件夹：{name}'
         },
         folderSuggest: {
-            placeholder: '移动到文件夹...',
+            placeholder: (name: string) => `将 ${name} 移动到文件夹...`,
+            multipleFilesLabel: (count: number) => `${count} 个文件`,
             navigatePlaceholder: '导航到文件夹...',
             instructions: {
                 navigate: '导航',
@@ -364,7 +366,7 @@ export const STRINGS_ZH_CN = {
             duplicateFolder: '复制文件夹失败：{error}',
             openVersionHistory: '打开版本历史失败：{error}',
             versionHistoryNotFound: '未找到版本历史命令。请确保已启用 Obsidian 同步。',
-            revealInExplorer: '在系统资源管理器中显示文件失败：{error}',
+            revealInExplorer: '在系统资源管理器中定位文件失败：{error}',
             folderNoteAlreadyExists: '文件夹笔记已存在',
             folderAlreadyExists: '文件夹"{name}"已存在',
             folderNotesDisabled: '请在设置中启用文件夹笔记以转换文件',
@@ -466,7 +468,7 @@ export const STRINGS_ZH_CN = {
     commands: {
         open: '打开', // Command palette: Opens the Notebook Navigator view (English: Open)
         openHomepage: '打开主页', // Command palette: Opens the Notebook Navigator view and loads the homepage file (English: Open homepage)
-        revealFile: '显示文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        revealFile: '定位文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         search: '搜索', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: '切换双窗格布局', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         selectVaultProfile: '更改仓库配置文件', // Command palette: Opens a modal to choose a different vault profile (English: Switch vault profile)
@@ -499,7 +501,7 @@ export const STRINGS_ZH_CN = {
     plugin: {
         viewName: '笔记本导航器', // Name shown in the view header/tab (English: Notebook Navigator)
         ribbonTooltip: '笔记本导航器', // Tooltip for the ribbon icon in the left sidebar (English: Notebook Navigator)
-        revealInNavigator: '在笔记本导航器中显示' // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
+        revealInNavigator: '在笔记本导航器中定位' // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
     },
 
     // Tooltips
@@ -642,16 +644,28 @@ export const STRINGS_ZH_CN = {
                 name: '显示固定图标',
                 desc: '在固定部分标题旁显示图标。'
             },
+            defaultListMode: {
+                name: '默认列表模式',
+                desc: '选择默认列表布局。标准显示标题、日期、描述和预览文本。紧凑只显示标题。外观可按文件夹覆盖。',
+                options: {
+                    standard: '标准',
+                    compact: '紧凑'
+                }
+            },
+            showFileIcons: {
+                name: '显示文件图标',
+                desc: '显示文件图标并保留左对齐间距。禁用后将移除图标和缩进。'
+            },
             optimizeNoteHeight: {
                 name: '优化笔记高度',
                 desc: '减少固定笔记和无预览文本笔记的高度。'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: '精简项目高度',
                 desc: '设置桌面和移动端的紧凑列表项高度。',
                 resetTooltip: '恢复默认值 (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: '随精简高度缩放文本',
                 desc: '当减小紧凑列表项高度时同步缩放文本。'
             },
@@ -660,8 +674,8 @@ export const STRINGS_ZH_CN = {
                 desc: '为子文件夹或标签中的笔记显示父文件夹名称。'
             },
             parentFolderClickRevealsFile: {
-                name: '点击父文件夹显示笔记',
-                desc: '点击父文件夹标签时显示该笔记。'
+                name: '点击父文件夹定位笔记',
+                desc: '点击父文件夹名称时，在文件夹中显示该笔记。'
             },
             showParentFolderColor: {
                 name: '显示父文件夹颜色',
@@ -727,8 +741,8 @@ export const STRINGS_ZH_CN = {
                 desc: '点击快捷方式中的项目时不滚动导航面板。'
             },
             autoExpandFoldersTags: {
-                name: '自动展开文件夹和标签',
-                desc: '选择文件夹和标签时自动展开它们。'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: '导航横幅（仓库配置文件）',
@@ -852,7 +866,7 @@ export const STRINGS_ZH_CN = {
                 name: '优先显示彩色标签',
                 desc: '将彩色标签排列在其他标签之前。'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: '在精简模式中显示文件标签',
                 desc: '当日期、预览和图像被隐藏时显示标签。'
             },
@@ -869,6 +883,10 @@ export const STRINGS_ZH_CN = {
                 placeholder: 'HH:mm',
                 help: '常用格式：\nHH:mm = 14:30（24小时制）\nh:mm a = 2:30 PM（12小时制）\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\n标记：\nHH/H = 24小时制\nhh/h = 12小时制\nmm = 分钟\nss = 秒\na = 上午/下午',
                 helpTooltip: '点击查看格式参考'
+            },
+            preventInvalidCharacters: {
+                name: 'Prevent invalid characters',
+                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
             },
             showFilePreview: {
                 name: '显示笔记预览',
@@ -961,7 +979,7 @@ export const STRINGS_ZH_CN = {
                 desc: '在每个文件夹和标签旁显示笔记数量。'
             },
             showSectionIcons: {
-                name: '显示快捷方式图标',
+                name: '显示快捷方式和最近项目的图标',
                 desc: '显示导航分区（如快捷方式和最近文件）的图标。'
             },
             showIconsColorOnly: {

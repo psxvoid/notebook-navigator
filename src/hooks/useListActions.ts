@@ -27,7 +27,8 @@ import type { SortOption } from '../settings';
 import { ItemType } from '../types';
 import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import { showListPaneAppearanceMenu } from '../components/ListPaneAppearanceMenu';
-import { useListPaneAppearance } from './useListPaneAppearance';
+import { getDefaultListMode } from './useListPaneAppearance';
+import type { FolderAppearance } from './useListPaneAppearance';
 import { getFilesForFolder } from '../utils/fileFinder';
 import { runAsyncAction } from '../utils/async';
 
@@ -49,8 +50,6 @@ export function useListActions() {
     const selectionDispatch = useSelectionDispatch();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
-    const appearanceSettings = useListPaneAppearance();
-
     const handleNewFile = useCallback(async () => {
         if (!selectionState.selectedFolder) return;
 
@@ -73,11 +72,6 @@ export function useListActions() {
         (event: React.MouseEvent) => {
             showListPaneAppearanceMenu({
                 event: event.nativeEvent,
-                titleRows: appearanceSettings.titleRows,
-                previewRows: appearanceSettings.previewRows,
-                showDate: appearanceSettings.showDate,
-                showPreview: appearanceSettings.showPreview,
-                showImage: appearanceSettings.showImage,
                 settings,
                 selectedFolder: selectionState.selectedFolder,
                 selectedTag: selectionState.selectedTag,
@@ -85,14 +79,7 @@ export function useListActions() {
                 updateSettings
             });
         },
-        [
-            appearanceSettings,
-            settings,
-            selectionState.selectedFolder,
-            selectionState.selectedTag,
-            selectionState.selectionType,
-            updateSettings
-        ]
+        [settings, selectionState.selectedFolder, selectionState.selectedTag, selectionState.selectionType, updateSettings]
     );
 
     const handleSortMenu = useCallback(
@@ -216,16 +203,23 @@ export function useListActions() {
             selectionState.selectedTag &&
             metadataService.getTagSortOverride(selectionState.selectedTag));
 
+    const defaultMode = getDefaultListMode(settings);
+    const hasMeaningfulOverrides = (appearance: FolderAppearance | undefined) => {
+        if (!appearance) {
+            return false;
+        }
+
+        const hasModeOverride = (appearance.mode === 'compact' || appearance.mode === 'standard') && appearance.mode !== defaultMode;
+        const otherOverrides =
+            appearance.titleRows !== undefined || appearance.previewRows !== undefined || appearance.groupBy !== undefined;
+
+        return hasModeOverride || otherOverrides;
+    };
+
     // Check if folder or tag has custom appearance settings
     const hasCustomAppearance =
-        (selectionState.selectedFolder &&
-            settings.folderAppearances &&
-            settings.folderAppearances[selectionState.selectedFolder.path] &&
-            Object.keys(settings.folderAppearances[selectionState.selectedFolder.path]).length > 0) ||
-        (selectionState.selectedTag &&
-            settings.tagAppearances &&
-            settings.tagAppearances[selectionState.selectedTag] &&
-            Object.keys(settings.tagAppearances[selectionState.selectedTag]).length > 0);
+        (selectionState.selectedFolder && hasMeaningfulOverrides(settings.folderAppearances?.[selectionState.selectedFolder.path])) ||
+        (selectionState.selectedTag && hasMeaningfulOverrides(settings.tagAppearances?.[selectionState.selectedTag]));
 
     return {
         handleNewFile,

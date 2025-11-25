@@ -203,8 +203,9 @@ export const STRINGS_PT_BR = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Aparência padrão',
-        slimPreset: 'Simples (sem data/visualização/imagem)',
+        standardPreset: 'Padrão',
+        compactPreset: 'Compacto',
+        defaultSuffix: '(padrão)',
         titleRows: 'Linhas do título',
         previewRows: 'Linhas de visualização',
         groupBy: 'Agrupar por',
@@ -638,16 +639,28 @@ export const STRINGS_PT_BR = {
                 name: 'Mostrar ícone fixado',
                 desc: 'Exibir o ícone ao lado do cabeçalho da seção fixada.'
             },
+            defaultListMode: {
+                name: 'Modo padrão da lista',
+                desc: 'Selecione o layout padrão da lista. Padrão mostra título, data, descrição e texto de visualização. Compacto mostra apenas o título. A aparência pode ser substituída por pasta.',
+                options: {
+                    standard: 'Padrão',
+                    compact: 'Compacto'
+                }
+            },
+            showFileIcons: {
+                name: 'Mostrar ícones de arquivo',
+                desc: 'Exibir ícones de arquivo com espaçamento alinhado à esquerda. Desativar remove tanto ícones quanto recuo.'
+            },
             optimizeNoteHeight: {
                 name: 'Otimizar altura da nota',
                 desc: 'Reduzir altura para notas fixadas e notas sem texto de visualização.'
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: 'Altura do item simples',
                 desc: 'Defina a altura dos itens de lista simples no desktop e celular.',
                 resetTooltip: 'Restaurar para padrão (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: 'Dimensionar texto com altura do item simples',
                 desc: 'Dimensionar texto da lista simples quando a altura do item é reduzida.'
             },
@@ -723,8 +736,8 @@ export const STRINGS_PT_BR = {
                 desc: 'Não rolar o painel de navegação ao clicar em itens nos atalhos.'
             },
             autoExpandFoldersTags: {
-                name: 'Expandir automaticamente pastas e tags',
-                desc: 'Expandir automaticamente pastas e tags quando forem selecionadas.'
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Banner de navegação (perfil de cofre)',
@@ -843,7 +856,7 @@ export const STRINGS_PT_BR = {
                 name: 'Mostrar tags coloridas primeiro',
                 desc: 'Ordena as tags coloridas antes das outras tags nos itens de arquivo.'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: 'Mostrar tags de arquivo no modo simples',
                 desc: 'Exibir tags quando data, visualização e imagem estão ocultas.'
             },
@@ -860,6 +873,10 @@ export const STRINGS_PT_BR = {
                 placeholder: 'h:mm a',
                 help: 'Formatos comuns:\nh:mm a = 2:30 PM (12 horas)\nHH:mm = 14:30 (24 horas)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nTokens:\nHH/H = 24 horas\nhh/h = 12 horas\nmm = minutos\nss = segundos\na = AM/PM',
                 helpTooltip: 'Clique para referência de formato'
+            },
+            preventInvalidCharacters: {
+                name: 'Prevent invalid characters',
+                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
             },
             showFilePreview: {
                 name: 'Mostrar visualização de nota',
@@ -932,7 +949,7 @@ export const STRINGS_PT_BR = {
                 desc: 'Exibir o número de notas ao lado de cada pasta e tag.'
             },
             showSectionIcons: {
-                name: 'Mostrar ícones de atalho',
+                name: 'Mostrar ícones para atalhos e itens recentes',
                 desc: 'Exibir ícones para seções de navegação como Atalhos e Arquivos recentes.'
             },
             showIconsColorOnly: {

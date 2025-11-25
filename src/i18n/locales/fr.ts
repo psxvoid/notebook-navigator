@@ -202,8 +202,9 @@ export const STRINGS_FR = {
 
     // Folder appearance menu
     folderAppearance: {
-        defaultPreset: 'Apparence par défaut',
-        slimPreset: 'Compact (sans date/aperçu/image)',
+        standardPreset: 'Standard',
+        compactPreset: 'Compact',
+        defaultSuffix: '(par défaut)',
         titleRows: 'Lignes de titre',
         previewRows: "Lignes d'aperçu",
         groupBy: 'Grouper par',
@@ -307,7 +308,8 @@ export const STRINGS_FR = {
             folderLabel: 'Dossier : {name}'
         },
         folderSuggest: {
-            placeholder: 'Déplacer vers le dossier...',
+            placeholder: (name: string) => `Déplacer ${name} vers le dossier...`,
+            multipleFilesLabel: (count: number) => `${count} fichiers`,
             navigatePlaceholder: 'Naviguer vers le dossier...',
             instructions: {
                 navigate: 'pour naviguer',
@@ -644,16 +646,28 @@ export const STRINGS_FR = {
                 name: "Afficher l'icône épinglée",
                 desc: "Afficher l'icône à côté de l'en-tête de la section épinglée."
             },
+            defaultListMode: {
+                name: 'Mode de liste par défaut',
+                desc: "Sélectionner la mise en page de liste par défaut. Standard affiche le titre, la date, la description et le texte d'aperçu. Compact affiche uniquement le titre. L'apparence peut être remplacée par dossier.",
+                options: {
+                    standard: 'Standard',
+                    compact: 'Compact'
+                }
+            },
+            showFileIcons: {
+                name: 'Afficher les icônes de fichier',
+                desc: "Afficher les icônes de fichier avec espacement aligné à gauche. La désactivation supprime les icônes et l'indentation."
+            },
             optimizeNoteHeight: {
                 name: 'Optimiser la hauteur des notes',
                 desc: "Réduire la hauteur pour les notes épinglées et les notes sans texte d'aperçu."
             },
-            slimItemHeight: {
+            compactItemHeight: {
                 name: 'Hauteur des éléments compacts',
                 desc: 'Définit la hauteur des éléments compacts sur ordinateur et mobile.',
                 resetTooltip: 'Restaurer la valeur par défaut (28px)'
             },
-            slimItemHeightScaleText: {
+            compactItemHeightScaleText: {
                 name: 'Adapter le texte à la hauteur compacte',
                 desc: 'Adapte le texte des éléments compacts lorsque la hauteur est réduite.'
             },
@@ -729,8 +743,8 @@ export const STRINGS_FR = {
                 desc: 'Ne pas faire défiler le panneau de navigation lors du clic sur les éléments de raccourcis.'
             },
             autoExpandFoldersTags: {
-                name: 'Développer automatiquement les dossiers et les étiquettes',
-                desc: "Développer automatiquement les dossiers et les étiquettes lorsqu'ils sont sélectionnés."
+                name: 'Expand on selection',
+                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             navigationBanner: {
                 name: 'Bannière de navigation (profil de coffre)',
@@ -855,7 +869,7 @@ export const STRINGS_FR = {
                 name: 'Afficher les tags colorés en premier',
                 desc: 'Trie les tags colorés avant les autres tags dans les éléments de fichier.'
             },
-            showFileTagsInSlimMode: {
+            showFileTagsInCompactMode: {
                 name: 'Afficher les tags de fichier en mode compact',
                 desc: "Afficher les tags lorsque la date, l'aperçu et l'image sont masqués."
             },
@@ -872,6 +886,10 @@ export const STRINGS_FR = {
                 placeholder: 'HH:mm',
                 help: 'Formats courants :\nHH:mm = 14:30 (24 heures)\nh:mm a = 2:30 PM (12 heures)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nJetons :\nHH/H = 24 heures\nhh/h = 12 heures\nmm = minutes\nss = secondes\na = AM/PM',
                 helpTooltip: 'Cliquez pour la référence du format'
+            },
+            preventInvalidCharacters: {
+                name: 'Prevent invalid characters',
+                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
             },
             showFilePreview: {
                 name: "Afficher l'aperçu de la note",
@@ -964,7 +982,7 @@ export const STRINGS_FR = {
                 desc: 'Afficher le nombre de notes à côté de chaque dossier et étiquette.'
             },
             showSectionIcons: {
-                name: 'Afficher les icônes de raccourci',
+                name: 'Afficher les icônes pour les raccourcis et les éléments récents',
                 desc: 'Afficher les icônes pour les sections de navigation comme Raccourcis et Fichiers récents.'
             },
             showIconsColorOnly: {

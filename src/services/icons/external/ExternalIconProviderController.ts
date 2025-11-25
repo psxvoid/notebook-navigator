@@ -33,6 +33,7 @@ import { strings } from '../../../i18n';
 import { compareVersions } from '../../../releaseNotes';
 import { BUNDLED_ICON_MANIFESTS } from './bundledManifests';
 import { showNotice } from '../../../utils/noticeUtils';
+import { sanitizeRecord } from '../../../utils/recordUtils';
 
 interface InstallOptions {
     persistSetting?: boolean;
@@ -264,7 +265,7 @@ export class ExternalIconProviderController {
     async syncWithSettings(): Promise<void> {
         await this.ensureInitialized();
         const settings = this.settingsProvider.settings;
-        const map = settings.externalIconProviders || {};
+        const map = sanitizeRecord(settings.externalIconProviders);
         const tasks: Promise<void>[] = [];
         let shouldNotifyAfterLoop = false;
 
@@ -327,10 +328,10 @@ export class ExternalIconProviderController {
      */
     private markProviderSetting(id: ExternalIconProviderId, enabled: boolean): void {
         const { settings } = this.settingsProvider;
-        if (!settings.externalIconProviders) {
-            settings.externalIconProviders = {};
-        }
-        settings.externalIconProviders[id] = enabled;
+        // Rebuild providers map with null prototype to prevent prototype pollution
+        const providers = sanitizeRecord(settings.externalIconProviders);
+        providers[id] = enabled;
+        settings.externalIconProviders = providers;
     }
 
     /**
