@@ -199,13 +199,23 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
         // Move, Duplicate, Delete - grouped together
         // Move note(s) to folder
+        const allMarkdownForMove = cachedSelectedFiles.every(f => f.extension === 'md');
         menu.addItem((item: MenuItem) => {
             setAsyncOnClick(
                 item
-                    .setTitle(strings.contextMenu.file.moveMultipleToFolder.replace('{count}', selectedCount.toString()))
+                    .setTitle(
+                        allMarkdownForMove
+                            ? strings.contextMenu.file.moveMultipleNotesToFolder.replace('{count}', selectedCount.toString())
+                            : strings.contextMenu.file.moveMultipleFilesToFolder.replace('{count}', selectedCount.toString())
+                    )
                     .setIcon('lucide-folder-input'),
                 async () => {
-                    await fileSystemOps.moveFilesWithModal(cachedSelectedFiles, {
+                    // Re-resolve files at action time to handle sync deletions
+                    const currentFiles = Array.from(selectionState.selectedFiles)
+                        .map(path => app.vault.getFileByPath(path))
+                        .filter((f): f is TFile => !!f);
+
+                    await fileSystemOps.moveFilesWithModal(currentFiles, {
                         selectedFile: selectionState.selectedFile,
                         dispatch: selectionDispatch,
                         allFiles: cachedFileList
@@ -334,13 +344,18 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
         // Move to folder
         menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.file.moveToFolder).setIcon('lucide-folder-input'), async () => {
-                await fileSystemOps.moveFilesWithModal([file], {
-                    selectedFile: selectionState.selectedFile,
-                    dispatch: selectionDispatch,
-                    allFiles: cachedFileList
-                });
-            });
+            setAsyncOnClick(
+                item
+                    .setTitle(isMarkdown ? strings.contextMenu.file.moveNoteToFolder : strings.contextMenu.file.moveFileToFolder)
+                    .setIcon('lucide-folder-input'),
+                async () => {
+                    await fileSystemOps.moveFilesWithModal([file], {
+                        selectedFile: selectionState.selectedFile,
+                        dispatch: selectionDispatch,
+                        allFiles: cachedFileList
+                    });
+                }
+            );
         });
 
         // Duplicate note
@@ -593,12 +608,12 @@ function addMultipleFilesDuplicateOption(
                 )
                 .setIcon('lucide-copy'),
             async () => {
-                // Duplicate all selected files
-                const selectedFiles = Array.from(selectionState.selectedFiles)
+                // Re-resolve files at action time to handle sync deletions
+                const currentFiles = Array.from(selectionState.selectedFiles)
                     .map(path => app.vault.getFileByPath(path))
                     .filter((f): f is TFile => !!f);
 
-                for (const selectedFile of selectedFiles) {
+                for (const selectedFile of currentFiles) {
                     await fileSystemOps.duplicateNote(selectedFile);
                 }
             }
