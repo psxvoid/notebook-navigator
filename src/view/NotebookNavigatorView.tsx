@@ -35,6 +35,7 @@ import { strings } from '../i18n';
 import NotebookNavigatorPlugin from '../main';
 import { NOTEBOOK_NAVIGATOR_VIEW } from '../types';
 import { UXPreferencesProvider } from '../context/UXPreferencesContext';
+import { applyAndroidFontCompensation } from '../utils/androidFontScale';
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
@@ -92,12 +93,18 @@ export class NotebookNavigatorView extends ItemView {
 
         // Detect mobile environment and add mobile class
         const isMobile = Platform.isMobile;
+        console.log(
+            `[NotebookNavigatorView] onOpen - isMobile: ${isMobile}, isAndroidApp: ${Platform.isAndroidApp}, isIosApp: ${Platform.isIosApp}`
+        );
         if (isMobile) {
             container.classList.add('notebook-navigator-mobile');
 
             // Add platform-specific classes
             if (Platform.isAndroidApp) {
                 container.classList.add('notebook-navigator-android');
+                // Detect and compensate for Android textZoom BEFORE React renders
+                console.log('[NotebookNavigatorView] Calling applyAndroidFontCompensation');
+                applyAndroidFontCompensation(container as HTMLElement);
             } else if (Platform.isIosApp) {
                 container.classList.add('notebook-navigator-ios');
             }

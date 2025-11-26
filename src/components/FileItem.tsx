@@ -368,6 +368,38 @@ export const FileItem = React.memo(function FileItem({
     // Unique ID for linking screen reader description to the file item
     const hiddenDescriptionId = useId();
 
+    // DEBUG: Log computed styles for specific file
+    useEffect(() => {
+        if (!fileRef.current || !file.basename.includes('Ziklo')) return;
+
+        const el = fileRef.current;
+        const nameEl = el.querySelector('.nn-file-name');
+        const previewEl = el.querySelector('.nn-file-preview');
+
+        if (nameEl instanceof HTMLElement) {
+            const nameStyle = getComputedStyle(nameEl);
+            console.log(`[FileItem Debug] ${file.basename} - .nn-file-name:`, {
+                fontSize: nameStyle.fontSize,
+                lineHeight: nameStyle.lineHeight,
+                height: nameStyle.height,
+                minHeight: nameStyle.minHeight,
+                offsetHeight: nameEl.offsetHeight,
+                scrollHeight: nameEl.scrollHeight
+            });
+        }
+
+        if (previewEl instanceof HTMLElement) {
+            const previewStyle = getComputedStyle(previewEl);
+            console.log(`[FileItem Debug] ${file.basename} - .nn-file-preview:`, {
+                fontSize: previewStyle.fontSize,
+                lineHeight: previewStyle.lineHeight,
+                height: previewStyle.height,
+                minHeight: previewStyle.minHeight,
+                offsetHeight: previewEl.offsetHeight
+            });
+        }
+    }, [file.basename]);
+
     // === Derived State & Memoized Values ===
 
     // Check which quick actions should be shown

@@ -283,13 +283,13 @@ body {
 }
 
 /* Main container - establishes the plugin's layout foundation */
-    .notebook-navigator {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        background-color: var(--background-primary);
-        font-family: var(--font-interface);
-    }
+.notebook-navigator {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-primary);
+    font-family: var(--font-interface);
+}
 
 /* Removes focus outline on main container for cleaner appearance */
 .notebook-navigator:focus {
@@ -4659,6 +4659,54 @@ body.nn-resizing {
 /* Mobile compact mode file names - use dedicated font variable */
 .notebook-navigator-mobile .nn-file.nn-compact .nn-file-name {
     font-size: var(--nn-compact-font-size-mobile, var(--nn-compact-font-size, 15px));
+}
+
+/* ========================================================================
+   Android textZoom Compensation
+
+   Android WebView scales text via textZoom property. This affects font-size
+   and line-height at the rendering level. We detect the scale factor in JS
+   and set --nn-android-font-scale, then CSS compensates by dividing values
+   by that factor so Android scaling produces correct final sizes.
+
+   Font-size compensation is handled via inline styles in androidFontScale.ts.
+   Line-height compensation is handled here in CSS because the .nn-mobile class
+   redefines variables and would override inline styles on the outer container.
+   ======================================================================== */
+
+/* Override line-height variables with compensated values */
+.notebook-navigator-android .nn-mobile {
+    --nn-file-title-line-height: calc(21px / var(--nn-android-font-scale, 1));
+    --nn-file-single-text-line-height: calc(20px / var(--nn-android-font-scale, 1));
+    --nn-file-multiline-text-line-height: calc(19px / var(--nn-android-font-scale, 1));
+}
+
+/* Height compensation - Android doesn't scale height/min-height, but we need them
+   to match the (now compensated) line-height after Android applies textZoom.
+   Since line-height var is pre-divided by scale, multiplying by scale here gives
+   the original value (21px, 20px, 19px) which matches the scaled line-height. */
+.notebook-navigator-android .nn-file-name {
+    min-height: calc(var(--nn-file-title-line-height) * var(--filename-rows, 1) * var(--nn-android-font-scale, 1));
+    height: calc(var(--nn-file-title-line-height) * var(--filename-rows, 1) * var(--nn-android-font-scale, 1));
+}
+
+.notebook-navigator-android .nn-file-preview:not(.nn-file-second-line .nn-file-preview) {
+    min-height: calc(var(--nn-file-multiline-text-line-height) * var(--preview-rows, 1) * var(--nn-android-font-scale, 1));
+    height: calc(var(--nn-file-multiline-text-line-height) * var(--preview-rows, 1) * var(--nn-android-font-scale, 1));
+}
+
+/* Icon vertical centering - use the original line-height (after compensation + scaling) */
+.notebook-navigator-android .nn-file-icon-slot {
+    margin-top: max(
+        0px,
+        calc(
+            (
+                    var(--nn-file-title-line-height) * var(--nn-android-font-scale, 1) -
+                        var(--nn-file-icon-size-mobile, var(--nn-file-icon-size))
+                ) /
+                2
+        )
+    );
 }
 
 /* ========================================================================
