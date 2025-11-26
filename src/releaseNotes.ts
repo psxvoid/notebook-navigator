@@ -73,6 +73,20 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.8.9',
+        date: '2025-11-25',
+        showOnUpdate: true,
+        info: 'Hi! Sorry for pushing out this release so quickly, but I had to workaround an internal issue in Obsidian where it incorrectly asks Notebook Navigator to quit when a file is opened using obsidian://open-url. Enjoy using Notebook Navigator!',
+        new: [
+            '==Customizable user colors in the color picker==. The color picker now has 20 editable color slots. Click a slot to select it, then use the picker to change it. Your colors are saved and synced automatically. Use the new toolbar buttons to copy, paste, or reset the palette.',
+            'Notebook Navigator has been translated to ==Arabic (ar)==.'
+        ],
+        fixed: [
+            'Notebook Navigator no longer listens to Obsidian workspace "quit" commands, since they apparantly are sent to all plugins when receiving obsidian://open-url requests. This means the plugin thought it was going to quit while Obsidian never shut it down.',
+            'Fixed an issue with font scaling on Android devices overriding plugin font sizes.'
+        ]
+    },
+    {
         version: '1.8.8',
         date: '2025-11-24',
         showOnUpdate: true,

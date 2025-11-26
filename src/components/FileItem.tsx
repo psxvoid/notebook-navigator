@@ -467,35 +467,23 @@ export const FileItem = React.memo(function FileItem({
     }, [effectiveFileIconId, showFileIcons]);
     const shouldShowCompactExtensionBadge = isCompactMode && (isBaseFile || isCanvasFile);
 
-    const isMultiRowTitle = appearanceSettings.titleRows > 1;
-
     const fileTitleElement = useMemo(() => {
         return (
             <div
-                className="nn-file-name-wrapper"
-                data-title-rows={appearanceSettings.titleRows}
-                data-multiline={isMultiRowTitle ? 'true' : 'false'}
+                className="nn-file-name"
+                data-has-color={applyColorToName ? 'true' : 'false'}
+                style={
+                    {
+                        '--filename-rows': appearanceSettings.titleRows,
+                        ...(applyColorToName ? { '--nn-file-name-custom-color': fileColor } : {})
+                    } as React.CSSProperties
+                }
             >
-                <div className="nn-file-name-content">
-                    <div className="nn-file-name-row">
-                        <div
-                            className="nn-file-name"
-                            data-has-color={applyColorToName ? 'true' : 'false'}
-                            style={
-                                {
-                                    '--filename-rows': appearanceSettings.titleRows,
-                                    ...(applyColorToName ? { '--nn-file-name-custom-color': fileColor } : {})
-                                } as React.CSSProperties
-                            }
-                        >
-                            {highlightedName}
-                            {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
-                        </div>
-                    </div>
-                </div>
+                {highlightedName}
+                {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
             </div>
         );
-    }, [appearanceSettings.titleRows, extensionSuffix, fileColor, applyColorToName, highlightedName, isMultiRowTitle, showExtensionSuffix]);
+    }, [appearanceSettings.titleRows, extensionSuffix, fileColor, applyColorToName, highlightedName, showExtensionSuffix]);
 
     // === Callbacks ===
 

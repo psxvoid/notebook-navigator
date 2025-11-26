@@ -21,6 +21,7 @@
  * Dynamically loads the appropriate language based on Obsidian's language setting
  */
 import { getLanguage } from 'obsidian';
+import { STRINGS_AR } from './locales/ar';
 import { STRINGS_DE } from './locales/de';
 import { STRINGS_EN } from './locales/en';
 import { STRINGS_ES } from './locales/es';
@@ -38,6 +39,7 @@ type TranslationStrings = typeof STRINGS_EN;
 // Map of supported languages to their translation modules
 // Just add new languages here as they are created
 const LANGUAGE_MAP: Record<string, TranslationStrings> = {
+    ar: STRINGS_AR,
     en: STRINGS_EN,
     de: STRINGS_DE,
     es: STRINGS_ES,

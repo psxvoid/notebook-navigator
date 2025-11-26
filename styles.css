@@ -289,6 +289,9 @@ body {
     flex-direction: column;
     background-color: var(--background-primary);
     font-family: var(--font-interface);
+    /* Keep font sizes at the defined values to avoid platform inflation */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 /* Removes focus outline on main container for cleaner appearance */
@@ -1464,7 +1467,6 @@ body {
     text-overflow: ellipsis;
     line-height: var(--nn-nav-line-height);
     color: var(--nn-theme-navitem-name-color);
-    unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
 .nn-navitem[data-nav-item-type='note'] .nn-navitem-name {
@@ -1971,40 +1973,12 @@ body {
     -webkit-box-orient: vertical;
     line-height: var(--nn-file-title-line-height);
     word-break: break-word;
-    unicode-bidi: plaintext; /* Proper bidirectional text handling */
-
-    /* Fixed height: always take up configured number of lines */
     min-height: calc(var(--nn-file-title-line-height) * var(--filename-rows, 1));
     height: calc(var(--nn-file-title-line-height) * var(--filename-rows, 1));
 }
 
 .nn-file-name[data-has-color='true'] {
     color: var(--nn-file-name-custom-color);
-}
-
-.nn-file-name-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.nn-file-name-wrapper[data-multiline='true'] {
-    align-items: flex-start;
-}
-
-.nn-file-name-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.nn-file-name-row {
-    display: flex;
-    align-items: center;
-}
-
-.nn-file-name-row .nn-file-name {
-    flex: 1;
-    min-width: 0;
 }
 
 .nn-file-external-icon {
@@ -2353,7 +2327,7 @@ body {
     gap: 8px;
 }
 
-.nn-compact-file-header .nn-file-name-wrapper {
+.nn-compact-file-header .nn-file-name {
     flex: 1;
     min-width: 0;
 }
@@ -2385,6 +2359,7 @@ body {
     background-color: transparent;
     position: relative;
     order: 2; /* Ensure it appears on the right */
+    align-self: center;
 }
 
 .nn-feature-image--square {
@@ -4320,6 +4295,7 @@ body.nn-resizing {
 }
 
 /* Recent colors header */
+.nn-preset-header,
 .nn-recent-header {
     display: flex;
     align-items: center;
@@ -4333,6 +4309,12 @@ body.nn-resizing {
     font-weight: 500;
 }
 
+.nn-preset-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.nn-preset-action-button,
 .nn-clear-recent {
     width: 20px;
     height: 20px;
@@ -4349,10 +4331,16 @@ body.nn-resizing {
     line-height: 1;
 }
 
+.nn-preset-action-button:hover,
 .nn-clear-recent:hover {
     background: var(--background-modifier-hover);
     color: var(--text-normal);
     border-color: var(--background-modifier-border-hover);
+}
+
+.nn-preset-action-button svg {
+    width: 14px;
+    height: 14px;
 }
 
 /* Preset and Recent colors sections */
@@ -4378,16 +4366,16 @@ body.nn-resizing {
     aspect-ratio: 1;
     border-radius: var(--radius-s);
     cursor: pointer;
-    border: 1px solid var(--background-modifier-border);
     box-sizing: border-box;
-    transition: transform 0.1s ease;
     position: relative;
+    overflow: hidden;
 }
 
 .nn-recent-remove-button {
     position: absolute;
     top: 2px;
     right: 2px;
+    z-index: 1;
     width: 16px;
     height: 16px;
     padding: 0;
@@ -4428,26 +4416,26 @@ body.nn-resizing {
     bottom: -4px;
 }
 
-.nn-color-dot:hover {
-    transform: scale(1.1);
-    border-color: var(--interactive-accent);
+.nn-color-dot:hover::after {
+    outline: 3px solid var(--interactive-accent);
+    outline-offset: -3px;
 }
 
-.nn-color-dot:active {
-    transform: scale(0.95);
+.nn-user-color-selected::after {
+    outline: 2px solid var(--interactive-accent);
+    outline-offset: -2px;
 }
 
 /* Empty color slot */
 .nn-color-dot.nn-color-empty {
     background: var(--background-secondary);
-    border-style: dashed;
+    border: 1px dashed var(--background-modifier-border);
     cursor: default;
     opacity: 0.3;
 }
 
-.nn-color-dot.nn-color-empty:hover {
-    transform: none;
-    border-color: var(--background-modifier-border);
+.nn-color-dot.nn-color-empty:hover::after {
+    outline: none;
 }
 
 /* Button container */
@@ -4461,13 +4449,8 @@ body.nn-resizing {
 }
 
 /* Dark theme adjustments */
-.theme-dark .nn-preview-color,
-.theme-dark .nn-color-dot {
+.theme-dark .nn-preview-color {
     border-color: rgba(255, 255, 255, 0.1);
-}
-
-.theme-dark .nn-color-dot:hover {
-    border-color: var(--interactive-accent);
 }
 
 /* Mobile responsiveness */
@@ -4702,7 +4685,14 @@ body.nn-resizing {
     transform: translateX(0%);
 }
 
-/* Ensure proper text direction for file preview and dates */
+.mod-rtl .nn-file-name,
+.mod-rtl .nn-file-preview {
+    text-align: right;
+}
+
+/* Bidi-safe text runs */
+.nn-navitem-name,
+.nn-file-name,
 .nn-file-preview,
 .nn-file-date,
 .nn-parent-folder,
