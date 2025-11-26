@@ -504,7 +504,9 @@ export const STRINGS_AR = {
         addTag: 'إضافة وسم للملفات المحددة', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'إزالة وسم من الملفات المحددة', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'إزالة جميع الوسوم من الملفات المحددة', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
-        rebuildCache: 'إعادة بناء الذاكرة المؤقتة' // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
+        rebuildCache: 'إعادة بناء الذاكرة المؤقتة', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
+        paneJumpTop: 'انتقل إلى أعلى القائمة',
+        paneJumpBottom: 'انتقل إلى أسفل القائمة',
     },
 
     // Plugin UI
@@ -562,7 +564,11 @@ export const STRINGS_AR = {
             },
             notes: {
                 frontmatter: 'البيانات الأمامية',
-                display: 'المظهر'
+                display: 'المظهر',
+                textTransformAdd: 'إضافة تحويل جديد',
+                textTransformPatternPlaceholder: 'تعبير منتظم',
+                textTransformReplacementPlaceholder: 'الاستبدال',
+                textTransformEmptyTitle: 'يجب أن يكون النمط عبارة عن RegExp صالح',
             }
         },
         items: {
@@ -860,6 +866,10 @@ export const STRINGS_AR = {
                 name: 'إظهار مسارات الوسوم الكاملة',
                 desc: "عرض مسارات تسلسل الوسوم الكاملة. عند التمكين: 'ai/openai'، 'work/projects/2024'. عند التعطيل: 'openai'، '2024'."
             },
+            collapseFileTagsToSelectedTag: {
+                name: 'طي العلامات إلى علامة محددة',
+                desc: 'إخفاء أجزاء الأصل التي تعد جزءًا من عرض العلامة المحددة.'
+            },
             colorFileTags: {
                 name: 'تلوين وسوم الملفات',
                 desc: 'تطبيق ألوان الوسوم على شارات الوسوم في عناصر الملفات.'
@@ -927,6 +937,14 @@ export const STRINGS_AR = {
                     '2': 'صفان'
                 }
             },
+            titleTransformName: {
+                name: 'تحويلات العنوان',
+                desc: `يستبدل العنوان بأكمله أو أجزائه بقيمة مخصصة. على سبيل المثال، يمكنك استخدام هذا لاستبدال كلمة "فكرة" في بداية عنوان ملاحظة بأيقونة مصباح كهربائي. يستخدم صيغة "string.replace". يتطلب إعادة بناء ذاكرة التخزين المؤقت لتطبيق التغييرات على الملاحظات الموجودة.`
+            },
+            previewTransformName: {
+                name: 'معاينة التحويلات',
+                desc: `يستبدل المعاينة بأكملها أو أجزائها بقيمة مخصصة. قد يكون مفيدًا إذا كانت ملاحظاتك تحتوي على كتل لا ترغب في رؤيتها في قائمة الملاحظات. يستخدم صيغة "string.replace". يتطلب إعادة بناء ذاكرة التخزين المؤقت لتطبيق التغييرات على الملاحظات الموجودة.`
+            },
             showFeatureImage: {
                 name: 'إظهار الصورة المميزة',
                 desc: 'عرض صور مصغرة من البيانات الأمامية. نصيحة: استخدم إضافة "Featured Image" لتعيين صور مميزة تلقائيًا لجميع مستنداتك.'
@@ -943,6 +961,18 @@ export const STRINGS_AR = {
             useEmbeddedImageFallback: {
                 name: 'استخدام بديل الصورة المضمنة',
                 desc: 'استخدام أول صورة مضمنة في المستند كبديل عند عدم العثور على صورة مصغرة في خصائص البيانات الأمامية (يتطلب Obsidian 1.9.4+). عطّل هذا للتحقق من تكوين الصور المصغرة بشكل صحيح.'
+            },
+            featureImageSize: {
+                name: 'حجم الصورة المميزة',
+                desc: 'تعيين حجم الصورة المميزة التي سيتم استخدامها في قائمة الملاحظات.'
+            },
+            featureImageForPDF: {
+                name: 'الصور المميزة لملف PDF',
+                desc: 'يسمح بإنشاء صور مميزة لملفات PDF.'
+            },
+            featureImagePersistIntermediate: {
+                name: 'حفظ الصورة المميزة بالكامل على القرص',
+                desc: 'للمستخدمين المتقدمين فقط. يؤدي تفعيل هذا الخيار إلى حفظ الصور المتوسطة كاملة الميزات على قرص. قد يكون مفيدًا لتسريع الفهرسة الأولية عند تغيير حجم الصور المميزة ومزامنتها. يتطلب إعادة بناء ذاكرة التخزين المؤقت عند التفعيل. لا ينظف الصور المتوسطة بعد تعطيله.'
             },
             showRootFolder: {
                 name: 'إظهار المجلد الجذري',
@@ -1076,6 +1106,13 @@ export const STRINGS_AR = {
                 loading: 'جارٍ فحص البيانات الوصفية...',
                 statusClean: 'لا توجد بيانات وصفية لتنظيفها',
                 statusCounts: 'عناصر يتيمة: {folders} مجلدات، {tags} وسوم، {files} ملفات، {pinned} تثبيتات، {separators} فواصل'
+            },
+            rebuildCacheFast: {
+                name: 'تحديث ذاكرة التخزين المؤقت',
+                desc: `استخدم هذا إذا واجهتَ علامات مفقودة، أو معاينات غير صحيحة، أو صورًا مميزة مفقودة. قد يحدث هذا بعد تعارضات في المزامنة أو إغلاقات غير متوقعة. إصدار أخف بكثير من "إعادة بناء ذاكرة التخزين المؤقت"، ولكنه قد لا يُصلح جميع المشاكل.`,
+                buttonText: 'تحديث ذاكرة التخزين المؤقت',
+                success: 'تم تحديث ذاكرة التخزين المؤقت',
+                error: 'فشل تحديث ذاكرة التخزين المؤقت'
             },
             rebuildCache: {
                 name: 'إعادة بناء الذاكرة المؤقتة',
