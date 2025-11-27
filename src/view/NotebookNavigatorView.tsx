@@ -35,7 +35,11 @@ import { strings } from '../i18n';
 import NotebookNavigatorPlugin from '../main';
 import { NOTEBOOK_NAVIGATOR_VIEW } from '../types';
 import { UXPreferencesProvider } from '../context/UXPreferencesContext';
-import { applyAndroidFontCompensation, clearAndroidFontCompensation } from '../utils/androidFontScale';
+import {
+    applyAndroidFontCompensation,
+    clearAndroidFontCompensation,
+    propagateAndroidFontCompensationToMobileRoot
+} from '../utils/androidFontScale';
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
@@ -143,6 +147,63 @@ export class NotebookNavigatorView extends ItemView {
                 </SettingsProvider>
             </React.StrictMode>
         );
+
+        // Propagate font compensation to the mobile root element after React renders.
+        // Uses multiple timing strategies since React render timing varies on Android.
+        if (Platform.isAndroidApp) {
+            // Attempts to find and apply compensation to the mobile root element
+            const applyToMobileRoot = () => {
+                const mobileRoot = container.querySelector('.nn-split-container.nn-mobile');
+                if (!(mobileRoot instanceof HTMLElement)) {
+                    return false;
+                }
+                propagateAndroidFontCompensationToMobileRoot(container);
+                return true;
+            };
+
+            const attemptPropagation = () => {
+                if (applyToMobileRoot()) {
+                    return true;
+                }
+                return false;
+            };
+
+            // If mobile root doesn't exist yet, wait for React to render it
+            if (!attemptPropagation()) {
+                // Watch for DOM changes in case React renders asynchronously
+                const observer = new MutationObserver(() => {
+                    if (attemptPropagation()) {
+                        observer.disconnect();
+                    }
+                });
+                observer.observe(container, { childList: true, subtree: true });
+                // Try after next paint in case React batches synchronously
+                window.requestAnimationFrame(() => {
+                    if (attemptPropagation()) {
+                        observer.disconnect();
+                    }
+                });
+                // Fallback timeouts at 100ms, 200ms, and 500ms for slow renders
+                window.setTimeout(() => {
+                    if (attemptPropagation()) {
+                        observer.disconnect();
+                        return;
+                    }
+                    window.setTimeout(() => {
+                        if (attemptPropagation()) {
+                            observer.disconnect();
+                            return;
+                        }
+                        window.setTimeout(() => {
+                            attemptPropagation();
+                            observer.disconnect();
+                        }, 500);
+                    }, 200);
+                }, 100);
+                // Ensure observer is cleaned up after max wait time
+                window.setTimeout(() => observer.disconnect(), 500);
+            }
+        }
     }
 
     /**

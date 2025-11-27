@@ -91,7 +91,7 @@ const EXPECTED_FONT_SIZE = 16;
 const SCALE_DETECTION_TOLERANCE = 0.02;
 
 /** Font size variables to compensate (values read from CSS custom properties) */
-const FONT_SIZE_VARIABLES = [
+const ANDROID_FONT_SIZE_VARIABLES = [
     '--nn-file-name-size',
     '--nn-file-name-size-mobile',
     '--nn-file-small-size',
@@ -103,7 +103,7 @@ const FONT_SIZE_VARIABLES = [
     '--nn-compact-font-size-mobile'
 ] as const;
 
-type FontSizeVariableName = (typeof FONT_SIZE_VARIABLES)[number];
+type FontSizeVariableName = (typeof ANDROID_FONT_SIZE_VARIABLES)[number];
 
 function createMeasurementProbe(container: HTMLElement): HTMLElement {
     // Hidden probe lets us read computed font sizes without disturbing layout
@@ -146,7 +146,7 @@ function measureAndroidFontData(container: HTMLElement): {
         const scaleFactor = measuredFontSize ? measuredFontSize / EXPECTED_FONT_SIZE : 1;
 
         const fontSizeValues: Partial<Record<FontSizeVariableName, number>> = {};
-        for (const variable of FONT_SIZE_VARIABLES) {
+        for (const variable of ANDROID_FONT_SIZE_VARIABLES) {
             // First try to read the raw custom property value (unscaled)
             const rawValue = computedStyle.getPropertyValue(variable);
             const parsed = parsePixelValue(rawValue.trim());
@@ -169,7 +169,7 @@ function measureAndroidFontData(container: HTMLElement): {
 
 export function clearAndroidFontCompensation(container: HTMLElement): void {
     container.style.removeProperty('--nn-android-font-scale');
-    for (const variable of FONT_SIZE_VARIABLES) {
+    for (const variable of ANDROID_FONT_SIZE_VARIABLES) {
         container.style.removeProperty(variable);
     }
 }
@@ -187,22 +187,24 @@ export function clearAndroidFontCompensation(container: HTMLElement): void {
  */
 export function applyAndroidFontCompensation(container: HTMLElement): void {
     clearAndroidFontCompensation(container);
-    const { scaleFactor, fontSizeValues } = measureAndroidFontData(container);
+    const { scaleFactor: detectedScaleFactor, fontSizeValues } = measureAndroidFontData(container);
+    // Round to 3 decimal places to avoid floating point precision artifacts
+    const roundedScaleFactor = Math.round(detectedScaleFactor * 1000) / 1000;
 
     // Only apply if scaling detected (beyond tolerance threshold)
-    if (Math.abs(scaleFactor - 1) <= SCALE_DETECTION_TOLERANCE) {
+    if (Math.abs(roundedScaleFactor - 1) <= SCALE_DETECTION_TOLERANCE) {
         return;
     }
 
     // Store the scale factor for use by dynamic font size calculations
-    container.style.setProperty('--nn-android-font-scale', String(scaleFactor));
+    container.style.setProperty('--nn-android-font-scale', String(roundedScaleFactor));
 
     // Override font-size variables with compensated values
     // If system scales by 1.8x, we set 14px / 1.8 = 7.78px so it renders as 14px
-    for (const variable of FONT_SIZE_VARIABLES) {
+    for (const variable of ANDROID_FONT_SIZE_VARIABLES) {
         const defaultSize = fontSizeValues[variable];
         if (defaultSize === undefined) continue;
-        const compensatedSize = defaultSize / scaleFactor;
+        const compensatedSize = defaultSize / roundedScaleFactor;
         container.style.setProperty(variable, `${compensatedSize}px`);
     }
 }
@@ -221,4 +223,26 @@ export function getAndroidFontScale(container: Element | null): number {
     }
     const scale = parseFloat(value);
     return Number.isFinite(scale) ? scale : 1;
+}
+
+/** Copies Android font compensation CSS variables from source element to target element */
+function propagateAndroidFontCompensation(source: HTMLElement, target: HTMLElement): void {
+    const scaleValue = source.style.getPropertyValue('--nn-android-font-scale');
+    if (scaleValue) {
+        target.style.setProperty('--nn-android-font-scale', scaleValue.trim());
+    }
+    for (const variable of ANDROID_FONT_SIZE_VARIABLES) {
+        const value = source.style.getPropertyValue(variable);
+        if (value) {
+            target.style.setProperty(variable, value.trim());
+        }
+    }
+}
+
+/** Propagates font compensation variables from container to the mobile split pane root */
+export function propagateAndroidFontCompensationToMobileRoot(container: HTMLElement): void {
+    const mobileRoot = container.querySelector('.nn-split-container.nn-mobile');
+    if (mobileRoot instanceof HTMLElement) {
+        propagateAndroidFontCompensation(container, mobileRoot);
+    }
 }
