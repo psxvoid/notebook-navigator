@@ -35,7 +35,7 @@ import { strings } from '../i18n';
 import NotebookNavigatorPlugin from '../main';
 import { NOTEBOOK_NAVIGATOR_VIEW } from '../types';
 import { UXPreferencesProvider } from '../context/UXPreferencesContext';
-import { applyAndroidFontCompensation } from '../utils/androidFontScale';
+import { applyAndroidFontCompensation, clearAndroidFontCompensation } from '../utils/androidFontScale';
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
@@ -88,14 +88,14 @@ export class NotebookNavigatorView extends ItemView {
      */
     async onOpen() {
         const container = this.containerEl.children[1];
+        if (!(container instanceof HTMLElement)) {
+            return;
+        }
         container.empty(); // Clear previous content
         container.classList.add('notebook-navigator');
 
         // Detect mobile environment and add mobile class
         const isMobile = Platform.isMobile;
-        console.log(
-            `[NotebookNavigatorView] onOpen - isMobile: ${isMobile}, isAndroidApp: ${Platform.isAndroidApp}, isIosApp: ${Platform.isIosApp}`
-        );
         if (isMobile) {
             container.classList.add('notebook-navigator-mobile');
 
@@ -103,8 +103,7 @@ export class NotebookNavigatorView extends ItemView {
             if (Platform.isAndroidApp) {
                 container.classList.add('notebook-navigator-android');
                 // Detect and compensate for Android textZoom BEFORE React renders
-                console.log('[NotebookNavigatorView] Calling applyAndroidFontCompensation');
-                applyAndroidFontCompensation(container as HTMLElement);
+                applyAndroidFontCompensation(container);
             } else if (Platform.isIosApp) {
                 container.classList.add('notebook-navigator-ios');
             }
@@ -154,6 +153,10 @@ export class NotebookNavigatorView extends ItemView {
     async onClose() {
         // Unmount the React app when the view is closed to prevent memory leaks
         const container = this.containerEl.children[1];
+        if (!(container instanceof HTMLElement)) {
+            return;
+        }
+        clearAndroidFontCompensation(container);
         container.classList.remove('notebook-navigator');
         // Also remove mobile/platform-specific classes added on open
         container.classList.remove('notebook-navigator-mobile');

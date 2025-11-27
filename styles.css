@@ -69,6 +69,9 @@ body {
     --nn-file-padding-total: calc(var(--nn-file-padding-vertical) * 2); /* Total vertical padding (top + bottom) */
     --nn-file-single-text-line-height: 19px; /* Height for single-line text (metadata, date, or single preview) */
     --nn-file-multiline-text-line-height: 18px; /* Height for multi-line preview text */
+    --nn-file-title-line-height-mobile: 21px; /* Mobile title text height */
+    --nn-file-single-text-line-height-mobile: 20px; /* Mobile single-line text height */
+    --nn-file-multiline-text-line-height-mobile: 19px; /* Mobile preview text height */
     --nn-feature-image-min-size: 42px; /* Minimum size for feature images */
     --nn-feature-image-max-size: 64px; /* Maximum size for feature images */
 
@@ -90,6 +93,8 @@ body {
 
     /* Navigation item heights - fixed pixel values to prevent fractional rendering */
     --nn-nav-line-height: 18px; /* Fixed line height for folder/tag names */
+    --nn-navitem-count-font-size: 11px; /* Desktop count font size */
+    --nn-navitem-count-font-size-mobile: 13px; /* Mobile count font size */
     /* Note: The following are dynamically set by JavaScript based on user settings:
        --nn-setting-nav-padding-vertical
        --nn-setting-nav-padding-vertical-mobile
@@ -118,6 +123,8 @@ body {
     /* Header font sizes */
     --nn-desktop-header-font-size: 13px; /* Fixed desktop header font size */
     --nn-mobile-header-font-size: 17px; /* Fixed mobile header font size */
+    --nn-root-reorder-hint-font-size: var(--font-ui-smaller);
+    --nn-root-reorder-hint-font-size-mobile: var(--font-ui-small);
 
     /* ========================================================================
        Pane Width Constraints
@@ -1494,7 +1501,7 @@ body {
 
 /* Folder file count - shows number of files in folder */
 .nn-navitem-count {
-    font-size: 11px;
+    font-size: var(--nn-navitem-count-font-size);
     font-weight: var(--nn-theme-navitem-count-font-weight);
     color: var(--nn-theme-navitem-count-color);
     background-color: var(--nn-theme-navitem-count-bg);
@@ -1520,7 +1527,7 @@ body {
 }
 
 .nn-shortcut-header-item .nn-navitem-count {
-    font-size: 11px;
+    font-size: var(--nn-navitem-count-font-size);
 }
 
 .nn-drag-item {
@@ -1691,13 +1698,13 @@ body {
 }
 
 .nn-root-reorder-hint {
-    font-size: var(--font-ui-smaller);
+    font-size: var(--nn-root-reorder-hint-font-size);
     color: var(--text-muted);
     line-height: 1.25;
 }
 
 .notebook-navigator-mobile .nn-root-reorder-hint {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-root-reorder-hint-font-size-mobile);
 }
 
 .nn-root-reorder-list {
@@ -4494,15 +4501,15 @@ body.nn-resizing {
 /* Mobile root variables */
 .nn-mobile {
     --nn-nav-icon-size: 20px;
-    --nn-file-name-size-mobile: calc(var(--nn-file-name-size) + 2px);
-    --nn-file-small-size-mobile: calc(var(--nn-file-small-size) + 2px);
+    --nn-file-name-size-mobile: 16px;
+    --nn-file-small-size-mobile: 15px;
     --nn-file-padding-vertical-mobile: calc(var(--nn-file-padding-vertical) + 4px);
     --nn-file-padding-total-mobile: calc(var(--nn-file-padding-vertical-mobile) * 2);
     --nn-file-icon-size-mobile: calc(var(--nn-file-icon-size) + 4px);
     --nn-file-icon-slot-width-mobile: var(--nn-file-icon-size-mobile);
-    --nn-file-title-line-height: 21px;
-    --nn-file-single-text-line-height: 20px;
-    --nn-file-multiline-text-line-height: 19px;
+    --nn-file-title-line-height: var(--nn-file-title-line-height-mobile);
+    --nn-file-single-text-line-height: var(--nn-file-single-text-line-height-mobile);
+    --nn-file-multiline-text-line-height: var(--nn-file-multiline-text-line-height-mobile);
     --nn-date-header-height-mobile: calc(var(--nn-date-header-height) + 8px);
     --nn-date-header-height-subsequent-mobile: calc(var(--nn-date-header-height-subsequent) + 8px);
     --nn-date-header-padding-top-mobile: calc(var(--nn-date-header-padding-top) + 4px);
@@ -4518,7 +4525,7 @@ body.nn-resizing {
 
 /* Increase folder count size on mobile to match folder text */
 .notebook-navigator-mobile .nn-navitem-count {
-    font-size: 13px;
+    font-size: var(--nn-navitem-count-font-size-mobile);
 }
 
 /* Mobile folder content padding adjustment for proper selection height */
@@ -4678,28 +4685,34 @@ body.nn-resizing {
    Note: We use a reciprocal variable for division since calc(x / var) can have issues */
 .notebook-navigator-android .nn-mobile {
     --nn-android-font-scale-reciprocal: calc(1 / var(--nn-android-font-scale, 1));
-    --nn-file-title-line-height: calc(21px * var(--nn-android-font-scale-reciprocal, 1));
-    --nn-file-single-text-line-height: calc(20px * var(--nn-android-font-scale-reciprocal, 1));
-    --nn-file-multiline-text-line-height: calc(19px * var(--nn-android-font-scale-reciprocal, 1));
+    --nn-file-title-line-height: calc(var(--nn-file-title-line-height-mobile) * var(--nn-android-font-scale-reciprocal, 1));
+    --nn-file-single-text-line-height: calc(var(--nn-file-single-text-line-height-mobile) * var(--nn-android-font-scale-reciprocal, 1));
+    --nn-file-multiline-text-line-height: calc(
+        var(--nn-file-multiline-text-line-height-mobile) * var(--nn-android-font-scale-reciprocal, 1)
+    );
     /* Note: Do NOT compensate icon size variables - they're used for SVG width/height
        which Android doesn't scale. Only compensate font-size on emoji elements directly. */
 }
 
 /* Note counts in navigation pane - !important needed to override other rules */
 .notebook-navigator-android .nn-navitem-count {
-    font-size: calc(13px * var(--nn-android-font-scale-reciprocal, 1)) !important;
+    font-size: calc(
+        var(--nn-navitem-count-font-size-mobile, var(--nn-navitem-count-font-size)) * var(--nn-android-font-scale-reciprocal, 1)
+    ) !important;
 }
 
 /* Root reorder panel text */
 .notebook-navigator-android .nn-root-reorder-hint {
-    font-size: calc(14px * var(--nn-android-font-scale-reciprocal, 1)) !important;
+    font-size: calc(
+        var(--nn-root-reorder-hint-font-size-mobile, var(--nn-root-reorder-hint-font-size)) * var(--nn-android-font-scale-reciprocal, 1)
+    ) !important;
 }
 
 /* Emoji and webfont icons - Android scales font-size but not SVG dimensions.
    Only apply to .nn-emoji-icon and .nn-iconfont to avoid breaking Lucide SVG icons. */
 .notebook-navigator-android .nn-emoji-icon,
 .notebook-navigator-android .nn-iconfont {
-    font-size: calc(20px * var(--nn-android-font-scale-reciprocal, 1)) !important;
+    font-size: calc(var(--nn-file-icon-size-mobile, var(--nn-file-icon-size)) * var(--nn-android-font-scale-reciprocal, 1)) !important;
 }
 
 /* Height compensation - Android doesn't scale height/min-height, but we need them
@@ -4716,15 +4729,14 @@ body.nn-resizing {
     height: calc(var(--nn-file-multiline-text-line-height) * var(--preview-rows, 1) * var(--nn-android-font-scale, 1));
 }
 
-/* Icon vertical centering - both line-height and icon-size are pre-compensated,
-   so multiply both by scale to get the original values for the calculation */
+/* Icon vertical centering - line-height is pre-compensated, icon size is not */
 .notebook-navigator-android .nn-file-icon-slot {
     margin-top: max(
         0px,
         calc(
             (
                     var(--nn-file-title-line-height) * var(--nn-android-font-scale, 1) -
-                        var(--nn-file-icon-size-mobile, var(--nn-file-icon-size)) * var(--nn-android-font-scale, 1)
+                        var(--nn-file-icon-size-mobile, var(--nn-file-icon-size))
                 ) /
                 2
         )

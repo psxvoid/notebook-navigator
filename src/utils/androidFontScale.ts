@@ -90,16 +90,88 @@ const EXPECTED_FONT_SIZE = 16;
 /** Tolerance for detecting scaling (2% threshold) */
 const SCALE_DETECTION_TOLERANCE = 0.02;
 
-/** Font size variables and their default values in pixels */
-const FONT_SIZE_VARIABLES: Record<string, number> = {
-    '--nn-file-name-size': 14,
-    '--nn-file-small-size': 13,
-    '--nn-compact-font-size': 13,
-    '--nn-compact-font-size-mobile': 15,
-    '--nn-list-title-font-size': 16,
-    '--nn-desktop-header-font-size': 13,
-    '--nn-mobile-header-font-size': 17
-};
+/** Font size variables to compensate (values read from CSS custom properties) */
+const FONT_SIZE_VARIABLES = [
+    '--nn-file-name-size',
+    '--nn-file-name-size-mobile',
+    '--nn-file-small-size',
+    '--nn-file-small-size-mobile',
+    '--nn-list-title-font-size',
+    '--nn-desktop-header-font-size',
+    '--nn-mobile-header-font-size',
+    '--nn-compact-font-size',
+    '--nn-compact-font-size-mobile'
+] as const;
+
+type FontSizeVariableName = (typeof FONT_SIZE_VARIABLES)[number];
+
+function createMeasurementProbe(container: HTMLElement): HTMLElement {
+    // Hidden probe lets us read computed font sizes without disturbing layout
+    const probe = container.ownerDocument.createElement('div');
+    probe.style.cssText = `
+        position: absolute;
+        visibility: hidden;
+        pointer-events: none;
+        width: auto;
+        height: auto;
+        line-height: 1;
+        white-space: nowrap;
+    `;
+    probe.textContent = 'M';
+    container.appendChild(probe);
+    return probe;
+}
+
+function parsePixelValue(value: string): number | null {
+    const parsed = Number.parseFloat(value);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+        return null;
+    }
+    return parsed;
+}
+
+function measureAndroidFontData(container: HTMLElement): {
+    scaleFactor: number;
+    fontSizeValues: Partial<Record<FontSizeVariableName, number>>;
+} {
+    // Single probe captures both the textZoom scale and the raw CSS variable values
+    const probe = createMeasurementProbe(container);
+    try {
+        // Mobile class ensures mobile custom properties are active on the probe
+        probe.classList.add('nn-mobile');
+        probe.style.fontSize = `${EXPECTED_FONT_SIZE}px`;
+        const computedStyle = getComputedStyle(probe);
+        const measuredFontSize = parsePixelValue(computedStyle.fontSize);
+        const scaleFactor = measuredFontSize ? measuredFontSize / EXPECTED_FONT_SIZE : 1;
+
+        const fontSizeValues: Partial<Record<FontSizeVariableName, number>> = {};
+        for (const variable of FONT_SIZE_VARIABLES) {
+            // First try to read the raw custom property value (unscaled)
+            const rawValue = computedStyle.getPropertyValue(variable);
+            const parsed = parsePixelValue(rawValue.trim());
+            if (parsed !== null) {
+                fontSizeValues[variable] = parsed;
+                continue;
+            }
+            // Fallback: measure the computed value and divide by the detected scale
+            probe.style.fontSize = `var(${variable})`;
+            const measuredValue = parsePixelValue(getComputedStyle(probe).fontSize);
+            if (measuredValue !== null) {
+                fontSizeValues[variable] = measuredValue / scaleFactor;
+            }
+        }
+        return { scaleFactor, fontSizeValues };
+    } finally {
+        probe.remove();
+    }
+}
+
+export function clearAndroidFontCompensation(container: HTMLElement): void {
+    container.style.removeProperty('--nn-android-font-scale');
+    for (const variable of FONT_SIZE_VARIABLES) {
+        container.style.removeProperty(variable);
+    }
+}
 
 /**
  * Line height variables are compensated in CSS rather than JavaScript because
@@ -109,56 +181,15 @@ const FONT_SIZE_VARIABLES: Record<string, number> = {
  */
 
 /**
- * Detects the Android textZoom scale factor by measuring a probe element.
- * Returns the scale factor (e.g., 1.3 means system is scaling fonts by 130%).
- */
-function detectAndroidFontScale(container: HTMLElement): number {
-    const probe = document.createElement('div');
-    probe.style.cssText = `
-        position: absolute;
-        visibility: hidden;
-        pointer-events: none;
-        font-size: ${EXPECTED_FONT_SIZE}px;
-        line-height: 1;
-        width: auto;
-        height: auto;
-        white-space: nowrap;
-    `;
-    probe.textContent = 'M';
-
-    container.appendChild(probe);
-    const computedStyle = getComputedStyle(probe);
-    const actual = parseFloat(computedStyle.fontSize);
-    const lineHeight = computedStyle.lineHeight;
-    container.removeChild(probe);
-
-    console.log(`[AndroidFontScale] Probe measurement: expected=${EXPECTED_FONT_SIZE}px, actual=${actual}px, lineHeight=${lineHeight}`);
-
-    if (actual <= 0 || !Number.isFinite(actual)) {
-        console.log('[AndroidFontScale] Invalid measurement, returning scale=1');
-        return 1;
-    }
-
-    // Return the scale factor (actual / expected)
-    // e.g., if expected 16px renders as 20.8px, scale = 1.3
-    const scaleFactor = actual / EXPECTED_FONT_SIZE;
-    console.log(`[AndroidFontScale] Detected scale factor: ${scaleFactor}`);
-    return scaleFactor;
-}
-
-/**
  * Detects Android textZoom and applies compensated font-size CSS variables.
  * Must be called BEFORE React renders to ensure the virtualizer gets correct measurements.
- *
- * @param container - The container element to detect on and apply the variables to
  */
 export function applyAndroidFontCompensation(container: HTMLElement): void {
-    console.log('[AndroidFontScale] applyAndroidFontCompensation called');
-    const scaleFactor = detectAndroidFontScale(container);
+    clearAndroidFontCompensation(container);
+    const { scaleFactor, fontSizeValues } = measureAndroidFontData(container);
 
     // Only apply if scaling detected (beyond tolerance threshold)
     if (Math.abs(scaleFactor - 1) <= SCALE_DETECTION_TOLERANCE) {
-        console.log(`[AndroidFontScale] Scale factor ${scaleFactor} within tolerance, skipping compensation`);
         return;
     }
 
@@ -167,16 +198,12 @@ export function applyAndroidFontCompensation(container: HTMLElement): void {
 
     // Override font-size variables with compensated values
     // If system scales by 1.8x, we set 14px / 1.8 = 7.78px so it renders as 14px
-    for (const [variable, defaultSize] of Object.entries(FONT_SIZE_VARIABLES)) {
+    for (const variable of FONT_SIZE_VARIABLES) {
+        const defaultSize = fontSizeValues[variable];
+        if (defaultSize === undefined) continue;
         const compensatedSize = defaultSize / scaleFactor;
         container.style.setProperty(variable, `${compensatedSize}px`);
-        console.log(`[AndroidFontScale] ${variable}: ${defaultSize}px → ${compensatedSize.toFixed(2)}px`);
     }
-
-    // Line-height variables are compensated in CSS using calc() with --nn-android-font-scale
-    // This is necessary because .nn-mobile redefines these variables on an inner element
-
-    console.log(`[AndroidFontScale] Compensation applied. Scale factor: ${scaleFactor}`);
 }
 
 /**
