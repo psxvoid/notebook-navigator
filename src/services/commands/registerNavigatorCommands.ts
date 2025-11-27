@@ -99,7 +99,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
 
     plugin.addCommand({
         id: 'pane-jump-parent',
-        name: "Jump to parent", // strings.commands.paneJumpParent, // TODO: add translations
+        name: strings.commands.paneJumpParent,
         checkCallback: (checking: boolean) => {
             if (!checking) {
                 void plugin.cmdJumpParent()
@@ -111,7 +111,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
 
     plugin.addCommand({
         id: 'pane-jump-children',
-        name: "Jump to children", // strings.commands.paneJumpChildren, // TODO: add translations
+        name: strings.commands.paneJumpChildren,
         checkCallback: (checking: boolean) => {
             if (!checking) {
                 void plugin.cmdJumpChildren()

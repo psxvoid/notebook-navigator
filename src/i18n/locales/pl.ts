@@ -467,6 +467,8 @@ export const STRINGS_PL = {
         rebuildCache: 'Odbuduj pamięć podręczną', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
         paneJumpTop: 'Przejdź na górę listy',
         paneJumpBottom: 'Przejdź na dół listy',
+        paneJumpParent: 'Przeskocz/ujawnij aktywny plik w tagu nadrzędnym lub folderze',
+        paneJumpChildren: 'Przeskocz/ujawnij aktywny plik w tagu podrzędnym lub folderze',
     },
 
     // Plugin UI

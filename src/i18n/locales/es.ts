@@ -466,6 +466,8 @@ export const STRINGS_ES = {
         rebuildCache: 'Reconstruir caché', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
         paneJumpTop: 'Saltar al principio de la lista',
         paneJumpBottom: 'Saltar al final de la lista',
+        paneJumpParent: 'Saltar/Mostrar archivo activo en la etiqueta o carpeta principal',
+        paneJumpChildren: 'Saltar/Mostrar archivo activo en la etiqueta o carpeta secundaria',
     },
 
     // Plugin UI

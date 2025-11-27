@@ -466,6 +466,8 @@ export const STRINGS_FR = {
         rebuildCache: 'Reconstruire le cache', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
         paneJumpTop: 'Aller en haut de la liste',
         paneJumpBottom: 'Aller en bas de la liste',
+        paneJumpParent: 'Afficher le fichier actif dans le dossier ou la balise parente',
+        paneJumpChildren: 'Afficher le fichier actif dans le dossier ou la balise enfant',
     },
 
     // Plugin UI
