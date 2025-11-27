@@ -19,7 +19,7 @@
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback, useLayoutEffect } from 'react';
 import { TFile, TFolder, Notice } from 'obsidian';
-import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useSelectionState, useSelectionDispatch, getFirstSelectedFile } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -27,7 +27,7 @@ import { useShortcuts } from '../context/ShortcutsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useDragNavigationPaneActivation } from '../hooks/useDragNavigationPaneActivation';
-import { useNavigatorReveal, type RevealFileOptions, type NavigateToFolderOptions } from '../hooks/useNavigatorReveal';
+import { ListExpandMode, useNavigatorReveal, type RevealFileOptions, type NavigateToFolderOptions } from '../hooks/useNavigatorReveal';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useNavigationActions } from '../hooks/useNavigationActions';
@@ -101,6 +101,8 @@ export interface NotebookNavigatorHandle {
     selectPreviousFile: () => Promise<boolean>;
     paneJumpTop: () => void;
     paneJumpBottom: () => void;
+    paneJumpParent: () => void;
+    paneJumpChildren: () => void;
 }
 
 export const enum JumpTarget {
@@ -460,6 +462,16 @@ export const NotebookNavigatorComponent = React.memo(
             }
         }, [uiDispatch, uiState.focusedPane, uiState.singlePane])
 
+        const getActiveFileInternal = useCallback(() =>
+            uiState.focusedPane === 'files' || uiState.focusedPane === 'navigation'
+                ? selectionState.selectedFile
+                : app.workspace.getActiveFile()
+                ?? selectionState.selectedFile
+                ?? (selectionState.selectedFiles.size === 0 ? null : getFirstSelectedFile(selectionState.selectedFiles, app))
+                ?? listPaneRef.current?.getFirstFile()
+                ?? app.workspace.getActiveFile()
+        , [app, selectionState.selectedFile, selectionState.selectedFiles, uiState.focusedPane])
+
         // Expose methods via ref
         useImperativeHandle(ref, () => {
             // Retrieves currently selected files or falls back to single selected file
@@ -528,6 +540,20 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 paneJumpBottom: () => {
                     paneJump(JumpTarget.bottom)
+                },
+                paneJumpParent: () => {
+                    const activeFile = getActiveFileInternal()
+
+                    if (activeFile) {
+                        revealFileInNearestFolder(activeFile, { mode: ListExpandMode.ToParent })
+                    }
+                },
+                paneJumpChildren: () => {
+                    const activeFile = getActiveFileInternal()
+
+                    if (activeFile) {
+                        revealFileInNearestFolder(activeFile, { mode: ListExpandMode.ToChildren })
+                    }
                 },
                 refresh: () => {
                     // A no-op update will increment the version and force a re-render
@@ -836,7 +862,8 @@ export const NotebookNavigatorComponent = React.memo(
             addFolderShortcut,
             addNoteShortcut,
             addTagShortcut,
-            paneJump
+            paneJump,
+            getActiveFileInternal,
         ]);
 
         // Add platform class and background mode classes
@@ -926,8 +953,8 @@ export const NotebookNavigatorComponent = React.memo(
         const navigationPaneStyle = uiState.singlePane
             ? { width: '100%', height: '100%' }
             : orientation === 'vertical'
-              ? { width: '100%', flexBasis: `${paneSize}px`, minHeight: `${navigationPaneMinSize}px` }
-              : { width: `${paneSize}px`, height: '100%' };
+                ? { width: '100%', flexBasis: `${paneSize}px`, minHeight: `${navigationPaneMinSize}px` }
+                : { width: `${paneSize}px`, height: '100%' };
 
         return (
             <div className="nn-scale-wrapper" data-ui-scale={scaleWrapperDataAttr} style={scaleWrapperStyle}>

@@ -469,6 +469,8 @@ export const STRINGS_ZH_TW = {
         rebuildCache: '重建快取', // 指令面板：重建本地 Notebook Navigator 快取 (英文: Rebuild cache)
         paneJumpTop: '跳到列表頂部',
         paneJumpBottom: '跳轉至列表底部',
+        paneJumpParent: '跳到/顯示父標籤或資料夾中的目前文件',
+        paneJumpChildren: '跳到/顯示子標籤或資料夾中的目前文件',
     },
 
     // 外掛 UI

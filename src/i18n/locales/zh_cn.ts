@@ -470,6 +470,8 @@ export const STRINGS_ZH_CN = {
         rebuildCache: '重建缓存', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
         paneJumpTop: '跳转至列表顶部',
         paneJumpBottom: '跳转至列表底部',
+        paneJumpParent: '跳转至/显示父标签或文件夹中的当前文件',
+        paneJumpChildren: '跳转至/显示子标签或文件夹中的当前文件',
     },
 
     // Plugin UI

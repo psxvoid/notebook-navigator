@@ -208,6 +208,16 @@ export class NotebookNavigatorView extends ItemView {
         this.componentRef.current?.revealFileInNearestFolder(file, options);
     }
 
+    paneJumpParent() {
+        this.focusVisiblePane()
+        this.componentRef.current?.paneJumpParent()
+    }
+
+    paneJumpChildren() {
+        this.focusVisiblePane()
+        this.componentRef.current?.paneJumpChildren()
+    }
+
     paneJumpTop() {
         this.focusVisiblePane()
         this.componentRef.current?.paneJumpTop()

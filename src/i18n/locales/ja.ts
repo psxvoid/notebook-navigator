@@ -470,6 +470,8 @@ export const STRINGS_JA = {
         rebuildCache: 'キャッシュを再構築', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
         paneJumpTop: 'リストの先頭へジャンプ',
         paneJumpBottom: 'リストの一番下へジャンプ',
+        paneJumpParent: '親タグまたはフォルダ内のアクティブなファイルにジャンプ/表示',
+        paneJumpChildren: '子タグまたはフォルダ内のアクティブなファイルにジャンプ/表示',
     },
 
     // Plugin UI
