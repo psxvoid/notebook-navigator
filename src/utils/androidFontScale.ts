@@ -141,7 +141,8 @@ function measureAndroidFontData(container: HTMLElement): {
         probe.classList.add('nn-mobile');
         probe.style.fontSize = `${EXPECTED_FONT_SIZE}px`;
         const computedStyle = getComputedStyle(probe);
-        const measuredFontSize = parsePixelValue(computedStyle.fontSize);
+        const rectHeight = probe.getBoundingClientRect().height;
+        const measuredFontSize = rectHeight > 0 ? rectHeight : parsePixelValue(computedStyle.fontSize);
         const scaleFactor = measuredFontSize ? measuredFontSize / EXPECTED_FONT_SIZE : 1;
 
         const fontSizeValues: Partial<Record<FontSizeVariableName, number>> = {};

@@ -18,7 +18,7 @@
 
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback, useLayoutEffect } from 'react';
-import { TFile, TFolder } from 'obsidian';
+import { Platform, TFile, TFolder } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
@@ -46,7 +46,7 @@ import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperat
 import { localStorage } from '../utils/localStorage';
 import { calculateCompactListMetrics } from '../utils/listPaneMetrics';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
-import { getAndroidFontScale } from '../utils/androidFontScale';
+import { applyAndroidFontCompensation, clearAndroidFontCompensation, getAndroidFontScale } from '../utils/androidFontScale';
 import { getBackgroundClasses } from '../utils/paneLayout';
 import { confirmRemoveAllTagsFromFiles, openAddTagToFilesModal, removeTagFromFilesWithPrompt } from '../utils/tagModalHelpers';
 import { useNavigatorScale } from '../hooks/useNavigatorScale';
@@ -164,6 +164,20 @@ export const NotebookNavigatorComponent = React.memo(
         // keyboard events are captured at the navigator level, not globally.
         // This prevents interference with other Obsidian views (e.g., canvas editor).
         const containerRef = useRef<HTMLDivElement>(null);
+        // Apply Android textZoom compensation on the mobile root so mobile font tokens are pre-divided
+        useLayoutEffect(() => {
+            const container = containerRef.current;
+            if (!container) {
+                return;
+            }
+            if (!isMobile || !Platform.isAndroidApp) {
+                return;
+            }
+            applyAndroidFontCompensation(container);
+            return () => {
+                clearAndroidFontCompensation(container);
+            };
+        }, [isMobile]);
 
         const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
         // Tracks tag-related search tokens for highlighting tags in navigation pane
