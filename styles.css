@@ -283,16 +283,13 @@ body {
 }
 
 /* Main container - establishes the plugin's layout foundation */
-.notebook-navigator {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--background-primary);
-    font-family: var(--font-interface);
-    /* Keep font sizes at the defined values to avoid platform inflation */
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-}
+    .notebook-navigator {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--background-primary);
+        font-family: var(--font-interface);
+    }
 
 /* Removes focus outline on main container for cleaner appearance */
 .notebook-navigator:focus {
