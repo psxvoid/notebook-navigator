@@ -98,6 +98,30 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
     });
 
     plugin.addCommand({
+        id: 'pane-jump-parent',
+        name: "Jump to parent", // strings.commands.paneJumpParent, // TODO: add translations
+        checkCallback: (checking: boolean) => {
+            if (!checking) {
+                void plugin.cmdJumpParent()
+            }
+
+            return true;
+        }
+    });
+
+    plugin.addCommand({
+        id: 'pane-jump-children',
+        name: "Jump to children", // strings.commands.paneJumpChildren, // TODO: add translations
+        checkCallback: (checking: boolean) => {
+            if (!checking) {
+                void plugin.cmdJumpChildren()
+            }
+
+            return true;
+        }
+    });
+
+    plugin.addCommand({
         id: 'pane-jump-top',
         name: strings.commands.paneJumpTop,
         checkCallback: (checking: boolean) => {

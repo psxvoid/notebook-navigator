@@ -23,6 +23,7 @@ import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { normalizeTagPathValue } from './tagPrefixMatcher';
 import { findTagNode } from './tagTree';
 import type { TagTreeNode } from '../types/storage';
+import { ListExpandMode } from 'src/hooks/useNavigatorReveal';
 
 /**
  * Normalizes tag paths for internal lookups.
@@ -162,12 +163,16 @@ function isTagVisible(tagPath: string, expandedTags: Set<string>): boolean {
     return true;
 }
 
-export function findNearestVisibleTagAncestor(tagPath: string, expandedTags: Set<string>): string {
+export function findNearestVisibleTagAncestor(tagPath: string, expandedTags: Set<string>, expandMode: ListExpandMode = ListExpandMode.None): string {
     if (!tagPath || tagPath === UNTAGGED_TAG_ID) {
         return tagPath;
     }
 
     const segments = tagPath.split('/');
+
+    if (expandMode === ListExpandMode.ToParent && segments.length > 0) {
+        segments.pop()
+    }
 
     for (let length = segments.length; length > 0; length--) {
         const candidate = segments.slice(0, length).join('/');
