@@ -17,12 +17,71 @@
  */
 
 /**
- * Android WebView textZoom detection and compensation.
+ * Android WebView textZoom Detection and Compensation
+ * ====================================================
  *
+ * PROBLEM:
  * Android WebView scales text based on system font size settings via the textZoom
- * property. This scaling happens at the rendering level before CSS is applied,
- * so CSS text-size-adjust has no effect. This utility detects the scale factor
- * and applies compensated font-size CSS variables before React renders.
+ * property. This scaling happens at the rendering level AFTER CSS is parsed but
+ * BEFORE layout, so CSS `text-size-adjust: none` has no effect. Users with large
+ * system fonts would see oversized text that breaks the carefully designed UI.
+ *
+ * WHAT ANDROID TEXTZOOM SCALES:
+ * - font-size: YES (scaled proportionally)
+ * - line-height: YES (when specified in px or em)
+ * - width/height/min-height: NO (not scaled)
+ * - SVG dimensions: NO (not scaled)
+ * - padding/margin: NO (not scaled)
+ *
+ * COMPENSATION STRATEGY:
+ * Since we can't disable textZoom, we pre-divide values by the scale factor so that
+ * when Android applies its scaling, the final rendered size is correct.
+ *
+ * Example with scale factor 1.8:
+ * - We want 14px font-size
+ * - We set CSS to: 14px / 1.8 = 7.78px
+ * - Android scales: 7.78px × 1.8 = 14px ✓
+ *
+ * DETECTION METHOD:
+ * We create a probe element with a known font-size (16px), measure the computed
+ * style, and calculate the ratio. This must happen BEFORE React renders so the
+ * virtualizer gets correct measurements for row heights.
+ *
+ * WHAT WE COMPENSATE:
+ *
+ * 1. Font-size variables (via JavaScript inline styles):
+ *    - --nn-file-name-size, --nn-file-small-size, etc.
+ *    - Set on outer container, cascades to all descendants
+ *
+ * 2. Line-height variables (via CSS calc):
+ *    - --nn-file-title-line-height, --nn-file-multiline-text-line-height, etc.
+ *    - Must be done in CSS because .nn-mobile class redefines these on inner element
+ *    - Uses: calc(21px * var(--nn-android-font-scale-reciprocal, 1))
+ *
+ * 3. Container heights (via CSS calc):
+ *    - height/min-height for .nn-file-name and .nn-file-preview
+ *    - These use line-height vars which are pre-compensated, so we multiply by
+ *      scale to get the original value (which Android won't scale)
+ *    - Uses: calc(var(--line-height) * rows * var(--nn-android-font-scale, 1))
+ *
+ * 4. Text elements with hardcoded sizes (via CSS):
+ *    - .nn-navitem-count (note counts)
+ *    - .nn-root-reorder-hint (reorder panel text)
+ *
+ * 5. Emoji and webfont icons (via CSS):
+ *    - .nn-emoji-icon and .nn-iconfont classes
+ *    - These use font-size which Android scales
+ *    - Lucide SVG icons are NOT compensated (they use width/height)
+ *
+ * CSS VARIABLE ARCHITECTURE:
+ * - --nn-android-font-scale: The detected scale factor (e.g., 1.8)
+ * - --nn-android-font-scale-reciprocal: calc(1 / scale) for multiplication in CSS
+ *   (some browsers handle calc(x * reciprocal) better than calc(x / var))
+ *
+ * FILES INVOLVED:
+ * - src/utils/androidFontScale.ts: Detection and font-size variable compensation
+ * - src/view/NotebookNavigatorView.tsx: Calls applyAndroidFontCompensation before React
+ * - styles.css: "Android textZoom Compensation" section for CSS-based compensation
  */
 
 /** Expected probe font size in pixels */
