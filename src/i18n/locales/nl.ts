@@ -509,6 +509,8 @@ export const STRINGS_NL = {
         rebuildCache: 'Cache opnieuw opbouwen',
         paneJumpTop: 'Ga naar de bovenkant van de lijst',
         paneJumpBottom: 'Spring naar het einde van de lijst',
+        paneJumpParent: 'Spring/toon het actieve bestand in de bovenliggende tag of map',
+        paneJumpChildren: 'Spring/toon het actieve bestand in de onderliggende tag of map',
     },
 
     // Plugin UI

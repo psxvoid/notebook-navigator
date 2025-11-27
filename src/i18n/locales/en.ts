@@ -507,6 +507,8 @@ export const STRINGS_EN = {
         rebuildCache: 'Rebuild cache', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache),
         paneJumpTop: 'Jump to the top of the list',
         paneJumpBottom: 'Jump to the bottom of the list',
+        paneJumpParent: 'Jump/reveal active file in the parent tag or folder',
+        paneJumpChildren: 'Jump/reveal active file in the child tag or folder',
     },
 
     // Plugin UI

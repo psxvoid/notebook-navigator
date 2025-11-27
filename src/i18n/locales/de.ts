@@ -510,6 +510,8 @@ export const STRINGS_DE = {
         rebuildCache: 'Cache neu aufbauen', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
         paneJumpTop: 'Springe zum Anfang der Liste',
         paneJumpBottom: 'Springe zum Ende der Liste',
+        paneJumpParent: 'Aktive Datei im übergeordneten Tag oder Ordner anzeigen',
+        paneJumpChildren: 'Aktive Datei im untergeordneten Tag oder Ordner anzeigen',
     },
 
     // Plugin UI

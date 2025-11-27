@@ -109,6 +109,7 @@ export interface ListPaneHandle {
     executeSearchShortcut: (params: ExecuteSearchShortcutParams) => Promise<void>;
     jumpTopSelectFirst: () => void
     jumpBottomSelectLast: () => void
+    getFirstFile: () => TFile | null;
 }
 
 interface ListPaneProps {
@@ -899,6 +900,16 @@ export const ListPane = React.memo(
                 },
                 jumpBottomSelectLast: () => {
                     scrollToTarget(JumpTarget.bottom)
+                },
+                getFirstFile: () => {
+                    const firstFileIndex = findNextSelectableIndex(listItems, 0, isSelectableListItem, true)
+                    const firstFileItem = safeGetItem(listItems, firstFileIndex)
+
+                    if (firstFileItem?.type === ListPaneItemType.FILE && (firstFileItem.data instanceof TFile)) {
+                        return firstFileItem.data
+                    }
+
+                    return null
                 }
             }),
             [
@@ -916,6 +927,7 @@ export const ListPane = React.memo(
                 selectAdjacentFile,
                 modifySearchWithTag,
                 scrollToTarget,
+                listItems
             ]
         );
 

@@ -28,6 +28,7 @@ import type { TagTreeService } from '../services/TagTreeService';
 import type { TagDeleteEventPayload, TagRenameEventPayload } from '../services/TagOperations';
 import { useServices } from './ServicesContext';
 import { normalizeTagPath } from '../utils/tagUtils';
+import { EMPTY_STRING } from 'src/utils/empty';
 
 export type SelectionRevealSource = 'auto' | 'manual' | 'shortcut' | 'startup';
 
@@ -46,6 +47,32 @@ export interface SelectionState {
 
     selectedFile: TFile | null; // Current cursor position / primary selected file
     revealSource: SelectionRevealSource | null; // Identifies how the latest reveal was triggered
+    jumpHistory: string[]
+}
+
+function jumpHistoryReducerProxy(state: SelectionState, action: SelectionAction, app?: App): ReturnType<typeof selectionReducer> {
+    const stateAfter = selectionReducer(state, action, app)
+
+    return cleanupJumpHistory(state, stateAfter, action)
+}
+
+function cleanupJumpHistory(stateBefore: SelectionState, stateAfter: SelectionState, action: SelectionAction): SelectionState {
+    if (stateBefore.jumpHistory.length !== stateAfter.jumpHistory.length || stateAfter.jumpHistory.length === 0 || action.type.startsWith('JUMP_HISTORY')) {
+        return stateAfter
+    }
+
+    const after = stateBefore.selectionType !== stateAfter.selectionType
+        || (stateBefore.selectedTag !== stateAfter.selectedTag
+            && (stateBefore.selectedTag != null && stateBefore.selectedTag?.startsWith(stateBefore.selectedTag) !== true))
+        || (stateBefore.selectedFolder?.path !== stateAfter.selectedFolder?.path
+            && stateBefore.selectedFolder?.path != null
+                && (stateBefore.selectedFolder?.path.startsWith(stateAfter.selectedFolder?.path ?? EMPTY_STRING) !== true) // jump folder parent
+                && (stateAfter.jumpHistory[stateAfter.jumpHistory.length - 1].startsWith(stateAfter.selectedFolder?.path ?? EMPTY_STRING) !== true) // jump folder child
+                && (stateAfter.selectedFolder?.path !== '/')) // jump folder root
+            ? { ...stateAfter, jumpHistory: [] }
+            : stateAfter
+
+    return after
 }
 
 // Action types
@@ -76,7 +103,10 @@ export type SelectionAction =
     | { type: 'TOGGLE_WITH_CURSOR'; file: TFile; anchorIndex?: number } // Toggle selection and update cursor
     | { type: 'SET_KEYBOARD_NAVIGATION'; isKeyboardNavigation: boolean } // Set keyboard navigation flag
     | { type: 'UPDATE_FILE_PATH'; oldPath: string; newPath: string } // Update file path after rename
-    | { type: 'SET_FOLDER_NAVIGATION'; isFolderNavigation: boolean }; // Set folder navigation flag
+    | { type: 'SET_FOLDER_NAVIGATION'; isFolderNavigation: boolean } // Set folder navigation flag
+    | { type: 'JUMP_HISTORY_PUSH'; newEntry: string }
+    | { type: 'JUMP_HISTORY_POP'; }
+    | { type: 'JUMP_HISTORY_EMPTY'; };
 
 // Dispatch function type
 export type SelectionDispatch = React.Dispatch<SelectionAction>;
@@ -86,7 +116,7 @@ const SelectionContext = createContext<SelectionState | null>(null);
 const SelectionDispatchContext = createContext<React.Dispatch<SelectionAction> | null>(null);
 
 // Helper function to get first file from selection
-function getFirstSelectedFile(selectedFiles: Set<string>, app: App): TFile | null {
+export function getFirstSelectedFile(selectedFiles: Set<string>, app: App): TFile | null {
     // Get the first value from the set without converting to array
     const iterator = selectedFiles.values().next();
     if (iterator.done) {
@@ -502,6 +532,22 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             };
         }
 
+        case 'JUMP_HISTORY_PUSH': {
+            const jumpHistory = [...state.jumpHistory]
+            jumpHistory.push(action.newEntry)
+            return { ...state, jumpHistory }
+        }
+
+        case 'JUMP_HISTORY_POP': {
+            const jumpHistory = [...state.jumpHistory]
+            jumpHistory.pop()
+            return { ...state, jumpHistory }
+        }
+
+        case 'JUMP_HISTORY_EMPTY': {
+            return { ...state, jumpHistory: [] }
+        }
+
         default:
             return state;
     }
@@ -629,12 +675,13 @@ export function SelectionProvider({
             isFolderChangeWithAutoSelect: false,
             isKeyboardNavigation: false,
             isFolderNavigation: false,
-            revealSource: null
+            revealSource: null,
+            jumpHistory: [],
         };
     }, [app.vault]);
 
     const [state, dispatch] = useReducer(
-        (state: SelectionState, action: SelectionAction) => selectionReducer(state, action, app),
+        (state: SelectionState, action: SelectionAction) => jumpHistoryReducerProxy(state, action, app),
         undefined,
         loadInitialState
     );

@@ -1462,6 +1462,18 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         return this.homepageController?.open(trigger) ?? false;
     }
 
+    public async cmdJumpParent(): Promise<void> {
+        const view = await this.getActivatedView()
+
+        view.paneJumpParent()
+    }
+
+    public async cmdJumpChildren(): Promise<void> {
+        const view = await this.getActivatedView()
+
+        view.paneJumpChildren()
+    }
+
     public async cmdJumpTop(): Promise<void> {
         const view = await this.getActivatedView()
 
