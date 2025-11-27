@@ -507,6 +507,8 @@ export const STRINGS_KO = {
         rebuildCache: '캐시 다시 빌드', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
         paneJumpTop: '목록의 맨 위로 이동',
         paneJumpBottom: '목록 맨 아래로 이동',
+        paneJumpParent: '부모 태그 또는 폴더에서 활성 파일을 이동/표시합니다',
+        paneJumpChildren: '자식 태그 또는 폴더에서 활성 파일을 이동/표시합니다',
     },
 
     // Plugin UI

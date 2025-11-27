@@ -507,6 +507,8 @@ export const STRINGS_AR = {
         rebuildCache: 'إعادة بناء الذاكرة المؤقتة', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
         paneJumpTop: 'انتقل إلى أعلى القائمة',
         paneJumpBottom: 'انتقل إلى أسفل القائمة',
+        paneJumpParent: 'الانتقال/الكشف عن الملف النشط في الوسم أو المجلد الرئيسي',
+        paneJumpChildren: 'الانتقال/الكشف عن الملف النشط في الوسم أو المجلد الفرعي',
     },
 
     // Plugin UI

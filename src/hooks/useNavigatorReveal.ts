@@ -35,6 +35,7 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
 import { doesFolderContainPath } from '../utils/pathUtils';
 import type { Align } from '../types/scroll';
+import { EMPTY_FUNC, EMPTY_STRING } from 'src/utils/empty';
 import { isVirtualTagCollectionId } from '../utils/virtualTagCollections';
 
 interface FocusPaneOptions {
@@ -49,6 +50,12 @@ interface UseNavigatorRevealOptions {
     focusFilesPane: (options?: FocusPaneOptions) => void;
 }
 
+export const enum ListExpandMode {
+    None,
+    ToParent,
+    ToChildren,
+}
+
 export interface RevealFileOptions {
     // Indicates the source of the reveal action
     source?: SelectionRevealSource;
@@ -56,6 +63,8 @@ export interface RevealFileOptions {
     isStartupReveal?: boolean;
     // Prevents switching focus away from the navigation pane
     preserveNavigationFocus?: boolean;
+    // additionally to revealing a file, expands current folder/tag to a parent of a current
+    mode?: ListExpandMode
 }
 
 export interface NavigateToFolderOptions {
@@ -112,9 +121,13 @@ export function useNavigatorReveal({
     const hasInitializedRef = useRef<boolean>(false);
 
     const getRevealTargetFolder = useCallback(
-        (folder: TFolder | null): { target: TFolder | null; expandAncestors: boolean } => {
+        (folder: TFolder | null, expandMode: ListExpandMode = ListExpandMode.None): { target: TFolder | null; expandAncestors: boolean } => {
             if (!folder) {
                 return { target: null, expandAncestors: false };
+            }
+
+            if (expandMode === ListExpandMode.ToChildren) {
+                return { target: folder, expandAncestors: false };
             }
 
             if (!includeDescendantNotes) {
@@ -152,7 +165,8 @@ export function useNavigatorReveal({
                 return true;
             };
 
-            let current: TFolder | null = folder;
+            let current: TFolder | null = (expandMode === ListExpandMode.ToParent ? folder.parent : folder) ?? folder;
+
             while (current && !isFolderVisible(current)) {
                 current = current.parent;
             }
@@ -368,11 +382,28 @@ export function useNavigatorReveal({
             const revealSource: SelectionRevealSource | undefined = options?.isStartupReveal ? 'startup' : options?.source;
             const shouldCenterNavigation = Boolean(options?.isStartupReveal && settings.startView === 'navigation');
             const navigationAlign: Align = shouldCenterNavigation ? 'center' : 'auto';
+            const expandMode = options?.mode ?? ListExpandMode.None
+            const jumpHistory = selectionState.jumpHistory
+
+            if (expandMode === ListExpandMode.ToChildren && jumpHistory.length === 0) {
+                return
+            }
+
+            const jumpToChildren = expandMode !== ListExpandMode.ToChildren ? EMPTY_FUNC : () => {
+                const jumpTarget = jumpHistory[jumpHistory.length - 1]
+                selectionDispatch({ type: 'JUMP_HISTORY_POP' })
+                return jumpTarget
+            }
+
             if (selectionState.selectionType === 'tag') {
-                targetTag = determineTagToReveal(file, selectionState.selectedTag, settings, getDB());
+                targetTag = jumpToChildren() ?? determineTagToReveal(file, selectionState.selectedTag, settings, getDB());
 
                 if (targetTag) {
-                    const visibleTag = findNearestVisibleTagAncestor(targetTag, expansionState.expandedTags);
+                    if (expandMode === ListExpandMode.ToParent) {
+                        selectionDispatch({ type: 'JUMP_HISTORY_PUSH', newEntry: targetTag })
+                    }
+                    
+                    const visibleTag = findNearestVisibleTagAncestor(targetTag, expansionState.expandedTags, options?.mode);
                     targetTag = visibleTag;
                 }
             }
@@ -380,7 +411,23 @@ export function useNavigatorReveal({
             let resolvedFolder: TFolder | null = null;
 
             if ((targetTag === null || targetTag === undefined) && file.parent) {
-                const { target, expandAncestors } = getRevealTargetFolder(file.parent);
+
+                const parent = expandMode === ListExpandMode.ToChildren
+                    ? app.vault.getFolderByPath(jumpToChildren() ?? EMPTY_STRING)
+                    : expandMode === ListExpandMode.ToParent
+                    ? selectionState.selectedFolder
+                    : file.parent
+
+                if (expandMode === ListExpandMode.ToParent && targetTag == null) {
+                    selectionDispatch({ type: 'JUMP_HISTORY_PUSH', newEntry: parent?.path ?? EMPTY_STRING })
+                }
+                
+                if (expandMode !== ListExpandMode.None && parent === null) {
+                    return
+                }
+
+                const { target, expandAncestors } = getRevealTargetFolder(parent, options?.mode);
+
                 resolvedFolder = target;
 
                 const selectedFolder = selectionState.selectedFolder;
@@ -389,7 +436,8 @@ export function useNavigatorReveal({
                     includeDescendantNotes &&
                     selectionState.selectionType === 'folder' &&
                     selectedFolder !== null &&
-                    doesFolderContainPath(selectedFolder.path, file.parent.path);
+                    doesFolderContainPath(selectedFolder.path, file.parent.path) &&
+                    expandMode === ListExpandMode.None;
 
                 if (target) {
                     const isCurrentFolderSelected = selectedFolder && selectedFolder.path === target.path;
@@ -472,7 +520,9 @@ export function useNavigatorReveal({
             getDB,
             getRevealTargetFolder,
             navigationPaneRef,
-            commandQueue
+            commandQueue,
+            selectionState.jumpHistory,
+            app.vault,
         ]
     );
 
