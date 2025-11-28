@@ -29,12 +29,14 @@ import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { useCommandQueue } from '../context/ServicesContext';
-import { determineTagToReveal, findNearestVisibleTagAncestor, resolveCanonicalTagPath } from '../utils/tagUtils';
+import { determineTagToReveal, findNearestVisibleTagAncestor, isRootTag, resolveCanonicalTagPath } from '../utils/tagUtils';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
 import type { Align } from '../types/scroll';
+
 import { EMPTY_FUNC, EMPTY_STRING } from 'src/utils/empty';
+import { last } from 'src/utils/arrayUtils';
 
 interface UseNavigatorRevealOptions {
     app: App;
@@ -369,7 +371,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             }
 
             const jumpToChildren = expandMode !== ListExpandMode.ToChildren ? EMPTY_FUNC : () => {
-                const jumpTarget = jumpHistory[jumpHistory.length - 1]
+                const jumpTarget = last(jumpHistory)
                 selectionDispatch({ type: 'JUMP_HISTORY_POP' })
                 return jumpTarget
             }
@@ -378,7 +380,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 targetTag = jumpToChildren() ?? determineTagToReveal(file, selectionState.selectedTag, settings, getDB());
 
                 if (targetTag) {
-                    if (expandMode === ListExpandMode.ToParent) {
+                    if (expandMode === ListExpandMode.ToParent && !isRootTag(targetTag)) {
                         selectionDispatch({ type: 'JUMP_HISTORY_PUSH', newEntry: targetTag })
                     }
                     
