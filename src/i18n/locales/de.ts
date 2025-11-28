@@ -174,6 +174,8 @@ export const STRINGS_DE = {
             newCanvas: 'Neue Canvas',
             newBase: 'Neue Datenbank',
             newDrawing: 'Neue Zeichnung',
+            newExcalidrawDrawing: 'Neue Excalidraw-Zeichnung',
+            newTldrawDrawing: 'Neue Tldraw-Zeichnung',
             duplicateFolder: 'Ordner duplizieren',
             searchInFolder: 'In Ordner suchen',
             copyPath: 'Dateisystempfad kopieren',

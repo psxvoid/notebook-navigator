@@ -172,6 +172,8 @@ export const STRINGS_EN = {
             newCanvas: 'New canvas',
             newBase: 'New base',
             newDrawing: 'New drawing',
+            newExcalidrawDrawing: 'New Excalidraw drawing',
+            newTldrawDrawing: 'New Tldraw drawing',
             duplicateFolder: 'Duplicate folder',
             searchInFolder: 'Search in folder',
             copyPath: 'Copy file system path',

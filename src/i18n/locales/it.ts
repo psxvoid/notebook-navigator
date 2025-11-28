@@ -173,6 +173,8 @@ export const STRINGS_IT = {
             newCanvas: 'Nuova tela',
             newBase: 'Nuova base',
             newDrawing: 'Nuovo disegno',
+            newExcalidrawDrawing: 'Nuovo disegno Excalidraw',
+            newTldrawDrawing: 'Nuovo disegno Tldraw',
             duplicateFolder: 'Duplica cartella',
             searchInFolder: 'Cerca nella cartella',
             copyPath: 'Copia percorso del file system',

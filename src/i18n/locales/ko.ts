@@ -171,6 +171,8 @@ export const STRINGS_KO = {
             newCanvas: '새 캔버스',
             newBase: '새 베이스',
             newDrawing: '새 드로잉',
+            newExcalidrawDrawing: '새 Excalidraw 드로잉',
+            newTldrawDrawing: '새 Tldraw 드로잉',
             duplicateFolder: '폴더 복제',
             searchInFolder: '폴더에서 검색',
             copyPath: '파일 시스템 경로 복사',

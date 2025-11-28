@@ -173,6 +173,8 @@ export const STRINGS_NL = {
             newCanvas: 'Nieuw canvas',
             newBase: 'Nieuwe base',
             newDrawing: 'Nieuwe tekening',
+            newExcalidrawDrawing: 'Nieuwe Excalidraw-tekening',
+            newTldrawDrawing: 'Nieuwe Tldraw-tekening',
             duplicateFolder: 'Map dupliceren',
             searchInFolder: 'Zoeken in map',
             copyPath: 'Bestandssysteempad kopiëren',

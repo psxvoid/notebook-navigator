@@ -172,6 +172,8 @@ export const STRINGS_AR = {
             newCanvas: 'لوحة جديدة',
             newBase: 'قاعدة جديدة',
             newDrawing: 'رسم جديد',
+            newExcalidrawDrawing: 'رسم Excalidraw جديد',
+            newTldrawDrawing: 'رسم Tldraw جديد',
             duplicateFolder: 'تكرار المجلد',
             searchInFolder: 'البحث في المجلد',
             copyPath: 'نسخ مسار نظام الملفات',

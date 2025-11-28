@@ -172,6 +172,8 @@ export const STRINGS_JA = {
             newCanvas: '新規キャンバス',
             newBase: '新規データベース',
             newDrawing: '新規図面',
+            newExcalidrawDrawing: '新規 Excalidraw 図面',
+            newTldrawDrawing: '新規 Tldraw 図面',
             duplicateFolder: 'フォルダを複製',
             searchInFolder: 'フォルダ内を検索',
             copyPath: 'ファイルシステムパスをコピー',

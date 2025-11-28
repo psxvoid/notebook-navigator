@@ -172,6 +172,8 @@ export const STRINGS_ZH_CN = {
             newCanvas: '新建画布',
             newBase: '新建数据库',
             newDrawing: '新建绘图',
+            newExcalidrawDrawing: '新建 Excalidraw 绘图',
+            newTldrawDrawing: '新建 Tldraw 绘图',
             duplicateFolder: '复制文件夹',
             searchInFolder: '在文件夹中搜索',
             copyPath: '复制文件系统路径',

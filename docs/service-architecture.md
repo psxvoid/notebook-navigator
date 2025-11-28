@@ -275,7 +275,7 @@ deleteFilesWithSmartSelection(
 
 createCanvas(parent: TFolder): Promise<TFile | null>
 createBase(parent: TFolder): Promise<TFile | null>
-createNewDrawing(parent: TFolder): Promise<TFile | null>
+createNewDrawing(parent: TFolder, type?: 'excalidraw' | 'tldraw'): Promise<TFile | null>
 
 openVersionHistory(file: TFile): Promise<void>
 getRevealInSystemExplorerText(): string

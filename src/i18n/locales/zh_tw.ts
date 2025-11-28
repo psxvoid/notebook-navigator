@@ -172,6 +172,8 @@ export const STRINGS_ZH_TW = {
             newCanvas: '新畫布',
             newBase: '新 Base',
             newDrawing: '新繪圖',
+            newExcalidrawDrawing: '新 Excalidraw 繪圖',
+            newTldrawDrawing: '新 Tldraw 繪圖',
             duplicateFolder: '複製資料夾',
             searchInFolder: '在此資料夾中搜尋',
             copyPath: '複製檔案系統路徑',

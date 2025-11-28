@@ -172,6 +172,8 @@ export const STRINGS_RU = {
             newCanvas: 'Новый холст',
             newBase: 'Новая база',
             newDrawing: 'Новый рисунок',
+            newExcalidrawDrawing: 'Новый рисунок Excalidraw',
+            newTldrawDrawing: 'Новый рисунок Tldraw',
             duplicateFolder: 'Дублировать папку',
             searchInFolder: 'Искать в папке',
             copyPath: 'Копировать путь в файловой системе',
