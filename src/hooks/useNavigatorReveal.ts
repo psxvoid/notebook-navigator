@@ -35,15 +35,14 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
 import { doesFolderContainPath } from '../utils/pathUtils';
 import type { Align } from '../types/scroll';
+import { isVirtualTagCollectionId } from '../utils/virtualTagCollections';
 
 import { EMPTY_FUNC, EMPTY_STRING } from 'src/utils/empty';
-import { isVirtualTagCollectionId } from '../utils/virtualTagCollections';
+import { last } from 'src/utils/arrayUtils';
 
 interface FocusPaneOptions {
     updateSinglePaneView?: boolean;
 }
-
-import { last } from 'src/utils/arrayUtils';
 
 interface UseNavigatorRevealOptions {
     app: App;
