@@ -81,7 +81,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Android: Notebook Navigator now handles custom system font sizes correctly.',
             'Notebook Navigator has been translated to ==Russian (ru)==.'
         ],
-        improved: ['Improved the way "Settings > Folders & tags > Expand on selection" works in dual pane modem, it will now also collapse on single click for selected folders.'],
+        improved: [
+            'Improved the way "Settings > Folders & tags > Expand on selection" works in dual pane modem, it will now also collapse on single click for selected folders.'
+        ],
         fixed: []
     },
     {
