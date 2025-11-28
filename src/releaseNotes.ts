@@ -82,9 +82,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Notebook Navigator has been translated to ==Russian (ru)==.'
         ],
         improved: [
+            'Duplicating a folder will now also duplicate icon and color settings.',
             'Improved the way "Settings > Folders & tags > Expand on selection" works in dual pane modem, it will now also collapse on single click for selected folders.'
         ],
-        fixed: []
+        fixed: [
+            'Fixed an issue where the context menu in navigation pane was not hidden if clicking on a folder title.'
+        ]
     },
     {
         version: '1.8.9',

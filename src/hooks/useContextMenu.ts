@@ -44,6 +44,16 @@ import { TFolder } from 'obsidian';
 let activeNavigatorMenu: Menu | null = null;
 
 /**
+ * Hides the currently active navigator context menu if one is open.
+ */
+export function hideNavigatorContextMenu() {
+    if (activeNavigatorMenu) {
+        activeNavigatorMenu.hide();
+        activeNavigatorMenu = null;
+    }
+}
+
+/**
  * Custom hook that attaches a context menu to an element.
  * Provides right-click context menu functionality for files, folders, and tags.
  *
@@ -166,9 +176,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             e.preventDefault();
             e.stopPropagation();
 
-            if (activeNavigatorMenu) {
-                activeNavigatorMenu.hide();
-            }
+            hideNavigatorContextMenu();
 
             const menu = new Menu();
             activeNavigatorMenu = menu;
