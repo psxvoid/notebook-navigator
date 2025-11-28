@@ -393,10 +393,10 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 const parent = expandMode === ListExpandMode.ToChildren
                     ? app.vault.getFolderByPath(jumpToChildren() ?? EMPTY_STRING)
                     : expandMode === ListExpandMode.ToParent
-                    ? selectionState.selectedFolder
+                    ? selectionState.selectedFolder ?? file.parent
                     : file.parent
 
-                if (expandMode === ListExpandMode.ToParent && targetTag == null) {
+                if (expandMode === ListExpandMode.ToParent && targetTag == null && parent != null && parent.path !== '/') {
                     selectionDispatch({ type: 'JUMP_HISTORY_PUSH', newEntry: selectionState.selectedFolder?.path ?? EMPTY_STRING })
                 }
                 
