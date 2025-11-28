@@ -79,8 +79,6 @@ export const STRINGS_JA = {
         emptySearchName: '検索を保存する前に名前を入力してください',
         add: 'ショートカットに追加',
         remove: 'ショートカットから削除',
-        moveUp: '上に移動',
-        moveDown: '下に移動',
         folderNotesPinned: 'フォルダノート {count} 件をピン留めしました'
     },
 

@@ -80,8 +80,6 @@ export const STRINGS_EN = {
         emptySearchName: 'Enter a name before saving the search',
         add: 'Add to shortcuts',
         remove: 'Remove from shortcuts',
-        moveUp: 'Move up',
-        moveDown: 'Move down',
         folderNotesPinned: 'Pinned {count} folder notes'
     },
 

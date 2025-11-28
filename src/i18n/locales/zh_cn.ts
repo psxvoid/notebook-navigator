@@ -79,8 +79,6 @@ export const STRINGS_ZH_CN = {
         emptySearchName: '保存搜索前请输入名称',
         add: '添加到快捷方式',
         remove: '从快捷方式移除',
-        moveUp: '上移',
-        moveDown: '下移',
         folderNotesPinned: '已固定 {count} 个文件夹笔记'
     },
 

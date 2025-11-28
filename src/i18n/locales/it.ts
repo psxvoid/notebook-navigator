@@ -80,8 +80,6 @@ export const STRINGS_IT = {
         emptySearchName: 'Inserisci un nome prima di salvare la ricerca',
         add: 'Aggiungi ai collegamenti',
         remove: 'Rimuovi dai collegamenti',
-        moveUp: 'Sposta su',
-        moveDown: 'Sposta giù',
         folderNotesPinned: '{count} note cartella fissate'
     },
 

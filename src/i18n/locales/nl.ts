@@ -80,8 +80,6 @@ export const STRINGS_NL = {
         emptySearchName: 'Voer een naam in voordat u de zoekopdracht opslaat',
         add: 'Toevoegen aan snelkoppelingen',
         remove: 'Verwijderen uit snelkoppelingen',
-        moveUp: 'Omhoog verplaatsen',
-        moveDown: 'Omlaag verplaatsen',
         folderNotesPinned: '{count} mapnotities vastgepind'
     },
 

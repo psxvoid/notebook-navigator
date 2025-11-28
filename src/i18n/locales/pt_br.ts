@@ -80,8 +80,6 @@ export const STRINGS_PT_BR = {
         emptySearchName: 'Digite um nome antes de salvar a pesquisa',
         add: 'Adicionar aos atalhos',
         remove: 'Remover dos atalhos',
-        moveUp: 'Mover para cima',
-        moveDown: 'Mover para baixo',
         folderNotesPinned: '{count} notas de pasta fixadas'
     },
 

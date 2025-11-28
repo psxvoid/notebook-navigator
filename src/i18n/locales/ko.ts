@@ -79,8 +79,6 @@ export const STRINGS_KO = {
         emptySearchName: '검색을 저장하기 전에 이름을 입력하세요',
         add: '바로가기에 추가',
         remove: '바로가기에 제거',
-        moveUp: '위로 이동',
-        moveDown: '아래로 이동',
         folderNotesPinned: '폴더 노트 {count}개를 고정했습니다'
     },
 

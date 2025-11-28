@@ -73,6 +73,18 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.9.0',
+        date: '2025-12-01',
+        showOnUpdate: true,
+        new: [
+            'Android: Drag and drop now works in shortcuts and reorder root items mode.',
+            'Android: Notebook Navigator now handles custom system font sizes correctly.',
+            'Notebook Navigator has been translated to ==Russian (ru)==.'
+        ],
+        improved: ['Improved the way "Settings > Folders & tags > Expand on selection" works in dual pane modem, it will now also collapse on single click for selected folders.'],
+        fixed: []
+    },
+    {
         version: '1.8.9',
         date: '2025-11-25',
         showOnUpdate: true,

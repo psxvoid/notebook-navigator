@@ -80,8 +80,6 @@ export const STRINGS_AR = {
         emptySearchName: 'أدخل اسمًا قبل حفظ البحث',
         add: 'إضافة إلى الاختصارات',
         remove: 'إزالة من الاختصارات',
-        moveUp: 'نقل للأعلى',
-        moveDown: 'نقل للأسفل',
         folderNotesPinned: 'تم تثبيت {count} ملاحظة مجلد'
     },
 

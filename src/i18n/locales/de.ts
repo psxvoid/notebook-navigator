@@ -79,8 +79,6 @@ export const STRINGS_DE = {
         emptySearchName: 'Geben Sie einen Namen ein, bevor Sie die Suche speichern',
         add: 'Zu Lesezeichen hinzufügen',
         remove: 'Aus Lesezeichen entfernen',
-        moveUp: 'Nach oben verschieben',
-        moveDown: 'Nach unten verschieben',
         folderNotesPinned: '{count} Ordnernotizen angeheftet'
     },
 

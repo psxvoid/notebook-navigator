@@ -80,8 +80,6 @@ export const STRINGS_ZH_TW = {
         emptySearchName: '儲存搜尋前請輸入名稱',
         add: '新增至捷徑',
         remove: '從捷徑移除',
-        moveUp: '上移',
-        moveDown: '下移',
         folderNotesPinned: '已釘選 {count} 個資料夾筆記'
     },
 

@@ -79,8 +79,6 @@ export const STRINGS_FR = {
         emptySearchName: "Entrez un nom avant d'enregistrer la recherche",
         add: 'Ajouter aux raccourcis',
         remove: 'Retirer des raccourcis',
-        moveUp: 'Déplacer vers le haut',
-        moveDown: 'Déplacer vers le bas',
         folderNotesPinned: '{count} notes de dossier épinglées'
     },
 

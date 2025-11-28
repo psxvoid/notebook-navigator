@@ -79,8 +79,6 @@ export const STRINGS_ES = {
         emptySearchName: 'Ingresa un nombre antes de guardar la búsqueda',
         add: 'Agregar a accesos directos',
         remove: 'Quitar de accesos directos',
-        moveUp: 'Mover arriba',
-        moveDown: 'Mover abajo',
         folderNotesPinned: 'Fijadas {count} notas de carpeta'
     },
 
