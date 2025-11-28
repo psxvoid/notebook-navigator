@@ -20,15 +20,15 @@ import { FileSystemAdapter, MenuItem, Platform, TFolder, TFile } from 'obsidian'
 import { FolderMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { showNotice } from '../noticeUtils';
-import { getInternalPlugin, isFolderAncestor } from '../../utils/typeGuards';
+import { getInternalPlugin, isFolderAncestor, isPluginInstalled } from '../../utils/typeGuards';
 import { getFolderNote, createFolderNote } from '../../utils/folderNotes';
-import { ExtendedApp } from '../../types/obsidian-extended';
 import { cleanupExclusionPatterns, isFolderInExcludedFolder } from '../../utils/fileFilters';
 import { ItemType } from '../../types';
 import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 import { runAsyncAction } from '../async';
 import { setAsyncOnClick } from './menuAsyncHelpers';
 import { getActiveVaultProfile, getHiddenFolderPatternMatch, normalizeHiddenFolderPath } from '../../utils/vaultProfiles';
+import { EXCALIDRAW_PLUGIN_ID, TLDRAW_PLUGIN_IDS } from '../../constants/pluginIds';
 
 /**
  * Adds folder creation commands (new note/folder/canvas/base/drawing) to a menu.
@@ -102,13 +102,39 @@ export function buildFolderCreationMenu(params: FolderMenuBuilderParams): void {
         });
     }
 
-    const isExcalidrawInstalled = !!(app as ExtendedApp).plugins?.plugins?.['obsidian-excalidraw-plugin'];
-    if (isExcalidrawInstalled) {
+    // Collect available drawing plugins to determine menu structure
+    const drawingActions: { label: string; create: () => Promise<TFile | null> }[] = [];
+
+    if (isPluginInstalled(app, [EXCALIDRAW_PLUGIN_ID])) {
+        drawingActions.push({
+            label: strings.contextMenu.folder.newExcalidrawDrawing,
+            create: () => fileSystemOps.createNewDrawing(folder, 'excalidraw')
+        });
+    }
+
+    if (isPluginInstalled(app, TLDRAW_PLUGIN_IDS)) {
+        drawingActions.push({
+            label: strings.contextMenu.folder.newTldrawDrawing,
+            create: () => fileSystemOps.createNewDrawing(folder, 'tldraw')
+        });
+    }
+
+    if (drawingActions.length === 1) {
         menu.addItem((item: MenuItem) => {
             setAsyncOnClick(item.setTitle(strings.contextMenu.folder.newDrawing).setIcon('lucide-pencil'), async () => {
                 ensureFolderSelected();
-                const createdDrawing = await fileSystemOps.createNewDrawing(folder);
+                const createdDrawing = await drawingActions[0].create();
                 handleFileCreation(createdDrawing);
+            });
+        });
+    } else if (drawingActions.length > 1) {
+        drawingActions.forEach(action => {
+            menu.addItem((item: MenuItem) => {
+                setAsyncOnClick(item.setTitle(action.label).setIcon('lucide-pencil'), async () => {
+                    ensureFolderSelected();
+                    const createdDrawing = await action.create();
+                    handleFileCreation(createdDrawing);
+                });
             });
         });
     }

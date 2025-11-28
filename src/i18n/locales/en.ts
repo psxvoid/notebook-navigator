@@ -80,8 +80,6 @@ export const STRINGS_EN = {
         emptySearchName: 'Enter a name before saving the search',
         add: 'Add to shortcuts',
         remove: 'Remove from shortcuts',
-        moveUp: 'Move up',
-        moveDown: 'Move down',
         folderNotesPinned: 'Pinned {count} folder notes'
     },
 
@@ -174,6 +172,8 @@ export const STRINGS_EN = {
             newCanvas: 'New canvas',
             newBase: 'New base',
             newDrawing: 'New drawing',
+            newExcalidrawDrawing: 'New Excalidraw drawing',
+            newTldrawDrawing: 'New Tldraw drawing',
             duplicateFolder: 'Duplicate folder',
             searchInFolder: 'Search in folder',
             copyPath: 'Copy file system path',
@@ -535,8 +535,10 @@ export const STRINGS_EN = {
             navigationPane: 'Navigation pane',
             icons: 'Icon packs',
             folders: 'Folders',
+            foldersAndTags: 'Folders & tags',
             tags: 'Tags',
             search: 'Search',
+            searchAndHotkeys: 'Search & hotkeys',
             listPane: 'List pane',
             notes: 'Notes',
             hotkeys: 'Hotkeys',

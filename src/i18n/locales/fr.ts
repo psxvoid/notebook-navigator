@@ -79,8 +79,6 @@ export const STRINGS_FR = {
         emptySearchName: "Entrez un nom avant d'enregistrer la recherche",
         add: 'Ajouter aux raccourcis',
         remove: 'Retirer des raccourcis',
-        moveUp: 'Déplacer vers le haut',
-        moveDown: 'Déplacer vers le bas',
         folderNotesPinned: '{count} notes de dossier épinglées'
     },
 
@@ -174,6 +172,8 @@ export const STRINGS_FR = {
             newCanvas: 'Nouveau canevas',
             newBase: 'Nouvelle base de données',
             newDrawing: 'Nouveau dessin',
+            newExcalidrawDrawing: 'Nouveau dessin Excalidraw',
+            newTldrawDrawing: 'Nouveau dessin Tldraw',
             duplicateFolder: 'Dupliquer le dossier',
             searchInFolder: 'Rechercher dans le dossier',
             copyPath: 'Copier le chemin du système de fichiers',
@@ -538,7 +538,9 @@ export const STRINGS_FR = {
             icons: "Packs d'icônes",
             tags: 'Affichage des étiquettes',
             folders: 'Notes de dossier',
+            foldersAndTags: 'Dossiers et étiquettes',
             search: 'Rechercher',
+            searchAndHotkeys: 'Recherche et raccourcis',
             listPane: 'Panneau de liste',
             hotkeys: 'Raccourcis clavier',
             advanced: 'Avancé'

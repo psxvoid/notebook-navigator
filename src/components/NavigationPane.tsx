@@ -55,7 +55,7 @@
  */
 
 import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo, useState, useReducer } from 'react';
-import { TFolder, TFile, Platform, Menu } from 'obsidian';
+import { TFolder, TFile, Menu, Platform } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -103,10 +103,8 @@ import {
 } from '../types/shortcuts';
 import { strings } from '../i18n';
 import { createDragGhostManager, type DragGhostOptions } from '../utils/dragGhost';
-import { showReorderMenu, createMenuReorderHandleConfig } from '../utils/reorderMenu';
 import { NavigationBanner } from './NavigationBanner';
 import { NavigationRootReorderPanel } from './NavigationRootReorderPanel';
-import type { DragHandleConfig } from './NavigationListRow';
 import {
     buildFolderMenu,
     buildFileMenu,
@@ -206,12 +204,9 @@ export const NavigationPane = React.memo(
         } = shortcuts;
         const { fileData, getFileDisplayName } = useFileCache();
         const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
-        // Detect Android platform for mobile-specific UI behavior
+        // Detect Android platform for toolbar placement
         const isAndroid = Platform.isAndroidApp;
-        // Use menu-based reordering on Android mobile instead of drag-and-drop
-        const useMobileReorderMenu = isMobile && isAndroid;
         const navigationPaneRef = useRef<HTMLDivElement>(null);
-        const shortcutHandleConfigCacheRef = useRef<Map<string, DragHandleConfig>>(new Map());
         /** Maps semi-transparent theme color variables to their pre-composited solid equivalents (see constants/surfaceColorMappings). */
         const { color: navSurfaceColor, version: navSurfaceVersion } = useSurfaceColorVariables(navigationPaneRef, {
             app,
@@ -384,8 +379,8 @@ export const NavigationPane = React.memo(
         const shortcutCount = hydratedShortcuts.length;
         const isShortcutDnDEnabled = shortcutsExpanded && shortcutCount > 0 && settings.showShortcuts;
 
-        // Show drag handles on mobile when drag and drop is enabled, excluding Android which uses menu-based reordering
-        const showShortcutDragHandles = isMobile && isShortcutDnDEnabled && !useMobileReorderMenu;
+        // Show drag handles on mobile when drag and drop is enabled
+        const showShortcutDragHandles = isMobile && isShortcutDnDEnabled;
 
         const shortcutDragHandleConfig = useMemo(() => {
             if (!showShortcutDragHandles) {
@@ -407,14 +402,8 @@ export const NavigationPane = React.memo(
             return map;
         }, [hydratedShortcuts]);
 
-        // Extract reorder state and helpers, including moveItem and canMoveItem for menu-based reordering
-        const {
-            getDragHandlers,
-            dropIndex,
-            draggingKey,
-            moveItem: moveShortcutItem,
-            canMoveItem: canMoveShortcutItem
-        } = useListReorder({
+        // Extract reorder state and helpers for drag-and-drop
+        const { getDragHandlers, dropIndex, draggingKey } = useListReorder({
             items: hydratedShortcuts,
             isEnabled: isShortcutDnDEnabled,
             reorderItems: reorderShortcuts
@@ -739,116 +728,6 @@ export const NavigationPane = React.memo(
             [draggingKey, dropIndex, externalShortcutDropIndex, shortcutPositionMap]
         );
 
-        // Enable menu-based reordering when on mobile with Android and there are multiple shortcuts
-        const canUseShortcutReorderMenu = useMobileReorderMenu && isShortcutDnDEnabled && hydratedShortcuts.length > 1;
-
-        // Opens the reorder menu for a shortcut, showing move up/down options based on current position
-        const openShortcutReorderMenu = useCallback(
-            (key: string, anchor: HTMLElement, mouseEvent?: MouseEvent) => {
-                if (!canUseShortcutReorderMenu) {
-                    return false;
-                }
-
-                const allowMoveUp = canMoveShortcutItem(key, -1);
-                const allowMoveDown = canMoveShortcutItem(key, 1);
-
-                return showReorderMenu({
-                    anchor,
-                    mouseEvent,
-                    allowMoveUp,
-                    allowMoveDown,
-                    moveUpLabel: strings.shortcuts.moveUp,
-                    moveDownLabel: strings.shortcuts.moveDown,
-                    onMoveUp: () => {
-                        runAsyncAction(() => moveShortcutItem(key, -1));
-                    },
-                    onMoveDown: () => {
-                        runAsyncAction(() => moveShortcutItem(key, 1));
-                    }
-                });
-            },
-            [canUseShortcutReorderMenu, canMoveShortcutItem, moveShortcutItem]
-        );
-
-        // Handles click events on shortcut drag handle to open reorder menu
-        const handleShortcutHandleClick = useCallback(
-            (key: string, event: React.MouseEvent<HTMLSpanElement>) => {
-                if (!canUseShortcutReorderMenu) {
-                    return;
-                }
-
-                event.preventDefault();
-                event.stopPropagation();
-
-                openShortcutReorderMenu(key, event.currentTarget);
-            },
-            [canUseShortcutReorderMenu, openShortcutReorderMenu]
-        );
-
-        // Handles context menu events on shortcut drag handle to open reorder menu at cursor position
-        const handleShortcutHandleContextMenu = useCallback(
-            (key: string, event: React.MouseEvent<HTMLSpanElement>) => {
-                if (!canUseShortcutReorderMenu) {
-                    return;
-                }
-                event.preventDefault();
-                event.stopPropagation();
-
-                const nativeEvent = event.nativeEvent;
-                const mouseEvent = nativeEvent instanceof MouseEvent ? nativeEvent : undefined;
-                openShortcutReorderMenu(key, event.currentTarget, mouseEvent);
-            },
-            [canUseShortcutReorderMenu, openShortcutReorderMenu]
-        );
-
-        // Builds event handlers for shortcut drag handle click and context menu
-        const getShortcutHandleEvents = useCallback(
-            (key: string) => ({
-                onClick: (event: React.MouseEvent<HTMLSpanElement>) => handleShortcutHandleClick(key, event),
-                onContextMenu: (event: React.MouseEvent<HTMLSpanElement>) => handleShortcutHandleContextMenu(key, event)
-            }),
-            [handleShortcutHandleClick, handleShortcutHandleContextMenu]
-        );
-
-        const getMobileShortcutHandleConfig = useCallback(
-            (key: string): DragHandleConfig | undefined => {
-                if (!canUseShortcutReorderMenu) {
-                    return undefined;
-                }
-                const cache = shortcutHandleConfigCacheRef.current;
-                const cachedConfig = cache.get(key);
-                if (cachedConfig) {
-                    return cachedConfig;
-                }
-                const config = createMenuReorderHandleConfig({
-                    label: strings.navigationPane.dragHandleLabel,
-                    events: getShortcutHandleEvents(key)
-                });
-                cache.set(key, config);
-                return config;
-            },
-            [canUseShortcutReorderMenu, getShortcutHandleEvents]
-        );
-
-        useEffect(() => {
-            const cache = shortcutHandleConfigCacheRef.current;
-            if (!canUseShortcutReorderMenu) {
-                cache.clear();
-                return;
-            }
-            const validKeys = new Set(hydratedShortcuts.map(entry => entry.key));
-            for (const key of Array.from(cache.keys())) {
-                if (!validKeys.has(key)) {
-                    cache.delete(key);
-                }
-            }
-        }, [canUseShortcutReorderMenu, hydratedShortcuts]);
-
-        useEffect(() => {
-            shortcutHandleConfigCacheRef.current.clear();
-        }, [canUseShortcutReorderMenu, getShortcutHandleEvents]);
-
-        // Android uses toolbar at top, iOS at bottom
         // Track previous settings for smart auto-expand
         const prevShowAllTagsFolder = useRef(settings.showAllTagsFolder);
 
@@ -935,8 +814,7 @@ export const NavigationPane = React.memo(
             foldersSectionExpanded,
             tagsSectionExpanded,
             handleToggleFoldersSection,
-            handleToggleTagsSection,
-            useReorderMenu: useMobileReorderMenu
+            handleToggleTagsSection
         });
 
         useEffect(() => {
@@ -1037,9 +915,19 @@ export const NavigationPane = React.memo(
                 //   - Click always shows files pane immediately
                 const hasChildFolders = folder.children.some(child => child instanceof TFolder);
                 const isExpanded = expansionState.expandedFolders.has(folder.path);
+                const isSelectedFolder =
+                    selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder?.path === folder.path;
+                const shouldCollapseOnSelect =
+                    settings.autoExpandFoldersTags && !uiState.singlePane && hasChildFolders && isExpanded && isSelectedFolder;
                 const shouldExpandOnly = uiState.singlePane && settings.autoExpandFoldersTags && hasChildFolders && !isExpanded;
 
                 selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
+
+                if (shouldCollapseOnSelect) {
+                    expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                    return;
+                }
 
                 // Expand collapsed folder when auto-expand is enabled
                 if (settings.autoExpandFoldersTags && hasChildFolders && !isExpanded) {
@@ -1068,7 +956,9 @@ export const NavigationPane = React.memo(
                 settings.autoExpandFoldersTags,
                 expansionDispatch,
                 setActiveShortcut,
-                expansionState.expandedFolders
+                expansionState.expandedFolders,
+                selectionState.selectionType,
+                selectionState.selectedFolder?.path
             ]
         );
 
@@ -1216,8 +1106,6 @@ export const NavigationPane = React.memo(
             (tagPath: string, event?: React.MouseEvent, options?: { fromShortcut?: boolean }) => {
                 const tagNode = findTagNode(tagTree, tagPath);
                 const canonicalPath = resolveCanonicalTagPath(tagPath, tagTree);
-                // Check if tag is currently expanded (used for auto-expand logic below)
-                const isExpanded = tagNode ? expansionState.expandedTags.has(tagNode.path) : false;
                 if (!canonicalPath) {
                     return;
                 }
@@ -1233,23 +1121,15 @@ export const NavigationPane = React.memo(
                     return;
                 }
 
-                const isSameTag = selectionState.selectionType === 'tag' && selectionState.selectedTag === canonicalPath;
-
-                if (isSameTag) {
-                    if (uiState.singlePane) {
-                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                    } else if (options?.fromShortcut) {
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                    } else {
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-                    }
-
-                    if (options?.fromShortcut) {
-                        selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
-                    }
-                    return;
-                }
+                const isVirtualTagRoot = settings.showAllTagsFolder && canonicalPath === TAGGED_TAG_ID;
+                const isExpanded = isVirtualTagRoot
+                    ? expansionState.expandedVirtualFolders.has('tags-root')
+                    : Boolean(tagNode && expansionState.expandedTags.has(tagNode.path));
+                const isSelectedTag = selectionState.selectionType === ItemType.TAG && selectionState.selectedTag === canonicalPath;
+                const hasChildren = isVirtualTagRoot ? tagsVirtualFolderHasChildren : Boolean(tagNode && tagNode.children.size > 0);
+                const shouldCollapseOnSelect =
+                    settings.autoExpandFoldersTags && !uiState.singlePane && hasChildren && isExpanded && isSelectedTag;
+                const shouldExpandOnly = uiState.singlePane && settings.autoExpandFoldersTags && hasChildren && !isExpanded;
 
                 if (!options?.fromShortcut) {
                     setActiveShortcut(null);
@@ -1257,18 +1137,23 @@ export const NavigationPane = React.memo(
 
                 selectionDispatch({ type: 'SET_SELECTED_TAG', tag: canonicalPath });
 
-                // Auto-expand behavior in single-pane mode (same logic as folders):
-                // When autoExpandFoldersTags is enabled:
-                //   1. First click on a collapsed tag with children → Expands it, stays in navigation pane
-                //   2. Second click (now expanded) or click on tag without children → Shows files pane
-                // When autoExpandFoldersTags is disabled:
-                //   - Click always shows files pane immediately
-                const hasChildren = Boolean(tagNode && tagNode.children.size > 0);
-                const shouldExpandOnly = uiState.singlePane && settings.autoExpandFoldersTags && hasChildren && !isExpanded;
+                if (shouldCollapseOnSelect) {
+                    if (isVirtualTagRoot) {
+                        expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'tags-root' });
+                    } else if (tagNode) {
+                        expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path });
+                    }
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                    return;
+                }
 
                 // Expand collapsed tag when auto-expand is enabled
-                if (settings.autoExpandFoldersTags && hasChildren && !isExpanded && tagNode) {
-                    expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path });
+                if (settings.autoExpandFoldersTags && hasChildren && !isExpanded) {
+                    if (isVirtualTagRoot) {
+                        expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'tags-root' });
+                    } else if (tagNode) {
+                        expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path });
+                    }
                 }
 
                 // In single-pane mode: either expand-only or show files
@@ -1281,16 +1166,9 @@ export const NavigationPane = React.memo(
                         uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     }
-                } else if (options?.fromShortcut) {
-                    // In dual-pane mode with shortcut: focus files pane
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                 } else {
                     // In dual-pane mode: stay focused on navigation
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-                }
-
-                if (options?.fromShortcut) {
-                    selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
                 }
             },
             [
@@ -1306,7 +1184,10 @@ export const NavigationPane = React.memo(
                 setActiveShortcut,
                 onModifySearchWithTag,
                 isMobile,
-                settings.multiSelectModifier
+                settings.multiSelectModifier,
+                settings.showAllTagsFolder,
+                tagsVirtualFolderHasChildren,
+                expansionState.expandedVirtualFolders
             ]
         );
 
@@ -1883,15 +1764,12 @@ export const NavigationPane = React.memo(
                         const folderNote = canInteract && folder && settings.enableFolderNotes ? getFolderNote(folder, settings) : null;
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
-                        const dragHandlers = !useMobileReorderMenu
-                            ? buildShortcutDragHandlers(item.key, {
-                                  itemType: ItemType.FOLDER,
-                                  path: folder?.path ?? folderPath,
-                                  icon: item.icon ?? 'lucide-folder',
-                                  iconColor: item.color
-                              })
-                            : undefined;
-                        const dragHandleConfig = useMobileReorderMenu ? getMobileShortcutHandleConfig(item.key) : shortcutDragHandleConfig;
+                        const dragHandlers = buildShortcutDragHandlers(item.key, {
+                            itemType: ItemType.FOLDER,
+                            path: folder?.path ?? folderPath,
+                            icon: item.icon ?? 'lucide-folder',
+                            iconColor: item.color
+                        });
 
                         const contextTarget: ShortcutContextMenuTarget =
                             canInteract && folder
@@ -1920,10 +1798,10 @@ export const NavigationPane = React.memo(
                                 }}
                                 onContextMenu={event => handleShortcutContextMenu(event, contextTarget)}
                                 dragHandlers={dragHandlers}
-                                showDropIndicatorBefore={!useMobileReorderMenu && showBefore}
-                                showDropIndicatorAfter={!useMobileReorderMenu && showAfter}
-                                isDragSource={!useMobileReorderMenu && isDragSource}
-                                dragHandleConfig={dragHandleConfig}
+                                showDropIndicatorBefore={showBefore}
+                                showDropIndicatorAfter={showAfter}
+                                isDragSource={isDragSource}
+                                dragHandleConfig={shortcutDragHandleConfig}
                                 hasFolderNote={!isMissing && Boolean(folderNote)}
                                 onLabelClick={
                                     folder && folderNote
@@ -1946,15 +1824,12 @@ export const NavigationPane = React.memo(
                         const notePath = isNoteShortcut(item.shortcut) ? item.shortcut.path : '';
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
-                        const dragHandlers = !useMobileReorderMenu
-                            ? buildShortcutDragHandlers(item.key, {
-                                  itemType: ItemType.FILE,
-                                  path: note?.path ?? notePath,
-                                  icon: item.icon ?? 'lucide-file',
-                                  iconColor: item.color
-                              })
-                            : undefined;
-                        const dragHandleConfig = useMobileReorderMenu ? getMobileShortcutHandleConfig(item.key) : shortcutDragHandleConfig;
+                        const dragHandlers = buildShortcutDragHandlers(item.key, {
+                            itemType: ItemType.FILE,
+                            path: note?.path ?? notePath,
+                            icon: item.icon ?? 'lucide-file',
+                            iconColor: item.color
+                        });
 
                         const label = (() => {
                             if (!note || !canInteract) {
@@ -1994,10 +1869,10 @@ export const NavigationPane = React.memo(
                                 }}
                                 onContextMenu={event => handleShortcutContextMenu(event, contextTarget)}
                                 dragHandlers={dragHandlers}
-                                showDropIndicatorBefore={!useMobileReorderMenu && showBefore}
-                                showDropIndicatorAfter={!useMobileReorderMenu && showAfter}
-                                isDragSource={!useMobileReorderMenu && isDragSource}
-                                dragHandleConfig={dragHandleConfig}
+                                showDropIndicatorBefore={showBefore}
+                                showDropIndicatorAfter={showAfter}
+                                isDragSource={isDragSource}
+                                dragHandleConfig={shortcutDragHandleConfig}
                             />
                         );
                     }
@@ -2006,14 +1881,11 @@ export const NavigationPane = React.memo(
                         const searchShortcut = item.searchShortcut;
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
-                        const dragHandlers = !useMobileReorderMenu
-                            ? buildShortcutDragHandlers(item.key, {
-                                  itemType: 'search',
-                                  icon: item.icon ?? 'lucide-search',
-                                  iconColor: item.color
-                              })
-                            : undefined;
-                        const dragHandleConfig = useMobileReorderMenu ? getMobileShortcutHandleConfig(item.key) : shortcutDragHandleConfig;
+                        const dragHandlers = buildShortcutDragHandlers(item.key, {
+                            itemType: 'search',
+                            icon: item.icon ?? 'lucide-search',
+                            iconColor: item.color
+                        });
 
                         return (
                             <ShortcutItem
@@ -2030,10 +1902,10 @@ export const NavigationPane = React.memo(
                                     })
                                 }
                                 dragHandlers={dragHandlers}
-                                showDropIndicatorBefore={!useMobileReorderMenu && showBefore}
-                                showDropIndicatorAfter={!useMobileReorderMenu && showAfter}
-                                isDragSource={!useMobileReorderMenu && isDragSource}
-                                dragHandleConfig={dragHandleConfig}
+                                showDropIndicatorBefore={showBefore}
+                                showDropIndicatorAfter={showAfter}
+                                isDragSource={isDragSource}
+                                dragHandleConfig={shortcutDragHandleConfig}
                             />
                         );
                     }
@@ -2044,15 +1916,12 @@ export const NavigationPane = React.memo(
                         const tagCountInfo = !isMissing ? getTagShortcutCount(tagPath) : ZERO_NOTE_COUNT;
 
                         const { showBefore, showAfter, isDragSource } = getShortcutVisualState(item.key);
-                        const dragHandlers = !useMobileReorderMenu
-                            ? buildShortcutDragHandlers(item.key, {
-                                  itemType: ItemType.TAG,
-                                  path: tagPath,
-                                  icon: item.icon ?? 'lucide-tags',
-                                  iconColor: item.color
-                              })
-                            : undefined;
-                        const dragHandleConfig = useMobileReorderMenu ? getMobileShortcutHandleConfig(item.key) : shortcutDragHandleConfig;
+                        const dragHandlers = buildShortcutDragHandlers(item.key, {
+                            itemType: ItemType.TAG,
+                            path: tagPath,
+                            icon: item.icon ?? 'lucide-tags',
+                            iconColor: item.color
+                        });
 
                         const contextTarget: ShortcutContextMenuTarget = !isMissing
                             ? { type: 'tag', key: item.key, tagPath }
@@ -2079,10 +1948,10 @@ export const NavigationPane = React.memo(
                                 }}
                                 onContextMenu={event => handleShortcutContextMenu(event, contextTarget)}
                                 dragHandlers={dragHandlers}
-                                showDropIndicatorBefore={!useMobileReorderMenu && showBefore}
-                                showDropIndicatorAfter={!useMobileReorderMenu && showAfter}
-                                isDragSource={!useMobileReorderMenu && isDragSource}
-                                dragHandleConfig={dragHandleConfig}
+                                showDropIndicatorBefore={showBefore}
+                                showDropIndicatorAfter={showAfter}
+                                isDragSource={isDragSource}
+                                dragHandleConfig={shortcutDragHandleConfig}
                             />
                         );
                     }
@@ -2362,7 +2231,6 @@ export const NavigationPane = React.memo(
                 handleRecentFileContextMenu,
                 handleShortcutContextMenu,
                 getShortcutVisualState,
-                getMobileShortcutHandleConfig,
                 buildShortcutDragHandlers,
                 hydratedShortcuts,
                 shortcutsExpanded,
@@ -2379,7 +2247,6 @@ export const NavigationPane = React.memo(
                 handleShortcutFolderNoteClick,
                 handleShortcutFolderNoteMouseDown,
                 isMobile,
-                useMobileReorderMenu,
                 tagsVirtualFolderHasChildren,
                 searchIncludeTokenSet,
                 searchExcludeTokenSet,

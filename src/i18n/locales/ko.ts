@@ -79,8 +79,6 @@ export const STRINGS_KO = {
         emptySearchName: '검색을 저장하기 전에 이름을 입력하세요',
         add: '바로가기에 추가',
         remove: '바로가기에 제거',
-        moveUp: '위로 이동',
-        moveDown: '아래로 이동',
         folderNotesPinned: '폴더 노트 {count}개를 고정했습니다'
     },
 
@@ -173,6 +171,8 @@ export const STRINGS_KO = {
             newCanvas: '새 캔버스',
             newBase: '새 베이스',
             newDrawing: '새 드로잉',
+            newExcalidrawDrawing: '새 Excalidraw 드로잉',
+            newTldrawDrawing: '새 Tldraw 드로잉',
             duplicateFolder: '폴더 복제',
             searchInFolder: '폴더에서 검색',
             copyPath: '파일 시스템 경로 복사',
@@ -535,8 +535,10 @@ export const STRINGS_KO = {
             navigationPane: '탐색 창',
             icons: '아이콘 팩',
             folders: '폴더',
+            foldersAndTags: '폴더 및 태그',
             tags: '태그',
             search: '검색',
+            searchAndHotkeys: '검색 및 단축키',
             listPane: '목록 창',
             notes: '노트',
             hotkeys: '단축키',

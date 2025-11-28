@@ -54,7 +54,7 @@ import { TFolder, TFile, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
-import { useContextMenu } from '../hooks/useContextMenu';
+import { useContextMenu, hideNavigatorContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import { ItemType } from '../types';
@@ -272,6 +272,7 @@ export const FolderItem = React.memo(function FolderItem({
 
     const handleNameMouseDown = useCallback(
         (e: React.MouseEvent<HTMLSpanElement>) => {
+            hideNavigatorContextMenu();
             if (onNameMouseDown) {
                 e.stopPropagation();
                 onNameMouseDown(e);

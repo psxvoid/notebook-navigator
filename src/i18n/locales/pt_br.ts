@@ -80,8 +80,6 @@ export const STRINGS_PT_BR = {
         emptySearchName: 'Digite um nome antes de salvar a pesquisa',
         add: 'Adicionar aos atalhos',
         remove: 'Remover dos atalhos',
-        moveUp: 'Mover para cima',
-        moveDown: 'Mover para baixo',
         folderNotesPinned: '{count} notas de pasta fixadas'
     },
 
@@ -175,6 +173,8 @@ export const STRINGS_PT_BR = {
             newCanvas: 'Nova tela',
             newBase: 'Nova base',
             newDrawing: 'Novo desenho',
+            newExcalidrawDrawing: 'Novo desenho Excalidraw',
+            newTldrawDrawing: 'Novo desenho Tldraw',
             duplicateFolder: 'Duplicar pasta',
             searchInFolder: 'Pesquisar na pasta',
             copyPath: 'Copiar caminho do sistema de arquivos',
@@ -536,8 +536,10 @@ export const STRINGS_PT_BR = {
             navigationPane: 'Painel de navegação',
             icons: 'Pacotes de ícones',
             folders: 'Pastas',
+            foldersAndTags: 'Pastas e tags',
             tags: 'Tags',
             search: 'Pesquisar',
+            searchAndHotkeys: 'Pesquisa e atalhos',
             listPane: 'Painel de lista',
             notes: 'Notas',
             hotkeys: 'Atalhos de teclado',

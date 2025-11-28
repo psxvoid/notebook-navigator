@@ -46,6 +46,7 @@ import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperat
 import { localStorage } from '../utils/localStorage';
 import { calculateCompactListMetrics } from '../utils/listPaneMetrics';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
+import { getAndroidFontScale } from '../utils/androidFontScale';
 import { getBackgroundClasses } from '../utils/paneLayout';
 import { confirmRemoveAllTagsFromFiles, openAddTagToFilesModal, removeTagFromFilesWithPrompt } from '../utils/tagModalHelpers';
 import { useNavigatorScale } from '../hooks/useNavigatorScale';
@@ -764,6 +765,10 @@ export const NotebookNavigatorComponent = React.memo(
                 const defaultFontSize = NAVPANE_MEASUREMENTS.defaultFontSize;
                 const scaleTextWithHeight = settings.navItemHeightScaleText;
 
+                // Get Android font scale for compensation (1 if not on Android or no scaling)
+                const navigatorContainer = containerRef.current.closest('.notebook-navigator');
+                const androidFontScale = getAndroidFontScale(navigatorContainer);
+
                 // Calculate font sizes based on item height (default 28px)
                 // Desktop: default 13px, 12px if height ≤24, 11px if height ≤22
                 let fontSize = defaultFontSize;
@@ -781,6 +786,10 @@ export const NotebookNavigatorComponent = React.memo(
                 const mobileNavItemHeight = navItemHeight + NAVPANE_MEASUREMENTS.mobileHeightIncrement;
                 const mobileFontSize = fontSize + NAVPANE_MEASUREMENTS.mobileFontSizeIncrement;
 
+                // Apply Android font scale compensation to font sizes
+                const compensatedFontSize = fontSize / androidFontScale;
+                const compensatedMobileFontSize = mobileFontSize / androidFontScale;
+
                 // Calculate padding: (total height - line height) / 2
                 // Line height is fixed at 18px in CSS (--nn-nav-line-height)
                 const desktopPadding = Math.floor((navItemHeight - NAVPANE_MEASUREMENTS.lineHeight) / 2);
@@ -790,8 +799,8 @@ export const NotebookNavigatorComponent = React.memo(
                 containerRef.current.style.setProperty('--nn-setting-nav-item-height-mobile', `${mobileNavItemHeight}px`);
                 containerRef.current.style.setProperty('--nn-setting-nav-padding-vertical', `${desktopPadding}px`);
                 containerRef.current.style.setProperty('--nn-setting-nav-padding-vertical-mobile', `${mobilePadding}px`);
-                containerRef.current.style.setProperty('--nn-setting-nav-font-size', `${fontSize}px`);
-                containerRef.current.style.setProperty('--nn-setting-nav-font-size-mobile', `${mobileFontSize}px`);
+                containerRef.current.style.setProperty('--nn-setting-nav-font-size', `${compensatedFontSize}px`);
+                containerRef.current.style.setProperty('--nn-setting-nav-font-size-mobile', `${compensatedMobileFontSize}px`);
                 containerRef.current.style.setProperty('--nn-setting-nav-indent', `${settings.navIndent}px`);
                 containerRef.current.style.setProperty('--nn-nav-root-spacing', `${settings.rootLevelSpacing}px`);
 
@@ -803,11 +812,15 @@ export const NotebookNavigatorComponent = React.memo(
                     titleLineHeight
                 });
 
+                // Apply Android font scale compensation to compact font sizes
+                const compensatedCompactFontSize = compactMetrics.fontSize / androidFontScale;
+                const compensatedCompactMobileFontSize = compactMetrics.mobileFontSize / androidFontScale;
+
                 // Apply compact list metrics to CSS custom properties
                 containerRef.current.style.setProperty('--nn-file-padding-vertical-compact', `${compactMetrics.desktopPadding}px`);
                 containerRef.current.style.setProperty('--nn-file-padding-vertical-compact-mobile', `${compactMetrics.mobilePadding}px`);
-                containerRef.current.style.setProperty('--nn-compact-font-size', `${compactMetrics.fontSize}px`);
-                containerRef.current.style.setProperty('--nn-compact-font-size-mobile', `${compactMetrics.mobileFontSize}px`);
+                containerRef.current.style.setProperty('--nn-compact-font-size', `${compensatedCompactFontSize}px`);
+                containerRef.current.style.setProperty('--nn-compact-font-size-mobile', `${compensatedCompactMobileFontSize}px`);
             }
         }, [
             settings.navItemHeight,

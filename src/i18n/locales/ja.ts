@@ -79,8 +79,6 @@ export const STRINGS_JA = {
         emptySearchName: '検索を保存する前に名前を入力してください',
         add: 'ショートカットに追加',
         remove: 'ショートカットから削除',
-        moveUp: '上に移動',
-        moveDown: '下に移動',
         folderNotesPinned: 'フォルダノート {count} 件をピン留めしました'
     },
 
@@ -174,6 +172,8 @@ export const STRINGS_JA = {
             newCanvas: '新規キャンバス',
             newBase: '新規データベース',
             newDrawing: '新規図面',
+            newExcalidrawDrawing: '新規 Excalidraw 図面',
+            newTldrawDrawing: '新規 Tldraw 図面',
             duplicateFolder: 'フォルダを複製',
             searchInFolder: 'フォルダ内を検索',
             copyPath: 'ファイルシステムパスをコピー',
@@ -538,7 +538,9 @@ export const STRINGS_JA = {
             icons: 'アイコンパック',
             tags: 'タグ表示',
             folders: 'フォルダノート',
+            foldersAndTags: 'フォルダとタグ',
             search: '検索',
+            searchAndHotkeys: '検索とホットキー',
             listPane: 'リストペイン',
             hotkeys: 'ホットキー',
             advanced: '詳細設定'
