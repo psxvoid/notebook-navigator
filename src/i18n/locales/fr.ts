@@ -536,7 +536,9 @@ export const STRINGS_FR = {
             icons: "Packs d'icônes",
             tags: 'Affichage des étiquettes',
             folders: 'Notes de dossier',
+            foldersAndTags: 'Dossiers et étiquettes',
             search: 'Rechercher',
+            searchAndHotkeys: 'Recherche et raccourcis',
             listPane: 'Panneau de liste',
             hotkeys: 'Raccourcis clavier',
             advanced: 'Avancé'

@@ -38,6 +38,7 @@ import { CommandQueueService } from './CommandQueueService';
 import type { MaybePromise } from '../utils/async';
 import { showNotice } from '../utils/noticeUtils';
 import type { ISettingsProvider } from '../interfaces/ISettingsProvider';
+import { ensureRecord, isStringRecordValue } from '../utils/recordUtils';
 import {
     ensureVaultProfiles,
     normalizeHiddenFolderPath,
@@ -241,6 +242,78 @@ export class FileSystemOperations {
             await this.settingsProvider.saveSettingsAndUpdate();
         } catch (error) {
             console.error('Failed to persist hidden folder preference for other vault profiles', error);
+        }
+    }
+
+    /**
+     * Copies folder icon and color metadata to a duplicated folder path
+     * @param sourcePath - Original folder path
+     * @param targetPath - New folder path created by duplication
+     */
+    private async copyFolderDisplayMetadata(sourcePath: string, targetPath: string): Promise<void> {
+        if (!sourcePath || !targetPath || sourcePath === targetPath || sourcePath === '/') {
+            return;
+        }
+
+        const sourcePrefix = `${sourcePath}/`;
+        let changed = false;
+
+        const processRecord = (record: Record<string, string> | undefined, updateRecord: (sanitized: Record<string, string>) => void) => {
+            if (!record) {
+                return;
+            }
+
+            const keys = Object.keys(record);
+            let sanitized = record;
+            let sanitizedApplied = false;
+
+            for (const key of keys) {
+                if (key !== sourcePath && !key.startsWith(sourcePrefix)) {
+                    continue;
+                }
+
+                const value = record[key];
+                if (typeof value !== 'string') {
+                    continue;
+                }
+
+                if (!sanitizedApplied) {
+                    sanitized = ensureRecord(record, isStringRecordValue);
+                    updateRecord(sanitized);
+                    sanitizedApplied = true;
+                }
+
+                const suffix = key === sourcePath ? '' : key.substring(sourcePrefix.length);
+                const destinationPath = suffix ? `${targetPath}/${suffix}` : targetPath;
+
+                if (Object.prototype.hasOwnProperty.call(sanitized, destinationPath)) {
+                    continue;
+                }
+
+                sanitized[destinationPath] = value;
+                changed = true;
+            }
+        };
+
+        const settings = this.settingsProvider.settings;
+        processRecord(settings.folderIcons, sanitized => {
+            settings.folderIcons = sanitized;
+        });
+        processRecord(settings.folderColors, sanitized => {
+            settings.folderColors = sanitized;
+        });
+        processRecord(settings.folderBackgroundColors, sanitized => {
+            settings.folderBackgroundColors = sanitized;
+        });
+
+        if (!changed) {
+            return;
+        }
+
+        try {
+            await this.settingsProvider.saveSettingsAndUpdate();
+        } catch (error) {
+            console.error('Failed to persist folder display metadata after duplication', error);
         }
     }
 
@@ -1224,6 +1297,7 @@ export class FileSystemOperations {
             }
 
             await this.app.vault.copy(folder, newPath);
+            await this.copyFolderDisplayMetadata(folder.path, newPath);
         } catch (error) {
             this.notifyError(strings.fileSystem.errors.duplicateFolder, error);
         }

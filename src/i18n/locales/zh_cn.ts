@@ -536,7 +536,9 @@ export const STRINGS_ZH_CN = {
             icons: '图标包',
             tags: '标签显示',
             folders: '文件夹笔记',
+            foldersAndTags: '文件夹与标签',
             search: '搜索',
+            searchAndHotkeys: '搜索与快捷键',
             listPane: '列表窗格',
             hotkeys: '快捷键',
             advanced: '高级'

@@ -76,18 +76,14 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.9.0',
         date: '2025-12-01',
         showOnUpdate: true,
-        new: [
-            'Android: Drag and drop now works in shortcuts and reorder root items mode.',
-            'Android: Notebook Navigator now handles custom system font sizes correctly.',
-            'Notebook Navigator has been translated to ==Russian (ru)==.'
-        ],
+        new: ['Notebook Navigator has been translated to ==Russian (ru)==.'],
         improved: [
-            'Duplicating a folder will now also duplicate icon and color settings.',
-            'Improved the way "Settings > Folders & tags > Expand on selection" works in dual pane modem, it will now also collapse on single click for selected folders.'
+            'Android: Drag and drop now works in shortcuts and reorder root items mode on newer Android devices.',
+            'Android: Notebook Navigator now handles custom system font sizes correctly.',
+            'Duplicating a folder will now also duplicate icon and color settings for the folder and all subfolders.',
+            '"Settings > Folders & tags > Expand on selection" will now also collapse tags and folders on single click.'
         ],
-        fixed: [
-            'Fixed an issue where the context menu in navigation pane was not hidden if clicking on a folder title.'
-        ]
+        fixed: ['Fixed an issue where the context menu in navigation pane did not hide if clicking on a folder title.']
     },
     {
         version: '1.8.9',

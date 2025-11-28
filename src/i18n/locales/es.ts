@@ -536,7 +536,9 @@ export const STRINGS_ES = {
             icons: 'Paquetes de iconos',
             tags: 'Visualización de etiquetas',
             folders: 'Notas de carpeta',
+            foldersAndTags: 'Carpetas y etiquetas',
             search: 'Buscar',
+            searchAndHotkeys: 'Búsqueda y atajos',
             listPane: 'Panel de lista',
             hotkeys: 'Atajos de teclado',
             advanced: 'Avanzado'
