@@ -29,18 +29,21 @@ import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { useCommandQueue } from '../context/ServicesContext';
-import { determineTagToReveal, findNearestVisibleTagAncestor, resolveCanonicalTagPath } from '../utils/tagUtils';
+import { determineTagToReveal, findNearestVisibleTagAncestor, isRootTag, resolveCanonicalTagPath } from '../utils/tagUtils';
 import { ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
 import { doesFolderContainPath } from '../utils/pathUtils';
 import type { Align } from '../types/scroll';
+
 import { EMPTY_FUNC, EMPTY_STRING } from 'src/utils/empty';
 import { isVirtualTagCollectionId } from '../utils/virtualTagCollections';
 
 interface FocusPaneOptions {
     updateSinglePaneView?: boolean;
 }
+
+import { last } from 'src/utils/arrayUtils';
 
 interface UseNavigatorRevealOptions {
     app: App;
@@ -390,7 +393,7 @@ export function useNavigatorReveal({
             }
 
             const jumpToChildren = expandMode !== ListExpandMode.ToChildren ? EMPTY_FUNC : () => {
-                const jumpTarget = jumpHistory[jumpHistory.length - 1]
+                const jumpTarget = last(jumpHistory)
                 selectionDispatch({ type: 'JUMP_HISTORY_POP' })
                 return jumpTarget
             }
@@ -399,7 +402,7 @@ export function useNavigatorReveal({
                 targetTag = jumpToChildren() ?? determineTagToReveal(file, selectionState.selectedTag, settings, getDB());
 
                 if (targetTag) {
-                    if (expandMode === ListExpandMode.ToParent) {
+                    if (expandMode === ListExpandMode.ToParent && !isRootTag(targetTag)) {
                         selectionDispatch({ type: 'JUMP_HISTORY_PUSH', newEntry: targetTag })
                     }
                     
@@ -415,10 +418,10 @@ export function useNavigatorReveal({
                 const parent = expandMode === ListExpandMode.ToChildren
                     ? app.vault.getFolderByPath(jumpToChildren() ?? EMPTY_STRING)
                     : expandMode === ListExpandMode.ToParent
-                    ? selectionState.selectedFolder
+                    ? selectionState.selectedFolder ?? file.parent
                     : file.parent
 
-                if (expandMode === ListExpandMode.ToParent && targetTag == null) {
+                if (expandMode === ListExpandMode.ToParent && targetTag == null && parent != null && parent.path !== '/') {
                     selectionDispatch({ type: 'JUMP_HISTORY_PUSH', newEntry: parent?.path ?? EMPTY_STRING })
                 }
                 
