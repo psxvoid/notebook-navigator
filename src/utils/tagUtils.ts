@@ -252,3 +252,7 @@ export function findNearestVisibleTagAncestor(tagPath: string, expandedTags: Set
 
     return tagPath;
 }
+
+export function isRootTag(tag: string): boolean {
+    return tag.length > 0 && tag.indexOf('/') === -1
+}

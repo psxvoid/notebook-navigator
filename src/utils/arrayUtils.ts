@@ -41,3 +41,7 @@ export function createIndexMap(values: readonly string[]): Map<string, number> {
     });
     return map;
 }
+
+export function last<T>(values: readonly T[]): T {
+    return values[values.length - 1]
+}
