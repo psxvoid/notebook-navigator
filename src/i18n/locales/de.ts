@@ -201,6 +201,15 @@ export const STRINGS_DE = {
         navigation: {
             addSeparator: 'Trennlinie hinzufügen',
             removeSeparator: 'Trennlinie entfernen'
+        },
+        style: {
+            title: 'Stil',
+            copy: 'Stil kopieren',
+            paste: 'Stil einfügen',
+            removeIcon: 'Symbol entfernen',
+            removeColor: 'Farbe entfernen',
+            removeBackground: 'Hintergrund entfernen',
+            clear: 'Stil löschen'
         }
     },
 

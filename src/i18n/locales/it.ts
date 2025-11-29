@@ -199,6 +199,15 @@ export const STRINGS_IT = {
         navigation: {
             addSeparator: 'Aggiungi separatore',
             removeSeparator: 'Rimuovi separatore'
+        },
+        style: {
+            title: 'Stile',
+            copy: 'Copia stile',
+            paste: 'Incolla stile',
+            removeIcon: 'Rimuovi icona',
+            removeColor: 'Rimuovi colore',
+            removeBackground: 'Rimuovi sfondo',
+            clear: 'Cancella stile'
         }
     },
 

@@ -199,6 +199,15 @@ export const STRINGS_JA = {
         navigation: {
             addSeparator: '区切り線を追加',
             removeSeparator: '区切り線を削除'
+        },
+        style: {
+            title: 'スタイル',
+            copy: 'スタイルをコピー',
+            paste: 'スタイルを貼り付け',
+            removeIcon: 'アイコンを削除',
+            removeColor: '色を削除',
+            removeBackground: '背景を削除',
+            clear: 'スタイルをクリア'
         }
     },
 

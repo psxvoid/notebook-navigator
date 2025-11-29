@@ -200,6 +200,15 @@ export const STRINGS_NL = {
         navigation: {
             addSeparator: 'Scheidingslijn toevoegen',
             removeSeparator: 'Scheidingslijn verwijderen'
+        },
+        style: {
+            title: 'Stijl',
+            copy: 'Stijl kopiëren',
+            paste: 'Stijl plakken',
+            removeIcon: 'Pictogram verwijderen',
+            removeColor: 'Kleur verwijderen',
+            removeBackground: 'Achtergrond verwijderen',
+            clear: 'Stijl wissen'
         }
     },
 

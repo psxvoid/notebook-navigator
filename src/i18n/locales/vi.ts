@@ -199,6 +199,15 @@ export const STRINGS_VI = {
         navigation: {
             addSeparator: 'Thêm dấu phân cách',
             removeSeparator: 'Gỡ dấu phân cách'
+        },
+        style: {
+            title: 'Kiểu',
+            copy: 'Sao chép kiểu',
+            paste: 'Dán kiểu',
+            removeIcon: 'Xóa biểu tượng',
+            removeColor: 'Xóa màu',
+            removeBackground: 'Xóa nền',
+            clear: 'Xóa kiểu'
         }
     },
 

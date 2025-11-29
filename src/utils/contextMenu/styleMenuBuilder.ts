@@ -17,6 +17,7 @@
  */
 
 import { Menu, MenuItem } from 'obsidian';
+import { strings } from '../../i18n';
 import { setAsyncOnClick } from './menuAsyncHelpers';
 import { copyStyleToClipboard, getStyleClipboard, hasStyleData, type StyleClipboardData } from './styleClipboard';
 
@@ -89,12 +90,12 @@ export function addStyleMenu(config: StyleMenuConfig): void {
             return;
         }
 
-        item.setTitle('Style').setIcon('lucide-brush');
+        item.setTitle(strings.contextMenu.style.title).setIcon('lucide-brush');
         const styleSubmenu: Menu = item.setSubmenu();
 
         if (hasCopyableStyle) {
             styleSubmenu.addItem(subItem => {
-                setAsyncOnClick(subItem.setTitle('Copy style').setIcon('lucide-copy'), async () => {
+                setAsyncOnClick(subItem.setTitle(strings.contextMenu.style.copy).setIcon('lucide-copy'), async () => {
                     copyStyleToClipboard(config.styleData);
                 });
             });
@@ -102,7 +103,7 @@ export function addStyleMenu(config: StyleMenuConfig): void {
 
         if (hasPasteableStyle) {
             styleSubmenu.addItem(subItem => {
-                setAsyncOnClick(subItem.setTitle('Paste style').setIcon('lucide-clipboard-check'), async () => {
+                setAsyncOnClick(subItem.setTitle(strings.contextMenu.style.paste).setIcon('lucide-clipboard-check'), async () => {
                     const clipboard = getStyleClipboard();
                     if (!clipboard || !hasStyleData(clipboard.data) || !config.applyStyle) {
                         return;
@@ -115,7 +116,7 @@ export function addStyleMenu(config: StyleMenuConfig): void {
 
         if (showIndividualRemovers && hasRemovableIcon) {
             styleSubmenu.addItem(subItem => {
-                setAsyncOnClick(subItem.setTitle('Remove icon').setIcon('lucide-image-off'), async () => {
+                setAsyncOnClick(subItem.setTitle(strings.contextMenu.style.removeIcon).setIcon('lucide-image-off'), async () => {
                     await config.removeIcon?.();
                 });
             });
@@ -123,7 +124,7 @@ export function addStyleMenu(config: StyleMenuConfig): void {
 
         if (showIndividualRemovers && hasRemovableColor) {
             styleSubmenu.addItem(subItem => {
-                setAsyncOnClick(subItem.setTitle('Remove color').setIcon('lucide-palette'), async () => {
+                setAsyncOnClick(subItem.setTitle(strings.contextMenu.style.removeColor).setIcon('lucide-palette'), async () => {
                     await config.removeColor?.();
                 });
             });
@@ -131,7 +132,7 @@ export function addStyleMenu(config: StyleMenuConfig): void {
 
         if (showIndividualRemovers && hasRemovableBackground) {
             styleSubmenu.addItem(subItem => {
-                setAsyncOnClick(subItem.setTitle('Remove background').setIcon('lucide-paint-bucket'), async () => {
+                setAsyncOnClick(subItem.setTitle(strings.contextMenu.style.removeBackground).setIcon('lucide-paint-bucket'), async () => {
                     await config.removeBackground?.();
                 });
             });
@@ -139,7 +140,7 @@ export function addStyleMenu(config: StyleMenuConfig): void {
 
         if (hasRemoveActions) {
             styleSubmenu.addItem(subItem => {
-                setAsyncOnClick(subItem.setTitle('Clear style').setIcon('lucide-eraser'), async () => {
+                setAsyncOnClick(subItem.setTitle(strings.contextMenu.style.clear).setIcon('lucide-eraser'), async () => {
                     const actions: Promise<void>[] = [];
 
                     if (hasRemovableIcon && config.removeIcon) {

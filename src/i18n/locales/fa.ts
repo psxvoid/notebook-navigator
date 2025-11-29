@@ -199,6 +199,15 @@ export const STRINGS_FA = {
         navigation: {
             addSeparator: 'افزودن جداکننده',
             removeSeparator: 'حذف جداکننده'
+        },
+        style: {
+            title: 'سبک',
+            copy: 'کپی سبک',
+            paste: 'چسباندن سبک',
+            removeIcon: 'حذف آیکون',
+            removeColor: 'حذف رنگ',
+            removeBackground: 'حذف پس‌زمینه',
+            clear: 'پاک کردن سبک'
         }
     },
 

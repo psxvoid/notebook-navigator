@@ -199,6 +199,15 @@ export const STRINGS_AR = {
         navigation: {
             addSeparator: 'إضافة فاصل',
             removeSeparator: 'إزالة الفاصل'
+        },
+        style: {
+            title: 'النمط',
+            copy: 'نسخ النمط',
+            paste: 'لصق النمط',
+            removeIcon: 'إزالة الأيقونة',
+            removeColor: 'إزالة اللون',
+            removeBackground: 'إزالة الخلفية',
+            clear: 'مسح النمط'
         }
     },
 

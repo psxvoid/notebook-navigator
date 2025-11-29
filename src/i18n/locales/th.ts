@@ -199,6 +199,15 @@ export const STRINGS_TH = {
         navigation: {
             addSeparator: 'เพิ่มตัวคั่น',
             removeSeparator: 'นำตัวคั่นออก'
+        },
+        style: {
+            title: 'สไตล์',
+            copy: 'คัดลอกสไตล์',
+            paste: 'วางสไตล์',
+            removeIcon: 'ลบไอคอน',
+            removeColor: 'ลบสี',
+            removeBackground: 'ลบพื้นหลัง',
+            clear: 'ล้างสไตล์'
         }
     },
 

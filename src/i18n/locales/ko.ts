@@ -198,6 +198,15 @@ export const STRINGS_KO = {
         navigation: {
             addSeparator: '구분선 추가',
             removeSeparator: '구분선 제거'
+        },
+        style: {
+            title: '스타일',
+            copy: '스타일 복사',
+            paste: '스타일 붙여넣기',
+            removeIcon: '아이콘 제거',
+            removeColor: '색상 제거',
+            removeBackground: '배경 제거',
+            clear: '스타일 지우기'
         }
     },
 

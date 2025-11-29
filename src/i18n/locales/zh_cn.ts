@@ -199,6 +199,15 @@ export const STRINGS_ZH_CN = {
         navigation: {
             addSeparator: '添加分隔符',
             removeSeparator: '移除分隔符'
+        },
+        style: {
+            title: '样式',
+            copy: '复制样式',
+            paste: '粘贴样式',
+            removeIcon: '移除图标',
+            removeColor: '移除颜色',
+            removeBackground: '移除背景',
+            clear: '清除样式'
         }
     },
 

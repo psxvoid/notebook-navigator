@@ -199,6 +199,15 @@ export const STRINGS_TR = {
         navigation: {
             addSeparator: 'Ayırıcı ekle',
             removeSeparator: 'Ayırıcıyı kaldır'
+        },
+        style: {
+            title: 'Stil',
+            copy: 'Stili kopyala',
+            paste: 'Stili yapıştır',
+            removeIcon: 'Simgeyi kaldır',
+            removeColor: 'Rengi kaldır',
+            removeBackground: 'Arka planı kaldır',
+            clear: 'Stili temizle'
         }
     },
 

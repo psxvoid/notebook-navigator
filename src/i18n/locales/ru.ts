@@ -199,6 +199,15 @@ export const STRINGS_RU = {
         navigation: {
             addSeparator: 'Добавить разделитель',
             removeSeparator: 'Удалить разделитель'
+        },
+        style: {
+            title: 'Стиль',
+            copy: 'Копировать стиль',
+            paste: 'Вставить стиль',
+            removeIcon: 'Удалить значок',
+            removeColor: 'Удалить цвет',
+            removeBackground: 'Удалить фон',
+            clear: 'Очистить стиль'
         }
     },
 

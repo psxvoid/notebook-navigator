@@ -199,6 +199,15 @@ export const STRINGS_ID = {
         navigation: {
             addSeparator: 'Tambah pemisah',
             removeSeparator: 'Hapus pemisah'
+        },
+        style: {
+            title: 'Gaya',
+            copy: 'Salin gaya',
+            paste: 'Tempel gaya',
+            removeIcon: 'Hapus ikon',
+            removeColor: 'Hapus warna',
+            removeBackground: 'Hapus latar belakang',
+            clear: 'Hapus gaya'
         }
     },
 

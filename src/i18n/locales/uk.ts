@@ -199,6 +199,15 @@ export const STRINGS_UK = {
         navigation: {
             addSeparator: 'Додати роздільник',
             removeSeparator: 'Вилучити роздільник'
+        },
+        style: {
+            title: 'Стиль',
+            copy: 'Копіювати стиль',
+            paste: 'Вставити стиль',
+            removeIcon: 'Видалити іконку',
+            removeColor: 'Видалити колір',
+            removeBackground: 'Видалити фон',
+            clear: 'Очистити стиль'
         }
     },
 
