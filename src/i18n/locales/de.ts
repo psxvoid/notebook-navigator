@@ -239,7 +239,7 @@ export const STRINGS_DE = {
             userColors: 'Benutzerfarben',
             copyColors: 'Farben kopieren',
             colorsCopied: 'Farben in Zwischenablage kopiert',
-            copyClipboardError: 'Could not write to clipboard',
+            copyClipboardError: 'Konnte nicht in Zwischenablage schreiben',
             pasteColors: 'Farben einfügen',
             pasteClipboardError: 'Zwischenablage konnte nicht gelesen werden',
             pasteInvalidJson: 'Zwischenablage enthält kein gültiges JSON',
@@ -754,8 +754,8 @@ export const STRINGS_DE = {
                 desc: 'Navigationsbereich nicht scrollen beim Klicken auf Elemente in Verknüpfungen.'
             },
             autoExpandFoldersTags: {
-                name: 'Expand on selection',
-                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
+                name: 'Bei Auswahl erweitern',
+                desc: 'Ordner und Tags bei Auswahl erweitern. Im Einzelfenster-Modus: erste Auswahl erweitert, zweite Auswahl zeigt Dateien.'
             },
             navigationBanner: {
                 name: 'Navigationsbanner (Tresorprofil)',
@@ -808,13 +808,19 @@ export const STRINGS_DE = {
                 desc: 'Profile speichern Dateityp-Sichtbarkeit, versteckte Ordner, versteckte Tags, versteckte Notizen, Verknüpfungen und Navigationsbanner. Profile können über die Kopfzeile des Navigationsbereichs gewechselt werden.',
                 defaultName: 'Standard',
                 addButton: 'Profil hinzufügen',
+                editProfilesButton: 'Profile bearbeiten',
+                addProfileOption: 'Profil hinzufügen...',
+                applyButton: 'Übernehmen',
                 editButton: 'Profil bearbeiten',
                 deleteButton: 'Profil löschen',
                 addModalTitle: 'Profil hinzufügen',
+                editProfilesModalTitle: 'Profile bearbeiten',
                 editModalTitle: 'Profil bearbeiten',
                 addModalPlaceholder: 'Profilname',
                 deleteModalTitle: '{name} löschen',
                 deleteModalMessage: '{name} entfernen? Versteckte Ordner-, Tag- und Notizfilter in diesem Profil werden gelöscht.',
+                moveUp: 'Nach oben',
+                moveDown: 'Nach unten',
                 errors: {
                     emptyName: 'Profilnamen eingeben',
                     duplicateName: 'Profilname bereits vorhanden'
@@ -893,8 +899,8 @@ export const STRINGS_DE = {
                 helpTooltip: 'Klicken für Formatreferenz'
             },
             preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+                name: 'Ungültige Zeichen verhindern',
+                desc: '#, |, ^, :, %%, [[, ]] beim Erstellen oder Umbenennen von Dateien und Ordnern blockieren.'
             },
             showFilePreview: {
                 name: 'Notizenvorschau anzeigen',
@@ -1172,7 +1178,7 @@ export const STRINGS_DE = {
             updateCheckOnStart: {
                 name: 'Beim Start nach neuer Version suchen',
                 desc: 'Prüft beim Start auf neue Plugin-Versionen und zeigt eine Benachrichtigung an, wenn ein Update verfügbar ist. Jede Version wird nur einmal angekündigt, und Überprüfungen erfolgen höchstens einmal täglich.',
-                status: 'New version available: {version}'
+                status: 'Neue Version verfügbar: {version}'
             },
             whatsNew: {
                 name: 'Neuigkeiten in Notebook Navigator {version}',

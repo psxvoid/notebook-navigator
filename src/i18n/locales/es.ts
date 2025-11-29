@@ -237,7 +237,7 @@ export const STRINGS_ES = {
             userColors: 'Colores de usuario',
             copyColors: 'Copiar colores',
             colorsCopied: 'Colores copiados al portapapeles',
-            copyClipboardError: 'Could not write to clipboard',
+            copyClipboardError: 'No se pudo escribir en el portapapeles',
             pasteColors: 'Pegar colores',
             pasteClipboardError: 'No se pudo leer el portapapeles',
             pasteInvalidJson: 'El portapapeles no contiene JSON válido',
@@ -751,8 +751,8 @@ export const STRINGS_ES = {
                 desc: 'No desplazar el panel de navegación al hacer clic en elementos de accesos directos.'
             },
             autoExpandFoldersTags: {
-                name: 'Expand on selection',
-                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
+                name: 'Expandir al seleccionar',
+                desc: 'Expandir carpetas y etiquetas al seleccionar. En modo de panel único, la primera selección expande, la segunda muestra archivos.'
             },
             navigationBanner: {
                 name: 'Banner de navegación (perfil de bóveda)',
@@ -805,14 +805,20 @@ export const STRINGS_ES = {
                 desc: 'Los perfiles almacenan visibilidad de tipos de archivo, carpetas ocultas, etiquetas ocultas, notas ocultas, atajos y banner de navegación. Cambia de perfil desde el encabezado del panel de navegación.',
                 defaultName: 'Predeterminado',
                 addButton: 'Añadir perfil',
+                editProfilesButton: 'Editar perfiles',
+                addProfileOption: 'Añadir perfil...',
+                applyButton: 'Aplicar',
                 editButton: 'Editar perfil',
                 deleteButton: 'Eliminar perfil',
                 addModalTitle: 'Añadir perfil',
+                editProfilesModalTitle: 'Editar perfiles',
                 editModalTitle: 'Editar perfil',
                 addModalPlaceholder: 'Nombre del perfil',
                 deleteModalTitle: 'Eliminar {name}',
                 deleteModalMessage:
                     '¿Eliminar {name}? Se eliminarán los filtros de carpetas, etiquetas y notas ocultas guardados en este perfil.',
+                moveUp: 'Subir',
+                moveDown: 'Bajar',
                 errors: {
                     emptyName: 'Introduce un nombre de perfil',
                     duplicateName: 'El nombre del perfil ya existe'
@@ -891,8 +897,8 @@ export const STRINGS_ES = {
                 helpTooltip: 'Clic para referencia de formato'
             },
             preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+                name: 'Prevenir caracteres inválidos',
+                desc: 'Bloquear #, |, ^, :, %%, [[, ]] al crear o renombrar archivos y carpetas.'
             },
             showFilePreview: {
                 name: 'Mostrar vista previa de nota',
@@ -1171,7 +1177,7 @@ export const STRINGS_ES = {
             updateCheckOnStart: {
                 name: 'Buscar nueva versión al iniciar',
                 desc: 'Busca nuevas versiones del complemento al iniciar y muestra una notificación cuando hay una actualización disponible. Cada versión se anuncia solo una vez, y las comprobaciones se realizan como máximo una vez al día.',
-                status: 'New version available: {version}'
+                status: 'Nueva versión disponible: {version}'
             },
             whatsNew: {
                 name: 'Novedades en Notebook Navigator {version}',
