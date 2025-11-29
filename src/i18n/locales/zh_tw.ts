@@ -80,8 +80,6 @@ export const STRINGS_ZH_TW = {
         emptySearchName: '儲存搜尋前請輸入名稱',
         add: '新增至捷徑',
         remove: '從捷徑移除',
-        moveUp: '上移',
-        moveDown: '下移',
         folderNotesPinned: '已釘選 {count} 個資料夾筆記'
     },
 
@@ -174,6 +172,8 @@ export const STRINGS_ZH_TW = {
             newCanvas: '新畫布',
             newBase: '新 Base',
             newDrawing: '新繪圖',
+            newExcalidrawDrawing: '新 Excalidraw 繪圖',
+            newTldrawDrawing: '新 Tldraw 繪圖',
             duplicateFolder: '複製資料夾',
             searchInFolder: '在此資料夾中搜尋',
             copyPath: '複製檔案系統路徑',
@@ -539,8 +539,10 @@ export const STRINGS_ZH_TW = {
             navigationPane: '導覽窗格',
             icons: '圖示包',
             folders: '資料夾',
+            foldersAndTags: '資料夾與標籤',
             tags: '標籤',
             search: '搜尋',
+            searchAndHotkeys: '搜尋與快捷鍵',
             listPane: '列表窗格',
             notes: '筆記',
             hotkeys: '快捷鍵',

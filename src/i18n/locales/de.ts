@@ -79,8 +79,6 @@ export const STRINGS_DE = {
         emptySearchName: 'Geben Sie einen Namen ein, bevor Sie die Suche speichern',
         add: 'Zu Lesezeichen hinzufügen',
         remove: 'Aus Lesezeichen entfernen',
-        moveUp: 'Nach oben verschieben',
-        moveDown: 'Nach unten verschieben',
         folderNotesPinned: '{count} Ordnernotizen angeheftet'
     },
 
@@ -176,6 +174,8 @@ export const STRINGS_DE = {
             newCanvas: 'Neue Canvas',
             newBase: 'Neue Datenbank',
             newDrawing: 'Neue Zeichnung',
+            newExcalidrawDrawing: 'Neue Excalidraw-Zeichnung',
+            newTldrawDrawing: 'Neue Tldraw-Zeichnung',
             duplicateFolder: 'Ordner duplizieren',
             searchInFolder: 'In Ordner suchen',
             copyPath: 'Dateisystempfad kopieren',
@@ -544,7 +544,9 @@ export const STRINGS_DE = {
             icons: 'Icon-Pakete',
             tags: 'Tag-Anzeige',
             folders: 'Ordnernotizen',
+            foldersAndTags: 'Ordner & Tags',
             search: 'Suchen',
+            searchAndHotkeys: 'Suche & Tastenkürzel',
             listPane: 'Listenbereich',
             hotkeys: 'Tastenkürzel',
             advanced: 'Erweitert'

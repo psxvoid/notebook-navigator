@@ -357,7 +357,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             { id: 'navigation-pane', label: strings.settings.sections.navigationPane, render: renderNavigationPaneTab },
             {
                 id: 'folders-tags',
-                label: `${strings.settings.sections.folders} & ${strings.settings.sections.tags}`,
+                label: strings.settings.sections.foldersAndTags,
                 render: renderFoldersTagsTab
             },
             { id: 'list-pane', label: strings.settings.sections.listPane, render: renderListPaneTab },
@@ -365,7 +365,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             { id: 'icon-packs', label: strings.settings.sections.icons, render: renderIconPacksTab },
             {
                 id: 'search-hotkeys',
-                label: `${strings.settings.sections.search} & ${strings.settings.sections.hotkeys}`,
+                label: strings.settings.sections.searchAndHotkeys,
                 render: renderHotkeysSearchTab
             },
             { id: 'advanced', label: strings.settings.sections.advanced, render: renderAdvancedTab }

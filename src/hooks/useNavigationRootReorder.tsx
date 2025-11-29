@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { type App, type TFolder } from 'obsidian';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { TagTreeNode } from '../types/storage';
@@ -37,11 +37,9 @@ import { localStorage } from '../utils/localStorage';
 import { areStringArraysEqual } from '../utils/arrayUtils';
 import { useListReorder, type ListReorderHandlers } from './useListReorder';
 import { RootFolderReorderItem } from '../components/RootFolderReorderItem';
-import type { DragHandleConfig } from '../components/NavigationListRow';
 import { runAsyncAction } from '../utils/async';
 import { mergeNavigationSectionOrder } from '../utils/navigationSections';
 import { getPathBaseName } from '../utils/pathUtils';
-import { showReorderMenu, createMenuReorderHandleConfig } from '../utils/reorderMenu';
 
 export interface RootFolderDescriptor {
     key: string;
@@ -123,7 +121,6 @@ export interface UseNavigationRootReorderOptions {
     tagsSectionExpanded: boolean;
     handleToggleFoldersSection: (event: React.MouseEvent<HTMLDivElement>) => void;
     handleToggleTagsSection: (event: React.MouseEvent<HTMLDivElement>) => void;
-    useReorderMenu: boolean;
 }
 
 export interface NavigationRootReorderState {
@@ -163,105 +160,8 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         foldersSectionExpanded,
         tagsSectionExpanded,
         handleToggleFoldersSection,
-        handleToggleTagsSection,
-        useReorderMenu
+        handleToggleTagsSection
     } = options;
-
-    // Enable menu-based reordering when on mobile and in reorder mode
-    const canUseRootReorderMenu = useReorderMenu && isRootReorderMode;
-    const rootReorderHandleConfigCacheRef = useRef<Map<string, DragHandleConfig>>(new Map());
-
-    // Opens the reorder menu for a root item, showing move up/down options based on current position
-    const openRootReorderMenu = useCallback(
-        (
-            anchor: HTMLElement,
-            canMove: (offset: number) => boolean,
-            move: (offset: number) => Promise<boolean>,
-            mouseEvent?: MouseEvent
-        ) => {
-            if (!canUseRootReorderMenu) {
-                return false;
-            }
-
-            const allowMoveUp = canMove(-1);
-            const allowMoveDown = canMove(1);
-            return showReorderMenu({
-                anchor,
-                mouseEvent,
-                allowMoveUp,
-                allowMoveDown,
-                moveUpLabel: strings.shortcuts.moveUp,
-                moveDownLabel: strings.shortcuts.moveDown,
-                onMoveUp: () => {
-                    runAsyncAction(() => move(-1));
-                },
-                onMoveDown: () => {
-                    runAsyncAction(() => move(1));
-                }
-            });
-        },
-        [canUseRootReorderMenu]
-    );
-
-    const getRootReorderHandleConfig = useCallback(
-        (
-            cacheKey: string,
-            itemKey: string,
-            isEnabled: boolean,
-            moveItemFn: (key: string, offset: number) => Promise<boolean>,
-            canMoveItemFn: (key: string, offset: number) => boolean
-        ): DragHandleConfig | undefined => {
-            const cache = rootReorderHandleConfigCacheRef.current;
-            if (!canUseRootReorderMenu || !isEnabled) {
-                if (cache.has(cacheKey)) {
-                    cache.delete(cacheKey);
-                }
-                return undefined;
-            }
-
-            const cachedConfig = cache.get(cacheKey);
-            if (cachedConfig) {
-                return cachedConfig;
-            }
-
-            const events = {
-                onClick: (event: React.MouseEvent<HTMLSpanElement>) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    runAsyncAction(() => {
-                        openRootReorderMenu(
-                            event.currentTarget,
-                            offset => canMoveItemFn(itemKey, offset),
-                            offset => moveItemFn(itemKey, offset)
-                        );
-                    });
-                },
-                onContextMenu: (event: React.MouseEvent<HTMLSpanElement>) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    const nativeEvent = event.nativeEvent;
-                    const mouseEvent = nativeEvent instanceof MouseEvent ? nativeEvent : undefined;
-                    // Open reorder menu on right-click
-                    runAsyncAction(() => {
-                        openRootReorderMenu(
-                            event.currentTarget,
-                            offset => canMoveItemFn(itemKey, offset),
-                            offset => moveItemFn(itemKey, offset),
-                            mouseEvent
-                        );
-                    });
-                }
-            } satisfies NonNullable<DragHandleConfig['events']>;
-
-            const config = createMenuReorderHandleConfig({
-                label: strings.navigationPane.dragHandleLabel,
-                events
-            });
-            cache.set(cacheKey, config);
-            return config;
-        },
-        [canUseRootReorderMenu, openRootReorderMenu]
-    );
 
     const {
         showRootFolder,
@@ -433,9 +333,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
     const {
         getDragHandlers: getSectionDragHandlers,
         dropIndex: sectionReorderDropIndex,
-        draggingKey: sectionReorderDraggingKey,
-        moveItem: moveSectionItem,
-        canMoveItem: canMoveSectionItem
+        draggingKey: sectionReorderDraggingKey
     } = useListReorder({
         items: sectionReorderEntries,
         isEnabled: isRootReorderMode && canReorderSections,
@@ -597,9 +495,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
     const {
         getDragHandlers: getRootFolderDragHandlers,
         dropIndex: rootFolderReorderDropIndex,
-        draggingKey: rootFolderReorderDraggingKey,
-        moveItem: moveRootFolderItem,
-        canMoveItem: canMoveRootFolderItem
+        draggingKey: rootFolderReorderDraggingKey
     } = useListReorder({
         items: reorderableRootFolders,
         isEnabled: isRootReorderMode && canReorderRootFolders,
@@ -612,9 +508,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
     const {
         getDragHandlers: getRootTagDragHandlers,
         dropIndex: rootTagReorderDropIndex,
-        draggingKey: rootTagReorderDraggingKey,
-        moveItem: moveRootTagItem,
-        canMoveItem: canMoveRootTagItem
+        draggingKey: rootTagReorderDraggingKey
     } = useListReorder({
         items: reorderableRootTags,
         isEnabled: isRootReorderMode && canReorderRootTags,
@@ -623,18 +517,6 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
             return true;
         }
     });
-
-    useEffect(() => {
-        rootReorderHandleConfigCacheRef.current.clear();
-    }, [
-        canUseRootReorderMenu,
-        moveSectionItem,
-        canMoveSectionItem,
-        moveRootFolderItem,
-        canMoveRootFolderItem,
-        moveRootTagItem,
-        canMoveRootTagItem
-    ]);
 
     const getRootFolderReorderVisualState = useCallback(
         (descriptor: RootFolderDescriptor) =>
@@ -730,13 +612,6 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
             }
 
             const removeAction = isMissing ? buildRemoveMissingAction(entry.key, handleRemoveMissingRootFolder) : undefined;
-            const reorderHandleConfig = getRootReorderHandleConfig(
-                `folder:${entry.key}`,
-                entry.key,
-                canReorderRootFolders,
-                moveRootFolderItem,
-                canMoveRootFolderItem
-            );
 
             return {
                 key: `root-folder-reorder-${entry.key}`,
@@ -745,13 +620,12 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                     color: iconColor,
                     label: displayLabel,
                     level: 1,
-                    dragHandlers: useReorderMenu ? undefined : dragHandlers,
-                    showDropIndicatorBefore: useReorderMenu ? false : showBefore,
-                    showDropIndicatorAfter: useReorderMenu ? false : showAfter,
-                    isDragSource: useReorderMenu ? false : isDragSource,
+                    dragHandlers,
+                    showDropIndicatorBefore: showBefore,
+                    showDropIndicatorAfter: showAfter,
+                    isDragSource,
                     isMissing,
                     itemType: 'folder',
-                    dragHandleConfig: useReorderMenu ? reorderHandleConfig : undefined,
                     trailingAccessory: removeAction
                 }
             };
@@ -763,12 +637,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         rootFolderColorMap,
         metadataService,
         buildRemoveMissingAction,
-        handleRemoveMissingRootFolder,
-        getRootReorderHandleConfig,
-        canMoveRootFolderItem,
-        moveRootFolderItem,
-        useReorderMenu,
-        canReorderRootFolders
+        handleRemoveMissingRootFolder
     ]);
 
     const tagReorderItems = useMemo<RootReorderRenderItem[]>(() => {
@@ -792,13 +661,6 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
             const metadataColor = isUntagged ? undefined : metadataService.getTagColor(entry.key);
             const iconColor = rootTagColorMap.get(entry.key) ?? metadataColor;
             const removeAction = isMissing ? buildRemoveMissingAction(entry.key, handleRemoveMissingRootTag) : undefined;
-            const reorderHandleConfig = getRootReorderHandleConfig(
-                `tag:${entry.key}`,
-                entry.key,
-                canReorderRootTags,
-                moveRootTagItem,
-                canMoveRootTagItem
-            );
 
             return {
                 key: `root-tag-reorder-${entry.key}`,
@@ -807,13 +669,12 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                     color: iconColor,
                     label,
                     level: 1,
-                    dragHandlers: useReorderMenu ? undefined : dragHandlers,
-                    showDropIndicatorBefore: useReorderMenu ? false : showBefore,
-                    showDropIndicatorAfter: useReorderMenu ? false : showAfter,
-                    isDragSource: useReorderMenu ? false : isDragSource,
+                    dragHandlers,
+                    showDropIndicatorBefore: showBefore,
+                    showDropIndicatorAfter: showAfter,
+                    isDragSource,
                     isMissing,
                     itemType: 'tag',
-                    dragHandleConfig: useReorderMenu ? reorderHandleConfig : undefined,
                     trailingAccessory: removeAction
                 }
             };
@@ -825,12 +686,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         rootTagColorMap,
         metadataService,
         buildRemoveMissingAction,
-        handleRemoveMissingRootTag,
-        getRootReorderHandleConfig,
-        canMoveRootTagItem,
-        moveRootTagItem,
-        useReorderMenu,
-        canReorderRootTags
+        handleRemoveMissingRootTag
     ]);
 
     const getSectionReorderVisualState = useCallback(
@@ -896,14 +752,6 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                 })
             );
 
-            const reorderHandleConfig = getRootReorderHandleConfig(
-                `section:${identifier}`,
-                identifier,
-                canReorderSections,
-                moveSectionItem,
-                canMoveSectionItem
-            );
-
             const headerClassName = index === 0 ? undefined : 'nn-root-reorder-section-header';
 
             return {
@@ -913,16 +761,15 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                     icon,
                     label,
                     level: 0,
-                    dragHandlers: useReorderMenu ? undefined : dragHandlers,
-                    showDropIndicatorBefore: useReorderMenu ? false : showBefore,
-                    showDropIndicatorAfter: useReorderMenu ? false : showAfter,
-                    isDragSource: useReorderMenu ? false : isDragSource,
+                    dragHandlers,
+                    showDropIndicatorBefore: showBefore,
+                    showDropIndicatorAfter: showAfter,
+                    isDragSource,
                     color,
                     onClick,
                     chevronIcon,
                     itemType: 'section',
-                    className: headerClassName,
-                    dragHandleConfig: useReorderMenu ? reorderHandleConfig : undefined
+                    className: headerClassName
                 }
             };
         });
@@ -939,12 +786,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         tagsSectionExpanded,
         handleToggleFoldersSection,
         handleToggleTagsSection,
-        withDragGhost,
-        getRootReorderHandleConfig,
-        canMoveSectionItem,
-        moveSectionItem,
-        useReorderMenu,
-        canReorderSections
+        withDragGhost
     ]);
 
     const handleResetRootFolderOrder = useCallback(async () => {

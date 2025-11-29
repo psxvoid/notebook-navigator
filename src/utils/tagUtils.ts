@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Platform, TFile } from 'obsidian';
+import { Platform, type TFile } from 'obsidian';
 import { MultiSelectModifier, NotebookNavigatorSettings } from '../settings';
 import { TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
@@ -28,6 +28,14 @@ import type { InclusionOperator } from './filterSearch';
 
 export const TAG_CHARACTER_CLASS = '[\\p{L}\\p{N}_\\-/]';
 const TAG_NAME_PATTERN = new RegExp(`^${TAG_CHARACTER_CLASS}+$`, 'u');
+
+/**
+ * Low-level tag mutation operations for individual files
+ * Handles both frontmatter and inline tag modifications
+ */
+const TAG_CHARACTER_CLASS_CONTENT = TAG_CHARACTER_CLASS.slice(1, -1);
+export const INLINE_TAG_VALUE_PATTERN = `${TAG_CHARACTER_CLASS}+`;
+export const INLINE_TAG_BOUNDARY_PATTERN = `(?=$|[^${TAG_CHARACTER_CLASS_CONTENT}])`;
 
 /**
  * Checks if a tag value only contains allowed tag characters.

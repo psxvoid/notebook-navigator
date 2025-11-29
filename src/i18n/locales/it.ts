@@ -80,8 +80,6 @@ export const STRINGS_IT = {
         emptySearchName: 'Inserisci un nome prima di salvare la ricerca',
         add: 'Aggiungi ai collegamenti',
         remove: 'Rimuovi dai collegamenti',
-        moveUp: 'Sposta su',
-        moveDown: 'Sposta giù',
         folderNotesPinned: '{count} note cartella fissate'
     },
 
@@ -175,6 +173,8 @@ export const STRINGS_IT = {
             newCanvas: 'Nuova tela',
             newBase: 'Nuova base',
             newDrawing: 'Nuovo disegno',
+            newExcalidrawDrawing: 'Nuovo disegno Excalidraw',
+            newTldrawDrawing: 'Nuovo disegno Tldraw',
             duplicateFolder: 'Duplica cartella',
             searchInFolder: 'Cerca nella cartella',
             copyPath: 'Copia percorso del file system',
@@ -536,8 +536,10 @@ export const STRINGS_IT = {
             navigationPane: 'Pannello di navigazione',
             icons: 'Pacchetti icone',
             folders: 'Cartelle',
+            foldersAndTags: 'Cartelle e tag',
             tags: 'Tag',
             search: 'Cerca',
+            searchAndHotkeys: 'Ricerca e scorciatoie',
             listPane: 'Pannello lista',
             notes: 'Note',
             hotkeys: 'Scorciatoie',

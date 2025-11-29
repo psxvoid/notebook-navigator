@@ -79,8 +79,6 @@ export const STRINGS_ES = {
         emptySearchName: 'Ingresa un nombre antes de guardar la búsqueda',
         add: 'Agregar a accesos directos',
         remove: 'Quitar de accesos directos',
-        moveUp: 'Mover arriba',
-        moveDown: 'Mover abajo',
         folderNotesPinned: 'Fijadas {count} notas de carpeta'
     },
 
@@ -174,6 +172,8 @@ export const STRINGS_ES = {
             newCanvas: 'Nuevo lienzo',
             newBase: 'Nueva base de datos',
             newDrawing: 'Nuevo dibujo',
+            newExcalidrawDrawing: 'Nuevo dibujo de Excalidraw',
+            newTldrawDrawing: 'Nuevo dibujo de Tldraw',
             duplicateFolder: 'Duplicar carpeta',
             searchInFolder: 'Buscar en carpeta',
             copyPath: 'Copiar ruta del sistema de archivos',
@@ -542,7 +542,9 @@ export const STRINGS_ES = {
             icons: 'Paquetes de iconos',
             tags: 'Visualización de etiquetas',
             folders: 'Notas de carpeta',
+            foldersAndTags: 'Carpetas y etiquetas',
             search: 'Buscar',
+            searchAndHotkeys: 'Búsqueda y atajos',
             listPane: 'Panel de lista',
             hotkeys: 'Atajos de teclado',
             advanced: 'Avanzado'

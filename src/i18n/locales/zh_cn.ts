@@ -79,8 +79,6 @@ export const STRINGS_ZH_CN = {
         emptySearchName: '保存搜索前请输入名称',
         add: '添加到快捷方式',
         remove: '从快捷方式移除',
-        moveUp: '上移',
-        moveDown: '下移',
         folderNotesPinned: '已固定 {count} 个文件夹笔记'
     },
 
@@ -174,6 +172,8 @@ export const STRINGS_ZH_CN = {
             newCanvas: '新建画布',
             newBase: '新建数据库',
             newDrawing: '新建绘图',
+            newExcalidrawDrawing: '新建 Excalidraw 绘图',
+            newTldrawDrawing: '新建 Tldraw 绘图',
             duplicateFolder: '复制文件夹',
             searchInFolder: '在文件夹中搜索',
             copyPath: '复制文件系统路径',
@@ -542,7 +542,9 @@ export const STRINGS_ZH_CN = {
             icons: '图标包',
             tags: '标签显示',
             folders: '文件夹笔记',
+            foldersAndTags: '文件夹与标签',
             search: '搜索',
+            searchAndHotkeys: '搜索与快捷键',
             listPane: '列表窗格',
             hotkeys: '快捷键',
             advanced: '高级'
