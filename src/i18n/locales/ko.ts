@@ -236,7 +236,7 @@ export const STRINGS_KO = {
             userColors: '사용자 색상',
             copyColors: '색상 복사',
             colorsCopied: '클립보드에 복사됨',
-            copyClipboardError: 'Could not write to clipboard',
+            copyClipboardError: '클립보드에 쓸 수 없습니다',
             pasteColors: '색상 붙여넣기',
             pasteClipboardError: '클립보드를 읽을 수 없습니다',
             pasteInvalidJson: '클립보드에 유효한 JSON이 없습니다',
@@ -750,8 +750,8 @@ export const STRINGS_KO = {
                 desc: '바로가기 내 항목을 클릭할 때 탐색 패널을 스크롤하지 않습니다.'
             },
             autoExpandFoldersTags: {
-                name: 'Expand on selection',
-                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
+                name: '선택 시 확장',
+                desc: '선택 시 폴더와 태그를 확장합니다. 단일 창 모드에서는 첫 번째 선택이 확장하고 두 번째 선택이 파일을 표시합니다.'
             },
             navigationBanner: {
                 name: '탐색 배너 (저장소 프로필)',
@@ -825,13 +825,19 @@ export const STRINGS_KO = {
                 desc: '프로필은 파일 유형 가시성, 숨겨진 폴더, 숨겨진 태그, 숨겨진 노트, 바로가기, 탐색 배너를 저장합니다. 탐색 창 헤더에서 프로필을 전환합니다.',
                 defaultName: '기본',
                 addButton: '프로필 추가',
+                editProfilesButton: '프로필 편집',
+                addProfileOption: '프로필 추가...',
+                applyButton: '적용',
                 editButton: '프로필 편집',
                 deleteButton: '프로필 삭제',
                 addModalTitle: '프로필 추가',
+                editProfilesModalTitle: '프로필 편집',
                 editModalTitle: '프로필 편집',
                 addModalPlaceholder: '프로필 이름',
                 deleteModalTitle: '{name} 삭제',
                 deleteModalMessage: '{name}을(를) 제거하시겠습니까? 이 프로필에 저장된 숨겨진 폴더, 태그 및 노트 필터가 삭제됩니다.',
+                moveUp: '위로 이동',
+                moveDown: '아래로 이동',
                 errors: {
                     emptyName: '프로필 이름을 입력하세요',
                     duplicateName: '프로필 이름이 이미 존재합니다'
@@ -889,8 +895,8 @@ export const STRINGS_KO = {
                 helpTooltip: '형식 참조를 보려면 클릭'
             },
             preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+                name: '잘못된 문자 방지',
+                desc: '파일 및 폴더를 생성하거나 이름을 바꿀 때 #, |, ^, :, %%, [[, ]]를 차단합니다.'
             },
             showFilePreview: {
                 name: '노트 미리보기 표시',
@@ -1168,7 +1174,7 @@ export const STRINGS_KO = {
             updateCheckOnStart: {
                 name: '시작 시 새 버전 확인',
                 desc: '시작 시 새로운 플러그인 릴리스를 확인하고 업데이트가 있으면 알림을 표시합니다. 각 버전은 한 번만 알림되며, 확인은 하루에 한 번 수행됩니다.',
-                status: 'New version available: {version}'
+                status: '새 버전 사용 가능: {version}'
             },
             whatsNew: {
                 name: 'Notebook Navigator {version}의 새로운 기능',

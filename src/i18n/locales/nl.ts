@@ -238,7 +238,7 @@ export const STRINGS_NL = {
             userColors: 'Gebruikerskleuren',
             copyColors: 'Kleuren kopiëren',
             colorsCopied: 'Kleuren gekopieerd naar klembord',
-            copyClipboardError: 'Could not write to clipboard',
+            copyClipboardError: 'Kon niet naar klembord schrijven',
             pasteColors: 'Kleuren plakken',
             pasteClipboardError: 'Kan klembord niet lezen',
             pasteInvalidJson: 'Klembord bevat geen geldige JSON',
@@ -752,8 +752,8 @@ export const STRINGS_NL = {
                 desc: 'Het navigatiepaneel niet scrollen bij klikken op items in snelkoppelingen.'
             },
             autoExpandFoldersTags: {
-                name: 'Expand on selection',
-                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
+                name: 'Uitvouwen bij selectie',
+                desc: 'Mappen en tags uitvouwen bij selectie. In enkelvoudige paneelmodus: eerste selectie vouwt uit, tweede selectie toont bestanden.'
             },
             navigationBanner: {
                 name: 'Navigatiebanner (kluisprofiel)',
@@ -827,14 +827,20 @@ export const STRINGS_NL = {
                 desc: 'Profielen bewaren bestandstypezichtbaarheid, verborgen mappen, verborgen labels, verborgen notities, snelkoppelingen en navigatiebanner. Wissel van profiel via de koptekst van het navigatiepaneel.',
                 defaultName: 'Standaard',
                 addButton: 'Profiel toevoegen',
+                editProfilesButton: 'Profielen bewerken',
+                addProfileOption: 'Profiel toevoegen...',
+                applyButton: 'Toepassen',
                 editButton: 'Profiel bewerken',
                 deleteButton: 'Profiel verwijderen',
                 addModalTitle: 'Profiel toevoegen',
+                editProfilesModalTitle: 'Profielen bewerken',
                 editModalTitle: 'Profiel bewerken',
                 addModalPlaceholder: 'Profielnaam',
                 deleteModalTitle: '{name} verwijderen',
                 deleteModalMessage:
                     '{name} verwijderen? Verborgen map-, label- en notitiefilters opgeslagen in dit profiel worden verwijderd.',
+                moveUp: 'Omhoog verplaatsen',
+                moveDown: 'Omlaag verplaatsen',
                 errors: {
                     emptyName: 'Voer een profielnaam in',
                     duplicateName: 'Profielnaam bestaat al'
@@ -892,8 +898,8 @@ export const STRINGS_NL = {
                 helpTooltip: 'Klik voor formaatverwijzing'
             },
             preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+                name: 'Ongeldige tekens voorkomen',
+                desc: '#, |, ^, :, %%, [[, ]] blokkeren bij het maken of hernoemen van bestanden en mappen.'
             },
             showFilePreview: {
                 name: 'Notitievoorbeeld tonen',

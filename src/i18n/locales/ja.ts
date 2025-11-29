@@ -237,7 +237,7 @@ export const STRINGS_JA = {
             userColors: 'ユーザー色',
             copyColors: '色をコピー',
             colorsCopied: 'クリップボードにコピーしました',
-            copyClipboardError: 'Could not write to clipboard',
+            copyClipboardError: 'クリップボードに書き込めませんでした',
             pasteColors: '色を貼り付け',
             pasteClipboardError: 'クリップボードを読み取れませんでした',
             pasteInvalidJson: 'クリップボードに有効なJSONがありません',
@@ -751,8 +751,8 @@ export const STRINGS_JA = {
                 desc: 'ショートカット内のアイテムをクリックしてもナビゲーションパネルをスクロールしない。'
             },
             autoExpandFoldersTags: {
-                name: 'Expand on selection',
-                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
+                name: '選択時に展開',
+                desc: '選択時にフォルダとタグを展開します。シングルペインモードでは、最初の選択で展開、2回目の選択でファイルを表示します。'
             },
             navigationBanner: {
                 name: 'ナビゲーションバナー（保管庫プロファイル）',
@@ -805,14 +805,20 @@ export const STRINGS_JA = {
                 desc: 'プロファイルは、ファイルタイプの表示、非表示フォルダ、非表示タグ、非表示ノート、ショートカット、ナビゲーションバナーを保存します。ナビゲーションペインのヘッダーからプロファイルを切り替えます。',
                 defaultName: 'デフォルト',
                 addButton: 'プロファイルを追加',
+                editProfilesButton: 'プロファイルを編集',
+                addProfileOption: 'プロファイルを追加...',
+                applyButton: '適用',
                 editButton: 'プロファイルを編集',
                 deleteButton: 'プロファイルを削除',
                 addModalTitle: 'プロファイルを追加',
+                editProfilesModalTitle: 'プロファイルを編集',
                 editModalTitle: 'プロファイルを編集',
                 addModalPlaceholder: 'プロファイル名',
                 deleteModalTitle: '{name}を削除',
                 deleteModalMessage:
                     '{name}を削除しますか？このプロファイルに保存されている非表示フォルダ、タグ、ノートのフィルタが削除されます。',
+                moveUp: '上に移動',
+                moveDown: '下に移動',
                 errors: {
                     emptyName: 'プロファイル名を入力してください',
                     duplicateName: 'プロファイル名は既に存在します'
@@ -892,8 +898,8 @@ export const STRINGS_JA = {
                 helpTooltip: 'クリックして形式リファレンスを表示'
             },
             preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+                name: '無効な文字を防止',
+                desc: 'ファイルやフォルダの作成・名前変更時に #, |, ^, :, %%, [[, ]] をブロックします。'
             },
             showFilePreview: {
                 name: 'ノートプレビューを表示',
@@ -1171,7 +1177,7 @@ export const STRINGS_JA = {
             updateCheckOnStart: {
                 name: '起動時に新しいバージョンを確認',
                 desc: '起動時に新しいプラグインリリースを確認し、アップデートが利用可能な場合に通知を表示します。各バージョンは一度だけ通知され、確認は最大1日1回行われます。',
-                status: 'New version available: {version}'
+                status: '新しいバージョンが利用可能: {version}'
             },
             whatsNew: {
                 name: 'Notebook Navigator {version} の新着情報',

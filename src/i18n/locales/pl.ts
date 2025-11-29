@@ -238,7 +238,7 @@ export const STRINGS_PL = {
             userColors: 'Kolory użytkownika',
             copyColors: 'Kopiuj kolory',
             colorsCopied: 'Kolory skopiowane do schowka',
-            copyClipboardError: 'Could not write to clipboard',
+            copyClipboardError: 'Nie można zapisać do schowka',
             pasteColors: 'Wklej kolory',
             pasteClipboardError: 'Nie można odczytać schowka',
             pasteInvalidJson: 'Schowek nie zawiera prawidłowego JSON',
@@ -752,8 +752,8 @@ export const STRINGS_PL = {
                 desc: 'Nie przewijaj panelu nawigacji przy klikaniu elementów w skrótach.'
             },
             autoExpandFoldersTags: {
-                name: 'Expand on selection',
-                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
+                name: 'Rozwiń przy wyborze',
+                desc: 'Rozwiń foldery i tagi po wybraniu. W trybie pojedynczego panelu pierwsze kliknięcie rozwija, drugie pokazuje pliki.'
             },
             navigationBanner: {
                 name: 'Baner nawigacji (profil sejfu)',
@@ -827,13 +827,19 @@ export const STRINGS_PL = {
                 desc: 'Profile przechowują widoczność typów plików, ukryte foldery, ukryte tagi, ukryte notatki, skróty i baner nawigacji. Zmień profil z nagłówka panelu nawigacji.',
                 defaultName: 'Domyślny',
                 addButton: 'Dodaj profil',
+                editProfilesButton: 'Edytuj profile',
+                addProfileOption: 'Dodaj profil...',
+                applyButton: 'Zastosuj',
                 editButton: 'Edytuj profil',
                 deleteButton: 'Usuń profil',
                 addModalTitle: 'Dodaj profil',
+                editProfilesModalTitle: 'Edytuj profile',
                 editModalTitle: 'Edytuj profil',
                 addModalPlaceholder: 'Nazwa profilu',
                 deleteModalTitle: 'Usuń {name}',
                 deleteModalMessage: 'Usunąć {name}? Filtry ukrytych folderów, tagów i notatek zapisane w tym profilu zostaną usunięte.',
+                moveUp: 'Przenieś w górę',
+                moveDown: 'Przenieś w dół',
                 errors: {
                     emptyName: 'Wprowadź nazwę profilu',
                     duplicateName: 'Nazwa profilu już istnieje'
@@ -891,8 +897,8 @@ export const STRINGS_PL = {
                 helpTooltip: 'Kliknij po informacje o formatowaniu'
             },
             preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+                name: 'Zapobiegaj nieprawidłowym znakom',
+                desc: 'Blokuj #, |, ^, :, %%, [[, ]] podczas tworzenia lub zmieniania nazw plików i folderów.'
             },
             showFilePreview: {
                 name: 'Pokaż podgląd notatki',
@@ -1171,7 +1177,7 @@ export const STRINGS_PL = {
             updateCheckOnStart: {
                 name: 'Sprawdź nową wersję przy starcie',
                 desc: 'Sprawdza nowe wersje wtyczki podczas uruchamiania i wyświetla powiadomienie, gdy dostępna jest aktualizacja. Każda wersja jest ogłaszana tylko raz, a sprawdzanie odbywa się co najwyżej raz dziennie.',
-                status: 'New version available: {version}'
+                status: 'Dostępna nowa wersja: {version}'
             },
             whatsNew: {
                 name: 'Co nowego w Notebook Navigator {version}',
