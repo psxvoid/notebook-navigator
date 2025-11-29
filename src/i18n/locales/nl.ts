@@ -80,8 +80,6 @@ export const STRINGS_NL = {
         emptySearchName: 'Voer een naam in voordat u de zoekopdracht opslaat',
         add: 'Toevoegen aan snelkoppelingen',
         remove: 'Verwijderen uit snelkoppelingen',
-        moveUp: 'Omhoog verplaatsen',
-        moveDown: 'Omlaag verplaatsen',
         folderNotesPinned: '{count} mapnotities vastgepind'
     },
 
@@ -175,6 +173,8 @@ export const STRINGS_NL = {
             newCanvas: 'Nieuw canvas',
             newBase: 'Nieuwe base',
             newDrawing: 'Nieuwe tekening',
+            newExcalidrawDrawing: 'Nieuwe Excalidraw-tekening',
+            newTldrawDrawing: 'Nieuwe Tldraw-tekening',
             duplicateFolder: 'Map dupliceren',
             searchInFolder: 'Zoeken in map',
             copyPath: 'Bestandssysteempad kopiëren',
@@ -541,8 +541,10 @@ export const STRINGS_NL = {
             navigationPane: 'Navigatiepaneel',
             icons: 'Pictogrampakketten',
             folders: 'Mappen',
+            foldersAndTags: 'Mappen & tags',
             tags: 'Tags',
             search: 'Zoeken',
+            searchAndHotkeys: 'Zoeken & sneltoetsen',
             listPane: 'Lijstpaneel',
             notes: 'Notities',
             hotkeys: 'Sneltoetsen',

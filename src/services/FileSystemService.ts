@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, TFolder, TAbstractFile, normalizePath, Platform } from 'obsidian';
+import { App, TFile, TFolder, TAbstractFile, normalizePath, Platform, WorkspaceLeaf, ViewState } from 'obsidian';
 import type { SelectionDispatch } from '../context/SelectionContext';
 import { strings } from '../i18n';
 import { ConfirmModal } from '../modals/ConfirmModal';
@@ -31,19 +31,21 @@ import { cleanupExclusionPatterns, isPathInExcludedFolder } from '../utils/fileF
 import { EXCALIDRAW_BASENAME_SUFFIX, isExcalidrawFile, stripExcalidrawSuffix, stripInvalidLinkCharacters } from '../utils/fileNameUtils';
 import { getFolderNote, isFolderNote, isSupportedFolderNoteExtension } from '../utils/folderNotes';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
-import { executeCommand } from '../utils/typeGuards';
+import { executeCommand, isPluginInstalled } from '../utils/typeGuards';
 import { getErrorMessage } from '../utils/errorUtils';
 import { TagTreeService } from './TagTreeService';
 import { CommandQueueService } from './CommandQueueService';
 import type { MaybePromise } from '../utils/async';
 import { showNotice } from '../utils/noticeUtils';
 import type { ISettingsProvider } from '../interfaces/ISettingsProvider';
+import { ensureRecord, isStringRecordValue } from '../utils/recordUtils';
 import {
     ensureVaultProfiles,
     normalizeHiddenFolderPath,
     removeHiddenFolderExactMatches,
     updateHiddenFolderExactMatches
 } from '../utils/vaultProfiles';
+import { EXCALIDRAW_PLUGIN_ID, TLDRAW_PLUGIN_IDS } from '../constants/pluginIds';
 
 /**
  * Selection context for file operations
@@ -101,6 +103,8 @@ interface MoveFolderResult {
  * Result of a folder move operation initiated via modal
  */
 type MoveFolderModalResult = { status: 'success'; data: MoveFolderResult } | { status: 'cancelled' } | { status: 'error'; error: unknown };
+
+type DrawingType = 'excalidraw' | 'tldraw';
 
 export class FolderMoveError extends Error {
     constructor(
@@ -241,6 +245,78 @@ export class FileSystemOperations {
             await this.settingsProvider.saveSettingsAndUpdate();
         } catch (error) {
             console.error('Failed to persist hidden folder preference for other vault profiles', error);
+        }
+    }
+
+    /**
+     * Copies folder icon and color metadata to a duplicated folder path
+     * @param sourcePath - Original folder path
+     * @param targetPath - New folder path created by duplication
+     */
+    private async copyFolderDisplayMetadata(sourcePath: string, targetPath: string): Promise<void> {
+        if (!sourcePath || !targetPath || sourcePath === targetPath || sourcePath === '/') {
+            return;
+        }
+
+        const sourcePrefix = `${sourcePath}/`;
+        let changed = false;
+
+        const processRecord = (record: Record<string, string> | undefined, updateRecord: (sanitized: Record<string, string>) => void) => {
+            if (!record) {
+                return;
+            }
+
+            const keys = Object.keys(record);
+            let sanitized = record;
+            let sanitizedApplied = false;
+
+            for (const key of keys) {
+                if (key !== sourcePath && !key.startsWith(sourcePrefix)) {
+                    continue;
+                }
+
+                const value = record[key];
+                if (typeof value !== 'string') {
+                    continue;
+                }
+
+                if (!sanitizedApplied) {
+                    sanitized = ensureRecord(record, isStringRecordValue);
+                    updateRecord(sanitized);
+                    sanitizedApplied = true;
+                }
+
+                const suffix = key === sourcePath ? '' : key.substring(sourcePrefix.length);
+                const destinationPath = suffix ? `${targetPath}/${suffix}` : targetPath;
+
+                if (Object.prototype.hasOwnProperty.call(sanitized, destinationPath)) {
+                    continue;
+                }
+
+                sanitized[destinationPath] = value;
+                changed = true;
+            }
+        };
+
+        const settings = this.settingsProvider.settings;
+        processRecord(settings.folderIcons, sanitized => {
+            settings.folderIcons = sanitized;
+        });
+        processRecord(settings.folderColors, sanitized => {
+            settings.folderColors = sanitized;
+        });
+        processRecord(settings.folderBackgroundColors, sanitized => {
+            settings.folderBackgroundColors = sanitized;
+        });
+
+        if (!changed) {
+            return;
+        }
+
+        try {
+            await this.settingsProvider.saveSettingsAndUpdate();
+        } catch (error) {
+            console.error('Failed to persist folder display metadata after duplication', error);
         }
     }
 
@@ -1224,6 +1300,7 @@ export class FileSystemOperations {
             }
 
             await this.app.vault.copy(folder, newPath);
+            await this.copyFolderDisplayMetadata(folder.path, newPath);
         } catch (error) {
             this.notifyError(strings.fileSystem.errors.duplicateFolder, error);
         }
@@ -1429,21 +1506,53 @@ export class FileSystemOperations {
     }
 
     /**
-     * Creates a new Excalidraw drawing in the specified folder
-     * Only available when Excalidraw plugin is installed
+     * Creates a new drawing in the specified folder
+     * Supports Excalidraw and Tldraw
      * @param parent - The parent folder to create the drawing in
+     * @param type - Drawing provider to use
      * @returns The created file or null if creation failed
      */
-    async createNewDrawing(parent: TFolder): Promise<TFile | null> {
+    async createNewDrawing(parent: TFolder, type: DrawingType = 'excalidraw'): Promise<TFile | null> {
         try {
             // Generate unique filename with timestamp
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-            const fileName = `Drawing ${timestamp}${EXCALIDRAW_BASENAME_SUFFIX}.md`;
+            const fileName = type === 'excalidraw' ? `Drawing ${timestamp}${EXCALIDRAW_BASENAME_SUFFIX}.md` : `Drawing ${timestamp}.md`;
             const base = parent.path === '/' ? '' : `${parent.path}/`;
             const filePath = normalizePath(`${base}${fileName}`);
 
-            // Minimal Excalidraw file content
-            const content = `---
+            const content = this.getDrawingTemplate(type);
+
+            // Create the file
+            const file = await this.app.vault.create(filePath, content);
+
+            // Open the file
+            const leaf = this.app.workspace.getLeaf(false);
+            await leaf.openFile(file);
+            await this.trySwitchToDrawingView(leaf, file, type);
+
+            return file;
+        } catch (error) {
+            const message = getErrorMessage(error);
+            if (message.includes('already exists')) {
+                showNotice(strings.fileSystem.errors.drawingAlreadyExists, { variant: 'warning' });
+            } else {
+                showNotice(strings.fileSystem.errors.failedToCreateDrawing, { variant: 'warning' });
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Returns the frontmatter template for the specified drawing type
+     */
+    private getDrawingTemplate(type: DrawingType): string {
+        if (type === 'tldraw') {
+            return `---
+tldraw-file: true
+---\n`;
+        }
+
+        return `---
 
 excalidraw-plugin: parsed
 tags: [excalidraw]
@@ -1469,24 +1578,41 @@ tags: [excalidraw]
 }
 \`\`\`
 %%`;
+    }
 
-            // Create the file
-            const file = await this.app.vault.create(filePath, content);
+    /**
+     * Returns the view type identifier for the drawing plugin, or null if plugin is not installed
+     */
+    private getDrawingViewType(type: DrawingType): string | null {
+        if (type === 'excalidraw' && isPluginInstalled(this.app, [EXCALIDRAW_PLUGIN_ID])) {
+            return 'excalidraw';
+        }
 
-            // Open the file
-            const leaf = this.app.workspace.getLeaf(false);
-            await leaf.openFile(file);
+        if (type === 'tldraw' && isPluginInstalled(this.app, TLDRAW_PLUGIN_IDS)) {
+            return 'tldraw-view';
+        }
 
-            // The Excalidraw plugin should automatically recognize and open it in drawing mode
-            return file;
-        } catch (error) {
-            const message = getErrorMessage(error);
-            if (message.includes('already exists')) {
-                showNotice(strings.fileSystem.errors.drawingAlreadyExists, { variant: 'warning' });
-            } else {
-                showNotice(strings.fileSystem.errors.failedToCreateDrawing, { variant: 'warning' });
-            }
-            return null;
+        return null;
+    }
+
+    /**
+     * Attempts to switch the leaf view state to the drawing plugin's view
+     */
+    private async trySwitchToDrawingView(leaf: WorkspaceLeaf, file: TFile, type: DrawingType): Promise<void> {
+        const viewType = this.getDrawingViewType(type);
+        if (!viewType) {
+            return;
+        }
+
+        const viewState: ViewState = {
+            type: viewType,
+            state: { file: file.path }
+        };
+
+        try {
+            await leaf.setViewState(viewState);
+        } catch (error: unknown) {
+            console.error('Failed to switch drawing view', { viewType, error });
         }
     }
 }

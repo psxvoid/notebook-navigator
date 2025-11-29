@@ -80,8 +80,6 @@ export const STRINGS_AR = {
         emptySearchName: 'أدخل اسمًا قبل حفظ البحث',
         add: 'إضافة إلى الاختصارات',
         remove: 'إزالة من الاختصارات',
-        moveUp: 'نقل للأعلى',
-        moveDown: 'نقل للأسفل',
         folderNotesPinned: 'تم تثبيت {count} ملاحظة مجلد'
     },
 
@@ -174,6 +172,8 @@ export const STRINGS_AR = {
             newCanvas: 'لوحة جديدة',
             newBase: 'قاعدة جديدة',
             newDrawing: 'رسم جديد',
+            newExcalidrawDrawing: 'رسم Excalidraw جديد',
+            newTldrawDrawing: 'رسم Tldraw جديد',
             duplicateFolder: 'تكرار المجلد',
             searchInFolder: 'البحث في المجلد',
             copyPath: 'نسخ مسار نظام الملفات',
@@ -539,8 +539,10 @@ export const STRINGS_AR = {
             navigationPane: 'لوحة التنقل',
             icons: 'حزم الأيقونات',
             folders: 'مجلدات',
+            foldersAndTags: 'مجلدات ووسوم',
             tags: 'وسوم',
             search: 'بحث',
+            searchAndHotkeys: 'البحث والاختصارات',
             listPane: 'لوحة القائمة',
             notes: 'ملاحظات',
             hotkeys: 'اختصارات المفاتيح',

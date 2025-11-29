@@ -1,0 +1,1248 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Russian language strings for Notebook Navigator
+ * Organized by feature/component for easy maintenance
+ */
+export const STRINGS_RU = {
+    // Common UI elements
+    common: {
+        cancel: 'Отмена', // Button text for canceling dialogs and operations (English: Cancel)
+        delete: 'Удалить', // Button text for delete operations in dialogs (English: Delete)
+        remove: 'Убрать', // Button text for remove operations in dialogs (English: Remove)
+        submit: 'Отправить', // Button text for submitting forms and dialogs (English: Submit)
+        noSelection: 'Ничего не выбрано', // Placeholder text when no folder or tag is selected (English: No selection)
+        untagged: 'Без тегов', // Label for notes without any tags (English: Untagged)
+        untitled: 'Без названия', // Default name for notes without a title (English: Untitled)
+        featureImageAlt: 'Изображение', // Alt text for thumbnail/preview images (English: Feature image)
+        unknownError: 'Неизвестная ошибка', // Generic fallback when an error has no message (English: Unknown error)
+        updateBannerTitle: 'Доступно обновление Notebook Navigator',
+        updateBannerInstruction: 'Обновите в Настройки -> Сторонние плагины',
+        updateIndicatorLabel: 'Доступна новая версия'
+    },
+
+    // List pane
+    listPane: {
+        emptyStateNoSelection: 'Выберите папку или тег для просмотра заметок', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
+        emptyStateNoNotes: 'Нет заметок', // Message shown when a folder/tag has no notes (English: No notes)
+        pinnedSection: 'Закреплённые', // Header for the pinned notes section at the top of file list (English: Pinned)
+        notesSection: 'Заметки', // Header shown between pinned and regular items when showing documents only (English: Notes)
+        filesSection: 'Файлы', // Header shown between pinned and regular items when showing supported or all files (English: Files)
+        hiddenItemAriaLabel: '{name} (скрыто)' // Accessibility label applied to list items that are normally hidden
+    },
+
+    // Tag list
+    tagList: {
+        untaggedLabel: 'Без тегов', // Label for the special item showing notes without tags (English: Untagged)
+        hiddenTags: 'Скрытые теги', // Label for the hidden tags virtual folder (English: Hidden tags)
+        tags: 'Теги' // Label for the tags virtual folder (English: Tags)
+    },
+
+    // Navigation pane
+    navigationPane: {
+        shortcutsHeader: 'Ярлыки', // Header label for shortcuts section in navigation pane (English: Shortcuts)
+        recentNotesHeader: 'Недавние заметки', // Header label for recent notes section in navigation pane (English: Recent notes)
+        recentFilesHeader: 'Недавние файлы', // Header label when showing recent non-note files in navigation pane (English: Recent files)
+        reorderRootFoldersTitle: 'Изменить порядок разделов навигации',
+        reorderRootFoldersHint: 'Перетащите заголовки или элементы для изменения порядка',
+        vaultRootLabel: 'Хранилище',
+        resetRootToAlpha: 'Сбросить в алфавитный порядок',
+        resetRootToFrequency: 'Сбросить по частоте',
+        dragHandleLabel: 'Перетащите для изменения порядка',
+        pinShortcuts: 'Закрепить ярлыки',
+        unpinShortcuts: 'Открепить ярлыки',
+        profileMenuLabel: 'Профиль',
+        profileMenuAria: 'Сменить профиль хранилища'
+    },
+
+    shortcuts: {
+        folderExists: 'Папка уже в ярлыках',
+        noteExists: 'Заметка уже в ярлыках',
+        tagExists: 'Тег уже в ярлыках',
+        searchExists: 'Ярлык поиска уже существует',
+        emptySearchQuery: 'Введите поисковый запрос перед сохранением',
+        emptySearchName: 'Введите название перед сохранением поиска',
+        add: 'Добавить в ярлыки',
+        remove: 'Убрать из ярлыков',
+        folderNotesPinned: 'Закреплено заметок папок: {count}'
+    },
+
+    // Pane header
+    paneHeader: {
+        collapseAllFolders: 'Свернуть элементы', // Tooltip for button that collapses expanded items (English: Collapse items)
+        expandAllFolders: 'Развернуть все элементы', // Tooltip for button that expands all items (English: Expand all items)
+        scrollToTop: 'Прокрутить вверх',
+        newFolder: 'Новая папка', // Tooltip for create new folder button (English: New folder)
+        newNote: 'Новая заметка', // Tooltip for create new note button (English: New note)
+        mobileBackToNavigation: 'Назад к навигации', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
+        changeSortOrder: 'Изменить сортировку', // Tooltip for the sort order toggle button (English: Change sort order)
+        defaultSort: 'По умолчанию', // Label for default sorting mode (English: Default)
+        customSort: 'Пользовательская', // Label for custom sorting mode (English: Custom)
+        showFolders: 'Показать навигацию', // Tooltip for button to show the navigation pane (English: Show navigation)
+        hideFolders: 'Скрыть навигацию', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        reorderRootFolders: 'Изменить порядок корневых папок и тегов',
+        finishRootFolderReorder: 'Завершить изменение порядка',
+        toggleDescendantNotes: 'Показать заметки из подпапок / потомков', // Tooltip: include descendants for folders and tags
+        autoExpandFoldersTags: 'Разворачивать при выборе', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
+        showExcludedItems: 'Показать скрытые папки, теги и заметки', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: 'Скрыть скрытые папки, теги и заметки', // Tooltip for button to hide hidden items (English: Hide hidden items)
+        showDualPane: 'Показать двойную панель', // Tooltip for button to show dual-pane layout (English: Show dual panes)
+        showSinglePane: 'Показать одну панель', // Tooltip for button to show single-pane layout (English: Show single pane)
+        changeAppearance: 'Изменить внешний вид', // Tooltip for button to change folder appearance settings (English: Change appearance)
+        search: 'Поиск' // Tooltip for search button (English: Search)
+    },
+    // Search input
+    searchInput: {
+        placeholder: 'Поиск...', // Placeholder text for search input (English: Search...)
+        placeholderOmnisearch: 'Omnisearch...', // Placeholder text when Omnisearch provider is active (English: Omnisearch...)
+        clearSearch: 'Очистить поиск', // Tooltip for clear search button (English: Clear search)
+        saveSearchShortcut: 'Сохранить ярлык поиска',
+        removeSearchShortcut: 'Удалить ярлык поиска',
+        shortcutModalTitle: 'Сохранить ярлык поиска',
+        shortcutNameLabel: 'Название ярлыка',
+        shortcutNamePlaceholder: 'Введите название ярлыка'
+    },
+
+    // Context menus
+    contextMenu: {
+        file: {
+            openInNewTab: 'Открыть в новой вкладке',
+            openToRight: 'Открыть справа',
+            openInNewWindow: 'Открыть в новом окне',
+            openMultipleInNewTabs: 'Открыть {count} заметок в новых вкладках',
+            openMultipleFilesInNewTabs: 'Открыть {count} файлов в новых вкладках',
+            openMultipleToRight: 'Открыть {count} заметок справа',
+            openMultipleFilesToRight: 'Открыть {count} файлов справа',
+            openMultipleInNewWindows: 'Открыть {count} заметок в новых окнах',
+            openMultipleFilesInNewWindows: 'Открыть {count} файлов в новых окнах',
+            pinNote: 'Закрепить заметку',
+            pinFile: 'Закрепить файл',
+            unpinNote: 'Открепить заметку',
+            unpinFile: 'Открепить файл',
+            pinMultipleNotes: 'Закрепить {count} заметок',
+            pinMultipleFiles: 'Закрепить {count} файлов',
+            unpinMultipleNotes: 'Открепить {count} заметок',
+            unpinMultipleFiles: 'Открепить {count} файлов',
+            duplicateNote: 'Дублировать заметку',
+            duplicateFile: 'Дублировать файл',
+            duplicateMultipleNotes: 'Дублировать {count} заметок',
+            duplicateMultipleFiles: 'Дублировать {count} файлов',
+            openVersionHistory: 'Открыть историю версий',
+            revealInFolder: 'Показать в папке',
+            revealInFinder: 'Показать в Finder',
+            showInExplorer: 'Показать в проводнике',
+            copyDeepLink: 'Копировать URL Obsidian',
+            copyPath: 'Копировать путь в файловой системе',
+            copyRelativePath: 'Копировать путь в хранилище',
+            renameNote: 'Переименовать заметку',
+            renameFile: 'Переименовать файл',
+            deleteNote: 'Удалить заметку',
+            deleteFile: 'Удалить файл',
+            deleteMultipleNotes: 'Удалить {count} заметок',
+            deleteMultipleFiles: 'Удалить {count} файлов',
+            moveNoteToFolder: 'Переместить заметку в...',
+            moveFileToFolder: 'Переместить файл в...',
+            moveMultipleNotesToFolder: 'Переместить {count} заметок в...',
+            moveMultipleFilesToFolder: 'Переместить {count} файлов в...',
+            addTag: 'Добавить тег',
+            removeTag: 'Удалить тег',
+            removeAllTags: 'Удалить все теги',
+            changeIcon: 'Изменить иконку',
+            changeColor: 'Изменить цвет'
+        },
+        folder: {
+            newNote: 'Новая заметка',
+            newFolder: 'Новая папка',
+            newCanvas: 'Новый холст',
+            newBase: 'Новая база',
+            newDrawing: 'Новый рисунок',
+            newExcalidrawDrawing: 'Новый рисунок Excalidraw',
+            newTldrawDrawing: 'Новый рисунок Tldraw',
+            duplicateFolder: 'Дублировать папку',
+            searchInFolder: 'Искать в папке',
+            copyPath: 'Копировать путь в файловой системе',
+            copyRelativePath: 'Копировать путь в хранилище',
+            createFolderNote: 'Создать заметку папки',
+            deleteFolderNote: 'Удалить заметку папки',
+            changeIcon: 'Изменить иконку',
+            changeColor: 'Изменить цвет',
+            changeBackground: 'Изменить фон',
+            excludeFolder: 'Скрыть папку',
+            unhideFolder: 'Показать папку',
+            moveFolder: 'Переместить папку в...',
+            renameFolder: 'Переименовать папку',
+            deleteFolder: 'Удалить папку'
+        },
+        tag: {
+            changeIcon: 'Изменить иконку',
+            changeColor: 'Изменить цвет',
+            changeBackground: 'Изменить фон',
+            showTag: 'Показать тег',
+            hideTag: 'Скрыть тег'
+        },
+        navigation: {
+            addSeparator: 'Добавить разделитель',
+            removeSeparator: 'Удалить разделитель'
+        }
+    },
+
+    // Folder appearance menu
+    folderAppearance: {
+        standardPreset: 'Стандартный',
+        compactPreset: 'Компактный',
+        defaultSuffix: '(по умолчанию)',
+        titleRows: 'Строки заголовка',
+        previewRows: 'Строки превью',
+        groupBy: 'Группировать по',
+        defaultOption: (rows: number) => `По умолчанию (${rows})`,
+        defaultTitleOption: (rows: number) => `Строк заголовка по умолчанию (${rows})`,
+        defaultPreviewOption: (rows: number) => `Строк превью по умолчанию (${rows})`,
+        defaultGroupOption: (groupLabel: string) => `Группировка по умолчанию (${groupLabel})`,
+        titleRowOption: (rows: number) => `${rows} ${rows === 1 ? 'строка' : rows < 5 ? 'строки' : 'строк'} заголовка`,
+        previewRowOption: (rows: number) => `${rows} ${rows === 1 ? 'строка' : rows < 5 ? 'строки' : 'строк'} превью`
+    },
+
+    // Modal dialogs
+    modals: {
+        iconPicker: {
+            searchPlaceholder: 'Поиск иконок...',
+            recentlyUsedHeader: 'Недавно использованные',
+            emptyStateSearch: 'Начните вводить для поиска иконок',
+            emptyStateNoResults: 'Иконки не найдены',
+            showingResultsInfo: 'Показано 50 из {count} результатов. Введите больше для уточнения.',
+            emojiInstructions: 'Введите или вставьте любой эмодзи, чтобы использовать его как иконку',
+            removeIcon: 'Удалить иконку',
+            allTabLabel: 'Все'
+        },
+        colorPicker: {
+            currentColor: 'Текущий',
+            newColor: 'Новый',
+            presetColors: 'Предустановленные цвета',
+            userColors: 'Пользовательские цвета',
+            copyColors: 'Копировать цвета',
+            colorsCopied: 'Цвета скопированы в буфер обмена',
+            copyClipboardError: 'Не удалось записать в буфер обмена',
+            pasteColors: 'Вставить цвета',
+            pasteClipboardError: 'Не удалось прочитать буфер обмена',
+            pasteInvalidJson: 'Буфер обмена не содержит корректный JSON',
+            pasteInvalidFormat: 'Ожидался массив цветовых значений',
+            colorsPasted: 'Цвета успешно вставлены',
+            resetUserColors: 'Сбросить цвета',
+            userColorSlot: 'Цвет {slot}',
+            recentColors: 'Недавние цвета',
+            clearRecentColors: 'Очистить недавние цвета',
+            removeRecentColor: 'Удалить цвет',
+            removeColor: 'Удалить цвет',
+            apply: 'Применить',
+            hexLabel: 'HEX',
+            rgbLabel: 'RGBA',
+            colors: {
+                red: 'Красный',
+                orange: 'Оранжевый',
+                amber: 'Янтарный',
+                yellow: 'Жёлтый',
+                lime: 'Лаймовый',
+                green: 'Зелёный',
+                emerald: 'Изумрудный',
+                teal: 'Бирюзовый',
+                cyan: 'Голубой',
+                sky: 'Небесный',
+                blue: 'Синий',
+                indigo: 'Индиго',
+                violet: 'Фиолетовый',
+                purple: 'Пурпурный',
+                fuchsia: 'Фуксия',
+                pink: 'Розовый',
+                rose: 'Алый',
+                gray: 'Серый',
+                slate: 'Сланцевый',
+                stone: 'Каменный'
+            }
+        },
+        selectVaultProfile: {
+            title: 'Выбор профиля хранилища',
+            currentBadge: 'Активный',
+            emptyState: 'Нет доступных профилей хранилища.'
+        },
+        tagOperation: {
+            renameTitle: 'Переименовать тег {tag}',
+            deleteTitle: 'Удалить тег {tag}',
+            newTagPrompt: 'Новое название тега',
+            newTagPlaceholder: 'Введите новое название тега',
+            renameWarning: 'Переименование тега {oldTag} изменит {count} {files}.',
+            deleteWarning: 'Удаление тега {tag} изменит {count} {files}.',
+            modificationWarning: 'Это обновит даты изменения файлов.',
+            affectedFiles: 'Затронутые файлы:',
+            andMore: '...и ещё {count}',
+            confirmRename: 'Переименовать тег',
+            renameUnchanged: '{tag} не изменён',
+            renameNoChanges: '{oldTag} → {newTag} ({countLabel})',
+            invalidTagName: 'Введите корректное название тега.',
+            descendantRenameError: 'Нельзя переместить тег в себя или в потомка.',
+            confirmDelete: 'Удалить тег',
+            file: 'файл',
+            files: 'файлов'
+        },
+        fileSystem: {
+            newFolderTitle: 'Новая папка',
+            renameFolderTitle: 'Переименовать папку',
+            renameFileTitle: 'Переименовать файл',
+            deleteFolderTitle: "Удалить '{name}'?",
+            deleteFileTitle: "Удалить '{name}'?",
+            folderNamePrompt: 'Введите название папки:',
+            hideInOtherVaultProfiles: 'Скрыть в других профилях хранилища',
+            renamePrompt: 'Введите новое название:',
+            renameVaultTitle: 'Изменить отображаемое имя хранилища',
+            renameVaultPrompt: 'Введите пользовательское имя (оставьте пустым для использования по умолчанию):',
+            deleteFolderConfirm: 'Вы уверены, что хотите удалить эту папку и всё её содержимое?',
+            deleteFileConfirm: 'Вы уверены, что хотите удалить этот файл?',
+            removeAllTagsTitle: 'Удалить все теги',
+            removeAllTagsFromNote: 'Вы уверены, что хотите удалить все теги из этой заметки?',
+            removeAllTagsFromNotes: 'Вы уверены, что хотите удалить все теги из {count} заметок?'
+        },
+        folderNoteType: {
+            title: 'Выберите тип заметки папки',
+            folderLabel: 'Папка: {name}'
+        },
+        folderSuggest: {
+            placeholder: (name: string) => `Переместить ${name} в папку...`,
+            multipleFilesLabel: (count: number) => `${count} файлов`,
+            navigatePlaceholder: 'Перейти к папке...',
+            instructions: {
+                navigate: 'для навигации',
+                move: 'для перемещения',
+                select: 'для выбора',
+                dismiss: 'для закрытия'
+            }
+        },
+        homepage: {
+            placeholder: 'Поиск файлов...',
+            instructions: {
+                navigate: 'для навигации',
+                select: 'для установки домашней страницы',
+                dismiss: 'для закрытия'
+            }
+        },
+        navigationBanner: {
+            placeholder: 'Поиск изображений...',
+            instructions: {
+                navigate: 'для навигации',
+                select: 'для установки баннера',
+                dismiss: 'для закрытия'
+            }
+        },
+        tagSuggest: {
+            placeholder: 'Поиск тегов...',
+            navigatePlaceholder: 'Перейти к тегу...',
+            addPlaceholder: 'Найти тег для добавления...',
+            removePlaceholder: 'Выберите тег для удаления...',
+            createNewTag: 'Создать новый тег: #{tag}',
+            instructions: {
+                navigate: 'для навигации',
+                select: 'для выбора',
+                dismiss: 'для закрытия',
+                add: 'для добавления тега',
+                remove: 'для удаления тега'
+            }
+        }
+    },
+    // File system operations
+    fileSystem: {
+        errors: {
+            createFolder: 'Не удалось создать папку: {error}',
+            createFile: 'Не удалось создать файл: {error}',
+            renameFolder: 'Не удалось переименовать папку: {error}',
+            renameFolderNoteConflict: 'Невозможно переименовать: "{name}" уже существует в этой папке',
+            renameFile: 'Не удалось переименовать файл: {error}',
+            deleteFolder: 'Не удалось удалить папку: {error}',
+            deleteFile: 'Не удалось удалить файл: {error}',
+            duplicateNote: 'Не удалось дублировать заметку: {error}',
+            createCanvas: 'Не удалось создать холст: {error}',
+            createDatabase: 'Не удалось создать базу данных: {error}',
+            duplicateFolder: 'Не удалось дублировать папку: {error}',
+            openVersionHistory: 'Не удалось открыть историю версий: {error}',
+            versionHistoryNotFound: 'Команда истории версий не найдена. Убедитесь, что Obsidian Sync включён.',
+            revealInExplorer: 'Не удалось показать файл в проводнике: {error}',
+            folderNoteAlreadyExists: 'Заметка папки уже существует',
+            folderAlreadyExists: 'Папка "{name}" уже существует',
+            folderNotesDisabled: 'Включите заметки папок в настройках для конвертации файлов',
+            folderNoteAlreadyLinked: 'Этот файл уже является заметкой папки',
+            folderNoteUnsupportedExtension: 'Неподдерживаемое расширение файла: {extension}',
+            folderNoteMoveFailed: 'Не удалось переместить файл при конвертации: {error}',
+            folderNoteRenameConflict: 'Файл с именем "{name}" уже существует в папке',
+            folderNoteConversionFailed: 'Не удалось конвертировать файл в заметку папки',
+            folderNoteConversionFailedWithReason: 'Не удалось конвертировать файл в заметку папки: {error}',
+            folderNoteOpenFailed: 'Файл конвертирован, но не удалось открыть заметку папки: {error}',
+            failedToDeleteFile: 'Не удалось удалить {name}: {error}',
+            failedToDeleteMultipleFiles: 'Не удалось удалить {count} файлов',
+            versionHistoryNotAvailable: 'Служба истории версий недоступна',
+            drawingAlreadyExists: 'Рисунок с таким именем уже существует',
+            failedToCreateDrawing: 'Не удалось создать рисунок',
+            noFolderSelected: 'В Notebook Navigator не выбрана папка',
+            noFileSelected: 'Файл не выбран'
+        },
+        notices: {
+            hideFolder: 'Папка скрыта: {name}',
+            showFolder: 'Папка показана: {name}'
+        },
+        notifications: {
+            deletedMultipleFiles: 'Удалено файлов: {count}',
+            movedMultipleFiles: 'Перемещено {count} файлов в {folder}',
+            folderNoteConversionSuccess: 'Файл конвертирован в заметку папки в "{name}"',
+            folderMoved: 'Папка "{name}" перемещена',
+            deepLinkCopied: 'URL Obsidian скопирован в буфер обмена',
+            pathCopied: 'Путь скопирован в буфер обмена',
+            relativePathCopied: 'Относительный путь скопирован в буфер обмена',
+            tagAddedToNote: 'Тег добавлен к 1 заметке',
+            tagAddedToNotes: 'Тег добавлен к {count} заметкам',
+            tagRemovedFromNote: 'Тег удалён из 1 заметки',
+            tagRemovedFromNotes: 'Тег удалён из {count} заметок',
+            tagsClearedFromNote: 'Все теги удалены из 1 заметки',
+            tagsClearedFromNotes: 'Все теги удалены из {count} заметок',
+            noTagsToRemove: 'Нет тегов для удаления',
+            noFilesSelected: 'Файлы не выбраны',
+            tagOperationsNotAvailable: 'Операции с тегами недоступны',
+            tagsRequireMarkdown: 'Теги поддерживаются только для Markdown-заметок',
+            iconPackDownloaded: '{provider} загружен',
+            iconPackUpdated: '{provider} обновлён ({version})',
+            iconPackRemoved: '{provider} удалён',
+            iconPackLoadFailed: 'Не удалось загрузить {provider}',
+            hiddenFileReveal: 'Файл скрыт. Включите "Показать скрытые элементы" для отображения'
+        },
+        confirmations: {
+            deleteMultipleFiles: 'Вы уверены, что хотите удалить {count} файлов?',
+            deleteConfirmation: 'Это действие нельзя отменить.'
+        },
+        defaultNames: {
+            untitled: 'Без названия',
+            untitledNumber: 'Без названия {number}'
+        }
+    },
+
+    // Drag and drop operations
+    dragDrop: {
+        errors: {
+            cannotMoveIntoSelf: 'Нельзя переместить папку в себя или в подпапку.',
+            itemAlreadyExists: 'Элемент с именем "{name}" уже существует в этом месте.',
+            failedToMove: 'Не удалось переместить: {error}',
+            failedToAddTag: 'Не удалось добавить тег "{tag}"',
+            failedToClearTags: 'Не удалось очистить теги',
+            failedToMoveFolder: 'Не удалось переместить папку "{name}"',
+            failedToImportFiles: 'Не удалось импортировать: {names}'
+        },
+        notifications: {
+            filesAlreadyExist: '{count} файлов уже существуют в месте назначения',
+            addedTag: 'Добавлен тег "{tag}" к {count} файлам',
+            filesAlreadyHaveTag: '{count} файлов уже имеют этот тег или более специфичный',
+            clearedTags: 'Все теги удалены из {count} файлов',
+            noTagsToClear: 'Нет тегов для очистки',
+            fileImported: 'Импортирован 1 файл',
+            filesImported: 'Импортировано файлов: {count}'
+        }
+    },
+
+    // Date grouping
+    dateGroups: {
+        today: 'Сегодня',
+        yesterday: 'Вчера',
+        previous7Days: 'Последние 7 дней',
+        previous30Days: 'Последние 30 дней'
+    },
+
+    // Weekdays
+    weekdays: {
+        sunday: 'Воскресенье',
+        monday: 'Понедельник',
+        tuesday: 'Вторник',
+        wednesday: 'Среда',
+        thursday: 'Четверг',
+        friday: 'Пятница',
+        saturday: 'Суббота'
+    },
+
+    // Plugin commands
+    commands: {
+        open: 'Открыть', // Command palette: Opens the Notebook Navigator view (English: Open)
+        openHomepage: 'Открыть домашнюю страницу', // Command palette: Opens the Notebook Navigator view and loads the homepage file (English: Open homepage)
+        revealFile: 'Показать файл', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        search: 'Поиск', // Command palette: Toggle search in the file list (English: Search)
+        toggleDualPane: 'Переключить двухпанельный режим', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
+        selectVaultProfile: 'Выбрать профиль хранилища', // Command palette: Opens a modal to choose a different vault profile (English: Select vault profile)
+        selectVaultProfile1: 'Выбрать профиль хранилища 1', // Command palette: Activates the first vault profile without opening the modal (English: Select vault profile 1)
+        selectVaultProfile2: 'Выбрать профиль хранилища 2', // Command palette: Activates the second vault profile without opening the modal (English: Select vault profile 2)
+        selectVaultProfile3: 'Выбрать профиль хранилища 3', // Command palette: Activates the third vault profile without opening the modal (English: Select vault profile 3)
+        deleteFile: 'Удалить файлы', // Command palette: Deletes the currently active file (English: Delete file)
+        createNewNote: 'Создать новую заметку', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        moveFiles: 'Переместить файлы', // Command palette: Move selected files to another folder (English: Move files)
+        selectNextFile: 'Выбрать следующий файл', // Command palette: Selects the next file in the current view (English: Select next file)
+        selectPreviousFile: 'Выбрать предыдущий файл', // Command palette: Selects the previous file in the current view (English: Select previous file)
+        convertToFolderNote: 'Конвертировать в заметку папки', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        pinAllFolderNotes: 'Закрепить все заметки папок', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
+        navigateToFolder: 'Перейти к папке', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        navigateToTag: 'Перейти к тегу', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
+        addShortcut: 'Добавить в ярлыки', // Command palette: Adds the current file, folder, or tag to shortcuts (English: Add to shortcuts)
+        toggleDescendants: 'Переключить потомков', // Command palette: Toggles showing notes from descendants (English: Toggle descendants)
+        toggleHidden: 'Переключить скрытые папки, теги и заметки', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        toggleTagSort: 'Переключить сортировку тегов', // Command palette: Toggles between alphabetical and frequency tag sorting (English: Toggle tag sort order)
+        collapseExpand: 'Свернуть / развернуть все элементы', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
+        addTag: 'Добавить тег к выбранным файлам', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
+        removeTag: 'Удалить тег из выбранных файлов', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
+        removeAllTags: 'Удалить все теги из выбранных файлов', // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
+        rebuildCache: 'Пересобрать кэш', // Command palette: Rebuilds the local Notebook Navigator cache (English: Rebuild cache)
+        paneJumpTop: 'Перейти к началу списка',
+        paneJumpBottom: 'Перейти к концу списка',
+        paneJumpParent: 'Перейти/открыть активный файл в родительском теге или папке',
+        paneJumpChildren: 'Перейти/открыть активный файл в дочернем теге или папке',
+    },
+
+    // Plugin UI
+    plugin: {
+        viewName: 'Notebook Navigator', // Name shown in the view header/tab (English: Notebook Navigator)
+        ribbonTooltip: 'Notebook Navigator', // Tooltip for the ribbon icon in the left sidebar (English: Notebook Navigator)
+        revealInNavigator: 'Показать в Notebook Navigator' // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
+    },
+
+    // Tooltips
+    tooltips: {
+        lastModifiedAt: 'Последнее изменение',
+        createdAt: 'Создано',
+        file: 'файл',
+        files: 'файлов',
+        folder: 'папка',
+        folders: 'папок'
+    },
+
+    // Settings
+    settings: {
+        metadataReport: {
+            exportSuccess: 'Отчёт о неудачных метаданных экспортирован в: {filename}',
+            exportFailed: 'Не удалось экспортировать отчёт о метаданных'
+        },
+        sections: {
+            general: 'Общие',
+            navigationPane: 'Панель навигации',
+            icons: 'Наборы иконок',
+            folders: 'Папки',
+            foldersAndTags: 'Папки и теги',
+            tags: 'Теги',
+            search: 'Поиск',
+            searchAndHotkeys: 'Поиск и горячие клавиши',
+            listPane: 'Панель списка',
+            notes: 'Заметки',
+            hotkeys: 'Горячие клавиши',
+            advanced: 'Расширенные'
+        },
+        groups: {
+            general: {
+                filtering: 'Фильтрация',
+                behavior: 'Поведение',
+                view: 'Внешний вид',
+                desktopAppearance: 'Внешний вид на компьютере',
+                mobileAppearance: 'Внешний вид на мобильном',
+                formatting: 'Форматирование'
+            },
+            navigation: {
+                behavior: 'Поведение',
+                appearance: 'Внешний вид'
+            },
+            list: {
+                display: 'Внешний вид',
+                pinnedNotes: 'Закреплённые заметки',
+                quickActions: 'Быстрые действия'
+            },
+            notes: {
+                frontmatter: 'Frontmatter',
+                display: 'Внешний вид',
+                textTransformAdd: 'Добавить новое преобразование',
+                textTransformPatternPlaceholder: 'Регулярное выражение',
+                textTransformReplacementPlaceholder: 'Замена',
+                textTransformEmptyTitle: 'Шаблон должен быть допустимым регулярным выражением',
+            }
+        },
+        items: {
+            searchProvider: {
+                name: 'Поставщик поиска',
+                desc: 'Выберите между быстрым поиском по имени файла или полнотекстовым поиском с плагином Omnisearch.',
+                options: {
+                    internal: 'Фильтр-поиск',
+                    omnisearch: 'Omnisearch (полнотекстовый)'
+                },
+                info: {
+                    filterSearch: {
+                        title: 'Фильтр-поиск (по умолчанию):',
+                        description:
+                            'Быстрый, лёгкий поиск, фильтрующий файлы по имени и тегам в текущей папке и подпапках. Поддерживает фильтрацию по тегам с префиксом # (например, #проект), исключение с префиксом ! (например, !черновик, !#архив) и поиск заметок без тегов с !#. Идеально подходит для быстрой навигации в текущем контексте.'
+                    },
+                    omnisearch: {
+                        title: 'Omnisearch:',
+                        description:
+                            'Полнотекстовый поиск по всему хранилищу с последующей фильтрацией результатов для показа только файлов из текущей папки, подпапок или выбранных тегов. Требуется установленный плагин Omnisearch — если недоступен, поиск автоматически переключится на фильтр-поиск.',
+                        warningNotInstalled: 'Плагин Omnisearch не установлен. Используется фильтр-поиск.',
+                        limitations: {
+                            title: 'Известные ограничения:',
+                            performance:
+                                'Производительность: Может быть медленным, особенно при поиске менее 3 символов в больших хранилищах',
+                            pathBug:
+                                'Ошибка путей: Не может искать в путях с не-ASCII символами и некорректно ищет в подпутях, что влияет на отображаемые файлы в результатах',
+                            limitedResults:
+                                'Ограниченные результаты: Поскольку Omnisearch ищет по всему хранилищу и возвращает ограниченное количество результатов до фильтрации, релевантные файлы из текущей папки могут не отображаться, если слишком много совпадений найдено в других местах',
+                            previewText:
+                                'Текст превью: Превью заметок заменяются на отрывки результатов Omnisearch, которые могут не показывать фактическое совпадение, если оно находится в другом месте файла'
+                        }
+                    }
+                }
+            },
+            listPaneTitle: {
+                name: 'Заголовок панели списка (только компьютер)',
+                desc: 'Выберите, где отображается заголовок панели списка.',
+                options: {
+                    header: 'Показывать в заголовке',
+                    list: 'Показывать в панели списка',
+                    hidden: 'Не показывать'
+                }
+            },
+            sortNotesBy: {
+                name: 'Сортировка заметок',
+                desc: 'Выберите способ сортировки заметок в списке.',
+                options: {
+                    'modified-desc': 'По дате изменения (новые сверху)',
+                    'modified-asc': 'По дате изменения (старые сверху)',
+                    'created-desc': 'По дате создания (новые сверху)',
+                    'created-asc': 'По дате создания (старые сверху)',
+                    'title-asc': 'По названию (А сверху)',
+                    'title-desc': 'По названию (Я сверху)'
+                }
+            },
+            revealFileOnListChanges: {
+                name: 'Прокрутка к выбранному файлу при изменениях списка',
+                desc: 'Прокручивать к выбранному файлу при закреплении заметок, показе потомков, изменении внешнего вида папки или выполнении файловых операций.'
+            },
+            includeDescendantNotes: {
+                name: 'Показывать заметки из подпапок / потомков',
+                desc: 'Включать заметки из вложенных подпапок и потомков тегов при просмотре папки или тега.'
+            },
+            limitPinnedToCurrentFolder: {
+                name: 'Ограничить закреплённые заметки их папкой',
+                desc: 'Закреплённые заметки отображаются только при просмотре папки или тега, где они были закреплены.'
+            },
+            separateNoteCounts: {
+                name: 'Показывать текущие и потомков отдельно',
+                desc: 'Отображать количество заметок в формате "текущие ▾ потомки" в папках и тегах.'
+            },
+            groupNotes: {
+                name: 'Группировка заметок',
+                desc: 'Показывать заголовки между заметками, сгруппированными по дате или папке. При просмотре тегов используются группы по дате, если включена группировка по папкам.',
+                options: {
+                    none: 'Не группировать',
+                    date: 'Группировать по дате',
+                    folder: 'Группировать по папке'
+                }
+            },
+            showPinnedGroupHeader: {
+                name: 'Показывать заголовок закреплённых',
+                desc: 'Отображать заголовок раздела закреплённых над закреплёнными заметками.'
+            },
+            showPinnedIcon: {
+                name: 'Показывать иконку закреплённых',
+                desc: 'Показывать иконку рядом с заголовком раздела закреплённых.'
+            },
+            defaultListMode: {
+                name: 'Режим списка по умолчанию',
+                desc: 'Выберите стандартную разметку списка. Стандартный показывает название, дату, описание и превью. Компактный показывает только название. Можно переопределить внешний вид для каждой папки.',
+                options: {
+                    standard: 'Стандартный',
+                    compact: 'Компактный'
+                }
+            },
+            showFileIcons: {
+                name: 'Показывать иконки файлов',
+                desc: 'Отображать иконки файлов с выравниванием по левому краю. Отключение убирает и иконки, и отступы.'
+            },
+            optimizeNoteHeight: {
+                name: 'Оптимизировать высоту заметок',
+                desc: 'Уменьшать высоту для закреплённых заметок и заметок без превью.'
+            },
+            compactItemHeight: {
+                name: 'Высота компактных элементов',
+                desc: 'Установите высоту компактных элементов списка на компьютере и мобильном.',
+                resetTooltip: 'Восстановить по умолчанию (28px)'
+            },
+            compactItemHeightScaleText: {
+                name: 'Масштабировать текст с высотой компактных элементов',
+                desc: 'Масштабировать текст компактного списка при уменьшении высоты элементов.'
+            },
+            showParentFolder: {
+                name: 'Показывать родительскую папку',
+                desc: 'Отображать название родительской папки для заметок в подпапках или тегах.'
+            },
+            parentFolderClickRevealsFile: {
+                name: 'Клик по родительской папке показывает файл',
+                desc: 'Клик по метке родительской папки показывает файл.'
+            },
+            showParentFolderColor: {
+                name: 'Показывать цвет родительской папки',
+                desc: 'Использовать цвета папок на метках родительских папок.'
+            },
+            showQuickActions: {
+                name: 'Показывать быстрые действия (только компьютер)',
+                desc: 'Показывать кнопки действий при наведении на файлы. Элементы управления выбирают, какие действия отображаются.'
+            },
+            dualPane: {
+                name: 'Двухпанельный режим (не синхронизируется)',
+                desc: 'Показывать панель навигации и панель списка рядом на компьютере.'
+            },
+            dualPaneOrientation: {
+                name: 'Ориентация двухпанельного режима (не синхронизируется)',
+                desc: 'Выберите горизонтальную или вертикальную разметку при активном двухпанельном режиме.',
+                options: {
+                    horizontal: 'Горизонтальное разделение',
+                    vertical: 'Вертикальное разделение'
+                }
+            },
+            appearanceBackground: {
+                name: 'Цвет фона',
+                desc: 'Выберите цвета фона для панелей навигации и списка.',
+                options: {
+                    separate: 'Раздельные фоны',
+                    primary: 'Использовать фон списка',
+                    secondary: 'Использовать фон навигации'
+                }
+            },
+            appearanceScale: {
+                name: 'Уровень масштабирования',
+                desc: 'Управляет общим масштабом Notebook Navigator.'
+            },
+            startView: {
+                name: 'Начальный вид по умолчанию',
+                desc: 'Выберите, какая панель отображается при открытии Notebook Navigator. Панель навигации показывает ярлыки, недавние заметки и дерево папок. Панель списка сразу показывает список заметок.',
+                options: {
+                    navigation: 'Панель навигации',
+                    files: 'Панель списка'
+                }
+            },
+            toolbarButtons: {
+                name: 'Кнопки панели инструментов',
+                desc: 'Выберите, какие кнопки отображаются на панели инструментов. Скрытые кнопки остаются доступными через команды и меню.',
+                navigationLabel: 'Панель навигации',
+                listLabel: 'Панель списка'
+            },
+            autoRevealActiveNote: {
+                name: 'Автопоказ активной заметки',
+                desc: 'Автоматически показывать заметки, открытые из быстрого переключателя, ссылок или поиска.'
+            },
+            autoRevealIgnoreRightSidebar: {
+                name: 'Игнорировать события из правой боковой панели',
+                desc: 'Не менять активную заметку при клике или изменении заметок в правой боковой панели.'
+            },
+            autoSelectFirstFileOnFocusChange: {
+                name: 'Автовыбор первой заметки (только компьютер)',
+                desc: 'Автоматически открывать первую заметку при смене папок или тегов.'
+            },
+            skipAutoScroll: {
+                name: 'Отключить автопрокрутку для ярлыков',
+                desc: 'Не прокручивать панель навигации при клике по элементам в ярлыках.'
+            },
+            autoExpandFoldersTags: {
+                name: 'Разворачивать при выборе',
+                desc: 'Разворачивать папки и теги при выборе. В однопанельном режиме первый выбор разворачивает, второй показывает файлы.'
+            },
+            navigationBanner: {
+                name: 'Баннер навигации (профиль хранилища)',
+                desc: 'Показывать изображение над панелью навигации. Меняется с выбранным профилем хранилища.',
+                current: 'Текущий баннер: {path}',
+                chooseButton: 'Выбрать изображение',
+                clearButton: 'Очистить'
+            },
+            showShortcuts: {
+                name: 'Показывать ярлыки',
+                desc: 'Отображать раздел ярлыков в панели навигации.'
+            },
+            showRecentNotes: {
+                name: 'Показывать недавние заметки',
+                desc: 'Отображать раздел недавних заметок в панели навигации.'
+            },
+            recentNotesCount: {
+                name: 'Количество недавних заметок',
+                desc: 'Количество отображаемых недавних заметок.'
+            },
+            showTooltips: {
+                name: 'Показывать подсказки',
+                desc: 'Отображать всплывающие подсказки с дополнительной информацией для заметок и папок.'
+            },
+            showTooltipPath: {
+                name: 'Показывать путь',
+                desc: 'Отображать путь к папке под названиями заметок в подсказках.'
+            },
+            resetPaneSeparator: {
+                name: 'Сбросить положение разделителя панелей',
+                desc: 'Сбросить перетаскиваемый разделитель между панелью навигации и панелью списка в положение по умолчанию.',
+                buttonText: 'Сбросить разделитель',
+                notice: 'Положение разделителя сброшено. Перезапустите Obsidian или переоткройте Notebook Navigator для применения.'
+            },
+            multiSelectModifier: {
+                name: 'Модификатор множественного выбора',
+                desc: 'Выберите, какая клавиша-модификатор переключает множественный выбор. При выборе Option/Alt, клик с Cmd/Ctrl открывает заметки в новой вкладке.',
+                options: {
+                    cmdCtrl: 'Клик с Cmd/Ctrl',
+                    optionAlt: 'Клик с Option/Alt'
+                }
+            },
+            fileVisibility: {
+                name: 'Показывать типы файлов',
+                desc: 'Фильтруйте, какие типы файлов отображаются в навигаторе. Типы файлов, не поддерживаемые Obsidian, могут открываться во внешних приложениях.',
+                options: {
+                    documents: 'Документы (.md, .canvas, .base)',
+                    supported: 'Поддерживаемые (открываются в Obsidian)',
+                    all: 'Все (могут открываться внешне)'
+                }
+            },
+            homepage: {
+                name: 'Домашняя страница',
+                desc: 'Выберите файл, который Notebook Navigator открывает автоматически, например панель управления.',
+                current: 'Текущая: {path}',
+                currentMobile: 'Мобильная: {path}',
+                chooseButton: 'Выбрать файл',
+                clearButton: 'Очистить',
+                separateMobile: {
+                    name: 'Отдельная мобильная домашняя страница',
+                    desc: 'Использовать другую домашнюю страницу для мобильных устройств.'
+                }
+            },
+            excludedNotes: {
+                name: 'Скрыть заметки',
+                desc: 'Список свойств frontmatter через запятую. Заметки, содержащие любое из этих свойств, будут скрыты (например, draft, private, archived).',
+                placeholder: 'draft, private'
+            },
+            vaultProfiles: {
+                name: 'Профиль хранилища',
+                desc: 'Профили хранят видимость типов файлов, скрытые папки, скрытые теги, скрытые заметки, ярлыки и баннер навигации. Переключайте профили из заголовка панели навигации.',
+                defaultName: 'По умолчанию',
+                addButton: 'Добавить профиль',
+                editButton: 'Редактировать профиль',
+                deleteButton: 'Удалить профиль',
+                addModalTitle: 'Добавить профиль',
+                editModalTitle: 'Редактировать профиль',
+                addModalPlaceholder: 'Название профиля',
+                deleteModalTitle: 'Удалить {name}',
+                deleteModalMessage: 'Удалить {name}? Фильтры скрытых папок, тегов и заметок, сохранённые в этом профиле, будут удалены.',
+                errors: {
+                    emptyName: 'Введите название профиля',
+                    duplicateName: 'Профиль с таким названием уже существует'
+                }
+            },
+            excludedFolders: {
+                name: 'Скрыть папки',
+                desc: 'Список папок через запятую для скрытия. Шаблоны имён: assets* (папки, начинающиеся с assets), *_temp (заканчивающиеся на _temp). Шаблоны путей: /archive (только корневой archive), /res* (корневые папки, начинающиеся с res), /*/temp (папки temp на один уровень вглубь), /projects/* (все папки внутри projects).',
+                placeholder: 'templates, assets*, /archive, /res*'
+            },
+            showFileDate: {
+                name: 'Показывать дату',
+                desc: 'Отображать дату под названиями заметок.'
+            },
+            alphabeticalDateMode: {
+                name: 'При сортировке по имени',
+                desc: 'Какую дату показывать при алфавитной сортировке заметок.',
+                options: {
+                    created: 'Дата создания',
+                    modified: 'Дата изменения'
+                }
+            },
+            showFileTags: {
+                name: 'Показывать теги файлов',
+                desc: 'Отображать кликабельные теги в элементах файлов.'
+            },
+            showFileTagAncestors: {
+                name: 'Показывать полные пути тегов',
+                desc: "Отображать полные пути иерархии тегов. При включении: 'ai/openai', 'work/projects/2024'. При отключении: 'openai', '2024'."
+            },
+            collapseFileTagsToSelectedTag: {
+                name: 'Свернуть теги до выбранного тега',
+                desc: 'Скрыть родительские сегменты, являющиеся частью выбранного представления тегов.'
+            },
+            colorFileTags: {
+                name: 'Цветные теги файлов',
+                desc: 'Применять цвета тегов к значкам тегов на элементах файлов.'
+            },
+            prioritizeColoredFileTags: {
+                name: 'Показывать цветные теги первыми',
+                desc: 'Сортировать цветные теги перед другими тегами на элементах файлов.'
+            },
+            showFileTagsInCompactMode: {
+                name: 'Показывать теги файлов в компактном режиме',
+                desc: 'Отображать теги, когда дата, превью и изображение скрыты.'
+            },
+            dateFormat: {
+                name: 'Формат даты',
+                desc: 'Формат отображения дат (использует формат date-fns).',
+                placeholder: 'd MMMM yyyy',
+                help: 'Распространённые форматы:\nd MMMM yyyy = 25 мая 2022\ndd.MM.yyyy = 25.05.2022\nyyyy-MM-dd = 2022-05-25\n\nТокены:\nyyyy/yy = год\nMMMM/MMM/MM = месяц\ndd/d = день\nEEEE/EEE = день недели',
+                helpTooltip: 'Нажмите для справки по формату'
+            },
+            timeFormat: {
+                name: 'Формат времени',
+                desc: 'Формат отображения времени (использует формат date-fns).',
+                placeholder: 'HH:mm',
+                help: 'Распространённые форматы:\nHH:mm = 14:30 (24-часовой)\nh:mm a = 2:30 PM (12-часовой)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nТокены:\nHH/H = 24-часовой\nhh/h = 12-часовой\nmm = минуты\nss = секунды\na = AM/PM',
+                helpTooltip: 'Нажмите для справки по формату'
+            },
+            preventInvalidCharacters: {
+                name: 'Предотвращать недопустимые символы',
+                desc: 'Блокировать #, |, ^, :, %%, [[, ]] при создании или переименовании файлов и папок.'
+            },
+            showFilePreview: {
+                name: 'Показывать превью заметки',
+                desc: 'Отображать текст превью под названиями заметок.'
+            },
+            skipHeadingsInPreview: {
+                name: 'Пропускать заголовки в превью',
+                desc: 'Пропускать строки заголовков при генерации текста превью.'
+            },
+            skipCodeBlocksInPreview: {
+                name: 'Пропускать блоки кода в превью',
+                desc: 'Пропускать блоки кода при генерации текста превью.'
+            },
+            previewProperties: {
+                name: 'Свойства превью',
+                desc: 'Список свойств frontmatter через запятую для проверки текста превью. Используется первое свойство с текстом.',
+                placeholder: 'summary, description, abstract',
+                info: 'Если текст превью не найден в указанных свойствах, превью будет сгенерировано из содержимого заметки.'
+            },
+            previewRows: {
+                name: 'Строки превью',
+                desc: 'Количество строк для отображения текста превью.',
+                options: {
+                    '1': '1 строка',
+                    '2': '2 строки',
+                    '3': '3 строки',
+                    '4': '4 строки',
+                    '5': '5 строк'
+                }
+            },
+            fileNameRows: {
+                name: 'Строки заголовка',
+                desc: 'Количество строк для отображения названий заметок.',
+                options: {
+                    '1': '1 строка',
+                    '2': '2 строки'
+                }
+            },
+            titleTransformName: {
+                name: 'Преобразование заголовка',
+                desc: `Заменяет весь заголовок или его части пользовательским значением. Например, это можно использовать для замены слова «idea» в начале заголовка заметки на значок лампочки в кодировке Unicode. Использует синтаксис «string.replace». Для применения изменений к существующим заметкам требуется обновить кэш.`
+            },
+            previewTransformName: {
+                name: 'Преобразование превью текста',
+                desc: `Заменяет весь превью текст или его части пользовательским значением. Может быть полезно, если заметки содержат блоки, которые вы не хотите видеть в списке заметок. Использует синтаксис «string.replace». Для применения изменений к существующим заметкам требуется обновить кэш.`
+            },
+            showFeatureImage: {
+                name: 'Показывать изображение',
+                desc: 'Отображать миниатюры из frontmatter. Совет: Используйте плагин "Featured Image" для автоматической установки изображений для всех документов.'
+            },
+            forceSquareFeatureImage: {
+                name: 'Квадратные изображения',
+                desc: 'Отображать изображения как квадратные миниатюры.'
+            },
+            featureImageProperties: {
+                name: 'Свойства изображения',
+                desc: 'Список свойств frontmatter через запятую для проверки миниатюр. Используется первое свойство с изображением. Если пусто и включён fallback, используется первое встроенное изображение.',
+                placeholder: 'thumbnail, featureResized, feature'
+            },
+            useEmbeddedImageFallback: {
+                name: 'Использовать встроенное изображение как fallback',
+                desc: 'Использовать первое встроенное изображение в документе как fallback, когда миниатюра не найдена в свойствах frontmatter (требуется Obsidian 1.9.4+). Отключите для проверки правильности настройки миниатюр.'
+            },
+            featureImageSize: {
+                name: 'Размеры превью изображения',
+                desc: 'Устанавливает размер превью изображения, которое будет использоваться в списке заметок.'
+            },
+            featureImageForPDF: {
+                name: 'Превью изображения для PDF',
+                desc: 'Позволяет создавать превью изображения для PDF-файлов.'
+            },
+            featureImagePersistIntermediate: {
+                name: 'Сохранить полное превью изображение на диск',
+                desc: 'Только для опытных пользователей. Включение этой опции сохраняет промежуточные полные превью изображения на диск. Может быть полезно для ускорения первоначальной индексации при изменении размера и синхронизации избранных изображений. При включении требуется пересборка кэша. Не очищает промежуточные изображения после отключения.'
+            },
+            showRootFolder: {
+                name: 'Показывать корневую папку',
+                desc: 'Отображать название хранилища как корневую папку в дереве.'
+            },
+            showFolderIcons: {
+                name: 'Показывать иконки папок',
+                desc: 'Отображать иконки рядом с папками в панели навигации.'
+            },
+            inheritFolderColors: {
+                name: 'Наследовать цвета папок',
+                desc: 'Дочерние папки наследуют цвет от родительских папок.'
+            },
+            showNoteCount: {
+                name: 'Показывать количество заметок',
+                desc: 'Отображать количество заметок рядом с каждой папкой и тегом.'
+            },
+            showSectionIcons: {
+                name: 'Показывать иконки для ярлыков и недавних',
+                desc: 'Отображать иконки для разделов навигации, таких как Ярлыки и Недавние файлы.'
+            },
+            showIconsColorOnly: {
+                name: 'Применять цвет только к иконкам',
+                desc: 'При включении пользовательские цвета применяются только к иконкам. При отключении цвета применяются и к иконкам, и к текстовым меткам.'
+            },
+            collapseBehavior: {
+                name: 'Сворачивание элементов',
+                desc: 'Выберите, на что влияет кнопка развернуть/свернуть всё.',
+                options: {
+                    all: 'Все папки и теги',
+                    foldersOnly: 'Только папки',
+                    tagsOnly: 'Только теги'
+                }
+            },
+            smartCollapse: {
+                name: 'Сохранять выбранный элемент развёрнутым',
+                desc: 'При сворачивании сохранять текущую выбранную папку или тег и их родителей развёрнутыми.'
+            },
+            navIndent: {
+                name: 'Отступ дерева',
+                desc: 'Настройте ширину отступа для вложенных папок и тегов.'
+            },
+            navItemHeight: {
+                name: 'Высота элемента',
+                desc: 'Настройте высоту папок и тегов в панели навигации.'
+            },
+            navItemHeightScaleText: {
+                name: 'Масштабировать текст с высотой элемента',
+                desc: 'Уменьшать размер текста навигации при уменьшении высоты элемента.'
+            },
+            navRootSpacing: {
+                name: 'Отступ корневых элементов',
+                desc: 'Отступ между корневыми папками и тегами.'
+            },
+            showTags: {
+                name: 'Показывать теги',
+                desc: 'Отображать раздел тегов под папками в навигаторе.'
+            },
+            showTagIcons: {
+                name: 'Показывать иконки тегов',
+                desc: 'Отображать иконки рядом с тегами в панели навигации.'
+            },
+            tagSortOrder: {
+                name: 'Сортировка тегов',
+                desc: 'Выберите порядок отображения тегов в панели навигации.',
+                options: {
+                    alphaAsc: 'От А до Я',
+                    alphaDesc: 'От Я до А',
+                    frequencyAsc: 'По частоте (от низкой к высокой)',
+                    frequencyDesc: 'По частоте (от высокой к низкой)'
+                }
+            },
+            showAllTagsFolder: {
+                name: 'Показывать папку тегов',
+                desc: 'Отображать "Теги" как сворачиваемую папку.'
+            },
+            showUntagged: {
+                name: 'Показывать заметки без тегов',
+                desc: 'Отображать элемент "Без тегов" для заметок без тегов.'
+            },
+            keepEmptyTagsProperty: {
+                name: 'Сохранять свойство tags после удаления последнего тега',
+                desc: 'Сохранять свойство tags в frontmatter, когда все теги удалены. При отключении свойство tags удаляется из frontmatter.'
+            },
+            hiddenTags: {
+                name: 'Скрыть теги',
+                desc: 'Список префиксов тегов или шаблонов имён через запятую. Используйте тег* или *тег для сопоставления имён тегов. Скрытие тега также скрывает все его подтеги (например, "archive" скрывает "archive/2024/docs").',
+                placeholder: 'internal, temp/drafts, archive/2024'
+            },
+            enableFolderNotes: {
+                name: 'Включить заметки папок',
+                desc: 'При включении папки с связанными заметками отображаются как кликабельные ссылки.'
+            },
+            folderNoteType: {
+                name: 'Тип заметки папки по умолчанию',
+                desc: 'Тип заметки папки, создаваемой из контекстного меню.',
+                options: {
+                    ask: 'Спрашивать при создании',
+                    markdown: 'Markdown',
+                    canvas: 'Canvas',
+                    base: 'Base'
+                }
+            },
+            folderNoteName: {
+                name: 'Название заметки папки',
+                desc: 'Название заметки папки без расширения. Оставьте пустым для использования того же имени, что и у папки.',
+                placeholder: 'index'
+            },
+            folderNoteProperties: {
+                name: 'Свойства заметки папки',
+                desc: 'YAML frontmatter, добавляемый к новым заметкам папок. Маркеры --- добавляются автоматически.',
+                placeholder: 'theme: dark\nfoldernote: true'
+            },
+            hideFolderNoteInList: {
+                name: 'Скрывать заметку папки в списке',
+                desc: 'Скрывать заметку папки в списке заметок папки.'
+            },
+            pinCreatedFolderNote: {
+                name: 'Закреплять созданные заметки папок',
+                desc: 'Автоматически закреплять заметки папок при создании из контекстного меню.'
+            },
+            confirmBeforeDelete: {
+                name: 'Подтверждать перед удалением',
+                desc: 'Показывать диалог подтверждения при удалении заметок или папок'
+            },
+            metadataCleanup: {
+                name: 'Очистка метаданных',
+                desc: 'Удаляет осиротевшие метаданные, оставшиеся после удаления, перемещения или переименования файлов, папок или тегов вне Obsidian. Это влияет только на файл настроек Notebook Navigator.',
+                buttonText: 'Очистить метаданные',
+                error: 'Ошибка очистки настроек',
+                loading: 'Проверка метаданных...',
+                statusClean: 'Нет метаданных для очистки',
+                statusCounts:
+                    'Осиротевшие элементы: {folders} папок, {tags} тегов, {files} файлов, {pinned} закреплённых, {separators} разделителей'
+            },
+            rebuildCacheFast: {
+                name: 'Обновить кэш',
+                desc: `Используйте этот вариант, если у вас отсутствуют теги, некорректные предварительные просмотры или изображения компонентов. Это может произойти из-за конфликтов синхронизации или неожиданного закрытия. Гораздо более лёгкая версия, чем «Пересобрать кэш», но может не решить все проблемы.`,
+                buttonText: 'Обновить кэш',
+                success: 'Кэш обновлен',
+                error: 'Не удалось обновить кэш'
+            },
+            rebuildCache: {
+                name: 'Пересобрать кэш',
+                desc: 'Используйте, если вы испытываете проблемы с отсутствующими тегами, некорректными превью или отсутствующими изображениями. Это может произойти после конфликтов синхронизации или неожиданных закрытий.',
+                buttonText: 'Пересобрать кэш',
+                success: 'Кэш пересобран',
+                error: 'Не удалось пересобрать кэш'
+            },
+            hotkeys: {
+                intro: 'Отредактируйте <папка плагина>/notebook-navigator/data.json для настройки горячих клавиш Notebook Navigator. Откройте файл и найдите раздел "keyboardShortcuts". Каждая запись использует такую структуру:',
+                example: '"pane:move-up": [ { "key": "ArrowUp", "modifiers": [] }, { "key": "K", "modifiers": [] } ]',
+                modifierList: [
+                    '"Mod" = Cmd (macOS) / Ctrl (Win/Linux)',
+                    '"Alt" = Alt/Option',
+                    '"Shift" = Shift',
+                    '"Ctrl" = Control (предпочтительно "Mod" для кроссплатформенности)'
+                ],
+                guidance:
+                    'Добавьте несколько привязок для поддержки альтернативных клавиш, как показано выше для ArrowUp и K. Комбинируйте модификаторы в одной записи, перечисляя каждое значение, например "modifiers": ["Mod", "Shift"]. Последовательности клавиш, такие как "gg" или "dd", не поддерживаются. Перезагрузите Obsidian после редактирования файла.'
+            },
+            externalIcons: {
+                downloadButton: 'Скачать',
+                downloadingLabel: 'Загрузка...',
+                removeButton: 'Удалить',
+                statusInstalled: 'Загружено (версия {version})',
+                statusNotInstalled: 'Не загружено',
+                versionUnknown: 'неизвестно',
+                downloadFailed: 'Не удалось скачать {name}. Проверьте подключение и попробуйте снова.',
+                removeFailed: 'Не удалось удалить {name}.',
+                infoNote:
+                    'Загруженные наборы иконок синхронизируют состояние установки между устройствами. Наборы иконок остаются в локальной базе данных на каждом устройстве; синхронизация отслеживает только необходимость загрузки или удаления. Наборы иконок загружаются из репозитория Notebook Navigator (https://github.com/johansan/notebook-navigator/tree/main/icon-assets).'
+            },
+            useFrontmatterDates: {
+                name: 'Использовать метаданные frontmatter',
+                desc: 'Использовать frontmatter для названия заметки, временных меток, иконок и цветов'
+            },
+            frontmatterIconField: {
+                name: 'Поле иконки',
+                desc: 'Поле frontmatter для иконок файлов. Оставьте пустым для использования иконок из настроек.',
+                placeholder: 'icon'
+            },
+            frontmatterColorField: {
+                name: 'Поле цвета',
+                desc: 'Поле frontmatter для цветов файлов. Оставьте пустым для использования цветов из настроек.',
+                placeholder: 'color'
+            },
+            frontmatterSaveMetadata: {
+                name: 'Сохранять иконки и цвета во frontmatter',
+                desc: 'Автоматически записывать иконки и цвета файлов во frontmatter, используя настроенные выше поля.'
+            },
+            frontmatterMigration: {
+                name: 'Миграция иконок и цветов из настроек',
+                desc: 'Сохранено в настройках: {icons} иконок, {colors} цветов.',
+                button: 'Мигрировать',
+                buttonWorking: 'Миграция...',
+                noticeNone: 'Нет иконок или цветов файлов в настройках.',
+                noticeDone: 'Мигрировано {migratedIcons}/{icons} иконок, {migratedColors}/{colors} цветов.',
+                noticeFailures: 'Неудачные записи: {failures}.',
+                noticeError: 'Миграция не удалась. Проверьте консоль для деталей.'
+            },
+            frontmatterNameField: {
+                name: 'Поле названия',
+                desc: 'Поле frontmatter для отображаемого названия заметки. Оставьте пустым для использования имени файла.',
+                placeholder: 'title'
+            },
+            frontmatterCreatedField: {
+                name: 'Поле даты создания',
+                desc: 'Имя поля frontmatter для временной метки создания. Оставьте пустым для использования только даты файловой системы.',
+                placeholder: 'created'
+            },
+            frontmatterModifiedField: {
+                name: 'Поле даты изменения',
+                desc: 'Имя поля frontmatter для временной метки изменения. Оставьте пустым для использования только даты файловой системы.',
+                placeholder: 'modified'
+            },
+            frontmatterDateFormat: {
+                name: 'Формат временной метки',
+                desc: 'Формат для разбора временных меток во frontmatter. Оставьте пустым для использования формата ISO 8601',
+                helpTooltip: 'См. документацию формата date-fns',
+                help: "Распространённые форматы:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\nyyyy-MM-dd'T'HH:mm:ssXXX → 2025-08-07T16:53:39+02:00\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
+            },
+            supportDevelopment: {
+                name: 'Поддержать разработку',
+                desc: 'Если вам нравится использовать Notebook Navigator, пожалуйста, рассмотрите возможность поддержки его дальнейшей разработки.',
+                buttonText: '❤️ Спонсор',
+                coffeeButton: '☕️ Купить кофе'
+            },
+            updateCheckOnStart: {
+                name: 'Проверять новую версию при запуске',
+                desc: 'Проверяет наличие новых релизов плагина при запуске и показывает уведомление, когда доступно обновление. Каждая версия объявляется только один раз, и проверки происходят не чаще одного раза в день.',
+                status: 'Доступна новая версия: {version}'
+            },
+            whatsNew: {
+                name: 'Что нового в Notebook Navigator {version}',
+                desc: 'Посмотреть последние обновления и улучшения',
+                buttonText: 'Посмотреть обновления'
+            },
+            cacheStatistics: {
+                localCache: 'Локальный кэш',
+                items: 'элементов',
+                withTags: 'с тегами',
+                withPreviewText: 'с текстом превью',
+                withFeatureImage: 'с изображением',
+                withMetadata: 'с метаданными'
+            },
+            metadataInfo: {
+                successfullyParsed: 'Успешно разобрано',
+                itemsWithName: 'элементов с названием',
+                withCreatedDate: 'с датой создания',
+                withModifiedDate: 'с датой изменения',
+                withIcon: 'с иконкой',
+                withColor: 'с цветом',
+                failedToParse: 'Не удалось разобрать',
+                createdDates: 'дат создания',
+                modifiedDates: 'дат изменения',
+                checkTimestampFormat: 'Проверьте формат временной метки.',
+                exportFailed: 'Экспортировать ошибки'
+            }
+        }
+    },
+    whatsNew: {
+        title: 'Что нового в Notebook Navigator',
+        supportMessage: 'Если вы находите Notebook Navigator полезным, пожалуйста, рассмотрите возможность поддержки его разработки.',
+        supportButton: 'Купить кофе',
+        thanksButton: 'Спасибо!'
+    }
+};
