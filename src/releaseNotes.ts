@@ -81,6 +81,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Notebook Navigator has been translated to Russian, Turkish, Ukrainian, Vietnamese, Portuguese, Indonesian, Thai, Persian (Farsi), and Italian. ==Notebook Navigator is now translated into 21 languages!=='
         ],
         improved: [
+            'You can now reorder vault profiles in **Settings > General > Filtering**. Click **Edit profiles** to add, rename, delete, or reorder vault profiles.',
             'Android: Drag and drop now works in shortcuts and reorder root items mode on newer Android devices.',
             'Android: Notebook Navigator now handles custom system font sizes correctly.',
             'Improved Excalidraw support. When you create a new Excalidraw drawing from the navigation pane, it now opens immediately in drawing mode.',

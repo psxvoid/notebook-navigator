@@ -21,6 +21,7 @@ import type { VaultProfile } from '../settings/types';
 import type { ShortcutEntry } from '../types/shortcuts';
 import { strings } from '../i18n';
 import { FILE_VISIBILITY, type FileVisibility } from './fileTypeUtils';
+import { showNotice } from './noticeUtils';
 import { stripTrailingSlash } from './pathUtils';
 
 export const DEFAULT_VAULT_PROFILE_ID = 'default';
@@ -183,6 +184,109 @@ export function createVaultProfile(name: string, options: VaultProfileInitOption
             typeof options.navigationBanner === 'string' && options.navigationBanner.length > 0 ? options.navigationBanner : null,
         shortcuts: cloneShortcuts(options.shortcuts)
     };
+}
+
+// Creates a vault profile using values from an existing profile with optional fallbacks
+export interface VaultProfileTemplateOptions {
+    sourceProfile?: VaultProfile | null;
+    fallbackHiddenTags?: string[];
+    fallbackFileVisibility?: FileVisibility;
+}
+
+function createVaultProfileFromTemplate(name: string, template: VaultProfileTemplateOptions = {}): VaultProfile {
+    const source = template.sourceProfile ?? null;
+    return createVaultProfile(name, {
+        hiddenFolders: source?.hiddenFolders,
+        hiddenFiles: source?.hiddenFiles,
+        hiddenTags: source?.hiddenTags ?? template.fallbackHiddenTags,
+        fileVisibility: source?.fileVisibility ?? template.fallbackFileVisibility,
+        navigationBanner: source?.navigationBanner,
+        shortcuts: source?.shortcuts
+    });
+}
+
+export type VaultProfileNameError = 'empty' | 'duplicate';
+
+// Validates a candidate profile name and returns a specific error code on failure
+function validateVaultProfileName(
+    profiles: VaultProfile[] | null | undefined,
+    candidateName: string,
+    options: { excludeId?: string } = {}
+): VaultProfileNameError | null {
+    const trimmed = candidateName.trim();
+    if (!trimmed) {
+        return 'empty';
+    }
+
+    if (hasVaultProfileNameDuplicate(profiles, trimmed, options)) {
+        return 'duplicate';
+    }
+
+    return null;
+}
+
+// Creates a profile from the provided template after validating the name
+export function createValidatedVaultProfileFromTemplate(
+    profiles: VaultProfile[] | null | undefined,
+    name: string,
+    template: VaultProfileTemplateOptions = {}
+): { profile: VaultProfile } | { error: VaultProfileNameError } {
+    const validationError = validateVaultProfileName(profiles, name);
+    if (validationError) {
+        return { error: validationError };
+    }
+
+    return {
+        profile: createVaultProfileFromTemplate(name.trim(), template)
+    };
+}
+
+// Validates a profile name and shows a warning notice on failure
+export function validateVaultProfileNameOrNotify(
+    profiles: VaultProfile[] | null | undefined,
+    candidateName: string,
+    options: { excludeId?: string } = {}
+): string | null {
+    const validationError = validateVaultProfileName(profiles, candidateName, options);
+    if (!validationError) {
+        return candidateName.trim();
+    }
+
+    if (validationError === 'empty') {
+        showNotice(strings.settings.items.vaultProfiles.errors.emptyName, { variant: 'warning' });
+        return null;
+    }
+
+    if (validationError === 'duplicate') {
+        showNotice(strings.settings.items.vaultProfiles.errors.duplicateName, { variant: 'warning' });
+        return null;
+    }
+
+    return null;
+}
+
+// Checks if a profile name already exists in the list (case-insensitive comparison)
+function hasVaultProfileNameDuplicate(
+    profiles: VaultProfile[] | null | undefined,
+    candidateName: string,
+    options: { excludeId?: string } = {}
+): boolean {
+    if (!Array.isArray(profiles)) {
+        return false;
+    }
+
+    const normalizedCandidate = candidateName.trim().toLowerCase();
+    if (!normalizedCandidate) {
+        return false;
+    }
+
+    return profiles.some(profile => {
+        if (options.excludeId && profile.id === options.excludeId) {
+            return false;
+        }
+        const normalizedProfileName = (profile.name ?? '').trim().toLowerCase();
+        return normalizedProfileName === normalizedCandidate;
+    });
 }
 
 // Returns the localized name for the default profile, falling back to English if not available
