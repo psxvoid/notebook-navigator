@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ import { App, TFile, parseFrontMatterTags } from 'obsidian';
 import { getDBInstance } from '../../storage/fileOperations';
 import type { NotebookNavigatorSettings } from '../../settings/types';
 import { normalizeTagPathValue } from '../../utils/tagPrefixMatcher';
-import { TAG_CHARACTER_CLASS, hasValidTagCharacters } from '../../utils/tagUtils';
+import { hasValidTagCharacters, INLINE_TAG_BOUNDARY_PATTERN, INLINE_TAG_VALUE_PATTERN } from '../../utils/tagUtils';
 import { mutateFrontmatterTagFields } from '../tagRename/frontmatterTagMutator';
 
 type TextRange = {
@@ -32,14 +32,6 @@ type TextRange = {
  * Type for frontmatter objects that may contain a tags property
  */
 type TagsFrontmatter = Record<string, unknown> & { tags?: unknown };
-
-/**
- * Low-level tag mutation operations for individual files
- * Handles both frontmatter and inline tag modifications
- */
-const TAG_CHARACTER_CLASS_CONTENT = TAG_CHARACTER_CLASS.slice(1, -1);
-const INLINE_TAG_VALUE_PATTERN = `${TAG_CHARACTER_CLASS}+`;
-const INLINE_TAG_BOUNDARY_PATTERN = `(?=$|[^${TAG_CHARACTER_CLASS_CONTENT}])`;
 
 export class TagFileMutations {
     private static readonly TAG_BOUNDARY = INLINE_TAG_BOUNDARY_PATTERN;

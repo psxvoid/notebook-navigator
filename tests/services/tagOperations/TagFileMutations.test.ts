@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,63 +17,10 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { App } from 'obsidian';
-import { TFile } from 'obsidian';
+import { TFile, type App } from 'obsidian';
 import { TagFileMutations } from '../../../src/services/tagOperations/TagFileMutations';
 import type { NotebookNavigatorSettings } from '../../../src/settings/types';
 import { DEFAULT_SETTINGS } from '../../../src/settings/defaultSettings';
-
-vi.mock('obsidian', () => {
-    class Notice {
-        constructor(_message: unknown) {
-            // no-op
-        }
-    }
-
-    class TFile {
-        path = '';
-        extension = 'md';
-    }
-
-    return {
-        App: class {},
-        Modal: class {},
-        Notice,
-        Plugin: class {},
-        TFile,
-        TFolder: class {},
-        getLanguage: () => 'en',
-        normalizePath: (path: string) => path,
-        parseFrontMatterTags: (frontmatter?: { tags?: string | string[] }) => {
-            const raw = frontmatter?.tags;
-            if (raw === undefined || raw === null) {
-                return null;
-            }
-            if (Array.isArray(raw)) {
-                const tags: string[] = [];
-                for (const entry of raw) {
-                    if (typeof entry !== 'string') {
-                        continue;
-                    }
-                    entry
-                        .split(/[, ]+/u)
-                        .map(tag => tag.trim())
-                        .filter(tag => tag.length > 0)
-                        .forEach(tag => tags.push(tag));
-                }
-                return tags.length > 0 ? tags : null;
-            }
-            if (typeof raw === 'string') {
-                const tags = raw
-                    .split(/[, ]+/u)
-                    .map(tag => tag.trim())
-                    .filter(tag => tag.length > 0);
-                return tags.length > 0 ? tags : null;
-            }
-            return null;
-        }
-    };
-});
 
 const cachedTagsByPath = new Map<string, string[]>();
 
@@ -87,7 +34,8 @@ function createFile(path: string, frontmatter: Record<string, unknown>, content:
     const file = Object.assign(new TFile(), {
         path,
         frontmatter,
-        content
+        content,
+        extension: 'md'
     }) as TFile & { frontmatter: Record<string, unknown>; content: string };
     return file;
 }

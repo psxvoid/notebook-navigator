@@ -12,55 +12,9 @@ import type { TagTreeService } from '../../src/services/TagTreeService';
 import type { MetadataService } from '../../src/services/MetadataService';
 import { createVaultProfile, getActiveVaultProfile } from '../../src/utils/vaultProfiles';
 import type { VaultProfile } from '../../src/settings/types';
+import { mockObsidian } from 'tests/stubs/obsidian';
 
-vi.mock('obsidian', () => {
-    class Modal {}
-    class TFile {}
-    class Notice {
-        constructor(public message: unknown) {
-            // no-op
-        }
-    }
-
-    return {
-        App: class {},
-        Modal,
-        Notice,
-        Plugin: class {},
-        TFile,
-        TFolder: class {},
-        getLanguage: () => 'en',
-        normalizePath: (path: string) => path,
-        parseFrontMatterTags: (frontmatter?: { tags?: string | string[] }) => {
-            const raw = frontmatter?.tags;
-            if (raw === undefined || raw === null) {
-                return null;
-            }
-            if (Array.isArray(raw)) {
-                const tags: string[] = [];
-                for (const entry of raw) {
-                    if (typeof entry !== 'string') {
-                        continue;
-                    }
-                    entry
-                        .split(/[, ]+/u)
-                        .map(tag => tag.trim())
-                        .filter(tag => tag.length > 0)
-                        .forEach(tag => tags.push(tag));
-                }
-                return tags.length > 0 ? tags : null;
-            }
-            if (typeof raw === 'string') {
-                const tags = raw
-                    .split(/[, ]+/u)
-                    .map(tag => tag.trim())
-                    .filter(tag => tag.length > 0);
-                return tags.length > 0 ? tags : null;
-            }
-            return null;
-        }
-    };
-});
+mockObsidian()
 
 const cachedTagsByPath = new Map<string, string[]>();
 
