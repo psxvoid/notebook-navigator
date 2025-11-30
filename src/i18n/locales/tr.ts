@@ -25,6 +25,7 @@ export const STRINGS_TR = {
     common: {
         cancel: 'İptal', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Sil', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Temizle', // Button text for clearing values (English: Clear)
         remove: 'Kaldır', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Gönder', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Seçim yok', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -770,8 +771,7 @@ export const STRINGS_TR = {
                 name: 'Gezinme afişi (kasa profili)',
                 desc: 'Gezinme bölmesinin üzerinde bir görsel görüntüle. Seçili kasa profiliyle değişir.',
                 current: 'Mevcut afiş: {path}',
-                chooseButton: 'Görsel seç',
-                clearButton: 'Temizle'
+                chooseButton: 'Görsel seç'
             },
             showShortcuts: {
                 name: 'Kısayolları göster',
@@ -822,7 +822,7 @@ export const STRINGS_TR = {
                 current: 'Mevcut: {path}',
                 currentMobile: 'Mobil: {path}',
                 chooseButton: 'Dosya seç',
-                clearButton: 'Temizle',
+
                 separateMobile: {
                     name: 'Ayrı mobil ana sayfası',
                     desc: 'Mobil cihazlar için farklı bir ana sayfa kullan.'

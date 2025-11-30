@@ -25,6 +25,7 @@ export const STRINGS_IT = {
     common: {
         cancel: 'Annulla', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Elimina', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Cancella', // Button text for clearing values (English: Clear)
         remove: 'Rimuovi', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Invia', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Nessuna selezione', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -770,8 +771,7 @@ export const STRINGS_IT = {
                 name: 'Banner navigazione (profilo vault)',
                 desc: "Visualizza un'immagine sopra il pannello navigazione. Cambia con il profilo vault selezionato.",
                 current: 'Banner attuale: {path}',
-                chooseButton: 'Scegli immagine',
-                clearButton: 'Cancella'
+                chooseButton: 'Scegli immagine'
             },
             showShortcuts: {
                 name: 'Mostra scorciatoie',
@@ -822,7 +822,7 @@ export const STRINGS_IT = {
                 current: 'Attuale: {path}',
                 currentMobile: 'Mobile: {path}',
                 chooseButton: 'Scegli file',
-                clearButton: 'Cancella',
+
                 separateMobile: {
                     name: 'Homepage mobile separata',
                     desc: 'Usa una homepage diversa per dispositivi mobili.'

@@ -25,6 +25,7 @@ export const STRINGS_KO = {
     common: {
         cancel: '취소', // Button text for canceling dialogs and operations (English: Cancel)
         delete: '삭제', // Button text for delete operations in dialogs (English: Delete)
+        clear: '지우기', // Button text for clearing values (English: Clear)
         remove: '제거', // Button text for remove operations in dialogs (English: Remove)
         submit: '제출', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '선택 없음', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -770,8 +771,7 @@ export const STRINGS_KO = {
                 name: '탐색 배너 (저장소 프로필)',
                 desc: '탐색 창 상단에 이미지를 표시합니다. 선택한 저장소 프로필에 따라 변경됩니다.',
                 current: '현재 배너: {path}',
-                chooseButton: '이미지 선택',
-                clearButton: '지우기'
+                chooseButton: '이미지 선택'
             },
             showShortcuts: {
                 name: '바로가기 표시',
@@ -822,7 +822,7 @@ export const STRINGS_KO = {
                 current: '현재: {path}',
                 currentMobile: '모바일: {path}',
                 chooseButton: '파일 선택',
-                clearButton: '지우기',
+
                 separateMobile: {
                     name: '별도 모바일 홈페이지',
                     desc: '모바일 기기에서 다른 홈페이지를 사용합니다.'

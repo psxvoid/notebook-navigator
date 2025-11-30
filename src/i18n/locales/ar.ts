@@ -25,6 +25,7 @@ export const STRINGS_AR = {
     common: {
         cancel: 'إلغاء', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'حذف', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'مسح', // Button text for clearing values (English: Clear)
         remove: 'إزالة', // Button text for remove operations in dialogs (English: Remove)
         submit: 'إرسال', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'لا يوجد تحديد', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -770,8 +771,7 @@ export const STRINGS_AR = {
                 name: 'شعار التنقل (ملف الخزنة)',
                 desc: 'عرض صورة فوق لوحة التنقل. يتغير مع ملف الخزنة المحدد.',
                 current: 'الشعار الحالي: {path}',
-                chooseButton: 'اختيار صورة',
-                clearButton: 'مسح'
+                chooseButton: 'اختيار صورة'
             },
             showShortcuts: {
                 name: 'إظهار الاختصارات',
@@ -822,7 +822,7 @@ export const STRINGS_AR = {
                 current: 'الحالي: {path}',
                 currentMobile: 'الجوال: {path}',
                 chooseButton: 'اختيار ملف',
-                clearButton: 'مسح',
+
                 separateMobile: {
                     name: 'صفحة رئيسية منفصلة للجوال',
                     desc: 'استخدام صفحة رئيسية مختلفة للأجهزة المحمولة.'

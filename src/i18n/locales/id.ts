@@ -25,6 +25,7 @@ export const STRINGS_ID = {
     common: {
         cancel: 'Batal',
         delete: 'Hapus',
+        clear: 'Hapus',
         remove: 'Buang',
         submit: 'Kirim',
         noSelection: 'Tidak ada pilihan',
@@ -770,8 +771,7 @@ export const STRINGS_ID = {
                 name: 'Banner navigasi (profil vault)',
                 desc: 'Tampilkan gambar di atas panel navigasi. Berubah dengan profil vault yang dipilih.',
                 current: 'Banner saat ini: {path}',
-                chooseButton: 'Pilih gambar',
-                clearButton: 'Hapus'
+                chooseButton: 'Pilih gambar'
             },
             showShortcuts: {
                 name: 'Tampilkan pintasan',
@@ -822,7 +822,7 @@ export const STRINGS_ID = {
                 current: 'Saat ini: {path}',
                 currentMobile: 'Mobile: {path}',
                 chooseButton: 'Pilih file',
-                clearButton: 'Hapus',
+
                 separateMobile: {
                     name: 'Beranda mobile terpisah',
                     desc: 'Gunakan beranda berbeda untuk perangkat mobile.'

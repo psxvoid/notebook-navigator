@@ -25,6 +25,7 @@ export const STRINGS_DE = {
     common: {
         cancel: 'Abbrechen', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Löschen', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Zurücksetzen', // Button text for clearing values (English: Clear)
         remove: 'Entfernen', // Button text for remove operations in dialogs (English: Remove)
         submit: 'OK', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Keine Auswahl', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -774,8 +775,7 @@ export const STRINGS_DE = {
                 name: 'Navigationsbanner (Tresorprofil)',
                 desc: 'Bild oberhalb des Navigationsbereichs anzeigen. Ändert sich mit dem ausgewählten Tresorprofil.',
                 current: 'Aktuelles Banner: {path}',
-                chooseButton: 'Bild auswählen',
-                clearButton: 'Zurücksetzen'
+                chooseButton: 'Bild auswählen'
             },
             showShortcuts: {
                 name: 'Lesezeichen anzeigen',
@@ -859,7 +859,7 @@ export const STRINGS_DE = {
                 current: 'Aktuell: {path}',
                 currentMobile: 'Mobil: {path}',
                 chooseButton: 'Datei auswählen',
-                clearButton: 'Zurücksetzen',
+
                 separateMobile: {
                     name: 'Separate mobile Startseite',
                     desc: 'Verwenden Sie eine andere Startseite für Mobilgeräte.'

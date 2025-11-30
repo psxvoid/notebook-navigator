@@ -25,6 +25,7 @@ export const STRINGS_NL = {
     common: {
         cancel: 'Annuleren',
         delete: 'Verwijderen',
+        clear: 'Wissen',
         remove: 'Verwijderen',
         submit: 'Verzenden',
         noSelection: 'Geen selectie',
@@ -772,8 +773,7 @@ export const STRINGS_NL = {
                 name: 'Navigatiebanner (kluisprofiel)',
                 desc: 'Een afbeelding weergeven boven het navigatiepaneel. Verandert met het geselecteerde kluisprofiel.',
                 current: 'Huidige banner: {path}',
-                chooseButton: 'Afbeelding kiezen',
-                clearButton: 'Wissen'
+                chooseButton: 'Afbeelding kiezen'
             },
             showShortcuts: {
                 name: 'Snelkoppelingen tonen',
@@ -824,7 +824,7 @@ export const STRINGS_NL = {
                 current: 'Huidig: {path}',
                 currentMobile: 'Mobiel: {path}',
                 chooseButton: 'Bestand kiezen',
-                clearButton: 'Wissen',
+
                 separateMobile: {
                     name: 'Aparte mobiele startpagina',
                     desc: 'Een andere startpagina gebruiken voor mobiele apparaten.'

@@ -25,6 +25,7 @@ export const STRINGS_ES = {
     common: {
         cancel: 'Cancelar', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Eliminar', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Limpiar', // Button text for clearing values (English: Clear)
         remove: 'Eliminar', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Enviar', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Sin selección', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -771,8 +772,7 @@ export const STRINGS_ES = {
                 name: 'Banner de navegación (perfil de bóveda)',
                 desc: 'Mostrar una imagen encima del panel de navegación. Cambia con el perfil de bóveda seleccionado.',
                 current: 'Banner actual: {path}',
-                chooseButton: 'Elegir imagen',
-                clearButton: 'Limpiar'
+                chooseButton: 'Elegir imagen'
             },
             showShortcuts: {
                 name: 'Mostrar accesos directos',
@@ -857,7 +857,7 @@ export const STRINGS_ES = {
                 current: 'Actual: {path}',
                 currentMobile: 'Móvil: {path}',
                 chooseButton: 'Elegir archivo',
-                clearButton: 'Limpiar',
+
                 separateMobile: {
                     name: 'Página de inicio móvil separada',
                     desc: 'Usar una página de inicio diferente en dispositivos móviles.'

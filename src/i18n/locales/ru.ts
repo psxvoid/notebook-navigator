@@ -25,6 +25,7 @@ export const STRINGS_RU = {
     common: {
         cancel: 'Отмена', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Удалить', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Очистить', // Button text for clearing values (English: Clear)
         remove: 'Убрать', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Отправить', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Ничего не выбрано', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -771,8 +772,7 @@ export const STRINGS_RU = {
                 name: 'Баннер навигации (профиль хранилища)',
                 desc: 'Показывать изображение над панелью навигации. Меняется с выбранным профилем хранилища.',
                 current: 'Текущий баннер: {path}',
-                chooseButton: 'Выбрать изображение',
-                clearButton: 'Очистить'
+                chooseButton: 'Выбрать изображение'
             },
             showShortcuts: {
                 name: 'Показывать ярлыки',
@@ -823,7 +823,7 @@ export const STRINGS_RU = {
                 current: 'Текущая: {path}',
                 currentMobile: 'Мобильная: {path}',
                 chooseButton: 'Выбрать файл',
-                clearButton: 'Очистить',
+
                 separateMobile: {
                     name: 'Отдельная мобильная домашняя страница',
                     desc: 'Использовать другую домашнюю страницу для мобильных устройств.'

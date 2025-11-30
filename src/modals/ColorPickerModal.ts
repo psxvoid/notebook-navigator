@@ -222,6 +222,24 @@ export class ColorPickerModal extends Modal {
             this.previewCurrent.addClass('nn-no-color');
         }
         this.makeSwatchDraggable(this.previewCurrent, () => this.currentColor, this.domDisposers);
+        this.domDisposers.push(
+            addAsyncEventListener(this.previewCurrent, 'click', () => {
+                const normalized = this.normalizeHexColor(this.currentColor);
+                if (!normalized) {
+                    return;
+                }
+                this.updateFromHex(normalized);
+            })
+        );
+        this.domDisposers.push(
+            addAsyncEventListener(this.previewCurrent, 'dblclick', () => {
+                const normalized = this.normalizeHexColor(this.currentColor);
+                if (!normalized) {
+                    return;
+                }
+                this.handleSwatchDoubleClick(normalized);
+            })
+        );
 
         const arrow = previewContainer.createDiv('nn-preview-arrow');
         setIcon(arrow, 'lucide-arrow-right');
@@ -1055,7 +1073,8 @@ export class ColorPickerModal extends Modal {
             this.app,
             strings.modals.colorPicker.resetUserColors,
             strings.modals.colorPicker.clearCustomColorsConfirm,
-            () => this.clearCustomColors()
+            () => this.clearCustomColors(),
+            strings.common.clear
         );
         modal.open();
     }

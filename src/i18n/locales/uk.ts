@@ -25,6 +25,7 @@ export const STRINGS_UK = {
     common: {
         cancel: 'Скасувати', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Видалити', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Очистити', // Button text for clearing values (English: Clear)
         remove: 'Вилучити', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Надіслати', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Нічого не вибрано', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -770,8 +771,7 @@ export const STRINGS_UK = {
                 name: 'Банер навігації (профіль сховища)',
                 desc: 'Відображати зображення над панеллю навігації. Змінюється з вибраним профілем сховища.',
                 current: 'Поточний банер: {path}',
-                chooseButton: 'Вибрати зображення',
-                clearButton: 'Очистити'
+                chooseButton: 'Вибрати зображення'
             },
             showShortcuts: {
                 name: 'Показувати ярлики',
@@ -822,7 +822,7 @@ export const STRINGS_UK = {
                 current: 'Поточний: {path}',
                 currentMobile: 'Мобільний: {path}',
                 chooseButton: 'Вибрати файл',
-                clearButton: 'Очистити',
+
                 separateMobile: {
                     name: 'Окрема мобільна домашня сторінка',
                     desc: 'Використовувати іншу домашню сторінку для мобільних пристроїв.'

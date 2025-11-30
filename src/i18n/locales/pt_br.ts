@@ -25,6 +25,7 @@ export const STRINGS_PT_BR = {
     common: {
         cancel: 'Cancelar',
         delete: 'Excluir',
+        clear: 'Limpar',
         remove: 'Remover',
         submit: 'Enviar',
         noSelection: 'Nenhuma seleção',
@@ -771,8 +772,7 @@ export const STRINGS_PT_BR = {
                 name: 'Banner de navegação (perfil de cofre)',
                 desc: 'Exibir uma imagem acima do painel de navegação. Muda com o perfil de cofre selecionado.',
                 current: 'Banner atual: {path}',
-                chooseButton: 'Escolher imagem',
-                clearButton: 'Limpar'
+                chooseButton: 'Escolher imagem'
             },
             showShortcuts: {
                 name: 'Mostrar atalhos',
@@ -823,7 +823,7 @@ export const STRINGS_PT_BR = {
                 current: 'Atual: {path}',
                 currentMobile: 'Celular: {path}',
                 chooseButton: 'Escolher arquivo',
-                clearButton: 'Limpar',
+
                 separateMobile: {
                     name: 'Página inicial separada para celular',
                     desc: 'Usar uma página inicial diferente para dispositivos móveis.'

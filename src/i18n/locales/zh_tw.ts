@@ -25,6 +25,7 @@ export const STRINGS_ZH_TW = {
     common: {
         cancel: '取消', // 用於取消對話框和操作的按鈕文字 (英文: Cancel)
         delete: '刪除', // 對話框中刪除操作的按鈕文字 (英文: Delete)
+        clear: '清除', // Button text for clearing values (English: Clear)
         remove: '移除', // 對話框中移除操作的按鈕文字 (英文: Remove)
         submit: '提交', // 用於送出表單和對話框的按鈕文字 (英文: Submit)
         noSelection: '未選取', // 未選取資料夾或標籤時的預留位置文字 (英文: No selection)
@@ -769,8 +770,7 @@ export const STRINGS_ZH_TW = {
                 name: '導覽橫幅（倉庫設定檔）',
                 desc: '在導覽窗格上方顯示圖片。隨所選倉庫設定檔而變化。',
                 current: '目前橫幅：{path}',
-                chooseButton: '選擇圖片',
-                clearButton: '清除'
+                chooseButton: '選擇圖片'
             },
             showShortcuts: {
                 name: '顯示捷徑',
@@ -821,7 +821,7 @@ export const STRINGS_ZH_TW = {
                 current: '目前：{path}',
                 currentMobile: '行動裝置：{path}',
                 chooseButton: '選擇檔案',
-                clearButton: '清除',
+
                 separateMobile: {
                     name: '獨立的行動裝置首頁',
                     desc: '為行動裝置使用不同的首頁。'

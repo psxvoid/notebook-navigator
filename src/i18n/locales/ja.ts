@@ -25,6 +25,7 @@ export const STRINGS_JA = {
     common: {
         cancel: 'キャンセル', // Button text for canceling dialogs and operations (English: Cancel)
         delete: '削除', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'クリア', // Button text for clearing values (English: Clear)
         remove: '削除', // Button text for remove operations in dialogs (English: Remove)
         submit: '送信', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '選択なし', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -771,8 +772,7 @@ export const STRINGS_JA = {
                 name: 'ナビゲーションバナー（保管庫プロファイル）',
                 desc: 'ナビゲーションペイン上部に画像を表示します。選択された保管庫プロファイルに応じて変更されます。',
                 current: '現在のバナー: {path}',
-                chooseButton: '画像を選択',
-                clearButton: 'クリア'
+                chooseButton: '画像を選択'
             },
             showShortcuts: {
                 name: 'ショートカットを表示',
@@ -858,7 +858,7 @@ export const STRINGS_JA = {
                 current: '現在: {path}',
                 currentMobile: 'モバイル: {path}',
                 chooseButton: 'ファイルを選択',
-                clearButton: 'クリア',
+
                 separateMobile: {
                     name: '個別のモバイルホームページ',
                     desc: 'モバイルデバイス用に別のホームページを使用します。'

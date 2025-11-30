@@ -25,6 +25,7 @@ export const STRINGS_PL = {
     common: {
         cancel: 'Anuluj', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Usuń', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Wyczyść', // Button text for clearing values (English: Clear)
         remove: 'Usuń', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Wyślij', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Brak wyboru', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -772,8 +773,7 @@ export const STRINGS_PL = {
                 name: 'Baner nawigacji (profil sejfu)',
                 desc: 'Wyświetl obraz nad panelem nawigacji. Zmienia się wraz z wybranym profilem sejfu.',
                 current: 'Aktualny baner: {path}',
-                chooseButton: 'Wybierz obraz',
-                clearButton: 'Wyczyść'
+                chooseButton: 'Wybierz obraz'
             },
             showShortcuts: {
                 name: 'Pokaż skróty',
@@ -824,7 +824,7 @@ export const STRINGS_PL = {
                 current: 'Bieżący: {path}',
                 currentMobile: 'Mobilna: {path}',
                 chooseButton: 'Wybierz plik',
-                clearButton: 'Wyczyść',
+
                 separateMobile: {
                     name: 'Osobna strona główna dla urządzeń mobilnych',
                     desc: 'Użyj innej strony głównej dla urządzeń mobilnych.'

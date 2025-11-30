@@ -25,6 +25,7 @@ export const STRINGS_FA = {
     common: {
         cancel: 'لغو',
         delete: 'حذف',
+        clear: 'پاک کردن',
         remove: 'حذف',
         submit: 'ارسال',
         noSelection: 'بدون انتخاب',
@@ -770,8 +771,7 @@ export const STRINGS_FA = {
                 name: 'بنر ناوبری (پروفایل خزانه)',
                 desc: 'تصویری را بالای پنل ناوبری نمایش دهید. با پروفایل خزانه انتخابی تغییر می‌کند.',
                 current: 'بنر فعلی: {path}',
-                chooseButton: 'انتخاب تصویر',
-                clearButton: 'پاک کردن'
+                chooseButton: 'انتخاب تصویر'
             },
             showShortcuts: {
                 name: 'نمایش میانبرها',
@@ -822,7 +822,7 @@ export const STRINGS_FA = {
                 current: 'فعلی: {path}',
                 currentMobile: 'موبایل: {path}',
                 chooseButton: 'انتخاب فایل',
-                clearButton: 'پاک کردن',
+
                 separateMobile: {
                     name: 'صفحه اصلی جداگانه موبایل',
                     desc: 'صفحه اصلی متفاوتی برای دستگاه‌های موبایل استفاده کنید.'

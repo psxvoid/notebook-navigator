@@ -25,6 +25,7 @@ export const STRINGS_PT = {
     common: {
         cancel: 'Cancelar', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Eliminar', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Limpar', // Button text for clearing values (English: Clear)
         remove: 'Remover', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Submeter', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Sem seleção', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -770,8 +771,7 @@ export const STRINGS_PT = {
                 name: 'Banner de navegação (perfil do cofre)',
                 desc: 'Exibir uma imagem acima do painel de navegação. Muda com o perfil do cofre selecionado.',
                 current: 'Banner atual: {path}',
-                chooseButton: 'Escolher imagem',
-                clearButton: 'Limpar'
+                chooseButton: 'Escolher imagem'
             },
             showShortcuts: {
                 name: 'Mostrar atalhos',
@@ -822,7 +822,7 @@ export const STRINGS_PT = {
                 current: 'Atual: {path}',
                 currentMobile: 'Telemóvel: {path}',
                 chooseButton: 'Escolher ficheiro',
-                clearButton: 'Limpar',
+
                 separateMobile: {
                     name: 'Página inicial separada para telemóvel',
                     desc: 'Usar uma página inicial diferente para dispositivos móveis.'

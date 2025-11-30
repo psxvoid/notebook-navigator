@@ -164,7 +164,7 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
     });
 
     navigationBannerSetting.addButton(button => {
-        button.setButtonText(strings.settings.items.navigationBanner.clearButton);
+        button.setButtonText(strings.common.clear);
         clearNavigationBannerButton = button;
         button.setDisabled(!getActiveProfile().navigationBanner);
         // Clear navigation banner without blocking the UI

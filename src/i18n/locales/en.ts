@@ -25,6 +25,7 @@ export const STRINGS_EN = {
     common: {
         cancel: 'Cancel', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Delete', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Clear', // Button text for clearing values (English: Clear)
         remove: 'Remove', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Submit', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'No selection', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -770,8 +771,7 @@ export const STRINGS_EN = {
                 name: 'Navigation banner (vault profile)',
                 desc: 'Display an image above the navigation pane. Changes with the selected vault profile.',
                 current: 'Current banner: {path}',
-                chooseButton: 'Choose image',
-                clearButton: 'Clear'
+                chooseButton: 'Choose image'
             },
             showShortcuts: {
                 name: 'Show shortcuts',
@@ -822,7 +822,6 @@ export const STRINGS_EN = {
                 current: 'Current: {path}',
                 currentMobile: 'Mobile: {path}',
                 chooseButton: 'Choose file',
-                clearButton: 'Clear',
                 separateMobile: {
                     name: 'Separate mobile homepage',
                     desc: 'Use a different homepage for mobile devices.'

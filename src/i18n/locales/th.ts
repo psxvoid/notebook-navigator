@@ -25,6 +25,7 @@ export const STRINGS_TH = {
     common: {
         cancel: 'ยกเลิก',
         delete: 'ลบ',
+        clear: 'ล้าง',
         remove: 'นำออก',
         submit: 'ส่ง',
         noSelection: 'ไม่มีการเลือก',
@@ -770,8 +771,7 @@ export const STRINGS_TH = {
                 name: 'แบนเนอร์นำทาง (โปรไฟล์ห้องนิรภัย)',
                 desc: 'แสดงรูปภาพเหนือแผงนำทาง เปลี่ยนตามโปรไฟล์ห้องนิรภัยที่เลือก',
                 current: 'แบนเนอร์ปัจจุบัน: {path}',
-                chooseButton: 'เลือกรูปภาพ',
-                clearButton: 'ล้าง'
+                chooseButton: 'เลือกรูปภาพ'
             },
             showShortcuts: {
                 name: 'แสดงทางลัด',
@@ -822,7 +822,7 @@ export const STRINGS_TH = {
                 current: 'ปัจจุบัน: {path}',
                 currentMobile: 'มือถือ: {path}',
                 chooseButton: 'เลือกไฟล์',
-                clearButton: 'ล้าง',
+
                 separateMobile: {
                     name: 'หน้าแรกมือถือแยก',
                     desc: 'ใช้หน้าแรกต่างกันสำหรับอุปกรณ์มือถือ'

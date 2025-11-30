@@ -25,6 +25,7 @@ export const STRINGS_VI = {
     common: {
         cancel: 'Hủy', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Xóa', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Xóa', // Button text for clearing values (English: Clear)
         remove: 'Gỡ bỏ', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Gửi', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Chưa chọn gì', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -770,8 +771,7 @@ export const STRINGS_VI = {
                 name: 'Banner điều hướng (hồ sơ vault)',
                 desc: 'Hiển thị ảnh phía trên ngăn điều hướng. Thay đổi theo hồ sơ vault đã chọn.',
                 current: 'Banner hiện tại: {path}',
-                chooseButton: 'Chọn ảnh',
-                clearButton: 'Xóa'
+                chooseButton: 'Chọn ảnh'
             },
             showShortcuts: {
                 name: 'Hiện lối tắt',
@@ -822,7 +822,7 @@ export const STRINGS_VI = {
                 current: 'Hiện tại: {path}',
                 currentMobile: 'Di động: {path}',
                 chooseButton: 'Chọn tệp',
-                clearButton: 'Xóa',
+
                 separateMobile: {
                     name: 'Trang chủ di động riêng',
                     desc: 'Dùng trang chủ khác cho thiết bị di động.'

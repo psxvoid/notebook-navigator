@@ -25,6 +25,7 @@ export const STRINGS_ZH_CN = {
     common: {
         cancel: '取消', // Button text for canceling dialogs and operations (English: Cancel)
         delete: '删除', // Button text for delete operations in dialogs (English: Delete)
+        clear: '清除', // Button text for clearing values (English: Clear)
         remove: '移除', // Button text for remove operations in dialogs (English: Remove)
         submit: '提交', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '未选择', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -770,8 +771,7 @@ export const STRINGS_ZH_CN = {
                 name: '导航横幅（仓库配置文件）',
                 desc: '在导航窗格顶部显示一张图片。随所选仓库配置文件而变化。',
                 current: '当前横幅：{path}',
-                chooseButton: '选择图片',
-                clearButton: '清除'
+                chooseButton: '选择图片'
             },
             showShortcuts: {
                 name: '显示快捷方式',
@@ -856,7 +856,7 @@ export const STRINGS_ZH_CN = {
                 current: '当前：{path}',
                 currentMobile: '移动端：{path}',
                 chooseButton: '选择文件',
-                clearButton: '清除',
+
                 separateMobile: {
                     name: '单独的移动端主页',
                     desc: '为移动设备使用不同的主页。'

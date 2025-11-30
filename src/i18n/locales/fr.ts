@@ -25,6 +25,7 @@ export const STRINGS_FR = {
     common: {
         cancel: 'Annuler', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Supprimer', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Effacer', // Button text for clearing values (English: Clear)
         remove: 'Supprimer', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Soumettre', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Aucune sélection', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -772,8 +773,7 @@ export const STRINGS_FR = {
                 name: 'Bannière de navigation (profil de coffre)',
                 desc: 'Afficher une image au-dessus du panneau de navigation. Change avec le profil de coffre sélectionné.',
                 current: 'Bannière actuelle : {path}',
-                chooseButton: 'Choisir une image',
-                clearButton: 'Effacer'
+                chooseButton: 'Choisir une image'
             },
             showShortcuts: {
                 name: 'Afficher les raccourcis',
@@ -859,7 +859,7 @@ export const STRINGS_FR = {
                 current: 'Actuel : {path}',
                 currentMobile: 'Mobile : {path}',
                 chooseButton: 'Choisir un fichier',
-                clearButton: 'Effacer',
+
                 separateMobile: {
                     name: "Page d'accueil mobile séparée",
                     desc: "Utiliser une page d'accueil différente pour les appareils mobiles."
