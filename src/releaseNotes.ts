@@ -77,11 +77,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-12-01',
         showOnUpdate: true,
         new: [
-            '==Tldraw support==. If you have Tldraw plugin installed you can now create new Tldraw drawings directly from the navigation pane.',
+            '==Tldraw support==. If you have the Tldraw plugin installed you can now create new Tldraw drawings directly from the navigation pane in Notebook Navigator!',
             'New setting: Settings > Folders & tags > Tags > ==Inherit tag colors==. Disable this to prevent tags from inheriting colors from parent tags. Default enabled.',
-            'Notebook Navigator has been translated to Russian, Turkish, Ukrainian, Vietnamese, Portuguese, Indonesian, Thai, Persian (Farsi), and Italian. ==Notebook Navigator is now translated into 21 languages!=='
+            'Notebook Navigator has been translated to Russian, Turkish, Ukrainian, Vietnamese, Portuguese, Indonesian, Thai, Persian (Farsi), and Italian. ==Notebook Navigator now supports 21 languages!=='
         ],
         improved: [
+            '==The color picker== has been greatly enhanced! You can now toggle between **default** and **custom colors**, you can copy and paste colors in the dialog, and you can even drag and drop colors! Thanks @alltiagocom for your input here!',
             'You can now ==copy and paste styles like icons and colors== between folders, tags and files! Just use the new **Style menu**!',
             'You can now easily ==remove icons, colors or all styles== from a folder, tag or file using the new **Style menu**.',
             'You can now ==apply colors and icons to multiple files== at once! You can even paste styles to multiple files!',
