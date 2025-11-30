@@ -25,12 +25,20 @@ import { STRINGS_AR } from './locales/ar';
 import { STRINGS_DE } from './locales/de';
 import { STRINGS_EN } from './locales/en';
 import { STRINGS_ES } from './locales/es';
+import { STRINGS_FA } from './locales/fa';
 import { STRINGS_FR } from './locales/fr';
+import { STRINGS_ID } from './locales/id';
+import { STRINGS_IT } from './locales/it';
 import { STRINGS_JA } from './locales/ja';
 import { STRINGS_KO } from './locales/ko';
 import { STRINGS_NL } from './locales/nl';
 import { STRINGS_PL } from './locales/pl';
+import { STRINGS_PT } from './locales/pt';
 import { STRINGS_RU } from './locales/ru';
+import { STRINGS_TH } from './locales/th';
+import { STRINGS_TR } from './locales/tr';
+import { STRINGS_UK } from './locales/uk';
+import { STRINGS_VI } from './locales/vi';
 import { STRINGS_ZH_CN } from './locales/zh_cn';
 import { STRINGS_ZH_TW } from './locales/zh_tw';
 
@@ -39,17 +47,56 @@ type TranslationStrings = typeof STRINGS_EN;
 
 // Map of supported languages to their translation modules
 // Just add new languages here as they are created
+//
+// Obsidian-supported languages:
+// ✅ ar     - Arabic
+// ❌ am     - Amharic
+// ❌ be     - Belarusian
+// ❌ da     - Danish
+// ✅ de     - German
+// ✅ en     - English
+// ❌ en-GB  - English (UK)
+// ✅ es     - Spanish
+// ✅ fa     - Persian (Farsi)
+// ✅ fr     - French
+// ✅ id     - Indonesian
+// ✅ it     - Italian
+// ✅ ja     - Japanese
+// ✅ ko     - Korean
+// ❌ lv     - Latvian
+// ❌ ne     - Nepali
+// ✅ nl     - Dutch
+// ❌ no     - Norwegian
+// ✅ pl     - Polish
+// ✅ pt     - Portuguese
+// ✅ pt-BR  - Portuguese (Brazil)
+// ✅ ru     - Russian
+// ❌ sq     - Albanian
+// ✅ th     - Thai
+// ✅ tr     - Turkish
+// ✅ uk     - Ukrainian
+// ✅ vi     - Vietnamese
+// ✅ zh     - Chinese (Simplified)
+// ✅ zh-TW  - Chinese (Traditional)
 const LANGUAGE_MAP: Record<string, TranslationStrings> = {
     ar: STRINGS_AR,
-    en: STRINGS_EN,
     de: STRINGS_DE,
+    en: STRINGS_EN,
     es: STRINGS_ES,
+    fa: STRINGS_FA,
     fr: STRINGS_FR,
+    id: STRINGS_ID,
+    it: STRINGS_IT,
     ja: STRINGS_JA,
     ko: STRINGS_KO,
     nl: STRINGS_NL,
     pl: STRINGS_PL,
+    pt: STRINGS_PT,
     ru: STRINGS_RU,
+    th: STRINGS_TH,
+    tr: STRINGS_TR,
+    uk: STRINGS_UK,
+    vi: STRINGS_VI,
     zh: STRINGS_ZH_CN,
     'zh-CN': STRINGS_ZH_CN,
     zh_cn: STRINGS_ZH_CN,

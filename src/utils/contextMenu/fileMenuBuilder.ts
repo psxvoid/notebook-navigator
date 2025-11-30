@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { MenuItem, TFile, Menu, App, Platform, FileSystemAdapter } from 'obsidian';
+import { Menu, MenuItem, TFile, App, Platform, FileSystemAdapter } from 'obsidian';
 import { FileMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin } from '../../utils/typeGuards';
@@ -31,6 +31,7 @@ import { setAsyncOnClick } from './menuAsyncHelpers';
 import { openFileInContext } from '../openFileInContext';
 import { showNotice } from '../noticeUtils';
 import { confirmRemoveAllTagsFromFiles, openAddTagToFilesModal, removeTagFromFilesWithPrompt } from '../tagModalHelpers';
+import { addStyleMenu } from './styleMenuBuilder';
 
 /**
  * Builds the context menu for a file
@@ -86,32 +87,99 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
     menu.addSeparator();
 
-    // Icon and color customization options - single selection only
-    const canCustomizeFileIcon = !shouldShowMultiOptions;
-    const canCustomizeFileColor = !shouldShowMultiOptions;
-    if (canCustomizeFileIcon || canCustomizeFileColor) {
-        if (canCustomizeFileIcon) {
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.file.changeIcon).setIcon('lucide-image'), async () => {
-                    const { IconPickerModal } = await import('../../modals/IconPickerModal');
-                    const modal = new IconPickerModal(app, metadataService, file.path, ItemType.FILE);
-                    modal.open();
-                });
-            });
-        }
+    const targetFilesForStyle = shouldShowMultiOptions ? cachedSelectedFiles : [file];
 
-        if (canCustomizeFileColor) {
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(strings.contextMenu.file.changeColor).setIcon('lucide-palette'), async () => {
-                    const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
-                    const modal = new ColorPickerModal(app, metadataService, file.path, ItemType.FILE, 'foreground');
-                    modal.open();
-                });
-            });
-        }
+    menu.addItem((item: MenuItem) => {
+        setAsyncOnClick(item.setTitle(strings.contextMenu.file.changeIcon).setIcon('lucide-image'), async () => {
+            const { IconPickerModal } = await import('../../modals/IconPickerModal');
+            const modal = new IconPickerModal(app, metadataService, file.path, ItemType.FILE);
+            modal.onChooseIcon = async iconId => {
+                if (iconId === undefined) {
+                    return { handled: true };
+                }
+                const actions = targetFilesForStyle.map(selectedFile =>
+                    iconId === null
+                        ? metadataService.removeFileIcon(selectedFile.path)
+                        : metadataService.setFileIcon(selectedFile.path, iconId)
+                );
+                await Promise.all(actions);
+                return { handled: true };
+            };
+            modal.open();
+        });
+    });
 
-        menu.addSeparator();
-    }
+    menu.addItem((item: MenuItem) => {
+        setAsyncOnClick(item.setTitle(strings.contextMenu.file.changeColor).setIcon('lucide-palette'), async () => {
+            const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
+            const modal = new ColorPickerModal(app, metadataService, file.path, ItemType.FILE, 'foreground');
+            modal.onChooseColor = async color => {
+                if (color === undefined) {
+                    return { handled: true };
+                }
+                const actions = targetFilesForStyle.map(selectedFile =>
+                    color === null
+                        ? metadataService.removeFileColor(selectedFile.path)
+                        : metadataService.setFileColor(selectedFile.path, color)
+                );
+                await Promise.all(actions);
+                return { handled: true };
+            };
+            modal.open();
+        });
+    });
+
+    const fileIcon = metadataService.getFileIcon(file.path);
+    const fileColor = metadataService.getFileColor(file.path);
+
+    const hasRemovableIcon = targetFilesForStyle.some(selectedFile => Boolean(metadataService.getFileIcon(selectedFile.path)));
+    const hasRemovableColor = targetFilesForStyle.some(selectedFile => Boolean(metadataService.getFileColor(selectedFile.path)));
+    const removalCount = Number(hasRemovableIcon) + Number(hasRemovableColor);
+    const showIndividualRemovers = removalCount >= 2;
+
+    addStyleMenu({
+        menu,
+        styleData: {
+            icon: fileIcon,
+            color: fileColor
+        },
+        hasIcon: true,
+        hasColor: true,
+        showIndividualRemovers,
+        applyStyle: async clipboard => {
+            const { icon, color } = clipboard;
+            const actions: Promise<void>[] = [];
+
+            targetFilesForStyle.forEach(selectedFile => {
+                if (icon) {
+                    actions.push(metadataService.setFileIcon(selectedFile.path, icon));
+                }
+                if (color) {
+                    actions.push(metadataService.setFileColor(selectedFile.path, color));
+                }
+            });
+
+            await Promise.all(actions);
+        },
+        removeIcon: hasRemovableIcon
+            ? async () => {
+                  const actions = targetFilesForStyle
+                      .filter(selectedFile => metadataService.getFileIcon(selectedFile.path))
+                      .map(selectedFile => metadataService.removeFileIcon(selectedFile.path));
+                  await Promise.all(actions);
+              }
+            : undefined,
+        removeColor: hasRemovableColor
+            ? async () => {
+                  const actions = targetFilesForStyle
+                      .filter(selectedFile => metadataService.getFileColor(selectedFile.path))
+                      .map(selectedFile => metadataService.removeFileColor(selectedFile.path));
+                  await Promise.all(actions);
+              }
+            : undefined
+    });
+
+    menu.addSeparator();
 
     const filesForTagOps = shouldShowMultiOptions ? cachedSelectedFiles : [file];
     // Only show tag operations if all files are markdown (tags only work with markdown)

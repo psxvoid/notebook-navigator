@@ -3051,6 +3051,83 @@ body.nn-resizing {
 }
 
 /* ========================================================================
+   Edit Vault Profiles Modal
+   ======================================================================== */
+
+.modal.nn-edit-profiles-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-2-2);
+    padding: var(--size-4-4);
+}
+
+.nn-edit-profiles-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-1-5);
+    width: 100%;
+}
+
+.nn-edit-profiles-row {
+    display: flex;
+    align-items: center;
+    gap: var(--size-2-1);
+}
+
+.nn-edit-profiles-row .nn-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.nn-edit-profiles-actions {
+    display: flex;
+    gap: var(--size-1-5);
+    flex-shrink: 0;
+}
+
+.nn-edit-profiles-action-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    background-color: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.nn-edit-profiles-action-btn:hover:not(:disabled):not(.mod-warning) {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+    border-color: var(--background-modifier-border-hover);
+}
+
+.nn-edit-profiles-action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.nn-edit-profiles-action-btn.mod-warning {
+    background: transparent;
+    color: var(--text-error);
+    border-color: var(--background-modifier-border);
+}
+
+.nn-edit-profiles-action-btn.mod-warning:hover:not(:disabled) {
+    background: var(--background-modifier-error);
+    color: var(--text-error);
+    border-color: var(--background-modifier-error-hover);
+}
+
+.nn-edit-profiles-action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ========================================================================
    What's New Modal
    ======================================================================== */
 

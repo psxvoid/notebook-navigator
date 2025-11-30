@@ -199,6 +199,15 @@ export const STRINGS_AR = {
         navigation: {
             addSeparator: 'إضافة فاصل',
             removeSeparator: 'إزالة الفاصل'
+        },
+        style: {
+            title: 'النمط',
+            copy: 'نسخ النمط',
+            paste: 'لصق النمط',
+            removeIcon: 'إزالة الأيقونة',
+            removeColor: 'إزالة اللون',
+            removeBackground: 'إزالة الخلفية',
+            clear: 'مسح النمط'
         }
     },
 
@@ -833,13 +842,19 @@ export const STRINGS_AR = {
                 desc: 'تخزن الملفات رؤية أنواع الملفات والمجلدات المخفية والوسوم المخفية والملاحظات المخفية والاختصارات وشعار التنقل. بدل الملفات من رأس لوحة التنقل.',
                 defaultName: 'افتراضي',
                 addButton: 'إضافة ملف',
+                editProfilesButton: 'تحرير الملفات',
+                addProfileOption: 'إضافة ملف...',
+                applyButton: 'تطبيق',
                 editButton: 'تحرير الملف',
                 deleteButton: 'حذف الملف',
                 addModalTitle: 'إضافة ملف',
+                editProfilesModalTitle: 'تحرير الملفات',
                 editModalTitle: 'تحرير الملف',
                 addModalPlaceholder: 'اسم الملف',
                 deleteModalTitle: 'حذف {name}',
                 deleteModalMessage: 'إزالة {name}؟ سيتم حذف مرشحات المجلدات والوسوم والملاحظات المخفية المحفوظة في هذا الملف.',
+                moveUp: 'تحريك لأعلى',
+                moveDown: 'تحريك لأسفل',
                 errors: {
                     emptyName: 'أدخل اسم الملف',
                     duplicateName: 'اسم الملف موجود بالفعل'

@@ -199,6 +199,15 @@ export const STRINGS_FR = {
         navigation: {
             addSeparator: 'Ajouter un séparateur',
             removeSeparator: 'Supprimer le séparateur'
+        },
+        style: {
+            title: 'Style',
+            copy: 'Copier le style',
+            paste: 'Coller le style',
+            removeIcon: "Supprimer l'icône",
+            removeColor: 'Supprimer la couleur',
+            removeBackground: "Supprimer l'arrière-plan",
+            clear: 'Effacer le style'
         }
     },
 
@@ -237,7 +246,7 @@ export const STRINGS_FR = {
             userColors: 'Couleurs utilisateur',
             copyColors: 'Copier les couleurs',
             colorsCopied: 'Couleurs copiées dans le presse-papiers',
-            copyClipboardError: 'Could not write to clipboard',
+            copyClipboardError: "Impossible d'écrire dans le presse-papiers",
             pasteColors: 'Coller les couleurs',
             pasteClipboardError: 'Impossible de lire le presse-papiers',
             pasteInvalidJson: 'Le presse-papiers ne contient pas de JSON valide',
@@ -760,8 +769,8 @@ export const STRINGS_FR = {
                 desc: 'Ne pas faire défiler le panneau de navigation lors du clic sur les éléments de raccourcis.'
             },
             autoExpandFoldersTags: {
-                name: 'Expand on selection',
-                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
+                name: 'Développer à la sélection',
+                desc: 'Développer les dossiers et étiquettes lors de la sélection. En mode panneau unique, la première sélection développe, la seconde affiche les fichiers.'
             },
             navigationBanner: {
                 name: 'Bannière de navigation (profil de coffre)',
@@ -814,14 +823,20 @@ export const STRINGS_FR = {
                 desc: "Les profils stockent la visibilité des types de fichiers, les dossiers cachés, les étiquettes cachées, les notes cachées, les raccourcis et la bannière de navigation. Changez de profil depuis l'en-tête du panneau de navigation.",
                 defaultName: 'Par défaut',
                 addButton: 'Ajouter un profil',
+                editProfilesButton: 'Modifier les profils',
+                addProfileOption: 'Ajouter un profil...',
+                applyButton: 'Appliquer',
                 editButton: 'Modifier le profil',
                 deleteButton: 'Supprimer le profil',
                 addModalTitle: 'Ajouter un profil',
+                editProfilesModalTitle: 'Modifier les profils',
                 editModalTitle: 'Modifier le profil',
                 addModalPlaceholder: 'Nom du profil',
                 deleteModalTitle: 'Supprimer {name}',
                 deleteModalMessage:
                     'Supprimer {name} ? Les filtres de dossiers, étiquettes et notes cachés enregistrés dans ce profil seront supprimés.',
+                moveUp: 'Déplacer vers le haut',
+                moveDown: 'Déplacer vers le bas',
                 errors: {
                     emptyName: 'Entrez un nom de profil',
                     duplicateName: 'Le nom du profil existe déjà'
@@ -905,8 +920,8 @@ export const STRINGS_FR = {
                 helpTooltip: 'Cliquez pour la référence du format'
             },
             preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+                name: 'Empêcher les caractères invalides',
+                desc: 'Bloquer #, |, ^, :, %%, [[, ]] lors de la création ou du renommage de fichiers et dossiers.'
             },
             showFilePreview: {
                 name: "Afficher l'aperçu de la note",
@@ -1212,7 +1227,7 @@ export const STRINGS_FR = {
             updateCheckOnStart: {
                 name: 'Vérifier les nouvelles versions au démarrage',
                 desc: "Vérifie les nouvelles versions du plugin au démarrage et affiche une notification lorsqu'une mise à jour est disponible. Chaque version n'est annoncée qu'une seule fois, et les vérifications ont lieu au maximum une fois par jour.",
-                status: 'New version available: {version}'
+                status: 'Nouvelle version disponible : {version}'
             },
             whatsNew: {
                 name: 'Nouveautés dans Notebook Navigator {version}',

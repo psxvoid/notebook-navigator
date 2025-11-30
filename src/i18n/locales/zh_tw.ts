@@ -199,6 +199,15 @@ export const STRINGS_ZH_TW = {
         navigation: {
             addSeparator: '新增分隔線',
             removeSeparator: '移除分隔線'
+        },
+        style: {
+            title: '樣式',
+            copy: '複製樣式',
+            paste: '貼上樣式',
+            removeIcon: '移除圖示',
+            removeColor: '移除顏色',
+            removeBackground: '移除背景',
+            clear: '清除樣式'
         }
     },
 
@@ -237,7 +246,7 @@ export const STRINGS_ZH_TW = {
             userColors: '自訂顏色',
             copyColors: '複製顏色',
             colorsCopied: '顏色已複製到剪貼簿',
-            copyClipboardError: 'Could not write to clipboard',
+            copyClipboardError: '無法寫入剪貼簿',
             pasteColors: '貼上顏色',
             pasteClipboardError: '無法讀取剪貼簿',
             pasteInvalidJson: '剪貼簿不包含有效的 JSON',
@@ -757,8 +766,8 @@ export const STRINGS_ZH_TW = {
                 desc: '點選捷徑中的項目時不捲動導覽面板。'
             },
             autoExpandFoldersTags: {
-                name: 'Expand on selection',
-                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
+                name: '選取時展開',
+                desc: '選取時展開資料夾和標籤。在單一窗格模式下，首次選取展開，再次選取顯示檔案。'
             },
             navigationBanner: {
                 name: '導覽橫幅（倉庫設定檔）',
@@ -832,13 +841,19 @@ export const STRINGS_ZH_TW = {
                 desc: '設定檔儲存檔案類型可見性、隱藏資料夾、隱藏標籤、隱藏筆記、捷徑和導覽橫幅。從導覽窗格標題切換設定檔。',
                 defaultName: '預設',
                 addButton: '新增設定檔',
+                editProfilesButton: '編輯設定檔',
+                addProfileOption: '新增設定檔...',
+                applyButton: '套用',
                 editButton: '編輯設定檔',
                 deleteButton: '刪除設定檔',
                 addModalTitle: '新增設定檔',
+                editProfilesModalTitle: '編輯設定檔',
                 editModalTitle: '編輯設定檔',
                 addModalPlaceholder: '設定檔名稱',
                 deleteModalTitle: '刪除 {name}',
                 deleteModalMessage: '刪除 {name}？儲存在此設定檔中的隱藏資料夾、標籤和筆記篩選器將被刪除。',
+                moveUp: '上移',
+                moveDown: '下移',
                 errors: {
                     emptyName: '請輸入設定檔名稱',
                     duplicateName: '設定檔名稱已存在'
@@ -900,8 +915,8 @@ export const STRINGS_ZH_TW = {
                 helpTooltip: '點擊查看格式參考'
             },
             preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+                name: '阻止無效字元',
+                desc: '建立或重新命名檔案和資料夾時阻止 #、|、^、:、%%、[[、]]。'
             },
             showFilePreview: {
                 name: '顯示筆記預覽',
