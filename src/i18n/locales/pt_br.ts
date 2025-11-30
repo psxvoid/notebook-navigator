@@ -1018,7 +1018,7 @@ export const STRINGS_PT_BR = {
             },
             showTags: {
                 name: 'Mostrar tags',
-                desc: 'Exibir seção de tags abaixo das pastas no navegador.'
+                desc: 'Exibir seção de tags no navegador.'
             },
             showTagIcons: {
                 name: 'Mostrar ícones de tags',

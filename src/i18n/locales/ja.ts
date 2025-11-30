@@ -1020,7 +1020,7 @@ export const STRINGS_JA = {
             },
             showTags: {
                 name: 'タグを表示',
-                desc: 'ナビゲーターのフォルダの下にタグセクションを表示します。'
+                desc: 'ナビゲーターにタグセクションを表示します。'
             },
             showTagIcons: {
                 name: 'タグアイコンを表示',

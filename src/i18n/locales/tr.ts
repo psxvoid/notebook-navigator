@@ -1017,7 +1017,7 @@ export const STRINGS_TR = {
             },
             showTags: {
                 name: 'Etiketleri göster',
-                desc: 'Gezginde klasörlerin altında etiketler bölümünü görüntüle.'
+                desc: 'Gezginde etiketler bölümünü görüntüle.'
             },
             showTagIcons: {
                 name: 'Etiket simgelerini göster',

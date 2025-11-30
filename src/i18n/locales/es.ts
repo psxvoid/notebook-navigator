@@ -1019,7 +1019,7 @@ export const STRINGS_ES = {
             },
             showTags: {
                 name: 'Mostrar etiquetas',
-                desc: 'Muestra la sección de etiquetas debajo de las carpetas en el navegador.'
+                desc: 'Muestra la sección de etiquetas en el navegador.'
             },
             showTagIcons: {
                 name: 'Mostrar iconos de etiquetas',

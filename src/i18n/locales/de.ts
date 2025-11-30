@@ -1021,7 +1021,7 @@ export const STRINGS_DE = {
             },
             showTags: {
                 name: 'Tags anzeigen',
-                desc: 'Tag-Bereich unterhalb der Ordner im Navigator anzeigen.'
+                desc: 'Tag-Bereich im Navigator anzeigen.'
             },
             showTagIcons: {
                 name: 'Tag-Icons anzeigen',

@@ -1016,7 +1016,7 @@ export const STRINGS_ZH_TW = {
             },
             showTags: {
                 name: '顯示標籤',
-                desc: '在導覽器中資料夾下方顯示標籤區段。'
+                desc: '在導覽器中顯示標籤區段。'
             },
             showTagIcons: {
                 name: '顯示標籤圖示',

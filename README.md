@@ -559,7 +559,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 **Tags**
 
-- **Show tags:** Display tags section below folders in the navigator.
+- **Show tags:** Display tags section in the navigator.
   - **Show tag icons:** Display icons next to tags in the navigation pane.
   - **Tag sort order:** Choose how tags are ordered in the navigation pane. `A to Z`, `Z to A`, `Frequency (low to high)`, `Frequency (high to low)`.
   - **Show tags folder:** Display "Tags" as a collapsible folder.

@@ -1017,7 +1017,7 @@ export const STRINGS_TH = {
             },
             showTags: {
                 name: 'แสดงแท็ก',
-                desc: 'แสดงส่วนแท็กใต้โฟลเดอร์ใน navigator'
+                desc: 'แสดงส่วนแท็กใน navigator'
             },
             showTagIcons: {
                 name: 'แสดงไอคอนแท็ก',

@@ -1017,7 +1017,7 @@ export const STRINGS_IT = {
             },
             showTags: {
                 name: 'Mostra tag',
-                desc: 'Visualizza sezione tag sotto le cartelle nel navigatore.'
+                desc: 'Visualizza sezione tag nel navigatore.'
             },
             showTagIcons: {
                 name: 'Mostra icone tag',

@@ -1018,7 +1018,7 @@ export const STRINGS_ZH_CN = {
             },
             showTags: {
                 name: '显示标签',
-                desc: '在导航器中的文件夹下方显示标签部分。'
+                desc: '在导航器中显示标签部分。'
             },
             showTagIcons: {
                 name: '显示标签图标',

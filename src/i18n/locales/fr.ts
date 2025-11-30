@@ -1021,7 +1021,7 @@ export const STRINGS_FR = {
             },
             showTags: {
                 name: 'Afficher les étiquettes',
-                desc: 'Afficher la section des étiquettes sous les dossiers dans le navigateur.'
+                desc: 'Afficher la section des étiquettes dans le navigateur.'
             },
             showTagIcons: {
                 name: "Afficher les icônes d'étiquettes",

@@ -1019,7 +1019,7 @@ export const STRINGS_PL = {
             },
             showTags: {
                 name: 'Pokaż tagi',
-                desc: 'Wyświetl sekcję tagów poniżej folderów w nawigatorze.'
+                desc: 'Wyświetl sekcję tagów w nawigatorze.'
             },
             showTagIcons: {
                 name: 'Pokaż ikony tagów',

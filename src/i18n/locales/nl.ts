@@ -1020,7 +1020,7 @@ export const STRINGS_NL = {
             },
             showTags: {
                 name: 'Tags tonen',
-                desc: 'Tagsectie onder mappen in de navigator weergeven.'
+                desc: 'Tagsectie in de navigator weergeven.'
             },
             showTagIcons: {
                 name: 'Tagpictogrammen tonen',

@@ -1017,7 +1017,7 @@ export const STRINGS_ID = {
             },
             showTags: {
                 name: 'Tampilkan tag',
-                desc: 'Tampilkan bagian tag di bawah folder di navigator.'
+                desc: 'Tampilkan bagian tag di navigator.'
             },
             showTagIcons: {
                 name: 'Tampilkan ikon tag',

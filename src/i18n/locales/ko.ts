@@ -1017,7 +1017,7 @@ export const STRINGS_KO = {
             },
             showTags: {
                 name: '태그 표시',
-                desc: '네비게이터에서 폴더 아래에 태그 섹션을 표시합니다.'
+                desc: '네비게이터에서 태그 섹션을 표시합니다.'
             },
             showTagIcons: {
                 name: '태그 아이콘 표시',

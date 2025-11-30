@@ -1017,7 +1017,7 @@ export const STRINGS_VI = {
             },
             showTags: {
                 name: 'Hiện thẻ',
-                desc: 'Hiển thị phần thẻ bên dưới thư mục trong trình điều hướng.'
+                desc: 'Hiển thị phần thẻ trong trình điều hướng.'
             },
             showTagIcons: {
                 name: 'Hiện biểu tượng thẻ',

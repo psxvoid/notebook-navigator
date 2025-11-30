@@ -1017,7 +1017,7 @@ export const STRINGS_EN = {
             },
             showTags: {
                 name: 'Show tags',
-                desc: 'Display tags section below folders in the navigator.'
+                desc: 'Display tags section in the navigator.'
             },
             showTagIcons: {
                 name: 'Show tag icons',
