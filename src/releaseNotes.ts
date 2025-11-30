@@ -74,7 +74,7 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.9.0',
-        date: '2025-12-01',
+        date: '2025-11-30',
         showOnUpdate: true,
         new: [
             '==Tldraw support==. If you have the Tldraw plugin installed you can now create new Tldraw drawings directly from the navigation pane in Notebook Navigator!',
@@ -82,7 +82,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Notebook Navigator has been translated to Russian, Turkish, Ukrainian, Vietnamese, Portuguese, Indonesian, Thai, Persian (Farsi), and Italian. ==Notebook Navigator now supports 21 languages!=='
         ],
         improved: [
-            '==The color picker== has been greatly enhanced! You can now toggle between **default** and **custom colors**, you can copy and paste colors in the dialog, and you can even drag and drop colors! Thanks @alltiagocom for your input here!',
+            '==The color picker== has been greatly enhanced! You can now toggle between **default colors** and **custom colors**, you can copy and paste colors in the dialog, you can drag and drop colors, and you can even double click to set color and close dialog! Thanks @alltiagocom for your ideas!',
             'You can now ==copy and paste styles like icons and colors== between folders, tags and files! Just use the new **Style menu**!',
             'You can now easily ==remove icons, colors or all styles== from a folder, tag or file using the new **Style menu**.',
             'You can now ==apply colors and icons to multiple files== at once! You can even paste styles to multiple files!',
