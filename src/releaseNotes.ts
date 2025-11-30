@@ -73,6 +73,17 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.9.1',
+        date: '2025-12-04',
+        showOnUpdate: true,
+        new: [
+        ],
+        improved: [
+            'Notebook Navigator now also supports AVIF images for image previews in list pane.'
+        ],
+        fixed: []
+    },
+    {
         version: '1.9.0',
         date: '2025-11-30',
         showOnUpdate: true,
