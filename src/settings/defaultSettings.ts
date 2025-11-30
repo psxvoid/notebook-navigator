@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { DEFAULT_USER_COLORS } from '../constants/colorPalette';
+import { DEFAULT_CUSTOM_COLORS } from '../constants/colorPalette';
 import { getDefaultKeyboardShortcuts } from '../utils/keyboardShortcuts';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
 import { LISTPANE_MEASUREMENTS, NAVPANE_MEASUREMENTS, type PinnedNotes } from '../types';
@@ -208,7 +208,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     tagSortOverrides: {},
     tagAppearances: {} as Record<string, TagAppearance>,
     navigationSeparators: {},
-    userColors: [...DEFAULT_USER_COLORS],
+    userColors: [...DEFAULT_CUSTOM_COLORS],
     recentColors: [],
     lastShownVersion: '',
     latestKnownRelease: '',
