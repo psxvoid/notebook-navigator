@@ -77,7 +77,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-30',
         showOnUpdate: true,
         new: [
-            '==Tldraw support==. If you have the Tldraw plugin installed you can now create new Tldraw drawings directly from the navigation pane in Notebook Navigator!',
+            '==Tldraw support==. If you have the plugin Tldraw installed you can now create new Tldraw drawings directly from the navigation pane in Notebook Navigator!',
             'New setting: Settings > Folders & tags > Tags > ==Inherit tag colors==. Disable this to prevent tags from inheriting colors from parent tags. Default enabled.',
             'Notebook Navigator has been translated to Russian, Turkish, Ukrainian, Vietnamese, Portuguese, Indonesian, Thai, Persian (Farsi), and Italian. ==Notebook Navigator now supports 21 languages!=='
         ],
@@ -87,11 +87,11 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'You can now easily ==remove icons, colors or all styles== from a folder, tag or file using the new **Style menu**.',
             'You can now ==apply colors and icons to multiple files== at once! You can even paste styles to multiple files!',
             'You can now ==reorder vault profiles== in **Settings > General > Filtering**. Click **Edit profiles** to add, rename, delete, or reorder vault profiles.',
+            '==Improved the way file tags are rendered== in the list pane. They now respect background color and text color and it just looks so much better!',
+            '==Improved Excalidraw support==. When you create a new Excalidraw drawing from the navigation pane, it now opens immediately in drawing mode.',
+            '==Duplicating a folder== will now also duplicate icon and color settings for the folder and all subfolders.',
             'Android: Drag and drop now works in shortcuts and reorder root items mode on newer Android devices.',
             'Android: Notebook Navigator now handles custom system font sizes correctly.',
-            'Improved the way ==file tags are rendered== in the list pane. They now respect background color and text color and it just looks so much better!',
-            'Improved Excalidraw support. When you create a new Excalidraw drawing from the navigation pane, it now opens immediately in drawing mode.',
-            'Duplicating a folder will now also duplicate icon and color settings for the folder and all subfolders.',
             '"Settings > Folders & tags > Expand on selection" will now also collapse tags and folders on single click.'
         ],
         fixed: ['Fixed an issue where the context menu in navigation pane did not hide if clicking on a folder title.']
