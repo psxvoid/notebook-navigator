@@ -29,6 +29,7 @@ import { runAsyncAction } from '../async';
 import { setAsyncOnClick } from './menuAsyncHelpers';
 import { getActiveVaultProfile, getHiddenFolderPatternMatch, normalizeHiddenFolderPath } from '../../utils/vaultProfiles';
 import { EXCALIDRAW_PLUGIN_ID, TLDRAW_PLUGIN_IDS } from '../../constants/pluginIds';
+import { addStyleMenu } from './styleMenuBuilder';
 
 /**
  * Adds folder creation commands (new note/folder/canvas/base/drawing) to a menu.
@@ -245,18 +246,47 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     const hasSeparator = metadataService.hasNavigationSeparator(folderSeparatorTarget);
     const disableNavigationSeparatorActions = Boolean(options?.disableNavigationSeparatorActions);
 
-    if (!disableNavigationSeparatorActions) {
-        menu.addItem((item: MenuItem) => {
-            const title = hasSeparator ? strings.contextMenu.navigation.removeSeparator : strings.contextMenu.navigation.addSeparator;
-            setAsyncOnClick(item.setTitle(title).setIcon('lucide-separator-horizontal'), async () => {
-                if (hasSeparator) {
-                    await metadataService.removeNavigationSeparator(folderSeparatorTarget);
-                    return;
-                }
-                await metadataService.addNavigationSeparator(folderSeparatorTarget);
-            });
-        });
-    }
+    const folderIcon = metadataService.getFolderIcon(folder.path);
+    const folderColor = metadataService.getFolderColor(folder.path);
+    const folderBackgroundColor = metadataService.getFolderBackgroundColor(folder.path);
+
+    const hasRemovableIcon = Boolean(folderIcon);
+    const hasRemovableColor = Boolean(folderColor);
+    const hasRemovableBackground = Boolean(folderBackgroundColor);
+    const removalCount = Number(hasRemovableIcon) + Number(hasRemovableColor) + Number(hasRemovableBackground);
+    const showIndividualRemovers = removalCount >= 2;
+
+    addStyleMenu({
+        menu,
+        styleData: {
+            icon: folderIcon,
+            color: folderColor,
+            background: folderBackgroundColor
+        },
+        hasIcon: true,
+        hasColor: true,
+        hasBackground: true,
+        showIndividualRemovers,
+        applyStyle: async clipboard => {
+            const { icon, color, background } = clipboard;
+            const actions: Promise<void>[] = [];
+
+            if (icon) {
+                actions.push(metadataService.setFolderIcon(folder.path, icon));
+            }
+            if (color) {
+                actions.push(metadataService.setFolderColor(folder.path, color));
+            }
+            if (background) {
+                actions.push(metadataService.setFolderBackgroundColor(folder.path, background));
+            }
+
+            await Promise.all(actions);
+        },
+        removeIcon: hasRemovableIcon ? async () => metadataService.removeFolderIcon(folder.path) : undefined,
+        removeColor: hasRemovableColor ? async () => metadataService.removeFolderColor(folder.path) : undefined,
+        removeBackground: hasRemovableBackground ? async () => metadataService.removeFolderBackgroundColor(folder.path) : undefined
+    });
 
     menu.addSeparator();
 
@@ -275,6 +305,19 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                     await addFolderShortcut(folder.path);
                 });
             }
+        });
+    }
+
+    if (!disableNavigationSeparatorActions) {
+        menu.addItem((item: MenuItem) => {
+            const title = hasSeparator ? strings.contextMenu.navigation.removeSeparator : strings.contextMenu.navigation.addSeparator;
+            setAsyncOnClick(item.setTitle(title).setIcon('lucide-separator-horizontal'), async () => {
+                if (hasSeparator) {
+                    await metadataService.removeNavigationSeparator(folderSeparatorTarget);
+                    return;
+                }
+                await metadataService.addNavigationSeparator(folderSeparatorTarget);
+            });
         });
     }
 

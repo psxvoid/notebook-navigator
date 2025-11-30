@@ -27,8 +27,7 @@ import type { ListToolbarButtonId, MultiSelectModifier, NavigationToolbarButtonI
 import type { SettingsTabContext } from './SettingsTabContext';
 import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 import { InputModal } from '../../modals/InputModal';
-import { ConfirmModal } from '../../modals/ConfirmModal';
-import { EditVaultProfileModal } from '../../modals/EditVaultProfileModal';
+import { EditVaultProfilesModal } from '../../modals/EditVaultProfilesModal';
 import {
     DEFAULT_UI_SCALE,
     formatUIScalePercent,
@@ -40,7 +39,12 @@ import {
     percentToScale
 } from '../../utils/uiScale';
 import { runAsyncAction } from '../../utils/async';
-import { createVaultProfile, DEFAULT_VAULT_PROFILE_ID, ensureVaultProfiles } from '../../utils/vaultProfiles';
+import {
+    DEFAULT_VAULT_PROFILE_ID,
+    ensureVaultProfiles,
+    createValidatedVaultProfileFromTemplate,
+    validateVaultProfileNameOrNotify
+} from '../../utils/vaultProfiles';
 import { normalizeTagPath } from '../../utils/tagUtils';
 import type NotebookNavigatorPlugin from '../../main';
 
@@ -107,8 +111,8 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         );
     };
 
+    const ADD_PROFILE_OPTION_VALUE = '__add_new__';
     let profileDropdown: DropdownComponent | null = null;
-    let editProfileButton: ButtonComponent | null = null;
     let fileVisibilityDropdown: DropdownComponent | null = null;
     let excludedFoldersInput: HTMLInputElement | null = null;
     let hiddenTagsInput: HTMLInputElement | null = null;
@@ -127,10 +131,13 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                     text: getProfileDisplayName(profile.name)
                 });
             });
-            selectEl.value = plugin.settings.vaultProfile;
-        }
-        if (editProfileButton) {
-            editProfileButton.setDisabled(!getActiveProfile());
+            selectEl.createEl('option', {
+                value: ADD_PROFILE_OPTION_VALUE,
+                text: strings.settings.items.vaultProfiles.addProfileOption
+            });
+            const hasActive = plugin.settings.vaultProfiles.some(profile => profile.id === plugin.settings.vaultProfile);
+            const nextActiveId = hasActive ? plugin.settings.vaultProfile : (plugin.settings.vaultProfiles[0]?.id ?? '');
+            selectEl.value = nextActiveId;
         }
         const activeProfile = getActiveProfile();
         if (fileVisibilityDropdown) {
@@ -149,119 +156,58 @@ export function renderGeneralTab(context: SettingsTabContext): void {
 
     // Creates a new vault profile with the given name and switches to it
     const handleAddProfile = async (profileName: string) => {
-        const trimmedName = profileName.trim();
-        if (!trimmedName) {
-            showNotice(strings.settings.items.vaultProfiles.errors.emptyName, { variant: 'warning' });
+        const validatedName = validateVaultProfileNameOrNotify(plugin.settings.vaultProfiles, profileName);
+        if (!validatedName) {
             return;
         }
-
-        const hasDuplicate = plugin.settings.vaultProfiles.some(profile => profile.name.toLowerCase() === trimmedName.toLowerCase());
-        if (hasDuplicate) {
-            showNotice(strings.settings.items.vaultProfiles.errors.duplicateName, { variant: 'warning' });
-            return;
-        }
-
         const activeProfile = getActiveProfile();
-        const newProfile = createVaultProfile(trimmedName, {
-            hiddenFolders: activeProfile?.hiddenFolders,
-            hiddenFiles: activeProfile?.hiddenFiles,
-            hiddenTags: plugin.settings.hiddenTags,
-            fileVisibility: plugin.settings.fileVisibility,
-            shortcuts: activeProfile?.shortcuts
+        const result = createValidatedVaultProfileFromTemplate(plugin.settings.vaultProfiles, validatedName, {
+            sourceProfile: activeProfile,
+            fallbackHiddenTags: plugin.settings.hiddenTags,
+            fallbackFileVisibility: plugin.settings.fileVisibility
         });
-        plugin.settings.vaultProfiles.push(newProfile);
-        await plugin.setVaultProfile(newProfile.id);
-        refreshProfileControls();
-    };
 
-    // Renames an existing vault profile after validating name constraints
-    const handleRenameProfile = async (profileId: string, profileName: string) => {
-        // Validate that the profile name is not empty
-        const trimmedName = profileName.trim();
-        if (!trimmedName) {
-            showNotice(strings.settings.items.vaultProfiles.errors.emptyName, { variant: 'warning' });
-            return;
-        }
-        const normalizedName = trimmedName.toLowerCase();
-        // Check if another profile already has this name (case-insensitive)
-        const hasDuplicate = plugin.settings.vaultProfiles.some(profile => {
-            // Skip the current profile being renamed
-            if (profile.id === profileId) {
-                return false;
+        if ('error' in result) {
+            if (result.error === 'duplicate') {
+                showNotice(strings.settings.items.vaultProfiles.errors.duplicateName, { variant: 'warning' });
+            } else {
+                showNotice(strings.settings.items.vaultProfiles.errors.emptyName, { variant: 'warning' });
             }
-            const candidate = profile.name?.trim().toLowerCase();
-            return candidate === normalizedName;
-        });
-        if (hasDuplicate) {
-            showNotice(strings.settings.items.vaultProfiles.errors.duplicateName, { variant: 'warning' });
             return;
         }
-        // Find the profile to rename and update its name
-        const targetProfile = plugin.settings.vaultProfiles.find(profile => profile.id === profileId);
-        if (!targetProfile) {
-            return;
-        }
-        targetProfile.name = trimmedName;
-        await plugin.saveSettingsAndUpdate();
+
+        plugin.settings.vaultProfiles.push(result.profile);
+        await plugin.setVaultProfile(result.profile.id);
         refreshProfileControls();
     };
 
-    // Deletes the provided profile and switches to a fallback profile if needed
-    const handleDeleteProfileById = async (profileId: string) => {
-        if (profileId === DEFAULT_VAULT_PROFILE_ID) {
-            return;
+    // Returns the requested profile ID if it exists, otherwise falls back to default or first profile
+    const resolveActiveProfileId = (profiles: typeof plugin.settings.vaultProfiles, requestedId: string) => {
+        const hasRequested = profiles.some(profile => profile.id === requestedId);
+        if (hasRequested) {
+            return requestedId;
         }
-        const profiles = plugin.settings.vaultProfiles;
-        const currentIndex = profiles.findIndex(profile => profile.id === profileId);
-        if (currentIndex === -1) {
-            return;
+        const defaultProfile = profiles.find(profile => profile.id === DEFAULT_VAULT_PROFILE_ID);
+        if (defaultProfile) {
+            return defaultProfile.id;
         }
-        profiles.splice(currentIndex, 1);
-        const fallbackProfile =
-            profiles[currentIndex] ??
-            profiles[currentIndex - 1] ??
-            profiles.find(profile => profile.id === DEFAULT_VAULT_PROFILE_ID) ??
-            profiles[0];
-        const fallbackId = fallbackProfile?.id ?? DEFAULT_VAULT_PROFILE_ID;
-        // Switch to fallback profile only if deleting the currently active profile
-        if (plugin.settings.vaultProfile === profileId) {
-            await plugin.setVaultProfile(fallbackId);
-        } else {
-            await plugin.saveSettingsAndUpdate();
-        }
-        refreshProfileControls();
+        return profiles[0]?.id ?? DEFAULT_VAULT_PROFILE_ID;
     };
 
-    // Opens the edit modal for the active profile, enabling rename or deletion
-    const openEditProfileModal = () => {
-        const activeProfile = getActiveProfile();
-        if (!activeProfile) {
-            return;
-        }
-        const modal = new EditVaultProfileModal(context.app, {
-            title: strings.settings.items.vaultProfiles.editModalTitle,
-            placeholder: strings.settings.items.vaultProfiles.addModalPlaceholder,
-            defaultValue: activeProfile.name ?? '',
-            canDelete: activeProfile.id !== DEFAULT_VAULT_PROFILE_ID,
-            onSubmit: async profileName => {
-                await handleRenameProfile(activeProfile.id, profileName);
-            },
-            onDelete: value => {
-                // Prevent deletion of the default profile
-                if (activeProfile.id === DEFAULT_VAULT_PROFILE_ID) {
-                    return;
+    // Opens the modal for editing, reordering, and deleting vault profiles
+    const openEditProfilesModal = () => {
+        const modal = new EditVaultProfilesModal(context.app, {
+            profiles: plugin.settings.vaultProfiles,
+            activeProfileId: plugin.settings.vaultProfile,
+            onSave: async (updatedProfiles, nextActiveProfileId) => {
+                plugin.settings.vaultProfiles = updatedProfiles;
+                const targetProfileId = resolveActiveProfileId(updatedProfiles, nextActiveProfileId);
+                if (plugin.settings.vaultProfile === targetProfileId) {
+                    await plugin.saveSettingsAndUpdate();
+                } else {
+                    await plugin.setVaultProfile(targetProfileId);
                 }
-                // Show confirmation dialog before deleting the profile
-                const profileName = getProfileDisplayName(value || activeProfile.name);
-                const confirmModal = new ConfirmModal(
-                    context.app,
-                    strings.settings.items.vaultProfiles.deleteModalTitle.replace('{name}', profileName),
-                    strings.settings.items.vaultProfiles.deleteModalMessage.replace('{name}', profileName),
-                    async () => {
-                        await handleDeleteProfileById(activeProfile.id);
-                    }
-                );
-                confirmModal.open();
+                refreshProfileControls();
             }
         });
         modal.open();
@@ -275,6 +221,22 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         profileDropdown = dropdown;
         refreshProfileControls();
         dropdown.onChange(value => {
+            // Handle "Add new profile" option by opening the input modal
+            if (value === ADD_PROFILE_OPTION_VALUE) {
+                if (profileDropdown) {
+                    profileDropdown.selectEl.value = plugin.settings.vaultProfile;
+                }
+                const modal = new InputModal(
+                    context.app,
+                    strings.settings.items.vaultProfiles.addModalTitle,
+                    strings.settings.items.vaultProfiles.addModalPlaceholder,
+                    async profileName => {
+                        await handleAddProfile(profileName);
+                    }
+                );
+                modal.open();
+                return;
+            }
             runAsyncAction(async () => {
                 await plugin.setVaultProfile(value);
                 refreshProfileControls();
@@ -284,26 +246,9 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     });
 
     profileSetting.addButton(button => {
-        button.setButtonText(strings.settings.items.vaultProfiles.addButton).onClick(() => {
-            const modal = new InputModal(
-                context.app,
-                strings.settings.items.vaultProfiles.addModalTitle,
-                strings.settings.items.vaultProfiles.addModalPlaceholder,
-                async profileName => {
-                    await handleAddProfile(profileName);
-                }
-            );
-            modal.open();
+        button.setButtonText(strings.settings.items.vaultProfiles.editProfilesButton).onClick(() => {
+            openEditProfilesModal();
         });
-        return button;
-    });
-
-    profileSetting.addButton(button => {
-        editProfileButton = button;
-        button.setButtonText(strings.settings.items.vaultProfiles.editButton).onClick(() => {
-            openEditProfileModal();
-        });
-        button.setDisabled(!getActiveProfile());
         return button;
     });
 

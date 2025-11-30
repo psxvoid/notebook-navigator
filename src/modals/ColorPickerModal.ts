@@ -34,6 +34,11 @@ type RGBAValues = { r: number; g: number; b: number; a: number };
 
 type ColorPickerMode = 'foreground' | 'background';
 
+/** Result returned by external color selection handlers */
+interface ColorSelectionHandlerResult {
+    handled: boolean;
+}
+
 /**
  * Extended metadata service interface for color operations
  */
@@ -87,7 +92,7 @@ export class ColorPickerModal extends Modal {
     private domDisposers: (() => void)[] = [];
 
     /** Callback function invoked when a color is selected */
-    public onChooseColor: (color: string | null) => void;
+    public onChooseColor?: (color: string | null) => ColorSelectionHandlerResult | Promise<ColorSelectionHandlerResult>;
 
     /**
      * Creates a new color picker modal
@@ -901,15 +906,26 @@ export class ColorPickerModal extends Modal {
     }
 
     /**
+     * Invokes the external handler and returns whether it handled the color update
+     */
+    private async wasHandledBySelection(color: string | null): Promise<boolean> {
+        if (!this.onChooseColor) {
+            return false;
+        }
+
+        const result = await this.onChooseColor(color);
+        return result?.handled === true;
+    }
+
+    /**
      * Remove the color and close
      */
     private async removeColor() {
-        await this.updateMetadataColor(null);
+        const handled = await this.wasHandledBySelection(null);
+        if (!handled) {
+            await this.updateMetadataColor(null);
+        }
 
-        // Notify callback with null
-        this.onChooseColor?.(null);
-
-        // Close the modal
         this.close();
     }
 
@@ -920,10 +936,12 @@ export class ColorPickerModal extends Modal {
         // Save to recent colors
         await this.saveToRecentColors(this.selectedColor);
 
-        await this.updateMetadataColor(this.selectedColor);
+        const handled = await this.wasHandledBySelection(this.selectedColor);
+        if (handled) {
+            return;
+        }
 
-        // Notify callback
-        this.onChooseColor?.(this.selectedColor);
+        await this.updateMetadataColor(this.selectedColor);
     }
 
     /**

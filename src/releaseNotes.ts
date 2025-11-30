@@ -78,9 +78,13 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [
             '==Tldraw support==. If you have Tldraw plugin installed you can now create new Tldraw drawings directly from the navigation pane.',
-            'Notebook Navigator has been translated to ==Russian (ru)==.'
+            'Notebook Navigator has been translated to Russian, Turkish, Ukrainian, Vietnamese, Portuguese, Indonesian, Thai, Persian (Farsi), and Italian. ==Notebook Navigator is now translated into 21 languages!=='
         ],
         improved: [
+            'You can now ==copy and paste styles like icons and colors== between folders, tags and files! Just use the new **Style menu**!',
+            'You can now easily ==remove icons, colors or all styles== from a folder, tag or file using the new **Style menu**.',
+            'You can now ==apply colors and icons to multiple files== at once! You can even paste styles to multiple files!',
+            'You can now ==reorder vault profiles== in **Settings > General > Filtering**. Click **Edit profiles** to add, rename, delete, or reorder vault profiles.',
             'Android: Drag and drop now works in shortcuts and reorder root items mode on newer Android devices.',
             'Android: Notebook Navigator now handles custom system font sizes correctly.',
             'Improved Excalidraw support. When you create a new Excalidraw drawing from the navigation pane, it now opens immediately in drawing mode.',

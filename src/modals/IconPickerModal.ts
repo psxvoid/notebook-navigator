@@ -33,6 +33,11 @@ const GRID_COLUMNS = 5;
 const MAX_SEARCH_RESULTS = 50;
 const ALL_PROVIDERS_TAB_ID = 'all';
 
+/** Result returned by external icon selection handlers */
+interface IconSelectionHandlerResult {
+    handled: boolean;
+}
+
 // Type guard to validate emoji keywords from emojilib are strings
 function isStringArray(value: unknown): value is string[] {
     return Array.isArray(value) && value.every(item => typeof item === 'string');
@@ -51,7 +56,7 @@ export class IconPickerModal extends Modal {
     private metadataService: MetadataService;
     private settingsProvider: ISettingsProvider;
     /** Callback function invoked when an icon is selected */
-    public onChooseIcon: (iconId: string | null) => void;
+    public onChooseIcon?: (iconId: string | null) => IconSelectionHandlerResult | Promise<IconSelectionHandlerResult>;
     private resultsContainer: HTMLDivElement;
     private searchDebounceTimer: number | null = null;
     private searchInput: HTMLInputElement;
@@ -463,9 +468,28 @@ export class IconPickerModal extends Modal {
         this.settingsProvider.setRecentIcons(recentIconsMap);
     }
 
+    /**
+     * Invokes the external handler and returns whether it handled the icon update
+     */
+    private async wasHandledBySelection(iconId: string | null): Promise<boolean> {
+        if (!this.onChooseIcon) {
+            return false;
+        }
+
+        const result = await this.onChooseIcon(iconId);
+        return result?.handled === true;
+    }
+
     private async selectIcon(iconId: string) {
         // Save to recent icons
         this.saveToRecentIcons(iconId);
+
+        // Delegate to caller when a handler is provided to support multi-selection updates
+        if (await this.wasHandledBySelection(iconId)) {
+            this.currentIcon = iconId;
+            this.close();
+            return;
+        }
 
         // Set the icon based on item type
         if (this.itemType === ItemType.TAG) {
@@ -476,12 +500,9 @@ export class IconPickerModal extends Modal {
             await this.metadataService.setFolderIcon(this.itemPath, iconId);
         }
 
-        // Notify callback and close
-        this.onChooseIcon?.(iconId);
         this.currentIcon = iconId;
         this.close();
     }
-
     private getCurrentIconForItem(): string | undefined {
         if (this.itemType === ItemType.TAG) {
             return this.metadataService.getTagIcon(this.itemPath);
@@ -499,15 +520,17 @@ export class IconPickerModal extends Modal {
             return;
         }
 
-        if (this.itemType === ItemType.TAG) {
-            await this.metadataService.removeTagIcon(this.itemPath);
-        } else if (this.itemType === ItemType.FILE) {
-            await this.metadataService.removeFileIcon(this.itemPath);
-        } else {
-            await this.metadataService.removeFolderIcon(this.itemPath);
+        // Delegate removal when a handler is provided to support multi-selection updates
+        const handled = await this.wasHandledBySelection(null);
+        if (!handled) {
+            if (this.itemType === ItemType.TAG) {
+                await this.metadataService.removeTagIcon(this.itemPath);
+            } else if (this.itemType === ItemType.FILE) {
+                await this.metadataService.removeFileIcon(this.itemPath);
+            } else {
+                await this.metadataService.removeFolderIcon(this.itemPath);
+            }
         }
-
-        this.onChooseIcon?.(null);
         this.currentIcon = undefined;
         if (this.removeButton) {
             this.removeButton.disabled = true;

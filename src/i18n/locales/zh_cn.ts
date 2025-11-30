@@ -199,6 +199,15 @@ export const STRINGS_ZH_CN = {
         navigation: {
             addSeparator: '添加分隔符',
             removeSeparator: '移除分隔符'
+        },
+        style: {
+            title: '样式',
+            copy: '复制样式',
+            paste: '粘贴样式',
+            removeIcon: '移除图标',
+            removeColor: '移除颜色',
+            removeBackground: '移除背景',
+            clear: '清除样式'
         }
     },
 
@@ -237,7 +246,7 @@ export const STRINGS_ZH_CN = {
             userColors: '自定义颜色',
             copyColors: '复制颜色',
             colorsCopied: '颜色已复制到剪贴板',
-            copyClipboardError: 'Could not write to clipboard',
+            copyClipboardError: '无法写入剪贴板',
             pasteColors: '粘贴颜色',
             pasteClipboardError: '无法读取剪贴板',
             pasteInvalidJson: '剪贴板不包含有效的 JSON',
@@ -758,8 +767,8 @@ export const STRINGS_ZH_CN = {
                 desc: '点击快捷方式中的项目时不滚动导航面板。'
             },
             autoExpandFoldersTags: {
-                name: 'Expand on selection',
-                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
+                name: '选中时展开',
+                desc: '选中时展开文件夹和标签。在单窗格模式下，首次选中展开，再次选中显示文件。'
             },
             navigationBanner: {
                 name: '导航横幅（仓库配置文件）',
@@ -812,13 +821,19 @@ export const STRINGS_ZH_CN = {
                 desc: '配置文件存储文件类型可见性、隐藏文件夹、隐藏标签、隐藏笔记、快捷方式和导航横幅。从导航窗格标题切换配置文件。',
                 defaultName: '默认',
                 addButton: '添加配置文件',
+                editProfilesButton: '编辑配置文件',
+                addProfileOption: '添加配置文件...',
+                applyButton: '应用',
                 editButton: '编辑配置文件',
                 deleteButton: '删除配置文件',
                 addModalTitle: '添加配置文件',
+                editProfilesModalTitle: '编辑配置文件',
                 editModalTitle: '编辑配置文件',
                 addModalPlaceholder: '配置文件名称',
                 deleteModalTitle: '删除 {name}',
                 deleteModalMessage: '删除 {name}？保存在此配置文件中的隐藏文件夹、标签和笔记过滤器将被删除。',
+                moveUp: '上移',
+                moveDown: '下移',
                 errors: {
                     emptyName: '请输入配置文件名称',
                     duplicateName: '配置文件名称已存在'
@@ -902,8 +917,8 @@ export const STRINGS_ZH_CN = {
                 helpTooltip: '点击查看格式参考'
             },
             preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+                name: '阻止无效字符',
+                desc: '创建或重命名文件和文件夹时阻止 #、|、^、:、%%、[[、]]。'
             },
             showFilePreview: {
                 name: '显示笔记预览',
@@ -1208,7 +1223,7 @@ export const STRINGS_ZH_CN = {
             updateCheckOnStart: {
                 name: '启动时检查新版本',
                 desc: '启动时检查新的插件版本，当有可用更新时显示通知。每个版本仅通知一次，检查最多每天一次。',
-                status: 'New version available: {version}'
+                status: '有新版本可用：{version}'
             },
             whatsNew: {
                 name: 'Notebook Navigator {version} 的最新动态',

@@ -199,6 +199,15 @@ export const STRINGS_RU = {
         navigation: {
             addSeparator: 'Добавить разделитель',
             removeSeparator: 'Удалить разделитель'
+        },
+        style: {
+            title: 'Стиль',
+            copy: 'Копировать стиль',
+            paste: 'Вставить стиль',
+            removeIcon: 'Удалить значок',
+            removeColor: 'Удалить цвет',
+            removeBackground: 'Удалить фон',
+            clear: 'Очистить стиль'
         }
     },
 
@@ -834,13 +843,19 @@ export const STRINGS_RU = {
                 desc: 'Профили хранят видимость типов файлов, скрытые папки, скрытые теги, скрытые заметки, ярлыки и баннер навигации. Переключайте профили из заголовка панели навигации.',
                 defaultName: 'По умолчанию',
                 addButton: 'Добавить профиль',
+                editProfilesButton: 'Редактировать профили',
+                addProfileOption: 'Добавить профиль...',
+                applyButton: 'Применить',
                 editButton: 'Редактировать профиль',
                 deleteButton: 'Удалить профиль',
                 addModalTitle: 'Добавить профиль',
+                editProfilesModalTitle: 'Редактировать профили',
                 editModalTitle: 'Редактировать профиль',
                 addModalPlaceholder: 'Название профиля',
                 deleteModalTitle: 'Удалить {name}',
                 deleteModalMessage: 'Удалить {name}? Фильтры скрытых папок, тегов и заметок, сохранённые в этом профиле, будут удалены.',
+                moveUp: 'Переместить вверх',
+                moveDown: 'Переместить вниз',
                 errors: {
                     emptyName: 'Введите название профиля',
                     duplicateName: 'Профиль с таким названием уже существует'

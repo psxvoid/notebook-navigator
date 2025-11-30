@@ -200,6 +200,15 @@ export const STRINGS_PT_BR = {
         navigation: {
             addSeparator: 'Adicionar separador',
             removeSeparator: 'Remover separador'
+        },
+        style: {
+            title: 'Estilo',
+            copy: 'Copiar estilo',
+            paste: 'Colar estilo',
+            removeIcon: 'Remover ícone',
+            removeColor: 'Remover cor',
+            removeBackground: 'Remover plano de fundo',
+            clear: 'Limpar estilo'
         }
     },
 
@@ -238,7 +247,7 @@ export const STRINGS_PT_BR = {
             userColors: 'Cores do usuário',
             copyColors: 'Copiar cores',
             colorsCopied: 'Cores copiadas para a área de transferência',
-            copyClipboardError: 'Could not write to clipboard',
+            copyClipboardError: 'Não foi possível gravar na área de transferência',
             pasteColors: 'Colar cores',
             pasteClipboardError: 'Não foi possível ler a área de transferência',
             pasteInvalidJson: 'A área de transferência não contém JSON válido',
@@ -751,8 +760,8 @@ export const STRINGS_PT_BR = {
                 desc: 'Não rolar o painel de navegação ao clicar em itens nos atalhos.'
             },
             autoExpandFoldersTags: {
-                name: 'Expand on selection',
-                desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
+                name: 'Expandir ao selecionar',
+                desc: 'Expandir pastas e tags ao selecionar. No modo de painel único, a primeira seleção expande, a segunda mostra arquivos.'
             },
             navigationBanner: {
                 name: 'Banner de navegação (perfil de cofre)',
@@ -826,13 +835,19 @@ export const STRINGS_PT_BR = {
                 desc: 'Perfis armazenam visibilidade de tipos de arquivo, pastas ocultas, tags ocultas, notas ocultas, atalhos e banner de navegação. Alterne perfis pelo cabeçalho do painel de navegação.',
                 defaultName: 'Padrão',
                 addButton: 'Adicionar perfil',
+                editProfilesButton: 'Editar perfis',
+                addProfileOption: 'Adicionar perfil...',
+                applyButton: 'Aplicar',
                 editButton: 'Editar perfil',
                 deleteButton: 'Excluir perfil',
                 addModalTitle: 'Adicionar perfil',
+                editProfilesModalTitle: 'Editar perfis',
                 editModalTitle: 'Editar perfil',
                 addModalPlaceholder: 'Nome do perfil',
                 deleteModalTitle: 'Excluir {name}',
                 deleteModalMessage: 'Remover {name}? Os filtros de pastas, tags e notas ocultas salvos neste perfil serão excluídos.',
+                moveUp: 'Mover para cima',
+                moveDown: 'Mover para baixo',
                 errors: {
                     emptyName: 'Digite um nome de perfil',
                     duplicateName: 'Nome do perfil já existe'
@@ -890,8 +905,8 @@ export const STRINGS_PT_BR = {
                 helpTooltip: 'Clique para referência de formato'
             },
             preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+                name: 'Impedir caracteres inválidos',
+                desc: 'Bloquear #, |, ^, :, %%, [[, ]] ao criar ou renomear arquivos e pastas.'
             },
             showFilePreview: {
                 name: 'Mostrar visualização de nota',
