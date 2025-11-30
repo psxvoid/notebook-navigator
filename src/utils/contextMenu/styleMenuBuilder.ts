@@ -46,6 +46,7 @@ export interface StyleMenuConfig {
     hasColor?: boolean;
     hasBackground?: boolean;
     showIndividualRemovers?: boolean;
+    showClearAction?: boolean;
     applyStyle?: (data: StyleClipboardData) => Promise<void>;
     removeIcon?: () => Promise<void>;
     removeColor?: () => Promise<void>;
@@ -76,10 +77,12 @@ export function addStyleMenu(config: StyleMenuConfig): void {
     const hasRemovableIcon = Boolean(config.removeIcon && hasIconSupport);
     const hasRemovableColor = Boolean(config.removeColor && hasColorSupport);
     const hasRemovableBackground = Boolean(config.removeBackground && hasBackgroundSupport);
+    const removalCount = Number(hasRemovableIcon) + Number(hasRemovableColor) + Number(hasRemovableBackground);
     const hasCopyableStyle = hasStyleData(config.styleData);
     const hasPasteableStyle = Boolean(config.applyStyle && hasSupportedClipboardData);
-    const hasRemoveActions = hasRemovableIcon || hasRemovableColor || hasRemovableBackground;
-    const showIndividualRemovers = config.showIndividualRemovers ?? true;
+    const hasRemoveActions = removalCount > 0;
+    const showIndividualRemovers = (config.showIndividualRemovers ?? true) && hasRemoveActions;
+    const showClearAction = config.showClearAction ?? removalCount >= 2;
 
     if (!hasCopyableStyle && !hasPasteableStyle && !hasRemoveActions) {
         return;
@@ -138,7 +141,7 @@ export function addStyleMenu(config: StyleMenuConfig): void {
             });
         }
 
-        if (hasRemoveActions) {
+        if (showClearAction && hasRemoveActions) {
             styleSubmenu.addItem(subItem => {
                 setAsyncOnClick(subItem.setTitle(strings.contextMenu.style.clear).setIcon('lucide-eraser'), async () => {
                     const actions: Promise<void>[] = [];

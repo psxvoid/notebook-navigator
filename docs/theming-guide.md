@@ -106,32 +106,34 @@ Priority order: folder note styles override custom color styles, which override 
 
 #### File items
 
-| Variable                                          | Default                                       | Description                                                   |
-| ------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------- |
-| `--nn-theme-file-name-color`                      | `var(--text-normal)`                          | Text color for file names                                     |
-| `--nn-theme-file-preview-color`                   | `var(--text-muted)`                           | Text color for content preview                                |
-| `--nn-theme-file-feature-border-radius`           | `4px`                                         | Corner radius for feature images (0-32px)                     |
-| `--nn-theme-file-date-color`                      | `var(--text-normal)`                          | Text color for creation or modification dates                 |
-| `--nn-theme-file-parent-color`                    | `var(--text-muted)`                           | Text color for parent folder path (when showing subfolders)   |
-| `--nn-theme-file-tag-color`                       | `var(--text-muted)`                           | Text color for tag pills                                      |
-| `--nn-theme-file-tag-custom-color-text-color`     | `white`                                       | Text color for tags with custom colors                        |
-| `--nn-theme-file-tag-bg`                          | `var(--background-modifier-border)`           | Background color for tag pills                                |
-| `--nn-theme-file-tag-border-radius`               | `10px`                                        | Corner radius for tag pills (0-10px)                          |
-| `--nn-theme-file-border-radius`                   | `8px`                                         | Corner radius for file items (0-16px)                         |
-| `--nn-theme-file-selected-bg`                     | `var(--text-selection)`                       | Selected file background color                                |
-| `--nn-theme-file-selected-name-color`             | `var(--nn-theme-file-name-color)`             | Text color for file names when selected                       |
-| `--nn-theme-file-selected-preview-color`          | `var(--nn-theme-file-preview-color)`          | Text color for content preview when selected                  |
-| `--nn-theme-file-selected-date-color`             | `var(--nn-theme-file-date-color)`             | Text color for file dates when selected                       |
-| `--nn-theme-file-selected-parent-color`           | `var(--nn-theme-file-parent-color)`           | Text color for parent folder path when selected               |
-| `--nn-theme-file-selected-tag-color`              | `var(--nn-theme-file-tag-color)`              | Text color for tag pills when selected                        |
-| `--nn-theme-file-selected-tag-bg`                 | `var(--nn-theme-file-tag-bg)`                 | Background color for tag pills when selected                  |
-| `--nn-theme-file-selected-inactive-bg`            | `var(--background-modifier-hover)`            | Selected file background when pane is inactive (desktop only) |
-| `--nn-theme-file-selected-inactive-name-color`    | `var(--nn-theme-file-selected-name-color)`    | File name color when selected and pane is inactive            |
-| `--nn-theme-file-selected-inactive-preview-color` | `var(--nn-theme-file-selected-preview-color)` | Content preview color when selected and pane is inactive      |
-| `--nn-theme-file-selected-inactive-date-color`    | `var(--nn-theme-file-selected-date-color)`    | File date color when selected and pane is inactive            |
-| `--nn-theme-file-selected-inactive-parent-color`  | `var(--nn-theme-file-selected-parent-color)`  | Parent folder color when selected and pane is inactive        |
-| `--nn-theme-file-selected-inactive-tag-color`     | `var(--nn-theme-file-selected-tag-color)`     | Tag text color when selected and pane is inactive             |
-| `--nn-theme-file-selected-inactive-tag-bg`        | `var(--nn-theme-file-selected-tag-bg)`        | Tag background color when selected and pane is inactive       |
+| Variable                                          | Default                                       | Description                                                     |
+| ------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------- |
+| `--nn-theme-file-name-color`                      | `var(--text-normal)`                          | Text color for file names                                       |
+| `--nn-theme-file-preview-color`                   | `var(--text-muted)`                           | Text color for content preview                                  |
+| `--nn-theme-file-feature-border-radius`           | `4px`                                         | Corner radius for feature images (0-32px)                       |
+| `--nn-theme-file-date-color`                      | `var(--text-normal)`                          | Text color for creation or modification dates                   |
+| `--nn-theme-file-parent-color`                    | `var(--text-muted)`                           | Text color for parent folder path (when showing subfolders)     |
+| `--nn-theme-file-tag-color`                       | `var(--text-muted)`                           | Text color for tag pills without custom colors                  |
+| `--nn-theme-file-tag-custom-color-text-color`     | `var(--nn-theme-navitem-name-color)`          | Text color for tags with custom backgrounds but no custom color |
+| `--nn-theme-file-tag-bg`                          | `var(--background-modifier-border)`           | Background color for tag pills without custom backgrounds       |
+| `--nn-theme-file-tag-border-radius`               | `10px`                                        | Corner radius for tag pills (0-10px)                            |
+| `--nn-theme-file-border-radius`                   | `8px`                                         | Corner radius for file items (0-16px)                           |
+| `--nn-theme-file-selected-bg`                     | `var(--text-selection)`                       | Selected file background color                                  |
+| `--nn-theme-file-selected-name-color`             | `var(--nn-theme-file-name-color)`             | Text color for file names when selected                         |
+| `--nn-theme-file-selected-preview-color`          | `var(--nn-theme-file-preview-color)`          | Text color for content preview when selected                    |
+| `--nn-theme-file-selected-date-color`             | `var(--nn-theme-file-date-color)`             | Text color for file dates when selected                         |
+| `--nn-theme-file-selected-parent-color`           | `var(--nn-theme-file-parent-color)`           | Text color for parent folder path when selected                 |
+| `--nn-theme-file-selected-tag-color`              | `var(--nn-theme-file-tag-color)`              | Text color for tag pills when selected                          |
+| `--nn-theme-file-selected-tag-bg`                 | `var(--nn-theme-file-tag-bg)`                 | Background color for tag pills when selected                    |
+| `--nn-theme-file-selected-inactive-bg`            | `var(--background-modifier-hover)`            | Selected file background when pane is inactive (desktop only)   |
+| `--nn-theme-file-selected-inactive-name-color`    | `var(--nn-theme-file-selected-name-color)`    | File name color when selected and pane is inactive              |
+| `--nn-theme-file-selected-inactive-preview-color` | `var(--nn-theme-file-selected-preview-color)` | Content preview color when selected and pane is inactive        |
+| `--nn-theme-file-selected-inactive-date-color`    | `var(--nn-theme-file-selected-date-color)`    | File date color when selected and pane is inactive              |
+| `--nn-theme-file-selected-inactive-parent-color`  | `var(--nn-theme-file-selected-parent-color)`  | Parent folder color when selected and pane is inactive          |
+| `--nn-theme-file-selected-inactive-tag-color`     | `var(--nn-theme-file-selected-tag-color)`     | Tag text color when selected and pane is inactive               |
+| `--nn-theme-file-selected-inactive-tag-bg`        | `var(--nn-theme-file-selected-tag-bg)`        | Tag background color when selected and pane is inactive         |
+
+Color-only tag pills use the navigation pane background and follow the background mode setting.
 
 #### Text styling
 

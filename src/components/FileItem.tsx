@@ -510,6 +510,14 @@ export const FileItem = React.memo(function FileItem({
         [metadataService]
     );
 
+    // Get tag background color
+    const getTagBackgroundColor = useCallback(
+        (tag: string): string | undefined => {
+            return metadataService.getTagBackgroundColor(tag);
+        },
+        [metadataService]
+    );
+
     const colorFileTags = settings.colorFileTags;
     const prioritizeColoredFileTags = settings.prioritizeColoredFileTags;
 
@@ -523,6 +531,26 @@ export const FileItem = React.memo(function FileItem({
 
         return tags.filter(tag => hiddenTagVisibility.isTagVisible(tag));
     }, [hiddenTagVisibility, tags]);
+
+    // Build color and background map for visible tags
+    const tagColorData = useMemo(() => {
+        if (!colorFileTags || visibleTags.length === 0) {
+            return new Map<string, { color?: string; background?: string }>();
+        }
+
+        const entries = new Map<string, { color?: string; background?: string }>();
+        const tagColorOverrides = settings.tagColors;
+        const tagBackgroundOverrides = settings.tagBackgroundColors;
+
+        visibleTags.forEach(tag => {
+            entries.set(tag, {
+                color: tagColorOverrides?.[tag] ?? getTagColor(tag),
+                background: tagBackgroundOverrides?.[tag] ?? getTagBackgroundColor(tag)
+            });
+        });
+
+        return entries;
+    }, [colorFileTags, getTagBackgroundColor, getTagColor, settings.tagBackgroundColors, settings.tagColors, visibleTags]);
 
     // Sort tags alphabetically and optionally prioritize colored tags
     const categorizedTags = useMemo(() => {
@@ -540,18 +568,23 @@ export const FileItem = React.memo(function FileItem({
         const regularTags: string[] = [];
 
         visibleTags.forEach(tag => {
-            if (getTagColor(tag)) {
+            const tagColors = tagColorData.get(tag);
+            const hasTagColor = Boolean(tagColors?.color);
+            const hasTagBackground = Boolean(tagColors?.background);
+
+            if (hasTagColor || hasTagBackground) {
                 coloredTags.push(tag);
-            } else {
-                regularTags.push(tag);
+                return;
             }
+
+            regularTags.push(tag);
         });
 
         sortTagsAlphabetically(coloredTags);
         sortTagsAlphabetically(regularTags);
 
         return [...coloredTags, ...regularTags];
-    }, [colorFileTags, getTagColor, prioritizeColoredFileTags, visibleTags]);
+    }, [colorFileTags, prioritizeColoredFileTags, tagColorData, visibleTags]);
 
     const shouldShowFileTags = useMemo(() => {
         if (!settings.showTags || !settings.showFileTags) {
@@ -592,16 +625,30 @@ export const FileItem = React.memo(function FileItem({
         return (
             <div className="nn-file-tags">
                 {categorizedTags.map((tag, index) => {
-                    const tagColor = colorFileTags ? getTagColor(tag) : undefined;
+                    const tagColors = tagColorData.get(tag);
+                    const tagColor = tagColors?.color;
+                    const tagBackground = tagColors?.background;
                     const displayTag = getTagDisplayName(tag);
+                    const tagStyle: React.CSSProperties = {};
+
+                    if (tagBackground) {
+                        tagStyle.backgroundColor = tagBackground;
+                    }
+
+                    if (tagColor) {
+                        tagStyle.color = tagColor;
+                    }
+
                     return (
                         <span
                             key={index}
                             className="nn-file-tag nn-clickable-tag"
+                            data-has-color={tagColor ? 'true' : undefined}
+                            data-has-background={tagBackground ? 'true' : undefined}
                             onClick={e => handleTagClick(e, tag)}
                             role="button"
                             tabIndex={0}
-                            style={tagColor ? { backgroundColor: tagColor } : undefined}
+                            style={Object.keys(tagStyle).length > 0 ? tagStyle : undefined}
                         >
                             {displayTag}
                         </span>
@@ -609,7 +656,7 @@ export const FileItem = React.memo(function FileItem({
                 })}
             </div>
         );
-    }, [colorFileTags, categorizedTags, getTagColor, getTagDisplayName, handleTagClick, shouldShowFileTags]);
+    }, [categorizedTags, getTagDisplayName, handleTagClick, shouldShowFileTags, tagColorData]);
 
     // Format display date based on current sort
     const displayDate = useMemo(() => {

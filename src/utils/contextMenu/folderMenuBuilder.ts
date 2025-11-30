@@ -249,12 +249,12 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     const folderIcon = metadataService.getFolderIcon(folder.path);
     const folderColor = metadataService.getFolderColor(folder.path);
     const folderBackgroundColor = metadataService.getFolderBackgroundColor(folder.path);
+    const directFolderColor = settings.folderColors?.[folder.path];
+    const directFolderBackground = settings.folderBackgroundColors?.[folder.path];
 
     const hasRemovableIcon = Boolean(folderIcon);
-    const hasRemovableColor = Boolean(folderColor);
-    const hasRemovableBackground = Boolean(folderBackgroundColor);
-    const removalCount = Number(hasRemovableIcon) + Number(hasRemovableColor) + Number(hasRemovableBackground);
-    const showIndividualRemovers = removalCount >= 2;
+    const hasRemovableColor = Boolean(directFolderColor);
+    const hasRemovableBackground = Boolean(directFolderBackground);
 
     addStyleMenu({
         menu,
@@ -266,7 +266,6 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         hasIcon: true,
         hasColor: true,
         hasBackground: true,
-        showIndividualRemovers,
         applyStyle: async clipboard => {
             const { icon, color, background } = clipboard;
             const actions: Promise<void>[] = [];
