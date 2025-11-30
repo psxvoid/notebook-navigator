@@ -592,7 +592,7 @@ export const STRINGS_DE = {
                     filterSearch: {
                         title: 'Filtersuche (Standard):',
                         description:
-                            'Schnelle, leichtgewichtige Suche, die Dateien nach Namen und Tags im aktuellen Ordner und Unterordnern filtert. Unterstützt Tag-Filterung mit # Präfix (z.B. #projekt), Ausschluss mit ! Präfix (z.B. !entwurf, !#archiviert), und das Finden von Notizen ohne Tags mit !#. Ideal für die schnelle Navigation im aktuellen Kontext.'
+                            'Filtert Dateien nach Namen und Tags im aktuellen Ordner und Unterordnern. Filtermodus: Gemischter Text und Tags entsprechen allen Begriffen (z.B. "projekt #arbeit"). Tag-Modus: Suche nur mit Tags unterstützt AND/OR-Operatoren (z.B. "#arbeit AND #dringend", "#projekt OR #persönlich"). Cmd/Strg+Klick auf Tags zum Hinzufügen mit AND, Cmd/Strg+Umschalt+Klick zum Hinzufügen mit OR. Unterstützt Ausschluss mit ! Präfix (z.B. !entwurf, !#archiviert) und das Finden von Notizen ohne Tags mit !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

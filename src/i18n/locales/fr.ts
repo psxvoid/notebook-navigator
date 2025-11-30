@@ -590,7 +590,7 @@ export const STRINGS_FR = {
                     filterSearch: {
                         title: 'Recherche par filtre (par défaut):',
                         description:
-                            "Recherche rapide et légère qui filtre les fichiers par nom et étiquettes dans le dossier actuel et les sous-dossiers. Prend en charge le filtrage par étiquettes avec le préfixe # (ex. #projet), l'exclusion avec le préfixe ! (ex. !brouillon, !#archivé), et la recherche de notes sans étiquettes avec !#. Idéal pour la navigation rapide dans votre contexte actuel."
+                            'Filtre les fichiers par nom et étiquettes dans le dossier actuel et les sous-dossiers. Mode filtre : le texte et les étiquettes mixtes correspondent à tous les termes (ex. "projet #travail"). Mode étiquettes : la recherche avec uniquement des étiquettes prend en charge les opérateurs AND/OR (ex. "#travail AND #urgent", "#projet OR #personnel"). Cmd/Ctrl+Clic sur les étiquettes pour ajouter avec AND, Cmd/Ctrl+Maj+Clic pour ajouter avec OR. Prend en charge l\'exclusion avec le préfixe ! (ex. !brouillon, !#archivé) et la recherche de notes sans étiquettes avec !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

@@ -589,7 +589,7 @@ export const STRINGS_PT = {
                     filterSearch: {
                         title: 'Pesquisa com filtro (predefinido):',
                         description:
-                            'Pesquisa rápida e leve que filtra ficheiros por nome e etiquetas na pasta atual e subpastas. Suporta filtragem de etiquetas com prefixo # (ex: #projeto), exclusão com prefixo ! (ex: !rascunho, !#arquivo), e encontrar notas sem etiquetas com !#. Ideal para navegação rápida no contexto atual.'
+                            'Filtra ficheiros por nome e etiquetas na pasta atual e subpastas. Modo filtro: texto e etiquetas misturados correspondem a todos os termos (ex: "projeto #trabalho"). Modo etiquetas: pesquisa apenas com etiquetas suporta operadores AND/OR (ex: "#trabalho AND #urgente", "#projeto OR #pessoal"). Cmd/Ctrl+Clique em etiquetas para adicionar com AND, Cmd/Ctrl+Shift+Clique para adicionar com OR. Suporta exclusão com prefixo ! (ex: !rascunho, !#arquivo) e encontrar notas sem etiquetas com !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

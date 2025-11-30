@@ -589,7 +589,7 @@ export const STRINGS_IT = {
                     filterSearch: {
                         title: 'Ricerca con filtro (predefinito):',
                         description:
-                            'Ricerca veloce e leggera che filtra i file per nome e tag nella cartella corrente e sottocartelle. Supporta filtro tag con prefisso # (es. #progetto), esclusione con prefisso ! (es. !bozza, !#archiviato) e ricerca note senza tag con !#. Ideale per navigazione rapida nel contesto corrente.'
+                            'Filtra i file per nome e tag nella cartella corrente e sottocartelle. Modalità filtro: testo e tag misti corrispondono a tutti i termini (es. "progetto #lavoro"). Modalità tag: la ricerca solo con tag supporta operatori AND/OR (es. "#lavoro AND #urgente", "#progetto OR #personale"). Cmd/Ctrl+Clic sui tag per aggiungere con AND, Cmd/Ctrl+Maiusc+Clic per aggiungere con OR. Supporta esclusione con prefisso ! (es. !bozza, !#archiviato) e ricerca note senza tag con !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

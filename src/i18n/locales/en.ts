@@ -589,7 +589,7 @@ export const STRINGS_EN = {
                     filterSearch: {
                         title: 'Filter search (default):',
                         description:
-                            'Fast, lightweight search that filters files by name and tags within the current folder and subfolders. Supports tag filtering with # prefix (e.g., #project), exclusion with ! prefix (e.g., !draft, !#archived), and finding untagged notes with !#. Ideal for quick navigation within your current context.'
+                            'Filters files by name and tags within the current folder and subfolders. Filter mode: mixed text and tags match all terms (e.g., "project #work"). Tag mode: search with only tags supports AND/OR operators (e.g., "#work AND #urgent", "#project OR #personal"). Cmd/Ctrl+Click tags to add with AND, Cmd/Ctrl+Shift+Click to add with OR. Supports exclusion with ! prefix (e.g., !draft, !#archived) and finding untagged notes with !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

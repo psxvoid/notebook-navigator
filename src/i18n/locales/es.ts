@@ -590,7 +590,7 @@ export const STRINGS_ES = {
                     filterSearch: {
                         title: 'Búsqueda por filtro (predeterminado):',
                         description:
-                            'Búsqueda rápida y ligera que filtra archivos por nombre y etiquetas dentro de la carpeta actual y subcarpetas. Admite filtrado de etiquetas con prefijo # (ej. #proyecto), exclusión con prefijo ! (ej. !borrador, !#archivado), y búsqueda de notas sin etiquetas con !#. Ideal para navegación rápida dentro de su contexto actual.'
+                            'Filtra archivos por nombre y etiquetas dentro de la carpeta actual y subcarpetas. Modo filtro: texto y etiquetas mezclados coinciden con todos los términos (ej. "proyecto #trabajo"). Modo etiquetas: búsqueda solo con etiquetas admite operadores AND/OR (ej. "#trabajo AND #urgente", "#proyecto OR #personal"). Cmd/Ctrl+Clic en etiquetas para añadir con AND, Cmd/Ctrl+Mayús+Clic para añadir con OR. Admite exclusión con prefijo ! (ej. !borrador, !#archivado) y búsqueda de notas sin etiquetas con !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

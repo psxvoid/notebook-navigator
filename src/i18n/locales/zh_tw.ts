@@ -589,7 +589,7 @@ export const STRINGS_ZH_TW = {
                     filterSearch: {
                         title: '篩選搜尋 (預設)：',
                         description:
-                            '快速、輕量的搜尋，可在目前資料夾和子資料夾中依檔案名稱和標籤篩選檔案。支援使用 # 前綴進行標籤篩選 (例如 #project)、使用 ! 前綴進行排除 (例如 !draft, !#archived)，以及使用 !# 尋找無標籤的筆記。適合在目前上下文中快速導覽。'
+                            '在目前資料夾和子資料夾中依檔案名稱和標籤篩選檔案。篩選模式：混合文字和標籤符合所有條件 (例如「專案 #工作」)。標籤模式：僅使用標籤搜尋支援 AND/OR 運算子 (例如「#工作 AND #緊急」、「#專案 OR #個人」)。Cmd/Ctrl+點擊標籤以 AND 方式新增，Cmd/Ctrl+Shift+點擊以 OR 方式新增。支援使用 ! 前綴進行排除 (例如 !draft, !#archived) 以及使用 !# 尋找無標籤的筆記。'
                     },
                     omnisearch: {
                         title: 'Omnisearch：',

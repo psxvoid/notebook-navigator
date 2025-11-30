@@ -589,7 +589,7 @@ export const STRINGS_VI = {
                     filterSearch: {
                         title: 'Tìm kiếm lọc (mặc định):',
                         description:
-                            'Tìm kiếm nhanh, nhẹ lọc tệp theo tên và thẻ trong thư mục hiện tại và thư mục con. Hỗ trợ lọc thẻ với tiền tố # (ví dụ: #dự án), loại trừ với tiền tố ! (ví dụ: !nháp, !#lưu trữ), và tìm ghi chú không có thẻ với !#. Lý tưởng để điều hướng nhanh trong ngữ cảnh hiện tại.'
+                            'Lọc tệp theo tên và thẻ trong thư mục hiện tại và thư mục con. Chế độ lọc: văn bản và thẻ hỗn hợp khớp với tất cả các điều kiện (ví dụ: "dự án #công việc"). Chế độ thẻ: tìm kiếm chỉ với thẻ hỗ trợ toán tử AND/OR (ví dụ: "#công việc AND #khẩn cấp", "#dự án OR #cá nhân"). Cmd/Ctrl+Nhấp vào thẻ để thêm với AND, Cmd/Ctrl+Shift+Nhấp để thêm với OR. Hỗ trợ loại trừ với tiền tố ! (ví dụ: !nháp, !#lưu trữ) và tìm ghi chú không có thẻ với !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

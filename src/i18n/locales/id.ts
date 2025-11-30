@@ -589,7 +589,7 @@ export const STRINGS_ID = {
                     filterSearch: {
                         title: 'Pencarian filter (default):',
                         description:
-                            'Pencarian cepat dan ringan yang memfilter file berdasarkan nama dan tag dalam folder dan subfolder saat ini. Mendukung pemfilteran tag dengan awalan # (misal, #proyek), pengecualian dengan awalan ! (misal, !draf, !#arsip), dan menemukan catatan tanpa tag dengan !#. Ideal untuk navigasi cepat dalam konteks saat ini.'
+                            'Memfilter file berdasarkan nama dan tag dalam folder dan subfolder saat ini. Mode filter: teks dan tag campuran cocok dengan semua istilah (misal, "proyek #kerja"). Mode tag: pencarian hanya dengan tag mendukung operator AND/OR (misal, "#kerja AND #mendesak", "#proyek OR #pribadi"). Cmd/Ctrl+Klik tag untuk menambah dengan AND, Cmd/Ctrl+Shift+Klik untuk menambah dengan OR. Mendukung pengecualian dengan awalan ! (misal, !draf, !#arsip) dan menemukan catatan tanpa tag dengan !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

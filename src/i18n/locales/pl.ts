@@ -591,7 +591,7 @@ export const STRINGS_PL = {
                     filterSearch: {
                         title: 'Wyszukiwanie filtrujące (domyślne):',
                         description:
-                            'Szybkie, lekkie wyszukiwanie, które filtruje pliki według nazwy i tagów w bieżącym folderze i podfolderach. Obsługuje filtrowanie tagów z prefiksem # (np. #projekt), wykluczanie z prefiksem ! (np. !szkic, !#zarchiwizowane), oraz znajdowanie notatek bez tagów za pomocą !#. Idealne do szybkiej nawigacji w aktualnym kontekście.'
+                            'Filtruje pliki według nazwy i tagów w bieżącym folderze i podfolderach. Tryb filtrowania: mieszany tekst i tagi dopasowują wszystkie terminy (np. "projekt #praca"). Tryb tagów: wyszukiwanie tylko tagami obsługuje operatory AND/OR (np. "#praca AND #pilne", "#projekt OR #osobiste"). Cmd/Ctrl+Kliknięcie na tagi dodaje z AND, Cmd/Ctrl+Shift+Kliknięcie dodaje z OR. Obsługuje wykluczanie z prefiksem ! (np. !szkic, !#zarchiwizowane) oraz znajdowanie notatek bez tagów za pomocą !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

@@ -591,7 +591,7 @@ export const STRINGS_NL = {
                     filterSearch: {
                         title: 'Filter zoeken (standaard):',
                         description:
-                            'Snelle, lichtgewicht zoekfunctie die bestanden filtert op naam en tags binnen de huidige map en submappen. Ondersteunt tagfiltering met # prefix (bijv. #project), uitsluiting met ! prefix (bijv. !draft, !#archived), en het vinden van notities zonder tags met !#. Ideaal voor snelle navigatie binnen uw huidige context.'
+                            'Filtert bestanden op naam en tags binnen de huidige map en submappen. Filtermodus: gemengde tekst en tags komen overeen met alle termen (bijv. "project #werk"). Tagmodus: zoeken met alleen tags ondersteunt AND/OR-operatoren (bijv. "#werk AND #urgent", "#project OR #persoonlijk"). Cmd/Ctrl+Klik op tags om toe te voegen met AND, Cmd/Ctrl+Shift+Klik om toe te voegen met OR. Ondersteunt uitsluiting met ! prefix (bijv. !draft, !#archived) en het vinden van notities zonder tags met !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',

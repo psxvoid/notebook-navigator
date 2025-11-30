@@ -589,7 +589,7 @@ export const STRINGS_TR = {
                     filterSearch: {
                         title: 'Filtre araması (varsayılan):',
                         description:
-                            'Mevcut klasör ve alt klasörler içinde dosyaları ada ve etiketlere göre filtreleyen hızlı, hafif arama. # ön ekiyle etiket filtreleme (örn. #proje), ! ön ekiyle hariç tutma (örn. !taslak, !#arşiv) ve !# ile etiketsiz notları bulmayı destekler. Mevcut bağlamda hızlı gezinme için idealdir.'
+                            'Mevcut klasör ve alt klasörler içinde dosyaları ada ve etiketlere göre filtreler. Filtre modu: karışık metin ve etiketler tüm terimleri eşleştirir (örn. "proje #iş"). Etiket modu: yalnızca etiketlerle arama AND/OR operatörlerini destekler (örn. "#iş AND #acil", "#proje OR #kişisel"). Cmd/Ctrl+Tıklama ile AND olarak ekle, Cmd/Ctrl+Shift+Tıklama ile OR olarak ekle. ! ön ekiyle hariç tutma (örn. !taslak, !#arşiv) ve !# ile etiketsiz notları bulmayı destekler.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
