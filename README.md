@@ -615,9 +615,9 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show date:** Display the date below note names.
   - **When sorting by name:** Date to show when notes are alphabetically sorted. `Created date`, `Modified date`.
 - **Show file tags:** Display clickable tags in file items.
-  - **Show full tag paths:** Display complete tag hierarchy paths. When enabled: 'ai/openai', 'work/projects/2024'. When disabled: 'openai', '2024'.
   - **Color file tags:** Apply tag colors to tag badges on file items.
   - **Show colored tags first:** Sort colored tags before other tags on file items.
+  - **Show full tag paths:** Display complete tag hierarchy paths. When enabled: 'ai/openai', 'work/projects/2024'. When disabled: 'openai', '2024'.
   - **Show file tags in compact mode:** Display tags when date, preview, and image are hidden.
 - **Show parent folder:** Display the parent folder name for notes in subfolders or tags.
   - **Click parent folder to reveal file:** Clicking the parent folder label reveals the file.

@@ -193,9 +193,9 @@ export interface NotebookNavigatorSettings {
     showFileDate: boolean;
     alphabeticalDateMode: AlphabeticalDateMode;
     showFileTags: boolean;
-    showFileTagAncestors: boolean;
     colorFileTags: boolean;
     prioritizeColoredFileTags: boolean;
+    showFileTagAncestors: boolean;
     showFileTagsInCompactMode: boolean;
     showParentFolder: boolean;
     parentFolderClickRevealsFile: boolean;
