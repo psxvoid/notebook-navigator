@@ -693,8 +693,8 @@ export const STRINGS_VI = {
                 desc: 'Hiển thị tên thư mục cha cho ghi chú trong thư mục con hoặc thẻ.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Nhấn thư mục cha để hiện tệp',
-                desc: 'Nhấn nhãn thư mục cha sẽ hiện tệp.'
+                name: 'Nhấn thư mục cha để mở thư mục',
+                desc: 'Nhấn nhãn thư mục cha sẽ mở thư mục trong bảng danh sách.'
             },
             showParentFolderColor: {
                 name: 'Hiện màu thư mục cha',

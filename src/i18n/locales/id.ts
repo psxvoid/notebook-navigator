@@ -693,8 +693,8 @@ export const STRINGS_ID = {
                 desc: 'Tampilkan nama folder induk untuk catatan di subfolder atau tag.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Klik folder induk untuk menampilkan file',
-                desc: 'Mengklik label folder induk menampilkan file.'
+                name: 'Klik folder induk untuk membuka folder',
+                desc: 'Mengklik label folder induk membuka folder di panel daftar.'
             },
             showParentFolderColor: {
                 name: 'Tampilkan warna folder induk',

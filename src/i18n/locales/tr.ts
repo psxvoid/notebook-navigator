@@ -693,8 +693,8 @@ export const STRINGS_TR = {
                 desc: 'Alt klasörlerdeki veya etiketlerdeki notlar için üst klasör adını görüntüle.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Üst klasöre tıklayarak dosyayı göster',
-                desc: 'Üst klasör etiketine tıklamak dosyayı gösterir.'
+                name: 'Üst klasöre tıklayarak klasörü aç',
+                desc: 'Üst klasör etiketine tıklamak liste panelinde klasörü açar.'
             },
             showParentFolderColor: {
                 name: 'Üst klasör rengini göster',

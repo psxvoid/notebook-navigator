@@ -693,8 +693,8 @@ export const STRINGS_KO = {
                 desc: '하위 폴더나 태그의 노트에 상위 폴더 이름을 표시합니다.'
             },
             parentFolderClickRevealsFile: {
-                name: '상위 폴더 클릭 시 노트 표시',
-                desc: '상위 폴더 레이블을 클릭하면 노트를 표시합니다.'
+                name: '상위 폴더 클릭 시 폴더 열기',
+                desc: '상위 폴더 레이블을 클릭하면 목록 창에서 폴더를 엽니다.'
             },
             showParentFolderColor: {
                 name: '상위 폴더 색상 표시',

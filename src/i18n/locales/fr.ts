@@ -695,8 +695,8 @@ export const STRINGS_FR = {
                 desc: 'Afficher le nom du dossier parent pour les notes dans les sous-dossiers ou étiquettes.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Clic sur dossier parent révèle la note',
-                desc: "Cliquer sur l'étiquette du dossier parent révèle la note."
+                name: 'Clic sur dossier parent ouvre le dossier',
+                desc: "Cliquer sur l'étiquette du dossier parent ouvre le dossier dans le panneau de liste."
             },
             showParentFolderColor: {
                 name: 'Afficher la couleur du dossier parent',

@@ -694,8 +694,8 @@ export const STRINGS_JA = {
                 desc: 'サブフォルダまたはタグ内のノートに親フォルダ名を表示します。'
             },
             parentFolderClickRevealsFile: {
-                name: '親フォルダクリックでノートを表示',
-                desc: '親フォルダラベルをクリックするとノートを表示します。'
+                name: '親フォルダクリックでフォルダを開く',
+                desc: '親フォルダラベルをクリックするとリストペインでフォルダを開きます。'
             },
             showParentFolderColor: {
                 name: '親フォルダの色を表示',

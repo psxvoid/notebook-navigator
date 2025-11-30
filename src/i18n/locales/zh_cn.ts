@@ -693,8 +693,8 @@ export const STRINGS_ZH_CN = {
                 desc: '为子文件夹或标签中的笔记显示父文件夹名称。'
             },
             parentFolderClickRevealsFile: {
-                name: '点击父文件夹定位笔记',
-                desc: '点击父文件夹名称时，在文件夹中显示该笔记。'
+                name: '点击父文件夹打开文件夹',
+                desc: '点击父文件夹名称时，在列表面板中打开该文件夹。'
             },
             showParentFolderColor: {
                 name: '显示父文件夹颜色',

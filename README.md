@@ -620,7 +620,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Show full tag paths:** Display complete tag hierarchy paths. When enabled: 'ai/openai', 'work/projects/2024'. When disabled: 'openai', '2024'.
   - **Show file tags in compact mode:** Display tags when date, preview, and image are hidden.
 - **Show parent folder:** Display the parent folder name for notes in subfolders or tags.
-  - **Click parent folder to reveal file:** Clicking the parent folder label reveals the file.
+  - **Click parent folder to go to folder:** Clicking the parent folder label opens the folder in list pane.
   - **Show parent folder color:** Use folder colors on parent folder labels.
 - **Show note preview:** Display preview text beneath note names.
   - **Skip headings in preview:** Skip heading lines when generating preview text.

@@ -693,8 +693,8 @@ export const STRINGS_IT = {
                 desc: 'Visualizza il nome della cartella genitore per note in sottocartelle o tag.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Click su cartella genitore mostra file',
-                desc: "Cliccando sull'etichetta cartella genitore mostra il file."
+                name: 'Click su cartella genitore apre cartella',
+                desc: "Cliccando sull'etichetta cartella genitore apre la cartella nel pannello elenco."
             },
             showParentFolderColor: {
                 name: 'Mostra colore cartella genitore',

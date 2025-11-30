@@ -697,8 +697,8 @@ export const STRINGS_DE = {
                 desc: 'Den übergeordneten Ordnernamen für Notizen in Unterordnern oder Tags anzeigen.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Überordnerklick zeigt Datei',
-                desc: 'Klicken auf den übergeordneten Ordner blendet die Datei ein.'
+                name: 'Klick auf übergeordneten Ordner öffnet Ordner',
+                desc: 'Klicken auf den übergeordneten Ordner öffnet den Ordner im Listenbereich.'
             },
             showParentFolderColor: {
                 name: 'Übergeordnete Ordnerfarbe anzeigen',

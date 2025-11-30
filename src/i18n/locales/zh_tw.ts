@@ -692,8 +692,8 @@ export const STRINGS_ZH_TW = {
                 desc: '在子資料夾或標籤中顯示筆記的父資料夾名稱。'
             },
             parentFolderClickRevealsFile: {
-                name: '點擊父資料夾定位筆記',
-                desc: '點擊父資料夾名稱時，在資料夾中顯示該筆記。'
+                name: '點擊父資料夾開啟資料夾',
+                desc: '點擊父資料夾名稱時，在列表面板中開啟該資料夾。'
             },
             showParentFolderColor: {
                 name: '顯示父資料夾顏色',
