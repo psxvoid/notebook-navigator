@@ -804,7 +804,7 @@ export const STRINGS_TR = {
                 }
             },
             fileVisibility: {
-                name: 'Dosya türlerini göster',
+                name: 'Dosya türlerini göster (kasa profili)',
                 desc: 'Gezginde hangi dosya türlerinin gösterileceğini filtrele. Obsidian tarafından desteklenmeyen dosya türleri harici uygulamalarda açılabilir.',
                 options: {
                     documents: 'Belgeler (.md, .canvas, .base)',
@@ -825,7 +825,7 @@ export const STRINGS_TR = {
                 }
             },
             excludedNotes: {
-                name: 'Notları gizle',
+                name: 'Notları gizle (kasa profili)',
                 desc: 'Virgülle ayrılmış frontmatter özellikleri listesi. Bu özelliklerden herhangi birini içeren notlar gizlenecektir (örn. taslak, özel, arşiv).',
                 placeholder: 'taslak, özel'
             },
@@ -853,7 +853,7 @@ export const STRINGS_TR = {
                 }
             },
             excludedFolders: {
-                name: 'Klasörleri gizle',
+                name: 'Klasörleri gizle (kasa profili)',
                 desc: 'Virgülle ayrılmış gizlenecek klasörler listesi. Ad desenleri: assets* (assets ile başlayan klasörler), *_temp (_temp ile biten). Yol desenleri: /archive (yalnızca kök arşiv), /res* (res ile başlayan kök klasörler), /*/temp (bir seviye derinlikte temp klasörleri), /projects/* (projects içindeki tüm klasörler).',
                 placeholder: 'şablonlar, assets*, /arşiv, /res*'
             },
@@ -1049,7 +1049,7 @@ export const STRINGS_TR = {
                 desc: "Tüm etiketler kaldırıldığında tags frontmatter özelliğini koru. Devre dışı bırakıldığında, tags özelliği frontmatter'dan silinir."
             },
             hiddenTags: {
-                name: 'Etiketleri gizle',
+                name: 'Etiketleri gizle (kasa profili)',
                 desc: 'Virgülle ayrılmış etiket önekleri veya ad joker karakterleri listesi. Etiket adlarını eşleştirmek için etiket* veya *etiket kullanın. Bir etiketi gizlemek tüm alt etiketlerini de gizler (örn. "arşiv", "arşiv/2024/belgeler"i gizler).',
                 placeholder: 'dahili, temp/taslaklar, arşiv/2024'
             },

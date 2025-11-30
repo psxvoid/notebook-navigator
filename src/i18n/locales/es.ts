@@ -805,7 +805,7 @@ export const STRINGS_ES = {
                 }
             },
             excludedNotes: {
-                name: 'Ocultar notas',
+                name: 'Ocultar notas (perfil de bóveda)',
                 desc: 'Lista de propiedades del frontmatter separadas por comas. Las notas que contengan cualquiera de estas propiedades se ocultarán (ej.: draft, private, archived).',
                 placeholder: 'draft, private'
             },
@@ -834,12 +834,12 @@ export const STRINGS_ES = {
                 }
             },
             excludedFolders: {
-                name: 'Ocultar carpetas',
+                name: 'Ocultar carpetas (perfil de bóveda)',
                 desc: 'Lista de carpetas a ocultar separadas por comas. Patrones de nombre: assets* (carpetas que comienzan con assets), *_temp (terminan con _temp). Patrones de ruta: /archive (solo archivo raíz), /res* (carpetas raíz que comienzan con res), /*/temp (carpetas temp un nivel abajo), /projects/* (todas las carpetas dentro de projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
             fileVisibility: {
-                name: 'Mostrar tipos de archivo',
+                name: 'Mostrar tipos de archivo (perfil de bóveda)',
                 desc: 'Filtre qué tipos de archivo se muestran en el navegador. Los tipos de archivo no soportados por Obsidian pueden abrirse en aplicaciones externas.',
                 options: {
                     documents: 'Documentos (.md, .canvas, .base)',
@@ -1051,7 +1051,7 @@ export const STRINGS_ES = {
                 desc: 'Mantiene la propiedad tags en frontmatter cuando se eliminan todas las etiquetas. Cuando está desactivado, la propiedad tags se elimina del frontmatter.'
             },
             hiddenTags: {
-                name: 'Ocultar etiquetas',
+                name: 'Ocultar etiquetas (perfil de bóveda)',
                 desc: 'Lista separada por comas de prefijos de etiquetas o comodines de nombre. Usa `tag*` o `*tag` para coincidir con nombres de etiquetas. Ocultar una etiqueta también oculta todas sus sub-etiquetas (ej. "archivo" oculta "archivo/2024/docs").',
                 placeholder: 'interno, temp/borradores, archivo/2024'
             },

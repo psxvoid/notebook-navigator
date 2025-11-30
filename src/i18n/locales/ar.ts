@@ -804,7 +804,7 @@ export const STRINGS_AR = {
                 }
             },
             fileVisibility: {
-                name: 'إظهار أنواع الملفات',
+                name: 'إظهار أنواع الملفات (ملف الخزنة)',
                 desc: 'تصفية أنواع الملفات المعروضة في المتصفح. أنواع الملفات غير المدعومة من Obsidian قد تفتح في تطبيقات خارجية.',
                 options: {
                     documents: 'مستندات (.md, .canvas, .base)',
@@ -825,7 +825,7 @@ export const STRINGS_AR = {
                 }
             },
             excludedNotes: {
-                name: 'إخفاء الملاحظات',
+                name: 'إخفاء الملاحظات (ملف الخزنة)',
                 desc: 'قائمة مفصولة بفاصلة من خصائص البيانات الأمامية. الملاحظات التي تحتوي على أي من هذه الخصائص ستكون مخفية (مثل draft، private، archived).',
                 placeholder: 'draft, private'
             },
@@ -853,7 +853,7 @@ export const STRINGS_AR = {
                 }
             },
             excludedFolders: {
-                name: 'إخفاء المجلدات',
+                name: 'إخفاء المجلدات (ملف الخزنة)',
                 desc: 'قائمة مفصولة بفاصلة من المجلدات لإخفائها. أنماط الاسم: assets* (المجلدات التي تبدأ بـ assets)، *_temp (التي تنتهي بـ _temp). أنماط المسار: /archive (الأرشيف الجذري فقط)، /res* (المجلدات الجذرية التي تبدأ بـ res)، /*/temp (مجلدات temp بمستوى واحد)، /projects/* (جميع المجلدات داخل projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1049,7 +1049,7 @@ export const STRINGS_AR = {
                 desc: 'الاحتفاظ بخاصية الوسوم في البيانات الأمامية عند إزالة جميع الوسوم. عند التعطيل، يتم حذف خاصية الوسوم من البيانات الأمامية.'
             },
             hiddenTags: {
-                name: 'إخفاء الوسوم',
+                name: 'إخفاء الوسوم (ملف الخزنة)',
                 desc: 'قائمة مفصولة بفاصلة من بادئات الوسوم أو أحرف البدل. استخدم tag* أو *tag للمطابقة بأسماء الوسوم. إخفاء وسم يخفي أيضًا جميع وسومه الفرعية (مثل "archive" يخفي "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

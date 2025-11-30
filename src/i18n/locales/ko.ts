@@ -804,7 +804,7 @@ export const STRINGS_KO = {
                 }
             },
             fileVisibility: {
-                name: '파일 유형 표시',
+                name: '파일 유형 표시 (볼트 프로필)',
                 desc: '네비게이터에 표시할 파일 유형을 필터링합니다. Obsidian에서 지원하지 않는 파일 유형은 외부 응용 프로그램에서 열릴 수 있습니다.',
                 options: {
                     documents: '문서 (.md, .canvas, .base)',
@@ -825,7 +825,7 @@ export const STRINGS_KO = {
                 }
             },
             excludedNotes: {
-                name: '노트 숨기기',
+                name: '노트 숨기기 (볼트 프로필)',
                 desc: '쉼표로 구분된 frontmatter 속성 목록입니다. 이러한 속성 중 하나라도 포함된 노트는 숨겨집니다 (예: draft, private, archived).',
                 placeholder: 'draft, private'
             },
@@ -853,7 +853,7 @@ export const STRINGS_KO = {
                 }
             },
             excludedFolders: {
-                name: '폴더 숨기기',
+                name: '폴더 숨기기 (볼트 프로필)',
                 desc: '숨길 폴더의 쉼표로 구분된 목록입니다. 이름 패턴: assets* (assets로 시작하는 폴더), *_temp (_temp로 끝나는). 경로 패턴: /archive (루트 archive만), /res* (res로 시작하는 루트 폴더), /*/temp (한 레벨 깊이의 temp 폴더), /projects/* (projects 내부의 모든 폴더).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1049,7 +1049,7 @@ export const STRINGS_KO = {
                 desc: '모든 태그가 제거될 때 frontmatter 의 tags 속성을 유지합니다. 비활성화하면 tags 속성이 frontmatter 에서 삭제됩니다.'
             },
             hiddenTags: {
-                name: '태그 숨기기',
+                name: '태그 숨기기 (볼트 프로필)',
                 desc: '숨길 태그 접두사 또는 이름 와일드카드의 쉼표로 구분된 목록입니다. `tag*` 또는 `*tag` 로 태그 이름을 일치시킵니다. 태그를 숨기면 모든 하위 태그도 숨겨집니다 (예: "archive"는 "archive/2024/docs" 숨김).',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

@@ -629,10 +629,10 @@ export const FileItem = React.memo(function FileItem({
                     const tagColor = tagColors?.color;
                     const tagBackground = tagColors?.background;
                     const displayTag = getTagDisplayName(tag);
-                    const tagStyle: React.CSSProperties = {};
+                    const tagStyle: React.CSSProperties & { '--nn-file-tag-custom-bg'?: string } = {};
 
                     if (tagBackground) {
-                        tagStyle.backgroundColor = tagBackground;
+                        tagStyle['--nn-file-tag-custom-bg'] = tagBackground;
                     }
 
                     if (tagColor) {

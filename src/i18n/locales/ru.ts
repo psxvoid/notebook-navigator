@@ -805,7 +805,7 @@ export const STRINGS_RU = {
                 }
             },
             fileVisibility: {
-                name: 'Показывать типы файлов',
+                name: 'Показывать типы файлов (профиль хранилища)',
                 desc: 'Фильтруйте, какие типы файлов отображаются в навигаторе. Типы файлов, не поддерживаемые Obsidian, могут открываться во внешних приложениях.',
                 options: {
                     documents: 'Документы (.md, .canvas, .base)',
@@ -826,7 +826,7 @@ export const STRINGS_RU = {
                 }
             },
             excludedNotes: {
-                name: 'Скрыть заметки',
+                name: 'Скрыть заметки (профиль хранилища)',
                 desc: 'Список свойств frontmatter через запятую. Заметки, содержащие любое из этих свойств, будут скрыты (например, draft, private, archived).',
                 placeholder: 'draft, private'
             },
@@ -854,7 +854,7 @@ export const STRINGS_RU = {
                 }
             },
             excludedFolders: {
-                name: 'Скрыть папки',
+                name: 'Скрыть папки (профиль хранилища)',
                 desc: 'Список папок через запятую для скрытия. Шаблоны имён: assets* (папки, начинающиеся с assets), *_temp (заканчивающиеся на _temp). Шаблоны путей: /archive (только корневой archive), /res* (корневые папки, начинающиеся с res), /*/temp (папки temp на один уровень вглубь), /projects/* (все папки внутри projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1050,7 +1050,7 @@ export const STRINGS_RU = {
                 desc: 'Сохранять свойство tags в frontmatter, когда все теги удалены. При отключении свойство tags удаляется из frontmatter.'
             },
             hiddenTags: {
-                name: 'Скрыть теги',
+                name: 'Скрыть теги (профиль хранилища)',
                 desc: 'Список префиксов тегов или шаблонов имён через запятую. Используйте тег* или *тег для сопоставления имён тегов. Скрытие тега также скрывает все его подтеги (например, "archive" скрывает "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

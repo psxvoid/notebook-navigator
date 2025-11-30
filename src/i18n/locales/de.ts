@@ -808,7 +808,7 @@ export const STRINGS_DE = {
                 }
             },
             excludedNotes: {
-                name: 'Notizen verstecken',
+                name: 'Notizen verstecken (Tresorprofil)',
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften. Notizen mit diesen Eigenschaften werden ausgeblendet (z.B. Entwurf, privat, archiviert).',
                 placeholder: 'entwurf, privat'
             },
@@ -836,12 +836,12 @@ export const STRINGS_DE = {
                 }
             },
             excludedFolders: {
-                name: 'Ordner verstecken',
+                name: 'Ordner verstecken (Tresorprofil)',
                 desc: 'Kommagetrennte Liste von auszublendenden Ordnern. Namensmuster: assets* (Ordner die mit assets beginnen), *_temp (endet mit _temp). Pfadmuster: /archive (nur Wurzel-Archive), /res* (Wurzelordner die mit res beginnen), /*/temp (temp-Ordner eine Ebene tief), /projects/* (alle Ordner in projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
             fileVisibility: {
-                name: 'Dateitypen anzeigen',
+                name: 'Dateitypen anzeigen (Tresorprofil)',
                 desc: 'Filtern Sie, welche Dateitypen im Navigator angezeigt werden. Dateitypen, die von Obsidian nicht unterstützt werden, können in externen Anwendungen geöffnet werden.',
                 options: {
                     documents: 'Dokumente (.md, .canvas, .base)',
@@ -1053,7 +1053,7 @@ export const STRINGS_DE = {
                 desc: 'Behält die Tags-Frontmatter-Eigenschaft, wenn alle Tags entfernt werden. Wenn deaktiviert, wird die Tags-Eigenschaft aus dem Frontmatter gelöscht.'
             },
             hiddenTags: {
-                name: 'Tags verstecken',
+                name: 'Tags verstecken (Tresorprofil)',
                 desc: 'Kommagetrennte Liste von Tag-Präfixen oder Namensplatzhaltern zum Ausblenden. Verwende `tag*` oder `*tag`, um Tagnamen abzugleichen. Ein versteckter Tag blendet auch alle Unter-Tags aus (z.B. "archiv" blendet "archiv/2024/docs" aus).',
                 placeholder: 'intern, temp/entwürfe, archiv/2024'
             },

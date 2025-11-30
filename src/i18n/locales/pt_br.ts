@@ -805,7 +805,7 @@ export const STRINGS_PT_BR = {
                 }
             },
             fileVisibility: {
-                name: 'Mostrar tipos de arquivo',
+                name: 'Mostrar tipos de arquivo (perfil do cofre)',
                 desc: 'Filtrar quais tipos de arquivo são mostrados no navegador. Tipos de arquivo não suportados pelo Obsidian podem abrir em aplicativos externos.',
                 options: {
                     documents: 'Documentos (.md, .canvas, .base)',
@@ -826,7 +826,7 @@ export const STRINGS_PT_BR = {
                 }
             },
             excludedNotes: {
-                name: 'Ocultar notas',
+                name: 'Ocultar notas (perfil do cofre)',
                 desc: 'Lista separada por vírgulas de propriedades do frontmatter. Notas contendo qualquer uma dessas propriedades serão ocultadas (por exemplo, rascunho, privado, arquivado).',
                 placeholder: 'rascunho, privado'
             },
@@ -854,7 +854,7 @@ export const STRINGS_PT_BR = {
                 }
             },
             excludedFolders: {
-                name: 'Ocultar pastas',
+                name: 'Ocultar pastas (perfil do cofre)',
                 desc: 'Lista separada por vírgulas de pastas a ocultar. Padrões de nome: assets* (pastas que começam com assets), *_temp (terminam com _temp). Padrões de caminho: /arquivo (apenas arquivo raiz), /res* (pastas raiz que começam com res), /*/temp (pastas temp um nível abaixo), /projetos/* (todas as pastas dentro de projetos).',
                 placeholder: 'modelos, assets*, /arquivo, /res*'
             },
@@ -1050,7 +1050,7 @@ export const STRINGS_PT_BR = {
                 desc: 'Manter a propriedade de tags do frontmatter quando todas as tags forem removidas. Quando desativado, a propriedade de tags é excluída do frontmatter.'
             },
             hiddenTags: {
-                name: 'Ocultar tags',
+                name: 'Ocultar tags (perfil do cofre)',
                 desc: 'Lista separada por vírgulas de prefixos de tag ou curingas de nome. Use tag* ou *tag para corresponder nomes de tags. Ocultar uma tag também oculta todas as suas sub-tags (por exemplo, "arquivo" oculta "arquivo/2024/docs").',
                 placeholder: 'interno, temp/rascunhos, arquivo/2024'
             },

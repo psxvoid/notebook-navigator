@@ -804,7 +804,7 @@ export const STRINGS_VI = {
                 }
             },
             fileVisibility: {
-                name: 'Hiện loại tệp',
+                name: 'Hiện loại tệp (hồ sơ vault)',
                 desc: 'Lọc loại tệp hiển thị trong trình điều hướng. Loại tệp không được Obsidian hỗ trợ có thể mở bằng ứng dụng ngoài.',
                 options: {
                     documents: 'Tài liệu (.md, .canvas, .base)',
@@ -825,7 +825,7 @@ export const STRINGS_VI = {
                 }
             },
             excludedNotes: {
-                name: 'Ẩn ghi chú',
+                name: 'Ẩn ghi chú (hồ sơ vault)',
                 desc: 'Danh sách thuộc tính frontmatter phân cách bằng dấu phẩy. Ghi chú chứa bất kỳ thuộc tính nào sẽ bị ẩn (ví dụ: nháp, riêng tư, lưu trữ).',
                 placeholder: 'nháp, riêng tư'
             },
@@ -853,7 +853,7 @@ export const STRINGS_VI = {
                 }
             },
             excludedFolders: {
-                name: 'Ẩn thư mục',
+                name: 'Ẩn thư mục (hồ sơ vault)',
                 desc: 'Danh sách thư mục cần ẩn phân cách bằng dấu phẩy. Mẫu tên: assets* (thư mục bắt đầu bằng assets), *_temp (kết thúc bằng _temp). Mẫu đường dẫn: /archive (chỉ archive gốc), /res* (thư mục gốc bắt đầu bằng res), /*/temp (thư mục temp ở độ sâu một cấp), /projects/* (tất cả thư mục trong projects).',
                 placeholder: 'mẫu, assets*, /lưu trữ, /res*'
             },
@@ -1049,7 +1049,7 @@ export const STRINGS_VI = {
                 desc: 'Giữ thuộc tính tags frontmatter khi tất cả thẻ bị gỡ. Khi tắt, thuộc tính tags bị xóa khỏi frontmatter.'
             },
             hiddenTags: {
-                name: 'Ẩn thẻ',
+                name: 'Ẩn thẻ (hồ sơ vault)',
                 desc: 'Danh sách tiền tố thẻ hoặc ký tự đại diện phân cách bằng dấu phẩy. Dùng thẻ* hoặc *thẻ để khớp tên thẻ. Ẩn thẻ cũng ẩn tất cả thẻ con (ví dụ: "lưu trữ" ẩn "lưu trữ/2024/tài liệu").',
                 placeholder: 'nội bộ, temp/nháp, lưu trữ/2024'
             },

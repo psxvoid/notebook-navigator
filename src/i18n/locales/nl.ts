@@ -806,7 +806,7 @@ export const STRINGS_NL = {
                 }
             },
             fileVisibility: {
-                name: 'Bestandstypes tonen',
+                name: 'Bestandstypes tonen (kluisprofiel)',
                 desc: 'Filter welke bestandstypes worden weergegeven in de navigator. Bestandstypes die niet door Obsidian worden ondersteund, kunnen in externe applicaties worden geopend.',
                 options: {
                     documents: 'Documenten (.md, .canvas, .base)',
@@ -827,7 +827,7 @@ export const STRINGS_NL = {
                 }
             },
             excludedNotes: {
-                name: 'Notities verbergen',
+                name: 'Notities verbergen (kluisprofiel)',
                 desc: 'Kommagescheiden lijst van frontmatter-eigenschappen. Notities met een van deze eigenschappen worden verborgen (bijv. draft, private, archived).',
                 placeholder: 'draft, private'
             },
@@ -856,7 +856,7 @@ export const STRINGS_NL = {
                 }
             },
             excludedFolders: {
-                name: 'Mappen verbergen',
+                name: 'Mappen verbergen (kluisprofiel)',
                 desc: 'Kommagescheiden lijst van te verbergen mappen. Naampatronen: assets* (mappen beginnend met assets), *_temp (eindigend met _temp). Padpatronen: /archive (alleen root archive), /res* (root mappen beginnend met res), /*/temp (temp mappen één niveau diep), /projects/* (alle mappen binnen projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1052,7 +1052,7 @@ export const STRINGS_NL = {
                 desc: 'De tags frontmatter-eigenschap behouden wanneer alle tags worden verwijderd. Indien uitgeschakeld, wordt de tags-eigenschap verwijderd uit frontmatter.'
             },
             hiddenTags: {
-                name: 'Tags verbergen',
+                name: 'Tags verbergen (kluisprofiel)',
                 desc: 'Kommagescheiden lijst van tag-prefixen of naam-wildcards. Gebruik tag* of *tag om tagnamen te matchen. Het verbergen van een tag verbergt ook al zijn subtags (bijv. "archive" verbergt "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

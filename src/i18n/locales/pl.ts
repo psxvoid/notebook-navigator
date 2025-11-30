@@ -806,7 +806,7 @@ export const STRINGS_PL = {
                 }
             },
             fileVisibility: {
-                name: 'Pokaż typy plików',
+                name: 'Pokaż typy plików (profil sejfu)',
                 desc: 'Filtruj które typy plików są pokazywane w nawigatorze. Typy plików nieobsługiwane przez Obsidian mogą otworzyć się w zewnętrznych aplikacjach.',
                 options: {
                     documents: 'Dokumenty (.md, .canvas, .base)',
@@ -827,7 +827,7 @@ export const STRINGS_PL = {
                 }
             },
             excludedNotes: {
-                name: 'Ukryj notatki',
+                name: 'Ukryj notatki (profil sejfu)',
                 desc: 'Lista właściwości frontmatter oddzielonych przecinkami. Notatki zawierające którekolwiek z tych właściwości będą ukryte (np. draft, private, archived).',
                 placeholder: 'draft, private'
             },
@@ -855,7 +855,7 @@ export const STRINGS_PL = {
                 }
             },
             excludedFolders: {
-                name: 'Ukryj foldery',
+                name: 'Ukryj foldery (profil sejfu)',
                 desc: 'Lista folderów do ukrycia oddzielonych przecinkami. Wzory nazw: assets* (foldery zaczynające się od assets), *_temp (kończące się na _temp). Wzory ścieżek: /archive (tylko archiwum główne), /res* (foldery główne zaczynające się od res), /*/temp (foldery temp jeden poziom w głąb), /projects/* (wszystkie foldery wewnątrz projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1051,7 +1051,7 @@ export const STRINGS_PL = {
                 desc: 'Zachowuje właściwość tags we frontmatterze, gdy wszystkie tagi są usuwane. Gdy wyłączone, właściwość tags jest usuwana z frontmattera.'
             },
             hiddenTags: {
-                name: 'Ukryj tagi',
+                name: 'Ukryj tagi (profil sejfu)',
                 desc: 'Lista prefiksów tagów lub symboli wieloznacznych nazw oddzielonych przecinkami. Użyj `tag*` lub `*tag`, aby dopasować nazwy tagów. Ukrycie tagu ukrywa też wszystkie jego pod-tagi (np. "archive" ukrywa "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

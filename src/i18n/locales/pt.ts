@@ -804,7 +804,7 @@ export const STRINGS_PT = {
                 }
             },
             fileVisibility: {
-                name: 'Mostrar tipos de ficheiro',
+                name: 'Mostrar tipos de ficheiro (perfil do cofre)',
                 desc: 'Filtrar quais tipos de ficheiro são mostrados no navegador. Tipos de ficheiro não suportados pelo Obsidian podem abrir em aplicações externas.',
                 options: {
                     documents: 'Documentos (.md, .canvas, .base)',
@@ -825,7 +825,7 @@ export const STRINGS_PT = {
                 }
             },
             excludedNotes: {
-                name: 'Ocultar notas',
+                name: 'Ocultar notas (perfil do cofre)',
                 desc: 'Lista de propriedades frontmatter separadas por vírgulas. Notas contendo qualquer destas propriedades serão ocultadas (ex: rascunho, privado, arquivo).',
                 placeholder: 'rascunho, privado'
             },
@@ -854,7 +854,7 @@ export const STRINGS_PT = {
                 }
             },
             excludedFolders: {
-                name: 'Ocultar pastas',
+                name: 'Ocultar pastas (perfil do cofre)',
                 desc: 'Lista de pastas a ocultar separadas por vírgulas. Padrões de nome: assets* (pastas começando com assets), *_temp (terminando com _temp). Padrões de caminho: /arquivo (apenas arquivo raiz), /res* (pastas raiz começando com res), /*/temp (pastas temp um nível abaixo), /projetos/* (todas as pastas dentro de projetos).',
                 placeholder: 'modelos, assets*, /arquivo, /res*'
             },
@@ -1050,7 +1050,7 @@ export const STRINGS_PT = {
                 desc: 'Manter a propriedade tags do frontmatter quando todas as etiquetas são removidas. Quando desativado, a propriedade tags é eliminada do frontmatter.'
             },
             hiddenTags: {
-                name: 'Ocultar etiquetas',
+                name: 'Ocultar etiquetas (perfil do cofre)',
                 desc: 'Lista de prefixos de etiquetas ou curingas de nome separados por vírgulas. Use etiqueta* ou *etiqueta para corresponder nomes de etiquetas. Ocultar uma etiqueta também oculta todas as suas sub-etiquetas (ex: "arquivo" oculta "arquivo/2024/docs").',
                 placeholder: 'interno, temp/rascunhos, arquivo/2024'
             },

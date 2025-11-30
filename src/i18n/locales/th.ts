@@ -804,7 +804,7 @@ export const STRINGS_TH = {
                 }
             },
             fileVisibility: {
-                name: 'แสดงประเภทไฟล์',
+                name: 'แสดงประเภทไฟล์ (โปรไฟล์ห้องนิรภัย)',
                 desc: 'กรองประเภทไฟล์ที่จะแสดงใน navigator ประเภทไฟล์ที่ Obsidian ไม่รองรับอาจเปิดในแอปภายนอก',
                 options: {
                     documents: 'เอกสาร (.md, .canvas, .base)',
@@ -825,7 +825,7 @@ export const STRINGS_TH = {
                 }
             },
             excludedNotes: {
-                name: 'ซ่อนโน้ต',
+                name: 'ซ่อนโน้ต (โปรไฟล์ห้องนิรภัย)',
                 desc: 'รายการคุณสมบัติ frontmatter คั่นด้วยเครื่องหมายจุลภาค โน้ตที่มีคุณสมบัติเหล่านี้จะถูกซ่อน (เช่น ฉบับร่าง, ส่วนตัว, เก็บถาวร)',
                 placeholder: 'ฉบับร่าง, ส่วนตัว'
             },
@@ -853,7 +853,7 @@ export const STRINGS_TH = {
                 }
             },
             excludedFolders: {
-                name: 'ซ่อนโฟลเดอร์',
+                name: 'ซ่อนโฟลเดอร์ (โปรไฟล์ห้องนิรภัย)',
                 desc: 'รายการโฟลเดอร์คั่นด้วยเครื่องหมายจุลภาคที่จะซ่อน รูปแบบชื่อ: assets* (โฟลเดอร์ที่เริ่มด้วย assets), *_temp (ลงท้ายด้วย _temp) รูปแบบเส้นทาง: /archive (archive หลักเท่านั้น), /res* (โฟลเดอร์หลักที่เริ่มด้วย res), /*/temp (โฟลเดอร์ temp ลึกหนึ่งระดับ), /projects/* (โฟลเดอร์ทั้งหมดใน projects)',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1049,7 +1049,7 @@ export const STRINGS_TH = {
                 desc: 'เก็บคุณสมบัติแท็ก frontmatter เมื่อนำแท็กทั้งหมดออก เมื่อปิดใช้งาน คุณสมบัติแท็กจะถูกลบออกจาก frontmatter'
             },
             hiddenTags: {
-                name: 'ซ่อนแท็ก',
+                name: 'ซ่อนแท็ก (โปรไฟล์ห้องนิรภัย)',
                 desc: 'รายการคำนำหน้าแท็กหรือ wildcard ชื่อคั่นด้วยเครื่องหมายจุลภาค ใช้ tag* หรือ *tag เพื่อจับคู่ชื่อแท็ก การซ่อนแท็กจะซ่อนแท็กย่อยทั้งหมดด้วย (เช่น "archive" ซ่อน "archive/2024/docs")',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

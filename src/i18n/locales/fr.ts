@@ -806,7 +806,7 @@ export const STRINGS_FR = {
                 }
             },
             excludedNotes: {
-                name: 'Masquer les notes',
+                name: 'Masquer les notes (profil du coffre)',
                 desc: "Liste de propriétés de métadonnées séparées par des virgules. Les notes contenant l'une de ces propriétés seront masquées (ex. : draft, private, archived).",
                 placeholder: 'draft, private'
             },
@@ -835,13 +835,13 @@ export const STRINGS_FR = {
                 }
             },
             excludedFolders: {
-                name: 'Masquer les dossiers',
+                name: 'Masquer les dossiers (profil du coffre)',
                 desc: 'Liste de dossiers à masquer séparés par des virgules. Modèles de nom : assets* (dossiers commençant par assets), *_temp (finissant par _temp). Modèles de chemin : /archive (archive racine uniquement), /res* (dossiers racine commençant par res), /*/temp (dossiers temp un niveau plus bas), /projects/* (tous les dossiers dans projects).',
                 placeholder: 'templates, assets*, /archive, /res*',
                 info: "Nettoyage automatique : Lors de l'exclusion par clic droit, les modèles redondants sont supprimés (par exemple, si vous excluez /projects et que /projects/app existe déjà dans la liste, il sera supprimé)."
             },
             fileVisibility: {
-                name: 'Afficher les types de fichiers',
+                name: 'Afficher les types de fichiers (profil du coffre)',
                 desc: "Filtrez quels types de fichiers sont affichés dans le navigateur. Les types de fichiers non pris en charge par Obsidian peuvent s'ouvrir dans des applications externes.",
                 options: {
                     documents: 'Documents (.md, .canvas, .base)',
@@ -1053,7 +1053,7 @@ export const STRINGS_FR = {
                 desc: 'Conserve la propriété tags dans le frontmatter lorsque toutes les étiquettes sont supprimées. Si désactivé, la propriété tags est supprimée du frontmatter.'
             },
             hiddenTags: {
-                name: 'Masquer les étiquettes',
+                name: 'Masquer les étiquettes (profil du coffre)',
                 desc: 'Liste séparée par des virgules de préfixes ou de jokers de nom d\'étiquettes à masquer. Utilisez `tag*` ou `*tag` pour faire correspondre les noms d\'étiquette. Masquer une étiquette masque aussi toutes ses sous-étiquettes (par ex. "archive" masque "archive/2024/docs").',
                 placeholder: 'interne, temp/brouillons, archive/2024'
             },

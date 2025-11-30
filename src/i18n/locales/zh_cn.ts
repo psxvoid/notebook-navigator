@@ -804,7 +804,7 @@ export const STRINGS_ZH_CN = {
                 }
             },
             excludedNotes: {
-                name: '隐藏笔记',
+                name: '隐藏笔记 (库配置)',
                 desc: '逗号分隔的前置元数据属性列表。包含任何这些属性的笔记将被隐藏（例如：draft, private, archived）。',
                 placeholder: 'draft, private'
             },
@@ -832,13 +832,13 @@ export const STRINGS_ZH_CN = {
                 }
             },
             excludedFolders: {
-                name: '隐藏文件夹',
+                name: '隐藏文件夹 (库配置)',
                 desc: '逗号分隔的要隐藏的文件夹列表。名称模式：assets*（以assets开头的文件夹），*_temp（以_temp结尾）。路径模式：/archive（仅根目录archive），/res*（以res开头的根文件夹），/*/temp（一级目录下的temp文件夹），/projects/*（projects内的所有文件夹）。',
                 placeholder: 'templates, assets*, /archive, /res*',
                 info: '自动清理：通过右键排除时，冗余的模式会被移除（例如，如果您排除/projects且/projects/app已在列表中，它将被移除）。'
             },
             fileVisibility: {
-                name: '显示文件类型',
+                name: '显示文件类型 (库配置)',
                 desc: '过滤在导航器中显示的文件类型。Obsidian不支持的文件类型可能会在外部应用程序中打开。',
                 options: {
                     documents: '文档 (.md, .canvas, .base)',
@@ -1050,7 +1050,7 @@ export const STRINGS_ZH_CN = {
                 desc: '当所有标签被删除时保留 frontmatter 中的 tags 属性。禁用时,tags 属性将从 frontmatter 中删除。'
             },
             hiddenTags: {
-                name: '隐藏标签',
+                name: '隐藏标签 (库配置)',
                 desc: '要隐藏的标签前缀或名称通配符的逗号分隔列表。使用 `tag*` 或 `*tag` 匹配标签名称。隐藏标签也会隐藏所有子标签（例如："归档"隐藏"归档/2024/docs"）。',
                 placeholder: '内部, 临时/草稿, 归档/2024'
             },

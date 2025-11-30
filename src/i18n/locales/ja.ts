@@ -805,7 +805,7 @@ export const STRINGS_JA = {
                 }
             },
             excludedNotes: {
-                name: 'ノートを非表示',
+                name: 'ノートを非表示 (ボルトプロファイル)',
                 desc: 'カンマ区切りのフロントマター属性のリスト。これらの属性を含むノートは非表示になります（例：draft, private, archived）。',
                 placeholder: 'draft, private'
             },
@@ -834,13 +834,13 @@ export const STRINGS_JA = {
                 }
             },
             excludedFolders: {
-                name: 'フォルダを非表示',
+                name: 'フォルダを非表示 (ボルトプロファイル)',
                 desc: '非表示にするフォルダのカンマ区切りリスト。名前パターン: assets*（assetsで始まるフォルダ）、*_temp（_tempで終わる）。パスパターン: /archive（ルートのアーカイブのみ）、/res*（resで始まるルートフォルダ）、/*/temp（1階層下のtempフォルダ）、/projects/*（projects内のすべてのフォルダ）。',
                 placeholder: 'templates, assets*, /archive, /res*',
                 info: '自動クリーンアップ：右クリックで除外する際、重複するパターンが削除されます（例：/projectsを除外し、/projects/appが既にリストにある場合、削除されます）。'
             },
             fileVisibility: {
-                name: 'ファイルタイプを表示',
+                name: 'ファイルタイプを表示 (ボルトプロファイル)',
                 desc: 'ナビゲーターに表示されるファイルタイプをフィルタリングします。Obsidianでサポートされていないファイルタイプは、外部アプリケーションで開かれる場合があります。',
                 options: {
                     documents: 'ドキュメント (.md, .canvas, .base)',
@@ -1052,7 +1052,7 @@ export const STRINGS_JA = {
                 desc: 'すべてのタグが削除されても frontmatter の tags プロパティを保持します。無効にすると、tags プロパティは frontmatter から削除されます。'
             },
             hiddenTags: {
-                name: 'タグを非表示',
+                name: 'タグを非表示 (ボルトプロファイル)',
                 desc: '非表示にするタグの接頭辞または名前ワイルドカードのカンマ区切りリスト。`tag*` や `*tag` でタグ名に一致します。タグを非表示にすると、すべてのサブタグも非表示になります（例："アーカイブ"で"アーカイブ/2024/docs"も非表示）。',
                 placeholder: '内部, temp/下書き, アーカイブ/2024'
             },

@@ -804,7 +804,7 @@ export const STRINGS_IT = {
                 }
             },
             fileVisibility: {
-                name: 'Mostra tipi file',
+                name: 'Mostra tipi file (profilo vault)',
                 desc: 'Filtra quali tipi di file vengono mostrati nel navigatore. I tipi file non supportati da Obsidian potrebbero aprirsi in applicazioni esterne.',
                 options: {
                     documents: 'Documenti (.md, .canvas, .base)',
@@ -825,7 +825,7 @@ export const STRINGS_IT = {
                 }
             },
             excludedNotes: {
-                name: 'Nascondi note',
+                name: 'Nascondi note (profilo vault)',
                 desc: 'Lista di proprietà frontmatter separate da virgola. Le note contenenti una qualsiasi di queste proprietà saranno nascoste (es. bozza, privato, archiviato).',
                 placeholder: 'bozza, privato'
             },
@@ -853,7 +853,7 @@ export const STRINGS_IT = {
                 }
             },
             excludedFolders: {
-                name: 'Nascondi cartelle',
+                name: 'Nascondi cartelle (profilo vault)',
                 desc: 'Lista di cartelle da nascondere separate da virgola. Pattern nome: assets* (cartelle che iniziano con assets), *_temp (che finiscono con _temp). Pattern percorso: /archivio (solo archivio root), /res* (cartelle root che iniziano con res), /*/temp (cartelle temp un livello sotto), /progetti/* (tutte le cartelle in progetti).',
                 placeholder: 'modelli, assets*, /archivio, /res*'
             },
@@ -1049,7 +1049,7 @@ export const STRINGS_IT = {
                 desc: 'Mantieni la proprietà tags frontmatter quando tutti i tag sono rimossi. Quando disabilitato, la proprietà tags è eliminata dal frontmatter.'
             },
             hiddenTags: {
-                name: 'Nascondi tag',
+                name: 'Nascondi tag (profilo vault)',
                 desc: 'Lista di prefissi tag o wildcard nome separate da virgola. Usa tag* o *tag per corrispondere nomi tag. Nascondere un tag nasconde anche tutti i suoi sotto-tag (es. "archivio" nasconde "archivio/2024/docs").',
                 placeholder: 'interno, temp/bozze, archivio/2024'
             },

@@ -2245,6 +2245,11 @@ body {
     flex-shrink: 0;
 }
 
+.nn-file-tag[data-has-background='true'] {
+    background-color: var(--nn-theme-nav-bg);
+    background-image: linear-gradient(var(--nn-file-tag-custom-bg, transparent), var(--nn-file-tag-custom-bg, transparent));
+}
+
 .nn-file-tag[data-has-color='true'] {
     font-weight: var(--nn-theme-navitem-custom-color-name-font-weight);
 }

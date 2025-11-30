@@ -803,7 +803,7 @@ export const STRINGS_ZH_TW = {
                 }
             },
             fileVisibility: {
-                name: '顯示檔案類型',
+                name: '顯示檔案類型 (儲存庫配置)',
                 desc: '篩選在導覽器中顯示的檔案類型。Obsidian 不支援的檔案類型可能會在外部應用程式中開啟。',
                 options: {
                     documents: '文件 (.md, .canvas, .base)',
@@ -824,7 +824,7 @@ export const STRINGS_ZH_TW = {
                 }
             },
             excludedNotes: {
-                name: '隱藏筆記',
+                name: '隱藏筆記 (儲存庫配置)',
                 desc: '以逗號分隔的 frontmatter 屬性清單。包含任何這些屬性的筆記將被隱藏 (例如 draft, private, archived)。',
                 placeholder: 'draft, private'
             },
@@ -852,7 +852,7 @@ export const STRINGS_ZH_TW = {
                 }
             },
             excludedFolders: {
-                name: '隱藏資料夾',
+                name: '隱藏資料夾 (儲存庫配置)',
                 desc: '以逗號分隔的要隱藏的資料夾清單。名稱模式：assets* (以 assets 開頭的資料夾)、*_temp (以 _temp 結尾)。路徑模式：/archive (僅根目錄的 archive)、/res* (以 res 開頭的根資料夾)、/*/temp (一層深的 temp 資料夾)、/projects/* (projects 內的所有資料夾)。',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1048,7 +1048,7 @@ export const STRINGS_ZH_TW = {
                 desc: '當所有標籤被刪除時保留 frontmatter 中的 tags 屬性。停用時,tags 屬性將從 frontmatter 中刪除。'
             },
             hiddenTags: {
-                name: '隱藏標籤',
+                name: '隱藏標籤 (儲存庫配置)',
                 desc: '以逗號分隔的標籤前綴或名稱萬用字元清單。使用 tag* 或 *tag 來匹配標籤名稱。隱藏一個標籤也會隱藏其所有子標籤 (例如 "archive" 隱藏 "archive/2024/docs")。',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

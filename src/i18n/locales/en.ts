@@ -804,7 +804,7 @@ export const STRINGS_EN = {
                 }
             },
             fileVisibility: {
-                name: 'Show file types',
+                name: 'Show file types (vault profile)',
                 desc: 'Filter which file types are shown in the navigator. File types not supported by Obsidian may open in external applications.',
                 options: {
                     documents: 'Documents (.md, .canvas, .base)',
@@ -825,7 +825,7 @@ export const STRINGS_EN = {
                 }
             },
             excludedNotes: {
-                name: 'Hide notes',
+                name: 'Hide notes (vault profile)',
                 desc: 'Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).',
                 placeholder: 'draft, private'
             },
@@ -853,7 +853,7 @@ export const STRINGS_EN = {
                 }
             },
             excludedFolders: {
-                name: 'Hide folders',
+                name: 'Hide folders (vault profile)',
                 desc: 'Comma-separated list of folders to hide. Name patterns: assets* (folders starting with assets), *_temp (ending with _temp). Path patterns: /archive (root archive only), /res* (root folders starting with res), /*/temp (temp folders one level deep), /projects/* (all folders inside projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1049,7 +1049,7 @@ export const STRINGS_EN = {
                 desc: 'Keep the tags frontmatter property when all tags are removed. When disabled, the tags property is deleted from frontmatter.'
             },
             hiddenTags: {
-                name: 'Hide tags',
+                name: 'Hide tags (vault profile)',
                 desc: 'Comma-separated list of tag prefixes or name wildcards. Use tag* or *tag to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

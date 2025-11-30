@@ -804,7 +804,7 @@ export const STRINGS_ID = {
                 }
             },
             fileVisibility: {
-                name: 'Tampilkan jenis file',
+                name: 'Tampilkan jenis file (profil vault)',
                 desc: 'Filter jenis file mana yang ditampilkan di navigator. Jenis file yang tidak didukung oleh Obsidian mungkin terbuka di aplikasi eksternal.',
                 options: {
                     documents: 'Dokumen (.md, .canvas, .base)',
@@ -825,7 +825,7 @@ export const STRINGS_ID = {
                 }
             },
             excludedNotes: {
-                name: 'Sembunyikan catatan',
+                name: 'Sembunyikan catatan (profil vault)',
                 desc: 'Daftar properti frontmatter yang dipisahkan koma. Catatan yang berisi properti ini akan disembunyikan (misal, draf, pribadi, arsip).',
                 placeholder: 'draf, pribadi'
             },
@@ -853,7 +853,7 @@ export const STRINGS_ID = {
                 }
             },
             excludedFolders: {
-                name: 'Sembunyikan folder',
+                name: 'Sembunyikan folder (profil vault)',
                 desc: 'Daftar folder yang dipisahkan koma untuk disembunyikan. Pola nama: assets* (folder yang dimulai dengan assets), *_temp (diakhiri dengan _temp). Pola path: /arsip (arsip root saja), /res* (folder root yang dimulai dengan res), /*/temp (folder temp satu level ke dalam), /proyek/* (semua folder di dalam proyek).',
                 placeholder: 'template, assets*, /arsip, /res*'
             },
@@ -1049,7 +1049,7 @@ export const STRINGS_ID = {
                 desc: 'Pertahankan properti tag frontmatter saat semua tag dihapus. Saat dinonaktifkan, properti tag dihapus dari frontmatter.'
             },
             hiddenTags: {
-                name: 'Sembunyikan tag',
+                name: 'Sembunyikan tag (profil vault)',
                 desc: 'Daftar awalan tag atau wildcard nama yang dipisahkan koma. Gunakan tag* atau *tag untuk mencocokkan nama tag. Menyembunyikan tag juga menyembunyikan semua sub-tagnya (misal, "arsip" menyembunyikan "arsip/2024/dokumen").',
                 placeholder: 'internal, temp/draf, arsip/2024'
             },
