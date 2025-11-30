@@ -564,7 +564,8 @@ export const STRINGS_TR = {
             },
             navigation: {
                 behavior: 'Davranış',
-                appearance: 'Görünüm'
+                appearance: 'Görünüm',
+                shortcutsAndRecent: 'Kısayollar ve son öğeler'
             },
             list: {
                 display: 'Görünüm',

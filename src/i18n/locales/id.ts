@@ -564,7 +564,8 @@ export const STRINGS_ID = {
             },
             navigation: {
                 behavior: 'Perilaku',
-                appearance: 'Tampilan'
+                appearance: 'Tampilan',
+                shortcutsAndRecent: 'Pintasan & item terbaru'
             },
             list: {
                 display: 'Tampilan',

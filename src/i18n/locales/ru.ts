@@ -564,7 +564,8 @@ export const STRINGS_RU = {
             },
             navigation: {
                 behavior: 'Поведение',
-                appearance: 'Внешний вид'
+                appearance: 'Внешний вид',
+                shortcutsAndRecent: 'Ярлыки и недавние элементы'
             },
             list: {
                 display: 'Внешний вид',

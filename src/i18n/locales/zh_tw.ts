@@ -564,7 +564,8 @@ export const STRINGS_ZH_TW = {
             },
             navigation: {
                 behavior: '行為',
-                appearance: '外觀'
+                appearance: '外觀',
+                shortcutsAndRecent: '捷徑和最近項目'
             },
             list: {
                 display: '外觀',

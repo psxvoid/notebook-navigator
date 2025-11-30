@@ -564,7 +564,8 @@ export const STRINGS_FA = {
             },
             navigation: {
                 behavior: 'رفتار',
-                appearance: 'ظاهر'
+                appearance: 'ظاهر',
+                shortcutsAndRecent: 'میانبرها و موارد اخیر'
             },
             list: {
                 display: 'ظاهر',

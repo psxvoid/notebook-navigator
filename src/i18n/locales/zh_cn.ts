@@ -565,7 +565,8 @@ export const STRINGS_ZH_CN = {
             },
             navigation: {
                 behavior: '行为',
-                appearance: '外观'
+                appearance: '外观',
+                shortcutsAndRecent: '快捷方式和最近项目'
             },
             list: {
                 display: '外观',

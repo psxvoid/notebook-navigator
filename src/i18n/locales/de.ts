@@ -567,7 +567,8 @@ export const STRINGS_DE = {
             },
             navigation: {
                 behavior: 'Verhalten',
-                appearance: 'Darstellung'
+                appearance: 'Darstellung',
+                shortcutsAndRecent: 'Verknüpfungen & Letzte Einträge'
             },
             list: {
                 display: 'Darstellung',

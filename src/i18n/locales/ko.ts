@@ -564,7 +564,8 @@ export const STRINGS_KO = {
             },
             navigation: {
                 behavior: '동작',
-                appearance: '모양'
+                appearance: '모양',
+                shortcutsAndRecent: '바로가기 및 최근 항목'
             },
             list: {
                 display: '모양',

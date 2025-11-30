@@ -564,7 +564,8 @@ export const STRINGS_UK = {
             },
             navigation: {
                 behavior: 'Поведінка',
-                appearance: 'Вигляд'
+                appearance: 'Вигляд',
+                shortcutsAndRecent: 'Ярлики та нещодавні елементи'
             },
             list: {
                 display: 'Вигляд',

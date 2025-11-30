@@ -564,7 +564,8 @@ export const STRINGS_TH = {
             },
             navigation: {
                 behavior: 'พฤติกรรม',
-                appearance: 'ลักษณะ'
+                appearance: 'ลักษณะ',
+                shortcutsAndRecent: 'ทางลัดและรายการล่าสุด'
             },
             list: {
                 display: 'ลักษณะ',

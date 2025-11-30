@@ -565,7 +565,8 @@ export const STRINGS_ES = {
             },
             navigation: {
                 behavior: 'Comportamiento',
-                appearance: 'Apariencia'
+                appearance: 'Apariencia',
+                shortcutsAndRecent: 'Atajos y elementos recientes'
             },
             list: {
                 display: 'Apariencia',

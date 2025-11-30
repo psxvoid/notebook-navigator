@@ -564,7 +564,8 @@ export const STRINGS_EN = {
             },
             navigation: {
                 behavior: 'Behavior',
-                appearance: 'Appearance'
+                appearance: 'Appearance',
+                shortcutsAndRecent: 'Shortcuts & recent items'
             },
             list: {
                 display: 'Appearance',

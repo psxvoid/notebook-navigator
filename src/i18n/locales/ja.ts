@@ -565,7 +565,8 @@ export const STRINGS_JA = {
             },
             navigation: {
                 behavior: '動作',
-                appearance: '外観'
+                appearance: '外観',
+                shortcutsAndRecent: 'ショートカットと最近の項目'
             },
             list: {
                 display: '外観',

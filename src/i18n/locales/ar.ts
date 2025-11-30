@@ -564,7 +564,8 @@ export const STRINGS_AR = {
             },
             navigation: {
                 behavior: 'السلوك',
-                appearance: 'المظهر'
+                appearance: 'المظهر',
+                shortcutsAndRecent: 'الاختصارات والعناصر الأخيرة'
             },
             list: {
                 display: 'المظهر',

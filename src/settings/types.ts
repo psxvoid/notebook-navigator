@@ -124,14 +124,18 @@ export interface NotebookNavigatorSettings {
     dateFormat: string;
     timeFormat: string;
 
-    // Navigation pane tab
+    // Navigation pane tab - Behavior
     skipAutoScroll: boolean;
+    collapseBehavior: ItemScope;
+    smartCollapse: boolean;
+
+    // Navigation pane tab - Shortcuts & recent items
     showSectionIcons: boolean;
     showShortcuts: boolean;
     showRecentNotes: boolean;
     recentNotesCount: number;
-    collapseBehavior: ItemScope;
-    smartCollapse: boolean;
+
+    // Navigation pane tab - Appearance
     colorIconOnly: boolean;
     toolbarVisibility: ToolbarVisibilitySettings;
     showNoteCount: boolean;

@@ -564,7 +564,8 @@ export const STRINGS_VI = {
             },
             navigation: {
                 behavior: 'Hành vi',
-                appearance: 'Giao diện'
+                appearance: 'Giao diện',
+                shortcutsAndRecent: 'Phím tắt và mục gần đây'
             },
             list: {
                 display: 'Giao diện',

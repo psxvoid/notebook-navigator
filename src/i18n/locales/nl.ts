@@ -566,7 +566,8 @@ export const STRINGS_NL = {
             },
             navigation: {
                 behavior: 'Gedrag',
-                appearance: 'Uiterlijk'
+                appearance: 'Uiterlijk',
+                shortcutsAndRecent: 'Snelkoppelingen en recente items'
             },
             list: {
                 display: 'Uiterlijk',
