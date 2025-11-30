@@ -1022,6 +1022,10 @@ export const STRINGS_VI = {
                 name: 'Hiện biểu tượng thẻ',
                 desc: 'Hiển thị biểu tượng bên cạnh thẻ trong ngăn điều hướng.'
             },
+            inheritTagColors: {
+                name: 'Kế thừa màu thẻ',
+                desc: 'Thẻ con kế thừa màu từ thẻ cha.'
+            },
             tagSortOrder: {
                 name: 'Thứ tự sắp xếp thẻ',
                 desc: 'Chọn cách sắp xếp thẻ trong ngăn điều hướng.',

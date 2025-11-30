@@ -112,6 +112,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFolderIcons: true,
     showRootFolder: true,
     inheritFolderColors: false,
+    inheritTagColors: true,
     enableFolderNotes: false,
     folderNoteType: 'markdown',
     folderNoteName: '',

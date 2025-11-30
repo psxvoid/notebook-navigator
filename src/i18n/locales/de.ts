@@ -1026,6 +1026,10 @@ export const STRINGS_DE = {
                 name: 'Tag-Icons anzeigen',
                 desc: 'Icons neben Tags im Navigationsbereich anzeigen.'
             },
+            inheritTagColors: {
+                name: 'Tag-Farben vererben',
+                desc: 'Unter-Tags erben die Farbe von übergeordneten Tags.'
+            },
             tagSortOrder: {
                 name: 'Tag-Sortierreihenfolge',
                 desc: 'Lege fest, wie Tags im Navigationsbereich sortiert werden.',

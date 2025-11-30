@@ -147,6 +147,7 @@ export interface NotebookNavigatorSettings {
     showFolderIcons: boolean;
     showRootFolder: boolean;
     inheritFolderColors: boolean;
+    inheritTagColors: boolean;
     enableFolderNotes: boolean;
     folderNoteType: FolderNoteCreationPreference;
     folderNoteName: string;

@@ -45,7 +45,7 @@ import {
     removeHiddenFolderExactMatches,
     updateHiddenFolderExactMatches
 } from '../utils/vaultProfiles';
-import { EXCALIDRAW_PLUGIN_ID, TLDRAW_PLUGIN_IDS } from '../constants/pluginIds';
+import { EXCALIDRAW_PLUGIN_ID, TLDRAW_PLUGIN_ID } from '../constants/pluginIds';
 
 /**
  * Selection context for file operations
@@ -1584,11 +1584,11 @@ tags: [excalidraw]
      * Returns the view type identifier for the drawing plugin, or null if plugin is not installed
      */
     private getDrawingViewType(type: DrawingType): string | null {
-        if (type === 'excalidraw' && isPluginInstalled(this.app, [EXCALIDRAW_PLUGIN_ID])) {
+        if (type === 'excalidraw' && isPluginInstalled(this.app, EXCALIDRAW_PLUGIN_ID)) {
             return 'excalidraw';
         }
 
-        if (type === 'tldraw' && isPluginInstalled(this.app, TLDRAW_PLUGIN_IDS)) {
+        if (type === 'tldraw' && isPluginInstalled(this.app, TLDRAW_PLUGIN_ID)) {
             return 'tldraw-view';
         }
 

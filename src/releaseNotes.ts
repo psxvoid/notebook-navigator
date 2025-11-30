@@ -78,6 +78,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [
             '==Tldraw support==. If you have Tldraw plugin installed you can now create new Tldraw drawings directly from the navigation pane.',
+            'New setting: Settings > Folders & tags > Tags > ==Inherit tag colors==. Disable this to prevent tags from inheriting colors from parent tags. Default enabled.',
             'Notebook Navigator has been translated to Russian, Turkish, Ukrainian, Vietnamese, Portuguese, Indonesian, Thai, Persian (Farsi), and Italian. ==Notebook Navigator is now translated into 21 languages!=='
         ],
         improved: [
@@ -87,6 +88,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'You can now ==reorder vault profiles== in **Settings > General > Filtering**. Click **Edit profiles** to add, rename, delete, or reorder vault profiles.',
             'Android: Drag and drop now works in shortcuts and reorder root items mode on newer Android devices.',
             'Android: Notebook Navigator now handles custom system font sizes correctly.',
+            'Improved the way file tags are rendered in list pane. They now respect background color and text color.',
             'Improved Excalidraw support. When you create a new Excalidraw drawing from the navigation pane, it now opens immediately in drawing mode.',
             'Duplicating a folder will now also duplicate icon and color settings for the folder and all subfolders.',
             '"Settings > Folders & tags > Expand on selection" will now also collapse tags and folders on single click.'

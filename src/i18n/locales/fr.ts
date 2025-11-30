@@ -1026,6 +1026,10 @@ export const STRINGS_FR = {
                 name: "Afficher les icônes d'étiquettes",
                 desc: 'Afficher les icônes à côté des étiquettes dans le panneau de navigation.'
             },
+            inheritTagColors: {
+                name: "Hériter les couleurs d'étiquettes",
+                desc: 'Les étiquettes enfants héritent de la couleur des étiquettes parentes.'
+            },
             tagSortOrder: {
                 name: 'Ordre de tri des étiquettes',
                 desc: 'Définir comment les étiquettes sont triées dans le panneau de navigation.',

@@ -1022,6 +1022,10 @@ export const STRINGS_TR = {
                 name: 'Etiket simgelerini göster',
                 desc: 'Gezinme bölmesinde etiketlerin yanında simgeleri görüntüle.'
             },
+            inheritTagColors: {
+                name: 'Etiket renklerini devral',
+                desc: 'Alt etiketler üst etiketlerden renk devralır.'
+            },
             tagSortOrder: {
                 name: 'Etiket sıralama düzeni',
                 desc: 'Etiketlerin gezinme bölmesinde nasıl sıralanacağını seçin.',

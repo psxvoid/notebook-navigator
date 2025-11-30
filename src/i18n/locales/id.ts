@@ -1022,6 +1022,10 @@ export const STRINGS_ID = {
                 name: 'Tampilkan ikon tag',
                 desc: 'Tampilkan ikon di sebelah tag di panel navigasi.'
             },
+            inheritTagColors: {
+                name: 'Warisi warna tag',
+                desc: 'Tag anak mewarisi warna dari tag induk.'
+            },
             tagSortOrder: {
                 name: 'Urutan tag',
                 desc: 'Pilih cara tag diurutkan di panel navigasi.',

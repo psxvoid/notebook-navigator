@@ -1023,6 +1023,10 @@ export const STRINGS_PT_BR = {
                 name: 'Mostrar ícones de tags',
                 desc: 'Exibir ícones ao lado das tags no painel de navegação.'
             },
+            inheritTagColors: {
+                name: 'Herdar cores das tags',
+                desc: 'As tags filhas herdam a cor das tags pai.'
+            },
             tagSortOrder: {
                 name: 'Ordem de classificação de tags',
                 desc: 'Escolha como as tags são ordenadas no painel de navegação.',

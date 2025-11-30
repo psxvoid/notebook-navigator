@@ -1023,6 +1023,10 @@ export const STRINGS_ZH_CN = {
                 name: '显示标签图标',
                 desc: '在导航窗格的标签旁显示图标。'
             },
+            inheritTagColors: {
+                name: '继承标签颜色',
+                desc: '子标签从父标签继承颜色。'
+            },
             tagSortOrder: {
                 name: '标签排序方式',
                 desc: '选择导航窗格中的标签排序顺序。',

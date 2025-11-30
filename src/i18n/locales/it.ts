@@ -1022,6 +1022,10 @@ export const STRINGS_IT = {
                 name: 'Mostra icone tag',
                 desc: 'Visualizza icone accanto ai tag nel pannello navigazione.'
             },
+            inheritTagColors: {
+                name: 'Eredita colori dei tag',
+                desc: 'I tag figli ereditano il colore dai tag genitori.'
+            },
             tagSortOrder: {
                 name: 'Ordine tag',
                 desc: 'Scegli come ordinare i tag nel pannello navigazione.',

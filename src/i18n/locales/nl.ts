@@ -1025,6 +1025,10 @@ export const STRINGS_NL = {
                 name: 'Tagpictogrammen tonen',
                 desc: 'Pictogrammen naast tags in navigatiepaneel weergeven.'
             },
+            inheritTagColors: {
+                name: 'Tagkleuren overnemen',
+                desc: 'Onderliggende tags nemen de kleur over van bovenliggende tags.'
+            },
             tagSortOrder: {
                 name: 'Tag sorteervolgorde',
                 desc: 'Kies hoe tags worden geordend in het navigatiepaneel.',

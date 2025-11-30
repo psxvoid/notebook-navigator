@@ -1024,6 +1024,10 @@ export const STRINGS_PL = {
                 name: 'Pokaż ikony tagów',
                 desc: 'Wyświetl ikony obok tagów w panelu nawigacji.'
             },
+            inheritTagColors: {
+                name: 'Dziedzicz kolory tagów',
+                desc: 'Tagi podrzędne dziedziczą kolor od tagów nadrzędnych.'
+            },
             tagSortOrder: {
                 name: 'Kolejność sortowania tagów',
                 desc: 'Wybierz sposób sortowania tagów w panelu nawigacji.',

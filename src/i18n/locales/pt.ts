@@ -1023,6 +1023,10 @@ export const STRINGS_PT = {
                 name: 'Mostrar ícones de etiquetas',
                 desc: 'Exibir ícones junto às etiquetas no painel de navegação.'
             },
+            inheritTagColors: {
+                name: 'Herdar cores das etiquetas',
+                desc: 'As etiquetas filhas herdam a cor das etiquetas pai.'
+            },
             tagSortOrder: {
                 name: 'Ordem de ordenação de etiquetas',
                 desc: 'Escolha como as etiquetas são ordenadas no painel de navegação.',

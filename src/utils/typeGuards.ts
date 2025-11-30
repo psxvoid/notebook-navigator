@@ -104,14 +104,10 @@ function hasPluginRegistry(app: App): app is AppWithPlugins {
 }
 
 /**
- * Checks if any of the provided plugins are installed or enabled
+ * Checks if a plugin is installed or enabled
  */
-export function isPluginInstalled(app: App, pluginIds: string[]): boolean {
-    if (!Array.isArray(pluginIds) || pluginIds.length === 0) {
-        return false;
-    }
-
-    if (!hasPluginRegistry(app)) {
+export function isPluginInstalled(app: App, pluginId: string): boolean {
+    if (!pluginId || !hasPluginRegistry(app)) {
         return false;
     }
 
@@ -120,7 +116,7 @@ export function isPluginInstalled(app: App, pluginIds: string[]): boolean {
         return false;
     }
 
-    return pluginIds.some(pluginId => Boolean(registry.plugins?.[pluginId]) || registry.enabledPlugins?.has(pluginId));
+    return Boolean(registry.plugins?.[pluginId]) || Boolean(registry.enabledPlugins?.has(pluginId));
 }
 
 /**

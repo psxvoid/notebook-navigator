@@ -105,6 +105,10 @@ export class TagMetadataService extends BaseMetadataService {
         const directColor = this.getEntityColor(ItemType.TAG, normalized);
         if (directColor) return directColor;
 
+        if (!this.settingsProvider.settings.inheritTagColors) {
+            return undefined;
+        }
+
         // If no direct color, check ancestors
         const pathParts = normalized.split('/');
         for (let i = pathParts.length - 1; i > 0; i--) {
@@ -129,6 +133,10 @@ export class TagMetadataService extends BaseMetadataService {
 
         const directBackground = this.getEntityBackgroundColor(ItemType.TAG, normalized);
         if (directBackground) return directBackground;
+
+        if (!this.settingsProvider.settings.inheritTagColors) {
+            return undefined;
+        }
 
         const pathParts = normalized.split('/');
         for (let i = pathParts.length - 1; i > 0; i--) {

@@ -1022,6 +1022,10 @@ export const STRINGS_KO = {
                 name: '태그 아이콘 표시',
                 desc: '탐색 창의 태그 옆에 아이콘을 표시합니다.'
             },
+            inheritTagColors: {
+                name: '태그 색상 상속',
+                desc: '하위 태그가 상위 태그의 색상을 상속합니다.'
+            },
             tagSortOrder: {
                 name: '태그 정렬 순서',
                 desc: '탐색 창에서 태그를 정렬하는 방식을 선택합니다.',

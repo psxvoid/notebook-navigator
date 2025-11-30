@@ -1025,6 +1025,10 @@ export const STRINGS_JA = {
                 name: 'タグアイコンを表示',
                 desc: 'ナビゲーションペインのタグの横にアイコンを表示します。'
             },
+            inheritTagColors: {
+                name: 'タグの色を継承',
+                desc: '子タグが親タグの色を継承します。'
+            },
             tagSortOrder: {
                 name: 'タグの並び順',
                 desc: 'ナビゲーションペインでタグを並べ替える方法を設定します。',

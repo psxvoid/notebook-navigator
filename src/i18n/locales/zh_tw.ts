@@ -1021,6 +1021,10 @@ export const STRINGS_ZH_TW = {
                 name: '顯示標籤圖示',
                 desc: '在導覽窗格的標籤旁顯示圖示。'
             },
+            inheritTagColors: {
+                name: '繼承標籤顏色',
+                desc: '子標籤從父標籤繼承顏色。'
+            },
             tagSortOrder: {
                 name: '標籤排序方式',
                 desc: '選擇導覽窗格中的標籤排序順序。',
