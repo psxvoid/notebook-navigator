@@ -24,6 +24,7 @@ import { ISettingsProvider } from '../interfaces/ISettingsProvider';
 import { runAsyncAction } from '../utils/async';
 import { addAsyncEventListener } from '../utils/domEventListeners';
 import { showNotice } from '../utils/noticeUtils';
+import { createDragGhostManager, type DragGhostManager } from '../utils/dragGhost';
 import { ConfirmModal } from './ConfirmModal';
 
 const MAX_RECENT_COLORS = 10;
@@ -37,6 +38,10 @@ type ColorPickerMode = 'foreground' | 'background';
 
 /** Palette display mode: default (read-only preset colors) or custom (user-editable colors) */
 type PaletteMode = 'default' | 'custom';
+
+interface PaletteDragData {
+    color: string;
+}
 
 /** Result returned by external color selection handlers */
 interface ColorSelectionHandlerResult {
@@ -102,8 +107,11 @@ export class ColorPickerModal extends Modal {
     private paletteToggleDefault: HTMLElement;
     private paletteToggleCustom: HTMLElement;
     private paletteDisposers: (() => void)[] = [];
+    private recentColorDisposers: (() => void)[] = [];
     private isUpdating = false;
     private domDisposers: (() => void)[] = [];
+    private dragGhostManager: DragGhostManager;
+    private pendingPaletteSwitchHandle: number | null = null;
 
     /** Callback function invoked when a color is selected */
     public onChooseColor?: (color: string | null) => ColorSelectionHandlerResult | Promise<ColorSelectionHandlerResult>;
@@ -137,6 +145,7 @@ export class ColorPickerModal extends Modal {
         this.itemPath = itemPath;
         this.itemType = itemType;
         this.isBackgroundMode = itemType !== ItemType.FILE && colorMode === 'background';
+        this.dragGhostManager = createDragGhostManager(app);
 
         // Access settings through the service (used for recent colors storage)
         this.settingsProvider = metadataService.getSettingsProvider();
@@ -212,6 +221,7 @@ export class ColorPickerModal extends Modal {
         } else {
             this.previewCurrent.addClass('nn-no-color');
         }
+        this.makeSwatchDraggable(this.previewCurrent, () => this.currentColor, this.domDisposers);
 
         const arrow = previewContainer.createDiv('nn-preview-arrow');
         setIcon(arrow, 'lucide-arrow-right');
@@ -220,6 +230,7 @@ export class ColorPickerModal extends Modal {
         newSection.createEl('span', { text: strings.modals.colorPicker.newColor, cls: 'nn-preview-label' });
         this.previewNew = newSection.createDiv('nn-preview-color nn-show-checkerboard');
         this.applySwatchColor(this.previewNew, this.selectedColor);
+        this.makeSwatchDraggable(this.previewNew, () => this.selectedColor, this.domDisposers);
 
         // User colors section
         const presetSection = leftColumn.createDiv('nn-preset-section');
@@ -422,6 +433,7 @@ export class ColorPickerModal extends Modal {
         }
         // Cleanup DOM listeners
         this.disposePaletteListeners();
+        this.disposeRecentColorListeners();
         if (this.domDisposers.length) {
             this.domDisposers.forEach(dispose => {
                 try {
@@ -431,6 +443,11 @@ export class ColorPickerModal extends Modal {
                 }
             });
             this.domDisposers = [];
+        }
+        this.dragGhostManager.hideGhost();
+        if (this.pendingPaletteSwitchHandle !== null) {
+            window.cancelAnimationFrame(this.pendingPaletteSwitchHandle);
+            this.pendingPaletteSwitchHandle = null;
         }
     }
 
@@ -487,15 +504,22 @@ export class ColorPickerModal extends Modal {
      */
     private loadRecentColors() {
         const recentColors = this.settingsProvider.settings.recentColors || [];
+        this.disposeRecentColorListeners();
         this.recentColorsContainer.empty();
 
         recentColors.forEach((color, index) => {
             const dot = this.recentColorsContainer.createDiv('nn-color-dot nn-recent-color nn-show-checkerboard');
             this.applySwatchColor(dot, color);
             dot.setAttribute('data-color', color);
-            this.domDisposers.push(
+            this.makeSwatchDraggable(dot, () => color, this.recentColorDisposers);
+            this.recentColorDisposers.push(
                 addAsyncEventListener(dot, 'click', () => {
                     this.updateFromHex(color);
+                })
+            );
+            this.recentColorDisposers.push(
+                addAsyncEventListener(dot, 'dblclick', () => {
+                    this.handleSwatchDoubleClick(color);
                 })
             );
 
@@ -509,7 +533,7 @@ export class ColorPickerModal extends Modal {
             });
             removeButton.createSpan({ text: '×', cls: 'nn-recent-remove-glyph', attr: { 'aria-hidden': 'true' } });
             // Remove recent color with event suppression
-            this.domDisposers.push(
+            this.recentColorDisposers.push(
                 addAsyncEventListener(removeButton, 'click', event => {
                     event.stopPropagation();
                     event.preventDefault();
@@ -581,6 +605,12 @@ export class ColorPickerModal extends Modal {
                 dot.addClass('nn-user-color-selected');
             }
 
+            this.makeSwatchDraggable(dot, () => colors[index], this.paletteDisposers);
+
+            if (this.paletteMode === 'custom') {
+                this.registerCustomDropTarget(dot, index);
+            }
+
             const dispose = addAsyncEventListener(dot, 'click', () => {
                 const paletteColor =
                     this.paletteMode === 'default' ? this.defaultColors[index] : (this.customColors[index] ?? DEFAULT_CUSTOM_COLOR);
@@ -588,7 +618,63 @@ export class ColorPickerModal extends Modal {
                 this.handlePaletteColorClick(index, nextColor);
             });
             this.paletteDisposers.push(dispose);
+
+            const doubleClickDispose = addAsyncEventListener(dot, 'dblclick', () => {
+                const paletteColor =
+                    this.paletteMode === 'default' ? this.defaultColors[index] : (this.customColors[index] ?? DEFAULT_CUSTOM_COLOR);
+                const nextColor = this.normalizeHexColor(paletteColor) ?? DEFAULT_CUSTOM_COLOR;
+                this.handlePaletteColorDoubleClick(index, nextColor);
+            });
+            this.paletteDisposers.push(doubleClickDispose);
         });
+    }
+
+    /**
+     * Registers drag-and-drop handlers for a custom palette swatch
+     */
+    private registerCustomDropTarget(element: HTMLElement, index: number) {
+        const addHover = () => element.addClass('nn-drop-hover');
+        const removeHover = () => element.removeClass('nn-drop-hover');
+
+        this.paletteDisposers.push(
+            addAsyncEventListener(element, 'dragover', event => {
+                const transfer = event.dataTransfer;
+                if (!transfer) {
+                    return;
+                }
+
+                const types = Array.from(transfer.types || []);
+                const canAccept = types.includes('application/x-notebook-navigator-color') || types.includes('text/plain');
+                if (!canAccept) {
+                    return;
+                }
+
+                event.preventDefault();
+                transfer.dropEffect = 'move';
+                addHover();
+            })
+        );
+
+        this.paletteDisposers.push(
+            addAsyncEventListener(element, 'dragleave', () => {
+                removeHover();
+            })
+        );
+
+        this.paletteDisposers.push(
+            addAsyncEventListener(element, 'drop', event => {
+                const dragData = this.parseDragData(event);
+                removeHover();
+                if (!dragData) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                this.dragGhostManager.hideGhost();
+                this.handleCustomDrop(index, dragData);
+            })
+        );
     }
 
     /**
@@ -628,6 +714,24 @@ export class ColorPickerModal extends Modal {
         if (color) {
             this.updateFromHex(color, { syncInput: true });
         }
+    }
+
+    /**
+     * Handles double-click on a palette swatch to select and apply color
+     */
+    private handlePaletteColorDoubleClick(index: number, color: string | null) {
+        if (!color) {
+            return;
+        }
+
+        if (this.paletteMode === 'custom') {
+            this.activeCustomColorIndex = index;
+        } else {
+            this.activeDefaultColorIndex = index;
+        }
+
+        this.updatePaletteSelection();
+        this.handleSwatchDoubleClick(color);
     }
 
     private getUserColorSlotLabel(index: number): string {
@@ -701,6 +805,187 @@ export class ColorPickerModal extends Modal {
             }
         });
         this.paletteDisposers = [];
+    }
+
+    /**
+     * Removes all recent color swatch event listeners
+     */
+    private disposeRecentColorListeners() {
+        if (!this.recentColorDisposers.length) {
+            return;
+        }
+
+        this.recentColorDisposers.forEach(dispose => {
+            try {
+                dispose();
+            } catch (e) {
+                console.error('Error disposing recent color listener:', e);
+            }
+        });
+        this.recentColorDisposers = [];
+    }
+
+    /**
+     * Configures a color swatch element for drag operations
+     */
+    private makeSwatchDraggable(element: HTMLElement, getColor: () => string | null, disposers: (() => void)[] = this.domDisposers) {
+        element.setAttribute('draggable', 'true');
+        const dispose = addAsyncEventListener(element, 'dragstart', event => {
+            const color = this.normalizeHexColor(getColor());
+            const transfer = event.dataTransfer;
+            if (!color || !transfer) {
+                event.preventDefault();
+                return;
+            }
+
+            const payload: PaletteDragData = { color };
+
+            transfer.setData('application/x-notebook-navigator-color', JSON.stringify(payload));
+            transfer.setData('text/plain', color);
+            transfer.effectAllowed = 'copyMove';
+
+            this.dragGhostManager.hideNativePreview(event);
+            this.dragGhostManager.showGhost(event, {
+                customElement: this.createDragPreview(color),
+                cursorOffset: { x: 12, y: 12 },
+                itemType: null
+            });
+
+            this.ensureCustomPaletteVisibleForDrag();
+        });
+        const dragEndDispose = addAsyncEventListener(element, 'dragend', () => {
+            this.dragGhostManager.hideGhost();
+        });
+        disposers.push(dragEndDispose);
+        disposers.push(dispose);
+    }
+
+    /**
+     * Extracts color data from a drag event's data transfer
+     */
+    private parseDragData(event: DragEvent): PaletteDragData | null {
+        const transfer = event.dataTransfer;
+        if (!transfer) {
+            return null;
+        }
+
+        const encoded = transfer.getData('application/x-notebook-navigator-color');
+        if (encoded) {
+            const parsedPayload = this.tryParseDragPayload(encoded);
+            if (parsedPayload) {
+                return parsedPayload;
+            }
+        }
+
+        const text = transfer.getData('text/plain');
+        const normalizedText = this.normalizeHexColor(text);
+        if (normalizedText) {
+            return { color: normalizedText };
+        }
+
+        return null;
+    }
+
+    /**
+     * Parses and validates a JSON-encoded drag payload string
+     */
+    private tryParseDragPayload(raw: string): PaletteDragData | null {
+        try {
+            const parsed = JSON.parse(raw) as Partial<PaletteDragData>;
+            if (!parsed || typeof parsed.color !== 'string') {
+                return null;
+            }
+
+            const normalized = this.normalizeHexColor(parsed.color);
+            if (!normalized) {
+                return null;
+            }
+
+            return { color: normalized };
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Creates a circular canvas element for the drag preview
+     */
+    private createDragPreview(color: string): HTMLElement {
+        const size = 36;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        canvas.className = 'nn-drag-preview';
+
+        const context = canvas.getContext('2d');
+        if (!context) {
+            return canvas;
+        }
+
+        const rgba = this.hexToRgba(color) ?? { r: 0, g: 0, b: 0, a: 255 };
+        const fill = `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${Math.max(0, Math.min(255, rgba.a)) / 255})`;
+        const radius = size / 2 - 2;
+        context.beginPath();
+        context.arc(size / 2, size / 2, radius, 0, Math.PI * 2);
+        context.fillStyle = fill;
+        context.fill();
+        context.lineWidth = 1.5;
+        context.strokeStyle = 'rgba(0,0,0,0.25)';
+        context.stroke();
+
+        return canvas;
+    }
+
+    /**
+     * Switches to custom palette mode when a drag operation starts
+     */
+    private ensureCustomPaletteVisibleForDrag() {
+        if (this.paletteMode === 'custom') {
+            return;
+        }
+
+        if (this.pendingPaletteSwitchHandle !== null) {
+            return;
+        }
+
+        this.pendingPaletteSwitchHandle = window.requestAnimationFrame(() => {
+            this.pendingPaletteSwitchHandle = null;
+            this.setPaletteMode('custom');
+        });
+    }
+
+    /**
+     * Applies a dropped color to a custom palette slot
+     */
+    private handleCustomDrop(targetIndex: number, dragData: PaletteDragData) {
+        if (this.paletteMode !== 'custom') {
+            return;
+        }
+
+        if (targetIndex < 0 || targetIndex >= USER_COLOR_SLOT_COUNT) {
+            return;
+        }
+
+        const normalized = this.normalizeHexColor(dragData.color);
+        if (!normalized) {
+            return;
+        }
+
+        this.customColors[targetIndex] = normalized;
+        this.activeCustomColorIndex = targetIndex;
+        this.markCustomColorsDirty();
+        this.renderUserColors();
+        this.updatePresetButtonsVisibility();
+        this.updateFromHex(normalized, { syncInput: true });
+        this.dragGhostManager.hideGhost();
+    }
+
+    /**
+     * Selects a color and applies it immediately
+     */
+    private handleSwatchDoubleClick(color: string) {
+        this.updateFromHex(color, { syncInput: true });
+        void this.applyColor();
     }
 
     /**

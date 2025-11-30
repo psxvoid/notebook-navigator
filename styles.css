@@ -2255,8 +2255,8 @@ body {
 }
 
 .nn-file-tag[data-has-color='true']:not([data-has-background='true']) {
-    background-color: var(--nn-theme-nav-bg);
-    border-color: color-mix(in srgb, currentColor 50%, transparent);
+    background-color: var(--nn-theme-list-bg);
+    background-image: linear-gradient(color-mix(in srgb, currentColor 10%, transparent), color-mix(in srgb, currentColor 10%, transparent));
 }
 
 .nn-file-tag[data-has-background='true']:not([data-has-color='true']) {
@@ -2768,6 +2768,9 @@ body.nn-resizing {
     z-index: 999999;
     opacity: 0.9;
     will-change: transform;
+    left: 0;
+    top: 0;
+    transform: translate(var(--nn-drag-ghost-x, -1000px), var(--nn-drag-ghost-y, -1000px));
 }
 
 /* Badge shown on drag ghost for multiple files - Apple-style red badge */
@@ -4556,6 +4559,17 @@ body.nn-resizing {
 
 .nn-color-dot.nn-color-empty:hover::after {
     outline: none;
+}
+
+.nn-color-dot.nn-drop-hover {
+    outline: 3px solid var(--interactive-accent);
+    outline-offset: -3px;
+}
+
+.nn-drag-preview {
+    width: 36px;
+    height: 36px;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
 }
 
 /* Button container */
