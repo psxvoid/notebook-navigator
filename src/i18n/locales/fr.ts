@@ -25,6 +25,7 @@ export const STRINGS_FR = {
     common: {
         cancel: 'Annuler', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Supprimer', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Effacer', // Button text for clearing values (English: Clear)
         remove: 'Supprimer', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Soumettre', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Aucune sélection', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -244,15 +245,18 @@ export const STRINGS_FR = {
             newColor: 'Nouvelle',
             presetColors: 'Couleurs prédéfinies',
             userColors: 'Couleurs utilisateur',
-            copyColors: 'Copier les couleurs',
-            colorsCopied: 'Couleurs copiées dans le presse-papiers',
+            paletteDefault: 'Par défaut',
+            paletteCustom: 'Personnalisé',
+            copyColors: 'Copier la couleur',
+            colorsCopied: 'Couleur copiée dans le presse-papiers',
             copyClipboardError: "Impossible d'écrire dans le presse-papiers",
-            pasteColors: 'Coller les couleurs',
+            pasteColors: 'Coller la couleur',
             pasteClipboardError: 'Impossible de lire le presse-papiers',
-            pasteInvalidJson: 'Le presse-papiers ne contient pas de JSON valide',
-            pasteInvalidFormat: 'Un tableau de valeurs de couleur attendu',
-            colorsPasted: 'Couleurs collées avec succès',
-            resetUserColors: 'Réinitialiser les couleurs',
+            pasteInvalidJson: 'Le presse-papiers ne contient pas de texte valide',
+            pasteInvalidFormat: 'Une valeur de couleur hex attendue',
+            colorsPasted: 'Couleur collée avec succès',
+            resetUserColors: 'Effacer les couleurs personnalisées',
+            clearCustomColorsConfirm: 'Supprimer toutes les couleurs personnalisées ?',
             userColorSlot: 'Couleur {slot}',
             recentColors: 'Couleurs récentes',
             clearRecentColors: 'Effacer les couleurs récentes',
@@ -569,7 +573,8 @@ export const STRINGS_FR = {
             },
             navigation: {
                 behavior: 'Comportement',
-                appearance: 'Apparence'
+                appearance: 'Apparence',
+                shortcutsAndRecent: 'Raccourcis et éléments récents'
             },
             list: {
                 display: 'Apparence',
@@ -597,7 +602,7 @@ export const STRINGS_FR = {
                     filterSearch: {
                         title: 'Recherche par filtre (par défaut):',
                         description:
-                            "Recherche rapide et légère qui filtre les fichiers par nom et étiquettes dans le dossier actuel et les sous-dossiers. Prend en charge le filtrage par étiquettes avec le préfixe # (ex. #projet), l'exclusion avec le préfixe ! (ex. !brouillon, !#archivé), et la recherche de notes sans étiquettes avec !#. Idéal pour la navigation rapide dans votre contexte actuel."
+                            'Filtre les fichiers par nom et étiquettes dans le dossier actuel et les sous-dossiers. Mode filtre : le texte et les étiquettes mixtes correspondent à tous les termes (ex. "projet #travail"). Mode étiquettes : la recherche avec uniquement des étiquettes prend en charge les opérateurs AND/OR (ex. "#travail AND #urgent", "#projet OR #personnel"). Cmd/Ctrl+Clic sur les étiquettes pour ajouter avec AND, Cmd/Ctrl+Maj+Clic pour ajouter avec OR. Prend en charge l\'exclusion avec le préfixe ! (ex. !brouillon, !#archivé) et la recherche de notes sans étiquettes avec !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
@@ -702,8 +707,8 @@ export const STRINGS_FR = {
                 desc: 'Afficher le nom du dossier parent pour les notes dans les sous-dossiers ou étiquettes.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Clic sur dossier parent révèle la note',
-                desc: "Cliquer sur l'étiquette du dossier parent révèle la note."
+                name: 'Clic sur dossier parent ouvre le dossier',
+                desc: "Cliquer sur l'étiquette du dossier parent ouvre le dossier dans le panneau de liste."
             },
             showParentFolderColor: {
                 name: 'Afficher la couleur du dossier parent',
@@ -776,8 +781,7 @@ export const STRINGS_FR = {
                 name: 'Bannière de navigation (profil de coffre)',
                 desc: 'Afficher une image au-dessus du panneau de navigation. Change avec le profil de coffre sélectionné.',
                 current: 'Bannière actuelle : {path}',
-                chooseButton: 'Choisir une image',
-                clearButton: 'Effacer'
+                chooseButton: 'Choisir une image'
             },
             showShortcuts: {
                 name: 'Afficher les raccourcis',
@@ -814,7 +818,7 @@ export const STRINGS_FR = {
                 }
             },
             excludedNotes: {
-                name: 'Masquer les notes',
+                name: 'Masquer les notes (profil du coffre)',
                 desc: "Liste de propriétés de métadonnées séparées par des virgules. Les notes contenant l'une de ces propriétés seront masquées (ex. : draft, private, archived).",
                 placeholder: 'draft, private'
             },
@@ -843,13 +847,13 @@ export const STRINGS_FR = {
                 }
             },
             excludedFolders: {
-                name: 'Masquer les dossiers',
+                name: 'Masquer les dossiers (profil du coffre)',
                 desc: 'Liste de dossiers à masquer séparés par des virgules. Modèles de nom : assets* (dossiers commençant par assets), *_temp (finissant par _temp). Modèles de chemin : /archive (archive racine uniquement), /res* (dossiers racine commençant par res), /*/temp (dossiers temp un niveau plus bas), /projects/* (tous les dossiers dans projects).',
                 placeholder: 'templates, assets*, /archive, /res*',
                 info: "Nettoyage automatique : Lors de l'exclusion par clic droit, les modèles redondants sont supprimés (par exemple, si vous excluez /projects et que /projects/app existe déjà dans la liste, il sera supprimé)."
             },
             fileVisibility: {
-                name: 'Afficher les types de fichiers',
+                name: 'Afficher les types de fichiers (profil du coffre)',
                 desc: "Filtrez quels types de fichiers sont affichés dans le navigateur. Les types de fichiers non pris en charge par Obsidian peuvent s'ouvrir dans des applications externes.",
                 options: {
                     documents: 'Documents (.md, .canvas, .base)',
@@ -863,7 +867,7 @@ export const STRINGS_FR = {
                 current: 'Actuel : {path}',
                 currentMobile: 'Mobile : {path}',
                 chooseButton: 'Choisir un fichier',
-                clearButton: 'Effacer',
+
                 separateMobile: {
                     name: "Page d'accueil mobile séparée",
                     desc: "Utiliser une page d'accueil différente pour les appareils mobiles."
@@ -1052,11 +1056,15 @@ export const STRINGS_FR = {
             },
             showTags: {
                 name: 'Afficher les étiquettes',
-                desc: 'Afficher la section des étiquettes sous les dossiers dans le navigateur.'
+                desc: 'Afficher la section des étiquettes dans le navigateur.'
             },
             showTagIcons: {
                 name: "Afficher les icônes d'étiquettes",
                 desc: 'Afficher les icônes à côté des étiquettes dans le panneau de navigation.'
+            },
+            inheritTagColors: {
+                name: "Hériter les couleurs d'étiquettes",
+                desc: 'Les étiquettes enfants héritent de la couleur des étiquettes parentes.'
             },
             tagSortOrder: {
                 name: 'Ordre de tri des étiquettes',
@@ -1081,7 +1089,7 @@ export const STRINGS_FR = {
                 desc: 'Conserve la propriété tags dans le frontmatter lorsque toutes les étiquettes sont supprimées. Si désactivé, la propriété tags est supprimée du frontmatter.'
             },
             hiddenTags: {
-                name: 'Masquer les étiquettes',
+                name: 'Masquer les étiquettes (profil du coffre)',
                 desc: 'Liste séparée par des virgules de préfixes ou de jokers de nom d\'étiquettes à masquer. Utilisez `tag*` ou `*tag` pour faire correspondre les noms d\'étiquette. Masquer une étiquette masque aussi toutes ses sous-étiquettes (par ex. "archive" masque "archive/2024/docs").',
                 placeholder: 'interne, temp/brouillons, archive/2024'
             },

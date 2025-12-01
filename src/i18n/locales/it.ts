@@ -25,6 +25,7 @@ export const STRINGS_IT = {
     common: {
         cancel: 'Annulla', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Elimina', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Cancella', // Button text for clearing values (English: Clear)
         remove: 'Rimuovi', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Invia', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Nessuna selezione', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -244,15 +245,18 @@ export const STRINGS_IT = {
             newColor: 'Nuovo',
             presetColors: 'Colori predefiniti',
             userColors: 'Colori utente',
-            copyColors: 'Copia colori',
-            colorsCopied: 'Colori copiati negli appunti',
+            paletteDefault: 'Predefinito',
+            paletteCustom: 'Personalizzato',
+            copyColors: 'Copia colore',
+            colorsCopied: 'Colore copiato negli appunti',
             copyClipboardError: 'Impossibile scrivere negli appunti',
-            pasteColors: 'Incolla colori',
+            pasteColors: 'Incolla colore',
             pasteClipboardError: 'Impossibile leggere gli appunti',
-            pasteInvalidJson: 'Gli appunti non contengono JSON valido',
-            pasteInvalidFormat: 'Previsto un array di valori colore',
-            colorsPasted: 'Colori incollati con successo',
-            resetUserColors: 'Ripristina colori',
+            pasteInvalidJson: 'Gli appunti non contengono testo valido',
+            pasteInvalidFormat: 'Previsto un valore colore hex',
+            colorsPasted: 'Colore incollato con successo',
+            resetUserColors: 'Cancella colori personalizzati',
+            clearCustomColorsConfirm: 'Rimuovere tutti i colori personalizzati?',
             userColorSlot: 'Colore {slot}',
             recentColors: 'Colori recenti',
             clearRecentColors: 'Cancella colori recenti',
@@ -568,7 +572,8 @@ export const STRINGS_IT = {
             },
             navigation: {
                 behavior: 'Comportamento',
-                appearance: 'Aspetto'
+                appearance: 'Aspetto',
+                shortcutsAndRecent: 'Scorciatoie ed elementi recenti'
             },
             list: {
                 display: 'Aspetto',
@@ -596,7 +601,7 @@ export const STRINGS_IT = {
                     filterSearch: {
                         title: 'Ricerca con filtro (predefinito):',
                         description:
-                            'Ricerca veloce e leggera che filtra i file per nome e tag nella cartella corrente e sottocartelle. Supporta filtro tag con prefisso # (es. #progetto), esclusione con prefisso ! (es. !bozza, !#archiviato) e ricerca note senza tag con !#. Ideale per navigazione rapida nel contesto corrente.'
+                            'Filtra i file per nome e tag nella cartella corrente e sottocartelle. Modalità filtro: testo e tag misti corrispondono a tutti i termini (es. "progetto #lavoro"). Modalità tag: la ricerca solo con tag supporta operatori AND/OR (es. "#lavoro AND #urgente", "#progetto OR #personale"). Cmd/Ctrl+Clic sui tag per aggiungere con AND, Cmd/Ctrl+Maiusc+Clic per aggiungere con OR. Supporta esclusione con prefisso ! (es. !bozza, !#archiviato) e ricerca note senza tag con !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
@@ -700,8 +705,8 @@ export const STRINGS_IT = {
                 desc: 'Visualizza il nome della cartella genitore per note in sottocartelle o tag.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Click su cartella genitore mostra file',
-                desc: "Cliccando sull'etichetta cartella genitore mostra il file."
+                name: 'Click su cartella genitore apre cartella',
+                desc: "Cliccando sull'etichetta cartella genitore apre la cartella nel pannello elenco."
             },
             showParentFolderColor: {
                 name: 'Mostra colore cartella genitore',
@@ -774,8 +779,7 @@ export const STRINGS_IT = {
                 name: 'Banner navigazione (profilo vault)',
                 desc: "Visualizza un'immagine sopra il pannello navigazione. Cambia con il profilo vault selezionato.",
                 current: 'Banner attuale: {path}',
-                chooseButton: 'Scegli immagine',
-                clearButton: 'Cancella'
+                chooseButton: 'Scegli immagine'
             },
             showShortcuts: {
                 name: 'Mostra scorciatoie',
@@ -812,7 +816,7 @@ export const STRINGS_IT = {
                 }
             },
             fileVisibility: {
-                name: 'Mostra tipi file',
+                name: 'Mostra tipi file (profilo vault)',
                 desc: 'Filtra quali tipi di file vengono mostrati nel navigatore. I tipi file non supportati da Obsidian potrebbero aprirsi in applicazioni esterne.',
                 options: {
                     documents: 'Documenti (.md, .canvas, .base)',
@@ -826,14 +830,14 @@ export const STRINGS_IT = {
                 current: 'Attuale: {path}',
                 currentMobile: 'Mobile: {path}',
                 chooseButton: 'Scegli file',
-                clearButton: 'Cancella',
+
                 separateMobile: {
                     name: 'Homepage mobile separata',
                     desc: 'Usa una homepage diversa per dispositivi mobili.'
                 }
             },
             excludedNotes: {
-                name: 'Nascondi note',
+                name: 'Nascondi note (profilo vault)',
                 desc: 'Lista di proprietà frontmatter separate da virgola. Le note contenenti una qualsiasi di queste proprietà saranno nascoste (es. bozza, privato, archiviato).',
                 placeholder: 'bozza, privato'
             },
@@ -861,7 +865,7 @@ export const STRINGS_IT = {
                 }
             },
             excludedFolders: {
-                name: 'Nascondi cartelle',
+                name: 'Nascondi cartelle (profilo vault)',
                 desc: 'Lista di cartelle da nascondere separate da virgola. Pattern nome: assets* (cartelle che iniziano con assets), *_temp (che finiscono con _temp). Pattern percorso: /archivio (solo archivio root), /res* (cartelle root che iniziano con res), /*/temp (cartelle temp un livello sotto), /progetti/* (tutte le cartelle in progetti).',
                 placeholder: 'modelli, assets*, /archivio, /res*'
             },
@@ -1048,11 +1052,15 @@ export const STRINGS_IT = {
             },
             showTags: {
                 name: 'Mostra tag',
-                desc: 'Visualizza sezione tag sotto le cartelle nel navigatore.'
+                desc: 'Visualizza sezione tag nel navigatore.'
             },
             showTagIcons: {
                 name: 'Mostra icone tag',
                 desc: 'Visualizza icone accanto ai tag nel pannello navigazione.'
+            },
+            inheritTagColors: {
+                name: 'Eredita colori dei tag',
+                desc: 'I tag figli ereditano il colore dai tag genitori.'
             },
             tagSortOrder: {
                 name: 'Ordine tag',
@@ -1077,7 +1085,7 @@ export const STRINGS_IT = {
                 desc: 'Mantieni la proprietà tags frontmatter quando tutti i tag sono rimossi. Quando disabilitato, la proprietà tags è eliminata dal frontmatter.'
             },
             hiddenTags: {
-                name: 'Nascondi tag',
+                name: 'Nascondi tag (profilo vault)',
                 desc: 'Lista di prefissi tag o wildcard nome separate da virgola. Usa tag* o *tag per corrispondere nomi tag. Nascondere un tag nasconde anche tutti i suoi sotto-tag (es. "archivio" nasconde "archivio/2024/docs").',
                 placeholder: 'interno, temp/bozze, archivio/2024'
             },

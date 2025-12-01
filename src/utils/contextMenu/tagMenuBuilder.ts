@@ -107,12 +107,13 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     const tagIcon = metadataService.getTagIcon(tagPath);
     const tagColor = metadataService.getTagColor(tagPath);
     const tagBackgroundColor = metadataService.getTagBackgroundColor(tagPath);
+    const normalizedTagPath = normalizeTagPath(tagPath);
+    const directTagColor = normalizedTagPath ? settings.tagColors?.[normalizedTagPath] : undefined;
+    const directTagBackground = normalizedTagPath ? settings.tagBackgroundColors?.[normalizedTagPath] : undefined;
 
     const hasRemovableIcon = Boolean(tagIcon);
-    const hasRemovableColor = Boolean(tagColor);
-    const hasRemovableBackground = Boolean(tagBackgroundColor);
-    const removalCount = Number(hasRemovableIcon) + Number(hasRemovableColor) + Number(hasRemovableBackground);
-    const showIndividualRemovers = removalCount >= 2;
+    const hasRemovableColor = Boolean(directTagColor);
+    const hasRemovableBackground = Boolean(directTagBackground);
 
     addStyleMenu({
         menu,
@@ -124,7 +125,6 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
         hasIcon: true,
         hasColor: true,
         hasBackground: true,
-        showIndividualRemovers,
         applyStyle: async clipboard => {
             const { icon, color, background } = clipboard;
             const actions: Promise<void>[] = [];

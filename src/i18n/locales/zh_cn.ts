@@ -25,6 +25,7 @@ export const STRINGS_ZH_CN = {
     common: {
         cancel: '取消', // Button text for canceling dialogs and operations (English: Cancel)
         delete: '删除', // Button text for delete operations in dialogs (English: Delete)
+        clear: '清除', // Button text for clearing values (English: Clear)
         remove: '移除', // Button text for remove operations in dialogs (English: Remove)
         submit: '提交', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '未选择', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -244,15 +245,18 @@ export const STRINGS_ZH_CN = {
             newColor: '新颜色',
             presetColors: '预设颜色',
             userColors: '自定义颜色',
+            paletteDefault: '默认',
+            paletteCustom: '自定义',
             copyColors: '复制颜色',
             colorsCopied: '颜色已复制到剪贴板',
             copyClipboardError: '无法写入剪贴板',
             pasteColors: '粘贴颜色',
             pasteClipboardError: '无法读取剪贴板',
-            pasteInvalidJson: '剪贴板不包含有效的 JSON',
-            pasteInvalidFormat: '需要颜色值数组',
+            pasteInvalidJson: '剪贴板不包含有效的文本',
+            pasteInvalidFormat: '需要十六进制颜色值',
             colorsPasted: '颜色粘贴成功',
-            resetUserColors: '重置颜色',
+            resetUserColors: '清除自定义颜色',
+            clearCustomColorsConfirm: '删除所有自定义颜色？',
             userColorSlot: '颜色 {slot}',
             recentColors: '最近使用的颜色',
             clearRecentColors: '清除最近使用的颜色',
@@ -569,7 +573,8 @@ export const STRINGS_ZH_CN = {
             },
             navigation: {
                 behavior: '行为',
-                appearance: '外观'
+                appearance: '外观',
+                shortcutsAndRecent: '快捷方式和最近项目'
             },
             list: {
                 display: '外观',
@@ -597,7 +602,7 @@ export const STRINGS_ZH_CN = {
                     filterSearch: {
                         title: '过滤搜索（默认）：',
                         description:
-                            '快速、轻量级搜索，按名称和标签过滤当前文件夹和子文件夹中的文件。支持使用 # 前缀进行标签过滤（例如 #项目），使用 ! 前缀进行排除（例如 !草稿，!#已归档），以及使用 !# 查找无标签笔记。非常适合在当前上下文中快速导航。'
+                            '按名称和标签过滤当前文件夹和子文件夹中的文件。过滤模式：混合文本和标签匹配所有条件（例如"项目 #工作"）。标签模式：仅使用标签搜索支持 AND/OR 运算符（例如"#工作 AND #紧急"、"#项目 OR #个人"）。Cmd/Ctrl+点击标签以 AND 方式添加，Cmd/Ctrl+Shift+点击以 OR 方式添加。支持使用 ! 前缀进行排除（例如 !草稿，!#已归档）以及使用 !# 查找无标签笔记。'
                     },
                     omnisearch: {
                         title: 'Omnisearch：',
@@ -700,8 +705,8 @@ export const STRINGS_ZH_CN = {
                 desc: '为子文件夹或标签中的笔记显示父文件夹名称。'
             },
             parentFolderClickRevealsFile: {
-                name: '点击父文件夹定位笔记',
-                desc: '点击父文件夹名称时，在文件夹中显示该笔记。'
+                name: '点击父文件夹打开文件夹',
+                desc: '点击父文件夹名称时，在列表面板中打开该文件夹。'
             },
             showParentFolderColor: {
                 name: '显示父文件夹颜色',
@@ -774,8 +779,7 @@ export const STRINGS_ZH_CN = {
                 name: '导航横幅（仓库配置文件）',
                 desc: '在导航窗格顶部显示一张图片。随所选仓库配置文件而变化。',
                 current: '当前横幅：{path}',
-                chooseButton: '选择图片',
-                clearButton: '清除'
+                chooseButton: '选择图片'
             },
             showShortcuts: {
                 name: '显示快捷方式',
@@ -812,7 +816,7 @@ export const STRINGS_ZH_CN = {
                 }
             },
             excludedNotes: {
-                name: '隐藏笔记',
+                name: '隐藏笔记 (库配置)',
                 desc: '逗号分隔的前置元数据属性列表。包含任何这些属性的笔记将被隐藏（例如：draft, private, archived）。',
                 placeholder: 'draft, private'
             },
@@ -840,13 +844,13 @@ export const STRINGS_ZH_CN = {
                 }
             },
             excludedFolders: {
-                name: '隐藏文件夹',
+                name: '隐藏文件夹 (库配置)',
                 desc: '逗号分隔的要隐藏的文件夹列表。名称模式：assets*（以assets开头的文件夹），*_temp（以_temp结尾）。路径模式：/archive（仅根目录archive），/res*（以res开头的根文件夹），/*/temp（一级目录下的temp文件夹），/projects/*（projects内的所有文件夹）。',
                 placeholder: 'templates, assets*, /archive, /res*',
                 info: '自动清理：通过右键排除时，冗余的模式会被移除（例如，如果您排除/projects且/projects/app已在列表中，它将被移除）。'
             },
             fileVisibility: {
-                name: '显示文件类型',
+                name: '显示文件类型 (库配置)',
                 desc: '过滤在导航器中显示的文件类型。Obsidian不支持的文件类型可能会在外部应用程序中打开。',
                 options: {
                     documents: '文档 (.md, .canvas, .base)',
@@ -860,7 +864,7 @@ export const STRINGS_ZH_CN = {
                 current: '当前：{path}',
                 currentMobile: '移动端：{path}',
                 chooseButton: '选择文件',
-                clearButton: '清除',
+
                 separateMobile: {
                     name: '单独的移动端主页',
                     desc: '为移动设备使用不同的主页。'
@@ -1049,11 +1053,15 @@ export const STRINGS_ZH_CN = {
             },
             showTags: {
                 name: '显示标签',
-                desc: '在导航器中的文件夹下方显示标签部分。'
+                desc: '在导航器中显示标签部分。'
             },
             showTagIcons: {
                 name: '显示标签图标',
                 desc: '在导航窗格的标签旁显示图标。'
+            },
+            inheritTagColors: {
+                name: '继承标签颜色',
+                desc: '子标签从父标签继承颜色。'
             },
             tagSortOrder: {
                 name: '标签排序方式',
@@ -1078,7 +1086,7 @@ export const STRINGS_ZH_CN = {
                 desc: '当所有标签被删除时保留 frontmatter 中的 tags 属性。禁用时,tags 属性将从 frontmatter 中删除。'
             },
             hiddenTags: {
-                name: '隐藏标签',
+                name: '隐藏标签 (库配置)',
                 desc: '要隐藏的标签前缀或名称通配符的逗号分隔列表。使用 `tag*` 或 `*tag` 匹配标签名称。隐藏标签也会隐藏所有子标签（例如："归档"隐藏"归档/2024/docs"）。',
                 placeholder: '内部, 临时/草稿, 归档/2024'
             },

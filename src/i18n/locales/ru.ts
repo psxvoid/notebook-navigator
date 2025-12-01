@@ -25,6 +25,7 @@ export const STRINGS_RU = {
     common: {
         cancel: 'Отмена', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Удалить', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Очистить', // Button text for clearing values (English: Clear)
         remove: 'Убрать', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Отправить', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Ничего не выбрано', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -244,15 +245,18 @@ export const STRINGS_RU = {
             newColor: 'Новый',
             presetColors: 'Предустановленные цвета',
             userColors: 'Пользовательские цвета',
-            copyColors: 'Копировать цвета',
-            colorsCopied: 'Цвета скопированы в буфер обмена',
+            paletteDefault: 'По умолчанию',
+            paletteCustom: 'Пользовательские',
+            copyColors: 'Копировать цвет',
+            colorsCopied: 'Цвет скопирован в буфер обмена',
             copyClipboardError: 'Не удалось записать в буфер обмена',
-            pasteColors: 'Вставить цвета',
+            pasteColors: 'Вставить цвет',
             pasteClipboardError: 'Не удалось прочитать буфер обмена',
-            pasteInvalidJson: 'Буфер обмена не содержит корректный JSON',
-            pasteInvalidFormat: 'Ожидался массив цветовых значений',
-            colorsPasted: 'Цвета успешно вставлены',
-            resetUserColors: 'Сбросить цвета',
+            pasteInvalidJson: 'Буфер обмена не содержит корректный текст',
+            pasteInvalidFormat: 'Ожидалось hex-значение цвета',
+            colorsPasted: 'Цвет успешно вставлен',
+            resetUserColors: 'Очистить пользовательские цвета',
+            clearCustomColorsConfirm: 'Удалить все пользовательские цвета?',
             userColorSlot: 'Цвет {slot}',
             recentColors: 'Недавние цвета',
             clearRecentColors: 'Очистить недавние цвета',
@@ -568,7 +572,8 @@ export const STRINGS_RU = {
             },
             navigation: {
                 behavior: 'Поведение',
-                appearance: 'Внешний вид'
+                appearance: 'Внешний вид',
+                shortcutsAndRecent: 'Ярлыки и недавние элементы'
             },
             list: {
                 display: 'Внешний вид',
@@ -596,7 +601,7 @@ export const STRINGS_RU = {
                     filterSearch: {
                         title: 'Фильтр-поиск (по умолчанию):',
                         description:
-                            'Быстрый, лёгкий поиск, фильтрующий файлы по имени и тегам в текущей папке и подпапках. Поддерживает фильтрацию по тегам с префиксом # (например, #проект), исключение с префиксом ! (например, !черновик, !#архив) и поиск заметок без тегов с !#. Идеально подходит для быстрой навигации в текущем контексте.'
+                            'Фильтрует файлы по имени и тегам в текущей папке и подпапках. Режим фильтра: смешанный текст и теги соответствуют всем условиям (например, "проект #работа"). Режим тегов: поиск только по тегам поддерживает операторы AND/OR (например, "#работа AND #срочно", "#проект OR #личное"). Cmd/Ctrl+Клик по тегам для добавления с AND, Cmd/Ctrl+Shift+Клик для добавления с OR. Поддерживает исключение с префиксом ! (например, !черновик, !#архив) и поиск заметок без тегов с !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
@@ -701,8 +706,8 @@ export const STRINGS_RU = {
                 desc: 'Отображать название родительской папки для заметок в подпапках или тегах.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Клик по родительской папке показывает файл',
-                desc: 'Клик по метке родительской папки показывает файл.'
+                name: 'Клик по родительской папке открывает папку',
+                desc: 'Клик по метке родительской папки открывает папку в панели списка.'
             },
             showParentFolderColor: {
                 name: 'Показывать цвет родительской папки',
@@ -775,8 +780,7 @@ export const STRINGS_RU = {
                 name: 'Баннер навигации (профиль хранилища)',
                 desc: 'Показывать изображение над панелью навигации. Меняется с выбранным профилем хранилища.',
                 current: 'Текущий баннер: {path}',
-                chooseButton: 'Выбрать изображение',
-                clearButton: 'Очистить'
+                chooseButton: 'Выбрать изображение'
             },
             showShortcuts: {
                 name: 'Показывать ярлыки',
@@ -813,7 +817,7 @@ export const STRINGS_RU = {
                 }
             },
             fileVisibility: {
-                name: 'Показывать типы файлов',
+                name: 'Показывать типы файлов (профиль хранилища)',
                 desc: 'Фильтруйте, какие типы файлов отображаются в навигаторе. Типы файлов, не поддерживаемые Obsidian, могут открываться во внешних приложениях.',
                 options: {
                     documents: 'Документы (.md, .canvas, .base)',
@@ -827,14 +831,14 @@ export const STRINGS_RU = {
                 current: 'Текущая: {path}',
                 currentMobile: 'Мобильная: {path}',
                 chooseButton: 'Выбрать файл',
-                clearButton: 'Очистить',
+
                 separateMobile: {
                     name: 'Отдельная мобильная домашняя страница',
                     desc: 'Использовать другую домашнюю страницу для мобильных устройств.'
                 }
             },
             excludedNotes: {
-                name: 'Скрыть заметки',
+                name: 'Скрыть заметки (профиль хранилища)',
                 desc: 'Список свойств frontmatter через запятую. Заметки, содержащие любое из этих свойств, будут скрыты (например, draft, private, archived).',
                 placeholder: 'draft, private'
             },
@@ -862,7 +866,7 @@ export const STRINGS_RU = {
                 }
             },
             excludedFolders: {
-                name: 'Скрыть папки',
+                name: 'Скрыть папки (профиль хранилища)',
                 desc: 'Список папок через запятую для скрытия. Шаблоны имён: assets* (папки, начинающиеся с assets), *_temp (заканчивающиеся на _temp). Шаблоны путей: /archive (только корневой archive), /res* (корневые папки, начинающиеся с res), /*/temp (папки temp на один уровень вглубь), /projects/* (все папки внутри projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1049,11 +1053,15 @@ export const STRINGS_RU = {
             },
             showTags: {
                 name: 'Показывать теги',
-                desc: 'Отображать раздел тегов под папками в навигаторе.'
+                desc: 'Отображать раздел тегов в навигаторе.'
             },
             showTagIcons: {
                 name: 'Показывать иконки тегов',
                 desc: 'Отображать иконки рядом с тегами в панели навигации.'
+            },
+            inheritTagColors: {
+                name: 'Наследовать цвета тегов',
+                desc: 'Дочерние теги наследуют цвет от родительских тегов.'
             },
             tagSortOrder: {
                 name: 'Сортировка тегов',
@@ -1078,7 +1086,7 @@ export const STRINGS_RU = {
                 desc: 'Сохранять свойство tags в frontmatter, когда все теги удалены. При отключении свойство tags удаляется из frontmatter.'
             },
             hiddenTags: {
-                name: 'Скрыть теги',
+                name: 'Скрыть теги (профиль хранилища)',
                 desc: 'Список префиксов тегов или шаблонов имён через запятую. Используйте тег* или *тег для сопоставления имён тегов. Скрытие тега также скрывает все его подтеги (например, "archive" скрывает "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

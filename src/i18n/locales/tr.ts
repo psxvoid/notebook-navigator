@@ -25,6 +25,7 @@ export const STRINGS_TR = {
     common: {
         cancel: 'İptal', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Sil', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Temizle', // Button text for clearing values (English: Clear)
         remove: 'Kaldır', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Gönder', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Seçim yok', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -244,15 +245,18 @@ export const STRINGS_TR = {
             newColor: 'Yeni',
             presetColors: 'Hazır renkler',
             userColors: 'Kullanıcı renkleri',
-            copyColors: 'Renkleri kopyala',
-            colorsCopied: 'Renkler panoya kopyalandı',
+            paletteDefault: 'Varsayılan',
+            paletteCustom: 'Özel',
+            copyColors: 'Rengi kopyala',
+            colorsCopied: 'Renk panoya kopyalandı',
             copyClipboardError: 'Panoya yazılamadı',
-            pasteColors: 'Renkleri yapıştır',
+            pasteColors: 'Rengi yapıştır',
             pasteClipboardError: 'Pano okunamadı',
-            pasteInvalidJson: 'Pano geçerli JSON içermiyor',
-            pasteInvalidFormat: 'Renk değerleri dizisi bekleniyor',
-            colorsPasted: 'Renkler başarıyla yapıştırıldı',
-            resetUserColors: 'Renkleri sıfırla',
+            pasteInvalidJson: 'Pano geçerli metin içermiyor',
+            pasteInvalidFormat: 'Hex renk değeri bekleniyor',
+            colorsPasted: 'Renk başarıyla yapıştırıldı',
+            resetUserColors: 'Özel renkleri temizle',
+            clearCustomColorsConfirm: 'Tüm özel renkler kaldırılsın mı?',
             userColorSlot: 'Renk {slot}',
             recentColors: 'Son renkler',
             clearRecentColors: 'Son renkleri temizle',
@@ -568,7 +572,8 @@ export const STRINGS_TR = {
             },
             navigation: {
                 behavior: 'Davranış',
-                appearance: 'Görünüm'
+                appearance: 'Görünüm',
+                shortcutsAndRecent: 'Kısayollar ve son öğeler'
             },
             list: {
                 display: 'Görünüm',
@@ -596,7 +601,7 @@ export const STRINGS_TR = {
                     filterSearch: {
                         title: 'Filtre araması (varsayılan):',
                         description:
-                            'Mevcut klasör ve alt klasörler içinde dosyaları ada ve etiketlere göre filtreleyen hızlı, hafif arama. # ön ekiyle etiket filtreleme (örn. #proje), ! ön ekiyle hariç tutma (örn. !taslak, !#arşiv) ve !# ile etiketsiz notları bulmayı destekler. Mevcut bağlamda hızlı gezinme için idealdir.'
+                            'Mevcut klasör ve alt klasörler içinde dosyaları ada ve etiketlere göre filtreler. Filtre modu: karışık metin ve etiketler tüm terimleri eşleştirir (örn. "proje #iş"). Etiket modu: yalnızca etiketlerle arama AND/OR operatörlerini destekler (örn. "#iş AND #acil", "#proje OR #kişisel"). Cmd/Ctrl+Tıklama ile AND olarak ekle, Cmd/Ctrl+Shift+Tıklama ile OR olarak ekle. ! ön ekiyle hariç tutma (örn. !taslak, !#arşiv) ve !# ile etiketsiz notları bulmayı destekler.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
@@ -700,8 +705,8 @@ export const STRINGS_TR = {
                 desc: 'Alt klasörlerdeki veya etiketlerdeki notlar için üst klasör adını görüntüle.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Üst klasöre tıklayarak dosyayı göster',
-                desc: 'Üst klasör etiketine tıklamak dosyayı gösterir.'
+                name: 'Üst klasöre tıklayarak klasörü aç',
+                desc: 'Üst klasör etiketine tıklamak liste panelinde klasörü açar.'
             },
             showParentFolderColor: {
                 name: 'Üst klasör rengini göster',
@@ -774,8 +779,7 @@ export const STRINGS_TR = {
                 name: 'Gezinme afişi (kasa profili)',
                 desc: 'Gezinme bölmesinin üzerinde bir görsel görüntüle. Seçili kasa profiliyle değişir.',
                 current: 'Mevcut afiş: {path}',
-                chooseButton: 'Görsel seç',
-                clearButton: 'Temizle'
+                chooseButton: 'Görsel seç'
             },
             showShortcuts: {
                 name: 'Kısayolları göster',
@@ -812,7 +816,7 @@ export const STRINGS_TR = {
                 }
             },
             fileVisibility: {
-                name: 'Dosya türlerini göster',
+                name: 'Dosya türlerini göster (kasa profili)',
                 desc: 'Gezginde hangi dosya türlerinin gösterileceğini filtrele. Obsidian tarafından desteklenmeyen dosya türleri harici uygulamalarda açılabilir.',
                 options: {
                     documents: 'Belgeler (.md, .canvas, .base)',
@@ -826,14 +830,14 @@ export const STRINGS_TR = {
                 current: 'Mevcut: {path}',
                 currentMobile: 'Mobil: {path}',
                 chooseButton: 'Dosya seç',
-                clearButton: 'Temizle',
+
                 separateMobile: {
                     name: 'Ayrı mobil ana sayfası',
                     desc: 'Mobil cihazlar için farklı bir ana sayfa kullan.'
                 }
             },
             excludedNotes: {
-                name: 'Notları gizle',
+                name: 'Notları gizle (kasa profili)',
                 desc: 'Virgülle ayrılmış frontmatter özellikleri listesi. Bu özelliklerden herhangi birini içeren notlar gizlenecektir (örn. taslak, özel, arşiv).',
                 placeholder: 'taslak, özel'
             },
@@ -861,7 +865,7 @@ export const STRINGS_TR = {
                 }
             },
             excludedFolders: {
-                name: 'Klasörleri gizle',
+                name: 'Klasörleri gizle (kasa profili)',
                 desc: 'Virgülle ayrılmış gizlenecek klasörler listesi. Ad desenleri: assets* (assets ile başlayan klasörler), *_temp (_temp ile biten). Yol desenleri: /archive (yalnızca kök arşiv), /res* (res ile başlayan kök klasörler), /*/temp (bir seviye derinlikte temp klasörleri), /projects/* (projects içindeki tüm klasörler).',
                 placeholder: 'şablonlar, assets*, /arşiv, /res*'
             },
@@ -1048,11 +1052,15 @@ export const STRINGS_TR = {
             },
             showTags: {
                 name: 'Etiketleri göster',
-                desc: 'Gezginde klasörlerin altında etiketler bölümünü görüntüle.'
+                desc: 'Gezginde etiketler bölümünü görüntüle.'
             },
             showTagIcons: {
                 name: 'Etiket simgelerini göster',
                 desc: 'Gezinme bölmesinde etiketlerin yanında simgeleri görüntüle.'
+            },
+            inheritTagColors: {
+                name: 'Etiket renklerini devral',
+                desc: 'Alt etiketler üst etiketlerden renk devralır.'
             },
             tagSortOrder: {
                 name: 'Etiket sıralama düzeni',
@@ -1077,7 +1085,7 @@ export const STRINGS_TR = {
                 desc: "Tüm etiketler kaldırıldığında tags frontmatter özelliğini koru. Devre dışı bırakıldığında, tags özelliği frontmatter'dan silinir."
             },
             hiddenTags: {
-                name: 'Etiketleri gizle',
+                name: 'Etiketleri gizle (kasa profili)',
                 desc: 'Virgülle ayrılmış etiket önekleri veya ad joker karakterleri listesi. Etiket adlarını eşleştirmek için etiket* veya *etiket kullanın. Bir etiketi gizlemek tüm alt etiketlerini de gizler (örn. "arşiv", "arşiv/2024/belgeler"i gizler).',
                 placeholder: 'dahili, temp/taslaklar, arşiv/2024'
             },

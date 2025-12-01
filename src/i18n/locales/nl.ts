@@ -25,6 +25,7 @@ export const STRINGS_NL = {
     common: {
         cancel: 'Annuleren',
         delete: 'Verwijderen',
+        clear: 'Wissen',
         remove: 'Verwijderen',
         submit: 'Verzenden',
         noSelection: 'Geen selectie',
@@ -245,15 +246,18 @@ export const STRINGS_NL = {
             newColor: 'Nieuw',
             presetColors: 'Vooraf ingestelde kleuren',
             userColors: 'Gebruikerskleuren',
-            copyColors: 'Kleuren kopiëren',
-            colorsCopied: 'Kleuren gekopieerd naar klembord',
+            paletteDefault: 'Standaard',
+            paletteCustom: 'Aangepast',
+            copyColors: 'Kleur kopiëren',
+            colorsCopied: 'Kleur gekopieerd naar klembord',
             copyClipboardError: 'Kon niet naar klembord schrijven',
-            pasteColors: 'Kleuren plakken',
+            pasteColors: 'Kleur plakken',
             pasteClipboardError: 'Kan klembord niet lezen',
-            pasteInvalidJson: 'Klembord bevat geen geldige JSON',
-            pasteInvalidFormat: 'Een array van kleurwaarden verwacht',
-            colorsPasted: 'Kleuren succesvol geplakt',
-            resetUserColors: 'Kleuren herstellen',
+            pasteInvalidJson: 'Klembord bevat geen geldige tekst',
+            pasteInvalidFormat: 'Een hex kleurwaarde verwacht',
+            colorsPasted: 'Kleur succesvol geplakt',
+            resetUserColors: 'Aangepaste kleuren wissen',
+            clearCustomColorsConfirm: 'Alle aangepaste kleuren verwijderen?',
             userColorSlot: 'Kleur {slot}',
             recentColors: 'Recente kleuren',
             clearRecentColors: 'Recente kleuren wissen',
@@ -570,7 +574,8 @@ export const STRINGS_NL = {
             },
             navigation: {
                 behavior: 'Gedrag',
-                appearance: 'Uiterlijk'
+                appearance: 'Uiterlijk',
+                shortcutsAndRecent: 'Snelkoppelingen en recente items'
             },
             list: {
                 display: 'Uiterlijk',
@@ -598,7 +603,7 @@ export const STRINGS_NL = {
                     filterSearch: {
                         title: 'Filter zoeken (standaard):',
                         description:
-                            'Snelle, lichtgewicht zoekfunctie die bestanden filtert op naam en tags binnen de huidige map en submappen. Ondersteunt tagfiltering met # prefix (bijv. #project), uitsluiting met ! prefix (bijv. !draft, !#archived), en het vinden van notities zonder tags met !#. Ideaal voor snelle navigatie binnen uw huidige context.'
+                            'Filtert bestanden op naam en tags binnen de huidige map en submappen. Filtermodus: gemengde tekst en tags komen overeen met alle termen (bijv. "project #werk"). Tagmodus: zoeken met alleen tags ondersteunt AND/OR-operatoren (bijv. "#werk AND #urgent", "#project OR #persoonlijk"). Cmd/Ctrl+Klik op tags om toe te voegen met AND, Cmd/Ctrl+Shift+Klik om toe te voegen met OR. Ondersteunt uitsluiting met ! prefix (bijv. !draft, !#archived) en het vinden van notities zonder tags met !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
@@ -702,8 +707,8 @@ export const STRINGS_NL = {
                 desc: 'De naam van de bovenliggende map weergeven voor notities in submappen of tags.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Klik op bovenliggende map toont notitie',
-                desc: 'Klik op het label van de bovenliggende map om de notitie te tonen.'
+                name: 'Klik op bovenliggende map opent map',
+                desc: 'Klik op het label van de bovenliggende map om de map te openen in het lijstpaneel.'
             },
             showParentFolderColor: {
                 name: 'Bovenliggende mapkleur tonen',
@@ -776,8 +781,7 @@ export const STRINGS_NL = {
                 name: 'Navigatiebanner (kluisprofiel)',
                 desc: 'Een afbeelding weergeven boven het navigatiepaneel. Verandert met het geselecteerde kluisprofiel.',
                 current: 'Huidige banner: {path}',
-                chooseButton: 'Afbeelding kiezen',
-                clearButton: 'Wissen'
+                chooseButton: 'Afbeelding kiezen'
             },
             showShortcuts: {
                 name: 'Snelkoppelingen tonen',
@@ -814,7 +818,7 @@ export const STRINGS_NL = {
                 }
             },
             fileVisibility: {
-                name: 'Bestandstypes tonen',
+                name: 'Bestandstypes tonen (kluisprofiel)',
                 desc: 'Filter welke bestandstypes worden weergegeven in de navigator. Bestandstypes die niet door Obsidian worden ondersteund, kunnen in externe applicaties worden geopend.',
                 options: {
                     documents: 'Documenten (.md, .canvas, .base)',
@@ -828,14 +832,14 @@ export const STRINGS_NL = {
                 current: 'Huidig: {path}',
                 currentMobile: 'Mobiel: {path}',
                 chooseButton: 'Bestand kiezen',
-                clearButton: 'Wissen',
+
                 separateMobile: {
                     name: 'Aparte mobiele startpagina',
                     desc: 'Een andere startpagina gebruiken voor mobiele apparaten.'
                 }
             },
             excludedNotes: {
-                name: 'Notities verbergen',
+                name: 'Notities verbergen (kluisprofiel)',
                 desc: 'Kommagescheiden lijst van frontmatter-eigenschappen. Notities met een van deze eigenschappen worden verborgen (bijv. draft, private, archived).',
                 placeholder: 'draft, private'
             },
@@ -864,7 +868,7 @@ export const STRINGS_NL = {
                 }
             },
             excludedFolders: {
-                name: 'Mappen verbergen',
+                name: 'Mappen verbergen (kluisprofiel)',
                 desc: 'Kommagescheiden lijst van te verbergen mappen. Naampatronen: assets* (mappen beginnend met assets), *_temp (eindigend met _temp). Padpatronen: /archive (alleen root archive), /res* (root mappen beginnend met res), /*/temp (temp mappen één niveau diep), /projects/* (alle mappen binnen projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1051,11 +1055,15 @@ export const STRINGS_NL = {
             },
             showTags: {
                 name: 'Tags tonen',
-                desc: 'Tagsectie onder mappen in de navigator weergeven.'
+                desc: 'Tagsectie in de navigator weergeven.'
             },
             showTagIcons: {
                 name: 'Tagpictogrammen tonen',
                 desc: 'Pictogrammen naast tags in navigatiepaneel weergeven.'
+            },
+            inheritTagColors: {
+                name: 'Tagkleuren overnemen',
+                desc: 'Onderliggende tags nemen de kleur over van bovenliggende tags.'
             },
             tagSortOrder: {
                 name: 'Tag sorteervolgorde',
@@ -1080,7 +1088,7 @@ export const STRINGS_NL = {
                 desc: 'De tags frontmatter-eigenschap behouden wanneer alle tags worden verwijderd. Indien uitgeschakeld, wordt de tags-eigenschap verwijderd uit frontmatter.'
             },
             hiddenTags: {
-                name: 'Tags verbergen',
+                name: 'Tags verbergen (kluisprofiel)',
                 desc: 'Kommagescheiden lijst van tag-prefixen of naam-wildcards. Gebruik tag* of *tag om tagnamen te matchen. Het verbergen van een tag verbergt ook al zijn subtags (bijv. "archive" verbergt "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

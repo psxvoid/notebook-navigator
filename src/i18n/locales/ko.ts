@@ -25,6 +25,7 @@ export const STRINGS_KO = {
     common: {
         cancel: '취소', // Button text for canceling dialogs and operations (English: Cancel)
         delete: '삭제', // Button text for delete operations in dialogs (English: Delete)
+        clear: '지우기', // Button text for clearing values (English: Clear)
         remove: '제거', // Button text for remove operations in dialogs (English: Remove)
         submit: '제출', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '선택 없음', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -243,15 +244,18 @@ export const STRINGS_KO = {
             newColor: '새로운',
             presetColors: '프리셋 색상',
             userColors: '사용자 색상',
+            paletteDefault: '기본',
+            paletteCustom: '사용자 정의',
             copyColors: '색상 복사',
             colorsCopied: '클립보드에 복사됨',
             copyClipboardError: '클립보드에 쓸 수 없습니다',
             pasteColors: '색상 붙여넣기',
             pasteClipboardError: '클립보드를 읽을 수 없습니다',
-            pasteInvalidJson: '클립보드에 유효한 JSON이 없습니다',
-            pasteInvalidFormat: '색상 값 배열이 필요합니다',
+            pasteInvalidJson: '클립보드에 유효한 텍스트가 없습니다',
+            pasteInvalidFormat: '16진수 색상 값이 필요합니다',
             colorsPasted: '색상을 붙여넣었습니다',
-            resetUserColors: '색상 재설정',
+            resetUserColors: '사용자 정의 색상 지우기',
+            clearCustomColorsConfirm: '모든 사용자 정의 색상을 제거하시겠습니까?',
             userColorSlot: '색상 {slot}',
             recentColors: '최근 색상',
             clearRecentColors: '최근 색상 지우기',
@@ -568,7 +572,8 @@ export const STRINGS_KO = {
             },
             navigation: {
                 behavior: '동작',
-                appearance: '모양'
+                appearance: '모양',
+                shortcutsAndRecent: '바로가기 및 최근 항목'
             },
             list: {
                 display: '모양',
@@ -596,7 +601,7 @@ export const STRINGS_KO = {
                     filterSearch: {
                         title: '필터 검색 (기본값):',
                         description:
-                            '현재 폴더와 하위 폴더 내의 파일을 이름과 태그로 필터링하는 빠르고 가벼운 검색. # 접두사를 사용한 태그 필터링(예: #프로젝트), ! 접두사를 사용한 제외(예: !초안, !#보관됨), !#를 사용한 태그 없는 노트 찾기를 지원합니다. 현재 컨텍스트 내에서 빠른 탐색에 이상적입니다.'
+                            '현재 폴더와 하위 폴더 내의 파일을 이름과 태그로 필터링합니다. 필터 모드: 텍스트와 태그 혼합 시 모든 조건에 일치 (예: "프로젝트 #업무"). 태그 모드: 태그만으로 검색 시 AND/OR 연산자 지원 (예: "#업무 AND #긴급", "#프로젝트 OR #개인"). Cmd/Ctrl+클릭으로 AND로 추가, Cmd/Ctrl+Shift+클릭으로 OR로 추가. ! 접두사를 사용한 제외(예: !초안, !#보관됨)와 !#를 사용한 태그 없는 노트 찾기를 지원합니다.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
@@ -700,8 +705,8 @@ export const STRINGS_KO = {
                 desc: '하위 폴더나 태그의 노트에 상위 폴더 이름을 표시합니다.'
             },
             parentFolderClickRevealsFile: {
-                name: '상위 폴더 클릭 시 노트 표시',
-                desc: '상위 폴더 레이블을 클릭하면 노트를 표시합니다.'
+                name: '상위 폴더 클릭 시 폴더 열기',
+                desc: '상위 폴더 레이블을 클릭하면 목록 창에서 폴더를 엽니다.'
             },
             showParentFolderColor: {
                 name: '상위 폴더 색상 표시',
@@ -774,8 +779,7 @@ export const STRINGS_KO = {
                 name: '탐색 배너 (저장소 프로필)',
                 desc: '탐색 창 상단에 이미지를 표시합니다. 선택한 저장소 프로필에 따라 변경됩니다.',
                 current: '현재 배너: {path}',
-                chooseButton: '이미지 선택',
-                clearButton: '지우기'
+                chooseButton: '이미지 선택'
             },
             showShortcuts: {
                 name: '바로가기 표시',
@@ -812,7 +816,7 @@ export const STRINGS_KO = {
                 }
             },
             fileVisibility: {
-                name: '파일 유형 표시',
+                name: '파일 유형 표시 (볼트 프로필)',
                 desc: '네비게이터에 표시할 파일 유형을 필터링합니다. Obsidian에서 지원하지 않는 파일 유형은 외부 응용 프로그램에서 열릴 수 있습니다.',
                 options: {
                     documents: '문서 (.md, .canvas, .base)',
@@ -826,14 +830,14 @@ export const STRINGS_KO = {
                 current: '현재: {path}',
                 currentMobile: '모바일: {path}',
                 chooseButton: '파일 선택',
-                clearButton: '지우기',
+
                 separateMobile: {
                     name: '별도 모바일 홈페이지',
                     desc: '모바일 기기에서 다른 홈페이지를 사용합니다.'
                 }
             },
             excludedNotes: {
-                name: '노트 숨기기',
+                name: '노트 숨기기 (볼트 프로필)',
                 desc: '쉼표로 구분된 frontmatter 속성 목록입니다. 이러한 속성 중 하나라도 포함된 노트는 숨겨집니다 (예: draft, private, archived).',
                 placeholder: 'draft, private'
             },
@@ -861,7 +865,7 @@ export const STRINGS_KO = {
                 }
             },
             excludedFolders: {
-                name: '폴더 숨기기',
+                name: '폴더 숨기기 (볼트 프로필)',
                 desc: '숨길 폴더의 쉼표로 구분된 목록입니다. 이름 패턴: assets* (assets로 시작하는 폴더), *_temp (_temp로 끝나는). 경로 패턴: /archive (루트 archive만), /res* (res로 시작하는 루트 폴더), /*/temp (한 레벨 깊이의 temp 폴더), /projects/* (projects 내부의 모든 폴더).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1048,11 +1052,15 @@ export const STRINGS_KO = {
             },
             showTags: {
                 name: '태그 표시',
-                desc: '네비게이터에서 폴더 아래에 태그 섹션을 표시합니다.'
+                desc: '네비게이터에서 태그 섹션을 표시합니다.'
             },
             showTagIcons: {
                 name: '태그 아이콘 표시',
                 desc: '탐색 창의 태그 옆에 아이콘을 표시합니다.'
+            },
+            inheritTagColors: {
+                name: '태그 색상 상속',
+                desc: '하위 태그가 상위 태그의 색상을 상속합니다.'
             },
             tagSortOrder: {
                 name: '태그 정렬 순서',
@@ -1077,7 +1085,7 @@ export const STRINGS_KO = {
                 desc: '모든 태그가 제거될 때 frontmatter 의 tags 속성을 유지합니다. 비활성화하면 tags 속성이 frontmatter 에서 삭제됩니다.'
             },
             hiddenTags: {
-                name: '태그 숨기기',
+                name: '태그 숨기기 (볼트 프로필)',
                 desc: '숨길 태그 접두사 또는 이름 와일드카드의 쉼표로 구분된 목록입니다. `tag*` 또는 `*tag` 로 태그 이름을 일치시킵니다. 태그를 숨기면 모든 하위 태그도 숨겨집니다 (예: "archive"는 "archive/2024/docs" 숨김).',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

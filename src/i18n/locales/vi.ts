@@ -25,6 +25,7 @@ export const STRINGS_VI = {
     common: {
         cancel: 'Hủy', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Xóa', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Xóa', // Button text for clearing values (English: Clear)
         remove: 'Gỡ bỏ', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Gửi', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Chưa chọn gì', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -244,15 +245,18 @@ export const STRINGS_VI = {
             newColor: 'Mới',
             presetColors: 'Màu có sẵn',
             userColors: 'Màu người dùng',
+            paletteDefault: 'Mặc định',
+            paletteCustom: 'Tùy chỉnh',
             copyColors: 'Sao chép màu',
             colorsCopied: 'Đã sao chép màu vào clipboard',
             copyClipboardError: 'Không thể ghi vào clipboard',
             pasteColors: 'Dán màu',
             pasteClipboardError: 'Không thể đọc clipboard',
-            pasteInvalidJson: 'Clipboard không chứa JSON hợp lệ',
-            pasteInvalidFormat: 'Yêu cầu mảng giá trị màu',
+            pasteInvalidJson: 'Clipboard không chứa văn bản hợp lệ',
+            pasteInvalidFormat: 'Yêu cầu giá trị màu hex',
             colorsPasted: 'Đã dán màu thành công',
-            resetUserColors: 'Đặt lại màu',
+            resetUserColors: 'Xóa màu tùy chỉnh',
+            clearCustomColorsConfirm: 'Xóa tất cả màu tùy chỉnh?',
             userColorSlot: 'Màu {slot}',
             recentColors: 'Màu gần đây',
             clearRecentColors: 'Xóa màu gần đây',
@@ -568,7 +572,8 @@ export const STRINGS_VI = {
             },
             navigation: {
                 behavior: 'Hành vi',
-                appearance: 'Giao diện'
+                appearance: 'Giao diện',
+                shortcutsAndRecent: 'Phím tắt và mục gần đây'
             },
             list: {
                 display: 'Giao diện',
@@ -596,7 +601,7 @@ export const STRINGS_VI = {
                     filterSearch: {
                         title: 'Tìm kiếm lọc (mặc định):',
                         description:
-                            'Tìm kiếm nhanh, nhẹ lọc tệp theo tên và thẻ trong thư mục hiện tại và thư mục con. Hỗ trợ lọc thẻ với tiền tố # (ví dụ: #dự án), loại trừ với tiền tố ! (ví dụ: !nháp, !#lưu trữ), và tìm ghi chú không có thẻ với !#. Lý tưởng để điều hướng nhanh trong ngữ cảnh hiện tại.'
+                            'Lọc tệp theo tên và thẻ trong thư mục hiện tại và thư mục con. Chế độ lọc: văn bản và thẻ hỗn hợp khớp với tất cả các điều kiện (ví dụ: "dự án #công việc"). Chế độ thẻ: tìm kiếm chỉ với thẻ hỗ trợ toán tử AND/OR (ví dụ: "#công việc AND #khẩn cấp", "#dự án OR #cá nhân"). Cmd/Ctrl+Nhấp vào thẻ để thêm với AND, Cmd/Ctrl+Shift+Nhấp để thêm với OR. Hỗ trợ loại trừ với tiền tố ! (ví dụ: !nháp, !#lưu trữ) và tìm ghi chú không có thẻ với !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
@@ -700,8 +705,8 @@ export const STRINGS_VI = {
                 desc: 'Hiển thị tên thư mục cha cho ghi chú trong thư mục con hoặc thẻ.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Nhấn thư mục cha để hiện tệp',
-                desc: 'Nhấn nhãn thư mục cha sẽ hiện tệp.'
+                name: 'Nhấn thư mục cha để mở thư mục',
+                desc: 'Nhấn nhãn thư mục cha sẽ mở thư mục trong bảng danh sách.'
             },
             showParentFolderColor: {
                 name: 'Hiện màu thư mục cha',
@@ -774,8 +779,7 @@ export const STRINGS_VI = {
                 name: 'Banner điều hướng (hồ sơ vault)',
                 desc: 'Hiển thị ảnh phía trên ngăn điều hướng. Thay đổi theo hồ sơ vault đã chọn.',
                 current: 'Banner hiện tại: {path}',
-                chooseButton: 'Chọn ảnh',
-                clearButton: 'Xóa'
+                chooseButton: 'Chọn ảnh'
             },
             showShortcuts: {
                 name: 'Hiện lối tắt',
@@ -812,7 +816,7 @@ export const STRINGS_VI = {
                 }
             },
             fileVisibility: {
-                name: 'Hiện loại tệp',
+                name: 'Hiện loại tệp (hồ sơ vault)',
                 desc: 'Lọc loại tệp hiển thị trong trình điều hướng. Loại tệp không được Obsidian hỗ trợ có thể mở bằng ứng dụng ngoài.',
                 options: {
                     documents: 'Tài liệu (.md, .canvas, .base)',
@@ -826,14 +830,14 @@ export const STRINGS_VI = {
                 current: 'Hiện tại: {path}',
                 currentMobile: 'Di động: {path}',
                 chooseButton: 'Chọn tệp',
-                clearButton: 'Xóa',
+
                 separateMobile: {
                     name: 'Trang chủ di động riêng',
                     desc: 'Dùng trang chủ khác cho thiết bị di động.'
                 }
             },
             excludedNotes: {
-                name: 'Ẩn ghi chú',
+                name: 'Ẩn ghi chú (hồ sơ vault)',
                 desc: 'Danh sách thuộc tính frontmatter phân cách bằng dấu phẩy. Ghi chú chứa bất kỳ thuộc tính nào sẽ bị ẩn (ví dụ: nháp, riêng tư, lưu trữ).',
                 placeholder: 'nháp, riêng tư'
             },
@@ -861,7 +865,7 @@ export const STRINGS_VI = {
                 }
             },
             excludedFolders: {
-                name: 'Ẩn thư mục',
+                name: 'Ẩn thư mục (hồ sơ vault)',
                 desc: 'Danh sách thư mục cần ẩn phân cách bằng dấu phẩy. Mẫu tên: assets* (thư mục bắt đầu bằng assets), *_temp (kết thúc bằng _temp). Mẫu đường dẫn: /archive (chỉ archive gốc), /res* (thư mục gốc bắt đầu bằng res), /*/temp (thư mục temp ở độ sâu một cấp), /projects/* (tất cả thư mục trong projects).',
                 placeholder: 'mẫu, assets*, /lưu trữ, /res*'
             },
@@ -1048,11 +1052,15 @@ export const STRINGS_VI = {
             },
             showTags: {
                 name: 'Hiện thẻ',
-                desc: 'Hiển thị phần thẻ bên dưới thư mục trong trình điều hướng.'
+                desc: 'Hiển thị phần thẻ trong trình điều hướng.'
             },
             showTagIcons: {
                 name: 'Hiện biểu tượng thẻ',
                 desc: 'Hiển thị biểu tượng bên cạnh thẻ trong ngăn điều hướng.'
+            },
+            inheritTagColors: {
+                name: 'Kế thừa màu thẻ',
+                desc: 'Thẻ con kế thừa màu từ thẻ cha.'
             },
             tagSortOrder: {
                 name: 'Thứ tự sắp xếp thẻ',
@@ -1077,7 +1085,7 @@ export const STRINGS_VI = {
                 desc: 'Giữ thuộc tính tags frontmatter khi tất cả thẻ bị gỡ. Khi tắt, thuộc tính tags bị xóa khỏi frontmatter.'
             },
             hiddenTags: {
-                name: 'Ẩn thẻ',
+                name: 'Ẩn thẻ (hồ sơ vault)',
                 desc: 'Danh sách tiền tố thẻ hoặc ký tự đại diện phân cách bằng dấu phẩy. Dùng thẻ* hoặc *thẻ để khớp tên thẻ. Ẩn thẻ cũng ẩn tất cả thẻ con (ví dụ: "lưu trữ" ẩn "lưu trữ/2024/tài liệu").',
                 placeholder: 'nội bộ, temp/nháp, lưu trữ/2024'
             },

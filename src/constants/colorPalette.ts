@@ -40,3 +40,14 @@ export const DEFAULT_USER_COLORS: readonly string[] = [
 ] as const;
 
 export const USER_COLOR_SLOT_COUNT = DEFAULT_USER_COLORS.length;
+
+/** Fallback color for empty custom palette slots */
+export const DEFAULT_CUSTOM_COLOR = '#404040';
+
+/** Initial grayscale colors for the first row of the custom palette */
+const DEFAULT_CUSTOM_ROW = ['#ffffff', '#d9d9d9', '#a6a6a6', '#737373', '#000000'];
+
+/** Default custom color palette, filled with grayscale row then fallback color */
+export const DEFAULT_CUSTOM_COLORS = Array.from({ length: USER_COLOR_SLOT_COUNT }, (_, index) =>
+    index < DEFAULT_CUSTOM_ROW.length ? DEFAULT_CUSTOM_ROW[index] : DEFAULT_CUSTOM_COLOR
+);

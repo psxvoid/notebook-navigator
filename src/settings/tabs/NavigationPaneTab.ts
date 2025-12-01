@@ -67,61 +67,7 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             })
         );
 
-    new Setting(containerEl).setName(strings.settings.groups.navigation.appearance).setHeading();
-
-    const navigationBannerSetting = new Setting(containerEl).setName(strings.settings.items.navigationBanner.name);
-    navigationBannerSetting.setDesc('');
-
-    const navigationBannerDescEl = navigationBannerSetting.descEl;
-    navigationBannerDescEl.empty();
-    navigationBannerDescEl.createDiv({ text: strings.settings.items.navigationBanner.desc });
-
-    const navigationBannerValueEl = navigationBannerDescEl.createDiv();
-    let clearNavigationBannerButton: ButtonComponent | null = null;
-
-    const renderNavigationBannerValue = () => {
-        const navigationBanner = getActiveProfile().navigationBanner;
-        navigationBannerValueEl.setText('');
-        if (navigationBanner) {
-            navigationBannerValueEl.setText(strings.settings.items.navigationBanner.current.replace('{path}', navigationBanner));
-        }
-
-        if (clearNavigationBannerButton) {
-            clearNavigationBannerButton.setDisabled(!navigationBanner);
-        }
-    };
-
-    navigationBannerSetting.addButton(button => {
-        button.setButtonText(strings.settings.items.navigationBanner.chooseButton);
-        button.onClick(() => {
-            new NavigationBannerModal(context.app, file => {
-                getActiveProfile().navigationBanner = file.path;
-                renderNavigationBannerValue();
-                // Save navigation banner setting without blocking the UI
-                runAsyncAction(() => plugin.saveSettingsAndUpdate());
-            }).open();
-        });
-    });
-
-    navigationBannerSetting.addButton(button => {
-        button.setButtonText(strings.settings.items.navigationBanner.clearButton);
-        clearNavigationBannerButton = button;
-        button.setDisabled(!getActiveProfile().navigationBanner);
-        // Clear navigation banner without blocking the UI
-        button.onClick(() => {
-            runAsyncAction(async () => {
-                const activeProfile = getActiveProfile();
-                if (!activeProfile.navigationBanner) {
-                    return;
-                }
-                activeProfile.navigationBanner = null;
-                renderNavigationBannerValue();
-                await plugin.saveSettingsAndUpdate();
-            });
-        });
-    });
-
-    renderNavigationBannerValue();
+    new Setting(containerEl).setName(strings.settings.groups.navigation.shortcutsAndRecent).setHeading();
 
     new Setting(containerEl)
         .setName(strings.settings.items.showSectionIcons.name)
@@ -180,6 +126,62 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
         );
 
     updateRecentNotesVisibility(plugin.settings.showRecentNotes);
+
+    new Setting(containerEl).setName(strings.settings.groups.navigation.appearance).setHeading();
+
+    const navigationBannerSetting = new Setting(containerEl).setName(strings.settings.items.navigationBanner.name);
+    navigationBannerSetting.setDesc('');
+
+    const navigationBannerDescEl = navigationBannerSetting.descEl;
+    navigationBannerDescEl.empty();
+    navigationBannerDescEl.createDiv({ text: strings.settings.items.navigationBanner.desc });
+
+    const navigationBannerValueEl = navigationBannerDescEl.createDiv();
+    let clearNavigationBannerButton: ButtonComponent | null = null;
+
+    const renderNavigationBannerValue = () => {
+        const navigationBanner = getActiveProfile().navigationBanner;
+        navigationBannerValueEl.setText('');
+        if (navigationBanner) {
+            navigationBannerValueEl.setText(strings.settings.items.navigationBanner.current.replace('{path}', navigationBanner));
+        }
+
+        if (clearNavigationBannerButton) {
+            clearNavigationBannerButton.setDisabled(!navigationBanner);
+        }
+    };
+
+    navigationBannerSetting.addButton(button => {
+        button.setButtonText(strings.settings.items.navigationBanner.chooseButton);
+        button.onClick(() => {
+            new NavigationBannerModal(context.app, file => {
+                getActiveProfile().navigationBanner = file.path;
+                renderNavigationBannerValue();
+                // Save navigation banner setting without blocking the UI
+                runAsyncAction(() => plugin.saveSettingsAndUpdate());
+            }).open();
+        });
+    });
+
+    navigationBannerSetting.addButton(button => {
+        button.setButtonText(strings.common.clear);
+        clearNavigationBannerButton = button;
+        button.setDisabled(!getActiveProfile().navigationBanner);
+        // Clear navigation banner without blocking the UI
+        button.onClick(() => {
+            runAsyncAction(async () => {
+                const activeProfile = getActiveProfile();
+                if (!activeProfile.navigationBanner) {
+                    return;
+                }
+                activeProfile.navigationBanner = null;
+                renderNavigationBannerValue();
+                await plugin.saveSettingsAndUpdate();
+            });
+        });
+    });
+
+    renderNavigationBannerValue();
 
     let noteCountSubSettingsEl: HTMLDivElement | null = null;
 

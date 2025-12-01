@@ -351,7 +351,7 @@ export const FileItem = React.memo(function FileItem({
             initialDataRef.current ??= await loadFileData();
         }
 
-        asyncEffect()
+        void asyncEffect()
     }, [loadFileData])
 
     const [previewText, setPreviewText] = useState<string>(initialDataRef.current?.preview ?? EMPTY_STRING);
@@ -514,6 +514,14 @@ export const FileItem = React.memo(function FileItem({
         [metadataService]
     );
 
+    // Get tag background color
+    const getTagBackgroundColor = useCallback(
+        (tag: string): string | undefined => {
+            return metadataService.getTagBackgroundColor(tag);
+        },
+        [metadataService]
+    );
+
     const colorFileTags = settings.colorFileTags;
     const prioritizeColoredFileTags = settings.prioritizeColoredFileTags;
 
@@ -527,6 +535,26 @@ export const FileItem = React.memo(function FileItem({
 
         return tags.filter(tag => hiddenTagVisibility.isTagVisible(tag));
     }, [hiddenTagVisibility, tags]);
+
+    // Build color and background map for visible tags
+    const tagColorData = useMemo(() => {
+        if (!colorFileTags || visibleTags.length === 0) {
+            return new Map<string, { color?: string; background?: string }>();
+        }
+
+        const entries = new Map<string, { color?: string; background?: string }>();
+        const tagColorOverrides = settings.tagColors;
+        const tagBackgroundOverrides = settings.tagBackgroundColors;
+
+        visibleTags.forEach(tag => {
+            entries.set(tag, {
+                color: tagColorOverrides?.[tag] ?? getTagColor(tag),
+                background: tagBackgroundOverrides?.[tag] ?? getTagBackgroundColor(tag)
+            });
+        });
+
+        return entries;
+    }, [colorFileTags, getTagBackgroundColor, getTagColor, settings.tagBackgroundColors, settings.tagColors, visibleTags]);
 
     // Sort tags alphabetically and optionally prioritize colored tags
     const categorizedTags = useMemo(() => {
@@ -544,18 +572,23 @@ export const FileItem = React.memo(function FileItem({
         const regularTags: string[] = [];
 
         visibleTags.forEach(tag => {
-            if (getTagColor(tag)) {
+            const tagColors = tagColorData.get(tag);
+            const hasTagColor = Boolean(tagColors?.color);
+            const hasTagBackground = Boolean(tagColors?.background);
+
+            if (hasTagColor || hasTagBackground) {
                 coloredTags.push(tag);
-            } else {
-                regularTags.push(tag);
+                return;
             }
+
+            regularTags.push(tag);
         });
 
         sortTagsAlphabetically(coloredTags);
         sortTagsAlphabetically(regularTags);
 
         return [...coloredTags, ...regularTags];
-    }, [colorFileTags, getTagColor, prioritizeColoredFileTags, visibleTags]);
+    }, [colorFileTags, prioritizeColoredFileTags, tagColorData, visibleTags]);
 
     const shouldShowFileTags = useMemo(() => {
         if (!settings.showTags || !settings.showFileTags) {
@@ -617,8 +650,17 @@ export const FileItem = React.memo(function FileItem({
     const RenderTag = useCallback(function RenderTag(el: { tag: string, index: number }) {
         const { tag, index } = el
         const tagRef = useRef<HTMLSpanElement>(null);
-        const tagColor = colorFileTags ? getTagColor(tag) : undefined;
+        const { color, background } = tagColorData.get(tag) ?? {};
         const { displayTag, tooltip } = getTagDisplayName(tag);
+        const tagStyle: React.CSSProperties & { '--nn-file-tag-custom-bg'?: string } = {};
+
+        if (background) {
+            tagStyle['--nn-file-tag-custom-bg'] = background;
+        }
+
+        if (color) {
+            tagStyle.color = color;
+        }
 
         useEffect(() => {
             if (tagRef.current == null || displayTag.length === 0 || tooltip == null) {
@@ -632,16 +674,18 @@ export const FileItem = React.memo(function FileItem({
             <span
                 key={index}
                 className="nn-file-tag nn-clickable-tag"
+                data-has-color={color ? 'true' : undefined}
+                data-has-background={background ? 'true' : undefined}
                 onClick={e => handleTagClick(e, tag)}
                 role="button"
                 tabIndex={0}
-                style={tagColor ? { backgroundColor: tagColor } : undefined}
+                style={Object.keys(tagStyle).length > 0 ? tagStyle : undefined}
                 ref={el => { if (el != null) tagRef.current = el }}
             >
                 {displayTag}
             </span>
         );
-    }, [colorFileTags, getTagColor, getTagDisplayName, handleTagClick])
+    }, [getTagDisplayName, handleTagClick, tagColorData])
 
     // Render tags
     const renderTags = useCallback(() => {
@@ -874,7 +918,7 @@ export const FileItem = React.memo(function FileItem({
             });
         }
 
-        asyncFunc()
+        void asyncFunc()
 
         return () => {
             // Review: Refactoring: use abort controller with proper async handling

@@ -25,6 +25,7 @@ export const STRINGS_ID = {
     common: {
         cancel: 'Batal',
         delete: 'Hapus',
+        clear: 'Hapus',
         remove: 'Buang',
         submit: 'Kirim',
         noSelection: 'Tidak ada pilihan',
@@ -244,15 +245,18 @@ export const STRINGS_ID = {
             newColor: 'Baru',
             presetColors: 'Warna preset',
             userColors: 'Warna pengguna',
+            paletteDefault: 'Bawaan',
+            paletteCustom: 'Kustom',
             copyColors: 'Salin warna',
             colorsCopied: 'Warna disalin ke clipboard',
             copyClipboardError: 'Tidak dapat menulis ke clipboard',
             pasteColors: 'Tempel warna',
             pasteClipboardError: 'Tidak dapat membaca clipboard',
-            pasteInvalidJson: 'Clipboard tidak berisi JSON yang valid',
-            pasteInvalidFormat: 'Diharapkan array nilai warna',
+            pasteInvalidJson: 'Clipboard tidak berisi teks yang valid',
+            pasteInvalidFormat: 'Diharapkan nilai warna hex',
             colorsPasted: 'Warna berhasil ditempel',
-            resetUserColors: 'Atur ulang warna',
+            resetUserColors: 'Hapus warna kustom',
+            clearCustomColorsConfirm: 'Hapus semua warna kustom?',
             userColorSlot: 'Warna {slot}',
             recentColors: 'Warna terbaru',
             clearRecentColors: 'Hapus warna terbaru',
@@ -568,7 +572,8 @@ export const STRINGS_ID = {
             },
             navigation: {
                 behavior: 'Perilaku',
-                appearance: 'Tampilan'
+                appearance: 'Tampilan',
+                shortcutsAndRecent: 'Pintasan & item terbaru'
             },
             list: {
                 display: 'Tampilan',
@@ -596,7 +601,7 @@ export const STRINGS_ID = {
                     filterSearch: {
                         title: 'Pencarian filter (default):',
                         description:
-                            'Pencarian cepat dan ringan yang memfilter file berdasarkan nama dan tag dalam folder dan subfolder saat ini. Mendukung pemfilteran tag dengan awalan # (misal, #proyek), pengecualian dengan awalan ! (misal, !draf, !#arsip), dan menemukan catatan tanpa tag dengan !#. Ideal untuk navigasi cepat dalam konteks saat ini.'
+                            'Memfilter file berdasarkan nama dan tag dalam folder dan subfolder saat ini. Mode filter: teks dan tag campuran cocok dengan semua istilah (misal, "proyek #kerja"). Mode tag: pencarian hanya dengan tag mendukung operator AND/OR (misal, "#kerja AND #mendesak", "#proyek OR #pribadi"). Cmd/Ctrl+Klik tag untuk menambah dengan AND, Cmd/Ctrl+Shift+Klik untuk menambah dengan OR. Mendukung pengecualian dengan awalan ! (misal, !draf, !#arsip) dan menemukan catatan tanpa tag dengan !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
@@ -700,8 +705,8 @@ export const STRINGS_ID = {
                 desc: 'Tampilkan nama folder induk untuk catatan di subfolder atau tag.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Klik folder induk untuk menampilkan file',
-                desc: 'Mengklik label folder induk menampilkan file.'
+                name: 'Klik folder induk untuk membuka folder',
+                desc: 'Mengklik label folder induk membuka folder di panel daftar.'
             },
             showParentFolderColor: {
                 name: 'Tampilkan warna folder induk',
@@ -774,8 +779,7 @@ export const STRINGS_ID = {
                 name: 'Banner navigasi (profil vault)',
                 desc: 'Tampilkan gambar di atas panel navigasi. Berubah dengan profil vault yang dipilih.',
                 current: 'Banner saat ini: {path}',
-                chooseButton: 'Pilih gambar',
-                clearButton: 'Hapus'
+                chooseButton: 'Pilih gambar'
             },
             showShortcuts: {
                 name: 'Tampilkan pintasan',
@@ -812,7 +816,7 @@ export const STRINGS_ID = {
                 }
             },
             fileVisibility: {
-                name: 'Tampilkan jenis file',
+                name: 'Tampilkan jenis file (profil vault)',
                 desc: 'Filter jenis file mana yang ditampilkan di navigator. Jenis file yang tidak didukung oleh Obsidian mungkin terbuka di aplikasi eksternal.',
                 options: {
                     documents: 'Dokumen (.md, .canvas, .base)',
@@ -826,14 +830,14 @@ export const STRINGS_ID = {
                 current: 'Saat ini: {path}',
                 currentMobile: 'Mobile: {path}',
                 chooseButton: 'Pilih file',
-                clearButton: 'Hapus',
+
                 separateMobile: {
                     name: 'Beranda mobile terpisah',
                     desc: 'Gunakan beranda berbeda untuk perangkat mobile.'
                 }
             },
             excludedNotes: {
-                name: 'Sembunyikan catatan',
+                name: 'Sembunyikan catatan (profil vault)',
                 desc: 'Daftar properti frontmatter yang dipisahkan koma. Catatan yang berisi properti ini akan disembunyikan (misal, draf, pribadi, arsip).',
                 placeholder: 'draf, pribadi'
             },
@@ -861,7 +865,7 @@ export const STRINGS_ID = {
                 }
             },
             excludedFolders: {
-                name: 'Sembunyikan folder',
+                name: 'Sembunyikan folder (profil vault)',
                 desc: 'Daftar folder yang dipisahkan koma untuk disembunyikan. Pola nama: assets* (folder yang dimulai dengan assets), *_temp (diakhiri dengan _temp). Pola path: /arsip (arsip root saja), /res* (folder root yang dimulai dengan res), /*/temp (folder temp satu level ke dalam), /proyek/* (semua folder di dalam proyek).',
                 placeholder: 'template, assets*, /arsip, /res*'
             },
@@ -1048,11 +1052,15 @@ export const STRINGS_ID = {
             },
             showTags: {
                 name: 'Tampilkan tag',
-                desc: 'Tampilkan bagian tag di bawah folder di navigator.'
+                desc: 'Tampilkan bagian tag di navigator.'
             },
             showTagIcons: {
                 name: 'Tampilkan ikon tag',
                 desc: 'Tampilkan ikon di sebelah tag di panel navigasi.'
+            },
+            inheritTagColors: {
+                name: 'Warisi warna tag',
+                desc: 'Tag anak mewarisi warna dari tag induk.'
             },
             tagSortOrder: {
                 name: 'Urutan tag',
@@ -1077,7 +1085,7 @@ export const STRINGS_ID = {
                 desc: 'Pertahankan properti tag frontmatter saat semua tag dihapus. Saat dinonaktifkan, properti tag dihapus dari frontmatter.'
             },
             hiddenTags: {
-                name: 'Sembunyikan tag',
+                name: 'Sembunyikan tag (profil vault)',
                 desc: 'Daftar awalan tag atau wildcard nama yang dipisahkan koma. Gunakan tag* atau *tag untuk mencocokkan nama tag. Menyembunyikan tag juga menyembunyikan semua sub-tagnya (misal, "arsip" menyembunyikan "arsip/2024/dokumen").',
                 placeholder: 'internal, temp/draf, arsip/2024'
             },

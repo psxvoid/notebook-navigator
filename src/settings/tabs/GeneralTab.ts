@@ -654,7 +654,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     });
 
     homepageSetting.addButton(button => {
-        button.setButtonText(strings.settings.items.homepage.clearButton);
+        button.setButtonText(strings.common.clear);
         clearHomepageButton = button;
         // Clear homepage file without blocking the UI
         button.onClick(() => {
