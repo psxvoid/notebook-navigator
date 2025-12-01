@@ -2239,6 +2239,7 @@ body {
     color: var(--nn-theme-file-tag-color);
     border-radius: min(10px, var(--nn-theme-file-tag-border-radius));
     border: 1px solid transparent;
+    border-color: color-mix(in srgb, currentColor 50%, transparent);
     font-size: 12px;
     font-weight: var(--nn-theme-file-tag-font-weight);
     white-space: nowrap;
