@@ -74,9 +74,10 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.9.1',
-        date: '2025-12-04',
+        date: '2025-12-01',
         showOnUpdate: true,
         new: [],
+        changed: ['Active vault profile is no longer synced between devices. You can now have different active vault profiles on different devices.'],
         improved: ['Notebook Navigator now also supports AVIF images for image previews in list pane.'],
         fixed: []
     },
