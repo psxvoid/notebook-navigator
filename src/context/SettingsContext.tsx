@@ -21,6 +21,7 @@ import NotebookNavigatorPlugin from '../main';
 import { NotebookNavigatorSettings } from '../settings';
 import type { DualPaneOrientation } from '../types';
 import { cloneShortcuts } from '../utils/vaultProfiles';
+import { sanitizeRecord } from '../utils/recordUtils';
 
 // Separate contexts for state and update function
 type SettingsStateValue = NotebookNavigatorSettings & { dualPaneOrientation: DualPaneOrientation };
@@ -55,9 +56,14 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
     // This ensures components using SettingsStateContext re-render when settings change
     // NOTE: settings are mutated in place; the version counter forces object recreation
     const settingsValue = React.useMemo<SettingsStateValue>(() => {
+        // Clone tag color records so settings updates change object identity and trigger consumers
+        const tagColors = sanitizeRecord(plugin.settings.tagColors);
+        const tagBackgroundColors = sanitizeRecord(plugin.settings.tagBackgroundColors);
         const nextSettings: SettingsStateValue = {
             ...plugin.settings,
-            dualPaneOrientation: plugin.getDualPaneOrientation()
+            dualPaneOrientation: plugin.getDualPaneOrientation(),
+            tagColors,
+            tagBackgroundColors
         };
         // Deep copy vault profiles to prevent mutations from affecting the original settings
         if (Array.isArray(plugin.settings.vaultProfiles)) {

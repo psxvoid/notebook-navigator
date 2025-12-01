@@ -28,7 +28,7 @@ import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 import { runAsyncAction } from '../async';
 import { setAsyncOnClick } from './menuAsyncHelpers';
 import { getActiveVaultProfile, getHiddenFolderPatternMatch, normalizeHiddenFolderPath } from '../../utils/vaultProfiles';
-import { EXCALIDRAW_PLUGIN_ID, TLDRAW_PLUGIN_IDS } from '../../constants/pluginIds';
+import { EXCALIDRAW_PLUGIN_ID, TLDRAW_PLUGIN_ID } from '../../constants/pluginIds';
 import { addStyleMenu } from './styleMenuBuilder';
 
 /**
@@ -104,38 +104,28 @@ export function buildFolderCreationMenu(params: FolderMenuBuilderParams): void {
     }
 
     // Collect available drawing plugins to determine menu structure
-    const drawingActions: { label: string; create: () => Promise<TFile | null> }[] = [];
+    const hasExcalidraw = isPluginInstalled(app, EXCALIDRAW_PLUGIN_ID);
+    const hasTldraw = isPluginInstalled(app, TLDRAW_PLUGIN_ID);
+    const hasBothDrawingPlugins = hasExcalidraw && hasTldraw;
 
-    if (isPluginInstalled(app, [EXCALIDRAW_PLUGIN_ID])) {
-        drawingActions.push({
-            label: strings.contextMenu.folder.newExcalidrawDrawing,
-            create: () => fileSystemOps.createNewDrawing(folder, 'excalidraw')
-        });
-    }
-
-    if (isPluginInstalled(app, TLDRAW_PLUGIN_IDS)) {
-        drawingActions.push({
-            label: strings.contextMenu.folder.newTldrawDrawing,
-            create: () => fileSystemOps.createNewDrawing(folder, 'tldraw')
-        });
-    }
-
-    if (drawingActions.length === 1) {
+    if (hasExcalidraw) {
         menu.addItem((item: MenuItem) => {
-            setAsyncOnClick(item.setTitle(strings.contextMenu.folder.newDrawing).setIcon('lucide-pencil'), async () => {
+            const label = hasBothDrawingPlugins ? strings.contextMenu.folder.newExcalidrawDrawing : strings.contextMenu.folder.newDrawing;
+            setAsyncOnClick(item.setTitle(label).setIcon('excalidraw-icon'), async () => {
                 ensureFolderSelected();
-                const createdDrawing = await drawingActions[0].create();
+                const createdDrawing = await fileSystemOps.createNewDrawing(folder, 'excalidraw');
                 handleFileCreation(createdDrawing);
             });
         });
-    } else if (drawingActions.length > 1) {
-        drawingActions.forEach(action => {
-            menu.addItem((item: MenuItem) => {
-                setAsyncOnClick(item.setTitle(action.label).setIcon('lucide-pencil'), async () => {
-                    ensureFolderSelected();
-                    const createdDrawing = await action.create();
-                    handleFileCreation(createdDrawing);
-                });
+    }
+
+    if (hasTldraw) {
+        menu.addItem((item: MenuItem) => {
+            const label = hasBothDrawingPlugins ? strings.contextMenu.folder.newTldrawDrawing : strings.contextMenu.folder.newDrawing;
+            setAsyncOnClick(item.setTitle(label).setIcon('lucide-pencil'), async () => {
+                ensureFolderSelected();
+                const createdDrawing = await fileSystemOps.createNewDrawing(folder, 'tldraw');
+                handleFileCreation(createdDrawing);
             });
         });
     }
@@ -249,12 +239,12 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     const folderIcon = metadataService.getFolderIcon(folder.path);
     const folderColor = metadataService.getFolderColor(folder.path);
     const folderBackgroundColor = metadataService.getFolderBackgroundColor(folder.path);
+    const directFolderColor = settings.folderColors?.[folder.path];
+    const directFolderBackground = settings.folderBackgroundColors?.[folder.path];
 
     const hasRemovableIcon = Boolean(folderIcon);
-    const hasRemovableColor = Boolean(folderColor);
-    const hasRemovableBackground = Boolean(folderBackgroundColor);
-    const removalCount = Number(hasRemovableIcon) + Number(hasRemovableColor) + Number(hasRemovableBackground);
-    const showIndividualRemovers = removalCount >= 2;
+    const hasRemovableColor = Boolean(directFolderColor);
+    const hasRemovableBackground = Boolean(directFolderBackground);
 
     addStyleMenu({
         menu,
@@ -266,7 +256,6 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         hasIcon: true,
         hasColor: true,
         hasBackground: true,
-        showIndividualRemovers,
         applyStyle: async clipboard => {
             const { icon, color, background } = clipboard;
             const actions: Promise<void>[] = [];

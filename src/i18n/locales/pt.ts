@@ -25,6 +25,7 @@ export const STRINGS_PT = {
     common: {
         cancel: 'Cancelar', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Eliminar', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'Limpar', // Button text for clearing values (English: Clear)
         remove: 'Remover', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Submeter', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Sem seleção', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -244,15 +245,18 @@ export const STRINGS_PT = {
             newColor: 'Nova',
             presetColors: 'Cores predefinidas',
             userColors: 'Cores do utilizador',
-            copyColors: 'Copiar cores',
-            colorsCopied: 'Cores copiadas para a área de transferência',
+            paletteDefault: 'Predefinido',
+            paletteCustom: 'Personalizado',
+            copyColors: 'Copiar cor',
+            colorsCopied: 'Cor copiada para a área de transferência',
             copyClipboardError: 'Não foi possível escrever na área de transferência',
-            pasteColors: 'Colar cores',
+            pasteColors: 'Colar cor',
             pasteClipboardError: 'Não foi possível ler a área de transferência',
-            pasteInvalidJson: 'A área de transferência não contém JSON válido',
-            pasteInvalidFormat: 'Esperado um array de valores de cor',
-            colorsPasted: 'Cores coladas com sucesso',
-            resetUserColors: 'Repor cores',
+            pasteInvalidJson: 'A área de transferência não contém texto válido',
+            pasteInvalidFormat: 'Esperado um valor de cor hex',
+            colorsPasted: 'Cor colada com sucesso',
+            resetUserColors: 'Limpar cores personalizadas',
+            clearCustomColorsConfirm: 'Remover todas as cores personalizadas?',
             userColorSlot: 'Cor {slot}',
             recentColors: 'Cores recentes',
             clearRecentColors: 'Limpar cores recentes',
@@ -568,7 +572,8 @@ export const STRINGS_PT = {
             },
             navigation: {
                 behavior: 'Comportamento',
-                appearance: 'Aparência'
+                appearance: 'Aparência',
+                shortcutsAndRecent: 'Atalhos e itens recentes'
             },
             list: {
                 display: 'Aparência',
@@ -596,7 +601,7 @@ export const STRINGS_PT = {
                     filterSearch: {
                         title: 'Pesquisa com filtro (predefinido):',
                         description:
-                            'Pesquisa rápida e leve que filtra ficheiros por nome e etiquetas na pasta atual e subpastas. Suporta filtragem de etiquetas com prefixo # (ex: #projeto), exclusão com prefixo ! (ex: !rascunho, !#arquivo), e encontrar notas sem etiquetas com !#. Ideal para navegação rápida no contexto atual.'
+                            'Filtra ficheiros por nome e etiquetas na pasta atual e subpastas. Modo filtro: texto e etiquetas misturados correspondem a todos os termos (ex: "projeto #trabalho"). Modo etiquetas: pesquisa apenas com etiquetas suporta operadores AND/OR (ex: "#trabalho AND #urgente", "#projeto OR #pessoal"). Cmd/Ctrl+Clique em etiquetas para adicionar com AND, Cmd/Ctrl+Shift+Clique para adicionar com OR. Suporta exclusão com prefixo ! (ex: !rascunho, !#arquivo) e encontrar notas sem etiquetas com !#.'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
@@ -700,8 +705,8 @@ export const STRINGS_PT = {
                 desc: 'Exibir o nome da pasta pai para notas em subpastas ou etiquetas.'
             },
             parentFolderClickRevealsFile: {
-                name: 'Clicar na pasta pai revela ficheiro',
-                desc: 'Clicar na etiqueta da pasta pai revela o ficheiro.'
+                name: 'Clicar na pasta pai abre pasta',
+                desc: 'Clicar na etiqueta da pasta pai abre a pasta no painel de lista.'
             },
             showParentFolderColor: {
                 name: 'Mostrar cor da pasta pai',
@@ -774,8 +779,7 @@ export const STRINGS_PT = {
                 name: 'Banner de navegação (perfil do cofre)',
                 desc: 'Exibir uma imagem acima do painel de navegação. Muda com o perfil do cofre selecionado.',
                 current: 'Banner atual: {path}',
-                chooseButton: 'Escolher imagem',
-                clearButton: 'Limpar'
+                chooseButton: 'Escolher imagem'
             },
             showShortcuts: {
                 name: 'Mostrar atalhos',
@@ -812,7 +816,7 @@ export const STRINGS_PT = {
                 }
             },
             fileVisibility: {
-                name: 'Mostrar tipos de ficheiro',
+                name: 'Mostrar tipos de ficheiro (perfil do cofre)',
                 desc: 'Filtrar quais tipos de ficheiro são mostrados no navegador. Tipos de ficheiro não suportados pelo Obsidian podem abrir em aplicações externas.',
                 options: {
                     documents: 'Documentos (.md, .canvas, .base)',
@@ -826,14 +830,14 @@ export const STRINGS_PT = {
                 current: 'Atual: {path}',
                 currentMobile: 'Telemóvel: {path}',
                 chooseButton: 'Escolher ficheiro',
-                clearButton: 'Limpar',
+
                 separateMobile: {
                     name: 'Página inicial separada para telemóvel',
                     desc: 'Usar uma página inicial diferente para dispositivos móveis.'
                 }
             },
             excludedNotes: {
-                name: 'Ocultar notas',
+                name: 'Ocultar notas (perfil do cofre)',
                 desc: 'Lista de propriedades frontmatter separadas por vírgulas. Notas contendo qualquer destas propriedades serão ocultadas (ex: rascunho, privado, arquivo).',
                 placeholder: 'rascunho, privado'
             },
@@ -862,7 +866,7 @@ export const STRINGS_PT = {
                 }
             },
             excludedFolders: {
-                name: 'Ocultar pastas',
+                name: 'Ocultar pastas (perfil do cofre)',
                 desc: 'Lista de pastas a ocultar separadas por vírgulas. Padrões de nome: assets* (pastas começando com assets), *_temp (terminando com _temp). Padrões de caminho: /arquivo (apenas arquivo raiz), /res* (pastas raiz começando com res), /*/temp (pastas temp um nível abaixo), /projetos/* (todas as pastas dentro de projetos).',
                 placeholder: 'modelos, assets*, /arquivo, /res*'
             },
@@ -1049,11 +1053,15 @@ export const STRINGS_PT = {
             },
             showTags: {
                 name: 'Mostrar etiquetas',
-                desc: 'Exibir a secção de etiquetas abaixo das pastas no navegador.'
+                desc: 'Exibir a secção de etiquetas no navegador.'
             },
             showTagIcons: {
                 name: 'Mostrar ícones de etiquetas',
                 desc: 'Exibir ícones junto às etiquetas no painel de navegação.'
+            },
+            inheritTagColors: {
+                name: 'Herdar cores das etiquetas',
+                desc: 'As etiquetas filhas herdam a cor das etiquetas pai.'
             },
             tagSortOrder: {
                 name: 'Ordem de ordenação de etiquetas',
@@ -1078,7 +1086,7 @@ export const STRINGS_PT = {
                 desc: 'Manter a propriedade tags do frontmatter quando todas as etiquetas são removidas. Quando desativado, a propriedade tags é eliminada do frontmatter.'
             },
             hiddenTags: {
-                name: 'Ocultar etiquetas',
+                name: 'Ocultar etiquetas (perfil do cofre)',
                 desc: 'Lista de prefixos de etiquetas ou curingas de nome separados por vírgulas. Use etiqueta* ou *etiqueta para corresponder nomes de etiquetas. Ocultar uma etiqueta também oculta todas as suas sub-etiquetas (ex: "arquivo" oculta "arquivo/2024/docs").',
                 placeholder: 'interno, temp/rascunhos, arquivo/2024'
             },

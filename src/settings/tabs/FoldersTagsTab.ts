@@ -188,6 +188,16 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
             })
         );
 
+    new Setting(tagSubSettingsEl)
+        .setName(strings.settings.items.inheritTagColors.name)
+        .setDesc(strings.settings.items.inheritTagColors.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.inheritTagColors).onChange(async value => {
+                plugin.settings.inheritTagColors = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
     /** Setting for choosing tag sort order in the navigation pane */
     new Setting(tagSubSettingsEl)
         .setName(strings.settings.items.tagSortOrder.name)

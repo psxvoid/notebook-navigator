@@ -25,6 +25,7 @@ export const STRINGS_ZH_TW = {
     common: {
         cancel: '取消', // 用於取消對話框和操作的按鈕文字 (英文: Cancel)
         delete: '刪除', // 對話框中刪除操作的按鈕文字 (英文: Delete)
+        clear: '清除', // Button text for clearing values (English: Clear)
         remove: '移除', // 對話框中移除操作的按鈕文字 (英文: Remove)
         submit: '提交', // 用於送出表單和對話框的按鈕文字 (英文: Submit)
         noSelection: '未選取', // 未選取資料夾或標籤時的預留位置文字 (英文: No selection)
@@ -244,15 +245,18 @@ export const STRINGS_ZH_TW = {
             newColor: '新增',
             presetColors: '預設顏色',
             userColors: '自訂顏色',
+            paletteDefault: '預設',
+            paletteCustom: '自訂',
             copyColors: '複製顏色',
             colorsCopied: '顏色已複製到剪貼簿',
             copyClipboardError: '無法寫入剪貼簿',
             pasteColors: '貼上顏色',
             pasteClipboardError: '無法讀取剪貼簿',
-            pasteInvalidJson: '剪貼簿不包含有效的 JSON',
-            pasteInvalidFormat: '需要顏色值陣列',
+            pasteInvalidJson: '剪貼簿不包含有效的文字',
+            pasteInvalidFormat: '需要十六進位顏色值',
             colorsPasted: '顏色貼上成功',
-            resetUserColors: '重設顏色',
+            resetUserColors: '清除自訂顏色',
+            clearCustomColorsConfirm: '移除所有自訂顏色？',
             userColorSlot: '顏色 {slot}',
             recentColors: '最近顏色',
             clearRecentColors: '清除最近顏色',
@@ -568,7 +572,8 @@ export const STRINGS_ZH_TW = {
             },
             navigation: {
                 behavior: '行為',
-                appearance: '外觀'
+                appearance: '外觀',
+                shortcutsAndRecent: '捷徑和最近項目'
             },
             list: {
                 display: '外觀',
@@ -596,7 +601,7 @@ export const STRINGS_ZH_TW = {
                     filterSearch: {
                         title: '篩選搜尋 (預設)：',
                         description:
-                            '快速、輕量的搜尋，可在目前資料夾和子資料夾中依檔案名稱和標籤篩選檔案。支援使用 # 前綴進行標籤篩選 (例如 #project)、使用 ! 前綴進行排除 (例如 !draft, !#archived)，以及使用 !# 尋找無標籤的筆記。適合在目前上下文中快速導覽。'
+                            '在目前資料夾和子資料夾中依檔案名稱和標籤篩選檔案。篩選模式：混合文字和標籤符合所有條件 (例如「專案 #工作」)。標籤模式：僅使用標籤搜尋支援 AND/OR 運算子 (例如「#工作 AND #緊急」、「#專案 OR #個人」)。Cmd/Ctrl+點擊標籤以 AND 方式新增，Cmd/Ctrl+Shift+點擊以 OR 方式新增。支援使用 ! 前綴進行排除 (例如 !draft, !#archived) 以及使用 !# 尋找無標籤的筆記。'
                     },
                     omnisearch: {
                         title: 'Omnisearch：',
@@ -699,8 +704,8 @@ export const STRINGS_ZH_TW = {
                 desc: '在子資料夾或標籤中顯示筆記的父資料夾名稱。'
             },
             parentFolderClickRevealsFile: {
-                name: '點擊父資料夾定位筆記',
-                desc: '點擊父資料夾名稱時，在資料夾中顯示該筆記。'
+                name: '點擊父資料夾開啟資料夾',
+                desc: '點擊父資料夾名稱時，在列表面板中開啟該資料夾。'
             },
             showParentFolderColor: {
                 name: '顯示父資料夾顏色',
@@ -773,8 +778,7 @@ export const STRINGS_ZH_TW = {
                 name: '導覽橫幅（倉庫設定檔）',
                 desc: '在導覽窗格上方顯示圖片。隨所選倉庫設定檔而變化。',
                 current: '目前橫幅：{path}',
-                chooseButton: '選擇圖片',
-                clearButton: '清除'
+                chooseButton: '選擇圖片'
             },
             showShortcuts: {
                 name: '顯示捷徑',
@@ -811,7 +815,7 @@ export const STRINGS_ZH_TW = {
                 }
             },
             fileVisibility: {
-                name: '顯示檔案類型',
+                name: '顯示檔案類型 (儲存庫配置)',
                 desc: '篩選在導覽器中顯示的檔案類型。Obsidian 不支援的檔案類型可能會在外部應用程式中開啟。',
                 options: {
                     documents: '文件 (.md, .canvas, .base)',
@@ -825,14 +829,14 @@ export const STRINGS_ZH_TW = {
                 current: '目前：{path}',
                 currentMobile: '行動裝置：{path}',
                 chooseButton: '選擇檔案',
-                clearButton: '清除',
+
                 separateMobile: {
                     name: '獨立的行動裝置首頁',
                     desc: '為行動裝置使用不同的首頁。'
                 }
             },
             excludedNotes: {
-                name: '隱藏筆記',
+                name: '隱藏筆記 (儲存庫配置)',
                 desc: '以逗號分隔的 frontmatter 屬性清單。包含任何這些屬性的筆記將被隱藏 (例如 draft, private, archived)。',
                 placeholder: 'draft, private'
             },
@@ -860,7 +864,7 @@ export const STRINGS_ZH_TW = {
                 }
             },
             excludedFolders: {
-                name: '隱藏資料夾',
+                name: '隱藏資料夾 (儲存庫配置)',
                 desc: '以逗號分隔的要隱藏的資料夾清單。名稱模式：assets* (以 assets 開頭的資料夾)、*_temp (以 _temp 結尾)。路徑模式：/archive (僅根目錄的 archive)、/res* (以 res 開頭的根資料夾)、/*/temp (一層深的 temp 資料夾)、/projects/* (projects 內的所有資料夾)。',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1047,11 +1051,15 @@ export const STRINGS_ZH_TW = {
             },
             showTags: {
                 name: '顯示標籤',
-                desc: '在導覽器中資料夾下方顯示標籤區段。'
+                desc: '在導覽器中顯示標籤區段。'
             },
             showTagIcons: {
                 name: '顯示標籤圖示',
                 desc: '在導覽窗格的標籤旁顯示圖示。'
+            },
+            inheritTagColors: {
+                name: '繼承標籤顏色',
+                desc: '子標籤從父標籤繼承顏色。'
             },
             tagSortOrder: {
                 name: '標籤排序方式',
@@ -1076,7 +1084,7 @@ export const STRINGS_ZH_TW = {
                 desc: '當所有標籤被刪除時保留 frontmatter 中的 tags 屬性。停用時,tags 屬性將從 frontmatter 中刪除。'
             },
             hiddenTags: {
-                name: '隱藏標籤',
+                name: '隱藏標籤 (儲存庫配置)',
                 desc: '以逗號分隔的標籤前綴或名稱萬用字元清單。使用 tag* 或 *tag 來匹配標籤名稱。隱藏一個標籤也會隱藏其所有子標籤 (例如 "archive" 隱藏 "archive/2024/docs")。',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },

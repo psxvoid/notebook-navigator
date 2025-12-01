@@ -74,21 +74,24 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.9.0',
-        date: '2025-12-01',
+        date: '2025-11-30',
         showOnUpdate: true,
         new: [
-            '==Tldraw support==. If you have Tldraw plugin installed you can now create new Tldraw drawings directly from the navigation pane.',
-            'Notebook Navigator has been translated to Russian, Turkish, Ukrainian, Vietnamese, Portuguese, Indonesian, Thai, Persian (Farsi), and Italian. ==Notebook Navigator is now translated into 21 languages!=='
+            '==Tldraw support==. If you have the plugin Tldraw installed you can now create new Tldraw drawings directly from the navigation pane in Notebook Navigator!',
+            'New setting: Settings > Folders & tags > Tags > ==Inherit tag colors==. Disable this to prevent tags from inheriting colors from parent tags. Default enabled.',
+            'Notebook Navigator has been translated to Russian, Turkish, Ukrainian, Vietnamese, Portuguese, Indonesian, Thai, Persian (Farsi), and Italian. ==Notebook Navigator now supports 21 languages!=='
         ],
         improved: [
+            '==The color picker== has been greatly enhanced! You can now toggle between **default colors** and **custom colors**, you can copy and paste colors in the dialog, you can drag and drop colors, and you can even double click to set color and close dialog! Thanks @alltiagocom for your ideas!',
             'You can now ==copy and paste styles like icons and colors== between folders, tags and files! Just use the new **Style menu**!',
             'You can now easily ==remove icons, colors or all styles== from a folder, tag or file using the new **Style menu**.',
             'You can now ==apply colors and icons to multiple files== at once! You can even paste styles to multiple files!',
             'You can now ==reorder vault profiles== in **Settings > General > Filtering**. Click **Edit profiles** to add, rename, delete, or reorder vault profiles.',
+            '==Improved the way file tags are rendered== in the list pane. They now respect background color and text color and it just looks so much better!',
+            '==Improved Excalidraw support==. When you create a new Excalidraw drawing from the navigation pane, it now opens immediately in drawing mode.',
+            '==Duplicating a folder== will now also duplicate icon and color settings for the folder and all subfolders.',
             'Android: Drag and drop now works in shortcuts and reorder root items mode on newer Android devices.',
             'Android: Notebook Navigator now handles custom system font sizes correctly.',
-            'Improved Excalidraw support. When you create a new Excalidraw drawing from the navigation pane, it now opens immediately in drawing mode.',
-            'Duplicating a folder will now also duplicate icon and color settings for the folder and all subfolders.',
             '"Settings > Folders & tags > Expand on selection" will now also collapse tags and folders on single click.'
         ],
         fixed: ['Fixed an issue where the context menu in navigation pane did not hide if clicking on a folder title.']

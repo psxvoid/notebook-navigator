@@ -134,8 +134,6 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
     const hasRemovableIcon = targetFilesForStyle.some(selectedFile => Boolean(metadataService.getFileIcon(selectedFile.path)));
     const hasRemovableColor = targetFilesForStyle.some(selectedFile => Boolean(metadataService.getFileColor(selectedFile.path)));
-    const removalCount = Number(hasRemovableIcon) + Number(hasRemovableColor);
-    const showIndividualRemovers = removalCount >= 2;
 
     addStyleMenu({
         menu,
@@ -145,7 +143,6 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         },
         hasIcon: true,
         hasColor: true,
-        showIndividualRemovers,
         applyStyle: async clipboard => {
             const { icon, color } = clipboard;
             const actions: Promise<void>[] = [];

@@ -25,6 +25,7 @@ export const STRINGS_JA = {
     common: {
         cancel: 'キャンセル', // Button text for canceling dialogs and operations (English: Cancel)
         delete: '削除', // Button text for delete operations in dialogs (English: Delete)
+        clear: 'クリア', // Button text for clearing values (English: Clear)
         remove: '削除', // Button text for remove operations in dialogs (English: Remove)
         submit: '送信', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '選択なし', // Placeholder text when no folder or tag is selected (English: No selection)
@@ -244,15 +245,18 @@ export const STRINGS_JA = {
             newColor: '新規',
             presetColors: 'プリセット色',
             userColors: 'ユーザー色',
+            paletteDefault: 'デフォルト',
+            paletteCustom: 'カスタム',
             copyColors: '色をコピー',
             colorsCopied: 'クリップボードにコピーしました',
             copyClipboardError: 'クリップボードに書き込めませんでした',
             pasteColors: '色を貼り付け',
             pasteClipboardError: 'クリップボードを読み取れませんでした',
-            pasteInvalidJson: 'クリップボードに有効なJSONがありません',
-            pasteInvalidFormat: '色の値の配列が必要です',
+            pasteInvalidJson: 'クリップボードに有効なテキストがありません',
+            pasteInvalidFormat: '16進数の色の値が必要です',
             colorsPasted: '色を貼り付けました',
-            resetUserColors: '色をリセット',
+            resetUserColors: 'カスタム色をクリア',
+            clearCustomColorsConfirm: 'すべてのカスタム色を削除しますか？',
             userColorSlot: 'カラー {slot}',
             recentColors: '最近使用した色',
             clearRecentColors: '最近使用した色をクリア',
@@ -569,7 +573,8 @@ export const STRINGS_JA = {
             },
             navigation: {
                 behavior: '動作',
-                appearance: '外観'
+                appearance: '外観',
+                shortcutsAndRecent: 'ショートカットと最近の項目'
             },
             list: {
                 display: '外観',
@@ -597,7 +602,7 @@ export const STRINGS_JA = {
                     filterSearch: {
                         title: 'フィルター検索（デフォルト）：',
                         description:
-                            '現在のフォルダとサブフォルダ内のファイルを名前とタグでフィルタリングする高速で軽量な検索。#プレフィックスによるタグフィルタリング（例：#プロジェクト）、!プレフィックスによる除外（例：!下書き、!#アーカイブ済み）、!#によるタグなしノートの検索をサポート。現在のコンテキスト内でのクイックナビゲーションに最適。'
+                            '現在のフォルダとサブフォルダ内のファイルを名前とタグでフィルタリング。フィルターモード：テキストとタグの混在で全ての条件に一致（例：「プロジェクト #仕事」）。タグモード：タグのみの検索でAND/OR演算子をサポート（例：「#仕事 AND #急ぎ」、「#プロジェクト OR #個人」）。Cmd/Ctrl+クリックでANDとして追加、Cmd/Ctrl+Shift+クリックでORとして追加。!プレフィックスによる除外（例：!下書き、!#アーカイブ済み）と!#によるタグなしノートの検索をサポート。'
                     },
                     omnisearch: {
                         title: 'Omnisearch：',
@@ -701,8 +706,8 @@ export const STRINGS_JA = {
                 desc: 'サブフォルダまたはタグ内のノートに親フォルダ名を表示します。'
             },
             parentFolderClickRevealsFile: {
-                name: '親フォルダクリックでノートを表示',
-                desc: '親フォルダラベルをクリックするとノートを表示します。'
+                name: '親フォルダクリックでフォルダを開く',
+                desc: '親フォルダラベルをクリックするとリストペインでフォルダを開きます。'
             },
             showParentFolderColor: {
                 name: '親フォルダの色を表示',
@@ -775,8 +780,7 @@ export const STRINGS_JA = {
                 name: 'ナビゲーションバナー（保管庫プロファイル）',
                 desc: 'ナビゲーションペイン上部に画像を表示します。選択された保管庫プロファイルに応じて変更されます。',
                 current: '現在のバナー: {path}',
-                chooseButton: '画像を選択',
-                clearButton: 'クリア'
+                chooseButton: '画像を選択'
             },
             showShortcuts: {
                 name: 'ショートカットを表示',
@@ -813,7 +817,7 @@ export const STRINGS_JA = {
                 }
             },
             excludedNotes: {
-                name: 'ノートを非表示',
+                name: 'ノートを非表示 (ボルトプロファイル)',
                 desc: 'カンマ区切りのフロントマター属性のリスト。これらの属性を含むノートは非表示になります（例：draft, private, archived）。',
                 placeholder: 'draft, private'
             },
@@ -842,13 +846,13 @@ export const STRINGS_JA = {
                 }
             },
             excludedFolders: {
-                name: 'フォルダを非表示',
+                name: 'フォルダを非表示 (ボルトプロファイル)',
                 desc: '非表示にするフォルダのカンマ区切りリスト。名前パターン: assets*（assetsで始まるフォルダ）、*_temp（_tempで終わる）。パスパターン: /archive（ルートのアーカイブのみ）、/res*（resで始まるルートフォルダ）、/*/temp（1階層下のtempフォルダ）、/projects/*（projects内のすべてのフォルダ）。',
                 placeholder: 'templates, assets*, /archive, /res*',
                 info: '自動クリーンアップ：右クリックで除外する際、重複するパターンが削除されます（例：/projectsを除外し、/projects/appが既にリストにある場合、削除されます）。'
             },
             fileVisibility: {
-                name: 'ファイルタイプを表示',
+                name: 'ファイルタイプを表示 (ボルトプロファイル)',
                 desc: 'ナビゲーターに表示されるファイルタイプをフィルタリングします。Obsidianでサポートされていないファイルタイプは、外部アプリケーションで開かれる場合があります。',
                 options: {
                     documents: 'ドキュメント (.md, .canvas, .base)',
@@ -862,7 +866,7 @@ export const STRINGS_JA = {
                 current: '現在: {path}',
                 currentMobile: 'モバイル: {path}',
                 chooseButton: 'ファイルを選択',
-                clearButton: 'クリア',
+
                 separateMobile: {
                     name: '個別のモバイルホームページ',
                     desc: 'モバイルデバイス用に別のホームページを使用します。'
@@ -1051,11 +1055,15 @@ export const STRINGS_JA = {
             },
             showTags: {
                 name: 'タグを表示',
-                desc: 'ナビゲーターのフォルダの下にタグセクションを表示します。'
+                desc: 'ナビゲーターにタグセクションを表示します。'
             },
             showTagIcons: {
                 name: 'タグアイコンを表示',
                 desc: 'ナビゲーションペインのタグの横にアイコンを表示します。'
+            },
+            inheritTagColors: {
+                name: 'タグの色を継承',
+                desc: '子タグが親タグの色を継承します。'
             },
             tagSortOrder: {
                 name: 'タグの並び順',
@@ -1080,7 +1088,7 @@ export const STRINGS_JA = {
                 desc: 'すべてのタグが削除されても frontmatter の tags プロパティを保持します。無効にすると、tags プロパティは frontmatter から削除されます。'
             },
             hiddenTags: {
-                name: 'タグを非表示',
+                name: 'タグを非表示 (ボルトプロファイル)',
                 desc: '非表示にするタグの接頭辞または名前ワイルドカードのカンマ区切りリスト。`tag*` や `*tag` でタグ名に一致します。タグを非表示にすると、すべてのサブタグも非表示になります（例："アーカイブ"で"アーカイブ/2024/docs"も非表示）。',
                 placeholder: '内部, temp/下書き, アーカイブ/2024'
             },

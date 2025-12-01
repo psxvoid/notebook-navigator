@@ -19,5 +19,5 @@
 /** Excalidraw plugin identifier */
 export const EXCALIDRAW_PLUGIN_ID = 'obsidian-excalidraw-plugin';
 
-/** Tldraw plugin identifiers (array to support multiple possible IDs) */
-export const TLDRAW_PLUGIN_IDS = ['tldraw'];
+/** Tldraw plugin identifier */
+export const TLDRAW_PLUGIN_ID = 'tldraw';

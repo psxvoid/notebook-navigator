@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { DEFAULT_USER_COLORS } from '../constants/colorPalette';
+import { DEFAULT_CUSTOM_COLORS } from '../constants/colorPalette';
 import { getDefaultKeyboardShortcuts } from '../utils/keyboardShortcuts';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
 import { LISTPANE_MEASUREMENTS, NAVPANE_MEASUREMENTS, type PinnedNotes } from '../types';
@@ -74,14 +74,18 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
 
-    // Navigation pane tab
+    // Navigation pane tab - Behavior
     skipAutoScroll: false,
+    collapseBehavior: 'all',
+    smartCollapse: true,
+
+    // Navigation pane tab - Shortcuts & recent items
     showSectionIcons: true,
     showShortcuts: true,
     showRecentNotes: true,
     recentNotesCount: 5,
-    collapseBehavior: 'all',
-    smartCollapse: true,
+
+    // Navigation pane tab - Appearance
     colorIconOnly: false,
     toolbarVisibility: {
         navigation: {
@@ -112,6 +116,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFolderIcons: true,
     showRootFolder: true,
     inheritFolderColors: false,
+    inheritTagColors: true,
     enableFolderNotes: false,
     folderNoteType: 'markdown',
     folderNoteName: '',
@@ -159,10 +164,10 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Default to showing modified date when sorting alphabetically
     alphabeticalDateMode: 'modified',
     showFileTags: true,
-    showFileTagAncestors: true,
     collapseFileTagsToSelectedTag: true,
     colorFileTags: true,
     prioritizeColoredFileTags: true,
+    showFileTagAncestors: false,
     showFileTagsInCompactMode: false,
     showParentFolder: true,
     parentFolderClickRevealsFile: false,
@@ -209,7 +214,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     tagSortOverrides: {},
     tagAppearances: {} as Record<string, TagAppearance>,
     navigationSeparators: {},
-    userColors: [...DEFAULT_USER_COLORS],
+    userColors: [...DEFAULT_CUSTOM_COLORS],
     recentColors: [],
     lastShownVersion: '',
     latestKnownRelease: '',

@@ -25,6 +25,7 @@ export const STRINGS_TH = {
     common: {
         cancel: 'ยกเลิก',
         delete: 'ลบ',
+        clear: 'ล้าง',
         remove: 'นำออก',
         submit: 'ส่ง',
         noSelection: 'ไม่มีการเลือก',
@@ -244,15 +245,18 @@ export const STRINGS_TH = {
             newColor: 'ใหม่',
             presetColors: 'สีที่ตั้งไว้',
             userColors: 'สีผู้ใช้',
+            paletteDefault: 'ค่าเริ่มต้น',
+            paletteCustom: 'กำหนดเอง',
             copyColors: 'คัดลอกสี',
             colorsCopied: 'คัดลอกสีไปคลิปบอร์ดแล้ว',
             copyClipboardError: 'ไม่สามารถเขียนลงคลิปบอร์ด',
             pasteColors: 'วางสี',
             pasteClipboardError: 'ไม่สามารถอ่านคลิปบอร์ด',
-            pasteInvalidJson: 'คลิปบอร์ดไม่มี JSON ที่ถูกต้อง',
-            pasteInvalidFormat: 'ต้องการอาร์เรย์ของค่าสี',
+            pasteInvalidJson: 'คลิปบอร์ดไม่มีข้อความที่ถูกต้อง',
+            pasteInvalidFormat: 'ต้องการค่าสี hex',
             colorsPasted: 'วางสีสำเร็จ',
-            resetUserColors: 'รีเซ็ตสี',
+            resetUserColors: 'ล้างสีที่กำหนดเอง',
+            clearCustomColorsConfirm: 'ลบสีที่กำหนดเองทั้งหมด?',
             userColorSlot: 'สี {slot}',
             recentColors: 'สีล่าสุด',
             clearRecentColors: 'ล้างสีล่าสุด',
@@ -568,7 +572,8 @@ export const STRINGS_TH = {
             },
             navigation: {
                 behavior: 'พฤติกรรม',
-                appearance: 'ลักษณะ'
+                appearance: 'ลักษณะ',
+                shortcutsAndRecent: 'ทางลัดและรายการล่าสุด'
             },
             list: {
                 display: 'ลักษณะ',
@@ -596,7 +601,7 @@ export const STRINGS_TH = {
                     filterSearch: {
                         title: 'การค้นหาตัวกรอง (ค่าเริ่มต้น):',
                         description:
-                            'การค้นหาที่รวดเร็วและเบาซึ่งกรองไฟล์ตามชื่อและแท็กภายในโฟลเดอร์และโฟลเดอร์ย่อยปัจจุบัน รองรับการกรองแท็กด้วยคำนำหน้า # (เช่น #โปรเจค), การยกเว้นด้วยคำนำหน้า ! (เช่น !ฉบับร่าง, !#เก็บถาวร), และค้นหาโน้ตที่ไม่มีแท็กด้วย !# เหมาะสำหรับการนำทางอย่างรวดเร็วภายในบริบทปัจจุบัน'
+                            'กรองไฟล์ตามชื่อและแท็กภายในโฟลเดอร์และโฟลเดอร์ย่อยปัจจุบัน โหมดตัวกรอง: ข้อความและแท็กผสมจะจับคู่ทุกเงื่อนไข (เช่น "โปรเจค #งาน") โหมดแท็ก: การค้นหาด้วยแท็กเท่านั้นรองรับตัวดำเนินการ AND/OR (เช่น "#งาน AND #ด่วน", "#โปรเจค OR #ส่วนตัว") Cmd/Ctrl+คลิกที่แท็กเพื่อเพิ่มด้วย AND, Cmd/Ctrl+Shift+คลิกเพื่อเพิ่มด้วย OR รองรับการยกเว้นด้วยคำนำหน้า ! (เช่น !ฉบับร่าง, !#เก็บถาวร) และค้นหาโน้ตที่ไม่มีแท็กด้วย !#'
                     },
                     omnisearch: {
                         title: 'Omnisearch:',
@@ -700,8 +705,8 @@ export const STRINGS_TH = {
                 desc: 'แสดงชื่อโฟลเดอร์หลักสำหรับโน้ตในโฟลเดอร์ย่อยหรือแท็ก'
             },
             parentFolderClickRevealsFile: {
-                name: 'คลิกโฟลเดอร์หลักเพื่อแสดงไฟล์',
-                desc: 'การคลิกป้ายโฟลเดอร์หลักจะแสดงไฟล์'
+                name: 'คลิกโฟลเดอร์หลักเพื่อเปิดโฟลเดอร์',
+                desc: 'การคลิกป้ายโฟลเดอร์หลักจะเปิดโฟลเดอร์ในแผงรายการ'
             },
             showParentFolderColor: {
                 name: 'แสดงสีโฟลเดอร์หลัก',
@@ -774,8 +779,7 @@ export const STRINGS_TH = {
                 name: 'แบนเนอร์นำทาง (โปรไฟล์ห้องนิรภัย)',
                 desc: 'แสดงรูปภาพเหนือแผงนำทาง เปลี่ยนตามโปรไฟล์ห้องนิรภัยที่เลือก',
                 current: 'แบนเนอร์ปัจจุบัน: {path}',
-                chooseButton: 'เลือกรูปภาพ',
-                clearButton: 'ล้าง'
+                chooseButton: 'เลือกรูปภาพ'
             },
             showShortcuts: {
                 name: 'แสดงทางลัด',
@@ -812,7 +816,7 @@ export const STRINGS_TH = {
                 }
             },
             fileVisibility: {
-                name: 'แสดงประเภทไฟล์',
+                name: 'แสดงประเภทไฟล์ (โปรไฟล์ห้องนิรภัย)',
                 desc: 'กรองประเภทไฟล์ที่จะแสดงใน navigator ประเภทไฟล์ที่ Obsidian ไม่รองรับอาจเปิดในแอปภายนอก',
                 options: {
                     documents: 'เอกสาร (.md, .canvas, .base)',
@@ -826,14 +830,14 @@ export const STRINGS_TH = {
                 current: 'ปัจจุบัน: {path}',
                 currentMobile: 'มือถือ: {path}',
                 chooseButton: 'เลือกไฟล์',
-                clearButton: 'ล้าง',
+
                 separateMobile: {
                     name: 'หน้าแรกมือถือแยก',
                     desc: 'ใช้หน้าแรกต่างกันสำหรับอุปกรณ์มือถือ'
                 }
             },
             excludedNotes: {
-                name: 'ซ่อนโน้ต',
+                name: 'ซ่อนโน้ต (โปรไฟล์ห้องนิรภัย)',
                 desc: 'รายการคุณสมบัติ frontmatter คั่นด้วยเครื่องหมายจุลภาค โน้ตที่มีคุณสมบัติเหล่านี้จะถูกซ่อน (เช่น ฉบับร่าง, ส่วนตัว, เก็บถาวร)',
                 placeholder: 'ฉบับร่าง, ส่วนตัว'
             },
@@ -861,7 +865,7 @@ export const STRINGS_TH = {
                 }
             },
             excludedFolders: {
-                name: 'ซ่อนโฟลเดอร์',
+                name: 'ซ่อนโฟลเดอร์ (โปรไฟล์ห้องนิรภัย)',
                 desc: 'รายการโฟลเดอร์คั่นด้วยเครื่องหมายจุลภาคที่จะซ่อน รูปแบบชื่อ: assets* (โฟลเดอร์ที่เริ่มด้วย assets), *_temp (ลงท้ายด้วย _temp) รูปแบบเส้นทาง: /archive (archive หลักเท่านั้น), /res* (โฟลเดอร์หลักที่เริ่มด้วย res), /*/temp (โฟลเดอร์ temp ลึกหนึ่งระดับ), /projects/* (โฟลเดอร์ทั้งหมดใน projects)',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -1048,11 +1052,15 @@ export const STRINGS_TH = {
             },
             showTags: {
                 name: 'แสดงแท็ก',
-                desc: 'แสดงส่วนแท็กใต้โฟลเดอร์ใน navigator'
+                desc: 'แสดงส่วนแท็กใน navigator'
             },
             showTagIcons: {
                 name: 'แสดงไอคอนแท็ก',
                 desc: 'แสดงไอคอนข้างแท็กในแผงนำทาง'
+            },
+            inheritTagColors: {
+                name: 'สืบทอดสีแท็ก',
+                desc: 'แท็กลูกสืบทอดสีจากแท็กแม่'
             },
             tagSortOrder: {
                 name: 'ลำดับการเรียงแท็ก',
@@ -1077,7 +1085,7 @@ export const STRINGS_TH = {
                 desc: 'เก็บคุณสมบัติแท็ก frontmatter เมื่อนำแท็กทั้งหมดออก เมื่อปิดใช้งาน คุณสมบัติแท็กจะถูกลบออกจาก frontmatter'
             },
             hiddenTags: {
-                name: 'ซ่อนแท็ก',
+                name: 'ซ่อนแท็ก (โปรไฟล์ห้องนิรภัย)',
                 desc: 'รายการคำนำหน้าแท็กหรือ wildcard ชื่อคั่นด้วยเครื่องหมายจุลภาค ใช้ tag* หรือ *tag เพื่อจับคู่ชื่อแท็ก การซ่อนแท็กจะซ่อนแท็กย่อยทั้งหมดด้วย (เช่น "archive" ซ่อน "archive/2024/docs")',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },
