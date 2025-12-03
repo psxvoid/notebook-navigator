@@ -1058,8 +1058,8 @@ export const STRINGS_FR = {
             },
             hiddenTags: {
                 name: 'Masquer les étiquettes (profil du coffre)',
-                desc: 'Liste séparée par des virgules de préfixes ou de jokers de nom d\'étiquettes à masquer. Utilisez `tag*` ou `*tag` pour faire correspondre les noms d\'étiquette. Masquer une étiquette masque aussi toutes ses sous-étiquettes (par ex. "archive" masque "archive/2024/docs").',
-                placeholder: 'interne, temp/brouillons, archive/2024'
+                desc: "Liste séparée par des virgules de motifs d'étiquettes. Motifs de nom : tag* (commence par), *tag (termine par). Motifs de chemin : archive (étiquette et descendants), archive/* (descendants uniquement), projets/*/brouillons (joker intermédiaire).",
+                placeholder: 'archive*, *brouillon, projets/*/ancien'
             },
             enableFolderNotes: {
                 name: 'Activer les notes de dossier',

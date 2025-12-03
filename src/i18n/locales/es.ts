@@ -1056,8 +1056,8 @@ export const STRINGS_ES = {
             },
             hiddenTags: {
                 name: 'Ocultar etiquetas (perfil de bóveda)',
-                desc: 'Lista separada por comas de prefijos de etiquetas o comodines de nombre. Usa `tag*` o `*tag` para coincidir con nombres de etiquetas. Ocultar una etiqueta también oculta todas sus sub-etiquetas (ej. "archivo" oculta "archivo/2024/docs").',
-                placeholder: 'interno, temp/borradores, archivo/2024'
+                desc: 'Lista separada por comas de patrones de etiquetas. Patrones de nombre: tag* (empieza con), *tag (termina con). Patrones de ruta: archivo (etiqueta y descendientes), archivo/* (solo descendientes), proyectos/*/borradores (comodín intermedio).',
+                placeholder: 'archivo*, *borrador, proyectos/*/antiguo'
             },
             enableFolderNotes: {
                 name: 'Habilitar notas de carpeta',

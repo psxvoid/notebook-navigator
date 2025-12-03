@@ -1056,8 +1056,8 @@ export const STRINGS_PL = {
             },
             hiddenTags: {
                 name: 'Ukryj tagi (profil sejfu)',
-                desc: 'Lista prefiksów tagów lub symboli wieloznacznych nazw oddzielonych przecinkami. Użyj `tag*` lub `*tag`, aby dopasować nazwy tagów. Ukrycie tagu ukrywa też wszystkie jego pod-tagi (np. "archive" ukrywa "archive/2024/docs").',
-                placeholder: 'internal, temp/drafts, archive/2024'
+                desc: 'Lista wzorców tagów oddzielonych przecinkami. Wzorce nazw: tag* (zaczyna się od), *tag (kończy się na). Wzorce ścieżek: archiwum (tag i potomkowie), archiwum/* (tylko potomkowie), projekty/*/szkice (wildcard w środku).',
+                placeholder: 'archiwum*, *szkic, projekty/*/stare'
             },
             enableFolderNotes: {
                 name: 'Włącz notatki folderów',

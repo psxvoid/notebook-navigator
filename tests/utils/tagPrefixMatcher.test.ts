@@ -7,12 +7,13 @@ function extractName(tagPath: string): string {
 }
 
 describe('createHiddenTagMatcher', () => {
-    it('categorizes prefix, startsWith, and endsWith patterns', () => {
-        const matcher = createHiddenTagMatcher(['ARCHIVE', 'temp*', '*Draft', 'archive', 'archive/*', '*temp*']);
+    it('categorizes prefix, startsWith, endsWith, and path patterns', () => {
+        const matcher = createHiddenTagMatcher(['ARCHIVE', 'temp*', '*Draft', 'archive/*', '*temp*']);
 
-        expect(matcher.prefixes).toEqual(['archive']);
+        expect(matcher.prefixes).toEqual(['archive', 'temp']);
         expect(matcher.startsWithNames).toEqual(['temp']);
         expect(matcher.endsWithNames).toEqual(['draft']);
+        expect(matcher.pathPatterns.map(pattern => pattern.normalized)).toEqual(expect.arrayContaining(['archive', 'archive/*', 'temp*']));
     });
 
     it('sanitizes patterns by removing hash prefix and trailing slashes', () => {
@@ -20,19 +21,21 @@ describe('createHiddenTagMatcher', () => {
 
         expect(matcher.prefixes).toContain('area/planning');
         expect(matcher.prefixes).toContain('docs');
+        expect(matcher.pathPatterns.map(pattern => pattern.normalized)).toEqual(expect.arrayContaining(['area/planning', 'docs']));
     });
 
     it('ignores invalid wildcard patterns', () => {
-        const matcher = createHiddenTagMatcher(['*temp*', 'archive/*', '']);
+        const matcher = createHiddenTagMatcher(['*temp*', 'archive/**/private', 'proj*ect*', '']);
 
         expect(matcher.prefixes).toEqual([]);
         expect(matcher.startsWithNames).toEqual([]);
         expect(matcher.endsWithNames).toEqual([]);
+        expect(matcher.pathPatterns).toEqual([]);
     });
 });
 
 describe('matchesHiddenTagPattern', () => {
-    const matcher = createHiddenTagMatcher(['archive', 'temp*', '*draft']);
+    const matcher = createHiddenTagMatcher(['archive', 'temp*', '*draft', 'projects/*/drafts']);
 
     it('matches full path prefixes', () => {
         expect(matchesHiddenTagPattern('archive', extractName('archive'), matcher)).toBe(true);
@@ -53,8 +56,20 @@ describe('matchesHiddenTagPattern', () => {
         expect(matchesHiddenTagPattern('drafting', extractName('drafting'), matcher)).toBe(false);
     });
 
+    it('matches mid-segment wildcard path patterns', () => {
+        expect(matchesHiddenTagPattern('projects/client/drafts', extractName('projects/client/drafts'), matcher)).toBe(true);
+        expect(matchesHiddenTagPattern('projects/other/notes', extractName('projects/other/notes'), matcher)).toBe(false);
+    });
+
+    it('matches trailing wildcard path patterns against the base tag', () => {
+        const trailingMatcher = createHiddenTagMatcher(['projects/*']);
+
+        expect(matchesHiddenTagPattern('projects', extractName('projects'), trailingMatcher)).toBe(false);
+        expect(matchesHiddenTagPattern('projects/client', extractName('projects/client'), trailingMatcher)).toBe(true);
+    });
+
     it('does not match when only ignored wildcard patterns are provided', () => {
-        const ignoredMatcher = createHiddenTagMatcher(['archive/*', '*temp*']);
+        const ignoredMatcher = createHiddenTagMatcher(['archive/*/private', '*temp*']);
 
         expect(matchesHiddenTagPattern('archive/2024', extractName('archive/2024'), ignoredMatcher)).toBe(false);
         expect(matchesHiddenTagPattern('temp-files', extractName('temp-files'), ignoredMatcher)).toBe(false);

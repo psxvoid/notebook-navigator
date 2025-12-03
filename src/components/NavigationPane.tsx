@@ -61,7 +61,7 @@ import { useExpansionState, useExpansionDispatch } from '../context/ExpansionCon
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useCommandQueue, useFileSystemOps, useMetadataService, useTagOperations } from '../context/ServicesContext';
 import { useRecentData } from '../context/RecentDataContext';
-import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
+import { useSettingsState, useSettingsUpdate, useActiveProfile } from '../context/SettingsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
 import { showNotice } from '../utils/noticeUtils';
 import { useFileCache } from '../context/StorageContext';
@@ -117,7 +117,6 @@ import type { NoteCountInfo } from '../types/noteCounts';
 import type { SearchTagFilterState } from '../types/search';
 import type { InclusionOperator } from '../utils/filterSearch';
 import { calculateFolderNoteCounts } from '../utils/noteCountUtils';
-import { getActiveHiddenFolders } from '../utils/vaultProfiles';
 import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { normalizeNavigationSectionOrderInput } from '../utils/navigationSections';
 import { getPathBaseName } from '../utils/pathUtils';
@@ -181,11 +180,11 @@ export const NavigationPane = React.memo(
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
+        const activeProfile = useActiveProfile();
         const uxPreferences = useUXPreferences();
         const includeDescendantNotes = uxPreferences.includeDescendantNotes;
         const showHiddenItems = uxPreferences.showHiddenItems;
-        // Retrieves the list of folders to hide based on the active vault profile
-        const hiddenFolders = useMemo(() => getActiveHiddenFolders(settings), [settings]);
+        const { hiddenFolders, fileVisibility } = activeProfile;
         // Resolves frontmatter exclusions, returns empty array when hidden items are shown
         const effectiveFrontmatterExclusions = getEffectiveFrontmatterExclusions(settings, showHiddenItems);
         const updateSettings = useSettingsUpdate();
@@ -760,6 +759,7 @@ export const NavigationPane = React.memo(
             navigationBannerPath
         } = useNavigationPaneData({
             settings,
+            activeProfile,
             isVisible,
             shortcutsExpanded,
             recentNotesExpanded,
@@ -814,7 +814,8 @@ export const NavigationPane = React.memo(
             foldersSectionExpanded,
             tagsSectionExpanded,
             handleToggleFoldersSection,
-            handleToggleTagsSection
+            handleToggleTagsSection,
+            activeProfile
         });
 
         useEffect(() => {
@@ -1598,7 +1599,7 @@ export const NavigationPane = React.memo(
 
                 return calculateFolderNoteCounts(folder, {
                     app,
-                    fileVisibility: settings.fileVisibility,
+                    fileVisibility,
                     excludedFiles: effectiveFrontmatterExclusions,
                     excludedFolders: hiddenFolders,
                     includeDescendants: includeDescendantNotes,
@@ -1611,7 +1612,7 @@ export const NavigationPane = React.memo(
                 app,
                 folderCounts,
                 settings.showNoteCount,
-                settings.fileVisibility,
+                fileVisibility,
                 effectiveFrontmatterExclusions,
                 hiddenFolders,
                 includeDescendantNotes,

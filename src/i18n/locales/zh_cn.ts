@@ -1055,8 +1055,8 @@ export const STRINGS_ZH_CN = {
             },
             hiddenTags: {
                 name: '隐藏标签 (库配置)',
-                desc: '要隐藏的标签前缀或名称通配符的逗号分隔列表。使用 `tag*` 或 `*tag` 匹配标签名称。隐藏标签也会隐藏所有子标签（例如："归档"隐藏"归档/2024/docs"）。',
-                placeholder: '内部, 临时/草稿, 归档/2024'
+                desc: '逗号分隔的标签模式列表。名称模式：tag*（以...开头）、*tag（以...结尾）。路径模式：archive（标签及其后代）、archive/*（仅后代）、projects/*/drafts（中间通配符）。',
+                placeholder: 'archive*, *draft, projects/*/old'
             },
             enableFolderNotes: {
                 name: '启用文件夹笔记',

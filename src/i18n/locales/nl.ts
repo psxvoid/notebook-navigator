@@ -1057,8 +1057,8 @@ export const STRINGS_NL = {
             },
             hiddenTags: {
                 name: 'Tags verbergen (kluisprofiel)',
-                desc: 'Kommagescheiden lijst van tag-prefixen of naam-wildcards. Gebruik tag* of *tag om tagnamen te matchen. Het verbergen van een tag verbergt ook al zijn subtags (bijv. "archive" verbergt "archive/2024/docs").',
-                placeholder: 'internal, temp/drafts, archive/2024'
+                desc: 'Kommagescheiden lijst van tagpatronen. Naampatronen: tag* (begint met), *tag (eindigt met). Padpatronen: archief (tag en afstammelingen), archief/* (alleen afstammelingen), projecten/*/concepten (wildcard in het midden).',
+                placeholder: 'archief*, *concept, projecten/*/oud'
             },
             enableFolderNotes: {
                 name: 'Mapnotities inschakelen',

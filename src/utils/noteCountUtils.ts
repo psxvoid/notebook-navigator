@@ -1,8 +1,7 @@
 import type { App } from 'obsidian';
 import { TFile, TFolder } from 'obsidian';
-import type { NotebookNavigatorSettings } from '../settings/types';
 import type { NoteCountInfo } from '../types/noteCounts';
-import { shouldDisplayFile } from './fileTypeUtils';
+import { shouldDisplayFile, type FileVisibility } from './fileTypeUtils';
 import { shouldExcludeFile, shouldExcludeFolder } from './fileFilters';
 import { isFolderNote, type FolderNoteDetectionSettings } from './folderNotes';
 
@@ -11,7 +10,7 @@ import { isFolderNote, type FolderNoteDetectionSettings } from './folderNotes';
  */
 export interface FolderNoteCountOptions {
     app: App;
-    fileVisibility: NotebookNavigatorSettings['fileVisibility'];
+    fileVisibility: FileVisibility;
     excludedFiles: string[];
     excludedFolders: string[];
     includeDescendants: boolean;

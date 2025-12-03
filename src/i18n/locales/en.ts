@@ -1053,8 +1053,8 @@ export const STRINGS_EN = {
             },
             hiddenTags: {
                 name: 'Hide tags (vault profile)',
-                desc: 'Comma-separated list of tag prefixes or name wildcards. Use tag* or *tag to match tag names. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs").',
-                placeholder: 'internal, temp/drafts, archive/2024'
+                desc: 'Comma-separated list of tag patterns. Name patterns: tag* (starting with), *tag (ending with). Path patterns: archive (tag and descendants), archive/* (descendants only), projects/*/drafts (mid-segment wildcard).',
+                placeholder: 'archive*, *draft, projects/*/old'
             },
             enableFolderNotes: {
                 name: 'Enable folder notes',

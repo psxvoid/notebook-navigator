@@ -1054,8 +1054,8 @@ export const STRINGS_TH = {
             },
             hiddenTags: {
                 name: 'ซ่อนแท็ก (โปรไฟล์ห้องนิรภัย)',
-                desc: 'รายการคำนำหน้าแท็กหรือ wildcard ชื่อคั่นด้วยเครื่องหมายจุลภาค ใช้ tag* หรือ *tag เพื่อจับคู่ชื่อแท็ก การซ่อนแท็กจะซ่อนแท็กย่อยทั้งหมดด้วย (เช่น "archive" ซ่อน "archive/2024/docs")',
-                placeholder: 'internal, temp/drafts, archive/2024'
+                desc: 'รายการรูปแบบแท็กคั่นด้วยเครื่องหมายจุลภาค รูปแบบชื่อ: tag* (ขึ้นต้นด้วย), *tag (ลงท้ายด้วย) รูปแบบเส้นทาง: archive (แท็กและลูกหลาน), archive/* (ลูกหลานเท่านั้น), projects/*/drafts (wildcard ตรงกลาง)',
+                placeholder: 'archive*, *draft, projects/*/old'
             },
             enableFolderNotes: {
                 name: 'เปิดใช้งานโน้ตโฟลเดอร์',

@@ -1054,8 +1054,8 @@ export const STRINGS_AR = {
             },
             hiddenTags: {
                 name: 'إخفاء الوسوم (ملف الخزنة)',
-                desc: 'قائمة مفصولة بفاصلة من بادئات الوسوم أو أحرف البدل. استخدم tag* أو *tag للمطابقة بأسماء الوسوم. إخفاء وسم يخفي أيضًا جميع وسومه الفرعية (مثل "archive" يخفي "archive/2024/docs").',
-                placeholder: 'internal, temp/drafts, archive/2024'
+                desc: 'قائمة مفصولة بفاصلة من أنماط الوسوم. أنماط الأسماء: tag* (تبدأ بـ)، *tag (تنتهي بـ). أنماط المسارات: archive (الوسم وفروعه)، archive/* (الفروع فقط)، projects/*/drafts (حرف بدل وسطي).',
+                placeholder: 'archive*, *draft, projects/*/old'
             },
             enableFolderNotes: {
                 name: 'تمكين ملاحظات المجلدات',

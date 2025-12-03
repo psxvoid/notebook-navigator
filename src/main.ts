@@ -53,14 +53,7 @@ import { isBooleanRecordValue, isPlainObjectRecordValue, isStringRecordValue, sa
 import { isRecord } from './utils/typeGuards';
 import { runAsyncAction } from './utils/async';
 import { resetHiddenToggleIfNoSources } from './utils/exclusionUtils';
-import {
-    applyActiveVaultProfileToSettings,
-    applyVaultProfileValues,
-    ensureVaultProfiles,
-    syncVaultProfileFromSettings,
-    DEFAULT_VAULT_PROFILE_ID,
-    cloneShortcuts
-} from './utils/vaultProfiles';
+import { ensureVaultProfiles, DEFAULT_VAULT_PROFILE_ID, cloneShortcuts, clearHiddenFolderMatcherCache } from './utils/vaultProfiles';
 import WorkspaceCoordinator from './services/workspace/WorkspaceCoordinator';
 import HomepageController from './services/workspace/HomepageController';
 import registerNavigatorCommands from './services/commands/registerNavigatorCommands';
@@ -68,7 +61,9 @@ import registerWorkspaceEvents from './services/workspace/registerWorkspaceEvent
 import type { RevealFileOptions } from './hooks/useNavigatorReveal';
 import { ShortcutType, type ShortcutEntry } from './types/shortcuts';
 import type { FolderAppearance } from './hooks/useListPaneAppearance';
-import { isSortOption, type SortOption } from './settings/types';
+import { isSortOption, type SortOption, type VaultProfile } from './settings/types';
+import { clearHiddenTagPatternCache } from './utils/tagPrefixMatcher';
+import { getPathPatternCacheKey } from './utils/pathPatternMatcher';
 
 const DEFAULT_UX_PREFERENCES: UXPreferences = {
     searchActive: false,
@@ -155,6 +150,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private pendingUpdateNotice: ReleaseUpdateNotice | null = null;
     private uxPreferences: UXPreferences = { ...DEFAULT_UX_PREFERENCES };
     private uxPreferenceListeners = new Map<string, () => void>();
+    private hiddenFolderCacheKey: string | null = null;
+    private hiddenTagCacheKey: string | null = null;
 
     // Keys used for persisting UI state in browser localStorage
     keys: LocalStorageKeys = STORAGE_KEYS;
@@ -196,6 +193,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         delete mutableSettings.searchActive;
         delete mutableSettings.includeDescendantNotes;
         delete mutableSettings.showHiddenItems;
+        delete mutableSettings.hiddenTags;
+        delete mutableSettings.fileVisibility;
 
         const storedNoteGrouping = storedData ? storedData['noteGrouping'] : undefined;
 
@@ -379,9 +378,39 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.applyLegacyVisibilityMigration(legacyVisibility);
         this.applyLegacyShortcutsMigration(legacyShortcuts);
         this.normalizeIconSettings(this.settings);
-        applyActiveVaultProfileToSettings(this.settings);
+        this.settings.vaultProfile = this.resolveActiveVaultProfileId();
+        localStorage.set(STORAGE_KEYS.vaultProfileKey, this.settings.vaultProfile);
+        this.refreshMatcherCachesIfNeeded();
 
         return isFirstLaunch;
+    }
+
+    /**
+     * Resolves the active vault profile ID using localStorage first, then stored settings, falling back to default.
+     */
+    private resolveActiveVaultProfileId(): string {
+        const profiles = this.settings.vaultProfiles;
+
+        const findMatchingProfileId = (candidate: unknown): string | null => {
+            if (typeof candidate !== 'string' || !candidate) {
+                return null;
+            }
+            const match = profiles.find(profile => profile.id === candidate);
+            return match ? match.id : null;
+        };
+
+        const storedLocal = localStorage.get<string>(this.keys.vaultProfileKey);
+        const localMatch = findMatchingProfileId(storedLocal);
+        if (localMatch) {
+            return localMatch;
+        }
+
+        const defaultProfile = profiles.find(profile => profile.id === DEFAULT_VAULT_PROFILE_ID);
+        if (defaultProfile) {
+            return defaultProfile.id;
+        }
+
+        return profiles[0]?.id ?? DEFAULT_VAULT_PROFILE_ID;
     }
 
     /**
@@ -537,6 +566,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
             // Clear all localStorage data (if plugin was reinstalled)
             this.clearAllLocalStorage();
+
+            // Persist the active vault profile for this device
+            localStorage.set(this.keys.vaultProfileKey, this.settings.vaultProfile);
 
             // Reset dual-pane preference to default on fresh install
             this.dualPanePreference = true;
@@ -730,7 +762,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         this.settings.vaultProfile = nextProfile.id;
-        applyVaultProfileValues(this.settings, nextProfile);
+        localStorage.set(this.keys.vaultProfileKey, nextProfile.id);
 
         resetHiddenToggleIfNoSources({
             settings: this.settings,
@@ -1185,9 +1217,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         delete mutableSettings['excludedFiles'];
 
         const storedHiddenTags = toUniqueStringList(storedData?.['hiddenTags']);
-        if (storedHiddenTags.length > 0) {
-            this.settings.hiddenTags = [...storedHiddenTags];
-        }
+        // Legacy hidden tags are captured for migration but not applied to top-level settings
 
         const rawNavigationBanner = mutableSettings['navigationBanner'];
         const legacyNavigationBanner = typeof rawNavigationBanner === 'string' ? rawNavigationBanner : null;
@@ -1245,7 +1275,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         if (migration.hiddenTags.length > 0) {
             targetProfile.hiddenTags = [...migration.hiddenTags];
-            this.settings.hiddenTags = [...migration.hiddenTags];
         }
 
         if (hasNavigationBanner) {
@@ -1299,8 +1328,50 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             this.settings.tagAppearances = normalizeRecord(this.settings.tagAppearances);
         }
 
-        if (this.settings.hiddenTags) {
-            this.settings.hiddenTags = normalizeArray(this.settings.hiddenTags);
+        if (Array.isArray(this.settings.vaultProfiles)) {
+            this.settings.vaultProfiles.forEach(profile => {
+                profile.hiddenTags = normalizeArray(profile.hiddenTags);
+            });
+        }
+    }
+
+    /**
+     * Returns a copy of settings without transient fields that should not be synced.
+     */
+    private getPersistableSettings(): NotebookNavigatorSettings {
+        const rest = { ...this.settings } as Record<string, unknown>;
+        delete rest.vaultProfile;
+        delete rest.hiddenTags;
+        delete rest.fileVisibility;
+        return rest as unknown as NotebookNavigatorSettings;
+    }
+
+    private buildPatternCacheKey(selector: (profile: VaultProfile) => string[]): string {
+        const profiles = Array.isArray(this.settings.vaultProfiles) ? this.settings.vaultProfiles : [];
+        if (profiles.length === 0) {
+            return '';
+        }
+        const entries = profiles.map(profile => ({
+            id: profile.id ?? '',
+            key: getPathPatternCacheKey(selector(profile) ?? [])
+        }));
+        entries.sort((a, b) => a.id.localeCompare(b.id));
+        return entries.map(entry => `${entry.id}:${entry.key}`).join('\u0002');
+    }
+
+    // Clears matcher caches only when the hidden folder or tag patterns change.
+    private refreshMatcherCachesIfNeeded(): void {
+        const folderKey = this.buildPatternCacheKey(profile => profile.hiddenFolders);
+        const tagKey = this.buildPatternCacheKey(profile => profile.hiddenTags);
+
+        if (folderKey !== this.hiddenFolderCacheKey) {
+            clearHiddenFolderMatcherCache();
+            this.hiddenFolderCacheKey = folderKey;
+        }
+
+        if (tagKey !== this.hiddenTagCacheKey) {
+            clearHiddenTagPatternCache();
+            this.hiddenTagCacheKey = tagKey;
         }
     }
 
@@ -1311,8 +1382,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     async saveSettingsAndUpdate() {
         ensureVaultProfiles(this.settings);
-        syncVaultProfileFromSettings(this.settings);
-        await this.saveData(this.settings);
+        this.refreshMatcherCachesIfNeeded();
+        const dataToPersist = this.getPersistableSettings();
+        await this.saveData(dataToPersist);
         // Notify all listeners that settings have been updated
         this.onSettingsUpdate();
     }

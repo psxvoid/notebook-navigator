@@ -14,6 +14,7 @@
   - [File Change](#file-change-during-session)
   - [Settings Change](#settings-change)
   - [UI State Change](#ui-state-change)
+- [Hidden Pattern Rules](#hidden-pattern-rules)
 - [Storage Selection Guidelines](#storage-selection-guidelines)
 - [Performance Considerations](#performance-considerations)
 - [Version Management](#version-management)
@@ -131,7 +132,8 @@ export const STORAGE_KEYS: LocalStorageKeys = {
   recentIconsKey: 'notebook-navigator-recent-icons',
   databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
   databaseContentVersionKey: 'notebook-navigator-db-content-version',
-  localStorageVersionKey: 'notebook-navigator-localstorage-version'
+  localStorageVersionKey: 'notebook-navigator-localstorage-version',
+  vaultProfileKey: 'notebook-navigator-vault-profile'
   // ... additional keys omitted for brevity
 };
 ```
@@ -157,6 +159,19 @@ lists.
 - Essential for virtual scrolling performance
 
 **Implementation**: `src/storage/MemoryFileCache.ts`
+
+## Hidden Pattern Rules
+
+Hidden folders and tags share the same pattern handling:
+
+- Name patterns (no `/`) apply to every path segment. `Projects*` hides `Projects`, its descendants, and any folder or
+  tag whose name starts with `Projects` (for example `Projects2024`).
+- Path patterns start with `/`. `/Projects*` hides `Projects` plus all descendants. `/Projects/*` hides descendants of
+  `Projects` but keeps the base visible.
+- Mid-segment wildcards match one segment only. `/Projects/*/Archive` hides `Projects/Client/Archive` and deeper
+  descendants, but not `Projects/Archive`.
+- Trailing `*` never matches an empty segment. `/Projects/*` and `projects/*` require at least one child segment.
+- Patterns with multiple wildcards in a single segment or wildcards in the middle of a segment are ignored.
 
 ```typescript
 export class MemoryFileCache {

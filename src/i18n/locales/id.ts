@@ -1054,8 +1054,8 @@ export const STRINGS_ID = {
             },
             hiddenTags: {
                 name: 'Sembunyikan tag (profil vault)',
-                desc: 'Daftar awalan tag atau wildcard nama yang dipisahkan koma. Gunakan tag* atau *tag untuk mencocokkan nama tag. Menyembunyikan tag juga menyembunyikan semua sub-tagnya (misal, "arsip" menyembunyikan "arsip/2024/dokumen").',
-                placeholder: 'internal, temp/draf, arsip/2024'
+                desc: 'Daftar pola tag yang dipisahkan koma. Pola nama: tag* (dimulai dengan), *tag (diakhiri dengan). Pola jalur: arsip (tag dan turunan), arsip/* (hanya turunan), proyek/*/draf (wildcard tengah).',
+                placeholder: 'arsip*, *draf, proyek/*/lama'
             },
             enableFolderNotes: {
                 name: 'Aktifkan catatan folder',

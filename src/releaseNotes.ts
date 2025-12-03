@@ -77,7 +77,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-12-01',
         showOnUpdate: true,
         new: [],
-        changed: ['Active vault profile is no longer synced between devices. You can now have different active vault profiles on different devices.'],
+        changed: [
+            'Major refactoring to Vault profiles. **Active vault profile** is no longer synced between devices, so you can have different active vault profiles on different devices.',
+            'Significantly optimized hidden folder, tag and note pattern matching performance.'
+        ],
         improved: ['Notebook Navigator now also supports AVIF images for image previews in list pane.'],
         fixed: []
     },

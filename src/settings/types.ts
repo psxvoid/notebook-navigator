@@ -90,9 +90,6 @@ export interface VaultProfile {
  * Settings are organized by tab for easier maintenance
  */
 export interface NotebookNavigatorSettings {
-    // General tab - Filtering
-    fileVisibility: FileVisibility;
-    hiddenTags: string[];
     vaultProfiles: VaultProfile[];
     vaultProfile: string;
 

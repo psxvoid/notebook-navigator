@@ -49,7 +49,7 @@ import { TFile, Platform } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useSelectionState, useSelectionDispatch, resolvePrimarySelectedFile } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
-import { useSettingsState } from '../context/SettingsContext';
+import { useSettingsState, useActiveProfile } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useMultiSelection } from '../hooks/useMultiSelection';
 import { useListPaneKeyboard } from '../hooks/useListPaneKeyboard';
@@ -177,6 +177,7 @@ export const ListPane = React.memo(
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
+        const activeProfile = useActiveProfile();
         const uxPreferences = useUXPreferences();
         const includeDescendantNotes = uxPreferences.includeDescendantNotes;
         const showHiddenItems = uxPreferences.showHiddenItems;
@@ -413,6 +414,7 @@ export const ListPane = React.memo(
             selectedFolder,
             selectedTag,
             settings,
+            activeProfile,
             // Use debounced value for filtering
             searchQuery: isSearchActive ? debouncedSearchQuery : undefined,
             searchTokens: isSearchActive ? debouncedSearchTokens : undefined,

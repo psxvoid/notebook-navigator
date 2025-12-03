@@ -1054,8 +1054,8 @@ export const STRINGS_IT = {
             },
             hiddenTags: {
                 name: 'Nascondi tag (profilo vault)',
-                desc: 'Lista di prefissi tag o wildcard nome separate da virgola. Usa tag* o *tag per corrispondere nomi tag. Nascondere un tag nasconde anche tutti i suoi sotto-tag (es. "archivio" nasconde "archivio/2024/docs").',
-                placeholder: 'interno, temp/bozze, archivio/2024'
+                desc: 'Lista di pattern tag separati da virgola. Pattern nome: tag* (inizia con), *tag (finisce con). Pattern percorso: archivio (tag e discendenti), archivio/* (solo discendenti), progetti/*/bozze (wildcard intermedio).',
+                placeholder: 'archivio*, *bozza, progetti/*/vecchio'
             },
             enableFolderNotes: {
                 name: 'Abilita note cartella',

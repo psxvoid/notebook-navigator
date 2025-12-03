@@ -58,7 +58,7 @@ import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase, findTagNode, collectAllTagPaths } from '../utils/tagTree';
 import { useServices } from './ServicesContext';
-import { useSettingsState } from './SettingsContext';
+import { useSettingsState, useActiveProfile } from './SettingsContext';
 import { useUXPreferences } from './UXPreferencesContext';
 import { NotebookNavigatorSettings } from '../settings';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
@@ -221,12 +221,11 @@ interface StorageProviderProps {
 
 export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const settings = useSettingsState();
+    const { hiddenFolders, hiddenFiles, hiddenTags, fileVisibility, profile } = useActiveProfile();
     const uxPreferences = useUXPreferences();
     const showHiddenItems = uxPreferences.showHiddenItems;
-    // Memoized list of folders hidden by the active vault profile
-    const hiddenFolders = useMemo(() => getActiveHiddenFolders(settings), [settings]);
-    // Memoized list of files hidden by the active vault profile
-    const hiddenFiles = useMemo(() => getActiveHiddenFiles(settings), [settings]);
+    const hiddenFoldersRef = useRef(hiddenFolders);
+    const hiddenTagsRef = useRef(hiddenTags);
     const { tagTreeService } = useServices();
     const [fileData, setFileData] = useState<FileData>({ tagTree: new Map(), tagged: 0, untagged: 0, hiddenRootTags: new Map() });
 
@@ -243,6 +242,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const pendingMetadataWaitPathsRef = useRef<Map<string, Set<ContentType>>>(new Map());
     const pendingRenameDataRef = useRef<Map<string, DBFileData>>(new Map());
     const latestSettingsRef = useRef(settings);
+    latestSettingsRef.current = settings;
     const activeVaultEventRefs = useRef<EventRef[] | null>(null);
     const activeMetadataEventRef = useRef<EventRef | null>(null);
     const rebuildFileCacheRef = useRef<ReturnType<typeof debounce> | null>(null);
@@ -260,19 +260,27 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
     // Returns markdown files visible in the UI after applying exclusion filters
     const getVisibleMarkdownFiles = useCallback((): TFile[] => {
-        return getFilteredMarkdownFiles(app, settings, { showHiddenItems });
-    }, [app, settings, showHiddenItems]);
+        return getFilteredMarkdownFiles(app, latestSettingsRef.current, { showHiddenItems });
+    }, [app, showHiddenItems]);
 
     // Returns all markdown files regardless of hidden/excluded settings for indexing
     const getIndexableMarkdownFiles = useCallback((): TFile[] => {
-        return getFilteredMarkdownFiles(app, settings, { showHiddenItems: true });
-    }, [app, settings]);
+        return getFilteredMarkdownFiles(app, latestSettingsRef.current, { showHiddenItems: true });
+    }, [app]);
+
+    useEffect(() => {
+        hiddenFoldersRef.current = hiddenFolders;
+    }, [hiddenFolders]);
+
+    useEffect(() => {
+        hiddenTagsRef.current = hiddenTags;
+    }, [hiddenTags]);
 
     // Rebuilds the complete tag tree structure from database contents
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
         // Hidden items override: when enabled, include all folders in tag tree regardless of exclusions
-        const excludedFolderPatterns = showHiddenItems ? [] : hiddenFolders;
+        const excludedFolderPatterns = showHiddenItems ? [] : hiddenFoldersRef.current;
         // Filter database results to only include files matching current visibility settings
         const includedPaths = new Set(getVisibleMarkdownFiles().map(f => f.path));
         const {
@@ -280,7 +288,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             tagged: newTagged,
             untagged: newUntagged,
             hiddenRootTags
-        } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths, settings.hiddenTags, showHiddenItems);
+        } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths, hiddenTagsRef.current, showHiddenItems);
         clearNoteCountCache();
         const untaggedCount = newUntagged;
         setFileData({ tagTree, tagged: newTagged, untagged: untaggedCount, hiddenRootTags });
@@ -291,7 +299,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         return tagTree;
-    }, [hiddenFolders, settings.hiddenTags, showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
+    }, [showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
 
     /**
      * Effect: Rebuild tag tree when hidden items visibility changes
@@ -307,18 +315,17 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         if (settings.showTags) {
             rebuildTagTree();
         }
-    }, [showHiddenItems, settings.showTags, isStorageReady, rebuildTagTree]);
-
-    /**
-     * Effect: Keep a ref with the latest settings for use in callbacks
-     *
-     * This ref is needed because callbacks and async operations may close over
-     * stale settings values. By keeping a ref updated with the latest settings,
-     * we can always access current settings even in older callback closures.
-     */
-    useEffect(() => {
-        latestSettingsRef.current = settings;
-    }, [settings]);
+    }, [
+        showHiddenItems,
+        settings.showTags,
+        isStorageReady,
+        rebuildTagTree,
+        hiddenFolders,
+        hiddenFiles,
+        hiddenTags,
+        fileVisibility,
+        profile.id
+    ]);
 
     /**
      * Effect: Clean up pending metadata waits for disabled content types

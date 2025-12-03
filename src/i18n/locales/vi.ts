@@ -1054,8 +1054,8 @@ export const STRINGS_VI = {
             },
             hiddenTags: {
                 name: 'Ẩn thẻ (hồ sơ vault)',
-                desc: 'Danh sách tiền tố thẻ hoặc ký tự đại diện phân cách bằng dấu phẩy. Dùng thẻ* hoặc *thẻ để khớp tên thẻ. Ẩn thẻ cũng ẩn tất cả thẻ con (ví dụ: "lưu trữ" ẩn "lưu trữ/2024/tài liệu").',
-                placeholder: 'nội bộ, temp/nháp, lưu trữ/2024'
+                desc: 'Danh sách mẫu thẻ phân cách bằng dấu phẩy. Mẫu tên: tag* (bắt đầu bằng), *tag (kết thúc bằng). Mẫu đường dẫn: archive (thẻ và con cháu), archive/* (chỉ con cháu), projects/*/drafts (ký tự đại diện ở giữa).',
+                placeholder: 'archive*, *draft, projects/*/old'
             },
             enableFolderNotes: {
                 name: 'Bật ghi chú thư mục',

@@ -38,7 +38,6 @@ import type { VisibilityPreferences } from '../types';
 import type { ListPaneItem } from '../types/virtualization';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { DateUtils } from '../utils/dateUtils';
-import { getActiveHiddenFiles, getActiveHiddenFolders } from '../utils/vaultProfiles';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { shouldExcludeFile, isFolderInExcludedFolder } from '../utils/fileFilters';
 import { getDateField, getEffectiveSortOption, naturalCompare } from '../utils/sortUtils';
@@ -57,6 +56,7 @@ import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility, normalizeTagPathValue } from '../utils/tagPrefixMatcher';
 import { resolveListGrouping } from '../utils/listGrouping';
 import { runAsyncAction } from '../utils/async';
+import type { ActiveProfileState } from '../context/SettingsContext';
 
 const EMPTY_SEARCH_META = new Map<string, SearchResultMeta>();
 // Shared empty map used when no files are hidden to avoid allocations
@@ -76,6 +76,8 @@ interface UseListPaneDataParams {
     selectedTag: string | null;
     /** Plugin settings */
     settings: NotebookNavigatorSettings;
+    /** Active profile-derived values */
+    activeProfile: ActiveProfileState;
     /** Optional search query to filter files */
     searchQuery?: string;
     /** Pre-parsed search tokens matching the debounced query */
@@ -116,6 +118,7 @@ export function useListPaneData({
     selectedFolder,
     selectedTag,
     settings,
+    activeProfile,
     searchQuery,
     searchTokens,
     visibility
@@ -138,10 +141,29 @@ export function useListPaneData({
     const isOmnisearchAvailable = omnisearchService?.isAvailable() ?? false;
     // Use Omnisearch only when selected, available, and there's a query
     const useOmnisearch = settings.searchProvider === 'omnisearch' && isOmnisearchAvailable && hasSearchQuery;
-    // Memoized list of folders hidden by the active vault profile
-    const hiddenFolders = useMemo(() => getActiveHiddenFolders(settings), [settings]);
-    // Memoized list of files hidden by the active vault profile
-    const hiddenFiles = useMemo(() => getActiveHiddenFiles(settings), [settings]);
+    const { hiddenFolders, hiddenFiles, hiddenTags, fileVisibility } = activeProfile;
+    const listConfig = useMemo(
+        () => ({
+            pinnedNotes: settings.pinnedNotes,
+            filterPinnedByFolder: settings.filterPinnedByFolder,
+            showPinnedGroupHeader: settings.showPinnedGroupHeader ?? true,
+            showTags: settings.showTags,
+            showFileTags: settings.showFileTags,
+            noteGrouping: settings.noteGrouping,
+            folderAppearances: settings.folderAppearances,
+            tagAppearances: settings.tagAppearances
+        }),
+        [
+            settings.filterPinnedByFolder,
+            settings.folderAppearances,
+            settings.noteGrouping,
+            settings.pinnedNotes,
+            settings.showFileTags,
+            settings.showPinnedGroupHeader,
+            settings.showTags,
+            settings.tagAppearances
+        ]
+    );
 
     const sortOption = useMemo(() => {
         if (selectionType === ItemType.TAG && selectedTag) {
@@ -167,7 +189,34 @@ export function useListPaneData({
         // NOTE: Excluding getFilesForFolder/getFilesForTag - static imports
         // updateKey triggers re-computation on storage updates
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectionType, selectedFolder, selectedTag, settings, includeDescendantNotes, showHiddenItems, app, tagTreeService, updateKey]);
+    }, [
+        selectionType,
+        selectedFolder,
+        selectedTag,
+        activeProfile.profile.id,
+        activeProfile.hiddenFolders,
+        activeProfile.hiddenFiles,
+        activeProfile.hiddenTags,
+        activeProfile.fileVisibility,
+        settings.enableFolderNotes,
+        settings.hideFolderNoteInList,
+        settings.folderNoteName,
+        settings.useFrontmatterMetadata,
+        settings.frontmatterNameField,
+        settings.frontmatterCreatedField,
+        settings.frontmatterModifiedField,
+        settings.frontmatterDateFormat,
+        settings.filterPinnedByFolder,
+        settings.pinnedNotes,
+        settings.defaultFolderSort,
+        settings.folderSortOverrides,
+        settings.tagSortOverrides,
+        includeDescendantNotes,
+        showHiddenItems,
+        app,
+        tagTreeService,
+        updateKey
+    ]);
 
     // Set of file paths for the current view scope
     const basePathSet = useMemo(() => new Set(baseFiles.map(file => file.path)), [baseFiles]);
@@ -443,9 +492,9 @@ export function useListPaneData({
         const contextFilter =
             selectionType === ItemType.TAG ? ItemType.TAG : selectionType === ItemType.FOLDER ? ItemType.FOLDER : undefined;
         const restrictToFolderPath =
-            settings.filterPinnedByFolder && selectionType === ItemType.FOLDER && selectedFolder ? selectedFolder.path : undefined;
+            listConfig.filterPinnedByFolder && selectionType === ItemType.FOLDER && selectedFolder ? selectedFolder.path : undefined;
         const pinnedPaths = collectPinnedPaths(
-            settings.pinnedNotes,
+            listConfig.pinnedNotes,
             contextFilter,
             restrictToFolderPath !== undefined ? { restrictToFolderPath } : undefined
         );
@@ -456,8 +505,8 @@ export function useListPaneData({
 
         // Check if file has tags for height optimization
         const db = getDB();
-        const shouldDetectTags = settings.showTags && settings.showFileTags;
-        const hiddenTagVisibility = shouldDetectTags ? createHiddenTagVisibility(settings.hiddenTags, showHiddenItems) : null;
+        const shouldDetectTags = listConfig.showTags && listConfig.showFileTags;
+        const hiddenTagVisibility = shouldDetectTags ? createHiddenTagVisibility(hiddenTags, showHiddenItems) : null;
         const fileHasTags = shouldDetectTags
             ? (file: TFile) => {
                   const tags = db.getCachedTags(file.path);
@@ -491,7 +540,7 @@ export function useListPaneData({
         };
 
         // Controls whether to show header above pinned notes section
-        const showPinnedGroupHeader = settings.showPinnedGroupHeader ?? true;
+        const showPinnedGroupHeader = listConfig.showPinnedGroupHeader;
 
         // Add pinned files
         if (pinnedFiles.length > 0) {
@@ -509,7 +558,11 @@ export function useListPaneData({
 
         // Resolve effective grouping mode (handles global default + per-folder/tag overrides)
         const groupingInfo = resolveListGrouping({
-            settings,
+            settings: {
+                noteGrouping: listConfig.noteGrouping,
+                folderAppearances: listConfig.folderAppearances,
+                tagAppearances: listConfig.tagAppearances
+            },
             selectionType: selectionType ?? undefined,
             folderPath: selectedFolder ? selectedFolder.path : null,
             tag: selectedTag ?? null
@@ -524,8 +577,7 @@ export function useListPaneData({
             // No grouping
             // If pinned notes exist and there are regular items, insert a header before regular notes
             if (pinnedFiles.length > 0 && unpinnedFiles.length > 0) {
-                const label =
-                    settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS ? strings.listPane.notesSection : strings.listPane.filesSection;
+                const label = fileVisibility === FILE_VISIBILITY.DOCUMENTS ? strings.listPane.notesSection : strings.listPane.filesSection;
                 items.push({
                     type: ListPaneItemType.HEADER,
                     data: label,
@@ -679,7 +731,7 @@ export function useListPaneData({
         return items;
     }, [
         files,
-        settings,
+        listConfig,
         selectionType,
         selectedFolder,
         selectedTag,
@@ -689,7 +741,9 @@ export function useListPaneData({
         sortOption,
         getDB,
         hiddenFileState,
-        showHiddenItems
+        showHiddenItems,
+        fileVisibility,
+        hiddenTags
     ]);
 
     /**

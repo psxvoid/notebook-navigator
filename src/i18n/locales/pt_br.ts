@@ -1055,8 +1055,8 @@ export const STRINGS_PT_BR = {
             },
             hiddenTags: {
                 name: 'Ocultar tags (perfil do cofre)',
-                desc: 'Lista separada por vírgulas de prefixos de tag ou curingas de nome. Use tag* ou *tag para corresponder nomes de tags. Ocultar uma tag também oculta todas as suas sub-tags (por exemplo, "arquivo" oculta "arquivo/2024/docs").',
-                placeholder: 'interno, temp/rascunhos, arquivo/2024'
+                desc: 'Lista de padrões de tags separados por vírgulas. Padrões de nome: tag* (começa com), *tag (termina com). Padrões de caminho: arquivo (tag e descendentes), arquivo/* (apenas descendentes), projetos/*/rascunhos (curinga intermediário).',
+                placeholder: 'arquivo*, *rascunho, projetos/*/antigo'
             },
             enableFolderNotes: {
                 name: 'Ativar notas de pasta',

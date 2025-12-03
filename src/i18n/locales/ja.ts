@@ -1057,8 +1057,8 @@ export const STRINGS_JA = {
             },
             hiddenTags: {
                 name: 'タグを非表示 (ボルトプロファイル)',
-                desc: '非表示にするタグの接頭辞または名前ワイルドカードのカンマ区切りリスト。`tag*` や `*tag` でタグ名に一致します。タグを非表示にすると、すべてのサブタグも非表示になります（例："アーカイブ"で"アーカイブ/2024/docs"も非表示）。',
-                placeholder: '内部, temp/下書き, アーカイブ/2024'
+                desc: 'カンマ区切りのタグパターンリスト。名前パターン: tag*（で始まる）、*tag（で終わる）。パスパターン: archive（タグと子孫）、archive/*（子孫のみ）、projects/*/drafts（中間ワイルドカード）。',
+                placeholder: 'archive*, *draft, projects/*/old'
             },
             enableFolderNotes: {
                 name: 'フォルダノートを有効化',

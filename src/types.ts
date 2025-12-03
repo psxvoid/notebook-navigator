@@ -223,6 +223,7 @@ export interface LocalStorageKeys {
     databaseSchemaVersionKey: string;
     databaseContentVersionKey: string;
     localStorageVersionKey: string;
+    vaultProfileKey: string;
 }
 
 /**
@@ -250,7 +251,8 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     fileCacheKey: 'notebook-navigator-file-cache',
     databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
     databaseContentVersionKey: 'notebook-navigator-db-content-version',
-    localStorageVersionKey: 'notebook-navigator-localstorage-version'
+    localStorageVersionKey: 'notebook-navigator-localstorage-version',
+    vaultProfileKey: 'notebook-navigator-vault-profile'
 };
 
 export interface UXPreferences {

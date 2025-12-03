@@ -1058,8 +1058,8 @@ export const STRINGS_DE = {
             },
             hiddenTags: {
                 name: 'Tags verstecken (Tresorprofil)',
-                desc: 'Kommagetrennte Liste von Tag-Präfixen oder Namensplatzhaltern zum Ausblenden. Verwende `tag*` oder `*tag`, um Tagnamen abzugleichen. Ein versteckter Tag blendet auch alle Unter-Tags aus (z.B. "archiv" blendet "archiv/2024/docs" aus).',
-                placeholder: 'intern, temp/entwürfe, archiv/2024'
+                desc: 'Kommagetrennte Liste von Tag-Mustern. Namensmuster: tag* (beginnt mit), *tag (endet mit). Pfadmuster: archiv (Tag und Untergeordnete), archiv/* (nur Untergeordnete), projekte/*/entwürfe (Platzhalter in der Mitte).',
+                placeholder: 'archiv*, *entwurf, projekte/*/alt'
             },
             enableFolderNotes: {
                 name: 'Ordnernotizen aktivieren',

@@ -159,13 +159,13 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         }
         const activeProfile = getActiveProfile();
         if (fileVisibilityDropdown) {
-            fileVisibilityDropdown.setValue(plugin.settings.fileVisibility);
+            fileVisibilityDropdown.setValue(activeProfile?.fileVisibility ?? FILE_VISIBILITY.SUPPORTED);
         }
         if (excludedFoldersInput) {
             excludedFoldersInput.value = activeProfile ? activeProfile.hiddenFolders.join(', ') : '';
         }
         if (hiddenTagsInput) {
-            hiddenTagsInput.value = plugin.settings.hiddenTags.join(', ');
+            hiddenTagsInput.value = activeProfile ? activeProfile.hiddenTags.join(', ') : '';
         }
         if (excludedFilesInput) {
             excludedFilesInput.value = activeProfile ? activeProfile.hiddenFiles.join(', ') : '';
@@ -181,8 +181,8 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         const activeProfile = getActiveProfile();
         const result = createValidatedVaultProfileFromTemplate(plugin.settings.vaultProfiles, validatedName, {
             sourceProfile: activeProfile,
-            fallbackHiddenTags: plugin.settings.hiddenTags,
-            fallbackFileVisibility: plugin.settings.fileVisibility
+            fallbackHiddenTags: activeProfile?.hiddenTags,
+            fallbackFileVisibility: activeProfile?.fileVisibility
         });
 
         if ('error' in result) {
@@ -281,9 +281,8 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 .addOption(FILE_VISIBILITY.DOCUMENTS, strings.settings.items.fileVisibility.options.documents)
                 .addOption(FILE_VISIBILITY.SUPPORTED, strings.settings.items.fileVisibility.options.supported)
                 .addOption(FILE_VISIBILITY.ALL, strings.settings.items.fileVisibility.options.all)
-                .setValue(plugin.settings.fileVisibility)
+                .setValue(getActiveProfile()?.fileVisibility ?? FILE_VISIBILITY.SUPPORTED)
                 .onChange(async (value: FileVisibility) => {
-                    plugin.settings.fileVisibility = value;
                     const activeProfile = plugin.settings.vaultProfiles.find(profile => profile.id === plugin.settings.vaultProfile);
                     if (activeProfile) {
                         activeProfile.fileVisibility = value;
@@ -325,14 +324,18 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         strings.settings.items.hiddenTags.name,
         strings.settings.items.hiddenTags.desc,
         strings.settings.items.hiddenTags.placeholder,
-        () => plugin.settings.hiddenTags.join(', '),
+        () => getActiveProfile()?.hiddenTags.join(', ') ?? '',
         value => {
+            const activeProfile = getActiveProfile();
+            if (!activeProfile) {
+                return;
+            }
             const normalizedHiddenTags = value
                 .split(',')
                 .map(entry => normalizeTagPath(entry))
                 .filter((entry): entry is string => entry !== null);
 
-            plugin.settings.hiddenTags = Array.from(new Set(normalizedHiddenTags));
+            activeProfile.hiddenTags = Array.from(new Set(normalizedHiddenTags));
             resetHiddenToggleIfNoSources({
                 settings: plugin.settings,
                 showHiddenItems: plugin.getUXPreferences().showHiddenItems,

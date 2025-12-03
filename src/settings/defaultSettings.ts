@@ -30,8 +30,6 @@ import type { NotebookNavigatorSettings } from './types';
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // General tab - Filtering
-    fileVisibility: FILE_VISIBILITY.SUPPORTED,
-    hiddenTags: [],
     vaultProfiles: [
         {
             id: 'default',

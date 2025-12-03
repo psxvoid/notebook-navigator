@@ -1054,8 +1054,8 @@ export const STRINGS_TR = {
             },
             hiddenTags: {
                 name: 'Etiketleri gizle (kasa profili)',
-                desc: 'Virgülle ayrılmış etiket önekleri veya ad joker karakterleri listesi. Etiket adlarını eşleştirmek için etiket* veya *etiket kullanın. Bir etiketi gizlemek tüm alt etiketlerini de gizler (örn. "arşiv", "arşiv/2024/belgeler"i gizler).',
-                placeholder: 'dahili, temp/taslaklar, arşiv/2024'
+                desc: 'Virgülle ayrılmış etiket kalıpları listesi. Ad kalıpları: etiket* (ile başlayan), *etiket (ile biten). Yol kalıpları: arşiv (etiket ve alt öğeler), arşiv/* (yalnızca alt öğeler), projeler/*/taslaklar (ortada joker).',
+                placeholder: 'arşiv*, *taslak, projeler/*/eski'
             },
             enableFolderNotes: {
                 name: 'Klasör notlarını etkinleştir',

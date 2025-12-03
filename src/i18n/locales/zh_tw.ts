@@ -1053,8 +1053,8 @@ export const STRINGS_ZH_TW = {
             },
             hiddenTags: {
                 name: '隱藏標籤 (儲存庫配置)',
-                desc: '以逗號分隔的標籤前綴或名稱萬用字元清單。使用 tag* 或 *tag 來匹配標籤名稱。隱藏一個標籤也會隱藏其所有子標籤 (例如 "archive" 隱藏 "archive/2024/docs")。',
-                placeholder: 'internal, temp/drafts, archive/2024'
+                desc: '以逗號分隔的標籤模式清單。名稱模式：tag*（以...開頭）、*tag（以...結尾）。路徑模式：archive（標籤及其後代）、archive/*（僅後代）、projects/*/drafts（中間萬用字元）。',
+                placeholder: 'archive*, *draft, projects/*/old'
             },
             enableFolderNotes: {
                 name: '啟用資料夾筆記',
