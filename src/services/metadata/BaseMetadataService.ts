@@ -20,7 +20,7 @@ import { App } from 'obsidian';
 import { NotebookNavigatorSettings, SortOption } from '../../settings';
 import { ItemType } from '../../types';
 import { ISettingsProvider } from '../../interfaces/ISettingsProvider';
-import { FolderAppearance, TagAppearance } from '../../hooks/useListPaneAppearance';
+import type { FolderAppearance, TagAppearance } from '../../hooks/useListPaneAppearance';
 import type { ShortcutEntry } from '../../types/shortcuts';
 import { mutateVaultProfileShortcuts } from '../../utils/vaultProfiles';
 import { normalizeCanonicalIconId } from '../../utils/iconizeFormat';

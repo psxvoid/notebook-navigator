@@ -112,6 +112,12 @@ export const NavigationPaneItemType = {
     ROOT_SPACER: 'root-spacer'
 } as const;
 
+export const enum ListExpandMode {
+    None,
+    ToParent,
+    ToChildren,
+}
+
 /**
  * Type representing all possible navigation pane item types
  */

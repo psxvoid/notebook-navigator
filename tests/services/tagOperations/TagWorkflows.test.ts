@@ -125,7 +125,7 @@ describe('TagDeleteWorkflow', () => {
         deleteTagFromFile = vi.fn().mockResolvedValue(true);
 
         hooks = {
-            deleteTagFromFile,
+            deleteTagFromFile: deleteTagFromFile as TagDeleteHooks["deleteTagFromFile"],
             removeTagMetadataAfterDelete: vi.fn().mockResolvedValue(undefined),
             removeTagShortcutsAfterDelete: vi.fn().mockResolvedValue(undefined),
             notifyTagDeleted: vi.fn(),

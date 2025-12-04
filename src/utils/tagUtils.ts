@@ -18,12 +18,11 @@
 
 import { Platform, type TFile } from 'obsidian';
 import { MultiSelectModifier, NotebookNavigatorSettings } from '../settings';
-import { TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
+import { ListExpandMode, TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { normalizeTagPathValue } from './tagPrefixMatcher';
 import { findTagNode } from './tagTree';
 import type { TagTreeNode } from '../types/storage';
-import { ListExpandMode } from 'src/hooks/useNavigatorReveal';
 import type { InclusionOperator } from './filterSearch';
 
 export const TAG_CHARACTER_CLASS = '[\\p{L}\\p{N}_\\-/]';

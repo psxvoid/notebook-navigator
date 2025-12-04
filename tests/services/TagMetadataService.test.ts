@@ -5,9 +5,6 @@ import type { NotebookNavigatorSettings } from '../../src/settings';
 import { DEFAULT_SETTINGS } from '../../src/settings/defaultSettings';
 import type { ISettingsProvider } from '../../src/interfaces/ISettingsProvider';
 import { createVaultProfile } from '../../src/utils/vaultProfiles';
-import { mockObsidian } from 'tests/stubs/obsidian';
-
-mockObsidian()
 
 class TestSettingsProvider implements ISettingsProvider {
     constructor(public settings: NotebookNavigatorSettings) {}
