@@ -78,7 +78,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [],
         improved: [
-            "New Excalidraw and new Tldraw documents now use names and templates configured in each plugin's settings.",
+            "Creating Excalidraw and Tldraw documents now uses names and templates configured in each plugin's settings.",
+            'Android users can now swipe in the middle of the view to go from list pane to navigation pane.',
             'Notebook Navigator now also supports AVIF images for image previews in list pane.'
         ],
         changed: [
