@@ -99,7 +99,7 @@ export const STRINGS_NL = {
         hideFolders: 'Navigatie verbergen',
         reorderRootFolders: 'Hoofdmappen en tags herschikken',
         finishRootFolderReorder: 'Herschikken voltooien',
-        toggleDescendantNotes: 'Notities uit submappen / afstammelingen tonen',
+        toggleDescendantNotes: 'Notities uit submappen / afstammelingen tonen (niet gesynchroniseerd)',
         autoExpandFoldersTags: 'Mappen en tags automatisch uitklappen',
         showExcludedItems: 'Verborgen mappen, tags en notities tonen',
         hideExcludedItems: 'Verborgen mappen, tags en notities verbergen',
@@ -594,7 +594,7 @@ export const STRINGS_NL = {
         items: {
             searchProvider: {
                 name: 'Zoekprovider',
-                desc: 'Kies tussen snelle bestandsnaamzoekfunctie of volledige tekstzoekfunctie met Omnisearch plugin.',
+                desc: 'Kies tussen snelle bestandsnaamzoekfunctie of volledige tekstzoekfunctie met Omnisearch plugin. (niet gesynchroniseerd)',
                 options: {
                     internal: 'Filter zoeken',
                     omnisearch: 'Omnisearch (volledige tekst)'
@@ -649,7 +649,7 @@ export const STRINGS_NL = {
                 desc: 'Scroll naar het geselecteerde bestand bij het vastpinnen van notities, tonen van afstammelingen-notities, wijzigen van mapweergave of uitvoeren van bestandsoperaties.'
             },
             includeDescendantNotes: {
-                name: 'Notities uit submappen / afstammelingen tonen',
+                name: 'Notities uit submappen / afstammelingen tonen (niet gesynchroniseerd)',
                 desc: 'Notities uit geneste submappen en tag-afstammelingen opnemen bij het bekijken van een map of tag.'
             },
             limitPinnedToCurrentFolder: {
@@ -1067,7 +1067,7 @@ export const STRINGS_NL = {
             },
             tagSortOrder: {
                 name: 'Tag sorteervolgorde',
-                desc: 'Kies hoe tags worden geordend in het navigatiepaneel.',
+                desc: 'Kies hoe tags worden geordend in het navigatiepaneel. (niet gesynchroniseerd)',
                 options: {
                     alphaAsc: 'A tot Z',
                     alphaDesc: 'Z tot A',
@@ -1089,8 +1089,8 @@ export const STRINGS_NL = {
             },
             hiddenTags: {
                 name: 'Tags verbergen (kluisprofiel)',
-                desc: 'Kommagescheiden lijst van tag-prefixen of naam-wildcards. Gebruik tag* of *tag om tagnamen te matchen. Het verbergen van een tag verbergt ook al zijn subtags (bijv. "archive" verbergt "archive/2024/docs").',
-                placeholder: 'internal, temp/drafts, archive/2024'
+                desc: 'Kommagescheiden lijst van tagpatronen. Naampatronen: tag* (begint met), *tag (eindigt met). Padpatronen: archief (tag en afstammelingen), archief/* (alleen afstammelingen), projecten/*/concepten (wildcard in het midden).',
+                placeholder: 'archief*, *concept, projecten/*/oud'
             },
             enableFolderNotes: {
                 name: 'Mapnotities inschakelen',

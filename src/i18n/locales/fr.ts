@@ -98,7 +98,7 @@ export const STRINGS_FR = {
         hideFolders: 'Masquer la navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Réorganiser les dossiers racine et les étiquettes',
         finishRootFolderReorder: 'Terminer la réorganisation',
-        toggleDescendantNotes: 'Afficher les notes des sous-dossiers / descendants', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
+        toggleDescendantNotes: 'Afficher les notes des sous-dossiers / descendants (non synchronisé)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants (not synced))
         autoExpandFoldersTags: 'Développer automatiquement les dossiers et les étiquettes', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Afficher les dossiers, étiquettes et notes masqués', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Masquer les dossiers, étiquettes et notes masqués', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -593,7 +593,7 @@ export const STRINGS_FR = {
         items: {
             searchProvider: {
                 name: 'Fournisseur de recherche',
-                desc: 'Choisissez entre la recherche rapide par nom de fichier ou la recherche plein texte avec le plugin Omnisearch.',
+                desc: 'Choisissez entre la recherche rapide par nom de fichier ou la recherche plein texte avec le plugin Omnisearch. (non synchronisé)',
                 options: {
                     internal: 'Recherche par filtre',
                     omnisearch: 'Omnisearch (plein texte)'
@@ -649,7 +649,7 @@ export const STRINGS_FR = {
                 desc: "Défiler vers le fichier sélectionné lors de l'épinglage de notes, l'affichage de notes descendantes, le changement d'apparence de dossier ou l'exécution d'opérations sur les fichiers."
             },
             includeDescendantNotes: {
-                name: 'Afficher les notes des sous-dossiers / descendants',
+                name: 'Afficher les notes des sous-dossiers / descendants (non synchronisé)',
                 desc: "Inclure les notes des sous-dossiers imbriqués et des descendants d'étiquettes lors de l'affichage d'un dossier ou d'une étiquette."
             },
             limitPinnedToCurrentFolder: {
@@ -1068,7 +1068,7 @@ export const STRINGS_FR = {
             },
             tagSortOrder: {
                 name: 'Ordre de tri des étiquettes',
-                desc: 'Définir comment les étiquettes sont triées dans le panneau de navigation.',
+                desc: 'Définir comment les étiquettes sont triées dans le panneau de navigation. (non synchronisé)',
                 options: {
                     alphaAsc: 'A à Z',
                     alphaDesc: 'Z à A',
@@ -1090,8 +1090,8 @@ export const STRINGS_FR = {
             },
             hiddenTags: {
                 name: 'Masquer les étiquettes (profil du coffre)',
-                desc: 'Liste séparée par des virgules de préfixes ou de jokers de nom d\'étiquettes à masquer. Utilisez `tag*` ou `*tag` pour faire correspondre les noms d\'étiquette. Masquer une étiquette masque aussi toutes ses sous-étiquettes (par ex. "archive" masque "archive/2024/docs").',
-                placeholder: 'interne, temp/brouillons, archive/2024'
+                desc: "Liste séparée par des virgules de motifs d'étiquettes. Motifs de nom : tag* (commence par), *tag (termine par). Motifs de chemin : archive (étiquette et descendants), archive/* (descendants uniquement), projets/*/brouillons (joker intermédiaire).",
+                placeholder: 'archive*, *brouillon, projets/*/ancien'
             },
             enableFolderNotes: {
                 name: 'Activer les notes de dossier',

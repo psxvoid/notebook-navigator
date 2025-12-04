@@ -25,6 +25,12 @@ class TestSettingsProvider implements ISettingsProvider {
     }
 
     setRecentIcons(): void {}
+
+    getRecentColors(): string[] {
+        return [];
+    }
+
+    setRecentColors(): void {}
 }
 
 class ConcreteMetadataService extends BaseMetadataService {

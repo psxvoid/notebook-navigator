@@ -531,7 +531,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Vault profile:** Profiles store file type visibility, hidden folders, hidden tags, hidden notes, shortcuts, and navigation banner. Switch profiles from the navigation pane header.
 - **Show file types:** Filter which file types are shown in the navigator. `Documents (.md, .canvas, .base)`, `Supported (opens in Obsidian)`, `All (may open externally)`.
 - **Hide folders:** Comma-separated list of folders to hide. Name patterns: `assets*` (folders starting with assets), `*_temp` (ending with \_temp). Path patterns: `/archive` (root archive only), `/res*` (root folders starting with res), `/*/temp` (temp folders one level deep), `/projects/*` (all folders inside projects).
-- **Hide tags:** Comma-separated list of tag prefixes or name wildcards. Use `tag*` or `*tag` to match tag names. Hiding a tag also hides all its sub-tags (e.g., `archive` hides `archive/2024/docs`).
+- **Hide tags:** Comma-separated list of tag patterns. Name patterns: `tag*` (starting with), `*tag` (ending with). Path patterns: `archive` (tag and descendants), `archive/*` (descendants only), `projects/*/drafts` (mid-segment wildcard).
 - **Hide notes:** Comma-separated frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).
 
 **Behavior**

@@ -62,7 +62,9 @@ function createSettingsProvider(settings: NotebookNavigatorSettings): ISettingsP
         getRecentNotes: () => [],
         setRecentNotes: vi.fn(),
         getRecentIcons: () => ({}),
-        setRecentIcons: vi.fn()
+        setRecentIcons: vi.fn(),
+        getRecentColors: () => [],
+        setRecentColors: vi.fn()
     };
 }
 

@@ -18,7 +18,13 @@
 
 import { App, Modal, setIcon } from 'obsidian';
 import { strings } from '../i18n';
-import { DEFAULT_CUSTOM_COLOR, DEFAULT_CUSTOM_COLORS, DEFAULT_USER_COLORS, USER_COLOR_SLOT_COUNT } from '../constants/colorPalette';
+import {
+    DEFAULT_CUSTOM_COLOR,
+    DEFAULT_CUSTOM_COLORS,
+    DEFAULT_USER_COLORS,
+    MAX_RECENT_COLORS,
+    USER_COLOR_SLOT_COUNT
+} from '../constants/colorPalette';
 import { ItemType } from '../types';
 import { ISettingsProvider } from '../interfaces/ISettingsProvider';
 import { runAsyncAction } from '../utils/async';
@@ -27,7 +33,6 @@ import { showNotice } from '../utils/noticeUtils';
 import { createDragGhostManager, type DragGhostManager } from '../utils/dragGhost';
 import { ConfirmModal } from './ConfirmModal';
 
-const MAX_RECENT_COLORS = 10;
 const DEFAULT_COLOR = '#3b82f6';
 
 type ColorChannel = 'r' | 'g' | 'b' | 'a';
@@ -517,11 +522,19 @@ export class ColorPickerModal extends Modal {
         });
     }
 
+    private getRecentColors(): string[] {
+        return this.settingsProvider.getRecentColors();
+    }
+
+    private saveRecentColors(recentColors: string[]): void {
+        this.settingsProvider.setRecentColors(recentColors);
+    }
+
     /**
      * Load and display recently used colors
      */
     private loadRecentColors() {
-        const recentColors = this.settingsProvider.settings.recentColors || [];
+        const recentColors = this.getRecentColors();
         this.disposeRecentColorListeners();
         this.recentColorsContainer.empty();
 
@@ -570,8 +583,7 @@ export class ColorPickerModal extends Modal {
      * Clear all recently used colors
      */
     private clearRecentColors() {
-        this.settingsProvider.settings.recentColors = [];
-        runAsyncAction(() => this.settingsProvider.saveSettingsAndUpdate());
+        this.saveRecentColors([]);
         this.loadRecentColors();
     }
 
@@ -579,13 +591,13 @@ export class ColorPickerModal extends Modal {
      * Remove a single recently used color by index
      */
     private removeRecentColor(index: number) {
-        const recentColors = this.settingsProvider.settings.recentColors;
-        if (!recentColors || index < 0 || index >= recentColors.length) {
+        const recentColors = this.getRecentColors();
+        if (index < 0 || index >= recentColors.length) {
             return;
         }
 
         recentColors.splice(index, 1);
-        runAsyncAction(() => this.settingsProvider.saveSettingsAndUpdate());
+        this.saveRecentColors(recentColors);
         this.loadRecentColors();
     }
 
@@ -1396,7 +1408,7 @@ export class ColorPickerModal extends Modal {
     /**
      * Save color to recent colors
      */
-    private async saveToRecentColors(color: string) {
+    private saveToRecentColors(color: string): void {
         // Don't add saved user colors to recent
         const isPaletteColor =
             this.defaultColors.some(defaultColor => defaultColor === color) || this.customColors.some(customColor => customColor === color);
@@ -1404,8 +1416,7 @@ export class ColorPickerModal extends Modal {
             return;
         }
 
-        const settings = this.settingsProvider.settings;
-        let recentColors = settings.recentColors || [];
+        let recentColors = this.getRecentColors();
 
         // Remove if already exists
         recentColors = recentColors.filter(c => c !== color);
@@ -1416,9 +1427,7 @@ export class ColorPickerModal extends Modal {
         // Limit to max
         recentColors = recentColors.slice(0, MAX_RECENT_COLORS);
 
-        // Update settings
-        settings.recentColors = recentColors;
-        await this.settingsProvider.saveSettingsAndUpdate();
+        this.saveRecentColors(recentColors);
     }
 
     /**
@@ -1460,7 +1469,7 @@ export class ColorPickerModal extends Modal {
      */
     private async saveColor() {
         // Save to recent colors
-        await this.saveToRecentColors(this.selectedColor);
+        this.saveToRecentColors(this.selectedColor);
 
         const handled = await this.wasHandledBySelection(this.selectedColor);
         if (handled) {

@@ -25,6 +25,7 @@ import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
 import { TagTreeNode } from '../../types/storage';
 import { normalizeTagPath } from '../../utils/tagUtils';
+import { hasHiddenTagMatch, removeHiddenTagPrefixMatches, updateHiddenTagPrefixMatches } from '../../utils/vaultProfiles';
 
 type SettingsMutation = (settings: NotebookNavigatorSettings) => boolean;
 
@@ -275,21 +276,6 @@ export class TagMetadataService extends BaseMetadataService {
     }
 
     /**
-     * Checks if settings contain any hidden tags matching the path or its descendants
-     */
-    private hasHiddenTagForPath(settings: NotebookNavigatorSettings, path: string): boolean {
-        return Array.isArray(settings.hiddenTags)
-            ? settings.hiddenTags.some(tag => {
-                  const normalized = normalizeTagPath(tag);
-                  if (!normalized) {
-                      return false;
-                  }
-                  return normalized === path || normalized.startsWith(`${path}/`);
-              })
-            : false;
-    }
-
-    /**
      * Checks if updateNestedPaths would modify a metadata record without mutating it
      */
     private willUpdateNestedPaths<T>(
@@ -321,6 +307,7 @@ export class TagMetadataService extends BaseMetadataService {
 
         const settingsSnapshot = this.settingsProvider.settings;
         const hasMetadata = this.hasTagMetadataForPath(settingsSnapshot, normalizedOld);
+        const hasHiddenTags = hasHiddenTagMatch(settingsSnapshot, normalizedOld);
 
         const requiresUpdate = hasMetadata
             ? this.willUpdateNestedPaths(settingsSnapshot.tagColors, normalizedOld, normalizedNew, preserveExisting) ||
@@ -330,7 +317,7 @@ export class TagMetadataService extends BaseMetadataService {
               this.willUpdateNestedPaths(settingsSnapshot.tagAppearances, normalizedOld, normalizedNew, preserveExisting)
             : false;
 
-        if (!requiresUpdate && !extraMutation) {
+        if (!requiresUpdate && !hasHiddenTags && !extraMutation) {
             return;
         }
 
@@ -343,6 +330,8 @@ export class TagMetadataService extends BaseMetadataService {
                 changed = this.updateNestedPaths(settings.tagSortOverrides, normalizedOld, normalizedNew, preserveExisting) || changed;
                 changed = this.updateNestedPaths(settings.tagAppearances, normalizedOld, normalizedNew, preserveExisting) || changed;
             }
+
+            changed = updateHiddenTagPrefixMatches(settings, normalizedOld, normalizedNew) || changed;
 
             if (extraMutation) {
                 changed = extraMutation(settings) || changed;
@@ -366,8 +355,7 @@ export class TagMetadataService extends BaseMetadataService {
         }
 
         const settingsSnapshot = this.settingsProvider.settings;
-        const hasMetadata =
-            this.hasTagMetadataForPath(settingsSnapshot, normalized) || this.hasHiddenTagForPath(settingsSnapshot, normalized);
+        const hasMetadata = this.hasTagMetadataForPath(settingsSnapshot, normalized) || hasHiddenTagMatch(settingsSnapshot, normalized);
 
         if (!hasMetadata && !extraMutation) {
             return;
@@ -383,22 +371,9 @@ export class TagMetadataService extends BaseMetadataService {
                 changed = this.removeTagMetadataForPath(settings.tagIcons, normalized, prefix) || changed;
                 changed = this.removeTagMetadataForPath(settings.tagSortOverrides, normalized, prefix) || changed;
                 changed = this.removeTagMetadataForPath(settings.tagAppearances, normalized, prefix) || changed;
-
-                if (Array.isArray(settings.hiddenTags) && settings.hiddenTags.length > 0) {
-                    const filtered = settings.hiddenTags.filter(tag => {
-                        const normalizedTag = normalizeTagPath(tag);
-                        if (!normalizedTag) {
-                            return true;
-                        }
-                        return normalizedTag !== normalized && !normalizedTag.startsWith(prefix);
-                    });
-
-                    if (filtered.length !== settings.hiddenTags.length) {
-                        settings.hiddenTags = filtered;
-                        changed = true;
-                    }
-                }
             }
+
+            changed = removeHiddenTagPrefixMatches(settings, normalized) || changed;
 
             if (extraMutation) {
                 changed = extraMutation(settings) || changed;

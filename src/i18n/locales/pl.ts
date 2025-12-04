@@ -98,7 +98,7 @@ export const STRINGS_PL = {
         hideFolders: 'Ukryj nawigację', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Przestaw foldery główne i tagi',
         finishRootFolderReorder: 'Zakończ przestawianie',
-        toggleDescendantNotes: 'Pokaż notatki z podfolderów / potomnych', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: 'Pokaż notatki z podfolderów / potomnych (nie synchronizowane)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Automatycznie rozwijaj foldery i tagi', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Pokaż ukryte foldery, tagi i notatki', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Ukryj ukryte foldery, tagi i notatki', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -594,7 +594,7 @@ export const STRINGS_PL = {
         items: {
             searchProvider: {
                 name: 'Dostawca wyszukiwania',
-                desc: 'Wybierz między szybkim wyszukiwaniem nazwy pliku lub pełnotekstowym wyszukiwaniem z pluginem Omnisearch.',
+                desc: 'Wybierz między szybkim wyszukiwaniem nazwy pliku lub pełnotekstowym wyszukiwaniem z pluginem Omnisearch. (nie synchronizowane)',
                 options: {
                     internal: 'Wyszukiwanie filtrujące',
                     omnisearch: 'Omnisearch (pełnotekstowy)'
@@ -649,7 +649,7 @@ export const STRINGS_PL = {
                 desc: 'Przewiń do wybranego pliku przy przypinaniu notatek, pokazywaniu notatek potomnych, zmianie wyglądu folderów lub wykonywaniu operacji na plikach.'
             },
             includeDescendantNotes: {
-                name: 'Pokaż notatki z podfolderów / potomnych',
+                name: 'Pokaż notatki z podfolderów / potomnych (nie synchronizowane)',
                 desc: 'Podczas przeglądania folderu lub tagu uwzględnij notatki z zagnieżdżonych podfolderów i potomnych tagów.'
             },
             limitPinnedToCurrentFolder: {
@@ -1066,7 +1066,7 @@ export const STRINGS_PL = {
             },
             tagSortOrder: {
                 name: 'Kolejność sortowania tagów',
-                desc: 'Wybierz sposób sortowania tagów w panelu nawigacji.',
+                desc: 'Wybierz sposób sortowania tagów w panelu nawigacji. (nie synchronizowane)',
                 options: {
                     alphaAsc: 'A do Z',
                     alphaDesc: 'Z do A',
@@ -1088,8 +1088,8 @@ export const STRINGS_PL = {
             },
             hiddenTags: {
                 name: 'Ukryj tagi (profil sejfu)',
-                desc: 'Lista prefiksów tagów lub symboli wieloznacznych nazw oddzielonych przecinkami. Użyj `tag*` lub `*tag`, aby dopasować nazwy tagów. Ukrycie tagu ukrywa też wszystkie jego pod-tagi (np. "archive" ukrywa "archive/2024/docs").',
-                placeholder: 'internal, temp/drafts, archive/2024'
+                desc: 'Lista wzorców tagów oddzielonych przecinkami. Wzorce nazw: tag* (zaczyna się od), *tag (kończy się na). Wzorce ścieżek: archiwum (tag i potomkowie), archiwum/* (tylko potomkowie), projekty/*/szkice (wildcard w środku).',
+                placeholder: 'archiwum*, *szkic, projekty/*/stare'
             },
             enableFolderNotes: {
                 name: 'Włącz notatki folderów',

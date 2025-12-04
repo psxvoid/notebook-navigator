@@ -25,6 +25,7 @@ import { strings } from '../i18n';
 import { matchesShortcut, KeyboardShortcutAction } from '../utils/keyboardShortcuts';
 import { runAsyncAction, type MaybePromise } from '../utils/async';
 import { SearchTagInputSuggest } from '../suggest/SearchTagInputSuggest';
+import type { SearchProvider } from '../types/search';
 
 interface SearchInputProps {
     searchQuery: string;
@@ -39,6 +40,7 @@ interface SearchInputProps {
     onRemoveShortcut?: () => MaybePromise;
     isShortcutSaved?: boolean;
     isShortcutDisabled?: boolean;
+    searchProvider?: SearchProvider;
 }
 
 export function SearchInput({
@@ -52,7 +54,8 @@ export function SearchInput({
     onSaveShortcut,
     onRemoveShortcut,
     isShortcutSaved,
-    isShortcutDisabled
+    isShortcutDisabled,
+    searchProvider
 }: SearchInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const tagSuggestRef = useRef<SearchTagInputSuggest | null>(null);
@@ -62,7 +65,8 @@ export function SearchInput({
     const uiDispatch = useUIDispatch();
 
     const placeholderText = useMemo(() => {
-        const isOmnisearchSelected = settings.searchProvider === 'omnisearch';
+        const activeProvider = searchProvider ?? settings.searchProvider ?? 'internal';
+        const isOmnisearchSelected = activeProvider === 'omnisearch';
         const isOmnisearchAvailable = omnisearchService?.isAvailable() ?? false;
 
         if (isOmnisearchSelected && isOmnisearchAvailable) {
@@ -70,7 +74,7 @@ export function SearchInput({
         }
 
         return strings.searchInput.placeholder;
-    }, [settings.searchProvider, omnisearchService]);
+    }, [searchProvider, settings.searchProvider, omnisearchService]);
 
     // Auto-focus input when shouldFocus is true
     useEffect(() => {

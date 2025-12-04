@@ -21,7 +21,7 @@ import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, us
 import { TFile, TFolder } from 'obsidian';
 import { useSelectionState, useSelectionDispatch, getFirstSelectedFile } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
-import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
@@ -84,7 +84,6 @@ export interface NotebookNavigatorHandle {
     revealFileInNearestFolder: (file: TFile, options?: RevealFileOptions) => void;
     focusVisiblePane: () => void;
     focusNavigationPane: () => void;
-    refresh: () => void;
     deleteActiveFile: () => void;
     createNoteInSelectedFolder: () => Promise<void>;
     moveSelectedFiles: () => Promise<void>;
@@ -227,9 +226,6 @@ export const NotebookNavigatorComponent = React.memo(
             storageKey: navigationPaneStorageKey,
             scale: uiScale
         });
-
-        // Get updateSettings from SettingsContext for refresh
-        const updateSettings = useSettingsUpdate();
 
         // Tracks whether initial dual/single pane check has been performed
         const hasCheckedInitialVisibility = useRef(false);
@@ -558,10 +554,6 @@ export const NotebookNavigatorComponent = React.memo(
                         revealFileInNearestFolder(activeFile, { mode: ListExpandMode.ToChildren })
                     }
                 },
-                refresh: () => {
-                    // A no-op update will increment the version and force a re-render
-                    runAsyncAction(() => updateSettings(() => {}));
-                },
                 // Delete focused file based on current pane (files or navigation)
                 deleteActiveFile: () => {
                     runAsyncAction(async () => {
@@ -781,7 +773,6 @@ export const NotebookNavigatorComponent = React.memo(
         }, [
             revealFileInActualFolder,
             revealFileInNearestFolder,
-            updateSettings,
             selectionState,
             fileSystemOps,
             selectionDispatch,

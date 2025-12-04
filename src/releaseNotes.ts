@@ -73,6 +73,19 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.9.1',
+        date: '2025-12-01',
+        showOnUpdate: true,
+        new: [],
+        changed: [
+            'Major refactoring to Vault profiles. **Active vault profile** is no longer synced between devices, so you can have different active vault profiles on different devices.',
+            'Moved tag sort order, recent colors, search provider and release check timestamp from synced settings to local storage. Settings file is now only used for configuration settings not UX state.',
+            'Significantly optimized hidden folder, tag and note pattern matching performance.'
+        ],
+        improved: ['Notebook Navigator now also supports AVIF images for image previews in list pane.'],
+        fixed: []
+    },
+    {
         version: '1.9.0',
         date: '2025-11-30',
         showOnUpdate: true,
