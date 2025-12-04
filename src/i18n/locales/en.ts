@@ -99,7 +99,7 @@ export const STRINGS_EN = {
         hideFolders: 'Hide navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Reorder root folders and tags',
         finishRootFolderReorder: 'Finish root reorder',
-        toggleDescendantNotes: 'Show notes from subfolders / descendants', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: 'Show notes from subfolders / descendants (not synced)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Expand on selection', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Show hidden folders, tags, and notes', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Hide hidden folders, tags, and notes', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -584,7 +584,7 @@ export const STRINGS_EN = {
         items: {
             searchProvider: {
                 name: 'Search provider',
-                desc: 'Choose between quick file name search or full-text search with Omnisearch plugin.',
+                desc: 'Choose between quick file name search or full-text search with Omnisearch plugin. (not synced)',
                 options: {
                     internal: 'Filter search',
                     omnisearch: 'Omnisearch (full-text)'
@@ -639,7 +639,7 @@ export const STRINGS_EN = {
                 desc: 'Scroll to the selected file when pinning notes, showing descendant notes, changing folder appearance, or running file operations.'
             },
             includeDescendantNotes: {
-                name: 'Show notes from subfolders / descendants',
+                name: 'Show notes from subfolders / descendants (not synced)',
                 desc: 'Include notes from nested subfolders and tag descendants when viewing a folder or tag.'
             },
             limitPinnedToCurrentFolder: {
@@ -1031,7 +1031,7 @@ export const STRINGS_EN = {
             },
             tagSortOrder: {
                 name: 'Tag sort order',
-                desc: 'Choose how tags are ordered in the navigation pane.',
+                desc: 'Choose how tags are ordered in the navigation pane. (not synced)',
                 options: {
                     alphaAsc: 'A to Z',
                     alphaDesc: 'Z to A',

@@ -99,7 +99,7 @@ export const STRINGS_PT = {
         hideFolders: 'Ocultar navegação', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Reordenar pastas raiz e etiquetas',
         finishRootFolderReorder: 'Terminar reordenação',
-        toggleDescendantNotes: 'Mostrar notas de subpastas / descendentes', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: 'Mostrar notas de subpastas / descendentes (não sincronizado)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Expandir ao selecionar', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Mostrar pastas, etiquetas e notas ocultas', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Ocultar pastas, etiquetas e notas ocultas', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -584,7 +584,7 @@ export const STRINGS_PT = {
         items: {
             searchProvider: {
                 name: 'Fornecedor de pesquisa',
-                desc: 'Escolha entre pesquisa rápida por nome de ficheiro ou pesquisa de texto completo com o plugin Omnisearch.',
+                desc: 'Escolha entre pesquisa rápida por nome de ficheiro ou pesquisa de texto completo com o plugin Omnisearch. (não sincronizado)',
                 options: {
                     internal: 'Pesquisa com filtro',
                     omnisearch: 'Omnisearch (texto completo)'
@@ -639,7 +639,7 @@ export const STRINGS_PT = {
                 desc: 'Deslocar para o ficheiro selecionado ao fixar notas, mostrar notas descendentes, alterar aparência da pasta ou executar operações de ficheiros.'
             },
             includeDescendantNotes: {
-                name: 'Mostrar notas de subpastas / descendentes',
+                name: 'Mostrar notas de subpastas / descendentes (não sincronizado)',
                 desc: 'Incluir notas de subpastas aninhadas e descendentes de etiquetas ao visualizar uma pasta ou etiqueta.'
             },
             limitPinnedToCurrentFolder: {
@@ -1033,7 +1033,7 @@ export const STRINGS_PT = {
             },
             tagSortOrder: {
                 name: 'Ordem de ordenação de etiquetas',
-                desc: 'Escolha como as etiquetas são ordenadas no painel de navegação.',
+                desc: 'Escolha como as etiquetas são ordenadas no painel de navegação. (não sincronizado)',
                 options: {
                     alphaAsc: 'A a Z',
                     alphaDesc: 'Z a A',

@@ -99,7 +99,7 @@ export const STRINGS_ZH_TW = {
         hideFolders: '隱藏導覽', // 隱藏導覽窗格按鈕的工具提示 (英文: Hide navigation)
         reorderRootFolders: '重新排列根資料夾和標籤',
         finishRootFolderReorder: '完成重新排列',
-        toggleDescendantNotes: '顯示子資料夾/後代中的筆記', // 工具提示：包含資料夾和標籤的後代
+        toggleDescendantNotes: '顯示子資料夾/後代中的筆記（不同步）', // 工具提示：包含資料夾和標籤的後代
         autoExpandFoldersTags: '自動展開資料夾和標籤', // 選取時自動展開資料夾和標籤的切換按鈕工具提示 (英文: Auto-expand folders and tags)
         showExcludedItems: '顯示隱藏的資料夾、標籤和筆記', // 顯示隱藏項目的按鈕工具提示 (英文: Show hidden items)
         hideExcludedItems: '隱藏隱藏的資料夾、標籤和筆記', // 隱藏隱藏項目的按鈕工具提示 (英文: Hide hidden items)
@@ -584,7 +584,7 @@ export const STRINGS_ZH_TW = {
         items: {
             searchProvider: {
                 name: '搜尋提供者',
-                desc: '選擇快速檔案名稱搜尋或使用 Omnisearch 外掛進行全文搜尋。',
+                desc: '選擇快速檔案名稱搜尋或使用 Omnisearch 外掛進行全文搜尋。（不同步）',
                 options: {
                     internal: '篩選搜尋',
                     omnisearch: 'Omnisearch (全文)'
@@ -638,7 +638,7 @@ export const STRINGS_ZH_TW = {
                 desc: '在釘選筆記、顯示後代筆記、變更資料夾外觀或執行檔案操作時捲動至選定的檔案。'
             },
             includeDescendantNotes: {
-                name: '顯示子資料夾/後代中的筆記',
+                name: '顯示子資料夾/後代中的筆記（不同步）',
                 desc: '檢視資料夾或標籤時，包含巢狀子資料夾和標籤後代的筆記。'
             },
             limitPinnedToCurrentFolder: {
@@ -1031,7 +1031,7 @@ export const STRINGS_ZH_TW = {
             },
             tagSortOrder: {
                 name: '標籤排序方式',
-                desc: '選擇導覽窗格中的標籤排序順序。',
+                desc: '選擇導覽窗格中的標籤排序順序。（不同步）',
                 options: {
                     alphaAsc: 'A 到 Z',
                     alphaDesc: 'Z 到 A',

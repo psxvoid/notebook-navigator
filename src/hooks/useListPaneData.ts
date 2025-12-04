@@ -57,6 +57,7 @@ import { createHiddenTagVisibility, normalizeTagPathValue } from '../utils/tagPr
 import { resolveListGrouping } from '../utils/listGrouping';
 import { runAsyncAction } from '../utils/async';
 import type { ActiveProfileState } from '../context/SettingsContext';
+import type { SearchProvider } from '../types/search';
 
 const EMPTY_SEARCH_META = new Map<string, SearchResultMeta>();
 // Shared empty map used when no files are hidden to avoid allocations
@@ -78,6 +79,8 @@ interface UseListPaneDataParams {
     settings: NotebookNavigatorSettings;
     /** Active profile-derived values */
     activeProfile: ActiveProfileState;
+    /** Active search provider to use for filtering */
+    searchProvider: SearchProvider;
     /** Optional search query to filter files */
     searchQuery?: string;
     /** Pre-parsed search tokens matching the debounced query */
@@ -119,6 +122,7 @@ export function useListPaneData({
     selectedTag,
     settings,
     activeProfile,
+    searchProvider,
     searchQuery,
     searchTokens,
     visibility
@@ -140,7 +144,7 @@ export function useListPaneData({
     const hasSearchQuery = trimmedQuery.length > 0;
     const isOmnisearchAvailable = omnisearchService?.isAvailable() ?? false;
     // Use Omnisearch only when selected, available, and there's a query
-    const useOmnisearch = settings.searchProvider === 'omnisearch' && isOmnisearchAvailable && hasSearchQuery;
+    const useOmnisearch = searchProvider === 'omnisearch' && isOmnisearchAvailable && hasSearchQuery;
     const { hiddenFolders, hiddenFiles, hiddenTags, fileVisibility } = activeProfile;
     const listConfig = useMemo(
         () => ({

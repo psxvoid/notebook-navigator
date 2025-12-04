@@ -70,7 +70,7 @@ import { ListPaneTitleArea } from './ListPaneTitleArea';
 import { SaveSearchShortcutModal } from '../modals/SaveSearchShortcutModal';
 import { useShortcuts } from '../context/ShortcutsContext';
 import type { SearchShortcut } from '../types/shortcuts';
-import { EMPTY_SEARCH_TAG_FILTER_STATE, type SearchTagFilterState } from '../types/search';
+import { EMPTY_SEARCH_TAG_FILTER_STATE, type SearchProvider, type SearchTagFilterState } from '../types/search';
 import { EMPTY_LIST_MENU_TYPE } from '../utils/contextMenu';
 import { useUXPreferenceActions, useUXPreferences } from '../context/UXPreferencesContext';
 import { normalizeTagPath } from '../utils/tagUtils';
@@ -196,7 +196,6 @@ export const ListPane = React.memo(
         });
         const searchShortcuts = useMemo(() => Array.from(searchShortcutsByName.values()), [searchShortcutsByName]);
         const [isSavingSearchShortcut, setIsSavingSearchShortcut] = useState(false);
-        const currentSearchProvider = settings.searchProvider ?? 'internal';
         const listPaneTitle = settings.listPaneTitle ?? 'header';
         const shouldShowDesktopTitleArea = !isMobile && listPaneTitle === 'list';
         const listMeasurements = getListPaneMeasurements(isMobile);
@@ -221,6 +220,7 @@ export const ListPane = React.memo(
         const [shouldFocusSearch, setShouldFocusSearch] = useState(false);
         // Callback to notify parent component of tag filter changes
         const { onSearchTokensChange } = props;
+        const searchProvider: SearchProvider = settings.searchProvider ?? 'internal';
 
         // Pre-parsed search tokens matching the debounced query
         const debouncedSearchTokens = useMemo(
@@ -247,14 +247,28 @@ export const ListPane = React.memo(
                 return null;
             }
 
+            // Prefer exact provider match; otherwise reuse the first shortcut with the same query.
+            // This intentionally treats same-query shortcuts across providers as one saved entry.
+            const normalizedProvider = searchProvider ?? 'internal';
+            let firstMatch: SearchShortcut | null = null;
+
             for (const saved of searchShortcuts) {
-                if (saved.query === normalizedQuery && saved.provider === currentSearchProvider) {
+                if (saved.query !== normalizedQuery) {
+                    continue;
+                }
+
+                if (!firstMatch) {
+                    firstMatch = saved;
+                }
+
+                const savedProvider = saved.provider ?? 'internal';
+                if (savedProvider === normalizedProvider) {
                     return saved;
                 }
             }
 
-            return null;
-        }, [searchQuery, searchShortcuts, currentSearchProvider]);
+            return firstMatch;
+        }, [searchProvider, searchQuery, searchShortcuts]);
 
         // Clear search query when search is deactivated externally
         useEffect(() => {
@@ -415,6 +429,7 @@ export const ListPane = React.memo(
             selectedTag,
             settings,
             activeProfile,
+            searchProvider,
             // Use debounced value for filtering
             searchQuery: isSearchActive ? debouncedSearchQuery : undefined,
             searchTokens: isSearchActive ? debouncedSearchTokens : undefined,
@@ -495,7 +510,7 @@ export const ListPane = React.memo(
                     setIsSavingSearchShortcut(true);
                     let success = false;
                     try {
-                        success = await addSearchShortcut({ name, query: normalizedQuery, provider: currentSearchProvider });
+                        success = await addSearchShortcut({ name, query: normalizedQuery, provider: searchProvider });
                         return success;
                     } finally {
                         setIsSavingSearchShortcut(false);
@@ -503,7 +518,7 @@ export const ListPane = React.memo(
                 }
             });
             modal.open();
-        }, [app, addSearchShortcut, currentSearchProvider, isSavingSearchShortcut, searchQuery]);
+        }, [app, addSearchShortcut, isSavingSearchShortcut, searchProvider, searchQuery]);
 
         /**
          * Handles removing the currently active search shortcut.
@@ -654,14 +669,8 @@ export const ListPane = React.memo(
             async ({ searchShortcut }: ExecuteSearchShortcutParams) => {
                 const normalizedQuery = searchShortcut.query.trim();
                 const targetProvider = searchShortcut.provider ?? 'internal';
-                const currentProviderSetting = plugin.settings.searchProvider ?? 'internal';
 
-                // Check if provider needs to be switched
-                let providerChanged = false;
-                if (currentProviderSetting !== targetProvider) {
-                    plugin.settings.searchProvider = targetProvider;
-                    providerChanged = true;
-                }
+                plugin.setSearchProvider(targetProvider);
 
                 const needsSearchActivation = !isSearchActive;
                 if (uiState.singlePane) {
@@ -675,11 +684,9 @@ export const ListPane = React.memo(
                     await waitForMobilePaneTransition();
                 }
 
-                // Activate search or save provider change
+                // Activate search
                 if (needsSearchActivation) {
                     setIsSearchActive(true);
-                } else if (providerChanged) {
-                    await plugin.saveSettingsAndUpdate();
                 }
 
                 // Set the search query
@@ -983,6 +990,7 @@ export const ListPane = React.memo(
                             onRemoveShortcut={activeSearchShortcut ? handleRemoveSearchShortcut : undefined}
                             isShortcutSaved={Boolean(activeSearchShortcut)}
                             isShortcutDisabled={isSavingSearchShortcut}
+                            searchProvider={searchProvider}
                         />
                     )}
                 </div>

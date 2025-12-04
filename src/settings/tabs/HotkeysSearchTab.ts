@@ -31,15 +31,14 @@ export function renderHotkeysSearchTab(context: SettingsTabContext): void {
         .setName(strings.settings.items.searchProvider.name)
         .setDesc(strings.settings.items.searchProvider.desc)
         .addDropdown(dropdown => {
-            const currentProvider = plugin.settings.searchProvider ?? 'internal';
+            const currentProvider = plugin.getSearchProvider();
             dropdown
                 .addOption('internal', strings.settings.items.searchProvider.options.internal)
                 .addOption('omnisearch', strings.settings.items.searchProvider.options.omnisearch)
                 .setValue(currentProvider)
-                .onChange(async value => {
+                .onChange(value => {
                     const provider = value as SearchProvider;
-                    plugin.settings.searchProvider = provider;
-                    await plugin.saveSettingsAndUpdate();
+                    plugin.setSearchProvider(provider);
                     updateSearchInfo();
                 });
         });
@@ -51,7 +50,7 @@ export function renderHotkeysSearchTab(context: SettingsTabContext): void {
 
     /** Updates the search provider information display */
     const updateSearchInfo = () => {
-        const provider = plugin.settings.searchProvider;
+        const provider = plugin.getSearchProvider();
         const hasOmnisearch = plugin.omnisearchService?.isAvailable() ?? false;
 
         searchInfoEl.empty();

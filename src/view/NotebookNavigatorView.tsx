@@ -287,13 +287,6 @@ export class NotebookNavigatorView extends ItemView {
     /**
      * Refreshes the UI by triggering a settings version update
      */
-    refresh() {
-        this.componentRef.current?.refresh();
-    }
-
-    /**
-     * Deletes the currently active file using smart selection
-     */
     deleteActiveFile() {
         this.componentRef.current?.deleteActiveFile();
     }

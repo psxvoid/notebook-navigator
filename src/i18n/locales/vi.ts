@@ -99,7 +99,7 @@ export const STRINGS_VI = {
         hideFolders: 'Ẩn điều hướng', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Sắp xếp lại thư mục gốc và thẻ',
         finishRootFolderReorder: 'Hoàn tất sắp xếp lại',
-        toggleDescendantNotes: 'Hiện ghi chú từ thư mục con / phần tử con', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: 'Hiện ghi chú từ thư mục con / phần tử con (không đồng bộ)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Mở rộng khi chọn', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Hiện thư mục, thẻ và ghi chú ẩn', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Ẩn thư mục, thẻ và ghi chú ẩn', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -584,7 +584,7 @@ export const STRINGS_VI = {
         items: {
             searchProvider: {
                 name: 'Nhà cung cấp tìm kiếm',
-                desc: 'Chọn giữa tìm kiếm nhanh theo tên tệp hoặc tìm kiếm toàn văn với plugin Omnisearch.',
+                desc: 'Chọn giữa tìm kiếm nhanh theo tên tệp hoặc tìm kiếm toàn văn với plugin Omnisearch. (không đồng bộ)',
                 options: {
                     internal: 'Tìm kiếm lọc',
                     omnisearch: 'Omnisearch (toàn văn)'
@@ -639,7 +639,7 @@ export const STRINGS_VI = {
                 desc: 'Cuộn đến tệp đã chọn khi ghim ghi chú, hiện ghi chú con, đổi giao diện thư mục hoặc thao tác tệp.'
             },
             includeDescendantNotes: {
-                name: 'Hiện ghi chú từ thư mục con / phần tử con',
+                name: 'Hiện ghi chú từ thư mục con / phần tử con (không đồng bộ)',
                 desc: 'Bao gồm ghi chú từ thư mục con lồng nhau và phần tử con của thẻ khi xem thư mục hoặc thẻ.'
             },
             limitPinnedToCurrentFolder: {
@@ -1032,7 +1032,7 @@ export const STRINGS_VI = {
             },
             tagSortOrder: {
                 name: 'Thứ tự sắp xếp thẻ',
-                desc: 'Chọn cách sắp xếp thẻ trong ngăn điều hướng.',
+                desc: 'Chọn cách sắp xếp thẻ trong ngăn điều hướng. (không đồng bộ)',
                 options: {
                     alphaAsc: 'A đến Z',
                     alphaDesc: 'Z đến A',

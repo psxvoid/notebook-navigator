@@ -99,7 +99,7 @@ export const STRINGS_TR = {
         hideFolders: 'Gezinmeyi gizle', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Kök klasörleri ve etiketleri yeniden sırala',
         finishRootFolderReorder: 'Kök yeniden sıralamayı bitir',
-        toggleDescendantNotes: 'Alt klasörlerden / alt öğelerden notları göster', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: 'Alt klasörlerden / alt öğelerden notları göster (senkronize edilmez)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Seçimde genişlet', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Gizli klasörleri, etiketleri ve notları göster', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Gizli klasörleri, etiketleri ve notları gizle', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -584,7 +584,7 @@ export const STRINGS_TR = {
         items: {
             searchProvider: {
                 name: 'Arama sağlayıcı',
-                desc: 'Hızlı dosya adı araması veya Omnisearch eklentisi ile tam metin araması arasında seçim yapın.',
+                desc: 'Hızlı dosya adı araması veya Omnisearch eklentisi ile tam metin araması arasında seçim yapın. (senkronize edilmez)',
                 options: {
                     internal: 'Filtre araması',
                     omnisearch: 'Omnisearch (tam metin)'
@@ -639,7 +639,7 @@ export const STRINGS_TR = {
                 desc: 'Notları sabitleme, alt notları gösterme, klasör görünümünü değiştirme veya dosya işlemleri çalıştırma sırasında seçili dosyaya kaydır.'
             },
             includeDescendantNotes: {
-                name: 'Alt klasörlerden / alt öğelerden notları göster',
+                name: 'Alt klasörlerden / alt öğelerden notları göster (senkronize edilmez)',
                 desc: 'Klasör veya etiket görüntülerken iç içe alt klasörlerden ve etiket alt öğelerinden notları dahil et.'
             },
             limitPinnedToCurrentFolder: {
@@ -1032,7 +1032,7 @@ export const STRINGS_TR = {
             },
             tagSortOrder: {
                 name: 'Etiket sıralama düzeni',
-                desc: 'Etiketlerin gezinme bölmesinde nasıl sıralanacağını seçin.',
+                desc: 'Etiketlerin gezinme bölmesinde nasıl sıralanacağını seçin. (senkronize edilmez)',
                 options: {
                     alphaAsc: "A'dan Z'ye",
                     alphaDesc: "Z'den A'ya",

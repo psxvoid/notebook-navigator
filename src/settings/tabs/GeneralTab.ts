@@ -195,7 +195,8 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         }
 
         plugin.settings.vaultProfiles.push(result.profile);
-        await plugin.setVaultProfile(result.profile.id);
+        plugin.setVaultProfile(result.profile.id);
+        await plugin.saveSettingsAndUpdate();
         refreshProfileControls();
     };
 
@@ -223,7 +224,8 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 if (plugin.settings.vaultProfile === targetProfileId) {
                     await plugin.saveSettingsAndUpdate();
                 } else {
-                    await plugin.setVaultProfile(targetProfileId);
+                    plugin.setVaultProfile(targetProfileId);
+                    await plugin.saveSettingsAndUpdate();
                 }
                 refreshProfileControls();
             }
@@ -248,15 +250,13 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                     context.app,
                     strings.settings.items.vaultProfiles.addModalTitle,
                     strings.settings.items.vaultProfiles.addModalPlaceholder,
-                    async profileName => {
-                        await handleAddProfile(profileName);
-                    }
+                    profileName => handleAddProfile(profileName)
                 );
                 modal.open();
                 return;
             }
-            runAsyncAction(async () => {
-                await plugin.setVaultProfile(value);
+            runAsyncAction(() => {
+                plugin.setVaultProfile(value);
                 refreshProfileControls();
             });
         });

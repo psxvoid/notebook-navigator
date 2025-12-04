@@ -99,7 +99,7 @@ export const STRINGS_RU = {
         hideFolders: 'Скрыть навигацию', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Изменить порядок корневых папок и тегов',
         finishRootFolderReorder: 'Завершить изменение порядка',
-        toggleDescendantNotes: 'Показать заметки из подпапок / потомков', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: 'Показать заметки из подпапок / потомков (не синхронизируется)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Разворачивать при выборе', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Показать скрытые папки, теги и заметки', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Скрыть скрытые папки, теги и заметки', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -584,7 +584,7 @@ export const STRINGS_RU = {
         items: {
             searchProvider: {
                 name: 'Поставщик поиска',
-                desc: 'Выберите между быстрым поиском по имени файла или полнотекстовым поиском с плагином Omnisearch.',
+                desc: 'Выберите между быстрым поиском по имени файла или полнотекстовым поиском с плагином Omnisearch. (не синхронизируется)',
                 options: {
                     internal: 'Фильтр-поиск',
                     omnisearch: 'Omnisearch (полнотекстовый)'
@@ -640,7 +640,7 @@ export const STRINGS_RU = {
                 desc: 'Прокручивать к выбранному файлу при закреплении заметок, показе потомков, изменении внешнего вида папки или выполнении файловых операций.'
             },
             includeDescendantNotes: {
-                name: 'Показывать заметки из подпапок / потомков',
+                name: 'Показывать заметки из подпапок / потомков (не синхронизируется)',
                 desc: 'Включать заметки из вложенных подпапок и потомков тегов при просмотре папки или тега.'
             },
             limitPinnedToCurrentFolder: {
@@ -1033,7 +1033,7 @@ export const STRINGS_RU = {
             },
             tagSortOrder: {
                 name: 'Сортировка тегов',
-                desc: 'Выберите порядок отображения тегов в панели навигации.',
+                desc: 'Выберите порядок отображения тегов в панели навигации. (не синхронизируется)',
                 options: {
                     alphaAsc: 'От А до Я',
                     alphaDesc: 'От Я до А',

@@ -27,7 +27,7 @@ import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } fro
 import { cloneShortcuts, getActiveVaultProfile } from '../utils/vaultProfiles';
 import { sanitizeRecord } from '../utils/recordUtils';
 import { areStringArraysEqual } from '../utils/arrayUtils';
-import type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
+import type { FolderAppearance } from '../hooks/useListPaneAppearance';
 
 // Separate contexts for state and update function
 type SettingsStateValue = NotebookNavigatorSettings & { dualPaneOrientation: DualPaneOrientation };
@@ -99,9 +99,9 @@ const areShortcutsEqual = (prev?: ShortcutEntry[] | null, next?: ShortcutEntry[]
     return true;
 };
 
-const cloneAppearanceMap = <T extends FolderAppearance | TagAppearance>(map?: Record<string, T>): Record<string, T> | undefined => {
+const cloneAppearanceMap = <T extends FolderAppearance>(map?: Record<string, T>): Record<string, T> => {
     if (!map) {
-        return undefined;
+        return Object.create(null) as Record<string, T>;
     }
     const cloned = Object.create(null) as Record<string, T>;
     Object.entries(map).forEach(([key, value]) => {
@@ -267,17 +267,4 @@ export function useActiveProfile(): ActiveProfileState {
         throw new Error('useActiveProfile must be used within a SettingsProvider');
     }
     return context;
-}
-
-export function useUpdateActiveProfile(): (mutator: (profile: VaultProfile) => void) => Promise<void> {
-    const updateSettings = useSettingsUpdate();
-    return useCallback(
-        async (mutator: (profile: VaultProfile) => void) => {
-            await updateSettings(settings => {
-                const activeProfile = getActiveVaultProfile(settings);
-                mutator(activeProfile);
-            });
-        },
-        [updateSettings]
-    );
 }

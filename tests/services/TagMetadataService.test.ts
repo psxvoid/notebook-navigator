@@ -24,6 +24,12 @@ class TestSettingsProvider implements ISettingsProvider {
     }
 
     setRecentIcons(): void {}
+
+    getRecentColors(): string[] {
+        return [];
+    }
+
+    setRecentColors(): void {}
 }
 
 function createSettings(): NotebookNavigatorSettings {

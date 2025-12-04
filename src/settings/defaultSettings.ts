@@ -207,11 +207,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     tagAppearances: {} as Record<string, TagAppearance>,
     navigationSeparators: {},
     userColors: [...DEFAULT_CUSTOM_COLORS],
-    recentColors: [],
     lastShownVersion: '',
-    latestKnownRelease: '',
     lastAnnouncedRelease: '',
-    lastReleaseCheckAt: null,
     rootFolderOrder: [],
     rootTagOrder: []
 };

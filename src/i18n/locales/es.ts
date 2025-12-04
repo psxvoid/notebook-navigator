@@ -98,7 +98,7 @@ export const STRINGS_ES = {
         hideFolders: 'Ocultar navegación', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Reordenar carpetas raíz y etiquetas',
         finishRootFolderReorder: 'Finalizar reordenación',
-        toggleDescendantNotes: 'Mostrar notas de subcarpetas / descendientes', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
+        toggleDescendantNotes: 'Mostrar notas de subcarpetas / descendientes (no sincronizado)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants (not synced))
         autoExpandFoldersTags: 'Expandir carpetas y etiquetas automáticamente', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Mostrar carpetas, etiquetas y notas ocultas', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Ocultar carpetas, etiquetas y notas ocultas', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -585,7 +585,7 @@ export const STRINGS_ES = {
         items: {
             searchProvider: {
                 name: 'Proveedor de búsqueda',
-                desc: 'Elija entre búsqueda rápida de nombres de archivo o búsqueda de texto completo con el plugin Omnisearch.',
+                desc: 'Elija entre búsqueda rápida de nombres de archivo o búsqueda de texto completo con el plugin Omnisearch. (no sincronizado)',
                 options: {
                     internal: 'Búsqueda por filtro',
                     omnisearch: 'Omnisearch (texto completo)'
@@ -640,7 +640,7 @@ export const STRINGS_ES = {
                 desc: 'Desplazar al archivo seleccionado al anclar notas, mostrar notas descendientes, cambiar la apariencia de carpetas o ejecutar operaciones de archivos.'
             },
             includeDescendantNotes: {
-                name: 'Mostrar notas de subcarpetas / descendientes',
+                name: 'Mostrar notas de subcarpetas / descendientes (no sincronizado)',
                 desc: 'Incluir notas de subcarpetas y descendientes de etiquetas al ver una carpeta o etiqueta.'
             },
             limitPinnedToCurrentFolder: {
@@ -1034,7 +1034,7 @@ export const STRINGS_ES = {
             },
             tagSortOrder: {
                 name: 'Orden de etiquetas',
-                desc: 'Elige cómo se ordenan las etiquetas en el panel de navegación.',
+                desc: 'Elige cómo se ordenan las etiquetas en el panel de navegación. (no sincronizado)',
                 options: {
                     alphaAsc: 'A a Z',
                     alphaDesc: 'Z a A',

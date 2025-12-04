@@ -99,7 +99,7 @@ export const STRINGS_TH = {
         hideFolders: 'ซ่อนการนำทาง',
         reorderRootFolders: 'จัดเรียงโฟลเดอร์และแท็กหลักใหม่',
         finishRootFolderReorder: 'เสร็จสิ้นการจัดเรียงใหม่',
-        toggleDescendantNotes: 'แสดงโน้ตจากโฟลเดอร์ย่อย / ลูกหลาน',
+        toggleDescendantNotes: 'แสดงโน้ตจากโฟลเดอร์ย่อย / ลูกหลาน (ไม่ซิงค์)',
         autoExpandFoldersTags: 'ขยายเมื่อเลือก',
         showExcludedItems: 'แสดงโฟลเดอร์ แท็ก และโน้ตที่ซ่อน',
         hideExcludedItems: 'ซ่อนโฟลเดอร์ แท็ก และโน้ตที่ซ่อน',
@@ -584,7 +584,7 @@ export const STRINGS_TH = {
         items: {
             searchProvider: {
                 name: 'ผู้ให้บริการค้นหา',
-                desc: 'เลือกระหว่างการค้นหาชื่อไฟล์อย่างรวดเร็วหรือการค้นหาข้อความเต็มด้วยปลั๊กอิน Omnisearch',
+                desc: 'เลือกระหว่างการค้นหาชื่อไฟล์อย่างรวดเร็วหรือการค้นหาข้อความเต็มด้วยปลั๊กอิน Omnisearch (ไม่ซิงค์)',
                 options: {
                     internal: 'การค้นหาตัวกรอง',
                     omnisearch: 'Omnisearch (ข้อความเต็ม)'
@@ -639,7 +639,7 @@ export const STRINGS_TH = {
                 desc: 'เลื่อนไปยังไฟล์ที่เลือกเมื่อปักหมุดโน้ต แสดงโน้ตลูกหลาน เปลี่ยนลักษณะโฟลเดอร์ หรือเรียกใช้การดำเนินการไฟล์'
             },
             includeDescendantNotes: {
-                name: 'แสดงโน้ตจากโฟลเดอร์ย่อย / ลูกหลาน',
+                name: 'แสดงโน้ตจากโฟลเดอร์ย่อย / ลูกหลาน (ไม่ซิงค์)',
                 desc: 'รวมโน้ตจากโฟลเดอร์ย่อยที่ซ้อนกันและลูกหลานแท็กเมื่อดูโฟลเดอร์หรือแท็ก'
             },
             limitPinnedToCurrentFolder: {
@@ -1032,7 +1032,7 @@ export const STRINGS_TH = {
             },
             tagSortOrder: {
                 name: 'ลำดับการเรียงแท็ก',
-                desc: 'เลือกวิธีเรียงแท็กในแผงนำทาง',
+                desc: 'เลือกวิธีเรียงแท็กในแผงนำทาง (ไม่ซิงค์)',
                 options: {
                     alphaAsc: 'ก ถึง ฮ',
                     alphaDesc: 'ฮ ถึง ก',

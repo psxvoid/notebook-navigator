@@ -98,7 +98,7 @@ export const STRINGS_KO = {
         hideFolders: '탐색 숨기기', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: '루트 폴더와 태그 재정렬',
         finishRootFolderReorder: '재정렬 완료',
-        toggleDescendantNotes: '하위 폴더 / 하위 항목 노트 표시', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: '하위 폴더 / 하위 항목 노트 표시 (동기화 안 됨)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: '폴더 및 태그 자동 펼치기', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '숨긴 폴더, 태그, 노트 표시', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: '숨긴 폴더, 태그, 노트 숨기기', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -584,7 +584,7 @@ export const STRINGS_KO = {
         items: {
             searchProvider: {
                 name: '검색 제공자',
-                desc: '빠른 파일명 검색 또는 Omnisearch 플러그인을 통한 전체 텍스트 검색 중에서 선택하세요.',
+                desc: '빠른 파일명 검색 또는 Omnisearch 플러그인을 통한 전체 텍스트 검색 중에서 선택하세요. (동기화 안 됨)',
                 options: {
                     internal: '필터 검색',
                     omnisearch: 'Omnisearch (전체 텍스트)'
@@ -639,7 +639,7 @@ export const STRINGS_KO = {
                 desc: '노트 고정, 하위 노트 표시, 폴더 모양 변경 또는 파일 작업 실행 시 선택된 파일로 스크롤합니다.'
             },
             includeDescendantNotes: {
-                name: '하위 폴더 / 하위 항목 노트 표시',
+                name: '하위 폴더 / 하위 항목 노트 표시 (동기화 안 됨)',
                 desc: '폴더나 태그를 볼 때 중첩된 하위 폴더와 태그 하위 항목의 노트를 포함합니다.'
             },
             limitPinnedToCurrentFolder: {
@@ -1032,7 +1032,7 @@ export const STRINGS_KO = {
             },
             tagSortOrder: {
                 name: '태그 정렬 순서',
-                desc: '탐색 창에서 태그를 정렬하는 방식을 선택합니다.',
+                desc: '탐색 창에서 태그를 정렬하는 방식을 선택합니다. (동기화 안 됨)',
                 options: {
                     alphaAsc: 'A부터 Z까지',
                     alphaDesc: 'Z부터 A까지',

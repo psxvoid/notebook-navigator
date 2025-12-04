@@ -98,7 +98,7 @@ export const STRINGS_DE = {
         hideFolders: 'Navigation ausblenden', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Hauptordner und Tags neu anordnen',
         finishRootFolderReorder: 'Neuordnung beenden',
-        toggleDescendantNotes: 'Notizen aus Unterordnern / Nachkommen anzeigen', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants)
+        toggleDescendantNotes: 'Notizen aus Unterordnern / Nachkommen anzeigen (nicht synchronisiert)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants (not synced))
         autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Versteckte Ordner, Tags und Notizen anzeigen', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Versteckte Ordner, Tags und Notizen ausblenden', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -587,7 +587,7 @@ export const STRINGS_DE = {
         items: {
             searchProvider: {
                 name: 'Suchanbieter',
-                desc: 'Wählen Sie zwischen schneller Dateinamensuche oder Volltextsuche mit dem Omnisearch-Plugin.',
+                desc: 'Wählen Sie zwischen schneller Dateinamensuche oder Volltextsuche mit dem Omnisearch-Plugin. (nicht synchronisiert)',
                 options: {
                     internal: 'Filtersuche',
                     omnisearch: 'Omnisearch (Volltext)'
@@ -643,7 +643,7 @@ export const STRINGS_DE = {
                 desc: 'Zur ausgewählten Datei scrollen beim Anheften von Notizen, Anzeigen von Unternotizen, Ändern der Ordnerdarstellung oder bei Dateioperationen.'
             },
             includeDescendantNotes: {
-                name: 'Notizen aus Unterordnern / Nachkommen anzeigen',
+                name: 'Notizen aus Unterordnern / Nachkommen anzeigen (nicht synchronisiert)',
                 desc: 'Beim Anzeigen eines Ordners oder Tags Notizen aus Unterordnern und Tag-Nachkommen einbeziehen.'
             },
             limitPinnedToCurrentFolder: {
@@ -1036,7 +1036,7 @@ export const STRINGS_DE = {
             },
             tagSortOrder: {
                 name: 'Tag-Sortierreihenfolge',
-                desc: 'Lege fest, wie Tags im Navigationsbereich sortiert werden.',
+                desc: 'Lege fest, wie Tags im Navigationsbereich sortiert werden. (nicht synchronisiert)',
                 options: {
                     alphaAsc: 'A bis Z',
                     alphaDesc: 'Z bis A',

@@ -99,7 +99,7 @@ export const STRINGS_ID = {
         hideFolders: 'Sembunyikan navigasi',
         reorderRootFolders: 'Atur ulang folder dan tag root',
         finishRootFolderReorder: 'Selesai mengatur ulang',
-        toggleDescendantNotes: 'Tampilkan catatan dari subfolder / turunan',
+        toggleDescendantNotes: 'Tampilkan catatan dari subfolder / turunan (tidak disinkronkan)',
         autoExpandFoldersTags: 'Luaskan saat dipilih',
         showExcludedItems: 'Tampilkan folder, tag, dan catatan tersembunyi',
         hideExcludedItems: 'Sembunyikan folder, tag, dan catatan tersembunyi',
@@ -584,7 +584,7 @@ export const STRINGS_ID = {
         items: {
             searchProvider: {
                 name: 'Penyedia pencarian',
-                desc: 'Pilih antara pencarian nama file cepat atau pencarian teks lengkap dengan plugin Omnisearch.',
+                desc: 'Pilih antara pencarian nama file cepat atau pencarian teks lengkap dengan plugin Omnisearch. (tidak disinkronkan)',
                 options: {
                     internal: 'Pencarian filter',
                     omnisearch: 'Omnisearch (teks lengkap)'
@@ -639,7 +639,7 @@ export const STRINGS_ID = {
                 desc: 'Gulir ke file yang dipilih saat menyematkan catatan, menampilkan catatan turunan, mengubah tampilan folder, atau menjalankan operasi file.'
             },
             includeDescendantNotes: {
-                name: 'Tampilkan catatan dari subfolder / turunan',
+                name: 'Tampilkan catatan dari subfolder / turunan (tidak disinkronkan)',
                 desc: 'Sertakan catatan dari subfolder bersarang dan turunan tag saat melihat folder atau tag.'
             },
             limitPinnedToCurrentFolder: {
@@ -1032,7 +1032,7 @@ export const STRINGS_ID = {
             },
             tagSortOrder: {
                 name: 'Urutan tag',
-                desc: 'Pilih cara tag diurutkan di panel navigasi.',
+                desc: 'Pilih cara tag diurutkan di panel navigasi. (tidak disinkronkan)',
                 options: {
                     alphaAsc: 'A ke Z',
                     alphaDesc: 'Z ke A',

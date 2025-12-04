@@ -240,11 +240,8 @@ export interface NotebookNavigatorSettings {
     tagAppearances: Record<string, TagAppearance>;
     navigationSeparators: Record<string, boolean>;
     userColors: string[];
-    recentColors: string[];
     lastShownVersion: string;
-    latestKnownRelease: string;
     lastAnnouncedRelease: string;
-    lastReleaseCheckAt: number | null;
     rootFolderOrder: string[];
     rootTagOrder: string[];
 }

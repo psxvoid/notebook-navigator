@@ -99,7 +99,7 @@ export const STRINGS_PT_BR = {
         hideFolders: 'Ocultar navegação',
         reorderRootFolders: 'Reordenar pastas e tags raiz',
         finishRootFolderReorder: 'Finalizar reordenação raiz',
-        toggleDescendantNotes: 'Mostrar notas de subpastas / descendentes',
+        toggleDescendantNotes: 'Mostrar notas de subpastas / descendentes (não sincronizado)',
         autoExpandFoldersTags: 'Expandir automaticamente pastas e tags',
         showExcludedItems: 'Mostrar pastas, tags e notas ocultas',
         hideExcludedItems: 'Ocultar pastas, tags e notas ocultas',
@@ -585,7 +585,7 @@ export const STRINGS_PT_BR = {
         items: {
             searchProvider: {
                 name: 'Provedor de pesquisa',
-                desc: 'Escolha entre pesquisa rápida por nome de arquivo ou pesquisa de texto completo com o plugin Omnisearch.',
+                desc: 'Escolha entre pesquisa rápida por nome de arquivo ou pesquisa de texto completo com o plugin Omnisearch. (não sincronizado)',
                 options: {
                     internal: 'Pesquisa por filtro',
                     omnisearch: 'Omnisearch (texto completo)'
@@ -640,7 +640,7 @@ export const STRINGS_PT_BR = {
                 desc: 'Rolar para o arquivo selecionado ao fixar notas, mostrar notas descendentes, mudar aparência de pastas ou executar operações de arquivo.'
             },
             includeDescendantNotes: {
-                name: 'Mostrar notas de subpastas / descendentes',
+                name: 'Mostrar notas de subpastas / descendentes (não sincronizado)',
                 desc: 'Incluir notas de subpastas aninhadas e descendentes de tags ao visualizar uma pasta ou tag.'
             },
             limitPinnedToCurrentFolder: {
@@ -1033,7 +1033,7 @@ export const STRINGS_PT_BR = {
             },
             tagSortOrder: {
                 name: 'Ordem de classificação de tags',
-                desc: 'Escolha como as tags são ordenadas no painel de navegação.',
+                desc: 'Escolha como as tags são ordenadas no painel de navegação. (não sincronizado)',
                 options: {
                     alphaAsc: 'A a Z',
                     alphaDesc: 'Z a A',

@@ -224,6 +224,11 @@ export interface LocalStorageKeys {
     databaseContentVersionKey: string;
     localStorageVersionKey: string;
     vaultProfileKey: string;
+    releaseCheckTimestampKey: string;
+    latestKnownReleaseKey: string;
+    searchProviderKey: string;
+    tagSortOrderKey: string;
+    recentColorsKey: string;
 }
 
 /**
@@ -252,7 +257,12 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
     databaseContentVersionKey: 'notebook-navigator-db-content-version',
     localStorageVersionKey: 'notebook-navigator-localstorage-version',
-    vaultProfileKey: 'notebook-navigator-vault-profile'
+    vaultProfileKey: 'notebook-navigator-vault-profile',
+    releaseCheckTimestampKey: 'notebook-navigator-release-check-timestamp',
+    latestKnownReleaseKey: 'notebook-navigator-latest-known-release',
+    searchProviderKey: 'notebook-navigator-search-provider',
+    tagSortOrderKey: 'notebook-navigator-tag-sort-order',
+    recentColorsKey: 'notebook-navigator-recent-colors'
 };
 
 export interface UXPreferences {

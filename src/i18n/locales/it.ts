@@ -99,7 +99,7 @@ export const STRINGS_IT = {
         hideFolders: 'Nascondi navigazione', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Riordina cartelle e tag principali',
         finishRootFolderReorder: 'Termina riordino',
-        toggleDescendantNotes: 'Mostra note da sottocartelle / discendenti', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: 'Mostra note da sottocartelle / discendenti (non sincronizzato)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Espandi alla selezione', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Mostra cartelle, tag e note nascosti', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Nascondi cartelle, tag e note nascosti', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -584,7 +584,7 @@ export const STRINGS_IT = {
         items: {
             searchProvider: {
                 name: 'Provider di ricerca',
-                desc: 'Scegli tra ricerca rapida per nome file o ricerca full-text con il plugin Omnisearch.',
+                desc: 'Scegli tra ricerca rapida per nome file o ricerca full-text con il plugin Omnisearch. (non sincronizzato)',
                 options: {
                     internal: 'Ricerca con filtro',
                     omnisearch: 'Omnisearch (full-text)'
@@ -639,7 +639,7 @@ export const STRINGS_IT = {
                 desc: "Scorri al file selezionato quando fissi note, mostri note discendenti, cambi l'aspetto cartella o esegui operazioni sui file."
             },
             includeDescendantNotes: {
-                name: 'Mostra note da sottocartelle / discendenti',
+                name: 'Mostra note da sottocartelle / discendenti (non sincronizzato)',
                 desc: 'Includi note da sottocartelle nidificate e tag discendenti quando visualizzi una cartella o tag.'
             },
             limitPinnedToCurrentFolder: {
@@ -1032,7 +1032,7 @@ export const STRINGS_IT = {
             },
             tagSortOrder: {
                 name: 'Ordine tag',
-                desc: 'Scegli come ordinare i tag nel pannello navigazione.',
+                desc: 'Scegli come ordinare i tag nel pannello navigazione. (non sincronizzato)',
                 options: {
                     alphaAsc: 'A a Z',
                     alphaDesc: 'Z a A',
