@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, TFolder, TAbstractFile, normalizePath, Platform, WorkspaceLeaf, ViewState } from 'obsidian';
+import { App, TFile, TFolder, TAbstractFile, normalizePath, Platform, WorkspaceLeaf, ViewState, Plugin } from 'obsidian';
 import type { SelectionDispatch } from '../context/SelectionContext';
 import { strings } from '../i18n';
 import { ConfirmModal } from '../modals/ConfirmModal';
@@ -26,19 +26,19 @@ import { NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, ItemType } from '../types';
 import type { VisibilityPreferences } from '../types';
 import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
-import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
+import { createFileWithOptions, createDatabaseContent, generateUniqueFilename } from '../utils/fileCreationUtils';
 import { cleanupExclusionPatterns, isPathInExcludedFolder } from '../utils/fileFilters';
 import { EXCALIDRAW_BASENAME_SUFFIX, isExcalidrawFile, stripExcalidrawSuffix, stripInvalidLinkCharacters } from '../utils/fileNameUtils';
 import { getFolderNote, isFolderNote, isSupportedFolderNoteExtension } from '../utils/folderNotes';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
-import { executeCommand, isPluginInstalled } from '../utils/typeGuards';
+import { executeCommand, getPluginById, isPluginInstalled } from '../utils/typeGuards';
 import { getErrorMessage } from '../utils/errorUtils';
 import { TagTreeService } from './TagTreeService';
 import { CommandQueueService } from './CommandQueueService';
 import type { MaybePromise } from '../utils/async';
 import { showNotice } from '../utils/noticeUtils';
 import type { ISettingsProvider } from '../interfaces/ISettingsProvider';
-import { ensureRecord, isStringRecordValue } from '../utils/recordUtils';
+import { ensureRecord, isBooleanRecordValue, isStringRecordValue } from '../utils/recordUtils';
 import {
     ensureVaultProfiles,
     normalizeHiddenFolderPath,
@@ -105,6 +105,31 @@ interface MoveFolderResult {
 type MoveFolderModalResult = { status: 'success'; data: MoveFolderResult } | { status: 'cancelled' } | { status: 'error'; error: unknown };
 
 type DrawingType = 'excalidraw' | 'tldraw';
+
+/** Moment.js API exposed globally by Obsidian */
+type MomentApi = typeof import('moment');
+
+/** Excalidraw plugin API for creating and opening drawings */
+interface ExcalidrawPluginApi extends Plugin {
+    createDrawing: (filename: string, foldername?: string, initData?: string) => Promise<TFile>;
+    openDrawing?: (
+        file: TFile,
+        location: string,
+        active?: boolean,
+        subpath?: string,
+        justCreated?: boolean,
+        popoutLocation?: string
+    ) => void;
+    settings?: Record<string, unknown>;
+}
+
+/** Tldraw plugin API for creating and opening drawings */
+interface TldrawPluginApi extends Plugin {
+    createDefaultFilename: () => string;
+    createTldrFile: (filename: string, options: { foldername: string; inMarkdown: boolean; tlStore?: unknown }) => Promise<TFile>;
+    openTldrFile?: (file: TFile, location: string, viewType?: string, openState?: unknown) => Promise<void>;
+    settings?: Record<string, unknown>;
+}
 
 export class FolderMoveError extends Error {
     constructor(
@@ -1498,11 +1523,290 @@ export class FileSystemOperations {
             // Use Obsidian's built-in method to reveal the file or folder
             // Note: showInFolder is not in Obsidian's public TypeScript API, but is widely used by plugins
             // showInFolder expects the vault-relative path, not the full system path
-            const extendedApp = this.app as ExtendedApp;
-            await extendedApp.showInFolder(file.path);
+            if (!this.hasShowInFolder(this.app)) {
+                showNotice(strings.fileSystem.errors.revealInExplorer, { variant: 'warning' });
+                return;
+            }
+            await this.app.showInFolder(file.path);
         } catch (error) {
             this.notifyError(strings.fileSystem.errors.revealInExplorer, error);
         }
+    }
+
+    /** Type guard for the global moment API */
+    private isMomentApi(value: unknown): value is MomentApi {
+        return typeof value === 'function';
+    }
+
+    /** Returns the global moment API exposed by Obsidian, or null if unavailable */
+    private getMomentApi(): MomentApi | null {
+        const momentValue = (window as { moment?: unknown }).moment;
+        if (!this.isMomentApi(momentValue)) {
+            return null;
+        }
+        return momentValue;
+    }
+
+    /** Type guard checking if the app exposes the showInFolder method */
+    private hasShowInFolder(app: App): app is ExtendedApp {
+        const showInFolder: unknown = Reflect.get(app, 'showInFolder');
+        return typeof showInFolder === 'function';
+    }
+
+    /** Type guard checking if a plugin exposes a settings object */
+    private pluginHasSettings(plugin: Plugin): plugin is Plugin & { settings?: Record<string, unknown> } {
+        return typeof plugin === 'object' && plugin !== null && 'settings' in plugin;
+    }
+
+    /** Returns a plugin instance by id, or null if not found */
+    private getPlugin(pluginId: string): Plugin | null {
+        return getPluginById(this.app, pluginId);
+    }
+
+    /** Returns the settings object of a plugin by id, or null if unavailable */
+    private getPluginSettings(pluginId: string): Record<string, unknown> | null {
+        const plugin = this.getPlugin(pluginId);
+        if (!plugin || !this.pluginHasSettings(plugin)) {
+            return null;
+        }
+
+        const settings = plugin.settings;
+        if (!settings) {
+            return null;
+        }
+
+        return ensureRecord(settings);
+    }
+
+    /** Formats the current date using the given moment format string */
+    private formatDatePart(format: string): string {
+        const trimmed = format.trim();
+        if (trimmed === '') {
+            return '';
+        }
+
+        const momentApi = this.getMomentApi();
+        if (!momentApi) {
+            return this.getFallbackTimestamp();
+        }
+
+        return momentApi().format(trimmed);
+    }
+
+    /** Builds a filename using Excalidraw plugin settings, or null if plugin unavailable */
+    private getExcalidrawFileNameFromPlugin(allowCompatibility: boolean = true): string | null {
+        const settings = this.getPluginSettings(EXCALIDRAW_PLUGIN_ID);
+        if (!settings) {
+            return null;
+        }
+
+        const prefixValue = settings['drawingFilenamePrefix'];
+        const dateFormatValue = settings['drawingFilenameDateTime'];
+        const useExcalidrawExtensionValue = settings['useExcalidrawExtension'];
+        const compatibilityModeValue = settings['compatibilityMode'];
+
+        const prefix = isStringRecordValue(prefixValue) ? prefixValue : 'Drawing ';
+        const dateFormat = isStringRecordValue(dateFormatValue) ? dateFormatValue : '';
+        const useExcalidrawExtension = isBooleanRecordValue(useExcalidrawExtensionValue) ? useExcalidrawExtensionValue : true;
+        const compatibilityMode = allowCompatibility && isBooleanRecordValue(compatibilityModeValue) ? compatibilityModeValue : false;
+
+        const datePart = this.formatDatePart(dateFormat);
+        const suffix = compatibilityMode ? '.excalidraw' : useExcalidrawExtension ? '.excalidraw.md' : '.md';
+
+        return `${prefix}${datePart}${suffix}`;
+    }
+
+    /** Builds a filename using Tldraw plugin settings, or null if plugin unavailable */
+    private getTldrawFileNameFromPlugin(): string | null {
+        const settings = this.getPluginSettings(TLDRAW_PLUGIN_ID);
+        if (!settings) {
+            return null;
+        }
+        const prefixValue = settings['newFilePrefix'];
+        const dateFormatValue = settings['newFileTimeFormat'];
+
+        const prefix = isStringRecordValue(prefixValue) ? prefixValue : '';
+        const dateFormat = isStringRecordValue(dateFormatValue) ? dateFormatValue : '';
+
+        const datePart = this.formatDatePart(dateFormat);
+        const baseName = `${prefix}${datePart}`;
+
+        if (baseName.trim() !== '') {
+            return baseName;
+        }
+
+        const defaultPrefix = 'Tldraw ';
+        const defaultFormat = 'YYYY-MM-DD h.mmA';
+        return `${defaultPrefix}${this.formatDatePart(defaultFormat)}`;
+    }
+
+    /** Appends .md extension if the filename lacks a recognized extension */
+    private ensureMarkdownExtension(fileName: string): string {
+        const lower = fileName.toLowerCase();
+        if (lower.endsWith('.md') || lower.endsWith('.tldr')) {
+            return fileName;
+        }
+        return `${fileName}.md`;
+    }
+
+    /** Removes invalid characters and path traversal sequences from a filename */
+    private sanitizeDrawingFileName(fileName: string, type: DrawingType): string {
+        const withoutInvalidCharacters = stripInvalidLinkCharacters(fileName);
+        const withoutSeparators = withoutInvalidCharacters.replace(/[\\/]/g, ' ');
+        const withoutTraversal = withoutSeparators.replace(/\.\.(\/|\\)?/g, '');
+        const normalizedSpaces = withoutTraversal.replace(/\s+/g, ' ').trim();
+
+        if (normalizedSpaces === '') {
+            return this.getFallbackDrawingFileName(type);
+        }
+
+        return normalizedSpaces;
+    }
+
+    /** Returns an ISO timestamp with colons and periods replaced by dashes */
+    private getFallbackTimestamp(): string {
+        return new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    }
+
+    /** Returns a default timestamped filename when plugin settings are unavailable */
+    private getFallbackDrawingFileName(type: DrawingType): string {
+        const timestamp = this.getFallbackTimestamp();
+        if (type === 'excalidraw') {
+            return `Drawing ${timestamp}${EXCALIDRAW_BASENAME_SUFFIX}.md`;
+        }
+        return `Drawing ${timestamp}.md`;
+    }
+
+    /** Returns a sanitized filename from plugin settings or falls back to defaults */
+    private getDrawingFileName(type: DrawingType, allowCompatibility: boolean = true): string {
+        if (type === 'excalidraw') {
+            const baseName = this.getExcalidrawFileNameFromPlugin(allowCompatibility) ?? this.getFallbackDrawingFileName('excalidraw');
+            return this.sanitizeDrawingFileName(baseName, 'excalidraw');
+        }
+
+        const pluginFileName = this.getTldrawFileNameFromPlugin();
+        const baseName = pluginFileName ?? this.getFallbackDrawingFileName('tldraw');
+        const ensured = this.ensureMarkdownExtension(baseName);
+        return this.sanitizeDrawingFileName(ensured, 'tldraw');
+    }
+
+    /** Ensures excalidraw filenames have a valid extension */
+    private normalizeDrawingFileName(fileName: string, type: DrawingType): string {
+        if (type !== 'excalidraw') {
+            return fileName;
+        }
+
+        const lower = fileName.toLowerCase();
+        const hasAllowedExtension = lower.endsWith('.excalidraw') || lower.endsWith('.excalidraw.md') || lower.endsWith('.md');
+        if (hasAllowedExtension) {
+            return fileName;
+        }
+
+        return `${fileName}.md`;
+    }
+
+    /** Applies extension normalization and sanitization to a filename */
+    private normalizeAndSanitizeDrawingFileName(fileName: string, type: DrawingType): string {
+        const ensured = type === 'tldraw' ? this.ensureMarkdownExtension(fileName) : fileName;
+        const sanitized = this.sanitizeDrawingFileName(ensured, type);
+        return this.normalizeDrawingFileName(sanitized, type);
+    }
+
+    /** Extracts the filename component from a path */
+    private getFileNameFromPath(path: string): string {
+        const separatorIndex = path.lastIndexOf('/');
+        if (separatorIndex === -1) {
+            return path;
+        }
+        return path.slice(separatorIndex + 1);
+    }
+
+    /** Returns the folder path normalized for drawing plugin APIs */
+    private getPluginFolderPath(folder: TFolder): string {
+        // Excalidraw expects an empty string for the vault root; '/' would create a double-slash path and the plugin rejects it.
+        if (folder.path === '/' || folder.path === '') {
+            return '';
+        }
+        return folder.path;
+    }
+
+    /** Generates a unique file path by appending a number suffix if the file already exists */
+    private getUniqueDrawingFilePath(parent: TFolder, fileName: string): string {
+        const dotIndex = fileName.lastIndexOf('.');
+        const hasExtension = dotIndex > 0 && dotIndex < fileName.length - 1;
+        const baseName = hasExtension ? fileName.slice(0, dotIndex) : fileName;
+        const extension = hasExtension ? fileName.slice(dotIndex + 1) : '';
+        const uniqueBaseName = generateUniqueFilename(parent.path, baseName, extension, this.app);
+        const folderPath = parent.path === '/' ? '' : `${parent.path}/`;
+        const suffix = extension ? `.${extension}` : '';
+        return normalizePath(`${folderPath}${uniqueBaseName}${suffix}`);
+    }
+
+    /** Type guard checking if a plugin exposes the Excalidraw API */
+    private isExcalidrawPlugin(plugin: Plugin | null): plugin is ExcalidrawPluginApi {
+        if (!plugin) {
+            return false;
+        }
+
+        const createDrawing: unknown = Reflect.get(plugin, 'createDrawing');
+        return typeof createDrawing === 'function';
+    }
+
+    /** Creates a drawing using the Excalidraw plugin API */
+    private async createDrawingWithExcalidrawPlugin(parent: TFolder): Promise<TFile | null> {
+        const plugin = this.getPlugin(EXCALIDRAW_PLUGIN_ID);
+        if (!this.isExcalidrawPlugin(plugin)) {
+            return null;
+        }
+
+        // Excalidraw expects the full filename and does not append extensions, so the sanitized name must already include `.excalidraw.md` or `.excalidraw`.
+        const rawFileName = this.getExcalidrawFileNameFromPlugin() ?? this.getFallbackDrawingFileName('excalidraw');
+        const safeFileName = this.normalizeAndSanitizeDrawingFileName(rawFileName, 'excalidraw');
+        const uniquePath = this.getUniqueDrawingFilePath(parent, safeFileName);
+        const uniqueFileName = this.getFileNameFromPath(uniquePath);
+        const folderPath = this.getPluginFolderPath(parent); // Normalize root to '' to match Excalidraw's expected folder argument
+
+        const file = await plugin.createDrawing(uniqueFileName, folderPath);
+        if (typeof plugin.openDrawing === 'function') {
+            plugin.openDrawing(file, 'active-pane', true, undefined, true);
+        }
+
+        return file;
+    }
+
+    /** Type guard checking if a plugin exposes the Tldraw API */
+    private isTldrawPlugin(plugin: Plugin | null): plugin is TldrawPluginApi {
+        if (!plugin) {
+            return false;
+        }
+
+        const createDefaultFilename: unknown = Reflect.get(plugin, 'createDefaultFilename');
+        const createTldrFile: unknown = Reflect.get(plugin, 'createTldrFile');
+
+        return typeof createDefaultFilename === 'function' && typeof createTldrFile === 'function';
+    }
+
+    /** Creates a drawing using the Tldraw plugin API */
+    private async createDrawingWithTldrawPlugin(parent: TFolder): Promise<TFile | null> {
+        const plugin = this.getPlugin(TLDRAW_PLUGIN_ID);
+        if (!this.isTldrawPlugin(plugin)) {
+            return null;
+        }
+
+        // Tldraw appends the `.md` suffix when missing; normalize here so we avoid double extensions while still accepting bare names.
+        const rawFileName = plugin.createDefaultFilename();
+        const safeFileName = this.normalizeAndSanitizeDrawingFileName(rawFileName, 'tldraw');
+        const uniquePath = this.getUniqueDrawingFilePath(parent, safeFileName);
+        const uniqueFileName = this.getFileNameFromPath(uniquePath);
+
+        const folderPath = parent.path;
+        const file = await plugin.createTldrFile(uniqueFileName, { foldername: folderPath, inMarkdown: true });
+
+        if (typeof plugin.openTldrFile === 'function') {
+            await plugin.openTldrFile(file, 'current-tab', 'tldraw-view');
+        }
+
+        return file;
     }
 
     /**
@@ -1513,19 +1817,30 @@ export class FileSystemOperations {
      * @returns The created file or null if creation failed
      */
     async createNewDrawing(parent: TFolder, type: DrawingType = 'excalidraw'): Promise<TFile | null> {
+        const createWithPlugin = async (): Promise<TFile | null> => {
+            if (type === 'excalidraw') {
+                return await this.createDrawingWithExcalidrawPlugin(parent);
+            }
+            return await this.createDrawingWithTldrawPlugin(parent);
+        };
+
         try {
-            // Generate unique filename with timestamp
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-            const fileName = type === 'excalidraw' ? `Drawing ${timestamp}${EXCALIDRAW_BASENAME_SUFFIX}.md` : `Drawing ${timestamp}.md`;
-            const base = parent.path === '/' ? '' : `${parent.path}/`;
-            const filePath = normalizePath(`${base}${fileName}`);
+            const pluginFile = await createWithPlugin();
+            if (pluginFile) {
+                return pluginFile;
+            }
+
+            const allowCompatibilitySuffix = type !== 'excalidraw';
+            // Compatibility-only suffixes (.excalidraw) depend on the plugin to render raw files; fallback creation keeps markdown-based extensions.
+            const rawFileName = this.getDrawingFileName(type, allowCompatibilitySuffix);
+            const fileName = this.normalizeDrawingFileName(rawFileName, type);
+
+            const filePath = this.getUniqueDrawingFilePath(parent, fileName);
 
             const content = this.getDrawingTemplate(type);
 
-            // Create the file
             const file = await this.app.vault.create(filePath, content);
 
-            // Open the file
             const leaf = this.app.workspace.getLeaf(false);
             await leaf.openFile(file);
             await this.trySwitchToDrawingView(leaf, file, type);
