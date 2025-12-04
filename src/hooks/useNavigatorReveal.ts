@@ -30,7 +30,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { useCommandQueue } from '../context/ServicesContext';
 import { determineTagToReveal, findNearestVisibleTagAncestor, isRootTag, resolveCanonicalTagPath } from '../utils/tagUtils';
-import { ItemType } from '../types';
+import { ItemType, ListExpandMode } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
 import { doesFolderContainPath } from '../utils/pathUtils';
@@ -50,12 +50,6 @@ interface UseNavigatorRevealOptions {
     listPaneRef: RefObject<ListPaneHandle | null>;
     focusNavigationPane: (options?: FocusPaneOptions) => void;
     focusFilesPane: (options?: FocusPaneOptions) => void;
-}
-
-export const enum ListExpandMode {
-    None,
-    ToParent,
-    ToChildren,
 }
 
 export interface RevealFileOptions {

@@ -49,7 +49,7 @@ const CORE_OBSIDIAN_EXTENSIONS = new Set([
  * Common image extensions that can be displayed as feature images
  * Limited to formats with reliable cross-platform support
  */
-const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp']);
+const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'avif', 'bmp']);
 
 /**
  * Check if a file should be displayed based on the visibility setting

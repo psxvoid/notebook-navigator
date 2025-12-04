@@ -37,7 +37,7 @@ import { METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { getFileDisplayName as getDisplayName } from './fileNameUtils';
 import { isFolderNote } from './folderNotes';
 import { createHiddenTagVisibility, normalizeTagPathValue } from './tagPrefixMatcher';
-import { getActiveHiddenFiles, getActiveHiddenFolders } from './vaultProfiles';
+import { getActiveFileVisibility, getActiveHiddenFiles, getActiveHiddenFolders, getActiveHiddenTags } from './vaultProfiles';
 
 interface CollectPinnedPathsOptions {
     restrictToFolderPath?: string;
@@ -131,6 +131,7 @@ export function getFilesForFolder(
     const files: TFile[] = [];
     const excludedFolderPatterns = getActiveHiddenFolders(settings);
     const excludedFileProperties = getActiveHiddenFiles(settings);
+    const fileVisibility = getActiveFileVisibility(settings);
 
     // Check if hidden folders should be shown based on UX preference
     const showHiddenFolders = visibility.showHiddenItems;
@@ -144,7 +145,7 @@ export function getFilesForFolder(
         for (const child of f.children) {
             if (child instanceof TFile) {
                 // Check if file should be displayed based on visibility setting
-                if (shouldDisplayFile(child, settings.fileVisibility, app)) {
+                if (shouldDisplayFile(child, fileVisibility, app)) {
                     files.push(child);
                 }
             } else if (visibility.includeDescendantNotes && child instanceof TFolder) {
@@ -247,10 +248,12 @@ export function getFilesForTag(
 ): TFile[] {
     // Get all files based on visibility setting, with proper filtering
     let allFiles: TFile[] = [];
-    const hiddenTagVisibility = createHiddenTagVisibility(settings.hiddenTags, visibility.showHiddenItems);
+    const hiddenTags = getActiveHiddenTags(settings);
+    const fileVisibility = getActiveFileVisibility(settings);
+    const hiddenTagVisibility = createHiddenTagVisibility(hiddenTags, visibility.showHiddenItems);
     const shouldFilterHiddenTags = hiddenTagVisibility.shouldFilterHiddenTags;
 
-    if (settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS) {
+    if (fileVisibility === FILE_VISIBILITY.DOCUMENTS) {
         // Only document files (markdown, canvas, base)
         allFiles = getFilteredDocumentFiles(app, settings, { showHiddenItems: visibility.showHiddenItems });
     } else {

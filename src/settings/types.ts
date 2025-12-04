@@ -91,9 +91,6 @@ export interface VaultProfile {
  * Settings are organized by tab for easier maintenance
  */
 export interface NotebookNavigatorSettings {
-    // General tab - Filtering
-    fileVisibility: FileVisibility;
-    hiddenTags: string[];
     vaultProfiles: VaultProfile[];
     vaultProfile: string;
 
@@ -250,11 +247,8 @@ export interface NotebookNavigatorSettings {
     tagAppearances: Record<string, TagAppearance>;
     navigationSeparators: Record<string, boolean>;
     userColors: string[];
-    recentColors: string[];
     lastShownVersion: string;
-    latestKnownRelease: string;
     lastAnnouncedRelease: string;
-    lastReleaseCheckAt: number | null;
     rootFolderOrder: string[];
     rootTagOrder: string[];
 }

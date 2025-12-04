@@ -99,7 +99,7 @@ export const STRINGS_TH = {
         hideFolders: 'ซ่อนการนำทาง',
         reorderRootFolders: 'จัดเรียงโฟลเดอร์และแท็กหลักใหม่',
         finishRootFolderReorder: 'เสร็จสิ้นการจัดเรียงใหม่',
-        toggleDescendantNotes: 'แสดงโน้ตจากโฟลเดอร์ย่อย / ลูกหลาน',
+        toggleDescendantNotes: 'แสดงโน้ตจากโฟลเดอร์ย่อย / ลูกหลาน (ไม่ซิงค์)',
         autoExpandFoldersTags: 'ขยายเมื่อเลือก',
         showExcludedItems: 'แสดงโฟลเดอร์ แท็ก และโน้ตที่ซ่อน',
         hideExcludedItems: 'ซ่อนโฟลเดอร์ แท็ก และโน้ตที่ซ่อน',
@@ -592,7 +592,7 @@ export const STRINGS_TH = {
         items: {
             searchProvider: {
                 name: 'ผู้ให้บริการค้นหา',
-                desc: 'เลือกระหว่างการค้นหาชื่อไฟล์อย่างรวดเร็วหรือการค้นหาข้อความเต็มด้วยปลั๊กอิน Omnisearch',
+                desc: 'เลือกระหว่างการค้นหาชื่อไฟล์อย่างรวดเร็วหรือการค้นหาข้อความเต็มด้วยปลั๊กอิน Omnisearch (ไม่ซิงค์)',
                 options: {
                     internal: 'การค้นหาตัวกรอง',
                     omnisearch: 'Omnisearch (ข้อความเต็ม)'
@@ -647,7 +647,7 @@ export const STRINGS_TH = {
                 desc: 'เลื่อนไปยังไฟล์ที่เลือกเมื่อปักหมุดโน้ต แสดงโน้ตลูกหลาน เปลี่ยนลักษณะโฟลเดอร์ หรือเรียกใช้การดำเนินการไฟล์'
             },
             includeDescendantNotes: {
-                name: 'แสดงโน้ตจากโฟลเดอร์ย่อย / ลูกหลาน',
+                name: 'แสดงโน้ตจากโฟลเดอร์ย่อย / ลูกหลาน (ไม่ซิงค์)',
                 desc: 'รวมโน้ตจากโฟลเดอร์ย่อยที่ซ้อนกันและลูกหลานแท็กเมื่อดูโฟลเดอร์หรือแท็ก'
             },
             limitPinnedToCurrentFolder: {
@@ -1064,7 +1064,7 @@ export const STRINGS_TH = {
             },
             tagSortOrder: {
                 name: 'ลำดับการเรียงแท็ก',
-                desc: 'เลือกวิธีเรียงแท็กในแผงนำทาง',
+                desc: 'เลือกวิธีเรียงแท็กในแผงนำทาง (ไม่ซิงค์)',
                 options: {
                     alphaAsc: 'ก ถึง ฮ',
                     alphaDesc: 'ฮ ถึง ก',
@@ -1086,8 +1086,8 @@ export const STRINGS_TH = {
             },
             hiddenTags: {
                 name: 'ซ่อนแท็ก (โปรไฟล์ห้องนิรภัย)',
-                desc: 'รายการคำนำหน้าแท็กหรือ wildcard ชื่อคั่นด้วยเครื่องหมายจุลภาค ใช้ tag* หรือ *tag เพื่อจับคู่ชื่อแท็ก การซ่อนแท็กจะซ่อนแท็กย่อยทั้งหมดด้วย (เช่น "archive" ซ่อน "archive/2024/docs")',
-                placeholder: 'internal, temp/drafts, archive/2024'
+                desc: 'รายการรูปแบบแท็กคั่นด้วยเครื่องหมายจุลภาค รูปแบบชื่อ: tag* (ขึ้นต้นด้วย), *tag (ลงท้ายด้วย) รูปแบบเส้นทาง: archive (แท็กและลูกหลาน), archive/* (ลูกหลานเท่านั้น), projects/*/drafts (wildcard ตรงกลาง)',
+                placeholder: 'archive*, *draft, projects/*/old'
             },
             enableFolderNotes: {
                 name: 'เปิดใช้งานโน้ตโฟลเดอร์',

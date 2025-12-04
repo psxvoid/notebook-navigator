@@ -80,7 +80,7 @@ export default class ReleaseCheckService {
 
         // Skip check if minimum interval hasn't passed (unless forced)
         const now = Date.now();
-        const lastCheck = this.plugin.settings.lastReleaseCheckAt ?? 0;
+        const lastCheck = this.plugin.getReleaseCheckTimestamp() ?? 0;
         if (!force && lastCheck && now - lastCheck < CHECK_INTERVAL_MS) {
             return this.pendingNotice;
         }
@@ -88,14 +88,12 @@ export default class ReleaseCheckService {
         this.isChecking = true;
         try {
             const release = await this.fetchLatestRelease();
-            const previousKnownRelease = this.plugin.settings.latestKnownRelease;
+            const previousKnownRelease = this.plugin.getLatestKnownRelease();
 
             // Update last check timestamp and track new releases
-            this.plugin.settings.lastReleaseCheckAt = now;
-            let settingsChanged = false;
+            this.plugin.setReleaseCheckTimestamp(now);
             if (release && previousKnownRelease !== release.version) {
-                this.plugin.settings.latestKnownRelease = release.version;
-                settingsChanged = true;
+                this.plugin.setLatestKnownRelease(release.version);
             }
 
             // Compare versions if we have a release payload
@@ -115,15 +113,6 @@ export default class ReleaseCheckService {
                 }
             } else {
                 this.pendingNotice = null;
-            }
-
-            // Ensure lastReleaseCheckAt update is persisted
-            if (!settingsChanged && this.plugin.settings.lastReleaseCheckAt !== lastCheck) {
-                settingsChanged = true;
-            }
-
-            if (settingsChanged) {
-                await this.plugin.saveSettingsAndUpdate();
             }
 
             return this.pendingNotice;

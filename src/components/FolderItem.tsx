@@ -64,6 +64,7 @@ import { getEffectiveFrontmatterExclusions } from '../utils/exclusionUtils';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
 import type { NoteCountInfo } from '../types/noteCounts';
 import { buildNoteCountDisplay } from '../utils/noteCountFormatting';
+import { useActiveProfile } from '../context/SettingsContext';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -122,6 +123,7 @@ export const FolderItem = React.memo(function FolderItem({
 }: FolderItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
+    const { fileVisibility } = useActiveProfile();
     const uxPreferences = useUXPreferences();
     const includeDescendantNotes = uxPreferences.includeDescendantNotes;
     const showHiddenItems = uxPreferences.showHiddenItems;
@@ -145,7 +147,7 @@ export const FolderItem = React.memo(function FolderItem({
         let fileCount = 0;
         for (const child of folder.children) {
             if (child instanceof TFile) {
-                if (shouldDisplayFile(child, settings.fileVisibility, app)) {
+                if (shouldDisplayFile(child, fileVisibility, app)) {
                     if (!shouldExcludeFile(child, effectiveExcludedFiles, app)) {
                         fileCount++;
                     }
@@ -166,16 +168,7 @@ export const FolderItem = React.memo(function FolderItem({
         }
 
         return { fileCount, folderCount };
-    }, [
-        folder.children,
-        isMobile,
-        settings.showTooltips,
-        showHiddenItems,
-        settings.fileVisibility,
-        effectiveExcludedFiles,
-        excludedFolders,
-        app
-    ]);
+    }, [folder.children, isMobile, settings.showTooltips, showHiddenItems, fileVisibility, effectiveExcludedFiles, excludedFolders, app]);
 
     // Merge provided count info with default values to ensure all properties are present
     const noteCounts: NoteCountInfo = countInfo ?? { current: 0, descendants: 0, total: 0 };

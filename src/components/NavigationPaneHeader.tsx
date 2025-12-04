@@ -80,8 +80,8 @@ export function NavigationPaneHeader({
                     .setIcon(profile.id === activeProfile?.id ? 'lucide-check' : 'lucide-user')
                     .setDisabled(profile.id === activeProfile?.id)
                     .onClick(() => {
-                        runAsyncAction(async () => {
-                            await plugin.setVaultProfile(profile.id);
+                        runAsyncAction(() => {
+                            plugin.setVaultProfile(profile.id);
                         });
                     });
             });

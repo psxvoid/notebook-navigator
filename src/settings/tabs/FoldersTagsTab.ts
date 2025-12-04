@@ -208,13 +208,12 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
                 .addOption('alpha-desc', strings.settings.items.tagSortOrder.options.alphaDesc)
                 .addOption('frequency-asc', strings.settings.items.tagSortOrder.options.frequencyAsc)
                 .addOption('frequency-desc', strings.settings.items.tagSortOrder.options.frequencyDesc)
-                .setValue(plugin.settings.tagSortOrder)
-                .onChange(async value => {
+                .setValue(plugin.getTagSortOrder())
+                .onChange(value => {
                     if (!isTagSortOrder(value)) {
                         return;
                     }
-                    plugin.settings.tagSortOrder = value;
-                    await plugin.saveSettingsAndUpdate();
+                    plugin.setTagSortOrder(value);
                 });
         });
 

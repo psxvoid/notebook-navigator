@@ -244,8 +244,8 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
             // Wrap sort toggle with error handling
             runAsyncAction(async () => {
                 await plugin.activateView();
-                plugin.settings.tagSortOrder = plugin.settings.tagSortOrder === 'frequency-desc' ? 'alpha-asc' : 'frequency-desc';
-                await plugin.saveSettingsAndUpdate();
+                const nextSort = plugin.getTagSortOrder() === 'frequency-desc' ? 'alpha-asc' : 'frequency-desc';
+                plugin.setTagSortOrder(nextSort);
             });
         }
     });

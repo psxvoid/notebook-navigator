@@ -40,6 +40,7 @@ import { RootFolderReorderItem } from '../components/RootFolderReorderItem';
 import { runAsyncAction } from '../utils/async';
 import { mergeNavigationSectionOrder } from '../utils/navigationSections';
 import { getPathBaseName } from '../utils/pathUtils';
+import type { ActiveProfileState } from '../context/SettingsContext';
 
 export interface RootFolderDescriptor {
     key: string;
@@ -121,6 +122,7 @@ export interface UseNavigationRootReorderOptions {
     tagsSectionExpanded: boolean;
     handleToggleFoldersSection: (event: React.MouseEvent<HTMLDivElement>) => void;
     handleToggleTagsSection: (event: React.MouseEvent<HTMLDivElement>) => void;
+    activeProfile: ActiveProfileState;
 }
 
 export interface NavigationRootReorderState {
@@ -160,7 +162,8 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         foldersSectionExpanded,
         tagsSectionExpanded,
         handleToggleFoldersSection,
-        handleToggleTagsSection
+        handleToggleTagsSection,
+        activeProfile
     } = options;
 
     const {
@@ -172,9 +175,10 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         showShortcuts,
         showRecentNotes,
         showTags,
-        fileVisibility,
         customVaultName
     } = settings;
+
+    const { fileVisibility } = activeProfile;
 
     const rootFolderDescriptors = useMemo<RootFolderDescriptor[]>(() => {
         const descriptors: RootFolderDescriptor[] = [];

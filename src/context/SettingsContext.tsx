@@ -16,18 +16,110 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import NotebookNavigatorPlugin from '../main';
 import { NotebookNavigatorSettings } from '../settings';
-import type { DualPaneOrientation } from '../types';
-import { cloneShortcuts } from '../utils/vaultProfiles';
+import type { DualPaneOrientation, PinnedNotes } from '../types';
+import type { VaultProfile } from '../settings/types';
+import type { FileVisibility } from '../utils/fileTypeUtils';
+import type { ShortcutEntry } from '../types/shortcuts';
+import { isFolderShortcut, isNoteShortcut, isSearchShortcut, isTagShortcut } from '../types/shortcuts';
+import { cloneShortcuts, getActiveVaultProfile } from '../utils/vaultProfiles';
 import { sanitizeRecord } from '../utils/recordUtils';
+import { areStringArraysEqual } from '../utils/arrayUtils';
+import type { FolderAppearance } from '../hooks/useListPaneAppearance';
 
 // Separate contexts for state and update function
 type SettingsStateValue = NotebookNavigatorSettings & { dualPaneOrientation: DualPaneOrientation };
+export interface ActiveProfileState {
+    profile: VaultProfile;
+    hiddenFolders: string[];
+    hiddenFiles: string[];
+    hiddenTags: string[];
+    fileVisibility: FileVisibility;
+    navigationBanner: string | null;
+}
 
 const SettingsStateContext = createContext<SettingsStateValue | null>(null);
 const SettingsUpdateContext = createContext<((updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>) | null>(null);
+const ActiveProfileContext = createContext<ActiveProfileState | null>(null);
+
+// Compares shortcut lists to reuse the previous profile object when entries are unchanged.
+const areShortcutsEqual = (prev?: ShortcutEntry[] | null, next?: ShortcutEntry[] | null): boolean => {
+    if (prev === next) {
+        return true;
+    }
+    const prevList = Array.isArray(prev) ? prev : [];
+    const nextList = Array.isArray(next) ? next : [];
+    if (prevList.length !== nextList.length) {
+        return false;
+    }
+
+    for (let index = 0; index < prevList.length; index += 1) {
+        const prevShortcut = prevList[index];
+        const nextShortcut = nextList[index];
+
+        if (prevShortcut.type !== nextShortcut.type) {
+            return false;
+        }
+
+        if (isFolderShortcut(prevShortcut)) {
+            if (!isFolderShortcut(nextShortcut) || prevShortcut.path !== nextShortcut.path) {
+                return false;
+            }
+            continue;
+        }
+
+        if (isNoteShortcut(prevShortcut)) {
+            if (!isNoteShortcut(nextShortcut) || prevShortcut.path !== nextShortcut.path) {
+                return false;
+            }
+            continue;
+        }
+
+        if (isTagShortcut(prevShortcut)) {
+            if (!isTagShortcut(nextShortcut) || prevShortcut.tagPath !== nextShortcut.tagPath) {
+                return false;
+            }
+            continue;
+        }
+
+        if (!isSearchShortcut(prevShortcut) || !isSearchShortcut(nextShortcut)) {
+            return false;
+        }
+        if (
+            prevShortcut.name !== nextShortcut.name ||
+            prevShortcut.query !== nextShortcut.query ||
+            prevShortcut.provider !== nextShortcut.provider
+        ) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
+const cloneAppearanceMap = <T extends FolderAppearance>(map?: Record<string, T>): Record<string, T> => {
+    if (!map) {
+        return Object.create(null) as Record<string, T>;
+    }
+    const cloned = Object.create(null) as Record<string, T>;
+    Object.entries(map).forEach(([key, value]) => {
+        cloned[key] = { ...value };
+    });
+    return cloned;
+};
+
+const clonePinnedNotes = (pinnedNotes?: PinnedNotes): PinnedNotes => {
+    if (!pinnedNotes) {
+        return {} as PinnedNotes;
+    }
+    const cloned = Object.create(null) as PinnedNotes;
+    Object.entries(pinnedNotes).forEach(([path, contexts]) => {
+        cloned[path] = { ...contexts };
+    });
+    return cloned;
+};
 
 interface SettingsProviderProps {
     children: ReactNode;
@@ -37,6 +129,7 @@ interface SettingsProviderProps {
 export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
     // Use a version counter to force re-renders when settings change
     const [version, setVersion] = useState(0);
+    const previousActiveProfileRef = useRef<ActiveProfileState | null>(null);
 
     const updateSettings = useCallback(
         async (updater: (settings: NotebookNavigatorSettings) => void) => {
@@ -63,7 +156,10 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
             ...plugin.settings,
             dualPaneOrientation: plugin.getDualPaneOrientation(),
             tagColors,
-            tagBackgroundColors
+            tagBackgroundColors,
+            folderAppearances: cloneAppearanceMap(plugin.settings.folderAppearances),
+            tagAppearances: cloneAppearanceMap(plugin.settings.tagAppearances),
+            pinnedNotes: clonePinnedNotes(plugin.settings.pinnedNotes)
         };
         // Deep copy vault profiles to prevent mutations from affecting the original settings
         if (Array.isArray(plugin.settings.vaultProfiles)) {
@@ -96,9 +192,53 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
         };
     }, [plugin]);
 
+    // Memoize the active profile snapshot and reuse the previous object when nothing changed.
+    const activeProfileValue = React.useMemo<ActiveProfileState>(() => {
+        const profile = getActiveVaultProfile(settingsValue);
+        const previous = previousActiveProfileRef.current;
+        const isSameProfile = previous?.profile.id === profile.id;
+
+        const hiddenFoldersEqual = areStringArraysEqual(previous?.profile.hiddenFolders ?? [], profile.hiddenFolders);
+        const hiddenFilesEqual = areStringArraysEqual(previous?.profile.hiddenFiles ?? [], profile.hiddenFiles);
+        const hiddenTagsEqual = areStringArraysEqual(previous?.profile.hiddenTags ?? [], profile.hiddenTags);
+        const fileVisibilityEqual = previous?.profile.fileVisibility === profile.fileVisibility;
+        const navigationBanner = profile.navigationBanner ?? null;
+        const navigationBannerEqual = previous?.navigationBanner === navigationBanner;
+        const nameEqual = previous?.profile.name === profile.name;
+        const shortcutsEqual = areShortcutsEqual(previous?.profile.shortcuts, profile.shortcuts);
+
+        if (
+            isSameProfile &&
+            hiddenFoldersEqual &&
+            hiddenFilesEqual &&
+            hiddenTagsEqual &&
+            fileVisibilityEqual &&
+            navigationBannerEqual &&
+            nameEqual &&
+            shortcutsEqual &&
+            previous
+        ) {
+            return previous;
+        }
+
+        const nextActiveProfile: ActiveProfileState = {
+            profile,
+            hiddenFolders: profile.hiddenFolders,
+            hiddenFiles: profile.hiddenFiles,
+            hiddenTags: profile.hiddenTags,
+            fileVisibility: profile.fileVisibility,
+            navigationBanner
+        };
+
+        previousActiveProfileRef.current = nextActiveProfile;
+        return nextActiveProfile;
+    }, [settingsValue]);
+
     return (
         <SettingsStateContext.Provider value={settingsValue}>
-            <SettingsUpdateContext.Provider value={updateSettings}>{children}</SettingsUpdateContext.Provider>
+            <ActiveProfileContext.Provider value={activeProfileValue}>
+                <SettingsUpdateContext.Provider value={updateSettings}>{children}</SettingsUpdateContext.Provider>
+            </ActiveProfileContext.Provider>
         </SettingsStateContext.Provider>
     );
 }
@@ -117,6 +257,14 @@ export function useSettingsUpdate() {
     const context = useContext(SettingsUpdateContext);
     if (!context) {
         throw new Error('useSettingsUpdate must be used within a SettingsProvider');
+    }
+    return context;
+}
+
+export function useActiveProfile(): ActiveProfileState {
+    const context = useContext(ActiveProfileContext);
+    if (!context) {
+        throw new Error('useActiveProfile must be used within a SettingsProvider');
     }
     return context;
 }

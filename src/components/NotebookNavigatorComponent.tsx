@@ -21,13 +21,13 @@ import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, us
 import { TFile, TFolder } from 'obsidian';
 import { useSelectionState, useSelectionDispatch, getFirstSelectedFile } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
-import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useDragNavigationPaneActivation } from '../hooks/useDragNavigationPaneActivation';
-import { ListExpandMode, useNavigatorReveal, type RevealFileOptions, type NavigateToFolderOptions } from '../hooks/useNavigatorReveal';
+import { useNavigatorReveal, type RevealFileOptions, type NavigateToFolderOptions } from '../hooks/useNavigatorReveal';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useNavigationActions } from '../hooks/useNavigationActions';
@@ -39,7 +39,7 @@ import { runAsyncAction } from '../utils/async';
 import { useUpdateNotice } from '../hooks/useUpdateNotice';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 import { TagSuggestModal } from '../modals/TagSuggestModal';
-import { FILE_PANE_DIMENSIONS, ItemType, NAVPANE_MEASUREMENTS, type BackgroundMode, type DualPaneOrientation } from '../types';
+import { FILE_PANE_DIMENSIONS, ItemType, ListExpandMode, NAVPANE_MEASUREMENTS, type BackgroundMode, type DualPaneOrientation } from '../types';
 import { getSelectedPath, getFilesForSelection } from '../utils/selectionUtils';
 import { normalizeNavigationPath } from '../utils/navigationIndex';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
@@ -84,7 +84,6 @@ export interface NotebookNavigatorHandle {
     revealFileInNearestFolder: (file: TFile, options?: RevealFileOptions) => void;
     focusVisiblePane: () => void;
     focusNavigationPane: () => void;
-    refresh: () => void;
     deleteActiveFile: () => void;
     createNoteInSelectedFolder: () => Promise<void>;
     moveSelectedFiles: () => Promise<void>;
@@ -227,9 +226,6 @@ export const NotebookNavigatorComponent = React.memo(
             storageKey: navigationPaneStorageKey,
             scale: uiScale
         });
-
-        // Get updateSettings from SettingsContext for refresh
-        const updateSettings = useSettingsUpdate();
 
         // Tracks whether initial dual/single pane check has been performed
         const hasCheckedInitialVisibility = useRef(false);
@@ -558,10 +554,6 @@ export const NotebookNavigatorComponent = React.memo(
                         revealFileInNearestFolder(activeFile, { mode: ListExpandMode.ToChildren })
                     }
                 },
-                refresh: () => {
-                    // A no-op update will increment the version and force a re-render
-                    runAsyncAction(() => updateSettings(() => {}));
-                },
                 // Delete focused file based on current pane (files or navigation)
                 deleteActiveFile: () => {
                     runAsyncAction(async () => {
@@ -781,7 +773,6 @@ export const NotebookNavigatorComponent = React.memo(
         }, [
             revealFileInActualFolder,
             revealFileInNearestFolder,
-            updateSettings,
             selectionState,
             fileSystemOps,
             selectionDispatch,

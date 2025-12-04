@@ -51,3 +51,6 @@ const DEFAULT_CUSTOM_ROW = ['#ffffff', '#d9d9d9', '#a6a6a6', '#737373', '#000000
 export const DEFAULT_CUSTOM_COLORS = Array.from({ length: USER_COLOR_SLOT_COUNT }, (_, index) =>
     index < DEFAULT_CUSTOM_ROW.length ? DEFAULT_CUSTOM_ROW[index] : DEFAULT_CUSTOM_COLOR
 );
+
+/** Maximum number of recent colors to keep in history */
+export const MAX_RECENT_COLORS = 10;

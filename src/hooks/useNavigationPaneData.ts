@@ -58,7 +58,6 @@ import { shouldDisplayFile, FILE_VISIBILITY, isImageFile } from '../utils/fileTy
 import { isExcalidrawFile } from '../utils/fileNameUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree, findTagNode } from '../utils/tagTree';
-import { getActiveHiddenFolders, getActiveNavigationBanner } from '../utils/vaultProfiles';
 import { flattenFolderTree, flattenTagTree, compareTagOrderWithFallback } from '../utils/treeFlattener';
 import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
 import { setNavigationIndex } from '../utils/navigationIndex';
@@ -81,6 +80,7 @@ import {
     parseNavigationSeparatorKey
 } from '../utils/navigationSeparators';
 import type { MetadataService } from '../services/MetadataService';
+import type { ActiveProfileState } from '../context/SettingsContext';
 
 // Checks if a navigation item is a shortcut-related item (virtual folder, shortcut, or header)
 const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
@@ -336,6 +336,8 @@ const createTagComparator = (order: TagSortOrder, includeDescendantNotes: boolea
 interface UseNavigationPaneDataParams {
     /** Plugin settings */
     settings: NotebookNavigatorSettings;
+    /** Active profile-derived values */
+    activeProfile: ActiveProfileState;
     /** Whether the navigation pane is currently visible */
     isVisible: boolean;
     /** Whether the shortcuts virtual folder is expanded */
@@ -397,6 +399,7 @@ interface UseNavigationPaneDataResult {
  */
 export function useNavigationPaneData({
     settings,
+    activeProfile,
     isVisible,
     shortcutsExpanded,
     recentNotesExpanded,
@@ -414,9 +417,8 @@ export function useNavigationPaneData({
     const showHiddenItems = uxPreferences.showHiddenItems;
     // Resolves frontmatter exclusions, returns empty array when hidden items are shown
     const effectiveFrontmatterExclusions = getEffectiveFrontmatterExclusions(settings, showHiddenItems);
-    // Memoized list of folders hidden by the active vault profile
-    const hiddenFolders = useMemo(() => getActiveHiddenFolders(settings), [settings]);
-    const navigationBannerPath = useMemo(() => getActiveNavigationBanner(settings), [settings]);
+    const { hiddenFolders, hiddenTags, fileVisibility, navigationBanner } = activeProfile;
+    const navigationBannerPath = navigationBanner;
 
     // Version counter that increments when vault files change
     const [fileChangeVersion, setFileChangeVersion] = useState(0);
@@ -435,10 +437,7 @@ export function useNavigationPaneData({
     const untaggedCount = fileData.untagged;
 
     // Create matcher for hidden tag patterns (supports "archive", "temp*", "*draft")
-    const hiddenTagVisibility = useMemo(
-        () => createHiddenTagVisibility(settings.hiddenTags, showHiddenItems),
-        [settings.hiddenTags, showHiddenItems]
-    );
+    const hiddenTagVisibility = useMemo(() => createHiddenTagVisibility(hiddenTags, showHiddenItems), [hiddenTags, showHiddenItems]);
     const hiddenTagMatcher = hiddenTagVisibility.matcher;
     const hiddenMatcherHasRules = hiddenTagVisibility.hasHiddenRules;
 
@@ -872,7 +871,7 @@ export function useNavigationPaneData({
 
         // Use appropriate header based on file visibility setting
         const recentHeaderName =
-            settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS
+            fileVisibility === FILE_VISIBILITY.DOCUMENTS
                 ? strings.navigationPane.recentNotesHeader
                 : strings.navigationPane.recentFilesHeader;
 
@@ -915,7 +914,7 @@ export function useNavigationPaneData({
         });
 
         return items;
-    }, [app, settings.showRecentNotes, recentNotes, settings.recentNotesCount, settings.fileVisibility, recentNotesExpanded]);
+    }, [app, settings.showRecentNotes, recentNotes, settings.recentNotesCount, fileVisibility, recentNotesExpanded]);
 
     // Sanitize section order from local storage and ensure defaults are present
     const normalizedSectionOrder = useMemo(() => sanitizeNavigationSectionOrder(sectionOrder), [sectionOrder]);
@@ -1434,7 +1433,7 @@ export function useNavigationPaneData({
         const showHiddenFolders = showHiddenItems;
         const countOptions = {
             app,
-            fileVisibility: settings.fileVisibility,
+            fileVisibility,
             excludedFiles: excludedProperties,
             excludedFolders: excludedFolderPatterns,
             includeDescendants,
@@ -1461,7 +1460,7 @@ export function useNavigationPaneData({
         effectiveFrontmatterExclusions,
         hiddenFolders,
         showHiddenItems,
-        settings.fileVisibility,
+        fileVisibility,
         settings.enableFolderNotes,
         settings.folderNoteName,
         settings.hideFolderNoteInList,

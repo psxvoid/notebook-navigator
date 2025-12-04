@@ -61,4 +61,15 @@ export interface ISettingsProvider {
      * @param recentIcons - Map of provider id to ordered icon id list
      */
     setRecentIcons(recentIcons: Record<string, string[]>): void;
+
+    /**
+     * Gets the cached list of recently used colors stored outside of synced settings
+     */
+    getRecentColors(): string[];
+
+    /**
+     * Persists the cached list of recently used colors to vault-local storage
+     * @param recentColors - Ordered array of recent color values
+     */
+    setRecentColors(recentColors: string[]): void;
 }

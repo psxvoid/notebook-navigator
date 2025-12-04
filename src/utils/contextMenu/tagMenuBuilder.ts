@@ -25,6 +25,7 @@ import { normalizeTagPath } from '../tagUtils';
 import { resetHiddenToggleIfNoSources } from '../exclusionUtils';
 import { setAsyncOnClick } from './menuAsyncHelpers';
 import { addStyleMenu } from './styleMenuBuilder';
+import { getActiveHiddenTags, getActiveVaultProfile } from '../vaultProfiles';
 
 /**
  * Builds the context menu for a tag
@@ -147,20 +148,25 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     });
 
     const canHideTag = tagPath !== UNTAGGED_TAG_ID;
+    const activeProfile = getActiveVaultProfile(plugin.settings);
+    const hiddenTags = getActiveHiddenTags(plugin.settings);
     if (canHideTag || !isVirtualTag) {
         menu.addSeparator();
 
         if (canHideTag) {
-            const hiddenMatcher = createHiddenTagMatcher(settings.hiddenTags);
+            const hiddenMatcher = createHiddenTagMatcher(hiddenTags);
             const hasHiddenRules =
-                hiddenMatcher.prefixes.length > 0 || hiddenMatcher.startsWithNames.length > 0 || hiddenMatcher.endsWithNames.length > 0;
+                hiddenMatcher.pathPatterns.length > 0 ||
+                hiddenMatcher.prefixes.length > 0 ||
+                hiddenMatcher.startsWithNames.length > 0 ||
+                hiddenMatcher.endsWithNames.length > 0;
             const tagName = tagPath.split('/').pop() ?? tagPath;
             const isHidden = hasHiddenRules && matchesHiddenTagPattern(tagPath, tagName, hiddenMatcher);
 
             const normalizedTagPath = normalizeTagPath(tagPath);
             const hasDirectHiddenEntry =
                 normalizedTagPath !== null &&
-                settings.hiddenTags.some(pattern => {
+                hiddenTags.some(pattern => {
                     const normalizedPattern = normalizeTagPath(pattern);
                     return normalizedPattern !== null && !normalizedPattern.includes('*') && normalizedPattern === normalizedTagPath;
                 });
@@ -168,9 +174,9 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
             if (!isHidden) {
                 menu.addItem((item: MenuItem) => {
                     setAsyncOnClick(item.setTitle(strings.contextMenu.tag.hideTag).setIcon('lucide-eye-off'), async () => {
-                        const cleanedHiddenTags = cleanupTagPatterns(settings.hiddenTags, tagPath);
+                        const cleanedHiddenTags = cleanupTagPatterns(hiddenTags, tagPath);
 
-                        plugin.settings.hiddenTags = cleanedHiddenTags;
+                        activeProfile.hiddenTags = cleanedHiddenTags;
                         resetHiddenToggleIfNoSources({
                             settings: plugin.settings,
                             showHiddenItems: services.visibility.showHiddenItems,
@@ -182,7 +188,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
             } else if (hasDirectHiddenEntry && normalizedTagPath) {
                 menu.addItem((item: MenuItem) => {
                     setAsyncOnClick(item.setTitle(strings.contextMenu.tag.showTag).setIcon('lucide-eye'), async () => {
-                        plugin.settings.hiddenTags = settings.hiddenTags.filter(pattern => {
+                        activeProfile.hiddenTags = hiddenTags.filter(pattern => {
                             const normalizedPattern = normalizeTagPath(pattern);
                             return !(normalizedPattern && !normalizedPattern.includes('*') && normalizedPattern === normalizedTagPath);
                         });

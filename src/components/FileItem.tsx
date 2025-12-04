@@ -73,6 +73,7 @@ import { areStringArraysEqual } from '../utils/arrayUtils';
 import { openAddTagToFilesModal } from '../utils/tagModalHelpers';
 import { getTagSearchModifierOperator } from '../utils/tagUtils';
 import type { InclusionOperator } from '../utils/filterSearch';
+import { useActiveProfile } from '../context/SettingsContext';
 
 import { useSelectionState } from 'src/context/SelectionContext';
 import { EMPTY_ARRAY, EMPTY_STRING } from 'src/utils/empty';
@@ -297,6 +298,7 @@ export const FileItem = React.memo(function FileItem({
     // === Hooks (all hooks together at the top) ===
     const { app, isMobile, plugin, commandQueue, tagOperations } = useServices();
     const settings = useSettingsState();
+    const { hiddenTags } = useActiveProfile();
     const uxPreferences = useUXPreferences();
     const includeDescendantNotes = uxPreferences.includeDescendantNotes;
     const showHiddenItems = uxPreferences.showHiddenItems;
@@ -305,10 +307,7 @@ export const FileItem = React.memo(function FileItem({
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
     const { addNoteShortcut, hasNoteShortcut, noteShortcutKeysByPath, removeShortcut } = useShortcuts();
-    const hiddenTagVisibility = useMemo(
-        () => createHiddenTagVisibility(settings.hiddenTags, showHiddenItems),
-        [settings.hiddenTags, showHiddenItems]
-    );
+    const hiddenTagVisibility = useMemo(() => createHiddenTagVisibility(hiddenTags, showHiddenItems), [hiddenTags, showHiddenItems]);
     const selectionState = useSelectionState();
 
     // === Helper functions ===

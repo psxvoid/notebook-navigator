@@ -99,7 +99,7 @@ export const STRINGS_UK = {
         hideFolders: 'Сховати навігацію', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         reorderRootFolders: 'Змінити порядок кореневих папок і тегів',
         finishRootFolderReorder: 'Завершити зміну порядку',
-        toggleDescendantNotes: 'Показати нотатки з підпапок / нащадків', // Tooltip: include descendants for folders and tags
+        toggleDescendantNotes: 'Показати нотатки з підпапок / нащадків (не синхронізується)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Розгортати при виборі', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Показати приховані папки, теги та нотатки', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Сховати приховані папки, теги та нотатки', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -592,7 +592,7 @@ export const STRINGS_UK = {
         items: {
             searchProvider: {
                 name: 'Постачальник пошуку',
-                desc: 'Оберіть між швидким пошуком за назвою файлу або повнотекстовим пошуком з плагіном Omnisearch.',
+                desc: 'Оберіть між швидким пошуком за назвою файлу або повнотекстовим пошуком з плагіном Omnisearch. (не синхронізується)',
                 options: {
                     internal: 'Пошук з фільтрацією',
                     omnisearch: 'Omnisearch (повнотекстовий)'
@@ -647,7 +647,7 @@ export const STRINGS_UK = {
                 desc: 'Прокручувати до вибраного файлу при закріпленні нотаток, показі нотаток нащадків, зміні вигляду папки або виконанні файлових операцій.'
             },
             includeDescendantNotes: {
-                name: 'Показувати нотатки з підпапок / нащадків',
+                name: 'Показувати нотатки з підпапок / нащадків (не синхронізується)',
                 desc: 'Включати нотатки з вкладених підпапок та нащадків тегів при перегляді папки або тегу.'
             },
             limitPinnedToCurrentFolder: {
@@ -1065,7 +1065,7 @@ export const STRINGS_UK = {
             },
             tagSortOrder: {
                 name: 'Порядок сортування тегів',
-                desc: 'Виберіть, як впорядковуються теги в панелі навігації.',
+                desc: 'Виберіть, як впорядковуються теги в панелі навігації. (не синхронізується)',
                 options: {
                     alphaAsc: 'Від А до Я',
                     alphaDesc: 'Від Я до А',
@@ -1087,8 +1087,8 @@ export const STRINGS_UK = {
             },
             hiddenTags: {
                 name: 'Приховати теги (профіль сховища)',
-                desc: 'Список префіксів тегів або шаблонів назв, розділених комами. Використовуйте тег* або *тег для відповідності назвам тегів. Приховування тегу також приховує всі його підтеги (наприклад, "архів" приховує "архів/2024/документи").',
-                placeholder: 'внутрішній, temp/чернетки, архів/2024'
+                desc: 'Список шаблонів тегів, розділених комами. Шаблони назв: тег* (починається з), *тег (закінчується на). Шаблони шляхів: архів (тег і нащадки), архів/* (лише нащадки), проекти/*/чернетки (символ підстановки посередині).',
+                placeholder: 'архів*, *чернетка, проекти/*/старі'
             },
             enableFolderNotes: {
                 name: 'Увімкнути нотатки папок',

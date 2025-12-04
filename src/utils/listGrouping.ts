@@ -3,7 +3,7 @@ import type { NotebookNavigatorSettings } from '../settings';
 import type { ListNoteGroupingOption } from '../settings/types';
 
 interface ResolveListGroupingParams {
-    settings: NotebookNavigatorSettings;
+    settings: Pick<NotebookNavigatorSettings, 'noteGrouping' | 'folderAppearances' | 'tagAppearances'>;
     selectionType?: ItemType;
     folderPath?: string | null;
     tag?: string | null;

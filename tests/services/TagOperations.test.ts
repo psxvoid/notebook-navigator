@@ -12,9 +12,51 @@ import type { TagTreeService } from '../../src/services/TagTreeService';
 import type { MetadataService } from '../../src/services/MetadataService';
 import { createVaultProfile, getActiveVaultProfile } from '../../src/utils/vaultProfiles';
 import type { VaultProfile } from '../../src/settings/types';
-import { mockObsidian } from 'tests/stubs/obsidian';
 
-mockObsidian()
+vi.mock('obsidian', () => {
+    return {
+        App: class { },
+        Modal: class { },
+        Notice: class { },
+        Plugin: class { },
+        TFile: class { },
+        TFolder: class { },
+        FuzzySuggestModal: class { },
+        PluginSettingTab: class { },
+        AbstractInputSuggest: class { },
+        ItemView: class { },
+        getLanguage: () => 'en',
+        normalizePath: (path: string) => path,
+        parseFrontMatterTags: (frontmatter?: { tags?: string | string[] }) => {
+            const raw = frontmatter?.tags;
+            if (raw === undefined || raw === null) {
+                return null;
+            }
+            if (Array.isArray(raw)) {
+                const tags: string[] = [];
+                for (const entry of raw) {
+                    if (typeof entry !== 'string') {
+                        continue;
+                    }
+                    entry
+                        .split(/[, ]+/u)
+                        .map(tag => tag.trim())
+                        .filter(tag => tag.length > 0)
+                        .forEach(tag => tags.push(tag));
+                }
+                return tags.length > 0 ? tags : null;
+            }
+            if (typeof raw === 'string') {
+                const tags = raw
+                    .split(/[, ]+/u)
+                    .map(tag => tag.trim())
+                    .filter(tag => tag.length > 0);
+                return tags.length > 0 ? tags : null;
+            }
+            return null;
+        },
+    };
+});
 
 const cachedTagsByPath = new Map<string, string[]>();
 
@@ -62,7 +104,9 @@ function createSettingsProvider(settings: NotebookNavigatorSettings): ISettingsP
         getRecentNotes: () => [],
         setRecentNotes: vi.fn(),
         getRecentIcons: () => ({}),
-        setRecentIcons: vi.fn()
+        setRecentIcons: vi.fn(),
+        getRecentColors: () => [],
+        setRecentColors: vi.fn()
     };
 }
 

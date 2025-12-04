@@ -325,6 +325,7 @@ graph TD
 ```typescript
 const { items, pathToIndex, shortcutIndex, shortcutItems } = useNavigationPaneData({
   settings,
+  activeProfile,
   isVisible: navigationVisible,
   shortcutsExpanded,
   recentNotesExpanded,
