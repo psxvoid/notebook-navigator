@@ -74,15 +74,18 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.9.1',
-        date: '2025-12-01',
+        date: '2025-12-04',
         showOnUpdate: true,
         new: [],
-        changed: [
-            'Major refactoring to Vault profiles. **Active vault profile** is no longer synced between devices, so you can have different active vault profiles on different devices.',
-            'Moved tag sort order, recent colors, search provider and release check timestamp from synced settings to local storage. Settings file is now only used for configuration settings not UX state.',
-            'Significantly optimized hidden folder, tag and note pattern matching performance.'
+        improved: [
+            "New Excalidraw and new Tldraw documents now use names and templates configured in each plugin's settings.",
+            'Notebook Navigator now also supports AVIF images for image previews in list pane.'
         ],
-        improved: ['Notebook Navigator now also supports AVIF images for image previews in list pane.'],
+        changed: [
+            '**Active vault profile** is no longer synced between devices, so you can have different active vault profiles on different devices.',
+            'Moved **tag sort order**, **recent colors**, **search provider** and **release check timestamp** from synced settings to local storage. Settings file is now only used for configuration settings, not UX state.',
+            'Significantly optimized hidden folder and hidden tag pattern matching performance.'
+        ],
         fixed: []
     },
     {
