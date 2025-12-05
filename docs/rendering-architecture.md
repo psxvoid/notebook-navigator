@@ -214,8 +214,7 @@ graph TD
   `useNavigationPaneKeyboard`, and `useNavigationPaneScroll`.
 - Renders `FolderItem`, `TagTreeItem`, `VirtualFolderComponent`, `ShortcutItem`, `RootFolderReorderItem`, recent note
   entries, navigation banner placeholder, and section spacers inside the virtual list.
-- Handles drag-and-drop for folders, tags, and shortcuts (including reorder mode indicators) via `useListReorder`
-  handlers.
+- Handles folder/tag drag targets and uses dnd-kit sortable contexts for shortcut reordering.
 - Integrates context menus (`buildFolderMenu`, `buildTagMenu`, `buildFileMenu`) and frontmatter exclusion logic for
   hidden items.
 - Coordinates pending scrolls, shortcut activation, banner height measurements, and reveals through the virtualizer
@@ -299,15 +298,14 @@ graph TD
 **Location**: `src/components/ShortcutItem.tsx`
 
 - Presents folder, note, search, and tag shortcuts with labels, counts, drag handles, and missing indicators.
-- Shares styling with navigation rows through `NavigationListRow` and participates in drag reorder operations managed by
-  `useListReorder`.
+- Shares styling with navigation rows through `NavigationListRow` and participates in dnd-kit sortable reordering.
 
 ### RootFolderReorderItem
 
 **Location**: `src/components/RootFolderReorderItem.tsx`
 
-- Specialized `NavigationListRow` wrapper for root reorder mode with drag handles, drop indicators, and reset actions.
-- Supports folders, tags, and section headers, including missing-item styling.
+- Specialized `NavigationListRow` wrapper for root reorder mode with drag handles and reset actions.
+- Supports folders, tags, and section headers, including missing-item styling, inside dnd-kit sortable lists.
 
 ## Virtualization Strategy
 
