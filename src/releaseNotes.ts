@@ -88,7 +88,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Moved **tag sort order**, **recent colors**, **search provider** and **release check timestamp** from synced settings to local storage. Settings file is now only used for configuration settings, not UX state.',
             'Significantly optimized hidden folder and hidden tag pattern matching performance.'
         ],
-        fixed: ['Due to persistent issues with HTML5 drag-and-drop on certain Android devices, the entire mobile drag-and-drop implementation for shortcuts and reorder root items was rebuilt from the ground up to use the library **dnd-kit**, https://github.com/clauderic/dnd-kit.']
+        fixed: [
+            'Due to persistent issues with HTML5 drag-and-drop on certain Android devices, the entire mobile drag-and-drop implementation for shortcuts and reorder root items was rebuilt from the ground up to use the library **dnd-kit**, https://github.com/clauderic/dnd-kit.'
+        ]
     },
     {
         version: '1.9.0',
