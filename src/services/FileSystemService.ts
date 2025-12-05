@@ -46,6 +46,7 @@ import {
     updateHiddenFolderExactMatches
 } from '../utils/vaultProfiles';
 import { EXCALIDRAW_PLUGIN_ID, TLDRAW_PLUGIN_ID } from '../constants/pluginIds';
+import { createDrawingWithPlugin, DrawingType, getDrawingFilePath, getDrawingTemplate } from '../utils/drawingFileUtils';
 
 /**
  * Selection context for file operations
@@ -103,8 +104,6 @@ interface MoveFolderResult {
  * Result of a folder move operation initiated via modal
  */
 type MoveFolderModalResult = { status: 'success'; data: MoveFolderResult } | { status: 'cancelled' } | { status: 'error'; error: unknown };
-
-type DrawingType = 'excalidraw' | 'tldraw';
 
 export class FolderMoveError extends Error {
     constructor(
@@ -1498,11 +1497,20 @@ export class FileSystemOperations {
             // Use Obsidian's built-in method to reveal the file or folder
             // Note: showInFolder is not in Obsidian's public TypeScript API, but is widely used by plugins
             // showInFolder expects the vault-relative path, not the full system path
-            const extendedApp = this.app as ExtendedApp;
-            await extendedApp.showInFolder(file.path);
+            if (!this.hasShowInFolder(this.app)) {
+                showNotice(strings.fileSystem.errors.revealInExplorer, { variant: 'warning' });
+                return;
+            }
+            await this.app.showInFolder(file.path);
         } catch (error) {
             this.notifyError(strings.fileSystem.errors.revealInExplorer, error);
         }
+    }
+
+    /** Type guard checking if the app exposes the showInFolder method */
+    private hasShowInFolder(app: App): app is ExtendedApp {
+        const showInFolder: unknown = Reflect.get(app, 'showInFolder');
+        return typeof showInFolder === 'function';
     }
 
     /**
@@ -1514,18 +1522,17 @@ export class FileSystemOperations {
      */
     async createNewDrawing(parent: TFolder, type: DrawingType = 'excalidraw'): Promise<TFile | null> {
         try {
-            // Generate unique filename with timestamp
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-            const fileName = type === 'excalidraw' ? `Drawing ${timestamp}${EXCALIDRAW_BASENAME_SUFFIX}.md` : `Drawing ${timestamp}.md`;
-            const base = parent.path === '/' ? '' : `${parent.path}/`;
-            const filePath = normalizePath(`${base}${fileName}`);
+            const pluginFile = await createDrawingWithPlugin(this.app, parent, type);
+            if (pluginFile) {
+                return pluginFile;
+            }
 
-            const content = this.getDrawingTemplate(type);
+            const allowCompatibilitySuffix = type !== 'excalidraw';
+            const filePath = getDrawingFilePath(this.app, parent, type, { allowCompatibilitySuffix });
+            const content = getDrawingTemplate(type);
 
-            // Create the file
             const file = await this.app.vault.create(filePath, content);
 
-            // Open the file
             const leaf = this.app.workspace.getLeaf(false);
             await leaf.openFile(file);
             await this.trySwitchToDrawingView(leaf, file, type);
@@ -1540,44 +1547,6 @@ export class FileSystemOperations {
             }
             return null;
         }
-    }
-
-    /**
-     * Returns the frontmatter template for the specified drawing type
-     */
-    private getDrawingTemplate(type: DrawingType): string {
-        if (type === 'tldraw') {
-            return `---
-tldraw-file: true
----\n`;
-        }
-
-        return `---
-
-excalidraw-plugin: parsed
-tags: [excalidraw]
-
----
-==⚠  Switch to EXCALIDRAW VIEW in the MORE OPTIONS menu of this document. ⚠==
-
-
-# Text Elements
-# Embedded files
-# Drawing
-\`\`\`json
-{
-  "type": "excalidraw",
-  "version": 2,
-  "source": "https://github.com/zsviczian/obsidian-excalidraw-plugin/releases/tag/2.0.0",
-  "elements": [],
-  "appState": {
-    "gridSize": null,
-    "viewBackgroundColor": "#ffffff"
-  },
-  "files": {}
-}
-\`\`\`
-%%`;
     }
 
     /**

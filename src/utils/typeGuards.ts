@@ -104,6 +104,22 @@ function hasPluginRegistry(app: App): app is AppWithPlugins {
 }
 
 /**
+ * Safe access to a plugin instance by id
+ */
+export function getPluginById(app: App, pluginId: string): Plugin | null {
+    if (!pluginId || !hasPluginRegistry(app)) {
+        return null;
+    }
+
+    const registry = app.plugins;
+    if (!registry?.plugins) {
+        return null;
+    }
+
+    return registry.plugins[pluginId] ?? null;
+}
+
+/**
  * Checks if a plugin is installed or enabled
  */
 export function isPluginInstalled(app: App, pluginId: string): boolean {
