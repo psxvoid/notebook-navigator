@@ -76,6 +76,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.9.1',
         date: '2025-12-04',
         showOnUpdate: true,
+        info: 'Lots of internal improvements in this release. The mobile drag and drop functionality was rewritten from the ground up, and pattern matching for hidden folders and tags was greatly improved in performance.',
         new: [],
         improved: [
             "Creating Excalidraw and Tldraw documents now uses names and templates configured in each plugin's settings.",
@@ -87,7 +88,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Moved **tag sort order**, **recent colors**, **search provider** and **release check timestamp** from synced settings to local storage. Settings file is now only used for configuration settings, not UX state.',
             'Significantly optimized hidden folder and hidden tag pattern matching performance.'
         ],
-        fixed: []
+        fixed: ['Due to persistent issues with HTML5 drag-and-drop on certain Android devices, the entire mobile drag-and-drop implementation for shortcuts and reorder root items was rebuilt from the ground up to use the library **dnd-kit**, https://github.com/clauderic/dnd-kit.']
     },
     {
         version: '1.9.0',
