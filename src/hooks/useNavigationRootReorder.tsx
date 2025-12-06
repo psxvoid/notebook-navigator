@@ -21,21 +21,12 @@ import { type App, type TFolder } from 'obsidian';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
-import {
-    NavigationPaneItemType,
-    ItemType,
-    UNTAGGED_TAG_ID,
-    STORAGE_KEYS,
-    DEFAULT_NAVIGATION_SECTION_ORDER,
-    NavigationSectionId
-} from '../types';
+import { NavigationPaneItemType, UNTAGGED_TAG_ID, STORAGE_KEYS, DEFAULT_NAVIGATION_SECTION_ORDER, NavigationSectionId } from '../types';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
 import { strings } from '../i18n';
 import type { MetadataService } from '../services/MetadataService';
-import type { DragGhostOptions } from '../utils/dragGhost';
 import { localStorage } from '../utils/localStorage';
 import { areStringArraysEqual } from '../utils/arrayUtils';
-import { useListReorder, type ListReorderHandlers } from './useListReorder';
 import { RootFolderReorderItem } from '../components/RootFolderReorderItem';
 import { runAsyncAction } from '../utils/async';
 import { mergeNavigationSectionOrder } from '../utils/navigationSections';
@@ -66,40 +57,6 @@ export type SectionReorderRenderItem = RootReorderRenderItem & {
     sectionId: NavigationSectionId;
 };
 
-interface ReorderVisualContext {
-    positionMap: Map<string, number>;
-    getHandlers: (key: string) => ListReorderHandlers;
-    dropIndex: number | null;
-    draggingKey: string | null;
-}
-
-interface ReorderVisualState {
-    dragHandlers?: ListReorderHandlers;
-    showBefore: boolean;
-    showAfter: boolean;
-    isDragSource: boolean;
-}
-
-function buildReorderVisualState(
-    key: string,
-    context: ReorderVisualContext,
-    createDragHandlers?: (handlers: ListReorderHandlers) => ListReorderHandlers
-): ReorderVisualState {
-    const index = context.positionMap.get(key);
-    if (index === undefined) {
-        return { dragHandlers: undefined, showBefore: false, showAfter: false, isDragSource: false };
-    }
-
-    const baseHandlers = context.getHandlers(key);
-    const dragHandlers = createDragHandlers ? createDragHandlers(baseHandlers) : baseHandlers;
-    const isDragSource = context.draggingKey === key;
-    const isDifferentKey = context.draggingKey !== key;
-    const showBefore = Boolean(isDifferentKey && context.dropIndex !== null && context.dropIndex === 0 && index === 0);
-    const showAfter = Boolean(isDifferentKey && context.dropIndex !== null && context.dropIndex === index + 1);
-
-    return { dragHandlers, showBefore, showAfter, isDragSource };
-}
-
 const TAGS_VIRTUAL_REORDER_KEY = '__nn-tags-root__';
 const REMOVE_MISSING_LABEL = strings.common.remove;
 
@@ -116,8 +73,6 @@ export interface UseNavigationRootReorderOptions {
     rootOrderingTagTree: Map<string, TagTreeNode>;
     missingRootTagPaths: string[];
     metadataService: MetadataService;
-    withDragGhost: (handlers: ListReorderHandlers, options: DragGhostOptions) => ListReorderHandlers;
-    isRootReorderMode: boolean;
     foldersSectionExpanded: boolean;
     tagsSectionExpanded: boolean;
     handleToggleFoldersSection: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -141,6 +96,9 @@ export interface NavigationRootReorderState {
     vaultRootDescriptor: RootFolderDescriptor | undefined;
     handleResetRootFolderOrder: () => Promise<void>;
     handleResetRootTagOrder: () => Promise<void>;
+    reorderSectionOrder: (orderedKeys: NavigationSectionId[]) => Promise<void>;
+    reorderRootFolderOrder: (orderedKeys: string[]) => Promise<void>;
+    reorderRootTagOrder: (orderedKeys: string[]) => Promise<void>;
 }
 
 export function useNavigationRootReorder(options: UseNavigationRootReorderOptions): NavigationRootReorderState {
@@ -157,8 +115,6 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         rootOrderingTagTree,
         missingRootTagPaths,
         metadataService,
-        withDragGhost,
-        isRootReorderMode,
         foldersSectionExpanded,
         tagsSectionExpanded,
         handleToggleFoldersSection,
@@ -323,50 +279,19 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         return ordered;
     }, [sectionOrder, showShortcuts, showRecentNotes, showTags, reorderableRootTags, rootFolderDescriptors]);
 
-    const sectionReorderEntries = useMemo(() => visibleSectionOrder.map(identifier => ({ key: identifier })), [visibleSectionOrder]);
-    const canReorderSections = sectionReorderEntries.length > 1;
+    const canReorderSections = visibleSectionOrder.length > 1;
 
-    const sectionPositionMap = useMemo(() => {
-        const map = new Map<string, number>();
-        visibleSectionOrder.forEach((identifier, index) => {
-            map.set(identifier, index);
-        });
-        return map;
-    }, [visibleSectionOrder]);
-
-    const {
-        getDragHandlers: getSectionDragHandlers,
-        dropIndex: sectionReorderDropIndex,
-        draggingKey: sectionReorderDraggingKey
-    } = useListReorder({
-        items: sectionReorderEntries,
-        isEnabled: isRootReorderMode && canReorderSections,
-        reorderItems: async orderedKeys => {
+    const reorderSectionOrder = useCallback(
+        async (orderedKeys: NavigationSectionId[]) => {
             const merged = mergeNavigationSectionOrder(orderedKeys, sectionOrder);
             if (areStringArraysEqual(merged, sectionOrder)) {
-                return true;
+                return;
             }
             setSectionOrder(merged);
             localStorage.set(STORAGE_KEYS.navigationSectionOrderKey, merged);
-            return true;
-        }
-    });
-
-    const rootFolderPositionMap = useMemo(() => {
-        const map = new Map<string, number>();
-        reorderableRootFolders.forEach((entry, index) => {
-            map.set(entry.key, index);
-        });
-        return map;
-    }, [reorderableRootFolders]);
-
-    const rootTagPositionMap = useMemo(() => {
-        const map = new Map<string, number>();
-        reorderableRootTags.forEach((entry, index) => {
-            map.set(entry.key, index);
-        });
-        return map;
-    }, [reorderableRootTags]);
+        },
+        [sectionOrder, setSectionOrder]
+    );
 
     const canReorderRootFolders = reorderableRootFolders.length > 1;
     const canReorderRootTags = reorderableRootTags.length > 1;
@@ -429,6 +354,20 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
             });
         },
         [rootTagOrder, updateSettings]
+    );
+
+    const reorderRootFolderOrder = useCallback(
+        async (orderedKeys: string[]) => {
+            await handleRootOrderChange(orderedKeys);
+        },
+        [handleRootOrderChange]
+    );
+
+    const reorderRootTagOrder = useCallback(
+        async (orderedKeys: string[]) => {
+            await handleRootTagOrderChange(orderedKeys);
+        },
+        [handleRootTagOrderChange]
     );
 
     const handleRemoveMissingRootFolder = useCallback(
@@ -496,112 +435,8 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         );
     }, []);
 
-    const {
-        getDragHandlers: getRootFolderDragHandlers,
-        dropIndex: rootFolderReorderDropIndex,
-        draggingKey: rootFolderReorderDraggingKey
-    } = useListReorder({
-        items: reorderableRootFolders,
-        isEnabled: isRootReorderMode && canReorderRootFolders,
-        reorderItems: async orderedKeys => {
-            await handleRootOrderChange(orderedKeys);
-            return true;
-        }
-    });
-
-    const {
-        getDragHandlers: getRootTagDragHandlers,
-        dropIndex: rootTagReorderDropIndex,
-        draggingKey: rootTagReorderDraggingKey
-    } = useListReorder({
-        items: reorderableRootTags,
-        isEnabled: isRootReorderMode && canReorderRootTags,
-        reorderItems: async orderedKeys => {
-            await handleRootTagOrderChange(orderedKeys);
-            return true;
-        }
-    });
-
-    const getRootFolderReorderVisualState = useCallback(
-        (descriptor: RootFolderDescriptor) =>
-            buildReorderVisualState(
-                descriptor.key,
-                {
-                    positionMap: rootFolderPositionMap,
-                    getHandlers: getRootFolderDragHandlers,
-                    dropIndex: rootFolderReorderDropIndex,
-                    draggingKey: rootFolderReorderDraggingKey
-                },
-                handlers => {
-                    const icon =
-                        rootFolderIconMap.get(descriptor.key) ??
-                        (descriptor.isVault ? 'vault' : descriptor.isMissing ? 'lucide-folder-off' : 'lucide-folder');
-                    const iconColor = rootFolderColorMap.get(descriptor.key);
-                    return withDragGhost(handlers, {
-                        itemType: ItemType.FOLDER,
-                        path: descriptor.folder ? descriptor.folder.path : descriptor.key,
-                        icon,
-                        iconColor
-                    });
-                }
-            ),
-        [
-            getRootFolderDragHandlers,
-            rootFolderIconMap,
-            rootFolderColorMap,
-            rootFolderPositionMap,
-            rootFolderReorderDropIndex,
-            rootFolderReorderDraggingKey,
-            withDragGhost
-        ]
-    );
-
-    const getRootTagReorderVisualState = useCallback(
-        (descriptor: RootTagDescriptor) =>
-            buildReorderVisualState(
-                descriptor.key,
-                {
-                    positionMap: rootTagPositionMap,
-                    getHandlers: getRootTagDragHandlers,
-                    dropIndex: rootTagReorderDropIndex,
-                    draggingKey: rootTagReorderDraggingKey
-                },
-                handlers => {
-                    let icon = rootTagIconMap.get(descriptor.key);
-                    if (!icon) {
-                        if (descriptor.isUntagged) {
-                            icon = metadataService.getTagIcon(descriptor.key) ?? 'lucide-tag';
-                        } else if (descriptor.isMissing) {
-                            icon = 'lucide-tag-off';
-                        } else {
-                            icon = metadataService.getTagIcon(descriptor.key) ?? 'lucide-tag';
-                        }
-                    }
-                    const metadataColor = descriptor.isUntagged ? undefined : metadataService.getTagColor(descriptor.key);
-                    const iconColor = rootTagColorMap.get(descriptor.key) ?? metadataColor;
-                    return withDragGhost(handlers, {
-                        itemType: ItemType.TAG,
-                        path: descriptor.tag ? descriptor.tag.displayPath : descriptor.key,
-                        icon,
-                        iconColor
-                    });
-                }
-            ),
-        [
-            getRootTagDragHandlers,
-            rootTagIconMap,
-            rootTagColorMap,
-            metadataService,
-            rootTagPositionMap,
-            rootTagReorderDropIndex,
-            rootTagReorderDraggingKey,
-            withDragGhost
-        ]
-    );
-
     const folderReorderItems = useMemo<RootReorderRenderItem[]>(() => {
         return reorderableRootFolders.map(entry => {
-            const { dragHandlers, showBefore, showAfter, isDragSource } = getRootFolderReorderVisualState(entry);
             const isMissing = entry.isMissing === true;
             const displayLabel = entry.folder ? entry.folder.name : getPathBaseName(entry.key);
             // Hidden roots are not present in navigation maps, so read icon data directly from metadata
@@ -618,16 +453,14 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
             const removeAction = isMissing ? buildRemoveMissingAction(entry.key, handleRemoveMissingRootFolder) : undefined;
 
             return {
-                key: `root-folder-reorder-${entry.key}`,
+                key: entry.key,
                 props: {
                     icon: displayIcon,
                     color: iconColor,
                     label: displayLabel,
                     level: 1,
-                    dragHandlers,
-                    showDropIndicatorBefore: showBefore,
-                    showDropIndicatorAfter: showAfter,
-                    isDragSource,
+                    dragHandlers: undefined,
+                    isDragSource: false,
                     isMissing,
                     itemType: 'folder',
                     trailingAccessory: removeAction
@@ -636,7 +469,6 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         });
     }, [
         reorderableRootFolders,
-        getRootFolderReorderVisualState,
         rootFolderIconMap,
         rootFolderColorMap,
         metadataService,
@@ -646,7 +478,6 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
 
     const tagReorderItems = useMemo<RootReorderRenderItem[]>(() => {
         return reorderableRootTags.map(entry => {
-            const { dragHandlers, showBefore, showAfter, isDragSource } = getRootTagReorderVisualState(entry);
             const isUntagged = entry.isUntagged === true;
             const isMissing = entry.isMissing === true;
 
@@ -667,46 +498,21 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
             const removeAction = isMissing ? buildRemoveMissingAction(entry.key, handleRemoveMissingRootTag) : undefined;
 
             return {
-                key: `root-tag-reorder-${entry.key}`,
+                key: entry.key,
                 props: {
                     icon: displayIcon,
                     color: iconColor,
                     label,
                     level: 1,
-                    dragHandlers,
-                    showDropIndicatorBefore: showBefore,
-                    showDropIndicatorAfter: showAfter,
-                    isDragSource,
+                    dragHandlers: undefined,
+                    isDragSource: false,
                     isMissing,
                     itemType: 'tag',
                     trailingAccessory: removeAction
                 }
             };
         });
-    }, [
-        reorderableRootTags,
-        getRootTagReorderVisualState,
-        rootTagIconMap,
-        rootTagColorMap,
-        metadataService,
-        buildRemoveMissingAction,
-        handleRemoveMissingRootTag
-    ]);
-
-    const getSectionReorderVisualState = useCallback(
-        (identifier: NavigationSectionId, configureHandlers?: (handlers: ListReorderHandlers) => ListReorderHandlers) =>
-            buildReorderVisualState(
-                identifier,
-                {
-                    positionMap: sectionPositionMap,
-                    getHandlers: getSectionDragHandlers,
-                    dropIndex: sectionReorderDropIndex,
-                    draggingKey: sectionReorderDraggingKey
-                },
-                configureHandlers
-            ),
-        [sectionPositionMap, getSectionDragHandlers, sectionReorderDropIndex, sectionReorderDraggingKey]
-    );
+    }, [reorderableRootTags, rootTagIconMap, rootTagColorMap, metadataService, buildRemoveMissingAction, handleRemoveMissingRootTag]);
 
     const sectionReorderItems = useMemo<SectionReorderRenderItem[]>(() => {
         return visibleSectionOrder.map((identifier, index) => {
@@ -748,27 +554,17 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                 onClick = handleToggleTagsSection;
             }
 
-            const { dragHandlers, showBefore, showAfter, isDragSource } = getSectionReorderVisualState(identifier, handlers =>
-                withDragGhost(handlers, {
-                    itemType: null,
-                    icon,
-                    iconColor: color
-                })
-            );
-
             const headerClassName = index === 0 ? undefined : 'nn-root-reorder-section-header';
 
             return {
-                key: `section-${identifier}`,
+                key: identifier,
                 sectionId: identifier,
                 props: {
                     icon,
                     label,
                     level: 0,
-                    dragHandlers,
-                    showDropIndicatorBefore: showBefore,
-                    showDropIndicatorAfter: showAfter,
-                    isDragSource,
+                    dragHandlers: undefined,
+                    isDragSource: false,
                     color,
                     onClick,
                     chevronIcon,
@@ -779,7 +575,6 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         });
     }, [
         visibleSectionOrder,
-        getSectionReorderVisualState,
         fileVisibility,
         vaultRootDescriptor,
         rootFolderIconMap,
@@ -789,8 +584,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         foldersSectionExpanded,
         tagsSectionExpanded,
         handleToggleFoldersSection,
-        handleToggleTagsSection,
-        withDragGhost
+        handleToggleTagsSection
     ]);
 
     const handleResetRootFolderOrder = useCallback(async () => {
@@ -820,6 +614,9 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         resetRootTagOrderLabel,
         vaultRootDescriptor,
         handleResetRootFolderOrder,
-        handleResetRootTagOrder
+        handleResetRootTagOrder,
+        reorderSectionOrder,
+        reorderRootFolderOrder,
+        reorderRootTagOrder
     };
 }

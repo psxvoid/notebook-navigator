@@ -1290,6 +1290,10 @@ body {
     position: relative;
 }
 
+.nn-navigation-pane[data-shortcut-sorting='true'] .nn-navitem:not(.nn-shortcut-item) {
+    pointer-events: none;
+}
+
 /* Render the custom background color behind the nav item content */
 .nn-navitem.nn-has-custom-background::before {
     content: '';
@@ -1534,52 +1538,6 @@ body {
     position: relative;
 }
 
-.nn-shortcut-drag-source {
-    opacity: 0.6;
-}
-
-.nn-drag-item[data-reorder-drop-before='true'] .nn-navitem-content::before,
-.nn-drag-item[data-reorder-drop-after='true'] .nn-navitem-content::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
-    height: 2px;
-    background-color: var(--interactive-accent);
-    border-radius: 999px;
-    pointer-events: none;
-    z-index: 3;
-}
-
-.nn-drag-item[data-reorder-drop-before='true'] .nn-navitem-content::before {
-    top: 0;
-}
-
-.nn-drag-item[data-reorder-drop-after='true'] .nn-navitem-content::after {
-    bottom: 0;
-}
-
-.nn-desktop .nn-drag-item[data-reorder-drop-before='true']::before,
-.nn-desktop .nn-drag-item[data-reorder-drop-after='true']::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
-    height: 3px;
-    background-color: var(--interactive-accent);
-    border-radius: 999px;
-    pointer-events: none;
-    z-index: 5;
-}
-
-.nn-desktop .nn-drag-item[data-reorder-drop-before='true']::before {
-    top: -1px;
-}
-
-.nn-desktop .nn-drag-item[data-reorder-drop-after='true']::after {
-    bottom: -1px;
-}
-
 .nn-drag-item .nn-navitem-name {
     display: inline-flex;
     align-items: center;
@@ -1718,25 +1676,6 @@ body {
     display: flex;
     flex-direction: column;
     position: relative;
-}
-
-.nn-root-reorder-section[data-reorder-drop-after='true']::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
-    bottom: 0;
-    height: 2px;
-    background-color: var(--interactive-accent);
-    border-radius: 999px;
-    pointer-events: none;
-    z-index: 3;
-}
-
-.nn-desktop .nn-root-reorder-section[data-reorder-drop-after='true']::after {
-    height: 3px;
-    bottom: -1px;
-    z-index: 5;
 }
 
 .nn-root-reorder-section-list {
