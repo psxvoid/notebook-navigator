@@ -17,9 +17,10 @@
  */
 
 import React, { useMemo } from 'react';
+import type { DraggableSyntheticListeners } from '@dnd-kit/core';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
-import type { ListReorderHandlers } from '../hooks/useListReorder';
+import type { ListReorderHandlers } from '../types/listReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
 import type { NoteCountInfo } from '../types/noteCounts';
 import { buildNoteCountDisplay } from '../utils/noteCountFormatting';
@@ -43,13 +44,17 @@ interface ShortcutItemProps {
     onMouseDown?: (event: React.MouseEvent<HTMLDivElement>) => void;
     onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
     dragHandlers?: ListReorderHandlers;
-    showDropIndicatorBefore?: boolean;
-    showDropIndicatorAfter?: boolean;
     isDragSource?: boolean;
     dragHandleConfig?: DragHandleConfig;
     hasFolderNote?: boolean;
     onLabelClick?: (event: React.MouseEvent<HTMLSpanElement>) => void;
     onLabelMouseDown?: (event: React.MouseEvent<HTMLSpanElement>) => void;
+    dragRef?: (node: HTMLDivElement | null) => void;
+    dragHandleRef?: (node: HTMLSpanElement | null) => void;
+    dragAttributes?: React.HTMLAttributes<HTMLElement>;
+    dragListeners?: DraggableSyntheticListeners;
+    dragStyle?: React.CSSProperties;
+    isSorting?: boolean;
 }
 
 /**
@@ -72,13 +77,17 @@ export const ShortcutItem = React.memo(function ShortcutItem({
     onMouseDown,
     onContextMenu,
     dragHandlers,
-    showDropIndicatorBefore,
-    showDropIndicatorAfter,
     isDragSource,
     dragHandleConfig,
     hasFolderNote,
     onLabelClick,
-    onLabelMouseDown
+    onLabelMouseDown,
+    dragRef,
+    dragHandleRef,
+    dragAttributes,
+    dragListeners,
+    dragStyle,
+    isSorting
 }: ShortcutItemProps) {
     const settings = useSettingsState();
     const uxPreferences = useUXPreferences();
@@ -165,8 +174,6 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             }}
             onContextMenu={onContextMenu}
             dragHandlers={dragHandlers}
-            showDropIndicatorBefore={showDropIndicatorBefore}
-            showDropIndicatorAfter={showDropIndicatorAfter}
             isDragSource={isDragSource}
             showCount={shouldShowCount}
             count={countDisplay.label}
@@ -178,6 +185,12 @@ export const ShortcutItem = React.memo(function ShortcutItem({
             onLabelClick={labelClickHandler}
             onLabelMouseDown={labelMouseDownHandler}
             showIcon={shouldShowIcon}
+            dragRef={dragRef}
+            dragHandleRef={dragHandleRef}
+            dragAttributes={dragAttributes}
+            dragListeners={dragListeners}
+            dragStyle={dragStyle}
+            isSorting={isSorting}
         />
     );
 });
