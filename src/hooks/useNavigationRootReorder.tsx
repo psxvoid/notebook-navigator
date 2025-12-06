@@ -21,7 +21,7 @@ import { type App, type TFolder } from 'obsidian';
 import type { NotebookNavigatorSettings } from '../settings';
 import type { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
-import { NavigationPaneItemType, UNTAGGED_TAG_ID, STORAGE_KEYS, DEFAULT_NAVIGATION_SECTION_ORDER, NavigationSectionId } from '../types';
+import { NavigationPaneItemType, UNTAGGED_TAG_ID, STORAGE_KEYS, NavigationSectionId } from '../types';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
 import { strings } from '../i18n';
 import type { MetadataService } from '../services/MetadataService';
@@ -29,9 +29,11 @@ import { localStorage } from '../utils/localStorage';
 import { areStringArraysEqual } from '../utils/arrayUtils';
 import { RootFolderReorderItem } from '../components/RootFolderReorderItem';
 import { runAsyncAction } from '../utils/async';
-import { mergeNavigationSectionOrder } from '../utils/navigationSections';
+import { mergeNavigationSectionOrder, sanitizeNavigationSectionOrder } from '../utils/navigationSections';
 import { getPathBaseName } from '../utils/pathUtils';
 import type { ActiveProfileState } from '../context/SettingsContext';
+import { shouldExcludeFolder } from '../utils/fileFilters';
+import { createHiddenTagMatcher, matchesHiddenTagPattern } from '../utils/tagPrefixMatcher';
 
 export interface RootFolderDescriptor {
     key: string;
@@ -64,6 +66,7 @@ export interface UseNavigationRootReorderOptions {
     app: App;
     items: CombinedNavigationItem[];
     settings: NotebookNavigatorSettings;
+    showHiddenItems: boolean;
     updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>;
     sectionOrder: NavigationSectionId[];
     setSectionOrder: React.Dispatch<React.SetStateAction<NavigationSectionId[]>>;
@@ -106,6 +109,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         app,
         items,
         settings,
+        showHiddenItems,
         updateSettings,
         sectionOrder,
         setSectionOrder,
@@ -134,7 +138,8 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         customVaultName
     } = settings;
 
-    const { fileVisibility } = activeProfile;
+    const { fileVisibility, hiddenFolders, hiddenTags } = activeProfile;
+    const hiddenTagMatcher = useMemo(() => createHiddenTagMatcher(hiddenTags), [hiddenTags]);
 
     const rootFolderDescriptors = useMemo<RootFolderDescriptor[]>(() => {
         const descriptors: RootFolderDescriptor[] = [];
@@ -239,58 +244,84 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
     }, [missingRootTagPaths, resolvedRootTagKeys, rootOrderingTagTree, rootTagOrder, showUntagged]);
 
     const reorderableRootFolders = useMemo<RootFolderDescriptor[]>(() => {
-        return rootFolderDescriptors.filter(entry => !entry.isVault);
-    }, [rootFolderDescriptors]);
+        return rootFolderDescriptors.filter(entry => {
+            if (entry.isVault) {
+                return false;
+            }
+            if (!showHiddenItems) {
+                const folderName = entry.folder ? entry.folder.name : getPathBaseName(entry.key);
+                if (hiddenFolders.length > 0 && shouldExcludeFolder(folderName, hiddenFolders, entry.key)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }, [hiddenFolders, rootFolderDescriptors, showHiddenItems]);
 
     const reorderableRootTags = useMemo<RootTagDescriptor[]>(() => {
-        return rootTagDescriptors.filter(entry => !entry.isVirtualRoot);
-    }, [rootTagDescriptors]);
-
-    const visibleSectionOrder = useMemo<NavigationSectionId[]>(() => {
-        const includeMap = new Map<NavigationSectionId, boolean>([
-            [NavigationSectionId.SHORTCUTS, showShortcuts],
-            [NavigationSectionId.RECENT, showRecentNotes],
-            [NavigationSectionId.FOLDERS, rootFolderDescriptors.length > 0],
-            [NavigationSectionId.TAGS, showTags && reorderableRootTags.length > 0]
-        ]);
-
-        const ordered: NavigationSectionId[] = [];
-
-        sectionOrder.forEach(identifier => {
-            if (!includeMap.get(identifier)) {
-                return;
+        return rootTagDescriptors.filter(entry => {
+            if (entry.isVirtualRoot) {
+                return false;
             }
-            if (ordered.includes(identifier)) {
-                return;
+            if (!showHiddenItems) {
+                const hasHiddenRules =
+                    hiddenTagMatcher.pathPatterns.length > 0 ||
+                    hiddenTagMatcher.prefixes.length > 0 ||
+                    hiddenTagMatcher.startsWithNames.length > 0 ||
+                    hiddenTagMatcher.endsWithNames.length > 0;
+                if (hasHiddenRules && entry.tag && matchesHiddenTagPattern(entry.tag.path, entry.tag.name, hiddenTagMatcher)) {
+                    return false;
+                }
             }
-            ordered.push(identifier);
+            return true;
         });
+    }, [hiddenTagMatcher, rootTagDescriptors, showHiddenItems]);
 
-        DEFAULT_NAVIGATION_SECTION_ORDER.forEach(identifier => {
-            if (!includeMap.get(identifier)) {
-                return;
+    const sectionOrderWithDefaults = useMemo<NavigationSectionId[]>(() => {
+        return sanitizeNavigationSectionOrder(sectionOrder);
+    }, [sectionOrder]);
+
+    const sectionDisplayOrder = useMemo<NavigationSectionId[]>(() => {
+        if (showHiddenItems) {
+            return sectionOrderWithDefaults;
+        }
+        return sectionOrderWithDefaults.filter(identifier => {
+            if (identifier === NavigationSectionId.SHORTCUTS) {
+                return showShortcuts;
             }
-            if (ordered.includes(identifier)) {
-                return;
+            if (identifier === NavigationSectionId.RECENT) {
+                return showRecentNotes;
             }
-            ordered.push(identifier);
+            if (identifier === NavigationSectionId.FOLDERS) {
+                return reorderableRootFolders.length > 0;
+            }
+            if (identifier === NavigationSectionId.TAGS) {
+                return showTags && reorderableRootTags.length > 0;
+            }
+            return true;
         });
+    }, [
+        reorderableRootFolders.length,
+        reorderableRootTags.length,
+        sectionOrderWithDefaults,
+        showHiddenItems,
+        showRecentNotes,
+        showShortcuts,
+        showTags
+    ]);
 
-        return ordered;
-    }, [sectionOrder, showShortcuts, showRecentNotes, showTags, reorderableRootTags, rootFolderDescriptors]);
-
-    const canReorderSections = visibleSectionOrder.length > 1;
+    const canReorderSections = sectionDisplayOrder.length > 1;
 
     const reorderSectionOrder = useCallback(
         async (orderedKeys: NavigationSectionId[]) => {
-            const merged = mergeNavigationSectionOrder(orderedKeys, sectionOrder);
-            if (areStringArraysEqual(merged, sectionOrder)) {
+            const merged = mergeNavigationSectionOrder(orderedKeys, sectionOrderWithDefaults);
+            if (areStringArraysEqual(merged, sectionOrderWithDefaults)) {
                 return;
             }
             setSectionOrder(merged);
             localStorage.set(STORAGE_KEYS.navigationSectionOrderKey, merged);
         },
-        [sectionOrder, setSectionOrder]
+        [sectionOrderWithDefaults, setSectionOrder]
     );
 
     const canReorderRootFolders = reorderableRootFolders.length > 1;
@@ -438,6 +469,8 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
     const folderReorderItems = useMemo<RootReorderRenderItem[]>(() => {
         return reorderableRootFolders.map(entry => {
             const isMissing = entry.isMissing === true;
+            const baseName = entry.folder ? entry.folder.name : getPathBaseName(entry.key);
+            const isHidden = hiddenFolders.length > 0 && shouldExcludeFolder(baseName, hiddenFolders, entry.key);
             const displayLabel = entry.folder ? entry.folder.name : getPathBaseName(entry.key);
             // Hidden roots are not present in navigation maps, so read icon data directly from metadata
             const iconName = rootFolderIconMap.get(entry.key) ?? (isMissing ? undefined : metadataService.getFolderIcon(entry.key));
@@ -463,6 +496,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                     isDragSource: false,
                     isMissing,
                     itemType: 'folder',
+                    className: showHiddenItems && isHidden ? 'nn-excluded' : undefined,
                     trailingAccessory: removeAction
                 }
             };
@@ -473,13 +507,22 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         rootFolderColorMap,
         metadataService,
         buildRemoveMissingAction,
-        handleRemoveMissingRootFolder
+        handleRemoveMissingRootFolder,
+        hiddenFolders,
+        showHiddenItems
     ]);
 
     const tagReorderItems = useMemo<RootReorderRenderItem[]>(() => {
         return reorderableRootTags.map(entry => {
             const isUntagged = entry.isUntagged === true;
             const isMissing = entry.isMissing === true;
+            const hasHiddenRules =
+                hiddenTagMatcher.pathPatterns.length > 0 ||
+                hiddenTagMatcher.prefixes.length > 0 ||
+                hiddenTagMatcher.startsWithNames.length > 0 ||
+                hiddenTagMatcher.endsWithNames.length > 0;
+            const isHidden =
+                !isUntagged && hasHiddenRules && entry.tag && matchesHiddenTagPattern(entry.tag.path, entry.tag.name, hiddenTagMatcher);
 
             let displayIcon: string;
             let label: string;
@@ -508,14 +551,29 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                     isDragSource: false,
                     isMissing,
                     itemType: 'tag',
+                    className: showHiddenItems && isHidden ? 'nn-excluded' : undefined,
                     trailingAccessory: removeAction
                 }
             };
         });
-    }, [reorderableRootTags, rootTagIconMap, rootTagColorMap, metadataService, buildRemoveMissingAction, handleRemoveMissingRootTag]);
+    }, [
+        reorderableRootTags,
+        rootTagIconMap,
+        rootTagColorMap,
+        metadataService,
+        buildRemoveMissingAction,
+        handleRemoveMissingRootTag,
+        hiddenTagMatcher,
+        showHiddenItems
+    ]);
 
     const sectionReorderItems = useMemo<SectionReorderRenderItem[]>(() => {
-        return visibleSectionOrder.map((identifier, index) => {
+        return sectionDisplayOrder.map(identifier => {
+            const isHidden =
+                (identifier === NavigationSectionId.SHORTCUTS && !showShortcuts) ||
+                (identifier === NavigationSectionId.RECENT && !showRecentNotes) ||
+                (identifier === NavigationSectionId.FOLDERS && rootFolderDescriptors.length === 0) ||
+                (identifier === NavigationSectionId.TAGS && !showTags);
             let icon = 'lucide-circle';
             let label = '';
             let chevronIcon: string | undefined;
@@ -554,8 +612,6 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                 onClick = handleToggleTagsSection;
             }
 
-            const headerClassName = index === 0 ? undefined : 'nn-root-reorder-section-header';
-
             return {
                 key: identifier,
                 sectionId: identifier,
@@ -569,12 +625,16 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                     onClick,
                     chevronIcon,
                     itemType: 'section',
-                    className: headerClassName
+                    className: isHidden ? 'nn-excluded' : undefined
                 }
             };
         });
     }, [
-        visibleSectionOrder,
+        sectionDisplayOrder,
+        showShortcuts,
+        showRecentNotes,
+        showTags,
+        rootFolderDescriptors.length,
         fileVisibility,
         vaultRootDescriptor,
         rootFolderIconMap,
