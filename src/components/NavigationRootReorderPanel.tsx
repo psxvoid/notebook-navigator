@@ -89,9 +89,9 @@ function SortableRootItem({ entry, canReorder, isMobile }: SortableItemProps) {
     const dragHandleConfig = useMemo(
         () => ({
             label: strings.navigationPane.dragHandleLabel,
-            visible: canReorder,
+            visible: isMobile && canReorder,
             icon: 'lucide-grip-horizontal',
-            interactive: canReorder,
+            interactive: isMobile && canReorder,
             only: isMobile
         }),
         [canReorder, isMobile]
@@ -184,9 +184,9 @@ function SortableSectionList({ entries, canReorder, renderSection, isMobile }: S
     const dragHandleConfig = useMemo(
         () => ({
             label: strings.navigationPane.dragHandleLabel,
-            visible: canReorder,
+            visible: isMobile && canReorder,
             icon: 'lucide-grip-horizontal',
-            interactive: canReorder,
+            interactive: isMobile && canReorder,
             only: isMobile
         }),
         [canReorder, isMobile]
@@ -535,7 +535,7 @@ export function NavigationRootReorderPanel({
                                     isSorting={true}
                                     dragHandleConfig={{
                                         label: strings.navigationPane.dragHandleLabel,
-                                        visible: canReorderSections,
+                                        visible: isMobile && canReorderSections,
                                         icon: 'lucide-grip-horizontal',
                                         interactive: false,
                                         only: isMobile
