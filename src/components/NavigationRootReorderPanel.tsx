@@ -16,8 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useCallback, useMemo } from 'react';
-import { DndContext, MouseSensor, TouchSensor, closestCenter, type DragEndEvent, useSensor, useSensors } from '@dnd-kit/core';
+import React, { useCallback, useMemo, useState } from 'react';
+import {
+    DndContext,
+    DragOverlay,
+    MouseSensor,
+    TouchSensor,
+    type DragEndEvent,
+    type DragStartEvent,
+    useSensor,
+    useSensors
+} from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { RootFolderReorderItem } from './RootFolderReorderItem';
@@ -26,7 +35,12 @@ import type { SectionReorderRenderItem, RootReorderRenderItem } from '../hooks/u
 import { NavigationSectionId } from '../types';
 import { runAsyncAction } from '../utils/async';
 import type { DragHandleConfig } from './NavigationListRow';
-import { ROOT_REORDER_MOUSE_CONSTRAINT, ROOT_REORDER_TOUCH_CONSTRAINT, verticalAxisOnly } from '../utils/dndConfig';
+import {
+    ROOT_REORDER_MOUSE_CONSTRAINT,
+    ROOT_REORDER_TOUCH_CONSTRAINT,
+    typeFilteredCollisionDetection,
+    verticalAxisOnly
+} from '../utils/dndConfig';
 
 interface NavigationRootReorderPanelProps {
     sectionItems: SectionReorderRenderItem[];
@@ -67,16 +81,17 @@ function SortableRootItem({ entry, canReorder, isMobile }: SortableItemProps) {
     const { item, sortableId } = entry;
     const { attributes, listeners, setNodeRef, transform, transition, isSorting } = useSortable({
         id: sortableId,
-        disabled: !canReorder
+        disabled: !canReorder,
+        data: { type: item.props.itemType }
     });
 
     const dragStyle = transform ? { transform: CSS.Transform.toString(transform), transition } : undefined;
     const dragHandleConfig = useMemo(
         () => ({
             label: strings.navigationPane.dragHandleLabel,
-            visible: canReorder,
+            visible: isMobile && canReorder,
             icon: 'lucide-grip-horizontal',
-            interactive: canReorder,
+            interactive: isMobile && canReorder,
             only: isMobile
         }),
         [canReorder, isMobile]
@@ -142,7 +157,8 @@ interface SortableSectionItemProps {
 function SortableSectionItem({ entry, canReorder, renderSection, dragHandleConfig }: SortableSectionItemProps) {
     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isSorting } = useSortable({
         id: entry.sortableId,
-        disabled: !canReorder
+        disabled: !canReorder,
+        data: { type: 'section' }
     });
     const dragStyle = transform ? { transform: CSS.Transform.toString(transform), transition } : undefined;
 
@@ -168,9 +184,9 @@ function SortableSectionList({ entries, canReorder, renderSection, isMobile }: S
     const dragHandleConfig = useMemo(
         () => ({
             label: strings.navigationPane.dragHandleLabel,
-            visible: canReorder,
+            visible: isMobile && canReorder,
             icon: 'lucide-grip-horizontal',
-            interactive: canReorder,
+            interactive: isMobile && canReorder,
             only: isMobile
         }),
         [canReorder, isMobile]
@@ -278,8 +294,24 @@ export function NavigationRootReorderPanel({
         useSensor(TouchSensor, { activationConstraint: ROOT_REORDER_TOUCH_CONSTRAINT })
     );
 
+    const [activeSectionEntry, setActiveSectionEntry] = useState<SectionSortableEntry | null>(null);
+
+    const handleDragStart = useCallback(
+        (event: DragStartEvent) => {
+            const activeId = event.active.id as string;
+            const activeInfo = sortableRegistry.get(activeId);
+            if (activeInfo?.type === 'section') {
+                const entry = sectionEntries.find(e => e.sortableId === activeId);
+                setActiveSectionEntry(entry ?? null);
+            }
+        },
+        [sectionEntries, sortableRegistry]
+    );
+
     const handleDragEnd = useCallback(
         (event: DragEndEvent) => {
+            setActiveSectionEntry(null);
+
             const activeId = event.active.id as string;
             const overId = event.over?.id as string | undefined;
             if (!overId) {
@@ -367,8 +399,9 @@ export function NavigationRootReorderPanel({
                 {hasSortableContent ? (
                     <DndContext
                         sensors={sensors}
-                        collisionDetection={closestCenter}
+                        collisionDetection={typeFilteredCollisionDetection}
                         modifiers={[verticalAxisOnly]}
+                        onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}
                     >
                         {sectionEntries.length > 0 ? (
@@ -391,9 +424,15 @@ export function NavigationRootReorderPanel({
                                         item.sectionId === NavigationSectionId.FOLDERS && foldersSectionExpanded && showRootFolderSection;
                                     const shouldRenderTags =
                                         item.sectionId === NavigationSectionId.TAGS && tagsSectionExpanded && showRootTagSection;
+                                    const isBeingDragged = activeSectionEntry?.sortableId === entry.sortableId;
 
                                     return (
-                                        <div key={entry.sortableId} ref={setNodeRef} style={dragStyle} className="nn-root-reorder-section">
+                                        <div
+                                            key={entry.sortableId}
+                                            ref={setNodeRef}
+                                            style={isBeingDragged ? undefined : dragStyle}
+                                            className={`nn-root-reorder-section${isBeingDragged ? ' nn-root-reorder-section--dragging' : ''}`}
+                                        >
                                             <RootFolderReorderItem
                                                 {...item.props}
                                                 dragAttributes={attributes}
@@ -489,6 +528,21 @@ export function NavigationRootReorderPanel({
                                 ) : null}
                             </>
                         )}
+                        <DragOverlay modifiers={[verticalAxisOnly]}>
+                            {activeSectionEntry ? (
+                                <RootFolderReorderItem
+                                    {...activeSectionEntry.item.props}
+                                    isSorting={true}
+                                    dragHandleConfig={{
+                                        label: strings.navigationPane.dragHandleLabel,
+                                        visible: isMobile && canReorderSections,
+                                        icon: 'lucide-grip-horizontal',
+                                        interactive: false,
+                                        only: isMobile
+                                    }}
+                                />
+                            ) : null}
+                        </DragOverlay>
                     </DndContext>
                 ) : null}
             </div>
