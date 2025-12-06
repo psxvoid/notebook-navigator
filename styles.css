@@ -1744,6 +1744,34 @@ body {
     font-weight: 500;
 }
 
+.nn-root-reorder-section-controls {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.nn-root-reorder-section-button {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 6px;
+    color: var(--nn-theme-header-button-icon-color);
+    flex-shrink: 0;
+}
+
+.nn-root-reorder-section-button svg {
+    width: 16px;
+    height: 16px;
+}
+
+.nn-desktop .nn-root-reorder-section-button:hover {
+    background-color: var(--nn-theme-header-button-hover-bg);
+}
+
+.nn-root-reorder-section-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 .nn-shortcut-disabled {
     opacity: 0.5;
     pointer-events: none;
