@@ -1678,6 +1678,10 @@ body {
     position: relative;
 }
 
+.nn-root-reorder-section--dragging {
+    opacity: 0;
+}
+
 .nn-root-reorder-section-list {
     display: flex;
     flex-direction: column;
