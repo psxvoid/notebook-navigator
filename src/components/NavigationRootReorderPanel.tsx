@@ -17,7 +17,7 @@
  */
 
 import React, { useCallback, useMemo } from 'react';
-import { DndContext, MouseSensor, TouchSensor, closestCenter, type DragEndEvent, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, MouseSensor, TouchSensor, type DragEndEvent, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { RootFolderReorderItem } from './RootFolderReorderItem';
@@ -26,7 +26,12 @@ import type { SectionReorderRenderItem, RootReorderRenderItem } from '../hooks/u
 import { NavigationSectionId } from '../types';
 import { runAsyncAction } from '../utils/async';
 import type { DragHandleConfig } from './NavigationListRow';
-import { ROOT_REORDER_MOUSE_CONSTRAINT, ROOT_REORDER_TOUCH_CONSTRAINT, verticalAxisOnly } from '../utils/dndConfig';
+import {
+    ROOT_REORDER_MOUSE_CONSTRAINT,
+    ROOT_REORDER_TOUCH_CONSTRAINT,
+    typeFilteredCollisionDetection,
+    verticalAxisOnly
+} from '../utils/dndConfig';
 
 interface NavigationRootReorderPanelProps {
     sectionItems: SectionReorderRenderItem[];
@@ -67,7 +72,8 @@ function SortableRootItem({ entry, canReorder, isMobile }: SortableItemProps) {
     const { item, sortableId } = entry;
     const { attributes, listeners, setNodeRef, transform, transition, isSorting } = useSortable({
         id: sortableId,
-        disabled: !canReorder
+        disabled: !canReorder,
+        data: { type: item.props.itemType }
     });
 
     const dragStyle = transform ? { transform: CSS.Transform.toString(transform), transition } : undefined;
@@ -142,7 +148,8 @@ interface SortableSectionItemProps {
 function SortableSectionItem({ entry, canReorder, renderSection, dragHandleConfig }: SortableSectionItemProps) {
     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isSorting } = useSortable({
         id: entry.sortableId,
-        disabled: !canReorder
+        disabled: !canReorder,
+        data: { type: 'section' }
     });
     const dragStyle = transform ? { transform: CSS.Transform.toString(transform), transition } : undefined;
 
@@ -367,7 +374,7 @@ export function NavigationRootReorderPanel({
                 {hasSortableContent ? (
                     <DndContext
                         sensors={sensors}
-                        collisionDetection={closestCenter}
+                        collisionDetection={typeFilteredCollisionDetection}
                         modifiers={[verticalAxisOnly]}
                         onDragEnd={handleDragEnd}
                     >
