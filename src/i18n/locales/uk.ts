@@ -60,8 +60,8 @@ export const STRINGS_UK = {
         shortcutsHeader: 'Ярлики', // Header label for shortcuts section in navigation pane (English: Shortcuts)
         recentNotesHeader: 'Останні нотатки', // Header label for recent notes section in navigation pane (English: Recent notes)
         recentFilesHeader: 'Останні файли', // Header label when showing recent non-note files in navigation pane (English: Recent files)
-        reorderRootFoldersTitle: 'Змінити порядок розділів навігації',
-        reorderRootFoldersHint: 'Перетягніть заголовки або елементи для зміни порядку',
+        reorderRootFoldersTitle: 'Змінити порядок навігації',
+        reorderRootFoldersHint: 'Використовуйте стрілки або перетягування',
         vaultRootLabel: 'Сховище',
         resetRootToAlpha: 'Скинути до алфавітного порядку',
         resetRootToFrequency: 'Скинути до порядку за частотою',
@@ -97,8 +97,8 @@ export const STRINGS_UK = {
         customSort: 'Власний', // Label for custom sorting mode (English: Custom)
         showFolders: 'Показати навігацію', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Сховати навігацію', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Змінити порядок кореневих папок і тегів',
-        finishRootFolderReorder: 'Завершити зміну порядку',
+        reorderRootFolders: 'Змінити порядок навігації',
+        finishRootFolderReorder: 'Готово',
         toggleDescendantNotes: 'Показати нотатки з підпапок / нащадків (не синхронізується)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Розгортати при виборі', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Показати приховані папки, теги та нотатки', // Tooltip for button to show hidden items (English: Show hidden items)

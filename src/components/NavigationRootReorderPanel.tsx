@@ -127,6 +127,24 @@ interface SectionEntry {
     item: SectionReorderRenderItem;
 }
 
+interface ResetActionProps {
+    label: string;
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+function ResetAction({ label, onClick }: ResetActionProps) {
+    return (
+        <div className="nn-root-reorder-actions">
+            <button type="button" className="nn-root-reorder-reset nn-support-button" onClick={onClick}>
+                <span className="nn-root-reorder-reset-icon" aria-hidden="true">
+                    Aa
+                </span>
+                <span>{label}</span>
+            </button>
+        </div>
+    );
+}
+
 export function NavigationRootReorderPanel({
     sectionItems,
     folderItems,
@@ -153,7 +171,7 @@ export function NavigationRootReorderPanel({
             event.preventDefault();
             event.stopPropagation();
             runAsyncAction(async () => {
-                await onResetRootFolderOrder?.();
+                await onResetRootFolderOrder();
             });
         },
         [onResetRootFolderOrder]
@@ -164,7 +182,7 @@ export function NavigationRootReorderPanel({
             event.preventDefault();
             event.stopPropagation();
             runAsyncAction(async () => {
-                await onResetRootTagOrder?.();
+                await onResetRootTagOrder();
             });
         },
         [onResetRootTagOrder]
@@ -205,6 +223,9 @@ export function NavigationRootReorderPanel({
     const sectionIds = useMemo(() => sectionEntries.map(entry => entry.id), [sectionEntries]);
     const folderIds = useMemo(() => folderEntries.map(entry => entry.item.key), [folderEntries]);
     const tagIds = useMemo(() => tagEntries.map(entry => entry.item.key), [tagEntries]);
+    const sectionIndexMap = useMemo(() => {
+        return new Map<NavigationSectionId, number>(sectionIds.map((id, index) => [id, index]));
+    }, [sectionIds]);
 
     const sensors = useSensors(
         useSensor(MouseSensor, { activationConstraint: ROOT_REORDER_MOUSE_CONSTRAINT }),
@@ -289,7 +310,8 @@ export function NavigationRootReorderPanel({
         [canReorderFolders, canReorderTags, folderIds, onReorderFolders, onReorderTags, sortableRegistry, tagIds]
     );
 
-    const hasSortableContent = sectionEntries.length > 0 || folderEntries.length > 0 || tagEntries.length > 0;
+    const hasSortableContent =
+        sectionEntries.length > 0 || (showRootFolderSection && folderEntries.length > 0) || (showRootTagSection && tagEntries.length > 0);
 
     return (
         <div className="nn-root-reorder-panel">
@@ -310,7 +332,7 @@ export function NavigationRootReorderPanel({
                             sectionEntries.map(entry => {
                                 const item = entry.item;
                                 const sectionId = entry.id;
-                                const sectionIndex = sectionIds.indexOf(sectionId);
+                                const sectionIndex = sectionIndexMap.get(sectionId) ?? -1;
                                 const canMoveUp = canReorderSections && sectionIndex > 0;
                                 const canMoveDown = canReorderSections && sectionIndex >= 0 && sectionIndex < sectionIds.length - 1;
                                 const showControls = canReorderSections && sectionIds.length > 1;
@@ -349,18 +371,7 @@ export function NavigationRootReorderPanel({
                                         {shouldRenderFolders && folderEntries.length > 0 ? (
                                             <SortableList entries={folderEntries} canReorder={canReorderFolders} isMobile={isMobile}>
                                                 {showRootFolderReset ? (
-                                                    <div className="nn-root-reorder-actions">
-                                                        <button
-                                                            type="button"
-                                                            className="nn-root-reorder-reset nn-support-button"
-                                                            onClick={handleResetFolders}
-                                                        >
-                                                            <span className="nn-root-reorder-reset-icon" aria-hidden="true">
-                                                                Aa
-                                                            </span>
-                                                            <span>{RESET_FOLDER_LABEL}</span>
-                                                        </button>
-                                                    </div>
+                                                    <ResetAction label={RESET_FOLDER_LABEL} onClick={handleResetFolders} />
                                                 ) : null}
                                             </SortableList>
                                         ) : null}
@@ -368,18 +379,7 @@ export function NavigationRootReorderPanel({
                                         {shouldRenderTags && tagEntries.length > 0 ? (
                                             <SortableList entries={tagEntries} canReorder={canReorderTags} isMobile={isMobile}>
                                                 {showRootTagReset ? (
-                                                    <div className="nn-root-reorder-actions">
-                                                        <button
-                                                            type="button"
-                                                            className="nn-root-reorder-reset nn-support-button"
-                                                            onClick={handleResetTags}
-                                                        >
-                                                            <span className="nn-root-reorder-reset-icon" aria-hidden="true">
-                                                                Aa
-                                                            </span>
-                                                            <span>{resetRootTagOrderLabel}</span>
-                                                        </button>
-                                                    </div>
+                                                    <ResetAction label={resetRootTagOrderLabel} onClick={handleResetTags} />
                                                 ) : null}
                                             </SortableList>
                                         ) : null}
@@ -392,18 +392,7 @@ export function NavigationRootReorderPanel({
                                     <div className="nn-root-reorder-section">
                                         <SortableList entries={folderEntries} canReorder={canReorderFolders} isMobile={isMobile}>
                                             {showRootFolderReset ? (
-                                                <div className="nn-root-reorder-actions">
-                                                    <button
-                                                        type="button"
-                                                        className="nn-root-reorder-reset nn-support-button"
-                                                        onClick={handleResetFolders}
-                                                    >
-                                                        <span className="nn-root-reorder-reset-icon" aria-hidden="true">
-                                                            Aa
-                                                        </span>
-                                                        <span>{RESET_FOLDER_LABEL}</span>
-                                                    </button>
-                                                </div>
+                                                <ResetAction label={RESET_FOLDER_LABEL} onClick={handleResetFolders} />
                                             ) : null}
                                         </SortableList>
                                     </div>
@@ -413,18 +402,7 @@ export function NavigationRootReorderPanel({
                                     <div className="nn-root-reorder-section">
                                         <SortableList entries={tagEntries} canReorder={canReorderTags} isMobile={isMobile}>
                                             {showRootTagReset ? (
-                                                <div className="nn-root-reorder-actions">
-                                                    <button
-                                                        type="button"
-                                                        className="nn-root-reorder-reset nn-support-button"
-                                                        onClick={handleResetTags}
-                                                    >
-                                                        <span className="nn-root-reorder-reset-icon" aria-hidden="true">
-                                                            Aa
-                                                        </span>
-                                                        <span>{resetRootTagOrderLabel}</span>
-                                                    </button>
-                                                </div>
+                                                <ResetAction label={resetRootTagOrderLabel} onClick={handleResetTags} />
                                             ) : null}
                                         </SortableList>
                                     </div>

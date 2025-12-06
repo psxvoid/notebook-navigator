@@ -59,8 +59,8 @@ export const STRINGS_FR = {
         shortcutsHeader: 'Raccourcis',
         recentNotesHeader: 'Notes récentes',
         recentFilesHeader: 'Fichiers récents',
-        reorderRootFoldersTitle: 'Réorganiser les sections de navigation',
-        reorderRootFoldersHint: "Faites glisser les en-têtes ou les éléments pour changer l'ordre",
+        reorderRootFoldersTitle: 'Réorganiser la navigation',
+        reorderRootFoldersHint: 'Utilisez les flèches ou glissez pour réorganiser',
         vaultRootLabel: 'Coffre',
         resetRootToAlpha: "Réinitialiser l'ordre alphabétique",
         resetRootToFrequency: 'Réinitialiser selon la fréquence',
@@ -96,8 +96,8 @@ export const STRINGS_FR = {
         customSort: 'Personnalisé', // Label for custom sorting mode (English: Custom)
         showFolders: 'Afficher la navigation', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Masquer la navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Réorganiser les dossiers racine et les étiquettes',
-        finishRootFolderReorder: 'Terminer la réorganisation',
+        reorderRootFolders: 'Réorganiser la navigation',
+        finishRootFolderReorder: 'Terminé',
         toggleDescendantNotes: 'Afficher les notes des sous-dossiers / descendants (non synchronisé)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants (not synced))
         autoExpandFoldersTags: 'Développer automatiquement les dossiers et les étiquettes', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Afficher les dossiers, étiquettes et notes masqués', // Tooltip for button to show hidden items (English: Show hidden items)

@@ -60,8 +60,8 @@ export const STRINGS_IT = {
         shortcutsHeader: 'Scorciatoie', // Header label for shortcuts section in navigation pane (English: Shortcuts)
         recentNotesHeader: 'Note recenti', // Header label for recent notes section in navigation pane (English: Recent notes)
         recentFilesHeader: 'File recenti', // Header label when showing recent non-note files in navigation pane (English: Recent files)
-        reorderRootFoldersTitle: 'Riordina sezioni di navigazione',
-        reorderRootFoldersHint: 'Trascina intestazioni o elementi per cambiare ordine',
+        reorderRootFoldersTitle: 'Riordina navigazione',
+        reorderRootFoldersHint: 'Usa frecce o trascina per riordinare',
         vaultRootLabel: 'Vault',
         resetRootToAlpha: 'Ripristina ordine alfabetico',
         resetRootToFrequency: 'Ripristina ordine per frequenza',
@@ -97,8 +97,8 @@ export const STRINGS_IT = {
         customSort: 'Personalizzato', // Label for custom sorting mode (English: Custom)
         showFolders: 'Mostra navigazione', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Nascondi navigazione', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Riordina cartelle e tag principali',
-        finishRootFolderReorder: 'Termina riordino',
+        reorderRootFolders: 'Riordina navigazione',
+        finishRootFolderReorder: 'Fatto',
         toggleDescendantNotes: 'Mostra note da sottocartelle / discendenti (non sincronizzato)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Espandi alla selezione', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Mostra cartelle, tag e note nascosti', // Tooltip for button to show hidden items (English: Show hidden items)

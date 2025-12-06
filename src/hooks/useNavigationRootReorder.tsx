@@ -140,6 +140,14 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
 
     const { fileVisibility, hiddenFolders, hiddenTags } = activeProfile;
     const hiddenTagMatcher = useMemo(() => createHiddenTagMatcher(hiddenTags), [hiddenTags]);
+    const hasHiddenTagRules = useMemo(() => {
+        return (
+            hiddenTagMatcher.pathPatterns.length > 0 ||
+            hiddenTagMatcher.prefixes.length > 0 ||
+            hiddenTagMatcher.startsWithNames.length > 0 ||
+            hiddenTagMatcher.endsWithNames.length > 0
+        );
+    }, [hiddenTagMatcher]);
 
     const rootFolderDescriptors = useMemo<RootFolderDescriptor[]>(() => {
         const descriptors: RootFolderDescriptor[] = [];
@@ -264,18 +272,13 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
                 return false;
             }
             if (!showHiddenItems) {
-                const hasHiddenRules =
-                    hiddenTagMatcher.pathPatterns.length > 0 ||
-                    hiddenTagMatcher.prefixes.length > 0 ||
-                    hiddenTagMatcher.startsWithNames.length > 0 ||
-                    hiddenTagMatcher.endsWithNames.length > 0;
-                if (hasHiddenRules && entry.tag && matchesHiddenTagPattern(entry.tag.path, entry.tag.name, hiddenTagMatcher)) {
+                if (hasHiddenTagRules && entry.tag && matchesHiddenTagPattern(entry.tag.path, entry.tag.name, hiddenTagMatcher)) {
                     return false;
                 }
             }
             return true;
         });
-    }, [hiddenTagMatcher, rootTagDescriptors, showHiddenItems]);
+    }, [hasHiddenTagRules, hiddenTagMatcher, rootTagDescriptors, showHiddenItems]);
 
     const sectionOrderWithDefaults = useMemo<NavigationSectionId[]>(() => {
         return sanitizeNavigationSectionOrder(sectionOrder);
@@ -516,13 +519,8 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         return reorderableRootTags.map(entry => {
             const isUntagged = entry.isUntagged === true;
             const isMissing = entry.isMissing === true;
-            const hasHiddenRules =
-                hiddenTagMatcher.pathPatterns.length > 0 ||
-                hiddenTagMatcher.prefixes.length > 0 ||
-                hiddenTagMatcher.startsWithNames.length > 0 ||
-                hiddenTagMatcher.endsWithNames.length > 0;
             const isHidden =
-                !isUntagged && hasHiddenRules && entry.tag && matchesHiddenTagPattern(entry.tag.path, entry.tag.name, hiddenTagMatcher);
+                !isUntagged && hasHiddenTagRules && entry.tag && matchesHiddenTagPattern(entry.tag.path, entry.tag.name, hiddenTagMatcher);
 
             let displayIcon: string;
             let label: string;
@@ -563,6 +561,7 @@ export function useNavigationRootReorder(options: UseNavigationRootReorderOption
         metadataService,
         buildRemoveMissingAction,
         handleRemoveMissingRootTag,
+        hasHiddenTagRules,
         hiddenTagMatcher,
         showHiddenItems
     ]);

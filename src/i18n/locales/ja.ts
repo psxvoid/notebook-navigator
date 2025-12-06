@@ -59,8 +59,8 @@ export const STRINGS_JA = {
         shortcutsHeader: 'ショートカット',
         recentNotesHeader: '最近のノート',
         recentFilesHeader: '最近のファイル',
-        reorderRootFoldersTitle: 'ナビゲーションセクションを並び替え',
-        reorderRootFoldersHint: '見出しまたは項目をドラッグして順序を変更します',
+        reorderRootFoldersTitle: 'ナビゲーションを並び替え',
+        reorderRootFoldersHint: '矢印またはドラッグで並び替え',
         vaultRootLabel: 'ボールト',
         resetRootToAlpha: 'アルファベット順にリセット',
         resetRootToFrequency: '頻度順にリセット',
@@ -96,8 +96,8 @@ export const STRINGS_JA = {
         customSort: 'カスタム', // Label for custom sorting mode (English: Custom)
         showFolders: 'ナビゲーションを表示', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'ナビゲーションを非表示', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'ルートフォルダとタグを並び替え',
-        finishRootFolderReorder: '並び替えを終了',
+        reorderRootFolders: 'ナビゲーションを並び替え',
+        finishRootFolderReorder: '完了',
         toggleDescendantNotes: 'サブフォルダ / 子孫のノートを表示（同期されません）', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants (not synced))
         autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '非表示のフォルダ・タグ・ノートを表示', // Tooltip for button to show hidden items (English: Show hidden items)
