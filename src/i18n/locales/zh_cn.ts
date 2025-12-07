@@ -59,8 +59,8 @@ export const STRINGS_ZH_CN = {
         shortcutsHeader: '快捷方式',
         recentNotesHeader: '最近笔记',
         recentFilesHeader: '最近文件',
-        reorderRootFoldersTitle: '重新排列导航分区',
-        reorderRootFoldersHint: '拖动标题或项目以调整顺序',
+        reorderRootFoldersTitle: '重新排列导航',
+        reorderRootFoldersHint: '使用箭头或拖动来重新排列',
         vaultRootLabel: '仓库',
         resetRootToAlpha: '重置为字母顺序',
         resetRootToFrequency: '重置为频率排序',
@@ -96,8 +96,8 @@ export const STRINGS_ZH_CN = {
         customSort: '自定义', // Label for custom sorting mode (English: Custom)
         showFolders: '显示导航', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: '隐藏导航', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: '重新排列根文件夹和标签',
-        finishRootFolderReorder: '完成重新排列',
+        reorderRootFolders: '重新排列导航',
+        finishRootFolderReorder: '完成',
         toggleDescendantNotes: '显示子文件夹/后代的笔记（不同步）', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants (not synced))
         autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '显示隐藏的文件夹、标签和笔记', // Tooltip for button to show hidden items (English: Show hidden items)

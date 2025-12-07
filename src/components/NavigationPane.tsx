@@ -743,6 +743,7 @@ export const NavigationPane = React.memo(
             app,
             items,
             settings,
+            showHiddenItems,
             updateSettings,
             sectionOrder,
             setSectionOrder,
