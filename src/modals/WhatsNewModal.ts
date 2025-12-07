@@ -45,12 +45,21 @@ export class WhatsNewModal extends Modal {
                     // **bold**
                     dest.createEl('strong', { text: match[4] });
                 } else if (match[5]) {
-                    // Bare URL
-                    const url = match[5];
+                    // Bare URL - strip trailing punctuation that's likely not part of the URL
+                    let url = match[5];
+                    let trailing = '';
+                    const trailingMatch = url.match(/[.,;:!?)]+$/);
+                    if (trailingMatch) {
+                        trailing = trailingMatch[0];
+                        url = url.slice(0, -trailing.length);
+                    }
                     const a = dest.createEl('a', { text: url });
                     a.setAttr('href', url);
                     a.setAttr('rel', 'noopener noreferrer');
                     a.setAttr('target', '_blank');
+                    if (trailing) {
+                        appendText(trailing);
+                    }
                 }
 
                 lastIndex = pattern.lastIndex;

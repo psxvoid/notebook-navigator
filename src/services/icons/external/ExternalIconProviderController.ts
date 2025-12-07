@@ -658,7 +658,7 @@ export class ExternalIconProviderController {
         }
         this.removalNoticeProviders.add(config.id);
         const message = strings.fileSystem.notifications.iconPackRemoved.replace('{provider}', config.name);
-        showNotice(message, { variant: 'success' });
+        showNotice(message);
     }
 
     private showUpdateNotice(config: ExternalIconProviderConfig, version: string): void {
