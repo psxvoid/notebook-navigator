@@ -76,7 +76,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.9.1',
         date: '2025-12-07',
         showOnUpdate: true,
-        info: 'Lots of internal improvements in this release. The mobile drag and drop functionality was rewritten from the ground up, pattern matching for hidden folders and tags was greatly improved in performance, and lots of other internal improvements.',
+        info: 'Lots of internal improvements in this release. The mobile drag and drop functionality was rewritten from the ground up, pattern matching for hidden folders and tags was greatly improved in performance, and lots of other internal improvements.\n\nThank you all the feedback and suggestions, and thank you for using Notebook Navigator!',
         new: [
             'New style setting: **Navigation file text color** (--nn-theme-navitem-file-name-color). Customize the color of files shown in shortcuts and recent files in navigation pane.'
         ],
