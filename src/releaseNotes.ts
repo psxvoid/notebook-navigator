@@ -81,14 +81,14 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New style setting: **Navigation file text color** (--nn-theme-navitem-file-name-color). Customize the color of files shown in shortcuts and recent files in navigation pane.'
         ],
         improved: [
-            "Creating Excalidraw and Tldraw documents now uses the names and templates configured in each plugin's settings.",
-            'Android users can now swipe in the middle of the view to go from list pane to navigation pane.',
+            "==New Excalidraw and Tldraw documents== now uses the names and templates configured in each plugin's settings 🎉.",
+            '==Android users can now swipe in the middle of the view== to go from list pane to navigation pane.',
             'File operations like move, delete, create, pin/unpin now keeps current list scroll position when nothing is selected in the list pane.',
             'Notebook Navigator now also supports AVIF images for image previews in list pane.'
         ],
         changed: [
-            '**Active vault profile** is no longer synced between devices, so you can have different active vault profiles on different devices.',
-            'Moved **tag sort order**, **recent colors**, **search provider** and **release check timestamp** from synced settings to local storage. Settings file is now only used for configuration settings, not UX state.',
+            '==Active vault profile is no longer synced between devices==, so you can have different active vault profiles on different devices.',
+            '==Moved tag sort order, recent colors, search provider and release check timestamp== from **synced settings** to **local storage**. Settings file is now only used for configuration settings, not UX state.',
             'Significantly optimized hidden folder and hidden tag pattern matching performance.'
         ],
         fixed: [
