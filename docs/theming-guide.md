@@ -49,6 +49,7 @@ The theming variables use the `--nn-theme-` prefix and should be defined at the 
 | `--nn-theme-navitem-chevron-color`                   | `var(--text-muted)`                              | Color for expand/collapse arrows                                    |
 | `--nn-theme-navitem-icon-color`                      | `var(--text-muted)`                              | Icon color for folders and tags                                     |
 | `--nn-theme-navitem-name-color`                      | `var(--text-normal)`                             | Text color for folder and tag names                                 |
+| `--nn-theme-navitem-file-name-color`                 | `var(--nn-theme-navitem-name-color)`             | Text color for note shortcuts and recent files                      |
 | `--nn-theme-navitem-count-color`                     | `var(--text-muted)`                              | Text color for file count badges                                    |
 | `--nn-theme-navitem-count-bg`                        | `transparent`                                    | Background color for file count badges                              |
 | `--nn-theme-navitem-count-border-radius`             | `8px`                                            | Corner radius for file count badges (0-8px)                         |
@@ -212,6 +213,7 @@ body {
   --nn-theme-navitem-chevron-color: #6e6e6e; /* Muted gray - expand/collapse arrows */
   --nn-theme-navitem-icon-color: #afb1b3; /* Light gray - folder/tag icons */
   --nn-theme-navitem-name-color: #a9b7c6; /* Soft blue-gray - folder/tag names */
+  --nn-theme-navitem-file-name-color: #a9b7c6; /* Soft blue-gray - note shortcuts and recent files */
   --nn-theme-navitem-count-color: #7f8b91; /* Muted gray - file count text */
   --nn-theme-navitem-count-bg: transparent; /* No background for count badges */
   --nn-theme-navitem-count-border-radius: 3px; /* Subtle rounded count badges */

@@ -77,7 +77,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-12-04',
         showOnUpdate: true,
         info: 'Lots of internal improvements in this release. The mobile drag and drop functionality was rewritten from the ground up, and pattern matching for hidden folders and tags was greatly improved in performance.',
-        new: [],
+        new: [
+            'New style setting: **Navigation file text color** (--nn-theme-navitem-file-name-color). Customize the color of files shown in shortcuts and recent files in navigation pane.'
+        ],
         improved: [
             "Creating Excalidraw and Tldraw documents now uses names and templates configured in each plugin's settings.",
             'Android users can now swipe in the middle of the view to go from list pane to navigation pane.',
