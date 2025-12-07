@@ -81,19 +81,19 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New style setting: **Navigation file text color** (--nn-theme-navitem-file-name-color). Customize the color of files shown in shortcuts and recent files in navigation pane.'
         ],
         improved: [
-            "==New Excalidraw and Tldraw documents== now uses the names and templates configured in each plugin's settings 🎉.",
+            "==Creating new Excalidraw and Tldraw documents== now use the names and templates configured in each plugin's settings.",
+            '==Drag and drop finally works on all Android devices!== 🎉 Due to persistent issues with HTML5 drag-and-drop on certain Android devices, the entire mobile drag-and-drop implementation for shortcuts and reorder root items was rebuilt from the ground up to use the library **dnd-kit**, https://github.com/clauderic/dnd-kit.',
             '==Android users can now swipe in the middle of the view== to go from list pane to navigation pane.',
-            'File operations like move, delete, create, pin/unpin now keeps current list scroll position when nothing is selected in the list pane.',
-            'Notebook Navigator now also supports AVIF images for image previews in list pane.'
+            'File operations like **move, delete, create, pin/unpin** now keeps current list scroll position when nothing is selected in the list pane.',
+            'Notebook Navigator now also supports **AVIF images** for image previews in list pane.'
         ],
         changed: [
             '==Active vault profile is no longer synced between devices==, so you can have different active vault profiles on different devices.',
             '==Moved tag sort order, recent colors, search provider and release check timestamp== from **synced settings** to **local storage**. Settings file is now only used for configuration settings, not UX state.',
-            'Significantly optimized hidden folder and hidden tag pattern matching performance.'
+            'Significantly optimized **hidden folder** and **hidden tag** pattern matching performance.'
         ],
         fixed: [
-            'Creating new notes with "Reading mode" enabled prevented the plugin Templater from inserting templates. This has been fixed by always opening new notes in "Editing mode", just like the built-in file explorer does it.',
-            'Due to persistent issues with HTML5 drag-and-drop on certain Android devices, the entire mobile drag-and-drop implementation for shortcuts and reorder root items was rebuilt from the ground up to use the library **dnd-kit**, https://github.com/clauderic/dnd-kit.'
+            'Creating new notes with "Reading mode" enabled prevented the plugin Templater from inserting templates. This has been fixed by always opening new notes in "Editing mode", just like the built-in file explorer does it.'
         ]
     },
     {
