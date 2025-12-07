@@ -152,6 +152,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private pendingUpdateNotice: ReleaseUpdateNotice | null = null;
     private uxPreferences: UXPreferences = { ...DEFAULT_UX_PREFERENCES };
     private uxPreferenceListeners = new Map<string, () => void>();
+    // TODO: Remove legacy UI scale flags and migration when desktopScale/mobileScale are fully dropped
     // Track whether legacy scales still need to be kept in persisted settings until this device migrates them
     private shouldPersistDesktopScale = false;
     private shouldPersistMobileScale = false;
