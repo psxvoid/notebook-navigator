@@ -65,9 +65,12 @@ export const STRINGS_VI = {
         vaultRootLabel: 'Vault',
         resetRootToAlpha: 'Đặt lại theo thứ tự bảng chữ cái',
         resetRootToFrequency: 'Đặt lại theo tần suất',
-        dragHandleLabel: 'Kéo để sắp xếp lại',
         pinShortcuts: 'Ghim lối tắt',
+        pinShortcutsAndRecentNotes: 'Ghim lối tắt và ghi chú gần đây',
+        pinShortcutsAndRecentFiles: 'Ghim lối tắt và tệp gần đây',
         unpinShortcuts: 'Bỏ ghim lối tắt',
+        unpinShortcutsAndRecentNotes: 'Bỏ ghim lối tắt và ghi chú gần đây',
+        unpinShortcutsAndRecentFiles: 'Bỏ ghim lối tắt và tệp gần đây',
         profileMenuLabel: 'Hồ sơ',
         profileMenuAria: 'Đổi hồ sơ vault'
     },
@@ -730,7 +733,7 @@ export const STRINGS_VI = {
                 }
             },
             appearanceScale: {
-                name: 'Mức thu phóng',
+                name: 'Mức thu phóng (không đồng bộ)',
                 desc: 'Điều khiển mức thu phóng tổng thể của Notebook Navigator.'
             },
             startView: {
@@ -784,6 +787,10 @@ export const STRINGS_VI = {
             recentNotesCount: {
                 name: 'Số lượng ghi chú gần đây',
                 desc: 'Số ghi chú gần đây để hiển thị.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Ghim ghi chú gần đây cùng lối tắt',
+                desc: 'Bao gồm ghi chú gần đây khi lối tắt được ghim.'
             },
             showTooltips: {
                 name: 'Hiện chú thích',

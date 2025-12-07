@@ -65,9 +65,12 @@ export const STRINGS_EN = {
         vaultRootLabel: 'Vault',
         resetRootToAlpha: 'Reset to alphabetical order',
         resetRootToFrequency: 'Reset to frequency order',
-        dragHandleLabel: 'Drag to reorder',
         pinShortcuts: 'Pin shortcuts',
+        pinShortcutsAndRecentNotes: 'Pin shortcuts and recent notes',
+        pinShortcutsAndRecentFiles: 'Pin shortcuts and recent files',
         unpinShortcuts: 'Unpin shortcuts',
+        unpinShortcutsAndRecentNotes: 'Unpin shortcuts and recent notes',
+        unpinShortcutsAndRecentFiles: 'Unpin shortcuts and recent files',
         profileMenuLabel: 'Profile',
         profileMenuAria: 'Change vault profile'
     },
@@ -730,7 +733,7 @@ export const STRINGS_EN = {
                 }
             },
             appearanceScale: {
-                name: 'Zoom level',
+                name: 'Zoom level (not synced)',
                 desc: 'Controls the overall zoom level of Notebook Navigator.'
             },
             startView: {
@@ -784,6 +787,10 @@ export const STRINGS_EN = {
             recentNotesCount: {
                 name: 'Recent notes count',
                 desc: 'Number of recent notes to display.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Pin recent notes with shortcuts',
+                desc: 'Include recent notes when shortcuts are pinned.'
             },
             showTooltips: {
                 name: 'Show tooltips',

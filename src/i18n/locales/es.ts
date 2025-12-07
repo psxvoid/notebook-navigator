@@ -64,9 +64,12 @@ export const STRINGS_ES = {
         vaultRootLabel: 'Bóveda',
         resetRootToAlpha: 'Restablecer orden alfabético',
         resetRootToFrequency: 'Restablecer al orden por frecuencia',
-        dragHandleLabel: 'Arrastrar para reordenar',
         pinShortcuts: 'Fijar accesos directos',
+        pinShortcutsAndRecentNotes: 'Fijar accesos directos y notas recientes',
+        pinShortcutsAndRecentFiles: 'Fijar accesos directos y archivos recientes',
         unpinShortcuts: 'Desfijar accesos directos',
+        unpinShortcutsAndRecentNotes: 'Desfijar accesos directos y notas recientes',
+        unpinShortcutsAndRecentFiles: 'Desfijar accesos directos y archivos recientes',
         profileMenuLabel: 'Perfil',
         profileMenuAria: 'Cambiar perfil de bóveda'
     },
@@ -731,7 +734,7 @@ export const STRINGS_ES = {
                 }
             },
             appearanceScale: {
-                name: 'Nivel de zoom',
+                name: 'Nivel de zoom (no sincronizado)',
                 desc: 'Controla el nivel de zoom general de Notebook Navigator.'
             },
             startView: {
@@ -785,6 +788,10 @@ export const STRINGS_ES = {
             recentNotesCount: {
                 name: 'Cantidad de notas recientes',
                 desc: 'Número de notas recientes a mostrar.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Fijar notas recientes con accesos directos',
+                desc: 'Incluir notas recientes cuando se fijan los accesos directos.'
             },
             showTooltips: {
                 name: 'Mostrar tooltips',

@@ -213,6 +213,7 @@ export interface LocalStorageKeys {
     navigationPaneHeightKey: string;
     dualPaneOrientationKey: string;
     dualPaneKey: string;
+    uiScaleKey: string;
     shortcutsExpandedKey: string;
     recentNotesExpandedKey: string;
     recentNotesKey: string;
@@ -247,6 +248,7 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     navigationPaneHeightKey: 'notebook-navigator-navigation-pane-height',
     dualPaneOrientationKey: 'notebook-navigator-dual-pane-orientation',
     dualPaneKey: 'notebook-navigator-dual-pane',
+    uiScaleKey: 'notebook-navigator-ui-scale',
     shortcutsExpandedKey: 'notebook-navigator-shortcuts-expanded',
     recentNotesExpandedKey: 'notebook-navigator-recent-notes-expanded',
     recentNotesKey: 'notebook-navigator-recent-notes',

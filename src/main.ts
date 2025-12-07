@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Plugin, TFile, FileView, TFolder, WorkspaceLeaf } from 'obsidian';
+import { Plugin, TFile, FileView, TFolder, WorkspaceLeaf, Platform } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
 import {
     LocalStorageKeys,
@@ -64,6 +64,7 @@ import type { FolderAppearance } from './hooks/useListPaneAppearance';
 import { isSortOption, isTagSortOrder, type SortOption, type TagSortOrder, type VaultProfile } from './settings/types';
 import { clearHiddenTagPatternCache } from './utils/tagPrefixMatcher';
 import { getPathPatternCacheKey } from './utils/pathPatternMatcher';
+import { DEFAULT_UI_SCALE, sanitizeUIScale } from './utils/uiScale';
 import { MAX_RECENT_COLORS } from './constants/colorPalette';
 
 const DEFAULT_UX_PREFERENCES: UXPreferences = {
@@ -151,6 +152,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private pendingUpdateNotice: ReleaseUpdateNotice | null = null;
     private uxPreferences: UXPreferences = { ...DEFAULT_UX_PREFERENCES };
     private uxPreferenceListeners = new Map<string, () => void>();
+    // Track whether legacy scales still need to be kept in persisted settings until this device migrates them
+    private shouldPersistDesktopScale = false;
+    private shouldPersistMobileScale = false;
     private hiddenFolderCacheKey: string | null = null;
     private hiddenTagCacheKey: string | null = null;
 
@@ -180,6 +184,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const storedData: Record<string, unknown> | null = isRecord(rawData) ? rawData : null;
         const storedSettings = storedData as Partial<NotebookNavigatorSettings> | null;
         const isFirstLaunch = storedData === null; // No saved data means first launch
+        this.shouldPersistDesktopScale = Boolean(storedData && 'desktopScale' in storedData);
+        this.shouldPersistMobileScale = Boolean(storedData && 'mobileScale' in storedData);
 
         // Start with default settings
         this.settings = { ...DEFAULT_SETTINGS, ...(storedSettings ?? {}) };
@@ -344,6 +350,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const hadLegacyLocalOnlySettings = Boolean(storedData && ('tagSortOrder' in storedData || 'searchProvider' in storedData));
         this.settings.tagSortOrder = this.resolveTagSortOrder(storedData);
         this.settings.searchProvider = this.resolveSearchProvider(storedData);
+        const migratedScales = this.migrateUIScales(storedData);
 
         const normalizeFolderNoteBlock = (input: string): string =>
             input
@@ -389,7 +396,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         localStorage.set(STORAGE_KEYS.vaultProfileKey, this.settings.vaultProfile);
         this.refreshMatcherCachesIfNeeded();
 
-        const needsPersistedCleanup = migratedReleaseState || migratedRecentColors || hadLegacyLocalOnlySettings;
+        const needsPersistedCleanup = migratedReleaseState || migratedRecentColors || hadLegacyLocalOnlySettings || migratedScales;
 
         if (needsPersistedCleanup) {
             await this.saveData(this.getPersistableSettings());
@@ -499,6 +506,80 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const fallbackProvider: 'internal' | 'omnisearch' = DEFAULT_SETTINGS.searchProvider === 'omnisearch' ? 'omnisearch' : 'internal';
         localStorage.set(this.keys.searchProviderKey, fallbackProvider);
         return fallbackProvider;
+    }
+
+    /**
+     * Migrates desktop and mobile UI scales from synced settings to vault-local storage.
+     */
+    private migrateUIScales(storedData: Record<string, unknown> | null): boolean {
+        const storedDesktopScale = storedData?.['desktopScale'];
+        const storedMobileScale = storedData?.['mobileScale'];
+        const hadLegacyFields = Boolean(storedData && ('desktopScale' in storedData || 'mobileScale' in storedData));
+
+        // Keeps legacy scale values usable without reintroducing removed fields from other devices
+        const sanitizeScale = (value: unknown, fallback: number): number => {
+            if (typeof value === 'number' && Number.isFinite(value)) {
+                return sanitizeUIScale(value);
+            }
+            if (typeof value === 'string') {
+                const parsed = Number(value);
+                if (Number.isFinite(parsed)) {
+                    return sanitizeUIScale(parsed);
+                }
+            }
+            return sanitizeUIScale(fallback);
+        };
+
+        if (Platform.isMobile) {
+            const resolvedMobile = this.resolveUIScaleFromStorage(this.keys.uiScaleKey, storedMobileScale);
+            this.settings.mobileScale = resolvedMobile;
+            this.settings.desktopScale = sanitizeScale(storedDesktopScale, this.settings.desktopScale);
+            if (this.shouldPersistMobileScale) {
+                this.shouldPersistMobileScale = false;
+            }
+        } else {
+            const resolvedDesktop = this.resolveUIScaleFromStorage(this.keys.uiScaleKey, storedDesktopScale);
+            this.settings.desktopScale = resolvedDesktop;
+            this.settings.mobileScale = sanitizeScale(storedMobileScale, this.settings.mobileScale);
+            if (this.shouldPersistDesktopScale) {
+                this.shouldPersistDesktopScale = false;
+            }
+        }
+
+        return hadLegacyFields;
+    }
+
+    /**
+     * Resolves a UI scale value from local storage, falling back to synced settings or default.
+     */
+    private resolveUIScaleFromStorage(storageKey: string, storedSetting: unknown): number {
+        const parseScale = (value: unknown): number | null => {
+            if (typeof value === 'number' && Number.isFinite(value)) {
+                return sanitizeUIScale(value);
+            }
+            if (typeof value === 'string') {
+                const parsed = Number(value);
+                if (Number.isFinite(parsed)) {
+                    return sanitizeUIScale(parsed);
+                }
+            }
+            return null;
+        };
+
+        const storedLocal = localStorage.get<unknown>(storageKey);
+        const localScale = parseScale(storedLocal);
+        if (localScale !== null) {
+            return localScale;
+        }
+
+        const settingScale = parseScale(storedSetting);
+        if (settingScale !== null) {
+            localStorage.set(storageKey, settingScale);
+            return settingScale;
+        }
+
+        localStorage.set(storageKey, DEFAULT_UI_SCALE);
+        return DEFAULT_UI_SCALE;
     }
 
     /**
@@ -686,6 +767,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             // Re-seed device-local defaults cleared above
             localStorage.set(this.keys.tagSortOrderKey, this.settings.tagSortOrder);
             localStorage.set(this.keys.searchProviderKey, this.settings.searchProvider);
+            const initialScale = sanitizeUIScale(Platform.isMobile ? this.settings.mobileScale : this.settings.desktopScale);
+            localStorage.set(this.keys.uiScaleKey, initialScale);
 
             // Persist the active vault profile for this device
             localStorage.set(this.keys.vaultProfileKey, this.settings.vaultProfile);
@@ -866,6 +949,32 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.dualPaneOrientationPreference = normalized;
         localStorage.set(this.keys.dualPaneOrientationKey, normalized);
         this.notifySettingsUpdate();
+    }
+
+    /**
+     * Returns the UI scale for this device (local-only).
+     */
+    public getUIScale(): number {
+        const current = Platform.isMobile ? this.settings.mobileScale : this.settings.desktopScale;
+        return sanitizeUIScale(current);
+    }
+
+    /**
+     * Updates the UI scale for this device and persists to vault-local storage.
+     */
+    public setUIScale(scale: number): void {
+        const next = sanitizeUIScale(scale);
+        const isMobile = Platform.isMobile;
+        const current = sanitizeUIScale(isMobile ? this.settings.mobileScale : this.settings.desktopScale);
+        if (isMobile) {
+            this.settings.mobileScale = next;
+        } else {
+            this.settings.desktopScale = next;
+        }
+        localStorage.set(this.keys.uiScaleKey, next);
+        if (current !== next) {
+            this.notifySettingsUpdate();
+        }
     }
 
     /**
@@ -1574,6 +1683,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         delete rest.lastReleaseCheckAt;
         delete rest.latestKnownRelease;
         delete rest.searchProvider;
+        if (!this.shouldPersistDesktopScale) {
+            delete rest.desktopScale;
+        }
+        if (!this.shouldPersistMobileScale) {
+            delete rest.mobileScale;
+        }
         return rest as unknown as NotebookNavigatorSettings;
     }
 

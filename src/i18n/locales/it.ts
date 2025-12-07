@@ -65,9 +65,12 @@ export const STRINGS_IT = {
         vaultRootLabel: 'Vault',
         resetRootToAlpha: 'Ripristina ordine alfabetico',
         resetRootToFrequency: 'Ripristina ordine per frequenza',
-        dragHandleLabel: 'Trascina per riordinare',
         pinShortcuts: 'Fissa scorciatoie',
+        pinShortcutsAndRecentNotes: 'Fissa scorciatoie e note recenti',
+        pinShortcutsAndRecentFiles: 'Fissa scorciatoie e file recenti',
         unpinShortcuts: 'Sblocca scorciatoie',
+        unpinShortcutsAndRecentNotes: 'Sblocca scorciatoie e note recenti',
+        unpinShortcutsAndRecentFiles: 'Sblocca scorciatoie e file recenti',
         profileMenuLabel: 'Profilo',
         profileMenuAria: 'Cambia profilo vault'
     },
@@ -730,7 +733,7 @@ export const STRINGS_IT = {
                 }
             },
             appearanceScale: {
-                name: 'Livello zoom',
+                name: 'Livello zoom (non sincronizzato)',
                 desc: 'Controlla il livello di zoom complessivo di Notebook Navigator.'
             },
             startView: {
@@ -784,6 +787,10 @@ export const STRINGS_IT = {
             recentNotesCount: {
                 name: 'Numero note recenti',
                 desc: 'Numero di note recenti da visualizzare.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Fissa note recenti con scorciatoie',
+                desc: 'Includi le note recenti quando le scorciatoie sono fissate.'
             },
             showTooltips: {
                 name: 'Mostra tooltip',

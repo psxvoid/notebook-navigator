@@ -64,9 +64,12 @@ export const STRINGS_JA = {
         vaultRootLabel: 'ボールト',
         resetRootToAlpha: 'アルファベット順にリセット',
         resetRootToFrequency: '頻度順にリセット',
-        dragHandleLabel: 'ドラッグして並び替え',
         pinShortcuts: 'ショートカットを固定',
+        pinShortcutsAndRecentNotes: 'ショートカットと最近のノートを固定',
+        pinShortcutsAndRecentFiles: 'ショートカットと最近のファイルを固定',
         unpinShortcuts: 'ショートカットの固定を解除',
+        unpinShortcutsAndRecentNotes: 'ショートカットと最近のノートの固定を解除',
+        unpinShortcutsAndRecentFiles: 'ショートカットと最近のファイルの固定を解除',
         profileMenuLabel: 'プロファイル',
         profileMenuAria: '保管庫のプロファイルを変更'
     },
@@ -731,7 +734,7 @@ export const STRINGS_JA = {
                 }
             },
             appearanceScale: {
-                name: 'ズームレベル',
+                name: 'ズームレベル（同期されません）',
                 desc: 'Notebook Navigator 全体のズームレベルを制御します。'
             },
             startView: {
@@ -785,6 +788,10 @@ export const STRINGS_JA = {
             recentNotesCount: {
                 name: '最近のノート数',
                 desc: '表示する最近のノートの数。'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: '最近のノートをショートカットと一緒に固定',
+                desc: 'ショートカットを固定するときに最近のノートを含める。'
             },
             showTooltips: {
                 name: 'ツールチップを表示',

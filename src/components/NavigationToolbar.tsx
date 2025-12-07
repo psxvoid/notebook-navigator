@@ -32,6 +32,7 @@ interface NavigationToolbarProps {
     onToggleRootFolderReorder?: () => void;
     rootReorderActive?: boolean;
     rootReorderDisabled?: boolean;
+    pinToggleLabel?: string;
 }
 
 export function NavigationToolbar({
@@ -39,7 +40,8 @@ export function NavigationToolbar({
     onTogglePinnedShortcuts,
     onToggleRootFolderReorder,
     rootReorderActive,
-    rootReorderDisabled
+    rootReorderDisabled,
+    pinToggleLabel
 }: NavigationToolbarProps) {
     const settings = useSettingsState();
     const uxPreferences = useUXPreferences();
@@ -58,7 +60,10 @@ export function NavigationToolbar({
             {settings.showShortcuts && navigationVisibility.shortcuts ? (
                 <button
                     className="nn-mobile-toolbar-button"
-                    aria-label={uiState.pinShortcuts ? strings.navigationPane.unpinShortcuts : strings.navigationPane.pinShortcuts}
+                    aria-label={
+                        pinToggleLabel ??
+                        (uiState.pinShortcuts ? strings.navigationPane.unpinShortcuts : strings.navigationPane.pinShortcuts)
+                    }
                     onClick={onTogglePinnedShortcuts}
                     tabIndex={-1}
                 >

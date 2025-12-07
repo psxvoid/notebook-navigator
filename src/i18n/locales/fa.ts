@@ -65,9 +65,12 @@ export const STRINGS_FA = {
         vaultRootLabel: 'خزانه',
         resetRootToAlpha: 'بازنشانی به ترتیب الفبایی',
         resetRootToFrequency: 'بازنشانی به ترتیب فراوانی',
-        dragHandleLabel: 'بکشید برای مرتب‌سازی مجدد',
         pinShortcuts: 'سنجاق کردن میانبرها',
+        pinShortcutsAndRecentNotes: 'سنجاق کردن میانبرها و یادداشت‌های اخیر',
+        pinShortcutsAndRecentFiles: 'سنجاق کردن میانبرها و فایل‌های اخیر',
         unpinShortcuts: 'برداشتن سنجاق میانبرها',
+        unpinShortcutsAndRecentNotes: 'برداشتن سنجاق میانبرها و یادداشت‌های اخیر',
+        unpinShortcutsAndRecentFiles: 'برداشتن سنجاق میانبرها و فایل‌های اخیر',
         profileMenuLabel: 'پروفایل',
         profileMenuAria: 'تغییر پروفایل خزانه'
     },
@@ -730,7 +733,7 @@ export const STRINGS_FA = {
                 }
             },
             appearanceScale: {
-                name: 'سطح زوم',
+                name: 'سطح زوم (همگام‌سازی نمی‌شود)',
                 desc: 'سطح زوم کلی Notebook Navigator را کنترل می‌کند.'
             },
             startView: {
@@ -784,6 +787,10 @@ export const STRINGS_FA = {
             recentNotesCount: {
                 name: 'تعداد یادداشت‌های اخیر',
                 desc: 'تعداد یادداشت‌های اخیر که نمایش داده می‌شوند.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'سنجاق کردن یادداشت‌های اخیر با میانبرها',
+                desc: 'هنگام سنجاق کردن میانبرها، یادداشت‌های اخیر را نیز شامل شود.'
             },
             showTooltips: {
                 name: 'نمایش راهنماها',

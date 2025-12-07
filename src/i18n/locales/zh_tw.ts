@@ -65,9 +65,12 @@ export const STRINGS_ZH_TW = {
         vaultRootLabel: '儲存庫',
         resetRootToAlpha: '重設為字母順序',
         resetRootToFrequency: '重設為頻率排序',
-        dragHandleLabel: '拖曳以重新排序',
         pinShortcuts: '釘選捷徑',
+        pinShortcutsAndRecentNotes: '釘選捷徑和最近筆記',
+        pinShortcutsAndRecentFiles: '釘選捷徑和最近檔案',
         unpinShortcuts: '取消釘選捷徑',
+        unpinShortcutsAndRecentNotes: '取消釘選捷徑和最近筆記',
+        unpinShortcutsAndRecentFiles: '取消釘選捷徑和最近檔案',
         profileMenuLabel: '設定檔',
         profileMenuAria: '更改倉庫設定檔'
     },
@@ -729,7 +732,7 @@ export const STRINGS_ZH_TW = {
                 }
             },
             appearanceScale: {
-                name: '縮放等級',
+                name: '縮放等級（不同步）',
                 desc: '控制 Notebook Navigator 的整體縮放等級。'
             },
             startView: {
@@ -783,6 +786,10 @@ export const STRINGS_ZH_TW = {
             recentNotesCount: {
                 name: '最近筆記數量',
                 desc: '要顯示的最近筆記數量。'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: '將最近筆記與捷徑一起釘選',
+                desc: '釘選捷徑時包含最近筆記。'
             },
             showTooltips: {
                 name: '顯示工具提示',

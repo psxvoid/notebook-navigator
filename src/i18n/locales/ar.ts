@@ -65,9 +65,12 @@ export const STRINGS_AR = {
         vaultRootLabel: 'الخزنة',
         resetRootToAlpha: 'إعادة الترتيب الأبجدي',
         resetRootToFrequency: 'إعادة الترتيب حسب التكرار',
-        dragHandleLabel: 'اسحب لإعادة الترتيب',
         pinShortcuts: 'تثبيت الاختصارات',
+        pinShortcutsAndRecentNotes: 'تثبيت الاختصارات والملاحظات الحديثة',
+        pinShortcutsAndRecentFiles: 'تثبيت الاختصارات والملفات الحديثة',
         unpinShortcuts: 'إلغاء تثبيت الاختصارات',
+        unpinShortcutsAndRecentNotes: 'إلغاء تثبيت الاختصارات والملاحظات الحديثة',
+        unpinShortcutsAndRecentFiles: 'إلغاء تثبيت الاختصارات والملفات الحديثة',
         profileMenuLabel: 'الملف الشخصي',
         profileMenuAria: 'تغيير ملف الخزنة'
     },
@@ -730,7 +733,7 @@ export const STRINGS_AR = {
                 }
             },
             appearanceScale: {
-                name: 'مستوى التكبير',
+                name: 'مستوى التكبير (غير متزامن)',
                 desc: 'التحكم في مستوى التكبير العام لمتصفح الدفتر.'
             },
             startView: {
@@ -784,6 +787,10 @@ export const STRINGS_AR = {
             recentNotesCount: {
                 name: 'عدد الملاحظات الحديثة',
                 desc: 'عدد الملاحظات الحديثة المعروضة.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'تثبيت الملاحظات الحديثة مع الاختصارات',
+                desc: 'تضمين الملاحظات الحديثة عند تثبيت الاختصارات.'
             },
             showTooltips: {
                 name: 'إظهار التلميحات',

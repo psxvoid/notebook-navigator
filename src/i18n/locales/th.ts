@@ -65,9 +65,12 @@ export const STRINGS_TH = {
         vaultRootLabel: 'ห้องนิรภัย',
         resetRootToAlpha: 'รีเซ็ตเป็นลำดับตัวอักษร',
         resetRootToFrequency: 'รีเซ็ตเป็นลำดับความถี่',
-        dragHandleLabel: 'ลากเพื่อจัดเรียงใหม่',
         pinShortcuts: 'ปักหมุดทางลัด',
+        pinShortcutsAndRecentNotes: 'ปักหมุดทางลัดและโน้ตล่าสุด',
+        pinShortcutsAndRecentFiles: 'ปักหมุดทางลัดและไฟล์ล่าสุด',
         unpinShortcuts: 'เลิกปักหมุดทางลัด',
+        unpinShortcutsAndRecentNotes: 'เลิกปักหมุดทางลัดและโน้ตล่าสุด',
+        unpinShortcutsAndRecentFiles: 'เลิกปักหมุดทางลัดและไฟล์ล่าสุด',
         profileMenuLabel: 'โปรไฟล์',
         profileMenuAria: 'เปลี่ยนโปรไฟล์ห้องนิรภัย'
     },
@@ -730,7 +733,7 @@ export const STRINGS_TH = {
                 }
             },
             appearanceScale: {
-                name: 'ระดับการซูม',
+                name: 'ระดับการซูม (ไม่ซิงค์)',
                 desc: 'ควบคุมระดับการซูมโดยรวมของ Notebook Navigator'
             },
             startView: {
@@ -784,6 +787,10 @@ export const STRINGS_TH = {
             recentNotesCount: {
                 name: 'จำนวนโน้ตล่าสุด',
                 desc: 'จำนวนโน้ตล่าสุดที่จะแสดง'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'ปักหมุดโน้ตล่าสุดพร้อมทางลัด',
+                desc: 'รวมโน้ตล่าสุดเมื่อปักหมุดทางลัด'
             },
             showTooltips: {
                 name: 'แสดง tooltips',

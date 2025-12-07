@@ -64,9 +64,12 @@ export const STRINGS_FR = {
         vaultRootLabel: 'Coffre',
         resetRootToAlpha: "Réinitialiser l'ordre alphabétique",
         resetRootToFrequency: 'Réinitialiser selon la fréquence',
-        dragHandleLabel: 'Faire glisser pour réorganiser',
         pinShortcuts: 'Épingler les raccourcis',
+        pinShortcutsAndRecentNotes: 'Épingler les raccourcis et notes récentes',
+        pinShortcutsAndRecentFiles: 'Épingler les raccourcis et fichiers récents',
         unpinShortcuts: 'Détacher les raccourcis',
+        unpinShortcutsAndRecentNotes: 'Détacher les raccourcis et notes récentes',
+        unpinShortcutsAndRecentFiles: 'Détacher les raccourcis et fichiers récents',
         profileMenuLabel: 'Profil',
         profileMenuAria: 'Changer le profil du coffre'
     },
@@ -732,7 +735,7 @@ export const STRINGS_FR = {
                 }
             },
             appearanceScale: {
-                name: 'Niveau de zoom',
+                name: 'Niveau de zoom (non synchronisé)',
                 desc: 'Contrôle le niveau de zoom global de Notebook Navigator.'
             },
             startView: {
@@ -786,6 +789,10 @@ export const STRINGS_FR = {
             recentNotesCount: {
                 name: 'Nombre de notes récentes',
                 desc: 'Nombre de notes récentes à afficher.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Épingler les notes récentes avec les raccourcis',
+                desc: "Inclure les notes récentes lors de l'épinglage des raccourcis."
             },
             showTooltips: {
                 name: 'Afficher les infobulles',

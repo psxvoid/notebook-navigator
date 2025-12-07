@@ -64,9 +64,12 @@ export const STRINGS_KO = {
         vaultRootLabel: '보관함',
         resetRootToAlpha: '알파벳 순서로 리셋',
         resetRootToFrequency: '빈도 순으로 리셋',
-        dragHandleLabel: '드래그하여 순서 변경',
         pinShortcuts: '바로가기를 고정',
+        pinShortcutsAndRecentNotes: '바로가기와 최근 노트를 고정',
+        pinShortcutsAndRecentFiles: '바로가기와 최근 파일을 고정',
         unpinShortcuts: '바로가기 고정을 해제',
+        unpinShortcutsAndRecentNotes: '바로가기와 최근 노트 고정을 해제',
+        unpinShortcutsAndRecentFiles: '바로가기와 최근 파일 고정을 해제',
         profileMenuLabel: '프로필',
         profileMenuAria: '보관소 프로필 변경'
     },
@@ -730,7 +733,7 @@ export const STRINGS_KO = {
                 }
             },
             appearanceScale: {
-                name: '확대 수준',
+                name: '확대 수준 (동기화 안 됨)',
                 desc: 'Notebook Navigator의 전체 확대 수준을 제어합니다.'
             },
             startView: {
@@ -784,6 +787,10 @@ export const STRINGS_KO = {
             recentNotesCount: {
                 name: '최근 노트 수',
                 desc: '표시할 최근 노트의 수입니다.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: '바로가기와 함께 최근 노트 고정',
+                desc: '바로가기를 고정할 때 최근 노트를 포함합니다.'
             },
             showTooltips: {
                 name: '도구 설명 표시',
