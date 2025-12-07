@@ -2,7 +2,6 @@ import React, { ReactNode, useMemo } from 'react';
 import type { DraggableSyntheticListeners } from '@dnd-kit/core';
 import type { ListReorderHandlers } from '../types/listReorder';
 import { NavigationListRow, type DragHandleConfig } from './NavigationListRow';
-import { strings } from '../i18n';
 import { useSettingsState } from '../context/SettingsContext';
 
 /**
@@ -71,7 +70,6 @@ export function RootFolderReorderItem({
         dragHandleConfig ??
         (dragHandlers
             ? {
-                  label: strings.navigationPane.dragHandleLabel,
                   visible: true,
                   icon: 'lucide-grip-horizontal'
               }

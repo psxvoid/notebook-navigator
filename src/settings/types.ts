@@ -123,13 +123,14 @@ export interface NotebookNavigatorSettings {
     timeFormat: string;
 
     // Navigation pane tab - Behavior
-    skipAutoScroll: boolean;
+    pinRecentNotesWithShortcuts: boolean;
     collapseBehavior: ItemScope;
     smartCollapse: boolean;
 
     // Navigation pane tab - Shortcuts & recent items
     showSectionIcons: boolean;
     showShortcuts: boolean;
+    skipAutoScroll: boolean;
     showRecentNotes: boolean;
     recentNotesCount: number;
 

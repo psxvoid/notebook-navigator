@@ -65,9 +65,12 @@ export const STRINGS_RU = {
         vaultRootLabel: 'Хранилище',
         resetRootToAlpha: 'Сбросить в алфавитный порядок',
         resetRootToFrequency: 'Сбросить по частоте',
-        dragHandleLabel: 'Перетащите для изменения порядка',
         pinShortcuts: 'Закрепить ярлыки',
+        pinShortcutsAndRecentNotes: 'Закрепить ярлыки и недавние заметки',
+        pinShortcutsAndRecentFiles: 'Закрепить ярлыки и недавние файлы',
         unpinShortcuts: 'Открепить ярлыки',
+        unpinShortcutsAndRecentNotes: 'Открепить ярлыки и недавние заметки',
+        unpinShortcutsAndRecentFiles: 'Открепить ярлыки и недавние файлы',
         profileMenuLabel: 'Профиль',
         profileMenuAria: 'Сменить профиль хранилища'
     },
@@ -739,7 +742,7 @@ export const STRINGS_RU = {
                 }
             },
             appearanceScale: {
-                name: 'Уровень масштабирования',
+                name: 'Уровень масштабирования (не синхронизируется)',
                 desc: 'Управляет общим масштабом Notebook Navigator.'
             },
             startView: {
@@ -793,6 +796,10 @@ export const STRINGS_RU = {
             recentNotesCount: {
                 name: 'Количество недавних заметок',
                 desc: 'Количество отображаемых недавних заметок.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Закрепить недавние заметки вместе с ярлыками',
+                desc: 'Включать недавние заметки при закреплении ярлыков.'
             },
             showTooltips: {
                 name: 'Показывать подсказки',

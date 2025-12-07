@@ -65,9 +65,12 @@ export const STRINGS_UK = {
         vaultRootLabel: 'Сховище',
         resetRootToAlpha: 'Скинути до алфавітного порядку',
         resetRootToFrequency: 'Скинути до порядку за частотою',
-        dragHandleLabel: 'Перетягніть для зміни порядку',
         pinShortcuts: 'Закріпити ярлики',
+        pinShortcutsAndRecentNotes: 'Закріпити ярлики та останні нотатки',
+        pinShortcutsAndRecentFiles: 'Закріпити ярлики та останні файли',
         unpinShortcuts: 'Відкріпити ярлики',
+        unpinShortcutsAndRecentNotes: 'Відкріпити ярлики та останні нотатки',
+        unpinShortcutsAndRecentFiles: 'Відкріпити ярлики та останні файли',
         profileMenuLabel: 'Профіль',
         profileMenuAria: 'Змінити профіль сховища'
     },
@@ -738,7 +741,7 @@ export const STRINGS_UK = {
                 }
             },
             appearanceScale: {
-                name: 'Рівень масштабування',
+                name: 'Рівень масштабування (не синхронізується)',
                 desc: 'Керує загальним рівнем масштабування Notebook Navigator.'
             },
             startView: {
@@ -792,6 +795,10 @@ export const STRINGS_UK = {
             recentNotesCount: {
                 name: 'Кількість останніх нотаток',
                 desc: 'Кількість останніх нотаток для відображення.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Закріпити останні нотатки разом з ярликами',
+                desc: 'Включати останні нотатки при закріпленні ярликів.'
             },
             showTooltips: {
                 name: 'Показувати підказки',

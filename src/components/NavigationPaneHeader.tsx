@@ -36,6 +36,7 @@ interface NavigationPaneHeaderProps {
     onToggleRootFolderReorder?: () => void;
     rootReorderActive?: boolean;
     rootReorderDisabled?: boolean;
+    pinToggleLabel?: string;
 }
 
 export function NavigationPaneHeader({
@@ -43,7 +44,8 @@ export function NavigationPaneHeader({
     onTogglePinnedShortcuts,
     onToggleRootFolderReorder,
     rootReorderActive,
-    rootReorderDisabled
+    rootReorderDisabled,
+    pinToggleLabel
 }: NavigationPaneHeaderProps) {
     const { isMobile, plugin } = useServices();
     const settings = useSettingsState();
@@ -170,7 +172,10 @@ export function NavigationPaneHeader({
                     {showShortcutsButton ? (
                         <button
                             className="nn-icon-button"
-                            aria-label={uiState.pinShortcuts ? strings.navigationPane.unpinShortcuts : strings.navigationPane.pinShortcuts}
+                            aria-label={
+                                pinToggleLabel ??
+                                (uiState.pinShortcuts ? strings.navigationPane.unpinShortcuts : strings.navigationPane.pinShortcuts)
+                            }
                             onClick={() => {
                                 if (onTogglePinnedShortcuts) {
                                     onTogglePinnedShortcuts();

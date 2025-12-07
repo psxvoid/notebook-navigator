@@ -65,9 +65,12 @@ export const STRINGS_TR = {
         vaultRootLabel: 'Kasa',
         resetRootToAlpha: 'Alfabetik sıraya sıfırla',
         resetRootToFrequency: 'Sıklık sırasına sıfırla',
-        dragHandleLabel: 'Yeniden sıralamak için sürükleyin',
         pinShortcuts: 'Kısayolları sabitle',
+        pinShortcutsAndRecentNotes: 'Kısayolları ve son notları sabitle',
+        pinShortcutsAndRecentFiles: 'Kısayolları ve son dosyaları sabitle',
         unpinShortcuts: 'Kısayolları sabitlemeden çıkar',
+        unpinShortcutsAndRecentNotes: 'Kısayolları ve son notları sabitlemeden çıkar',
+        unpinShortcutsAndRecentFiles: 'Kısayolları ve son dosyaları sabitlemeden çıkar',
         profileMenuLabel: 'Profil',
         profileMenuAria: 'Kasa profilini değiştir'
     },
@@ -738,7 +741,7 @@ export const STRINGS_TR = {
                 }
             },
             appearanceScale: {
-                name: 'Yakınlaştırma seviyesi',
+                name: 'Yakınlaştırma seviyesi (senkronize edilmez)',
                 desc: "Notebook Navigator'ın genel yakınlaştırma seviyesini kontrol eder."
             },
             startView: {
@@ -792,6 +795,10 @@ export const STRINGS_TR = {
             recentNotesCount: {
                 name: 'Son not sayısı',
                 desc: 'Görüntülenecek son not sayısı.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Son notları kısayollarla birlikte sabitle',
+                desc: 'Kısayollar sabitlendiğinde son notları dahil et.'
             },
             showTooltips: {
                 name: 'İpuçlarını göster',

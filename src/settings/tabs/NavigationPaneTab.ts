@@ -33,11 +33,11 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
     new Setting(containerEl).setName(strings.settings.groups.navigation.behavior).setHeading();
 
     new Setting(containerEl)
-        .setName(strings.settings.items.skipAutoScroll.name)
-        .setDesc(strings.settings.items.skipAutoScroll.desc)
+        .setName(strings.settings.items.pinRecentNotesWithShortcuts.name)
+        .setDesc(strings.settings.items.pinRecentNotesWithShortcuts.desc)
         .addToggle(toggle =>
-            toggle.setValue(plugin.settings.skipAutoScroll).onChange(async value => {
-                plugin.settings.skipAutoScroll = value;
+            toggle.setValue(plugin.settings.pinRecentNotesWithShortcuts).onChange(async value => {
+                plugin.settings.pinRecentNotesWithShortcuts = value;
                 await plugin.saveSettingsAndUpdate();
             })
         );
@@ -79,6 +79,14 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             })
         );
 
+    let shortcutsSubSettings: HTMLDivElement | null = null;
+
+    const updateShortcutsVisibility = (visible: boolean) => {
+        if (shortcutsSubSettings) {
+            shortcutsSubSettings.toggleClass('nn-setting-hidden', !visible);
+        }
+    };
+
     new Setting(containerEl)
         .setName(strings.settings.items.showShortcuts.name)
         .setDesc(strings.settings.items.showShortcuts.desc)
@@ -86,8 +94,23 @@ export function renderNavigationPaneTab(context: SettingsTabContext): void {
             toggle.setValue(plugin.settings.showShortcuts).onChange(async value => {
                 plugin.settings.showShortcuts = value;
                 await plugin.saveSettingsAndUpdate();
+                updateShortcutsVisibility(value);
             })
         );
+
+    shortcutsSubSettings = containerEl.createDiv('nn-sub-settings');
+
+    new Setting(shortcutsSubSettings)
+        .setName(strings.settings.items.skipAutoScroll.name)
+        .setDesc(strings.settings.items.skipAutoScroll.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.skipAutoScroll).onChange(async value => {
+                plugin.settings.skipAutoScroll = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    updateShortcutsVisibility(plugin.settings.showShortcuts);
 
     let recentNotesSubSettings: HTMLDivElement | null = null;
 

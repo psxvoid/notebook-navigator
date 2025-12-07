@@ -78,6 +78,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         info: 'Lots of internal improvements in this release. The mobile drag and drop functionality was rewritten from the ground up, pattern matching for hidden folders and tags was greatly improved in performance, and lots of other internal improvements.\n\nThank you all the feedback and suggestions, and thank you for using Notebook Navigator!',
         new: [
+            'New setting: **Navigation pane > Behavior > Pin recent notes with shortcuts**. Enable this to pin both shortcuts and recent notes to the top of the navigation pane. Default disabled.',
             'New style setting: **Navigation file text color** (--nn-theme-navitem-file-name-color). Customize the color of files shown in shortcuts and recent files in navigation pane.'
         ],
         improved: [
@@ -89,7 +90,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         changed: [
             '==Active vault profile is no longer synced between devices==, so you can have different active vault profiles on different devices.',
-            '==Moved tag sort order, recent colors, search provider and release check timestamp== from **synced settings** to **local storage**. Settings file is now only used for configuration settings, not UX state.',
+            '==Moved zoom level, tag sort order, recent colors, search provider and release check timestamp== from **synced settings** to **local storage**. Settings file is now only used for configuration settings, not UX state.',
             'Significantly optimized **hidden folder** and **hidden tag** pattern matching performance.'
         ],
         fixed: [

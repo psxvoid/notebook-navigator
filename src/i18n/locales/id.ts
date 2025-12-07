@@ -65,9 +65,12 @@ export const STRINGS_ID = {
         vaultRootLabel: 'Vault',
         resetRootToAlpha: 'Atur ulang ke urutan abjad',
         resetRootToFrequency: 'Atur ulang ke urutan frekuensi',
-        dragHandleLabel: 'Seret untuk mengatur ulang',
         pinShortcuts: 'Sematkan pintasan',
+        pinShortcutsAndRecentNotes: 'Sematkan pintasan dan catatan terbaru',
+        pinShortcutsAndRecentFiles: 'Sematkan pintasan dan file terbaru',
         unpinShortcuts: 'Lepas sematan pintasan',
+        unpinShortcutsAndRecentNotes: 'Lepas sematan pintasan dan catatan terbaru',
+        unpinShortcutsAndRecentFiles: 'Lepas sematan pintasan dan file terbaru',
         profileMenuLabel: 'Profil',
         profileMenuAria: 'Ubah profil vault'
     },
@@ -738,7 +741,7 @@ export const STRINGS_ID = {
                 }
             },
             appearanceScale: {
-                name: 'Tingkat zoom',
+                name: 'Tingkat zoom (tidak disinkronkan)',
                 desc: 'Mengontrol tingkat zoom keseluruhan Notebook Navigator.'
             },
             startView: {
@@ -792,6 +795,10 @@ export const STRINGS_ID = {
             recentNotesCount: {
                 name: 'Jumlah catatan terbaru',
                 desc: 'Jumlah catatan terbaru yang ditampilkan.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Sematkan catatan terbaru bersama pintasan',
+                desc: 'Sertakan catatan terbaru saat pintasan disematkan.'
             },
             showTooltips: {
                 name: 'Tampilkan tooltip',

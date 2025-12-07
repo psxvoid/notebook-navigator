@@ -64,9 +64,12 @@ export const STRINGS_PL = {
         vaultRootLabel: 'Magazyn',
         resetRootToAlpha: 'Resetuj do kolejności alfabetycznej',
         resetRootToFrequency: 'Przywróć sortowanie według częstotliwości',
-        dragHandleLabel: 'Przeciągnij aby zmienić kolejność',
         pinShortcuts: 'Przypnij skróty',
+        pinShortcutsAndRecentNotes: 'Przypnij skróty i ostatnie notatki',
+        pinShortcutsAndRecentFiles: 'Przypnij skróty i ostatnie pliki',
         unpinShortcuts: 'Odepnij skróty',
+        unpinShortcutsAndRecentNotes: 'Odepnij skróty i ostatnie notatki',
+        unpinShortcutsAndRecentFiles: 'Odepnij skróty i ostatnie pliki',
         profileMenuLabel: 'Profil',
         profileMenuAria: 'Zmień profil sejfu'
     },
@@ -740,7 +743,7 @@ export const STRINGS_PL = {
                 }
             },
             appearanceScale: {
-                name: 'Poziom powiększenia',
+                name: 'Poziom powiększenia (nie synchronizowane)',
                 desc: 'Kontroluje ogólny poziom powiększenia w Notebook Navigator.'
             },
             startView: {
@@ -794,6 +797,10 @@ export const STRINGS_PL = {
             recentNotesCount: {
                 name: 'Liczba ostatnich notatek',
                 desc: 'Liczba ostatnich notatek do wyświetlenia.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Przypnij ostatnie notatki razem ze skrótami',
+                desc: 'Dołącz ostatnie notatki podczas przypinania skrótów.'
             },
             showTooltips: {
                 name: 'Pokaż podpowiedzi',
