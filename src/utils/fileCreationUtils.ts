@@ -100,7 +100,8 @@ export async function createFileWithOptions(parent: TFolder, app: App, options: 
         // Open the file if requested
         if (openFile) {
             const leaf = app.workspace.getLeaf(false);
-            await leaf.openFile(file);
+            const openState = extension === 'md' ? { state: { mode: 'source' }, active: true } : undefined;
+            await leaf.openFile(file, openState);
 
             // Trigger rename mode if requested
             if (triggerRename) {

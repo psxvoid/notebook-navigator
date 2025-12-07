@@ -91,6 +91,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'Significantly optimized hidden folder and hidden tag pattern matching performance.'
         ],
         fixed: [
+            'Creating new notes with "Reading mode" enabled prevented the plugin Templater from inserting templates. This has been fixed by always opening new notes in "Editing mode", just like the built-in file explorer does it.',
             'Due to persistent issues with HTML5 drag-and-drop on certain Android devices, the entire mobile drag-and-drop implementation for shortcuts and reorder root items was rebuilt from the ground up to use the library **dnd-kit**, https://github.com/clauderic/dnd-kit.'
         ]
     },
