@@ -64,9 +64,12 @@ export const STRINGS_ZH_CN = {
         vaultRootLabel: '仓库',
         resetRootToAlpha: '重置为字母顺序',
         resetRootToFrequency: '重置为频率排序',
-        dragHandleLabel: '拖拽重新排列',
         pinShortcuts: '固定快捷方式',
+        pinShortcutsAndRecentNotes: '固定快捷方式和最近笔记',
+        pinShortcutsAndRecentFiles: '固定快捷方式和最近文件',
         unpinShortcuts: '取消固定快捷方式',
+        unpinShortcutsAndRecentNotes: '取消固定快捷方式和最近笔记',
+        unpinShortcutsAndRecentFiles: '取消固定快捷方式和最近文件',
         profileMenuLabel: '配置文件',
         profileMenuAria: '更改仓库配置文件'
     },
@@ -738,7 +741,7 @@ export const STRINGS_ZH_CN = {
                 }
             },
             appearanceScale: {
-                name: '缩放级别',
+                name: '缩放级别（不同步）',
                 desc: '控制 Notebook Navigator 的整体缩放级别。'
             },
             startView: {
@@ -792,6 +795,10 @@ export const STRINGS_ZH_CN = {
             recentNotesCount: {
                 name: '最近笔记数量',
                 desc: '要显示的最近笔记数量。'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: '将最近笔记与快捷方式一起固定',
+                desc: '固定快捷方式时包含最近笔记。'
             },
             showTooltips: {
                 name: '显示工具提示',

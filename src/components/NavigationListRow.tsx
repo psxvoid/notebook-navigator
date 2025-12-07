@@ -11,7 +11,6 @@ import { setIcon } from 'obsidian';
  * Configuration for the drag handle element that appears in reorderable rows
  */
 export interface DragHandleConfig {
-    label: string; // Accessibility label for the drag handle
     only?: boolean; // If true, only the handle is draggable, not the entire row
     disabled?: boolean; // Disables drag functionality
     visible?: boolean; // Controls visibility of the drag handle
@@ -321,7 +320,6 @@ export function NavigationListRow({
                         }`}
                         role="button"
                         tabIndex={-1}
-                        aria-label={dragHandleConfig?.label}
                         ref={setHandleRef}
                         onClick={dragHandleConfig?.events?.onClick}
                         onContextMenu={dragHandleConfig?.events?.onContextMenu}

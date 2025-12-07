@@ -80,7 +80,7 @@ import { getSelectedPath } from '../utils/selectionUtils';
 import { TagTreeNode } from '../types/storage';
 import { getFolderNote, type FolderNoteDetectionSettings } from '../utils/folderNotes';
 import { findTagNode, getTotalNoteCount } from '../utils/tagTree';
-import { getExtensionSuffix, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
+import { FILE_VISIBILITY, getExtensionSuffix, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { getTagSearchModifierOperator, resolveCanonicalTagPath } from '../utils/tagUtils';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';
@@ -413,7 +413,6 @@ export const NavigationPane = React.memo(
                 return undefined;
             }
             return {
-                label: strings.navigationPane.dragHandleLabel,
                 visible: true,
                 only: true
             } as const;
@@ -682,6 +681,8 @@ export const NavigationPane = React.memo(
             firstSectionId,
             firstInlineFolderPath,
             shortcutItems,
+            pinnedRecentNotesItems,
+            shouldPinRecentNotes,
             tagsVirtualFolderHasChildren,
             pathToIndex,
             shortcutIndex,
@@ -712,14 +713,43 @@ export const NavigationPane = React.memo(
         }, [navigationBannerPath]);
 
         // Extract shortcut items to display in pinned area when pinning is enabled
-        const pinnedShortcutItems = shouldPinShortcuts ? shortcutItems : [];
+        const pinnedNavigationItems = useMemo(() => {
+            const pinnedShortcutItems = shouldPinShortcuts ? shortcutItems : [];
+            const pinnedRecentItems = shouldPinRecentNotes ? pinnedRecentNotesItems : [];
+            const pinnedNavigationOrder = normalizeNavigationSectionOrderInput(sectionOrder);
+
+            const ordered: CombinedNavigationItem[] = [];
+            pinnedNavigationOrder.forEach(sectionId => {
+                if (sectionId === NavigationSectionId.RECENT && shouldPinRecentNotes) {
+                    ordered.push(...pinnedRecentItems);
+                }
+                if (sectionId === NavigationSectionId.SHORTCUTS && shouldPinShortcuts) {
+                    ordered.push(...pinnedShortcutItems);
+                }
+            });
+            return ordered;
+        }, [pinnedRecentNotesItems, sectionOrder, shortcutItems, shouldPinRecentNotes, shouldPinShortcuts]);
         // Banner should be shown in pinned area only when shortcuts are pinned and banner is configured
-        const shouldShowPinnedBanner = Boolean(navigationBannerPath && pinnedShortcutItems.length > 0);
+        const shouldShowPinnedBanner = Boolean(navigationBannerPath && pinnedNavigationItems.length > 0);
 
         // We only reserve gutter space when a banner exists because Windows scrollbars
         // change container width by ~7px when they appear. That width change used to
         // feed back into the virtualizer via ResizeObserver and trigger infinite reflows.
         const hasNavigationBannerConfigured = Boolean(navigationBannerPath);
+
+        const shouldIncludeRecentInPinLabel = settings.pinRecentNotesWithShortcuts && settings.showRecentNotes;
+        const useRecentFilesLabel = fileVisibility !== FILE_VISIBILITY.DOCUMENTS;
+        const pinShortcutsLabel = shouldIncludeRecentInPinLabel
+            ? useRecentFilesLabel
+                ? strings.navigationPane.pinShortcutsAndRecentFiles
+                : strings.navigationPane.pinShortcutsAndRecentNotes
+            : strings.navigationPane.pinShortcuts;
+        const unpinShortcutsLabel = shouldIncludeRecentInPinLabel
+            ? useRecentFilesLabel
+                ? strings.navigationPane.unpinShortcutsAndRecentFiles
+                : strings.navigationPane.unpinShortcutsAndRecentNotes
+            : strings.navigationPane.unpinShortcuts;
+        const pinToggleLabel = uiState.pinShortcuts ? unpinShortcutsLabel : pinShortcutsLabel;
 
         const {
             reorderableRootFolders,
@@ -2270,6 +2300,7 @@ export const NavigationPane = React.memo(
                     onToggleRootFolderReorder={handleToggleRootReorder}
                     rootReorderActive={isRootReorderMode}
                     rootReorderDisabled={!canReorderRootItems}
+                    pinToggleLabel={pinToggleLabel}
                 />
                 {/* Android - toolbar at top */}
                 {isMobile && isAndroid && (
@@ -2279,9 +2310,10 @@ export const NavigationPane = React.memo(
                         onToggleRootFolderReorder={handleToggleRootReorder}
                         rootReorderActive={isRootReorderMode}
                         rootReorderDisabled={!canReorderRootItems}
+                        pinToggleLabel={pinToggleLabel}
                     />
                 )}
-                {pinnedShortcutItems.length > 0 && !isRootReorderMode ? (
+                {pinnedNavigationItems.length > 0 && !isRootReorderMode ? (
                     <div
                         className="nn-shortcut-pinned"
                         role="presentation"
@@ -2293,8 +2325,8 @@ export const NavigationPane = React.memo(
                             <NavigationBanner path={navigationBannerPath} onHeightChange={handleBannerHeightChange} />
                         ) : null}
                         <div className="nn-shortcut-pinned-inner">
-                            {pinnedShortcutItems.map(shortcutItem => (
-                                <React.Fragment key={shortcutItem.key}>{renderItem(shortcutItem)}</React.Fragment>
+                            {pinnedNavigationItems.map(pinnedItem => (
+                                <React.Fragment key={pinnedItem.key}>{renderItem(pinnedItem)}</React.Fragment>
                             ))}
                         </div>
                     </div>

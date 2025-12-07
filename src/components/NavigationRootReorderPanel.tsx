@@ -79,7 +79,6 @@ function SortableRootItem({ entry, canReorder, isMobile }: SortableItemProps) {
     const dragStyle = transform ? { transform: CSS.Transform.toString(transform), transition } : undefined;
     const dragHandleConfig = useMemo(
         () => ({
-            label: strings.navigationPane.dragHandleLabel,
             visible: isMobile && canReorder,
             icon: 'lucide-grip-horizontal',
             interactive: isMobile && canReorder,

@@ -73,13 +73,14 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     timeFormat: 'h:mm a',
 
     // Navigation pane tab - Behavior
-    skipAutoScroll: false,
+    pinRecentNotesWithShortcuts: false,
     collapseBehavior: 'all',
     smartCollapse: true,
 
     // Navigation pane tab - Shortcuts & recent items
     showSectionIcons: true,
     showShortcuts: true,
+    skipAutoScroll: false,
     showRecentNotes: true,
     recentNotesCount: 5,
 

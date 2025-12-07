@@ -65,9 +65,12 @@ export const STRINGS_NL = {
         vaultRootLabel: 'Kluis',
         resetRootToAlpha: 'Terugzetten naar alfabetische volgorde',
         resetRootToFrequency: 'Terugzetten naar frequentievolgorde',
-        dragHandleLabel: 'Sleep om te herschikken',
         pinShortcuts: 'Snelkoppelingen vastpinnen',
+        pinShortcutsAndRecentNotes: 'Snelkoppelingen en recente notities vastpinnen',
+        pinShortcutsAndRecentFiles: 'Snelkoppelingen en recente bestanden vastpinnen',
         unpinShortcuts: 'Snelkoppelingen losmaken',
+        unpinShortcutsAndRecentNotes: 'Snelkoppelingen en recente notities losmaken',
+        unpinShortcutsAndRecentFiles: 'Snelkoppelingen en recente bestanden losmaken',
         profileMenuLabel: 'Profiel',
         profileMenuAria: 'Kluis profiel wijzigen'
     },
@@ -740,7 +743,7 @@ export const STRINGS_NL = {
                 }
             },
             appearanceScale: {
-                name: 'Zoomniveau',
+                name: 'Zoomniveau (niet gesynchroniseerd)',
                 desc: 'Regelt het algemene zoomniveau van Notebook Navigator.'
             },
             startView: {
@@ -794,6 +797,10 @@ export const STRINGS_NL = {
             recentNotesCount: {
                 name: 'Aantal recente notities',
                 desc: 'Aantal weer te geven recente notities.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Recente notities met snelkoppelingen vastpinnen',
+                desc: 'Recente notities opnemen wanneer snelkoppelingen zijn vastgepind.'
             },
             showTooltips: {
                 name: 'Tooltips tonen',

@@ -64,9 +64,12 @@ export const STRINGS_DE = {
         vaultRootLabel: 'Tresor',
         resetRootToAlpha: 'Auf alphabetische Reihenfolge zurücksetzen',
         resetRootToFrequency: 'Auf Häufigkeitsreihenfolge zurücksetzen',
-        dragHandleLabel: 'Ziehen zum Neuanordnen',
         pinShortcuts: 'Lesezeichen anheften',
+        pinShortcutsAndRecentNotes: 'Lesezeichen und neueste Notizen anheften',
+        pinShortcutsAndRecentFiles: 'Lesezeichen und neueste Dateien anheften',
         unpinShortcuts: 'Lesezeichen lösen',
+        unpinShortcutsAndRecentNotes: 'Lesezeichen und neueste Notizen lösen',
+        unpinShortcutsAndRecentFiles: 'Lesezeichen und neueste Dateien lösen',
         profileMenuLabel: 'Profil',
         profileMenuAria: 'Tresorprofil ändern'
     },
@@ -742,7 +745,7 @@ export const STRINGS_DE = {
                 }
             },
             appearanceScale: {
-                name: 'Zoomstufe',
+                name: 'Zoomstufe (nicht synchronisiert)',
                 desc: 'Steuert die gesamte Zoomstufe von Notebook Navigator.'
             },
             startView: {
@@ -796,6 +799,10 @@ export const STRINGS_DE = {
             recentNotesCount: {
                 name: 'Anzahl neuester Notizen',
                 desc: 'Anzahl der anzuzeigenden neuesten Notizen.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Neueste Notizen mit Lesezeichen anheften',
+                desc: 'Neueste Notizen beim Anheften von Lesezeichen einbeziehen.'
             },
             showTooltips: {
                 name: 'Tooltips anzeigen',

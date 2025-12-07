@@ -65,9 +65,12 @@ export const STRINGS_PT = {
         vaultRootLabel: 'Cofre',
         resetRootToAlpha: 'Repor ordem alfabética',
         resetRootToFrequency: 'Repor ordem por frequência',
-        dragHandleLabel: 'Arraste para reordenar',
         pinShortcuts: 'Fixar atalhos',
+        pinShortcutsAndRecentNotes: 'Fixar atalhos e notas recentes',
+        pinShortcutsAndRecentFiles: 'Fixar atalhos e ficheiros recentes',
         unpinShortcuts: 'Desafixar atalhos',
+        unpinShortcutsAndRecentNotes: 'Desafixar atalhos e notas recentes',
+        unpinShortcutsAndRecentFiles: 'Desafixar atalhos e ficheiros recentes',
         profileMenuLabel: 'Perfil',
         profileMenuAria: 'Alterar perfil do cofre'
     },
@@ -738,7 +741,7 @@ export const STRINGS_PT = {
                 }
             },
             appearanceScale: {
-                name: 'Nível de zoom',
+                name: 'Nível de zoom (não sincronizado)',
                 desc: 'Controla o nível de zoom geral do Notebook Navigator.'
             },
             startView: {
@@ -792,6 +795,10 @@ export const STRINGS_PT = {
             recentNotesCount: {
                 name: 'Número de notas recentes',
                 desc: 'Número de notas recentes a exibir.'
+            },
+            pinRecentNotesWithShortcuts: {
+                name: 'Fixar notas recentes com atalhos',
+                desc: 'Incluir notas recentes quando os atalhos estão fixos.'
             },
             showTooltips: {
                 name: 'Mostrar dicas',

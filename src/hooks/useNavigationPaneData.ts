@@ -97,6 +97,14 @@ const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
     );
 };
 
+// Checks if a navigation item is part of the recent notes section
+const isRecentNavigationItem = (item: CombinedNavigationItem): boolean => {
+    if (item.type === NavigationPaneItemType.VIRTUAL_FOLDER) {
+        return item.data.id === RECENT_NOTES_VIRTUAL_FOLDER_ID;
+    }
+    return item.type === NavigationPaneItemType.RECENT_NOTE;
+};
+
 /** Options controlling which navigation items are eligible for root spacing */
 interface RootSpacingOptions {
     showRootFolder: boolean;
@@ -364,6 +372,10 @@ interface UseNavigationPaneDataResult {
     shortcutItems: CombinedNavigationItem[];
     /** Whether the tags virtual folder has visible children */
     tagsVirtualFolderHasChildren: boolean;
+    /** Recent notes items rendered in the pinned area when pinning is enabled */
+    pinnedRecentNotesItems: CombinedNavigationItem[];
+    /** Whether recent notes are pinned with shortcuts */
+    shouldPinRecentNotes: boolean;
     /** Map from item keys to index in items array */
     pathToIndex: Map<string, number>;
     /** Map from shortcut id to index */
@@ -916,6 +928,8 @@ export function useNavigationPaneData({
         return items;
     }, [app, settings.showRecentNotes, recentNotes, settings.recentNotesCount, fileVisibility, recentNotesExpanded]);
 
+    const shouldPinRecentNotes = pinShortcuts && settings.pinRecentNotesWithShortcuts && settings.showRecentNotes;
+
     // Sanitize section order from local storage and ensure defaults are present
     const normalizedSectionOrder = useMemo(() => sanitizeNavigationSectionOrder(sectionOrder), [sectionOrder]);
 
@@ -930,8 +944,10 @@ export function useNavigationPaneData({
 
         // Path to the banner file configured in the active vault profile
         const bannerPath = navigationBannerPath;
-        // Banner appears in main list when not pinning shortcuts or when shortcuts list is empty
-        const shouldIncludeBannerInMainList = Boolean(bannerPath && (!pinShortcuts || shortcutItems.length === 0));
+        // Banner appears in main list only when nothing is pinned
+        const pinnedShortcutItems = pinShortcuts && shortcutItems.length > 0;
+        const pinnedRecentItems = shouldPinRecentNotes && recentNotesItems.length > 0;
+        const shouldIncludeBannerInMainList = Boolean(bannerPath && !(pinnedShortcutItems || pinnedRecentItems));
 
         if (shouldIncludeBannerInMainList && bannerPath) {
             allItems.push({
@@ -953,7 +969,7 @@ export function useNavigationPaneData({
 
         // Determines which sections should be displayed based on settings and available items
         const shouldIncludeShortcutsSection = settings.showShortcuts && shortcutItems.length > 0 && !pinShortcuts;
-        const shouldIncludeRecentSection = settings.showRecentNotes && recentNotesItems.length > 0;
+        const shouldIncludeRecentSection = settings.showRecentNotes && recentNotesItems.length > 0 && !shouldPinRecentNotes;
         const shouldIncludeFoldersSection = folderItems.length > 0;
         const shouldIncludeTagsSection = settings.showTags && tagItems.length > 0;
 
@@ -1024,6 +1040,7 @@ export function useNavigationPaneData({
         recentNotesItems,
         normalizedSectionOrder,
         settings.showShortcuts,
+        shouldPinRecentNotes,
         settings.showRecentNotes,
         settings.showTags,
         navigationBannerPath,
@@ -1215,6 +1232,8 @@ export function useNavigationPaneData({
         [itemsWithSeparators, metadataService, metadataVersion, parsedExcludedFolders]
     );
 
+    const decoratedRecentNotes = useMemo(() => itemsWithMetadata.filter(isRecentNavigationItem), [itemsWithMetadata]);
+
     // Extract shortcut items when pinning is enabled for display in pinned area
     const shortcutItemsWithMetadata = useMemo(() => {
         if (!pinShortcuts) {
@@ -1223,13 +1242,31 @@ export function useNavigationPaneData({
         return decorateNavigationItems(shortcutItems, metadataService, parsedExcludedFolders, metadataVersion);
     }, [metadataService, metadataVersion, parsedExcludedFolders, pinShortcuts, shortcutItems]);
 
+    const pinnedRecentNotesItems = useMemo(() => {
+        if (!shouldPinRecentNotes) {
+            return [] as CombinedNavigationItem[];
+        }
+        if (decoratedRecentNotes.length > 0) {
+            return decoratedRecentNotes;
+        }
+        return decorateNavigationItems(recentNotesItems, metadataService, parsedExcludedFolders, metadataVersion);
+    }, [decoratedRecentNotes, metadataService, metadataVersion, parsedExcludedFolders, recentNotesItems, shouldPinRecentNotes]);
+
     /**
      * Filter items based on showHiddenItems setting
      * When showHiddenItems is false, filter out folders marked as excluded
      */
     const filteredItems = useMemo(() => {
         // When pinning shortcuts, exclude them from main tree (they're rendered separately)
-        const baseItems = pinShortcuts ? itemsWithMetadata.filter(current => !isShortcutNavigationItem(current)) : itemsWithMetadata;
+        const baseItems = itemsWithMetadata.filter(current => {
+            if (pinShortcuts && isShortcutNavigationItem(current)) {
+                return false;
+            }
+            if (shouldPinRecentNotes && isRecentNavigationItem(current)) {
+                return false;
+            }
+            return true;
+        });
 
         if (showHiddenItems) {
             // Show all items including excluded ones
@@ -1242,7 +1279,7 @@ export function useNavigationPaneData({
             }
             return true;
         });
-    }, [itemsWithMetadata, showHiddenItems, pinShortcuts]);
+    }, [itemsWithMetadata, showHiddenItems, pinShortcuts, shouldPinRecentNotes]);
 
     /**
      * Find the first folder that appears inline (not in the pinned area) when shortcuts are pinned.
@@ -1496,6 +1533,8 @@ export function useNavigationPaneData({
         firstSectionId,
         firstInlineFolderPath,
         shortcutItems: shortcutItemsWithMetadata,
+        pinnedRecentNotesItems,
+        shouldPinRecentNotes,
         tagsVirtualFolderHasChildren,
         pathToIndex,
         shortcutIndex,
