@@ -187,6 +187,7 @@ export function useListPaneScroll({
     // Check if we're in compact mode
     const isCompactMode = !folderSettings.showDate && !folderSettings.showPreview && !folderSettings.showImage;
     const revealFileOnListChanges = settings.revealFileOnListChanges;
+    const hasSelectedFile = Boolean(selectedFile);
 
     /**
      * Initialize TanStack Virtual virtualizer with dynamic height calculation.
@@ -842,9 +843,12 @@ export function useListPaneScroll({
         // We scroll in these cases:
         // 1. User navigated to a different folder/tag (isFolderNavigation = true)
         // 2. List context changed (folder/tag change)
-        const shouldScroll = isFolderNavigation || listChanged;
+        const shouldScroll = listChanged || (isFolderNavigation && hasSelectedFile);
 
         if (!shouldScroll) {
+            if (isFolderNavigation) {
+                selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
+            }
             return;
         }
 
@@ -890,16 +894,16 @@ export function useListPaneScroll({
             // Clear the folder navigation flag
             selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
 
-            setPending(
-                selectedFile
-                    ? {
-                          type: 'file',
-                          filePath: selectedFile.path,
-                          reason: 'folder-navigation',
-                          minIndexVersion: indexVersionRef.current
-                      }
-                    : { type: 'top', reason: 'folder-navigation', minIndexVersion: indexVersionRef.current }
-            );
+            const pendingScroll = selectedFile
+                ? {
+                      type: 'file' as const,
+                      filePath: selectedFile.path,
+                      reason: 'folder-navigation' as const,
+                      minIndexVersion: indexVersionRef.current
+                  }
+                : ({ type: 'top', reason: 'folder-navigation', minIndexVersion: indexVersionRef.current } as const);
+
+            setPending(pendingScroll);
         } else {
             // For other cases (initial load), use pending scroll for consistency
             // RAF was getting canceled due to rapid re-renders
@@ -930,7 +934,8 @@ export function useListPaneScroll({
         selectionDispatch,
         listItems.length,
         setPending,
-        clearPending
+        clearPending,
+        hasSelectedFile
     ]);
 
     /**
@@ -963,13 +968,18 @@ export function useListPaneScroll({
             return;
         }
 
+        if (!selectedFile) {
+            prevSearchQueryRef.current = searchQuery;
+            return;
+        }
+
         if (!isScrollContainerReady || !rowVirtualizer) {
             // Defer handling until visible/ready without consuming the query change
             return;
         }
 
         // Check if selected file exists in the filtered list (based on current index)
-        const selectedFileInList = !!(selectedFile && filePathToIndex.has(selectedFile.path));
+        const selectedFileInList = filePathToIndex.has(selectedFile.path);
 
         const queryChanged = prevSearchQueryRef.current !== searchQuery;
         prevSearchQueryRef.current = searchQuery;

@@ -74,15 +74,16 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.9.1',
-        date: '2025-12-04',
+        date: '2025-12-07',
         showOnUpdate: true,
-        info: 'Lots of internal improvements in this release. The mobile drag and drop functionality was rewritten from the ground up, and pattern matching for hidden folders and tags was greatly improved in performance.',
+        info: 'Lots of internal improvements in this release. The mobile drag and drop functionality was rewritten from the ground up, pattern matching for hidden folders and tags was greatly improved in performance, and lots of other internal improvements.',
         new: [
             'New style setting: **Navigation file text color** (--nn-theme-navitem-file-name-color). Customize the color of files shown in shortcuts and recent files in navigation pane.'
         ],
         improved: [
-            "Creating Excalidraw and Tldraw documents now uses names and templates configured in each plugin's settings.",
+            "Creating Excalidraw and Tldraw documents now uses the names and templates configured in each plugin's settings.",
             'Android users can now swipe in the middle of the view to go from list pane to navigation pane.',
+            'File operations like move, delete, create, pin/unpin now keeps current list scroll position when nothing is selected in the list pane.',
             'Notebook Navigator now also supports AVIF images for image previews in list pane.'
         ],
         changed: [
