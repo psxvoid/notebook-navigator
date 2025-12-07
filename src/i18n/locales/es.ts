@@ -59,8 +59,8 @@ export const STRINGS_ES = {
         shortcutsHeader: 'Accesos directos',
         recentNotesHeader: 'Notas recientes',
         recentFilesHeader: 'Archivos recientes',
-        reorderRootFoldersTitle: 'Reordenar secciones de navegación',
-        reorderRootFoldersHint: 'Arrastra encabezados o elementos para cambiar el orden',
+        reorderRootFoldersTitle: 'Reordenar navegación',
+        reorderRootFoldersHint: 'Usa flechas o arrastra para reordenar',
         vaultRootLabel: 'Bóveda',
         resetRootToAlpha: 'Restablecer orden alfabético',
         resetRootToFrequency: 'Restablecer al orden por frecuencia',
@@ -96,8 +96,8 @@ export const STRINGS_ES = {
         customSort: 'Personalizado', // Label for custom sorting mode (English: Custom)
         showFolders: 'Mostrar navegación', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Ocultar navegación', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Reordenar carpetas raíz y etiquetas',
-        finishRootFolderReorder: 'Finalizar reordenación',
+        reorderRootFolders: 'Reordenar navegación',
+        finishRootFolderReorder: 'Listo',
         toggleDescendantNotes: 'Mostrar notas de subcarpetas / descendientes (no sincronizado)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from subfolders / descendants (not synced))
         autoExpandFoldersTags: 'Expandir carpetas y etiquetas automáticamente', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Mostrar carpetas, etiquetas y notas ocultas', // Tooltip for button to show hidden items (English: Show hidden items)

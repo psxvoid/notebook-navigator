@@ -59,8 +59,8 @@ export const STRINGS_PL = {
         shortcutsHeader: 'Skróty',
         recentNotesHeader: 'Ostatnie notatki',
         recentFilesHeader: 'Ostatnie pliki',
-        reorderRootFoldersTitle: 'Przestaw sekcje nawigacji',
-        reorderRootFoldersHint: 'Przeciągnij nagłówki lub elementy, aby zmienić kolejność',
+        reorderRootFoldersTitle: 'Przestaw nawigację',
+        reorderRootFoldersHint: 'Użyj strzałek lub przeciągnij, aby przestawić',
         vaultRootLabel: 'Magazyn',
         resetRootToAlpha: 'Resetuj do kolejności alfabetycznej',
         resetRootToFrequency: 'Przywróć sortowanie według częstotliwości',
@@ -96,8 +96,8 @@ export const STRINGS_PL = {
         customSort: 'Własne', // Label for custom sorting mode (English: Custom)
         showFolders: 'Pokaż nawigację', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Ukryj nawigację', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Przestaw foldery główne i tagi',
-        finishRootFolderReorder: 'Zakończ przestawianie',
+        reorderRootFolders: 'Przestaw nawigację',
+        finishRootFolderReorder: 'Gotowe',
         toggleDescendantNotes: 'Pokaż notatki z podfolderów / potomnych (nie synchronizowane)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Automatycznie rozwijaj foldery i tagi', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Pokaż ukryte foldery, tagi i notatki', // Tooltip for button to show hidden items (English: Show hidden items)

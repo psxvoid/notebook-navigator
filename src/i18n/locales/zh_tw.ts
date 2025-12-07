@@ -60,8 +60,8 @@ export const STRINGS_ZH_TW = {
         shortcutsHeader: '捷徑', // 導覽窗格中捷徑區段的標頭標籤 (英文: Shortcuts)
         recentNotesHeader: '最近筆記', // 導覽窗格中最近筆記區段的標頭標籤 (英文: Recent notes)
         recentFilesHeader: '最近檔案', // 在導覽窗格中顯示最近非筆記檔案時的標頭標籤 (英文: Recent files)
-        reorderRootFoldersTitle: '重新排列導覽區段',
-        reorderRootFoldersHint: '拖曳標題或項目以調整順序',
+        reorderRootFoldersTitle: '重新排列導覽',
+        reorderRootFoldersHint: '使用箭頭或拖曳來重新排列',
         vaultRootLabel: '儲存庫',
         resetRootToAlpha: '重設為字母順序',
         resetRootToFrequency: '重設為頻率排序',
@@ -97,8 +97,8 @@ export const STRINGS_ZH_TW = {
         customSort: '自訂', // 自訂排序模式的標籤 (英文: Custom)
         showFolders: '顯示導覽', // 顯示導覽窗格按鈕的工具提示 (英文: Show navigation)
         hideFolders: '隱藏導覽', // 隱藏導覽窗格按鈕的工具提示 (英文: Hide navigation)
-        reorderRootFolders: '重新排列根資料夾和標籤',
-        finishRootFolderReorder: '完成重新排列',
+        reorderRootFolders: '重新排列導覽',
+        finishRootFolderReorder: '完成',
         toggleDescendantNotes: '顯示子資料夾/後代中的筆記（不同步）', // 工具提示：包含資料夾和標籤的後代
         autoExpandFoldersTags: '自動展開資料夾和標籤', // 選取時自動展開資料夾和標籤的切換按鈕工具提示 (英文: Auto-expand folders and tags)
         showExcludedItems: '顯示隱藏的資料夾、標籤和筆記', // 顯示隱藏項目的按鈕工具提示 (英文: Show hidden items)

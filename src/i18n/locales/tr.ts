@@ -60,8 +60,8 @@ export const STRINGS_TR = {
         shortcutsHeader: 'Kısayollar', // Header label for shortcuts section in navigation pane (English: Shortcuts)
         recentNotesHeader: 'Son notlar', // Header label for recent notes section in navigation pane (English: Recent notes)
         recentFilesHeader: 'Son dosyalar', // Header label when showing recent non-note files in navigation pane (English: Recent files)
-        reorderRootFoldersTitle: 'Gezinme bölümlerini yeniden sırala',
-        reorderRootFoldersHint: 'Sıralamayı değiştirmek için başlıkları veya öğeleri sürükleyin',
+        reorderRootFoldersTitle: 'Gezinmeyi yeniden sırala',
+        reorderRootFoldersHint: 'Yeniden sıralamak için okları veya sürüklemeyi kullanın',
         vaultRootLabel: 'Kasa',
         resetRootToAlpha: 'Alfabetik sıraya sıfırla',
         resetRootToFrequency: 'Sıklık sırasına sıfırla',
@@ -97,8 +97,8 @@ export const STRINGS_TR = {
         customSort: 'Özel', // Label for custom sorting mode (English: Custom)
         showFolders: 'Gezinmeyi göster', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Gezinmeyi gizle', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Kök klasörleri ve etiketleri yeniden sırala',
-        finishRootFolderReorder: 'Kök yeniden sıralamayı bitir',
+        reorderRootFolders: 'Gezinmeyi yeniden sırala',
+        finishRootFolderReorder: 'Tamamlandı',
         toggleDescendantNotes: 'Alt klasörlerden / alt öğelerden notları göster (senkronize edilmez)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Seçimde genişlet', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Gizli klasörleri, etiketleri ve notları göster', // Tooltip for button to show hidden items (English: Show hidden items)

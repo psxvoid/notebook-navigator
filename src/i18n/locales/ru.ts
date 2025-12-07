@@ -60,8 +60,8 @@ export const STRINGS_RU = {
         shortcutsHeader: 'Ярлыки', // Header label for shortcuts section in navigation pane (English: Shortcuts)
         recentNotesHeader: 'Недавние заметки', // Header label for recent notes section in navigation pane (English: Recent notes)
         recentFilesHeader: 'Недавние файлы', // Header label when showing recent non-note files in navigation pane (English: Recent files)
-        reorderRootFoldersTitle: 'Изменить порядок разделов навигации',
-        reorderRootFoldersHint: 'Перетащите заголовки или элементы для изменения порядка',
+        reorderRootFoldersTitle: 'Изменить порядок навигации',
+        reorderRootFoldersHint: 'Используйте стрелки или перетаскивание',
         vaultRootLabel: 'Хранилище',
         resetRootToAlpha: 'Сбросить в алфавитный порядок',
         resetRootToFrequency: 'Сбросить по частоте',
@@ -97,8 +97,8 @@ export const STRINGS_RU = {
         customSort: 'Пользовательская', // Label for custom sorting mode (English: Custom)
         showFolders: 'Показать навигацию', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Скрыть навигацию', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Изменить порядок корневых папок и тегов',
-        finishRootFolderReorder: 'Завершить изменение порядка',
+        reorderRootFolders: 'Изменить порядок навигации',
+        finishRootFolderReorder: 'Готово',
         toggleDescendantNotes: 'Показать заметки из подпапок / потомков (не синхронизируется)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Разворачивать при выборе', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Показать скрытые папки, теги и заметки', // Tooltip for button to show hidden items (English: Show hidden items)

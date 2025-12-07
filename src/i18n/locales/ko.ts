@@ -59,8 +59,8 @@ export const STRINGS_KO = {
         shortcutsHeader: '바로가기',
         recentNotesHeader: '최근 노트',
         recentFilesHeader: '최근 파일',
-        reorderRootFoldersTitle: '내비게이션 섹션 재정렬',
-        reorderRootFoldersHint: '헤더나 항목을 드래그하여 순서를 변경합니다',
+        reorderRootFoldersTitle: '내비게이션 재정렬',
+        reorderRootFoldersHint: '화살표 또는 드래그로 재정렬',
         vaultRootLabel: '보관함',
         resetRootToAlpha: '알파벳 순서로 리셋',
         resetRootToFrequency: '빈도 순으로 리셋',
@@ -96,8 +96,8 @@ export const STRINGS_KO = {
         customSort: '사용자 정의', // Label for custom sorting mode (English: Custom)
         showFolders: '탐색 표시', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: '탐색 숨기기', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: '루트 폴더와 태그 재정렬',
-        finishRootFolderReorder: '재정렬 완료',
+        reorderRootFolders: '내비게이션 재정렬',
+        finishRootFolderReorder: '완료',
         toggleDescendantNotes: '하위 폴더 / 하위 항목 노트 표시 (동기화 안 됨)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: '폴더 및 태그 자동 펼치기', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '숨긴 폴더, 태그, 노트 표시', // Tooltip for button to show hidden items (English: Show hidden items)

@@ -60,8 +60,8 @@ export const STRINGS_AR = {
         shortcutsHeader: 'اختصارات', // Header label for shortcuts section in navigation pane (English: Shortcuts)
         recentNotesHeader: 'ملاحظات حديثة', // Header label for recent notes section in navigation pane (English: Recent notes)
         recentFilesHeader: 'ملفات حديثة', // Header label when showing recent non-note files in navigation pane (English: Recent files)
-        reorderRootFoldersTitle: 'إعادة ترتيب أقسام التنقل',
-        reorderRootFoldersHint: 'اسحب العناوين أو العناصر لتغيير الترتيب',
+        reorderRootFoldersTitle: 'إعادة ترتيب التنقل',
+        reorderRootFoldersHint: 'استخدم الأسهم أو اسحب لإعادة الترتيب',
         vaultRootLabel: 'الخزنة',
         resetRootToAlpha: 'إعادة الترتيب الأبجدي',
         resetRootToFrequency: 'إعادة الترتيب حسب التكرار',
@@ -97,8 +97,8 @@ export const STRINGS_AR = {
         customSort: 'مخصص', // Label for custom sorting mode (English: Custom)
         showFolders: 'إظهار التنقل', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'إخفاء التنقل', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'إعادة ترتيب المجلدات والوسوم الجذرية',
-        finishRootFolderReorder: 'إنهاء إعادة الترتيب',
+        reorderRootFolders: 'إعادة ترتيب التنقل',
+        finishRootFolderReorder: 'تم',
         toggleDescendantNotes: 'إظهار ملاحظات المجلدات الفرعية / الفروع (غير متزامن)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'توسيع عند التحديد', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'إظهار المجلدات والوسوم والملاحظات المخفية', // Tooltip for button to show hidden items (English: Show hidden items)

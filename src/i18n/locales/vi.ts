@@ -60,8 +60,8 @@ export const STRINGS_VI = {
         shortcutsHeader: 'Lối tắt', // Header label for shortcuts section in navigation pane (English: Shortcuts)
         recentNotesHeader: 'Ghi chú gần đây', // Header label for recent notes section in navigation pane (English: Recent notes)
         recentFilesHeader: 'Tệp gần đây', // Header label when showing recent non-note files in navigation pane (English: Recent files)
-        reorderRootFoldersTitle: 'Sắp xếp lại các phần điều hướng',
-        reorderRootFoldersHint: 'Kéo tiêu đề hoặc mục để thay đổi thứ tự',
+        reorderRootFoldersTitle: 'Sắp xếp lại điều hướng',
+        reorderRootFoldersHint: 'Dùng mũi tên hoặc kéo để sắp xếp lại',
         vaultRootLabel: 'Vault',
         resetRootToAlpha: 'Đặt lại theo thứ tự bảng chữ cái',
         resetRootToFrequency: 'Đặt lại theo tần suất',
@@ -97,8 +97,8 @@ export const STRINGS_VI = {
         customSort: 'Tùy chỉnh', // Label for custom sorting mode (English: Custom)
         showFolders: 'Hiện điều hướng', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Ẩn điều hướng', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        reorderRootFolders: 'Sắp xếp lại thư mục gốc và thẻ',
-        finishRootFolderReorder: 'Hoàn tất sắp xếp lại',
+        reorderRootFolders: 'Sắp xếp lại điều hướng',
+        finishRootFolderReorder: 'Hoàn tất',
         toggleDescendantNotes: 'Hiện ghi chú từ thư mục con / phần tử con (không đồng bộ)', // Tooltip: include descendants for folders and tags
         autoExpandFoldersTags: 'Mở rộng khi chọn', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Expand on selection)
         showExcludedItems: 'Hiện thư mục, thẻ và ghi chú ẩn', // Tooltip for button to show hidden items (English: Show hidden items)
