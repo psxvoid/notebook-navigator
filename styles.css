@@ -158,6 +158,7 @@ body {
     --nn-theme-navitem-chevron-color: var(--text-muted);
     --nn-theme-navitem-icon-color: var(--text-muted);
     --nn-theme-navitem-name-color: var(--text-normal);
+    --nn-theme-navitem-file-name-color: var(--nn-theme-navitem-name-color);
     --nn-theme-navitem-count-color: var(--text-muted);
     --nn-theme-navitem-count-bg: transparent;
     --nn-theme-navitem-count-border-radius: 8px;
@@ -1478,7 +1479,7 @@ body {
 }
 
 .nn-navitem[data-nav-item-type='note'] .nn-navitem-name {
-    color: var(--nn-theme-file-name-color);
+    color: var(--nn-theme-navitem-file-name-color);
 }
 
 /* Custom colored folder names */
@@ -5213,6 +5214,15 @@ settings:
         id: nn-theme-navitem-name-color
         title: Text color
         description: Text color for folder and tag names.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-navitem-file-name-color
+        title: File text color
+        description: Text color for note shortcuts and recent files. Defaults to folder/tag text color.
         type: variable-themed-color
         format: hex
         default-light: '#'
