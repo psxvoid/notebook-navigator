@@ -931,6 +931,10 @@ export const STRINGS_PT_BR = {
                 name: 'Pular blocos de código na visualização',
                 desc: 'Pular blocos de código ao gerar texto de visualização.'
             },
+            stripHtmlInPreview: {
+                name: 'Remover HTML nas visualizações',
+                desc: 'Remover tags HTML do texto de visualização. Pode afetar o desempenho em notas grandes.'
+            },
             previewProperties: {
                 name: 'Propriedades de visualização',
                 desc: 'Lista separada por vírgulas de propriedades do frontmatter para verificar texto de visualização. A primeira propriedade com texto será usada.',

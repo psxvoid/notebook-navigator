@@ -930,6 +930,10 @@ export const STRINGS_IT = {
                 name: "Salta blocchi codice nell'anteprima",
                 desc: 'Salta blocchi codice quando generi testo anteprima.'
             },
+            stripHtmlInPreview: {
+                name: 'Rimuovi HTML nelle anteprime',
+                desc: 'Rimuove i tag HTML dal testo di anteprima. Potrebbe influire sulle prestazioni nelle note lunghe.'
+            },
             previewProperties: {
                 name: 'Proprietà anteprima',
                 desc: 'Lista di proprietà frontmatter separate da virgola da controllare per testo anteprima. La prima proprietà con testo sarà usata.',

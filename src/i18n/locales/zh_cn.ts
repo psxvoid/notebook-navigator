@@ -931,6 +931,10 @@ export const STRINGS_ZH_CN = {
                 name: '预览中跳过代码块',
                 desc: '生成预览文本时跳过代码块。'
             },
+            stripHtmlInPreview: {
+                name: '移除预览中的 HTML',
+                desc: '从预览文本中移除 HTML 标签。可能会影响大型笔记的性能。'
+            },
             previewProperties: {
                 name: '预览属性',
                 desc: '用于查找预览文本的前置属性的逗号分隔列表。将使用第一个包含文本的属性。',

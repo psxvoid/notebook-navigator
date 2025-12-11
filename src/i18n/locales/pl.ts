@@ -932,6 +932,10 @@ export const STRINGS_PL = {
                 name: 'Pomiń bloki kodu w podglądzie',
                 desc: 'Pomija bloki kodu podczas generowania tekstu podglądu.'
             },
+            stripHtmlInPreview: {
+                name: 'Usuń HTML w podglądach',
+                desc: 'Usuń znaczniki HTML z tekstu podglądu. Może wpływać na wydajność przy dużych notatkach.'
+            },
             previewProperties: {
                 name: 'Właściwości podglądu',
                 desc: 'Lista właściwości frontmatter oddzielonych przecinkami do sprawdzenia dla tekstu podglądu. Pierwsza właściwość z tekstem zostanie użyta.',

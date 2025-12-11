@@ -933,6 +933,10 @@ export const STRINGS_NL = {
                 name: 'Codeblokken overslaan in voorbeeld',
                 desc: 'Codeblokken overslaan bij het genereren van voorbeeldtekst.'
             },
+            stripHtmlInPreview: {
+                name: 'HTML verwijderen in voorbeelden',
+                desc: 'HTML-tags uit de voorbeeldtekst verwijderen. Kan de prestaties bij grote notities beïnvloeden.'
+            },
             previewProperties: {
                 name: 'Voorbeeldeigenschappen',
                 desc: 'Kommagescheiden lijst van frontmatter-eigenschappen om te controleren op voorbeeldtekst. De eerste eigenschap met tekst wordt gebruikt.',

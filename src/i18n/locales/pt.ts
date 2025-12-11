@@ -931,6 +931,10 @@ export const STRINGS_PT = {
                 name: 'Saltar blocos de código na pré-visualização',
                 desc: 'Saltar blocos de código ao gerar texto de pré-visualização.'
             },
+            stripHtmlInPreview: {
+                name: 'Remover HTML nas pré-visualizações',
+                desc: 'Remover etiquetas HTML do texto de pré-visualização. Pode afetar o desempenho em notas grandes.'
+            },
             previewProperties: {
                 name: 'Propriedades de pré-visualização',
                 desc: 'Lista de propriedades frontmatter separadas por vírgulas para verificar texto de pré-visualização. A primeira propriedade com texto será usada.',

@@ -41,3 +41,31 @@ export function createIndexMap(values: readonly string[]): Map<string, number> {
     });
     return map;
 }
+
+export interface NumericRange {
+    start: number;
+    end: number;
+}
+
+/**
+ * Merges overlapping or adjacent numeric ranges without mutating the input.
+ */
+export function mergeRanges<T extends NumericRange>(ranges: readonly T[]): T[] {
+    if (ranges.length === 0) {
+        return [];
+    }
+
+    const sorted = [...ranges].sort((first, second) => first.start - second.start || first.end - second.end);
+    const merged: T[] = [];
+
+    for (const range of sorted) {
+        const last = merged[merged.length - 1];
+        if (!last || range.start > last.end) {
+            merged.push({ ...range });
+        } else if (range.end > last.end) {
+            last.end = range.end;
+        }
+    }
+
+    return merged;
+}

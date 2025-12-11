@@ -206,6 +206,7 @@ export interface NotebookNavigatorSettings {
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     skipCodeBlocksInPreview: boolean;
+    stripHtmlInPreview: boolean;
     previewProperties: string[];
     previewRows: number;
     showFeatureImage: boolean;

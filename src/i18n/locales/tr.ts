@@ -930,6 +930,10 @@ export const STRINGS_TR = {
                 name: 'Önizlemede kod bloklarını atla',
                 desc: 'Önizleme metni oluştururken kod bloklarını atla.'
             },
+            stripHtmlInPreview: {
+                name: 'Önizlemelerde HTML kaldır',
+                desc: 'Önizleme metninden HTML etiketlerini kaldırır. Büyük notlarda performansı etkileyebilir.'
+            },
             previewProperties: {
                 name: 'Önizleme özellikleri',
                 desc: 'Önizleme metni için kontrol edilecek virgülle ayrılmış frontmatter özellikleri listesi. Metni olan ilk özellik kullanılacak.',

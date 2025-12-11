@@ -173,6 +173,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFilePreview: true,
     skipHeadingsInPreview: true,
     skipCodeBlocksInPreview: true,
+    stripHtmlInPreview: true,
     previewProperties: [],
     previewRows: 2,
     showFeatureImage: true,

@@ -69,7 +69,7 @@ import { getDateField, naturalCompare } from '../utils/sortUtils';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
 import { createHiddenTagVisibility } from '../utils/tagPrefixMatcher';
-import { areStringArraysEqual } from '../utils/arrayUtils';
+import { areStringArraysEqual, mergeRanges, NumericRange } from '../utils/arrayUtils';
 import { openAddTagToFilesModal } from '../utils/tagModalHelpers';
 import { getTagSearchModifierOperator } from '../utils/tagUtils';
 import type { InclusionOperator } from '../utils/filterSearch';
@@ -108,11 +108,11 @@ interface FileItemProps {
  * Computes merged highlight ranges for all occurrences of search segments.
  * Overlapping ranges are merged to avoid nested highlights.
  */
-function getMergedHighlightRanges(text: string, query?: string, searchMeta?: SearchResultMeta): { start: number; end: number }[] {
+function getMergedHighlightRanges(text: string, query?: string, searchMeta?: SearchResultMeta): NumericRange[] {
     if (!text) return [];
 
     const lower = text.toLowerCase();
-    const ranges: { start: number; end: number }[] = [];
+    const ranges: NumericRange[] = [];
     const seenTokens = new Set<string>();
 
     const addTokenRanges = (rawToken: string | undefined) => {
@@ -147,18 +147,7 @@ function getMergedHighlightRanges(text: string, query?: string, searchMeta?: Sea
         return [];
     }
 
-    ranges.sort((a, b) => a.start - b.start || a.end - b.end);
-    const merged: { start: number; end: number }[] = [];
-    for (const range of ranges) {
-        const last = merged[merged.length - 1];
-        if (!last || range.start > last.end) {
-            merged.push({ ...range });
-        } else if (range.end > last.end) {
-            last.end = range.end;
-        }
-    }
-
-    return merged;
+    return mergeRanges(ranges);
 }
 
 /**

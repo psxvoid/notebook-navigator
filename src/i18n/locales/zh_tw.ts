@@ -929,6 +929,10 @@ export const STRINGS_ZH_TW = {
                 name: '在預覽中跳過程式碼區塊',
                 desc: '產生預覽文字時跳過程式碼區塊。'
             },
+            stripHtmlInPreview: {
+                name: '移除預覽中的 HTML',
+                desc: '從預覽文字中移除 HTML 標籤。可能會影響大型筆記的效能。'
+            },
             previewProperties: {
                 name: '預覽屬性',
                 desc: '以逗號分隔的 frontmatter 屬性清單，用於檢查預覽文字。將使用第一個有文字的屬性。',

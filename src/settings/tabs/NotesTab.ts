@@ -454,6 +454,16 @@ export function renderNotesTab(context: SettingsTabContext): void {
         );
 
     new Setting(previewSettingsEl)
+        .setName(strings.settings.items.stripHtmlInPreview.name)
+        .setDesc(strings.settings.items.stripHtmlInPreview.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.stripHtmlInPreview).onChange(async value => {
+                plugin.settings.stripHtmlInPreview = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(previewSettingsEl)
         .setName(strings.settings.items.previewRows.name)
         .setDesc(strings.settings.items.previewRows.desc)
         .addDropdown(dropdown =>

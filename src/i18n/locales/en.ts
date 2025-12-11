@@ -929,6 +929,10 @@ export const STRINGS_EN = {
                 name: 'Skip code blocks in preview',
                 desc: 'Skip code blocks when generating preview text.'
             },
+            stripHtmlInPreview: {
+                name: 'Strip HTML in previews',
+                desc: 'Remove HTML tags from preview text. May affect performance on large notes.'
+            },
             previewProperties: {
                 name: 'Preview properties',
                 desc: 'Comma-separated list of frontmatter properties to check for preview text. The first property with text will be used.',

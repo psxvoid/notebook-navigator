@@ -930,6 +930,10 @@ export const STRINGS_VI = {
                 name: 'Bỏ qua khối code trong xem trước',
                 desc: 'Bỏ qua khối code khi tạo văn bản xem trước.'
             },
+            stripHtmlInPreview: {
+                name: 'Xóa HTML trong xem trước',
+                desc: 'Xóa thẻ HTML khỏi văn bản xem trước. Có thể ảnh hưởng đến hiệu suất với ghi chú lớn.'
+            },
             previewProperties: {
                 name: 'Thuộc tính xem trước',
                 desc: 'Danh sách thuộc tính frontmatter phân cách bằng dấu phẩy để kiểm tra văn bản xem trước. Thuộc tính đầu tiên có văn bản sẽ được dùng.',

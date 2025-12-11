@@ -73,6 +73,21 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.9.2',
+        date: '2025-12-16',
+        showOnUpdate: true,
+        new: [
+            'New setting: **Notes > Appearance > Strip HTML in previews**. Default enabled - removes html tags like <br>, <ul> etc from note previews in list pane.'
+        ],
+        improved: [
+        ],
+        changed: [
+            'Bumped DB_CONTENT_VERSION to support stripping HTML tags from note previews. Entire cache will be rebuilt on next startup.'
+        ],
+        fixed: [
+        ]
+    },
+    {
         version: '1.9.1',
         date: '2025-12-07',
         showOnUpdate: true,

@@ -934,6 +934,10 @@ export const STRINGS_FR = {
                 name: "Ignorer les blocs de code dans l'aperçu",
                 desc: "Ignorer les blocs de code lors de la génération du texte d'aperçu."
             },
+            stripHtmlInPreview: {
+                name: 'Supprimer le HTML dans les aperçus',
+                desc: "Supprimer les balises HTML du texte d'aperçu. Peut affecter les performances sur les longues notes."
+            },
             previewProperties: {
                 name: "Propriétés d'aperçu",
                 desc: "Liste séparée par des virgules de propriétés frontmatter pour le texte d'aperçu. La première propriété avec du texte sera utilisée.",

@@ -33,7 +33,7 @@ export class PreviewContentProvider extends BaseContentProvider {
     }
 
     getRelevantSettings(): (keyof NotebookNavigatorSettings)[] {
-        return ['showFilePreview', 'skipHeadingsInPreview', 'skipCodeBlocksInPreview', 'previewProperties'];
+        return ['showFilePreview', 'skipHeadingsInPreview', 'skipCodeBlocksInPreview', 'stripHtmlInPreview', 'previewProperties'];
     }
 
     shouldRegenerate(oldSettings: NotebookNavigatorSettings, newSettings: NotebookNavigatorSettings): boolean {
@@ -48,6 +48,7 @@ export class PreviewContentProvider extends BaseContentProvider {
                 oldSettings.showFilePreview !== newSettings.showFilePreview ||
                 oldSettings.skipHeadingsInPreview !== newSettings.skipHeadingsInPreview ||
                 oldSettings.skipCodeBlocksInPreview !== newSettings.skipCodeBlocksInPreview ||
+                oldSettings.stripHtmlInPreview !== newSettings.stripHtmlInPreview ||
                 JSON.stringify(oldSettings.previewProperties) !== JSON.stringify(newSettings.previewProperties)
             );
         }
