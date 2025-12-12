@@ -66,6 +66,12 @@ describe('PreviewTextUtils.extractPreviewText', () => {
         expect(preview).toBe('Code sample const markup = `<div>value</div>`; end');
     });
 
+    it('decodes html entities outside code while preserving code contents', () => {
+        const content = 'Alpha &amp; beta &#x2022; gamma `&amp;` tail';
+        const preview = PreviewTextUtils.extractPreviewText(content, skipCodeSettings);
+        expect(preview).toBe('Alpha & beta • gamma &amp; tail');
+    });
+
     it('keeps html tags that are inside fenced code blocks when code blocks are included', () => {
         const content = ['Intro', '```html', '<div><span>code</span></div>', '```', 'Outro'].join('\n');
         const preview = PreviewTextUtils.extractPreviewText(content, includeCodeSettings);
@@ -181,6 +187,12 @@ describe('PreviewTextUtils.extractPreviewText', () => {
         expect(preview.length).toBe(500);
     });
 
+    it('removes CRLF frontmatter blocks', () => {
+        const content = `---\r\ntitle: Test\r\n---\r\nAlpha line`;
+        const preview = PreviewTextUtils.extractPreviewText(content, skipCodeSettings);
+        expect(preview).toBe('Alpha line');
+    });
+
     it('extends clipping to include inline code spans near the limit', () => {
         const filler = 'alpha beta '.repeat(40);
         const content = `${filler}\`inline code block\` trailer`;
@@ -236,6 +248,11 @@ describe('PreviewTextUtils.normalizeExcerpt', () => {
     it('strips html and collapses whitespace', () => {
         const excerpt = PreviewTextUtils.normalizeExcerpt('Alpha<br>  <div>beta</div>\n gamma');
         expect(excerpt).toBe('Alpha beta gamma');
+    });
+
+    it('decodes html entities outside inline code', () => {
+        const excerpt = PreviewTextUtils.normalizeExcerpt('Alpha &amp; beta `&amp;`');
+        expect(excerpt).toBe('Alpha & beta &amp;');
     });
 
     it('preserves tags inside inline code', () => {

@@ -147,8 +147,8 @@ const BASE_PATTERNS = [
     // Group 25: List markers - remove marker prefix while keeping text
     // Example: - List item → List item, 1. Item → Item
     /^(?:[-*+]\s+|\d+\.\s+)/.source,
-    // Group 26: Blockquotes - remove entire line
-    // Example: > Quote → (removed), >Quote → (removed)
+    // Group 26: Blockquotes - remove marker while keeping text
+    // Example: > Quote → Quote, >Quote → Quote
     /^>\s?.*$/m.source,
     // Group 27: Heading markers (always strip the # symbols, keep the text)
     // Example: # Title → Title, ## Section → Section
@@ -197,6 +197,48 @@ function stripHtmlFromChunk(chunk: string): string {
     return cleaned;
 }
 
+const HTML_ENTITY_MAP: Record<string, string> = Object.freeze({
+    amp: '&',
+    lt: '<',
+    gt: '>',
+    quot: '"',
+    apos: "'",
+    nbsp: ' ',
+    ndash: '–',
+    mdash: '—',
+    hellip: '…',
+    copy: '©',
+    reg: '®',
+    trade: '™'
+});
+
+/** Decodes common HTML entities in a text chunk. */
+function decodeHtmlEntitiesFromChunk(chunk: string): string {
+    if (!chunk.includes('&')) {
+        return chunk;
+    }
+
+    return chunk.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, body: string) => {
+        if (body.startsWith('#')) {
+            const numeric = body.slice(1);
+            const isHex = numeric.startsWith('x') || numeric.startsWith('X');
+            const digits = isHex ? numeric.slice(1) : numeric;
+            const codePoint = Number.parseInt(digits, isHex ? 16 : 10);
+            if (!Number.isFinite(codePoint) || codePoint < 0 || codePoint > 0x10ffff) {
+                return match;
+            }
+            try {
+                return String.fromCodePoint(codePoint);
+            } catch {
+                return match;
+            }
+        }
+
+        const mapped = HTML_ENTITY_MAP[body.toLowerCase()];
+        return mapped ?? match;
+    });
+}
+
 /** Normalizes whitespace by splitting on runs and joining with single spaces */
 function collapseWhitespace(text: string): string {
     return text.split(/\s+/).filter(Boolean).join(' ').trim();
@@ -219,7 +261,7 @@ function stripInlineCodeFence(span: string): string {
 
 /** Removes YAML frontmatter block from the start of content */
 function removeFrontmatter(content: string): string {
-    return content.replace(/^---\n[\s\S]*?\n---\n/, '');
+    return content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
 }
 
 /** Replaces inline code spans with their unwrapped content (backticks removed) */
@@ -323,105 +365,6 @@ function stripHtmlOutsideCode(
     };
 }
 
-/** Remaps inline code ranges that fall within a segment to their new positions in the output */
-function adjustInlineRangesForSegment(
-    inlineRanges: readonly NumericRange[],
-    segmentStart: number,
-    segmentEnd: number,
-    outputOffset: number,
-    target: NumericRange[],
-    inlineIndexRef: { current: number }
-): void {
-    while (inlineIndexRef.current < inlineRanges.length && inlineRanges[inlineIndexRef.current].end <= segmentStart) {
-        inlineIndexRef.current += 1;
-    }
-
-    let index = inlineIndexRef.current;
-    while (index < inlineRanges.length && inlineRanges[index].start < segmentEnd) {
-        const range = inlineRanges[index];
-        if (range.end <= segmentEnd) {
-            target.push({
-                start: outputOffset + (range.start - segmentStart),
-                end: outputOffset + (range.end - segmentStart)
-            });
-        }
-        index += 1;
-    }
-
-    inlineIndexRef.current = index;
-}
-
-/** Clips text to target length while skipping fenced code blocks entirely */
-function clipSkippingFencedBlocks(
-    text: string,
-    context: CodeRangeContext,
-    targetLength: number
-): { text: string; context: CodeRangeContext } {
-    if (context.fencedCodeRanges.length === 0 && text.length <= targetLength) {
-        return { text, context: { inlineCodeRanges: [...context.inlineCodeRanges], fencedCodeRanges: [] } };
-    }
-
-    const inlineRanges = context.inlineCodeRanges;
-    const fencedRanges = context.fencedCodeRanges;
-    let output = '';
-    const mappedInline: NumericRange[] = [];
-    const inlineIndexRef = { current: 0 };
-    let cursor = 0;
-
-    const appendSegment = (start: number, end: number) => {
-        if (start >= end || output.length >= targetLength) {
-            return;
-        }
-        const offset = output.length;
-        output += text.slice(start, end);
-        adjustInlineRangesForSegment(inlineRanges, start, end, offset, mappedInline, inlineIndexRef);
-    };
-
-    const appendGap = (start: number, end: number) => {
-        let position = start;
-        while (position < end && output.length < targetLength) {
-            const remaining = targetLength - output.length;
-            let sliceEnd = Math.min(position + remaining, end);
-            const containingInline = findRangeContainingIndex(sliceEnd, inlineRanges);
-            if (containingInline && containingInline.end <= end && containingInline.end > sliceEnd) {
-                sliceEnd = containingInline.end;
-            }
-            appendSegment(position, sliceEnd);
-            position = sliceEnd;
-        }
-    };
-
-    for (const fenced of fencedRanges) {
-        appendGap(cursor, fenced.start);
-        if (output.length >= targetLength) {
-            break;
-        }
-        const nextChar = text[fenced.end] ?? '';
-        if (
-            output.length < targetLength &&
-            output.length > 0 &&
-            nextChar &&
-            !/\s/.test(nextChar) &&
-            !/\s/.test(output[output.length - 1])
-        ) {
-            output += ' ';
-        }
-        cursor = fenced.end;
-    }
-
-    if (output.length < targetLength && cursor < text.length) {
-        appendGap(cursor, text.length);
-    }
-
-    return {
-        text: output,
-        context: {
-            inlineCodeRanges: mappedInline,
-            fencedCodeRanges: []
-        }
-    };
-}
-
 /** Clips text to target length, extending to include any code block the boundary falls within */
 function clipIncludingCode(
     text: string,
@@ -460,47 +403,110 @@ function clipIncludingCode(
     };
 }
 
-/** Clips preview content based on settings, delegating to skip or include code block strategies */
-function clipPreviewContent(
-    text: string,
-    context: CodeRangeContext,
-    settings: NotebookNavigatorSettings
-): { text: string; context: CodeRangeContext } {
-    const targetLength = MAX_PREVIEW_TEXT_LENGTH + PREVIEW_SOURCE_SLACK;
-    const maxExtension = PREVIEW_EXTENSION_LIMIT;
-    if (text.length <= targetLength) {
+/** Decodes HTML entities outside code segments and remaps code ranges. */
+function decodeHtmlEntitiesOutsideCode(text: string, context: CodeRangeContext): { text: string; context: CodeRangeContext } {
+    if (!text.includes('&')) {
         return { text, context };
     }
 
-    const clipped = settings.skipCodeBlocksInPreview
-        ? clipSkippingFencedBlocks(text, context, targetLength)
-        : clipIncludingCode(text, context, targetLength, maxExtension);
-
-    if (clipped.text.length <= maxExtension) {
-        return clipped;
+    const combined = combineCodeRanges(context, true, true);
+    if (combined.length === 0) {
+        return { text: decodeHtmlEntitiesFromChunk(text), context };
     }
 
-    const clampRanges = (ranges: NumericRange[], limit: number): NumericRange[] => {
-        const clamped: NumericRange[] = [];
-        for (const range of ranges) {
-            if (range.start >= limit) {
-                continue;
-            }
-            clamped.push({
-                start: range.start,
-                end: Math.min(range.end, limit)
-            });
+    let cursor = 0;
+    let result = '';
+    const mappedInline: NumericRange[] = [];
+    const mappedFenced: NumericRange[] = [];
+
+    for (const range of combined) {
+        if (range.start > cursor) {
+            result += decodeHtmlEntitiesFromChunk(text.slice(cursor, range.start));
         }
-        return clamped;
-    };
+
+        const segmentStart = result.length;
+        const segment = text.slice(range.start, range.end);
+        result += segment;
+        const segmentEnd = result.length;
+
+        if (range.kind === 'inline') {
+            mappedInline.push({ start: segmentStart, end: segmentEnd });
+        } else {
+            mappedFenced.push({ start: segmentStart, end: segmentEnd });
+        }
+
+        cursor = range.end;
+    }
+
+    if (cursor < text.length) {
+        result += decodeHtmlEntitiesFromChunk(text.slice(cursor));
+    }
 
     return {
-        text: clipped.text.slice(0, maxExtension),
+        text: result,
         context: {
-            inlineCodeRanges: clampRanges(clipped.context.inlineCodeRanges, maxExtension),
-            fencedCodeRanges: clampRanges(clipped.context.fencedCodeRanges, maxExtension)
+            inlineCodeRanges: mappedInline,
+            fencedCodeRanges: mappedFenced
         }
     };
+}
+
+/** Collects visible text while skipping fenced blocks, stopping at maxVisibleLength. */
+function collectVisibleTextSkippingFencedBlocks(text: string, maxVisibleLength: number): string {
+    const fencePattern = /^(\s*)([`~]{3,}).*$/u;
+    let output = '';
+    let index = 0;
+    let inFence = false;
+    let fenceChar: string | null = null;
+    let fenceLength = 0;
+    let pendingSpaceAfterFence = false;
+
+    while (index < text.length && output.length < maxVisibleLength) {
+        const lineEnd = text.indexOf('\n', index);
+        const line = lineEnd === -1 ? text.slice(index) : text.slice(index, lineEnd);
+        const match = line.match(fencePattern);
+
+        if (!inFence) {
+            if (match && match[2]) {
+                inFence = true;
+                fenceChar = match[2][0] ?? null;
+                fenceLength = match[2].length;
+                pendingSpaceAfterFence = output.length > 0 && !/\s$/.test(output);
+            } else {
+                if (pendingSpaceAfterFence) {
+                    const firstChar = line[0] ?? '';
+                    if (firstChar && !/\s/.test(firstChar) && !/\s/.test(output[output.length - 1] ?? '')) {
+                        output += ' ';
+                    }
+                    pendingSpaceAfterFence = false;
+                }
+
+                const segment = lineEnd === -1 ? text.slice(index) : text.slice(index, lineEnd + 1);
+                const remaining = maxVisibleLength - output.length;
+                if (segment.length <= remaining) {
+                    output += segment;
+                } else {
+                    output += segment.slice(0, remaining);
+                    break;
+                }
+            }
+        } else if (match && match[2]) {
+            const matchChar = match[2][0] ?? null;
+            if (matchChar === fenceChar && match[2].length >= fenceLength) {
+                inFence = false;
+                fenceChar = null;
+                fenceLength = 0;
+                pendingSpaceAfterFence = true;
+            }
+        }
+
+        if (lineEnd === -1) {
+            break;
+        }
+        index = lineEnd + 1;
+    }
+
+    return output;
 }
 
 /** Replaces code segments with placeholders so markdown stripping does not alter code content */
@@ -827,6 +833,30 @@ export class PreviewTextUtils {
     }
 
     /**
+     * Decodes HTML entities outside code blocks (inline and fenced).
+     */
+    static decodeHtmlEntitiesPreservingCode(text: string, options?: HtmlStripOptions): string {
+        if (!text.includes('&')) {
+            return text;
+        }
+
+        const preserveInlineCode = options?.preserveInlineCode ?? true;
+        const preserveFencedCode = options?.preserveFencedCode ?? true;
+        if (!preserveInlineCode && !preserveFencedCode) {
+            return decodeHtmlEntitiesFromChunk(text);
+        }
+
+        const fenced = preserveFencedCode ? findFencedCodeBlockRanges(text) : [];
+        const inline = preserveInlineCode ? findInlineCodeRanges(text, fenced) : [];
+        const context: CodeRangeContext = {
+            inlineCodeRanges: inline,
+            fencedCodeRanges: fenced
+        };
+
+        return decodeHtmlEntitiesOutsideCode(text, context).text;
+    }
+
+    /**
      * Normalizes excerpts by stripping HTML and collapsing whitespace.
      * Returns undefined when no usable content remains.
      */
@@ -835,7 +865,11 @@ export class PreviewTextUtils {
         const containsHtml = shouldStripHtml && excerpt.includes('<');
         if (!containsHtml) {
             const inlineOnlyRanges = findInlineCodeRanges(excerpt);
-            const unwrappedInline = unwrapInlineCodeSegments(excerpt, inlineOnlyRanges);
+            const decodedInlineResult = decodeHtmlEntitiesOutsideCode(excerpt, {
+                inlineCodeRanges: inlineOnlyRanges,
+                fencedCodeRanges: []
+            });
+            const unwrappedInline = unwrapInlineCodeSegments(decodedInlineResult.text, decodedInlineResult.context.inlineCodeRanges);
             const normalizedInline = collapseWhitespace(unwrappedInline);
             return normalizedInline.length > 0 ? normalizedInline : undefined;
         }
@@ -848,7 +882,8 @@ export class PreviewTextUtils {
         const sanitizedResult = shouldStripHtml
             ? stripHtmlOutsideCode(excerpt, baseContext, { enabled: true })
             : { text: excerpt, context: baseContext };
-        const unwrapped = unwrapInlineCodeSegments(sanitizedResult.text, sanitizedResult.context.inlineCodeRanges);
+        const decodedResult = decodeHtmlEntitiesOutsideCode(sanitizedResult.text, sanitizedResult.context);
+        const unwrapped = unwrapInlineCodeSegments(decodedResult.text, decodedResult.context.inlineCodeRanges);
         const normalized = collapseWhitespace(unwrapped);
         return normalized.length > 0 ? normalized : undefined;
     }
@@ -890,13 +925,14 @@ export class PreviewTextUtils {
                     continue;
                 }
 
-                const sanitized = settings.stripHtmlInPreview
+                const htmlStripped = settings.stripHtmlInPreview
                     ? this.stripHtmlTagsPreservingCode(propertyValue, {
                           preserveFencedCode: true
                       })
                     : propertyValue;
+                const decodedProperty = this.decodeHtmlEntitiesPreservingCode(htmlStripped, { preserveFencedCode: true });
                 // Collapse whitespace to keep preview rows compact regardless of source formatting
-                const normalized = collapseWhitespace(sanitized);
+                const normalized = collapseWhitespace(decodedProperty);
                 if (!normalized) {
                     continue;
                 }
@@ -916,14 +952,37 @@ export class PreviewTextUtils {
         const contentWithoutFrontmatter = removeFrontmatter(content);
         if (!contentWithoutFrontmatter.trim()) return '';
 
-        const fencedCodeRanges = findFencedCodeBlockRanges(contentWithoutFrontmatter);
-        const inlineCodeRanges = findInlineCodeRanges(contentWithoutFrontmatter, fencedCodeRanges);
-        const codeContext: CodeRangeContext = {
-            inlineCodeRanges,
-            fencedCodeRanges
-        };
+        const targetLength = MAX_PREVIEW_TEXT_LENGTH + PREVIEW_SOURCE_SLACK;
+        const maxExtension = PREVIEW_EXTENSION_LIMIT;
 
-        const clipped = clipPreviewContent(contentWithoutFrontmatter, codeContext, settings);
+        const clipped = settings.skipCodeBlocksInPreview
+            ? (() => {
+                  const visibleText = collectVisibleTextSkippingFencedBlocks(contentWithoutFrontmatter, maxExtension);
+                  if (!visibleText) {
+                      return { text: '', context: { inlineCodeRanges: [], fencedCodeRanges: [] } };
+                  }
+                  const inlineRanges = findInlineCodeRanges(visibleText);
+                  return clipIncludingCode(
+                      visibleText,
+                      { inlineCodeRanges: inlineRanges, fencedCodeRanges: [] },
+                      targetLength,
+                      maxExtension
+                  );
+              })()
+            : (() => {
+                  const limitedSource =
+                      contentWithoutFrontmatter.length > maxExtension
+                          ? contentWithoutFrontmatter.slice(0, maxExtension)
+                          : contentWithoutFrontmatter;
+                  const fencedRanges = findFencedCodeBlockRanges(limitedSource);
+                  const inlineRanges = findInlineCodeRanges(limitedSource, fencedRanges);
+                  return clipIncludingCode(
+                      limitedSource,
+                      { inlineCodeRanges: inlineRanges, fencedCodeRanges: fencedRanges },
+                      targetLength,
+                      maxExtension
+                  );
+              })();
         if (!clipped.text.trim()) {
             return '';
         }
@@ -939,11 +998,16 @@ export class PreviewTextUtils {
             return '';
         }
 
+        const decodedStep = decodeHtmlEntitiesOutsideCode(htmlStep.text, htmlStep.context);
+        if (!decodedStep.text.trim()) {
+            return '';
+        }
+
         const stripped = this.stripMarkdownSyntax(
-            htmlStep.text,
+            decodedStep.text,
             settings.skipHeadingsInPreview,
             settings.skipCodeBlocksInPreview,
-            htmlStep.context
+            decodedStep.context
         );
 
         // Remove leading task checkbox markers while keeping task text
