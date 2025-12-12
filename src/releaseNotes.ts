@@ -79,7 +79,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: [
             'New setting: **Notes > Appearance > Strip HTML in previews**. Default enabled - removes html tags like <br>, <ul> etc from note previews in list pane.'
         ],
-        improved: [],
+        improved: ['Commands: **Select next file** and **Select previous file** no longer reveal Notebook Navigator view.'],
         changed: [
             'Bumped DB_CONTENT_VERSION to support stripping HTML tags from note previews. Entire cache will be rebuilt on next startup.'
         ],

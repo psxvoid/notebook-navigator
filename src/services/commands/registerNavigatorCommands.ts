@@ -13,6 +13,10 @@ import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 import { getActiveHiddenFolders } from '../../utils/vaultProfiles';
 import { showNotice } from '../../utils/noticeUtils';
 import { SelectVaultProfileModal } from '../../modals/SelectVaultProfileModal';
+import { localStorage } from '../../utils/localStorage';
+import { STORAGE_KEYS, type VisibilityPreferences } from '../../types';
+import { normalizeTagPath } from '../../utils/tagUtils';
+import { getFilesForFolder, getFilesForTag } from '../../utils/fileFinder';
 
 /**
  * Reveals the navigator view and focuses whichever pane is currently visible
@@ -53,6 +57,124 @@ async function ensureNavigatorOpen(
     }
     const view = createdLeaf.view;
     return view instanceof NotebookNavigatorView ? view : null;
+}
+
+/**
+ * Returns the existing navigator view without revealing or opening it.
+ * Used for commands that should not force the navigator to become visible.
+ */
+function getNavigatorViewIfMounted(plugin: NotebookNavigatorPlugin, existingLeaves?: WorkspaceLeaf[]): NotebookNavigatorView | null {
+    const navigatorLeaves = existingLeaves ?? plugin.getNavigatorLeaves();
+    if (navigatorLeaves.length === 0) {
+        return null;
+    }
+
+    const leaf = navigatorLeaves[0];
+    const view = leaf.view;
+    return view instanceof NotebookNavigatorView ? view : null;
+}
+
+/**
+ * Selects the adjacent file based on persisted navigation context without opening the navigator view.
+ */
+async function selectAdjacentFileWithoutNavigatorView(plugin: NotebookNavigatorPlugin, direction: 'next' | 'previous'): Promise<boolean> {
+    const app = plugin.app;
+    const vault = app.vault;
+
+    const uxPreferences = plugin.getUXPreferences();
+    const visibility: VisibilityPreferences = {
+        includeDescendantNotes: uxPreferences.includeDescendantNotes,
+        showHiddenItems: uxPreferences.showHiddenItems
+    };
+
+    let currentFile: TFile | null = app.workspace.getActiveFile();
+
+    if (!currentFile) {
+        try {
+            const savedFilePath = localStorage.get<string>(STORAGE_KEYS.selectedFileKey);
+            if (savedFilePath) {
+                const savedFile = vault.getFileByPath(savedFilePath);
+                if (savedFile) {
+                    currentFile = savedFile;
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load selected file from localStorage:', error);
+        }
+    }
+
+    let selectedTag: string | null = null;
+    let selectedFolder: TFolder | null = null;
+
+    try {
+        const savedTag = localStorage.get<string>(STORAGE_KEYS.selectedTagKey);
+        selectedTag = normalizeTagPath(savedTag);
+    } catch (error) {
+        console.error('Failed to load selected tag from localStorage:', error);
+    }
+
+    if (!selectedTag) {
+        try {
+            const savedFolderPath = localStorage.get<string>(STORAGE_KEYS.selectedFolderKey);
+            if (savedFolderPath) {
+                const folder = vault.getFolderByPath(savedFolderPath);
+                if (folder) {
+                    selectedFolder = folder;
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load selected folder from localStorage:', error);
+        }
+    }
+
+    if (!selectedTag && !selectedFolder) {
+        if (currentFile && currentFile.parent instanceof TFolder) {
+            selectedFolder = currentFile.parent;
+        } else {
+            selectedFolder = vault.getRoot();
+        }
+    }
+
+    const files =
+        selectedTag !== null
+            ? getFilesForTag(selectedTag, plugin.settings, visibility, app, plugin.tagTreeService)
+            : selectedFolder
+              ? getFilesForFolder(selectedFolder, plugin.settings, visibility, app)
+              : [];
+
+    if (files.length === 0) {
+        return false;
+    }
+
+    const currentIndex = currentFile ? files.findIndex(f => f.path === currentFile.path) : -1;
+    const targetIndex =
+        currentIndex === -1 ? (direction === 'next' ? 0 : files.length - 1) : direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+
+    if (targetIndex < 0 || targetIndex >= files.length) {
+        return false;
+    }
+
+    const targetFile = files[targetIndex];
+    const leaf = app.workspace.getLeaf(false);
+    if (!leaf) {
+        return false;
+    }
+
+    try {
+        await leaf.openFile(targetFile, { active: true });
+    } catch (error) {
+        console.error(`Failed to open ${direction} file:`, error);
+        return false;
+    }
+
+    try {
+        localStorage.set(STORAGE_KEYS.selectedFileKey, targetFile.path);
+        localStorage.set(STORAGE_KEYS.selectedFilesKey, [targetFile.path]);
+    } catch (error) {
+        console.error('Failed to persist selected file to localStorage:', error);
+    }
+
+    return true;
 }
 
 /**
@@ -275,10 +397,14 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         callback: () => {
             // Wrap file selection with error handling
             runAsyncAction(async () => {
-                const view = await ensureNavigatorOpen(plugin);
+                const existingLeaves = plugin.getNavigatorLeaves();
+                const view = getNavigatorViewIfMounted(plugin, existingLeaves);
                 if (view) {
                     await view.selectNextFileInCurrentView();
+                    return;
                 }
+
+                await selectAdjacentFileWithoutNavigatorView(plugin, 'next');
             });
         }
     });
@@ -290,10 +416,14 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         callback: () => {
             // Wrap file selection with error handling
             runAsyncAction(async () => {
-                const view = await ensureNavigatorOpen(plugin);
+                const existingLeaves = plugin.getNavigatorLeaves();
+                const view = getNavigatorViewIfMounted(plugin, existingLeaves);
                 if (view) {
                     await view.selectPreviousFileInCurrentView();
+                    return;
                 }
+
+                await selectAdjacentFileWithoutNavigatorView(plugin, 'previous');
             });
         }
     });
