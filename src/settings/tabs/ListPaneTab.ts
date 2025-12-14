@@ -23,6 +23,8 @@ import type { ListDisplayMode, ListNoteGroupingOption, ListPaneTitleOption, Sort
 import { SORT_OPTIONS } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { runAsyncAction } from '../../utils/async';
+import { createSettingGroupFactory } from '../settingGroups';
+import { createSubSettingsContainer, wireToggleSettingWithSubSettings } from '../subSettings';
 
 type QuickActionSettingKey =
     | 'quickActionRevealInFolder'
@@ -39,52 +41,59 @@ interface QuickActionToggleConfig {
 
 /** Renders the list pane settings tab */
 export function renderListPaneTab(context: SettingsTabContext): void {
-    const { containerEl, plugin } = context;
+    const { containerEl, plugin, addToggleSetting } = context;
+    const createGroup = createSettingGroupFactory(containerEl);
+
+    const topGroup = createGroup(undefined);
 
     if (!Platform.isMobile) {
-        new Setting(containerEl)
-            .setName(strings.settings.items.listPaneTitle.name)
-            .setDesc(strings.settings.items.listPaneTitle.desc)
-            .addDropdown(dropdown =>
-                dropdown
-                    .addOption('header', strings.settings.items.listPaneTitle.options.header)
-                    .addOption('list', strings.settings.items.listPaneTitle.options.list)
-                    .addOption('hidden', strings.settings.items.listPaneTitle.options.hidden)
-                    .setValue(plugin.settings.listPaneTitle)
-                    .onChange(async (value: ListPaneTitleOption) => {
-                        plugin.settings.listPaneTitle = value;
-                        await plugin.saveSettingsAndUpdate();
-                    })
-            );
+        topGroup.addSetting(setting => {
+            setting
+                .setName(strings.settings.items.listPaneTitle.name)
+                .setDesc(strings.settings.items.listPaneTitle.desc)
+                .addDropdown(dropdown =>
+                    dropdown
+                        .addOption('header', strings.settings.items.listPaneTitle.options.header)
+                        .addOption('list', strings.settings.items.listPaneTitle.options.list)
+                        .addOption('hidden', strings.settings.items.listPaneTitle.options.hidden)
+                        .setValue(plugin.settings.listPaneTitle)
+                        .onChange(async (value: ListPaneTitleOption) => {
+                            plugin.settings.listPaneTitle = value;
+                            await plugin.saveSettingsAndUpdate();
+                        })
+                );
+        });
     }
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.sortNotesBy.name)
-        .setDesc(strings.settings.items.sortNotesBy.desc)
-        .addDropdown((dropdown: DropdownComponent) => {
-            SORT_OPTIONS.forEach(option => {
-                dropdown.addOption(option, strings.settings.items.sortNotesBy.options[option]);
+    topGroup.addSetting(setting => {
+        setting
+            .setName(strings.settings.items.sortNotesBy.name)
+            .setDesc(strings.settings.items.sortNotesBy.desc)
+            .addDropdown((dropdown: DropdownComponent) => {
+                SORT_OPTIONS.forEach(option => {
+                    dropdown.addOption(option, strings.settings.items.sortNotesBy.options[option]);
+                });
+                return dropdown.setValue(plugin.settings.defaultFolderSort).onChange(async (value: SortOption) => {
+                    plugin.settings.defaultFolderSort = value;
+                    await plugin.saveSettingsAndUpdate();
+                });
             });
-            return dropdown.setValue(plugin.settings.defaultFolderSort).onChange(async (value: SortOption) => {
-                plugin.settings.defaultFolderSort = value;
-                await plugin.saveSettingsAndUpdate();
-            });
-        });
+    });
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.revealFileOnListChanges.name)
-        .setDesc(strings.settings.items.revealFileOnListChanges.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.revealFileOnListChanges).onChange(async value => {
-                plugin.settings.revealFileOnListChanges = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
+    addToggleSetting(
+        topGroup.addSetting,
+        strings.settings.items.revealFileOnListChanges.name,
+        strings.settings.items.revealFileOnListChanges.desc,
+        () => plugin.settings.revealFileOnListChanges,
+        value => {
+            plugin.settings.revealFileOnListChanges = value;
+        }
+    );
 
     if (!Platform.isMobile) {
-        const quickActionsSetting = new Setting(containerEl)
-            .setName(strings.settings.items.showQuickActions.name)
-            .setDesc(strings.settings.items.showQuickActions.desc);
+        const quickActionsSetting = topGroup.addSetting(setting => {
+            setting.setName(strings.settings.items.showQuickActions.name).setDesc(strings.settings.items.showQuickActions.desc);
+        });
 
         quickActionsSetting.controlEl.addClass('nn-quick-actions-control');
 
@@ -168,30 +177,30 @@ export function renderListPaneTab(context: SettingsTabContext): void {
         updateButtonsDisabledState(plugin.settings.showQuickActions);
     }
 
-    new Setting(containerEl).setName(strings.settings.groups.list.pinnedNotes).setHeading();
+    const pinnedNotesGroup = createGroup(strings.settings.groups.list.pinnedNotes);
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.limitPinnedToCurrentFolder.name)
-        .setDesc(strings.settings.items.limitPinnedToCurrentFolder.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.filterPinnedByFolder).onChange(async value => {
-                plugin.settings.filterPinnedByFolder = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
+    addToggleSetting(
+        pinnedNotesGroup.addSetting,
+        strings.settings.items.limitPinnedToCurrentFolder.name,
+        strings.settings.items.limitPinnedToCurrentFolder.desc,
+        () => plugin.settings.filterPinnedByFolder,
+        value => {
+            plugin.settings.filterPinnedByFolder = value;
+        }
+    );
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.showPinnedGroupHeader.name)
-        .setDesc(strings.settings.items.showPinnedGroupHeader.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showPinnedGroupHeader).onChange(async value => {
-                plugin.settings.showPinnedGroupHeader = value;
-                await plugin.saveSettingsAndUpdate();
-                pinnedGroupSettingsEl.toggle(value);
-            })
-        );
+    const showPinnedGroupHeaderSetting = pinnedNotesGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.showPinnedGroupHeader.name).setDesc(strings.settings.items.showPinnedGroupHeader.desc);
+    });
 
-    const pinnedGroupSettingsEl = containerEl.createDiv('nn-sub-settings');
+    const pinnedGroupSettingsEl = wireToggleSettingWithSubSettings(
+        showPinnedGroupHeaderSetting,
+        () => plugin.settings.showPinnedGroupHeader,
+        async value => {
+            plugin.settings.showPinnedGroupHeader = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
 
     new Setting(pinnedGroupSettingsEl)
         .setName(strings.settings.items.showPinnedIcon.name)
@@ -203,102 +212,109 @@ export function renderListPaneTab(context: SettingsTabContext): void {
             })
         );
 
-    pinnedGroupSettingsEl.toggle(plugin.settings.showPinnedGroupHeader);
+    const displayGroup = createGroup(strings.settings.groups.list.display);
 
-    new Setting(containerEl).setName(strings.settings.groups.list.display).setHeading();
+    displayGroup.addSetting(setting => {
+        setting
+            .setName(strings.settings.items.defaultListMode.name)
+            .setDesc(strings.settings.items.defaultListMode.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('standard', strings.settings.items.defaultListMode.options.standard)
+                    .addOption('compact', strings.settings.items.defaultListMode.options.compact)
+                    .setValue(plugin.settings.defaultListMode)
+                    .onChange(async (value: ListDisplayMode) => {
+                        plugin.settings.defaultListMode = value === 'compact' ? 'compact' : 'standard';
+                        await plugin.saveSettingsAndUpdate();
+                    })
+            );
+    });
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.defaultListMode.name)
-        .setDesc(strings.settings.items.defaultListMode.desc)
-        .addDropdown(dropdown =>
-            dropdown
-                .addOption('standard', strings.settings.items.defaultListMode.options.standard)
-                .addOption('compact', strings.settings.items.defaultListMode.options.compact)
-                .setValue(plugin.settings.defaultListMode)
-                .onChange(async (value: ListDisplayMode) => {
-                    plugin.settings.defaultListMode = value === 'compact' ? 'compact' : 'standard';
-                    await plugin.saveSettingsAndUpdate();
-                })
-        );
+    addToggleSetting(
+        displayGroup.addSetting,
+        strings.settings.items.showFileIcons.name,
+        strings.settings.items.showFileIcons.desc,
+        () => plugin.settings.showFileIcons,
+        value => {
+            plugin.settings.showFileIcons = value;
+        }
+    );
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.showFileIcons.name)
-        .setDesc(strings.settings.items.showFileIcons.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showFileIcons).onChange(async value => {
-                plugin.settings.showFileIcons = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.includeDescendantNotes.name)
-        .setDesc(strings.settings.items.includeDescendantNotes.desc)
-        .addToggle(toggle => {
-            const preferences = plugin.getUXPreferences();
-            toggle.setValue(preferences.includeDescendantNotes).onChange(value => {
-                plugin.setIncludeDescendantNotes(value);
+    displayGroup.addSetting(setting => {
+        setting
+            .setName(strings.settings.items.includeDescendantNotes.name)
+            .setDesc(strings.settings.items.includeDescendantNotes.desc)
+            .addToggle(toggle => {
+                const preferences = plugin.getUXPreferences();
+                toggle.setValue(preferences.includeDescendantNotes).onChange(value => {
+                    plugin.setIncludeDescendantNotes(value);
+                });
             });
-        });
+    });
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.groupNotes.name)
-        .setDesc(strings.settings.items.groupNotes.desc)
-        .addDropdown(dropdown =>
-            dropdown
-                .addOption('none', strings.settings.items.groupNotes.options.none)
-                .addOption('date', strings.settings.items.groupNotes.options.date)
-                .addOption('folder', strings.settings.items.groupNotes.options.folder)
-                .setValue(plugin.settings.noteGrouping)
-                .onChange(async (value: ListNoteGroupingOption) => {
-                    plugin.settings.noteGrouping = value;
-                    await plugin.saveSettingsAndUpdate();
-                })
-        );
+    displayGroup.addSetting(setting => {
+        setting
+            .setName(strings.settings.items.groupNotes.name)
+            .setDesc(strings.settings.items.groupNotes.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('none', strings.settings.items.groupNotes.options.none)
+                    .addOption('date', strings.settings.items.groupNotes.options.date)
+                    .addOption('folder', strings.settings.items.groupNotes.options.folder)
+                    .setValue(plugin.settings.noteGrouping)
+                    .onChange(async (value: ListNoteGroupingOption) => {
+                        plugin.settings.noteGrouping = value;
+                        await plugin.saveSettingsAndUpdate();
+                    })
+            );
+    });
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.optimizeNoteHeight.name)
-        .setDesc(strings.settings.items.optimizeNoteHeight.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.optimizeNoteHeight).onChange(async value => {
-                plugin.settings.optimizeNoteHeight = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
+    addToggleSetting(
+        displayGroup.addSetting,
+        strings.settings.items.optimizeNoteHeight.name,
+        strings.settings.items.optimizeNoteHeight.desc,
+        () => plugin.settings.optimizeNoteHeight,
+        value => {
+            plugin.settings.optimizeNoteHeight = value;
+        }
+    );
 
     // Slider to configure compact list item height with reset button
     let compactItemHeightSlider: SliderComponent;
-    new Setting(containerEl)
-        .setName(strings.settings.items.compactItemHeight.name)
-        .setDesc(strings.settings.items.compactItemHeight.desc)
-        .addSlider(slider => {
-            compactItemHeightSlider = slider
-                .setLimits(20, 28, 1)
-                .setValue(plugin.settings.compactItemHeight)
-                .setDynamicTooltip()
-                .onChange(async value => {
-                    plugin.settings.compactItemHeight = value;
-                    await plugin.saveSettingsAndUpdate();
-                });
-            return slider;
-        })
-        .addExtraButton(button =>
-            button
-                .setIcon('lucide-rotate-ccw')
-                .setTooltip(strings.settings.items.compactItemHeight.resetTooltip)
-                .onClick(() => {
-                    // Reset item height to default without blocking the UI
-                    runAsyncAction(async () => {
-                        const defaultValue = DEFAULT_SETTINGS.compactItemHeight;
-                        compactItemHeightSlider.setValue(defaultValue);
-                        plugin.settings.compactItemHeight = defaultValue;
+    const compactItemHeightSetting = displayGroup.addSetting(setting => {
+        setting
+            .setName(strings.settings.items.compactItemHeight.name)
+            .setDesc(strings.settings.items.compactItemHeight.desc)
+            .addSlider(slider => {
+                compactItemHeightSlider = slider
+                    .setLimits(20, 28, 1)
+                    .setValue(plugin.settings.compactItemHeight)
+                    .setInstant(false)
+                    .setDynamicTooltip()
+                    .onChange(async value => {
+                        plugin.settings.compactItemHeight = value;
                         await plugin.saveSettingsAndUpdate();
                     });
-                })
-        );
+                return slider;
+            })
+            .addExtraButton(button =>
+                button
+                    .setIcon('lucide-rotate-ccw')
+                    .setTooltip(strings.settings.items.compactItemHeight.resetTooltip)
+                    .onClick(() => {
+                        // Reset item height to default without blocking the UI
+                        runAsyncAction(async () => {
+                            const defaultValue = DEFAULT_SETTINGS.compactItemHeight;
+                            compactItemHeightSlider.setValue(defaultValue);
+                            plugin.settings.compactItemHeight = defaultValue;
+                            await plugin.saveSettingsAndUpdate();
+                        });
+                    })
+            );
+    });
 
     // Sub-setting container for compact item height options
-    const compactItemHeightSettingsEl = containerEl.createDiv('nn-sub-settings');
+    const compactItemHeightSettingsEl = createSubSettingsContainer(compactItemHeightSetting);
 
     // Toggle to scale text proportionally with compact item height
     new Setting(compactItemHeightSettingsEl)

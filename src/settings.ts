@@ -30,7 +30,7 @@ import { renderNotesTab } from './settings/tabs/NotesTab';
 import { renderIconPacksTab } from './settings/tabs/IconPacksTab';
 import { renderHotkeysSearchTab } from './settings/tabs/HotkeysSearchTab';
 import { renderAdvancedTab } from './settings/tabs/AdvancedTab';
-import type { DebouncedTextAreaSettingOptions, SettingsTabContext } from './settings/tabs/SettingsTabContext';
+import type { AddSettingFunction, DebouncedTextAreaSettingOptions, SettingsTabContext } from './settings/tabs/SettingsTabContext';
 import { runAsyncAction } from './utils/async';
 
 /** Identifiers for different settings tab panes */
@@ -104,6 +104,47 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.debounceTimers.set(timerId, timer);
     }
 
+    private addToggleSetting(
+        addSetting: AddSettingFunction,
+        name: string,
+        desc: string,
+        getValue: () => boolean,
+        setValue: (value: boolean) => void,
+        onAfterUpdate?: () => void
+    ): Setting {
+        return addSetting(setting => {
+            setting.setName(name).setDesc(desc);
+            setting.addToggle(toggle =>
+                toggle.setValue(getValue()).onChange(async value => {
+                    setValue(value);
+                    await this.plugin.saveSettingsAndUpdate();
+                    onAfterUpdate?.();
+                })
+            );
+        });
+    }
+
+    private addInfoSetting(
+        addSetting: AddSettingFunction,
+        cls: string | readonly string[],
+        render: (descEl: HTMLElement) => void
+    ): Setting {
+        return addSetting(setting => {
+            setting.setName('').setDesc('');
+
+            const classNames = typeof cls === 'string' ? cls.split(/\s+/) : cls;
+            for (const className of classNames) {
+                if (className) {
+                    setting.settingEl.addClass(className);
+                }
+            }
+
+            const descEl = setting.descEl;
+            descEl.empty();
+            render(descEl);
+        });
+    }
+
     /**
      * Creates a text setting with debounced onChange handler
      * Prevents excessive updates while user is typing
@@ -127,7 +168,29 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         validator?: (value: string) => boolean,
         onAfterUpdate?: () => void
     ): Setting {
-        return new Setting(container)
+        return this.configureDebouncedTextSetting(
+            new Setting(container),
+            name,
+            desc,
+            placeholder,
+            getValue,
+            setValue,
+            validator,
+            onAfterUpdate
+        );
+    }
+
+    private configureDebouncedTextSetting(
+        setting: Setting,
+        name: string,
+        desc: string,
+        placeholder: string,
+        getValue: () => string,
+        setValue: (value: string) => void,
+        validator?: (value: string) => boolean,
+        onAfterUpdate?: () => void
+    ): Setting {
+        return setting
             .setName(name)
             .setDesc(desc)
             .addText(text =>
@@ -143,9 +206,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                             }
                             setValue(value);
                             await this.plugin.saveSettingsAndUpdate();
-                            if (onAfterUpdate) {
-                                onAfterUpdate();
-                            }
+                            onAfterUpdate?.();
                         });
                     })
             );
@@ -172,9 +233,21 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         setValue: (value: string) => void,
         options?: DebouncedTextAreaSettingOptions
     ): Setting {
+        return this.configureDebouncedTextAreaSetting(new Setting(container), name, desc, placeholder, getValue, setValue, options);
+    }
+
+    private configureDebouncedTextAreaSetting(
+        setting: Setting,
+        name: string,
+        desc: string,
+        placeholder: string,
+        getValue: () => string,
+        setValue: (value: string) => void,
+        options?: DebouncedTextAreaSettingOptions
+    ): Setting {
         const rows = options?.rows ?? 4;
 
-        return new Setting(container)
+        return setting
             .setName(name)
             .setDesc(desc)
             .addTextArea(textArea => {
@@ -409,10 +482,17 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             app: this.app,
             plugin: this.plugin,
             containerEl: container,
+            addToggleSetting: (addSetting, name, desc, getValue, setValue, onAfterUpdate) =>
+                this.addToggleSetting(addSetting, name, desc, getValue, setValue, onAfterUpdate),
+            addInfoSetting: (addSetting, cls, render) => this.addInfoSetting(addSetting, cls, render),
             createDebouncedTextSetting: (parent, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate) =>
                 this.createDebouncedTextSetting(parent, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate),
+            configureDebouncedTextSetting: (setting, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate) =>
+                this.configureDebouncedTextSetting(setting, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate),
             createDebouncedTextAreaSetting: (parent, name, desc, placeholder, getValue, setValue, options) =>
                 this.createDebouncedTextAreaSetting(parent, name, desc, placeholder, getValue, setValue, options),
+            configureDebouncedTextAreaSetting: (setting, name, desc, placeholder, getValue, setValue, options) =>
+                this.configureDebouncedTextAreaSetting(setting, name, desc, placeholder, getValue, setValue, options),
             registerMetadataInfoElement: element => {
                 this.metadataInfoEl = element;
             },

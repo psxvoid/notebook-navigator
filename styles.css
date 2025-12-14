@@ -3527,7 +3527,6 @@ body.nn-resizing {
 .nn-sub-settings {
     margin-inline-start: 20px;
     padding-left: 1em;
-    border-left: 2px solid var(--background-modifier-border);
 }
 
 /* Settings layout root */
@@ -3816,6 +3815,19 @@ body.nn-resizing {
 /* Ensure proper spacing from previous sections */
 .nn-stats-section.setting-item {
     margin-top: 0;
+}
+
+/* Advanced > Local cache: center text by removing the empty control column */
+.nn-local-cache-stats-setting .setting-item-control {
+    display: none;
+}
+
+.nn-local-cache-stats-setting .setting-item-info {
+    width: 100%;
+}
+
+.nn-local-cache-stats-setting .nn-stats-text {
+    text-align: center;
 }
 
 /* Platform-specific safe area definitions */
