@@ -42,63 +42,65 @@ export function ListToolbar({ isSearchActive, onSearchToggle }: ListToolbarProps
 
     return (
         <div className="nn-mobile-toolbar">
-            {listVisibility.search ? (
-                <button
-                    className={`nn-mobile-toolbar-button ${isSearchActive ? 'nn-mobile-toolbar-button-active' : ''}`}
-                    aria-label={strings.paneHeader.search}
-                    onClick={onSearchToggle}
-                    disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                    tabIndex={-1}
-                >
-                    <ObsidianIcon name="lucide-search" />
-                </button>
-            ) : null}
-            {listVisibility.descendants ? (
-                <button
-                    className={`nn-mobile-toolbar-button ${includeDescendantNotes ? 'nn-mobile-toolbar-button-active' : ''}`}
-                    aria-label={strings.paneHeader.toggleDescendantNotes}
-                    onClick={handleToggleDescendants}
-                    disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                    tabIndex={-1}
-                >
-                    <ObsidianIcon name="lucide-layers" />
-                </button>
-            ) : null}
-            {listVisibility.sort ? (
-                <button
-                    className={`nn-mobile-toolbar-button ${isCustomSort ? 'nn-mobile-toolbar-button-active' : ''}`}
-                    aria-label={strings.paneHeader.changeSortOrder}
-                    onClick={handleSortMenu}
-                    disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                    tabIndex={-1}
-                >
-                    <ObsidianIcon name={getSortIcon()} />
-                </button>
-            ) : null}
-            {listVisibility.appearance ? (
-                <button
-                    className={`nn-mobile-toolbar-button ${hasCustomAppearance ? 'nn-mobile-toolbar-button-active' : ''}`}
-                    aria-label={strings.paneHeader.changeAppearance}
-                    onClick={handleAppearanceMenu}
-                    disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                    tabIndex={-1}
-                >
-                    <ObsidianIcon name="lucide-palette" />
-                </button>
-            ) : null}
-            {listVisibility.newNote ? (
-                <button
-                    className="nn-mobile-toolbar-button"
-                    aria-label={strings.paneHeader.newNote}
-                    onClick={() => {
-                        runAsyncAction(() => handleNewFile());
-                    }}
-                    disabled={!selectionState.selectedFolder}
-                    tabIndex={-1}
-                >
-                    <ObsidianIcon name="lucide-pen-box" />
-                </button>
-            ) : null}
+            <div className="nn-mobile-toolbar-pill">
+                {listVisibility.search ? (
+                    <button
+                        className={`nn-mobile-toolbar-button ${isSearchActive ? 'nn-mobile-toolbar-button-active' : ''}`}
+                        aria-label={strings.paneHeader.search}
+                        onClick={onSearchToggle}
+                        disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="lucide-search" />
+                    </button>
+                ) : null}
+                {listVisibility.descendants ? (
+                    <button
+                        className={`nn-mobile-toolbar-button ${includeDescendantNotes ? 'nn-mobile-toolbar-button-active' : ''}`}
+                        aria-label={strings.paneHeader.toggleDescendantNotes}
+                        onClick={handleToggleDescendants}
+                        disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="lucide-layers" />
+                    </button>
+                ) : null}
+                {listVisibility.sort ? (
+                    <button
+                        className={`nn-mobile-toolbar-button ${isCustomSort ? 'nn-mobile-toolbar-button-active' : ''}`}
+                        aria-label={strings.paneHeader.changeSortOrder}
+                        onClick={handleSortMenu}
+                        disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name={getSortIcon()} />
+                    </button>
+                ) : null}
+                {listVisibility.appearance ? (
+                    <button
+                        className={`nn-mobile-toolbar-button ${hasCustomAppearance ? 'nn-mobile-toolbar-button-active' : ''}`}
+                        aria-label={strings.paneHeader.changeAppearance}
+                        onClick={handleAppearanceMenu}
+                        disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="lucide-palette" />
+                    </button>
+                ) : null}
+                {listVisibility.newNote ? (
+                    <button
+                        className="nn-mobile-toolbar-button"
+                        aria-label={strings.paneHeader.newNote}
+                        onClick={() => {
+                            runAsyncAction(() => handleNewFile());
+                        }}
+                        disabled={!selectionState.selectedFolder}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="lucide-pen-box" />
+                    </button>
+                ) : null}
+            </div>
         </div>
     );
 }
