@@ -19,7 +19,7 @@ import { Root, createRoot } from 'react-dom/client';
  */
 
 // src/view/NotebookNavigatorView.tsx
-import { ItemView, WorkspaceLeaf, TFile, Platform, TFolder } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, Platform, TFolder, requireApiVersion } from 'obsidian';
 import { NotebookNavigatorContainer } from '../components/NotebookNavigatorContainer';
 import type { NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
 import type { RevealFileOptions, NavigateToFolderOptions } from '../hooks/useNavigatorReveal';
@@ -110,6 +110,10 @@ export class NotebookNavigatorView extends ItemView {
                 applyAndroidFontCompensation(container);
             } else if (Platform.isIosApp) {
                 container.classList.add('notebook-navigator-ios');
+
+                if (requireApiVersion('1.11.0') && Platform.isPhone) {
+                    container.classList.add('notebook-navigator-obsidian-1-11-plus-iphone');
+                }
             }
         }
 

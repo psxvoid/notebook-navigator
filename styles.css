@@ -4678,6 +4678,13 @@ body.nn-resizing {
     min-height: calc(49px + var(--nn-mobile-safe-area-bottom));
 }
 
+/* Obsidian 1.11 iPhone toolbar spacing */
+.notebook-navigator-obsidian-1-11-plus-iphone .nn-mobile-toolbar {
+    padding-bottom: 0;
+    height: 49px;
+    min-height: 49px;
+}
+
 /* Mobile toolbar buttons */
 .nn-mobile-toolbar-button {
     display: flex;
