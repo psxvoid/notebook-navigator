@@ -77,14 +77,14 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-12-16',
         showOnUpdate: true,
         new: [
-            'New setting: **Notes > Appearance > Strip HTML in previews**. Default enabled - removes html tags like <br>, <ul> etc from note previews in list pane.'
+            'New setting: Notes > Appearance > ==Strip HTML in previews==. Default enabled - removes html tags like <br>, <ul> etc from note previews in list pane.'
         ],
         improved: [
-            'Settings now use the new SettingGroup style in Obsidian 1.11+.',
-            'Commands: **Select next file** and **Select previous file** no longer reveal Notebook Navigator view.'
+            'Settings now support the new ==SettingGroup API== introduced with Obsidian 1.11. It just looks better.',
+            'Commands: ==Select next file== and ==Select previous file== no longer reveal the Notebook Navigator view.'
         ],
         changed: [
-            'Bumped DB_CONTENT_VERSION to support stripping HTML tags from note previews. Entire cache will be rebuilt on next startup.'
+            'Bumped DB_CONTENT_VERSION to support HTML tag removal from note previews. Cache will be rebuilt on next startup.'
         ],
         fixed: ['Folders and tags placed in shortcuts no longer show "Add separator" / "Remove separator" menu options']
     },
