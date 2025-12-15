@@ -413,6 +413,11 @@ export const STRINGS_TR = {
             noFolderSelected: "Notebook Navigator'da klasör seçili değil",
             noFileSelected: 'Dosya seçili değil'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Bu ad, Obsidian bağlantılarını bozan karakterler içeriyor: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Adlar nokta ile başlayamaz ve : veya / içeremez.',
+            forbiddenNameCharactersWindows: 'Windows için ayrılmış karakterlere izin verilmez: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Klasör gizlendi: {name}',
             showFolder: 'Klasör gösterildi: {name}'
@@ -916,7 +921,7 @@ export const STRINGS_TR = {
             },
             preventInvalidCharacters: {
                 name: 'Geçersiz karakterleri engelle',
-                desc: 'Dosya ve klasör oluştururken veya yeniden adlandırırken #, |, ^, :, %%, [[, ]] karakterlerini engelle.'
+                desc: 'Dosya ve klasör oluştururken veya yeniden adlandırırken #, |, ^, %%, [[, ]] için uyarı göster.'
             },
             showFilePreview: {
                 name: 'Not önizlemesini göster',

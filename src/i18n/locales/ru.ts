@@ -413,6 +413,11 @@ export const STRINGS_RU = {
             noFolderSelected: 'В Notebook Navigator не выбрана папка',
             noFileSelected: 'Файл не выбран'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Это имя содержит символы, которые ломают ссылки Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Имена не могут начинаться с точки или содержать : или /.',
+            forbiddenNameCharactersWindows: 'Зарезервированные в Windows символы не разрешены: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Папка скрыта: {name}',
             showFolder: 'Папка показана: {name}'
@@ -917,7 +922,7 @@ export const STRINGS_RU = {
             },
             preventInvalidCharacters: {
                 name: 'Предотвращать недопустимые символы',
-                desc: 'Блокировать #, |, ^, :, %%, [[, ]] при создании или переименовании файлов и папок.'
+                desc: 'Показывать предупреждение при создании или переименовании файлов и папок с #, |, ^, %%, [[, ]].'
             },
             showFilePreview: {
                 name: 'Показывать превью заметки',

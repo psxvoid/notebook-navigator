@@ -413,6 +413,11 @@ export const STRINGS_ZH_TW = {
             noFolderSelected: 'Notebook Navigator 中未選取資料夾',
             noFileSelected: '未選取檔案'
         },
+        warnings: {
+            linkBreakingNameCharacters: '此名稱包含會破壞 Obsidian 連結的字元：#, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: '名稱不能以 . 開頭，也不能包含 : 或 /。',
+            forbiddenNameCharactersWindows: 'Windows 保留字元不允許使用：<, >, ", \\, |, ?, *。'
+        },
         notices: {
             hideFolder: '已隱藏資料夾：{name}',
             showFolder: '已顯示資料夾：{name}'
@@ -915,7 +920,7 @@ export const STRINGS_ZH_TW = {
             },
             preventInvalidCharacters: {
                 name: '阻止無效字元',
-                desc: '建立或重新命名檔案和資料夾時阻止 #、|、^、:、%%、[[、]]。'
+                desc: '建立或重新命名檔案和資料夾時包含 #、|、^、%%、[[、]] 時顯示警告。'
             },
             showFilePreview: {
                 name: '顯示筆記預覽',

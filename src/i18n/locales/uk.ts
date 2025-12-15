@@ -413,6 +413,11 @@ export const STRINGS_UK = {
             noFolderSelected: 'У Notebook Navigator не вибрано папку',
             noFileSelected: 'Файл не вибрано'
         },
+        warnings: {
+            linkBreakingNameCharacters: "Це ім'я містить символи, які ламають посилання Obsidian: #, |, ^, %%, [[, ]].",
+            forbiddenNameCharactersAllPlatforms: 'Імена не можуть починатися з крапки або містити : чи /.',
+            forbiddenNameCharactersWindows: 'Зарезервовані в Windows символи не дозволені: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Папку сховано: {name}',
             showFolder: 'Папку показано: {name}'
@@ -917,7 +922,7 @@ export const STRINGS_UK = {
             },
             preventInvalidCharacters: {
                 name: 'Запобігати недійсним символам',
-                desc: 'Блокувати #, |, ^, :, %%, [[, ]] при створенні або перейменуванні файлів і папок.'
+                desc: 'Показувати попередження під час створення або перейменування файлів і папок із #, |, ^, %%, [[, ]].'
             },
             showFilePreview: {
                 name: 'Показувати попередній перегляд нотатки',

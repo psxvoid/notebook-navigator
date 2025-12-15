@@ -415,6 +415,11 @@ export const STRINGS_NL = {
             noFolderSelected: 'Geen map geselecteerd in Notebook Navigator',
             noFileSelected: 'Geen bestand geselecteerd'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Deze naam bevat tekens die Obsidian-links verbreken: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Namen mogen niet met een punt beginnen of : of / bevatten.',
+            forbiddenNameCharactersWindows: 'Door Windows gereserveerde tekens zijn niet toegestaan: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Map verborgen: {name}',
             showFolder: 'Map zichtbaar: {name}'
@@ -919,7 +924,7 @@ export const STRINGS_NL = {
             },
             preventInvalidCharacters: {
                 name: 'Ongeldige tekens voorkomen',
-                desc: '#, |, ^, :, %%, [[, ]] blokkeren bij het maken of hernoemen van bestanden en mappen.'
+                desc: 'Toon een waarschuwing bij het maken of hernoemen van bestanden en mappen met #, |, ^, %%, [[, ]].'
             },
             showFilePreview: {
                 name: 'Notitievoorbeeld tonen',

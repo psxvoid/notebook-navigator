@@ -413,6 +413,11 @@ export const STRINGS_TH = {
             noFolderSelected: 'ไม่ได้เลือกโฟลเดอร์ใน Notebook Navigator',
             noFileSelected: 'ไม่ได้เลือกไฟล์'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'ชื่อนี้มีอักขระที่ทำให้ลิงก์ Obsidian เสียหาย: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'ชื่อไม่สามารถขึ้นต้นด้วยจุดหรือมี : หรือ / ได้',
+            forbiddenNameCharactersWindows: 'อักขระที่ Windows สงวนไว้ไม่อนุญาต: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'ซ่อนโฟลเดอร์แล้ว: {name}',
             showFolder: 'แสดงโฟลเดอร์แล้ว: {name}'
@@ -916,7 +921,7 @@ export const STRINGS_TH = {
             },
             preventInvalidCharacters: {
                 name: 'ป้องกันอักขระไม่ถูกต้อง',
-                desc: 'บล็อก #, |, ^, :, %%, [[, ]] เมื่อสร้างหรือเปลี่ยนชื่อไฟล์และโฟลเดอร์'
+                desc: 'แสดงคำเตือนเมื่อสร้างหรือเปลี่ยนชื่อไฟล์และโฟลเดอร์ที่มี #, |, ^, %%, [[, ]].'
             },
             showFilePreview: {
                 name: 'แสดงตัวอย่างโน้ต',

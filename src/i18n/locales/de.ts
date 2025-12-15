@@ -416,6 +416,11 @@ export const STRINGS_DE = {
             noFolderSelected: 'Kein Ordner im Notebook Navigator ausgewählt',
             noFileSelected: 'Keine Datei ausgewählt'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Dieser Name enthält Zeichen, die Obsidian-Links zerstören: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Namen dürfen nicht mit einem Punkt beginnen oder : oder / enthalten.',
+            forbiddenNameCharactersWindows: 'Windows-reservierte Zeichen sind nicht erlaubt: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Ordner ausgeblendet: {name}',
             showFolder: 'Ordner eingeblendet: {name}'
@@ -920,7 +925,7 @@ export const STRINGS_DE = {
             },
             preventInvalidCharacters: {
                 name: 'Ungültige Zeichen verhindern',
-                desc: '#, |, ^, :, %%, [[, ]] beim Erstellen oder Umbenennen von Dateien und Ordnern blockieren.'
+                desc: 'Beim Erstellen oder Umbenennen von Dateien und Ordnern mit #, |, ^, %%, [[, ]] eine Warnung anzeigen.'
             },
             showFilePreview: {
                 name: 'Notizenvorschau anzeigen',

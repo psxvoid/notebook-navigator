@@ -413,6 +413,11 @@ export const STRINGS_FA = {
             noFolderSelected: 'پوشه‌ای در Notebook Navigator انتخاب نشده است',
             noFileSelected: 'فایلی انتخاب نشده است'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'این نام شامل کاراکترهایی است که لینک‌های Obsidian را خراب می‌کند: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'نام‌ها نمی‌توانند با نقطه شروع شوند یا شامل : یا / باشند.',
+            forbiddenNameCharactersWindows: 'کاراکترهای رزرو شده در Windows مجاز نیستند: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'پوشه مخفی شد: {name}',
             showFolder: 'پوشه نمایش داده شد: {name}'
@@ -916,7 +921,7 @@ export const STRINGS_FA = {
             },
             preventInvalidCharacters: {
                 name: 'جلوگیری از کاراکترهای نامعتبر',
-                desc: 'مسدود کردن #، |، ^، :، %%، [[، ]] هنگام ایجاد یا تغییر نام فایل‌ها و پوشه‌ها.'
+                desc: 'نمایش هشدار هنگام ایجاد یا تغییر نام فایل‌ها و پوشه‌ها با #، |، ^، %%، [[، ]].'
             },
             showFilePreview: {
                 name: 'نمایش پیش‌نمایش یادداشت',

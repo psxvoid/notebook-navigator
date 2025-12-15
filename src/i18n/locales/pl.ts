@@ -415,6 +415,11 @@ export const STRINGS_PL = {
             noFolderSelected: 'Żaden folder nie jest wybrany w Notebook Navigator',
             noFileSelected: 'Żaden plik nie jest wybrany'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Ta nazwa zawiera znaki, które psują linki Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Nazwy nie mogą zaczynać się od kropki ani zawierać : lub /.',
+            forbiddenNameCharactersWindows: 'Znaki zastrzeżone w Windows nie są dozwolone: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Ukryty folder: {name}',
             showFolder: 'Widoczny folder: {name}'
@@ -918,7 +923,7 @@ export const STRINGS_PL = {
             },
             preventInvalidCharacters: {
                 name: 'Zapobiegaj nieprawidłowym znakom',
-                desc: 'Blokuj #, |, ^, :, %%, [[, ]] podczas tworzenia lub zmieniania nazw plików i folderów.'
+                desc: 'Pokaż ostrzeżenie podczas tworzenia lub zmieniania nazw plików i folderów z #, |, ^, %%, [[, ]].'
             },
             showFilePreview: {
                 name: 'Pokaż podgląd notatki',

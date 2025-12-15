@@ -414,6 +414,11 @@ export const STRINGS_ZH_CN = {
             noFolderSelected: 'Notebook Navigator 中未选择文件夹',
             noFileSelected: '未选择文件'
         },
+        warnings: {
+            linkBreakingNameCharacters: '该名称包含会破坏 Obsidian 链接的字符：#, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: '名称不能以 . 开头，也不能包含 : 或 /。',
+            forbiddenNameCharactersWindows: 'Windows 保留字符不允许使用：<, >, ", \\, |, ?, *。'
+        },
         notices: {
             hideFolder: '已隐藏文件夹：{name}',
             showFolder: '已显示文件夹：{name}'
@@ -917,7 +922,7 @@ export const STRINGS_ZH_CN = {
             },
             preventInvalidCharacters: {
                 name: '阻止无效字符',
-                desc: '创建或重命名文件和文件夹时阻止 #、|、^、:、%%、[[、]]。'
+                desc: '创建或重命名文件和文件夹时包含 #、|、^、%%、[[、]] 时显示警告。'
             },
             showFilePreview: {
                 name: '显示笔记预览',

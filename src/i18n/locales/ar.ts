@@ -413,6 +413,11 @@ export const STRINGS_AR = {
             noFolderSelected: 'لم يتم تحديد مجلد في متصفح الدفتر',
             noFileSelected: 'لم يتم تحديد ملف'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'يحتوي هذا الاسم على أحرف تكسر روابط Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'لا يمكن أن تبدأ الأسماء بنقطة أو تحتوي على : أو /.',
+            forbiddenNameCharactersWindows: 'أحرف Windows المحجوزة غير مسموح بها: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'تم إخفاء المجلد: {name}',
             showFolder: 'تم إظهار المجلد: {name}'
@@ -916,7 +921,7 @@ export const STRINGS_AR = {
             },
             preventInvalidCharacters: {
                 name: 'منع الأحرف غير الصالحة',
-                desc: 'حظر #، |، ^، :، %%، [[، ]] عند إنشاء أو إعادة تسمية الملفات والمجلدات.'
+                desc: 'إظهار تحذير عند إنشاء أو إعادة تسمية الملفات والمجلدات التي تحتوي على #، |، ^، %%، [[، ]].'
             },
             showFilePreview: {
                 name: 'إظهار معاينة الملاحظة',

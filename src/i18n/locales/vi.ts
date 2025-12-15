@@ -413,6 +413,11 @@ export const STRINGS_VI = {
             noFolderSelected: 'Chưa chọn thư mục trong Notebook Navigator',
             noFileSelected: 'Chưa chọn tệp'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Tên này chứa ký tự làm hỏng liên kết Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Tên không thể bắt đầu bằng dấu chấm hoặc chứa : hoặc /.',
+            forbiddenNameCharactersWindows: 'Ký tự được Windows dành riêng không được phép: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Đã ẩn thư mục: {name}',
             showFolder: 'Đã hiện thư mục: {name}'
@@ -916,7 +921,7 @@ export const STRINGS_VI = {
             },
             preventInvalidCharacters: {
                 name: 'Ngăn ký tự không hợp lệ',
-                desc: 'Chặn #, |, ^, :, %%, [[, ]] khi tạo hoặc đổi tên tệp và thư mục.'
+                desc: 'Hiển thị cảnh báo khi tạo hoặc đổi tên tệp và thư mục với #, |, ^, %%, [[, ]].'
             },
             showFilePreview: {
                 name: 'Hiện xem trước ghi chú',

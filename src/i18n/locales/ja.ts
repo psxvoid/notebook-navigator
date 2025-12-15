@@ -414,6 +414,11 @@ export const STRINGS_JA = {
             noFolderSelected: 'Notebook Navigatorでフォルダが選択されていません',
             noFileSelected: 'ファイルが選択されていません'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'この名前には Obsidian のリンクを壊す文字が含まれています: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: '名前は . で始められず、: または / を含められません。',
+            forbiddenNameCharactersWindows: 'Windows で予約されている文字は使用できません: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'フォルダを非表示: {name}',
             showFolder: 'フォルダを表示: {name}'
@@ -919,7 +924,7 @@ export const STRINGS_JA = {
             },
             preventInvalidCharacters: {
                 name: '無効な文字を防止',
-                desc: 'ファイルやフォルダの作成・名前変更時に #, |, ^, :, %%, [[, ]] をブロックします。'
+                desc: 'ファイルやフォルダの作成・名前変更時に #, |, ^, %%, [[, ]] を含む場合は警告を表示します。'
             },
             showFilePreview: {
                 name: 'ノートプレビューを表示',

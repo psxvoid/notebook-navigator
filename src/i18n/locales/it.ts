@@ -413,6 +413,11 @@ export const STRINGS_IT = {
             noFolderSelected: 'Nessuna cartella selezionata in Notebook Navigator',
             noFileSelected: 'Nessun file selezionato'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Questo nome include caratteri che interrompono i link di Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'I nomi non possono iniziare con un punto né includere : o /.',
+            forbiddenNameCharactersWindows: 'I caratteri riservati di Windows non sono consentiti: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Cartella nascosta: {name}',
             showFolder: 'Cartella mostrata: {name}'
@@ -916,7 +921,7 @@ export const STRINGS_IT = {
             },
             preventInvalidCharacters: {
                 name: 'Previeni caratteri non validi',
-                desc: 'Blocca #, |, ^, :, %%, [[, ]] quando crei o rinomini file e cartelle.'
+                desc: 'Mostra un avviso quando crei o rinomini file e cartelle con #, |, ^, %%, [[, ]].'
             },
             showFilePreview: {
                 name: 'Mostra anteprima nota',

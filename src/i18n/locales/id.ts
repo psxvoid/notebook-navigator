@@ -413,6 +413,11 @@ export const STRINGS_ID = {
             noFolderSelected: 'Tidak ada folder yang dipilih di Notebook Navigator',
             noFileSelected: 'Tidak ada file yang dipilih'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Nama ini berisi karakter yang merusak tautan Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Nama tidak boleh diawali dengan titik atau berisi : atau /.',
+            forbiddenNameCharactersWindows: 'Karakter yang dipesan di Windows tidak diizinkan: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Folder disembunyikan: {name}',
             showFolder: 'Folder ditampilkan: {name}'
@@ -916,7 +921,7 @@ export const STRINGS_ID = {
             },
             preventInvalidCharacters: {
                 name: 'Cegah karakter tidak valid',
-                desc: 'Blokir #, |, ^, :, %%, [[, ]] saat membuat atau mengganti nama file dan folder.'
+                desc: 'Tampilkan peringatan saat membuat atau mengganti nama file dan folder dengan #, |, ^, %%, [[, ]].'
             },
             showFilePreview: {
                 name: 'Tampilkan pratinjau catatan',

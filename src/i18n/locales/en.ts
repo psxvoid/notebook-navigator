@@ -413,6 +413,11 @@ export const STRINGS_EN = {
             noFolderSelected: 'No folder is selected in Notebook Navigator',
             noFileSelected: 'No file is selected'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'This name includes characters that break Obsidian links: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Names cannot start with a period or include : or /.',
+            forbiddenNameCharactersWindows: 'Windows-reserved characters are not allowed: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Folder hidden: {name}',
             showFolder: 'Folder shown: {name}'
@@ -915,7 +920,7 @@ export const STRINGS_EN = {
             },
             preventInvalidCharacters: {
                 name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
+                desc: 'Show a warning when creating or renaming files and folders with #, |, ^, %%, [[, ]].'
             },
             showFilePreview: {
                 name: 'Show note preview',

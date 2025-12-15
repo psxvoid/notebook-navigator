@@ -28,6 +28,7 @@ interface InputModalCheckboxOptions {
 interface InputModalOptions {
     checkbox?: InputModalCheckboxOptions;
     inputFilter?: (value: string) => string;
+    onInputChange?: (context: { rawValue: string; filteredValue: string }) => void;
 }
 
 export interface InputModalSubmitContext {
@@ -130,27 +131,31 @@ export class InputModal extends Modal {
         }
 
         // Attach input filter listener if provided
-        if (inputFilter) {
+        if (inputFilter || options?.onInputChange) {
             this.inputEl.addEventListener('input', () => {
-                const currentValue = this.inputEl.value;
-                const filteredValue = inputFilter(currentValue);
+                const rawValue = this.inputEl.value;
+                const filteredValue = inputFilter ? inputFilter(rawValue) : rawValue;
 
                 // Skip if no filtering occurred
-                if (filteredValue === currentValue) {
-                    return;
+                if (filteredValue !== rawValue) {
+                    // Calculate cursor positions and how many characters were removed before them
+                    const selectionStart = this.inputEl.selectionStart ?? rawValue.length;
+                    const selectionEnd = this.inputEl.selectionEnd ?? selectionStart;
+                    const removedBeforeStart =
+                        selectionStart - (inputFilter ? inputFilter(rawValue.slice(0, selectionStart)).length : selectionStart);
+                    const removedBeforeEnd =
+                        selectionEnd - (inputFilter ? inputFilter(rawValue.slice(0, selectionEnd)).length : selectionEnd);
+
+                    // Update value and adjust cursor position to account for removed characters
+                    this.inputEl.value = filteredValue;
+                    const newSelectionStart = Math.min(filteredValue.length, Math.max(0, selectionStart - removedBeforeStart));
+                    const newSelectionEnd = Math.min(filteredValue.length, Math.max(0, selectionEnd - removedBeforeEnd));
+                    this.inputEl.setSelectionRange(newSelectionStart, newSelectionEnd);
                 }
 
-                // Calculate cursor positions and how many characters were removed before them
-                const selectionStart = this.inputEl.selectionStart ?? currentValue.length;
-                const selectionEnd = this.inputEl.selectionEnd ?? selectionStart;
-                const removedBeforeStart = selectionStart - inputFilter(currentValue.slice(0, selectionStart)).length;
-                const removedBeforeEnd = selectionEnd - inputFilter(currentValue.slice(0, selectionEnd)).length;
-
-                // Update value and adjust cursor position to account for removed characters
-                this.inputEl.value = filteredValue;
-                const newSelectionStart = Math.min(filteredValue.length, Math.max(0, selectionStart - removedBeforeStart));
-                const newSelectionEnd = Math.min(filteredValue.length, Math.max(0, selectionEnd - removedBeforeEnd));
-                this.inputEl.setSelectionRange(newSelectionStart, newSelectionEnd);
+                if (options?.onInputChange) {
+                    options.onInputChange({ rawValue, filteredValue: this.inputEl.value });
+                }
             });
         }
     }

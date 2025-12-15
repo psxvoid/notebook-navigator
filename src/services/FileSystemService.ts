@@ -28,7 +28,17 @@ import type { VisibilityPreferences } from '../types';
 import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
 import { cleanupExclusionPatterns, isPathInExcludedFolder } from '../utils/fileFilters';
-import { EXCALIDRAW_BASENAME_SUFFIX, isExcalidrawFile, stripExcalidrawSuffix, stripInvalidLinkCharacters } from '../utils/fileNameUtils';
+import {
+    containsForbiddenNameCharactersAllPlatforms,
+    containsForbiddenNameCharactersWindows,
+    containsInvalidLinkCharacters,
+    EXCALIDRAW_BASENAME_SUFFIX,
+    isExcalidrawFile,
+    stripExcalidrawSuffix,
+    stripForbiddenNameCharactersAllPlatforms,
+    stripForbiddenNameCharactersWindows,
+    stripLeadingPeriods
+} from '../utils/fileNameUtils';
 import { getFolderNote, isFolderNote, isSupportedFolderNoteExtension } from '../utils/folderNotes';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 import { executeCommand, isPluginInstalled } from '../utils/typeGuards';
@@ -341,28 +351,28 @@ export class FileSystemOperations {
     }
 
     /**
-     * Checks whether invalid character filtering is enabled in settings
+     * Checks whether invalid character warnings are enabled in settings
      */
-    private shouldFilterInvalidNames(): boolean {
+    private shouldWarnOnInvalidCharacters(): boolean {
         return Boolean(this.settingsProvider.settings.preventInvalidCharacters);
     }
 
     /**
-     * Filters input name by removing invalid characters
-     * Removes invalid link characters if setting enabled and strips leading dots
+     * Filters input name for live typing
+     * Strips leading periods to avoid hidden files
+     * Removes forbidden characters across all platforms (: and /)
+     * Removes Windows-reserved characters on Windows (<, >, ", \\, |, ?, *)
      * Does NOT trim whitespace during live filtering to allow typing spaces
      * @param value - The input name to filter
-     * @returns Filtered value without invalid characters
+     * @returns Filtered value
      */
     private filterNameInputLive(value: string): string {
-        if (!value) {
-            return '';
+        let filtered = stripLeadingPeriods(value);
+        filtered = stripForbiddenNameCharactersAllPlatforms(filtered);
+        if (Platform.isWin) {
+            filtered = stripForbiddenNameCharactersWindows(filtered);
         }
-
-        // Remove invalid link characters if setting enabled
-        const withoutInvalidCharacters = this.shouldFilterInvalidNames() ? stripInvalidLinkCharacters(value) : value;
-        // Remove leading dots
-        return withoutInvalidCharacters.replace(/^\.+/u, '');
+        return filtered;
     }
 
     /**
@@ -375,11 +385,42 @@ export class FileSystemOperations {
     }
 
     /**
-     * Returns a function that filters input names for use in InputModal
-     * @returns Filter function that removes invalid characters (no trim for live typing)
+     * Returns options for input filtering and warnings in InputModal
      */
-    private getNameInputFilter(): (value: string) => string {
-        return (input: string) => this.filterNameInputLive(input);
+    private getNameInputModalOptions(): {
+        inputFilter: (value: string) => string;
+        onInputChange: (context: { rawValue: string; filteredValue: string }) => void;
+    } {
+        let previouslyHadLinkBreakingCharacters = false;
+
+        return {
+            inputFilter: (input: string) => this.filterNameInputLive(input),
+            onInputChange: ({ rawValue, filteredValue }) => {
+                const charactersWereRemoved = rawValue !== filteredValue;
+                if (charactersWereRemoved) {
+                    const hasLeadingPeriods = rawValue.startsWith('.');
+                    const hasForbiddenAllPlatforms = hasLeadingPeriods || containsForbiddenNameCharactersAllPlatforms(rawValue);
+                    if (hasForbiddenAllPlatforms) {
+                        showNotice(strings.fileSystem.warnings.forbiddenNameCharactersAllPlatforms, { variant: 'warning' });
+                    }
+
+                    if (Platform.isWin) {
+                        const hasForbiddenWindows = containsForbiddenNameCharactersWindows(rawValue);
+                        if (hasForbiddenWindows) {
+                            showNotice(strings.fileSystem.warnings.forbiddenNameCharactersWindows, { variant: 'warning' });
+                        }
+                    }
+                }
+
+                if (this.shouldWarnOnInvalidCharacters()) {
+                    const hasLinkBreakingCharacters = containsInvalidLinkCharacters(filteredValue);
+                    if (hasLinkBreakingCharacters && !previouslyHadLinkBreakingCharacters) {
+                        showNotice(strings.fileSystem.warnings.linkBreakingNameCharacters, { variant: 'warning' });
+                    }
+                    previouslyHadLinkBreakingCharacters = hasLinkBreakingCharacters;
+                }
+            }
+        };
     }
 
     /**
@@ -415,17 +456,15 @@ export class FileSystemOperations {
         const settings = this.settingsProvider.settings;
         ensureVaultProfiles(settings);
         const showHiddenOption = settings.vaultProfiles.length >= 2;
-        const inputFilter = this.getNameInputFilter();
+        const nameInputOptions = this.getNameInputModalOptions();
         const modalOptions = showHiddenOption
             ? {
                   checkbox: {
                       label: strings.modals.fileSystem.hideInOtherVaultProfiles
                   },
-                  inputFilter
+                  ...nameInputOptions
               }
-            : {
-                  inputFilter
-              };
+            : nameInputOptions;
 
         const modal = new InputModal(
             this.app,
@@ -481,7 +520,7 @@ export class FileSystemOperations {
      * @param settings - The plugin settings (optional)
      */
     async renameFolder(folder: TFolder, settings?: NotebookNavigatorSettings): Promise<void> {
-        const inputFilter = this.getNameInputFilter();
+        const nameInputOptions = this.getNameInputModalOptions();
 
         const modal = new InputModal(
             this.app,
@@ -533,9 +572,7 @@ export class FileSystemOperations {
                 }
             },
             folder.name,
-            {
-                inputFilter
-            }
+            nameInputOptions
         );
         modal.open();
     }
@@ -553,7 +590,7 @@ export class FileSystemOperations {
         const extensionSuffix = extension ? `.${extension}` : '';
         // Strip .excalidraw suffix from default value for Excalidraw files
         const defaultValue = isExcalidraw ? stripExcalidrawSuffix(file.basename) : file.basename;
-        const inputFilter = this.getNameInputFilter();
+        const nameInputOptions = this.getNameInputModalOptions();
 
         const modal = new InputModal(
             this.app,
@@ -614,9 +651,7 @@ export class FileSystemOperations {
                 }
             },
             defaultValue,
-            {
-                inputFilter
-            }
+            nameInputOptions
         );
         modal.open();
     }
