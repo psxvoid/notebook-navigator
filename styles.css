@@ -4764,11 +4764,11 @@ body.nn-resizing {
     width: auto;
     justify-content: flex-start;
     gap: 6px;
-    padding: 2px 10px;
+    padding: 1px 10px;
 }
 
 .notebook-navigator-obsidian-1-11-plus-iphone .nn-mobile-toolbar-circle {
-    padding: 2px;
+    padding: 1px;
 }
 
 .notebook-navigator-obsidian-1-11-plus-iphone .nn-mobile-toolbar-button {
