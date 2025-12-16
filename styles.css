@@ -152,7 +152,7 @@ body {
     );
     --nn-theme-nav-separator-height: 1px;
     --nn-theme-nav-separator-opacity: 0.3;
-    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.08);
+    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.03);
 
     /* -- Folder & Tag Items -- */
     --nn-theme-navitem-chevron-color: var(--text-muted);
@@ -270,7 +270,7 @@ body {
 }
 
 .theme-dark {
-    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.25);
+    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.18);
 }
 
 /* ========================================================================
@@ -834,7 +834,7 @@ body {
     color: var(--nn-theme-file-selected-name-color) !important;
     background: var(--nn-theme-list-bg) !important;
     border: 1px solid var(--nn-theme-list-search-border-color) !important;
-    border-radius: 5px;
+    border-radius: 999px !important;
     outline: none;
     box-sizing: border-box;
 }
@@ -933,7 +933,7 @@ body {
     height: 36px;
     font-size: 16px; /* Prevent zoom on iOS */
     padding: 4px 60px 4px 36px !important;
-    border-radius: 8px;
+    border-radius: 999px !important;
 }
 
 /* Mobile search icon */
@@ -1236,7 +1236,7 @@ body {
     left: 0;
     right: 0;
     top: calc(100% + 1px);
-    height: 3px;
+    height: 4px;
     pointer-events: none;
     background: linear-gradient(to bottom, var(--nn-theme-pinned-shortcut-shadow-color) 0%, transparent 100%);
 }
@@ -4718,7 +4718,7 @@ body.nn-resizing {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 2px;
+    bottom: 4px;
     pointer-events: none;
     z-index: 5;
 

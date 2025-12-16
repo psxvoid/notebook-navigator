@@ -80,7 +80,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: Notes > Appearance > ==Strip HTML in previews==. Default enabled - removes html tags like <br>, <ul> etc from note previews in list pane.'
         ],
         improved: [
-            'Settings now support the new ==SettingGroup API== introduced with Obsidian 1.11. It just looks better.',
+            'Settings now support the new ==SettingGroup API== in Obsidian 1.11 and later. Settings groups are now clearly outlined.',
+            '==Toolbar buttons in iOS== now uses the Liquid Glass style in Obsidian 1.11 and later.',
             'Commands: ==Select next file== and ==Select previous file== no longer reveal the Notebook Navigator view.'
         ],
         changed: ['Bumped DB_CONTENT_VERSION to support HTML tag removal from note previews. Cache will be rebuilt on next startup.'],
