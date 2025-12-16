@@ -111,8 +111,8 @@ export class NotebookNavigatorView extends ItemView {
             } else if (Platform.isIosApp) {
                 container.classList.add('notebook-navigator-ios');
 
-                if (requireApiVersion('1.11.0') && Platform.isPhone) {
-                    container.classList.add('notebook-navigator-obsidian-1-11-plus-iphone');
+                if (requireApiVersion('1.11.0')) {
+                    container.classList.add('notebook-navigator-obsidian-1-11-plus-ios');
                 }
             }
         }
