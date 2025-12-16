@@ -4663,7 +4663,7 @@ body.nn-resizing {
 /* Mobile toolbar container */
 .nn-mobile-toolbar {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     background-color: var(--nn-theme-list-bg);
     border-top: 1px solid var(--nn-theme-mobile-toolbar-border-color);
@@ -4678,12 +4678,30 @@ body.nn-resizing {
     min-height: calc(49px + var(--nn-mobile-safe-area-bottom));
 }
 
+/* Mobile toolbar grouping containers */
+.nn-mobile-toolbar-left {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+}
+
+.nn-mobile-toolbar-right {
+    display: flex;
+    flex: 0 0 auto;
+}
+
 /* Mobile toolbar button grouping container */
 .nn-mobile-toolbar-pill {
     display: flex;
     width: 100%;
     justify-content: space-around;
     align-items: center;
+}
+
+.nn-mobile-toolbar-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Obsidian 1.11 iPhone toolbar spacing */
@@ -4695,11 +4713,11 @@ body.nn-resizing {
 
 /* Obsidian 1.11+ iPhone glass toolbar */
 .notebook-navigator-obsidian-1-11-plus-iphone .nn-mobile-toolbar {
-    justify-content: flex-start;
+    justify-content: space-between;
     background-color: transparent;
     border-top: none;
     padding-left: 10px;
-    padding-right: 8px;
+    padding-right: 10px;
 }
 
 .notebook-navigator-obsidian-1-11-plus-iphone .nn-navigation-pane {
@@ -4719,11 +4737,14 @@ body.nn-resizing {
     pointer-events: none;
 }
 
-.notebook-navigator-obsidian-1-11-plus-iphone .nn-mobile-toolbar-pill {
+.notebook-navigator-obsidian-1-11-plus-iphone .nn-mobile-toolbar-left,
+.notebook-navigator-obsidian-1-11-plus-iphone .nn-mobile-toolbar-right {
     pointer-events: auto;
+    flex: 0 0 auto;
 }
 
 .notebook-navigator-obsidian-1-11-plus-iphone .nn-mobile-toolbar-pill {
+    pointer-events: auto;
     position: relative;
     width: auto;
     justify-content: flex-start;
@@ -4737,6 +4758,28 @@ body.nn-resizing {
 }
 
 .notebook-navigator-obsidian-1-11-plus-iphone .nn-mobile-toolbar-pill::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.notebook-navigator-obsidian-1-11-plus-iphone .nn-mobile-toolbar-circle {
+    pointer-events: auto;
+    position: relative;
+    padding: 2px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+}
+
+.notebook-navigator-obsidian-1-11-plus-iphone .nn-mobile-toolbar-circle::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -4776,6 +4819,10 @@ body.nn-resizing {
     cursor: pointer;
     padding: 0;
     box-shadow: none !important;
+}
+
+.nn-mobile-toolbar-button-circle {
+    border-radius: 999px;
 }
 
 /* Mobile toolbar button icons */
