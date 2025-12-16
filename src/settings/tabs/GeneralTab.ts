@@ -690,16 +690,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
 
     const formattingGroup = createGroup(strings.settings.groups.general.formatting);
 
-    addToggleSetting(
-        formattingGroup.addSetting,
-        strings.settings.items.preventInvalidCharacters.name,
-        strings.settings.items.preventInvalidCharacters.desc,
-        () => plugin.settings.preventInvalidCharacters,
-        value => {
-            plugin.settings.preventInvalidCharacters = value;
-        }
-    );
-
     const dateFormatSetting = formattingGroup.addSetting(setting => {
         configureDebouncedTextSetting(
             setting,

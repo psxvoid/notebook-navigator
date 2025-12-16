@@ -919,10 +919,6 @@ export const STRINGS_IT = {
                 help: 'Formati comuni:\nh:mm a = 2:30 PM (12 ore)\nHH:mm = 14:30 (24 ore)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nToken:\nHH/H = 24 ore\nhh/h = 12 ore\nmm = minuti\nss = secondi\na = AM/PM',
                 helpTooltip: 'Clicca per riferimento formato'
             },
-            preventInvalidCharacters: {
-                name: 'Previeni caratteri non validi',
-                desc: 'Mostra un avviso quando crei o rinomini file e cartelle con #, |, ^, %%, [[, ]].'
-            },
             showFilePreview: {
                 name: 'Mostra anteprima nota',
                 desc: 'Visualizza testo anteprima sotto i nomi note.'

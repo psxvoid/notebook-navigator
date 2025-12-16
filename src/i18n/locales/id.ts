@@ -919,10 +919,6 @@ export const STRINGS_ID = {
                 help: 'Format umum:\nHH:mm = 14:30 (24 jam)\nh:mm a = 2:30 PM (12 jam)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nToken:\nHH/H = 24 jam\nhh/h = 12 jam\nmm = menit\nss = detik\na = AM/PM',
                 helpTooltip: 'Klik untuk referensi format'
             },
-            preventInvalidCharacters: {
-                name: 'Cegah karakter tidak valid',
-                desc: 'Tampilkan peringatan saat membuat atau mengganti nama file dan folder dengan #, |, ^, %%, [[, ]].'
-            },
             showFilePreview: {
                 name: 'Tampilkan pratinjau catatan',
                 desc: 'Tampilkan teks pratinjau di bawah nama catatan.'

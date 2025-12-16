@@ -919,10 +919,6 @@ export const STRINGS_TR = {
                 help: 'Yaygın formatlar:\nh:mm a = 2:30 PM (12 saat)\nHH:mm = 14:30 (24 saat)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nSimgeler:\nHH/H = 24 saat\nhh/h = 12 saat\nmm = dakika\nss = saniye\na = ÖÖ/ÖS',
                 helpTooltip: 'Format referansı için tıklayın'
             },
-            preventInvalidCharacters: {
-                name: 'Geçersiz karakterleri engelle',
-                desc: 'Dosya ve klasör oluştururken veya yeniden adlandırırken #, |, ^, %%, [[, ]] için uyarı göster.'
-            },
             showFilePreview: {
                 name: 'Not önizlemesini göster',
                 desc: 'Not adlarının altında önizleme metni görüntüle.'

@@ -919,10 +919,6 @@ export const STRINGS_VI = {
                 help: 'Định dạng phổ biến:\nh:mm a = 2:30 PM (12 giờ)\nHH:mm = 14:30 (24 giờ)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nToken:\nHH/H = 24 giờ\nhh/h = 12 giờ\nmm = phút\nss = giây\na = SA/CH',
                 helpTooltip: 'Nhấn để xem tham chiếu định dạng'
             },
-            preventInvalidCharacters: {
-                name: 'Ngăn ký tự không hợp lệ',
-                desc: 'Hiển thị cảnh báo khi tạo hoặc đổi tên tệp và thư mục với #, |, ^, %%, [[, ]].'
-            },
             showFilePreview: {
                 name: 'Hiện xem trước ghi chú',
                 desc: 'Hiển thị văn bản xem trước bên dưới tên ghi chú.'

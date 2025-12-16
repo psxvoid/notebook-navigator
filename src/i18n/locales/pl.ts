@@ -921,10 +921,6 @@ export const STRINGS_PL = {
                 help: 'Popularne formaty:\nHH:mm = 14:30 (24-godzinny)\nh:mm a = 2:30 PM (12-godzinny)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nTokeny:\nHH/H = 24-godzinny\nhh/h = 12-godzinny\nmm = minuty\nss = sekundy\na = AM/PM',
                 helpTooltip: 'Kliknij po informacje o formatowaniu'
             },
-            preventInvalidCharacters: {
-                name: 'Zapobiegaj nieprawidłowym znakom',
-                desc: 'Pokaż ostrzeżenie podczas tworzenia lub zmieniania nazw plików i folderów z #, |, ^, %%, [[, ]].'
-            },
             showFilePreview: {
                 name: 'Pokaż podgląd notatki',
                 desc: 'Wyświetl tekst podglądu pod nazwami notatek.'

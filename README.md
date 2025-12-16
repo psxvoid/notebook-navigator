@@ -514,7 +514,6 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 **Formatting**
 
-- **Prevent invalid characters:** Show warnings when creating or renaming files and folders with #, |, ^, %%, [[,]]. Names cannot start with a period or include : or /. Windows also removes <, >, ", \\, |, ?, \*.
 - **Date format:** Format for displaying dates (uses date-fns format).
 - **Time format:** Format for displaying times (uses date-fns format).
 

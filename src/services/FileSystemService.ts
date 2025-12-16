@@ -351,13 +351,6 @@ export class FileSystemOperations {
     }
 
     /**
-     * Checks whether invalid character warnings are enabled in settings
-     */
-    private shouldWarnOnInvalidCharacters(): boolean {
-        return Boolean(this.settingsProvider.settings.preventInvalidCharacters);
-    }
-
-    /**
      * Filters input name for live typing
      * Strips leading periods to avoid hidden files
      * Removes forbidden characters across all platforms (: and /)
@@ -412,13 +405,11 @@ export class FileSystemOperations {
                     }
                 }
 
-                if (this.shouldWarnOnInvalidCharacters()) {
-                    const hasLinkBreakingCharacters = containsInvalidLinkCharacters(filteredValue);
-                    if (hasLinkBreakingCharacters && !previouslyHadLinkBreakingCharacters) {
-                        showNotice(strings.fileSystem.warnings.linkBreakingNameCharacters, { variant: 'warning' });
-                    }
-                    previouslyHadLinkBreakingCharacters = hasLinkBreakingCharacters;
+                const hasLinkBreakingCharacters = containsInvalidLinkCharacters(filteredValue);
+                if (hasLinkBreakingCharacters && !previouslyHadLinkBreakingCharacters) {
+                    showNotice(strings.fileSystem.warnings.linkBreakingNameCharacters, { variant: 'warning' });
                 }
+                previouslyHadLinkBreakingCharacters = hasLinkBreakingCharacters;
             }
         };
     }

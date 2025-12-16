@@ -918,10 +918,6 @@ export const STRINGS_EN = {
                 help: 'Common formats:\nh:mm a = 2:30 PM (12-hour)\nHH:mm = 14:30 (24-hour)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nTokens:\nHH/H = 24-hour\nhh/h = 12-hour\nmm = minutes\nss = seconds\na = AM/PM',
                 helpTooltip: 'Click for format reference'
             },
-            preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Show a warning when creating or renaming files and folders with #, |, ^, %%, [[, ]].'
-            },
             showFilePreview: {
                 name: 'Show note preview',
                 desc: 'Display preview text beneath note names.'
