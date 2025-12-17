@@ -833,6 +833,11 @@ export const STRINGS_ES = {
                 desc: 'Lista de propiedades del frontmatter separadas por comas. Las notas que contengan cualquiera de estas propiedades se ocultarán (ej.: draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            excludedFileNamePatterns: {
+                name: 'Ocultar archivos (perfil de bóveda)',
+                desc: 'Lista de patrones de nombre de archivo separados por comas para ocultar. Soporta comodines * y rutas / (ej.: temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: 'Perfil de bóveda',
                 desc: 'Los perfiles almacenan visibilidad de tipos de archivo, carpetas ocultas, etiquetas ocultas, notas ocultas, atajos y banner de navegación. Cambia de perfil desde el encabezado del panel de navegación.',

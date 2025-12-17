@@ -853,6 +853,11 @@ export const STRINGS_TR = {
                 desc: 'Virgülle ayrılmış frontmatter özellikleri listesi. Bu özelliklerden herhangi birini içeren notlar gizlenecektir (örn. taslak, özel, arşiv).',
                 placeholder: 'taslak, özel'
             },
+            excludedFileNamePatterns: {
+                name: 'Dosyaları gizle (kasa profili)',
+                desc: 'Gizlenecek dosya adı kalıplarının virgülle ayrılmış listesi. * joker karakterlerini ve / yollarını destekler (örn. temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: 'Kasa profili',
                 desc: 'Profiller dosya türü görünürlüğünü, gizli klasörleri, gizli etiketleri, gizli notları, kısayolları ve gezinme afişini saklar. Gezinme bölmesi başlığından profilleri değiştir.',

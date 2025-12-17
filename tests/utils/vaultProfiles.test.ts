@@ -3,6 +3,7 @@ import type { NotebookNavigatorSettings } from '../../src/settings/types';
 import { DEFAULT_SETTINGS } from '../../src/settings/defaultSettings';
 import {
     getActiveFileVisibility,
+    getActiveHiddenFileNamePatterns,
     getActiveHiddenFiles,
     getActiveHiddenFolders,
     getActiveHiddenTags,
@@ -380,6 +381,7 @@ describe('vault profile selectors', () => {
         expect(activeProfile).toBe(settings.vaultProfiles[0]);
         expect(getActiveHiddenFolders(settings)).toBe(settings.vaultProfiles[0].hiddenFolders);
         expect(getActiveHiddenFiles(settings)).toBe(settings.vaultProfiles[0].hiddenFiles);
+        expect(getActiveHiddenFileNamePatterns(settings)).toBe(settings.vaultProfiles[0].hiddenFileNamePatterns);
         expect(getActiveHiddenTags(settings)).toBe(settings.vaultProfiles[0].hiddenTags);
         expect(getActiveFileVisibility(settings)).toBe(settings.vaultProfiles[0].fileVisibility);
     });

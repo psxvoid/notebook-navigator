@@ -853,6 +853,11 @@ export const STRINGS_VI = {
                 desc: 'Danh sách thuộc tính frontmatter phân cách bằng dấu phẩy. Ghi chú chứa bất kỳ thuộc tính nào sẽ bị ẩn (ví dụ: nháp, riêng tư, lưu trữ).',
                 placeholder: 'nháp, riêng tư'
             },
+            excludedFileNamePatterns: {
+                name: 'Ẩn tệp (hồ sơ vault)',
+                desc: 'Danh sách mẫu tên tệp phân cách bằng dấu phẩy để ẩn. Hỗ trợ ký tự đại diện * và đường dẫn / (ví dụ: temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: 'Hồ sơ vault',
                 desc: 'Hồ sơ lưu trữ hiển thị loại tệp, thư mục ẩn, thẻ ẩn, ghi chú ẩn, lối tắt và banner điều hướng. Chuyển hồ sơ từ header ngăn điều hướng.',

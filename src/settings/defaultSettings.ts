@@ -38,6 +38,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
             hiddenFolders: [],
             hiddenTags: [],
             hiddenFiles: [],
+            hiddenFileNamePatterns: [],
             navigationBanner: null,
             shortcuts: []
         }

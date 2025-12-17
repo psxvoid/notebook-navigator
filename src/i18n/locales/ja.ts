@@ -833,6 +833,11 @@ export const STRINGS_JA = {
                 desc: 'カンマ区切りのフロントマター属性のリスト。これらの属性を含むノートは非表示になります（例：draft, private, archived）。',
                 placeholder: 'draft, private'
             },
+            excludedFileNamePatterns: {
+                name: 'ファイルを非表示 (ボルトプロファイル)',
+                desc: '非表示にするファイル名パターンのカンマ区切りリスト。* ワイルドカードと / パスをサポート（例：temp-*、*.png、/assets/*）。',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: '保管庫プロファイル',
                 desc: 'プロファイルは、ファイルタイプの表示、非表示フォルダ、非表示タグ、非表示ノート、ショートカット、ナビゲーションバナーを保存します。ナビゲーションペインのヘッダーからプロファイルを切り替えます。',

@@ -75,5 +75,7 @@ contentMigrations.addMigration(new Migration(5.3, 6.3, emptyMigrateFunc))
 contentMigrations.addMigration(new Migration(6.3, 5.3, emptyMigrateFunc))
 contentMigrations.addMigration(new Migration(6.3, 7.3, emptyMigrateFunc))
 contentMigrations.addMigration(new Migration(7.3, 6.3, emptyMigrateFunc))
+contentMigrations.addMigration(new Migration(5.3, 7.3, emptyMigrateFunc))
+contentMigrations.addMigration(new Migration(7.3, 5.3, emptyMigrateFunc))
 
 export { contentMigrations }
