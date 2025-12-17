@@ -102,10 +102,6 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         renderUpdateStatus(notice?.version ?? null);
     });
 
-    const supportSetting = topGroup.addSetting(setting => {
-        setting.setName(strings.settings.items.supportDevelopment.name).setDesc(strings.settings.items.supportDevelopment.desc);
-    });
-
     const filteringGroup = createGroup(strings.settings.groups.general.filtering);
 
     const fallbackProfileName = strings.settings.items.vaultProfiles.defaultName || 'Default';
