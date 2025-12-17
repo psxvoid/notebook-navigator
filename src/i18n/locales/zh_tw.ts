@@ -413,6 +413,11 @@ export const STRINGS_ZH_TW = {
             noFolderSelected: 'Notebook Navigator 中未選取資料夾',
             noFileSelected: '未選取檔案'
         },
+        warnings: {
+            linkBreakingNameCharacters: '此名稱包含會破壞 Obsidian 連結的字元：#, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: '名稱不能以 . 開頭，也不能包含 : 或 /。',
+            forbiddenNameCharactersWindows: 'Windows 保留字元不允許使用：<, >, ", \\, |, ?, *。'
+        },
         notices: {
             hideFolder: '已隱藏資料夾：{name}',
             showFolder: '已顯示資料夾：{name}'
@@ -925,10 +930,6 @@ export const STRINGS_ZH_TW = {
                 help: '常用格式：\nh:mm a = 2:30 PM (12 小時制)\nHH:mm = 14:30 (24 小時制)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\n符號：\nHH/H = 24 小時\nhh/h = 12 小時\nmm = 分鐘\nss = 秒\na = AM/PM',
                 helpTooltip: '點擊查看格式參考'
             },
-            preventInvalidCharacters: {
-                name: '阻止無效字元',
-                desc: '建立或重新命名檔案和資料夾時阻止 #、|、^、:、%%、[[、]]。'
-            },
             showFilePreview: {
                 name: '顯示筆記預覽',
                 desc: '在筆記名稱下方顯示預覽文字。'
@@ -940,6 +941,10 @@ export const STRINGS_ZH_TW = {
             skipCodeBlocksInPreview: {
                 name: '在預覽中跳過程式碼區塊',
                 desc: '產生預覽文字時跳過程式碼區塊。'
+            },
+            stripHtmlInPreview: {
+                name: '移除預覽中的 HTML',
+                desc: '從預覽文字中移除 HTML 標籤。可能會影響大型筆記的效能。'
             },
             previewProperties: {
                 name: '預覽屬性',

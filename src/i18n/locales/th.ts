@@ -413,6 +413,11 @@ export const STRINGS_TH = {
             noFolderSelected: 'ไม่ได้เลือกโฟลเดอร์ใน Notebook Navigator',
             noFileSelected: 'ไม่ได้เลือกไฟล์'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'ชื่อนี้มีอักขระที่ทำให้ลิงก์ Obsidian เสียหาย: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'ชื่อไม่สามารถขึ้นต้นด้วยจุดหรือมี : หรือ / ได้',
+            forbiddenNameCharactersWindows: 'อักขระที่ Windows สงวนไว้ไม่อนุญาต: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'ซ่อนโฟลเดอร์แล้ว: {name}',
             showFolder: 'แสดงโฟลเดอร์แล้ว: {name}'
@@ -926,10 +931,6 @@ export const STRINGS_TH = {
                 help: 'รูปแบบทั่วไป:\nHH:mm = 14:30 (24 ชั่วโมง)\nh:mm a = 2:30 PM (12 ชั่วโมง)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nโทเคน:\nHH/H = 24 ชั่วโมง\nhh/h = 12 ชั่วโมง\nmm = นาที\nss = วินาที\na = AM/PM',
                 helpTooltip: 'คลิกเพื่อดูข้อมูลอ้างอิงรูปแบบ'
             },
-            preventInvalidCharacters: {
-                name: 'ป้องกันอักขระไม่ถูกต้อง',
-                desc: 'บล็อก #, |, ^, :, %%, [[, ]] เมื่อสร้างหรือเปลี่ยนชื่อไฟล์และโฟลเดอร์'
-            },
             showFilePreview: {
                 name: 'แสดงตัวอย่างโน้ต',
                 desc: 'แสดงข้อความตัวอย่างใต้ชื่อโน้ต'
@@ -941,6 +942,10 @@ export const STRINGS_TH = {
             skipCodeBlocksInPreview: {
                 name: 'ข้ามบล็อกโค้ดในตัวอย่าง',
                 desc: 'ข้ามบล็อกโค้ดเมื่อสร้างข้อความตัวอย่าง'
+            },
+            stripHtmlInPreview: {
+                name: 'ลบ HTML ในตัวอย่าง',
+                desc: 'ลบแท็ก HTML ออกจากข้อความตัวอย่าง อาจส่งผลต่อประสิทธิภาพในโน้ตขนาดใหญ่'
             },
             previewProperties: {
                 name: 'คุณสมบัติตัวอย่าง',

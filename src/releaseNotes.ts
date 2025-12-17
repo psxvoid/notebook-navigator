@@ -73,6 +73,21 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.9.2',
+        date: '2025-12-16',
+        showOnUpdate: true,
+        new: [
+            'New setting: Notes > Appearance > ==Strip HTML in previews==. Default enabled - removes html tags like <br>, <ul> etc from note previews in list pane.'
+        ],
+        improved: [
+            'Settings now support the new ==SettingGroup API== in Obsidian 1.11 and later. Settings groups are now clearly outlined.',
+            '==Toolbar buttons in iOS== now uses the Liquid Glass style in Obsidian 1.11 and later.',
+            'Commands: ==Select next file== and ==Select previous file== no longer reveal the Notebook Navigator view.'
+        ],
+        changed: ['Bumped DB_CONTENT_VERSION to support HTML tag removal from note previews. Cache will be rebuilt on next startup.'],
+        fixed: ['Folders and tags placed in shortcuts no longer show "Add separator" / "Remove separator" menu options']
+    },
+    {
         version: '1.9.1',
         date: '2025-12-07',
         showOnUpdate: true,
@@ -139,7 +154,6 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-11-24',
         showOnUpdate: true,
         new: [
-            'New setting: ==General > Formatting > Prevent invalid characters==. Blocks #, |, ^, :, %%, [[, ]] when creating or renaming files and folders to prevent broken links and unexpected behavior. Default enabled.',
             'New setting: ==List pane > Appearance > Default list mode==. Choose the default list layout between **standard** and **compact**. **Standard** shows title, date, description, and preview text. **Compact** only shows title. You can override the appearance for each folder or tag.',
             'New setting: ==List pane > Appearance > Show file icons==. Disable to hide all file icons and avoid the indentation in the list pane.'
         ],

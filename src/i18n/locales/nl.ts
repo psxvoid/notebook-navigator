@@ -415,6 +415,11 @@ export const STRINGS_NL = {
             noFolderSelected: 'Geen map geselecteerd in Notebook Navigator',
             noFileSelected: 'Geen bestand geselecteerd'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Deze naam bevat tekens die Obsidian-links verbreken: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Namen mogen niet met een punt beginnen of : of / bevatten.',
+            forbiddenNameCharactersWindows: 'Door Windows gereserveerde tekens zijn niet toegestaan: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Map verborgen: {name}',
             showFolder: 'Map zichtbaar: {name}'
@@ -929,10 +934,6 @@ export const STRINGS_NL = {
                 help: 'Veelvoorkomende formaten:\nHH:mm = 14:30 (24-uurs)\nh:mm a = 2:30 PM (12-uurs)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nTokens:\nHH/H = 24-uurs\nhh/h = 12-uurs\nmm = minuten\nss = seconden\na = AM/PM',
                 helpTooltip: 'Klik voor formaatverwijzing'
             },
-            preventInvalidCharacters: {
-                name: 'Ongeldige tekens voorkomen',
-                desc: '#, |, ^, :, %%, [[, ]] blokkeren bij het maken of hernoemen van bestanden en mappen.'
-            },
             showFilePreview: {
                 name: 'Notitievoorbeeld tonen',
                 desc: 'Voorbeeldtekst onder notitienamen weergeven.'
@@ -944,6 +945,10 @@ export const STRINGS_NL = {
             skipCodeBlocksInPreview: {
                 name: 'Codeblokken overslaan in voorbeeld',
                 desc: 'Codeblokken overslaan bij het genereren van voorbeeldtekst.'
+            },
+            stripHtmlInPreview: {
+                name: 'HTML verwijderen in voorbeelden',
+                desc: 'HTML-tags uit de voorbeeldtekst verwijderen. Kan de prestaties bij grote notities beïnvloeden.'
             },
             previewProperties: {
                 name: 'Voorbeeldeigenschappen',

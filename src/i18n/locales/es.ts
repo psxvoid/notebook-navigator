@@ -414,6 +414,11 @@ export const STRINGS_ES = {
             noFolderSelected: 'No hay ninguna carpeta seleccionada en Notebook Navigator',
             noFileSelected: 'No hay archivo seleccionado'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Este nombre incluye caracteres que rompen los enlaces de Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Los nombres no pueden comenzar con un punto ni incluir : o /.',
+            forbiddenNameCharactersWindows: 'Los caracteres reservados de Windows no están permitidos: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Carpeta oculta: {name}',
             showFolder: 'Carpeta mostrada: {name}'
@@ -928,10 +933,6 @@ export const STRINGS_ES = {
                 help: 'Formatos comunes:\nHH:mm = 14:30 (24 horas)\nh:mm a = 2:30 PM (12 horas)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nTokens:\nHH/H = 24 horas\nhh/h = 12 horas\nmm = minutos\nss = segundos\na = AM/PM',
                 helpTooltip: 'Clic para referencia de formato'
             },
-            preventInvalidCharacters: {
-                name: 'Prevenir caracteres inválidos',
-                desc: 'Bloquear #, |, ^, :, %%, [[, ]] al crear o renombrar archivos y carpetas.'
-            },
             showFilePreview: {
                 name: 'Mostrar vista previa de nota',
                 desc: 'Muestra texto de vista previa debajo de los nombres de las notas.'
@@ -943,6 +944,10 @@ export const STRINGS_ES = {
             skipCodeBlocksInPreview: {
                 name: 'Omitir bloques de código en vista previa',
                 desc: 'Omite los bloques de código al generar el texto de vista previa.'
+            },
+            stripHtmlInPreview: {
+                name: 'Eliminar HTML en vistas previas',
+                desc: 'Eliminar etiquetas HTML del texto de vista previa. Puede afectar el rendimiento en notas grandes.'
             },
             previewProperties: {
                 name: 'Propiedades de vista previa',

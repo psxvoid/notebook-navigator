@@ -414,6 +414,11 @@ export const STRINGS_PT_BR = {
             noFolderSelected: 'Nenhuma pasta está selecionada no Notebook Navigator',
             noFileSelected: 'Nenhum arquivo está selecionado'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Este nome inclui caracteres que quebram links do Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Os nomes não podem começar com um ponto nem incluir : ou /.',
+            forbiddenNameCharactersWindows: 'Caracteres reservados do Windows não são permitidos: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Pasta oculta: {name}',
             showFolder: 'Pasta exibida: {name}'
@@ -915,10 +920,6 @@ export const STRINGS_PT_BR = {
                 help: 'Formatos comuns:\nh:mm a = 2:30 PM (12 horas)\nHH:mm = 14:30 (24 horas)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nTokens:\nHH/H = 24 horas\nhh/h = 12 horas\nmm = minutos\nss = segundos\na = AM/PM',
                 helpTooltip: 'Clique para referência de formato'
             },
-            preventInvalidCharacters: {
-                name: 'Impedir caracteres inválidos',
-                desc: 'Bloquear #, |, ^, :, %%, [[, ]] ao criar ou renomear arquivos e pastas.'
-            },
             showFilePreview: {
                 name: 'Mostrar visualização de nota',
                 desc: 'Exibir texto de visualização abaixo dos nomes das notas.'
@@ -930,6 +931,10 @@ export const STRINGS_PT_BR = {
             skipCodeBlocksInPreview: {
                 name: 'Pular blocos de código na visualização',
                 desc: 'Pular blocos de código ao gerar texto de visualização.'
+            },
+            stripHtmlInPreview: {
+                name: 'Remover HTML nas visualizações',
+                desc: 'Remover tags HTML do texto de visualização. Pode afetar o desempenho em notas grandes.'
             },
             previewProperties: {
                 name: 'Propriedades de visualização',

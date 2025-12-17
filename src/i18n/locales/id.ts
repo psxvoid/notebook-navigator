@@ -413,6 +413,11 @@ export const STRINGS_ID = {
             noFolderSelected: 'Tidak ada folder yang dipilih di Notebook Navigator',
             noFileSelected: 'Tidak ada file yang dipilih'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Nama ini berisi karakter yang merusak tautan Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Nama tidak boleh diawali dengan titik atau berisi : atau /.',
+            forbiddenNameCharactersWindows: 'Karakter yang dipesan di Windows tidak diizinkan: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Folder disembunyikan: {name}',
             showFolder: 'Folder ditampilkan: {name}'
@@ -926,10 +931,6 @@ export const STRINGS_ID = {
                 help: 'Format umum:\nHH:mm = 14:30 (24 jam)\nh:mm a = 2:30 PM (12 jam)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nToken:\nHH/H = 24 jam\nhh/h = 12 jam\nmm = menit\nss = detik\na = AM/PM',
                 helpTooltip: 'Klik untuk referensi format'
             },
-            preventInvalidCharacters: {
-                name: 'Cegah karakter tidak valid',
-                desc: 'Blokir #, |, ^, :, %%, [[, ]] saat membuat atau mengganti nama file dan folder.'
-            },
             showFilePreview: {
                 name: 'Tampilkan pratinjau catatan',
                 desc: 'Tampilkan teks pratinjau di bawah nama catatan.'
@@ -941,6 +942,10 @@ export const STRINGS_ID = {
             skipCodeBlocksInPreview: {
                 name: 'Lewati blok kode dalam pratinjau',
                 desc: 'Lewati blok kode saat menghasilkan teks pratinjau.'
+            },
+            stripHtmlInPreview: {
+                name: 'Hapus HTML di pratinjau',
+                desc: 'Hapus tag HTML dari teks pratinjau. Dapat memengaruhi kinerja pada catatan besar.'
             },
             previewProperties: {
                 name: 'Properti pratinjau',

@@ -68,7 +68,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     mobileScale: DEFAULT_UI_SCALE,
 
     // General tab - Formatting
-    preventInvalidCharacters: true,
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
 
@@ -174,6 +173,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFilePreview: true,
     skipHeadingsInPreview: true,
     skipCodeBlocksInPreview: true,
+    stripHtmlInPreview: true,
     previewProperties: [],
     previewRows: 2,
     showFeatureImage: true,

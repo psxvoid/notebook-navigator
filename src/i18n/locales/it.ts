@@ -413,6 +413,11 @@ export const STRINGS_IT = {
             noFolderSelected: 'Nessuna cartella selezionata in Notebook Navigator',
             noFileSelected: 'Nessun file selezionato'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Questo nome include caratteri che interrompono i link di Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'I nomi non possono iniziare con un punto né includere : o /.',
+            forbiddenNameCharactersWindows: 'I caratteri riservati di Windows non sono consentiti: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Cartella nascosta: {name}',
             showFolder: 'Cartella mostrata: {name}'
@@ -926,10 +931,6 @@ export const STRINGS_IT = {
                 help: 'Formati comuni:\nh:mm a = 2:30 PM (12 ore)\nHH:mm = 14:30 (24 ore)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nToken:\nHH/H = 24 ore\nhh/h = 12 ore\nmm = minuti\nss = secondi\na = AM/PM',
                 helpTooltip: 'Clicca per riferimento formato'
             },
-            preventInvalidCharacters: {
-                name: 'Previeni caratteri non validi',
-                desc: 'Blocca #, |, ^, :, %%, [[, ]] quando crei o rinomini file e cartelle.'
-            },
             showFilePreview: {
                 name: 'Mostra anteprima nota',
                 desc: 'Visualizza testo anteprima sotto i nomi note.'
@@ -941,6 +942,10 @@ export const STRINGS_IT = {
             skipCodeBlocksInPreview: {
                 name: "Salta blocchi codice nell'anteprima",
                 desc: 'Salta blocchi codice quando generi testo anteprima.'
+            },
+            stripHtmlInPreview: {
+                name: 'Rimuovi HTML nelle anteprime',
+                desc: 'Rimuove i tag HTML dal testo di anteprima. Potrebbe influire sulle prestazioni nelle note lunghe.'
             },
             previewProperties: {
                 name: 'Proprietà anteprima',

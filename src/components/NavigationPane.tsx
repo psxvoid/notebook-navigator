@@ -1435,7 +1435,8 @@ export const NavigationPane = React.memo(
                         services: menuServices,
                         settings,
                         state,
-                        dispatchers
+                        dispatchers,
+                        options: { disableNavigationSeparatorActions: true }
                     });
                 } else if (target.type === 'note') {
                     buildFileMenu({
@@ -1464,7 +1465,8 @@ export const NavigationPane = React.memo(
                         services: menuServices,
                         settings,
                         state,
-                        dispatchers
+                        dispatchers,
+                        options: { disableNavigationSeparatorActions: true }
                     });
                 }
 

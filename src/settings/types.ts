@@ -118,7 +118,6 @@ export interface NotebookNavigatorSettings {
     mobileScale: number;
 
     // General tab - Formatting
-    preventInvalidCharacters: boolean;
     dateFormat: string;
     timeFormat: string;
 
@@ -208,6 +207,7 @@ export interface NotebookNavigatorSettings {
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     skipCodeBlocksInPreview: boolean;
+    stripHtmlInPreview: boolean;
     previewProperties: string[];
     previewRows: number;
     showFeatureImage: boolean;

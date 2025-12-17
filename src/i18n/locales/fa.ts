@@ -413,6 +413,11 @@ export const STRINGS_FA = {
             noFolderSelected: 'پوشه‌ای در Notebook Navigator انتخاب نشده است',
             noFileSelected: 'فایلی انتخاب نشده است'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'این نام شامل کاراکترهایی است که لینک‌های Obsidian را خراب می‌کند: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'نام‌ها نمی‌توانند با نقطه شروع شوند یا شامل : یا / باشند.',
+            forbiddenNameCharactersWindows: 'کاراکترهای رزرو شده در Windows مجاز نیستند: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'پوشه مخفی شد: {name}',
             showFolder: 'پوشه نمایش داده شد: {name}'
@@ -926,10 +931,6 @@ export const STRINGS_FA = {
                 help: 'قالب‌های رایج:\nHH:mm = ۱۴:۳۰ (۲۴ ساعته)\nh:mm a = 2:30 PM (۱۲ ساعته)\nHH:mm:ss = ۱۴:۳۰:۴۵\nh:mm:ss a = 2:30:45 PM\n\nتوکن‌ها:\nHH/H = ۲۴ ساعته\nhh/h = ۱۲ ساعته\nmm = دقیقه\nss = ثانیه\na = صبح/عصر',
                 helpTooltip: 'برای مرجع قالب کلیک کنید'
             },
-            preventInvalidCharacters: {
-                name: 'جلوگیری از کاراکترهای نامعتبر',
-                desc: 'مسدود کردن #، |، ^، :، %%، [[، ]] هنگام ایجاد یا تغییر نام فایل‌ها و پوشه‌ها.'
-            },
             showFilePreview: {
                 name: 'نمایش پیش‌نمایش یادداشت',
                 desc: 'متن پیش‌نمایش را زیر نام یادداشت نمایش دهید.'
@@ -941,6 +942,10 @@ export const STRINGS_FA = {
             skipCodeBlocksInPreview: {
                 name: 'رد شدن از بلوک‌های کد در پیش‌نمایش',
                 desc: 'هنگام تولید متن پیش‌نمایش از بلوک‌های کد رد شوید.'
+            },
+            stripHtmlInPreview: {
+                name: 'حذف HTML از پیش‌نمایش‌ها',
+                desc: 'حذف تگ‌های HTML از متن پیش‌نمایش. ممکن است بر عملکرد در یادداشت‌های بزرگ تأثیر بگذارد.'
             },
             previewProperties: {
                 name: 'ویژگی‌های پیش‌نمایش',

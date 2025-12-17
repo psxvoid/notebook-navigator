@@ -413,6 +413,11 @@ export const STRINGS_PT = {
             noFolderSelected: 'Nenhuma pasta selecionada no Notebook Navigator',
             noFileSelected: 'Nenhum ficheiro selecionado'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Este nome inclui caracteres que quebram ligações do Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Os nomes não podem começar com um ponto nem incluir : ou /.',
+            forbiddenNameCharactersWindows: 'Caracteres reservados do Windows não são permitidos: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Pasta ocultada: {name}',
             showFolder: 'Pasta mostrada: {name}'
@@ -927,10 +932,6 @@ export const STRINGS_PT = {
                 help: 'Formatos comuns:\nh:mm a = 2:30 PM (12 horas)\nHH:mm = 14:30 (24 horas)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nTokens:\nHH/H = 24 horas\nhh/h = 12 horas\nmm = minutos\nss = segundos\na = AM/PM',
                 helpTooltip: 'Clique para referência de formato'
             },
-            preventInvalidCharacters: {
-                name: 'Prevenir caracteres inválidos',
-                desc: 'Bloquear #, |, ^, :, %%, [[, ]] ao criar ou renomear ficheiros e pastas.'
-            },
             showFilePreview: {
                 name: 'Mostrar pré-visualização da nota',
                 desc: 'Exibir texto de pré-visualização abaixo dos nomes das notas.'
@@ -942,6 +943,10 @@ export const STRINGS_PT = {
             skipCodeBlocksInPreview: {
                 name: 'Saltar blocos de código na pré-visualização',
                 desc: 'Saltar blocos de código ao gerar texto de pré-visualização.'
+            },
+            stripHtmlInPreview: {
+                name: 'Remover HTML nas pré-visualizações',
+                desc: 'Remover etiquetas HTML do texto de pré-visualização. Pode afetar o desempenho em notas grandes.'
             },
             previewProperties: {
                 name: 'Propriedades de pré-visualização',

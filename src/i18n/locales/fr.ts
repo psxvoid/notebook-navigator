@@ -414,6 +414,11 @@ export const STRINGS_FR = {
             noFolderSelected: 'Aucun dossier sélectionné dans Notebook Navigator',
             noFileSelected: 'Aucun fichier sélectionné'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Ce nom contient des caractères qui cassent les liens Obsidian : #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Les noms ne peuvent pas commencer par un point ni contenir : ou /.',
+            forbiddenNameCharactersWindows: 'Les caractères réservés à Windows ne sont pas autorisés : <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Dossier masqué : {name}',
             showFolder: 'Dossier affiché : {name}'
@@ -930,10 +935,6 @@ export const STRINGS_FR = {
                 help: 'Formats courants :\nHH:mm = 14:30 (24 heures)\nh:mm a = 2:30 PM (12 heures)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nJetons :\nHH/H = 24 heures\nhh/h = 12 heures\nmm = minutes\nss = secondes\na = AM/PM',
                 helpTooltip: 'Cliquez pour la référence du format'
             },
-            preventInvalidCharacters: {
-                name: 'Empêcher les caractères invalides',
-                desc: 'Bloquer #, |, ^, :, %%, [[, ]] lors de la création ou du renommage de fichiers et dossiers.'
-            },
             showFilePreview: {
                 name: "Afficher l'aperçu de la note",
                 desc: "Afficher le texte d'aperçu sous les noms des notes."
@@ -945,6 +946,10 @@ export const STRINGS_FR = {
             skipCodeBlocksInPreview: {
                 name: "Ignorer les blocs de code dans l'aperçu",
                 desc: "Ignorer les blocs de code lors de la génération du texte d'aperçu."
+            },
+            stripHtmlInPreview: {
+                name: 'Supprimer le HTML dans les aperçus',
+                desc: "Supprimer les balises HTML du texte d'aperçu. Peut affecter les performances sur les longues notes."
             },
             previewProperties: {
                 name: "Propriétés d'aperçu",

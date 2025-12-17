@@ -19,12 +19,26 @@
 import type { App, Setting } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 
+export type AddSettingFunction = (createSetting: (setting: Setting) => void) => Setting;
+
 /**
  * Factory function type for creating debounced text settings
  * Prevents excessive updates while user is typing
  */
 export type DebouncedTextSettingFactory = (
     container: HTMLElement,
+    name: string,
+    desc: string,
+    placeholder: string,
+    getValue: () => string,
+    setValue: (value: string) => void,
+    validator?: (value: string) => boolean,
+    onAfterUpdate?: () => void
+) => Setting;
+
+/** Configures an existing Setting with a debounced text input */
+export type DebouncedTextSettingConfigurer = (
+    setting: Setting,
     name: string,
     desc: string,
     placeholder: string,
@@ -52,6 +66,34 @@ export type DebouncedTextAreaSettingFactory = (
     options?: DebouncedTextAreaSettingOptions
 ) => Setting;
 
+/** Configures an existing Setting with a debounced text area input */
+export type DebouncedTextAreaSettingConfigurer = (
+    setting: Setting,
+    name: string,
+    desc: string,
+    placeholder: string,
+    getValue: () => string,
+    setValue: (value: string) => void,
+    options?: DebouncedTextAreaSettingOptions
+) => Setting;
+
+/** Adds a toggle Setting that persists via plugin save/update */
+export type ToggleSettingFactory = (
+    addSetting: AddSettingFunction,
+    name: string,
+    desc: string,
+    getValue: () => boolean,
+    setValue: (value: boolean) => void,
+    onAfterUpdate?: () => void
+) => Setting;
+
+/** Adds an info-only Setting that renders into the description element */
+export type InfoSettingFactory = (
+    addSetting: AddSettingFunction,
+    cls: string | readonly string[],
+    render: (descEl: HTMLElement) => void
+) => Setting;
+
 /**
  * Context object passed to settings tab render functions
  * Provides access to app, plugin, and utility methods for tab rendering
@@ -60,8 +102,12 @@ export interface SettingsTabContext {
     app: App;
     plugin: NotebookNavigatorPlugin;
     containerEl: HTMLElement;
+    addToggleSetting: ToggleSettingFactory;
+    addInfoSetting: InfoSettingFactory;
     createDebouncedTextSetting: DebouncedTextSettingFactory;
+    configureDebouncedTextSetting: DebouncedTextSettingConfigurer;
     createDebouncedTextAreaSetting: DebouncedTextAreaSettingFactory;
+    configureDebouncedTextAreaSetting: DebouncedTextAreaSettingConfigurer;
     /** Registers the element where metadata info should be displayed */
     registerMetadataInfoElement(element: HTMLElement): void;
     /** Registers the element where statistics should be displayed */

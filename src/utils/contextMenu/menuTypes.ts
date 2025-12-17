@@ -105,6 +105,10 @@ export interface FolderMenuOptions {
     disableNavigationSeparatorActions?: boolean;
 }
 
+export interface TagMenuOptions {
+    disableNavigationSeparatorActions?: boolean;
+}
+
 /**
  * Parameters for folder menu builder
  */
@@ -118,6 +122,7 @@ export interface FolderMenuBuilderParams extends MenuBuilderParams {
  */
 export interface TagMenuBuilderParams extends MenuBuilderParams {
     tagPath: string;
+    options?: TagMenuOptions;
 }
 
 /**
