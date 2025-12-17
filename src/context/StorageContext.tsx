@@ -63,7 +63,7 @@ import { useUXPreferences } from './UXPreferencesContext';
 import { NotebookNavigatorSettings } from '../settings';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { ContentType } from '../interfaces/IContentProvider';
-import { getActiveHiddenFiles, getActiveHiddenFolders } from '../utils/vaultProfiles';
+import { getActiveHiddenFileNamePatterns, getActiveHiddenFiles, getActiveHiddenFolders } from '../utils/vaultProfiles';
 
 /**
  * Returns content types that require Obsidian's metadata cache to be ready
@@ -221,7 +221,7 @@ interface StorageProviderProps {
 
 export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const settings = useSettingsState();
-    const { hiddenFolders, hiddenFiles, hiddenTags, fileVisibility, profile } = useActiveProfile();
+    const { hiddenFolders, hiddenFiles, hiddenFileNamePatterns, hiddenTags, fileVisibility, profile } = useActiveProfile();
     const uxPreferences = useUXPreferences();
     const showHiddenItems = uxPreferences.showHiddenItems;
     const hiddenFoldersRef = useRef(hiddenFolders);
@@ -1546,6 +1546,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         const excludedFoldersChanged = haveStringArraysChanged(previousHiddenFolders, hiddenFolders);
         const previousHiddenFiles = getActiveHiddenFiles(previousSettings);
         const excludedFilesChanged = haveStringArraysChanged(previousHiddenFiles, hiddenFiles);
+        const previousHiddenFileNamePatterns = getActiveHiddenFileNamePatterns(previousSettings);
+        const excludedFileNamePatternsChanged = haveStringArraysChanged(previousHiddenFileNamePatterns, hiddenFileNamePatterns);
 
         if (excludedFoldersChanged || excludedFilesChanged) {
             runAsyncAction(async () => {
@@ -1631,6 +1633,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     console.error('Error resyncing cache after exclusion changes:', error);
                 }
             });
+        } else if (excludedFileNamePatternsChanged) {
+            if (settings.showTags) {
+                rebuildTagTree();
+            }
         }
 
         prevSettings.current = settings;
@@ -1638,6 +1644,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         settings,
         hiddenFolders,
         hiddenFiles,
+        hiddenFileNamePatterns,
         handleSettingsChanges,
         rebuildTagTree,
         getIndexableMarkdownFiles,

@@ -845,6 +845,11 @@ export const STRINGS_KO = {
                 desc: '쉼표로 구분된 frontmatter 속성 목록입니다. 이러한 속성 중 하나라도 포함된 노트는 숨겨집니다 (예: draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            excludedFileNamePatterns: {
+                name: '파일 숨기기 (볼트 프로필)',
+                desc: '숨길 파일 이름 패턴의 쉼표로 구분된 목록입니다. * 와일드카드와 / 경로를 지원합니다 (예: temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: '보관소 프로필',
                 desc: '프로필은 파일 유형 가시성, 숨겨진 폴더, 숨겨진 태그, 숨겨진 노트, 바로가기, 탐색 배너를 저장합니다. 탐색 창 헤더에서 프로필을 전환합니다.',

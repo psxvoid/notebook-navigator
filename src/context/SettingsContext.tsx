@@ -35,6 +35,7 @@ export interface ActiveProfileState {
     profile: VaultProfile;
     hiddenFolders: string[];
     hiddenFiles: string[];
+    hiddenFileNamePatterns: string[];
     hiddenTags: string[];
     fileVisibility: FileVisibility;
     navigationBanner: string | null;
@@ -166,9 +167,10 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
             // Create deep copies of profile arrays to prevent shared references
             nextSettings.vaultProfiles = plugin.settings.vaultProfiles.map(profile => ({
                 ...profile,
-                hiddenFolders: [...profile.hiddenFolders],
-                hiddenFiles: [...profile.hiddenFiles],
-                hiddenTags: [...profile.hiddenTags],
+                hiddenFolders: Array.isArray(profile.hiddenFolders) ? [...profile.hiddenFolders] : [],
+                hiddenFiles: Array.isArray(profile.hiddenFiles) ? [...profile.hiddenFiles] : [],
+                hiddenFileNamePatterns: Array.isArray(profile.hiddenFileNamePatterns) ? [...profile.hiddenFileNamePatterns] : [],
+                hiddenTags: Array.isArray(profile.hiddenTags) ? [...profile.hiddenTags] : [],
                 shortcuts: cloneShortcuts(profile.shortcuts)
             }));
         }
@@ -200,6 +202,10 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
 
         const hiddenFoldersEqual = areStringArraysEqual(previous?.profile.hiddenFolders ?? [], profile.hiddenFolders);
         const hiddenFilesEqual = areStringArraysEqual(previous?.profile.hiddenFiles ?? [], profile.hiddenFiles);
+        const hiddenFileNamePatternsEqual = areStringArraysEqual(
+            previous?.profile.hiddenFileNamePatterns ?? [],
+            profile.hiddenFileNamePatterns
+        );
         const hiddenTagsEqual = areStringArraysEqual(previous?.profile.hiddenTags ?? [], profile.hiddenTags);
         const fileVisibilityEqual = previous?.profile.fileVisibility === profile.fileVisibility;
         const navigationBanner = profile.navigationBanner ?? null;
@@ -211,6 +217,7 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
             isSameProfile &&
             hiddenFoldersEqual &&
             hiddenFilesEqual &&
+            hiddenFileNamePatternsEqual &&
             hiddenTagsEqual &&
             fileVisibilityEqual &&
             navigationBannerEqual &&
@@ -225,6 +232,7 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
             profile,
             hiddenFolders: profile.hiddenFolders,
             hiddenFiles: profile.hiddenFiles,
+            hiddenFileNamePatterns: profile.hiddenFileNamePatterns,
             hiddenTags: profile.hiddenTags,
             fileVisibility: profile.fileVisibility,
             navigationBanner

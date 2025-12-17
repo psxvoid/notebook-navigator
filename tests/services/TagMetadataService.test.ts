@@ -44,6 +44,7 @@ function createSettings(): NotebookNavigatorSettings {
             ...profile,
             hiddenFolders: [...profile.hiddenFolders],
             hiddenFiles: [...profile.hiddenFiles],
+            hiddenFileNamePatterns: [...profile.hiddenFileNamePatterns],
             hiddenTags: [...profile.hiddenTags],
             shortcuts: [...profile.shortcuts]
         }))

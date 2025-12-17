@@ -1,7 +1,7 @@
 import type { NotebookNavigatorSettings } from '../settings';
 import type { App, TFile } from 'obsidian';
-import { isFolderInExcludedFolder, shouldExcludeFile } from './fileFilters';
-import { getActiveHiddenFiles, getActiveHiddenFolders, getActiveHiddenTags } from './vaultProfiles';
+import { isFolderInExcludedFolder, shouldExcludeFile, shouldExcludeFileName } from './fileFilters';
+import { getActiveHiddenFileNamePatterns, getActiveHiddenFiles, getActiveHiddenFolders, getActiveHiddenTags } from './vaultProfiles';
 
 // Shared empty array used when hidden items are shown to signal no exclusions should apply
 const NO_EXCLUSIONS: string[] = [];
@@ -26,8 +26,9 @@ export function getEffectiveFrontmatterExclusions(settings: NotebookNavigatorSet
 export function hasHiddenItemSources(settings: NotebookNavigatorSettings): boolean {
     const hiddenFolders = getActiveHiddenFolders(settings);
     const hiddenFiles = getActiveHiddenFiles(settings);
+    const hiddenFileNamePatterns = getActiveHiddenFileNamePatterns(settings);
     const hiddenTags = getActiveHiddenTags(settings);
-    return hiddenFolders.length > 0 || hiddenTags.length > 0 || hiddenFiles.length > 0;
+    return hiddenFolders.length > 0 || hiddenTags.length > 0 || hiddenFiles.length > 0 || hiddenFileNamePatterns.length > 0;
 }
 
 /**
@@ -53,8 +54,13 @@ export function isFileHiddenBySettings(file: TFile, settings: NotebookNavigatorS
     }
     const hiddenFiles = getActiveHiddenFiles(settings);
     const hiddenFolders = getActiveHiddenFolders(settings);
+    const hiddenFileNamePatterns = getActiveHiddenFileNamePatterns(settings);
     const hasHiddenFrontmatter = file.extension === 'md' && hiddenFiles.length > 0 && shouldExcludeFile(file, hiddenFiles, app);
     if (hasHiddenFrontmatter) {
+        return true;
+    }
+
+    if (hiddenFileNamePatterns.length > 0 && shouldExcludeFileName(file, hiddenFileNamePatterns)) {
         return true;
     }
 

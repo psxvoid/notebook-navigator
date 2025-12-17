@@ -844,6 +844,11 @@ export const STRINGS_ZH_TW = {
                 desc: '以逗號分隔的 frontmatter 屬性清單。包含任何這些屬性的筆記將被隱藏 (例如 draft, private, archived)。',
                 placeholder: 'draft, private'
             },
+            excludedFileNamePatterns: {
+                name: '隱藏檔案 (儲存庫配置)',
+                desc: '以逗號分隔的檔案名稱模式清單，用於隱藏檔案。支援 * 萬用字元和 / 路徑（例如：temp-*、*.png、/assets/*）。',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: '倉庫設定檔',
                 desc: '設定檔儲存檔案類型可見性、隱藏資料夾、隱藏標籤、隱藏筆記、捷徑和導覽橫幅。從導覽窗格標題切換設定檔。',

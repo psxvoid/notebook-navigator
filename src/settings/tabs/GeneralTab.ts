@@ -141,6 +141,7 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     let excludedFoldersInput: HTMLInputElement | null = null;
     let hiddenTagsInput: HTMLInputElement | null = null;
     let excludedFilesInput: HTMLInputElement | null = null;
+    let hiddenFileNamePatternsInput: HTMLInputElement | null = null;
 
     // Updates all profile-related UI controls with current settings values
     const refreshProfileControls = () => {
@@ -175,6 +176,9 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         }
         if (excludedFilesInput) {
             excludedFilesInput.value = activeProfile ? activeProfile.hiddenFiles.join(', ') : '';
+        }
+        if (hiddenFileNamePatternsInput) {
+            hiddenFileNamePatternsInput.value = activeProfile ? activeProfile.hiddenFileNamePatterns.join(', ') : '';
         }
     };
 
@@ -300,6 +304,34 @@ export function renderGeneralTab(context: SettingsTabContext): void {
                 return dropdown;
             });
     });
+
+    const hiddenFileNamePatternsSetting = filteringGroup.addSetting(setting => {
+        configureDebouncedTextSetting(
+            setting,
+            strings.settings.items.excludedFileNamePatterns.name,
+            strings.settings.items.excludedFileNamePatterns.desc,
+            strings.settings.items.excludedFileNamePatterns.placeholder,
+            () => getActiveProfile()?.hiddenFileNamePatterns.join(', ') ?? '',
+            value => {
+                const activeProfile = getActiveProfile();
+                if (!activeProfile) {
+                    return;
+                }
+                const nextHiddenPatterns = value
+                    .split(',')
+                    .map(pattern => pattern.trim())
+                    .filter(pattern => pattern.length > 0);
+                activeProfile.hiddenFileNamePatterns = Array.from(new Set(nextHiddenPatterns));
+                resetHiddenToggleIfNoSources({
+                    settings: plugin.settings,
+                    showHiddenItems: plugin.getUXPreferences().showHiddenItems,
+                    setShowHiddenItems: value => plugin.setShowHiddenItems(value)
+                });
+            }
+        );
+    });
+    hiddenFileNamePatternsSetting.controlEl.addClass('nn-setting-wide-input');
+    hiddenFileNamePatternsInput = hiddenFileNamePatternsSetting.controlEl.querySelector('input');
 
     const excludedFoldersSetting = filteringGroup.addSetting(setting => {
         configureDebouncedTextSetting(

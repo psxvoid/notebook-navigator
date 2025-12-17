@@ -828,6 +828,11 @@ export const STRINGS_DE = {
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften. Notizen mit diesen Eigenschaften werden ausgeblendet (z.B. Entwurf, privat, archiviert).',
                 placeholder: 'entwurf, privat'
             },
+            excludedFileNamePatterns: {
+                name: 'Dateien verstecken (Tresorprofil)',
+                desc: 'Kommagetrennte Liste von Dateinamenmustern zum Ausblenden. Unterstützt * Platzhalter und / Pfade (z.B. temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: 'Tresorprofil',
                 desc: 'Profile speichern Dateityp-Sichtbarkeit, versteckte Ordner, versteckte Tags, versteckte Notizen, Verknüpfungen und Navigationsbanner. Profile können über die Kopfzeile des Navigationsbereichs gewechselt werden.',

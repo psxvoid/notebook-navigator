@@ -54,6 +54,7 @@ import { isRecord } from './utils/typeGuards';
 import { runAsyncAction } from './utils/async';
 import { resetHiddenToggleIfNoSources } from './utils/exclusionUtils';
 import { ensureVaultProfiles, DEFAULT_VAULT_PROFILE_ID, cloneShortcuts, clearHiddenFolderMatcherCache } from './utils/vaultProfiles';
+import { clearHiddenFileNameMatcherCache } from './utils/fileFilters';
 import WorkspaceCoordinator from './services/workspace/WorkspaceCoordinator';
 import HomepageController from './services/workspace/HomepageController';
 import registerNavigatorCommands from './services/commands/registerNavigatorCommands';
@@ -158,6 +159,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private shouldPersistMobileScale = false;
     private hiddenFolderCacheKey: string | null = null;
     private hiddenTagCacheKey: string | null = null;
+    private hiddenFileNameCacheKey: string | null = null;
 
     // Keys used for persisting UI state in browser localStorage
     keys: LocalStorageKeys = STORAGE_KEYS;
@@ -1707,10 +1709,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         return entries.map(entry => `${entry.id}:${entry.key}`).join('\u0002');
     }
 
-    // Clears matcher caches only when the hidden folder or tag patterns change.
+    // Clears matcher caches only when the associated patterns change.
     private refreshMatcherCachesIfNeeded(): void {
         const folderKey = this.buildPatternCacheKey(profile => profile.hiddenFolders);
         const tagKey = this.buildPatternCacheKey(profile => profile.hiddenTags);
+        const fileNameKey = this.buildPatternCacheKey(profile => profile.hiddenFileNamePatterns);
 
         if (folderKey !== this.hiddenFolderCacheKey) {
             clearHiddenFolderMatcherCache();
@@ -1720,6 +1723,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         if (tagKey !== this.hiddenTagCacheKey) {
             clearHiddenTagPatternCache();
             this.hiddenTagCacheKey = tagKey;
+        }
+
+        if (fileNameKey !== this.hiddenFileNameCacheKey) {
+            clearHiddenFileNameMatcherCache();
+            this.hiddenFileNameCacheKey = fileNameKey;
         }
     }
 

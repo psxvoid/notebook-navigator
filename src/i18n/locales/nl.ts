@@ -847,6 +847,11 @@ export const STRINGS_NL = {
                 desc: 'Kommagescheiden lijst van frontmatter-eigenschappen. Notities met een van deze eigenschappen worden verborgen (bijv. draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            excludedFileNamePatterns: {
+                name: 'Bestanden verbergen (kluisprofiel)',
+                desc: 'Kommagescheiden lijst van bestandsnaampatronen om te verbergen. Ondersteunt * jokertekens en / paden (bijv. temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: 'Kluis profiel',
                 desc: 'Profielen bewaren bestandstypezichtbaarheid, verborgen mappen, verborgen labels, verborgen notities, snelkoppelingen en navigatiebanner. Wissel van profiel via de koptekst van het navigatiepaneel.',

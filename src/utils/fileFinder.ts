@@ -23,6 +23,7 @@ import { TAGGED_TAG_ID, UNTAGGED_TAG_ID } from '../types';
 import {
     shouldExcludeFile,
     shouldExcludeFolder,
+    createHiddenFileNameMatcherForVisibility,
     getFilteredDocumentFiles,
     getFilteredFiles,
     isPathInExcludedFolder,
@@ -37,7 +38,13 @@ import { METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { getFileDisplayName as getDisplayName } from './fileNameUtils';
 import { isFolderNote } from './folderNotes';
 import { createHiddenTagVisibility, normalizeTagPathValue } from './tagPrefixMatcher';
-import { getActiveFileVisibility, getActiveHiddenFiles, getActiveHiddenFolders, getActiveHiddenTags } from './vaultProfiles';
+import {
+    getActiveFileVisibility,
+    getActiveHiddenFileNamePatterns,
+    getActiveHiddenFiles,
+    getActiveHiddenFolders,
+    getActiveHiddenTags
+} from './vaultProfiles';
 
 interface CollectPinnedPathsOptions {
     restrictToFolderPath?: string;
@@ -131,7 +138,9 @@ export function getFilesForFolder(
     const files: TFile[] = [];
     const excludedFolderPatterns = getActiveHiddenFolders(settings);
     const excludedFileProperties = getActiveHiddenFiles(settings);
+    const excludedFileNamePatterns = getActiveHiddenFileNamePatterns(settings);
     const fileVisibility = getActiveFileVisibility(settings);
+    const fileNameMatcher = createHiddenFileNameMatcherForVisibility(excludedFileNamePatterns, visibility.showHiddenItems);
 
     // Check if hidden folders should be shown based on UX preference
     const showHiddenFolders = visibility.showHiddenItems;
@@ -167,6 +176,9 @@ export function getFilesForFolder(
     let allFiles: TFile[] = files;
     if (!visibility.showHiddenItems && excludedFileProperties.length > 0) {
         allFiles = files.filter(file => file.extension !== 'md' || !shouldExcludeFile(file, excludedFileProperties, app));
+    }
+    if (fileNameMatcher) {
+        allFiles = allFiles.filter(file => !fileNameMatcher.matches(file));
     }
 
     // Filter out folder notes if enabled and set to hide

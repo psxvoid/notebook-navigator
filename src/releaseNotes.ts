@@ -74,13 +74,14 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.9.2',
-        date: '2025-12-16',
+        date: '2025-12-17',
         showOnUpdate: true,
         new: [
-            'New setting: Notes > Appearance > ==Strip HTML in previews==. Default enabled - removes html tags like <br>, <ul> etc from note previews in list pane.'
+            'New setting: Notes > Appearance > ==Strip HTML in previews==. Default enabled - removes html tags like <br>, <ul> etc from note previews in list pane.',
+            'New setting: General > Filtering > ==Hide files==. You can now hide filenames by pattern, like temp-* or *.png.'
         ],
         improved: [
-            'Settings now support the new ==SettingGroup API== in Obsidian 1.11 and later. Settings groups are now clearly outlined.',
+            'Settings now support the new ==SettingGroup API== in Obsidian 1.11 and later. Settings groups are now clearly outlined in settings.',
             '==Toolbar buttons in iOS== now uses the Liquid Glass style in Obsidian 1.11 and later.',
             'Commands: ==Select next file== and ==Select previous file== no longer reveal the Notebook Navigator view.'
         ],

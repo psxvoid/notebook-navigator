@@ -845,6 +845,11 @@ export const STRINGS_ID = {
                 desc: 'Daftar properti frontmatter yang dipisahkan koma. Catatan yang berisi properti ini akan disembunyikan (misal, draf, pribadi, arsip).',
                 placeholder: 'draf, pribadi'
             },
+            excludedFileNamePatterns: {
+                name: 'Sembunyikan file (profil vault)',
+                desc: 'Daftar pola nama file yang dipisahkan koma untuk disembunyikan. Mendukung wildcard * dan jalur / (misal, temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: 'Profil vault',
                 desc: 'Profil menyimpan visibilitas jenis file, folder tersembunyi, tag tersembunyi, catatan tersembunyi, pintasan, dan banner navigasi. Beralih profil dari header panel navigasi.',

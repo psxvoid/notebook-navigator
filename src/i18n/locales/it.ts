@@ -845,6 +845,11 @@ export const STRINGS_IT = {
                 desc: 'Lista di proprietà frontmatter separate da virgola. Le note contenenti una qualsiasi di queste proprietà saranno nascoste (es. bozza, privato, archiviato).',
                 placeholder: 'bozza, privato'
             },
+            excludedFileNamePatterns: {
+                name: 'Nascondi file (profilo vault)',
+                desc: 'Lista di pattern di nomi file separati da virgola da nascondere. Supporta caratteri jolly * e percorsi / (es. temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: 'Profilo vault',
                 desc: "I profili memorizzano visibilità tipi file, cartelle nascoste, tag nascosti, note nascoste, scorciatoie e banner navigazione. Cambia profilo dall'intestazione del pannello navigazione.",

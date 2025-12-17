@@ -845,6 +845,11 @@ export const STRINGS_PT = {
                 desc: 'Lista de propriedades frontmatter separadas por vírgulas. Notas contendo qualquer destas propriedades serão ocultadas (ex: rascunho, privado, arquivo).',
                 placeholder: 'rascunho, privado'
             },
+            excludedFileNamePatterns: {
+                name: 'Ocultar ficheiros (perfil do cofre)',
+                desc: 'Lista de padrões de nomes de ficheiros separados por vírgulas para ocultar. Suporta curingas * e caminhos / (ex: temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: 'Perfil do cofre',
                 desc: 'Os perfis armazenam visibilidade de tipos de ficheiro, pastas ocultas, etiquetas ocultas, notas ocultas, atalhos e banner de navegação. Mude de perfis a partir do cabeçalho do painel de navegação.',
