@@ -413,6 +413,11 @@ export const STRINGS_UK = {
             noFolderSelected: 'У Notebook Navigator не вибрано папку',
             noFileSelected: 'Файл не вибрано'
         },
+        warnings: {
+            linkBreakingNameCharacters: "Це ім'я містить символи, які ламають посилання Obsidian: #, |, ^, %%, [[, ]].",
+            forbiddenNameCharactersAllPlatforms: 'Імена не можуть починатися з крапки або містити : чи /.',
+            forbiddenNameCharactersWindows: 'Зарезервовані в Windows символи не дозволені: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Папку сховано: {name}',
             showFolder: 'Папку показано: {name}'
@@ -927,10 +932,6 @@ export const STRINGS_UK = {
                 help: 'Поширені формати:\nh:mm a = 2:30 PM (12-годинний)\nHH:mm = 14:30 (24-годинний)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nТокени:\nHH/H = 24-годинний\nhh/h = 12-годинний\nmm = хвилини\nss = секунди\na = AM/PM',
                 helpTooltip: 'Натисніть для довідки по форматах'
             },
-            preventInvalidCharacters: {
-                name: 'Запобігати недійсним символам',
-                desc: 'Блокувати #, |, ^, :, %%, [[, ]] при створенні або перейменуванні файлів і папок.'
-            },
             showFilePreview: {
                 name: 'Показувати попередній перегляд нотатки',
                 desc: 'Відображати текст попереднього перегляду під назвами нотаток.'
@@ -942,6 +943,10 @@ export const STRINGS_UK = {
             skipCodeBlocksInPreview: {
                 name: 'Пропускати блоки коду в попередньому перегляді',
                 desc: 'Пропускати блоки коду при генерації тексту попереднього перегляду.'
+            },
+            stripHtmlInPreview: {
+                name: 'Видаляти HTML у попередньому перегляді',
+                desc: 'Видаляти HTML-теги з тексту попереднього перегляду. Може впливати на продуктивність у великих нотатках.'
             },
             previewProperties: {
                 name: 'Властивості попереднього перегляду',

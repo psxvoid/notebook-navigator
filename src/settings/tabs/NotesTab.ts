@@ -23,6 +23,9 @@ import { ISO_DATE_FORMAT } from '../../utils/dateUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { runAsyncAction } from '../../utils/async';
+import { createSettingGroupFactory } from '../settingGroups';
+import { setElementVisible, wireToggleSettingWithSubSettings } from '../subSettings';
+
 import { buildTextReplaceSettings } from './common/TextReplaceSettingsBuilder';
 
 /**
@@ -59,22 +62,23 @@ function countMarkdownMetadataEntries(records: Record<string, string> | undefine
 export function renderNotesTab(context: SettingsTabContext): void {
     const { app, containerEl, plugin } = context;
 
-    new Setting(containerEl).setName(strings.settings.groups.notes.frontmatter).setHeading();
+    const createGroup = createSettingGroupFactory(containerEl);
+    const frontmatterGroup = createGroup(strings.settings.groups.notes.frontmatter);
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.useFrontmatterDates.name)
-        .setDesc(strings.settings.items.useFrontmatterDates.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.useFrontmatterMetadata).onChange(async value => {
-                plugin.settings.useFrontmatterMetadata = value;
-                await plugin.saveSettingsAndUpdate();
-                frontmatterSettingsEl.toggle(value);
-                // Use context directly to satisfy eslint exhaustive-deps requirements
-                context.requestStatisticsRefresh();
-            })
-        );
+    const useFrontmatterSetting = frontmatterGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.useFrontmatterDates.name).setDesc(strings.settings.items.useFrontmatterDates.desc);
+    });
 
-    const frontmatterSettingsEl = containerEl.createDiv('nn-sub-settings');
+    const frontmatterSettingsEl = wireToggleSettingWithSubSettings(
+        useFrontmatterSetting,
+        () => plugin.settings.useFrontmatterMetadata,
+        async value => {
+            plugin.settings.useFrontmatterMetadata = value;
+            await plugin.saveSettingsAndUpdate();
+            // Use context directly to satisfy eslint exhaustive-deps requirements
+            context.requestStatisticsRefresh();
+        }
+    );
     // Function to update visibility of frontmatter save setting based on field values
     let updateFrontmatterSaveVisibility: (() => void) | null = null;
 
@@ -126,7 +130,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
         const hasIconField = plugin.settings.frontmatterIconField.trim().length > 0;
         const hasColorField = plugin.settings.frontmatterColorField.trim().length > 0;
         const canSaveMetadata = hasIconField || hasColorField;
-        frontmatterSaveSetting.settingEl.toggle(canSaveMetadata);
+        setElementVisible(frontmatterSaveSetting.settingEl, canSaveMetadata);
     };
 
     updateFrontmatterSaveVisibility();
@@ -202,7 +206,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
         descriptionEl.createDiv({ text: descriptionText });
         const shouldShow = !noMigrationsPending && plugin.settings.saveMetadataToFrontmatter;
         migrateButton?.setDisabled(!plugin.settings.saveMetadataToFrontmatter || noMigrationsPending);
-        migrationSetting.settingEl.toggle(shouldShow);
+        setElementVisible(migrationSetting.settingEl, shouldShow);
     };
 
     updateMigrationDescription();
@@ -275,48 +279,44 @@ export function renderNotesTab(context: SettingsTabContext): void {
     });
     context.registerMetadataInfoElement(metadataInfoEl);
 
-    new Setting(containerEl).setName(strings.settings.groups.notes.display).setHeading();
+    const displayGroup = createGroup(strings.settings.groups.notes.display);
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.fileNameRows.name)
-        .setDesc(strings.settings.items.fileNameRows.desc)
-        .addDropdown(dropdown =>
-            dropdown
-                .addOption('1', strings.settings.items.fileNameRows.options['1'])
-                .addOption('2', strings.settings.items.fileNameRows.options['2'])
-                .setValue(plugin.settings.fileNameRows.toString())
-                .onChange(async value => {
-                    plugin.settings.fileNameRows = parseInt(value, 10);
-                    await plugin.saveSettingsAndUpdate();
-                })
-        );
-
-    const titleGroupEl = containerEl.createDiv('nn-sub-settings');
+    displayGroup.addSetting(setting => {
+        setting
+            .setName(strings.settings.items.fileNameRows.name)
+            .setDesc(strings.settings.items.fileNameRows.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('1', strings.settings.items.fileNameRows.options['1'])
+                    .addOption('2', strings.settings.items.fileNameRows.options['2'])
+                    .setValue(plugin.settings.fileNameRows.toString())
+                    .onChange(async value => {
+                        plugin.settings.fileNameRows = parseInt(value, 10);
+                        await plugin.saveSettingsAndUpdate();
+                    })
+            );
+    });
 
     buildTextReplaceSettings({
         getSource: () => plugin.settings.noteTitleTransform,
-        getSettingsElement: () => titleGroupEl,
+        rootGroupFactory: displayGroup,
+        getSettingFactory: () => (parentEl: HTMLElement) => createSettingGroupFactory(parentEl)(),
         getPlugin: () => plugin,
         optionName: strings.settings.items.titleTransformName
     })
 
-    // Container for settings that depend on showFileDate being enabled
-    const fileDateSubSettingsEl = containerEl.createDiv('nn-sub-settings');
-    new Setting(containerEl)
-        .setName(strings.settings.items.showFileDate.name)
-        .setDesc(strings.settings.items.showFileDate.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showFileDate).onChange(async value => {
-                plugin.settings.showFileDate = value;
-                await plugin.saveSettingsAndUpdate();
-                // Show or hide dependent settings based on toggle state
-                fileDateSubSettingsEl.toggle(value);
-            })
-        );
+    const showFileDateSetting = displayGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.showFileDate.name).setDesc(strings.settings.items.showFileDate.desc);
+    });
 
-    containerEl.appendChild(fileDateSubSettingsEl);
-    // Initially show or hide based on current setting value
-    fileDateSubSettingsEl.toggle(plugin.settings.showFileDate);
+    const fileDateSubSettingsEl = wireToggleSettingWithSubSettings(
+        showFileDateSetting,
+        () => plugin.settings.showFileDate,
+        async value => {
+            plugin.settings.showFileDate = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
 
     // Dropdown to choose which date to display when sorting alphabetically
     new Setting(fileDateSubSettingsEl)
@@ -333,61 +333,30 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 })
         );
 
-    const showFileTagsSetting = new Setting(containerEl)
-        .setName(strings.settings.items.showFileTags.name)
-        .setDesc(strings.settings.items.showFileTags.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showFileTags).onChange(async value => {
-                plugin.settings.showFileTags = value;
-                await plugin.saveSettingsAndUpdate();
-                fileTagsSubSettingsEl.toggle(value);
-            })
-        );
+    const showFileTagsSetting = displayGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.showFileTags.name).setDesc(strings.settings.items.showFileTags.desc);
+    });
 
-    const fileTagsSubSettingsEl = containerEl.createDiv('nn-sub-settings');
-    let colorFileTagsSubSettingsEl: HTMLElement | null = null;
+    const fileTagsSubSettingsEl = wireToggleSettingWithSubSettings(
+        showFileTagsSetting,
+        () => plugin.settings.showFileTags,
+        async value => {
+            plugin.settings.showFileTags = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
 
-    new Setting(fileTagsSubSettingsEl)
-        .setName(strings.settings.items.showFileTagAncestors.name)
-        .setDesc(strings.settings.items.showFileTagAncestors.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showFileTagAncestors).onChange(async value => {
-                plugin.settings.showFileTagAncestors = value;
-                await plugin.saveSettingsAndUpdate();
-                fileTagsAncestorsEl.toggle(value)
-            })
-        );
-
-    const fileTagsAncestorsEl = containerEl.createDiv('nn-sub-settings');
-
-    new Setting(fileTagsAncestorsEl)
-        .setName(strings.settings.items.collapseFileTagsToSelectedTag.name)
-        .setDesc(strings.settings.items.collapseFileTagsToSelectedTag.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.collapseFileTagsToSelectedTag).onChange(async value => {
-                plugin.settings.collapseFileTagsToSelectedTag = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    new Setting(fileTagsSubSettingsEl)
+    const colorFileTagsSetting = new Setting(fileTagsSubSettingsEl)
         .setName(strings.settings.items.colorFileTags.name)
-        .setDesc(strings.settings.items.colorFileTags.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.colorFileTags).onChange(async value => {
-                plugin.settings.colorFileTags = value;
-                await plugin.saveSettingsAndUpdate();
-                if (colorFileTagsSubSettingsEl) {
-                    colorFileTagsSubSettingsEl.toggle(value);
-                }
-            })
-        );
-
-    colorFileTagsSubSettingsEl = fileTagsSubSettingsEl.createDiv('nn-sub-settings');
-
-    if (!colorFileTagsSubSettingsEl) {
-        throw new Error('Failed to create file tag color settings container');
-    }
+        .setDesc(strings.settings.items.colorFileTags.desc);
+    const colorFileTagsSubSettingsEl = wireToggleSettingWithSubSettings(
+        colorFileTagsSetting,
+        () => plugin.settings.colorFileTags,
+        async value => {
+            plugin.settings.colorFileTags = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
 
     new Setting(colorFileTagsSubSettingsEl)
         .setName(strings.settings.items.prioritizeColoredFileTags.name)
@@ -398,7 +367,6 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 await plugin.saveSettingsAndUpdate();
             })
         );
-    colorFileTagsSubSettingsEl.toggle(plugin.settings.colorFileTags);
 
     new Setting(fileTagsSubSettingsEl)
         .setName(strings.settings.items.showFileTagAncestors.name)
@@ -419,19 +387,29 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 await plugin.saveSettingsAndUpdate();
             })
         );
-
-    new Setting(containerEl)
-        .setName(strings.settings.items.showParentFolder.name)
-        .setDesc(strings.settings.items.showParentFolder.desc)
+    
+    new Setting(fileTagsSubSettingsEl)
+        .setName(strings.settings.items.collapseFileTagsToSelectedTag.name)
+        .setDesc(strings.settings.items.collapseFileTagsToSelectedTag.desc)
         .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showParentFolder).onChange(async value => {
-                plugin.settings.showParentFolder = value;
+            toggle.setValue(plugin.settings.collapseFileTagsToSelectedTag).onChange(async value => {
+                plugin.settings.collapseFileTagsToSelectedTag = value;
                 await plugin.saveSettingsAndUpdate();
-                parentFolderSettingsEl.toggle(value);
             })
         );
 
-    const parentFolderSettingsEl = containerEl.createDiv('nn-sub-settings');
+    const showParentFolderSetting = displayGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.showParentFolder.name).setDesc(strings.settings.items.showParentFolder.desc);
+    });
+
+    const parentFolderSettingsEl = wireToggleSettingWithSubSettings(
+        showParentFolderSetting,
+        () => plugin.settings.showParentFolder,
+        async value => {
+            plugin.settings.showParentFolder = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
 
     new Setting(parentFolderSettingsEl)
         .setName(strings.settings.items.parentFolderClickRevealsFile.name)
@@ -453,18 +431,18 @@ export function renderNotesTab(context: SettingsTabContext): void {
             })
         );
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.showFilePreview.name)
-        .setDesc(strings.settings.items.showFilePreview.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showFilePreview).onChange(async value => {
-                plugin.settings.showFilePreview = value;
-                await plugin.saveSettingsAndUpdate();
-                previewSettingsEl.toggle(value);
-            })
-        );
+    const showPreviewSetting = displayGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.showFilePreview.name).setDesc(strings.settings.items.showFilePreview.desc);
+    });
 
-    const previewSettingsEl = containerEl.createDiv('nn-sub-settings');
+    const previewSettingsEl = wireToggleSettingWithSubSettings(
+        showPreviewSetting,
+        () => plugin.settings.showFilePreview,
+        async value => {
+            plugin.settings.showFilePreview = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
 
     new Setting(previewSettingsEl)
         .setName(strings.settings.items.skipHeadingsInPreview.name)
@@ -482,6 +460,16 @@ export function renderNotesTab(context: SettingsTabContext): void {
         .addToggle(toggle =>
             toggle.setValue(plugin.settings.skipCodeBlocksInPreview).onChange(async value => {
                 plugin.settings.skipCodeBlocksInPreview = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(previewSettingsEl)
+        .setName(strings.settings.items.stripHtmlInPreview.name)
+        .setDesc(strings.settings.items.stripHtmlInPreview.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.stripHtmlInPreview).onChange(async value => {
+                plugin.settings.stripHtmlInPreview = value;
                 await plugin.saveSettingsAndUpdate();
             })
         );
@@ -526,23 +514,29 @@ export function renderNotesTab(context: SettingsTabContext): void {
 
     buildTextReplaceSettings({
         getSource: () => plugin.settings.notePreviewTransform,
-        getSettingsElement: () => previewSettingsEl,
+        rootGroupFactory: {
+            rootEl: previewSettingsEl,
+            addSetting: (callback: (cbSetting: Setting) => void) => {
+                callback(new Setting(previewSettingsEl))
+            }
+        },
+        getSettingFactory: () => (parentEl: HTMLElement) => createSettingGroupFactory(parentEl)(),
         getPlugin: () => plugin,
         optionName: strings.settings.items.previewTransformName
     })
 
-    new Setting(containerEl)
-        .setName(strings.settings.items.showFeatureImage.name)
-        .setDesc(strings.settings.items.showFeatureImage.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showFeatureImage).onChange(async value => {
-                plugin.settings.showFeatureImage = value;
-                await plugin.saveSettingsAndUpdate();
-                featureImageSettingsEl.toggle(value);
-            })
-        );
+    const showFeatureImageSetting = displayGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.showFeatureImage.name).setDesc(strings.settings.items.showFeatureImage.desc);
+    });
 
-    const featureImageSettingsEl = containerEl.createDiv('nn-sub-settings');
+    const featureImageSettingsEl = wireToggleSettingWithSubSettings(
+        showFeatureImageSetting,
+        () => plugin.settings.showFeatureImage,
+        async value => {
+            plugin.settings.showFeatureImage = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
 
     const featurePropertiesSetting = context.createDebouncedTextSetting(
         featureImageSettingsEl,
@@ -578,7 +572,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
                 await plugin.saveSettingsAndUpdate();
             })
         );
-
+    
     new Setting(featureImageSettingsEl)
         .setName(strings.settings.items.featureImageSize.name)
         .setDesc(strings.settings.items.featureImageSize.desc)
@@ -609,14 +603,8 @@ export function renderNotesTab(context: SettingsTabContext): void {
             })
         });
 
-    fileTagsSubSettingsEl.toggle(plugin.settings.showFileTags);
-    parentFolderSettingsEl.toggle(plugin.settings.showParentFolder);
-    previewSettingsEl.toggle(plugin.settings.showFilePreview);
-    featureImageSettingsEl.toggle(plugin.settings.showFeatureImage);
-    frontmatterSettingsEl.toggle(plugin.settings.useFrontmatterMetadata);
-
     context.registerShowTagsListener(visible => {
-        showFileTagsSetting.settingEl.toggle(visible);
+        setElementVisible(showFileTagsSetting.settingEl, visible);
     });
 
     context.requestStatisticsRefresh();

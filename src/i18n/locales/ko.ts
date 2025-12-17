@@ -413,6 +413,11 @@ export const STRINGS_KO = {
             noFolderSelected: 'Notebook Navigator에서 선택된 폴더가 없습니다',
             noFileSelected: '선택된 파일이 없습니다'
         },
+        warnings: {
+            linkBreakingNameCharacters: '이 이름에는 Obsidian 링크를 깨뜨리는 문자가 포함되어 있습니다: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: '이름은 . 로 시작할 수 없고 : 또는 / 를 포함할 수 없습니다.',
+            forbiddenNameCharactersWindows: 'Windows에서 예약된 문자는 허용되지 않습니다: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: '폴더 숨김: {name}',
             showFolder: '폴더 표시: {name}'
@@ -926,10 +931,6 @@ export const STRINGS_KO = {
                 help: '일반적인 형식:\nh:mm a = 2:30 PM (12시간)\nHH:mm = 14:30 (24시간)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\n토큰:\nHH/H = 24시간\nhh/h = 12시간\nmm = 분\nss = 초\na = AM/PM',
                 helpTooltip: '형식 참조를 보려면 클릭'
             },
-            preventInvalidCharacters: {
-                name: '잘못된 문자 방지',
-                desc: '파일 및 폴더를 생성하거나 이름을 바꿀 때 #, |, ^, :, %%, [[, ]]를 차단합니다.'
-            },
             showFilePreview: {
                 name: '노트 미리보기 표시',
                 desc: '노트 이름 아래에 미리보기 텍스트를 표시합니다.'
@@ -941,6 +942,10 @@ export const STRINGS_KO = {
             skipCodeBlocksInPreview: {
                 name: '미리보기에서 코드 블록 건너뛰기',
                 desc: '미리보기 텍스트를 생성할 때 코드 블록을 건너뜁니다.'
+            },
+            stripHtmlInPreview: {
+                name: '미리보기에서 HTML 제거',
+                desc: '미리보기 텍스트에서 HTML 태그를 제거합니다. 큰 노트에서는 성능에 영향을 줄 수 있습니다.'
             },
             previewProperties: {
                 name: '미리보기 속성',

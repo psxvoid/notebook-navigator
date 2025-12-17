@@ -416,6 +416,11 @@ export const STRINGS_DE = {
             noFolderSelected: 'Kein Ordner im Notebook Navigator ausgewählt',
             noFileSelected: 'Keine Datei ausgewählt'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Dieser Name enthält Zeichen, die Obsidian-Links zerstören: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Namen dürfen nicht mit einem Punkt beginnen oder : oder / enthalten.',
+            forbiddenNameCharactersWindows: 'Windows-reservierte Zeichen sind nicht erlaubt: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Ordner ausgeblendet: {name}',
             showFolder: 'Ordner eingeblendet: {name}'
@@ -930,10 +935,6 @@ export const STRINGS_DE = {
                 help: 'Gängige Formate:\nHH:mm = 14:30 (24-Stunden)\nh:mm a = 2:30 PM (12-Stunden)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nTokens:\nHH/H = 24-Stunden\nhh/h = 12-Stunden\nmm = Minuten\nss = Sekunden\na = AM/PM',
                 helpTooltip: 'Klicken für Formatreferenz'
             },
-            preventInvalidCharacters: {
-                name: 'Ungültige Zeichen verhindern',
-                desc: '#, |, ^, :, %%, [[, ]] beim Erstellen oder Umbenennen von Dateien und Ordnern blockieren.'
-            },
             showFilePreview: {
                 name: 'Notizenvorschau anzeigen',
                 desc: 'Vorschautext unter Notizennamen anzeigen.'
@@ -945,6 +946,10 @@ export const STRINGS_DE = {
             skipCodeBlocksInPreview: {
                 name: 'Codeblöcke in Vorschau überspringen',
                 desc: 'Codeblöcke bei der Erstellung des Vorschautextes überspringen.'
+            },
+            stripHtmlInPreview: {
+                name: 'HTML in Vorschauen entfernen',
+                desc: 'HTML-Tags aus dem Vorschautext entfernen. Kann die Leistung bei großen Notizen beeinträchtigen.'
             },
             previewProperties: {
                 name: 'Vorschau-Eigenschaften',

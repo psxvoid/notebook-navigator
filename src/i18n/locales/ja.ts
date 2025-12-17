@@ -414,6 +414,11 @@ export const STRINGS_JA = {
             noFolderSelected: 'Notebook Navigatorでフォルダが選択されていません',
             noFileSelected: 'ファイルが選択されていません'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'この名前には Obsidian のリンクを壊す文字が含まれています: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: '名前は . で始められず、: または / を含められません。',
+            forbiddenNameCharactersWindows: 'Windows で予約されている文字は使用できません: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'フォルダを非表示: {name}',
             showFolder: 'フォルダを表示: {name}'
@@ -929,10 +934,6 @@ export const STRINGS_JA = {
                 help: '一般的な形式：\nHH:mm = 14:30（24時間制）\nh:mm a = 2:30 PM（12時間制）\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nトークン：\nHH/H = 24時間制\nhh/h = 12時間制\nmm = 分\nss = 秒\na = AM/PM',
                 helpTooltip: 'クリックして形式リファレンスを表示'
             },
-            preventInvalidCharacters: {
-                name: '無効な文字を防止',
-                desc: 'ファイルやフォルダの作成・名前変更時に #, |, ^, :, %%, [[, ]] をブロックします。'
-            },
             showFilePreview: {
                 name: 'ノートプレビューを表示',
                 desc: 'ノート名の下にプレビューテキストを表示します。'
@@ -944,6 +945,10 @@ export const STRINGS_JA = {
             skipCodeBlocksInPreview: {
                 name: 'プレビューでコードブロックをスキップ',
                 desc: 'プレビューテキスト生成時にコードブロックをスキップします。'
+            },
+            stripHtmlInPreview: {
+                name: 'プレビューのHTMLを削除',
+                desc: 'プレビューテキストからHTMLタグを削除します。大きなノートではパフォーマンスに影響する場合があります。'
             },
             previewProperties: {
                 name: 'プレビュープロパティ',

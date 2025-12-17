@@ -16,21 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Setting } from 'obsidian';
 import { strings } from '../../i18n';
 import { EXTERNAL_ICON_PROVIDERS } from '../../services/icons/external/providerRegistry';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { runAsyncAction } from '../../utils/async';
 import { showNotice } from '../../utils/noticeUtils';
+import { createSettingGroupFactory } from '../settingGroups';
 
 /** Renders the icon packs settings tab */
 export function renderIconPacksTab(context: SettingsTabContext): void {
-    const { containerEl, plugin } = context;
+    const { containerEl, plugin, addInfoSetting } = context;
     containerEl.empty();
 
-    const infoContainer = containerEl.createDiv('nn-setting-info-container');
-    const infoContent = infoContainer.createEl('div', { cls: 'setting-item-description' });
-    infoContent.createDiv({ text: strings.settings.items.externalIcons.infoNote });
+    const createGroup = createSettingGroupFactory(containerEl);
+    const iconPacksGroup = createGroup(undefined);
 
     Object.values(EXTERNAL_ICON_PROVIDERS).forEach(config => {
         const isInstalled = plugin.isExternalIconProviderInstalled(config.id);
@@ -44,7 +43,9 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
               )
             : strings.settings.items.externalIcons.statusNotInstalled;
 
-        const setting = new Setting(containerEl).setName(config.name).setDesc('');
+        const setting = iconPacksGroup.addSetting(setting => {
+            setting.setName(config.name).setDesc('');
+        });
 
         const descriptionEl = setting.descEl;
         descriptionEl.empty();
@@ -107,5 +108,9 @@ export function renderIconPacksTab(context: SettingsTabContext): void {
                 });
             });
         }
+    });
+
+    addInfoSetting(iconPacksGroup.addSetting, 'nn-setting-info-container', descEl => {
+        descEl.createDiv({ text: strings.settings.items.externalIcons.infoNote });
     });
 }

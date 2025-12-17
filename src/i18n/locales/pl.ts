@@ -415,6 +415,11 @@ export const STRINGS_PL = {
             noFolderSelected: 'Żaden folder nie jest wybrany w Notebook Navigator',
             noFileSelected: 'Żaden plik nie jest wybrany'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Ta nazwa zawiera znaki, które psują linki Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Nazwy nie mogą zaczynać się od kropki ani zawierać : lub /.',
+            forbiddenNameCharactersWindows: 'Znaki zastrzeżone w Windows nie są dozwolone: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Ukryty folder: {name}',
             showFolder: 'Widoczny folder: {name}'
@@ -928,10 +933,6 @@ export const STRINGS_PL = {
                 help: 'Popularne formaty:\nHH:mm = 14:30 (24-godzinny)\nh:mm a = 2:30 PM (12-godzinny)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nTokeny:\nHH/H = 24-godzinny\nhh/h = 12-godzinny\nmm = minuty\nss = sekundy\na = AM/PM',
                 helpTooltip: 'Kliknij po informacje o formatowaniu'
             },
-            preventInvalidCharacters: {
-                name: 'Zapobiegaj nieprawidłowym znakom',
-                desc: 'Blokuj #, |, ^, :, %%, [[, ]] podczas tworzenia lub zmieniania nazw plików i folderów.'
-            },
             showFilePreview: {
                 name: 'Pokaż podgląd notatki',
                 desc: 'Wyświetl tekst podglądu pod nazwami notatek.'
@@ -943,6 +944,10 @@ export const STRINGS_PL = {
             skipCodeBlocksInPreview: {
                 name: 'Pomiń bloki kodu w podglądzie',
                 desc: 'Pomija bloki kodu podczas generowania tekstu podglądu.'
+            },
+            stripHtmlInPreview: {
+                name: 'Usuń HTML w podglądach',
+                desc: 'Usuń znaczniki HTML z tekstu podglądu. Może wpływać na wydajność przy dużych notatkach.'
             },
             previewProperties: {
                 name: 'Właściwości podglądu',

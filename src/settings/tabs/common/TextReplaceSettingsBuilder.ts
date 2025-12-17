@@ -23,9 +23,28 @@ import { parseReplacer } from "src/services/content/common/TextReplacer";
 import { PatternReplaceSource } from "src/services/content/common/TextReplacerTransform";
 import { EMPTY_STRING } from "src/utils/empty";
 
+type SettingArgFactory = (argFactory: ((factorySetting: Setting) => unknown), hideBorderTob: boolean) => unknown
+
+interface GroupSettingArgFactory {
+    rootEl: HTMLElement,
+    addSetting: SettingArgFactory
+}
+
+type ExternalSettingArgFactory = (rootEl: HTMLElement) => GroupSettingArgFactory
+
+function captureSettingArg(settingFactory: SettingArgFactory, hideBorderTob: boolean = false) {
+    let setting: Setting | undefined
+    settingFactory((newSetting: Setting) => { setting = newSetting }, hideBorderTob)
+    if (setting == null) {
+        throw new Error("Unable to capture the setting arg.")
+    }
+    return setting
+}
+
 export interface ReplaceTextConfig {
     getSource(): PatternReplaceSource[]
-    getSettingsElement(): HTMLElement
+    rootGroupFactory: GroupSettingArgFactory,
+    getSettingFactory(): ExternalSettingArgFactory,
     getPlugin(): NotebookNavigatorPlugin
     optionName: { name: string, desc: string }
 }
@@ -43,8 +62,9 @@ function isValidPattern(pattern: string): boolean {
     return isValid
 }
 
-function addOption(transform: PatternReplaceSource, index: number, config: ReplaceTextConfig) {
-    const replacementSettings = new Setting(config.getSettingsElement())
+function addOption(transform: PatternReplaceSource, index: number, config: ReplaceTextConfig, createSetting: () => Setting) {
+    const replacementSettings: Setting = createSetting()
+
     const titleInput = replacementSettings.addText((cb) => {
         cb.setPlaceholder(strings.settings.groups.notes.textTransformPatternPlaceholder)
             .setValue(transform.pattern)
@@ -97,7 +117,10 @@ function addOption(transform: PatternReplaceSource, index: number, config: Repla
 }
 
 export function buildTextReplaceSettings(config: ReplaceTextConfig) {
-    new Setting(config.getSettingsElement())
+    const rootGroup = config.rootGroupFactory;
+    const rootSetting: Setting = captureSettingArg(rootGroup.addSetting)
+
+    rootSetting
         .setName(config.optionName.name)
         .setDesc(config.optionName.desc)
         .addButton((button: ButtonComponent) => {
@@ -114,10 +137,12 @@ export function buildTextReplaceSettings(config: ReplaceTextConfig) {
                     addReplaceOption({ pattern: '', replacement: '' }, config.getSource().length - 1)
                 });
         });
+    
+    const createSettingGroup = config.getSettingFactory()(rootGroup.rootEl)
 
     const addReplaceOption = (noteTitleTransform: PatternReplaceSource, index: number) => {
-        return addOption(noteTitleTransform, index, config)
-    };
+        return addOption(noteTitleTransform, index, config, () => captureSettingArg(createSettingGroup.addSetting, true))
+    }
 
     config.getSource().forEach(addReplaceOption);
 }

@@ -23,8 +23,9 @@ import { generateUniqueFilename } from './fileCreationUtils';
 import { ensureRecord, isBooleanRecordValue, isStringRecordValue } from './recordUtils';
 import { getPluginById } from './typeGuards';
 
-/** Moment.js API exposed globally by Obsidian */
 type MomentApi = typeof import('moment');
+// Cache the Obsidian-provided moment API; Obsidian sets window.moment during startup so caching null is safe.
+let cachedMomentApi: MomentApi | null | undefined;
 
 export type DrawingType = 'excalidraw' | 'tldraw';
 
@@ -83,16 +84,33 @@ interface DrawingFilePathOptions {
 
 /** Type guard for the global moment API */
 function isMomentApi(value: unknown): value is MomentApi {
-    return typeof value === 'function';
+    if (typeof value !== 'function') {
+        return false;
+    }
+    // Moment exposes a prototype object at .fn for plugin extensions
+    if (!('fn' in value) || typeof value.fn !== 'object' || value.fn === null) {
+        return false;
+    }
+    // Moment provides a utc factory function for timezone handling
+    if (!('utc' in value) || typeof value.utc !== 'function') {
+        return false;
+    }
+    return true;
 }
 
 /** Returns the global moment API exposed by Obsidian, or null if unavailable */
 function getMomentApi(): MomentApi | null {
+    // Cache the first observed value (including null) to avoid repeated global lookups; plugin code runs after Obsidian sets window.moment.
+    if (cachedMomentApi !== undefined) {
+        return cachedMomentApi;
+    }
     const momentValue = (window as { moment?: unknown }).moment;
     if (!isMomentApi(momentValue)) {
+        cachedMomentApi = null;
         return null;
     }
-    return momentValue;
+    cachedMomentApi = momentValue;
+    return cachedMomentApi;
 }
 
 /** Type guard checking if a plugin exposes a settings object */

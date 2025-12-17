@@ -413,6 +413,11 @@ export const STRINGS_RU = {
             noFolderSelected: 'В Notebook Navigator не выбрана папка',
             noFileSelected: 'Файл не выбран'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Это имя содержит символы, которые ломают ссылки Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Имена не могут начинаться с точки или содержать : или /.',
+            forbiddenNameCharactersWindows: 'Зарезервированные в Windows символы не разрешены: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Папка скрыта: {name}',
             showFolder: 'Папка показана: {name}'
@@ -927,10 +932,6 @@ export const STRINGS_RU = {
                 help: 'Распространённые форматы:\nHH:mm = 14:30 (24-часовой)\nh:mm a = 2:30 PM (12-часовой)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nТокены:\nHH/H = 24-часовой\nhh/h = 12-часовой\nmm = минуты\nss = секунды\na = AM/PM',
                 helpTooltip: 'Нажмите для справки по формату'
             },
-            preventInvalidCharacters: {
-                name: 'Предотвращать недопустимые символы',
-                desc: 'Блокировать #, |, ^, :, %%, [[, ]] при создании или переименовании файлов и папок.'
-            },
             showFilePreview: {
                 name: 'Показывать превью заметки',
                 desc: 'Отображать текст превью под названиями заметок.'
@@ -942,6 +943,10 @@ export const STRINGS_RU = {
             skipCodeBlocksInPreview: {
                 name: 'Пропускать блоки кода в превью',
                 desc: 'Пропускать блоки кода при генерации текста превью.'
+            },
+            stripHtmlInPreview: {
+                name: 'Удалять HTML в превью',
+                desc: 'Удалять HTML-теги из текста предпросмотра. Может влиять на производительность при больших заметках.'
             },
             previewProperties: {
                 name: 'Свойства превью',

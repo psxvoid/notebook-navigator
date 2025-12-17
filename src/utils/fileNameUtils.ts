@@ -22,7 +22,26 @@ import { NotebookNavigatorSettings } from '../settings';
 export const EXCALIDRAW_BASENAME_SUFFIX = '.excalidraw';
 
 // Pattern matching characters that break Obsidian links: [[, ]], %%, #, |, ^, :
-const INVALID_LINK_CHARACTERS_PATTERN = /(\[\[|\]\]|%%|[#|^:])/gu;
+const INVALID_LINK_CHARACTERS_PATTERN = /(\[\[|\]\]|%%|[#|^:])/u;
+const INVALID_LINK_CHARACTERS_GLOBAL_PATTERN = /(\[\[|\]\]|%%|[#|^:])/gu;
+
+// Forbidden characters across all platforms: : and /
+const FORBIDDEN_NAME_CHARACTERS_ALL_PLATFORMS_PATTERN = /[:/]/u;
+const FORBIDDEN_NAME_CHARACTERS_ALL_PLATFORMS_GLOBAL_PATTERN = /[:/]/gu;
+
+// Forbidden characters on Windows (excluding : and / handled in all-platform pattern): < > " \ | ? *
+const FORBIDDEN_NAME_CHARACTERS_WINDOWS_PATTERN = /[<>"\\|?*]/u;
+const FORBIDDEN_NAME_CHARACTERS_WINDOWS_GLOBAL_PATTERN = /[<>"\\|?*]/gu;
+
+/**
+ * Strips leading periods from a name.
+ */
+export function stripLeadingPeriods(value: string): string {
+    if (!value) {
+        return '';
+    }
+    return value.replace(/^\.+/u, '');
+}
 
 /**
  * Checks whether a filename ends with the Excalidraw composite extension (.excalidraw.md).
@@ -64,8 +83,60 @@ export function stripInvalidLinkCharacters(value: string): string {
     if (!value) {
         return value;
     }
-    INVALID_LINK_CHARACTERS_PATTERN.lastIndex = 0;
-    return value.replace(INVALID_LINK_CHARACTERS_PATTERN, '');
+    INVALID_LINK_CHARACTERS_GLOBAL_PATTERN.lastIndex = 0;
+    return value.replace(INVALID_LINK_CHARACTERS_GLOBAL_PATTERN, '');
+}
+
+/**
+ * Checks whether a name contains characters that break Obsidian links (#, |, ^, :, %%, [[, ]]).
+ */
+export function containsInvalidLinkCharacters(value: string): boolean {
+    if (!value) {
+        return false;
+    }
+    return INVALID_LINK_CHARACTERS_PATTERN.test(value);
+}
+
+/**
+ * Removes forbidden name characters across all platforms (: and /).
+ */
+export function stripForbiddenNameCharactersAllPlatforms(value: string): string {
+    if (!value) {
+        return value;
+    }
+    FORBIDDEN_NAME_CHARACTERS_ALL_PLATFORMS_GLOBAL_PATTERN.lastIndex = 0;
+    return value.replace(FORBIDDEN_NAME_CHARACTERS_ALL_PLATFORMS_GLOBAL_PATTERN, '');
+}
+
+/**
+ * Checks whether a name contains forbidden characters across all platforms (: and /).
+ */
+export function containsForbiddenNameCharactersAllPlatforms(value: string): boolean {
+    if (!value) {
+        return false;
+    }
+    return FORBIDDEN_NAME_CHARACTERS_ALL_PLATFORMS_PATTERN.test(value);
+}
+
+/**
+ * Removes forbidden name characters on Windows (<, >, ", \\, |, ?, *).
+ */
+export function stripForbiddenNameCharactersWindows(value: string): string {
+    if (!value) {
+        return value;
+    }
+    FORBIDDEN_NAME_CHARACTERS_WINDOWS_GLOBAL_PATTERN.lastIndex = 0;
+    return value.replace(FORBIDDEN_NAME_CHARACTERS_WINDOWS_GLOBAL_PATTERN, '');
+}
+
+/**
+ * Checks whether a name contains forbidden characters on Windows (<, >, ", \\, |, ?, *).
+ */
+export function containsForbiddenNameCharactersWindows(value: string): boolean {
+    if (!value) {
+        return false;
+    }
+    return FORBIDDEN_NAME_CHARACTERS_WINDOWS_PATTERN.test(value);
 }
 
 /**

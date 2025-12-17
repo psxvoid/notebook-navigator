@@ -31,11 +31,14 @@ import { getActiveHiddenTags, getActiveVaultProfile } from '../vaultProfiles';
  * Builds the context menu for a tag
  */
 export function buildTagMenu(params: TagMenuBuilderParams): void {
-    const { tagPath, menu, services, settings } = params;
+    const { tagPath, menu, services, settings, options } = params;
     const { app, metadataService, plugin, isMobile } = services;
+
+    let hasInitialItems = false;
 
     // Show tag name on mobile
     if (isMobile) {
+        hasInitialItems = true;
         menu.addItem((item: MenuItem) => {
             item.setTitle(`#${tagPath}`).setIsLabel(true);
         });
@@ -45,6 +48,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     const isVirtualTag = tagPath === UNTAGGED_TAG_ID || tagPath === TAGGED_TAG_ID;
 
     if (services.shortcuts) {
+        hasInitialItems = true;
         const { tagShortcutKeysByPath, addTagShortcut, removeShortcut } = services.shortcuts;
         const normalizedShortcutPath = normalizeTagPath(tagPath);
         const existingShortcutKey = normalizedShortcutPath ? tagShortcutKeysByPath.get(normalizedShortcutPath) : undefined;
@@ -62,21 +66,27 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
         });
     }
 
-    const tagSeparatorTarget = { type: 'tag', path: tagPath } as const;
-    const hasSeparator = metadataService.hasNavigationSeparator(tagSeparatorTarget);
+    const disableNavigationSeparatorActions = Boolean(options?.disableNavigationSeparatorActions);
+    if (!disableNavigationSeparatorActions) {
+        hasInitialItems = true;
+        const tagSeparatorTarget = { type: 'tag', path: tagPath } as const;
+        const hasSeparator = metadataService.hasNavigationSeparator(tagSeparatorTarget);
 
-    menu.addItem((item: MenuItem) => {
-        const title = hasSeparator ? strings.contextMenu.navigation.removeSeparator : strings.contextMenu.navigation.addSeparator;
-        setAsyncOnClick(item.setTitle(title).setIcon('lucide-separator-horizontal'), async () => {
-            if (hasSeparator) {
-                await metadataService.removeNavigationSeparator(tagSeparatorTarget);
-                return;
-            }
-            await metadataService.addNavigationSeparator(tagSeparatorTarget);
+        menu.addItem((item: MenuItem) => {
+            const title = hasSeparator ? strings.contextMenu.navigation.removeSeparator : strings.contextMenu.navigation.addSeparator;
+            setAsyncOnClick(item.setTitle(title).setIcon('lucide-separator-horizontal'), async () => {
+                if (hasSeparator) {
+                    await metadataService.removeNavigationSeparator(tagSeparatorTarget);
+                    return;
+                }
+                await metadataService.addNavigationSeparator(tagSeparatorTarget);
+            });
         });
-    });
+    }
 
-    menu.addSeparator();
+    if (hasInitialItems) {
+        menu.addSeparator();
+    }
 
     // Change icon
     menu.addItem((item: MenuItem) => {

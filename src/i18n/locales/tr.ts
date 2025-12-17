@@ -413,6 +413,11 @@ export const STRINGS_TR = {
             noFolderSelected: "Notebook Navigator'da klasör seçili değil",
             noFileSelected: 'Dosya seçili değil'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Bu ad, Obsidian bağlantılarını bozan karakterler içeriyor: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Adlar nokta ile başlayamaz ve : veya / içeremez.',
+            forbiddenNameCharactersWindows: 'Windows için ayrılmış karakterlere izin verilmez: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Klasör gizlendi: {name}',
             showFolder: 'Klasör gösterildi: {name}'
@@ -926,10 +931,6 @@ export const STRINGS_TR = {
                 help: 'Yaygın formatlar:\nh:mm a = 2:30 PM (12 saat)\nHH:mm = 14:30 (24 saat)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nSimgeler:\nHH/H = 24 saat\nhh/h = 12 saat\nmm = dakika\nss = saniye\na = ÖÖ/ÖS',
                 helpTooltip: 'Format referansı için tıklayın'
             },
-            preventInvalidCharacters: {
-                name: 'Geçersiz karakterleri engelle',
-                desc: 'Dosya ve klasör oluştururken veya yeniden adlandırırken #, |, ^, :, %%, [[, ]] karakterlerini engelle.'
-            },
             showFilePreview: {
                 name: 'Not önizlemesini göster',
                 desc: 'Not adlarının altında önizleme metni görüntüle.'
@@ -941,6 +942,10 @@ export const STRINGS_TR = {
             skipCodeBlocksInPreview: {
                 name: 'Önizlemede kod bloklarını atla',
                 desc: 'Önizleme metni oluştururken kod bloklarını atla.'
+            },
+            stripHtmlInPreview: {
+                name: 'Önizlemelerde HTML kaldır',
+                desc: 'Önizleme metninden HTML etiketlerini kaldırır. Büyük notlarda performansı etkileyebilir.'
             },
             previewProperties: {
                 name: 'Önizleme özellikleri',

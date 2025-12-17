@@ -413,6 +413,11 @@ export const STRINGS_EN = {
             noFolderSelected: 'No folder is selected in Notebook Navigator',
             noFileSelected: 'No file is selected'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'This name includes characters that break Obsidian links: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Names cannot start with a period or include : or /.',
+            forbiddenNameCharactersWindows: 'Windows-reserved characters are not allowed: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Folder hidden: {name}',
             showFolder: 'Folder shown: {name}'
@@ -925,10 +930,6 @@ export const STRINGS_EN = {
                 help: 'Common formats:\nh:mm a = 2:30 PM (12-hour)\nHH:mm = 14:30 (24-hour)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nTokens:\nHH/H = 24-hour\nhh/h = 12-hour\nmm = minutes\nss = seconds\na = AM/PM',
                 helpTooltip: 'Click for format reference'
             },
-            preventInvalidCharacters: {
-                name: 'Prevent invalid characters',
-                desc: 'Block #, |, ^, :, %%, [[, ]] when creating or renaming files and folders.'
-            },
             showFilePreview: {
                 name: 'Show note preview',
                 desc: 'Display preview text beneath note names.'
@@ -940,6 +941,10 @@ export const STRINGS_EN = {
             skipCodeBlocksInPreview: {
                 name: 'Skip code blocks in preview',
                 desc: 'Skip code blocks when generating preview text.'
+            },
+            stripHtmlInPreview: {
+                name: 'Strip HTML in previews',
+                desc: 'Remove HTML tags from preview text. May affect performance on large notes.'
             },
             previewProperties: {
                 name: 'Preview properties',

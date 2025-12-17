@@ -152,7 +152,7 @@ body {
     );
     --nn-theme-nav-separator-height: 1px;
     --nn-theme-nav-separator-opacity: 0.3;
-    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.08);
+    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.03);
 
     /* -- Folder & Tag Items -- */
     --nn-theme-navitem-chevron-color: var(--text-muted);
@@ -270,7 +270,7 @@ body {
 }
 
 .theme-dark {
-    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.25);
+    --nn-theme-pinned-shortcut-shadow-color: rgba(0, 0, 0, 0.18);
 }
 
 /* ========================================================================
@@ -834,7 +834,7 @@ body {
     color: var(--nn-theme-file-selected-name-color) !important;
     background: var(--nn-theme-list-bg) !important;
     border: 1px solid var(--nn-theme-list-search-border-color) !important;
-    border-radius: 5px;
+    border-radius: 999px !important;
     outline: none;
     box-sizing: border-box;
 }
@@ -933,7 +933,7 @@ body {
     height: 36px;
     font-size: 16px; /* Prevent zoom on iOS */
     padding: 4px 60px 4px 36px !important;
-    border-radius: 8px;
+    border-radius: 999px !important;
 }
 
 /* Mobile search icon */
@@ -1236,7 +1236,7 @@ body {
     left: 0;
     right: 0;
     top: calc(100% + 1px);
-    height: 3px;
+    height: 4px;
     pointer-events: none;
     background: linear-gradient(to bottom, var(--nn-theme-pinned-shortcut-shadow-color) 0%, transparent 100%);
 }
@@ -3527,7 +3527,6 @@ body.nn-resizing {
 .nn-sub-settings {
     margin-inline-start: 20px;
     padding-left: 1em;
-    border-left: 2px solid var(--background-modifier-border);
 }
 
 /* Settings layout root */
@@ -3578,6 +3577,10 @@ body.nn-resizing {
 /* Settings section header spacing */
 .setting-item-heading {
     margin-top: 30px;
+}
+
+.setting-item-no-top-border {
+    border-top: none !important;
 }
 
 /* First settings header - no top margin */
@@ -3816,6 +3819,19 @@ body.nn-resizing {
 /* Ensure proper spacing from previous sections */
 .nn-stats-section.setting-item {
     margin-top: 0;
+}
+
+/* Advanced > Local cache: center text by removing the empty control column */
+.nn-local-cache-stats-setting .setting-item-control {
+    display: none;
+}
+
+.nn-local-cache-stats-setting .setting-item-info {
+    width: 100%;
+}
+
+.nn-local-cache-stats-setting .nn-stats-text {
+    text-align: center;
 }
 
 /* Platform-specific safe area definitions */
@@ -4651,7 +4667,7 @@ body.nn-resizing {
 /* Mobile toolbar container */
 .nn-mobile-toolbar {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     background-color: var(--nn-theme-list-bg);
     border-top: 1px solid var(--nn-theme-mobile-toolbar-border-color);
@@ -4664,6 +4680,105 @@ body.nn-resizing {
     /* Adjust height to include safe area padding */
     height: calc(49px + var(--nn-mobile-safe-area-bottom));
     min-height: calc(49px + var(--nn-mobile-safe-area-bottom));
+}
+
+/* Mobile toolbar grouping containers */
+.nn-mobile-toolbar-left {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+}
+
+.nn-mobile-toolbar-right {
+    display: flex;
+    flex: 0 0 auto;
+}
+
+/* Mobile toolbar button grouping container */
+.nn-mobile-toolbar-pill {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.nn-mobile-toolbar-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-navigation-pane {
+    position: relative;
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-navigation-pane-scroller,
+.notebook-navigator-obsidian-1-11-plus-ios .nn-list-pane-scroller {
+    padding-bottom: 64px;
+}
+
+/* Obsidian 1.11+ iOS glass toolbar */
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 4px;
+    pointer-events: none;
+    z-index: 5;
+
+    justify-content: space-between;
+    background-color: transparent;
+    border-top: none;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 0;
+    height: 49px;
+    min-height: 49px;
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-left,
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-right {
+    pointer-events: auto;
+    flex: 0 0 auto;
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios {
+    --nn-theme-mobile-toolbar-button-icon-color: var(--text-normal);
+    --nn-ios-toolbar-glass-bg: rgba(255, 255, 255, 0.65);
+    --nn-ios-toolbar-glass-border: rgba(255, 255, 255, 0.5);
+    --nn-ios-toolbar-glass-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+    --nn-ios-toolbar-glass-filter: blur(4px) saturate(160%);
+    --nn-theme-mobile-toolbar-button-active-bg: transparent;
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-pill,
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-circle {
+    position: relative;
+    border-radius: 999px;
+    background: var(--nn-ios-toolbar-glass-bg);
+    border: 1px solid var(--nn-ios-toolbar-glass-border);
+    -webkit-backdrop-filter: var(--nn-ios-toolbar-glass-filter);
+    backdrop-filter: var(--nn-ios-toolbar-glass-filter);
+    box-shadow: var(--nn-ios-toolbar-glass-shadow);
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-pill {
+    width: auto;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 1px 10px;
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-circle {
+    padding: 1px;
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-button {
+    border-radius: 999px;
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-button svg {
+    stroke-width: 2;
 }
 
 /* Mobile toolbar buttons */
@@ -4688,6 +4803,10 @@ body.nn-resizing {
     box-shadow: none !important;
 }
 
+.nn-mobile-toolbar-button-circle {
+    border-radius: 999px;
+}
+
 /* Mobile toolbar button icons */
 .nn-mobile-toolbar-button svg {
     width: 24px;
@@ -4709,7 +4828,7 @@ body.nn-resizing {
 
 .nn-mobile-toolbar-button-active svg {
     stroke: var(--nn-theme-mobile-toolbar-button-active-icon-color) !important;
-    stroke-width: 1.5;
+    stroke-width: 2;
 }
 
 /* Disabled mobile toolbar button */

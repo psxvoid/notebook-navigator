@@ -413,6 +413,11 @@ export const STRINGS_AR = {
             noFolderSelected: 'لم يتم تحديد مجلد في متصفح الدفتر',
             noFileSelected: 'لم يتم تحديد ملف'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'يحتوي هذا الاسم على أحرف تكسر روابط Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'لا يمكن أن تبدأ الأسماء بنقطة أو تحتوي على : أو /.',
+            forbiddenNameCharactersWindows: 'أحرف Windows المحجوزة غير مسموح بها: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'تم إخفاء المجلد: {name}',
             showFolder: 'تم إظهار المجلد: {name}'
@@ -926,10 +931,6 @@ export const STRINGS_AR = {
                 help: 'التنسيقات الشائعة:\nh:mm a = 2:30 م (12 ساعة)\nHH:mm = 14:30 (24 ساعة)\nh:mm:ss a = 2:30:45 م\nHH:mm:ss = 14:30:45\n\nالرموز:\nHH/H = 24 ساعة\nhh/h = 12 ساعة\nmm = الدقائق\nss = الثواني\na = ص/م',
                 helpTooltip: 'انقر لمرجع التنسيق'
             },
-            preventInvalidCharacters: {
-                name: 'منع الأحرف غير الصالحة',
-                desc: 'حظر #، |، ^، :، %%، [[، ]] عند إنشاء أو إعادة تسمية الملفات والمجلدات.'
-            },
             showFilePreview: {
                 name: 'إظهار معاينة الملاحظة',
                 desc: 'عرض نص المعاينة أسفل أسماء الملاحظات.'
@@ -941,6 +942,10 @@ export const STRINGS_AR = {
             skipCodeBlocksInPreview: {
                 name: 'تخطي كتل الكود في المعاينة',
                 desc: 'تخطي كتل الكود عند إنشاء نص المعاينة.'
+            },
+            stripHtmlInPreview: {
+                name: 'إزالة HTML من المعاينات',
+                desc: 'إزالة علامات HTML من نص المعاينة. قد يؤثر على الأداء في الملاحظات الكبيرة.'
             },
             previewProperties: {
                 name: 'خصائص المعاينة',

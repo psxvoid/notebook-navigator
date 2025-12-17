@@ -413,6 +413,11 @@ export const STRINGS_VI = {
             noFolderSelected: 'Chưa chọn thư mục trong Notebook Navigator',
             noFileSelected: 'Chưa chọn tệp'
         },
+        warnings: {
+            linkBreakingNameCharacters: 'Tên này chứa ký tự làm hỏng liên kết Obsidian: #, |, ^, %%, [[, ]].',
+            forbiddenNameCharactersAllPlatforms: 'Tên không thể bắt đầu bằng dấu chấm hoặc chứa : hoặc /.',
+            forbiddenNameCharactersWindows: 'Ký tự được Windows dành riêng không được phép: <, >, ", \\, |, ?, *.'
+        },
         notices: {
             hideFolder: 'Đã ẩn thư mục: {name}',
             showFolder: 'Đã hiện thư mục: {name}'
@@ -926,10 +931,6 @@ export const STRINGS_VI = {
                 help: 'Định dạng phổ biến:\nh:mm a = 2:30 PM (12 giờ)\nHH:mm = 14:30 (24 giờ)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nToken:\nHH/H = 24 giờ\nhh/h = 12 giờ\nmm = phút\nss = giây\na = SA/CH',
                 helpTooltip: 'Nhấn để xem tham chiếu định dạng'
             },
-            preventInvalidCharacters: {
-                name: 'Ngăn ký tự không hợp lệ',
-                desc: 'Chặn #, |, ^, :, %%, [[, ]] khi tạo hoặc đổi tên tệp và thư mục.'
-            },
             showFilePreview: {
                 name: 'Hiện xem trước ghi chú',
                 desc: 'Hiển thị văn bản xem trước bên dưới tên ghi chú.'
@@ -941,6 +942,10 @@ export const STRINGS_VI = {
             skipCodeBlocksInPreview: {
                 name: 'Bỏ qua khối code trong xem trước',
                 desc: 'Bỏ qua khối code khi tạo văn bản xem trước.'
+            },
+            stripHtmlInPreview: {
+                name: 'Xóa HTML trong xem trước',
+                desc: 'Xóa thẻ HTML khỏi văn bản xem trước. Có thể ảnh hưởng đến hiệu suất với ghi chú lớn.'
             },
             previewProperties: {
                 name: 'Thuộc tính xem trước',
