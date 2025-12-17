@@ -834,6 +834,11 @@ export const STRINGS_FR = {
                 desc: "Liste de propriétés de métadonnées séparées par des virgules. Les notes contenant l'une de ces propriétés seront masquées (ex. : draft, private, archived).",
                 placeholder: 'draft, private'
             },
+            excludedFileNamePatterns: {
+                name: 'Masquer les fichiers (profil du coffre)',
+                desc: 'Liste de motifs de noms de fichiers séparés par des virgules à masquer. Prend en charge les caractères génériques * et les chemins / (ex. : temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: 'Profil du coffre',
                 desc: "Les profils stockent la visibilité des types de fichiers, les dossiers cachés, les étiquettes cachées, les notes cachées, les raccourcis et la bannière de navigation. Changez de profil depuis l'en-tête du panneau de navigation.",

@@ -19,10 +19,20 @@
 import { TFile, TFolder, App } from 'obsidian';
 import type { NotebookNavigatorSettings } from '../settings';
 import { shouldDisplayFile } from './fileTypeUtils';
-import { getActiveFileVisibility, getActiveHiddenFiles, getActiveHiddenFolders, getHiddenFolderMatcher } from './vaultProfiles';
+import {
+    getActiveFileVisibility,
+    getActiveHiddenFileNamePatterns,
+    getActiveHiddenFiles,
+    getActiveHiddenFolders,
+    getHiddenFolderMatcher
+} from './vaultProfiles';
 
 interface FileFilterOptions {
     showHiddenItems?: boolean;
+}
+
+export interface HiddenFileNameMatcher {
+    matches: (file: TFile) => boolean;
 }
 
 /**
@@ -30,6 +40,194 @@ interface FileFilterOptions {
  * Set to false to index all files regardless of exclusion settings
  */
 const SKIP_EXCLUDED_FOLDERS_IN_INDEX = false;
+
+const hiddenFileNameMatcherCache = new Map<string, HiddenFileNameMatcher>();
+
+export function clearHiddenFileNameMatcherCache(): void {
+    hiddenFileNameMatcherCache.clear();
+}
+
+function normalizeHiddenFileNamePatterns(patterns: string[]): string[] {
+    return Array.from(new Set(patterns.map(pattern => pattern.trim().toLowerCase()).filter(pattern => pattern.length > 0))).sort();
+}
+
+interface CompiledGlob {
+    glob: string;
+    parts: string[];
+    requiresPrefixMatch: boolean;
+    requiresSuffixMatch: boolean;
+    matchAll: boolean;
+}
+
+function isPathPattern(pattern: string): boolean {
+    return pattern.includes('/');
+}
+
+function normalizeVaultPath(value: string): string {
+    const normalized = value.trim().toLowerCase();
+    if (normalized.length === 0) {
+        return '';
+    }
+    return normalized.startsWith('/') ? normalized : `/${normalized}`;
+}
+
+function isExtensionLiteral(pattern: string): boolean {
+    if (!pattern.startsWith('.')) {
+        return false;
+    }
+    if (pattern.includes('/') || pattern.includes('*')) {
+        return false;
+    }
+    return pattern.length > 1;
+}
+
+function compileGlobPattern(glob: string): CompiledGlob {
+    if (glob === '*') {
+        return {
+            glob,
+            parts: [],
+            requiresPrefixMatch: false,
+            requiresSuffixMatch: false,
+            matchAll: true
+        };
+    }
+
+    const parts = glob.split('*').filter(part => part.length > 0);
+    return {
+        glob,
+        parts,
+        requiresPrefixMatch: !glob.startsWith('*'),
+        requiresSuffixMatch: !glob.endsWith('*'),
+        matchAll: false
+    };
+}
+
+function matchesCompiledGlobPattern(value: string, compiled: CompiledGlob): boolean {
+    if (compiled.matchAll) {
+        return true;
+    }
+
+    const { parts, requiresPrefixMatch, requiresSuffixMatch } = compiled;
+    if (parts.length === 0) {
+        return true;
+    }
+
+    let searchIndex = 0;
+    let partIndex = 0;
+
+    if (requiresPrefixMatch) {
+        const prefix = parts[0];
+        if (!value.startsWith(prefix)) {
+            return false;
+        }
+        searchIndex = prefix.length;
+        partIndex = 1;
+    }
+
+    const lastPartIndex = parts.length - 1;
+    const endIndex = requiresSuffixMatch ? lastPartIndex : parts.length;
+
+    for (; partIndex < endIndex; partIndex += 1) {
+        const part = parts[partIndex];
+        const foundIndex = value.indexOf(part, searchIndex);
+        if (foundIndex === -1) {
+            return false;
+        }
+        searchIndex = foundIndex + part.length;
+    }
+
+    if (requiresSuffixMatch) {
+        const suffix = parts[lastPartIndex];
+        const suffixIndex = value.lastIndexOf(suffix);
+        if (suffixIndex === -1) {
+            return false;
+        }
+        if (suffixIndex < searchIndex) {
+            return false;
+        }
+        return suffixIndex + suffix.length === value.length;
+    }
+
+    return true;
+}
+
+export function createHiddenFileNameMatcher(patterns: string[]): HiddenFileNameMatcher {
+    const normalized = normalizeHiddenFileNamePatterns(patterns);
+    const cacheKey = normalized.join('\u0000');
+    const cached = hiddenFileNameMatcherCache.get(cacheKey);
+    if (cached) {
+        return cached;
+    }
+
+    const literalNames = new Set<string>();
+    const literalPaths = new Set<string>();
+    const literalExtensions = new Set<string>();
+    const nameGlobs: CompiledGlob[] = [];
+    const pathGlobs: CompiledGlob[] = [];
+    normalized.forEach(pattern => {
+        if (!pattern.includes('*')) {
+            if (isPathPattern(pattern)) {
+                literalPaths.add(normalizeVaultPath(pattern));
+                return;
+            }
+
+            if (isExtensionLiteral(pattern)) {
+                literalExtensions.add(pattern);
+                return;
+            }
+
+            literalNames.add(pattern);
+            return;
+        }
+
+        if (isPathPattern(pattern)) {
+            pathGlobs.push(compileGlobPattern(normalizeVaultPath(pattern)));
+            return;
+        }
+
+        nameGlobs.push(compileGlobPattern(pattern));
+    });
+
+    const matcher: HiddenFileNameMatcher = {
+        matches: (file: TFile) => {
+            const name = file.name.toLowerCase();
+            const basename = file.basename.toLowerCase();
+            const path = normalizeVaultPath(file.path);
+            const extension = file.extension ? `.${file.extension.toLowerCase()}` : '';
+
+            if (literalNames.has(name) || literalPaths.has(path) || (extension.length > 0 && literalExtensions.has(extension))) {
+                return true;
+            }
+
+            if (nameGlobs.some(glob => matchesCompiledGlobPattern(name, glob) || matchesCompiledGlobPattern(basename, glob))) {
+                return true;
+            }
+
+            if (pathGlobs.some(glob => matchesCompiledGlobPattern(path, glob))) {
+                return true;
+            }
+
+            return extension.length > 0 && nameGlobs.some(glob => matchesCompiledGlobPattern(extension, glob));
+        }
+    };
+
+    hiddenFileNameMatcherCache.set(cacheKey, matcher);
+    return matcher;
+}
+
+export function createHiddenFileNameMatcherForVisibility(patterns: string[], showHiddenItems: boolean): HiddenFileNameMatcher | null {
+    if (showHiddenItems || patterns.length === 0) {
+        return null;
+    }
+    return createHiddenFileNameMatcher(patterns);
+}
+
+export function shouldExcludeFileName(file: TFile, patterns: string[]): boolean {
+    if (patterns.length === 0) {
+        return false;
+    }
+    return createHiddenFileNameMatcher(patterns).matches(file);
+}
 
 /**
  * Checks if a file should be excluded based on its frontmatter properties
@@ -250,21 +448,43 @@ export function hasSubfolders(folder: TFolder, excludePatterns: string[], showHi
 /**
  * Returns true if a file passes exclusion rules based on settings
  * - Excludes markdown files with matching frontmatter properties
+ * - Excludes files with matching filename patterns
  * - Optionally excludes files in excluded folders when indexing is configured to skip them
  */
-function passesExclusionFilters(file: TFile, settings: NotebookNavigatorSettings, app: App, options?: FileFilterOptions): boolean {
-    const excludedProperties = getActiveHiddenFiles(settings);
-    const excludedFolderPatterns = getActiveHiddenFolders(settings);
-    // Skip frontmatter-based exclusion when showHiddenItems override is provided from options
-    const includeHiddenFiles = options?.showHiddenItems ?? false;
+interface ExclusionFilterState {
+    excludedProperties: string[];
+    excludedFolderPatterns: string[];
+    includeHiddenItems: boolean;
+    fileNameMatcher: HiddenFileNameMatcher | null;
+}
+
+function createExclusionFilterState(settings: NotebookNavigatorSettings, options?: FileFilterOptions): ExclusionFilterState {
+    const includeHiddenItems = options?.showHiddenItems ?? false;
+    const excludedFileNamePatterns = getActiveHiddenFileNamePatterns(settings);
+    const fileNameMatcher = createHiddenFileNameMatcherForVisibility(excludedFileNamePatterns, includeHiddenItems);
+
+    return {
+        excludedProperties: getActiveHiddenFiles(settings),
+        excludedFolderPatterns: getActiveHiddenFolders(settings),
+        includeHiddenItems,
+        fileNameMatcher
+    };
+}
+
+function passesExclusionFilters(file: TFile, state: ExclusionFilterState, app: App): boolean {
+    const { excludedProperties, excludedFolderPatterns, includeHiddenItems, fileNameMatcher } = state;
 
     // Frontmatter based exclusion (markdown only)
     if (
-        !includeHiddenFiles &&
+        !includeHiddenItems &&
         file.extension === 'md' &&
         excludedProperties.length > 0 &&
         shouldExcludeFile(file, excludedProperties, app)
     ) {
+        return false;
+    }
+
+    if (fileNameMatcher && fileNameMatcher.matches(file)) {
         return false;
     }
 
@@ -284,7 +504,8 @@ function passesExclusionFilters(file: TFile, settings: NotebookNavigatorSettings
 export function getFilteredMarkdownFiles(app: App, settings: NotebookNavigatorSettings, options?: FileFilterOptions): TFile[] {
     if (!app || !settings) return [];
 
-    return app.vault.getMarkdownFiles().filter(file => passesExclusionFilters(file, settings, app, options));
+    const filterState = createExclusionFilterState(settings, options);
+    return app.vault.getMarkdownFiles().filter(file => passesExclusionFilters(file, filterState, app));
 }
 
 /**
@@ -295,12 +516,13 @@ export function getFilteredMarkdownFiles(app: App, settings: NotebookNavigatorSe
 export function getFilteredDocumentFiles(app: App, settings: NotebookNavigatorSettings, options?: FileFilterOptions): TFile[] {
     if (!app || !settings) return [];
 
+    const filterState = createExclusionFilterState(settings, options);
     return app.vault.getFiles().filter(file => {
         // Only include document files (md, canvas, base)
         const isDocument = file.extension === 'md' || file.extension === 'canvas' || file.extension === 'base';
         if (!isDocument) return false;
 
-        return passesExclusionFilters(file, settings, app, options);
+        return passesExclusionFilters(file, filterState, app);
     });
 }
 
@@ -314,6 +536,7 @@ export function getFilteredFiles(app: App, settings: NotebookNavigatorSettings, 
     if (!app || !settings) return [];
 
     const fileVisibility = getActiveFileVisibility(settings);
+    const filterState = createExclusionFilterState(settings, options);
 
     return app.vault.getFiles().filter(file => {
         // Filter by visibility settings
@@ -321,6 +544,6 @@ export function getFilteredFiles(app: App, settings: NotebookNavigatorSettings, 
             return false;
         }
 
-        return passesExclusionFilters(file, settings, app, options);
+        return passesExclusionFilters(file, filterState, app);
     });
 }

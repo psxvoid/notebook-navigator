@@ -82,6 +82,7 @@ export interface VaultProfile {
     hiddenFolders: string[];
     hiddenTags: string[];
     hiddenFiles: string[];
+    hiddenFileNamePatterns: string[];
     navigationBanner: string | null;
     shortcuts: ShortcutEntry[];
 }

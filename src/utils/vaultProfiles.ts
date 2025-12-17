@@ -43,6 +43,7 @@ interface VaultProfileInitOptions {
     id?: string;
     hiddenFolders?: string[];
     hiddenFiles?: string[];
+    hiddenFileNamePatterns?: string[];
     hiddenTags?: string[];
     fileVisibility?: FileVisibility;
     navigationBanner?: string | null;
@@ -222,6 +223,7 @@ export function createVaultProfile(name: string, options: VaultProfileInitOption
         hiddenFolders: clonePatterns(options.hiddenFolders),
         hiddenTags: clonePatterns(options.hiddenTags),
         hiddenFiles: clonePatterns(options.hiddenFiles),
+        hiddenFileNamePatterns: clonePatterns(options.hiddenFileNamePatterns),
         navigationBanner:
             typeof options.navigationBanner === 'string' && options.navigationBanner.length > 0 ? options.navigationBanner : null,
         shortcuts: cloneShortcuts(options.shortcuts)
@@ -240,6 +242,7 @@ function createVaultProfileFromTemplate(name: string, template: VaultProfileTemp
     return createVaultProfile(name, {
         hiddenFolders: source?.hiddenFolders,
         hiddenFiles: source?.hiddenFiles,
+        hiddenFileNamePatterns: source?.hiddenFileNamePatterns,
         hiddenTags: source?.hiddenTags ?? template.fallbackHiddenTags,
         fileVisibility: source?.fileVisibility ?? template.fallbackFileVisibility,
         navigationBanner: source?.navigationBanner,
@@ -370,6 +373,7 @@ export function ensureVaultProfiles(settings: NotebookNavigatorSettings): void {
         const hiddenTagSource = Array.isArray(profile.hiddenTags) ? profile.hiddenTags : [];
         profile.hiddenTags = clonePatterns(hiddenTagSource);
         profile.hiddenFiles = clonePatterns(profile.hiddenFiles);
+        profile.hiddenFileNamePatterns = clonePatterns(profile.hiddenFileNamePatterns);
         profile.navigationBanner =
             typeof profile.navigationBanner === 'string' && profile.navigationBanner.length > 0 ? profile.navigationBanner : null;
         profile.shortcuts = cloneShortcuts(profile.shortcuts);
@@ -412,6 +416,10 @@ export function getActiveHiddenFolders(settings: NotebookNavigatorSettings): str
 // Returns the list of hidden file patterns from the active profile
 export function getActiveHiddenFiles(settings: NotebookNavigatorSettings): string[] {
     return getActiveVaultProfile(settings).hiddenFiles;
+}
+
+export function getActiveHiddenFileNamePatterns(settings: NotebookNavigatorSettings): string[] {
+    return getActiveVaultProfile(settings).hiddenFileNamePatterns;
 }
 
 export function getActiveHiddenTags(settings: NotebookNavigatorSettings): string[] {

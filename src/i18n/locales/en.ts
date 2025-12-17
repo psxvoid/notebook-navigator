@@ -852,6 +852,11 @@ export const STRINGS_EN = {
                 desc: 'Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            excludedFileNamePatterns: {
+                name: 'Hide files (vault profile)',
+                desc: 'Comma-separated list of filename patterns to hide. Supports * wildcards and / paths (e.g., temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: 'Vault profile',
                 desc: 'Profiles store file type visibility, hidden folders, hidden tags, hidden notes, shortcuts, and navigation banner. Switch profiles from the navigation pane header.',

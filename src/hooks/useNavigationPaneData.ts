@@ -53,7 +53,7 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings, TagSortOrder } from '../settings/types';
-import { isFolderInExcludedFolder } from '../utils/fileFilters';
+import { createHiddenFileNameMatcherForVisibility, isFolderInExcludedFolder } from '../utils/fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY, isImageFile } from '../utils/fileTypeUtils';
 import { isExcalidrawFile } from '../utils/fileNameUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
@@ -429,8 +429,11 @@ export function useNavigationPaneData({
     const showHiddenItems = uxPreferences.showHiddenItems;
     // Resolves frontmatter exclusions, returns empty array when hidden items are shown
     const effectiveFrontmatterExclusions = getEffectiveFrontmatterExclusions(settings, showHiddenItems);
-    const { hiddenFolders, hiddenTags, fileVisibility, navigationBanner } = activeProfile;
+    const { hiddenFolders, hiddenFileNamePatterns, hiddenTags, fileVisibility, navigationBanner } = activeProfile;
     const navigationBannerPath = navigationBanner;
+    const folderCountFileNameMatcher = useMemo(() => {
+        return createHiddenFileNameMatcherForVisibility(hiddenFileNamePatterns, showHiddenItems);
+    }, [hiddenFileNamePatterns, showHiddenItems]);
 
     // Version counter that increments when vault files change
     const [fileChangeVersion, setFileChangeVersion] = useState(0);
@@ -1473,6 +1476,7 @@ export function useNavigationPaneData({
             fileVisibility,
             excludedFiles: excludedProperties,
             excludedFolders: excludedFolderPatterns,
+            fileNameMatcher: folderCountFileNameMatcher,
             includeDescendants,
             showHiddenFolders,
             hideFolderNoteInList: settings.hideFolderNoteInList,
@@ -1496,7 +1500,9 @@ export function useNavigationPaneData({
         includeDescendantNotes,
         effectiveFrontmatterExclusions,
         hiddenFolders,
+        hiddenFileNamePatterns,
         showHiddenItems,
+        folderCountFileNameMatcher,
         fileVisibility,
         settings.enableFolderNotes,
         settings.folderNoteName,

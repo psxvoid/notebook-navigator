@@ -264,6 +264,7 @@ body {
     --nn-theme-mobile-toolbar-button-icon-color: var(--link-color);
     --nn-theme-mobile-toolbar-button-active-bg: var(--background-modifier-hover);
     --nn-theme-mobile-toolbar-button-active-icon-color: var(--link-color);
+    --nn-theme-mobile-toolbar-glass-bg: color-mix(in srgb, var(--background-primary) 72%, transparent);
 
     /* -- File Separator -- */
     --nn-separator-height: 1px;
@@ -4744,8 +4745,8 @@ body.nn-resizing {
 
 .notebook-navigator-obsidian-1-11-plus-ios {
     --nn-theme-mobile-toolbar-button-icon-color: var(--text-normal);
-    --nn-ios-toolbar-glass-bg: rgba(255, 255, 255, 0.65);
-    --nn-ios-toolbar-glass-border: rgba(255, 255, 255, 0.5);
+    --nn-ios-toolbar-glass-bg: var(--nn-theme-mobile-toolbar-glass-bg);
+    --nn-ios-toolbar-glass-border: var(--nn-theme-mobile-toolbar-glass-bg);
     --nn-ios-toolbar-glass-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
     --nn-ios-toolbar-glass-filter: blur(4px) saturate(160%);
     --nn-theme-mobile-toolbar-button-active-bg: transparent;
@@ -6232,6 +6233,16 @@ settings:
         description: Background color of the mobile toolbar.
         type: variable-themed-color
         format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-mobile-toolbar-glass-bg
+        title: iOS glass toolbar background
+        description: Background color of the Obsidian 1.11+ iOS glass toolbar (used for border and background, supports transparency).
+        type: variable-themed-color
+        opacity: true
+        format: rgb
         default-light: '#'
         default-dark: '#'
     -

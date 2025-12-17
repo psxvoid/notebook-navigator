@@ -2,6 +2,7 @@ import type { App } from 'obsidian';
 import { TFile, TFolder } from 'obsidian';
 import type { NoteCountInfo } from '../types/noteCounts';
 import { shouldDisplayFile, type FileVisibility } from './fileTypeUtils';
+import type { HiddenFileNameMatcher } from './fileFilters';
 import { shouldExcludeFile, shouldExcludeFolder } from './fileFilters';
 import { isFolderNote, type FolderNoteDetectionSettings } from './folderNotes';
 
@@ -13,6 +14,7 @@ export interface FolderNoteCountOptions {
     fileVisibility: FileVisibility;
     excludedFiles: string[];
     excludedFolders: string[];
+    fileNameMatcher: HiddenFileNameMatcher | null;
     includeDescendants: boolean;
     showHiddenFolders: boolean;
     hideFolderNoteInList: boolean;
@@ -49,6 +51,7 @@ export function calculateFolderNoteCounts(folder: TFolder, options: FolderNoteCo
             // Count files that pass visibility and exclusion checks
             if (
                 shouldDisplayFile(child, options.fileVisibility, options.app) &&
+                !(options.fileNameMatcher && options.fileNameMatcher.matches(child)) &&
                 !shouldExcludeFile(child, options.excludedFiles, options.app)
             ) {
                 current += 1;

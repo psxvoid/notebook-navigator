@@ -855,6 +855,11 @@ export const STRINGS_PL = {
                 desc: 'Lista właściwości frontmatter oddzielonych przecinkami. Notatki zawierające którekolwiek z tych właściwości będą ukryte (np. draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            excludedFileNamePatterns: {
+                name: 'Ukryj pliki (profil sejfu)',
+                desc: 'Lista wzorców nazw plików oddzielonych przecinkami do ukrycia. Obsługuje symbole wieloznaczne * i ścieżki / (np. temp-*, *.png, /assets/*).',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: 'Profil sejfu',
                 desc: 'Profile przechowują widoczność typów plików, ukryte foldery, ukryte tagi, ukryte notatki, skróty i baner nawigacji. Zmień profil z nagłówka panelu nawigacji.',

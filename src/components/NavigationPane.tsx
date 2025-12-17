@@ -129,6 +129,7 @@ import { useSurfaceColorVariables } from '../hooks/useSurfaceColorVariables';
 import { NAVIGATION_PANE_SURFACE_COLOR_MAPPINGS } from '../constants/surfaceColorMappings';
 import { TAG_DRAG_MIME } from '../types/obsidian-extended';
 import { SHORTCUT_POINTER_CONSTRAINT, verticalAxisOnly } from '../utils/dndConfig';
+import { createHiddenFileNameMatcherForVisibility } from '../utils/fileFilters';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (itemType: ItemType, path: string) => number;
@@ -214,9 +215,12 @@ export const NavigationPane = React.memo(
         const uxPreferences = useUXPreferences();
         const includeDescendantNotes = uxPreferences.includeDescendantNotes;
         const showHiddenItems = uxPreferences.showHiddenItems;
-        const { hiddenFolders, fileVisibility } = activeProfile;
+        const { hiddenFolders, hiddenFileNamePatterns, fileVisibility } = activeProfile;
         // Resolves frontmatter exclusions, returns empty array when hidden items are shown
         const effectiveFrontmatterExclusions = getEffectiveFrontmatterExclusions(settings, showHiddenItems);
+        const folderCountFileNameMatcher = useMemo(() => {
+            return createHiddenFileNameMatcherForVisibility(hiddenFileNamePatterns, showHiddenItems);
+        }, [hiddenFileNamePatterns, showHiddenItems]);
         const updateSettings = useSettingsUpdate();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
@@ -1580,6 +1584,7 @@ export const NavigationPane = React.memo(
                     fileVisibility,
                     excludedFiles: effectiveFrontmatterExclusions,
                     excludedFolders: hiddenFolders,
+                    fileNameMatcher: folderCountFileNameMatcher,
                     includeDescendants: includeDescendantNotes,
                     showHiddenFolders: showHiddenItems,
                     hideFolderNoteInList: settings.hideFolderNoteInList,
@@ -1597,7 +1602,8 @@ export const NavigationPane = React.memo(
                 showHiddenItems,
                 settings.hideFolderNoteInList,
                 settings.enableFolderNotes,
-                settings.folderNoteName
+                settings.folderNoteName,
+                folderCountFileNameMatcher
             ]
         );
 

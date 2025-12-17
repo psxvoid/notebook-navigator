@@ -832,6 +832,11 @@ export const STRINGS_ZH_CN = {
                 desc: '逗号分隔的前置元数据属性列表。包含任何这些属性的笔记将被隐藏（例如：draft, private, archived）。',
                 placeholder: 'draft, private'
             },
+            excludedFileNamePatterns: {
+                name: '隐藏文件 (库配置)',
+                desc: '逗号分隔的文件名模式列表，用于隐藏文件。支持 * 通配符和 / 路径（例如：temp-*、*.png、/assets/*）。',
+                placeholder: 'temp-*, *.png, /assets/*'
+            },
             vaultProfiles: {
                 name: '仓库配置文件',
                 desc: '配置文件存储文件类型可见性、隐藏文件夹、隐藏标签、隐藏笔记、快捷方式和导航横幅。从导航窗格标题切换配置文件。',
