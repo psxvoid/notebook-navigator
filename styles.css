@@ -264,7 +264,7 @@ body {
     --nn-theme-mobile-toolbar-button-icon-color: var(--link-color);
     --nn-theme-mobile-toolbar-button-active-bg: var(--background-modifier-hover);
     --nn-theme-mobile-toolbar-button-active-icon-color: var(--link-color);
-    --nn-theme-mobile-toolbar-glass-bg: color-mix(in srgb, var(--background-primary) 72%, transparent);
+    --nn-theme-mobile-toolbar-glass-bg: var(--background-primary);
 
     /* -- File Separator -- */
     --nn-separator-height: 1px;
@@ -298,6 +298,14 @@ body {
     flex-direction: column;
     background-color: var(--background-primary);
     font-family: var(--font-interface);
+}
+
+.nn-svg-filters {
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    opacity: 0;
 }
 
 /* Removes focus outline on main container for cleaner appearance */
@@ -4719,7 +4727,7 @@ body.nn-resizing {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 4px;
+    bottom: 104px;
     pointer-events: none;
     z-index: 5;
 
@@ -4741,22 +4749,64 @@ body.nn-resizing {
 
 .notebook-navigator-obsidian-1-11-plus-ios {
     --nn-theme-mobile-toolbar-button-icon-color: var(--text-normal);
-    --nn-ios-toolbar-glass-bg: var(--nn-theme-mobile-toolbar-glass-bg);
-    --nn-ios-toolbar-glass-border: var(--nn-theme-mobile-toolbar-glass-bg);
-    --nn-ios-toolbar-glass-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
-    --nn-ios-toolbar-glass-filter: blur(4px) saturate(160%);
+    --nn-ios-toolbar-glass-bg: color-mix(in srgb, var(--nn-theme-mobile-toolbar-glass-bg) 30%, transparent);
+    --nn-ios-toolbar-glass-outline: rgba(255, 255, 255, 0.6);
+    --nn-ios-toolbar-glass-shadow: 0 0 0 2px var(--nn-ios-toolbar-glass-outline), 0 16px 32px rgba(0, 0, 0, 0.12);
+    --nn-ios-toolbar-glass-filter: blur(3px) saturate(160%);
+    --nn-ios-toolbar-glass-highlight-opacity: 0.25;
     --nn-theme-mobile-toolbar-button-active-bg: transparent;
+}
+
+.theme-dark .notebook-navigator-obsidian-1-11-plus-ios {
+    --nn-ios-toolbar-glass-outline: rgba(255, 255, 255, 0.22);
+    --nn-ios-toolbar-glass-shadow: 0 0 0 2px var(--nn-ios-toolbar-glass-outline), 0 16px 32px rgba(0, 0, 0, 0.32);
+    --nn-ios-toolbar-glass-highlight-opacity: 0.18;
 }
 
 .notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-pill,
 .notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-circle {
     position: relative;
+    z-index: 0;
     border-radius: 999px;
     background: var(--nn-ios-toolbar-glass-bg);
-    border: 1px solid var(--nn-ios-toolbar-glass-border);
+    border: 2px solid transparent;
     -webkit-backdrop-filter: var(--nn-ios-toolbar-glass-filter);
     backdrop-filter: var(--nn-ios-toolbar-glass-filter);
     box-shadow: var(--nn-ios-toolbar-glass-shadow);
+    overflow: hidden;
+
+    /*
+     * Warped glass (disabled)
+     * Enable when WebKit supports SVG `url(#...)` values for `-webkit-backdrop-filter`.
+     *
+     * Requirements:
+     * - Inject the SVG filter defs into the document (filter id: `notebook-navigator-frosted`)
+     * - Set:
+     *   -webkit-backdrop-filter: url(#notebook-navigator-frosted);
+     *   backdrop-filter: url(#notebook-navigator-frosted);
+     */
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-pill::after,
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-circle::after {
+    content: '';
+    position: absolute;
+    left: 18%;
+    top: 18%;
+    width: 40%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 999px;
+    transform: rotate(-18deg);
+    pointer-events: none;
+    opacity: var(--nn-ios-toolbar-glass-highlight-opacity);
+    z-index: 0;
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-pill > .nn-mobile-toolbar-button,
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-circle > .nn-mobile-toolbar-button {
+    position: relative;
+    z-index: 1;
 }
 
 .notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar-pill {

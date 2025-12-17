@@ -40,6 +40,7 @@ import {
     clearAndroidFontCompensation,
     propagateAndroidFontCompensationToMobileRoot
 } from '../utils/androidFontScale';
+import { ensureNotebookNavigatorSvgFilters } from '../utils/svgFilters';
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
@@ -116,6 +117,8 @@ export class NotebookNavigatorView extends ItemView {
                 }
             }
         }
+
+        ensureNotebookNavigatorSvgFilters();
 
         this.root = createRoot(container);
         this.root.render(
