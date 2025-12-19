@@ -82,7 +82,11 @@ export const STRINGS_ZH_CN = {
         emptySearchQuery: '保存前请输入搜索查询',
         emptySearchName: '保存搜索前请输入名称',
         add: '添加到快捷方式',
+        addNotesCount: '添加 {count} 个笔记到快捷方式',
+        addFilesCount: '添加 {count} 个文件到快捷方式',
         remove: '从快捷方式移除',
+        removeAll: '移除所有快捷方式',
+        removeAllConfirm: '移除所有快捷方式？',
         folderNotesPinned: '已固定 {count} 个文件夹笔记'
     },
 

@@ -83,7 +83,11 @@ export const STRINGS_TR = {
         emptySearchQuery: 'Kaydetmeden önce bir arama sorgusu girin',
         emptySearchName: 'Aramayı kaydetmeden önce bir ad girin',
         add: 'Kısayollara ekle',
+        addNotesCount: 'Kısayollara {count} not ekle',
+        addFilesCount: 'Kısayollara {count} dosya ekle',
         remove: 'Kısayollardan kaldır',
+        removeAll: 'Tüm kısayolları kaldır',
+        removeAllConfirm: 'Tüm kısayolları kaldır?',
         folderNotesPinned: '{count} klasör notu sabitlendi'
     },
 

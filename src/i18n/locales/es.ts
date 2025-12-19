@@ -82,7 +82,11 @@ export const STRINGS_ES = {
         emptySearchQuery: 'Ingresa una consulta de búsqueda antes de guardarla',
         emptySearchName: 'Ingresa un nombre antes de guardar la búsqueda',
         add: 'Agregar a accesos directos',
+        addNotesCount: 'Agregar {count} notas a accesos directos',
+        addFilesCount: 'Agregar {count} archivos a accesos directos',
         remove: 'Quitar de accesos directos',
+        removeAll: 'Eliminar todos los accesos directos',
+        removeAllConfirm: '¿Eliminar todos los accesos directos?',
         folderNotesPinned: 'Fijadas {count} notas de carpeta'
     },
 

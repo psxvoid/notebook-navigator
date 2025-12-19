@@ -83,7 +83,11 @@ export const STRINGS_UK = {
         emptySearchQuery: 'Введіть пошуковий запит перед збереженням',
         emptySearchName: 'Введіть назву перед збереженням пошуку',
         add: 'Додати до ярликів',
+        addNotesCount: 'Додати {count} нотаток до ярликів',
+        addFilesCount: 'Додати {count} файлів до ярликів',
         remove: 'Вилучити з ярликів',
+        removeAll: 'Видалити всі ярлики',
+        removeAllConfirm: 'Видалити всі ярлики?',
         folderNotesPinned: 'Закріплено {count} нотаток папок'
     },
 

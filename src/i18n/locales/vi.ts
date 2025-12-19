@@ -83,7 +83,11 @@ export const STRINGS_VI = {
         emptySearchQuery: 'Nhập truy vấn tìm kiếm trước khi lưu',
         emptySearchName: 'Nhập tên trước khi lưu tìm kiếm',
         add: 'Thêm vào lối tắt',
+        addNotesCount: 'Thêm {count} ghi chú vào lối tắt',
+        addFilesCount: 'Thêm {count} tệp vào lối tắt',
         remove: 'Gỡ khỏi lối tắt',
+        removeAll: 'Xóa tất cả lối tắt',
+        removeAllConfirm: 'Xóa tất cả lối tắt?',
         folderNotesPinned: 'Đã ghim {count} ghi chú thư mục'
     },
 

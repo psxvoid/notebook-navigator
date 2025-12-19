@@ -83,7 +83,11 @@ export const STRINGS_IT = {
         emptySearchQuery: 'Inserisci una query di ricerca prima di salvare',
         emptySearchName: 'Inserisci un nome prima di salvare la ricerca',
         add: 'Aggiungi alle scorciatoie',
+        addNotesCount: 'Aggiungi {count} note alle scorciatoie',
+        addFilesCount: 'Aggiungi {count} file alle scorciatoie',
         remove: 'Rimuovi dalle scorciatoie',
+        removeAll: 'Rimuovi tutte le scorciatoie',
+        removeAllConfirm: 'Rimuovere tutte le scorciatoie?',
         folderNotesPinned: 'Fissate {count} note cartella'
     },
 

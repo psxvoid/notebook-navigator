@@ -83,7 +83,11 @@ export const STRINGS_NL = {
         emptySearchQuery: 'Voer een zoekopdracht in voordat u deze opslaat',
         emptySearchName: 'Voer een naam in voordat u de zoekopdracht opslaat',
         add: 'Toevoegen aan snelkoppelingen',
+        addNotesCount: 'Voeg {count} notities toe aan snelkoppelingen',
+        addFilesCount: 'Voeg {count} bestanden toe aan snelkoppelingen',
         remove: 'Verwijderen uit snelkoppelingen',
+        removeAll: 'Alle snelkoppelingen verwijderen',
+        removeAllConfirm: 'Alle snelkoppelingen verwijderen?',
         folderNotesPinned: '{count} mapnotities vastgepind'
     },
 

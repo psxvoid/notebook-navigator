@@ -83,7 +83,11 @@ export const STRINGS_EN = {
         emptySearchQuery: 'Enter a search query before saving it',
         emptySearchName: 'Enter a name before saving the search',
         add: 'Add to shortcuts',
+        addNotesCount: 'Add {count} notes to shortcuts',
+        addFilesCount: 'Add {count} files to shortcuts',
         remove: 'Remove from shortcuts',
+        removeAll: 'Remove all shortcuts',
+        removeAllConfirm: 'Remove all shortcuts?',
         folderNotesPinned: 'Pinned {count} folder notes'
     },
 

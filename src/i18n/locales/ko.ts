@@ -82,7 +82,11 @@ export const STRINGS_KO = {
         emptySearchQuery: '저장하기 전에 검색 쿼리를 입력하세요',
         emptySearchName: '검색을 저장하기 전에 이름을 입력하세요',
         add: '바로가기에 추가',
+        addNotesCount: '바로가기에 노트 {count}개 추가',
+        addFilesCount: '바로가기에 파일 {count}개 추가',
         remove: '바로가기에 제거',
+        removeAll: '모든 바로가기 제거',
+        removeAllConfirm: '모든 바로가기를 제거하시겠습니까?',
         folderNotesPinned: '폴더 노트 {count}개를 고정했습니다'
     },
 

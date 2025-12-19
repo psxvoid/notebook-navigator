@@ -83,7 +83,11 @@ export const STRINGS_ID = {
         emptySearchQuery: 'Masukkan kueri pencarian sebelum menyimpan',
         emptySearchName: 'Masukkan nama sebelum menyimpan pencarian',
         add: 'Tambahkan ke pintasan',
+        addNotesCount: 'Tambahkan {count} catatan ke pintasan',
+        addFilesCount: 'Tambahkan {count} file ke pintasan',
         remove: 'Hapus dari pintasan',
+        removeAll: 'Hapus semua pintasan',
+        removeAllConfirm: 'Hapus semua pintasan?',
         folderNotesPinned: 'Menyematkan {count} catatan folder'
     },
 

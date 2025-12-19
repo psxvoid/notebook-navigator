@@ -83,7 +83,11 @@ export const STRINGS_AR = {
         emptySearchQuery: 'أدخل استعلام بحث قبل حفظه',
         emptySearchName: 'أدخل اسمًا قبل حفظ البحث',
         add: 'إضافة إلى الاختصارات',
+        addNotesCount: 'إضافة {count} ملاحظات إلى الاختصارات',
+        addFilesCount: 'إضافة {count} ملفات إلى الاختصارات',
         remove: 'إزالة من الاختصارات',
+        removeAll: 'إزالة جميع الاختصارات',
+        removeAllConfirm: 'إزالة جميع الاختصارات؟',
         folderNotesPinned: 'تم تثبيت {count} ملاحظة مجلد'
     },
 

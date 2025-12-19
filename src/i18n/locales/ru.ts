@@ -83,7 +83,11 @@ export const STRINGS_RU = {
         emptySearchQuery: 'Введите поисковый запрос перед сохранением',
         emptySearchName: 'Введите название перед сохранением поиска',
         add: 'Добавить в ярлыки',
+        addNotesCount: 'Добавить {count} заметок в ярлыки',
+        addFilesCount: 'Добавить {count} файлов в ярлыки',
         remove: 'Убрать из ярлыков',
+        removeAll: 'Удалить все ярлыки',
+        removeAllConfirm: 'Удалить все ярлыки?',
         folderNotesPinned: 'Закреплено заметок папок: {count}'
     },
 

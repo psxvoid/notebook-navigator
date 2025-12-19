@@ -83,7 +83,11 @@ export const STRINGS_TH = {
         emptySearchQuery: 'กรอกคำค้นหาก่อนบันทึก',
         emptySearchName: 'กรอกชื่อก่อนบันทึกการค้นหา',
         add: 'เพิ่มในทางลัด',
+        addNotesCount: 'เพิ่ม {count} โน้ตไปยังทางลัด',
+        addFilesCount: 'เพิ่ม {count} ไฟล์ไปยังทางลัด',
         remove: 'นำออกจากทางลัด',
+        removeAll: 'ลบทางลัดทั้งหมด',
+        removeAllConfirm: 'ลบทางลัดทั้งหมด?',
         folderNotesPinned: 'ปักหมุด {count} โน้ตโฟลเดอร์แล้ว'
     },
 

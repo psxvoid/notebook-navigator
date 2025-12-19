@@ -112,6 +112,7 @@ import { extractFilePathsFromDataTransfer, parseTagDragPayload } from '../utils/
 import { openFileInContext } from '../utils/openFileInContext';
 import { useShortcuts } from '../context/ShortcutsContext';
 import { ShortcutItem } from './ShortcutItem';
+import { ConfirmModal } from '../modals/ConfirmModal';
 import {
     ShortcutEntry,
     ShortcutType,
@@ -245,8 +246,10 @@ export const NavigationPane = React.memo(
         const uiDispatch = useUIDispatch();
         const shortcuts = useShortcuts();
         const {
+            shortcuts: shortcutsList,
             shortcutMap,
             removeShortcut,
+            clearShortcuts,
             hydratedShortcuts,
             reorderShortcuts,
             addTagShortcut,
@@ -1705,34 +1708,71 @@ export const NavigationPane = React.memo(
             ]
         );
 
+        // Shows a context menu for navigation section headers with separator and shortcut actions
         const handleSectionContextMenu = useCallback(
-            (event: React.MouseEvent<HTMLDivElement>, sectionId: NavigationSectionId) => {
+            (event: React.MouseEvent<HTMLDivElement>, sectionId: NavigationSectionId, options?: { allowSeparator?: boolean }) => {
                 event.preventDefault();
                 event.stopPropagation();
 
+                const isShortcutsSection = sectionId === NavigationSectionId.SHORTCUTS;
                 const target = { type: 'section', id: sectionId } as const;
-                const hasSeparator = metadataService.hasNavigationSeparator(target);
+                const allowSeparator = options?.allowSeparator ?? true;
+                const hasSeparator = allowSeparator ? metadataService.hasNavigationSeparator(target) : false;
                 const menu = new Menu();
+                let hasActions = false;
 
-                menu.addItem(item => {
-                    item.setTitle(
-                        hasSeparator ? strings.contextMenu.navigation.removeSeparator : strings.contextMenu.navigation.addSeparator
-                    )
-                        .setIcon('lucide-separator-horizontal')
-                        .onClick(() => {
-                            runAsyncAction(async () => {
-                                if (hasSeparator) {
-                                    await metadataService.removeNavigationSeparator(target);
-                                    return;
-                                }
-                                await metadataService.addNavigationSeparator(target);
+                // Add separator toggle option when allowed
+                if (allowSeparator) {
+                    menu.addItem(item => {
+                        item.setTitle(
+                            hasSeparator ? strings.contextMenu.navigation.removeSeparator : strings.contextMenu.navigation.addSeparator
+                        )
+                            .setIcon('lucide-separator-horizontal')
+                            .onClick(() => {
+                                runAsyncAction(async () => {
+                                    if (hasSeparator) {
+                                        await metadataService.removeNavigationSeparator(target);
+                                        return;
+                                    }
+                                    await metadataService.addNavigationSeparator(target);
+                                });
                             });
-                        });
-                });
+                    });
+                    hasActions = true;
+                }
+
+                // Add "remove all shortcuts" option for the shortcuts section
+                if (isShortcutsSection && shortcutsList.length > 0) {
+                    if (hasActions) {
+                        menu.addSeparator();
+                    }
+
+                    menu.addItem(item => {
+                        item.setTitle(strings.shortcuts.removeAll)
+                            .setIcon('lucide-trash-2')
+                            .onClick(() => {
+                                const confirmModal = new ConfirmModal(
+                                    app,
+                                    strings.shortcuts.removeAll,
+                                    strings.shortcuts.removeAllConfirm,
+                                    () => clearShortcuts(),
+                                    strings.common.remove
+                                );
+                                confirmModal.open();
+                            });
+                    });
+
+                    hasActions = true;
+                }
+
+                // Skip showing empty menu
+                if (!hasActions) {
+                    return;
+                }
 
                 menu.showAtMouseEvent(event.nativeEvent);
             },
-            [metadataService]
+            [app, clearShortcuts, metadataService, shortcutsList.length]
         );
 
         // Calculates the note count for a folder shortcut, using cache when available
@@ -2235,14 +2275,16 @@ export const NavigationPane = React.memo(
                                 ? NavigationSectionId.TAGS
                                 : null;
 
-                        const shouldDisableShortcutMenu = isShortcutsGroup && shouldPinShortcuts;
                         const shouldDisableFirstSectionMenu =
                             shouldPinShortcuts && sectionId !== null && firstSectionId !== null && sectionId === firstSectionId;
-                        // When shortcuts are pinned they render in their own panel, so the section header hides context menus by design.
-                        // Shortcuts have to be unpinned to edit the first inline section separator
+                        const allowSeparatorActions = !isShortcutsGroup || !shouldPinShortcuts;
+                        const hasShortcutMenuActions = isShortcutsGroup && shortcutsList.length > 0;
+                        // When shortcuts are pinned they render in their own panel, so separator actions are disabled for that section.
+                        // Shortcuts have to be unpinned to edit the first inline section separator.
                         const sectionContextMenu =
-                            sectionId !== null && !shouldDisableShortcutMenu && !shouldDisableFirstSectionMenu
-                                ? (event: React.MouseEvent<HTMLDivElement>) => handleSectionContextMenu(event, sectionId)
+                            sectionId !== null && !shouldDisableFirstSectionMenu && (allowSeparatorActions || hasShortcutMenuActions)
+                                ? (event: React.MouseEvent<HTMLDivElement>) =>
+                                      handleSectionContextMenu(event, sectionId, { allowSeparator: allowSeparatorActions })
                                 : undefined;
 
                         return (
@@ -2387,6 +2429,7 @@ export const NavigationPane = React.memo(
                 firstInlineFolderPath,
                 handleVirtualFolderToggle,
                 recentNotes.length,
+                shortcutsList.length,
                 getAllDescendantFolders,
                 getAllDescendantTags,
                 expansionDispatch,

@@ -82,7 +82,11 @@ export const STRINGS_FR = {
         emptySearchQuery: "Entrez une requête de recherche avant de l'enregistrer",
         emptySearchName: "Entrez un nom avant d'enregistrer la recherche",
         add: 'Ajouter aux raccourcis',
+        addNotesCount: 'Ajouter {count} notes aux raccourcis',
+        addFilesCount: 'Ajouter {count} fichiers aux raccourcis',
         remove: 'Retirer des raccourcis',
+        removeAll: 'Supprimer tous les raccourcis',
+        removeAllConfirm: 'Supprimer tous les raccourcis ?',
         folderNotesPinned: '{count} notes de dossier épinglées'
     },
 

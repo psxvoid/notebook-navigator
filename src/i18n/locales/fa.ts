@@ -83,7 +83,11 @@ export const STRINGS_FA = {
         emptySearchQuery: 'قبل از ذخیره، عبارت جستجو را وارد کنید',
         emptySearchName: 'قبل از ذخیره جستجو، نامی وارد کنید',
         add: 'افزودن به میانبرها',
+        addNotesCount: 'افزودن {count} یادداشت‌ها به میانبرها',
+        addFilesCount: 'افزودن {count} فایل به میانبرها',
         remove: 'حذف از میانبرها',
+        removeAll: 'حذف همه میانبرها',
+        removeAllConfirm: 'حذف همه میانبرها؟',
         folderNotesPinned: '{count} یادداشت پوشه سنجاق شد'
     },
 

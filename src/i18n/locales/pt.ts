@@ -83,7 +83,11 @@ export const STRINGS_PT = {
         emptySearchQuery: 'Introduza uma consulta de pesquisa antes de guardar',
         emptySearchName: 'Introduza um nome antes de guardar a pesquisa',
         add: 'Adicionar aos atalhos',
+        addNotesCount: 'Adicionar {count} notas aos atalhos',
+        addFilesCount: 'Adicionar {count} ficheiros aos atalhos',
         remove: 'Remover dos atalhos',
+        removeAll: 'Remover todos os atalhos',
+        removeAllConfirm: 'Remover todos os atalhos?',
         folderNotesPinned: '{count} notas de pasta fixadas'
     },
 

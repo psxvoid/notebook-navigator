@@ -83,7 +83,11 @@ export const STRINGS_ZH_TW = {
         emptySearchQuery: '儲存前請輸入搜尋查詢',
         emptySearchName: '儲存搜尋前請輸入名稱',
         add: '新增至捷徑',
+        addNotesCount: '新增 {count} 個筆記至捷徑',
+        addFilesCount: '新增 {count} 個檔案至捷徑',
         remove: '從捷徑移除',
+        removeAll: '移除所有捷徑',
+        removeAllConfirm: '移除所有捷徑？',
         folderNotesPinned: '已釘選 {count} 個資料夾筆記'
     },
 

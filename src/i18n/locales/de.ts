@@ -82,7 +82,11 @@ export const STRINGS_DE = {
         emptySearchQuery: 'Geben Sie eine Suchanfrage ein, bevor Sie sie speichern',
         emptySearchName: 'Geben Sie einen Namen ein, bevor Sie die Suche speichern',
         add: 'Zu Lesezeichen hinzufügen',
+        addNotesCount: '{count} Notizen zu Lesezeichen hinzufügen',
+        addFilesCount: '{count} Dateien zu Lesezeichen hinzufügen',
         remove: 'Aus Lesezeichen entfernen',
+        removeAll: 'Alle Lesezeichen entfernen',
+        removeAllConfirm: 'Alle Lesezeichen entfernen?',
         folderNotesPinned: '{count} Ordnernotizen angeheftet'
     },
 

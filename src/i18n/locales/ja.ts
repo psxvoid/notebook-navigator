@@ -82,7 +82,11 @@ export const STRINGS_JA = {
         emptySearchQuery: '保存前に検索クエリを入力してください',
         emptySearchName: '検索を保存する前に名前を入力してください',
         add: 'ショートカットに追加',
+        addNotesCount: 'ショートカットに{count}件のノートを追加',
+        addFilesCount: 'ショートカットに{count}件のファイルを追加',
         remove: 'ショートカットから削除',
+        removeAll: 'すべてのショートカットを削除',
+        removeAllConfirm: 'すべてのショートカットを削除しますか？',
         folderNotesPinned: 'フォルダノート {count} 件をピン留めしました'
     },
 

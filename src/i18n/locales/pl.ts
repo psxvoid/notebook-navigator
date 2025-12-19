@@ -82,7 +82,11 @@ export const STRINGS_PL = {
         emptySearchQuery: 'Wprowadź zapytanie wyszukiwania przed zapisaniem',
         emptySearchName: 'Wprowadź nazwę przed zapisaniem wyszukiwania',
         add: 'Dodaj do skrótów',
+        addNotesCount: 'Dodaj {count} notatek do skrótów',
+        addFilesCount: 'Dodaj {count} plików do skrótów',
         remove: 'Usuń ze skrótów',
+        removeAll: 'Usuń wszystkie skróty',
+        removeAllConfirm: 'Usunąć wszystkie skróty?',
         folderNotesPinned: 'Przypięto {count} notatek folderu'
     },
 
