@@ -80,7 +80,7 @@ export function NavigationToolbar({
                     <div className={leftGroupClassName}>
                         {showShortcutsButton ? (
                             <button
-                                className={leftButtonBaseClassName}
+                                className={`${leftButtonBaseClassName}${uiState.pinShortcuts ? ' nn-mobile-toolbar-button-active' : ''}`}
                                 aria-label={
                                     pinToggleLabel ??
                                     (uiState.pinShortcuts ? strings.navigationPane.unpinShortcuts : strings.navigationPane.pinShortcuts)
@@ -88,7 +88,7 @@ export function NavigationToolbar({
                                 onClick={onTogglePinnedShortcuts}
                                 tabIndex={-1}
                             >
-                                <ObsidianIcon name={uiState.pinShortcuts ? 'lucide-bookmark-minus' : 'lucide-bookmark'} />
+                                <ObsidianIcon name="lucide-bookmark" />
                             </button>
                         ) : null}
                         {showExpandCollapseButton ? (

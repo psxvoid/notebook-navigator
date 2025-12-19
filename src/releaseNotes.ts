@@ -73,6 +73,18 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.9.3',
+        date: '2025-12-22',
+        showOnUpdate: true,
+        new: [
+            '==You can now resize the pinned shortcuts area== by dragging the separator line.',
+        ],
+        improved: [
+        ],
+        changed: [],
+        fixed: []
+    },
+    {
         version: '1.9.2',
         date: '2025-12-17',
         showOnUpdate: true,

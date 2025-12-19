@@ -17,10 +17,11 @@
  */
 
 // src/hooks/useResizablePane.ts
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { type DualPaneOrientation } from '../types';
 import { localStorage } from '../utils/localStorage';
 import { getNavigationPaneSizing } from '../utils/paneSizing';
+import { usePointerDrag } from './usePointerDrag';
 
 interface UseResizablePaneConfig {
     orientation?: DualPaneOrientation;
@@ -34,13 +35,13 @@ interface UseResizablePaneResult {
     paneSize: number;
     isResizing: boolean;
     resizeHandleProps: {
-        onMouseDown: (e: React.MouseEvent) => void;
+        onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => void;
     };
 }
 
 /**
  * Custom hook for managing resizable pane width with optional localStorage persistence.
- * Handles mouse events for dragging the resize handle and constrains the width
+ * Handles pointer events for dragging the resize handle and constrains the width
  * within specified bounds.
  *
  * @param config - Configuration object with initial width, min bound, and storage key
@@ -61,9 +62,6 @@ export function useResizablePane({
 
     const resolvedMin = typeof min === 'number' ? min : sizing.minSize;
 
-    // Track cleanup function for current resize operation
-    const cleanupRef = useRef<(() => void) | null>(null);
-
     // Load initial width from localStorage if storage key is provided
     const [paneSize, setPaneSize] = useState(() => {
         if (storageKey) {
@@ -78,58 +76,53 @@ export function useResizablePane({
     // Track resizing state
     const [isResizing, setIsResizing] = useState(false);
 
+    const { startPointerDrag } = usePointerDrag();
+
     const scaleFactor = typeof scale === 'number' && Number.isFinite(scale) && scale > 0 ? scale : 1;
 
-    const handleResizeMouseDown = useCallback(
-        (e: React.MouseEvent) => {
+    const handleResizePointerDown = useCallback(
+        (event: React.PointerEvent<HTMLDivElement>) => {
+            if (event.pointerType === 'mouse' && event.button !== 0) {
+                return;
+            }
             // Capture starting position based on orientation
-            const startPosition = orientation === 'horizontal' ? e.clientX : e.clientY;
+            const startPosition = orientation === 'horizontal' ? event.clientX : event.clientY;
             const startSize = paneSize;
             let currentSize = startSize;
 
             // Check if RTL mode is active for horizontal dragging
             const isRTL = orientation === 'horizontal' && document.body.classList.contains('mod-rtl');
-
             // Set resizing state
             setIsResizing(true);
 
-            const handleMouseMove = (moveEvent: MouseEvent) => {
-                // Calculate position delta based on orientation
-                const currentPosition = orientation === 'horizontal' ? moveEvent.clientX : moveEvent.clientY;
-                let delta = currentPosition - startPosition;
-                // In RTL mode, reverse the delta to make dragging feel natural
-                if (isRTL) {
-                    delta = -delta;
+            event.preventDefault();
+            event.stopPropagation();
+
+            startPointerDrag({
+                event,
+                onMove: (moveEvent: PointerEvent) => {
+                    // Calculate position delta based on orientation
+                    const currentPosition = orientation === 'horizontal' ? moveEvent.clientX : moveEvent.clientY;
+                    let delta = currentPosition - startPosition;
+                    // In RTL mode, reverse the delta to make dragging feel natural
+                    if (isRTL) {
+                        delta = -delta;
+                    }
+                    const scaledDelta = delta / scaleFactor;
+                    currentSize = Math.max(resolvedMin, startSize + scaledDelta);
+                    setPaneSize(currentSize);
+                },
+                onEnd: () => {
+                    // Save final width to localStorage on pointer end
+                    if (storageKey) {
+                        localStorage.set(storageKey, currentSize);
+                    }
+                    // Clear resizing state
+                    setIsResizing(false);
                 }
-                const scaledDelta = delta / scaleFactor;
-                currentSize = Math.max(resolvedMin, startSize + scaledDelta);
-                setPaneSize(currentSize);
-            };
-
-            const handleMouseUp = () => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
-                // Save final width to localStorage on mouseup
-                if (storageKey) {
-                    localStorage.set(storageKey, currentSize);
-                }
-                // Clear resizing state
-                setIsResizing(false);
-                // Clear the cleanup ref since we've already cleaned up
-                cleanupRef.current = null;
-            };
-
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-
-            // Store cleanup function in ref so it can be called on unmount
-            cleanupRef.current = () => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
-                setIsResizing(false);
-            };
+            });
         },
-        [orientation, paneSize, resolvedMin, scaleFactor, storageKey]
+        [orientation, paneSize, resolvedMin, scaleFactor, storageKey, startPointerDrag]
     );
 
     // Reload pane size when orientation changes
@@ -148,21 +141,11 @@ export function useResizablePane({
         setPaneSize(resolvedInitialSize);
     }, [orientation, resolvedInitialSize, resolvedMin, storageKey]);
 
-    // Cleanup on unmount if resize is in progress
-    useEffect(() => {
-        return () => {
-            if (cleanupRef.current) {
-                cleanupRef.current();
-                cleanupRef.current = null;
-            }
-        };
-    }, []);
-
     return {
         paneSize,
         isResizing,
         resizeHandleProps: {
-            onMouseDown: handleResizeMouseDown
+            onPointerDown: handleResizePointerDown
         }
     };
 }

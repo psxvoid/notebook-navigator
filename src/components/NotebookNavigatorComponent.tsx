@@ -858,6 +858,7 @@ export const NotebookNavigatorComponent = React.memo(
                     <NavigationPane
                         ref={navigationPaneRef}
                         style={navigationPaneStyle}
+                        uiScale={uiScale}
                         rootContainerRef={containerRef}
                         searchTagFilters={searchTagFilters}
                         onExecuteSearchShortcut={handleSearchShortcutExecution}
