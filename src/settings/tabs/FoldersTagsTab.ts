@@ -53,6 +53,16 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         }
     );
 
+    addToggleSetting(
+        topGroup.addSetting,
+        strings.settings.items.springLoadedFolders.name,
+        strings.settings.items.springLoadedFolders.desc,
+        () => plugin.settings.springLoadedFolders,
+        value => {
+            plugin.settings.springLoadedFolders = value;
+        }
+    );
+
     const foldersGroup = createGroup(strings.settings.sections.folders);
 
     addToggleSetting(

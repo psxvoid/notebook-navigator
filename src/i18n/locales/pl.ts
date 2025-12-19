@@ -781,6 +781,10 @@ export const STRINGS_PL = {
                 name: 'Rozwiń przy wyborze',
                 desc: 'Rozwiń foldery i tagi po wybraniu. W trybie pojedynczego panelu pierwsze kliknięcie rozwija, drugie pokazuje pliki.'
             },
+            springLoadedFolders: {
+                name: 'Rozwiń podczas przeciągania',
+                desc: 'Rozwiń foldery i tagi przy najechaniu podczas przeciągania.'
+            },
             navigationBanner: {
                 name: 'Baner nawigacji (profil sejfu)',
                 desc: 'Wyświetl obraz nad panelem nawigacji. Zmienia się wraz z wybranym profilem sejfu.',

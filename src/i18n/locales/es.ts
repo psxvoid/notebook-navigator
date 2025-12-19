@@ -780,6 +780,10 @@ export const STRINGS_ES = {
                 name: 'Expandir al seleccionar',
                 desc: 'Expandir carpetas y etiquetas al seleccionar. En modo de panel único, la primera selección expande, la segunda muestra archivos.'
             },
+            springLoadedFolders: {
+                name: 'Expandir al arrastrar',
+                desc: 'Expandir carpetas y etiquetas al pasar sobre ellas durante el arrastre.'
+            },
             navigationBanner: {
                 name: 'Banner de navegación (perfil de bóveda)',
                 desc: 'Mostrar una imagen encima del panel de navegación. Cambia con el perfil de bóveda seleccionado.',

@@ -780,6 +780,10 @@ export const STRINGS_PT_BR = {
                 name: 'Expandir ao selecionar',
                 desc: 'Expandir pastas e tags ao selecionar. No modo de painel único, a primeira seleção expande, a segunda mostra arquivos.'
             },
+            springLoadedFolders: {
+                name: 'Expandir ao arrastar',
+                desc: 'Expandir pastas e tags ao passar o mouse sobre elas durante o arraste.'
+            },
             navigationBanner: {
                 name: 'Banner de navegação (perfil de cofre)',
                 desc: 'Exibir uma imagem acima do painel de navegação. Muda com o perfil de cofre selecionado.',

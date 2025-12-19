@@ -76,8 +76,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.9.3',
         date: '2025-12-22',
         showOnUpdate: true,
-        new: [],
-        improved: ['==You can now resize the pinned shortcuts area== by dragging the separator line.',
+        new: ['New setting: Folders & tags > ==Spring-loaded folders==. Expand folders and tags on hover during drag operations. Default enabled.'],
+        improved: [
+            '==You can now resize the pinned shortcuts area== by dragging the separator line.',
             '==You can now add multiple files to shortcuts== using multi-selection and context menu.',
             '==You can now remove all shortcuts== using the new "Remove all shortcuts" option in the shortcuts context menu.'
         ],

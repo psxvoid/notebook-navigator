@@ -779,6 +779,10 @@ export const STRINGS_EN = {
                 name: 'Expand on selection',
                 desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
+            springLoadedFolders: {
+                name: 'Spring-loaded folders',
+                desc: 'Expand folders and tags on hover during drag operations.'
+            },
             navigationBanner: {
                 name: 'Navigation banner (vault profile)',
                 desc: 'Display an image above the navigation pane. Changes with the selected vault profile.',

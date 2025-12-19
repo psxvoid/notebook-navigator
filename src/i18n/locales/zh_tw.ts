@@ -778,6 +778,10 @@ export const STRINGS_ZH_TW = {
                 name: '選取時展開',
                 desc: '選取時展開資料夾和標籤。在單一窗格模式下，首次選取展開，再次選取顯示檔案。'
             },
+            springLoadedFolders: {
+                name: '拖曳時展開',
+                desc: '拖曳操作中懸停時展開資料夾和標籤。'
+            },
             navigationBanner: {
                 name: '導覽橫幅（倉庫設定檔）',
                 desc: '在導覽窗格上方顯示圖片。隨所選倉庫設定檔而變化。',

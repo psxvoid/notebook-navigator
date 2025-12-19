@@ -779,6 +779,10 @@ export const STRINGS_TR = {
                 name: 'Seçimde genişlet',
                 desc: 'Seçildiğinde klasörleri ve etiketleri genişlet. Tek bölme modunda ilk seçim genişletir, ikinci seçim dosyaları gösterir.'
             },
+            springLoadedFolders: {
+                name: 'Sürüklerken genişlet',
+                desc: 'Sürükleme sırasında üzerine gelirken klasörleri ve etiketleri genişlet.'
+            },
             navigationBanner: {
                 name: 'Gezinme afişi (kasa profili)',
                 desc: 'Gezinme bölmesinin üzerinde bir görsel görüntüle. Seçili kasa profiliyle değişir.',

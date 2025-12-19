@@ -112,6 +112,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Folders & tags tab
     autoSelectFirstFileOnFocusChange: false,
     autoExpandFoldersTags: false,
+    springLoadedFolders: true,
     showFolderIcons: true,
     showRootFolder: true,
     inheritFolderColors: false,

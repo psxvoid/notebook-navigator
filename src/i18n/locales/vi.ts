@@ -779,6 +779,10 @@ export const STRINGS_VI = {
                 name: 'Mở rộng khi chọn',
                 desc: 'Mở rộng thư mục và thẻ khi chọn. Ở chế độ một ngăn, chọn lần đầu mở rộng, chọn lần hai hiện tệp.'
             },
+            springLoadedFolders: {
+                name: 'Mở rộng khi kéo',
+                desc: 'Mở rộng thư mục và thẻ khi di chuột qua trong lúc kéo.'
+            },
             navigationBanner: {
                 name: 'Banner điều hướng (hồ sơ vault)',
                 desc: 'Hiển thị ảnh phía trên ngăn điều hướng. Thay đổi theo hồ sơ vault đã chọn.',

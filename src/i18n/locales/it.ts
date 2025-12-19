@@ -779,6 +779,10 @@ export const STRINGS_IT = {
                 name: 'Espandi alla selezione',
                 desc: 'Espandi cartelle e tag quando selezionati. In modalità pannello singolo, la prima selezione espande, la seconda mostra i file.'
             },
+            springLoadedFolders: {
+                name: 'Espandi durante il trascinamento',
+                desc: 'Espandi cartelle e tag al passaggio del mouse durante il trascinamento.'
+            },
             navigationBanner: {
                 name: 'Banner navigazione (profilo vault)',
                 desc: "Visualizza un'immagine sopra il pannello navigazione. Cambia con il profilo vault selezionato.",

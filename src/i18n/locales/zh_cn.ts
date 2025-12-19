@@ -779,6 +779,10 @@ export const STRINGS_ZH_CN = {
                 name: '选中时展开',
                 desc: '选中时展开文件夹和标签。在单窗格模式下，首次选中展开，再次选中显示文件。'
             },
+            springLoadedFolders: {
+                name: '拖动时展开',
+                desc: '拖动操作中悬停时展开文件夹和标签。'
+            },
             navigationBanner: {
                 name: '导航横幅（仓库配置文件）',
                 desc: '在导航窗格顶部显示一张图片。随所选仓库配置文件而变化。',

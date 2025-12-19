@@ -781,6 +781,10 @@ export const STRINGS_NL = {
                 name: 'Uitvouwen bij selectie',
                 desc: 'Mappen en tags uitvouwen bij selectie. In enkelvoudige paneelmodus: eerste selectie vouwt uit, tweede selectie toont bestanden.'
             },
+            springLoadedFolders: {
+                name: 'Uitvouwen bij slepen',
+                desc: 'Mappen en tags uitvouwen bij zweven tijdens slepen.'
+            },
             navigationBanner: {
                 name: 'Navigatiebanner (kluisprofiel)',
                 desc: 'Een afbeelding weergeven boven het navigatiepaneel. Verandert met het geselecteerde kluisprofiel.',

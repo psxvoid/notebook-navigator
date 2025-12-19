@@ -779,6 +779,10 @@ export const STRINGS_ID = {
                 name: 'Luaskan saat dipilih',
                 desc: 'Luaskan folder dan tag saat dipilih. Dalam mode panel tunggal, pilihan pertama meluaskan, pilihan kedua menampilkan file.'
             },
+            springLoadedFolders: {
+                name: 'Luaskan saat menyeret',
+                desc: 'Luaskan folder dan tag saat mengarahkan kursor selama menyeret.'
+            },
             navigationBanner: {
                 name: 'Banner navigasi (profil vault)',
                 desc: 'Tampilkan gambar di atas panel navigasi. Berubah dengan profil vault yang dipilih.',

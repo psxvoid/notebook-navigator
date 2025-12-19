@@ -783,6 +783,10 @@ export const STRINGS_DE = {
                 name: 'Bei Auswahl erweitern',
                 desc: 'Ordner und Tags bei Auswahl erweitern. Im Einzelfenster-Modus: erste Auswahl erweitert, zweite Auswahl zeigt Dateien.'
             },
+            springLoadedFolders: {
+                name: 'Beim Ziehen erweitern',
+                desc: 'Ordner und Tags beim Überfahren während des Ziehens erweitern.'
+            },
             navigationBanner: {
                 name: 'Navigationsbanner (Tresorprofil)',
                 desc: 'Bild oberhalb des Navigationsbereichs anzeigen. Ändert sich mit dem ausgewählten Tresorprofil.',

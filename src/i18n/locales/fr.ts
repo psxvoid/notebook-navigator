@@ -781,6 +781,10 @@ export const STRINGS_FR = {
                 name: 'Développer à la sélection',
                 desc: 'Développer les dossiers et étiquettes lors de la sélection. En mode panneau unique, la première sélection développe, la seconde affiche les fichiers.'
             },
+            springLoadedFolders: {
+                name: 'Développer au survol',
+                desc: 'Développer les dossiers et les étiquettes au survol pendant le glisser-déposer.'
+            },
             navigationBanner: {
                 name: 'Bannière de navigation (profil de coffre)',
                 desc: 'Afficher une image au-dessus du panneau de navigation. Change avec le profil de coffre sélectionné.',

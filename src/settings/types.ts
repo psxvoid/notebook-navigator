@@ -146,6 +146,7 @@ export interface NotebookNavigatorSettings {
     // Folders & tags tab
     autoSelectFirstFileOnFocusChange: boolean;
     autoExpandFoldersTags: boolean;
+    springLoadedFolders: boolean;
     showFolderIcons: boolean;
     showRootFolder: boolean;
     inheritFolderColors: boolean;

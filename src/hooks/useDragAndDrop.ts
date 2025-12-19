@@ -315,6 +315,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         autoExpandTargetRef.current = null;
     }, []);
 
+    useEffect(() => {
+        if (!settings.springLoadedFolders) {
+            clearAutoExpandTimer();
+        }
+    }, [settings.springLoadedFolders, clearAutoExpandTimer]);
+
     /**
      * Schedules auto-expansion of a folder or tag when hovering during drag
      * Validates the node has children before expanding after delay
@@ -411,6 +417,23 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         [tagTreeService, expansionDispatch, scheduleAutoExpand]
     );
 
+    const maybeScheduleAutoExpand = useCallback(
+        (targetType: 'folder' | 'tag', targetPath: string) => {
+            if (!settings.springLoadedFolders) {
+                clearAutoExpandTimer();
+                return;
+            }
+
+            if (targetType === 'folder') {
+                scheduleFolderAutoExpand(targetPath);
+                return;
+            }
+
+            scheduleTagAutoExpand(targetPath);
+        },
+        [settings.springLoadedFolders, clearAutoExpandTimer, scheduleFolderAutoExpand, scheduleTagAutoExpand]
+    );
+
     /**
      * Handles the drag over event.
      * Provides visual feedback by adding CSS classes to valid drop targets.
@@ -488,7 +511,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
                     e.dataTransfer.dropEffect = isExternal ? 'copy' : 'move';
                     if (targetPath) {
-                        scheduleFolderAutoExpand(targetPath);
+                        maybeScheduleAutoExpand('folder', targetPath);
                     }
                 } else if (dropType === 'tag') {
                     if (dragTypeRef.current === ItemType.FOLDER) {
@@ -504,7 +527,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     if (targetPath !== UNTAGGED_TAG_ID) {
                         const canonicalTagPath = dropZone.getAttribute('data-tag');
                         if (canonicalTagPath) {
-                            scheduleTagAutoExpand(canonicalTagPath);
+                            maybeScheduleAutoExpand('tag', canonicalTagPath);
                         } else {
                             clearAutoExpandTimer();
                         }
@@ -536,7 +559,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             dropZone.classList.add('nn-drag-over');
             dragOverElement.current = dropZone;
         },
-        [clearAutoExpandTimer, scheduleFolderAutoExpand, scheduleTagAutoExpand]
+        [clearAutoExpandTimer, maybeScheduleAutoExpand]
     );
 
     /**
@@ -963,7 +986,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         if (!container || isMobile) return;
 
         // Global handler for escape key to clean up ghost on cancel
-        const handleEscape = (e: KeyboardEvent) => {
+        const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape' && dragGhostManager.hasGhost()) {
                 dragGhostManager.hideGhost();
             }
@@ -978,7 +1001,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         container.addEventListener('dragleave', handleDragLeave);
         container.addEventListener('drop', handleDropListener);
         container.addEventListener('dragend', handleDragEnd);
-        document.addEventListener('keydown', handleEscape);
+        document.addEventListener('keydown', handleKeyDown);
 
         return () => {
             container.removeEventListener('dragstart', handleDragStart);
@@ -986,7 +1009,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             container.removeEventListener('dragleave', handleDragLeave);
             container.removeEventListener('drop', handleDropListener);
             container.removeEventListener('dragend', handleDragEnd);
-            document.removeEventListener('keydown', handleEscape);
+            document.removeEventListener('keydown', handleKeyDown);
 
             // Clean up any lingering drag state on unmount
             dragGhostManager.hideGhost();
