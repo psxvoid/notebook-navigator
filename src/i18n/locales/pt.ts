@@ -852,7 +852,7 @@ export const STRINGS_PT = {
             },
             vaultProfiles: {
                 name: 'Perfil do cofre',
-                desc: 'Os perfis armazenam visibilidade de tipos de ficheiro, pastas ocultas, etiquetas ocultas, notas ocultas, atalhos e banner de navegação. Mude de perfis a partir do cabeçalho do painel de navegação.',
+                desc: 'Os perfis armazenam visibilidade de tipos de ficheiro, ficheiros ocultos, pastas ocultas, etiquetas ocultas, notas ocultas, atalhos e banner de navegação. Mude de perfis a partir do cabeçalho do painel de navegação.',
                 defaultName: 'Predefinido',
                 addButton: 'Adicionar perfil',
                 editProfilesButton: 'Editar perfis',
@@ -866,7 +866,7 @@ export const STRINGS_PT = {
                 addModalPlaceholder: 'Nome do perfil',
                 deleteModalTitle: 'Eliminar {name}',
                 deleteModalMessage:
-                    'Remover {name}? Os filtros de pastas, etiquetas e notas ocultas guardados neste perfil serão eliminados.',
+                    'Remover {name}? Os filtros de ficheiros, pastas, etiquetas e notas ocultas guardados neste perfil serão eliminados.',
                 moveUp: 'Mover para cima',
                 moveDown: 'Mover para baixo',
                 errors: {

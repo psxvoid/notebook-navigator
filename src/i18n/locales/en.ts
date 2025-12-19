@@ -851,7 +851,7 @@ export const STRINGS_EN = {
             },
             vaultProfiles: {
                 name: 'Vault profile',
-                desc: 'Profiles store file type visibility, hidden folders, hidden tags, hidden notes, shortcuts, and navigation banner. Switch profiles from the navigation pane header.',
+                desc: 'Profiles store file type visibility, hidden files, hidden folders, hidden tags, hidden notes, shortcuts, and navigation banner. Switch profiles from the navigation pane header.',
                 defaultName: 'Default',
                 addButton: 'Add profile',
                 editProfilesButton: 'Edit profiles',
@@ -864,7 +864,7 @@ export const STRINGS_EN = {
                 editModalTitle: 'Edit profile',
                 addModalPlaceholder: 'Profile name',
                 deleteModalTitle: 'Delete {name}',
-                deleteModalMessage: 'Remove {name}? Hidden folder, tag, and note filters saved in this profile will be deleted.',
+                deleteModalMessage: 'Remove {name}? Hidden file, folder, tag, and note filters saved in this profile will be deleted.',
                 moveUp: 'Move up',
                 moveDown: 'Move down',
                 errors: {

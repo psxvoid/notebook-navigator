@@ -852,7 +852,7 @@ export const STRINGS_VI = {
             },
             vaultProfiles: {
                 name: 'Hồ sơ vault',
-                desc: 'Hồ sơ lưu trữ hiển thị loại tệp, thư mục ẩn, thẻ ẩn, ghi chú ẩn, lối tắt và banner điều hướng. Chuyển hồ sơ từ header ngăn điều hướng.',
+                desc: 'Hồ sơ lưu trữ hiển thị loại tệp, tệp ẩn, thư mục ẩn, thẻ ẩn, ghi chú ẩn, lối tắt và banner điều hướng. Chuyển hồ sơ từ header ngăn điều hướng.',
                 defaultName: 'Mặc định',
                 addButton: 'Thêm hồ sơ',
                 editProfilesButton: 'Sửa hồ sơ',
@@ -865,7 +865,7 @@ export const STRINGS_VI = {
                 editModalTitle: 'Sửa hồ sơ',
                 addModalPlaceholder: 'Tên hồ sơ',
                 deleteModalTitle: 'Xóa {name}',
-                deleteModalMessage: 'Gỡ {name}? Bộ lọc thư mục, thẻ và ghi chú ẩn được lưu trong hồ sơ này sẽ bị xóa.',
+                deleteModalMessage: 'Gỡ {name}? Bộ lọc tệp, thư mục, thẻ và ghi chú ẩn được lưu trong hồ sơ này sẽ bị xóa.',
                 moveUp: 'Di chuyển lên',
                 moveDown: 'Di chuyển xuống',
                 errors: {

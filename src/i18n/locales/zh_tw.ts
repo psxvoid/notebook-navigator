@@ -851,7 +851,7 @@ export const STRINGS_ZH_TW = {
             },
             vaultProfiles: {
                 name: '倉庫設定檔',
-                desc: '設定檔儲存檔案類型可見性、隱藏資料夾、隱藏標籤、隱藏筆記、捷徑和導覽橫幅。從導覽窗格標題切換設定檔。',
+                desc: '設定檔儲存檔案類型可見性、隱藏檔案、隱藏資料夾、隱藏標籤、隱藏筆記、捷徑和導覽橫幅。從導覽窗格標題切換設定檔。',
                 defaultName: '預設',
                 addButton: '新增設定檔',
                 editProfilesButton: '編輯設定檔',
@@ -864,7 +864,7 @@ export const STRINGS_ZH_TW = {
                 editModalTitle: '編輯設定檔',
                 addModalPlaceholder: '設定檔名稱',
                 deleteModalTitle: '刪除 {name}',
-                deleteModalMessage: '刪除 {name}？儲存在此設定檔中的隱藏資料夾、標籤和筆記篩選器將被刪除。',
+                deleteModalMessage: '刪除 {name}？儲存在此設定檔中的隱藏檔案、資料夾、標籤和筆記篩選器將被刪除。',
                 moveUp: '上移',
                 moveDown: '下移',
                 errors: {

@@ -833,7 +833,7 @@ export const STRINGS_FR = {
             },
             vaultProfiles: {
                 name: 'Profil du coffre',
-                desc: "Les profils stockent la visibilité des types de fichiers, les dossiers cachés, les étiquettes cachées, les notes cachées, les raccourcis et la bannière de navigation. Changez de profil depuis l'en-tête du panneau de navigation.",
+                desc: "Les profils stockent la visibilité des types de fichiers, les fichiers cachés, les dossiers cachés, les étiquettes cachées, les notes cachées, les raccourcis et la bannière de navigation. Changez de profil depuis l'en-tête du panneau de navigation.",
                 defaultName: 'Par défaut',
                 addButton: 'Ajouter un profil',
                 editProfilesButton: 'Modifier les profils',
@@ -847,7 +847,7 @@ export const STRINGS_FR = {
                 addModalPlaceholder: 'Nom du profil',
                 deleteModalTitle: 'Supprimer {name}',
                 deleteModalMessage:
-                    'Supprimer {name} ? Les filtres de dossiers, étiquettes et notes cachés enregistrés dans ce profil seront supprimés.',
+                    'Supprimer {name} ? Les filtres de fichiers, dossiers, étiquettes et notes cachés enregistrés dans ce profil seront supprimés.',
                 moveUp: 'Déplacer vers le haut',
                 moveDown: 'Déplacer vers le bas',
                 errors: {

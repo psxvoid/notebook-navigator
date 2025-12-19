@@ -852,7 +852,7 @@ export const STRINGS_ID = {
             },
             vaultProfiles: {
                 name: 'Profil vault',
-                desc: 'Profil menyimpan visibilitas jenis file, folder tersembunyi, tag tersembunyi, catatan tersembunyi, pintasan, dan banner navigasi. Beralih profil dari header panel navigasi.',
+                desc: 'Profil menyimpan visibilitas jenis file, file tersembunyi, folder tersembunyi, tag tersembunyi, catatan tersembunyi, pintasan, dan banner navigasi. Beralih profil dari header panel navigasi.',
                 defaultName: 'Default',
                 addButton: 'Tambah profil',
                 editProfilesButton: 'Edit profil',
@@ -865,7 +865,8 @@ export const STRINGS_ID = {
                 editModalTitle: 'Edit profil',
                 addModalPlaceholder: 'Nama profil',
                 deleteModalTitle: 'Hapus {name}',
-                deleteModalMessage: 'Hapus {name}? Filter folder, tag, dan catatan tersembunyi yang disimpan di profil ini akan dihapus.',
+                deleteModalMessage:
+                    'Hapus {name}? Filter file, folder, tag, dan catatan tersembunyi yang disimpan di profil ini akan dihapus.',
                 moveUp: 'Pindah ke atas',
                 moveDown: 'Pindah ke bawah',
                 errors: {

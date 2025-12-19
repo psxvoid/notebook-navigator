@@ -852,7 +852,7 @@ export const STRINGS_IT = {
             },
             vaultProfiles: {
                 name: 'Profilo vault',
-                desc: "I profili memorizzano visibilità tipi file, cartelle nascoste, tag nascosti, note nascoste, scorciatoie e banner navigazione. Cambia profilo dall'intestazione del pannello navigazione.",
+                desc: "I profili memorizzano visibilità tipi file, file nascosti, cartelle nascoste, tag nascosti, note nascoste, scorciatoie e banner navigazione. Cambia profilo dall'intestazione del pannello navigazione.",
                 defaultName: 'Predefinito',
                 addButton: 'Aggiungi profilo',
                 editProfilesButton: 'Modifica profili',
@@ -865,7 +865,8 @@ export const STRINGS_IT = {
                 editModalTitle: 'Modifica profilo',
                 addModalPlaceholder: 'Nome profilo',
                 deleteModalTitle: 'Elimina {name}',
-                deleteModalMessage: 'Rimuovere {name}? I filtri cartelle, tag e note nascoste salvati in questo profilo saranno eliminati.',
+                deleteModalMessage:
+                    'Rimuovere {name}? I filtri file, cartelle, tag e note nascoste salvati in questo profilo saranno eliminati.',
                 moveUp: 'Sposta su',
                 moveDown: 'Sposta giù',
                 errors: {

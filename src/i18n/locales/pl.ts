@@ -854,7 +854,7 @@ export const STRINGS_PL = {
             },
             vaultProfiles: {
                 name: 'Profil sejfu',
-                desc: 'Profile przechowują widoczność typów plików, ukryte foldery, ukryte tagi, ukryte notatki, skróty i baner nawigacji. Zmień profil z nagłówka panelu nawigacji.',
+                desc: 'Profile przechowują widoczność typów plików, ukryte pliki, ukryte foldery, ukryte tagi, ukryte notatki, skróty i baner nawigacji. Zmień profil z nagłówka panelu nawigacji.',
                 defaultName: 'Domyślny',
                 addButton: 'Dodaj profil',
                 editProfilesButton: 'Edytuj profile',
@@ -867,7 +867,8 @@ export const STRINGS_PL = {
                 editModalTitle: 'Edytuj profil',
                 addModalPlaceholder: 'Nazwa profilu',
                 deleteModalTitle: 'Usuń {name}',
-                deleteModalMessage: 'Usunąć {name}? Filtry ukrytych folderów, tagów i notatek zapisane w tym profilu zostaną usunięte.',
+                deleteModalMessage:
+                    'Usunąć {name}? Filtry ukrytych plików, folderów, tagów i notatek zapisane w tym profilu zostaną usunięte.',
                 moveUp: 'Przenieś w górę',
                 moveDown: 'Przenieś w dół',
                 errors: {

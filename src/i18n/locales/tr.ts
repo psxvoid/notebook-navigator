@@ -852,7 +852,7 @@ export const STRINGS_TR = {
             },
             vaultProfiles: {
                 name: 'Kasa profili',
-                desc: 'Profiller dosya türü görünürlüğünü, gizli klasörleri, gizli etiketleri, gizli notları, kısayolları ve gezinme afişini saklar. Gezinme bölmesi başlığından profilleri değiştir.',
+                desc: 'Profiller dosya türü görünürlüğünü, gizli dosyaları, gizli klasörleri, gizli etiketleri, gizli notları, kısayolları ve gezinme afişini saklar. Gezinme bölmesi başlığından profilleri değiştir.',
                 defaultName: 'Varsayılan',
                 addButton: 'Profil ekle',
                 editProfilesButton: 'Profilleri düzenle',
@@ -865,7 +865,7 @@ export const STRINGS_TR = {
                 editModalTitle: 'Profili düzenle',
                 addModalPlaceholder: 'Profil adı',
                 deleteModalTitle: '{name} silinsin mi',
-                deleteModalMessage: '{name} kaldırılsın mı? Bu profilde kayıtlı gizli klasör, etiket ve not filtreleri silinecek.',
+                deleteModalMessage: '{name} kaldırılsın mı? Bu profilde kayıtlı gizli dosya, klasör, etiket ve not filtreleri silinecek.',
                 moveUp: 'Yukarı taşı',
                 moveDown: 'Aşağı taşı',
                 errors: {
