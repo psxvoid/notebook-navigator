@@ -184,6 +184,50 @@ export class FileMetadataService extends BaseMetadataService {
     }
 
     /**
+     * Pins multiple notes in a single settings update.
+     * @param filePaths - Paths of files to pin
+     * @param context - Context to pin ('folder' or 'tag')
+     * @returns Number of notes newly pinned in the given context
+     */
+    async pinNotes(filePaths: string[], context: NavigatorContext): Promise<number> {
+        const uniquePaths = Array.from(new Set(filePaths)).filter(path => path.length > 0);
+        if (uniquePaths.length === 0) {
+            return 0;
+        }
+
+        let pinnedCount = 0;
+        await this.saveAndUpdate(settings => {
+            if (!settings.pinnedNotes) {
+                settings.pinnedNotes = {};
+            }
+
+            let changed = false;
+            for (const filePath of uniquePaths) {
+                const existing = settings.pinnedNotes[filePath];
+                if (!existing) {
+                    settings.pinnedNotes[filePath] = {
+                        folder: context === 'folder',
+                        tag: context === 'tag'
+                    };
+                    changed = true;
+                    pinnedCount += 1;
+                    continue;
+                }
+
+                if (!existing[context]) {
+                    existing[context] = true;
+                    changed = true;
+                    pinnedCount += 1;
+                }
+            }
+
+            return changed;
+        });
+
+        return pinnedCount;
+    }
+
+    /**
      * Checks if a note is pinned
      * @param filePath - Path of the file to check
      * @param context - Optional context to check ('folder' or 'tag')

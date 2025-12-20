@@ -246,6 +246,10 @@ export class MetadataService {
         return this.fileService.togglePinnedNote(filePath, context);
     }
 
+    async pinNotes(filePaths: string[], context: NavigatorContext): Promise<number> {
+        return this.fileService.pinNotes(filePaths, context);
+    }
+
     isFilePinned(filePath: string, context?: NavigatorContext): boolean {
         return this.fileService.isPinned(filePath, context);
     }
