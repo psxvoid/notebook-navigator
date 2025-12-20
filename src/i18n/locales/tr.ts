@@ -187,6 +187,7 @@ export const STRINGS_TR = {
             copyPath: 'Dosya sistemi yolunu kopyala',
             copyRelativePath: 'Kasa yolunu kopyala',
             createFolderNote: 'Klasör notu oluştur',
+            detachFolderNote: 'Klasör notunu ayır',
             deleteFolderNote: 'Klasör notunu sil',
             changeIcon: 'Simgeyi değiştir',
             changeColor: 'Rengi değiştir',
@@ -403,6 +404,7 @@ export const STRINGS_TR = {
             folderAlreadyExists: '"{name}" klasörü zaten var',
             folderNotesDisabled: 'Dosyaları dönüştürmek için ayarlarda klasör notlarını etkinleştirin',
             folderNoteAlreadyLinked: 'Bu dosya zaten klasör notu olarak işlev görüyor',
+            folderNoteNotFound: 'Seçili klasörde klasör notu yok',
             folderNoteUnsupportedExtension: 'Desteklenmeyen dosya uzantısı: {extension}',
             folderNoteMoveFailed: 'Dönüştürme sırasında dosya taşınamadı: {error}',
             folderNoteRenameConflict: 'Klasörde "{name}" adlı bir dosya zaten var',
@@ -518,6 +520,8 @@ export const STRINGS_TR = {
         selectNextFile: 'Sonraki dosyayı seç', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Önceki dosyayı seç', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Klasör notuna dönüştür', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Klasör notu olarak ayarla', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Klasör notunu ayır', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Tüm klasör notlarını sabitle', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Klasöre git', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Etikete git', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

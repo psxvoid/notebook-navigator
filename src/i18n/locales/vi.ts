@@ -187,6 +187,7 @@ export const STRINGS_VI = {
             copyPath: 'Sao chép đường dẫn hệ thống',
             copyRelativePath: 'Sao chép đường dẫn vault',
             createFolderNote: 'Tạo ghi chú thư mục',
+            detachFolderNote: 'Tách ghi chú thư mục',
             deleteFolderNote: 'Xóa ghi chú thư mục',
             changeIcon: 'Đổi biểu tượng',
             changeColor: 'Đổi màu',
@@ -403,6 +404,7 @@ export const STRINGS_VI = {
             folderAlreadyExists: 'Thư mục "{name}" đã tồn tại',
             folderNotesDisabled: 'Bật ghi chú thư mục trong cài đặt để chuyển đổi tệp',
             folderNoteAlreadyLinked: 'Tệp này đã hoạt động như ghi chú thư mục',
+            folderNoteNotFound: 'Không có ghi chú thư mục trong thư mục đã chọn',
             folderNoteUnsupportedExtension: 'Phần mở rộng tệp không được hỗ trợ: {extension}',
             folderNoteMoveFailed: 'Không thể di chuyển tệp khi chuyển đổi: {error}',
             folderNoteRenameConflict: 'Tệp có tên "{name}" đã tồn tại trong thư mục',
@@ -518,6 +520,8 @@ export const STRINGS_VI = {
         selectNextFile: 'Chọn tệp tiếp theo', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Chọn tệp trước', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Chuyển thành ghi chú thư mục', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Đặt làm ghi chú thư mục', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Tách ghi chú thư mục', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Ghim tất cả ghi chú thư mục', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Chuyển đến thư mục', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Chuyển đến thẻ', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

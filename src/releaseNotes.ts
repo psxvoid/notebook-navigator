@@ -76,7 +76,11 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.9.3',
         date: '2025-12-22',
         showOnUpdate: true,
-        new: ['New setting: Folders & tags > ==Spring-loaded folders==. Expand folders and tags on hover during drag operations. Default enabled.'],
+        new: [
+            'New setting: Folders & tags > ==Spring-loaded folders==. Expand folders and tags on hover during drag operations. Default enabled.',
+            'New command: ==Set as folder note==. Renames the active file to its folder note name.',
+            'New command: ==Detach folder note==. Renames the active folder note to a new name.'
+        ],
         improved: [
             '==You can now resize the pinned shortcuts area== by dragging the separator line.',
             '==You can now add multiple files to shortcuts== using multi-selection and context menu.',

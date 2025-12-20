@@ -187,6 +187,7 @@ export const STRINGS_FR = {
             copyPath: 'Copier le chemin du système de fichiers',
             copyRelativePath: 'Copier le chemin du coffre',
             createFolderNote: 'Créer une note de dossier',
+            detachFolderNote: 'Détacher la note de dossier',
             deleteFolderNote: 'Supprimer la note de dossier',
             changeIcon: "Changer l'icône",
             changeColor: 'Changer la couleur',
@@ -404,6 +405,7 @@ export const STRINGS_FR = {
             folderAlreadyExists: 'Le dossier "{name}" existe déjà',
             folderNotesDisabled: 'Activez les notes de dossier dans les paramètres pour convertir des fichiers',
             folderNoteAlreadyLinked: 'Ce fichier agit déjà comme une note de dossier',
+            folderNoteNotFound: 'Aucune note de dossier dans le dossier sélectionné',
             folderNoteUnsupportedExtension: 'Extension de fichier non prise en charge : {extension}',
             folderNoteMoveFailed: 'Échec du déplacement du fichier pendant la conversion : {error}',
             folderNoteRenameConflict: 'Un fichier nommé "{name}" existe déjà dans le dossier',
@@ -519,6 +521,8 @@ export const STRINGS_FR = {
         selectNextFile: 'Sélectionner le fichier suivant', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Sélectionner le fichier précédent', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Convertir en note de dossier', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Définir comme note de dossier', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Détacher la note de dossier', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Épingler toutes les notes de dossier', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Naviguer vers le dossier', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

@@ -187,6 +187,7 @@ export const STRINGS_PT = {
             copyPath: 'Copiar caminho do sistema de ficheiros',
             copyRelativePath: 'Copiar caminho do cofre',
             createFolderNote: 'Criar nota de pasta',
+            detachFolderNote: 'Desvincular nota de pasta',
             deleteFolderNote: 'Eliminar nota de pasta',
             changeIcon: 'Alterar ícone',
             changeColor: 'Alterar cor',
@@ -403,6 +404,7 @@ export const STRINGS_PT = {
             folderAlreadyExists: 'A pasta "{name}" já existe',
             folderNotesDisabled: 'Ative as notas de pasta nas definições para converter ficheiros',
             folderNoteAlreadyLinked: 'Este ficheiro já funciona como nota de pasta',
+            folderNoteNotFound: 'Nenhuma nota de pasta na pasta selecionada',
             folderNoteUnsupportedExtension: 'Extensão de ficheiro não suportada: {extension}',
             folderNoteMoveFailed: 'Falha ao mover ficheiro durante a conversão: {error}',
             folderNoteRenameConflict: 'Já existe um ficheiro com o nome "{name}" na pasta',
@@ -518,6 +520,8 @@ export const STRINGS_PT = {
         selectNextFile: 'Selecionar ficheiro seguinte', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Selecionar ficheiro anterior', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Converter em nota de pasta', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Definir como nota de pasta', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Desvincular nota de pasta', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Fixar todas as notas de pasta', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Navegar para pasta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navegar para etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

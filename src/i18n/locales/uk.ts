@@ -187,6 +187,7 @@ export const STRINGS_UK = {
             copyPath: 'Копіювати шлях файлової системи',
             copyRelativePath: 'Копіювати шлях сховища',
             createFolderNote: 'Створити нотатку папки',
+            detachFolderNote: "Від'єднати нотатку папки",
             deleteFolderNote: 'Видалити нотатку папки',
             changeIcon: 'Змінити іконку',
             changeColor: 'Змінити колір',
@@ -403,6 +404,7 @@ export const STRINGS_UK = {
             folderAlreadyExists: 'Папка "{name}" вже існує',
             folderNotesDisabled: 'Увімкніть нотатки папок у налаштуваннях для конвертації файлів',
             folderNoteAlreadyLinked: 'Цей файл вже працює як нотатка папки',
+            folderNoteNotFound: 'У вибраній папці немає нотатки папки',
             folderNoteUnsupportedExtension: 'Непідтримуване розширення файлу: {extension}',
             folderNoteMoveFailed: 'Не вдалося перемістити файл під час конвертації: {error}',
             folderNoteRenameConflict: 'Файл з назвою "{name}" вже існує в папці',
@@ -518,6 +520,8 @@ export const STRINGS_UK = {
         selectNextFile: 'Вибрати наступний файл', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Вибрати попередній файл', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Конвертувати в нотатку папки', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Встановити як нотатку папки', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: "Від'єднати нотатку папки", // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Закріпити всі нотатки папок', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Перейти до папки', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Перейти до тегу', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

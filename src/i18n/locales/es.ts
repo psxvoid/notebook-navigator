@@ -187,6 +187,7 @@ export const STRINGS_ES = {
             copyPath: 'Copiar ruta del sistema de archivos',
             copyRelativePath: 'Copiar ruta del vault',
             createFolderNote: 'Crear nota de carpeta',
+            detachFolderNote: 'Desvincular nota de carpeta',
             deleteFolderNote: 'Eliminar nota de carpeta',
             changeIcon: 'Cambiar icono',
             changeColor: 'Cambiar color',
@@ -404,6 +405,7 @@ export const STRINGS_ES = {
             folderAlreadyExists: 'La carpeta "{name}" ya existe',
             folderNotesDisabled: 'Habilite las notas de carpeta en la configuración para convertir archivos',
             folderNoteAlreadyLinked: 'Este archivo ya funciona como una nota de carpeta',
+            folderNoteNotFound: 'No hay nota de carpeta en la carpeta seleccionada',
             folderNoteUnsupportedExtension: 'Extensión de archivo no compatible: {extension}',
             folderNoteMoveFailed: 'No se pudo mover el archivo durante la conversión: {error}',
             folderNoteRenameConflict: 'Ya existe un archivo llamado "{name}" en la carpeta',
@@ -519,6 +521,8 @@ export const STRINGS_ES = {
         selectNextFile: 'Seleccionar siguiente archivo', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Seleccionar archivo anterior', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Convertir en nota de carpeta', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Establecer como nota de carpeta', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Desvincular nota de carpeta', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Fijar todas las notas de carpeta', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navegar a etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

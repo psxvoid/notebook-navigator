@@ -187,6 +187,7 @@ export const STRINGS_JA = {
             copyPath: 'ファイルシステムパスをコピー',
             copyRelativePath: 'Vaultパスをコピー',
             createFolderNote: 'フォルダノートを作成',
+            detachFolderNote: 'フォルダノートを解除',
             deleteFolderNote: 'フォルダーノートを削除',
             changeIcon: 'アイコンを変更',
             changeColor: '色を変更',
@@ -404,6 +405,7 @@ export const STRINGS_JA = {
             folderAlreadyExists: 'フォルダ「{name}」は既に存在します',
             folderNotesDisabled: 'ファイルを変換するには設定でフォルダノートを有効にしてください',
             folderNoteAlreadyLinked: 'このファイルは既にフォルダノートとして機能しています',
+            folderNoteNotFound: '選択したフォルダにフォルダノートがありません',
             folderNoteUnsupportedExtension: 'サポートされていないファイル拡張子：{extension}',
             folderNoteMoveFailed: '変換中のファイル移動に失敗しました：{error}',
             folderNoteRenameConflict: '「{name}」という名前のファイルが既にフォルダ内に存在します',
@@ -519,6 +521,8 @@ export const STRINGS_JA = {
         selectNextFile: '次のファイルを選択', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: '前のファイルを選択', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'フォルダノートに変換', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'フォルダノートとして設定', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'フォルダノートを解除', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'フォルダノートをすべてピン留め', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

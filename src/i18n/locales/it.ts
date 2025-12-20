@@ -187,6 +187,7 @@ export const STRINGS_IT = {
             copyPath: 'Copia percorso file system',
             copyRelativePath: 'Copia percorso vault',
             createFolderNote: 'Crea nota cartella',
+            detachFolderNote: 'Scollega nota cartella',
             deleteFolderNote: 'Elimina nota cartella',
             changeIcon: 'Cambia icona',
             changeColor: 'Cambia colore',
@@ -403,6 +404,7 @@ export const STRINGS_IT = {
             folderAlreadyExists: 'La cartella "{name}" esiste già',
             folderNotesDisabled: 'Abilita le note cartella nelle impostazioni per convertire i file',
             folderNoteAlreadyLinked: 'Questo file funge già da nota cartella',
+            folderNoteNotFound: 'Nessuna nota cartella nella cartella selezionata',
             folderNoteUnsupportedExtension: 'Estensione file non supportata: {extension}',
             folderNoteMoveFailed: 'Impossibile spostare file durante la conversione: {error}',
             folderNoteRenameConflict: 'Un file chiamato "{name}" esiste già nella cartella',
@@ -518,6 +520,8 @@ export const STRINGS_IT = {
         selectNextFile: 'Seleziona file successivo', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Seleziona file precedente', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Converti in nota cartella', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Imposta come nota cartella', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Scollega nota cartella', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Fissa tutte le note cartella', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Vai alla cartella', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Vai al tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

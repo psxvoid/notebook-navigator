@@ -187,6 +187,7 @@ export const STRINGS_EN = {
             copyPath: 'Copy file system path',
             copyRelativePath: 'Copy vault path',
             createFolderNote: 'Create folder note',
+            detachFolderNote: 'Detach folder note',
             deleteFolderNote: 'Delete folder note',
             changeIcon: 'Change icon',
             changeColor: 'Change color',
@@ -403,6 +404,7 @@ export const STRINGS_EN = {
             folderAlreadyExists: 'Folder "{name}" already exists',
             folderNotesDisabled: 'Enable folder notes in settings to convert files',
             folderNoteAlreadyLinked: 'This file already acts as a folder note',
+            folderNoteNotFound: 'No folder note in selected folder',
             folderNoteUnsupportedExtension: 'Unsupported file extension: {extension}',
             folderNoteMoveFailed: 'Failed to move file during conversion: {error}',
             folderNoteRenameConflict: 'A file named "{name}" already exists in the folder',
@@ -518,6 +520,8 @@ export const STRINGS_EN = {
         selectNextFile: 'Select next file', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Select previous file', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Convert to folder note', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Set as folder note', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Detach folder note', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Pin all folder notes', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

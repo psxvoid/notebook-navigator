@@ -186,6 +186,7 @@ export const STRINGS_KO = {
             copyPath: '파일 시스템 경로 복사',
             copyRelativePath: 'Vault 경로 복사',
             createFolderNote: '폴더 노트 만들기',
+            detachFolderNote: '폴더 노트 해제',
             deleteFolderNote: '폴더 노트 삭제',
             changeIcon: '아이콘 변경',
             changeColor: '아이콘 색상 변경',
@@ -403,6 +404,7 @@ export const STRINGS_KO = {
             folderAlreadyExists: '폴더 "{name}"이(가) 이미 존재합니다',
             folderNotesDisabled: '파일을 변환하려면 설정에서 폴더 노트를 활성화하세요',
             folderNoteAlreadyLinked: '이 파일은 이미 폴더 노트로 작동하고 있습니다',
+            folderNoteNotFound: '선택한 폴더에 폴더 노트가 없습니다',
             folderNoteUnsupportedExtension: '지원되지 않는 파일 확장자: {extension}',
             folderNoteMoveFailed: '변환 중 파일 이동 실패: {error}',
             folderNoteRenameConflict: '"{name}"이라는 이름의 파일이 이미 폴더에 존재합니다',
@@ -518,6 +520,8 @@ export const STRINGS_KO = {
         selectNextFile: '다음 파일 선택', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: '이전 파일 선택', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: '폴더 노트로 변환', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: '폴더 노트로 설정', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: '폴더 노트 해제', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: '폴더 노트를 모두 고정', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: '폴더로 이동', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '태그로 이동', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

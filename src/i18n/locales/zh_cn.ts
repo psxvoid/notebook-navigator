@@ -187,6 +187,7 @@ export const STRINGS_ZH_CN = {
             copyPath: '复制文件系统路径',
             copyRelativePath: '复制仓库路径',
             createFolderNote: '创建文件夹笔记',
+            detachFolderNote: '解除文件夹笔记',
             deleteFolderNote: '删除文件夹笔记',
             changeIcon: '更改图标',
             changeColor: '更改颜色',
@@ -404,6 +405,7 @@ export const STRINGS_ZH_CN = {
             folderAlreadyExists: '文件夹"{name}"已存在',
             folderNotesDisabled: '请在设置中启用文件夹笔记以转换文件',
             folderNoteAlreadyLinked: '此文件已作为文件夹笔记',
+            folderNoteNotFound: '所选文件夹中没有文件夹笔记',
             folderNoteUnsupportedExtension: '不支持的文件扩展名：{extension}',
             folderNoteMoveFailed: '转换过程中移动文件失败：{error}',
             folderNoteRenameConflict: '文件夹中已存在名为"{name}"的文件',
@@ -519,6 +521,8 @@ export const STRINGS_ZH_CN = {
         selectNextFile: '选择下一个文件', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: '选择上一个文件', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: '转换为文件夹笔记', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: '设为文件夹笔记', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: '解除文件夹笔记', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: '固定所有文件夹笔记', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

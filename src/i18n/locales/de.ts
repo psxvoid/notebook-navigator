@@ -189,6 +189,7 @@ export const STRINGS_DE = {
             copyPath: 'Dateisystempfad kopieren',
             copyRelativePath: 'Vault-Pfad kopieren',
             createFolderNote: 'Ordnernotiz erstellen',
+            detachFolderNote: 'Ordnernotiz lösen',
             deleteFolderNote: 'Ordnernotiz löschen',
             changeIcon: 'Symbol ändern',
             changeColor: 'Farbe ändern',
@@ -406,6 +407,7 @@ export const STRINGS_DE = {
             folderAlreadyExists: 'Ordner "{name}" existiert bereits',
             folderNotesDisabled: 'Aktivieren Sie Ordnernotizen in den Einstellungen, um Dateien zu konvertieren',
             folderNoteAlreadyLinked: 'Diese Datei fungiert bereits als Ordnernotiz',
+            folderNoteNotFound: 'Keine Ordnernotiz im ausgewählten Ordner',
             folderNoteUnsupportedExtension: 'Nicht unterstützte Dateierweiterung: {extension}',
             folderNoteMoveFailed: 'Datei konnte während der Konvertierung nicht verschoben werden: {error}',
             folderNoteRenameConflict: 'Eine Datei namens "{name}" existiert bereits im Ordner',
@@ -521,6 +523,8 @@ export const STRINGS_DE = {
         selectNextFile: 'Nächste Datei auswählen', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Vorherige Datei auswählen', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'In Ordnernotiz konvertieren', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Als Ordnernotiz festlegen', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Ordnernotiz lösen', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Alle Ordnernotizen anheften', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

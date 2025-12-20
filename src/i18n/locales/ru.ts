@@ -187,6 +187,7 @@ export const STRINGS_RU = {
             copyPath: 'Копировать путь в файловой системе',
             copyRelativePath: 'Копировать путь в хранилище',
             createFolderNote: 'Создать заметку папки',
+            detachFolderNote: 'Отвязать заметку папки',
             deleteFolderNote: 'Удалить заметку папки',
             changeIcon: 'Изменить иконку',
             changeColor: 'Изменить цвет',
@@ -403,6 +404,7 @@ export const STRINGS_RU = {
             folderAlreadyExists: 'Папка "{name}" уже существует',
             folderNotesDisabled: 'Включите заметки папок в настройках для конвертации файлов',
             folderNoteAlreadyLinked: 'Этот файл уже является заметкой папки',
+            folderNoteNotFound: 'В выбранной папке нет заметки папки',
             folderNoteUnsupportedExtension: 'Неподдерживаемое расширение файла: {extension}',
             folderNoteMoveFailed: 'Не удалось переместить файл при конвертации: {error}',
             folderNoteRenameConflict: 'Файл с именем "{name}" уже существует в папке',
@@ -518,6 +520,8 @@ export const STRINGS_RU = {
         selectNextFile: 'Выбрать следующий файл', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Выбрать предыдущий файл', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Конвертировать в заметку папки', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Назначить заметкой папки', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Отвязать заметку папки', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Закрепить все заметки папок', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Перейти к папке', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Перейти к тегу', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)

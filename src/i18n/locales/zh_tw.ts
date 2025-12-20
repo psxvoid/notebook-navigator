@@ -187,6 +187,7 @@ export const STRINGS_ZH_TW = {
             copyPath: '複製檔案系統路徑',
             copyRelativePath: '複製保險庫路徑',
             createFolderNote: '建立資料夾筆記',
+            detachFolderNote: '解除資料夾筆記',
             deleteFolderNote: '刪除資料夾筆記',
             changeIcon: '變更圖示',
             changeColor: '變更顏色',
@@ -403,6 +404,7 @@ export const STRINGS_ZH_TW = {
             folderAlreadyExists: '資料夾「{name}」已存在',
             folderNotesDisabled: '請在設定中啟用資料夾筆記以轉換檔案',
             folderNoteAlreadyLinked: '此檔案已作為資料夾筆記',
+            folderNoteNotFound: '所選資料夾中沒有資料夾筆記',
             folderNoteUnsupportedExtension: '不支援的檔案副檔名：{extension}',
             folderNoteMoveFailed: '轉換過程中移動檔案失敗：{error}',
             folderNoteRenameConflict: '資料夾中已存在名為「{name}」的檔案',
@@ -518,6 +520,8 @@ export const STRINGS_ZH_TW = {
         selectNextFile: '選擇下一個檔案', // 指令面板：選取目前檢視中的下一個檔案 (英文: Select next file)
         selectPreviousFile: '選擇上一個檔案', // 指令面板：選取目前檢視中的上一個檔案 (英文: Select previous file)
         convertToFolderNote: '轉換為資料夾筆記', // 指令面板：將活動檔案轉換為帶有新資料夾的資料夾筆記 (英文: Convert to folder note)
+        setAsFolderNote: '設為資料夾筆記', // 指令面板：將活動檔案重新命名為資料夾筆記名稱 (英文: Set as folder note)
+        detachFolderNote: '解除資料夾筆記', // 指令面板：將活動資料夾筆記重新命名為新名稱 (英文: Detach folder note)
         pinAllFolderNotes: '固定所有資料夾筆記', // 指令面板：將所有資料夾筆記釘選到捷徑 (英文: Pin all folder notes)
         navigateToFolder: '導覽至資料夾', // 指令面板：使用模糊搜尋導覽至資料夾 (英文: Navigate to folder)
         navigateToTag: '導覽至標籤', // 指令面板：使用模糊搜尋導覽至標籤 (英文: Navigate to tag)

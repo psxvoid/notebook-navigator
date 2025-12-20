@@ -143,6 +143,13 @@ export function buildFolderCreationMenu(params: FolderMenuBuilderParams): void {
         }
 
         if (folderNote) {
+            // Detach folder note option
+            menu.addItem((item: MenuItem) => {
+                setAsyncOnClick(item.setTitle(strings.contextMenu.folder.detachFolderNote).setIcon('lucide-unlink'), async () => {
+                    await fileSystemOps.renameFile(folderNote);
+                });
+            });
+
             // Delete folder note option
             menu.addItem((item: MenuItem) => {
                 setAsyncOnClick(item.setTitle(strings.contextMenu.folder.deleteFolderNote).setIcon('lucide-trash'), async () => {

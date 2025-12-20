@@ -5,7 +5,7 @@
 import { TFile, TFolder, type WorkspaceLeaf } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 import { strings } from '../../i18n';
-import { isFolderNote, isSupportedFolderNoteExtension } from '../../utils/folderNotes';
+import { getFolderNote, isFolderNote, isSupportedFolderNoteExtension, type FolderNoteDetectionSettings } from '../../utils/folderNotes';
 import { isFolderInExcludedFolder, shouldExcludeFile } from '../../utils/fileFilters';
 import { getEffectiveFrontmatterExclusions, isFileHiddenBySettings } from '../../utils/exclusionUtils';
 import { runAsyncAction } from '../../utils/async';
@@ -175,6 +175,26 @@ async function selectAdjacentFileWithoutNavigatorView(plugin: NotebookNavigatorP
     }
 
     return true;
+}
+
+function getFolderNoteDetectionSettings(plugin: NotebookNavigatorPlugin): FolderNoteDetectionSettings {
+    return {
+        enableFolderNotes: plugin.settings.enableFolderNotes,
+        folderNoteName: plugin.settings.folderNoteName
+    };
+}
+
+/**
+ * Returns the selected folder from navigator state
+ */
+function getSelectedFolderForCommand(plugin: NotebookNavigatorPlugin): TFolder | null {
+    const api = plugin.api;
+    if (!api) {
+        return null;
+    }
+
+    const navItem = api.selection.getNavItem();
+    return navItem.folder instanceof TFolder ? navItem.folder : null;
 }
 
 /**
@@ -451,12 +471,45 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                 return false;
             }
 
-            if (
-                isFolderNote(activeFile, parent, {
-                    enableFolderNotes: plugin.settings.enableFolderNotes,
-                    folderNoteName: plugin.settings.folderNoteName
-                })
-            ) {
+            const fileSystemOps = plugin.fileSystemOps;
+            if (!fileSystemOps) {
+                return false;
+            }
+
+            if (checking) {
+                return true;
+            }
+
+            // Convert file to folder note with error handling
+            runAsyncAction(() => fileSystemOps.convertFileToFolderNote(activeFile, plugin.settings));
+            return true;
+        }
+    });
+
+    // Command to rename the active file to its folder note name
+    plugin.addCommand({
+        id: 'set-as-folder-note',
+        name: strings.commands.setAsFolderNote,
+        checkCallback: (checking: boolean) => {
+            const activeFile = plugin.app.workspace.getActiveFile();
+            if (!activeFile) {
+                return false;
+            }
+
+            if (!plugin.settings.enableFolderNotes) {
+                return false;
+            }
+
+            if (!isSupportedFolderNoteExtension(activeFile.extension)) {
+                return false;
+            }
+
+            const parent = activeFile.parent;
+            if (!parent || !(parent instanceof TFolder)) {
+                return false;
+            }
+
+            if (parent.path === '/') {
                 return false;
             }
 
@@ -469,8 +522,43 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                 return true;
             }
 
-            // Convert file to folder note with error handling
-            runAsyncAction(() => fileSystemOps.convertFileToFolderNote(activeFile, plugin.settings));
+            runAsyncAction(() => fileSystemOps.setFileAsFolderNote(activeFile, plugin.settings));
+            return true;
+        }
+    });
+
+    // Command to detach the folder note in the selected folder
+    plugin.addCommand({
+        id: 'detach-folder-note',
+        name: strings.commands.detachFolderNote,
+        checkCallback: (checking: boolean) => {
+            if (!plugin.settings.enableFolderNotes) {
+                return false;
+            }
+
+            const fileSystemOps = plugin.fileSystemOps;
+            if (!fileSystemOps) {
+                return false;
+            }
+
+            if (checking) {
+                return true;
+            }
+
+            const selectedFolder = getSelectedFolderForCommand(plugin);
+            if (!selectedFolder) {
+                showNotice(strings.fileSystem.errors.noFolderSelected, { variant: 'warning' });
+                return true;
+            }
+
+            const folderNote = getFolderNote(selectedFolder, getFolderNoteDetectionSettings(plugin));
+
+            if (!folderNote) {
+                showNotice(strings.fileSystem.errors.folderNoteNotFound, { variant: 'warning' });
+                return true;
+            }
+
+            runAsyncAction(() => fileSystemOps.renameFile(folderNote));
             return true;
         }
     });
@@ -491,10 +579,7 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
             }
 
             // Settings object for folder note detection
-            const folderNoteSettings = {
-                enableFolderNotes: plugin.settings.enableFolderNotes,
-                folderNoteName: plugin.settings.folderNoteName
-            };
+            const folderNoteSettings = getFolderNoteDetectionSettings(plugin);
 
             // List of folder notes that can be pinned
             const eligible: TFile[] = [];
