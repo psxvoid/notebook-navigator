@@ -787,6 +787,14 @@ export const STRINGS_KO = {
                 name: '드래그 중 확장',
                 desc: '드래그 작업 중에 마우스를 올리면 폴더와 태그를 확장합니다.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: '첫 확장 지연',
+                desc: '드래그 작업 중 첫 번째 폴더 또는 태그가 확장되기 전 지연(초).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: '후속 확장 지연',
+                desc: '같은 드래그 작업 중 추가 폴더 또는 태그가 확장되기 전 지연(초).'
+            },
             navigationBanner: {
                 name: '탐색 배너 (저장소 프로필)',
                 desc: '탐색 창 상단에 이미지를 표시합니다. 선택한 저장소 프로필에 따라 변경됩니다.',

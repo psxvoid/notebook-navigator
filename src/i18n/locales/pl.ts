@@ -789,6 +789,14 @@ export const STRINGS_PL = {
                 name: 'Rozwiń podczas przeciągania',
                 desc: 'Rozwiń foldery i tagi przy najechaniu podczas przeciągania.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: 'Opóźnienie pierwszego rozwinięcia',
+                desc: 'Opóźnienie przed rozwinięciem pierwszego folderu lub tagu podczas przeciągania (sekundy).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Opóźnienie kolejnych rozwinięć',
+                desc: 'Opóźnienie przed rozwijaniem kolejnych folderów lub tagów podczas tego samego przeciągania (sekundy).'
+            },
             navigationBanner: {
                 name: 'Baner nawigacji (profil sejfu)',
                 desc: 'Wyświetl obraz nad panelem nawigacji. Zmienia się wraz z wybranym profilem sejfu.',

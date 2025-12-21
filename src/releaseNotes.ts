@@ -78,6 +78,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [
             'New setting: Folders & tags > ==Spring-loaded folders==. Expand folders and tags on hover during drag operations. Default enabled.',
+            'When spring-loaded folders is enabled you now have two new sub-settings: ==First expand delay== and ==Subsequent expand delay== to configure how long to hover before a folder/tag expands during drag operations.',
             'New command: ==Set as folder note==. Renames the active file to its folder note name.',
             'New command: ==Detach folder note==. Renames the active folder note to a new name.'
         ],

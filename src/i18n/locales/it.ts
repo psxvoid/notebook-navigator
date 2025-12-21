@@ -787,6 +787,14 @@ export const STRINGS_IT = {
                 name: 'Espandi durante il trascinamento',
                 desc: 'Espandi cartelle e tag al passaggio del mouse durante il trascinamento.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: 'Ritardo prima espansione',
+                desc: 'Ritardo prima che la prima cartella o tag si espanda durante un trascinamento (secondi).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Ritardo espansioni successive',
+                desc: 'Ritardo prima di espandere cartelle o tag aggiuntivi durante lo stesso trascinamento (secondi).'
+            },
             navigationBanner: {
                 name: 'Banner navigazione (profilo vault)',
                 desc: "Visualizza un'immagine sopra il pannello navigazione. Cambia con il profilo vault selezionato.",

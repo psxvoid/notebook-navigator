@@ -787,6 +787,14 @@ export const STRINGS_PT = {
                 name: 'Expandir ao arrastar',
                 desc: 'Expandir pastas e etiquetas ao passar sobre elas durante o arrasto.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: 'Atraso da primeira expansão',
+                desc: 'Atraso antes de expandir a primeira pasta ou etiqueta durante um arrasto (segundos).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Atraso das expansões seguintes',
+                desc: 'Atraso antes de expandir pastas ou etiquetas adicionais durante o mesmo arrasto (segundos).'
+            },
             navigationBanner: {
                 name: 'Banner de navegação (perfil do cofre)',
                 desc: 'Exibir uma imagem acima do painel de navegação. Muda com o perfil do cofre selecionado.',

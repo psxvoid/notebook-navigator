@@ -787,6 +787,14 @@ export const STRINGS_VI = {
                 name: 'Mở rộng khi kéo',
                 desc: 'Mở rộng thư mục và thẻ khi di chuột qua trong lúc kéo.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: 'Độ trễ mở rộng lần đầu',
+                desc: 'Độ trễ trước khi thư mục hoặc thẻ đầu tiên được mở rộng trong lúc kéo (giây).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Độ trễ mở rộng tiếp theo',
+                desc: 'Độ trễ trước khi mở rộng thêm thư mục hoặc thẻ trong cùng một lần kéo (giây).'
+            },
             navigationBanner: {
                 name: 'Banner điều hướng (hồ sơ vault)',
                 desc: 'Hiển thị ảnh phía trên ngăn điều hướng. Thay đổi theo hồ sơ vault đã chọn.',

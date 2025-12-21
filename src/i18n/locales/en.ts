@@ -787,6 +787,14 @@ export const STRINGS_EN = {
                 name: 'Spring-loaded folders',
                 desc: 'Expand folders and tags on hover during drag operations.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: 'First expand delay',
+                desc: 'Delay before the first folder or tag expands during a drag operation (seconds).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Subsequent expand delay',
+                desc: 'Delay before expanding additional folders or tags during the same drag operation (seconds).'
+            },
             navigationBanner: {
                 name: 'Navigation banner (vault profile)',
                 desc: 'Display an image above the navigation pane. Changes with the selected vault profile.',

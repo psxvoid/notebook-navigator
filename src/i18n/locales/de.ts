@@ -791,6 +791,14 @@ export const STRINGS_DE = {
                 name: 'Beim Ziehen erweitern',
                 desc: 'Ordner und Tags beim Überfahren während des Ziehens erweitern.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: 'Verzögerung beim ersten Erweitern',
+                desc: 'Verzögerung, bevor der erste Ordner oder Tag während eines Ziehvorgangs erweitert wird (Sekunden).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Verzögerung bei weiteren Erweiterungen',
+                desc: 'Verzögerung, bevor weitere Ordner oder Tags während desselben Ziehvorgangs erweitert werden (Sekunden).'
+            },
             navigationBanner: {
                 name: 'Navigationsbanner (Tresorprofil)',
                 desc: 'Bild oberhalb des Navigationsbereichs anzeigen. Ändert sich mit dem ausgewählten Tresorprofil.',

@@ -786,6 +786,14 @@ export const STRINGS_ZH_TW = {
                 name: '拖曳時展開',
                 desc: '拖曳操作中懸停時展開資料夾和標籤。'
             },
+            springLoadedFoldersInitialDelay: {
+                name: '首次展開延遲',
+                desc: '拖曳時首次展開資料夾或標籤前的延遲（秒）。'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: '後續展開延遲',
+                desc: '同一次拖曳中展開更多資料夾或標籤前的延遲（秒）。'
+            },
             navigationBanner: {
                 name: '導覽橫幅（倉庫設定檔）',
                 desc: '在導覽窗格上方顯示圖片。隨所選倉庫設定檔而變化。',

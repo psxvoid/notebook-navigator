@@ -787,6 +787,14 @@ export const STRINGS_TR = {
                 name: 'Sürüklerken genişlet',
                 desc: 'Sürükleme sırasında üzerine gelirken klasörleri ve etiketleri genişlet.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: 'İlk genişletme gecikmesi',
+                desc: 'Sürükleme sırasında ilk klasör veya etiket genişlemeden önceki gecikme (saniye).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Sonraki genişletme gecikmesi',
+                desc: 'Aynı sürükleme sırasında ek klasörler veya etiketler genişlemeden önceki gecikme (saniye).'
+            },
             navigationBanner: {
                 name: 'Gezinme afişi (kasa profili)',
                 desc: 'Gezinme bölmesinin üzerinde bir görsel görüntüle. Seçili kasa profiliyle değişir.',

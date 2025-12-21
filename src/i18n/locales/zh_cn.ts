@@ -787,6 +787,14 @@ export const STRINGS_ZH_CN = {
                 name: '拖动时展开',
                 desc: '拖动操作中悬停时展开文件夹和标签。'
             },
+            springLoadedFoldersInitialDelay: {
+                name: '首次展开延迟',
+                desc: '拖动时首次展开文件夹或标签前的延迟（秒）。'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: '后续展开延迟',
+                desc: '同一次拖动中展开更多文件夹或标签前的延迟（秒）。'
+            },
             navigationBanner: {
                 name: '导航横幅（仓库配置文件）',
                 desc: '在导航窗格顶部显示一张图片。随所选仓库配置文件而变化。',

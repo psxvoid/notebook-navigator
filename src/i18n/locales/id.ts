@@ -787,6 +787,14 @@ export const STRINGS_ID = {
                 name: 'Luaskan saat menyeret',
                 desc: 'Luaskan folder dan tag saat mengarahkan kursor selama menyeret.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: 'Tunda perluasan pertama',
+                desc: 'Penundaan sebelum folder atau tag pertama diluaskan selama penyeretan (detik).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Tunda perluasan berikutnya',
+                desc: 'Penundaan sebelum meluaskan folder atau tag tambahan selama penyeretan yang sama (detik).'
+            },
             navigationBanner: {
                 name: 'Banner navigasi (profil vault)',
                 desc: 'Tampilkan gambar di atas panel navigasi. Berubah dengan profil vault yang dipilih.',

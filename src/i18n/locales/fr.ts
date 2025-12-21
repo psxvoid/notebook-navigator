@@ -789,6 +789,14 @@ export const STRINGS_FR = {
                 name: 'Développer au survol',
                 desc: 'Développer les dossiers et les étiquettes au survol pendant le glisser-déposer.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: 'Délai de première expansion',
+                desc: 'Délai avant que le premier dossier ou étiquette se développe pendant un glisser-déposer (secondes).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: "Délai d'expansion suivante",
+                desc: "Délai avant de développer d'autres dossiers ou étiquettes pendant le même glisser-déposer (secondes)."
+            },
             navigationBanner: {
                 name: 'Bannière de navigation (profil de coffre)',
                 desc: 'Afficher une image au-dessus du panneau de navigation. Change avec le profil de coffre sélectionné.',

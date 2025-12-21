@@ -788,6 +788,14 @@ export const STRINGS_JA = {
                 name: 'ドラッグ時に展開',
                 desc: 'ドラッグ操作中にホバーするとフォルダとタグを展開します。'
             },
+            springLoadedFoldersInitialDelay: {
+                name: '最初の展開遅延',
+                desc: 'ドラッグ操作中に最初のフォルダまたはタグを展開するまでの遅延（秒）。'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: '次の展開遅延',
+                desc: '同じドラッグ操作中に追加のフォルダまたはタグを展開するまでの遅延（秒）。'
+            },
             navigationBanner: {
                 name: 'ナビゲーションバナー（保管庫プロファイル）',
                 desc: 'ナビゲーションペイン上部に画像を表示します。選択された保管庫プロファイルに応じて変更されます。',

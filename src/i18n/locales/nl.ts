@@ -789,6 +789,14 @@ export const STRINGS_NL = {
                 name: 'Uitvouwen bij slepen',
                 desc: 'Mappen en tags uitvouwen bij zweven tijdens slepen.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: 'Vertraging bij eerste uitvouw',
+                desc: 'Vertraging voordat de eerste map of tag uitvouwt tijdens slepen (seconden).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Vertraging bij volgende uitvouwen',
+                desc: 'Vertraging voordat extra mappen of tags uitvouwen tijdens dezelfde sleepactie (seconden).'
+            },
             navigationBanner: {
                 name: 'Navigatiebanner (kluisprofiel)',
                 desc: 'Een afbeelding weergeven boven het navigatiepaneel. Verandert met het geselecteerde kluisprofiel.',

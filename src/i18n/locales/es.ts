@@ -788,6 +788,14 @@ export const STRINGS_ES = {
                 name: 'Expandir al arrastrar',
                 desc: 'Expandir carpetas y etiquetas al pasar sobre ellas durante el arrastre.'
             },
+            springLoadedFoldersInitialDelay: {
+                name: 'Retraso de primera expansión',
+                desc: 'Retraso antes de que se expanda la primera carpeta o etiqueta durante un arrastre (segundos).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Retraso de expansión posterior',
+                desc: 'Retraso antes de expandir carpetas o etiquetas adicionales durante el mismo arrastre (segundos).'
+            },
             navigationBanner: {
                 name: 'Banner de navegación (perfil de bóveda)',
                 desc: 'Mostrar una imagen encima del panel de navegación. Cambia con el perfil de bóveda seleccionado.',
