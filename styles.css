@@ -3933,6 +3933,55 @@ body.nn-resizing {
     --nn-mobile-safe-area-bottom: env(safe-area-inset-bottom, 8px);
 }
 
+/* iOS (Obsidian 1.11+) bottom fade gradient - overlays list content behind the toolbar */
+.notebook-navigator-obsidian-1-11-plus-ios .nn-navigation-pane,
+.notebook-navigator-obsidian-1-11-plus-ios .nn-list-pane {
+    position: relative;
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-navigation-pane {
+    --nn-bottom-fade-bg: var(--nn-theme-nav-bg);
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-list-pane {
+    --nn-bottom-fade-bg: var(--nn-theme-list-bg);
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-navigation-pane::after,
+.notebook-navigator-obsidian-1-11-plus-ios .nn-list-pane::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(88px + var(--nn-mobile-safe-area-bottom, 0px));
+    pointer-events: none;
+    z-index: 4;
+    background: linear-gradient(to top, var(--nn-bottom-fade-bg) 0%, transparent 100%);
+    background: linear-gradient(
+        to top,
+        var(--nn-bottom-fade-bg) 0%,
+        color-mix(in srgb, var(--nn-bottom-fade-bg) 92%, transparent) 22%,
+        color-mix(in srgb, var(--nn-bottom-fade-bg) 74%, transparent) 42%,
+        color-mix(in srgb, var(--nn-bottom-fade-bg) 46%, transparent) 62%,
+        color-mix(in srgb, var(--nn-bottom-fade-bg) 22%, transparent) 82%,
+        transparent 100%
+    );
+}
+
+.notebook-navigator-obsidian-1-11-plus-ios .nn-mobile-toolbar {
+    position: relative;
+    z-index: 5;
+}
+
+body.nn-navigation-pane-transparent .notebook-navigator-obsidian-1-11-plus-ios .nn-navigation-pane::after {
+    display: none;
+}
+
+body.nn-list-pane-transparent .notebook-navigator-obsidian-1-11-plus-ios .nn-list-pane::after {
+    display: none;
+}
+
 /* Mobile container - use grid for consistent structure while allowing sliding */
 .notebook-navigator-mobile .nn-split-container {
     display: grid;
