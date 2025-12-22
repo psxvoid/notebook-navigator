@@ -416,12 +416,14 @@ export const FileItem = React.memo(function FileItem({
                 isExternalFile,
                 allowCategoryIcons,
                 fallbackMode: allowCategoryIcons ? 'file' : 'none',
-                fileNameNeedles: fileNameIconNeedles
+                fileNameNeedles: fileNameIconNeedles,
+                fileNameForMatch: displayName
             }
         );
     }, [
         allowCategoryIcons,
         app.metadataCache,
+        displayName,
         fileNameIconNeedles,
         fileIconId,
         file,

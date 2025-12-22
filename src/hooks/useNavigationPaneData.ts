@@ -128,11 +128,13 @@ function decorateNavigationItems(
     app: App,
     settings: NotebookNavigatorSettings,
     fileNameIconNeedles: readonly FileNameIconNeedle[],
+    getFileDisplayName: (file: TFile) => string,
     metadataService: MetadataService,
     parsedExcludedFolders: string[],
     _metadataVersion: string
 ): CombinedNavigationItem[] {
     void _metadataVersion;
+    const shouldResolveFileNameIcons = settings.showFilenameMatchIcons;
     const fileIconSettings = {
         showFilenameMatchIcons: settings.showFilenameMatchIcons,
         fileNameIconMap: settings.fileNameIconMap,
@@ -196,7 +198,8 @@ function decorateNavigationItems(
                 metadataCache: app.metadataCache,
                 isExternalFile,
                 fallbackMode: fileIconFallbackMode,
-                fileNameNeedles: fileNameIconNeedles
+                fileNameNeedles: fileNameIconNeedles,
+                fileNameForMatch: shouldResolveFileNameIcons ? getFileDisplayName(note) : undefined
             });
             return {
                 ...item,
@@ -214,7 +217,8 @@ function decorateNavigationItems(
                 metadataCache: app.metadataCache,
                 isExternalFile,
                 fallbackMode: fileIconFallbackMode,
-                fileNameNeedles: fileNameIconNeedles
+                fileNameNeedles: fileNameIconNeedles,
+                fileNameForMatch: shouldResolveFileNameIcons ? getFileDisplayName(note) : undefined
             });
             return {
                 ...item,
@@ -420,7 +424,7 @@ export function useNavigationPaneData({
     const { recentNotes } = useRecentData();
     const metadataService = useMetadataService();
     const expansionState = useExpansionState();
-    const { fileData } = useFileCache();
+    const { fileData, getFileDisplayName } = useFileCache();
     const { hydratedShortcuts } = useShortcuts();
     const uxPreferences = useUXPreferences();
     const includeDescendantNotes = uxPreferences.includeDescendantNotes;
@@ -1225,11 +1229,12 @@ export function useNavigationPaneData({
                 app,
                 settings,
                 fileNameIconNeedles,
+                getFileDisplayName,
                 metadataService,
                 parsedExcludedFolders,
                 metadataVersion
             ),
-        [app, settings, fileNameIconNeedles, metadataService, parsedExcludedFolders, metadataVersion]
+        [app, settings, fileNameIconNeedles, getFileDisplayName, metadataService, parsedExcludedFolders, metadataVersion]
     );
 
     /**

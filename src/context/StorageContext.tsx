@@ -804,6 +804,81 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         stoppedRef.current = previousStopped;
     }, [api, tagTreeService]);
 
+    const getFileDisplayName = useCallback(
+        (file: TFile): string => {
+            if (settings.useFrontmatterMetadata) {
+                const metadata = extractMetadata(app, file, settings);
+                if (metadata.fn) {
+                    return metadata.fn;
+                }
+            }
+            return getDisplayName(file, undefined, settings);
+        },
+        [app, settings]
+    );
+
+    const getFileCreatedTime = useCallback(
+        (file: TFile): number => {
+            if (settings.useFrontmatterMetadata) {
+                const metadata = extractMetadata(app, file, settings);
+                if (
+                    metadata.fc !== undefined &&
+                    metadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
+                    metadata.fc !== METADATA_SENTINEL.PARSE_FAILED
+                ) {
+                    return metadata.fc;
+                }
+            }
+
+            return file.stat.ctime;
+        },
+        [app, settings]
+    );
+
+    const getFileModifiedTime = useCallback(
+        (file: TFile): number => {
+            if (settings.useFrontmatterMetadata) {
+                const metadata = extractMetadata(app, file, settings);
+                if (
+                    metadata.fm !== undefined &&
+                    metadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
+                    metadata.fm !== METADATA_SENTINEL.PARSE_FAILED
+                ) {
+                    return metadata.fm;
+                }
+            }
+
+            return file.stat.mtime;
+        },
+        [app, settings]
+    );
+
+    const getFileMetadata = useCallback(
+        (file: TFile): { name: string; created: number; modified: number } => {
+            let extractedMetadata: ProcessedMetadata | null = null;
+            if (settings.useFrontmatterMetadata) {
+                extractedMetadata = extractMetadata(app, file, settings);
+            }
+
+            return {
+                name: extractedMetadata?.fn || getDisplayName(file, undefined, settings),
+                created:
+                    extractedMetadata?.fc !== undefined &&
+                    extractedMetadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
+                    extractedMetadata.fc !== METADATA_SENTINEL.PARSE_FAILED
+                        ? extractedMetadata.fc
+                        : file.stat.ctime,
+                modified:
+                    extractedMetadata?.fm !== undefined &&
+                    extractedMetadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
+                    extractedMetadata.fm !== METADATA_SENTINEL.PARSE_FAILED
+                        ? extractedMetadata.fm
+                        : file.stat.mtime
+            };
+        },
+        [app, settings]
+    );
+
     /**
      * Memoized context value to prevent unnecessary re-renders
      *
@@ -818,69 +893,6 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
      * preventing child components from re-rendering unnecessarily.
      */
     const contextValue = useMemo(() => {
-        // Gets the display name for a file, using frontmatter if configured
-        const getFileDisplayName = (file: TFile): string => {
-            if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (metadata.fn) {
-                    return metadata.fn;
-                }
-            }
-            return getDisplayName(file, undefined, settings);
-        };
-
-        // Gets the creation time for a file, using frontmatter if configured
-        const getFileCreatedTime = (file: TFile): number => {
-            if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (
-                    metadata.fc !== undefined &&
-                    metadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
-                    metadata.fc !== METADATA_SENTINEL.PARSE_FAILED
-                ) {
-                    return metadata.fc;
-                }
-            }
-
-            return file.stat.ctime;
-        };
-
-        // Gets the modification time for a file, using frontmatter if configured
-        const getFileModifiedTime = (file: TFile): number => {
-            if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (
-                    metadata.fm !== undefined &&
-                    metadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
-                    metadata.fm !== METADATA_SENTINEL.PARSE_FAILED
-                ) {
-                    return metadata.fm;
-                }
-            }
-
-            return file.stat.mtime;
-        };
-
-        // Gets all metadata for a file in one call (name, created, modified)
-        const getFileMetadata = (file: TFile): { name: string; created: number; modified: number } => {
-            let extractedMetadata: ProcessedMetadata | null = null;
-            if (settings.useFrontmatterMetadata) {
-                extractedMetadata = extractMetadata(app, file, settings);
-            }
-
-            return {
-                name: extractedMetadata?.fn || getDisplayName(file, undefined, settings),
-                created:
-                    extractedMetadata?.fc !== undefined && extractedMetadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
-                        ? extractedMetadata.fc
-                        : file.stat.ctime,
-                modified:
-                    extractedMetadata?.fm !== undefined && extractedMetadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
-                        ? extractedMetadata.fm
-                        : file.stat.mtime
-            };
-        };
-
         // Direct accessors for tag tree data structures
         const getTagTree = () => fileData.tagTree;
 
@@ -922,7 +934,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             getTagDisplayPath,
             rebuildCache
         };
-    }, [fileData, settings, app, isStorageReady, rebuildCache]);
+    }, [fileData, getFileDisplayName, getFileCreatedTime, getFileModifiedTime, getFileMetadata, isStorageReady, rebuildCache]);
 
     /**
      * Centralized handler for all content-related settings changes

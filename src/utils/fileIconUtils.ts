@@ -30,6 +30,7 @@ export interface ResolveFileIconIdOptions {
     allowCategoryIcons?: boolean;
     fallbackMode?: FileIconFallbackMode;
     fileNameNeedles?: readonly FileNameIconNeedle[];
+    fileNameForMatch?: string;
 }
 
 const BUILT_IN_FILE_TYPE_ICON_MAP = Object.freeze(
@@ -137,7 +138,8 @@ export function resolveFileIconId(
 
     if (settings.showFilenameMatchIcons) {
         const fileNameNeedles = options.fileNameNeedles ?? buildFileNameIconNeedles(settings.fileNameIconMap);
-        const fileNameMatchIconId = resolveFileNameMatchIconIdFromNeedles(file.basename, fileNameNeedles);
+        const fileNameForMatch = options.fileNameForMatch ?? file.basename;
+        const fileNameMatchIconId = resolveFileNameMatchIconIdFromNeedles(fileNameForMatch, fileNameNeedles);
         if (fileNameMatchIconId) {
             return fileNameMatchIconId;
         }

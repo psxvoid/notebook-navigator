@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
     buildFileNameIconNeedles,
+    resolveFileIconId,
     resolveFileNameMatchIconId,
     resolveFileNameMatchIconIdFromNeedles,
     resolveFileTypeIconId,
@@ -46,6 +47,19 @@ describe('resolveFileNameMatchIconId', () => {
 
         const needles = buildFileNameIconNeedles(iconMap);
         expect(resolveFileNameMatchIconIdFromNeedles('Invoice meeting', needles)).toBe('calendar');
+    });
+
+    it('supports resolving icons from display names', () => {
+        const file = createTestTFile('Plain name.md');
+        const settings = {
+            showFilenameMatchIcons: true,
+            fileNameIconMap: { meeting: 'calendar' },
+            showCategoryIcons: false,
+            fileTypeIconMap: {}
+        };
+
+        expect(resolveFileIconId(file, settings)).toBe(null);
+        expect(resolveFileIconId(file, settings, { fileNameForMatch: 'Meeting notes' })).toBe('calendar');
     });
 });
 
