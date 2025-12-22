@@ -594,7 +594,13 @@ export const STRINGS_UK = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Вигляд'
+                icon: 'Іконка',
+                title: 'Заголовок',
+                previewText: 'Текст попереднього перегляду',
+                featureImage: 'Зображення запису',
+                tags: 'Теги',
+                date: 'Дата',
+                parentFolder: 'Батьківська папка'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_UK = {
                 desc: 'Розгортати папки та теги при виборі. У режимі однієї панелі перший вибір розгортає, другий показує файли.'
             },
             springLoadedFolders: {
-                name: 'Розгортати під час перетягування',
+                name: "Розгортати під час перетягування (лише комп'ютер)",
                 desc: 'Розгортати папки й теги при наведенні під час перетягування.'
             },
             springLoadedFoldersInitialDelay: {

@@ -595,7 +595,13 @@ export const STRINGS_ES = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Apariencia'
+                icon: 'Icono',
+                title: 'Título',
+                previewText: 'Texto de vista previa',
+                featureImage: 'Imagen destacada',
+                tags: 'Etiquetas',
+                date: 'Fecha',
+                parentFolder: 'Carpeta superior'
             }
         },
         items: {
@@ -805,7 +811,7 @@ export const STRINGS_ES = {
                 desc: 'Expandir carpetas y etiquetas al seleccionar. En modo de panel único, la primera selección expande, la segunda muestra archivos.'
             },
             springLoadedFolders: {
-                name: 'Expandir al arrastrar',
+                name: 'Expandir al arrastrar (solo escritorio)',
                 desc: 'Expandir carpetas y etiquetas al pasar sobre ellas durante el arrastre.'
             },
             springLoadedFoldersInitialDelay: {

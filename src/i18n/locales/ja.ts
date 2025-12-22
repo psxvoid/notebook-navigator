@@ -595,7 +595,13 @@ export const STRINGS_JA = {
             },
             notes: {
                 frontmatter: 'フロントマター',
-                display: '外観'
+                icon: 'アイコン',
+                title: 'タイトル',
+                previewText: 'プレビューテキスト',
+                featureImage: 'アイキャッチ画像',
+                tags: 'タグ',
+                date: '日付',
+                parentFolder: '親フォルダ'
             }
         },
         items: {
@@ -805,7 +811,7 @@ export const STRINGS_JA = {
                 desc: '選択時にフォルダとタグを展開します。シングルペインモードでは、最初の選択で展開、2回目の選択でファイルを表示します。'
             },
             springLoadedFolders: {
-                name: 'ドラッグ時に展開',
+                name: 'ドラッグ時に展開（デスクトップのみ）',
                 desc: 'ドラッグ操作中にホバーするとフォルダとタグを展開します。'
             },
             springLoadedFoldersInitialDelay: {

@@ -293,25 +293,24 @@ export function renderNotesTab(context: SettingsTabContext): void {
     });
     context.registerMetadataInfoElement(metadataInfoEl);
 
-    const displayGroup = createGroup(strings.settings.groups.notes.display);
+    const iconGroup = createGroup(strings.settings.groups.notes.icon);
+    const titleGroup = createGroup(strings.settings.groups.notes.title);
+    const previewTextGroup = createGroup(strings.settings.groups.notes.previewText);
+    const featureImageGroup = createGroup(strings.settings.groups.notes.featureImage);
+    const tagsGroup = createGroup(strings.settings.groups.notes.tags);
+    const dateGroup = createGroup(strings.settings.groups.notes.date);
+    const parentFolderGroup = createGroup(strings.settings.groups.notes.parentFolder);
 
-    displayGroup.addSetting(setting => {
-        setting
-            .setName(strings.settings.items.fileNameRows.name)
-            .setDesc(strings.settings.items.fileNameRows.desc)
-            .addDropdown(dropdown =>
-                dropdown
-                    .addOption('1', strings.settings.items.fileNameRows.options['1'])
-                    .addOption('2', strings.settings.items.fileNameRows.options['2'])
-                    .setValue(plugin.settings.fileNameRows.toString())
-                    .onChange(async value => {
-                        plugin.settings.fileNameRows = parseInt(value, 10);
-                        await plugin.saveSettingsAndUpdate();
-                    })
-            );
-    });
+    const setGroupVisible = (groupRootEl: HTMLElement, visible: boolean) => {
+        setElementVisible(groupRootEl, visible);
 
-    const showFileIconsSetting = displayGroup.addSetting(setting => {
+        const headingEl = groupRootEl.previousElementSibling;
+        if (headingEl instanceof HTMLElement && headingEl.classList.contains('setting-item-heading')) {
+            setElementVisible(headingEl, visible);
+        }
+    };
+
+    const showFileIconsSetting = iconGroup.addSetting(setting => {
         setting.setName(strings.settings.items.showFileIcons.name).setDesc(strings.settings.items.showFileIcons.desc);
     });
 
@@ -423,123 +422,23 @@ export function renderNotesTab(context: SettingsTabContext): void {
     };
     updateFileTypeIconMapVisibility();
 
-    const showFileDateSetting = displayGroup.addSetting(setting => {
-        setting.setName(strings.settings.items.showFileDate.name).setDesc(strings.settings.items.showFileDate.desc);
+    titleGroup.addSetting(setting => {
+        setting
+            .setName(strings.settings.items.fileNameRows.name)
+            .setDesc(strings.settings.items.fileNameRows.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('1', strings.settings.items.fileNameRows.options['1'])
+                    .addOption('2', strings.settings.items.fileNameRows.options['2'])
+                    .setValue(plugin.settings.fileNameRows.toString())
+                    .onChange(async value => {
+                        plugin.settings.fileNameRows = parseInt(value, 10);
+                        await plugin.saveSettingsAndUpdate();
+                    })
+            );
     });
 
-    const fileDateSubSettingsEl = wireToggleSettingWithSubSettings(
-        showFileDateSetting,
-        () => plugin.settings.showFileDate,
-        async value => {
-            plugin.settings.showFileDate = value;
-            await plugin.saveSettingsAndUpdate();
-        }
-    );
-
-    // Dropdown to choose which date to display when sorting alphabetically
-    new Setting(fileDateSubSettingsEl)
-        .setName(strings.settings.items.alphabeticalDateMode.name)
-        .setDesc(strings.settings.items.alphabeticalDateMode.desc)
-        .addDropdown(dropdown =>
-            dropdown
-                .addOption('created', strings.settings.items.alphabeticalDateMode.options.created)
-                .addOption('modified', strings.settings.items.alphabeticalDateMode.options.modified)
-                .setValue(plugin.settings.alphabeticalDateMode)
-                .onChange(async value => {
-                    plugin.settings.alphabeticalDateMode = value === 'modified' ? 'modified' : 'created';
-                    await plugin.saveSettingsAndUpdate();
-                })
-        );
-
-    const showFileTagsSetting = displayGroup.addSetting(setting => {
-        setting.setName(strings.settings.items.showFileTags.name).setDesc(strings.settings.items.showFileTags.desc);
-    });
-
-    const fileTagsSubSettingsEl = wireToggleSettingWithSubSettings(
-        showFileTagsSetting,
-        () => plugin.settings.showFileTags,
-        async value => {
-            plugin.settings.showFileTags = value;
-            await plugin.saveSettingsAndUpdate();
-        }
-    );
-
-    const colorFileTagsSetting = new Setting(fileTagsSubSettingsEl)
-        .setName(strings.settings.items.colorFileTags.name)
-        .setDesc(strings.settings.items.colorFileTags.desc);
-    const colorFileTagsSubSettingsEl = wireToggleSettingWithSubSettings(
-        colorFileTagsSetting,
-        () => plugin.settings.colorFileTags,
-        async value => {
-            plugin.settings.colorFileTags = value;
-            await plugin.saveSettingsAndUpdate();
-        }
-    );
-
-    new Setting(colorFileTagsSubSettingsEl)
-        .setName(strings.settings.items.prioritizeColoredFileTags.name)
-        .setDesc(strings.settings.items.prioritizeColoredFileTags.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.prioritizeColoredFileTags).onChange(async value => {
-                plugin.settings.prioritizeColoredFileTags = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    new Setting(fileTagsSubSettingsEl)
-        .setName(strings.settings.items.showFileTagAncestors.name)
-        .setDesc(strings.settings.items.showFileTagAncestors.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showFileTagAncestors).onChange(async value => {
-                plugin.settings.showFileTagAncestors = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    new Setting(fileTagsSubSettingsEl)
-        .setName(strings.settings.items.showFileTagsInCompactMode.name)
-        .setDesc(strings.settings.items.showFileTagsInCompactMode.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showFileTagsInCompactMode).onChange(async value => {
-                plugin.settings.showFileTagsInCompactMode = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    const showParentFolderSetting = displayGroup.addSetting(setting => {
-        setting.setName(strings.settings.items.showParentFolder.name).setDesc(strings.settings.items.showParentFolder.desc);
-    });
-
-    const parentFolderSettingsEl = wireToggleSettingWithSubSettings(
-        showParentFolderSetting,
-        () => plugin.settings.showParentFolder,
-        async value => {
-            plugin.settings.showParentFolder = value;
-            await plugin.saveSettingsAndUpdate();
-        }
-    );
-
-    new Setting(parentFolderSettingsEl)
-        .setName(strings.settings.items.parentFolderClickRevealsFile.name)
-        .setDesc(strings.settings.items.parentFolderClickRevealsFile.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.parentFolderClickRevealsFile).onChange(async value => {
-                plugin.settings.parentFolderClickRevealsFile = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    new Setting(parentFolderSettingsEl)
-        .setName(strings.settings.items.showParentFolderColor.name)
-        .setDesc(strings.settings.items.showParentFolderColor.desc)
-        .addToggle(toggle =>
-            toggle.setValue(plugin.settings.showParentFolderColor).onChange(async value => {
-                plugin.settings.showParentFolderColor = value;
-                await plugin.saveSettingsAndUpdate();
-            })
-        );
-
-    const showPreviewSetting = displayGroup.addSetting(setting => {
+    const showPreviewSetting = previewTextGroup.addSetting(setting => {
         setting.setName(strings.settings.items.showFilePreview.name).setDesc(strings.settings.items.showFilePreview.desc);
     });
 
@@ -620,7 +519,7 @@ export function renderNotesTab(context: SettingsTabContext): void {
     });
     previewInfoDiv.createSpan({ text: strings.settings.items.previewProperties.info });
 
-    const showFeatureImageSetting = displayGroup.addSetting(setting => {
+    const showFeatureImageSetting = featureImageGroup.addSetting(setting => {
         setting.setName(strings.settings.items.showFeatureImage.name).setDesc(strings.settings.items.showFeatureImage.desc);
     });
 
@@ -668,8 +567,124 @@ export function renderNotesTab(context: SettingsTabContext): void {
             })
         );
 
+    const showFileTagsSetting = tagsGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.showFileTags.name).setDesc(strings.settings.items.showFileTags.desc);
+    });
+
+    const fileTagsSubSettingsEl = wireToggleSettingWithSubSettings(
+        showFileTagsSetting,
+        () => plugin.settings.showFileTags,
+        async value => {
+            plugin.settings.showFileTags = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
+
+    const colorFileTagsSetting = new Setting(fileTagsSubSettingsEl)
+        .setName(strings.settings.items.colorFileTags.name)
+        .setDesc(strings.settings.items.colorFileTags.desc);
+    const colorFileTagsSubSettingsEl = wireToggleSettingWithSubSettings(
+        colorFileTagsSetting,
+        () => plugin.settings.colorFileTags,
+        async value => {
+            plugin.settings.colorFileTags = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
+
+    new Setting(colorFileTagsSubSettingsEl)
+        .setName(strings.settings.items.prioritizeColoredFileTags.name)
+        .setDesc(strings.settings.items.prioritizeColoredFileTags.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.prioritizeColoredFileTags).onChange(async value => {
+                plugin.settings.prioritizeColoredFileTags = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(fileTagsSubSettingsEl)
+        .setName(strings.settings.items.showFileTagAncestors.name)
+        .setDesc(strings.settings.items.showFileTagAncestors.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showFileTagAncestors).onChange(async value => {
+                plugin.settings.showFileTagAncestors = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(fileTagsSubSettingsEl)
+        .setName(strings.settings.items.showFileTagsInCompactMode.name)
+        .setDesc(strings.settings.items.showFileTagsInCompactMode.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showFileTagsInCompactMode).onChange(async value => {
+                plugin.settings.showFileTagsInCompactMode = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    const showFileDateSetting = dateGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.showFileDate.name).setDesc(strings.settings.items.showFileDate.desc);
+    });
+
+    const fileDateSubSettingsEl = wireToggleSettingWithSubSettings(
+        showFileDateSetting,
+        () => plugin.settings.showFileDate,
+        async value => {
+            plugin.settings.showFileDate = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
+
+    // Dropdown to choose which date to display when sorting alphabetically
+    new Setting(fileDateSubSettingsEl)
+        .setName(strings.settings.items.alphabeticalDateMode.name)
+        .setDesc(strings.settings.items.alphabeticalDateMode.desc)
+        .addDropdown(dropdown =>
+            dropdown
+                .addOption('created', strings.settings.items.alphabeticalDateMode.options.created)
+                .addOption('modified', strings.settings.items.alphabeticalDateMode.options.modified)
+                .setValue(plugin.settings.alphabeticalDateMode)
+                .onChange(async value => {
+                    plugin.settings.alphabeticalDateMode = value === 'modified' ? 'modified' : 'created';
+                    await plugin.saveSettingsAndUpdate();
+                })
+        );
+
+    const showParentFolderSetting = parentFolderGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.showParentFolder.name).setDesc(strings.settings.items.showParentFolder.desc);
+    });
+
+    const parentFolderSettingsEl = wireToggleSettingWithSubSettings(
+        showParentFolderSetting,
+        () => plugin.settings.showParentFolder,
+        async value => {
+            plugin.settings.showParentFolder = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
+
+    new Setting(parentFolderSettingsEl)
+        .setName(strings.settings.items.parentFolderClickRevealsFile.name)
+        .setDesc(strings.settings.items.parentFolderClickRevealsFile.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.parentFolderClickRevealsFile).onChange(async value => {
+                plugin.settings.parentFolderClickRevealsFile = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
+    new Setting(parentFolderSettingsEl)
+        .setName(strings.settings.items.showParentFolderColor.name)
+        .setDesc(strings.settings.items.showParentFolderColor.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showParentFolderColor).onChange(async value => {
+                plugin.settings.showParentFolderColor = value;
+                await plugin.saveSettingsAndUpdate();
+            })
+        );
+
     context.registerShowTagsListener(visible => {
-        setElementVisible(showFileTagsSetting.settingEl, visible);
+        setGroupVisible(tagsGroup.rootEl, visible);
     });
 
     context.requestStatisticsRefresh();

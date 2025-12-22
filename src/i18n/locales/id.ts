@@ -594,7 +594,13 @@ export const STRINGS_ID = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Tampilan'
+                icon: 'Ikon',
+                title: 'Judul',
+                previewText: 'Teks pratinjau',
+                featureImage: 'Gambar fitur',
+                tags: 'Tag',
+                date: 'Tanggal',
+                parentFolder: 'Folder induk'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_ID = {
                 desc: 'Luaskan folder dan tag saat dipilih. Dalam mode panel tunggal, pilihan pertama meluaskan, pilihan kedua menampilkan file.'
             },
             springLoadedFolders: {
-                name: 'Luaskan saat menyeret',
+                name: 'Luaskan saat menyeret (desktop saja)',
                 desc: 'Luaskan folder dan tag saat mengarahkan kursor selama menyeret.'
             },
             springLoadedFoldersInitialDelay: {

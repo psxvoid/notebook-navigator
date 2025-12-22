@@ -594,7 +594,13 @@ export const STRINGS_EN = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Appearance'
+                icon: 'Icon',
+                title: 'Title',
+                previewText: 'Preview text',
+                featureImage: 'Feature image',
+                tags: 'Tags',
+                date: 'Date',
+                parentFolder: 'Parent folder'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_EN = {
                 desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
             },
             springLoadedFolders: {
-                name: 'Spring-loaded folders',
+                name: 'Spring-loaded folders (desktop only)',
                 desc: 'Expand folders and tags on hover during drag operations.'
             },
             springLoadedFoldersInitialDelay: {

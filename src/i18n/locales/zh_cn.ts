@@ -595,7 +595,13 @@ export const STRINGS_ZH_CN = {
             },
             notes: {
                 frontmatter: '前置元数据',
-                display: '外观'
+                icon: '图标',
+                title: '标题',
+                previewText: '预览文本',
+                featureImage: '特色图片',
+                tags: '标签',
+                date: '日期',
+                parentFolder: '父文件夹'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_ZH_CN = {
                 desc: '选中时展开文件夹和标签。在单窗格模式下，首次选中展开，再次选中显示文件。'
             },
             springLoadedFolders: {
-                name: '拖动时展开',
+                name: '拖动时展开（仅桌面端）',
                 desc: '拖动操作中悬停时展开文件夹和标签。'
             },
             springLoadedFoldersInitialDelay: {

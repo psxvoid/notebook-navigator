@@ -595,7 +595,13 @@ export const STRINGS_FR = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Apparence'
+                icon: 'Icône',
+                title: 'Titre',
+                previewText: "Texte d'aperçu",
+                featureImage: 'Image vedette',
+                tags: 'Étiquettes',
+                date: 'Date',
+                parentFolder: 'Dossier parent'
             }
         },
         items: {
@@ -806,7 +812,7 @@ export const STRINGS_FR = {
                 desc: 'Développer les dossiers et étiquettes lors de la sélection. En mode panneau unique, la première sélection développe, la seconde affiche les fichiers.'
             },
             springLoadedFolders: {
-                name: 'Développer au survol',
+                name: 'Développer au survol (ordinateur uniquement)',
                 desc: 'Développer les dossiers et les étiquettes au survol pendant le glisser-déposer.'
             },
             springLoadedFoldersInitialDelay: {

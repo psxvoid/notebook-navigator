@@ -594,7 +594,13 @@ export const STRINGS_AR = {
             },
             notes: {
                 frontmatter: 'البيانات الأمامية',
-                display: 'المظهر'
+                icon: 'الأيقونة',
+                title: 'العنوان',
+                previewText: 'نص المعاينة',
+                featureImage: 'الصورة المميزة',
+                tags: 'الوسوم',
+                date: 'التاريخ',
+                parentFolder: 'المجلد الأصلي'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_AR = {
                 desc: 'توسيع المجلدات والوسوم عند تحديدها. في وضع اللوحة الواحدة، التحديد الأول يوسع، والتحديد الثاني يعرض الملفات.'
             },
             springLoadedFolders: {
-                name: 'التوسيع أثناء السحب',
+                name: 'التوسيع أثناء السحب (سطح المكتب فقط)',
                 desc: 'توسيع المجلدات والوسوم عند التمرير فوقها أثناء السحب.'
             },
             springLoadedFoldersInitialDelay: {

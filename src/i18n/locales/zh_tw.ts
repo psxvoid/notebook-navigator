@@ -594,7 +594,13 @@ export const STRINGS_ZH_TW = {
             },
             notes: {
                 frontmatter: '前置元資料',
-                display: '外觀'
+                icon: '圖示',
+                title: '標題',
+                previewText: '預覽文字',
+                featureImage: '精選圖片',
+                tags: '標籤',
+                date: '日期',
+                parentFolder: '父資料夾'
             }
         },
         items: {
@@ -803,7 +809,7 @@ export const STRINGS_ZH_TW = {
                 desc: '選取時展開資料夾和標籤。在單一窗格模式下，首次選取展開，再次選取顯示檔案。'
             },
             springLoadedFolders: {
-                name: '拖曳時展開',
+                name: '拖曳時展開 (僅限桌面版)',
                 desc: '拖曳操作中懸停時展開資料夾和標籤。'
             },
             springLoadedFoldersInitialDelay: {

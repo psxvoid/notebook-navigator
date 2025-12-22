@@ -594,7 +594,13 @@ export const STRINGS_TH = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'ลักษณะ'
+                icon: 'ไอคอน',
+                title: 'ชื่อเรื่อง',
+                previewText: 'ข้อความตัวอย่าง',
+                featureImage: 'รูปภาพเด่น',
+                tags: 'แท็ก',
+                date: 'วันที่',
+                parentFolder: 'โฟลเดอร์หลัก'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_TH = {
                 desc: 'ขยายโฟลเดอร์และแท็กเมื่อเลือก ในโหมดแผงเดียว การเลือกครั้งแรกจะขยาย การเลือกครั้งที่สองจะแสดงไฟล์'
             },
             springLoadedFolders: {
-                name: 'ขยายระหว่างลาก',
+                name: 'ขยายระหว่างลาก (เดสก์ท็อปเท่านั้น)',
                 desc: 'ขยายโฟลเดอร์และแท็กเมื่อวางเมาส์ระหว่างการลาก'
             },
             springLoadedFoldersInitialDelay: {

@@ -596,7 +596,13 @@ export const STRINGS_NL = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Uiterlijk'
+                icon: 'Icoon',
+                title: 'Titel',
+                previewText: 'Voorbeeldtekst',
+                featureImage: 'Uitgelichte afbeelding',
+                tags: 'Tags',
+                date: 'Datum',
+                parentFolder: 'Bovenliggende map'
             }
         },
         items: {
@@ -806,7 +812,7 @@ export const STRINGS_NL = {
                 desc: 'Mappen en tags uitvouwen bij selectie. In enkelvoudige paneelmodus: eerste selectie vouwt uit, tweede selectie toont bestanden.'
             },
             springLoadedFolders: {
-                name: 'Uitvouwen bij slepen',
+                name: 'Uitvouwen bij slepen (alleen desktop)',
                 desc: 'Mappen en tags uitvouwen bij zweven tijdens slepen.'
             },
             springLoadedFoldersInitialDelay: {

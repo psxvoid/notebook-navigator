@@ -594,7 +594,13 @@ export const STRINGS_RU = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Внешний вид'
+                icon: 'Иконка',
+                title: 'Заголовок',
+                previewText: 'Текст превью',
+                featureImage: 'Изображение записи',
+                tags: 'Теги',
+                date: 'Дата',
+                parentFolder: 'Родительская папка'
             }
         },
         items: {
@@ -805,7 +811,7 @@ export const STRINGS_RU = {
                 desc: 'Разворачивать папки и теги при выборе. В однопанельном режиме первый выбор разворачивает, второй показывает файлы.'
             },
             springLoadedFolders: {
-                name: 'Разворачивать при перетаскивании',
+                name: 'Разворачивать при перетаскивании (только компьютер)',
                 desc: 'Разворачивать папки и теги при наведении во время перетаскивания.'
             },
             springLoadedFoldersInitialDelay: {

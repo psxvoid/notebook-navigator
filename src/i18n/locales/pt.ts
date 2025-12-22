@@ -594,7 +594,13 @@ export const STRINGS_PT = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Aparência'
+                icon: 'Ícone',
+                title: 'Título',
+                previewText: 'Texto de pré-visualização',
+                featureImage: 'Imagem de destaque',
+                tags: 'Etiquetas',
+                date: 'Data',
+                parentFolder: 'Pasta superior'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_PT = {
                 desc: 'Expandir pastas e etiquetas quando selecionadas. No modo de painel único, a primeira seleção expande, a segunda mostra ficheiros.'
             },
             springLoadedFolders: {
-                name: 'Expandir ao arrastar',
+                name: 'Expandir ao arrastar (apenas computador)',
                 desc: 'Expandir pastas e etiquetas ao passar sobre elas durante o arrasto.'
             },
             springLoadedFoldersInitialDelay: {

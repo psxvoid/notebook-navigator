@@ -594,7 +594,13 @@ export const STRINGS_VI = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Giao diện'
+                icon: 'Biểu tượng',
+                title: 'Tiêu đề',
+                previewText: 'Văn bản xem trước',
+                featureImage: 'Hình ảnh nổi bật',
+                tags: 'Thẻ',
+                date: 'Ngày',
+                parentFolder: 'Thư mục cha'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_VI = {
                 desc: 'Mở rộng thư mục và thẻ khi chọn. Ở chế độ một ngăn, chọn lần đầu mở rộng, chọn lần hai hiện tệp.'
             },
             springLoadedFolders: {
-                name: 'Mở rộng khi kéo',
+                name: 'Mở rộng khi kéo (chỉ máy tính)',
                 desc: 'Mở rộng thư mục và thẻ khi di chuột qua trong lúc kéo.'
             },
             springLoadedFoldersInitialDelay: {

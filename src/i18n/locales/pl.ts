@@ -596,7 +596,13 @@ export const STRINGS_PL = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Wygląd'
+                icon: 'Ikona',
+                title: 'Tytuł',
+                previewText: 'Tekst podglądu',
+                featureImage: 'Obraz wyróżniający',
+                tags: 'Tagi',
+                date: 'Data',
+                parentFolder: 'Folder nadrzędny'
             }
         },
         items: {
@@ -806,7 +812,7 @@ export const STRINGS_PL = {
                 desc: 'Rozwiń foldery i tagi po wybraniu. W trybie pojedynczego panelu pierwsze kliknięcie rozwija, drugie pokazuje pliki.'
             },
             springLoadedFolders: {
-                name: 'Rozwiń podczas przeciągania',
+                name: 'Rozwiń podczas przeciągania (tylko desktop)',
                 desc: 'Rozwiń foldery i tagi przy najechaniu podczas przeciągania.'
             },
             springLoadedFoldersInitialDelay: {

@@ -594,7 +594,13 @@ export const STRINGS_KO = {
             },
             notes: {
                 frontmatter: '프런트매터',
-                display: '모양'
+                icon: '아이콘',
+                title: '제목',
+                previewText: '미리보기 텍스트',
+                featureImage: '대표 이미지',
+                tags: '태그',
+                date: '날짜',
+                parentFolder: '상위 폴더'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_KO = {
                 desc: '선택 시 폴더와 태그를 확장합니다. 단일 창 모드에서는 첫 번째 선택이 확장하고 두 번째 선택이 파일을 표시합니다.'
             },
             springLoadedFolders: {
-                name: '드래그 중 확장',
+                name: '드래그 중 확장 (데스크톱 전용)',
                 desc: '드래그 작업 중에 마우스를 올리면 폴더와 태그를 확장합니다.'
             },
             springLoadedFoldersInitialDelay: {

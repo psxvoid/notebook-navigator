@@ -594,7 +594,13 @@ export const STRINGS_FA = {
             },
             notes: {
                 frontmatter: 'فرانت‌متر',
-                display: 'ظاهر'
+                icon: 'آیکون',
+                title: 'عنوان',
+                previewText: 'متن پیش‌نمایش',
+                featureImage: 'تصویر ویژه',
+                tags: 'برچسب‌ها',
+                date: 'تاریخ',
+                parentFolder: 'پوشه والد'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_FA = {
                 desc: 'پوشه‌ها و برچسب‌ها را هنگام انتخاب باز کنید. در حالت پنل تکی، اولین انتخاب باز می‌کند، دومین انتخاب فایل‌ها را نمایش می‌دهد.'
             },
             springLoadedFolders: {
-                name: 'گسترش هنگام کشیدن',
+                name: 'گسترش هنگام کشیدن (فقط دسکتاپ)',
                 desc: 'پوشه‌ها و برچسب‌ها را هنگام قرار گرفتن روی آن‌ها در حین کشیدن گسترش دهید.'
             },
             springLoadedFoldersInitialDelay: {

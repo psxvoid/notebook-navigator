@@ -594,7 +594,13 @@ export const STRINGS_TR = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Görünüm'
+                icon: 'Simge',
+                title: 'Başlık',
+                previewText: 'Önizleme metni',
+                featureImage: 'Öne çıkan görsel',
+                tags: 'Etiketler',
+                date: 'Tarih',
+                parentFolder: 'Üst klasör'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_TR = {
                 desc: 'Seçildiğinde klasörleri ve etiketleri genişlet. Tek bölme modunda ilk seçim genişletir, ikinci seçim dosyaları gösterir.'
             },
             springLoadedFolders: {
-                name: 'Sürüklerken genişlet',
+                name: 'Sürüklerken genişlet (yalnızca masaüstü)',
                 desc: 'Sürükleme sırasında üzerine gelirken klasörleri ve etiketleri genişlet.'
             },
             springLoadedFoldersInitialDelay: {

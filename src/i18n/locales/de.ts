@@ -597,7 +597,13 @@ export const STRINGS_DE = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Darstellung'
+                icon: 'Symbol',
+                title: 'Titel',
+                previewText: 'Vorschautext',
+                featureImage: 'Hauptbild',
+                tags: 'Tags',
+                date: 'Datum',
+                parentFolder: 'Übergeordneter Ordner'
             }
         },
         items: {
@@ -808,7 +814,7 @@ export const STRINGS_DE = {
                 desc: 'Ordner und Tags bei Auswahl erweitern. Im Einzelfenster-Modus: erste Auswahl erweitert, zweite Auswahl zeigt Dateien.'
             },
             springLoadedFolders: {
-                name: 'Beim Ziehen erweitern',
+                name: 'Beim Ziehen erweitern (nur Desktop)',
                 desc: 'Ordner und Tags beim Überfahren während des Ziehens erweitern.'
             },
             springLoadedFoldersInitialDelay: {

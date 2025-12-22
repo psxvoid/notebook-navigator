@@ -594,7 +594,13 @@ export const STRINGS_IT = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Aspetto'
+                icon: 'Icona',
+                title: 'Titolo',
+                previewText: 'Testo anteprima',
+                featureImage: 'Immagine in evidenza',
+                tags: 'Tag',
+                date: 'Data',
+                parentFolder: 'Cartella superiore'
             }
         },
         items: {
@@ -804,7 +810,7 @@ export const STRINGS_IT = {
                 desc: 'Espandi cartelle e tag quando selezionati. In modalità pannello singolo, la prima selezione espande, la seconda mostra i file.'
             },
             springLoadedFolders: {
-                name: 'Espandi durante il trascinamento',
+                name: 'Espandi durante il trascinamento (solo desktop)',
                 desc: 'Espandi cartelle e tag al passaggio del mouse durante il trascinamento.'
             },
             springLoadedFoldersInitialDelay: {
