@@ -51,7 +51,7 @@ import { TFile, TFolder, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import type { FileContentChange } from '../storage/IndexedDBStorage';
 import { useMetadataService } from '../context/ServicesContext';
-import { useSettingsState } from '../context/SettingsContext';
+import { useActiveProfile, useSettingsDerived, useSettingsState } from '../context/SettingsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
 import { useFileCache } from '../context/StorageContext';
 import { useContextMenu } from '../hooks/useContextMenu';
@@ -74,7 +74,6 @@ import { areStringArraysEqual, mergeRanges, NumericRange } from '../utils/arrayU
 import { openAddTagToFilesModal } from '../utils/tagModalHelpers';
 import { getTagSearchModifierOperator } from '../utils/tagUtils';
 import type { InclusionOperator } from '../utils/filterSearch';
-import { useActiveProfile } from '../context/SettingsContext';
 
 const FEATURE_IMAGE_MAX_ASPECT_RATIO = 16 / 9;
 const sortTagsAlphabetically = (tags: string[]): void => {
@@ -285,6 +284,7 @@ export const FileItem = React.memo(function FileItem({
     // === Hooks (all hooks together at the top) ===
     const { app, isMobile, plugin, commandQueue, tagOperations } = useServices();
     const settings = useSettingsState();
+    const { fileNameIconNeedles } = useSettingsDerived();
     const { hiddenTags } = useActiveProfile();
     const uxPreferences = useUXPreferences();
     const includeDescendantNotes = uxPreferences.includeDescendantNotes;
@@ -415,12 +415,14 @@ export const FileItem = React.memo(function FileItem({
                 metadataCache: app.metadataCache,
                 isExternalFile,
                 allowCategoryIcons,
-                fallbackMode: allowCategoryIcons ? 'file' : 'none'
+                fallbackMode: allowCategoryIcons ? 'file' : 'none',
+                fileNameNeedles: fileNameIconNeedles
             }
         );
     }, [
         allowCategoryIcons,
         app.metadataCache,
+        fileNameIconNeedles,
         fileIconId,
         file,
         isExternalFile,

@@ -55,7 +55,7 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings, TagSortOrder } from '../settings/types';
 import { createHiddenFileNameMatcherForVisibility, isFolderInExcludedFolder } from '../utils/fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY } from '../utils/fileTypeUtils';
-import { resolveFileIconId } from '../utils/fileIconUtils';
+import { resolveFileIconId, type FileNameIconNeedle } from '../utils/fileIconUtils';
 // Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree, findTagNode } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree, compareTagOrderWithFallback } from '../utils/treeFlattener';
@@ -80,7 +80,7 @@ import {
     parseNavigationSeparatorKey
 } from '../utils/navigationSeparators';
 import type { MetadataService } from '../services/MetadataService';
-import type { ActiveProfileState } from '../context/SettingsContext';
+import { useSettingsDerived, type ActiveProfileState } from '../context/SettingsContext';
 
 // Checks if a navigation item is a shortcut-related item (virtual folder, shortcut, or header)
 const isShortcutNavigationItem = (item: CombinedNavigationItem): boolean => {
@@ -127,6 +127,7 @@ function decorateNavigationItems(
     source: CombinedNavigationItem[],
     app: App,
     settings: NotebookNavigatorSettings,
+    fileNameIconNeedles: readonly FileNameIconNeedle[],
     metadataService: MetadataService,
     parsedExcludedFolders: string[],
     _metadataVersion: string
@@ -194,7 +195,8 @@ function decorateNavigationItems(
                 customIconId,
                 metadataCache: app.metadataCache,
                 isExternalFile,
-                fallbackMode: fileIconFallbackMode
+                fallbackMode: fileIconFallbackMode,
+                fileNameNeedles: fileNameIconNeedles
             });
             return {
                 ...item,
@@ -211,7 +213,8 @@ function decorateNavigationItems(
                 customIconId,
                 metadataCache: app.metadataCache,
                 isExternalFile,
-                fallbackMode: fileIconFallbackMode
+                fallbackMode: fileIconFallbackMode,
+                fileNameNeedles: fileNameIconNeedles
             });
             return {
                 ...item,
@@ -413,6 +416,7 @@ export function useNavigationPaneData({
     sectionOrder
 }: UseNavigationPaneDataParams): UseNavigationPaneDataResult {
     const { app } = useServices();
+    const { fileNameIconNeedles } = useSettingsDerived();
     const { recentNotes } = useRecentData();
     const metadataService = useMetadataService();
     const expansionState = useExpansionState();
@@ -1214,14 +1218,25 @@ export function useNavigationPaneData({
         return result;
     }, [firstSectionId, items, parsedNavigationSeparators, sectionSpacerMap, showHiddenItems, pinShortcuts]);
 
+    const decorateItems = useCallback(
+        (sourceItems: CombinedNavigationItem[]) =>
+            decorateNavigationItems(
+                sourceItems,
+                app,
+                settings,
+                fileNameIconNeedles,
+                metadataService,
+                parsedExcludedFolders,
+                metadataVersion
+            ),
+        [app, settings, fileNameIconNeedles, metadataService, parsedExcludedFolders, metadataVersion]
+    );
+
     /**
      * Add metadata (colors, icons) and excluded folders to items
      * This pre-computation avoids calling these functions during render
      */
-    const itemsWithMetadata = useMemo(
-        () => decorateNavigationItems(itemsWithSeparators, app, settings, metadataService, parsedExcludedFolders, metadataVersion),
-        [itemsWithSeparators, app, settings, metadataService, metadataVersion, parsedExcludedFolders]
-    );
+    const itemsWithMetadata = useMemo(() => decorateItems(itemsWithSeparators), [decorateItems, itemsWithSeparators]);
 
     const decoratedRecentNotes = useMemo(() => itemsWithMetadata.filter(isRecentNavigationItem), [itemsWithMetadata]);
 
@@ -1230,8 +1245,8 @@ export function useNavigationPaneData({
         if (!pinShortcuts) {
             return [] as CombinedNavigationItem[];
         }
-        return decorateNavigationItems(shortcutItems, app, settings, metadataService, parsedExcludedFolders, metadataVersion);
-    }, [app, metadataService, metadataVersion, parsedExcludedFolders, pinShortcuts, settings, shortcutItems]);
+        return decorateItems(shortcutItems);
+    }, [decorateItems, pinShortcuts, shortcutItems]);
 
     const pinnedRecentNotesItems = useMemo(() => {
         if (!shouldPinRecentNotes) {
@@ -1240,17 +1255,8 @@ export function useNavigationPaneData({
         if (decoratedRecentNotes.length > 0) {
             return decoratedRecentNotes;
         }
-        return decorateNavigationItems(recentNotesItems, app, settings, metadataService, parsedExcludedFolders, metadataVersion);
-    }, [
-        app,
-        decoratedRecentNotes,
-        metadataService,
-        metadataVersion,
-        parsedExcludedFolders,
-        recentNotesItems,
-        settings,
-        shouldPinRecentNotes
-    ]);
+        return decorateItems(recentNotesItems);
+    }, [decorateItems, decoratedRecentNotes, recentNotesItems, shouldPinRecentNotes]);
 
     /**
      * Filter items based on showHiddenItems setting

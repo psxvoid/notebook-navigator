@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { resolveFileNameMatchIconId, resolveFileTypeIconId, resolveFileTypeIconKey } from '../../src/utils/fileIconUtils';
+import {
+    buildFileNameIconNeedles,
+    resolveFileNameMatchIconId,
+    resolveFileNameMatchIconIdFromNeedles,
+    resolveFileTypeIconId,
+    resolveFileTypeIconKey
+} from '../../src/utils/fileIconUtils';
 import { createTestTFile } from './createTestTFile';
 
 describe('resolveFileNameMatchIconId', () => {
     it('returns null for empty basenames', () => {
-        expect(resolveFileNameMatchIconId('', { meeting: 'calendar' })).toBe(null);
+        const needles = buildFileNameIconNeedles({ meeting: 'calendar' });
+        expect(resolveFileNameMatchIconIdFromNeedles('', needles)).toBe(null);
     });
 
     it('matches case-insensitively and prefers longer needles', () => {
@@ -14,7 +21,9 @@ describe('resolveFileNameMatchIconId', () => {
             invoice: 'receipt'
         };
 
-        expect(resolveFileNameMatchIconId('Meeting notes', iconMap)).toBe('calendar');
+        const needles = buildFileNameIconNeedles(iconMap);
+        expect(resolveFileNameMatchIconIdFromNeedles('Meeting notes', needles)).toBe('calendar');
+        expect(resolveFileNameMatchIconIdFromNeedles('Invoice 2025', needles)).toBe('receipt');
         expect(resolveFileNameMatchIconId('Invoice 2025', iconMap)).toBe('receipt');
     });
 
@@ -24,7 +33,8 @@ describe('resolveFileNameMatchIconId', () => {
             aa: 'icon-aa'
         };
 
-        expect(resolveFileNameMatchIconId('aab', iconMap)).toBe('icon-aa');
+        const needles = buildFileNameIconNeedles(iconMap);
+        expect(resolveFileNameMatchIconIdFromNeedles('aab', needles)).toBe('icon-aa');
     });
 
     it('ignores empty needles and empty icon IDs', () => {
@@ -34,7 +44,8 @@ describe('resolveFileNameMatchIconId', () => {
             invoice: ''
         };
 
-        expect(resolveFileNameMatchIconId('Invoice meeting', iconMap)).toBe('calendar');
+        const needles = buildFileNameIconNeedles(iconMap);
+        expect(resolveFileNameMatchIconIdFromNeedles('Invoice meeting', needles)).toBe('calendar');
     });
 });
 

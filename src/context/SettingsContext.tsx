@@ -28,6 +28,7 @@ import { cloneShortcuts, getActiveVaultProfile } from '../utils/vaultProfiles';
 import { sanitizeRecord } from '../utils/recordUtils';
 import { areStringArraysEqual } from '../utils/arrayUtils';
 import type { FolderAppearance } from '../hooks/useListPaneAppearance';
+import { buildFileNameIconNeedles, type FileNameIconNeedle } from '../utils/fileIconUtils';
 
 // Separate contexts for state and update function
 type SettingsStateValue = NotebookNavigatorSettings & { dualPaneOrientation: DualPaneOrientation };
@@ -44,6 +45,10 @@ export interface ActiveProfileState {
 const SettingsStateContext = createContext<SettingsStateValue | null>(null);
 const SettingsUpdateContext = createContext<((updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>) | null>(null);
 const ActiveProfileContext = createContext<ActiveProfileState | null>(null);
+interface SettingsDerivedValue {
+    fileNameIconNeedles: readonly FileNameIconNeedle[];
+}
+const SettingsDerivedContext = createContext<SettingsDerivedValue | null>(null);
 
 // Compares shortcut lists to reuse the previous profile object when entries are unchanged.
 const areShortcutsEqual = (prev?: ShortcutEntry[] | null, next?: ShortcutEntry[] | null): boolean => {
@@ -178,6 +183,11 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
         return nextSettings;
     }, [plugin, version]);
 
+    const derivedValue = React.useMemo<SettingsDerivedValue>(() => {
+        const fileNameIconNeedles = settingsValue.showFilenameMatchIcons ? buildFileNameIconNeedles(settingsValue.fileNameIconMap) : [];
+        return { fileNameIconNeedles };
+    }, [settingsValue.showFilenameMatchIcons, settingsValue.fileNameIconMap]);
+
     // Listen for settings updates from the plugin (e.g., from settings tab)
     useEffect(() => {
         const id = `settings-provider-${Date.now()}`;
@@ -244,9 +254,11 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
 
     return (
         <SettingsStateContext.Provider value={settingsValue}>
-            <ActiveProfileContext.Provider value={activeProfileValue}>
-                <SettingsUpdateContext.Provider value={updateSettings}>{children}</SettingsUpdateContext.Provider>
-            </ActiveProfileContext.Provider>
+            <SettingsDerivedContext.Provider value={derivedValue}>
+                <ActiveProfileContext.Provider value={activeProfileValue}>
+                    <SettingsUpdateContext.Provider value={updateSettings}>{children}</SettingsUpdateContext.Provider>
+                </ActiveProfileContext.Provider>
+            </SettingsDerivedContext.Provider>
         </SettingsStateContext.Provider>
     );
 }
@@ -265,6 +277,14 @@ export function useSettingsUpdate() {
     const context = useContext(SettingsUpdateContext);
     if (!context) {
         throw new Error('useSettingsUpdate must be used within a SettingsProvider');
+    }
+    return context;
+}
+
+export function useSettingsDerived(): SettingsDerivedValue {
+    const context = useContext(SettingsDerivedContext);
+    if (!context) {
+        throw new Error('useSettingsDerived must be used within a SettingsProvider');
     }
     return context;
 }

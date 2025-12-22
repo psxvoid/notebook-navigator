@@ -1,6 +1,7 @@
 import { TFile } from 'obsidian';
 import { hasExcalidrawFrontmatterFlag, isExcalidrawFile } from './fileNameUtils';
 import { isImageExtension } from './fileTypeUtils';
+import type { IconId } from '../services/icons/types';
 
 export type FileIconFallbackMode = 'none' | 'file';
 
@@ -12,17 +13,23 @@ interface MetadataCacheLike {
 
 export interface FileIconResolutionSettings {
     showFilenameMatchIcons: boolean;
-    fileNameIconMap: Record<string, string>;
+    fileNameIconMap: Record<string, IconId>;
     showCategoryIcons: boolean;
-    fileTypeIconMap: Record<string, string>;
+    fileTypeIconMap: Record<string, IconId>;
+}
+
+export interface FileNameIconNeedle {
+    needle: string;
+    iconId: IconId;
 }
 
 export interface ResolveFileIconIdOptions {
-    customIconId?: string | null;
+    customIconId?: IconId | null;
     metadataCache?: MetadataCacheLike;
     isExternalFile?: boolean;
     allowCategoryIcons?: boolean;
     fallbackMode?: FileIconFallbackMode;
+    fileNameNeedles?: readonly FileNameIconNeedle[];
 }
 
 const BUILT_IN_FILE_TYPE_ICON_MAP = Object.freeze(
@@ -51,43 +58,57 @@ export function resolveFileTypeIconKey(file: TFile, metadataCache?: MetadataCach
     return extension;
 }
 
-export function resolveFileNameMatchIconId(basename: string, iconMap: Record<string, string>): string | null {
+export function buildFileNameIconNeedles(iconMap: Record<string, IconId>): FileNameIconNeedle[] {
+    const needles: FileNameIconNeedle[] = [];
+    Object.entries(iconMap).forEach(([key, value]) => {
+        if (typeof key !== 'string' || typeof value !== 'string') {
+            return;
+        }
+
+        const needle = key.trim().toLowerCase();
+        const iconId = value.trim();
+        if (!needle || !iconId) {
+            return;
+        }
+
+        needles.push({ needle, iconId });
+    });
+
+    needles.sort((a, b) => {
+        const lengthDelta = b.needle.length - a.needle.length;
+        if (lengthDelta !== 0) {
+            return lengthDelta;
+        }
+        return a.needle.localeCompare(b.needle);
+    });
+
+    return needles;
+}
+
+export function resolveFileNameMatchIconIdFromNeedles(basename: string, needles: readonly FileNameIconNeedle[]): IconId | null {
     const fileName = basename.toLowerCase();
     if (!fileName) {
         return null;
     }
 
-    let bestNeedle: string | null = null;
-    let bestIconId: string | null = null;
-
-    for (const needle in iconMap) {
-        if (!Object.prototype.hasOwnProperty.call(iconMap, needle)) {
+    for (const entry of needles) {
+        if (!entry.needle || !entry.iconId) {
             continue;
         }
-
-        const iconId = iconMap[needle];
-        if (!needle || !iconId) {
-            continue;
-        }
-
-        if (!fileName.includes(needle)) {
-            continue;
-        }
-
-        if (
-            !bestNeedle ||
-            needle.length > bestNeedle.length ||
-            (needle.length === bestNeedle.length && needle.localeCompare(bestNeedle) < 0)
-        ) {
-            bestNeedle = needle;
-            bestIconId = iconId;
+        if (fileName.includes(entry.needle)) {
+            return entry.iconId;
         }
     }
 
-    return bestIconId;
+    return null;
 }
 
-export function resolveFileTypeIconId(fileTypeIconKey: string, iconMap: Record<string, string>): string | null {
+export function resolveFileNameMatchIconId(basename: string, iconMap: Record<string, IconId>): IconId | null {
+    const needles = buildFileNameIconNeedles(iconMap);
+    return resolveFileNameMatchIconIdFromNeedles(basename, needles);
+}
+
+export function resolveFileTypeIconId(fileTypeIconKey: string, iconMap: Record<string, IconId>): IconId | null {
     if (!fileTypeIconKey) {
         return null;
     }
@@ -108,14 +129,15 @@ export function resolveFileIconId(
     file: TFile,
     settings: FileIconResolutionSettings,
     options: ResolveFileIconIdOptions = {}
-): string | null {
+): IconId | null {
     const customIconId = options.customIconId;
     if (customIconId) {
         return customIconId;
     }
 
     if (settings.showFilenameMatchIcons) {
-        const fileNameMatchIconId = resolveFileNameMatchIconId(file.basename, settings.fileNameIconMap);
+        const fileNameNeedles = options.fileNameNeedles ?? buildFileNameIconNeedles(settings.fileNameIconMap);
+        const fileNameMatchIconId = resolveFileNameMatchIconIdFromNeedles(file.basename, fileNameNeedles);
         if (fileNameMatchIconId) {
             return fileNameMatchIconId;
         }
@@ -144,10 +166,10 @@ export function resolveFileIconId(
 
 export function resolveFileDragIconId(
     file: TFile,
-    fileTypeIconMap: Record<string, string>,
+    fileTypeIconMap: Record<string, IconId>,
     metadataCache?: MetadataCacheLike,
-    preferredIconId?: string | null
-): string {
+    preferredIconId?: IconId | null
+): IconId {
     if (preferredIconId) {
         return preferredIconId;
     }
