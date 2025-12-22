@@ -76,11 +76,16 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.9.3',
         date: '2025-12-22',
         showOnUpdate: true,
+        info: 'The two major improvements in this release are 1: ==File icons==. You can now define rules so file names with certain text and extensions now show specific icons. 2. You can now ==Resize the pinned shortcuts area==. This makes it much easier to manage a large set of shortcuts. Merry Christmas!',
         new: [
+            'New setting: Notes > Appearance > ==Icons by file name==. Map file name substrings to icons. Default disabled.',
+            'New setting: Notes > Appearance > ==Icons by file type==. If enabled show category icons for all files. Default disabled.',
+            'New setting: Notes > Appearance > ==File name icon map==. You can now set custom icon mappings for text in file names, text=icon.',
+            'New setting: Notes > Appearance > ==File type icon map==. You can now set custom icon mappings for file types, extension=icon.',
             'New setting: Folders & tags > ==Spring-loaded folders==. Expand folders and tags on hover during drag operations. Default enabled.',
             'When spring-loaded folders is enabled you now have two new sub-settings: ==First expand delay== and ==Subsequent expand delay== to configure how long to hover before a folder/tag expands during drag operations.',
             'New command: ==Set as folder note==. Renames the active file to its folder note name.',
-            'New command: ==Detach folder note==. Renames the active folder note to a new name.'
+            'New command: ==Detach folder note==. Detaches and renames the active folder note to a new name.'
         ],
         improved: [
             '==You can now resize the pinned shortcuts area== by dragging the separator line.',
@@ -174,7 +179,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [
             'New setting: ==List pane > Appearance > Default list mode==. Choose the default list layout between **standard** and **compact**. **Standard** shows title, date, description, and preview text. **Compact** only shows title. You can override the appearance for each folder or tag.',
-            'New setting: ==List pane > Appearance > Show file icons==. Disable to hide all file icons and avoid the indentation in the list pane.'
+            'New setting: ==Notes > Appearance > Show file icons==. Disable to hide all file icons and avoid the indentation in the list pane.'
         ],
         improved: [
             'If you change filename color in Style Settings, that color is now also used in shortcuts and recent notes.',
