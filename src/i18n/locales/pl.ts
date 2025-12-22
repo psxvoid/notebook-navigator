@@ -695,7 +695,27 @@ export const STRINGS_PL = {
             },
             showFileIcons: {
                 name: 'Pokaż ikony plików',
-                desc: 'Wyświetl ikony plików z wyrównaniem do lewej. Wyłączenie usuwa zarówno ikony, jak i wcięcie.'
+                desc: 'Wyświetl ikony plików z wyrównaniem do lewej. Wyłączenie usuwa zarówno ikony, jak i wcięcie. Priorytet: niestandardowe > nazwa pliku > typ pliku > domyślne.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Ikony według nazwy pliku',
+                desc: 'Przypisz ikony do plików na podstawie tekstu w ich nazwach.'
+            },
+            fileNameIconMap: {
+                name: 'Mapowanie ikon nazwy pliku',
+                desc: 'Pliki zawierające tekst otrzymują określoną ikonę. Jedno mapowanie na linię: tekst=ikona',
+                placeholder: '# tekst=ikona\nspotkanie=calendar\nfaktura=receipt',
+                resetTooltip: 'Przywróć wartości domyślne'
+            },
+            showCategoryIcons: {
+                name: 'Ikony według typu pliku',
+                desc: 'Przypisz ikony do plików na podstawie ich rozszerzenia.'
+            },
+            fileTypeIconMap: {
+                name: 'Mapowanie ikon typu pliku',
+                desc: 'Pliki z rozszerzeniem otrzymują określoną ikonę. Jedno mapowanie na linię: rozszerzenie=ikona',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Przywróć wartości domyślne'
             },
             optimizeNoteHeight: {
                 name: 'Optymalizuj wysokość notatek',

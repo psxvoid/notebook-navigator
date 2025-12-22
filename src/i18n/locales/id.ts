@@ -693,7 +693,27 @@ export const STRINGS_ID = {
             },
             showFileIcons: {
                 name: 'Tampilkan ikon file',
-                desc: 'Tampilkan ikon file dengan spasi rata kiri. Menonaktifkan menghapus ikon dan indentasi.'
+                desc: 'Tampilkan ikon file dengan spasi rata kiri. Menonaktifkan menghapus ikon dan indentasi. Prioritas: kustom > nama file > tipe file > default.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Ikon berdasarkan nama file',
+                desc: 'Tetapkan ikon ke file berdasarkan teks dalam namanya.'
+            },
+            fileNameIconMap: {
+                name: 'Peta ikon nama file',
+                desc: 'File yang berisi teks mendapat ikon yang ditentukan. Satu pemetaan per baris: teks=ikon',
+                placeholder: '# teks=ikon\nrapat=calendar\nfaktur=receipt',
+                resetTooltip: 'Kembalikan ke default'
+            },
+            showCategoryIcons: {
+                name: 'Ikon berdasarkan tipe file',
+                desc: 'Tetapkan ikon ke file berdasarkan ekstensinya.'
+            },
+            fileTypeIconMap: {
+                name: 'Peta ikon tipe file',
+                desc: 'File dengan ekstensi mendapat ikon yang ditentukan. Satu pemetaan per baris: ekstensi=ikon',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Kembalikan ke default'
             },
             optimizeNoteHeight: {
                 name: 'Optimalkan tinggi catatan',

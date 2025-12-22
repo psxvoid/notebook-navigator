@@ -695,7 +695,27 @@ export const STRINGS_FR = {
             },
             showFileIcons: {
                 name: 'Afficher les icônes de fichier',
-                desc: "Afficher les icônes de fichier avec espacement aligné à gauche. La désactivation supprime les icônes et l'indentation."
+                desc: "Afficher les icônes de fichier avec espacement aligné à gauche. La désactivation supprime les icônes et l'indentation. Priorité : personnalisé > nom de fichier > type de fichier > par défaut."
+            },
+            showFilenameMatchIcons: {
+                name: 'Icônes par nom de fichier',
+                desc: 'Attribuer des icônes aux fichiers selon le texte dans leurs noms.'
+            },
+            fileNameIconMap: {
+                name: 'Correspondance nom-icône',
+                desc: "Les fichiers contenant le texte obtiennent l'icône spécifiée. Une correspondance par ligne : texte=icône",
+                placeholder: '# texte=icône\nréunion=calendar\nfacture=receipt',
+                resetTooltip: 'Restaurer les valeurs par défaut'
+            },
+            showCategoryIcons: {
+                name: 'Icônes par type de fichier',
+                desc: 'Attribuer des icônes aux fichiers selon leur extension.'
+            },
+            fileTypeIconMap: {
+                name: 'Correspondance type-icône',
+                desc: "Les fichiers avec l'extension obtiennent l'icône spécifiée. Une correspondance par ligne : extension=icône",
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Restaurer les valeurs par défaut'
             },
             optimizeNoteHeight: {
                 name: 'Optimiser la hauteur des notes',

@@ -694,7 +694,27 @@ export const STRINGS_JA = {
             },
             showFileIcons: {
                 name: 'ファイルアイコンを表示',
-                desc: 'ファイルアイコンを左寄せ間隔で表示。無効化するとアイコンとインデントの両方が削除されます。'
+                desc: 'ファイルアイコンを左寄せ間隔で表示。無効化するとアイコンとインデントの両方が削除されます。優先順位: カスタム > ファイル名 > ファイルタイプ > デフォルト。'
+            },
+            showFilenameMatchIcons: {
+                name: 'ファイル名でアイコン設定',
+                desc: 'ファイル名のテキストに基づいてアイコンを割り当てます。'
+            },
+            fileNameIconMap: {
+                name: 'ファイル名アイコンマップ',
+                desc: 'テキストを含むファイルに指定したアイコンが適用されます。1行に1つのマッピング: テキスト=アイコン',
+                placeholder: '# テキスト=アイコン\n会議=calendar\n請求書=receipt',
+                resetTooltip: 'デフォルトに戻す'
+            },
+            showCategoryIcons: {
+                name: 'ファイルタイプでアイコン設定',
+                desc: 'ファイルの拡張子に基づいてアイコンを割り当てます。'
+            },
+            fileTypeIconMap: {
+                name: 'ファイルタイプアイコンマップ',
+                desc: '拡張子を持つファイルに指定したアイコンが適用されます。1行に1つのマッピング: 拡張子=アイコン',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'デフォルトに戻す'
             },
             optimizeNoteHeight: {
                 name: 'ノートの高さを最適化',

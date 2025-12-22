@@ -693,7 +693,27 @@ export const STRINGS_ZH_CN = {
             },
             showFileIcons: {
                 name: '显示文件图标',
-                desc: '显示文件图标并保留左对齐间距。禁用后将移除图标和缩进。'
+                desc: '显示文件图标并保留左对齐间距。禁用后将移除图标和缩进。优先级：自定义 > 文件名 > 文件类型 > 默认。'
+            },
+            showFilenameMatchIcons: {
+                name: '按文件名设置图标',
+                desc: '根据文件名中的文本分配图标。'
+            },
+            fileNameIconMap: {
+                name: '文件名图标映射',
+                desc: '包含指定文本的文件将获得指定图标。每行一个映射：文本=图标',
+                placeholder: '# 文本=图标\n会议=calendar\n发票=receipt',
+                resetTooltip: '恢复默认值'
+            },
+            showCategoryIcons: {
+                name: '按文件类型设置图标',
+                desc: '根据文件扩展名分配图标。'
+            },
+            fileTypeIconMap: {
+                name: '文件类型图标映射',
+                desc: '具有指定扩展名的文件将获得指定图标。每行一个映射：扩展名=图标',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: '恢复默认值'
             },
             optimizeNoteHeight: {
                 name: '优化笔记高度',

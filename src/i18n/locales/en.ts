@@ -693,7 +693,27 @@ export const STRINGS_EN = {
             },
             showFileIcons: {
                 name: 'Show file icons',
-                desc: 'Display file icons with left-aligned spacing. Disabling removes both icons and indentation.'
+                desc: 'Display file icons with left-aligned spacing. Disabling removes both icons and indentation. Priority: custom > file name > file type > default.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Icons by file name',
+                desc: 'Assign icons to files based on text in their names.'
+            },
+            fileNameIconMap: {
+                name: 'File name icon map',
+                desc: 'Files containing the text get the specified icon. One mapping per line: text=icon',
+                placeholder: '# Text=icon\nmeeting=calendar\ninvoice=receipt',
+                resetTooltip: 'Restore defaults'
+            },
+            showCategoryIcons: {
+                name: 'Icons by file type',
+                desc: 'Assign icons to files based on their extension.'
+            },
+            fileTypeIconMap: {
+                name: 'File type icon map',
+                desc: 'Files with the extension get the specified icon. One mapping per line: extension=icon',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Restore defaults'
             },
             optimizeNoteHeight: {
                 name: 'Optimize note height',

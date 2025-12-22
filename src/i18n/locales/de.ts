@@ -697,7 +697,27 @@ export const STRINGS_DE = {
             },
             showFileIcons: {
                 name: 'Dateisymbole anzeigen',
-                desc: 'Dateisymbole mit linksbündigem Abstand anzeigen. Deaktivierung entfernt sowohl Symbole als auch Einrückung.'
+                desc: 'Dateisymbole mit linksbündigem Abstand anzeigen. Deaktivierung entfernt sowohl Symbole als auch Einrückung. Priorität: Benutzerdefiniert > Dateiname > Dateityp > Standard.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Symbole nach Dateiname',
+                desc: 'Symbole basierend auf Text im Dateinamen zuweisen.'
+            },
+            fileNameIconMap: {
+                name: 'Dateiname-Symbol-Zuordnung',
+                desc: 'Dateien mit dem Text erhalten das angegebene Symbol. Eine Zuordnung pro Zeile: Text=Symbol',
+                placeholder: '# Text=icon\nbesprechung=calendar\nrechnung=receipt',
+                resetTooltip: 'Standardwerte wiederherstellen'
+            },
+            showCategoryIcons: {
+                name: 'Symbole nach Dateityp',
+                desc: 'Symbole basierend auf der Dateierweiterung zuweisen.'
+            },
+            fileTypeIconMap: {
+                name: 'Dateityp-Symbol-Zuordnung',
+                desc: 'Dateien mit der Erweiterung erhalten das angegebene Symbol. Eine Zuordnung pro Zeile: Erweiterung=Symbol',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Standardwerte wiederherstellen'
             },
             optimizeNoteHeight: {
                 name: 'Notizenhöhe optimieren',

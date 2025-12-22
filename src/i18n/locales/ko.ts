@@ -693,7 +693,27 @@ export const STRINGS_KO = {
             },
             showFileIcons: {
                 name: '파일 아이콘 표시',
-                desc: '파일 아이콘을 왼쪽 정렬 간격과 함께 표시. 비활성화하면 아이콘과 들여쓰기가 모두 제거됩니다.'
+                desc: '파일 아이콘을 왼쪽 정렬 간격과 함께 표시. 비활성화하면 아이콘과 들여쓰기가 모두 제거됩니다. 우선순위: 사용자 지정 > 파일 이름 > 파일 유형 > 기본값.'
+            },
+            showFilenameMatchIcons: {
+                name: '파일 이름으로 아이콘 설정',
+                desc: '파일 이름의 텍스트를 기반으로 아이콘을 지정합니다.'
+            },
+            fileNameIconMap: {
+                name: '파일 이름 아이콘 맵',
+                desc: '텍스트를 포함하는 파일에 지정된 아이콘이 적용됩니다. 줄당 하나의 매핑: 텍스트=아이콘',
+                placeholder: '# 텍스트=아이콘\n회의=calendar\n청구서=receipt',
+                resetTooltip: '기본값 복원'
+            },
+            showCategoryIcons: {
+                name: '파일 유형으로 아이콘 설정',
+                desc: '파일 확장자를 기반으로 아이콘을 지정합니다.'
+            },
+            fileTypeIconMap: {
+                name: '파일 유형 아이콘 맵',
+                desc: '확장자가 있는 파일에 지정된 아이콘이 적용됩니다. 줄당 하나의 매핑: 확장자=아이콘',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: '기본값 복원'
             },
             optimizeNoteHeight: {
                 name: '노트 높이 최적화',

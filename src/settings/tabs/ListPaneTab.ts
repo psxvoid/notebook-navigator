@@ -230,16 +230,6 @@ export function renderListPaneTab(context: SettingsTabContext): void {
             );
     });
 
-    addToggleSetting(
-        displayGroup.addSetting,
-        strings.settings.items.showFileIcons.name,
-        strings.settings.items.showFileIcons.desc,
-        () => plugin.settings.showFileIcons,
-        value => {
-            plugin.settings.showFileIcons = value;
-        }
-    );
-
     displayGroup.addSetting(setting => {
         setting
             .setName(strings.settings.items.includeDescendantNotes.name)

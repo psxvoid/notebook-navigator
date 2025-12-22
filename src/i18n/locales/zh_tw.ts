@@ -692,7 +692,27 @@ export const STRINGS_ZH_TW = {
             },
             showFileIcons: {
                 name: '顯示檔案圖示',
-                desc: '顯示檔案圖示並保留靠左對齊間距。停用後將移除圖示和縮排。'
+                desc: '顯示檔案圖示並保留靠左對齊間距。停用後將移除圖示和縮排。優先順序：自訂 > 檔案名稱 > 檔案類型 > 預設。'
+            },
+            showFilenameMatchIcons: {
+                name: '依檔案名稱設定圖示',
+                desc: '根據檔案名稱中的文字指派圖示。'
+            },
+            fileNameIconMap: {
+                name: '檔案名稱圖示對應',
+                desc: '包含指定文字的檔案將獲得指定圖示。每行一個對應：文字=圖示',
+                placeholder: '# 文字=圖示\n會議=calendar\n發票=receipt',
+                resetTooltip: '恢復預設值'
+            },
+            showCategoryIcons: {
+                name: '依檔案類型設定圖示',
+                desc: '根據檔案副檔名指派圖示。'
+            },
+            fileTypeIconMap: {
+                name: '檔案類型圖示對應',
+                desc: '具有指定副檔名的檔案將獲得指定圖示。每行一個對應：副檔名=圖示',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: '恢復預設值'
             },
             optimizeNoteHeight: {
                 name: '最佳化筆記高度',

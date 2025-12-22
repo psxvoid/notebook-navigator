@@ -20,6 +20,9 @@ import { TFile } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 
 export const EXCALIDRAW_BASENAME_SUFFIX = '.excalidraw';
+const EXCALIDRAW_FRONTMATTER_KEY = 'excalidraw-plugin';
+
+type ExcalidrawFrontmatterFlagValue = boolean | number | string | object | null | undefined;
 
 // Pattern matching characters that break Obsidian links: [[, ]], %%, #, |, ^, :
 const INVALID_LINK_CHARACTERS_PATTERN = /(\[\[|\]\]|%%|[#|^:])/u;
@@ -74,6 +77,41 @@ export function stripExcalidrawSuffix(value: string): string {
  */
 export function isExcalidrawFile(file: TFile): boolean {
     return isExcalidrawFileName(file.name);
+}
+
+/**
+ * Checks if a frontmatter value indicates the file is an Excalidraw drawing.
+ */
+function isTruthyExcalidrawFrontmatterFlag(value: ExcalidrawFrontmatterFlagValue): boolean {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+
+    if (typeof value === 'number') {
+        return value !== 0;
+    }
+
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (!trimmed) {
+            return false;
+        }
+        const normalized = trimmed.toLowerCase();
+        return normalized !== 'false' && normalized !== '0';
+    }
+
+    return Boolean(value);
+}
+
+/**
+ * Checks if a frontmatter record marks the file as an Excalidraw drawing.
+ */
+export function hasExcalidrawFrontmatterFlag(frontmatter?: Record<string, ExcalidrawFrontmatterFlagValue> | null): boolean {
+    if (!frontmatter) {
+        return false;
+    }
+
+    return isTruthyExcalidrawFrontmatterFlag(frontmatter[EXCALIDRAW_FRONTMATTER_KEY]);
 }
 
 /**

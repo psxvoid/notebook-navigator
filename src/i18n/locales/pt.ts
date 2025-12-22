@@ -693,7 +693,27 @@ export const STRINGS_PT = {
             },
             showFileIcons: {
                 name: 'Mostrar ícones de ficheiros',
-                desc: 'Exibir ícones de ficheiros com espaçamento alinhado à esquerda. Desativar remove ícones e indentação.'
+                desc: 'Exibir ícones de ficheiros com espaçamento alinhado à esquerda. Desativar remove ícones e indentação. Prioridade: personalizado > nome de ficheiro > tipo de ficheiro > predefinido.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Ícones por nome de ficheiro',
+                desc: 'Atribuir ícones a ficheiros com base no texto nos seus nomes.'
+            },
+            fileNameIconMap: {
+                name: 'Mapa de ícones por nome',
+                desc: 'Os ficheiros contendo o texto recebem o ícone especificado. Um mapeamento por linha: texto=ícone',
+                placeholder: '# texto=ícone\nreunião=calendar\nfatura=receipt',
+                resetTooltip: 'Restaurar valores predefinidos'
+            },
+            showCategoryIcons: {
+                name: 'Ícones por tipo de ficheiro',
+                desc: 'Atribuir ícones a ficheiros com base na sua extensão.'
+            },
+            fileTypeIconMap: {
+                name: 'Mapa de ícones por tipo',
+                desc: 'Os ficheiros com a extensão recebem o ícone especificado. Um mapeamento por linha: extensão=ícone',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Restaurar valores predefinidos'
             },
             optimizeNoteHeight: {
                 name: 'Otimizar altura das notas',

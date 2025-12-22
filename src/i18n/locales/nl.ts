@@ -695,7 +695,27 @@ export const STRINGS_NL = {
             },
             showFileIcons: {
                 name: 'Bestandspictogrammen tonen',
-                desc: 'Bestandspictogrammen tonen met links uitgelijnde ruimte. Uitschakelen verwijdert zowel pictogrammen als inspringing.'
+                desc: 'Bestandspictogrammen tonen met links uitgelijnde ruimte. Uitschakelen verwijdert zowel pictogrammen als inspringing. Prioriteit: aangepast > bestandsnaam > bestandstype > standaard.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Pictogrammen op bestandsnaam',
+                desc: 'Pictogrammen toewijzen aan bestanden op basis van tekst in hun namen.'
+            },
+            fileNameIconMap: {
+                name: 'Bestandsnaam-pictogram toewijzing',
+                desc: 'Bestanden met de tekst krijgen het opgegeven pictogram. Eén toewijzing per regel: tekst=pictogram',
+                placeholder: '# tekst=pictogram\nvergadering=calendar\nfactuur=receipt',
+                resetTooltip: 'Standaardwaarden herstellen'
+            },
+            showCategoryIcons: {
+                name: 'Pictogrammen op bestandstype',
+                desc: 'Pictogrammen toewijzen aan bestanden op basis van hun extensie.'
+            },
+            fileTypeIconMap: {
+                name: 'Bestandstype-pictogram toewijzing',
+                desc: 'Bestanden met de extensie krijgen het opgegeven pictogram. Eén toewijzing per regel: extensie=pictogram',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Standaardwaarden herstellen'
             },
             optimizeNoteHeight: {
                 name: 'Notitiehoogte optimaliseren',

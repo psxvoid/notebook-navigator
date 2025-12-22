@@ -693,7 +693,27 @@ export const STRINGS_TR = {
             },
             showFileIcons: {
                 name: 'Dosya simgelerini göster',
-                desc: 'Dosya simgelerini sol hizalı boşlukla göster. Devre dışı bırakma hem simgeleri hem de girintiyi kaldırır.'
+                desc: 'Dosya simgelerini sol hizalı boşlukla göster. Devre dışı bırakma hem simgeleri hem de girintiyi kaldırır. Öncelik: özel > dosya adı > dosya türü > varsayılan.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Dosya adına göre simgeler',
+                desc: 'Dosyalara adlarındaki metne göre simge ata.'
+            },
+            fileNameIconMap: {
+                name: 'Dosya adı simge eşlemesi',
+                desc: 'Metni içeren dosyalar belirtilen simgeyi alır. Satır başına bir eşleme: metin=simge',
+                placeholder: '# metin=simge\ntoplantı=calendar\nfatura=receipt',
+                resetTooltip: 'Varsayılanları geri yükle'
+            },
+            showCategoryIcons: {
+                name: 'Dosya türüne göre simgeler',
+                desc: 'Dosyalara uzantılarına göre simge ata.'
+            },
+            fileTypeIconMap: {
+                name: 'Dosya türü simge eşlemesi',
+                desc: 'Uzantıya sahip dosyalar belirtilen simgeyi alır. Satır başına bir eşleme: uzantı=simge',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Varsayılanları geri yükle'
             },
             optimizeNoteHeight: {
                 name: 'Not yüksekliğini optimize et',

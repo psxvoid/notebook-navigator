@@ -693,7 +693,27 @@ export const STRINGS_IT = {
             },
             showFileIcons: {
                 name: 'Mostra icone file',
-                desc: 'Visualizza icone file con spaziatura allineata a sinistra. Disabilitando rimuove sia icone che indentazione.'
+                desc: 'Visualizza icone file con spaziatura allineata a sinistra. Disabilitando rimuove sia icone che indentazione. Priorità: personalizzato > nome file > tipo file > predefinito.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Icone per nome file',
+                desc: 'Assegna icone ai file in base al testo nei loro nomi.'
+            },
+            fileNameIconMap: {
+                name: 'Mappa icone per nome',
+                desc: "I file contenenti il testo ottengono l'icona specificata. Una mappatura per riga: testo=icona",
+                placeholder: '# testo=icona\nriunione=calendar\nfattura=receipt',
+                resetTooltip: 'Ripristina valori predefiniti'
+            },
+            showCategoryIcons: {
+                name: 'Icone per tipo file',
+                desc: 'Assegna icone ai file in base alla loro estensione.'
+            },
+            fileTypeIconMap: {
+                name: 'Mappa icone per tipo',
+                desc: "I file con l'estensione ottengono l'icona specificata. Una mappatura per riga: estensione=icona",
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Ripristina valori predefiniti'
             },
             optimizeNoteHeight: {
                 name: 'Ottimizza altezza note',

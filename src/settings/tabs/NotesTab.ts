@@ -25,6 +25,14 @@ import type { SettingsTabContext } from './SettingsTabContext';
 import { runAsyncAction } from '../../utils/async';
 import { createSettingGroupFactory } from '../settingGroups';
 import { setElementVisible, wireToggleSettingWithSubSettings } from '../subSettings';
+import { DEFAULT_SETTINGS } from '../defaultSettings';
+import {
+    normalizeFileNameIconMapKey,
+    normalizeFileTypeIconMapKey,
+    parseIconMapText,
+    serializeIconMapRecord,
+    type IconMapParseResult
+} from '../../utils/iconizeFormat';
 
 /**
  * Type guard to check if a file is a markdown file
@@ -54,6 +62,14 @@ function countMarkdownMetadataEntries(records: Record<string, string> | undefine
         }
     }
     return count;
+}
+
+function parseFileTypeIconMapText(value: string): IconMapParseResult {
+    return parseIconMapText(value, normalizeFileTypeIconMapKey);
+}
+
+function parseFileNameIconMapText(value: string): IconMapParseResult {
+    return parseIconMapText(value, normalizeFileNameIconMapKey);
 }
 
 /** Renders the notes settings tab */
@@ -294,6 +310,118 @@ export function renderNotesTab(context: SettingsTabContext): void {
                     })
             );
     });
+
+    const showFileIconsSetting = displayGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.showFileIcons.name).setDesc(strings.settings.items.showFileIcons.desc);
+    });
+
+    const fileIconSubSettingsEl = wireToggleSettingWithSubSettings(
+        showFileIconsSetting,
+        () => plugin.settings.showFileIcons,
+        async value => {
+            plugin.settings.showFileIcons = value;
+            await plugin.saveSettingsAndUpdate();
+        }
+    );
+
+    let updateFileNameIconMapVisibility: (() => void) | null = null;
+    let updateFileTypeIconMapVisibility: (() => void) | null = null;
+
+    new Setting(fileIconSubSettingsEl)
+        .setName(strings.settings.items.showFilenameMatchIcons.name)
+        .setDesc(strings.settings.items.showFilenameMatchIcons.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showFilenameMatchIcons).onChange(async value => {
+                plugin.settings.showFilenameMatchIcons = value;
+                await plugin.saveSettingsAndUpdate();
+                updateFileNameIconMapVisibility?.();
+            })
+        );
+
+    const fileNameIconMapSetting = context.createDebouncedTextAreaSetting(
+        fileIconSubSettingsEl,
+        strings.settings.items.fileNameIconMap.name,
+        strings.settings.items.fileNameIconMap.desc,
+        strings.settings.items.fileNameIconMap.placeholder,
+        () => serializeIconMapRecord(plugin.settings.fileNameIconMap),
+        value => {
+            const parsed = parseFileNameIconMapText(value);
+            plugin.settings.fileNameIconMap = parsed.map;
+        },
+        {
+            rows: 3,
+            validator: value => parseFileNameIconMapText(value).invalidLines.length === 0
+        }
+    );
+
+    fileNameIconMapSetting.addExtraButton(button =>
+        button
+            .setIcon('lucide-rotate-ccw')
+            .setTooltip(strings.settings.items.fileNameIconMap.resetTooltip)
+            .onClick(async () => {
+                plugin.settings.fileNameIconMap = { ...DEFAULT_SETTINGS.fileNameIconMap };
+
+                const textarea = fileNameIconMapSetting.controlEl.querySelector('textarea');
+                if (textarea instanceof HTMLTextAreaElement) {
+                    textarea.value = serializeIconMapRecord(plugin.settings.fileNameIconMap);
+                }
+
+                await plugin.saveSettingsAndUpdate();
+            })
+    );
+    fileNameIconMapSetting.controlEl.addClass('nn-setting-wide-input');
+    updateFileNameIconMapVisibility = () => {
+        setElementVisible(fileNameIconMapSetting.settingEl, plugin.settings.showFilenameMatchIcons);
+    };
+    updateFileNameIconMapVisibility();
+
+    new Setting(fileIconSubSettingsEl)
+        .setName(strings.settings.items.showCategoryIcons.name)
+        .setDesc(strings.settings.items.showCategoryIcons.desc)
+        .addToggle(toggle =>
+            toggle.setValue(plugin.settings.showCategoryIcons).onChange(async value => {
+                plugin.settings.showCategoryIcons = value;
+                await plugin.saveSettingsAndUpdate();
+                updateFileTypeIconMapVisibility?.();
+            })
+        );
+
+    const fileTypeIconMapSetting = context.createDebouncedTextAreaSetting(
+        fileIconSubSettingsEl,
+        strings.settings.items.fileTypeIconMap.name,
+        strings.settings.items.fileTypeIconMap.desc,
+        strings.settings.items.fileTypeIconMap.placeholder,
+        () => serializeIconMapRecord(plugin.settings.fileTypeIconMap),
+        value => {
+            const parsed = parseFileTypeIconMapText(value);
+            plugin.settings.fileTypeIconMap = parsed.map;
+        },
+        {
+            rows: 3,
+            validator: value => parseFileTypeIconMapText(value).invalidLines.length === 0
+        }
+    );
+
+    fileTypeIconMapSetting.addExtraButton(button =>
+        button
+            .setIcon('lucide-rotate-ccw')
+            .setTooltip(strings.settings.items.fileTypeIconMap.resetTooltip)
+            .onClick(async () => {
+                plugin.settings.fileTypeIconMap = { ...DEFAULT_SETTINGS.fileTypeIconMap };
+
+                const textarea = fileTypeIconMapSetting.controlEl.querySelector('textarea');
+                if (textarea instanceof HTMLTextAreaElement) {
+                    textarea.value = serializeIconMapRecord(plugin.settings.fileTypeIconMap);
+                }
+
+                await plugin.saveSettingsAndUpdate();
+            })
+    );
+    fileTypeIconMapSetting.controlEl.addClass('nn-setting-wide-input');
+    updateFileTypeIconMapVisibility = () => {
+        setElementVisible(fileTypeIconMapSetting.settingEl, plugin.settings.showCategoryIcons);
+    };
+    updateFileTypeIconMapVisibility();
 
     const showFileDateSetting = displayGroup.addSetting(setting => {
         setting.setName(strings.settings.items.showFileDate.name).setDesc(strings.settings.items.showFileDate.desc);

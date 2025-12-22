@@ -693,7 +693,27 @@ export const STRINGS_VI = {
             },
             showFileIcons: {
                 name: 'Hiện biểu tượng tệp',
-                desc: 'Hiển thị biểu tượng tệp với khoảng cách căn trái. Tắt sẽ gỡ cả biểu tượng và thụt lề.'
+                desc: 'Hiển thị biểu tượng tệp với khoảng cách căn trái. Tắt sẽ gỡ cả biểu tượng và thụt lề. Ưu tiên: tùy chỉnh > tên tệp > loại tệp > mặc định.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Biểu tượng theo tên tệp',
+                desc: 'Gán biểu tượng cho tệp dựa trên văn bản trong tên.'
+            },
+            fileNameIconMap: {
+                name: 'Bản đồ biểu tượng tên tệp',
+                desc: 'Tệp chứa văn bản sẽ nhận biểu tượng được chỉ định. Một ánh xạ mỗi dòng: văn bản=biểu tượng',
+                placeholder: '# văn bản=biểu tượng\nhọp=calendar\nhóa đơn=receipt',
+                resetTooltip: 'Khôi phục mặc định'
+            },
+            showCategoryIcons: {
+                name: 'Biểu tượng theo loại tệp',
+                desc: 'Gán biểu tượng cho tệp dựa trên phần mở rộng.'
+            },
+            fileTypeIconMap: {
+                name: 'Bản đồ biểu tượng loại tệp',
+                desc: 'Tệp có phần mở rộng sẽ nhận biểu tượng được chỉ định. Một ánh xạ mỗi dòng: phần mở rộng=biểu tượng',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Khôi phục mặc định'
             },
             optimizeNoteHeight: {
                 name: 'Tối ưu chiều cao ghi chú',

@@ -46,10 +46,17 @@ const CORE_OBSIDIAN_EXTENSIONS = new Set([
 ]);
 
 /**
- * Common image extensions that can be displayed as feature images
- * Limited to formats with reliable cross-platform support
+ * Common image extensions that can be displayed as feature images.
+ * Limited to formats with reliable cross-platform support.
  */
 const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'avif', 'bmp']);
+
+export function isImageExtension(extension: string): boolean {
+    if (!extension) {
+        return false;
+    }
+    return IMAGE_EXTENSIONS.has(extension.toLowerCase());
+}
 
 /**
  * Check if a file should be displayed based on the visibility setting
@@ -119,7 +126,7 @@ export function isImageFile(file: TFile): boolean {
     if (!file?.extension) {
         return false;
     }
-    return IMAGE_EXTENSIONS.has(file.extension.toLowerCase());
+    return isImageExtension(file.extension);
 }
 
 /**

@@ -694,7 +694,27 @@ export const STRINGS_ES = {
             },
             showFileIcons: {
                 name: 'Mostrar iconos de archivo',
-                desc: 'Mostrar iconos de archivo con espaciado alineado a la izquierda. Desactivar elimina tanto iconos como sangría.'
+                desc: 'Mostrar iconos de archivo con espaciado alineado a la izquierda. Desactivar elimina tanto iconos como sangría. Prioridad: personalizado > nombre de archivo > tipo de archivo > predeterminado.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Iconos por nombre de archivo',
+                desc: 'Asignar iconos a archivos según el texto en sus nombres.'
+            },
+            fileNameIconMap: {
+                name: 'Mapa de iconos por nombre',
+                desc: 'Los archivos que contienen el texto obtienen el icono especificado. Una asignación por línea: texto=icono',
+                placeholder: '# texto=icono\nreunión=calendar\nfactura=receipt',
+                resetTooltip: 'Restaurar valores predeterminados'
+            },
+            showCategoryIcons: {
+                name: 'Iconos por tipo de archivo',
+                desc: 'Asignar iconos a archivos según su extensión.'
+            },
+            fileTypeIconMap: {
+                name: 'Mapa de iconos por tipo',
+                desc: 'Los archivos con la extensión obtienen el icono especificado. Una asignación por línea: extensión=icono',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Restaurar valores predeterminados'
             },
             optimizeNoteHeight: {
                 name: 'Optimizar altura de notas',

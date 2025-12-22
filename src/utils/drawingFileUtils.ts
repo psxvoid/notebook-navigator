@@ -23,7 +23,16 @@ import { generateUniqueFilename } from './fileCreationUtils';
 import { ensureRecord, isBooleanRecordValue, isStringRecordValue } from './recordUtils';
 import { getPluginById } from './typeGuards';
 
-type MomentApi = typeof import('moment');
+interface MomentInstance {
+    format: (format: string) => string;
+}
+
+interface MomentApi {
+    (): MomentInstance;
+    fn: object;
+    utc: () => void;
+}
+
 // Cache the Obsidian-provided moment API; Obsidian sets window.moment during startup so caching null is safe.
 let cachedMomentApi: MomentApi | null | undefined;
 

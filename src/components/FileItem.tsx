@@ -65,6 +65,7 @@ import { DateUtils } from '../utils/dateUtils';
 import { runAsyncAction } from '../utils/async';
 import { openFileInContext } from '../utils/openFileInContext';
 import { FILE_VISIBILITY, getExtensionSuffix, isImageFile, shouldDisplayFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
+import { resolveFileDragIconId, resolveFileIconId } from '../utils/fileIconUtils';
 import { getDateField, naturalCompare } from '../utils/sortUtils';
 import { getIconService, useIconServiceVersion } from '../services/icons';
 import type { SearchResultMeta } from '../types/search';
@@ -390,52 +391,52 @@ export const FileItem = React.memo(function FileItem({
     const showExtensionSuffix = useMemo(() => shouldShowExtensionSuffix(file), [file]);
     const fileIconId = metadataService.getFileIcon(file.path);
     const fileColor = metadataService.getFileColor(file.path);
-    const fileExtension = file.extension;
+    const fileExtension = file.extension.toLowerCase();
     const isBaseFile = fileExtension === 'base';
     const isCanvasFile = fileExtension === 'canvas';
-    const isImageDocument = isImageFile(file);
-    // Determine the default icon to use based on file type
-    const defaultTypeIconId = useMemo(() => {
-        if (isCanvasFile) {
-            return 'lucide-layout-grid';
-        }
-        if (isBaseFile) {
-            return 'lucide-database';
-        }
-        if (isImageDocument) {
-            return 'lucide-image';
-        }
-        if (fileExtension === 'md') {
-            return 'lucide-file-text';
-        }
-        return 'lucide-file';
-    }, [fileExtension, isBaseFile, isCanvasFile, isImageDocument]);
     // Check if file is not natively supported by Obsidian (e.g., Office files, archives)
     const isExternalFile = useMemo(() => {
         return !shouldDisplayFile(file, FILE_VISIBILITY.SUPPORTED, app);
     }, [app, file]);
+    const allowCategoryIcons = settings.showCategoryIcons || (settings.colorIconOnly && Boolean(fileColor));
     // Determine the actual icon to display, considering custom icon and colorIconOnly setting
     const effectiveFileIconId = useMemo(() => {
-        if (fileIconId) {
-            return fileIconId;
-        }
-        if (isExternalFile) {
-            return 'lucide-external-link';
-        }
-        if (settings.colorIconOnly && fileColor) {
-            return defaultTypeIconId;
-        }
-        return null;
-    }, [defaultTypeIconId, fileColor, fileIconId, isExternalFile, settings.colorIconOnly]);
+        void metadataVersion;
+        return resolveFileIconId(
+            file,
+            {
+                showFilenameMatchIcons: settings.showFilenameMatchIcons,
+                fileNameIconMap: settings.fileNameIconMap,
+                showCategoryIcons: settings.showCategoryIcons,
+                fileTypeIconMap: settings.fileTypeIconMap
+            },
+            {
+                customIconId: fileIconId,
+                metadataCache: app.metadataCache,
+                isExternalFile,
+                allowCategoryIcons,
+                fallbackMode: allowCategoryIcons ? 'file' : 'none'
+            }
+        );
+    }, [
+        allowCategoryIcons,
+        app.metadataCache,
+        fileIconId,
+        file,
+        isExternalFile,
+        metadataVersion,
+        settings.fileNameIconMap,
+        settings.fileTypeIconMap,
+        settings.showCategoryIcons,
+        settings.showFilenameMatchIcons
+    ]);
     // Determine whether to apply color to the file name instead of the icon
     const applyColorToName = Boolean(fileColor) && !settings.colorIconOnly;
     // Icon to use when dragging the file
     const dragIconId = useMemo(() => {
-        if (effectiveFileIconId) {
-            return effectiveFileIconId;
-        }
-        return defaultTypeIconId;
-    }, [defaultTypeIconId, effectiveFileIconId]);
+        void metadataVersion;
+        return resolveFileDragIconId(file, settings.fileTypeIconMap, app.metadataCache, effectiveFileIconId);
+    }, [app.metadataCache, effectiveFileIconId, file, metadataVersion, settings.fileTypeIconMap]);
 
     const isCompactMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
