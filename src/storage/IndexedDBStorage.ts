@@ -1,5 +1,5 @@
 import { ProcessResult } from 'src/services/content/BaseContentProvider';
-import { STORAGE_KEYS } from '../types';
+import { CacheCustomFields, STORAGE_KEYS } from '../types';
 import { localStorage } from '../utils/localStorage';
 /*
  * Notebook Navigator - Plugin for Obsidian
@@ -21,6 +21,7 @@ import { localStorage } from '../utils/localStorage';
 
 import { MemoryFileCache } from './MemoryFileCache';
 import { contentMigrations } from './migrations';
+import { EMPTY_ARRAY } from '../utils/empty';
 
 const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
@@ -56,6 +57,9 @@ export interface FileData {
 
 export type FileDataCache = Omit<FileData, 'featureImageResized'>
 
+export type TagsV1 = readonly string[] | null
+export type TagsV2 = Map<string, readonly string[] | null> | null
+
 function emptyFileData(): FileData {
     return {
         mtime: 0,
@@ -67,6 +71,20 @@ function emptyFileData(): FileData {
         featureImageConsumers: null,
         metadata: null,
     }
+}
+
+export function getTagsByProp(tagsV2: TagsV2, tagProp: string): TagsV1 {
+    if (tagsV2 == null) {
+        return tagsV2 ?? EMPTY_ARRAY
+    }
+
+    const defaultTags = tagsV2.get(tagProp) 
+
+    return defaultTags === undefined ? EMPTY_ARRAY : defaultTags
+}
+
+export function getDefaultTags(tagsV2: TagsV2): TagsV1 {
+    return getTagsByProp(tagsV2, CacheCustomFields.TagDefault) 
 }
 
 export interface FileContentChange {
@@ -875,6 +893,10 @@ export class IndexedDBStorage {
                 if (data.featureImageConsumers !== undefined) {
                     next.featureImageConsumers = data.featureImageConsumers;
                     changes.featureImageConsumers = data.featureImageConsumers;
+                }
+                if (data.tags !== undefined) {
+                    next.tags = data.tags;
+                    changes.tags = data.tags;
                 }
                 if (data.metadata !== undefined) {
                     next.metadata = data.metadata;
