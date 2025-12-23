@@ -1201,9 +1201,9 @@ export const STRINGS_KO = {
                 desc: '노트 이름, 타임스탬프, 아이콘, 색상에 frontmatter 사용'
             },
             frontmatterNameField: {
-                name: '이름 필드',
-                desc: '노트 표시 이름으로 사용할 frontmatter 필드입니다. 파일 이름을 사용하려면 비워 두세요.',
-                placeholder: 'title'
+                name: '이름 필드들',
+                desc: '쉼표로 구분된 frontmatter 필드 목록. 첫 번째 비어 있지 않은 값을 사용. 파일 이름으로 대체.',
+                placeholder: '제목, 이름'
             },
             frontmatterIconField: {
                 name: '아이콘 필드',

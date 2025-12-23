@@ -24,6 +24,7 @@ import { TAG_CHARACTER_CLASS, hasValidTagCharacters } from '../../utils/tagUtils
 import { mutateFrontmatterTagFields } from '../tagRename/frontmatterTagMutator';
 import { mergeRanges, NumericRange } from '../../utils/arrayUtils';
 import { findFencedCodeBlockRanges, findInlineCodeRanges, isIndexInRanges } from '../../utils/codeRangeUtils';
+import { parseCommaSeparatedList } from '../../utils/commaSeparatedListUtils';
 
 /**
  * Type for frontmatter objects that may contain a tags property
@@ -149,11 +150,7 @@ export class TagFileMutations {
                 }
 
                 if (typeof rawTags === 'string') {
-                    const tags = rawTags
-                        .split(',')
-                        .map((value: string) => value.trim())
-                        // Filter out empty strings and ensure type safety
-                        .filter((value): value is string => value.length > 0);
+                    const tags = parseCommaSeparatedList(rawTags);
                     tags.push(tag);
                     frontmatter.tags = Array.from(new Set(tags));
                     return;

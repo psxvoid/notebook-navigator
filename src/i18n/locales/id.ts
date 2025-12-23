@@ -1226,9 +1226,9 @@ export const STRINGS_ID = {
                 noticeError: 'Migrasi gagal. Periksa konsol untuk detail.'
             },
             frontmatterNameField: {
-                name: 'Field nama',
-                desc: 'Field frontmatter untuk digunakan sebagai nama tampilan catatan. Biarkan kosong untuk menggunakan nama file.',
-                placeholder: 'title'
+                name: 'Field-field nama',
+                desc: 'Daftar field frontmatter dipisahkan koma. Nilai tidak kosong pertama digunakan. Kembali ke nama file.',
+                placeholder: 'judul, nama'
             },
             frontmatterCreatedField: {
                 name: 'Field timestamp dibuat',

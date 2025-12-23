@@ -1205,9 +1205,9 @@ export const STRINGS_DE = {
                 desc: 'Frontmatter für Notizname, Zeitstempel, Icons und Farben verwenden'
             },
             frontmatterNameField: {
-                name: 'Namensfeld',
-                desc: 'Frontmatter-Feld für den angezeigten Notiznamen. Leer lassen, um den Dateinamen zu verwenden.',
-                placeholder: 'titel'
+                name: 'Namensfelder',
+                desc: 'Kommagetrennte Liste von Frontmatter-Feldern. Erster nicht-leerer Wert wird verwendet. Fällt auf Dateinamen zurück.',
+                placeholder: 'titel, name'
             },
             frontmatterIconField: {
                 name: 'Icon-Feld',

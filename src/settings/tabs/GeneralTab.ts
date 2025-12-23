@@ -45,6 +45,7 @@ import {
     validateVaultProfileNameOrNotify
 } from '../../utils/vaultProfiles';
 import { normalizeTagPath } from '../../utils/tagUtils';
+import { formatCommaSeparatedList, parseCommaSeparatedList } from '../../utils/commaSeparatedListUtils';
 import type NotebookNavigatorPlugin from '../../main';
 import { createSettingGroupFactory } from '../settingGroups';
 import { createSubSettingsContainer, setElementVisible, wireToggleSettingWithSubSettings } from '../subSettings';
@@ -169,16 +170,16 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             fileVisibilityDropdown.setValue(activeProfile?.fileVisibility ?? FILE_VISIBILITY.SUPPORTED);
         }
         if (excludedFoldersInput) {
-            excludedFoldersInput.value = activeProfile ? activeProfile.hiddenFolders.join(', ') : '';
+            excludedFoldersInput.value = activeProfile ? formatCommaSeparatedList(activeProfile.hiddenFolders) : '';
         }
         if (hiddenTagsInput) {
-            hiddenTagsInput.value = activeProfile ? activeProfile.hiddenTags.join(', ') : '';
+            hiddenTagsInput.value = activeProfile ? formatCommaSeparatedList(activeProfile.hiddenTags) : '';
         }
         if (excludedFilesInput) {
-            excludedFilesInput.value = activeProfile ? activeProfile.hiddenFiles.join(', ') : '';
+            excludedFilesInput.value = activeProfile ? formatCommaSeparatedList(activeProfile.hiddenFiles) : '';
         }
         if (hiddenFileNamePatternsInput) {
-            hiddenFileNamePatternsInput.value = activeProfile ? activeProfile.hiddenFileNamePatterns.join(', ') : '';
+            hiddenFileNamePatternsInput.value = activeProfile ? formatCommaSeparatedList(activeProfile.hiddenFileNamePatterns) : '';
         }
     };
 
@@ -311,16 +312,13 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             strings.settings.items.excludedFileNamePatterns.name,
             strings.settings.items.excludedFileNamePatterns.desc,
             strings.settings.items.excludedFileNamePatterns.placeholder,
-            () => getActiveProfile()?.hiddenFileNamePatterns.join(', ') ?? '',
+            () => formatCommaSeparatedList(getActiveProfile()?.hiddenFileNamePatterns ?? []),
             value => {
                 const activeProfile = getActiveProfile();
                 if (!activeProfile) {
                     return;
                 }
-                const nextHiddenPatterns = value
-                    .split(',')
-                    .map(pattern => pattern.trim())
-                    .filter(pattern => pattern.length > 0);
+                const nextHiddenPatterns = parseCommaSeparatedList(value);
                 activeProfile.hiddenFileNamePatterns = Array.from(new Set(nextHiddenPatterns));
                 resetHiddenToggleIfNoSources({
                     settings: plugin.settings,
@@ -339,16 +337,13 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             strings.settings.items.excludedFolders.name,
             strings.settings.items.excludedFolders.desc,
             strings.settings.items.excludedFolders.placeholder,
-            () => getActiveProfile()?.hiddenFolders.join(', ') ?? '',
+            () => formatCommaSeparatedList(getActiveProfile()?.hiddenFolders ?? []),
             value => {
                 const activeProfile = getActiveProfile();
                 if (!activeProfile) {
                     return;
                 }
-                const nextHiddenFolders = value
-                    .split(',')
-                    .map(folder => folder.trim())
-                    .filter(folder => folder.length > 0);
+                const nextHiddenFolders = parseCommaSeparatedList(value);
                 activeProfile.hiddenFolders = Array.from(new Set(nextHiddenFolders));
                 resetHiddenToggleIfNoSources({
                     settings: plugin.settings,
@@ -367,14 +362,13 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             strings.settings.items.hiddenTags.name,
             strings.settings.items.hiddenTags.desc,
             strings.settings.items.hiddenTags.placeholder,
-            () => getActiveProfile()?.hiddenTags.join(', ') ?? '',
+            () => formatCommaSeparatedList(getActiveProfile()?.hiddenTags ?? []),
             value => {
                 const activeProfile = getActiveProfile();
                 if (!activeProfile) {
                     return;
                 }
-                const normalizedHiddenTags = value
-                    .split(',')
+                const normalizedHiddenTags = parseCommaSeparatedList(value)
                     .map(entry => normalizeTagPath(entry))
                     .filter((entry): entry is string => entry !== null);
 
@@ -396,16 +390,13 @@ export function renderGeneralTab(context: SettingsTabContext): void {
             strings.settings.items.excludedNotes.name,
             strings.settings.items.excludedNotes.desc,
             strings.settings.items.excludedNotes.placeholder,
-            () => getActiveProfile()?.hiddenFiles.join(', ') ?? '',
+            () => formatCommaSeparatedList(getActiveProfile()?.hiddenFiles ?? []),
             value => {
                 const activeProfile = getActiveProfile();
                 if (!activeProfile) {
                     return;
                 }
-                const nextHiddenFiles = value
-                    .split(',')
-                    .map(file => file.trim())
-                    .filter(file => file.length > 0);
+                const nextHiddenFiles = parseCommaSeparatedList(value);
                 activeProfile.hiddenFiles = Array.from(new Set(nextHiddenFiles));
                 resetHiddenToggleIfNoSources({
                     settings: plugin.settings,

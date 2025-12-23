@@ -86,14 +86,14 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'When spring-loaded folders is enabled you now have two new sub-settings: ==First expand delay== and ==Subsequent expand delay== to configure how long to hover before a folder/tag expands during drag operations.',
             'New command: ==Set as folder note==. Renames the active file to its folder note name.',
             'New command: ==Detach folder note==. Detaches and renames the active folder note to a new name.',
-            'Public API: Added `navigation.navigateToFolder(folder)` and `navigation.navigateToTag(tag)`.'
+            'Public API: Added **navigation.navigateToFolder(folder)** and **navigation.navigateToTag(tag)**.'
         ],
         improved: [
             '==You can now resize the pinned shortcuts area== by dragging the separator line.',
             '==You can now add multiple files to shortcuts== using multi-selection and context menu.',
-            '==You can now remove all shortcuts== using the new "Remove all shortcuts" option in the shortcuts context menu.'
+            '==You can now remove all shortcuts== using the new "Remove all shortcuts" option in the shortcuts context menu.',
+            'If you use metadata from frontmatter, you can now enter ==multiple fields for name from frontmatter== such as title, name.'
         ],
-        changed: [],
         fixed: []
     },
     {

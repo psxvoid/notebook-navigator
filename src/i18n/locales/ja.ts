@@ -1204,9 +1204,9 @@ export const STRINGS_JA = {
                 desc: 'ノート名、タイムスタンプ、アイコン、色にフロントマターを使用'
             },
             frontmatterNameField: {
-                name: '名前フィールド',
-                desc: 'ノートの表示名として使用するフロントマターフィールド。空のままにするとファイル名を使用。',
-                placeholder: 'タイトル'
+                name: '名前フィールド（複数可）',
+                desc: 'フロントマターフィールドのカンマ区切りリスト。最初の空でない値を使用。ファイル名にフォールバック。',
+                placeholder: 'タイトル, 名前'
             },
             frontmatterIconField: {
                 name: 'アイコンフィールド',

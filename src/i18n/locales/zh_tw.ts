@@ -1200,9 +1200,9 @@ export const STRINGS_ZH_TW = {
                 desc: '使用 frontmatter 作為筆記名稱、時間戳、圖示和顏色'
             },
             frontmatterNameField: {
-                name: '名稱欄位',
-                desc: '用作筆記顯示名稱的 frontmatter 欄位。留空以使用檔案名稱。',
-                placeholder: '標題'
+                name: '名稱欄位（多個）',
+                desc: '逗號分隔的 frontmatter 欄位列表。使用第一個非空值。回退到檔案名稱。',
+                placeholder: '標題, 名稱'
             },
             frontmatterIconField: {
                 name: '圖示欄位',

@@ -1225,9 +1225,9 @@ export const STRINGS_TR = {
                 noticeError: 'Taşıma başarısız. Ayrıntılar için konsolu kontrol edin.'
             },
             frontmatterNameField: {
-                name: 'Ad alanı',
-                desc: 'Not görünen adı olarak kullanılacak frontmatter alanı. Dosya adını kullanmak için boş bırakın.',
-                placeholder: 'başlık'
+                name: 'Ad alanları',
+                desc: 'Virgülle ayrılmış frontmatter alanları listesi. İlk boş olmayan değer kullanılır. Dosya adına geri döner.',
+                placeholder: 'başlık, ad'
             },
             frontmatterCreatedField: {
                 name: 'Oluşturma zaman damgası alanı',

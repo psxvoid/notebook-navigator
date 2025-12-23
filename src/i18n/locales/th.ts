@@ -1225,9 +1225,9 @@ export const STRINGS_TH = {
                 noticeError: 'ย้ายล้มเหลว ตรวจสอบคอนโซลสำหรับรายละเอียด'
             },
             frontmatterNameField: {
-                name: 'ฟิลด์ชื่อ',
-                desc: 'ฟิลด์ frontmatter ที่จะใช้เป็นชื่อแสดงโน้ต เว้นว่างเพื่อใช้ชื่อไฟล์',
-                placeholder: 'title'
+                name: 'ฟิลด์ชื่อ (หลายรายการ)',
+                desc: 'รายการฟิลด์ frontmatter คั่นด้วยเครื่องหมายจุลภาค ใช้ค่าแรกที่ไม่ว่าง กลับไปใช้ชื่อไฟล์',
+                placeholder: 'หัวข้อ, ชื่อ'
             },
             frontmatterCreatedField: {
                 name: 'ฟิลด์ timestamp สร้าง',

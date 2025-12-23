@@ -33,6 +33,7 @@ import {
     serializeIconMapRecord,
     type IconMapParseResult
 } from '../../utils/iconizeFormat';
+import { formatCommaSeparatedList, normalizeCommaSeparatedList, parseCommaSeparatedList } from '../../utils/commaSeparatedListUtils';
 
 /**
  * Type guard to check if a file is a markdown file
@@ -230,9 +231,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
         strings.settings.items.frontmatterNameField.name,
         strings.settings.items.frontmatterNameField.desc,
         strings.settings.items.frontmatterNameField.placeholder,
-        () => plugin.settings.frontmatterNameField,
+        () => normalizeCommaSeparatedList(plugin.settings.frontmatterNameField),
         value => {
-            plugin.settings.frontmatterNameField = value || '';
+            plugin.settings.frontmatterNameField = normalizeCommaSeparatedList(value);
         },
         undefined,
         () => context.requestStatisticsRefresh()
@@ -503,12 +504,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
         strings.settings.items.previewProperties.name,
         strings.settings.items.previewProperties.desc,
         strings.settings.items.previewProperties.placeholder,
-        () => plugin.settings.previewProperties.join(', '),
+        () => formatCommaSeparatedList(plugin.settings.previewProperties),
         value => {
-            plugin.settings.previewProperties = value
-                .split(',')
-                .map(property => property.trim())
-                .filter(property => property.length > 0);
+            plugin.settings.previewProperties = parseCommaSeparatedList(value);
         }
     );
     previewPropertiesSetting.controlEl.addClass('nn-setting-wide-input');
@@ -537,12 +535,9 @@ export function renderNotesTab(context: SettingsTabContext): void {
         strings.settings.items.featureImageProperties.name,
         strings.settings.items.featureImageProperties.desc,
         strings.settings.items.featureImageProperties.placeholder,
-        () => plugin.settings.featureImageProperties.join(', '),
+        () => formatCommaSeparatedList(plugin.settings.featureImageProperties),
         value => {
-            plugin.settings.featureImageProperties = value
-                .split(',')
-                .map(property => property.trim())
-                .filter(property => property.length > 0);
+            plugin.settings.featureImageProperties = parseCommaSeparatedList(value);
         }
     );
     featurePropertiesSetting.controlEl.addClass('nn-setting-wide-input');

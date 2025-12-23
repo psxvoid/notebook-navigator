@@ -1225,9 +1225,9 @@ export const STRINGS_VI = {
                 noticeError: 'Di chuyển thất bại. Kiểm tra console để biết chi tiết.'
             },
             frontmatterNameField: {
-                name: 'Trường tên',
-                desc: 'Trường frontmatter dùng làm tên hiển thị ghi chú. Để trống để dùng tên tệp.',
-                placeholder: 'title'
+                name: 'Các trường tên',
+                desc: 'Danh sách trường frontmatter phân cách bằng dấu phẩy. Sử dụng giá trị không trống đầu tiên. Quay lại tên tệp.',
+                placeholder: 'tiêu đề, tên'
             },
             frontmatterCreatedField: {
                 name: 'Trường dấu thời gian tạo',

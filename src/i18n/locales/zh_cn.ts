@@ -1202,9 +1202,9 @@ export const STRINGS_ZH_CN = {
                 desc: '使用前言设置笔记名称、时间戳、图标和颜色'
             },
             frontmatterNameField: {
-                name: '名称字段',
-                desc: '用作笔记显示名称的前言字段。留空使用文件名。',
-                placeholder: '标题'
+                name: '名称字段（多个）',
+                desc: '逗号分隔的前言字段列表。使用第一个非空值。回退到文件名。',
+                placeholder: '标题, 名称'
             },
             frontmatterIconField: {
                 name: '图标字段',

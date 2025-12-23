@@ -1206,9 +1206,9 @@ export const STRINGS_FR = {
                 desc: 'Utiliser le frontmatter pour le nom de note, horodatages, icônes et couleurs'
             },
             frontmatterNameField: {
-                name: 'Champ de nom',
-                desc: "Champ frontmatter à utiliser comme nom d'affichage de la note. Laisser vide pour utiliser le nom du fichier.",
-                placeholder: 'titre'
+                name: 'Champs de nom',
+                desc: 'Liste de champs frontmatter séparés par des virgules. La première valeur non vide est utilisée. Retombe sur le nom du fichier.',
+                placeholder: 'titre, nom'
             },
             frontmatterIconField: {
                 name: "Champ d'icône",

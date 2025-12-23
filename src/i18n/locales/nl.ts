@@ -1229,9 +1229,9 @@ export const STRINGS_NL = {
                 noticeError: 'Migratie mislukt. Controleer console voor details.'
             },
             frontmatterNameField: {
-                name: 'Naamveld',
-                desc: 'Frontmatter-veld om te gebruiken als weergavenaam voor de notitie. Laat leeg om de bestandsnaam te gebruiken.',
-                placeholder: 'title'
+                name: 'Naamvelden',
+                desc: 'Kommagescheiden lijst van frontmatter-velden. Eerste niet-lege waarde wordt gebruikt. Valt terug op bestandsnaam.',
+                placeholder: 'titel, naam'
             },
             frontmatterCreatedField: {
                 name: 'Aangemaakt tijdstempelveld',

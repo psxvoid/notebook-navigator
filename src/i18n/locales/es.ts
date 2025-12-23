@@ -1204,9 +1204,9 @@ export const STRINGS_ES = {
                 desc: 'Usar frontmatter para nombre de nota, marcas de tiempo, iconos y colores'
             },
             frontmatterNameField: {
-                name: 'Campo de nombre',
-                desc: 'Campo del frontmatter para usar como nombre de la nota. Dejar vacío para usar el nombre del archivo.',
-                placeholder: 'título'
+                name: 'Campos de nombre',
+                desc: 'Lista de campos frontmatter separados por comas. Se usa el primer valor no vacío. Usa el nombre de archivo como alternativa.',
+                placeholder: 'título, nombre'
             },
             frontmatterIconField: {
                 name: 'Campo de icono',

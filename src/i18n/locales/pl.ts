@@ -1205,9 +1205,9 @@ export const STRINGS_PL = {
                 desc: 'Używaj frontmatter dla nazwy notatki, znaczników czasu, ikon i kolorów'
             },
             frontmatterNameField: {
-                name: 'Pole nazwy',
-                desc: 'Pole frontmatter do użycia jako wyświetlana nazwa notatki. Zostaw puste aby użyć nazwy pliku.',
-                placeholder: 'title'
+                name: 'Pola nazwy',
+                desc: 'Lista pól frontmatter oddzielonych przecinkami. Używana jest pierwsza niepusta wartość. Powrót do nazwy pliku.',
+                placeholder: 'tytuł, nazwa'
             },
             frontmatterIconField: {
                 name: 'Pole ikony',

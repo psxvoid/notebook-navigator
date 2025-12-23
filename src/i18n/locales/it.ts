@@ -1226,9 +1226,9 @@ export const STRINGS_IT = {
                 noticeError: 'Migrazione fallita. Controlla console per dettagli.'
             },
             frontmatterNameField: {
-                name: 'Campo nome',
-                desc: 'Campo frontmatter da usare come nome visualizzato nota. Lascia vuoto per usare il nome file.',
-                placeholder: 'title'
+                name: 'Campi nome',
+                desc: 'Elenco di campi frontmatter separati da virgola. Viene usato il primo valore non vuoto. Usa il nome file come alternativa.',
+                placeholder: 'titolo, nome'
             },
             frontmatterCreatedField: {
                 name: 'Campo timestamp creazione',

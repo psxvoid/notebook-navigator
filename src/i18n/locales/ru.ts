@@ -1228,9 +1228,9 @@ export const STRINGS_RU = {
                 noticeError: 'Миграция не удалась. Проверьте консоль для деталей.'
             },
             frontmatterNameField: {
-                name: 'Поле названия',
-                desc: 'Поле frontmatter для отображаемого названия заметки. Оставьте пустым для использования имени файла.',
-                placeholder: 'title'
+                name: 'Поля названия',
+                desc: 'Список полей frontmatter через запятую. Используется первое непустое значение. Возвращается к имени файла.',
+                placeholder: 'заголовок, название'
             },
             frontmatterCreatedField: {
                 name: 'Поле даты создания',

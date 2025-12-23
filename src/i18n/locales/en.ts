@@ -1224,9 +1224,9 @@ export const STRINGS_EN = {
                 noticeError: 'Migration failed. Check console for details.'
             },
             frontmatterNameField: {
-                name: 'Name field',
-                desc: 'Frontmatter field to use as the note display name. Leave empty to use the file name.',
-                placeholder: 'title'
+                name: 'Name fields',
+                desc: 'Comma-separated list of frontmatter fields. First non-empty value is used. Falls back to file name.',
+                placeholder: 'title, name'
             },
             frontmatterCreatedField: {
                 name: 'Created timestamp field',
