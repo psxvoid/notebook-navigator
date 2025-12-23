@@ -12,15 +12,24 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 
 <a href="https://www.buymeacoffee.com/johansan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
+- [[#1 Installation|1 Installation]]
+- [[#2 Getting started|2 Getting started]]
+- [[#3 Keyboard shortcuts|3 Keyboard shortcuts]]
+- [[#4 Features|4 Features]]
+- [[#5 Documentation|5 Documentation]]
+- [[#6 Commands|6 Commands]]
+- [[#7 Settings|7 Settings]]
+- [[#8 Style settings|8 Style settings]]
+- [[#9 Tips and tricks|9 Tips and tricks]]
+- [[#10 Questions or issues?|10 Questions or issues?]]
+- [[#11 About|11 About]]
+- [[#12 License|12 License]]
+
 <br>
 
 <!-- DOCUMENTATION_START -->
 
-## Introduction to Notebook Navigator
-
-[![Still Using Default File View in Obsidian? Watch This](https://github.com/user-attachments/assets/0d9b7947-aa1d-4f54-b704-7594fc29fd11)](https://www.youtube.com/watch?v=0lXbEHKDLp8)
-
-## Installation
+## 1 Installation
 
 1. **Install Obsidian** - Download and install from [obsidian.md](https://obsidian.md/)
 2. **Enable community plugins** - Go to Settings → Community plugins → Turn on community plugins
@@ -32,9 +41,23 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 <br>
 
-## Getting started
+## 2 Getting started
 
-**Can't see your files?** There are two common reasons:
+Here are some great resources to help you get started quickly:
+
+### 2.1 YouTube video: Introduction to Notebook Navigator
+
+[![Still Using Default File View in Obsidian? Watch This](https://github.com/user-attachments/assets/0d9b7947-aa1d-4f54-b704-7594fc29fd11)](https://www.youtube.com/watch?v=0lXbEHKDLp8)
+[10x Your Note Organisation in Obsidian.md - YouTube](https://www.youtube.com/watch?v=0lXbEHKDLp8)
+
+### 2.2 Tutorial: How to use Notebook Navigator (by Elizabeth Tai)
+
+[![How to use Notebook Navigator (Obsidian Community plug-in)](images/notebook-navigator-demo.gif)](https://elizabethtai.com/2025/11/25/how-to-use-notebook-navigator-obsidian-community-plug-in/)
+[How to use Notebook Navigator (Obsidian Community plug-in) – Elizabeth Tai](https://elizabethtai.com/2025/11/25/how-to-use-notebook-navigator-obsidian-community-plug-in/)
+
+### 2.3 Can't see all your files?
+
+There are two common reasons:
 
 1. **File type filtering:** By default, Notebook Navigator shows only "supported file types" (files that open directly in Obsidian). To see all files, go to Settings → General → Show file types and select "All (may open externally)".
    - **Supported file types:** Markdown (.md), Canvas (.canvas), Base (.base), PDFs, images (PNG, JPG, SVG), and other Obsidian-compatible formats
@@ -42,7 +65,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 2. **Pane sizing:** If you've enabled dual-pane layout but don't see the file list, you may need to resize the navigation pane. Drag the divider between the left pane and editor to reveal the file list.
 
-### Customizing colors
+### 2.4 Customizing colors
 
 Notebook Navigator supports extensive color customization through the Style Settings plugin. Here's how to set it up:
 
@@ -70,7 +93,7 @@ Notebook Navigator supports extensive color customization through the Style Sett
 
 **Tip:** You can also set individual colors for specific folders and tags by right-clicking them in Notebook Navigator and selecting "Change color".
 
-### Navigation pane toolbar
+### 2.5 Navigation pane toolbar
 
 <img src="https://github.com/johansan/notebook-navigator/blob/main/images/navpane.png?raw=true" alt="Navigation Pane Toolbar" width="50%">
 
@@ -80,7 +103,7 @@ Notebook Navigator supports extensive color customization through the Style Sett
 4. **Reorder root folders** - Open drag-and-drop interface to customize root folder order
 5. **New folder** - Create a new folder in the currently selected location
 
-### List pane toolbar
+### 2.6 List pane toolbar
 
 <img src="https://github.com/johansan/notebook-navigator/blob/main/images/listpane.png?raw=true" alt="List Pane Toolbar" width="50%">
 
@@ -90,7 +113,7 @@ Notebook Navigator supports extensive color customization through the Style Sett
 4. **Appearance** - Customize display settings for current folder/tag (preview rows, title rows, compact mode)
 5. **New note** - Create a new note in the currently selected folder
 
-### Drag and drop
+### 2.7 Drag and drop
 
 - Drag files between folders to move them
 - Drag files to tags to add tags
@@ -101,7 +124,7 @@ Notebook Navigator supports extensive color customization through the Style Sett
 - Drag shortcuts to reorder them
 - Drag root folders when in reorder mode
 
-### Vault profiles (new in version 1.8.0)
+### 2.8 Vault profiles (new in version 1.8.0)
 
 Vault profiles create multiple filtered views of your vault. Each profile stores its own set of hidden folders, hidden tags, hidden notes, file visibility settings, navigation banner, and shortcuts. Switch between profiles to change what content appears in the navigator.
 
@@ -136,7 +159,7 @@ Vault profiles create multiple filtered views of your vault. Each profile stores
 
 **Note:** The default profile cannot be deleted. Profile switching preserves the current folder or tag selection when possible.
 
-### Search modes (new in version 1.7.3)
+### 2.9 Search modes (new in version 1.7.3)
 
 The search field operates in two modes depending on what you type:
 
@@ -145,9 +168,9 @@ The search field operates in two modes depending on what you type:
 - Type mixed text and tags to find files matching all terms
 - Examples:
   - `meeting notes` - Files containing both "meeting" and "notes" in their name
-  - `project #work` - Files containing "project" in the name with #work tag
+  - `project #work` - Files containing "project" in the name with `#work` tag
   - `!draft` - Files NOT containing "draft" in the name
-  - `#urgent !#archived` - Files with #urgent tag but NOT #archived tag
+  - `#urgent !#archived` - Files with `#urgent` tag but NOT `#archived` tag
   - `!#` - Files without any tags (untagged notes)
 
 **Tag mode (advanced):**
@@ -157,8 +180,8 @@ The search field operates in two modes depending on what you type:
 - Examples:
   - `#project AND #urgent` - Files with both tags
   - `#work OR #personal` - Files with either tag
-  - `#project OR #personal AND #urgent` - Files with #project OR (both #personal AND #urgent)
-  - `#work AND !#completed` - Files with #work tag but NOT #completed
+  - `#project OR #personal AND #urgent` - Files with `#project` OR (both `#personal` AND `#urgent`)
+  - `#work AND !#completed` - Files with `#work` tag but NOT `#completed`
 
 **Quick tag selection:**
 
@@ -167,7 +190,7 @@ The search field operates in two modes depending on what you type:
 - Tags are automatically added in the correct format
 - Click tags again to remove them from search
 
-### Tag drag and drop, tag rename and tag deletion (new in version 1.8.0)
+### 2.10 Tag drag and drop, tag rename and tag deletion (new in version 1.8.0)
 
 Tag renaming and deletion operations update tag references across all files in your vault, including inline tags, frontmatter tags, and nested subtags.
 
@@ -193,7 +216,7 @@ Tag renaming and deletion operations update tag references across all files in y
 - Tags cannot be renamed to become descendants of themselves
 - Desktop only (drag-and-drop not available on mobile)
 
-### Tag multi-selection and search (new in version 1.7.3)
+### 2.11 Tag multi-selection and search (new in version 1.7.3)
 
 The search field filters notes by name and tags using logical operators. Click tags in the navigation pane with modifier keys to build complex tag queries.
 
@@ -216,8 +239,8 @@ The search field filters notes by name and tags using logical operators. Click t
 
 AND has higher precedence than OR. Use this to create complex filters:
 
-- `#project OR #personal AND #urgent` - Shows notes with (#project) or (both #personal and #urgent)
-- `#work AND #urgent OR #bug` - Shows notes with (both #work and #urgent) or (#bug)
+- `#project OR #personal AND #urgent` - Shows notes with (`#project`) or (both `#personal` and `#urgent`)
+- `#work AND #urgent OR #bug` - Shows notes with (both `#work` and `#urgent`) or (`#bug`)
 
 **Example queries:**
 
@@ -225,7 +248,7 @@ AND has higher precedence than OR. Use this to create complex filters:
 - `#meeting AND #urgent OR #action` - Urgent meeting notes or any action items
 - `#work AND !#completed AND !#cancelled` - Active work notes
 - `project` - Notes with "project" in the filename (no # prefix searches by name)
-- `#project meeting` - Notes with #project tag and "meeting" in the filename
+- `#project meeting` - Notes with `#project` tag and "meeting" in the filename
 - `!#` - Notes without any tags (untagged notes)
 
 **How it works:**
@@ -241,10 +264,10 @@ AND has higher precedence than OR. Use this to create complex filters:
 
 - Search is case-insensitive for both tags and filenames
 - Searches current folder and descendants (if descendants are enabled)
-- Tag filters work with hierarchical tags (searching #project includes #project/work)
+- Tag filters work with hierarchical tags (searching `#project` includes `#project/work`)
 - Clear search with Escape key or by clicking the clear button
 
-## Keyboard shortcuts
+## 3 Keyboard shortcuts
 
 | Key                                         | Action                                                                                                            |
 | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -268,11 +291,11 @@ AND has higher precedence than OR. Use this to create complex filters:
 
 <br>
 
-## Features
+## 4 Features
 
 ![Notebook Navigator Screenshot](https://github.com/johansan/notebook-navigator/blob/main/images/notebook-navigator.png?raw=true)
 
-### Interface
+### 4.1 Interface
 
 - **Dual-pane layout** - Navigation pane on the left (folders and tags), list pane on right (files)
 - **Single-pane layout** - Default on mobile, optional on desktop. Switch between navigation and file list
@@ -282,7 +305,7 @@ AND has higher precedence than OR. Use this to create complex filters:
 - **RTL language support** - Right-to-left languages with proper layout mirroring (e.g., العربية)
 - **Resizable panes** - Adjust the split between navigation and list pane
 
-### Navigation
+### 4.2 Navigation
 
 - **Shortcuts** - Pin frequently used notes, folders, tags, and saved searches for quick access
 - **Recent notes** - Track and display recently opened notes (configurable 1-10)
@@ -297,7 +320,7 @@ AND has higher precedence than OR. Use this to create complex filters:
 - **Tag multi-selection** - Cmd/Ctrl+Click tags to build search queries with AND/OR operators. Add multiple tags with modifier keys to create complex filters like `#project AND #urgent OR #bug`
 - **Root folder reordering** - Drag and drop to customize the order of vault root folders
 
-### Organization
+### 4.3 Organization
 
 - **Pin notes** - Keep important notes at the top of folders and tags
 - **Folder notes** - Turn folders into clickable links with associated notes
@@ -311,7 +334,7 @@ AND has higher precedence than OR. Use this to create complex filters:
 - **Toggle hidden items** - Show or hide hidden folders, tags, and notes with toolbar button
 - **Untagged notes** - Find and organize notes without tags
 
-### File display
+### 4.4 File display
 
 - **Note previews** - Display 1-5 lines of text from each note
 - **Feature images** - Display thumbnail images from frontmatter or first embedded image
@@ -321,7 +344,7 @@ AND has higher precedence than OR. Use this to create complex filters:
 - **Compact mode** - Compact display when preview, date, and images are disabled
 - **Clickable tags** - Tags in file list navigate directly to that tag
 
-### Productivity
+### 4.5 Productivity
 
 - **Quick actions** - Hover buttons for open in new tab, pin, and reveal in folder
 - **Quick search** - File name and tag filter with logical operators (AND, OR, exclusions) and tag multi-selection with Cmd/Ctrl+Click
@@ -332,14 +355,14 @@ AND has higher precedence than OR. Use this to create complex filters:
 - **Filtering** - Exclude folders and notes with patterns, wildcards, and frontmatter properties
 - **Search commands** - Quick navigation to any folder or tag via command palette
 
-### Advanced theming support on GitHub
+### 4.6 Advanced theming support on GitHub
 
 - **Style Settings integration** - Full support for the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin
 - **80+ CSS variables** - Complete set of `--nn-theme-*` variables for colors, backgrounds, and visual elements
 - **Light/dark mode support** - Separate theming for light and dark modes
 - **[Complete theming guide](docs/theming-guide.md)** - Detailed documentation with examples
 
-### Developer API on GitHub
+### 4.7 Developer API on GitHub
 
 - **Public API for JavaScript/TypeScript** - API for plugins and scripts to interact with Notebook Navigator
 - **Metadata control** - Set folder/tag colors, icons, and manage pinned notes programmatically
@@ -350,25 +373,7 @@ AND has higher precedence than OR. Use this to create complex filters:
 
 <br>
 
-## Code quality & compliance
-
-- **Obsidian ESLint Plugin** - Full compliance with [Obsidian's official ESLint plugin](https://github.com/obsidianmd/eslint-plugin)
-- **Zero-Tolerance Build Process** - Build aborts on any error or warning
-- **Zero-Tolerance Code Quality** - Strict ESLint configuration with `no-explicit-any` enforced. 0 errors, 0 warnings across 35,000+ lines of TypeScript
-- **Comprehensive Validation** - TypeScript, ESLint, Knip (dead code detection), and Prettier
-
-<br>
-
-## Architecture & performance
-
-- **React + TanStack Virtual** - React architecture with virtualized rendering. Handles 100,000+ notes
-- **IndexedDB + RAM Cache** - Dual-layer caching with metadata mirrored in RAM for synchronous access
-- **Batch Processing Engine** - Content generation with parallel processing, debounced queuing, and cancellation
-- **Unified Cleanup System** - Validates metadata (folders, tags, pins) in single pass during startup
-
-<br>
-
-## Documentation
+## 5 Documentation
 
 - [**API Reference**](docs/api-reference.md) - Public API documentation. Covers metadata management, navigation control and event subscriptions for JavaScript/TypeScript developers.
 
@@ -390,7 +395,7 @@ AND has higher precedence than OR. Use this to create complex filters:
 
 <br>
 
-## Commands
+## 6 Commands
 
 Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
@@ -438,7 +443,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - `Notebook Navigator: Rebuild cache` Rebuilds the local Notebook Navigator cache. Use this if you experience missing tags, incorrect previews or missing feature images
 
-### Command IDs
+### 6.1 Command IDs
 
 | Command ID                                  | Command name                                                                                         |
 | ------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
@@ -472,9 +477,9 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 <br>
 
-## Settings
+## 7 Settings
 
-### General
+### 7.1 General
 
 **Filtering**
 
@@ -517,7 +522,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Date format:** Format for displaying dates (uses date-fns format).
 - **Time format:** Format for displaying times (uses date-fns format).
 
-### Navigation pane
+### 7.2 Navigation pane
 
 **Behavior**
 
@@ -539,7 +544,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Scale text with item height:** Reduce navigation text size when item height is decreased.
 - **Root item spacing:** Spacing between root-level folders and tags.
 
-### Folders & Tags
+### 7.3 Folders & Tags
 
 - **Auto-select first note (desktop only):** Automatically open the first note when switching folders or tags.
 - **Auto-expand folders and tags:** Automatically expand folders and tags when they are selected.
@@ -565,7 +570,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Show untagged notes:** Display "Untagged" item for notes without any tags.
   - **Retain tags property after removing last tag:** Keep the tags frontmatter property when all tags are removed. When disabled, the tags property is deleted from frontmatter.
 
-### List pane
+### 7.4 List pane
 
 - **List pane title (desktop only):** Choose where the list pane title is shown. `Show in header`, `Show in list pane`, `Do not show`.
 - **Sort notes by:** Choose how notes are sorted in the note list. `Date edited (newest on top)`, `Date edited (oldest on top)`, `Date created (newest on top)`, `Date created (oldest on top)`, `Title (A on top)`, `Title (Z on top)`.
@@ -594,7 +599,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Compact item height:** Set the height of compact list items on desktop and mobile.
   - **Scale text with compact item height:** Scale compact list text when the item height is reduced.
 
-### Notes
+### 7.5 Notes
 
 **Frontmatter**
 
@@ -633,7 +638,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 **Note:** When date, preview, and feature image are disabled, list pane displays in compact "compact mode" with only note names.
 
-### Icon packs
+### 7.6 Icon packs
 
 Optional icon packs download on demand:
 
@@ -648,10 +653,10 @@ Optional icon packs download on demand:
 
 **Note:** Downloaded icon packs sync installation state across devices. Icon packs stay in the local database on each device; sync only tracks whether to download or remove them.
 
-### Search & Hotkeys
+### 7.7 Search & Hotkeys
 
 - **Search provider:** Choose between quick file name search or full-text search with Omnisearch plugin.
-  - **Filter search (default):** Fast, lightweight search that filters files by name and tags within the current folder and subfolders. Supports tag filtering with # prefix (e.g., #project), exclusion with ! prefix (e.g., !draft, !#archived), and finding untagged notes with !#.
+  - **Filter search (default):** Fast, lightweight search that filters files by name and tags within the current folder and subfolders. Supports tag filtering with # prefix (e.g., `#project`), exclusion with ! prefix (e.g., !draft, !#archived), and finding untagged notes with !#.
   - **Omnisearch (full-text):** Full-text search that searches your entire vault, then filters the results to show only files from the current folder, subfolders, or selected tags. Requires the [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin. If Omnisearch is not installed, search automatically falls back to Filter search.
     - **Known limitations:**
       - **Performance:** Can be slow, especially when searching for less than 3 characters in large vaults.
@@ -676,7 +681,7 @@ Optional icon packs download on demand:
 
 - Add multiple mappings to support alternate keys, as shown above. Combine modifiers in one entry by listing each value, for example `"modifiers": ["Mod", "Shift"]`. Keyboard sequences (for example `"gg"` or `"dd"`) are not supported. Reload Obsidian after editing the file.
 
-### Advanced
+### 7.8 Advanced
 
 - **Check for new version on start:** Checks for new plugin releases on startup and shows a notification when an update is available. Each version is announced only once, and checks occur at most once per day.
 - **Confirm before deleting:** Show confirmation dialog when deleting notes or folders.
@@ -688,7 +693,7 @@ Optional icon packs download on demand:
 
 <br>
 
-## Style settings
+## 8 Style settings
 
 Notebook Navigator integrates with the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin for visual customization.
 
@@ -701,9 +706,9 @@ For theme developers who want to style Notebook Navigator, see the [Theming Guid
 
 <br>
 
-## Tips and tricks
+## 9 Tips and tricks
 
-### Display thumbnails with featured image plugin
+### 9.1 Display thumbnails with featured image plugin
 
 Combine with the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) for thumbnail previews:
 
@@ -713,7 +718,7 @@ Combine with the [Featured Image plugin](https://github.com/johansan/obsidian-fe
 
 For best performance and quality, use 128px thumbnails.
 
-### Folder notes
+### 9.2 Folder notes
 
 1. Enable "Enable folder notes" in settings
 2. Right-click a folder and select "Create folder note"
@@ -736,7 +741,7 @@ Use cases:
 - Folder notes auto-rename when folder is renamed (if using folder name)
 - Folders without notes work normally
 
-### Customizing folders and tags
+### 9.3 Customizing folders and tags
 
 1. Right-click any folder or tag
 2. Select "Change color" or "Change icon"
@@ -744,7 +749,7 @@ Use cases:
 4. Icons: Browse Lucide icons or paste emoji
 5. Remove: Right-click and select "Remove color/icon"
 
-### Custom sort order per folder/tag
+### 9.4 Custom sort order per folder/tag
 
 1. Select a folder or tag
 2. Click the sort button above the list pane
@@ -753,7 +758,7 @@ Use cases:
    - **Custom**: Specific sort order for this folder/tag
 4. Sort preference is remembered per folder and tag
 
-### Shortcuts for quick access
+### 9.5 Shortcuts for quick access
 
 1. Right-click any note, folder, tag, or use the search menu
 2. Select "Add to shortcuts"
@@ -768,28 +773,28 @@ Use cases:
 - Frequently used tags
 - Complex saved searches
 
-### Recent notes tracking
+### 9.6 Recent notes tracking
 
 - Automatically displays recently opened notes
 - Configure 1-10 notes in settings
 - Located below shortcuts in navigation pane
 - Updates as you work
 
-### Customizing file icons
+### 9.7 Customizing file icons
 
 1. Right-click any file
 2. Select "Change icon" or "Change color"
 3. Icons and colors work just like folders
 4. Useful for marking important files or templates
 
-### Reordering root folders
+### 9.8 Reordering root folders
 
 1. Right-click in navigation pane
 2. Select "Reorder root folders"
 3. Drag folders to desired order
 4. Click Done to save
 
-### Custom appearances per folder/tag
+### 9.9 Custom appearances per folder/tag
 
 1. Select a folder or tag
 2. Click "Change appearance" in list pane header
@@ -806,7 +811,7 @@ Use cases:
 - **5 preview rows**: Folders where preview text matters
 - **1-2 preview rows**: Quick scanning
 
-### Tag management
+### 9.10 Tag management
 
 - **Hierarchical tags:** Use nested tags like `#project/work/urgent`
 - **Quick filtering:** Click tags to see notes with that tag and subtags
@@ -818,7 +823,7 @@ Use cases:
 - **Restructure hierarchy:** Drag tags onto other tags to move them as children (e.g., drag `#urgent` onto `#project` to create `#project/urgent`)
 - **Context menu:** Right-click to add, remove, or clear tags
 
-### Hiding notes with frontmatter
+### 9.11 Hiding notes with frontmatter
 
 Use "Excluded notes" setting to hide notes with specific frontmatter:
 
@@ -837,7 +842,7 @@ Use cases:
 - Archived notes
 - Template files with `template: true`
 
-### Navigation shortcuts
+### 9.12 Navigation shortcuts
 
 - **Breadcrumb navigation:** Click segments in header path to jump to parent folders/tags
 - **Scrollable paths on mobile:** Swipe long paths horizontally in mobile header
@@ -845,14 +850,14 @@ Use cases:
 
 <br>
 
-## Questions or issues?
+## 10 Questions or issues?
 
 **[Join our Discord](https://discord.gg/6eeSUvzEJr)** for support and discussions, or open an issue on the
 [GitHub repository](https://github.com/johansan/notebook-navigator).
 
 <br>
 
-## About
+## 11 About
 
 Notebook Navigator is built and maintained by [Johan Sanneblad](https://www.linkedin.com/in/johansan/). Johan has a PhD
 in Software Development and has worked with innovation development for companies such as Apple, Electronic Arts, Google, Microsoft, Lego, SKF, Volvo Cars, Volvo Group and Yamaha.
@@ -861,11 +866,29 @@ Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/johansan/
 
 <br>
 
-## Network Usage Disclosure
+### 11.1 Code quality & compliance
+
+- **Obsidian ESLint Plugin** - Notebook Navigator has full compliance with [Obsidian's official ESLint plugin](https://github.com/obsidianmd/eslint-plugin)
+- **Zero-Tolerance Build Process** - Build aborts on any error or warning
+- **Zero-Tolerance Code Quality** - Strict ESLint configuration with `no-explicit-any` enforced. 0 errors, 0 warnings across 35,000+ lines of TypeScript
+- **Comprehensive Validation** - TypeScript, ESLint, Knip (dead code detection), and Prettier
+
+<br>
+
+### 11.2 Architecture & performance
+
+- **React + TanStack Virtual** - React architecture with virtualized rendering. Handles 100,000+ notes
+- **IndexedDB + RAM Cache** - Dual-layer caching with metadata mirrored in RAM for synchronous access
+- **Batch Processing Engine** - Content generation with parallel processing, debounced queuing, and cancellation
+- **Unified Cleanup System** - Validates metadata (folders, tags, pins) in single pass during startup
+
+<br>
+
+### 11.3 Network Usage Disclosure
 
 **Optional Network Access:** This plugin includes **optional** features that access the GitHub repository for enhanced functionality. All network access is optional and controlled through settings.
 
-### Release Update Checks (Optional)
+### 11.4 Release Update Checks (Optional)
 
 - **Purpose:** Check for new plugin releases once per day
 - **Enabled by:** "Check for new version on start" setting (can be disabled)
@@ -873,7 +896,7 @@ Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/johansan/
 - **Frequency:** Maximum once per day, only on startup
 - **Data:** Only fetches release version information
 
-### Icon Pack Downloads (Optional)
+### 11.5 Icon Pack Downloads (Optional)
 
 - **Purpose:** Download additional icon packs for enhanced visual customization
 - **Enabled by:** Manually enabling icon packs in the Icon Packs settings tab
@@ -882,7 +905,7 @@ Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/johansan/
 - **When:** Only when you explicitly enable icon packs - no automatic downloads
 - **Storage:** Downloaded icons are cached locally in your vault for offline use
 
-### Privacy
+### 11.6 Privacy
 
 - **No telemetry or user data is collected or transmitted**
 - **All features are opt-in and can be disabled**
@@ -890,7 +913,7 @@ Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/johansan/
 
 <br>
 
-## License
+## 12 License
 
 This project is licensed under the GNU General Public License v3.0 (GPL-3.0) - see the [LICENSE](https://github.com/johansan/notebook-navigator/blob/main/LICENSE) file for
 details.
