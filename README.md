@@ -417,6 +417,8 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Create new note` Create note in currently selected folder. **Suggestion:** Bind `Cmd/Ctrl+N` to this command (unbind from Obsidian's default "Create new note" first)
 - `Notebook Navigator: Move files` Move selected files to another folder. Selects next file in current folder
 - `Notebook Navigator: Convert to folder note` Create a folder matching the file name and move the file inside as the folder note
+- `Notebook Navigator: Set as folder note` Rename the active file to its folder note name
+- `Notebook Navigator: Detach folder note` Detach the folder note in the selected folder and rename it
 - `Notebook Navigator: Pin all folder notes` Add all folder notes to shortcuts. Command only visible when folder notes are enabled and at least one unpinned folder note exists
 - `Notebook Navigator: Delete files` Delete selected files. Selects next file in current folder
 
@@ -455,6 +457,8 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 | `notebook-navigator:select-next-file`       | Notebook Navigator: Select next file                                                                 |
 | `notebook-navigator:select-previous-file`   | Notebook Navigator: Select previous file                                                             |
 | `notebook-navigator:convert-to-folder-note` | Notebook Navigator: Convert to folder note                                                           |
+| `notebook-navigator:set-as-folder-note`     | Notebook Navigator: Set as folder note                                                                |
+| `notebook-navigator:detach-folder-note`     | Notebook Navigator: Detach folder note                                                                |
 | `notebook-navigator:pin-all-folder-notes`   | Notebook Navigator: Pin all folder notes (requires folder notes enabled and an unpinned folder note) |
 | `notebook-navigator:delete-files`           | Notebook Navigator: Delete files                                                                     |
 | `notebook-navigator:add-tag`                | Notebook Navigator: Add tag to selected files                                                        |
