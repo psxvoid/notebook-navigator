@@ -74,7 +74,7 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.9.3',
-        date: '2025-12-22',
+        date: '2025-12-23',
         showOnUpdate: true,
         info: 'The two major improvements in this release are 1: ==File icons==. You can now define rules so file names with certain text and extensions now show specific icons. 2. You can now ==Resize the pinned shortcuts area==. This makes it much easier to manage a large set of shortcuts. Merry Christmas!',
         new: [
@@ -85,7 +85,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New setting: Folders & tags > ==Spring-loaded folders==. Expand folders and tags on hover during drag operations. Default enabled.',
             'When spring-loaded folders is enabled you now have two new sub-settings: ==First expand delay== and ==Subsequent expand delay== to configure how long to hover before a folder/tag expands during drag operations.',
             'New command: ==Set as folder note==. Renames the active file to its folder note name.',
-            'New command: ==Detach folder note==. Detaches and renames the active folder note to a new name.'
+            'New command: ==Detach folder note==. Detaches and renames the active folder note to a new name.',
+            'Public API: Added `navigation.navigateToFolder(folder)` and `navigation.navigateToTag(tag)`.'
         ],
         improved: [
             '==You can now resize the pinned shortcuts area== by dragging the separator line.',
