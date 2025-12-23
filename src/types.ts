@@ -120,6 +120,15 @@ export const NavigationSectionId = {
  */
 export type NavigationSectionId = (typeof NavigationSectionId)[keyof typeof NavigationSectionId];
 
+export const enum CacheCustomFields {
+    TagDefault = '9d470e29'
+};
+
+export const enum DefaultTagProp {
+    DefaultTag,
+    FirstTagProp
+}
+
 /**
  * Default ordering for navigation sections
  */
