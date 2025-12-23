@@ -32,7 +32,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 Here are some great resources to help you get started quickly:
 
-### 2.1 YouTube video: Introduction to Notebook Navigator
+### 2.1 YouTube video: 10x Your Note Organisation in Obsidian.md
 
 [![Still Using Default File View in Obsidian? Watch This](https://github.com/user-attachments/assets/0d9b7947-aa1d-4f54-b704-7594fc29fd11)](https://www.youtube.com/watch?v=0lXbEHKDLp8)
 [10x Your Note Organisation in Obsidian.md - YouTube](https://www.youtube.com/watch?v=0lXbEHKDLp8)
