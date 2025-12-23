@@ -457,8 +457,8 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 | `notebook-navigator:select-next-file`       | Notebook Navigator: Select next file                                                                 |
 | `notebook-navigator:select-previous-file`   | Notebook Navigator: Select previous file                                                             |
 | `notebook-navigator:convert-to-folder-note` | Notebook Navigator: Convert to folder note                                                           |
-| `notebook-navigator:set-as-folder-note`     | Notebook Navigator: Set as folder note                                                                |
-| `notebook-navigator:detach-folder-note`     | Notebook Navigator: Detach folder note                                                                |
+| `notebook-navigator:set-as-folder-note`     | Notebook Navigator: Set as folder note                                                               |
+| `notebook-navigator:detach-folder-note`     | Notebook Navigator: Detach folder note                                                               |
 | `notebook-navigator:pin-all-folder-notes`   | Notebook Navigator: Pin all folder notes (requires folder notes enabled and an unpinned folder note) |
 | `notebook-navigator:delete-files`           | Notebook Navigator: Delete files                                                                     |
 | `notebook-navigator:add-tag`                | Notebook Navigator: Add tag to selected files                                                        |
