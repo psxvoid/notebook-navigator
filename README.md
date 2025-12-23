@@ -12,18 +12,18 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 
 <a href="https://www.buymeacoffee.com/johansan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
-- [[#1 Installation|1 Installation]]
-- [[#2 Getting started|2 Getting started]]
-- [[#3 Keyboard shortcuts|3 Keyboard shortcuts]]
-- [[#4 Features|4 Features]]
-- [[#5 Documentation|5 Documentation]]
-- [[#6 Commands|6 Commands]]
-- [[#7 Settings|7 Settings]]
-- [[#8 Style settings|8 Style settings]]
-- [[#9 Tips and tricks|9 Tips and tricks]]
-- [[#10 Questions or issues?|10 Questions or issues?]]
-- [[#11 About|11 About]]
-- [[#12 License|12 License]]
+- [1 Installation](#1%20Installation)
+- [2 Getting started](#2%20Getting%20started)
+- [3 Keyboard shortcuts](#3%20Keyboard%20shortcuts)
+- [4 Features](#4%20Features)
+- [5 Documentation](#5%20Documentation)
+- [6 Commands](#6%20Commands)
+- [7 Settings](#7%20Settings)
+- [8 Style settings](#8%20Style%20settings)
+- [9 Tips and tricks](#9%20Tips%20and%20tricks)
+- [10 Questions or issues?](#10%20Questions%20or%20issues?)
+- [11 About](#11%20About)
+- [12 License](#12%20License)
 
 <br>
 
