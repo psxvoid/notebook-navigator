@@ -490,7 +490,7 @@ export const FileItem = React.memo(function FileItem({
                 }
             }
 
-            navigateToTag(tag);
+            navigateToTag(tag, { preserveNavigationFocus: false });
         },
         [navigateToTag, onModifySearchWithTag, settings.multiSelectModifier, isMobile]
     );

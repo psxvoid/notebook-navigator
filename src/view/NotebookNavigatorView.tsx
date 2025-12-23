@@ -267,7 +267,14 @@ export class NotebookNavigatorView extends ItemView {
      * Navigates directly to the provided folder path
      */
     navigateToFolder(folder: TFolder, options?: NavigateToFolderOptions) {
-        this.componentRef.current?.navigateToFolder(folder.path, options);
+        this.componentRef.current?.navigateToFolder(folder, options);
+    }
+
+    /**
+     * Navigates directly to the provided tag path
+     */
+    navigateToTag(tagPath: string) {
+        this.componentRef.current?.navigateToTag(tagPath);
     }
 
     /**
