@@ -182,7 +182,7 @@ export class TagContentProvider extends BaseContentProvider {
         for (const [tagProp, tagArr1] of tags1.entries()) {
             const tagArr2 = tags2.get(tagProp)
 
-            if (tagArr2 == null || typeof tagArr1 !== typeof tagArr2 || !(tagArr1?.every((tag, i) => tag === tags2.get(tagProp)?.[i]))) {
+            if (tagArr2 == null || typeof tagArr1 !== typeof tagArr2 || tagArr1?.length !== tagArr2?.length || !(tagArr1?.every((tag, i) => tag === tags2.get(tagProp)?.[i]))) {
                 return false
             }
         }
