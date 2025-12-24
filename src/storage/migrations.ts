@@ -185,5 +185,6 @@ const contentMigrations = new Internal.MigrationRegistry()
 contentMigrations.addMigration(new Internal.Migration(5.3, 7.3, emptyMigrateFunc))
 contentMigrations.addMigration(new Internal.Migration(7.3, 7.4, migrate73to74))
 contentMigrations.addMigration(new Internal.Migration(7.4, 7.3, migrate74to73))
+contentMigrations.addMigration(new Internal.Migration(7.3, 5.3, emptyMigrateFunc))
 
 export { contentMigrations }
