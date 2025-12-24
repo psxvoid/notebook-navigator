@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { getActiveTags } from '../services/tagOperations/TagPropsAdapter';
 import type { NotebookNavigatorSettings } from '../settings';
 import { isPathInExcludedFolder } from '../utils/fileFilters';
 import { getActiveHiddenFolders } from '../utils/vaultProfiles';
@@ -103,8 +104,10 @@ export function calculateCacheStatistics(settings: NotebookNavigatorSettings, sh
 
             stats.totalItems++;
 
+            const tags = getActiveTags(fileData.tags, settings)
+
             // Check for tags (not null and not empty array)
-            if (fileData.tags !== null && fileData.tags.length > 0) {
+            if (tags !== null && tags.length > 0) {
                 stats.itemsWithTags++;
             }
 

@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ import { PreviewContentProvider } from '../services/content/PreviewContentProvid
 import { FeatureImageContentProvider } from '../services/content/FeatureImageContentProvider';
 import { MetadataContentProvider } from '../services/content/MetadataContentProvider';
 import { TagContentProvider } from '../services/content/TagContentProvider';
-import { IndexedDBStorage, FileDataCache as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
+import { IndexedDBStorage, FileDataCache as DBFileData, METADATA_SENTINEL, getDefaultTags, TagsV1, TagsV2 } from '../storage/IndexedDBStorage';
 import { runAsyncAction } from '../utils/async';
 import { calculateFileDiff } from '../storage/diffCalculator';
 import { recordFileChanges, markFilesForRegeneration, removeFilesFromCache, getDBInstance, markPathsForRegeneration } from '../storage/fileOperations';
@@ -63,12 +63,12 @@ import { useUXPreferences } from './UXPreferencesContext';
 import { NotebookNavigatorSettings } from '../settings';
 import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
 import type { ContentType } from '../interfaces/IContentProvider';
-import { getActiveHiddenFileNamePatterns, getActiveHiddenFiles, getActiveHiddenFolders } from '../utils/vaultProfiles';
+import { getActiveHiddenFileNamePatterns, getActiveHiddenFiles, getActiveHiddenFolders, getActiveTagProps, getActiveTagPropsMain } from '../utils/vaultProfiles';
 
-import { EMPTY_ARRAY } from 'src/utils/empty';
-import { transformTitle } from 'src/services/content/common/TextReplacerTransform';
-import { CacheRebuildMode } from 'src/main';
-import { AssertId, assertNever } from 'src/utils/asserts';
+import { EMPTY_ARRAY, EMPTY_MAP } from '../utils/empty';
+import { transformTitle } from '../services/content/common/TextReplacerTransform';
+import { AssertId, assertNever } from '../utils/asserts';
+import { CacheCustomFields, CacheRebuildMode } from '../types';
 
 /**
  * Returns content types that require Obsidian's metadata cache to be ready
@@ -108,7 +108,7 @@ function resolveMetadataDependentTypes(settings: NotebookNavigatorSettings, requ
 }
 
 // Compares two string arrays for deep equality, handling null/undefined cases
-function haveStringArraysChanged(prev?: string[] | null, next?: string[] | null): boolean {
+function haveStringArraysChanged(prev?: readonly string[] | null, next?: readonly string[] | null): boolean {
     if (prev === next) {
         return false;
     }
@@ -227,7 +227,7 @@ interface StorageProviderProps {
 
 export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const settings = useSettingsState();
-    const { hiddenFolders, hiddenFiles, hiddenFileNamePatterns, hiddenTags, fileVisibility, profile } = useActiveProfile();
+    const { hiddenFolders, hiddenFiles, hiddenFileNamePatterns, hiddenTags, tagProps, fileVisibility, profile } = useActiveProfile();
     const uxPreferences = useUXPreferences();
     const showHiddenItems = uxPreferences.showHiddenItems;
     const hiddenFoldersRef = useRef(hiddenFolders);
@@ -294,7 +294,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             tagged: newTagged,
             untagged: newUntagged,
             hiddenRootTags
-        } = buildTagTreeFromDatabase(db, excludedFolderPatterns, includedPaths, hiddenTagsRef.current, showHiddenItems);
+        } = buildTagTreeFromDatabase(db, settings, excludedFolderPatterns, includedPaths, hiddenTagsRef.current, showHiddenItems);
         clearNoteCountCache();
         const untaggedCount = newUntagged;
         setFileData({ tagTree, tagged: newTagged, untagged: untaggedCount, hiddenRootTags });
@@ -305,7 +305,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         return tagTree;
-    }, [showHiddenItems, tagTreeService, getVisibleMarkdownFiles]);
+    }, [showHiddenItems, tagTreeService, getVisibleMarkdownFiles, settings]); // Review: Refactoring: provide partial settings
 
     /**
      * Effect: Rebuild tag tree when hidden items visibility changes
@@ -1411,8 +1411,15 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                         ? getAllTags(meta)?.filter(x => x != null).map(x => x.replace('#', '')).filter(x => x.length > 0) ?? EMPTY_ARRAY
                         : EMPTY_ARRAY
 
-                    if (existingFull != null && fastTags.length > 0 && (existingFull.tags == null || !fastTags.every(x => existingFull?.tags?.includes(x)))) {
-                        existingFull.tags = [...(existingFull.tags ?? EMPTY_ARRAY), ...fastTags].filter(x => x != null && x.length > 0)
+                    const existingTags: TagsV2 = existingFull?.tags ?? EMPTY_MAP
+                    const existingDefaultTags: TagsV1 = getDefaultTags(existingTags)
+                    if (existingFull != null && fastTags.length > 0 && (existingFull.tags == null || !fastTags.every(x => existingDefaultTags?.includes(x)))) {
+                        const defaultTags: readonly string[] = [...(existingDefaultTags ?? EMPTY_ARRAY), ...fastTags].filter(x => x != null && x.length > 0)
+                        const allTags = Array.from(existingTags.entries()).filter(x => x != null && x[0] !== CacheCustomFields.TagDefault as string && x[1] !== null) as readonly [string, readonly string[]][] 
+                        existingFull.tags = new Map<string, readonly string[]>([
+                            ...allTags,
+                            [CacheCustomFields.TagDefault, defaultTags]
+                        ])
                     }
 
                     if (existingFull) {
@@ -1605,7 +1612,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         const previousHiddenFiles = getActiveHiddenFiles(previousSettings);
         const excludedFilesChanged = haveStringArraysChanged(previousHiddenFiles, hiddenFiles);
         const previousHiddenFileNamePatterns = getActiveHiddenFileNamePatterns(previousSettings);
+        const previousTagProps = getActiveTagProps(previousSettings); // also handles TagPropMode
+        const previousTagMain = getActiveTagPropsMain(previousSettings); // also handles TagPropMode
         const excludedFileNamePatternsChanged = haveStringArraysChanged(previousHiddenFileNamePatterns, hiddenFileNamePatterns);
+        const tagPropsChanged = haveStringArraysChanged(previousTagProps, tagProps)
+            && previousTagMain !== getActiveTagPropsMain(settings);
 
         if (excludedFoldersChanged || excludedFilesChanged) {
             runAsyncAction(async () => {
@@ -1691,7 +1702,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     console.error('Error resyncing cache after exclusion changes:', error);
                 }
             });
-        } else if (excludedFileNamePatternsChanged) {
+        } else if (excludedFileNamePatternsChanged || tagPropsChanged) {
             if (settings.showTags) {
                 rebuildTagTree();
             }
@@ -1706,7 +1717,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         handleSettingsChanges,
         rebuildTagTree,
         getIndexableMarkdownFiles,
-        queueMetadataContentWhenReady
+        queueMetadataContentWhenReady,
+        tagProps,
     ]);
 
     /**

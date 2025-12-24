@@ -832,6 +832,30 @@ export const STRINGS_ZH_CN = {
                 desc: '逗号分隔的前置元数据属性列表。包含任何这些属性的笔记将被隐藏（例如：draft, private, archived）。',
                 placeholder: 'draft, private'
             },
+            tagProps: {
+                tagPropMode: {
+                    name: '标签模式（保险库配置文件）',
+                    desc: '此库配置文件使用的标签模式，并显示在标签树中。“无”表示使用普通标签。“替换”表示仅显示自定义标签属性，隐藏普通标签。“合并”表示同时显示自定义标签属性和普通标签。',
+                    options: {
+                        none: '没有任何',
+                        replace: '代替',
+                        merge: '合并',
+                    }
+                },
+                mainTagProp: {
+                    name: '主标签（保险库配置文件）',
+                    desc: '允许指定哪个标签或标签属性被视为“主”标签。主标签用于标签编辑操作。“默认”表示将普通标签设置为主标签。“第一个标签属性”表示将“标签属性列表”中的第一个标签属性设置为“主”。',
+                    options: {
+                        default: '默认',
+                        firstTagProp: '第一个标签属性',
+                    }
+                },
+                tagPropList: {
+                    name: '标签属性（保险库配置文件）',
+                    desc: '以逗号分隔的 frontmatter 属性列表。列出的属性将被视为标签（例如，基本标签、注释类标签）的附加来源。',
+                    placeholder: '基本标签、自定义标签',
+                },
+            },
             excludedFileNamePatterns: {
                 name: '隐藏文件 (库配置)',
                 desc: '逗号分隔的文件名模式列表，用于隐藏文件。支持 * 通配符和 / 路径（例如：temp-*、*.png、/assets/*）。',

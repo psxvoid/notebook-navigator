@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ export type FrontmatterTagMutator = (field: FrontmatterTagField) => void;
  * @param mutator - Called for each tag/alias field with helpers to mutate the value
  * @returns True when any field was changed
  */
-export function mutateFrontmatterTagFields(frontmatter: Record<string, unknown>, mutator: FrontmatterTagMutator): boolean {
+export function mutateFrontmatterTagFields(frontmatter: Record<string, unknown>, mutator: FrontmatterTagMutator, isMainTag: (key: string, skipLowerCase?: boolean) => boolean): boolean {
     let changed = false;
 
     // Creates field descriptor with set/remove helpers and invokes the mutator
@@ -75,7 +75,7 @@ export function mutateFrontmatterTagFields(frontmatter: Record<string, unknown>,
         }
 
         const lowerKey = key.toLowerCase();
-        if (lowerKey === 'tags' || lowerKey === 'tag' || lowerKey === 'aliases' || lowerKey === 'alias') {
+        if (isMainTag(key, true)) {
             mutateValue(key, lowerKey, value);
         }
     }

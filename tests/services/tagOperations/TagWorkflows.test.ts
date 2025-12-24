@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import { TagDeleteWorkflow, type TagDeleteHooks } from '../../../src/services/ta
 import type { TagFileMutations } from '../../../src/services/tagOperations/TagFileMutations';
 import type { TagTreeService } from '../../../src/services/TagTreeService';
 import { TagDescriptor, type RenameFile } from '../../../src/services/tagRename/TagRenameEngine';
+import { DEFAULT_SETTINGS } from '../../../src/settings';
 
 vi.mock('obsidian', () => {
     class Notice {
@@ -44,6 +45,8 @@ vi.mock('obsidian', () => {
         Plugin: class {},
         TFile,
         TFolder: class {},
+        FuzzySuggestModal: class {},
+        PluginSettingTab: class {},
         getLanguage: () => 'en',
         normalizePath: (path: string) => path
     };
@@ -72,7 +75,8 @@ describe('TagRenameWorkflow', () => {
                 }) as unknown as TagTreeService,
             () => null,
             tagPath => tagPath,
-            () => hooks
+            () => hooks,
+            () => DEFAULT_SETTINGS
         );
     });
 

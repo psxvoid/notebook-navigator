@@ -17,11 +17,11 @@
  */
 
 import { ButtonComponent, Notice, Setting } from "obsidian";
-import { strings } from "src/i18n";
-import type NotebookNavigatorPlugin from "src/main";
-import { parseReplacer } from "src/services/content/common/TextReplacer";
-import { PatternReplaceSource } from "src/services/content/common/TextReplacerTransform";
-import { EMPTY_STRING } from "src/utils/empty";
+import { strings } from "../../../i18n";
+import type NotebookNavigatorPlugin from "../../../main";
+import { parseReplacer } from "../../../services/content/common/TextReplacer";
+import { PatternReplaceSource } from "../../../services/content/common/TextReplacerTransform";
+import { EMPTY_STRING } from "../../../utils/empty";
 
 type SettingArgFactory = (argFactory: ((factorySetting: Setting) => unknown), hideBorderTob: boolean) => unknown
 

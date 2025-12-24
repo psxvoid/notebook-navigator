@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -852,6 +852,30 @@ export const STRINGS_AR = {
                 name: 'إخفاء الملاحظات (ملف الخزنة)',
                 desc: 'قائمة مفصولة بفاصلة من خصائص البيانات الأمامية. الملاحظات التي تحتوي على أي من هذه الخصائص ستكون مخفية (مثل draft، private، archived).',
                 placeholder: 'draft, private'
+            },
+            tagProps: {
+                tagPropMode: {
+                    name: 'وضع الوسم (ملف تعريف الخزنة)',
+                    desc: 'نمط الوسوم المستخدم لملف تعريف الخزنة هذا، والذي يظهر في شجرة الوسوم. "بلا" يعني استخدام الوسوم العادية. "استبدال" يعني إظهار خصائص الوسوم المخصصة فقط وإخفاء الوسوم العادية. "دمج" يعني إظهار كل من خصائص الوسوم والوسوم العادية.',
+                    options: {
+                        none: 'لا أحد',
+                        replace: 'يستبدل',
+                        merge: 'دمج',
+                    }
+                },
+                mainTagProp: {
+                    name: 'الوسم الرئيسي (ملف تعريف الخزنة)',
+                    desc: 'يُتيح هذا الخيار تحديد الوسم أو خاصية الوسم التي تُعامل كـ"وسم رئيسي". تُستخدم الوسوم الرئيسية في عمليات تحرير الوسوم. "افتراضي" يعني تعيين الوسوم العادية كوسوم رئيسية. "أول خاصية وسم" تعني تعيين أول خاصية وسم في "قائمة خصائص الوسوم" كـ"خاصية رئيسية".',
+                    options: {
+                        default: 'تقصير',
+                        firstTagProp: 'أول خاصية للعلامة',
+                    }
+                },
+                tagPropList: {
+                    name: 'خصائص الوسم (ملف تعريف الخزنة)',
+                    desc: 'قائمة مفصولة بفواصل لخصائص البيانات الوصفية. سيتم التعامل مع الخصائص المدرجة كمصادر إضافية للعلامات (مثل: العلامات الأساسية، وعلامات فئة الملاحظات).',
+                    placeholder: 'العلامات الأساسية، العلامات المخصصة',
+                },
             },
             excludedFileNamePatterns: {
                 name: 'إخفاء الملفات (ملف الخزنة)',

@@ -25,6 +25,9 @@ import { findTagNode } from './tagTree';
 import type { TagTreeNode } from '../types/storage';
 import type { InclusionOperator } from './filterSearch';
 
+import { EMPTY_MAP } from './empty';
+import { getActiveTags } from '../services/tagOperations/TagPropsAdapter';
+
 export const TAG_CHARACTER_CLASS = '[\\p{L}\\p{N}_\\-/]';
 const TAG_NAME_PATTERN = new RegExp(`^${TAG_CHARACTER_CLASS}+$`, 'u');
 
@@ -136,14 +139,14 @@ export function getTagSearchModifierOperator(
 /**
  * Gets normalized tags for a file (without # prefix and in lowercase)
  */
-function getNormalizedTagsForFile(file: TFile, storage: IndexedDBStorage): string[] {
+function getNormalizedTagsForFile(file: TFile, storage: IndexedDBStorage, settings: NotebookNavigatorSettings): string[] {
     if (file.extension !== 'md') {
         return [];
     }
 
     // Get tags from memory cache
     const fileData = storage.getFile(file.path);
-    const fileTags = fileData?.tags;
+    const fileTags = getActiveTags(fileData?.tags ?? EMPTY_MAP, settings)
 
     if (!fileTags || fileTags.length === 0) {
         return [];
@@ -157,8 +160,8 @@ function getNormalizedTagsForFile(file: TFile, storage: IndexedDBStorage): strin
  * Checks if a file has a specific tag - exact match only, no ancestor checking.
  * Comparison is case-insensitive (e.g., "TODO" matches "todo").
  */
-function fileHasExactTag(file: TFile, tag: string, storage: IndexedDBStorage): boolean {
-    const normalizedTags = getNormalizedTagsForFile(file, storage);
+function fileHasExactTag(file: TFile, tag: string, storage: IndexedDBStorage, settings: NotebookNavigatorSettings): boolean {
+    const normalizedTags = getNormalizedTagsForFile(file, storage, settings);
     const normalizedSearchTag = normalizeTagPathValue(tag);
     if (normalizedSearchTag.length === 0) {
         return false;
@@ -174,10 +177,10 @@ export function determineTagToReveal(
     file: TFile,
     currentTag: string | null,
     settings: NotebookNavigatorSettings,
-    storage: IndexedDBStorage
+    storage: IndexedDBStorage,
 ): string | null {
     // Check if file has no tags
-    const fileTags = getNormalizedTagsForFile(file, storage);
+    const fileTags = getNormalizedTagsForFile(file, storage, settings);
     if (fileTags.length === 0) {
         // If untagged is shown, reveal it
         return settings.showUntagged ? UNTAGGED_TAG_ID : null;
@@ -190,7 +193,7 @@ export function determineTagToReveal(
     // Check if we should stay on the current tag
     if (currentTag && currentTag !== UNTAGGED_TAG_ID && currentTag !== TAGGED_TAG_ID) {
         // First check exact match
-        if (fileHasExactTag(file, currentTag, storage)) {
+        if (fileHasExactTag(file, currentTag, storage, settings)) {
             return currentTag; // Stay on current tag
         }
 
@@ -212,7 +215,7 @@ export function determineTagToReveal(
     // File has different tags - return the first tag of the file
     // Get the original tags from cache (they preserve case)
     const fileData = storage.getFile(file.path);
-    const originalTags = fileData?.tags;
+    const originalTags = getActiveTags(fileData?.tags ?? EMPTY_MAP, settings)
     if (originalTags && originalTags.length > 0) {
         // Tags in cache are already without # prefix
         return originalTags[0];

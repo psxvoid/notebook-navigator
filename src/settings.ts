@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, ButtonComponent, PluginSettingTab, Setting } from 'obsidian';
+import { App, ButtonComponent, PluginSettingTab, Setting, TextComponent } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
 import { showNotice } from './utils/noticeUtils';
 import { strings } from './i18n';
@@ -188,12 +188,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         getValue: () => string,
         setValue: (value: string) => void,
         validator?: (value: string) => boolean,
-        onAfterUpdate?: () => void
+        onAfterUpdate?: () => void,
+        textAccessor?: { text?: TextComponent }
     ): Setting {
         return setting
             .setName(name)
             .setDesc(desc)
-            .addText(text =>
+            .addText(text => {
                 text
                     .setPlaceholder(placeholder)
                     .setValue(getValue())
@@ -209,7 +210,11 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                             onAfterUpdate?.();
                         });
                     })
-            );
+                
+                if (textAccessor != null) {
+                    textAccessor.text = text
+                }
+            });
     }
 
     /**
@@ -487,8 +492,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             addInfoSetting: (addSetting, cls, render) => this.addInfoSetting(addSetting, cls, render),
             createDebouncedTextSetting: (parent, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate) =>
                 this.createDebouncedTextSetting(parent, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate),
-            configureDebouncedTextSetting: (setting, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate) =>
-                this.configureDebouncedTextSetting(setting, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate),
+            configureDebouncedTextSetting: (setting, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate, textAccessor) =>
+                this.configureDebouncedTextSetting(setting, name, desc, placeholder, getValue, setValue, validator, onAfterUpdate, textAccessor),
             createDebouncedTextAreaSetting: (parent, name, desc, placeholder, getValue, setValue, options) =>
                 this.createDebouncedTextAreaSetting(parent, name, desc, placeholder, getValue, setValue, options),
             configureDebouncedTextAreaSetting: (setting, name, desc, placeholder, getValue, setValue, options) =>

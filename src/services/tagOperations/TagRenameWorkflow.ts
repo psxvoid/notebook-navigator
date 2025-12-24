@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import { buildUsageSummary, buildUsageSummaryFromPaths, collectPreviewPaths, yie
 import type { TagRenameEventPayload, TagUsageSummary } from './types';
 import { TagFileMutations } from './TagFileMutations';
 import { showNotice } from '../../utils/noticeUtils';
+import { NotebookNavigatorSettings } from 'src/settings';
 
 const RENAME_BATCH_SIZE = 10;
 
@@ -60,7 +61,8 @@ export class TagRenameWorkflow {
         private readonly getTagTreeService: () => TagTreeService | null,
         private readonly getMetadataService: () => MetadataService | null,
         private readonly resolveDisplayTagPathInternal: (tagPath: string) => string,
-        private readonly getHooks: () => TagRenameHooks
+        private readonly getHooks: () => TagRenameHooks,
+        private readonly getSettings: () => NotebookNavigatorSettings
     ) {}
 
     /**
@@ -76,7 +78,7 @@ export class TagRenameWorkflow {
         let usage: TagUsageSummary;
 
         if (previewPaths === null) {
-            const targets = collectRenameFiles(this.app, oldTagDescriptor, tagTree);
+            const targets = collectRenameFiles(this.app, this.getSettings, oldTagDescriptor, tagTree);
             usage = buildUsageSummary(this.app, targets);
             presetTargets = targets;
         } else {
@@ -132,7 +134,7 @@ export class TagRenameWorkflow {
         const newTag = new TagDescriptor(newTagPath);
         const replacement = new TagReplacement(oldTag, newTag);
         const tagTree = this.getTagTreeService();
-        const targets = presetTargets ?? collectRenameFiles(this.app, oldTag, tagTree);
+        const targets = presetTargets ?? collectRenameFiles(this.app, this.getSettings, oldTag, tagTree);
         const existingTags = tagTree ? tagTree.getAllTagPaths().map(path => `#${path}`) : [];
         const mergeConflict = existingTags.length > 0 ? replacement.willMergeTags(existingTags) : null;
         return { oldTag, newTag, replacement, targets, mergeConflict };

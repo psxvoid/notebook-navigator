@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 import type { TFile } from 'obsidian';
 import { TagFileMutations } from './TagFileMutations';
+import { NotebookNavigatorSettings } from 'src/settings';
 
 /**
  * Handles batch tag operations on multiple files
@@ -29,7 +30,7 @@ export class TagBatchOperations {
      * Adds a tag to multiple files
      * Skips non-markdown files and files that already have the tag or its ancestor
      */
-    async addTagToFiles(tag: string, files: TFile[]): Promise<{ added: number; skipped: number }> {
+    async addTagToFiles(tag: string, files: TFile[], settings: NotebookNavigatorSettings): Promise<{ added: number; skipped: number }> {
         let added = 0;
         let skipped = 0;
 

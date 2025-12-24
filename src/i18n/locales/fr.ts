@@ -834,6 +834,30 @@ export const STRINGS_FR = {
                 desc: "Liste de propriétés de métadonnées séparées par des virgules. Les notes contenant l'une de ces propriétés seront masquées (ex. : draft, private, archived).",
                 placeholder: 'draft, private'
             },
+            tagProps: {
+                tagPropMode: {
+                    name: `Mode d'étiquetage (profil de coffre-fort)`,
+                    desc: `Le mode d'étiquetage utilisé pour ce profil de coffre-fort et affiché dans l'arborescence des étiquettes. « Aucun » signifie que les étiquettes normales sont utilisées. « Remplacer » signifie que seules les propriétés d'étiquette personnalisées sont visibles et que les étiquettes normales sont masquées. « Fusionner » signifie que les propriétés d'étiquette et les étiquettes normales sont visibles.`,
+                    options: {
+                        none: 'Aucune',
+                        replace: 'Remplacer',
+                        merge: 'Fusionner',
+                    }
+                },
+                mainTagProp: {
+                    name: 'Étiquette principale (profil du coffre-fort)',
+                    desc: `Permet de spécifier quelle balise ou propriété de balise est considérée comme la balise principale. Les balises principales sont utilisées lors des opérations d'édition de balises. « Par défaut » désigne les balises normales comme principales. « Première propriété de balise » désigne la première propriété de balise de la liste des propriétés de balise comme principale.`,
+                    options: {
+                        default: 'Défaut',
+                        firstTagProp: 'La première propriété étiquetée',
+                    }
+                },
+                tagPropList: {
+                    name: 'Propriétés des balises (profil du coffre-fort)',
+                    desc: `Liste de propriétés de frontmatter séparées par des virgules. Les propriétés listées seront traitées comme des sources supplémentaires pour les balises (par exemple, base-tags, note-class-tags).`,
+                    placeholder: 'balises-de-base, balises-personnalisées',
+                },
+            },
             excludedFileNamePatterns: {
                 name: 'Masquer les fichiers (profil du coffre)',
                 desc: 'Liste de motifs de noms de fichiers séparés par des virgules à masquer. Prend en charge les caractères génériques * et les chemins / (ex. : temp-*, *.png, /assets/*).',

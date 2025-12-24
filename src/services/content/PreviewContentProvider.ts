@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +19,12 @@
 import { TFile } from 'obsidian';
 import { ContentType } from '../../interfaces/IContentProvider';
 import { NotebookNavigatorSettings } from '../../settings';
-import { FileData } from '../../storage/IndexedDBStorage';
+import { FileData, TagsV2 } from '../../storage/IndexedDBStorage';
 import { getDBInstance } from '../../storage/fileOperations';
 import { PreviewTextUtils } from '../../utils/previewTextUtils';
 import { BaseContentProvider } from './BaseContentProvider';
 import { transformPreview } from './common/TextReplacerTransform';
+import { CacheCustomFields } from 'src/types';
 
 /**
  * Content provider for generating file preview text
@@ -80,10 +81,11 @@ export class PreviewContentProvider extends BaseContentProvider {
     protected async processFile(
         job: { file: TFile; path: string[] },
         fileData: FileData | null,
-        settings: NotebookNavigatorSettings
+        settings: NotebookNavigatorSettings,
+        tagProps: readonly string [] = [CacheCustomFields.TagDefault]
     ): Promise<{
         path: string;
-        tags?: string[] | null;
+        tags?: TagsV2;
         preview?: string;
         featureImage?: string;
         metadata?: FileData['metadata'];

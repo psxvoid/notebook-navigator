@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,14 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { FileData, FileDataCache } from './IndexedDBStorage';
+import { FileDataCache, FileDataCacheV2, FileDataV2 } from './IndexedDBStorage';
 
 // Creates a deep clone of FileData to prevent mutations from affecting the original
-function cloneFileData(data: FileDataCache): FileDataCache {
+function cloneFileData(data: FileDataCacheV2): FileDataCacheV2 {
     const cloneArray = <T>(arr: null|readonly T[]) => arr ? [...arr] : null;
     return {
         mtime: data.mtime,
-        tags: cloneArray(data.tags),
+        tags: data.tags == null ? data.tags : new Map(Array.from(data.tags.entries()).map((kv) => [kv[0], cloneArray(kv[1])])),
         preview: data.preview,
         featureImage: data.featureImage,
         featureImageProvider: data.featureImageProvider,
@@ -32,11 +32,11 @@ function cloneFileData(data: FileDataCache): FileDataCache {
     };
 }
 
-function isFileData(data: FileDataCache | FileData): data is FileData {
-    return (data as FileData).featureImageResized !== undefined
+function isFileData(data: FileDataCacheV2 | FileDataV2): data is FileDataV2 {
+    return (data as FileDataV2).featureImageResized !== undefined
 }
 
-function stripFileData(data: FileDataCache | FileData): data is FileDataCache {
+function stripFileData(data: FileDataCacheV2 | FileDataV2): data is FileDataCacheV2 {
     if (isFileData(data)) {
         delete data.featureImageResized
         return true
@@ -53,7 +53,7 @@ function stripFileData(data: FileDataCache | FileData): data is FileDataCache {
  * Memory usage is minimal - even 100k files at ~300 bytes each = 30MB RAM.
  */
 export class MemoryFileCache {
-    private memoryMap: Map<string, FileDataCache> = new Map();
+    private memoryMap: Map<string, FileDataCacheV2> = new Map();
     private isInitialized = false;
 
     /**
@@ -136,7 +136,7 @@ export class MemoryFileCache {
     /**
      * Stream all files without creating copies.
      */
-    forEachFile(callback: (path: string, data: FileData) => void): void {
+    forEachFile(callback: (path: string, data: FileDataV2) => void): void {
         this.memoryMap.forEach((data, path) => {
             callback(path, data);
         });
@@ -145,13 +145,13 @@ export class MemoryFileCache {
     /**
      * Update or add a file in the cache.
      */
-    updateFile(path: string, data: FileData): void {
+    updateFile(path: string, data: FileDataV2): void {
         stripFileData(data)
         this.memoryMap.set(path, data);
     }
 
     // Sets a cloned copy of file data to prevent external modifications
-    setClonedFile(path: string, data: FileDataCache): void {
+    setClonedFile(path: string, data: FileDataCacheV2): void {
         this.memoryMap.set(path, cloneFileData(data));
     }
 
@@ -163,7 +163,7 @@ export class MemoryFileCache {
         updates: {
             preview?: string;
             featureImage?: string;
-            metadata?: FileData['metadata'];
+            metadata?: FileDataV2['metadata'];
         }
     ): void {
         const existing = this.memoryMap.get(path);
@@ -194,7 +194,7 @@ export class MemoryFileCache {
     /**
      * Batch update multiple files.
      */
-    batchUpdate(updates: { path: string; data: FileDataCache }[]): void {
+    batchUpdate(updates: { path: string; data: FileDataCacheV2 }[]): void {
         for (const { path, data } of updates) {
             this.memoryMap.set(path, cloneFileData(data));
         }
@@ -208,7 +208,7 @@ export class MemoryFileCache {
             path: string;
             preview?: string;
             featureImage?: string;
-            metadata?: FileData['metadata'];
+            metadata?: FileDataV2['metadata'];
         }[]
     ): void {
         for (const update of updates) {

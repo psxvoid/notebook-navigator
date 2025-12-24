@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -852,6 +852,30 @@ export const STRINGS_TH = {
                 name: 'ซ่อนโน้ต (โปรไฟล์ห้องนิรภัย)',
                 desc: 'รายการคุณสมบัติ frontmatter คั่นด้วยเครื่องหมายจุลภาค โน้ตที่มีคุณสมบัติเหล่านี้จะถูกซ่อน (เช่น ฉบับร่าง, ส่วนตัว, เก็บถาวร)',
                 placeholder: 'ฉบับร่าง, ส่วนตัว'
+            },
+            tagProps: {
+                tagPropMode: {
+                    name: 'โหมดแท็ก (โปรไฟล์ตู้นิรภัย)',
+                    desc: 'โหมดแท็กที่จะใช้สำหรับโปรไฟล์ Vault นี้และแสดงในโครงสร้างแท็ก "ไม่มี" หมายถึงใช้แท็กปกติ "แทนที่" หมายถึงแสดงเฉพาะคุณสมบัติแท็กที่กำหนดเองและซ่อนแท็กปกติ "ผสาน" หมายถึงแสดงทั้งคุณสมบัติแท็กและแท็กปกติ',
+                    options: {
+                        none: 'ไม่มี',
+                        replace: 'แทนที่',
+                        merge: 'ผสาน',
+                    }
+                },
+                mainTagProp: {
+                    name: 'แท็กหลัก (โปรไฟล์ตู้นิรภัย)',
+                    desc: 'อนุญาตให้ระบุว่าแท็กหรือคุณสมบัติของแท็กใดถูกใช้เป็นแท็ก "หลัก" แท็กหลักจะถูกใช้ในการแก้ไขแท็ก "ค่าเริ่มต้น" หมายถึงแท็กปกติจะถูกตั้งค่าเป็นแท็กหลัก "คุณสมบัติของแท็กแรก" หมายถึงคุณสมบัติของแท็กแรกใน "รายการคุณสมบัติของแท็ก" จะถูกตั้งค่าเป็น "หลัก"',
+                    options: {
+                        default: 'ค่าเริ่มต้น',
+                        firstTagProp: 'ทรัพย์สินแท็กแรก',
+                    }
+                },
+                tagPropList: {
+                    name: 'คุณสมบัติของแท็ก (โปรไฟล์ห้องนิรภัย)',
+                    desc: 'รายการคุณสมบัติของข้อมูลส่วนหน้า (frontmatter) ที่คั่นด้วยเครื่องหมายจุลภาค คุณสมบัติที่ระบุไว้จะถูกนำไปใช้เป็นแหล่งข้อมูลเพิ่มเติมสำหรับแท็ก (เช่น base-tags, note-class-tags)',
+                    placeholder: 'แท็กพื้นฐาน, แท็กแบบกำหนดเอง',
+                },
             },
             excludedFileNamePatterns: {
                 name: 'ซ่อนไฟล์ (โปรไฟล์ห้องนิรภัย)',

@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 import { DEFAULT_CUSTOM_COLORS } from '../constants/colorPalette';
 import { getDefaultKeyboardShortcuts } from '../utils/keyboardShortcuts';
 import { FILE_VISIBILITY } from '../utils/fileTypeUtils';
-import { LISTPANE_MEASUREMENTS, NAVPANE_MEASUREMENTS, type PinnedNotes } from '../types';
+import { DefaultTagProp, LISTPANE_MEASUREMENTS, NAVPANE_MEASUREMENTS, TagPropMode, type PinnedNotes } from '../types';
 import { DEFAULT_UI_SCALE } from '../utils/uiScale';
 import type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
 import type { NotebookNavigatorSettings } from './types';
@@ -39,6 +39,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
             hiddenTags: [],
             hiddenFiles: [],
             hiddenFileNamePatterns: [],
+            tagPropsMode: TagPropMode.None,
+            tagPropsMain: DefaultTagProp.DefaultTag,
+            tagProps: [],
             navigationBanner: null,
             shortcuts: []
         }
@@ -49,6 +52,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     autoRevealActiveFile: true,
     autoRevealIgnoreRightSidebar: true,
     multiSelectModifier: 'cmdCtrl',
+    allCustomTagProps: [],
 
     // General tab - View
     startView: 'files',

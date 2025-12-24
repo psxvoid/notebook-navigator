@@ -1,9 +1,9 @@
 import { ProcessResult } from 'src/services/content/BaseContentProvider';
-import { STORAGE_KEYS } from '../types';
+import { CacheCustomFields, STORAGE_KEYS } from '../types';
 import { localStorage } from '../utils/localStorage';
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@ import { localStorage } from '../utils/localStorage';
 
 import { MemoryFileCache } from './MemoryFileCache';
 import { contentMigrations } from './migrations';
+import { EMPTY_ARRAY, EMPTY_MAP } from '../utils/empty';
 
 const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
-const DB_CONTENT_VERSION = 7.3; // Data format version
+const DB_CONTENT_VERSION = 7.4; // Data format version
 
 /**
  * Sentinel values for metadata date fields
@@ -36,9 +37,12 @@ export const METADATA_SENTINEL = {
     PARSE_FAILED: -1
 } as const;
 
-export interface FileData {
+export type TagsV1 = readonly string[] | null
+export type TagsV2 = Map<string, readonly string[] | null> | null
+
+export interface FileDataV2 {
     mtime: number;
-    tags: readonly string[] | null; // null = not extracted yet (e.g. when tags disabled)
+    tags: TagsV2; // null = not extracted yet (e.g. when tags disabled)
     preview: string | null; // null = not generated yet
     featureImage: string | null; // null = not generated yet
     featureImageProvider: string | null; // null = not generated yet
@@ -54,7 +58,15 @@ export interface FileData {
     } | null; // null = not generated yet
 }
 
-export type FileDataCache = Omit<FileData, 'featureImageResized'>
+export type FileData = FileDataV2
+
+export interface FileDataV1 extends Omit<FileData, 'tags'> {
+    tags: TagsV1
+}
+
+export type FileDataCacheV1 = Omit<FileDataV1, 'featureImageResized'>
+export type FileDataCacheV2 = Omit<FileDataV2, 'featureImageResized'>
+export type FileDataCache = FileDataCacheV2 // Review: Refactoring: remove
 
 function emptyFileData(): FileData {
     return {
@@ -69,27 +81,58 @@ function emptyFileData(): FileData {
     }
 }
 
-export interface FileContentChange {
+export function getTagsByProp(tagsV2: TagsV2, tagProp: string): TagsV1 {
+    if (tagsV2 == null) {
+        return tagsV2 ?? EMPTY_ARRAY
+    }
+
+    const defaultTags = tagsV2.get(tagProp) 
+
+    return defaultTags === undefined ? EMPTY_ARRAY : defaultTags
+}
+
+export function getDefaultTags(tagsV2: TagsV2): TagsV1 {
+    return getTagsByProp(tagsV2, CacheCustomFields.TagDefault) 
+}
+
+export function mergeTags(tags: TagsV2, tagProps: readonly string[]): readonly string[] {
+    return tagProps.flatMap(tagProp => getTagsByProp(tags, tagProp) ?? EMPTY_ARRAY).filter((v, i, acc) => acc.indexOf(v) === i)
+}
+
+export interface FileContentChangeItemV1 {
+    preview?: string | null;
+    featureImage?: string | null;
+    featureImageResized?: string | null;
+    featureImageProvider?: string | null;
+    featureImageConsumers?: readonly string[] | null;
+    metadata?: FileData['metadata'] | null;
+    tags?: readonly string[] | null;
+}
+
+export interface FileContentChangeV1 {
     path: string;
-    changes: {
-        preview?: string | null;
-        featureImage?: string | null;
-        featureImageResized?: string | null;
-        featureImageProvider?: string | null;
-        featureImageConsumers?: readonly string[] | null;
-        metadata?: FileData['metadata'] | null;
-        tags?: readonly string[] | null;
-    };
+    changes: FileContentChangeItemV1;
     changeType?: 'metadata' | 'content' | 'both';
 }
 
-function createNotification(path: string, changes: FileContentChange['changes'] = {}): FileContentChange | undefined {
+export interface FileContentChangeItemV2 extends Omit<FileContentChangeItemV1, 'tags'> {
+    tags?: TagsV2;
+}
+
+export interface FileContentChangeV2 extends Omit<FileContentChangeV1, 'changes'> {
+    changes: FileContentChangeItemV2
+}
+
+export type FileContentChange = FileContentChangeV2
+
+function createNotification(path: string, changes: FileContentChangeItemV2 = {}): FileContentChangeV2 | undefined {
     const hasContentUpdates = changes.preview !== undefined || changes.featureImage !== undefined;
     const hasMetadataUpdates = changes.metadata !== undefined || changes.tags !== undefined;
 
     if (hasContentUpdates || hasMetadataUpdates) {
         const updateType = hasContentUpdates && hasMetadataUpdates ? 'both' : hasContentUpdates ? 'content' : 'metadata';
-        return { path: path, changes, changeType: updateType };
+
+        return { path: path, changes: changes, changeType: updateType };
     }
 }
 
@@ -114,10 +157,10 @@ function createNotification(path: string, changes: FileContentChange['changes'] 
  */
 export class IndexedDBStorage {
     private cache: MemoryFileCache = new MemoryFileCache();
-    private changeListeners = new Set<(changes: FileContentChange[]) => void>();
+    private changeListeners = new Set<(changes: FileContentChangeV2[]) => void>();
     private db: IDBDatabase | null = null;
     private dbName: string;
-    private fileChangeListeners = new Map<string, Set<(changes: FileContentChange['changes']) => void>>();
+    private fileChangeListeners = new Map<string, Set<(changes: FileContentChangeV2['changes']) => void>>();
     private initPromise: Promise<void> | null = null;
 
     constructor(appId: string) {
@@ -131,7 +174,7 @@ export class IndexedDBStorage {
      * @param listener - Function to call with content changes
      * @returns Unsubscribe function
      */
-    onContentChange(listener: (changes: FileContentChange[]) => void): () => void {
+    onContentChange(listener: (changes: FileContentChangeV2[]) => void): () => void {
         this.changeListeners.add(listener);
         return () => this.changeListeners.delete(listener);
     }
@@ -144,7 +187,7 @@ export class IndexedDBStorage {
      * @param listener - Function to call with content changes for this file
      * @returns Unsubscribe function
      */
-    onFileContentChange(path: string, listener: (changes: FileContentChange['changes']) => void): () => void {
+    onFileContentChange(path: string, listener: (changes: FileContentChangeV2['changes']) => void): () => void {
         let fileListeners = this.fileChangeListeners.get(path);
         if (!fileListeners) {
             fileListeners = new Set();
@@ -169,7 +212,7 @@ export class IndexedDBStorage {
      *
      * @param changes - Array of content changes to emit
      */
-    private emitChanges(changes: FileContentChange[]): void {
+    private emitChanges(changes: FileContentChangeV2[]): void {
         if (changes.length === 0) return;
         // Only log batch operations or errors
 
@@ -504,7 +547,7 @@ export class IndexedDBStorage {
                 }
 
                 request.onerror = (e: Event) => {
-                    reject(request.error)
+                    reject(new Error(request.error?.message ?? 'IndexedDB write unknown error: getFileWithPreview.'))
                 }
             })
         }
@@ -649,7 +692,7 @@ export class IndexedDBStorage {
      *
      * @param files - Array of file data with paths to store
      */
-    async setFiles(files: { path: string; data: FileData }[], emit: boolean = false): Promise<void> {
+    async setFiles(files: { path: string; data: FileDataV2 }[], emit: boolean = false): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -883,7 +926,7 @@ export class IndexedDBStorage {
 
         const transaction = this.db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
-        const changes: FileContentChange['changes'] = {};
+        const changes: FileContentChangeItemV2 = {};
         let updated: FileData | null = null;
         const opUpdate = 'updateFileContent';
         let lastRequestErrorUpdate: DOMException | Error | null = null;
@@ -916,6 +959,10 @@ export class IndexedDBStorage {
                 if (data.featureImageConsumers !== undefined) {
                     next.featureImageConsumers = data.featureImageConsumers;
                     changes.featureImageConsumers = data.featureImageConsumers;
+                }
+                if (data.tags !== undefined) {
+                    next.tags = data.tags;
+                    changes.tags = data.tags;
                 }
                 if (data.metadata !== undefined) {
                     next.metadata = data.metadata;
@@ -1574,7 +1621,7 @@ export class IndexedDBStorage {
     async batchUpdateFileContent(
         updates: {
             path: string;
-            tags?: readonly string[] | null;
+            tags?: TagsV2;
             preview?: string;
             featureImage?: string;
             featureImageResized?: string;
@@ -1784,10 +1831,19 @@ export class IndexedDBStorage {
      * @param path - File path to get tags for
      * @returns Array of tag strings
      */
-    getCachedTags(path: string): readonly string[] {
+    // getCachedTags(path: string): readonly string[] {
+    //     const file = this.getFile(path);
+    //     // Return empty array if file doesn't exist or tags are null/not extracted yet
+    //     if (!file || file.tags == null) return EMPTY_ARRAY;
+
+    //     return mapTagsToV1(file.tags) ?? EMPTY_ARRAY;
+    // }
+
+    getCachedTagsV2(path: string): TagsV2 {
         const file = this.getFile(path);
-        // Return empty array if file doesn't exist or tags are null/not extracted yet
-        if (!file || file.tags === null) return [];
+
+        if (!file || file.tags == null) return EMPTY_MAP;
+
         return file.tags;
     }
 

@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 import { App, TFile } from 'obsidian';
 import { IContentProvider, ContentType } from '../../interfaces/IContentProvider';
 import { NotebookNavigatorSettings } from '../../settings';
-import { FileData, FileDataCache } from '../../storage/IndexedDBStorage';
+import { FileData, FileDataCache, TagsV2 } from '../../storage/IndexedDBStorage';
 import { getDBInstance, isShutdownInProgress } from '../../storage/fileOperations';
 import { TIMEOUTS } from '../../types/obsidian-extended';
 import { runAsyncAction } from '../../utils/async';
@@ -32,7 +32,7 @@ export interface ContentJob {
 // Review: Refactoring: reuse everywhere
 export interface ProcessResult {
     path: string;
-    tags?: readonly string[] | null;
+    tags?: TagsV2;
     preview?: string;
     featureImage?: string;
     featureImageResized?: string;
@@ -176,7 +176,7 @@ export abstract class BaseContentProvider implements IContentProvider {
             // Process files in parallel batches
             const updates: {
                 path: string;
-                tags?: readonly string[] | null;
+                tags?: TagsV2;
                 preview?: string;
                 featureImage?: string;
                 featureImageProvider?: string;

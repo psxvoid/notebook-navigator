@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 import type { FileVisibility } from '../utils/fileTypeUtils';
 import type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
-import type { BackgroundMode, PinnedNotes } from '../types';
+import type { BackgroundMode, DefaultTagProp, PinnedNotes, TagPropMode } from '../types';
 import type { FolderNoteCreationPreference } from '../types/folderNote';
 import type { KeyboardShortcutConfig } from '../utils/keyboardShortcuts';
 import type { ShortcutEntry } from '../types/shortcuts';
@@ -82,6 +82,9 @@ export interface VaultProfile {
     hiddenFolders: string[];
     hiddenTags: string[];
     hiddenFiles: string[];
+    tagPropsMode: TagPropMode;
+    tagPropsMain: DefaultTagProp;
+    tagProps: string[];
     hiddenFileNamePatterns: string[];
     navigationBanner: string | null;
     shortcuts: ShortcutEntry[];
@@ -99,6 +102,7 @@ export interface NotebookNavigatorSettings {
     autoRevealActiveFile: boolean;
     autoRevealIgnoreRightSidebar: boolean;
     multiSelectModifier: MultiSelectModifier;
+    allCustomTagProps: string[];
 
     // General tab - View
     startView: 'navigation' | 'files';

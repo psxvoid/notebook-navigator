@@ -836,6 +836,30 @@ export const STRINGS_DE = {
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften. Notizen mit diesen Eigenschaften werden ausgeblendet (z.B. Entwurf, privat, archiviert).',
                 placeholder: 'entwurf, privat'
             },
+            tagProps: {
+                tagPropMode: {
+                    name: 'Tag-Modus (Tresorprofil)',
+                    desc: 'Der Tag-Modus, der für dieses Tresorprofil verwendet und in der Tag-Struktur angezeigt wird. „Keine“ bedeutet, dass normale Tags verwendet werden. „Ersetzen“ bedeutet, dass nur benutzerdefinierte Tag-Eigenschaften sichtbar sind und normale Tags ausgeblendet werden. „Zusammenführen“ bedeutet, dass sowohl Tag-Eigenschaften als auch normale Tags sichtbar sind.',
+                    options: {
+                        none: 'Keiner',
+                        replace: 'Ersetzen',
+                        merge: 'Verschmelzen',
+                    }
+                },
+                mainTagProp: {
+                    name: 'Haupt-Tag (Tresorprofil)',
+                    desc: 'Hiermit kann festgelegt werden, welches Tag oder welche Tag-Eigenschaft als „Haupt“-Tags behandelt wird. Haupt-Tags werden bei der Tag-Bearbeitung verwendet. „Standard“ bedeutet, dass normale Tags als Haupt-Tags festgelegt werden. „Erste Tag-Eigenschaft“ bedeutet, dass die erste Tag-Eigenschaft in der „Tag-Eigenschaftsliste“ als „Haupt“-Tag festgelegt wird.',
+                    options: {
+                        default: 'Standard',
+                        firstTagProp: 'Die erste Tag-Eigenschaft',
+                    }
+                },
+                tagPropList: {
+                    name: 'Tag-Eigenschaften (Tresorprofil)',
+                    desc: 'Durch Kommas getrennte Liste von Frontmatter-Eigenschaften. Die aufgeführten Eigenschaften werden als zusätzliche Quellen für Tags (z. B. Basis-Tags, Notizklassen-Tags) behandelt.',
+                    placeholder: 'Basis-Tags, benutzerdefinierte Tags',
+                },
+            },
             excludedFileNamePatterns: {
                 name: 'Dateien verstecken (Tresorprofil)',
                 desc: 'Kommagetrennte Liste von Dateinamenmustern zum Ausblenden. Unterstützt * Platzhalter und / Pfade (z.B. temp-*, *.png, /assets/*).',

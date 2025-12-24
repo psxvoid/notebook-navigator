@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { EMPTY_STRING } from "src/utils/empty"
+import { EMPTY_STRING } from "../../../utils/empty"
 
 export interface TextReplacer {
     replace<T extends string | null | undefined>(text: T): T
