@@ -1,3 +1,21 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { App } from 'obsidian';
 import { TFile } from 'obsidian';
@@ -12,6 +30,9 @@ import type { TagTreeService } from '../../src/services/TagTreeService';
 import type { MetadataService } from '../../src/services/MetadataService';
 import { createVaultProfile, getActiveVaultProfile } from '../../src/utils/vaultProfiles';
 import type { VaultProfile } from '../../src/settings/types';
+import { EMPTY_MAP } from '../../src/utils/empty';
+
+import { StubTagCacheV2 } from '../stubs/TagCacheV2';
 
 vi.mock('obsidian', () => {
     return {
@@ -58,11 +79,11 @@ vi.mock('obsidian', () => {
     };
 });
 
-const cachedTagsByPath = new Map<string, string[]>();
+const cachedTagsByPath = new StubTagCacheV2()
 
 vi.mock('../../src/storage/fileOperations', () => ({
     getDBInstance: () => ({
-        getCachedTags: (path: string) => cachedTagsByPath.get(path) ?? []
+        getCachedTagsV2: (path: string) => cachedTagsByPath.get(path) ?? EMPTY_MAP
     })
 }));
 

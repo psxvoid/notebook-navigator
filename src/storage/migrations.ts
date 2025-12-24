@@ -16,7 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { getDefaultTags, IndexedDBStorage, TagsV2 } from "./IndexedDBStorage"
+import { CacheCustomFields } from "../../src/types"
+import { getDefaultTags, IndexedDBStorage, TagsV1, TagsV2 } from "./IndexedDBStorage"
 
 export interface MigrationSummary {
     successCount: number
@@ -123,6 +124,34 @@ export namespace Internal {
 
 }
 
+async function migrate73to74(storage: IndexedDBStorage): Promise<MigrationSummary> {
+    const files = storage.getAllFiles()
+    let totalCount = 0
+    let successCount = 0
+    let failCount = 0
+
+    for (const file of files) {
+        totalCount++
+
+        const tags = file.data.tags as TagsV1
+        const tagsV2 = new Map([[CacheCustomFields.TagDefault, tags]])
+
+        try {
+            await storage.updateFileContent({ path: file.path, tags: tagsV2 })
+            successCount++
+        } catch (e: unknown) {
+            console.error(e)
+            failCount++
+        }
+    }
+
+    return {
+        totalCount,
+        successCount,
+        failCount
+    }
+}
+
 async function migrate74to73(storage: IndexedDBStorage): Promise<MigrationSummary> {
     const files = storage.getAllFiles()
     let totalCount = 0
@@ -132,11 +161,11 @@ async function migrate74to73(storage: IndexedDBStorage): Promise<MigrationSummar
     for (const file of files) {
         totalCount++
 
-        const tags = file.data.tags as TagsV2;
+        const tags = file.data.tags;
         const tagsV1 = getDefaultTags(tags)
 
         try {
-            await storage.updateFileContent({ path: file.path, tags: tagsV1 })
+            await storage.updateFileContent({ path: file.path, tags: tagsV1 as TagsV2 })
             successCount++
         } catch (e: unknown) {
             console.error(e)
@@ -153,8 +182,9 @@ async function migrate74to73(storage: IndexedDBStorage): Promise<MigrationSummar
 
 const contentMigrations = new Internal.MigrationRegistry()
 
+contentMigrations.addMigration(new Internal.Migration(5.3, 7.3, emptyMigrateFunc))
+contentMigrations.addMigration(new Internal.Migration(7.3, 7.4, migrate73to74))
 contentMigrations.addMigration(new Internal.Migration(7.4, 7.3, migrate74to73))
 contentMigrations.addMigration(new Internal.Migration(7.3, 5.3, emptyMigrateFunc))
-contentMigrations.addMigration(new Internal.Migration(5.3, 7.3, emptyMigrateFunc))
 
 export { contentMigrations }

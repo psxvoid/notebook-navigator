@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -852,6 +852,30 @@ export const STRINGS_ID = {
                 name: 'Sembunyikan catatan (profil vault)',
                 desc: 'Daftar properti frontmatter yang dipisahkan koma. Catatan yang berisi properti ini akan disembunyikan (misal, draf, pribadi, arsip).',
                 placeholder: 'draf, pribadi'
+            },
+            tagProps: {
+                tagPropMode: {
+                    name: 'Mode Tag (profil brankas)',
+                    desc: 'Mode tag yang akan digunakan untuk profil vault ini dan ditampilkan di pohon tag. "Tidak ada" berarti tag normal sedang digunakan. "Ganti" berarti hanya properti tag kustom yang terlihat dan tag normal disembunyikan. "Gabungkan" berarti properti tag dan tag normal keduanya terlihat.',
+                    options: {
+                        none: 'Tidak ada',
+                        replace: 'Mengganti',
+                        merge: 'Menggabungkan',
+                    }
+                },
+                mainTagProp: {
+                    name: 'Tag Utama (profil brankas)',
+                    desc: 'Memungkinkan penentuan tag atau properti tag mana yang diperlakukan sebagai tag "utama". Tag utama digunakan dalam operasi pengeditan tag. "Default" berarti tag normal ditetapkan sebagai tag utama. "Properti Tag Pertama" berarti properti tag pertama dalam "daftar properti tag" ditetapkan sebagai "utama".',
+                    options: {
+                        default: 'Bawaan',
+                        firstTagProp: 'Properti Tag Pertama',
+                    }
+                },
+                tagPropList: {
+                    name: 'Properti tag (profil brankas)',
+                    desc: 'Daftar properti frontmatter yang dipisahkan koma. Properti yang tercantum akan diperlakukan sebagai sumber tambahan untuk tag (misalnya, base-tags, note-class-tags).',
+                    placeholder: 'tag-dasar, tag-khusus',
+                },
             },
             excludedFileNamePatterns: {
                 name: 'Sembunyikan file (profil vault)',

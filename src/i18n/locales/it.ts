@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -852,6 +852,30 @@ export const STRINGS_IT = {
                 name: 'Nascondi note (profilo vault)',
                 desc: 'Lista di proprietà frontmatter separate da virgola. Le note contenenti una qualsiasi di queste proprietà saranno nascoste (es. bozza, privato, archiviato).',
                 placeholder: 'bozza, privato'
+            },
+            tagProps: {
+                tagPropMode: {
+                    name: 'Modalità tag (profilo vault)',
+                    desc: `Modalità tag da utilizzare per questo profilo di vault e visualizzata nell'albero dei tag. "Nessuno" indica che vengono utilizzati tag normali. "Sostituisci" indica che sono visibili solo le proprietà dei tag personalizzate e i tag normali sono nascosti. "Unisci" indica che sono visibili sia le proprietà dei tag che i tag normali.`,
+                    options: {
+                        none: 'Nessuno',
+                        replace: 'Sostituire',
+                        merge: 'Unisci',
+                    }
+                },
+                mainTagProp: {
+                    name: 'Tag principale (profilo del caveau)',
+                    desc: `Permette di specificare quale tag o proprietà del tag viene trattato come tag "principale". I tag principali vengono utilizzati nelle operazioni di modifica dei tag. "Default" significa che i tag normali vengono impostati come tag principali. "The First Tag Property" significa che la prima proprietà del tag nell'elenco delle proprietà del tag viene impostata come "principale".`,
+                    options: {
+                        default: 'Predefinita',
+                        firstTagProp: 'La prima proprietà del tag',
+                    }
+                },
+                tagPropList: {
+                    name: 'Proprietà tag (profilo vault)',
+                    desc: `Elenco separato da virgole delle proprietà del frontmatter. Le proprietà elencate saranno trattate come fonti aggiuntive per i tag (ad esempio, base-tags, note-class-tags).`,
+                    placeholder: 'tag-di-base, tag-personalizzati',
+                },
             },
             excludedFileNamePatterns: {
                 name: 'Nascondi file (profilo vault)',

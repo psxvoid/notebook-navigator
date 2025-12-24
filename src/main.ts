@@ -19,6 +19,8 @@
 import { Plugin, TFile, FileView, TFolder, WorkspaceLeaf, Platform } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab, updateFeatureImageSize } from './settings';
 import {
+    CacheCustomFields,
+    CacheRebuildMode,
     LocalStorageKeys,
     NOTEBOOK_NAVIGATOR_VIEW,
     STORAGE_KEYS,
@@ -76,11 +78,6 @@ const DEFAULT_UX_PREFERENCES: UXPreferences = {
     showHiddenItems: false,
     pinShortcuts: false
 };
-
-export const enum CacheRebuildMode {
-    DropDatabaseSlow,
-    RefreshFast,
-}
 
 const UX_PREFERENCE_KEYS: (keyof UXPreferences)[] = ['searchActive', 'includeDescendantNotes', 'showHiddenItems', 'pinShortcuts'];
 
@@ -1700,6 +1697,21 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         return rest as unknown as NotebookNavigatorSettings;
     }
 
+    private copyAllTagPropsFromProfiles(settings: NotebookNavigatorSettings, profiles: readonly VaultProfile[]) {
+        const uniqTagProps = new Set<string>()
+
+        for (const profile of profiles) {
+            if (profile?.tagProps != null && profile.tagProps.length > 0) {
+                const profileTagProps = profile.tagProps.filter(x => x != null && x.length > 0 && x !== CacheCustomFields.TagDefault as string)
+                for (const tagProp of profileTagProps) {
+                    uniqTagProps.add(tagProp)
+                }
+            }
+        }
+
+        settings.allCustomTagProps = Array.from(uniqTagProps.keys())
+    }
+
     private buildPatternCacheKey(selector: (profile: VaultProfile) => string[]): string {
         const profiles = Array.isArray(this.settings.vaultProfiles) ? this.settings.vaultProfiles : [];
         if (profiles.length === 0) {
@@ -1742,6 +1754,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     async saveSettingsAndUpdate() {
         ensureVaultProfiles(this.settings);
+        this.copyAllTagPropsFromProfiles(this.settings, this.settings.vaultProfiles)
         this.refreshMatcherCachesIfNeeded();
         const dataToPersist = this.getPersistableSettings();
         await this.saveData(dataToPersist);

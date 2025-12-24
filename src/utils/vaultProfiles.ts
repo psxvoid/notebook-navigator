@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,8 @@ import {
     type PathPatternMatcher,
     type ParsedPathPattern
 } from './pathPatternMatcher';
+import { CacheCustomFields, DEFAULT_TAG_PROPS, DefaultTagProp, TagPropMode } from '../types';
+import { EMPTY_ARRAY } from './empty';
 
 export const DEFAULT_VAULT_PROFILE_ID = 'default';
 const FALLBACK_VAULT_PROFILE_NAME = 'Default';
@@ -45,6 +47,9 @@ interface VaultProfileInitOptions {
     hiddenFiles?: string[];
     hiddenFileNamePatterns?: string[];
     hiddenTags?: string[];
+    tagPropsMode?: TagPropMode;
+    tagPropsMain?: DefaultTagProp;
+    tagProps?: string[];
     fileVisibility?: FileVisibility;
     navigationBanner?: string | null;
     shortcuts?: ShortcutEntry[];
@@ -224,6 +229,9 @@ export function createVaultProfile(name: string, options: VaultProfileInitOption
         hiddenTags: clonePatterns(options.hiddenTags),
         hiddenFiles: clonePatterns(options.hiddenFiles),
         hiddenFileNamePatterns: clonePatterns(options.hiddenFileNamePatterns),
+        tagPropsMode: options.tagPropsMode ?? TagPropMode.None,
+        tagPropsMain: options.tagPropsMain ?? DefaultTagProp.DefaultTag,
+        tagProps: clonePatterns(options.tagProps),
         navigationBanner:
             typeof options.navigationBanner === 'string' && options.navigationBanner.length > 0 ? options.navigationBanner : null,
         shortcuts: cloneShortcuts(options.shortcuts)
@@ -420,6 +428,75 @@ export function getActiveHiddenFiles(settings: NotebookNavigatorSettings): strin
 
 export function getActiveHiddenFileNamePatterns(settings: NotebookNavigatorSettings): string[] {
     return getActiveVaultProfile(settings).hiddenFileNamePatterns;
+}
+
+export function getActiveTagPropsMode(settings: NotebookNavigatorSettings): TagPropMode {
+    return getActiveVaultProfile(settings)?.tagPropsMode ?? TagPropMode.None;
+}
+
+export function getActiveTagPropsMain(settings: NotebookNavigatorSettings): DefaultTagProp {
+    return getActiveVaultProfile(settings)?.tagPropsMain ?? DefaultTagProp.DefaultTag;
+}
+
+export function isDefaultTagActive(settings: NotebookNavigatorSettings): boolean {
+    const activeMainTag = getActiveVaultProfile(settings)?.tagPropsMain ?? DefaultTagProp.DefaultTag
+
+    return activeMainTag === DefaultTagProp.DefaultTag;
+}
+
+export function createMainTagPredicate(settings: NotebookNavigatorSettings) {
+    const activeTagPropLower = getActiveMainTagFrontmatterProp(settings).toLowerCase()
+    const toLower = (key: string, skipLowerCase: boolean) => skipLowerCase ? key : key.toLowerCase()
+
+    return isDefaultTagActive(settings)
+        ? (fmKey: string, skipLowerCase: boolean = false) => {
+            const lowerKey = toLower(fmKey, skipLowerCase)
+            return lowerKey === 'tags' || lowerKey === 'tag' || lowerKey === 'aliases' || lowerKey === 'alias'
+        }
+        : (fmKey: string, skipLowerCase: boolean = false) => {
+            const lowerKey = toLower(fmKey, skipLowerCase)
+            return lowerKey === activeTagPropLower
+        }
+}
+
+export const TAGS_FRONTMATTER_FIELD = 'tags'
+
+export function getActiveMainTagFrontmatterProp(settings: NotebookNavigatorSettings): string {
+    const activeTagPropsMain = getActiveTagPropsMain(settings)
+
+    if (activeTagPropsMain === DefaultTagProp.DefaultTag) {
+        return TAGS_FRONTMATTER_FIELD
+    }
+
+    const activeProfile = getActiveVaultProfile(settings)
+
+    return activeProfile.tagProps != null && activeProfile.tagProps.length > 0
+        ? activeProfile.tagProps[0]
+        : TAGS_FRONTMATTER_FIELD
+}
+
+export function getAllSupportedTagProps(settings: NotebookNavigatorSettings): readonly string[] {
+    return settings.allCustomTagProps
+}
+
+export function getActiveTagProps(settings: NotebookNavigatorSettings): readonly string[] {
+    const activeProfile = getActiveVaultProfile(settings)
+    const tagMode = activeProfile?.tagPropsMode ?? TagPropMode.None
+    const tagProps = activeProfile?.tagProps ?? EMPTY_ARRAY
+
+    if (tagProps.length === 0) {
+        return DEFAULT_TAG_PROPS
+    }
+
+    switch(tagMode) {
+        case TagPropMode.Merge:
+            // merges multi-tags into a single set
+            return [CacheCustomFields.TagDefault, ...tagProps]
+        case TagPropMode.Replace:
+            return tagProps
+        default:
+            return DEFAULT_TAG_PROPS
+    }
 }
 
 export function getActiveHiddenTags(settings: NotebookNavigatorSettings): string[] {

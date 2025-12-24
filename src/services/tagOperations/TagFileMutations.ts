@@ -24,6 +24,9 @@ import { hasValidTagCharacters, INLINE_TAG_BOUNDARY_PATTERN, INLINE_TAG_VALUE_PA
 import { mutateFrontmatterTagFields } from '../tagRename/frontmatterTagMutator';
 import { mergeRanges, NumericRange } from '../../utils/arrayUtils';
 import { findFencedCodeBlockRanges, findInlineCodeRanges, isIndexInRanges } from '../../utils/codeRangeUtils';
+import { getActiveTags } from './TagPropsAdapter';
+import { createMainTagPredicate, getActiveMainTagFrontmatterProp, isDefaultTagActive, TAGS_FRONTMATTER_FIELD } from '../../utils/vaultProfiles';
+import { EMPTY_ARRAY } from '../../utils/empty';
 
 /**
  * Type for frontmatter objects that may contain a tags property
@@ -89,7 +92,7 @@ export class TagFileMutations {
         }
 
         const db = getDBInstance();
-        const allTags = db.getCachedTags(file.path);
+        const allTags = getActiveTags(db.getCachedTagsV2(file.path), this.getSettings());
         const normalizedTag = normalizeTagPathValue(tag);
         if (normalizedTag.length === 0) {
             return false;
@@ -121,11 +124,12 @@ export class TagFileMutations {
 
         try {
             await this.app.fileManager.processFrontMatter(file, (frontmatter: TagsFrontmatter) => {
-                const rawTags = frontmatter.tags;
+                const fmTagsProp = getActiveMainTagFrontmatterProp(this.getSettings())
+                const rawTags = frontmatter[fmTagsProp];
                 const isEmptyString = typeof rawTags === 'string' && rawTags.trim().length === 0;
 
                 if (rawTags === undefined || rawTags === null || isEmptyString) {
-                    frontmatter.tags = [tag];
+                    frontmatter[fmTagsProp] = [tag];
                     return;
                 }
 
@@ -136,7 +140,7 @@ export class TagFileMutations {
                         .map(value => value.trim())
                         .filter((value): value is string => value.length > 0);
                     const nextTags = Array.from(new Set([...normalizedTags, tag]));
-                    frontmatter.tags = nextTags;
+                    frontmatter[fmTagsProp] = nextTags;
                     return;
                 }
 
@@ -147,11 +151,11 @@ export class TagFileMutations {
                         // Filter out empty strings and ensure type safety
                         .filter((value): value is string => value.length > 0);
                     tags.push(tag);
-                    frontmatter.tags = Array.from(new Set(tags));
+                    frontmatter[fmTagsProp] = Array.from(new Set(tags));
                     return;
                 }
 
-                frontmatter.tags = [tag];
+                frontmatter[fmTagsProp] = [tag];
             });
         } catch (error: unknown) {
             console.error('[Notebook Navigator] Error adding tag to frontmatter', error);
@@ -172,8 +176,13 @@ export class TagFileMutations {
         if (normalizedTarget.length === 0) {
             return false;
         }
+        
+        const settings = this.getSettings()
+        const isDefaultTag = isDefaultTagActive(settings)
+        
+        const inlineTagsToStrip: readonly string[] = isDefaultTag ? [tag] : EMPTY_ARRAY
 
-        return this.stripTagsFromFile(file, candidate => candidate === normalizedTarget, [tag], 'remove tag from frontmatter');
+        return this.stripTagsFromFile(file, candidate => candidate === normalizedTarget, inlineTagsToStrip, 'remove tag from frontmatter');
     }
 
     /**
@@ -241,11 +250,12 @@ export class TagFileMutations {
             return false;
         }
 
+        const fmTagsProp = getActiveMainTagFrontmatterProp(this.getSettings())
         let hadTags = false;
 
         try {
             await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
-                const rawTags = frontmatter.tags;
+                const rawTags = frontmatter[fmTagsProp];
                 const hasTags =
                     typeof rawTags === 'string'
                         ? rawTags.trim().length > 0
@@ -261,6 +271,10 @@ export class TagFileMutations {
         } catch (error) {
             console.error('[Notebook Navigator] Error clearing frontmatter tags', error);
             throw error;
+        }
+
+        if (fmTagsProp !== TAGS_FRONTMATTER_FIELD) {
+            return hadTags
         }
 
         const content = await this.app.vault.read(file);
@@ -284,7 +298,7 @@ export class TagFileMutations {
     async stripTagsFromFile(
         file: TFile,
         shouldRemove: (normalizedTag: string) => boolean,
-        inlineTags: string[],
+        inlineTags: readonly string[],
         failureContext: string
     ): Promise<boolean> {
         const frontmatterChanged = await this.stripTagsFromFrontmatter(file, shouldRemove, failureContext);
@@ -305,7 +319,9 @@ export class TagFileMutations {
                 continue;
             }
 
-            const tags = db.getCachedTags(file.path);
+            const settings = this.getSettings()
+            const tags = getActiveTags(db.getCachedTagsV2(file.path), settings);
+
             tags.forEach(tag => {
                 const normalizedTag = normalizeTagPathValue(tag);
                 if (normalizedTag.length === 0) {
@@ -327,6 +343,8 @@ export class TagFileMutations {
     ): Promise<boolean> {
         let changed = false;
         try {
+            const isMainTag = createMainTagPredicate(this.getSettings())
+
             await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
                 let removedCanonicalTags = false;
                 const mutated = mutateFrontmatterTagFields(frontmatter, field => {
@@ -389,7 +407,7 @@ export class TagFileMutations {
                     } else {
                         field.set(result.nextValue);
                     }
-                });
+                }, isMainTag);
 
                 if (removedCanonicalTags) {
                     this.cleanupFrontmatterTags(frontmatter);
@@ -543,18 +561,19 @@ export class TagFileMutations {
 
     private cleanupFrontmatterTags(frontmatter: Record<string, unknown>): void {
         const settings = this.getSettings();
+        const fmTagsProp = getActiveMainTagFrontmatterProp(settings)
         const keepProperty = Boolean(settings?.keepEmptyTagsProperty);
         if (keepProperty) {
-            frontmatter.tags = [];
+            frontmatter[fmTagsProp] = [];
             return;
         }
         // Safely delete the tags property if it exists
-        if (Reflect.has(frontmatter, 'tags')) {
-            delete frontmatter.tags;
+        if (Reflect.has(frontmatter, fmTagsProp)) {
+            delete frontmatter[fmTagsProp];
         }
     }
 
-    private async stripInlineTags(file: TFile, tags: string[]): Promise<boolean> {
+    private async stripInlineTags(file: TFile, tags: readonly string[]): Promise<boolean> {
         const uniqueTags = Array.from(new Set(tags.map(tag => tag.trim()).filter((value): value is string => value.length > 0)));
         if (uniqueTags.length === 0) {
             return false;

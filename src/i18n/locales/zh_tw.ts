@@ -852,6 +852,30 @@ export const STRINGS_ZH_TW = {
                 desc: '以逗號分隔的 frontmatter 屬性清單。包含任何這些屬性的筆記將被隱藏 (例如 draft, private, archived)。',
                 placeholder: 'draft, private'
             },
+            tagProps: {
+                tagPropMode: {
+                    name: '標籤模式（保險庫設定檔）',
+                    desc: '此庫設定檔使用的標籤模式，並顯示在標籤樹中。 “無”表示使用普通標籤。 「替換」表示僅顯示自訂標籤屬性，隱藏普通標籤。 「合併」表示同時顯示自訂標籤屬性和普通標籤。',
+                    options: {
+                        none: '沒有任何',
+                        replace: '代替',
+                        merge: '合併',
+                    }
+                },
+                mainTagProp: {
+                    name: '主標籤（保險庫設定檔）',
+                    desc: '允許指定哪個標籤或標籤屬性被視為「主」標籤。主標籤用於標籤編輯操作。 “預設”表示將普通標籤設定為主標籤。 「第一個標籤屬性」表示將「標籤屬性清單」中的第一個標籤屬性設為「主」。',
+                    options: {
+                        default: '預設',
+                        firstTagProp: '第一個標籤屬性',
+                    }
+                },
+                tagPropList: {
+                    name: '標籤屬性（保險庫設定檔）',
+                    desc: '以逗號分隔的 frontmatter 屬性清單。所列的屬性將被視為標籤（例如，基本標籤、註解類別標籤）的附加來源。',
+                    placeholder: '基本標籤、自訂標籤',
+                },
+            },
             excludedFileNamePatterns: {
                 name: '隱藏檔案 (儲存庫配置)',
                 desc: '以逗號分隔的檔案名稱模式清單，用於隱藏檔案。支援 * 萬用字元和 / 路徑（例如：temp-*、*.png、/assets/*）。',

@@ -852,6 +852,30 @@ export const STRINGS_EN = {
                 desc: 'Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            tagProps: {
+                tagPropMode: {
+                    name: 'Tag Mode (vault profile)',
+                    desc: 'The tag mode to be used for this vault profile and displayed in the tag tree. "None" means normal tags are being used. "Replace" means that only custom tag-properties are visible and normal tags are hidden. "Merge" means that both tag-properties and normal tags are visible.',
+                    options: {
+                        none: 'None',
+                        replace: 'Replace',
+                        merge: 'Merge',
+                    }
+                },
+                mainTagProp: {
+                    name: 'Main Tag (vault profile)',
+                    desc: 'Allows specifying which tag or tag-property is treated as the "main" tags. Main tags are used in tag-editing operations. "Default" means normal tags are set as main tags. "The First Tag Property" means that the first tag-property in the "tag property list" is set as "main".',
+                    options: {
+                        default: 'Default',
+                        firstTagProp: 'The First Tag Property',
+                    }
+                },
+                tagPropList: {
+                    name: 'Tag properties (vault profile)',
+                    desc: 'Comma-separated list of frontmatter properties. Listed properties will be treated as additional sources for tags (e.g., base-tags, note-class-tags).',
+                    placeholder: 'base-tags, custom-tags',
+                },
+            },
             excludedFileNamePatterns: {
                 name: 'Hide files (vault profile)',
                 desc: 'Comma-separated list of filename patterns to hide. Supports * wildcards and / paths (e.g., temp-*, *.png, /assets/*).',

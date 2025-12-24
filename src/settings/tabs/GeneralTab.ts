@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,14 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ButtonComponent, DropdownComponent, Platform, Setting, SliderComponent, setIcon } from 'obsidian';
+import { ButtonComponent, DropdownComponent, Platform, Setting, SliderComponent, TextComponent, setIcon } from 'obsidian';
 import { HomepageModal } from '../../modals/HomepageModal';
 import { strings } from '../../i18n';
 import { showNotice } from '../../utils/noticeUtils';
 import { FILE_VISIBILITY, type FileVisibility } from '../../utils/fileTypeUtils';
 import { TIMEOUTS } from '../../types/obsidian-extended';
-import type { BackgroundMode } from '../../types';
-import type { ListToolbarButtonId, MultiSelectModifier, NavigationToolbarButtonId } from '../types';
+import { DefaultTagProp, TagPropMode, type BackgroundMode } from '../../types';
+import type { ListToolbarButtonId, MultiSelectModifier, NavigationToolbarButtonId, VaultProfile } from '../types';
 import type { SettingsTabContext } from './SettingsTabContext';
 import { resetHiddenToggleIfNoSources } from '../../utils/exclusionUtils';
 import { InputModal } from '../../modals/InputModal';
@@ -48,6 +48,7 @@ import { normalizeTagPath } from '../../utils/tagUtils';
 import type NotebookNavigatorPlugin from '../../main';
 import { createSettingGroupFactory } from '../settingGroups';
 import { createSubSettingsContainer, setElementVisible, wireToggleSettingWithSubSettings } from '../subSettings';
+import { EMPTY_STRING } from '../../utils/empty';
 
 /** Renders the general settings tab */
 export function renderGeneralTab(context: SettingsTabContext): void {
@@ -123,6 +124,10 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     let excludedFoldersInput: HTMLInputElement | null = null;
     let hiddenTagsInput: HTMLInputElement | null = null;
     let excludedFilesInput: HTMLInputElement | null = null;
+    let tagPropsModeDropdown: DropdownComponent | null = null;
+    let tagPropsMainDropdown: DropdownComponent | null = null;
+    let tagPropsInput: HTMLInputElement | null = null;
+    const tagPropTextAccessor: { text?: TextComponent } = {};
     let hiddenFileNamePatternsInput: HTMLInputElement | null = null;
 
     // Updates all profile-related UI controls with current settings values
@@ -159,10 +164,45 @@ export function renderGeneralTab(context: SettingsTabContext): void {
         if (excludedFilesInput) {
             excludedFilesInput.value = activeProfile ? activeProfile.hiddenFiles.join(', ') : '';
         }
+        if (tagPropsModeDropdown) {
+            tagPropsModeDropdown.setValue((activeProfile?.tagPropsMode ?? TagPropMode.None).toString());
+        }
+        if (tagPropsMainDropdown) {
+            tagPropsMainDropdown.setValue((activeProfile?.tagPropsMain ?? DefaultTagProp.DefaultTag).toString());
+        }
+        if (tagPropsInput) {
+            tagPropsInput.value = activeProfile ? (activeProfile.tagProps ?? []).join(', ') : '';
+        }
         if (hiddenFileNamePatternsInput) {
             hiddenFileNamePatternsInput.value = activeProfile ? activeProfile.hiddenFileNamePatterns.join(', ') : '';
         }
+        refreshTagPropsDependantControls(activeProfile, true)
     };
+
+    const refreshTagPropsDependantControls = (activeProfile: VaultProfile, isProfileChange: boolean) => {
+        if (activeProfile.tagPropsMode === TagPropMode.None) {
+            activeProfile.tagProps = []
+            activeProfile.tagPropsMain = DefaultTagProp.DefaultTag
+
+            if (tagPropsMainDropdown != null) {
+                tagPropsMainDropdown.setValue(DefaultTagProp.DefaultTag.toString())
+                tagPropsMainDropdown.setDisabled(true)
+            }
+
+            if (tagPropTextAccessor.text != null) {
+                tagPropTextAccessor.text.setValue(EMPTY_STRING)
+                tagPropTextAccessor.text.setDisabled(true)
+            }
+        } else {
+            if (tagPropsMainDropdown != null && tagPropsMainDropdown.disabled) {
+                tagPropsMainDropdown.setDisabled(false)
+            }
+
+            if (tagPropTextAccessor.text != null && tagPropTextAccessor.text.disabled) {
+                tagPropTextAccessor.text.setDisabled(false)
+            }
+        }
+    }
 
     // Creates a new vault profile with the given name and switches to it
     const handleAddProfile = async (profileName: string) => {
@@ -399,6 +439,72 @@ export function renderGeneralTab(context: SettingsTabContext): void {
     });
     excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');
     excludedFilesInput = excludedFilesSetting.controlEl.querySelector('input');
+
+    filteringGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.tagProps.tagPropMode.name)
+        setting.setDesc(strings.settings.items.tagProps.tagPropMode.desc)
+        setting.addDropdown(dropdown => {
+            tagPropsModeDropdown = dropdown
+            dropdown.addOption(TagPropMode.None.toString(), strings.settings.items.tagProps.tagPropMode.options.none)
+            dropdown.addOption(TagPropMode.Replace.toString(), strings.settings.items.tagProps.tagPropMode.options.replace)
+            dropdown.addOption(TagPropMode.Merge.toString(), strings.settings.items.tagProps.tagPropMode.options.merge)
+            dropdown.setValue(TagPropMode.None.toString())
+            dropdown.onChange(async value => {
+                const activeProfile = getActiveProfile();
+                if (!activeProfile) {
+                    return;
+                }
+                activeProfile.tagPropsMode = parseInt(value) as TagPropMode
+
+                refreshTagPropsDependantControls(activeProfile, false)
+
+                await plugin.saveSettingsAndUpdate();
+            })
+        })
+    })
+    filteringGroup.addSetting(setting => {
+        setting.setName(strings.settings.items.tagProps.mainTagProp.name)
+        setting.setDesc(strings.settings.items.tagProps.mainTagProp.desc)
+        setting.addDropdown(dropdown => {
+            tagPropsMainDropdown = dropdown
+            dropdown.addOption(DefaultTagProp.DefaultTag.toString(), strings.settings.items.tagProps.mainTagProp.options.default)
+            dropdown.addOption(DefaultTagProp.FirstTagProp.toString(), strings.settings.items.tagProps.mainTagProp.options.firstTagProp)
+            dropdown.setValue(DefaultTagProp.DefaultTag.toString())
+            dropdown.onChange(async value => {
+                const activeProfile = getActiveProfile();
+                if (!activeProfile) {
+                    return;
+                }
+                activeProfile.tagPropsMain = parseInt(value) as DefaultTagProp
+                await plugin.saveSettingsAndUpdate();
+            })
+        })
+    })
+    const tagPropsSetting = filteringGroup.addSetting(setting => {
+        configureDebouncedTextSetting(
+            setting,
+            strings.settings.items.tagProps.tagPropList.name,
+            strings.settings.items.tagProps.tagPropList.desc,
+            strings.settings.items.tagProps.tagPropList.placeholder,
+            () => (getActiveProfile()?.tagProps ?? []).join(', ') ?? '',
+            value => {
+                const activeProfile = getActiveProfile();
+                if (!activeProfile) {
+                    return;
+                }
+                const tagProps = value
+                    .split(',')
+                    .map(file => file.trim())
+                    .filter(file => file.length > 0);
+                activeProfile.tagProps = Array.from(new Set(tagProps));
+            },
+            undefined,
+            undefined,
+            tagPropTextAccessor
+        );
+    });
+    tagPropsSetting.controlEl.addClass('nn-setting-wide-input');
+    tagPropsInput = tagPropsSetting.controlEl.querySelector('input');
     refreshProfileControls();
 
     const behaviorGroup = createGroup(strings.settings.groups.general.behavior);

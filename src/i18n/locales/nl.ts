@@ -855,6 +855,30 @@ export const STRINGS_NL = {
                 desc: 'Kommagescheiden lijst van frontmatter-eigenschappen. Notities met een van deze eigenschappen worden verborgen (bijv. draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            tagProps: {
+                tagPropMode: {
+                    name: 'Tagmodus (kluisprofiel)',
+                    desc: 'De tagmodus die voor dit kluisprofiel moet worden gebruikt en die in de tagstructuur wordt weergegeven. "Geen" betekent dat normale tags worden gebruikt. "Vervangen" betekent dat alleen aangepaste tageigenschappen zichtbaar zijn en normale tags verborgen zijn. "Samenvoegen" betekent dat zowel tageigenschappen als normale tags zichtbaar zijn.',
+                    options: {
+                        none: 'Geen',
+                        replace: 'Vervangen',
+                        merge: 'Samenvoegen',
+                    }
+                },
+                mainTagProp: {
+                    name: 'Hoofdtag (kluisprofiel)',
+                    desc: 'Hiermee kunt u specificeren welke tag of tageigenschap als de "hoofd"-tag wordt beschouwd. Hoofd-tags worden gebruikt bij het bewerken van tags. "Standaard" betekent dat normale tags als hoofd-tags worden ingesteld. "De eerste tageigenschap" betekent dat de eerste tageigenschap in de "lijst met tageigenschappen" als "hoofd" wordt ingesteld.',
+                    options: {
+                        default: 'Standaard',
+                        firstTagProp: 'De eerste tag-eigenschap',
+                    }
+                },
+                tagPropList: {
+                    name: 'Tag-eigenschappen (kluisprofiel)',
+                    desc: `Door komma's gescheiden lijst met frontmatter-eigenschappen. De vermelde eigenschappen worden behandeld als extra bronnen voor tags (bijv. base-tags, note-class-tags).`,
+                    placeholder: 'basis-tags, aangepaste-tags',
+                },
+            },
             excludedFileNamePatterns: {
                 name: 'Bestanden verbergen (kluisprofiel)',
                 desc: 'Kommagescheiden lijst van bestandsnaampatronen om te verbergen. Ondersteunt * jokertekens en / paden (bijv. temp-*, *.png, /assets/*).',

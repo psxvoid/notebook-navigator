@@ -833,6 +833,30 @@ export const STRINGS_ES = {
                 desc: 'Lista de propiedades del frontmatter separadas por comas. Las notas que contengan cualquiera de estas propiedades se ocultarán (ej.: draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            tagProps: {
+                tagPropMode: {
+                    name: 'Modo de etiqueta (perfil de bóveda)',
+                    desc: 'El modo de etiqueta que se usará para este perfil de bóveda y que se mostrará en el árbol de etiquetas. "Ninguno" significa que se utilizan etiquetas normales. "Reemplazar" significa que solo se ven las propiedades de etiqueta personalizadas y se ocultan las etiquetas normales. "Combinar" significa que tanto las propiedades de etiqueta como las etiquetas normales son visibles.',
+                    options: {
+                        none: 'Ninguna',
+                        replace: 'Reemplazar',
+                        merge: 'Unir',
+                    }
+                },
+                mainTagProp: {
+                    name: 'Etiqueta principal (perfil de bóveda)',
+                    desc: 'Permite especificar qué etiqueta o propiedad de etiqueta se considera la etiqueta principal. Las etiquetas principales se utilizan en las operaciones de edición de etiquetas. "Predeterminado" significa que las etiquetas normales se establecen como etiquetas principales. "Primera propiedad de etiqueta" significa que la primera propiedad de etiqueta en la lista de propiedades de etiqueta se establece como principal.',
+                    options: {
+                        default: 'Por defecto',
+                        firstTagProp: 'La primera propiedad de etiqueta',
+                    }
+                },
+                tagPropList: {
+                    name: 'Propiedades de etiqueta (perfil de bóveda)',
+                    desc: 'Lista de propiedades del frontmatter separadas por comas. Las propiedades enumeradas se considerarán fuentes adicionales para las etiquetas (p. ej., etiquetas base, etiquetas de clase de nota).',
+                    placeholder: 'etiquetas base, etiquetas personalizadas',
+                },
+            },
             excludedFileNamePatterns: {
                 name: 'Ocultar archivos (perfil de bóveda)',
                 desc: 'Lista de patrones de nombre de archivo separados por comas para ocultar. Soporta comodines * y rutas / (ej.: temp-*, *.png, /assets/*).',

@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import { cloneShortcuts, getActiveVaultProfile } from '../utils/vaultProfiles';
 import { sanitizeRecord } from '../utils/recordUtils';
 import { areStringArraysEqual } from '../utils/arrayUtils';
 import type { FolderAppearance } from '../hooks/useListPaneAppearance';
+import { EMPTY_ARRAY } from 'src/utils/empty';
 
 // Separate contexts for state and update function
 type SettingsStateValue = NotebookNavigatorSettings & { dualPaneOrientation: DualPaneOrientation };
@@ -37,6 +38,7 @@ export interface ActiveProfileState {
     hiddenFiles: string[];
     hiddenFileNamePatterns: string[];
     hiddenTags: string[];
+    tagProps: string[];
     fileVisibility: FileVisibility;
     navigationBanner: string | null;
 }
@@ -167,10 +169,11 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
             // Create deep copies of profile arrays to prevent shared references
             nextSettings.vaultProfiles = plugin.settings.vaultProfiles.map(profile => ({
                 ...profile,
-                hiddenFolders: Array.isArray(profile.hiddenFolders) ? [...profile.hiddenFolders] : [],
-                hiddenFiles: Array.isArray(profile.hiddenFiles) ? [...profile.hiddenFiles] : [],
-                hiddenFileNamePatterns: Array.isArray(profile.hiddenFileNamePatterns) ? [...profile.hiddenFileNamePatterns] : [],
-                hiddenTags: Array.isArray(profile.hiddenTags) ? [...profile.hiddenTags] : [],
+                hiddenFolders: Array.isArray(profile.hiddenFolders) ? [...profile.hiddenFolders] : EMPTY_ARRAY,
+                hiddenFiles: Array.isArray(profile.hiddenFiles) ? [...profile.hiddenFiles] : EMPTY_ARRAY,
+                hiddenFileNamePatterns: Array.isArray(profile.hiddenFileNamePatterns) ? [...profile.hiddenFileNamePatterns] : EMPTY_ARRAY,
+                hiddenTags: Array.isArray(profile.hiddenTags) ? [...profile.hiddenTags] : EMPTY_ARRAY,
+                tagProps: Array.isArray(profile.tagProps) ? [...profile.tagProps] : EMPTY_ARRAY,
                 shortcuts: cloneShortcuts(profile.shortcuts)
             }));
         }
@@ -207,6 +210,9 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
             profile.hiddenFileNamePatterns
         );
         const hiddenTagsEqual = areStringArraysEqual(previous?.profile.hiddenTags ?? [], profile.hiddenTags);
+        const tagPropsEqual = areStringArraysEqual(previous?.profile.tagProps ?? [], profile.tagProps)
+            && previous?.profile.tagPropsMode === profile.tagPropsMode
+            && previous?.profile.tagPropsMain === profile.tagPropsMain;
         const fileVisibilityEqual = previous?.profile.fileVisibility === profile.fileVisibility;
         const navigationBanner = profile.navigationBanner ?? null;
         const navigationBannerEqual = previous?.navigationBanner === navigationBanner;
@@ -219,6 +225,7 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
             hiddenFilesEqual &&
             hiddenFileNamePatternsEqual &&
             hiddenTagsEqual &&
+            tagPropsEqual &&
             fileVisibilityEqual &&
             navigationBannerEqual &&
             nameEqual &&
@@ -234,6 +241,7 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
             hiddenFiles: profile.hiddenFiles,
             hiddenFileNamePatterns: profile.hiddenFileNamePatterns,
             hiddenTags: profile.hiddenTags,
+            tagProps: profile.tagProps,
             fileVisibility: profile.fileVisibility,
             navigationBanner
         };
